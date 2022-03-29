@@ -1,0 +1,4 @@
+<p>contract-asset-balance works!</p>
+
+<cui-table *ngIf="cabTableData.length" [options]="tableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
+<cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" (onPageChanged)="onPageUpdated($event)"></cui-pager>

@@ -1,0 +1,10 @@
+{
+    "DATABASE_NAME": "local",
+    "DATABASE_URL":"jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/DV1CG1,cn=OracleContext,dc=cisco,dc=com",
+    "DATABASE_USERNAME":"XXCFIRW",
+    "DATABASE_PASSWORD":"Na6K3k6F",
+    "RDAC_OSUSER": "",
+    "CAB_QUERY": "select * from apps.xxcfir_accrual_bdom_16mar where BALANCE_AMOUNT_USD < -1 or BALANCE_AMOUNT_USD >1 and org_id<>3563 and bdom_date>trunc(sysdate) order by :orderby",
+    "CAB_QUERY_PAGE" : "select * from apps.xxcfir_accrual_bdom_16mar where BALANCE_AMOUNT_USD < -1 or BALANCE_AMOUNT_USD >1 and org_id<>3563 and bdom_date>trunc(sysdate) order by :orderby offset :offset rows fetch next :fetch rows only",
+    "CAB_DETAILS_QUERY" : "select 1 from dual"
+}
