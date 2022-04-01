@@ -8,6 +8,9 @@ import { ApiHttpService } from '../services/http.service';
   styleUrls: ['./contract-asset-balance.component.css']
 })
 export class ContractAssetBalanceComponent implements OnInit {  
+  @ViewChild('viewDetails', { static: true })
+  viewDetailsTemplate!: TemplateRef<any>;
+  
   tableOptions!: CuiTableOptions;
   cabTableData: any[] = [];
 
@@ -27,14 +30,17 @@ export class ContractAssetBalanceComponent implements OnInit {
   }
 
   getContractAssetBalance(): void {
-    this.http.get('contract-asset-balance').subscribe((data: any) => {
-      this.cabTableData = data;
-
-      // cabColumns.push(new CuiTableColumnOption({
-        
-      // }))
+    this.http.get('contract-asset-balance', {observe: 'response'}).subscribe((data: any) => {
+      console.log(data.headers);
+      this.cabTableData = data.body;
+      console.log(this.cabTableData);
+      
       let cabColumns: CuiTableColumnOption[] = [];
-      for (let column of Object.keys(data[0])) {
+      cabColumns.push(new CuiTableColumnOption({
+        name: '',
+        template: this.viewDetailsTemplate
+      }));
+      for (let column of Object.keys(this.cabTableData[0])) {
         cabColumns.push(new CuiTableColumnOption({
           'name': column,
           'sortable': true,
@@ -45,7 +51,8 @@ export class ContractAssetBalanceComponent implements OnInit {
       this.tableOptions = new CuiTableOptions({
         bordered: true,
         striped: true,
-        columns: cabColumns
+        columns: cabColumns,
+        dynamicData: false
       });
     });
   }

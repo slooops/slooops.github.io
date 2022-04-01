@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200") //TODO variable
+@CrossOrigin(origins = "${CORS_URL}")
 @RequestMapping("/api")
 public class ContractAssetBalanceController {
 
