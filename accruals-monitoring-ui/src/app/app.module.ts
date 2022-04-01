@@ -8,13 +8,17 @@ import { HealthComponent } from './health/health.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ContractAssetBalanceComponent } from './contract-asset-balance/contract-asset-balance.component';
 import { CuiPagerModule, CuiTableModule } from '@cisco-ngx/cui-components';
+import { ExceptionReportComponent } from './exception-report/exception-report.component';
+import { DailyMonitoringComponent } from './daily-monitoring/daily-monitoring.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HealthComponent,
     DashboardComponent,
-    ContractAssetBalanceComponent
+    ContractAssetBalanceComponent,
+    ExceptionReportComponent,
+    DailyMonitoringComponent
   ],
   imports: [
     BrowserModule,

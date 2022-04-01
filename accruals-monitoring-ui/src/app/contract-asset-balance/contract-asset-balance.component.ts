@@ -29,6 +29,10 @@ export class ContractAssetBalanceComponent implements OnInit {
   getContractAssetBalance(): void {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableData = data;
+
+      // cabColumns.push(new CuiTableColumnOption({
+        
+      // }))
       let cabColumns: CuiTableColumnOption[] = [];
       for (let column of Object.keys(data[0])) {
         cabColumns.push(new CuiTableColumnOption({
