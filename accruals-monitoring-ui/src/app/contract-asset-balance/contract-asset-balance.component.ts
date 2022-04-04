@@ -1,6 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components';
-import { ApiHttpService } from '../services/http.service';
+import { AppConfigService } from '../providers/app-config.service';
+import { ApiHttpService } from '../providers/http.service';
 
 @Component({
   selector: 'app-contract-asset-balance',
@@ -13,11 +14,12 @@ export class ContractAssetBalanceComponent implements OnInit {
   
   tableOptions!: CuiTableOptions;
   cabTableData: any[] = [];
+  hostUrl!: string;
 
   offset = 0;
   limit = 10;
   size = 0;
-  constructor(private http: ApiHttpService) { }
+  constructor(private http: ApiHttpService, private config: AppConfigService) { }
 
   ngOnInit(): void {
     this.getContractAssetBalance();
@@ -30,31 +32,34 @@ export class ContractAssetBalanceComponent implements OnInit {
   }
 
   getContractAssetBalance(): void {
-    this.http.get('contract-asset-balance', {observe: 'response'}).subscribe((data: any) => {
-      console.log(data.headers);
-      this.cabTableData = data.body;
-      console.log(this.cabTableData);
-      
-      let cabColumns: CuiTableColumnOption[] = [];
-      cabColumns.push(new CuiTableColumnOption({
-        name: '',
-        template: this.viewDetailsTemplate
-      }));
-      for (let column of Object.keys(this.cabTableData[0])) {
+    this.config.getConfig().subscribe((config: any) => {
+      this.hostUrl = config.api_url;
+      this.http.get(this.hostUrl + 'contract-asset-balance').subscribe((data: any) => {
+        this.cabTableData = data;
+        console.log(this.cabTableData);
+        
+        let cabColumns: CuiTableColumnOption[] = [];
         cabColumns.push(new CuiTableColumnOption({
-          'name': column,
-          'sortable': true,
-          'key': column
+          name: '',
+          template: this.viewDetailsTemplate
         }));
-      }
-      this.size = this.cabTableData.length;
-      this.tableOptions = new CuiTableOptions({
-        bordered: true,
-        striped: true,
-        columns: cabColumns,
-        dynamicData: false
+        for (let column of Object.keys(this.cabTableData[0])) {
+          cabColumns.push(new CuiTableColumnOption({
+            'name': column,
+            'sortable': true,
+            'key': column
+          }));
+        }
+        this.size = this.cabTableData.length;
+        this.tableOptions = new CuiTableOptions({
+          bordered: true,
+          striped: true,
+          columns: cabColumns,
+          dynamicData: false
+        });
       });
     });
+    
   }
 
 }

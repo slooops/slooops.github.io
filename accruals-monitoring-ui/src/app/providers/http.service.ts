@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from "src/environments/environment";
+import { AppConfigService } from './app-config.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
 
-  hostUrl: string = environment.apiHost;
+  hostUrl: string = '';
 
   constructor (
-    private http: HttpClient
-  ) {}
+    private http: HttpClient, private config: AppConfigService
+  ) {
+  }
 
   public getHostUrl(): string {
-    console.log(environment.apiHost);
-    return environment.apiHost;
+    return this.hostUrl;
 }
 
   public get(url: string, options?: any) {
+    console.log("GET: " + this.hostUrl + url);
     return this.http.get(this.hostUrl + url, options);
   }
 

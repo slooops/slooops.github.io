@@ -3,4 +3,4 @@
 <cui-table *ngIf="cabTableData.length" [options]="tableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
 <cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 
-<ng-template #viewDetails><span>View Details</span></ng-template>
+<ng-template #viewDetails><span><a>View Details</a></span></ng-template>
