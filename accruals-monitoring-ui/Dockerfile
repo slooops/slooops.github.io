@@ -8,7 +8,7 @@ COPY . /ui
 
 RUN npm install --legacy-peer-deps
 RUN npm install -g @angular/cli --legacy-peer-deps
-RUN ng add @cisco/cui-ng
+RUN ng add @cisco/cui-ng --skip-confirmation
 
 EXPOSE 4200
 
