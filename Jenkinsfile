@@ -40,6 +40,7 @@ pipeline {
          */
         stage ('Pre-Build') {
             steps {
+				sh "printenv"
                 notifyBuildStart()
                 }
         }/* In this stage, the code is being built/compiled, and the Docker image is being created and tagged.
