@@ -40,7 +40,6 @@ pipeline {
          */
         stage ('Pre-Build') {
             steps {
-				sh "printenv"
                 notifyBuildStart()
                 }
         }/* In this stage, the code is being built/compiled, and the Docker image is being created and tagged.
@@ -63,7 +62,7 @@ pipeline {
 				// Run the docker build command and tag the image with the git commit ID
 				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
 				*/
-
+			sh "printenv"
 			sh "docker build -t $DOCKER_REPO-ui:$COMMIT_ID ./accruals-monitoring-ui"
 			sh "docker build -t $DOCKER_REPO-server:$COMMIT_ID ./accruals-monitoring-server"
 
