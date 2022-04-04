@@ -62,6 +62,8 @@ pipeline {
 				// Run the docker build command and tag the image with the git commit ID
 				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
 				*/
+
+			sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
 			
 			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/ui:$GIT_COMMIT ./accruals-monitoring-ui"
 			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/server:$GIT_COMMIT ./accruals-monitoring-server"
