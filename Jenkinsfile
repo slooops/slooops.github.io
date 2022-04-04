@@ -63,8 +63,8 @@ pipeline {
 				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
 				*/
 			sh "printenv"
-			sh "docker build -t $DOCKER_REPO-ui:$COMMIT_ID ./accruals-monitoring-ui"
-			sh "docker build -t $DOCKER_REPO-server:$COMMIT_ID ./accruals-monitoring-server"
+			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/ui:$GIT_COMMIT ./accruals-monitoring-ui"
+			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/server:$GIT_COMMIT ./accruals-monitoring-server"
 
             }
 
