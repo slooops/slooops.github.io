@@ -16,7 +16,7 @@ pipeline {
     
     tools {
         maven 'Maven-3.3.1'
-	jdk 'JDK_11.0.3'
+		jdk 'JDK_11.0.3'
     }
     
     
@@ -118,27 +118,6 @@ pipeline {
                 
                 
                 stage ('Test/Sonar') {
-                    
-/*
-	* Go
-	
-					steps {
-						sh 'docker run --rm -e "GOPATH=/gopath" -v $GOROOT:/gopath -v $(pwd):/app containers.cisco.com/pipeline-test-tools/go-test-tools:0.2.2'
-
-						sh '''sed -i 's|"gitscm.cisco.com/rev_accruals_monitoring/rev-accruals-monitoring"|"'"$(pwd)"'"|' report.json'''
-
-						sonarScan('Sonar')
-					}
-
-
-					// Make test results visible in Jenkins UI if the install step completed successfully
-					post {
-						success {
-							junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
-						}
-					}
-
-	* Java
 		
 					steps {
 
@@ -155,63 +134,6 @@ pipeline {
 							junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
 						}
 					}
-
-	* Python
-	
-					steps {
-						// This specific examples expects that you have a Dockerfile.test that you build, then run to generate test results.
-						// Since different projects can vary however, you should make sure you use the solution that works best for you.
-						sh "docker build . -f Dockerfile.test -t python-test:${BUILD_ID}"
-
-						sh '''docker run -u 50001255:25 -v "$(pwd)":/app python-test:${BUILD_ID}'''
-						sh '''sed -i 's|filename="|filename="'"$(pwd)"'/|' coverage.xml'''
-
-						sonarScan('Sonar')
-					}
-
-					// Make test results visible in Jenkins UI if the install step completed successfully
-					post {
-						success {
-							junit testResults: 'nosetests.xml', allowEmptyResults: true
-						}
-					}
-
-	* Node
-	
-					
-					steps {
-
-						// This particular implementation uses a Dockerfile called Dockerfile.test. When built, then run, it should output the test and coverage results
-						// to a directory called "target". This may differ depending on how you choose to set up your tests.
-						sh '''docker build . -f Dockerfile.test -t rev-accruals-monitoring:${BUILD_ID}'''
-						sh "rm -rf target && mkdir target"
-
-						// The '-u 50001255:25' flag is important here, it ensures that the docker container will create the files with the correct permissions
-						sh '''docker run --rm -u 50001255:25 \
-							-v "$PWD"/target:/usr/src/app/target \
-							rev-accruals-monitoring:${BUILD_ID}
-						'''
-
-						// Removing the image to help free up space, as we will not need it for subsequent builds
-						sh '''docker rmi rev-accruals-monitoring:${BUILD_ID}'''
-                        sh '''sed -i "s|SF:/.*/app|SF:app|g" target/coverage/lcov.info'''
-						// Run your sonar scan and upload results to your specific SonarQube instance, in this case, an instance simply titled 'Sonar'
-						// IMPORTANT: Make sure you update this to use the SonarQube instance for your Jenkins master. If you are not sure what that is,
-						// ask your Jenkins admin.
-						sonarScan('Sonar')
-					}
-
-
-					// Make test results visible in Jenkins UI if the install step completed successfully
-					post {
-						success {
-							junit testResults: 'target/test-results.xml', allowEmptyResults: true
-						}
-					}
-
-	* Uncomment the appropriate section based on the language you want to use
-
-*/
                 }
                 
                 /* You can use these stages if you would like to deploy to different dev environments depending on the current branch.
