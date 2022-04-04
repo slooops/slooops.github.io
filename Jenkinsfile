@@ -87,7 +87,8 @@ pipeline {
 				// You can change the credentials used by using the 'authId' parameter.
 				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
 				//dockerPush()
-				sh "docker push containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring"
+				sh "docker push containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/ui"
+				sh "docker push containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/server"
 				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
 				// 'CoDE:ContainerHub' bot
 				notifyDocker()
