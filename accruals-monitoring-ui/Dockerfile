@@ -4,8 +4,8 @@ WORKDIR /ui
 
 ENV PATH /ui/node_modules/.bin:$PATH
 
-COPY .npmrc /ui/,npmrc
-COPY package.json /ui/package,json
+COPY .npmrc /ui/.npmrc
+COPY package.json /ui/package.json
 COPY angular.json /app/angular.json
 
 RUN npm install
