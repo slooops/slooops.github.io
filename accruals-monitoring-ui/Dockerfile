@@ -9,6 +9,7 @@ COPY package.json /ui/package.json
 COPY angular.json /app/angular.json
 
 RUN npm install --legacy-peer-deps
+RUN npm install -g @angular/cli --legacy-peer-deps
 RUN ng add @cisco/cui-ng
 
 EXPOSE 4200
