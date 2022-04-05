@@ -154,23 +154,24 @@ pipeline {
                         
                         // This step will automatically include the docker image stored in env $DOCKER_PUSH_TAG, or you can specify the image
                         // parameter to this step to manually indicate the image.
-                        
+                        sh "export DOCKER_IMAGE=ui-$GIT_COMMIT"
+
                         triggerSpinnakerDevDeployment(
 
                             // The dev environments we are deploying to
                             environments: [
                                 "dev",
-                            ],
-                            dockerImage: ["ui-$GIT_COMMIT"]
+                            ]
                         )  
 
+                        sh "export DOCKER_IMAGE=server-$GIT_COMMIT"
+
                         triggerSpinnakerDevDeployment(
 
                             // The dev environments we are deploying to
                             environments: [
                                 "dev",
-                            ],
-                            dockerImage: ["server-$GIT_COMMIT" ]
+                            ]
                         )                          
                     }
                 }
