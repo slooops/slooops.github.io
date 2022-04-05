@@ -65,8 +65,8 @@ pipeline {
 
 			sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
 			
-			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/ui:$GIT_COMMIT ./accruals-monitoring-ui"
-			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/server:$GIT_COMMIT ./accruals-monitoring-server"
+			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT ./accruals-monitoring-ui"
+			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT ./accruals-monitoring-server"
 
             }
 
@@ -87,8 +87,7 @@ pipeline {
 				// You can change the credentials used by using the 'authId' parameter.
 				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
 				//dockerPush()
-				sh "docker push containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/ui"
-				sh "docker push containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring/server"
+				sh "docker push containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring"
 				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
 				// 'CoDE:ContainerHub' bot
 				notifyDocker()
@@ -125,7 +124,7 @@ pipeline {
 					steps {
 
 						// Run your unit tests and prepare SonarQube output
-						sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
+						sh "mvn -f ./accruals-monitoring-server/ org.jacoco:jacoco-maven-plugin:prepare-agent test"
 
 						sonarScan('Sonar')
 					}

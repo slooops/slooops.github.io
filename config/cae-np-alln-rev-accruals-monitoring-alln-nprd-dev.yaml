@@ -62,7 +62,7 @@ spec:
         softwareName: 'rev-accruals-monitoring'
     spec:
       containers:
-      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring/ui'
+      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-${trigger["parameters"]["imageTag"]}'
         imagePullPolicy: IfNotPresent
         name: 'rev-accruals-monitoring'
         ports:
@@ -101,7 +101,7 @@ spec:
         softwareName: 'rev-accruals-monitoring'
     spec:
       containers:
-      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring/server'
+      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-${trigger["parameters"]["imageTag"]}'
         imagePullPolicy: IfNotPresent
         name: 'rev-accruals-monitoring'
         ports:
