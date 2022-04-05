@@ -48,26 +48,11 @@ pipeline {
          */   
         stage ('Build Server') {
             steps {
-		/*
-			dir("accruals-monitoring-ui")
-				sh "pwd"
-				// Run the docker build command and tag the image with the git commit ID
-				// dockerBuild()
-				sh "docker build . -f Dockerfile"
-				tagDocker($DOCKER_REPO:$COMMIT_ID-ui)	
-			dir("../accruals-monitoring-server")
-				sh "pwd"
-				sh "mvn -DskipTests clean package"
-				sh "docker build -f Dockerfile --build-arg ARTIFACT_NAME=sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")
-				tagDocker($DOCKER_REPO:$COMMIT_ID-server)
-				// Run the docker build command and tag the image with the git commit ID
-				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
-				*/
-
-                dir("accruals-monitoring-server")
-                sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
-                dockerBuild()
-                tagDocker("server-$GIT_COMMIT")
+                dir("accruals-monitoring-server") {
+                    sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
+                    dockerBuild()
+                    tagDocker("server-$GIT_COMMIT")
+                }
 
             }
 
@@ -76,9 +61,10 @@ pipeline {
         stage("Build UI") {
             steps {
                 sh "pwd"
-                dir("accruals-monitoring-ui")
-                dockerBuild()
-                tagDocker("ui-$GIT_COMMIT")
+                dir("accruals-monitoring-ui"){
+                    dockerBuild()
+                    tagDocker("ui-$GIT_COMMIT")
+                }
             }
         }
 
