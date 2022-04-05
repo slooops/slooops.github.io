@@ -50,7 +50,7 @@ pipeline {
                 dir("accruals-monitoring-server") {
                     sh "mvn -DskipTests clean package"
                     dockerBuild()
-                    tagDocker("server-$GIT_COMMIT")
+                    sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT" 
                 }
 
             }
@@ -62,7 +62,7 @@ pipeline {
                 sh "pwd"
                 dir("accruals-monitoring-ui"){
                     dockerBuild()
-                    tagDocker("ui-$GIT_COMMIT")
+                    sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT" 
                 }
             }
         }
@@ -82,7 +82,9 @@ pipeline {
 				// You can change the credentials used by using the 'authId' parameter.
 				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
 				//dockerPush()
-				dockerPush()
+				dockerPush(
+                    image: ["containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"]
+                )
 				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
 				// 'CoDE:ContainerHub' bot
 				notifyDocker()
