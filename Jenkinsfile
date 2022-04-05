@@ -165,17 +165,17 @@ pipeline {
                             // The dev environments we are deploying to
                             environments: [
                                 "dev",
-                            ]
-                            dockerImage: "ui-$GIT_COMMIT" 
+                            ],
+                            dockerImage: ["ui-$GIT_COMMIT"]
                         )  
-                        
+
                         triggerSpinnakerDevDeployment(
 
                             // The dev environments we are deploying to
                             environments: [
                                 "dev",
-                            ]
-                            dockerImage: "server-$GIT_COMMIT" 
+                            ],
+                            dockerImage: ["server-$GIT_COMMIT" ]
                         )                          
                     }
                 }
