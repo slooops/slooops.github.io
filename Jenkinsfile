@@ -64,10 +64,10 @@ pipeline {
 				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
 				*/
 
-			dir("accruals/monitoring-server")
-            sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
-			dockerBuild()
-            tagDocker("server-$GIT_COMMIT")
+                dir("accruals/monitoring-server")
+                sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
+                dockerBuild()
+                tagDocker("server-$GIT_COMMIT")
 
             }
 
@@ -89,7 +89,7 @@ pipeline {
          */
         stage ('Push') {
             steps {
-			sh "pwd"    
+			    sh "pwd"    
                 
 				// Authenticates with your remote Docker Repository, and pushes the value of "$DOCKER_PUSH_TAG",
 				// which will exist if you used 'tagDocker' to tag your image, or set it manually. If you have done neither,
@@ -105,72 +105,20 @@ pipeline {
             }
         }
         
-
-        
-
-        /* In this stage, we're running several different sub-stages in parallel. This speeds up job time by running many different
-         * steps (that don't necessarily need to be run in sequence) at the same time, speeding up your job runtime.
-         */stage ('QA/Deployment') {
-            // Run these stages in parallel
-            parallel {
-
-                /* This stage simply runs your Static Security Scan. Uncomment it and include your stack name to use it.
-                 */
-                /*stage ('Static Security Scan') {
-                    steps {
-                        // Behaves exactly like the Static Security Scan step you know and love in your Maven and Freestyle jobs.
-                        // scavaSecurityScan(webexTeamsId: "$WEBEX_TEAMS_ROOM_ID")
-                    }
-
-                }*/
-
-                /* This steps runs your unit tests, and your SonarQube scan.
-                 * This stage may vary heavily depending on your project language and structure.
-                 */
+        stage ('Deploy All') {
+            steps {
                 
-                /*
-                stage ('Test/Sonar') {
-		
-					steps {
-
-						// Run your unit tests and prepare SonarQube output
-						//sh "mvn -f ./accruals-monitoring-server/ org.jacoco:jacoco-maven-plugin:prepare-agent test"
-
-						//sonarScan('Sonar')
-					}
-
-
-					
-                }*/
                 
-                /* You can use these stages if you would like to deploy to different dev environments depending on the current branch.
-                 * To use this, simply uncomment the blocks, and add the branch pattern (ANT style path glob). Make sure you remove the 
-                 * "Deploy All" stage as well, or you will do the deployments twice.
-                 */
-                /*stage ('Deploy Dev') {
-                    when { branch "feature/*" }
-                    steps {
-                        triggerSpinnakerDevDeployment(environments: ["dev"])
-                    }
-                }*/
+                // This step will automatically include the docker image stored in env $DOCKER_PUSH_TAG, or you can specify the image
+                // parameter to this step to manually indicate the image.
+            
+                triggerSpinnakerDevDeployment(
 
-                
-
-                stage ('Deploy All') {
-                    steps {
-                        
-                        
-                        // This step will automatically include the docker image stored in env $DOCKER_PUSH_TAG, or you can specify the image
-                        // parameter to this step to manually indicate the image.
-                    
-                        triggerSpinnakerDevDeployment(
-
-                            // The dev environments we are deploying to
-                            environments: [
-                                "dev",
-                            ]
-                        )  
-                }
+                    // The dev environments we are deploying to
+                    environments: [
+                        "dev",
+                    ]
+                )  
             }
         }
     }
