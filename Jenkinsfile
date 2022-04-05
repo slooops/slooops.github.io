@@ -40,7 +40,6 @@ pipeline {
          */
         stage ('Pre-Build') {
             steps {
-                sh "export DOCKER_REGISTRY_URL=containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
                 notifyBuildStart()
                 }
         }/* In this stage, the code is being built/compiled, and the Docker image is being created and tagged.
@@ -49,7 +48,7 @@ pipeline {
         stage ('Build Server') {
             steps {
                 dir("accruals-monitoring-server") {
-                    sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
+                    sh "mvn -DskipTests clean package"
                     dockerBuild()
                     tagDocker("server-$GIT_COMMIT")
                 }
