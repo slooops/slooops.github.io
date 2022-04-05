@@ -65,6 +65,8 @@ pipeline {
 
 			sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
 			
+            sh "export DOCKER_REGISTRY_URL=containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
+
 			sh "docker build -t containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT ./accruals-monitoring-ui"
 			sh "docker build -t containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT ./accruals-monitoring-server"
 
@@ -126,7 +128,7 @@ pipeline {
 						// Run your unit tests and prepare SonarQube output
 						//sh "mvn -f ./accruals-monitoring-server/ org.jacoco:jacoco-maven-plugin:prepare-agent test"
 
-						sonarScan('Sonar')
+						//sonarScan('Sonar')
 					}
 
 
@@ -163,10 +165,18 @@ pipeline {
                             // The dev environments we are deploying to
                             environments: [
                                 "dev",
-                            ],
+                            ]
+                            dockerImage: "ui-$GIT_COMMIT" 
+                        )  
+                        
+                        triggerSpinnakerDevDeployment(
 
-                            
-                        )                        
+                            // The dev environments we are deploying to
+                            environments: [
+                                "dev",
+                            ]
+                            dockerImage: "server-$GIT_COMMIT" 
+                        )                          
                     }
                 }
             }
