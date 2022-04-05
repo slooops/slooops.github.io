@@ -120,7 +120,7 @@ pipeline {
                  * This stage may vary heavily depending on your project language and structure.
                  */
                 
-                
+                /*
                 stage ('Test/Sonar') {
 		
 					steps {
@@ -132,13 +132,8 @@ pipeline {
 					}
 
 
-					// Make test results visible in Jenkins UI if the install step completed successfully
-					post {
-						success {
-							junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
-						}
-					}
-                }
+					
+                }*/
                 
                 /* You can use these stages if you would like to deploy to different dev environments depending on the current branch.
                  * To use this, simply uncomment the blocks, and add the branch pattern (ANT style path glob). Make sure you remove the 
