@@ -64,7 +64,7 @@ pipeline {
 				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
 				*/
 
-                dir("accruals/monitoring-server")
+                dir("accruals-monitoring-server")
                 sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
                 dockerBuild()
                 tagDocker("server-$GIT_COMMIT")
