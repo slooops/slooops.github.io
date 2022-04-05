@@ -50,7 +50,7 @@ spec:
   selector:
     matchLabels:
       app: 'rev-accruals-monitoring-ui'
-  replicas: 1
+  replicas: 0
   template:
     metadata:
       namespace: 'rev-accruals-monitoring-alln-nprd'
@@ -148,7 +148,7 @@ spec:
               key: osuser
               name: rdac
         image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-${trigger["parameters"]["imageTag"]}'
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
       imagePullSecrets:

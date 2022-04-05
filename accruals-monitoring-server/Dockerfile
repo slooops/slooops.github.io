@@ -14,6 +14,6 @@ RUN chown -R rev:rev $APP_HOME
 RUN chmod -R 777 $APP_HOME
 
 WORKDIR $APP_HOME
-ENTRYPOINT [ "java" , "-jar" , "server/accruals-monitoring-server.jar", "&" ]
+ENTRYPOINT [ "java" , "-jar" , "accruals-monitoring-server.jar", "&" ]
 
 
