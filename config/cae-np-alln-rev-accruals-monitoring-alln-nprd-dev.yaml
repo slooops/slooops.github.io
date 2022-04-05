@@ -17,7 +17,7 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-      app: 'rev-accruals-monitoring'
+      app: 'rev-accruals-monitoring-server'
   type: ClusterIP
 ---
 
@@ -28,7 +28,7 @@ metadata:
   namespace: 'rev-accruals-monitoring-alln-nprd'
   labels:
     softwareId: '4c8aa5a11afc21fd32eb843f4f125c3e771d6816'
-    softwareName: 'rev-accruals-monitoring'
+    softwareName: 'rev-accruals-monitoring-ui'
 spec:
   ports:
     - name: "ui"
@@ -50,13 +50,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: 'rev-accruals-monitoring'
+      app: 'rev-accruals-monitoring-ui'
   replicas: 1
   template:
     metadata:
       namespace: 'rev-accruals-monitoring-alln-nprd'
       labels:
-        app: 'rev-accruals-monitoring'
+        app: 'rev-accruals-monitoring-ui'
         environment: 'dev'
         softwareId: '4c8aa5a11afc21fd32eb843f4f125c3e771d6816'
         softwareName: 'rev-accruals-monitoring'
@@ -89,21 +89,67 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: 'rev-accruals-monitoring'
+      app: 'rev-accruals-monitoring-server'
   replicas: 1
   template:
     metadata:
       namespace: 'rev-accruals-monitoring-alln-nprd'
       labels:
-        app: 'rev-accruals-monitoring'
+        app: 'rev-accruals-monitoring-server'
         environment: 'dev'
         softwareId: '4c8aa5a11afc21fd32eb843f4f125c3e771d6816'
         softwareName: 'rev-accruals-monitoring'
     spec:
       containers:
-      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-${trigger["parameters"]["imageTag"]}'
+      - name: 'rev-accruals-monitoring-server'
+        env:
+        - name: DATABASE_NAME
+          valueFrom: 
+            configMapKeyRef:
+              key: db.name
+              name: db-properties
+        - name: DATABASE_URL
+          valueFrom: 
+            configMapKeyRef:
+              key: db.url
+              name: db-properties
+        - name: CAB_QUERY
+          valueFrom: 
+            configMapKeyRef:
+              key: cab.query
+              name: db-properties
+        - name: CAB_QUERY_PAGE
+          valueFrom: 
+            configMapKeyRef:
+              key: cab.query.page
+              name: db-properties
+        - name: CAB_DETAILS_QUERY
+          valueFrom: 
+            configMapKeyRef:
+              key: cab.details.query
+              name: db-properties
+        - name: CORS_URL
+          valueFrom: 
+            configMapKeyRef:
+              key: cors.url
+              name: server-properties
+        - name: DATABASE_USERNAME
+          valueFrom: 
+            secretKeyRef:
+              key: username
+              name: db-credentials
+        - name: DATABASE_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              key: password
+              name: db-credentials
+        - name: RDAC_OSUSER
+          valueFrom: 
+            secretKeyRef:
+              key: osuser
+              name: rdac
+        image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-${trigger["parameters"]["imageTag"]}'
         imagePullPolicy: IfNotPresent
-        name: 'rev-accruals-monitoring'
         ports:
         - containerPort: 8080
       imagePullSecrets:
