@@ -83,7 +83,7 @@ pipeline {
 				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
 				//dockerPush()
 				dockerPush(
-                    image: ["containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"]
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
                 )
 				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
 				// 'CoDE:ContainerHub' bot
