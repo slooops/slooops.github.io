@@ -40,12 +40,13 @@ pipeline {
          */
         stage ('Pre-Build') {
             steps {
+                sh "export DOCKER_REGISTRY_URL=containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
                 notifyBuildStart()
                 }
         }/* In this stage, the code is being built/compiled, and the Docker image is being created and tagged.
          * Tests shouldn't been run in this stage, in order to speed up time to deployment.
          */   
-        stage ('Build') {
+        stage ('Build Server') {
             steps {
 		/*
 			dir("accruals-monitoring-ui")
@@ -63,15 +64,22 @@ pipeline {
 				// dockerBuild(buildArgs: ["ARTIFACT_NAME": sh(returnStdout: true, script: "find target -name *.jar | tr -d '\n'")])
 				*/
 
-			sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
-			
-            sh "export DOCKER_REGISTRY_URL=containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
-
-			sh "docker build -t containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT ./accruals-monitoring-ui"
-			sh "docker build -t containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT ./accruals-monitoring-server"
+			dir("accruals/monitoring-server")
+            sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
+			dockerBuild()
+            tagDocker("server-$GIT_COMMIT")
 
             }
 
+        }
+
+        stage("Build UI") {
+            steps {
+                sh "pwd"
+                dir("accruals-monitoring-ui")
+                dockerBuild()
+                tagDocker("ui-$GIT_COMMIT")
+            }
         }
 
         
@@ -89,7 +97,7 @@ pipeline {
 				// You can change the credentials used by using the 'authId' parameter.
 				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
 				//dockerPush()
-				sh "docker push containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
+				dockerPush()
 				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
 				// 'CoDE:ContainerHub' bot
 				notifyDocker()
@@ -154,8 +162,7 @@ pipeline {
                         
                         // This step will automatically include the docker image stored in env $DOCKER_PUSH_TAG, or you can specify the image
                         // parameter to this step to manually indicate the image.
-                        sh "export DOCKER_IMAGE=ui-$GIT_COMMIT"
-
+                    
                         triggerSpinnakerDevDeployment(
 
                             // The dev environments we are deploying to
@@ -163,17 +170,6 @@ pipeline {
                                 "dev",
                             ]
                         )  
-
-                        sh "export DOCKER_IMAGE=server-$GIT_COMMIT"
-
-                        triggerSpinnakerDevDeployment(
-
-                            // The dev environments we are deploying to
-                            environments: [
-                                "dev",
-                            ]
-                        )                          
-                    }
                 }
             }
         }
