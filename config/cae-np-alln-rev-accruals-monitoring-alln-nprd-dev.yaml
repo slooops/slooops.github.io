@@ -20,7 +20,6 @@ spec:
       app: 'rev-accruals-monitoring-server'
   type: ClusterIP
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
