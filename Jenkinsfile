@@ -65,8 +65,8 @@ pipeline {
 
 			sh "mvn -DskipTests -f ./accruals-monitoring-server/ clean package"
 			
-			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT ./accruals-monitoring-ui"
-			sh "docker build -t containers.cisco.com/repository/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT ./accruals-monitoring-server"
+			sh "docker build -t containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT ./accruals-monitoring-ui"
+			sh "docker build -t containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT ./accruals-monitoring-server"
 
             }
 
