@@ -16,5 +16,5 @@ EXPOSE 4200
 
 USER 1000
 
-ENTRYPOINT ["ng" , "serve"]
+CMD ng serve --host 0.0.0.0
 
