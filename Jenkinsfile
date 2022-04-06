@@ -57,22 +57,7 @@ pipeline {
 
         }
 
-        stage("Build UI") {
-            steps {
-                sh "pwd"
-                dir("accruals-monitoring-ui"){
-                    dockerBuild()
-                    sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT" 
-                }
-            }
-        }
-
-        
-
-        
-        /* In this stage, built images are being pushed
-         */
-        stage ('Push') {
+        stage ('Push Server') {
             steps {
 			    sh "pwd"    
                 
@@ -83,7 +68,7 @@ pipeline {
 				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
 				//dockerPush()
 				dockerPush(
-                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring"
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT"
                 )
 				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
 				// 'CoDE:ContainerHub' bot
@@ -91,8 +76,8 @@ pipeline {
                 
             }
         }
-        
-        stage ('Deploy All') {
+
+        stage ('Deploy Server') {
             steps {
                 
                 
@@ -100,7 +85,7 @@ pipeline {
                 // parameter to this step to manually indicate the image.
             
                 triggerSpinnakerDevDeployment(
-
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT"
                     // The dev environments we are deploying to
                     environments: [
                         "dev",
@@ -108,6 +93,54 @@ pipeline {
                 )  
             }
         }
+
+        stage("Build UI") {
+            steps {
+                dir("accruals-monitoring-ui"){
+                    dockerBuild()
+                    sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT" 
+                }
+            }
+        }
+
+        stage ('Push UI') {
+            steps {
+			    sh "pwd"    
+                
+				// Authenticates with your remote Docker Repository, and pushes the value of "$DOCKER_PUSH_TAG",
+				// which will exist if you used 'tagDocker' to tag your image, or set it manually. If you have done neither,
+				// you can instead define your image using the 'image' parameter.
+				// You can change the credentials used by using the 'authId' parameter.
+				// The difference between this, and 'docker push $image', is that this handles 'docker login' for you.
+				//dockerPush()
+				dockerPush(
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT"
+                )
+				// Send Webex notification about docker push event status to the Webex room defined ID in the software details, using the
+				// 'CoDE:ContainerHub' bot
+				notifyDocker()
+                
+            }
+        }
+
+        stage ('Deploy Server') {
+            steps {
+                
+                
+                // This step will automatically include the docker image stored in env $DOCKER_PUSH_TAG, or you can specify the image
+                // parameter to this step to manually indicate the image.
+            
+                triggerSpinnakerDevDeployment(
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT"
+                    // The dev environments we are deploying to
+                    environments: [
+                        "dev",
+                    ]
+                )  
+            }
+        }
+
+        
     }
     post {
         always {
