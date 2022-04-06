@@ -85,7 +85,7 @@ pipeline {
                 // parameter to this step to manually indicate the image.
             
                 triggerSpinnakerDevDeployment(
-                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT"
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
                         "dev",
@@ -131,7 +131,7 @@ pipeline {
                 // parameter to this step to manually indicate the image.
             
                 triggerSpinnakerDevDeployment(
-                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT"
+                    image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
                         "dev",
