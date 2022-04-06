@@ -123,7 +123,7 @@ pipeline {
             }
         }
 
-        stage ('Deploy Server') {
+        stage ('Deploy UI') {
             steps {
                 
                 
