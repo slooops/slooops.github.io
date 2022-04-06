@@ -88,7 +88,7 @@ pipeline {
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
-                        "dev",
+                        "dev-server",
                     ]
                 )  
             }
@@ -123,7 +123,7 @@ pipeline {
             }
         }
 
-        stage ('Deploy UI') {
+        stage ('Deploy All') {
             steps {
                 
                 
@@ -134,7 +134,7 @@ pipeline {
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
-                        "dev",
+                        "dev-ui",
                     ]
                 )  
             }

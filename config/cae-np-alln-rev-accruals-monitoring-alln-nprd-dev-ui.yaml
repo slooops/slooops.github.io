@@ -1,0 +1,56 @@
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: 'rev-accruals-ui-service'
+  namespace: 'rev-accruals-monitoring-alln-nprd'
+  labels:
+    softwareId: '4c8aa5a11afc21fd32eb843f4f125c3e771d6816'
+    softwareName: 'rev-accruals-monitoring-ui'
+spec:
+  ports:
+    - name: "ui"
+      protocol: "TCP"
+      port: 4200
+  selector:
+      app: 'rev-accruals-monitoring'
+  type: ClusterIP
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'rev-accruals-monitoring-ui'
+  namespace: 'rev-accruals-monitoring-alln-nprd'
+  labels:
+    softwareId: '4c8aa5a11afc21fd32eb843f4f125c3e771d6816'
+    softwareName: 'rev-accruals-monitoring'
+spec:
+  selector:
+    matchLabels:
+      app: 'rev-accruals-monitoring-ui'
+  replicas: 1
+  template:
+    metadata:
+      namespace: 'rev-accruals-monitoring-alln-nprd'
+      labels:
+        app: 'rev-accruals-monitoring-ui'
+        environment: 'dev'
+        softwareId: '4c8aa5a11afc21fd32eb843f4f125c3e771d6816'
+        softwareName: 'rev-accruals-monitoring'
+    spec:
+      containers:
+      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:ui-${trigger["parameters"]["imageTag"]}'
+        imagePullPolicy: IfNotPresent
+        name: 'rev-accruals-monitoring'
+        ports:
+        - containerPort: 4200
+        volumeMounts:
+            - name: env-config
+              mountPath: /ui/app-root/src/assets/config
+      imagePullSecrets:
+      - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+      volumes:
+        - configMap:
+            name: environment-config
+          name: env-config
