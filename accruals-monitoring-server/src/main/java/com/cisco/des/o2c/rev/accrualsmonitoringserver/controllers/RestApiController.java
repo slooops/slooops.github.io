@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "${CORS_URL}") //TODO variable
+@CrossOrigin(origins = "${CORS_URL}")
 public class RestApiController {
 
     @GetMapping("/health")
