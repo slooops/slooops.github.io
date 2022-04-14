@@ -18,6 +18,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                     if (!req.headers.has('Authorization')) {
 
                         if (token) {
+                            console.log('auth\'d up');
                             req = req.clone({ headers: req.headers.set('Authorization', 'Bearer ' + token) });
                         }
                         if (!req.headers.has('Content-Type') && req.url.indexOf('Attachment') === -1) {
@@ -26,6 +27,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
 
                         req = req.clone({ headers: req.headers.set('Accept', 'application/json') });
                     }
+                    
                     return next.handle(req);
                 })
             );

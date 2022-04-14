@@ -30,6 +30,7 @@ export class AuthenticationService {
   }
 
   async getTokens() {
+    console.log("getting new tokens");
     let authClientId = this.appConfig.getConfig().authClientId;
     let authClientSecret = this.appConfig.getConfig().authClientSecret;
     let ssoUrl = 'https://cloudsso.cisco.com';
