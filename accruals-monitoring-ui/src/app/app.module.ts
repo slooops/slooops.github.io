@@ -10,12 +10,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ContractAssetBalanceComponent } from './contract-asset-balance/contract-asset-balance.component';
 import { ExceptionReportComponent } from './exception-report/exception-report.component';
 import { DailyMonitoringComponent } from './daily-monitoring/daily-monitoring.component';
-import { AppConfigService } from './providers/app-config.service';
 
-export function initConfig(appConfig: AppConfigService) {
-  console.log("app module init");
-  return () => appConfig.loadConfig();
-}
 
 @NgModule({
   declarations: [
@@ -33,12 +28,7 @@ export function initConfig(appConfig: AppConfigService) {
     CuiTableModule,
     CuiPagerModule
   ],
-  providers: [{
-    provide: APP_INITIALIZER,
-    useFactory: initConfig,
-    deps: [AppConfigService],
-    multi:true
-  }],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

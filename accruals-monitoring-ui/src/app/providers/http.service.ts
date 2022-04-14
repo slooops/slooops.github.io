@@ -10,6 +10,7 @@ export class ApiHttpService {
   constructor (
     private http: HttpClient, private config: AppConfigService
   ) {
+    this.hostUrl = this.config.getApiUrl();
   }
 
   public getHostUrl(): string {
@@ -17,7 +18,7 @@ export class ApiHttpService {
 }
 
   public get(url: string, options?: any) {
-    console.log("GET: " + this.hostUrl + url);
+    console.log('host url: ',this.hostUrl);
     return this.http.get(this.hostUrl + url, options);
   }
 
