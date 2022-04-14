@@ -1,5 +1,5 @@
 {
     "api_url": "http://localhost:8080/api/" ,
-    "authClientId" : "" ,
-    "authClientSecret" : ""
+    "authClientId" : "test" ,
+    "authClientSecret" : "test"
 }
