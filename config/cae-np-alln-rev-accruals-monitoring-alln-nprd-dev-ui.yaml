@@ -46,7 +46,7 @@ spec:
         - containerPort: 4200
         volumeMounts:
             - name: env-config
-              mountPath: /ui/app-root/src/assets/config
+              mountPath: /ui/src/assets/config
       imagePullSecrets:
       - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
       volumes:
