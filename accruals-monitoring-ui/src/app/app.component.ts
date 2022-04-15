@@ -7,5 +7,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   constructor ( ) {}
-  title = 'accruals-monitoring-ui';
+  title = 'Revenue Accruals Dashboard';
+  inline = true;
+  alignment: 'left' | 'right' | 'center' = 'right';
+  tabIndex = 0;
 }

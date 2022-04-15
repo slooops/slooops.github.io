@@ -1,3 +1,23 @@
+<header class="header">
+    <div class="container">
+        <div class="header-panels">
+            <div class="header-panel">
+                <a class="header__logo" href="http://www.cisco.com" target="_blank">
+                    <span class="icon-cisco"></span>
+                </a>
+                <div class="header__title">Revenue Accruals Dashboard</div>
+            </div>
+            <cui-tabs-nav 
+                [inline]="inline" 
+                [alignment]="alignment"
+                [(activeTabIndex)]="tabIndex" >
+                <cui-tab-link [url]="['/dashboard']" [label] = "'Dashboard'"></cui-tab-link>
+                <cui-tab-link [url]="['/contract-asset-balance']" [label]="'Contract Asset Balance'"></cui-tab-link>
+                <cui-tab-link [url]="['/exception-report']" [label]="'Exception Report'"></cui-tab-link>
 
+            </cui-tabs-nav>
+        </div>
+   </div>
+</header>
 <h1><span>Welcome to {{title}}</span></h1>
 <router-outlet></router-outlet>

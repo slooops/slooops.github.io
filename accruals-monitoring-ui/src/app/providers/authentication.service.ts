@@ -33,8 +33,10 @@ export class AuthenticationService {
 
     const href = window.location.href;
     if (href.search('-dev') !== -1 || href.search('-ts1') !== -1 
-      || href.search('-ts3') !== -1 || href.search('localhost') !== -1) {
+      || href.search('-ts3') !== -1) {
       ssoUrl = 'https://cloudsso-test.cisco.com';
+    } else if (href.search('localhost') !== -1) {
+      ssoUrl = '';
     }
 
     const tokenSsoUrl = ssoUrl + '/as/token.oauth2';
@@ -63,7 +65,9 @@ export class AuthenticationService {
       return encodeURIComponent(key) + '=' + encodeURIComponent(dataJson[key]);
     }).join('&');
 
-    await this.postRequest(tokenSsoUrl, data);
+    if (ssoUrl) {
+      await this.postRequest(tokenSsoUrl, data);
+    }
 
   }
 
