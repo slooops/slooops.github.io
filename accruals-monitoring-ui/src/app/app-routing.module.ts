@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ContractAssetBalanceComponent } from './contract-asset-balance/contract-asset-balance.component';
-import { DailyMonitoringComponent } from './daily-monitoring/daily-monitoring.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExceptionReportComponent } from './exception-report/exception-report.component';
 import { HealthComponent } from './health/health.component';
@@ -11,7 +10,6 @@ const routes: Routes = [
   { path: 'health', component: HealthComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'contract-asset-balance', component: ContractAssetBalanceComponent },
-  { path: 'daily-monitoring', component: DailyMonitoringComponent },
   { path: 'exception-report', component: ExceptionReportComponent }
 ];
 

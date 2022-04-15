@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { HttpClient , HttpHeaders } from '@angular/common/http';
 import { AppConfigService } from './app-config.service';
 
 @Injectable({
@@ -12,8 +11,6 @@ export class AuthenticationService {
   async getValidToken() {
     const date = new Date();
     const timestampCurr = Math.floor(date.getTime() / 1000); /* current time seconds */
-    const accessToken = sessionStorage.getItem('accessToken');
-    const refreshToken = sessionStorage.getItem('refreshToken');
     const accessTokenExpire = parseInt(sessionStorage.getItem('accessTokenExpireTime') 
     || '0');
     const accessTokenExpireMax = accessTokenExpire + 3 * 60 * 60; /* 3 hours between cals -> logout */
@@ -30,7 +27,6 @@ export class AuthenticationService {
   }
 
   async getTokens() {
-    console.log("getting new tokens");
     let authClientId = this.appConfig.getConfig().authClientId;
     let authClientSecret = this.appConfig.getConfig().authClientSecret;
     let ssoUrl = 'https://cloudsso.cisco.com';

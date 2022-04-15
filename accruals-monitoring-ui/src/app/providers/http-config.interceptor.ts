@@ -9,7 +9,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     constructor(private auth: AuthenticationService) {}
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        console.log("intercepted");
         return from(this.auth.getValidToken())
             .pipe(
                 switchMap(inf => {
@@ -18,7 +17,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                     if (!req.headers.has('Authorization')) {
 
                         if (token) {
-                            console.log('auth\'d up');
                             req = req.clone({ headers: req.headers.set('Authorization', 'Bearer ' + token) });
                         }
                         if (!req.headers.has('Content-Type') && req.url.indexOf('Attachment') === -1) {

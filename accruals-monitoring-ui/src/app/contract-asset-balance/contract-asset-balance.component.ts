@@ -1,6 +1,5 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components';
-import { AppConfigService } from '../providers/app-config.service';
 import { ApiHttpService } from '../providers/http.service';
 
 
@@ -21,7 +20,7 @@ export class ContractAssetBalanceComponent implements OnInit {
   limit = 10;
   size = 0;
 
-  constructor(private http: ApiHttpService, private config: AppConfigService) { }
+  constructor(private http: ApiHttpService) { }
 
   ngOnInit(): void {
     this.getContractAssetBalance();
@@ -36,7 +35,6 @@ export class ContractAssetBalanceComponent implements OnInit {
   getContractAssetBalance(): void {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableData = data;
-      console.log(this.cabTableData);
       
       let cabColumns: CuiTableColumnOption[] = [];
       cabColumns.push(new CuiTableColumnOption({

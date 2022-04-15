@@ -18,7 +18,6 @@ export class ApiHttpService {
 }
 
   public get(url: string, options?: any) {
-    console.log('host url: ',this.hostUrl);
     return this.http.get(this.hostUrl + url, options);
   }
 

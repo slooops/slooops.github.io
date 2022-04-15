@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 declare var require: any;
@@ -9,10 +8,18 @@ var configJson: any = require('../../assets/config/config.json');
 })
 export class AppConfigService {
 
-  constructor(private http: HttpClient) {}
+  constructor() {}
 
   getApiUrl () : string {
     return configJson.api_url;
+  }
+
+  getAuthClientId(): string {
+    return configJson.authClientId
+  }
+
+  getAuthClientSecret(): string {
+    return configJson.authClientSecret;
   }
 
   getConfig() {
