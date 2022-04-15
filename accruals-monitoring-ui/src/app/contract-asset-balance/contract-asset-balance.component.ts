@@ -11,6 +11,8 @@ import { ApiHttpService } from '../providers/http.service';
 export class ContractAssetBalanceComponent implements OnInit {  
   @ViewChild('viewDetails', { static: true })
   viewDetailsTemplate!: TemplateRef<any>;
+  @ViewChild('viewComments', { static: true })
+  viewCommentsTemplate!: TemplateRef<any>;
   
   tableOptions!: CuiTableOptions;
   cabTableData: any[] = [];
@@ -48,6 +50,11 @@ export class ContractAssetBalanceComponent implements OnInit {
           'key': column
         }));
       }
+      cabColumns.push(new CuiTableColumnOption({
+        name: 'Comments',
+        template: this.viewCommentsTemplate
+      }));
+
       this.size = this.cabTableData.length;
       this.tableOptions = new CuiTableOptions({
         bordered: true,
