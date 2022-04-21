@@ -12,13 +12,20 @@ import java.util.Map;
 public class ContractAssetBalanceService {
 
     private JdbcManager jdbcManager;
+
+    private String schema;
+
+    private String catalogName;
     private String cabQuery;
     private String cabQueryPage;
     private String cabDetailsQuery;
 
     @Autowired
-    ContractAssetBalanceService(JdbcManager jdbcManager, String cabQuery, String cabQueryPage, String cabDetailsQuery) {
+    ContractAssetBalanceService(JdbcManager jdbcManager, String schema, String catalogName, String cabQuery,
+                                String cabQueryPage, String cabDetailsQuery) {
         this.jdbcManager = jdbcManager;
+        this.schema = schema;
+        this.catalogName = catalogName;
         this.cabQuery = cabQuery;
         this.cabQueryPage = cabQueryPage;
         this.cabDetailsQuery = cabDetailsQuery;
@@ -57,8 +64,12 @@ public class ContractAssetBalanceService {
         return jdbcManager.queryForListWithParams(cabQuery, params).size();
     }
 
-    public List<Map<String, Object>> getCabDetails(String id, Map<String, String> cabDetailsParams) {
-        cabDetailsParams.put("id", id);
-        return jdbcManager.queryForListWithParams(cabDetailsQuery, cabDetailsParams);
+    public List<Map<String, Object>> getCabDetails(int orgId, String subRefId, String itemName) {
+        Map<String, Object> cabDetailsParams = new HashMap<>();
+        cabDetailsParams.put("p_i_org_id", orgId);
+        cabDetailsParams.put("p_i_sub_ref_id", subRefId);
+        cabDetailsParams.put("p_i_item_name", itemName);
+
+        return (List<Map<String, Object>>) jdbcManager.simpleJdbcCall(schema, catalogName, cabDetailsQuery, cabDetailsParams);
     }
 }

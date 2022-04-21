@@ -9,6 +9,12 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:queries.properties")
 public class QueryConfigs { // TODO
 
+    @Value("${schema}")
+    public String schema;
+
+    @Value("${catalog.name}")
+    public String catalogName;
+
     @Value("${cab.query}")
     public String cabQuery;
 
@@ -17,6 +23,12 @@ public class QueryConfigs { // TODO
 
     @Value("${cab.details.query}")
     public String cabDetailsQuery;
+
+    @Bean( name = "schema" )
+    public String getSchema() { return this.schema; }
+
+    @Bean( name = "catalogName" )
+    public String getCatalogName() { return this.catalogName; }
 
     @Bean( name = "cabQuery" )
     public String getCabQuery() {

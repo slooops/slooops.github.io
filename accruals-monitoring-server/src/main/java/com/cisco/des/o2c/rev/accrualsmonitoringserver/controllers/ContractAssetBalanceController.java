@@ -46,10 +46,11 @@ public class ContractAssetBalanceController {
         return new ResponseEntity<>(cabService.getCabSize(), HttpStatus.OK);
     }
 
-    @GetMapping("/contract-asset-balance/{id}")
-    public ResponseEntity<List<Map<String, Object>>> getDetails(@PathVariable String id) {
-        Map<String, String> params = new HashMap<>();
-        return new ResponseEntity<>(cabService.getCabDetails(id, params), HttpStatus.OK);
+    @GetMapping("/contract-asset-balance/details")
+    public ResponseEntity<List<Map<String, Object>>> getDetails(@RequestParam String orgId,
+                                                                @RequestParam String subRefId,
+                                                                @RequestParam String itemName) {
+        return new ResponseEntity<>(cabService.getCabDetails(Integer.valueOf(orgId), subRefId, itemName), HttpStatus.OK);
     }
 
 

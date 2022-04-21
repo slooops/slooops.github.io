@@ -4,8 +4,11 @@
     "DATABASE_USERNAME":"XXCFIRW",
     "DATABASE_PASSWORD":"Na6K3k6F",
     "RDAC_OSUSER": "",
-    "CAB_QUERY": "select * from apps.xxcfir_accrual_bdom_16mar where BALANCE_AMOUNT_USD < -1 or BALANCE_AMOUNT_USD >1 and org_id<>3563 and bdom_date>trunc(sysdate) order by :orderby",
+    "PACKAGE_SCHEMA": "APPS",
+    "DATABASE_PACKAGE": "XXCFIR_REV_ACCRUAL_DASHBOARD",
+    "CAB_QUERY": "select * from arfinro.xxcfir_accrual_prepaid_recon order by :orderby",
     "CAB_QUERY_PAGE" : "select * from apps.xxcfir_accrual_bdom_16mar where BALANCE_AMOUNT_USD < -1 or BALANCE_AMOUNT_USD >1 and org_id<>3563 and bdom_date>trunc(sysdate) order by :orderby offset :offset rows fetch next :fetch rows only",
-    "CAB_DETAILS_QUERY" : "select 1 from dual",
+    "CAB_DETAILS_QUERY" : "GET_CONTRA_ASSET_DETAILS",
     "CORS_URL": "http://localhost:4200"
 }
+

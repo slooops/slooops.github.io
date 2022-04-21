@@ -55,6 +55,16 @@ spec:
             configMapKeyRef:
               key: db.url
               name: db-properties
+        - name: PACKAGE_SCHEMA
+          valueFrom: 
+            configMapKeyRef:
+              key: pkg.schema
+              name: db-properties
+        - name: DATABASE_PACKAGE
+          valueFrom: 
+            configMapKeyRef:
+              key: db.package
+              name: db-properties
         - name: CAB_QUERY
           valueFrom: 
             configMapKeyRef:

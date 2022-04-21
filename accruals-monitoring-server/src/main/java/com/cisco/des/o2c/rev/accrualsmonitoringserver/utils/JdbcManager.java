@@ -2,7 +2,10 @@ package com.cisco.des.o2c.rev.accrualsmonitoringserver.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,6 +29,17 @@ public class JdbcManager {
 
     public List<Map<String, Object>> queryForListWithParams(String sql, Map<String, String> paramMap) {
         return namedParameterJdbcTemplate.queryForList(sql, paramMap);
+    }
+
+    public Object simpleJdbcCall(String schema, String catalogName, String proc, Map<String, Object> params) {
+        SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate)
+                .withSchemaName(schema)
+                .withCatalogName(catalogName)
+                .withProcedureName(proc);
+        SqlParameterSource paramSource = new MapSqlParameterSource(params);
+        Map<String, Object> result = call.execute(paramSource);
+        System.out.println(result);
+        return result.get("P_O_CONTRA_DET_CURSOR");
     }
 
 
