@@ -4,7 +4,10 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { 
   CuiPagerModule, 
   CuiTableModule,
-  CuiTabsNavModule } from '@cisco-ngx/cui-components';
+  CuiFilterModule,
+  CuiTabsNavModule,
+  CuiModalModule,
+  CuiLoaderModule } from '@cisco-ngx/cui-components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -37,7 +40,10 @@ export function initApp(authService: AuthenticationService) {
     HttpClientModule,
     CuiTableModule,
     CuiPagerModule,
-    CuiTabsNavModule
+    CuiFilterModule,
+    CuiTabsNavModule,
+    CuiModalModule,
+    CuiLoaderModule
   ],
   providers: [
     { 

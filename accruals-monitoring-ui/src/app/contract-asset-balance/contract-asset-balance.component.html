@@ -1,7 +1,13 @@
-<p>contract-asset-balance works!</p>
-
-<cui-table *ngIf="cabTableData.length" [options]="tableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
+<cui-filter [options]="filterOptions" (onFiltersChanged)="onFiltersChanged($event)"></cui-filter>
+<cui-modal></cui-modal>
+<cui-table *ngIf="cabTableData.length" [options]="cabTableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
 <cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 
-<ng-template #viewDetails><span><a>View Details</a></span></ng-template>
+<ng-template #viewDetails let-item="celldata"><span><a class="link" (click)="viewTrxDetails(item)">View Details</a></span></ng-template>
 <ng-template #viewComments><span> </span></ng-template>
+<ng-template #viewDetailsRow>
+    <h3>View Details </h3>
+    <cui-loader *ngIf="!cabDetailsData.length" label="Loading..." color="info"></cui-loader>
+    <cui-table *ngIf="cabDetailsData.length" [options]="cabDetailsOptions" [data]="cabDetailsData"></cui-table>
+    <button class="btn" (click)="closeModal()">Close</button>
+</ng-template>

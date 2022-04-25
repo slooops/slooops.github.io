@@ -1,5 +1,9 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components';
+import { 
+  CuiTableOptions, 
+  CuiTableColumnOption, 
+  CuiFilterOptions,
+  CuiModalService } from '@cisco-ngx/cui-components';
 import { ApiHttpService } from '../providers/http.service';
 
 
@@ -13,16 +17,39 @@ export class ContractAssetBalanceComponent implements OnInit {
   viewDetailsTemplate!: TemplateRef<any>;
   @ViewChild('viewComments', { static: true })
   viewCommentsTemplate!: TemplateRef<any>;
+  @ViewChild('viewDetailsRow')
+  viewDetailsRowTemplate!: TemplateRef<any>;
+
   
-  tableOptions!: CuiTableOptions;
+  cabTableOptions!: CuiTableOptions;
+  cabDetailsOptions!: CuiTableOptions;
   cabTableData: any[] = [];
+  cabDetailsData: any[] = [];
   hostUrl!: string;
 
   offset = 0;
   limit = 10;
   size = 0;
 
-  constructor(private http: ApiHttpService) { }
+  filters: any;
+  filterOptions = new CuiFilterOptions({
+    filters: [
+      {
+        label: 'Subscription Ref ID',
+        value: 'subRefId'
+      },
+      {
+        label: 'Item Name',
+        value: 'itemName'
+      },
+      {
+        label: 'Transaction Status',
+        value: 'trxStatus'
+      }
+    ]
+  });
+
+  constructor(private http: ApiHttpService, private modal: CuiModalService) { }
 
   ngOnInit(): void {
     this.getContractAssetBalance();
@@ -32,6 +59,51 @@ export class ContractAssetBalanceComponent implements OnInit {
     console.log(pageInfo);
     this.offset = pageInfo.page;
     this.getContractAssetBalance();
+  }
+
+  onFiltersChanged(filters: any) {
+    this.filters = filters;
+  }
+
+  viewTrxDetails(data: any) {
+
+    this.modal.show(this.viewDetailsRowTemplate, 'large');
+
+    console.log('view trx details');
+    console.log(data);
+
+    var detailsParams = {
+      "orgId" : data.ORG_ID,
+      "subRefId": data.SUBSCRIPTION_REF_ID,
+      "itemName": data.ITEM_NAME
+    };
+
+    this.http.get('contract-asset-balance/details', { params: detailsParams })
+      .subscribe((data: any) => {
+        this.cabDetailsData = data;
+        console.log(this.cabDetailsData);
+
+        let detailsColumns: CuiTableColumnOption[] = [];
+
+        for (let column of Object.keys(this.cabDetailsData[0])) {
+          detailsColumns.push(new CuiTableColumnOption({
+            'name': column,
+            'sortable': true,
+            'key': column
+          }));
+        }
+
+
+        this.cabDetailsOptions = new CuiTableOptions({
+          bordered: true,
+          striped: true,
+          columns: detailsColumns,
+          dynamicData: false,
+        });
+
+      });
+
+
   }
 
   getContractAssetBalance(): void {
@@ -50,19 +122,21 @@ export class ContractAssetBalanceComponent implements OnInit {
           'key': column
         }));
       }
-      cabColumns.push(new CuiTableColumnOption({
-        name: 'Comments',
-        template: this.viewCommentsTemplate
-      }));
 
       this.size = this.cabTableData.length;
-      this.tableOptions = new CuiTableOptions({
+      this.cabTableOptions = new CuiTableOptions({
         bordered: true,
         striped: true,
         columns: cabColumns,
+        singleSelect: true,
         dynamicData: false
-      });
+      });      
     });
+  }
+
+  closeModal() {
+    this.cabDetailsData = [];
+    this.modal.hide();
   }
 
 }

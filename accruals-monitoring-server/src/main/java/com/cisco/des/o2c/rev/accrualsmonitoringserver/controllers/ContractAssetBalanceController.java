@@ -50,7 +50,8 @@ public class ContractAssetBalanceController {
     public ResponseEntity<List<Map<String, Object>>> getDetails(@RequestParam int orgId,
                                                                 @RequestParam String subRefId,
                                                                 @RequestParam String itemName) {
+        System.out.println("get CAB Details");
         return new ResponseEntity<>(cabService.getCabDetails(Integer.valueOf(orgId), subRefId, itemName), HttpStatus.OK);
     }
-    
+
 }
