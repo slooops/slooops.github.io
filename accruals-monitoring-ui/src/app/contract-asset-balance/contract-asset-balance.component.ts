@@ -68,7 +68,7 @@ export class ContractAssetBalanceComponent implements OnInit {
   }
 
   viewTrxDetails(data: any) {
-
+    this.cabDetailsData = [];
     this.modal.show(this.viewDetailsRowTemplate, 'full');
 
     console.log('view trx details');
