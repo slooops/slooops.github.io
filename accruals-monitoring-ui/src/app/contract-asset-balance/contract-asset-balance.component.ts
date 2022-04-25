@@ -27,6 +27,8 @@ export class ContractAssetBalanceComponent implements OnInit {
   cabDetailsData: any[] = [];
   hostUrl!: string;
 
+  comments: string = '';
+
   offset = 0;
   limit = 10;
   size = 0;
@@ -67,7 +69,7 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   viewTrxDetails(data: any) {
 
-    this.modal.show(this.viewDetailsRowTemplate, 'large');
+    this.modal.show(this.viewDetailsRowTemplate, 'full');
 
     console.log('view trx details');
     console.log(data);
@@ -99,6 +101,7 @@ export class ContractAssetBalanceComponent implements OnInit {
           striped: true,
           columns: detailsColumns,
           dynamicData: false,
+          wrapText: true
         });
 
       });
@@ -129,9 +132,14 @@ export class ContractAssetBalanceComponent implements OnInit {
         striped: true,
         columns: cabColumns,
         singleSelect: true,
-        dynamicData: false
+        dynamicData: false,
+        wrapText: true
       });      
     });
+  }
+
+  addComment() {
+    this.closeModal();
   }
 
   closeModal() {

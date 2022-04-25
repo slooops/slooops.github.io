@@ -7,7 +7,8 @@ import {
   CuiFilterModule,
   CuiTabsNavModule,
   CuiModalModule,
-  CuiLoaderModule } from '@cisco-ngx/cui-components';
+  CuiLoaderModule,
+  CuiInputModule } from '@cisco-ngx/cui-components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -43,7 +44,8 @@ export function initApp(authService: AuthenticationService) {
     CuiFilterModule,
     CuiTabsNavModule,
     CuiModalModule,
-    CuiLoaderModule
+    CuiLoaderModule,
+    CuiInputModule
   ],
   providers: [
     { 
