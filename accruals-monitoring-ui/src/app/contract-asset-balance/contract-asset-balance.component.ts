@@ -59,7 +59,6 @@ export class ContractAssetBalanceComponent implements OnInit {
   onPageUpdated(pageInfo: any) {
     console.log(pageInfo);
     this.offset = pageInfo.page;
-    this.getContractAssetBalance();
   }
 
   onFiltersChanged(filters: any) {
@@ -127,6 +126,7 @@ export class ContractAssetBalanceComponent implements OnInit {
       }
 
       this.size = this.cabTableData.length;
+      console.log(this.size);
       this.cabTableOptions = new CuiTableOptions({
         bordered: true,
         striped: true,

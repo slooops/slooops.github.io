@@ -11,15 +11,21 @@ import java.util.Map;
 public class DailyMonitoringService {
     private JdbcManager jdbcManager;
     private String dailyQuery;
+    private String detailsQuery;
 
     @Autowired
-    public DailyMonitoringService(JdbcManager jdbcManager, String dailyQuery) {
+    public DailyMonitoringService(JdbcManager jdbcManager, String dailyQuery, String monitoringDetailsQuery) {
         this.jdbcManager = jdbcManager;
         this.dailyQuery = dailyQuery;
+        this.detailsQuery = monitoringDetailsQuery;
     }
 
     public List<Map<String, Object>> getDailyMonitoringSummary() {
         return jdbcManager.queryForList(dailyQuery);
+    }
+
+    public List<Map<String, Object>> getMonitoringDetails() {
+        return jdbcManager.queryForList(detailsQuery);
     }
 
 }

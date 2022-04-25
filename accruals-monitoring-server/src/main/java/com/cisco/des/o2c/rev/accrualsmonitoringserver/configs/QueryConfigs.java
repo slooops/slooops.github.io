@@ -27,6 +27,9 @@ public class QueryConfigs { // TODO
     @Value("${daily.monitoring.query}")
     public String dailyQuery;
 
+    @Value("${monitoring.details.query}")
+    public String monitoringDetailsQuery;
+
     @Bean( name = "schema" )
     public String getSchema() { return this.schema; }
 
@@ -48,5 +51,8 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "dailyQuery" )
     public String getDailyQuery() { return this.dailyQuery; }
+
+    @Bean( name = "monitoringDetailsQuery" )
+    public String getMonitoringDetailsQuery() { return this.monitoringDetailsQuery; }
 
 }

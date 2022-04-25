@@ -1,5 +1,16 @@
 <h3>Daily Monitoring Summary</h3>
 
+<cui-modal></cui-modal>
+
 <cui-loader *ngIf="!summaryTableData.length"></cui-loader>
 <cui-table *ngIf="summaryTableData.length" [options]="summaryTableOptions" [data]="summaryTableData" [limit]="limit" [offset]="offset"></cui-table>
 <cui-pager *ngIf="summaryTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" (onPageChanged)="onPageUpdated($event)"></cui-pager>
+<button class="btn" (click)="getDailyMonitoringDetails()">View Details</button>
+
+<ng-template #viewDetails>
+    <h4>View Details </h4>
+    <cui-loader *ngIf="!detailsTableData.length" label="Loading..." color="info"></cui-loader>
+    <cui-table *ngIf="detailsTableData.length" [options]="detailsTableOptions" [data]="detailsTableData" [limit]="detailsLimit" [offset]="detailsOffset"></cui-table>
+    <cui-pager *ngIf="detailsTableData.length" [page]="detailsOffset" [limit]="detailsLimit" [totalItems]="detailsSize" [showPageDetails]="true" (onPageChanged)="onDetailsUpdated($event)"></cui-pager>
+    <button class="btn" (click)="closeModal()">Close</button>
+</ng-template>

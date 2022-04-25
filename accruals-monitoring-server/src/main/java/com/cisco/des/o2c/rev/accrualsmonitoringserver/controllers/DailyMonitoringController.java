@@ -30,4 +30,10 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getDailyMonitoringSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/daily-monitoring/details")
+    public ResponseEntity<List<Map<String, Object>>> getDailyMonitoringDetails() {
+        System.out.println("daily monitoring details");
+        return new ResponseEntity<>(service.getMonitoringDetails(), HttpStatus.OK);
+    }
+
 }
