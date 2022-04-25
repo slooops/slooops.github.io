@@ -69,7 +69,9 @@ public class ContractAssetBalanceService {
         cabDetailsParams.put("p_i_org_id", orgId);
         cabDetailsParams.put("p_i_sub_ref_id", subRefId);
         cabDetailsParams.put("p_i_item_name", itemName);
+        List<Map<String, Object>> result = (List<Map<String, Object>>) jdbcManager.simpleJdbcCall(schema, catalogName, cabDetailsQuery, cabDetailsParams)
+                .get("P_O_CONTRA_DET_CURSOR");
 
-        return (List<Map<String, Object>>) jdbcManager.simpleJdbcCall(schema, catalogName, cabDetailsQuery, cabDetailsParams);
+        return result;
     }
 }

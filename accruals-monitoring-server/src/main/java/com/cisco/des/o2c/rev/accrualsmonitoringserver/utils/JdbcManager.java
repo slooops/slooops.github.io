@@ -31,7 +31,7 @@ public class JdbcManager {
         return namedParameterJdbcTemplate.queryForList(sql, paramMap);
     }
 
-    public Object simpleJdbcCall(String schema, String catalogName, String proc, Map<String, Object> params) {
+    public Map<String, Object> simpleJdbcCall(String schema, String catalogName, String proc, Map<String, Object> params) {
         SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate)
                 .withSchemaName(schema)
                 .withCatalogName(catalogName)
@@ -39,7 +39,7 @@ public class JdbcManager {
         SqlParameterSource paramSource = new MapSqlParameterSource(params);
         Map<String, Object> result = call.execute(paramSource);
         System.out.println(result);
-        return result.get("P_O_CONTRA_DET_CURSOR");
+        return result;
     }
 
 

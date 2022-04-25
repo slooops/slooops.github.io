@@ -47,11 +47,10 @@ public class ContractAssetBalanceController {
     }
 
     @GetMapping("/contract-asset-balance/details")
-    public ResponseEntity<List<Map<String, Object>>> getDetails(@RequestParam String orgId,
+    public ResponseEntity<List<Map<String, Object>>> getDetails(@RequestParam int orgId,
                                                                 @RequestParam String subRefId,
                                                                 @RequestParam String itemName) {
         return new ResponseEntity<>(cabService.getCabDetails(Integer.valueOf(orgId), subRefId, itemName), HttpStatus.OK);
     }
-
-
+    
 }
