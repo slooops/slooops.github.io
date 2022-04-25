@@ -80,6 +80,16 @@ spec:
             configMapKeyRef:
               key: cab.details.query
               name: db-properties
+        - name: DAILY_MONITORING_QUERY
+          valueFrom: 
+            configMapKeyRef:
+              key: daily.monitoring.query
+              name: db-properties
+        - name: MONITORING_DETAILS_QUERY
+          valueFrom: 
+            configMapKeyRef:
+              key: monitoring.details.query
+              name: db-properties
         - name: CORS_URL
           valueFrom: 
             configMapKeyRef:

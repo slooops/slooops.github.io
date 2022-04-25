@@ -24,6 +24,9 @@ public class QueryConfigs { // TODO
     @Value("${cab.details.query}")
     public String cabDetailsQuery;
 
+    @Value("${daily.monitoring.query}")
+    public String dailyQuery;
+
     @Bean( name = "schema" )
     public String getSchema() { return this.schema; }
 
@@ -42,5 +45,8 @@ public class QueryConfigs { // TODO
     public String getCabDetailsQuery() {
         return this.cabDetailsQuery;
     }
+
+    @Bean( name = "dailyQuery" )
+    public String getDailyQuery() { return this.dailyQuery; }
 
 }

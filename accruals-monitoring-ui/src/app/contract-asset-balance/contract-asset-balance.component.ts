@@ -25,7 +25,6 @@ export class ContractAssetBalanceComponent implements OnInit {
   cabDetailsOptions!: CuiTableOptions;
   cabTableData: any[] = [];
   cabDetailsData: any[] = [];
-  hostUrl!: string;
 
   comments: string = '';
 
@@ -83,6 +82,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.http.get('contract-asset-balance/details', { params: detailsParams })
       .subscribe((data: any) => {
         this.cabDetailsData = data;
+        this.size = data.length;
         console.log(this.cabDetailsData);
 
         let detailsColumns: CuiTableColumnOption[] = [];
