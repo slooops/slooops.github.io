@@ -1,7 +1,7 @@
 <cui-filter [options]="filterOptions" (onFiltersChanged)="onFiltersChanged($event)"></cui-filter>
 <cui-modal></cui-modal>
 <cui-table *ngIf="cabTableData.length" [options]="cabTableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
-<cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" (onPageChanged)="onPageUpdated($event)"></cui-pager>
+<cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 
 <ng-template #viewDetails let-item="celldata"><span><a class="link" (click)="viewTrxDetails(item)">View Details</a></span></ng-template>
 <ng-template #viewComments><span> </span></ng-template>
