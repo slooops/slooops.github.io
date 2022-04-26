@@ -19,12 +19,30 @@ export class ContractAssetBalanceComponent implements OnInit {
   viewCommentsTemplate!: TemplateRef<any>;
   @ViewChild('viewDetailsRow')
   viewDetailsRowTemplate!: TemplateRef<any>;
+  @ViewChild('dateCell')
+  dateCellTemplate!: TemplateRef<any>;
 
   
   cabTableOptions!: CuiTableOptions;
   cabDetailsOptions!: CuiTableOptions;
   cabTableData: any[] = [];
   cabDetailsData: any[] = [];
+
+  cabColumns: Map<string, string> = new Map(Object.entries({
+    OU_NAME: 'Operating Unit',
+    SUBSCRIPTION_REF_ID: 'Subscription ID',
+    ITEM_NAME: 'SKU',
+    OA_FLAG: 'OA Flag',
+    CURRENCY_CODE: 'Currency',
+    CONTRA_DR_AMOUNT: 'Contract Assets DR Amount',
+    CONTRA_CR_AMOUNT: 'Contract Assets CR Amount',
+    BALANCE_AMOUNT_TRANSACTIONAL: 'Balance Amount Transactional',
+    BALANCE_AMOUNT_USD: 'Balance Amount USD',
+    BDOM_DATE: 'Calculated BDOM',
+    CURRENT_STATUS: 'Status',
+    OWNER: 'Owner',
+    COMMENTS: 'Comments'    
+  }));
 
   comments: string = '';
 
@@ -69,9 +87,6 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.cabDetailsData = [];
     this.modal.show(this.viewDetailsRowTemplate, 'full');
 
-    console.log('view trx details');
-    console.log(data);
-
     var detailsParams = {
       "orgId" : data.ORG_ID,
       "subRefId": data.SUBSCRIPTION_REF_ID,
@@ -94,7 +109,6 @@ export class ContractAssetBalanceComponent implements OnInit {
           }));
         }
 
-
         this.cabDetailsOptions = new CuiTableOptions({
           bordered: true,
           striped: true,
@@ -102,31 +116,41 @@ export class ContractAssetBalanceComponent implements OnInit {
           dynamicData: false,
           wrapText: true
         });
-
       });
-
-
   }
 
   getContractAssetBalance(): void {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableData = data;
+      console.log(data);
       
       let cabColumns: CuiTableColumnOption[] = [];
       cabColumns.push(new CuiTableColumnOption({
         name: '',
         template: this.viewDetailsTemplate
       }));
+      console.log('loop');
       for (let column of Object.keys(this.cabTableData[0])) {
-        cabColumns.push(new CuiTableColumnOption({
-          'name': column,
-          'sortable': true,
-          'key': column
-        }));
+        console.log('header: ', column);
+        if(column == 'BDOM_DATE') {
+          console.log('bdom');
+          cabColumns.push(new CuiTableColumnOption({
+            'name': this.cabColumns.get(column),
+            'sortable': true,
+            'key': column,
+            'template': this.dateCellTemplate
+          }));
+        } else if (this.cabColumns.has(column)) {
+          console.log('column added: ', this.cabColumns.get(column));
+          cabColumns.push(new CuiTableColumnOption({
+            'name': this.cabColumns.get(column),
+            'sortable': true,
+            'key': column
+          }));
+        }
       }
 
       this.size = this.cabTableData.length;
-      console.log(this.size);
       this.cabTableOptions = new CuiTableOptions({
         bordered: true,
         striped: true,
@@ -145,6 +169,10 @@ export class ContractAssetBalanceComponent implements OnInit {
   closeModal() {
     this.cabDetailsData = [];
     this.modal.hide();
+  }
+
+  whatisthis(item: any) {
+    console.log(item);
   }
 
 }

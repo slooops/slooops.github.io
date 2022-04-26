@@ -4,7 +4,6 @@
 
 <cui-loader *ngIf="!summaryTableData.length"></cui-loader>
 <cui-table *ngIf="summaryTableData.length" [options]="summaryTableOptions" [data]="summaryTableData" [limit]="limit" [offset]="offset"></cui-table>
-<cui-pager *ngIf="summaryTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 <button class="btn" (click)="getDailyMonitoringDetails()">View Details</button>
 
 <ng-template #viewDetails>
