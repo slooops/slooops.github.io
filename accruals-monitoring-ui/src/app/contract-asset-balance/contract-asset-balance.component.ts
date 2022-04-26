@@ -22,7 +22,6 @@ export class ContractAssetBalanceComponent implements OnInit {
   @ViewChild('dateCell')
   dateCellTemplate!: TemplateRef<any>;
 
-  
   cabTableOptions!: CuiTableOptions;
   cabDetailsOptions!: CuiTableOptions;
   cabTableData: any[] = [];
@@ -42,6 +41,23 @@ export class ContractAssetBalanceComponent implements OnInit {
     CURRENT_STATUS: 'Status',
     OWNER: 'Owner',
     COMMENTS: 'Comments'    
+  }));
+
+  detailColumns: Map<string, string> = new Map(Object.entries({
+    OU_NAME: 'Operating Unit',
+    SUBSCRIPTION_REF_ID: 'Subscription ID',
+    ITEM_NAME: 'SKU',
+    ORIGINAL_UNIQUE_ID: 'Original Unique ID',
+    CURRENCY: 'Currency',
+    SBP_INV_AMOUNT: 'TSV-INV Total',
+    SBP_CM_AMOUNT: 'TSV-CM Total',
+    AR_INV_AMOUNT: 'AR-INV Total',
+    AR_CM_AMOUNT: 'AR-CM Total',
+    CONTRA_DEBIT: 'Contract Assets DR',
+    CONTRA_CREDIT: 'Contract Assets CR',
+    ' TOP SKU BALANCE': 'Top Sku Balance',
+    'SUB SKU BALANCE': 'Sub Sku Balance',
+    AMOUNT_NET_USD: 'Balance Amount USD'
   }));
 
   comments: string = '';
@@ -97,16 +113,17 @@ export class ContractAssetBalanceComponent implements OnInit {
       .subscribe((data: any) => {
         this.cabDetailsData = data;
         this.size = data.length;
-        console.log(this.cabDetailsData);
 
         let detailsColumns: CuiTableColumnOption[] = [];
 
         for (let column of Object.keys(this.cabDetailsData[0])) {
-          detailsColumns.push(new CuiTableColumnOption({
-            'name': column,
-            'sortable': true,
-            'key': column
-          }));
+          if (this.detailColumns.has(column)) {
+            detailsColumns.push(new CuiTableColumnOption({
+              'name': this.detailColumns.get(column),
+              'sortable': true,
+              'key': column
+            }));
+          }
         }
 
         this.cabDetailsOptions = new CuiTableOptions({
@@ -122,18 +139,15 @@ export class ContractAssetBalanceComponent implements OnInit {
   getContractAssetBalance(): void {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableData = data;
-      console.log(data);
       
       let cabColumns: CuiTableColumnOption[] = [];
       cabColumns.push(new CuiTableColumnOption({
         name: '',
         template: this.viewDetailsTemplate
       }));
-      console.log('loop');
+
       for (let column of Object.keys(this.cabTableData[0])) {
-        console.log('header: ', column);
         if(column == 'BDOM_DATE') {
-          console.log('bdom');
           cabColumns.push(new CuiTableColumnOption({
             'name': this.cabColumns.get(column),
             'sortable': true,
@@ -141,7 +155,6 @@ export class ContractAssetBalanceComponent implements OnInit {
             'template': this.dateCellTemplate
           }));
         } else if (this.cabColumns.has(column)) {
-          console.log('column added: ', this.cabColumns.get(column));
           cabColumns.push(new CuiTableColumnOption({
             'name': this.cabColumns.get(column),
             'sortable': true,
