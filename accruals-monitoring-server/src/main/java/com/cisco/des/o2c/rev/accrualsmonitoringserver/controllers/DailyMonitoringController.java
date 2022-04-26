@@ -36,4 +36,10 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getMonitoringDetails(), HttpStatus.OK);
     }
 
+    @GetMapping("/last-program-run")
+    public ResponseEntity<List<Map<String, Object>>> getProgramLastRun() {
+        System.out.println("last program run");
+        return new ResponseEntity<>(service.getProgramLastRun(), HttpStatus.OK);
+    }
+
 }

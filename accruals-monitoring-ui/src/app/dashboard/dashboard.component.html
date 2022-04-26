@@ -1,2 +1,13 @@
 
 <app-daily-monitoring></app-daily-monitoring>
+
+<h4>Program Run Details</h4>
+<div>
+    RevenueAccrualsAM : Sat-Fri (5am,3pm)<br />
+    RevenueAccrualsPM : Sun-Fri (Daily AI)
+</div>
+
+<h4>Last Program Run</h4>
+<cui-table *ngIf="programTableData.length" [options]="programTableOptions" [data]="programTableData" [limit]="limit" [offset]="offset"></cui-table>
+
+<ng-template #dateCell let-row="celldata">{{row.COMPLETION_DATE | date:'dd-MMM-yyyy'}}</ng-template>

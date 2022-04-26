@@ -33,7 +33,6 @@ export class DailyMonitoringComponent implements OnInit {
 
   getDailyMonitoringSummary() {
     this.http.get('daily-monitoring').subscribe((data: any) => {
-      console.log('daily monitoring summary');
       this.summaryTableData = data;
       this.size = data.length
 

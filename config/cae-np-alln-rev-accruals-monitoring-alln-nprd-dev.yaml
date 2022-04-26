@@ -90,6 +90,11 @@ spec:
             configMapKeyRef:
               key: monitoring.details.query
               name: db-properties
+        - name: LAST_RUN_QUERY
+          valueFrom:
+            configMapKeyRef:
+              key: last.run.query
+              name: db-properties
         - name: CORS_URL
           valueFrom: 
             configMapKeyRef:

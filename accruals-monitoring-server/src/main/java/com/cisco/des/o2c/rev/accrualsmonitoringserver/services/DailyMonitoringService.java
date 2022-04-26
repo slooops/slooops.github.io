@@ -12,12 +12,14 @@ public class DailyMonitoringService {
     private JdbcManager jdbcManager;
     private String dailyQuery;
     private String detailsQuery;
+    private String lastRunQuery;
 
     @Autowired
-    public DailyMonitoringService(JdbcManager jdbcManager, String dailyQuery, String monitoringDetailsQuery) {
+    public DailyMonitoringService(JdbcManager jdbcManager, String dailyQuery, String monitoringDetailsQuery, String lastRunQuery) {
         this.jdbcManager = jdbcManager;
         this.dailyQuery = dailyQuery;
         this.detailsQuery = monitoringDetailsQuery;
+        this.lastRunQuery = lastRunQuery;
     }
 
     public List<Map<String, Object>> getDailyMonitoringSummary() {
@@ -26,6 +28,10 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getMonitoringDetails() {
         return jdbcManager.queryForList(detailsQuery);
+    }
+
+    public List<Map<String, Object>> getProgramLastRun() {
+        return jdbcManager.queryForList(lastRunQuery);
     }
 
 }

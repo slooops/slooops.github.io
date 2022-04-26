@@ -30,6 +30,9 @@ public class QueryConfigs { // TODO
     @Value("${monitoring.details.query}")
     public String monitoringDetailsQuery;
 
+    @Value("${last.run.query}")
+    public String lastRunQuery;
+
     @Bean( name = "schema" )
     public String getSchema() { return this.schema; }
 
@@ -54,5 +57,8 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "monitoringDetailsQuery" )
     public String getMonitoringDetailsQuery() { return this.monitoringDetailsQuery; }
+
+    @Bean( name = "lastRunQuery" )
+    public String getLastRunQuery() { return this.lastRunQuery; }
 
 }
