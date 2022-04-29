@@ -9,8 +9,6 @@
 
 <ng-template #dateCell let-row="celldata"><span>{{row.BDOM_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
 
-<ng-template #viewComments><span> </span></ng-template>
-
 <ng-template #viewDetailsRow>
     <h3>View Details </h3>
     <cui-loader *ngIf="!cabDetailsData.length" label="Loading..." color="info"></cui-loader>

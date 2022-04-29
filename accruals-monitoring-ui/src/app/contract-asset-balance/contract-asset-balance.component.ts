@@ -15,19 +15,21 @@ import { ApiHttpService } from '../providers/http.service';
 export class ContractAssetBalanceComponent implements OnInit {  
   @ViewChild('viewDetails', { static: true })
   viewDetailsTemplate!: TemplateRef<any>;
-  @ViewChild('viewComments', { static: true })
-  viewCommentsTemplate!: TemplateRef<any>;
   @ViewChild('viewDetailsRow')
   viewDetailsRowTemplate!: TemplateRef<any>;
   @ViewChild('dateCell')
   dateCellTemplate!: TemplateRef<any>;
 
+  cabColumnOptions: CuiTableColumnOption[] = [];
   cabTableOptions!: CuiTableOptions;
+  
+  cabDetailsColumnOptions: CuiTableColumnOption[] = [];
   cabDetailsOptions!: CuiTableOptions;
+
   cabTableData: any[] = [];
   cabDetailsData: any[] = [];
 
-  cabColumns: Map<string, string> = new Map(Object.entries({
+  cabColumnMappings: Map<string, string> = new Map(Object.entries({
     OU_NAME: 'Operating Unit',
     SUBSCRIPTION_REF_ID: 'Subscription ID',
     ITEM_NAME: 'SKU',
@@ -43,7 +45,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     COMMENTS: 'Comments'    
   }));
 
-  detailColumns: Map<string, string> = new Map(Object.entries({
+  detailColumnMappings: Map<string, string> = new Map(Object.entries({
     OU_NAME: 'Operating Unit',
     SUBSCRIPTION_REF_ID: 'Subscription ID',
     ITEM_NAME: 'SKU',
@@ -60,6 +62,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     AMOUNT_NET_USD: 'Balance Amount USD'
   }));
 
+  selectedRow: any = undefined;
   comments: string = '';
 
   offset = 0;
@@ -101,6 +104,7 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   viewTrxDetails(data: any) {
     this.cabDetailsData = [];
+    this.selectedRow = data;
     this.modal.show(this.viewDetailsRowTemplate, 'full');
 
     var detailsParams = {
@@ -109,30 +113,29 @@ export class ContractAssetBalanceComponent implements OnInit {
       "itemName": data.ITEM_NAME
     };
 
+    console.log(data);
+
     this.http.get('contract-asset-balance/details', { params: detailsParams })
       .subscribe((data: any) => {
         this.cabDetailsData = data;
         this.size = data.length;
 
-        let detailsColumns: CuiTableColumnOption[] = [];
-
         for (let column of Object.keys(this.cabDetailsData[0])) {
-          if (this.detailColumns.has(column)) {
-            detailsColumns.push(new CuiTableColumnOption({
-              'name': this.detailColumns.get(column),
+          if (this.detailColumnMappings.has(column)) {
+            this.cabDetailsColumnOptions.push(new CuiTableColumnOption({
+              'name': this.detailColumnMappings.get(column),
               'sortable': true,
               'key': column
             }));
           }
         }
-
-        this.cabDetailsOptions = new CuiTableOptions({
-          bordered: true,
-          striped: true,
-          columns: detailsColumns,
-          dynamicData: false,
-          wrapText: true
-        });
+      });
+      this.cabDetailsOptions = new CuiTableOptions({
+        bordered: true,
+        striped: true,
+        columns: this.cabDetailsColumnOptions,
+        dynamicData: false,
+        wrapText: true
       });
   }
 
@@ -140,47 +143,51 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableData = data;
       
-      let cabColumns: CuiTableColumnOption[] = [];
-      cabColumns.push(new CuiTableColumnOption({
+      this.cabColumnOptions.push(new CuiTableColumnOption({
         name: '',
         template: this.viewDetailsTemplate
       }));
 
       for (let column of Object.keys(this.cabTableData[0])) {
         if(column == 'BDOM_DATE') {
-          cabColumns.push(new CuiTableColumnOption({
-            'name': this.cabColumns.get(column),
+          this.cabColumnOptions.push(new CuiTableColumnOption({
+            'name': this.cabColumnMappings.get(column),
             'sortable': true,
             'key': column,
             'template': this.dateCellTemplate
           }));
-        } else if (this.cabColumns.has(column)) {
-          cabColumns.push(new CuiTableColumnOption({
-            'name': this.cabColumns.get(column),
+        } else if (this.cabColumnMappings.has(column)) {
+          this.cabColumnOptions.push(new CuiTableColumnOption({
+            'name': this.cabColumnMappings.get(column),
             'sortable': true,
             'key': column
           }));
         }
       }
 
-      this.size = this.cabTableData.length;
       this.cabTableOptions = new CuiTableOptions({
         bordered: true,
         striped: true,
-        columns: cabColumns,
+        columns: this.cabColumnOptions,
         singleSelect: true,
         dynamicData: false,
         wrapText: true
-      });      
+      });
+
+      this.size = this.cabTableData.length;
     });
   }
 
   addComment() {
+    console.log(this.comments);
+    console.log(this.selectedRow);
     this.closeModal();
+    this.comments = '';
+    this.selectedRow = undefined;
   }
 
   closeModal() {
-    this.cabDetailsData = [];
+    this.selectedRow = undefined;
     this.modal.hide();
   }
 
