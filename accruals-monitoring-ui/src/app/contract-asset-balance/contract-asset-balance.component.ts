@@ -19,6 +19,8 @@ export class ContractAssetBalanceComponent implements OnInit {
   viewDetailsRowTemplate!: TemplateRef<any>;
   @ViewChild('dateCell')
   dateCellTemplate!: TemplateRef<any>;
+  @ViewChild('commentsCell')
+  commentsCellTemplate!: TemplateRef<any>;
 
   cabColumnOptions: CuiTableColumnOption[] = [];
   cabTableOptions!: CuiTableOptions;
@@ -156,6 +158,13 @@ export class ContractAssetBalanceComponent implements OnInit {
             'key': column,
             'template': this.dateCellTemplate
           }));
+        } else if (column == 'COMMENTS') {
+          this.cabColumnOptions.push(new CuiTableColumnOption({
+            'name': this.cabColumnMappings.get(column),
+            'sortable': true,
+            'key': column,
+            'template': this.commentsCellTemplate
+          }));
         } else if (this.cabColumnMappings.has(column)) {
           this.cabColumnOptions.push(new CuiTableColumnOption({
             'name': this.cabColumnMappings.get(column),
@@ -178,9 +187,29 @@ export class ContractAssetBalanceComponent implements OnInit {
     });
   }
 
-  addComment() {
-    console.log(this.comments);
-    console.log(this.selectedRow);
+  appendComment(): string {
+    let existingComments = (this.selectedRow.COMMENTS ?  this.selectedRow.COMMENTS + '\n' : '');
+    let appendedComments = existingComments 
+                            + '(' + new Date().toLocaleString() + '): '
+                            + this.comments;
+    return appendedComments;
+  }
+
+  changeOwner(owner: string) {
+    let prevOwner = this.selectedRow.OWNER;
+    let modifiedRow = this.selectedRow;
+    modifiedRow.OWNER = owner;
+  }
+
+  save() {
+    let rowId = this.selectedRow.ROWID;
+    let modifiedRow = this.selectedRow;
+    if (this.comments) {
+      modifiedRow.COMMENTS = this.appendComment();
+    }
+    this.http.put('contract-asset-balance/' + rowId, modifiedRow).subscribe((data: any) => {
+      this.selectedRow = data;
+    });
     this.closeModal();
     this.comments = '';
     this.selectedRow = undefined;

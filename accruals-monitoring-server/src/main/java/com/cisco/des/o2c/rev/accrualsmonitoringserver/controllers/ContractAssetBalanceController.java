@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +51,18 @@ public class ContractAssetBalanceController {
                                                                 @RequestParam String itemName) {
         System.out.println("get CAB Details");
         return new ResponseEntity<>(cabService.getCabDetails(Integer.valueOf(orgId), subRefId, itemName), HttpStatus.OK);
+    }
+
+    @PutMapping("/contract-asset-balance/{rowId}")
+    public ResponseEntity<Map<String, Object>> updateRow(@PathVariable String rowId, @RequestBody Map<String, Object> updatedRow) {
+        System.out.println("add comments: " + rowId);
+        int update = cabService.updateRow(rowId, updatedRow);
+        if (update == 1) {
+            return new ResponseEntity<>(updatedRow, HttpStatus.OK);
+        } else if (update == 0) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

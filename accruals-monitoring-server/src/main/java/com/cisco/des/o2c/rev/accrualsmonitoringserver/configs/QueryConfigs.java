@@ -24,6 +24,9 @@ public class QueryConfigs { // TODO
     @Value("${cab.details.query}")
     public String cabDetailsQuery;
 
+    @Value("${cab.update.query}")
+    public String cabUpdateQuery;
+
     @Value("${daily.monitoring.query}")
     public String dailyQuery;
 
@@ -51,6 +54,9 @@ public class QueryConfigs { // TODO
     public String getCabDetailsQuery() {
         return this.cabDetailsQuery;
     }
+
+    @Bean( name = "cabUpdateQuery" )
+    public String getCabUpdateQuery() { return this.cabUpdateQuery; }
 
     @Bean( name = "dailyQuery" )
     public String getDailyQuery() { return this.dailyQuery; }

@@ -42,5 +42,9 @@ public class JdbcManager {
         return result;
     }
 
+    public int update(String sql, Map<String, Object> params) {
+        return namedParameterJdbcTemplate.update(sql, params);
+    }
+
 
 }

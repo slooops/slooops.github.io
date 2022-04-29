@@ -80,6 +80,11 @@ spec:
             configMapKeyRef:
               key: cab.details.query
               name: db-properties
+        - name: CAB_UPDATE_QUERY
+          valueFrom: 
+            configMapKeyRef:
+              key: cab.update.query
+              name: db-properties
         - name: DAILY_MONITORING_QUERY
           valueFrom: 
             configMapKeyRef:

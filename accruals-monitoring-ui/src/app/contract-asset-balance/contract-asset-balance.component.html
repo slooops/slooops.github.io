@@ -9,11 +9,13 @@
 
 <ng-template #dateCell let-row="celldata"><span>{{row.BDOM_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
 
+<ng-template #commentsCell let-row="celldata"><span id="linebreaks">{{row.COMMENTS}}</span></ng-template>
+
 <ng-template #viewDetailsRow>
     <h3>View Details </h3>
     <cui-loader *ngIf="!cabDetailsData.length" label="Loading..." color="info"></cui-loader>
     <cui-table *ngIf="cabDetailsData.length" [options]="cabDetailsOptions" [data]="cabDetailsData"></cui-table>
     <cui-input type="textarea" [(model)]="comments" label="Add a comment"></cui-input>
-    <button class="btn" (click)="addComment()">Save</button>
+    <button class="btn" (click)="save()">Save</button>
     <button class="btn" (click)="closeModal()">Close</button>
 </ng-template>

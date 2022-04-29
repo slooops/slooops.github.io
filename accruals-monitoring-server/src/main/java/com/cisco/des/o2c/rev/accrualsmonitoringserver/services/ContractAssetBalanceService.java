@@ -20,15 +20,18 @@ public class ContractAssetBalanceService {
     private String cabQueryPage;
     private String cabDetailsQuery;
 
+    private String cabUpdateQuery;
+
     @Autowired
     ContractAssetBalanceService(JdbcManager jdbcManager, String schema, String catalogName, String cabQuery,
-                                String cabQueryPage, String cabDetailsQuery) {
+                                String cabQueryPage, String cabDetailsQuery, String cabUpdateQuery) {
         this.jdbcManager = jdbcManager;
         this.schema = schema;
         this.catalogName = catalogName;
         this.cabQuery = cabQuery;
         this.cabQueryPage = cabQueryPage;
         this.cabDetailsQuery = cabDetailsQuery;
+        this.cabUpdateQuery = cabUpdateQuery;
     }
 
     public List<Map<String, Object>> getContractAssetBalanceAll(String orderBy) {
@@ -73,5 +76,13 @@ public class ContractAssetBalanceService {
                 .get("P_O_CONTRA_DET_CURSOR");
 
         return result;
+    }
+
+    public int updateRow(String rowId, Map<String, Object> row) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("owner", row.get("OWNER"));
+        params.put("comments", row.get("COMMENTS"));
+        params.put("rowid", rowId);
+        return jdbcManager.update(cabUpdateQuery, params);
     }
 }
