@@ -3,7 +3,9 @@
 <cui-modal></cui-modal>
 
 <cui-loader *ngIf="!summaryTableData.length"></cui-loader>
-<cui-table *ngIf="summaryTableData.length" [options]="summaryTableOptions" [data]="summaryTableData" [limit]="limit" [offset]="offset"></cui-table>
+<div class="givemespace">
+    <cui-table *ngIf="summaryTableData.length" [options]="summaryTableOptions" [data]="summaryTableData" [limit]="limit" [offset]="offset"></cui-table>
+</div>
 <button class="btn" (click)="getDailyMonitoringDetails()">View Details</button>
 
 <ng-template #viewDetails>

@@ -14,6 +14,16 @@ export class DailyMonitoringComponent implements OnInit {
   summaryTableOptions!: CuiTableOptions;
   summaryTableData: any[] = [];
 
+  summaryColumnMappings: Map<string, string> = new Map(Object.entries({
+    ACCRUALS_NEW_PAYLOADS_RECEIVED: 'New Payloads Received',
+    ACCRUALS_INPUT_TABLE_ERROR: 'Input Table Errors',
+    ACCRUALS_LINE_ITEMS_ERROR: 'Line Items Errors',
+    ACCRUALS_DIST_ERROR: 'Dist Errors',
+    ACCRUALS_SUMMARY_ERROR: 'Summary Errors',
+    ACCRUALS_AR_LINES_MISSING: 'AR Lines Missing',
+    ACCRUALS_PENDING_RECORDS: 'Pending Records'
+  }));
+
   detailsTableOptions!: CuiTableOptions;
   detailsTableData: any[] = [];
 
@@ -40,7 +50,7 @@ export class DailyMonitoringComponent implements OnInit {
 
         for (let column of Object.keys(this.summaryTableData[0])) {
           summaryColumns.push(new CuiTableColumnOption({
-            'name': column,
+            'name': this.summaryColumnMappings.get(column),
             'sortable': false,
             'key': column
           }));
@@ -51,8 +61,7 @@ export class DailyMonitoringComponent implements OnInit {
           bordered: true,
           striped: true,
           columns: summaryColumns,
-          dynamicData: false,
-          wrapText: true
+          dynamicData: false
         });
     });
   }

@@ -14,6 +14,12 @@ export class DashboardComponent implements OnInit {
   programTableOptions!: CuiTableOptions;
   programTableData: any[] = [];
 
+  programColumnMappings: Map<string, string> = new Map(Object.entries({
+    OU_NAME: 'Operating Unit',
+    STATUS: 'Status',
+    COMPLETION_DATE: 'Completion Date' 
+  }));
+
   offset = 0;
   limit = 10;
   size = 0;
@@ -34,14 +40,14 @@ export class DashboardComponent implements OnInit {
       for(let column of Object.keys(this.programTableData[0])) {
         if(column.includes('DATE')) {
           programColumns.push(new CuiTableColumnOption({
-            'name': column,
+            'name': this.programColumnMappings.get(column),
             'sortable': false,
             'key': column,
             'template': this.dateCellTemplate
           }));
         } else {
           programColumns.push(new CuiTableColumnOption({
-            'name': column,
+            'name': this.programColumnMappings.get(column),
             'sortable': false,
             'key': column
           }));
