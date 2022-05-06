@@ -15,7 +15,20 @@
     <h3>View Details </h3>
     <cui-loader *ngIf="!cabDetailsData.length" label="Loading..." color="info"></cui-loader>
     <cui-table *ngIf="cabDetailsData.length" [options]="cabDetailsOptions" [data]="cabDetailsData"></cui-table>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <div class="form-group__text select">
+                    <select id="select-type-basic" [(ngModel)]="selectedOwner">
+                        <option *ngFor="let owner of owners" [ngValue]="owner" [selected]="owner == selectedRow?.OWNER">{{owner}}</option>
+                    </select>
+                    <label for="select-type-basic">Owner</label>
+                </div>
+            </div>
+        </div>
+    </div>
     <cui-input type="textarea" [(model)]="comments" label="Add a comment"></cui-input>
+
     <button class="btn" (click)="save()">Save</button>
     <button class="btn" (click)="closeModal()">Close</button>
 </ng-template>

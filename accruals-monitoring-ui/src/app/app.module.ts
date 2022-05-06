@@ -19,6 +19,7 @@ import { ExceptionReportComponent } from './exception-report/exception-report.co
 import { DailyMonitoringComponent } from './daily-monitoring/daily-monitoring.component';
 import { HttpConfigInterceptor } from './providers/http-config.interceptor';
 import { AuthenticationService } from './providers/authentication.service';
+import { FormsModule } from '@angular/forms';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -39,6 +40,7 @@ export function initApp(authService: AuthenticationService) {
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    FormsModule,
     CuiTableModule,
     CuiPagerModule,
     CuiFilterModule,

@@ -67,6 +67,9 @@ export class ContractAssetBalanceComponent implements OnInit {
   selectedRow: any = undefined;
   comments: string = '';
 
+  owners: string[] = ['OPL', 'SBP', 'ARADM'];
+  selectedOwner: string = '';
+
   offset = 0;
   limit = 10;
   size = 0;
@@ -107,6 +110,7 @@ export class ContractAssetBalanceComponent implements OnInit {
   viewTrxDetails(data: any) {
     this.cabDetailsData = [];
     this.selectedRow = data;
+    this.selectedOwner = data.OWNER;
     this.modal.show(this.viewDetailsRowTemplate, 'full');
 
     var detailsParams = {
@@ -187,25 +191,42 @@ export class ContractAssetBalanceComponent implements OnInit {
     });
   }
 
-  appendComment(): string {
-    let existingComments = (this.selectedRow.COMMENTS ?  this.selectedRow.COMMENTS + '\n' : '');
+  appendComment(comments: string, modifiedRow?:any): string {
+    let existingComments = '';
+    if (modifiedRow) {
+      existingComments = (modifiedRow.COMMENTS ?  modifiedRow.COMMENTS + '\n' : '');
+    } else {
+      existingComments = (this.selectedRow.COMMENTS ?  this.selectedRow.COMMENTS + '\n' : '');
+    }
     let appendedComments = existingComments 
                             + '(' + new Date().toLocaleString() + '): '
-                            + this.comments;
+                            + comments;
+    console.log('appended comments: ', appendedComments);
     return appendedComments;
   }
 
-  changeOwner(owner: string) {
+  /**
+   * Returns 
+   * @param owner 
+   * @returns 
+   */
+  isOwnerChanged(owner: string): boolean {
     let prevOwner = this.selectedRow.OWNER;
-    let modifiedRow = this.selectedRow;
-    modifiedRow.OWNER = owner;
+    console.log('prev owner: ', prevOwner);
+    console.log('selected owner: ', owner);
+    return prevOwner != owner;
   }
 
   save() {
     let rowId = this.selectedRow.ROWID;
     let modifiedRow = this.selectedRow;
+    if (this.isOwnerChanged(this.selectedOwner)) {
+      console.log('changing owner');
+      modifiedRow.OWNER = this.selectedOwner;
+      modifiedRow.COMMENTS = this.appendComment('Assigned to ' + this.selectedOwner);
+    }
     if (this.comments) {
-      modifiedRow.COMMENTS = this.appendComment();
+      modifiedRow.COMMENTS = this.appendComment(this.comments, modifiedRow);
     }
     this.http.put('contract-asset-balance/' + rowId, modifiedRow).subscribe((data: any) => {
       this.selectedRow = data;
