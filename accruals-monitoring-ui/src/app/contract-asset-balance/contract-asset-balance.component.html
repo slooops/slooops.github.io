@@ -1,7 +1,67 @@
 <h3>Contract Asset Balances</h3>
 
-<!-- <cui-filter [options]="filterOptions" (onFiltersChanged)="onFiltersChanged($event)"></cui-filter> -->
 <cui-modal></cui-modal>
+
+<div class="tableFilter givemespace">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group input--icon">
+                <div class="form-group__text">
+                    <input type="search">
+                    <label>Subscription ID</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group input--icon">
+                <div class="form-group__text">
+                    <input />
+                    <label>Item Name</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group input--icon">
+                <div class="form-group__text select">
+                    <select id="select-type-basic">
+                        <option selected>Open</option>
+                        <option>Closed</option>
+                        <option>BDOM yet to reach</option>
+                    </select>
+                    <label for="select-type-basic">Transaction Status</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group input--icon">
+                <div class="form-group__text">
+                    <input />
+                    <label>OU Name</label>
+                    <button type="button" class="link">
+                        <span class="icon-"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group input--icon">
+                <div class="form-group__text">
+                    <input id="input-type-date" type="date">
+                    <label for="input-type-date">Start Date</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group input--icon">
+                <div class="form-group__text">
+                    <input id="input-type-date" type="date">
+                    <label for="input-type-date">End Date</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <cui-table *ngIf="cabTableData.length" [options]="cabTableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
 <cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 
