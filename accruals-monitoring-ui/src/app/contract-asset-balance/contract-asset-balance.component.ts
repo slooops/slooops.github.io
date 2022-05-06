@@ -69,6 +69,7 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   owners: string[] = ['OPL', 'SBP', 'ARADM'];
   selectedOwner: string = '';
+  currentOwner?: string;
 
   offset = 0;
   limit = 10;
@@ -111,6 +112,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.cabDetailsData = [];
     this.selectedRow = data;
     this.selectedOwner = data.OWNER;
+    this.currentOwner = data.OWNER;
     this.modal.show(this.viewDetailsRowTemplate, 'full');
 
     var detailsParams = {
@@ -199,34 +201,26 @@ export class ContractAssetBalanceComponent implements OnInit {
       existingComments = (this.selectedRow.COMMENTS ?  this.selectedRow.COMMENTS + '\n' : '');
     }
     let appendedComments = existingComments 
+                            + this.currentOwner 
                             + '(' + new Date().toLocaleString() + '): '
                             + comments;
-    console.log('appended comments: ', appendedComments);
     return appendedComments;
   }
 
-  /**
-   * Returns 
-   * @param owner 
-   * @returns 
-   */
   isOwnerChanged(owner: string): boolean {
-    let prevOwner = this.selectedRow.OWNER;
-    console.log('prev owner: ', prevOwner);
-    console.log('selected owner: ', owner);
-    return prevOwner != owner;
+    return this.currentOwner != owner;
   }
 
   save() {
     let rowId = this.selectedRow.ROWID;
     let modifiedRow = this.selectedRow;
-    if (this.isOwnerChanged(this.selectedOwner)) {
-      console.log('changing owner');
-      modifiedRow.OWNER = this.selectedOwner;
-      modifiedRow.COMMENTS = this.appendComment('Assigned to ' + this.selectedOwner);
-    }
     if (this.comments) {
       modifiedRow.COMMENTS = this.appendComment(this.comments, modifiedRow);
+    }
+    if (this.isOwnerChanged(this.selectedOwner)) {
+      modifiedRow.OWNER = this.selectedOwner;
+      modifiedRow.COMMENTS = this.appendComment('Assigned to ' + this.selectedOwner);
+      console.log(modifiedRow.COMMENTS);
     }
     this.http.put('contract-asset-balance/' + rowId, modifiedRow).subscribe((data: any) => {
       this.selectedRow = data;
