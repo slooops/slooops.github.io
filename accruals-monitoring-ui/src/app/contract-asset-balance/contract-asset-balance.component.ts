@@ -28,7 +28,8 @@ export class ContractAssetBalanceComponent implements OnInit {
   cabDetailsColumnOptions: CuiTableColumnOption[] = [];
   cabDetailsOptions!: CuiTableOptions;
 
-  cabTableData: any[] = [];
+  cabTableAllData: any[] = [];
+  cabTableFiltered: any[] = [];
   cabDetailsData: any[] = [];
 
   cabColumnMappings: Map<string, string> = new Map(Object.entries({
@@ -63,6 +64,10 @@ export class ContractAssetBalanceComponent implements OnInit {
     'SUB SKU BALANCE': 'Sub Sku Balance',
     AMOUNT_NET_USD: 'Balance Amount USD'
   }));
+
+  subId: string = '';
+  itemName: string = '';
+  ouName: string = '';
 
   selectedRow: any = undefined;
   comments: string = '';
@@ -149,14 +154,14 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   getContractAssetBalance(): void {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
-      this.cabTableData = data;
-      
+      this.cabTableAllData = data;
+      this.cabTableFiltered = this.cabTableAllData;
       this.cabColumnOptions.push(new CuiTableColumnOption({
         name: '',
         template: this.viewDetailsTemplate
       }));
 
-      for (let column of Object.keys(this.cabTableData[0])) {
+      for (let column of Object.keys(this.cabTableAllData[0])) {
         if(column == 'BDOM_DATE') {
           this.cabColumnOptions.push(new CuiTableColumnOption({
             'name': this.cabColumnMappings.get(column),
@@ -189,7 +194,7 @@ export class ContractAssetBalanceComponent implements OnInit {
         wrapText: true
       });
 
-      this.size = this.cabTableData.length;
+      this.size = this.cabTableAllData.length;
     });
   }
 
@@ -237,6 +242,28 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   whatisthis(item: any) {
     console.log(item);
+  }
+
+  filterData() {
+    let filteredData: any[] = this.cabTableAllData;
+    filteredData = filteredData.filter((row: any) => 
+      row.SUBSCRIPTION_REF_ID.toUpperCase().includes(this.subId.toUpperCase()));
+
+    filteredData = filteredData.filter((row: any) => 
+      row.ITEM_NAME.toUpperCase().includes(this.itemName.toUpperCase()));
+    this.cabTableFiltered = filteredData;
+    this.size = filteredData.length;
+
+  }
+
+  onSubIdChange(subId: string) {
+    this.subId = subId;
+    this.filterData();
+  }
+
+  onItemNameChange(itemName: string) {
+    this.itemName = itemName;
+    this.filterData();
   }
 
 }

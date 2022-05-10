@@ -7,7 +7,7 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
-                    <input type="search">
+                    <input type="search" [ngModel]="subId" (ngModelChange)="onSubIdChange($event)">
                     <label>Subscription ID</label>
                 </div>
             </div>
@@ -15,7 +15,7 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
-                    <input />
+                    <input type="search" [ngModel]="itemName" (ngModelChange)="onItemNameChange($event)" />
                     <label>Item Name</label>
                 </div>
             </div>
@@ -62,8 +62,8 @@
     </div>
 </div>
 
-<cui-table *ngIf="cabTableData.length" [options]="cabTableOptions" [data]="cabTableData" [limit]="limit" [offset]="offset"></cui-table>
-<cui-pager *ngIf="cabTableData.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
+<cui-table *ngIf="cabTableAllData.length" [options]="cabTableOptions" [data]="cabTableFiltered" [limit]="limit" [offset]="offset"></cui-table>
+<cui-pager *ngIf="cabTableFiltered.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 
 <ng-template #viewDetails let-item="celldata"><span><a class="link" (click)="viewTrxDetails(item)">View Details</a></span></ng-template>
 
