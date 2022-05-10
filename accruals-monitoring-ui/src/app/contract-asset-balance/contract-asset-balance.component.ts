@@ -251,6 +251,10 @@ export class ContractAssetBalanceComponent implements OnInit {
 
     filteredData = filteredData.filter((row: any) => 
       row.ITEM_NAME.toUpperCase().includes(this.itemName.toUpperCase()));
+
+    filteredData = filteredData.filter((row: any) =>
+      row.OU_NAME.toUpperCase().includes(this.ouName.toUpperCase()));
+
     this.cabTableFiltered = filteredData;
     this.size = filteredData.length;
 
@@ -263,6 +267,11 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   onItemNameChange(itemName: string) {
     this.itemName = itemName;
+    this.filterData();
+  }
+
+  onOuNameChange(ouName: string) {
+    this.ouName = ouName;
     this.filterData();
   }
 

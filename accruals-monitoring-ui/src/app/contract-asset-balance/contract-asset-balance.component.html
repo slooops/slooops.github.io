@@ -35,7 +35,7 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
-                    <input />
+                    <input type="search" [ngModel]="ouName" (ngModelChange)="onOuNameChange($event)" />
                     <label>OU Name</label>
                     <button type="button" class="link">
                         <span class="icon-"></span>
