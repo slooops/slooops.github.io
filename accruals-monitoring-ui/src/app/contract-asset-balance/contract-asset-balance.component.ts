@@ -1,7 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { 
-  CuiTableOptions, 
-  CuiTableColumnOption, 
+import {
+  CuiTableOptions,
+  CuiTableColumnOption,
   CuiFilterOptions,
   CuiModalService } from '@cisco-ngx/cui-components';
 import { ApiHttpService } from '../providers/http.service';
@@ -12,7 +12,7 @@ import { ApiHttpService } from '../providers/http.service';
   templateUrl: './contract-asset-balance.component.html',
   styleUrls: ['./contract-asset-balance.component.css']
 })
-export class ContractAssetBalanceComponent implements OnInit {  
+export class ContractAssetBalanceComponent implements OnInit {
   @ViewChild('viewDetails', { static: true })
   viewDetailsTemplate!: TemplateRef<any>;
   @ViewChild('viewDetailsRow')
@@ -24,7 +24,7 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   cabColumnOptions: CuiTableColumnOption[] = [];
   cabTableOptions!: CuiTableOptions;
-  
+
   cabDetailsColumnOptions: CuiTableColumnOption[] = [];
   cabDetailsOptions!: CuiTableOptions;
 
@@ -45,7 +45,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     BDOM_DATE: 'Calculated BDOM',
     CURRENT_STATUS: 'Status',
     OWNER: 'Owner',
-    COMMENTS: 'Comments'    
+    COMMENTS: 'Comments'
   }));
 
   detailColumnMappings: Map<string, string> = new Map(Object.entries({
@@ -68,6 +68,9 @@ export class ContractAssetBalanceComponent implements OnInit {
   subId: string = '';
   itemName: string = '';
   ouName: string = '';
+  trxStatus: string = '';
+  startDate: Date = new Date();
+  endDate: Date = new Date();
 
   selectedRow: any = undefined;
   comments: string = '';
@@ -205,8 +208,8 @@ export class ContractAssetBalanceComponent implements OnInit {
     } else {
       existingComments = (this.selectedRow.COMMENTS ?  this.selectedRow.COMMENTS + '\n' : '');
     }
-    let appendedComments = existingComments 
-                            + this.currentOwner 
+    let appendedComments = existingComments
+                            + this.currentOwner
                             + '(' + new Date().toLocaleString() + '): '
                             + comments;
     return appendedComments;
@@ -246,14 +249,34 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   filterData() {
     let filteredData: any[] = this.cabTableAllData;
-    filteredData = filteredData.filter((row: any) => 
+    filteredData = filteredData.filter((row: any) =>
       row.SUBSCRIPTION_REF_ID.toUpperCase().includes(this.subId.toUpperCase()));
 
-    filteredData = filteredData.filter((row: any) => 
+    filteredData = filteredData.filter((row: any) =>
       row.ITEM_NAME.toUpperCase().includes(this.itemName.toUpperCase()));
 
     filteredData = filteredData.filter((row: any) =>
       row.OU_NAME.toUpperCase().includes(this.ouName.toUpperCase()));
+
+    filteredData = filteredData.filter((row: any) =>
+      row.CURRENT_STATUS.toUpperCase().includes(this.trxStatus.toUpperCase()));
+
+    filteredData = filteredData.filter((row: any) => {
+      console.log(this.startDate);
+      console.log(this.endDate);
+      if (!this.startDate && !this.endDate){
+        return true;
+      }
+      else if (!this.startDate) {
+        return row.BDOM_DATE <= this.endDate;
+      }
+      else if (!this.endDate) {
+        return row.BDOM_DATE >= this.startDate;
+      }
+      else {
+        return row.BDOM_DATE >= this.startDate && row.BDOM_DATE <= this.endDate;
+      }
+    });
 
     this.cabTableFiltered = filteredData;
     this.size = filteredData.length;
@@ -275,4 +298,18 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.filterData();
   }
 
+  onTrxStatusChange(trxStatus: string) {
+    this.trxStatus = trxStatus;
+    this.filterData();
+  }
+
+  onStartDateChange(startDate: Date) {
+    this.startDate = startDate;
+    this.filterData();
+  }
+
+  onEndDateChange(endDate: Date) {
+    this.endDate = endDate;
+    this.filterData();
+  }
 }

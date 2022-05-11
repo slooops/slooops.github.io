@@ -23,7 +23,7 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text select">
-                    <select id="select-type-basic">
+                    <select id="select-type-basic" [ngModel]="trxStatus" (ngModelChange)="onTrxStatusChange($event)">
                         <option selected>Open</option>
                         <option>Closed</option>
                         <option>BDOM yet to reach</option>
@@ -46,7 +46,7 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
-                    <input id="input-type-date" type="date">
+                    <input id="input-type-date" type="date" [ngModel]="startDate" (ngModelChange)="onStartDateChange($event)">
                     <label for="input-type-date">Start Date</label>
                 </div>
             </div>
@@ -54,7 +54,7 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
-                    <input id="input-type-date" type="date">
+                    <input id="input-type-date" type="date" [ngModel]="endDate" (ngModelChange)="onEndDateChange($event)">
                     <label for="input-type-date">End Date</label>
                 </div>
             </div>
