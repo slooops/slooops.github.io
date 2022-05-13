@@ -36,6 +36,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     OU_NAME: 'Operating Unit',
     SUBSCRIPTION_REF_ID: 'Subscription ID',
     ITEM_NAME: 'SKU',
+    FIRST_RECORDED_DATE: "First Recorded Date",
     OA_FLAG: 'OA Flag',
     CURRENCY_CODE: 'Currency',
     CONTRA_DR_AMOUNT: 'Contract Assets DR Amount',
@@ -52,6 +53,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     OU_NAME: 'Operating Unit',
     SUBSCRIPTION_REF_ID: 'Subscription ID',
     ITEM_NAME: 'SKU',
+    FIRST_RECORDED_DATE: "First Recorded Date",
     ORIGINAL_UNIQUE_ID: 'Original Unique ID',
     CURRENCY: 'Currency',
     SBP_INV_AMOUNT: 'TSV-INV Total',
@@ -69,8 +71,8 @@ export class ContractAssetBalanceComponent implements OnInit {
   itemName: string = '';
   ouName: string = '';
   trxStatus: string = '';
-  startDate: Date = new Date();
-  endDate: Date = new Date();
+  startDate: string = new Date(-8640000000000000).toISOString().split("T")[0]; //min date by default;
+  endDate: string = new Date(8640000000000000).toISOString().split("T")[0]; //max date by default;
 
   selectedRow: any = undefined;
   comments: string = '';
@@ -262,19 +264,21 @@ export class ContractAssetBalanceComponent implements OnInit {
       row.CURRENT_STATUS.toUpperCase().includes(this.trxStatus.toUpperCase()));
 
     filteredData = filteredData.filter((row: any) => {
-      console.log(this.startDate);
-      console.log(this.endDate);
-      if (!this.startDate && !this.endDate){
+      let first_rec_date = Date.parse(row.FIRST_RECORDED_DATE.split("T")[0]);
+      let start_date = Date.parse(this.startDate);
+      let end_date = Date.parse(this.endDate);;
+      if (!start_date && !this.endDate){
         return true;
       }
-      else if (!this.startDate) {
-        return row.BDOM_DATE <= this.endDate;
+      else if (!start_date) {
+        return first_rec_date <= end_date;
       }
       else if (!this.endDate) {
-        return row.BDOM_DATE >= this.startDate;
+        return first_rec_date >= start_date;
       }
       else {
-        return row.BDOM_DATE >= this.startDate && row.BDOM_DATE <= this.endDate;
+        console.log(first_rec_date >= start_date && first_rec_date <= end_date);
+        return first_rec_date >= start_date && first_rec_date <= end_date;
       }
     });
 
@@ -303,12 +307,12 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.filterData();
   }
 
-  onStartDateChange(startDate: Date) {
+  onStartDateChange(startDate: string) {
     this.startDate = startDate;
     this.filterData();
   }
 
-  onEndDateChange(endDate: Date) {
+  onEndDateChange(endDate: string) {
     this.endDate = endDate;
     this.filterData();
   }
