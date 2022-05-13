@@ -266,18 +266,17 @@ export class ContractAssetBalanceComponent implements OnInit {
     filteredData = filteredData.filter((row: any) => {
       let first_rec_date = Date.parse(row.FIRST_RECORDED_DATE.split("T")[0]);
       let start_date = Date.parse(this.startDate);
-      let end_date = Date.parse(this.endDate);;
-      if (!start_date && !this.endDate){
+      let end_date = Date.parse(this.endDate);
+      if (!start_date && !end_date) {
         return true;
       }
       else if (!start_date) {
         return first_rec_date <= end_date;
       }
-      else if (!this.endDate) {
+      else if (!end_date) {
         return first_rec_date >= start_date;
       }
       else {
-        console.log(first_rec_date >= start_date && first_rec_date <= end_date);
         return first_rec_date >= start_date && first_rec_date <= end_date;
       }
     });
