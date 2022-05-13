@@ -167,7 +167,7 @@ export class ContractAssetBalanceComponent implements OnInit {
       }));
 
       for (let column of Object.keys(this.cabTableAllData[0])) {
-        if(column == 'BDOM_DATE') {
+        if(column == 'BDOM_DATE' || column == 'FIRST_RECORDED_DATE') {
           this.cabColumnOptions.push(new CuiTableColumnOption({
             'name': this.cabColumnMappings.get(column),
             'sortable': true,
