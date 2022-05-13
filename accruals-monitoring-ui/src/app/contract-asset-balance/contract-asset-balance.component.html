@@ -67,7 +67,8 @@
 
 <ng-template #viewDetails let-item="celldata"><span><a class="link" (click)="viewTrxDetails(item)">View Details</a></span></ng-template>
 
-<ng-template #dateCell let-row="celldata"><span>{{row.BDOM_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
+<ng-template #bdomDateCell let-row="celldata"><span>{{row.BDOM_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
+<ng-template #firstRecordedDateCell let-row="celldata"><span>{{row.FIRST_RECORDED_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
 
 <ng-template #commentsCell let-row="celldata"><span id="linebreaks">{{row.COMMENTS}}</span></ng-template>
 

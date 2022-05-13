@@ -17,8 +17,10 @@ export class ContractAssetBalanceComponent implements OnInit {
   viewDetailsTemplate!: TemplateRef<any>;
   @ViewChild('viewDetailsRow')
   viewDetailsRowTemplate!: TemplateRef<any>;
-  @ViewChild('dateCell')
-  dateCellTemplate!: TemplateRef<any>;
+  @ViewChild('bdomDateCell')
+  bdomDateCellTemplate!: TemplateRef<any>;
+  @ViewChild('firstRecordedDateCell')
+  firstRecordedDateCellTemplate!: TemplateRef<any>;
   @ViewChild('commentsCell')
   commentsCellTemplate!: TemplateRef<any>;
 
@@ -167,12 +169,19 @@ export class ContractAssetBalanceComponent implements OnInit {
       }));
 
       for (let column of Object.keys(this.cabTableAllData[0])) {
-        if(column == 'BDOM_DATE' || column == 'FIRST_RECORDED_DATE') {
+        if(column == 'BDOM_DATE') {
           this.cabColumnOptions.push(new CuiTableColumnOption({
             'name': this.cabColumnMappings.get(column),
             'sortable': true,
             'key': column,
-            'template': this.dateCellTemplate
+            'template': this.bdomDateCellTemplate
+          }));
+        } else if (column == 'FIRST_RECORDED_DATE') {
+          this.cabColumnOptions.push(new CuiTableColumnOption({
+            'name': this.cabColumnMappings.get(column),
+            'sortable': true,
+            'key': column,
+            'template': this.firstRecordedDateCellTemplate
           }));
         } else if (column == 'COMMENTS') {
           this.cabColumnOptions.push(new CuiTableColumnOption({
