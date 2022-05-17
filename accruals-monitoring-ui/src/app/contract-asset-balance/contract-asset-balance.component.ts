@@ -72,14 +72,15 @@ export class ContractAssetBalanceComponent implements OnInit {
   subId: string = '';
   itemName: string = '';
   ouName: string = '';
-  trxStatus: string = '';
+  trxStatus: string[] = ['Open', 'Closed', 'BDOM yet to reach'];
+  selectedTrxStatus: string = 'Open';
   startDate: string = new Date(-8640000000000000).toISOString().split("T")[0]; //min date by default;
   endDate: string = new Date(8640000000000000).toISOString().split("T")[0]; //max date by default;
 
   selectedRow: any = undefined;
   comments: string = '';
 
-  owners: string[] = ['OPL', 'SBP', 'ARADM'];
+  owners: string[] = ['Revenue', 'I2C', 'OPL', 'SBP', 'ARADM'];
   selectedOwner: string = '';
   currentOwner?: string;
 
@@ -270,7 +271,7 @@ export class ContractAssetBalanceComponent implements OnInit {
       row.OU_NAME.toUpperCase().includes(this.ouName.toUpperCase()));
 
     filteredData = filteredData.filter((row: any) =>
-      row.CURRENT_STATUS.toUpperCase().includes(this.trxStatus.toUpperCase()));
+      row.CURRENT_STATUS.toUpperCase().includes(this.selectedTrxStatus.toUpperCase()));
 
     filteredData = filteredData.filter((row: any) => {
       let first_rec_date = Date.parse(row.FIRST_RECORDED_DATE.split("T")[0]);
@@ -311,7 +312,7 @@ export class ContractAssetBalanceComponent implements OnInit {
   }
 
   onTrxStatusChange(trxStatus: string) {
-    this.trxStatus = trxStatus;
+    this.selectedTrxStatus = trxStatus;
     this.filterData();
   }
 

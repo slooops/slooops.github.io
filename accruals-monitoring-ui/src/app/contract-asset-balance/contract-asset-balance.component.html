@@ -23,10 +23,8 @@
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text select">
-                    <select id="select-type-basic" [ngModel]="trxStatus" (ngModelChange)="onTrxStatusChange($event)">
-                        <option selected>Open</option>
-                        <option>Closed</option>
-                        <option>BDOM yet to reach</option>
+                    <select id="select-type-basic" [ngModel]="selectedTrxStatus" (ngModelChange)="onTrxStatusChange($event)">
+                        <option *ngFor="let status of trxStatus" [ngValue]="status" [selected]="status==selectedTrxStatus">{{status}}</option>
                     </select>
                     <label for="select-type-basic">Transaction Status</label>
                 </div>
