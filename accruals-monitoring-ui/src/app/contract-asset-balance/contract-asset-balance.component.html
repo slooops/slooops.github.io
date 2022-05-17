@@ -67,6 +67,9 @@
 
 <ng-template #bdomDateCell let-row="celldata"><span>{{row.BDOM_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
 <ng-template #firstRecordedDateCell let-row="celldata"><span>{{row.FIRST_RECORDED_DATE | date:'dd-MMM-yyyy' }}</span></ng-template>
+<ng-template #amountCell let-row="celldata" let-column="celltemplate">
+    {{transformNumber(row, column)}}
+</ng-template>
 
 <ng-template #commentsCell let-row="celldata"><span id="linebreaks">{{row.COMMENTS}}</span></ng-template>
 

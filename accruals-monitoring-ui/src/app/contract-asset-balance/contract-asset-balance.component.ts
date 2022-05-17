@@ -1,3 +1,4 @@
+import { formatCurrency } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import {
   CuiTableOptions,
@@ -23,6 +24,8 @@ export class ContractAssetBalanceComponent implements OnInit {
   firstRecordedDateCellTemplate!: TemplateRef<any>;
   @ViewChild('commentsCell')
   commentsCellTemplate!: TemplateRef<any>;
+  @ViewChild('amountCell')
+  amountCellTemplate!: TemplateRef<any>;
 
   cabColumnOptions: CuiTableColumnOption[] = [];
   cabTableOptions!: CuiTableOptions;
@@ -88,24 +91,6 @@ export class ContractAssetBalanceComponent implements OnInit {
   limit = 10;
   size = 0;
 
-  filters: any;
-  filterOptions = new CuiFilterOptions({
-    filters: [
-      {
-        label: 'Subscription Ref ID',
-        value: 'subRefId'
-      },
-      {
-        label: 'Item Name',
-        value: 'itemName'
-      },
-      {
-        label: 'Transaction Status',
-        value: 'trxStatus'
-      }
-    ]
-  });
-
   constructor(private http: ApiHttpService, private modal: CuiModalService) { }
 
   ngOnInit(): void {
@@ -115,10 +100,6 @@ export class ContractAssetBalanceComponent implements OnInit {
   onPageUpdated(pageInfo: any) {
     console.log(pageInfo);
     this.offset = pageInfo.page;
-  }
-
-  onFiltersChanged(filters: any) {
-    this.filters = filters;
   }
 
   viewTrxDetails(data: any) {
@@ -146,7 +127,8 @@ export class ContractAssetBalanceComponent implements OnInit {
             this.cabDetailsColumnOptions.push(new CuiTableColumnOption({
               'name': this.detailColumnMappings.get(column),
               'sortable': true,
-              'key': column
+              'key': column,
+              'template': this.amountCellTemplate
             }));
           }
         }
@@ -190,6 +172,13 @@ export class ContractAssetBalanceComponent implements OnInit {
             'sortable': true,
             'key': column,
             'template': this.commentsCellTemplate
+          }));
+        } else if (column.includes('AMOUNT')) {
+          this.cabColumnOptions.push(new CuiTableColumnOption({
+            'name': this.cabColumnMappings.get(column),
+            'sortable': true,
+            'key': column,
+            'template': this.amountCellTemplate
           }));
         } else if (this.cabColumnMappings.has(column)) {
           this.cabColumnOptions.push(new CuiTableColumnOption({
@@ -253,6 +242,14 @@ export class ContractAssetBalanceComponent implements OnInit {
   closeModal() {
     this.selectedRow = undefined;
     this.modal.hide();
+  }
+
+  transformNumber(row: any, column: any): string {
+    let cell = row[column.key];
+    if (!isNaN(+cell) && !column.key.includes('ID')) {
+      cell = formatCurrency(cell, 'en-US', '');
+    }
+    return cell;
   }
 
   whatisthis(item: any) {
