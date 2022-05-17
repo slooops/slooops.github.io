@@ -8,6 +8,10 @@
 </div>
 <button class="btn" (click)="getDailyMonitoringDetails()">View Details</button>
 
+<ng-template #numberCell let-row="celldata" let-column="celltemplate">
+    <span>{{transformNumber(row, column)}}</span>
+</ng-template>
+
 <ng-template #viewDetails>
     <h4>View Details </h4>
     <cui-loader *ngIf="!detailsTableData.length" label="Loading..." color="info"></cui-loader>

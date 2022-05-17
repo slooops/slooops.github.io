@@ -1,6 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { CuiTableOptions, CuiTableColumnOption, CuiModalService } from '@cisco-ngx/cui-components';
+import { formatNumber } from '@angular/common';
 
 @Component({
   selector: 'app-daily-monitoring',
@@ -10,6 +11,8 @@ import { CuiTableOptions, CuiTableColumnOption, CuiModalService } from '@cisco-n
 export class DailyMonitoringComponent implements OnInit {
   @ViewChild('viewDetails', { static: true })
   viewDetailsTemplate!: TemplateRef<any>;
+  @ViewChild('numberCell', { static: true })
+  numberCellTemplate!: TemplateRef<any>;
 
   summaryTableOptions!: CuiTableOptions;
   summaryTableData: any[] = [];
@@ -52,7 +55,8 @@ export class DailyMonitoringComponent implements OnInit {
           summaryColumns.push(new CuiTableColumnOption({
             'name': this.summaryColumnMappings.get(column),
             'sortable': false,
-            'key': column
+            'key': column,
+            'template': this.numberCellTemplate
           }));
         }
 
@@ -106,6 +110,14 @@ export class DailyMonitoringComponent implements OnInit {
 
   closeModal() {
     this.modal.hide();
+  }
+
+  transformNumber(row: any, column: any): string {
+    let cell = row[column.key];
+    if (!isNaN(+cell)) {
+      cell = formatNumber(cell, 'en-US');
+    }
+    return cell;
   }
 
 }
