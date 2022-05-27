@@ -211,7 +211,6 @@ export class ContractAssetBalanceComponent implements OnInit {
         wrapText: true
       });
 
-      this.size = this.cabTableAllData.length;
       this.cabTableLoading = false;
     });
   }
@@ -306,6 +305,7 @@ export class ContractAssetBalanceComponent implements OnInit {
 
     this.cabTableFiltered = filteredData;
     this.size = filteredData.length;
+    this.offset = 0;
 
   }
 
