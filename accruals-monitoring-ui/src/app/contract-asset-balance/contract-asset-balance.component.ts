@@ -127,11 +127,9 @@ export class ContractAssetBalanceComponent implements OnInit {
       .subscribe((data: any) => {
         this.cabDetailsData = data;
         console.log(this.cabDetailsData);
-        this.cabDetailsColumnOptions = [];
 
         for (let column of Object.keys(this.cabDetailsData[0])) {
           if (this.detailColumnMappings.has(column)) {
-            console.log(column);
             this.cabDetailsColumnOptions.push(new CuiTableColumnOption({
               'name': this.detailColumnMappings.get(column),
               'sortable': true,
@@ -140,17 +138,18 @@ export class ContractAssetBalanceComponent implements OnInit {
             }));
           }
         }
-      });
-      this.cabDetailsOptions = new CuiTableOptions({
-        bordered: true,
-        striped: true,
-        columns: this.cabDetailsColumnOptions,
-        dynamicData: false,
-        wrapText: true
+        this.cabDetailsOptions = new CuiTableOptions({
+          bordered: true,
+          striped: true,
+          columns: this.cabDetailsColumnOptions,
+          dynamicData: false,
+          wrapText: true
+        });
+        
+        this.detailsSize = data.length;
+        this.detailsLoading = false;
       });
       
-      this.detailsSize = data.length;
-      this.detailsLoading = false;
   }
 
   getContractAssetBalance(): void {
@@ -257,6 +256,7 @@ export class ContractAssetBalanceComponent implements OnInit {
   closeModal() {
     this.selectedRow = undefined;
     this.cabDetailsData = [];
+    this.cabDetailsColumnOptions = [];
     this.modal.hide();
   }
 

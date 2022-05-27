@@ -77,7 +77,7 @@
 <ng-template #viewDetailsRow>
     <h3>View Details </h3>
     <cui-loader *ngIf="detailsLoading" label="Loading..." color="info"></cui-loader>
-    <cui-table *ngIf="cabDetailsData.length" [options]="cabDetailsOptions" [data]="cabDetailsData"></cui-table>
+    <cui-table *ngIf="!detailsLoading" [options]="cabDetailsOptions" [data]="cabDetailsData"></cui-table>
     <div class="row">
         <div class="col-md-3">
             <div class="form-group">
