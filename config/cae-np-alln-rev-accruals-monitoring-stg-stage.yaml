@@ -138,9 +138,8 @@ spec:
             secretKeyRef:
               key: osuser
               name: rdac
-      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:${trigger["parameters"]["imageTag"]}'
+        image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-${trigger["parameters"]["imageTag"]}'
         imagePullPolicy: IfNotPresent
-        name: 'ts1-rev-accruals-monitoring-server'
         ports:
         - containerPort: 8080
       imagePullSecrets:
@@ -247,9 +246,8 @@ spec:
             secretKeyRef:
               key: osuser
               name: rdac
-      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:${trigger["parameters"]["imageTag"]}'
+        image: 'containers.cisco.com/it_cvc_order_to_cash/rev-accruals-monitoring:server-${trigger["parameters"]["imageTag"]}'
         imagePullPolicy: IfNotPresent
-        name: 'ts3-rev-accruals-monitoring-server'
         ports:
         - containerPort: 8080
       imagePullSecrets:
