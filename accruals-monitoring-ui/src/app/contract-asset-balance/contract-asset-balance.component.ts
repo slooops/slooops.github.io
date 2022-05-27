@@ -115,8 +115,6 @@ export class ContractAssetBalanceComponent implements OnInit {
       "itemName": data.ITEM_NAME
     };
 
-    console.log(data);
-
     this.http.get('contract-asset-balance/details', { params: detailsParams })
       .subscribe((data: any) => {
         this.cabDetailsData = data;
@@ -146,6 +144,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableAllData = data;
       this.cabTableFiltered = this.cabTableAllData;
+      this.filterData();
       this.cabColumnOptions.push(new CuiTableColumnOption({
         name: '',
         template: this.viewDetailsTemplate
