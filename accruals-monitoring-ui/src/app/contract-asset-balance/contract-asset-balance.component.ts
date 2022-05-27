@@ -91,6 +91,10 @@ export class ContractAssetBalanceComponent implements OnInit {
   limit = 10;
   size = 0;
 
+  detailsOffset = 0;
+  detailsLimit = 10;
+  detailsSize = 0;
+
   constructor(private http: ApiHttpService, private modal: CuiModalService) { }
 
   ngOnInit(): void {
@@ -118,7 +122,7 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.http.get('contract-asset-balance/details', { params: detailsParams })
       .subscribe((data: any) => {
         this.cabDetailsData = data;
-        this.size = data.length;
+        this.detailsSize = data.length;
 
         for (let column of Object.keys(this.cabDetailsData[0])) {
           if (this.detailColumnMappings.has(column)) {

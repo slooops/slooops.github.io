@@ -1,9 +1,11 @@
 package com.cisco.des.o2c.rev.accrualsmonitoringserver.services;
 
 import com.cisco.des.o2c.rev.accrualsmonitoringserver.utils.JdbcManager;
+import oracle.jdbc.OracleTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,11 +70,22 @@ public class ContractAssetBalanceService {
     }
 
     public List<Map<String, Object>> getCabDetails(int orgId, String subRefId, String itemName) {
+        Map<String, Integer> cabDetailsInTypes = new HashMap<>();
+        Map<String, Integer> cabDetailsOutTypes = new HashMap<>();
         Map<String, Object> cabDetailsParams = new HashMap<>();
+
+        cabDetailsInTypes.put("p_i_org_id", Types.NUMERIC);
+        cabDetailsInTypes.put("p_i_sub_ref_id", Types.VARCHAR);
+        cabDetailsInTypes.put("p_i_item_name", Types.VARCHAR);
+
+        cabDetailsOutTypes.put("P_O_CONTRA_DET_CURSOR", OracleTypes.CURSOR);
+
         cabDetailsParams.put("p_i_org_id", orgId);
         cabDetailsParams.put("p_i_sub_ref_id", subRefId);
         cabDetailsParams.put("p_i_item_name", itemName);
-        List<Map<String, Object>> result = (List<Map<String, Object>>) jdbcManager.simpleJdbcCall(schema, catalogName, cabDetailsQuery, cabDetailsParams)
+
+        List<Map<String, Object>> result = (List<Map<String, Object>>) jdbcManager
+                .simpleJdbcCall(schema, catalogName, cabDetailsQuery, cabDetailsInTypes, cabDetailsOutTypes, cabDetailsParams)
                 .get("P_O_CONTRA_DET_CURSOR");
 
         return result;
