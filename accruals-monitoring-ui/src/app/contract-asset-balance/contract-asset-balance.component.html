@@ -60,6 +60,7 @@
     </div>
 </div>
 
+<cui-loader *ngIf="!cabTableAllData.length" label="Loading..." color="info"></cui-loader>
 <cui-table *ngIf="cabTableAllData.length" [options]="cabTableOptions" [data]="cabTableFiltered" [limit]="limit" [offset]="offset"></cui-table>
 <cui-pager *ngIf="cabTableFiltered.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
 

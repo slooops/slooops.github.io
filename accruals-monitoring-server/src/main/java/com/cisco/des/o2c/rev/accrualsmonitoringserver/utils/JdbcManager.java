@@ -32,11 +32,11 @@ public class JdbcManager {
     }
 
     public Map<String, Object> simpleJdbcCall(String schema, String catalogName, String proc, Map<String, Object> params) {
+        SqlParameterSource paramSource = new MapSqlParameterSource(params);
         SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate)
                 .withSchemaName(schema)
                 .withCatalogName(catalogName)
                 .withProcedureName(proc);
-        SqlParameterSource paramSource = new MapSqlParameterSource(params);
         Map<String, Object> result = call.execute(paramSource);
         System.out.println(result);
         return result;
