@@ -1,6 +1,6 @@
 {
     "DATABASE_NAME": "local",
-    "DATABASE_URL":"jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/DV1CG1,cn=OracleContext,dc=cisco,dc=com",
+    "DATABASE_URL":"jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com",
     "DATABASE_USERNAME":"XXCFIRW",
     "DATABASE_PASSWORD":"Na6K3k6F",
     "RDAC_OSUSER": "",
