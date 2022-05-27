@@ -14,4 +14,4 @@
     <cui-table *ngIf="programTableData.length" [options]="programTableOptions" [data]="programTableData" [limit]="limit" [offset]="offset"></cui-table>
 </div>
 
-<ng-template #dateCell let-row="celldata">{{row.COMPLETION_DATE | date:'dd-MMM-yyyy'}}</ng-template>
+<ng-template #dateCell let-row="celldata">{{row.COMPLETION_DATE | date:'short'}}</ng-template>
