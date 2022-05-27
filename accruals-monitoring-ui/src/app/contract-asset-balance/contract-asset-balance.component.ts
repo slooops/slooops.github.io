@@ -87,9 +87,13 @@ export class ContractAssetBalanceComponent implements OnInit {
   selectedOwner: string = '';
   currentOwner?: string;
 
+  cabTableLoading = false;
+
   offset = 0;
   limit = 10;
   size = 0;
+
+  detailsLoading = false;
 
   detailsOffset = 0;
   detailsLimit = 10;
@@ -107,7 +111,7 @@ export class ContractAssetBalanceComponent implements OnInit {
   }
 
   viewTrxDetails(data: any) {
-    this.cabDetailsData = [];
+    this.detailsLoading = true;
     this.selectedRow = data;
     this.selectedOwner = data.OWNER;
     this.currentOwner = data.OWNER;
@@ -122,10 +126,12 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.http.get('contract-asset-balance/details', { params: detailsParams })
       .subscribe((data: any) => {
         this.cabDetailsData = data;
-        this.detailsSize = data.length;
+        console.log(this.cabDetailsData);
+        this.cabDetailsColumnOptions = [];
 
         for (let column of Object.keys(this.cabDetailsData[0])) {
           if (this.detailColumnMappings.has(column)) {
+            console.log(column);
             this.cabDetailsColumnOptions.push(new CuiTableColumnOption({
               'name': this.detailColumnMappings.get(column),
               'sortable': true,
@@ -142,13 +148,18 @@ export class ContractAssetBalanceComponent implements OnInit {
         dynamicData: false,
         wrapText: true
       });
+      
+      this.detailsSize = data.length;
+      this.detailsLoading = false;
   }
 
   getContractAssetBalance(): void {
+    this.cabTableLoading = true;
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableAllData = data;
       this.cabTableFiltered = this.cabTableAllData;
       this.filterData();
+      this.cabColumnOptions = [];
       this.cabColumnOptions.push(new CuiTableColumnOption({
         name: '',
         template: this.viewDetailsTemplate
@@ -202,6 +213,7 @@ export class ContractAssetBalanceComponent implements OnInit {
       });
 
       this.size = this.cabTableAllData.length;
+      this.cabTableLoading = false;
     });
   }
 
@@ -244,6 +256,7 @@ export class ContractAssetBalanceComponent implements OnInit {
 
   closeModal() {
     this.selectedRow = undefined;
+    this.cabDetailsData = [];
     this.modal.hide();
   }
 
