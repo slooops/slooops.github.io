@@ -4,3 +4,7 @@
 .givemespace {
     margin: 8px 0 8px 0;
 }
+
+.modal__content {
+    margin: 40px;
+}

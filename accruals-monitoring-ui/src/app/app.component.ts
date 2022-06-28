@@ -8,7 +8,10 @@ import { Component } from '@angular/core';
 export class AppComponent {
   constructor ( ) {}
   title = 'Revenue Accruals Dashboard';
-  inline = true;
-  alignment: 'left' | 'right' | 'center' = 'right';
-  tabIndex = 0;
+  // inline = true;
+  // alignment: 'left' | 'right' | 'center' = 'right';
+  // tabIndex = 0;
+
+
+
 }

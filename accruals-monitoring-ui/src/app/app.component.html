@@ -1,24 +1,24 @@
-<header class="header">
-    <div class="container">
-        <div class="header-panels">
-            <div class="header-panel">
-                <a class="header__logo" href="http://www.cisco.com" target="_blank">
-                    <span class="icon-cisco"></span>
-                </a>
-                <div class="header__title">Revenue Accruals Dashboard</div>
-            </div>
-            <cui-tabs-nav 
-                [inline]="inline" 
-                [alignment]="alignment"
-                [(activeTabIndex)]="tabIndex" >
-                <cui-tab-link [url]="['/dashboard']" [label] = "'Dashboard'"></cui-tab-link>
-                <cui-tab-link [url]="['/contract-asset-balance']" [label]="'Contract Asset Balance'"></cui-tab-link>
-                <cui-tab-link [url]="['/exception-report']" [label]="'Exception Report'"></cui-tab-link>
 
-            </cui-tabs-nav>
-        </div>
-   </div>
-</header>
-<div class="container" id="content">
+<div class="row dbl-padding-bottom">
+    <div class="col-lg-6 col-xl-4 base-padding-bottom">
+        <nav class="sidebar" role="navigation">
+            <div class="sidebar__header">
+                <div class="sidebar__header-title"><span class="icon-cisco"></span> Revenue Accruals Dashboard</div>
+            </div>
+            <ul>
+                <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                    <a [routerLink]="['/dashboard']">Dashboard</a>
+                </li>
+                <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                    <a [routerLink]="['/contract-asset-balance']">Contract Asset Balance</a>
+                </li>
+                <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                    <a [routerLink]="['/exception-report']">Exception Report</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="container content">
     <router-outlet></router-outlet>
 </div>

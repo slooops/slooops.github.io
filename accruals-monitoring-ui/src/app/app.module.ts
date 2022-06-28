@@ -8,7 +8,8 @@ import {
   CuiTabsNavModule,
   CuiModalModule,
   CuiLoaderModule,
-  CuiInputModule } from '@cisco-ngx/cui-components';
+  CuiInputModule,
+} from '@cisco-ngx/cui-components';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
