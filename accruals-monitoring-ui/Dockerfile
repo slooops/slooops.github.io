@@ -7,7 +7,7 @@ WORKDIR /ui
 
 RUN npm install --legacy-peer-deps
 RUN npm install -g @angular/cli --legacy-peer-deps
-RUN ng add @cisco/cui-ng --skip-confirmation --force
+RUN ng add @cisco/cui-ng --legacy-peer-deps --skip-confirmation 
 
 RUN chmod -R 775 /ui
 RUN chown -R node:root /ui
