@@ -89,6 +89,7 @@ export class DailyMonitoringComponent implements OnInit {
         this.detailsTableOptions = new CuiTableOptions({
           bordered: true,
           striped: true,
+          padding: 'compressed',
           columns: detailsColumns,
           dynamicData: false,
           wrapText: true
