@@ -205,6 +205,7 @@ export class ContractAssetBalanceComponent implements OnInit {
       this.cabTableOptions = new CuiTableOptions({
         bordered: true,
         striped: true,
+        padding: 'compressed',
         columns: this.cabColumnOptions,
         singleSelect: true,
         dynamicData: false,
