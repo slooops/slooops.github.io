@@ -2,6 +2,7 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { CuiTableOptions, CuiTableColumnOption, CuiModalService } from '@cisco-ngx/cui-components';
 import { formatNumber } from '@angular/common';
+import { repeatWhen } from 'rxjs';
 
 @Component({
   selector: 'app-daily-monitoring',
@@ -29,13 +30,23 @@ export class DailyMonitoringComponent implements OnInit {
 
   detailsTableOptions!: CuiTableOptions;
   detailsTableData: any[] = [];
+  detailsDataFiltered: any[] = [];
+
+  tableName: string = '';
+  orgId: string = '';
+  uniqueProcessId: string = '';
+  subRefId: string = '';
+  selectedTable: string = 'All';
+  selectedStatus: string = 'E';
+  status: string[] = ['E', 'I', 'P'];
+  tables: string[] = ['All'];
 
   offset = 0;
   limit = 10;
   size = 0;
 
   detailsOffset = 0;
-  detailsLimit = 10;
+  detailsLimit = 8;
   detailsSize = 0;
 
   constructor(private http: ApiHttpService, private modal: CuiModalService) { }
@@ -60,7 +71,6 @@ export class DailyMonitoringComponent implements OnInit {
           }));
         }
 
-
         this.summaryTableOptions = new CuiTableOptions({
           bordered: true,
           striped: true,
@@ -74,10 +84,12 @@ export class DailyMonitoringComponent implements OnInit {
     this.modal.show(this.viewDetailsTemplate, 'full');
     this.http.get('daily-monitoring/details').subscribe((data:any) => {
       this.detailsTableData = data;
+      this.detailsDataFiltered = this.detailsTableData;
       this.detailsSize = data.length;
-      console.log(this.detailsSize);
       let detailsColumns: CuiTableColumnOption[] = [];
-
+      let tables = [...new Set(this.detailsTableData.map((row: any) => row['TABLE_NAME']))];
+      this.tables.push(...tables);
+      console.log(this.detailsDataFiltered);
         for (let column of Object.keys(this.detailsTableData[0])) {
           detailsColumns.push(new CuiTableColumnOption({
             'name': column,
@@ -95,6 +107,7 @@ export class DailyMonitoringComponent implements OnInit {
           wrapText: true
         });
     });
+
   }
 
   onPageUpdated(pageInfo: any) {
@@ -107,6 +120,70 @@ export class DailyMonitoringComponent implements OnInit {
     console.log(pageInfo);
     this.detailsOffset = pageInfo.page;
     //this.getDailyMonitoringDetails();
+  }
+
+  onTableNameChange(tableName: string): void {
+    this.selectedTable = tableName;
+    this.filterData();
+  }
+
+  onOrgIdChange(orgId: string): void {
+    this.orgId = orgId;
+    this.filterData();
+  }
+
+  onUniqueProcessIdChange(uniqueId: string): void {
+    this.uniqueProcessId = uniqueId;
+    this.filterData();
+  }
+
+  onSubRefIdChange(subRefId: string): void {
+    this.subRefId = subRefId;
+    this.filterData();
+  }
+
+  onStatusChange(status: string): void {
+    this.selectedStatus = status;
+    this.filterData();
+  }
+
+  filterData(): void {
+    let filteredData: any[] = this.detailsTableData;
+    
+    filteredData = filteredData.filter((row: any) => {
+      if (this.selectedTable !== "All") {
+        return row.TABLE_NAME.toUpperCase().includes(this.selectedTable.toUpperCase());
+      } else {
+        return true;
+      }
+    }); 
+
+    filteredData = filteredData.filter((row: any) =>
+      row.ORG_ID.toString().includes(this.orgId.toUpperCase()));
+
+    filteredData = filteredData.filter((row: any) => 
+      {
+        if (this.uniqueProcessId === '') {
+          return true;
+        }
+        else return row.UNIQUE_PROCESS_ID && row.UNIQUE_PROCESS_ID.toString().includes(this.uniqueProcessId.toUpperCase());
+      });
+
+    filteredData = filteredData.filter((row: any) =>
+      {
+        if (this.subRefId === '') {
+          return true;
+        }
+        else return row.SUBSCRIPTION_REF_ID && row.SUBSCRIPTION_REF_ID.toUpperCase().includes(this.subRefId.toUpperCase());
+      });
+
+    filteredData = filteredData.filter((row: any) => 
+      row.PROCESS_STATUS.toUpperCase().includes(this.selectedStatus.toUpperCase()));
+
+    this.detailsDataFiltered = filteredData;
+    this.detailsSize = filteredData.length;
+    this.detailsOffset = 0;
+    console.log(this.detailsDataFiltered);
   }
 
   closeModal() {

@@ -14,8 +14,59 @@
 
 <ng-template #viewDetails>
     <h4>View Details </h4>
+    <!--filter by table name, org id, unique process id, sub ref id -->
+    <div class="tableFilter givemespace">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group input--icon">
+                    <div class="form-group__text select">
+                        <select id="select-type-basic" [ngModel]="selectedTable" (ngModelChange)="onTableNameChange($event)">
+                            <option *ngFor="let table of tables" [ngValue]="table" [selected]="table==selectedTable">{{table}}</option>
+                        </select>
+                        <label for="select-type-basic">Table Name</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group input--icon">
+                    <div class="form-group__text">
+                        <input type="search" [ngModel]="orgId" (ngModelChange)="onOrgIdChange($event)" />
+                        <label>Org ID</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group input--icon">
+                    <div class="form-group__text">
+                        <input type="search" [ngModel]="uniqueProcessId" (ngModelChange)="onUniqueProcessIdChange($event)" />
+                        <label>Unique Process ID</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group input--icon">
+                    <div class="form-group__text">
+                        <input type="search" [ngModel]="subRefId" (ngModelChange)="onSubRefIdChange($event)" />
+                        <label>Subscription Ref ID</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group input--icon">
+                    <div class="form-group__text select">
+                        <select id="select-type-basic" [ngModel]="selectedStatus" (ngModelChange)="onStatusChange($event)">
+                            <option *ngFor="let s of status" [ngValue]="s" [selected]="s==selectedStatus">{{s}}</option>
+                        </select>
+                        <label for="select-type-basic">Status</label>
+                    </div>
+                </div>
+            </div> 
+        </div> <!--row-->
+    </div> <!--filters-->
+
     <cui-loader *ngIf="!detailsTableData.length" label="Loading..." color="info"></cui-loader>
-    <cui-table *ngIf="detailsTableData.length" [options]="detailsTableOptions" [data]="detailsTableData" [limit]="detailsLimit" [offset]="detailsOffset"></cui-table>
-    <cui-pager *ngIf="detailsTableData.length" [page]="detailsOffset" [limit]="detailsLimit" [totalItems]="detailsSize" [showPageDetails]="true" (onPageChanged)="onDetailsUpdated($event)"></cui-pager>
+    <cui-table *ngIf="detailsTableData.length" [options]="detailsTableOptions" [data]="detailsDataFiltered" [limit]="detailsLimit" [offset]="detailsOffset"></cui-table>
+    <cui-pager *ngIf="detailsDataFiltered.length" [page]="detailsOffset" [limit]="detailsLimit" [totalItems]="detailsSize" [showPageDetails]="true" (onPageChanged)="onDetailsUpdated($event)"></cui-pager>
     <button class="btn" (click)="closeModal()">Close</button>
 </ng-template>
+
