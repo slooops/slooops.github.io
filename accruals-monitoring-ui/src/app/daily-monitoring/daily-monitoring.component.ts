@@ -2,7 +2,6 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { CuiTableOptions, CuiTableColumnOption, CuiModalService } from '@cisco-ngx/cui-components';
 import { formatNumber } from '@angular/common';
-import { repeatWhen } from 'rxjs';
 
 @Component({
   selector: 'app-daily-monitoring',
