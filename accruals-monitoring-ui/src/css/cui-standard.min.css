@@ -27,7 +27,7 @@ html {
   --cui-font-mono-stack: Monaco, Inconsolata, Consolas, 'Courier New',
         Courier, 'Lucida Console', monospace;
   --cui-font-weight: normal;
-  --cui-header-height: 50px;
+  --cui-header-height: 120px;
   --cui-item-height: 34px;
   --cui-line-height: 1.5;
   /* Spacing */
