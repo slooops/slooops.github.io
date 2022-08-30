@@ -28,7 +28,7 @@ export class DailyMonitoringComponent implements OnInit {
     ACCRUALS_DIST_ERROR: 'Dist Errors',
     ACCRUALS_SUMMARY_ERROR: 'Summary Errors',
     ACCRUALS_AR_LINES_MISSING: 'AR Lines Missing',
-    ACCRUALS_PENDING_RECORDS: 'Pending Records'
+    ACCRUALS_PENDING_RECORDS: 'Kafka Eligible Records'
   }));
 
   detailsTableOptions!: CuiTableOptions;
@@ -41,7 +41,7 @@ export class DailyMonitoringComponent implements OnInit {
   subRefId: string = '';
   selectedTable: string = 'All';
   selectedStatus: string = 'E';
-  status: string[] = [''];
+  status: string[] = ['All'];
   tables: string[] = ['All'];
 
   detailsLineChartLegend: boolean = true;
@@ -261,8 +261,13 @@ export class DailyMonitoringComponent implements OnInit {
         else return row.SUBSCRIPTION_REF_ID && row.SUBSCRIPTION_REF_ID.toUpperCase().includes(this.subRefId.toUpperCase());
       });
 
-    filteredData = filteredData.filter((row: any) =>
-      row.PROCESS_STATUS.toUpperCase().includes(this.selectedStatus.toUpperCase()));
+    filteredData = filteredData.filter((row: any) => {
+      if (this.selectedStatus !== 'All') {
+        return row.PROCESS_STATUS.toUpperCase().includes(this.selectedStatus.toUpperCase());
+      } else {
+        return true;
+      }
+    });
 
     this.detailsDataFiltered = filteredData;
     this.detailsSize = filteredData.length;
