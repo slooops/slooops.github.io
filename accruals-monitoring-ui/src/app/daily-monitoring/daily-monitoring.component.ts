@@ -24,7 +24,7 @@ export class DailyMonitoringComponent implements OnInit {
     ACCRUALS_DIST_ERROR: 'Dist Errors',
     ACCRUALS_SUMMARY_ERROR: 'Summary Errors',
     ACCRUALS_AR_LINES_MISSING: 'AR Lines Missing',
-    ACCRUALS_PENDING_RECORDS: 'Pending Records'
+    ACCRUALS_PENDING_RECORDS: 'Kafka Eligible Records'
   }));
 
   detailsTableOptions!: CuiTableOptions;

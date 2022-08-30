@@ -6,7 +6,13 @@
 <div class="givemespace">
     <cui-table *ngIf="summaryTableData.length" [options]="summaryTableOptions" [data]="summaryTableData" [limit]="limit" [offset]="offset"></cui-table>
 </div>
-<button class="btn" (click)="getDailyMonitoringDetails()">View Details</button>
+<div class="givemespace">
+    <button class="btn" (click)="getDailyMonitoringDetails()">View Details</button>
+</div>
+
+<div class="givemespace">
+    <h3>Kafka Status</h3>
+</div>
 
 <ng-template #numberCell let-row="celldata" let-column="celltemplate">
     <span>{{transformNumber(row, column)}}</span>
