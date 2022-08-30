@@ -37,7 +37,7 @@ export class DailyMonitoringComponent implements OnInit {
   subRefId: string = '';
   selectedTable: string = 'All';
   selectedStatus: string = 'E';
-  status: string[] = [''];
+  status: string[] = ['All'];
   tables: string[] = ['All'];
 
   offset = 0;
@@ -181,8 +181,13 @@ export class DailyMonitoringComponent implements OnInit {
         else return row.SUBSCRIPTION_REF_ID && row.SUBSCRIPTION_REF_ID.toUpperCase().includes(this.subRefId.toUpperCase());
       });
 
-    filteredData = filteredData.filter((row: any) => 
-      row.PROCESS_STATUS.toUpperCase().includes(this.selectedStatus.toUpperCase()));
+    filteredData = filteredData.filter((row: any) => {
+      if (this.selectedStatus !== 'All') {
+        return row.PROCESS_STATUS.toUpperCase().includes(this.selectedStatus.toUpperCase());
+      } else {
+        return true;
+      }
+    });
 
     this.detailsDataFiltered = filteredData;
     this.detailsSize = filteredData.length;
