@@ -21,6 +21,7 @@ import { DailyMonitoringComponent } from './daily-monitoring/daily-monitoring.co
 import { HttpConfigInterceptor } from './providers/http-config.interceptor';
 import { AuthenticationService } from './providers/authentication.service';
 import { FormsModule } from '@angular/forms';
+import { ProgramDetailsComponent } from './program-details/program-details.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -33,6 +34,7 @@ export function initApp(authService: AuthenticationService) {
     AppComponent,
     HealthComponent,
     DashboardComponent,
+    ProgramDetailsComponent,
     ContractAssetBalanceComponent,
     ExceptionReportComponent,
     DailyMonitoringComponent

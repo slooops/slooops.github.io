@@ -4,12 +4,14 @@ import { ContractAssetBalanceComponent } from './contract-asset-balance/contract
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ExceptionReportComponent } from './exception-report/exception-report.component';
 import { HealthComponent } from './health/health.component';
+import { ProgramDetailsComponent } from './program-details/program-details.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'health', component: HealthComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'contract-asset-balance', component: ContractAssetBalanceComponent },
+  { path: 'program-runs', component: ProgramDetailsComponent },
   { path: 'exception-report', component: ExceptionReportComponent }
 ];
 
