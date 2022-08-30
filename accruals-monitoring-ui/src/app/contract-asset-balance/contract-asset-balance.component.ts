@@ -6,6 +6,8 @@ import {
   CuiFilterOptions,
   CuiModalService } from '@cisco-ngx/cui-components';
 import { ApiHttpService } from '../providers/http.service';
+import { ChartConfiguration } from 'chart.js'
+import { ChartOptions } from 'chart.js'
 
 
 @Component({
@@ -26,6 +28,8 @@ export class ContractAssetBalanceComponent implements OnInit {
   commentsCellTemplate!: TemplateRef<any>;
   @ViewChild('amountCell')
   amountCellTemplate!: TemplateRef<any>;
+  @ViewChild('cabGraph')
+  cabGraphTemplate!: TemplateRef<any>;
 
   cabColumnOptions: CuiTableColumnOption[] = [];
   cabTableOptions!: CuiTableOptions;
@@ -36,6 +40,41 @@ export class ContractAssetBalanceComponent implements OnInit {
   cabTableAllData: any[] = [];
   cabTableFiltered: any[] = [];
   cabDetailsData: any[] = [];
+
+  barChartLegend = true;
+  minYValue: number = -1000000000;
+  maxYValue: number = 1000000000;
+  barChartOptions: ChartOptions = {
+    responsive: true,
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Operating Units'
+        }
+      },
+      y: {
+        max: this.minYValue,
+        min: this.maxYValue,
+        display: true,
+        title: {
+          display: true,
+          text: 'Balance Amount in USD'
+        }
+      }
+    }
+  };
+  barLabels: string[] = [];
+  barOpenData: any[] = [];
+  barClosedData: any[] = [];
+  barDataSetMap: Map<string, Map<string, number>> = new Map();
+  barChartData: ChartConfiguration<'bar'>['data'] = {
+                                                      labels: this.barLabels,
+                                                      datasets: [
+                                                        { data: this.barOpenData, label: 'Open Transaction Status'},
+                                                        { data: this.barClosedData, label: 'Closed Transaction Status'},
+                                                      ]};
 
   cabColumnMappings: Map<string, string> = new Map(Object.entries({
     OU_NAME: 'Operating Unit',
@@ -145,14 +184,89 @@ export class ContractAssetBalanceComponent implements OnInit {
           dynamicData: false,
           wrapText: true
         });
-        
+
         this.detailsSize = data.length;
         this.detailsLoading = false;
       });
-      
+
+  }
+
+  getTableView(): void {
+    var tableBtnElt = document.getElementById("tableBtn")!;
+    var graphBtnElt = document.getElementById("graphBtn")!;
+    var subIdElt = document.getElementById("subId")!;
+    var itemNameElt = document.getElementById("itemName")!;
+    var ouNameElt = document.getElementById("ouName")!;
+    var graphElt = document.getElementById("ouBalanceChart")!;
+    var tableElt = document.getElementById("cabTable")!;
+    var pagerElt = document.getElementById("cabPager")!;
+    var trxStatusElt = document.getElementById("trxStatus")!;
+    var maxYValGraphElt = document.getElementById("maxYValGraph")!;
+    var minYValGraphElt = document.getElementById("minYValGraph")!;
+
+    // reveal for table
+    graphBtnElt.style.display = "block";
+    subIdElt.style.display = "block";
+    itemNameElt.style.display = "block";
+    ouNameElt.style.display = "block";
+    tableElt.style.display = "block";
+    pagerElt.style.display = "block";
+    trxStatusElt.style.display = "block";
+
+    // hide for table
+    tableBtnElt.style.display = "none";
+    graphElt.style.display = "none";
+    maxYValGraphElt.style.display = "none";
+    minYValGraphElt.style.display = "none";
+
+    this.selectedTrxStatus = 'Open';
+    this.filterData();
+  }
+
+  getGraphView(): void {
+    var tableBtnElt = document.getElementById("tableBtn")!;
+    var graphBtnElt = document.getElementById("graphBtn")!;
+    var subIdElt = document.getElementById("subId")!;
+    var itemNameElt = document.getElementById("itemName")!;
+    var ouNameElt = document.getElementById("ouName")!;
+    var graphElt = document.getElementById("ouBalanceChart")!;
+    var tableElt = document.getElementById("cabTable")!;
+    var pagerElt = document.getElementById("cabPager")!;
+    var trxStatusElt = document.getElementById("trxStatus")!;
+    var maxYValGraphElt = document.getElementById("maxYValGraph")!;
+    var minYValGraphElt = document.getElementById("minYValGraph")!;
+
+    // reveal again for graph
+    graphElt.style.display = "block";
+    tableBtnElt.style.display = "block";
+    maxYValGraphElt.style.display = "block";
+    minYValGraphElt.style.display = "block";
+
+    // hide for graph
+    graphBtnElt.style.display = "none";
+    subIdElt.style.display = "none";
+    itemNameElt.style.display = "none";
+    ouNameElt.style.display = "none";
+    tableElt.style.display = "none";
+    pagerElt.style.display = "none";
+    trxStatusElt.style.display = "none";
+
+    this.selectedTrxStatus = '';
+    this.filterData();
   }
 
   getContractAssetBalance(): void {
+    var graphBtnElt = document.getElementById("graphBtn")!;
+    var tableBtnElt = document.getElementById("tableBtn")!;
+    var graphElt = document.getElementById("ouBalanceChart")!;
+    var maxYValGraphElt = document.getElementById("maxYValGraph")!;
+    var minYValGraphElt = document.getElementById("minYValGraph")!;
+    tableBtnElt.style.display = "none";
+    graphElt.style.display = "none";
+    maxYValGraphElt.style.display = "none";
+    minYValGraphElt.style.display = "none";
+    graphBtnElt.style.display = "block";
+
     this.cabTableLoading = true;
     this.http.get('contract-asset-balance').subscribe((data: any) => {
       this.cabTableAllData = data;
@@ -163,6 +277,9 @@ export class ContractAssetBalanceComponent implements OnInit {
         name: '',
         template: this.viewDetailsTemplate
       }));
+
+      console.log('here1');
+      console.log(this.cabColumnOptions);
 
       for (let column of Object.keys(this.cabTableAllData[0])) {
         if(column == 'BDOM_DATE') {
@@ -272,7 +389,36 @@ export class ContractAssetBalanceComponent implements OnInit {
     console.log(item);
   }
 
+  filterGraphYAxisScale() {
+    this.barChartOptions = {
+      responsive: true,
+      scales: {
+        x: {
+          display: true,
+          title: {
+            display: true,
+            text: 'Operating Units'
+          }
+        },
+        y: {
+          max: this.minYValue,
+          min: this.maxYValue,
+          display: true,
+          title: {
+            display: true,
+            text: 'Balance Amount in USD'
+          }
+        }
+      }
+    };
+    console.log(this.barChartOptions);
+  }
+
   filterData() {
+    this.barLabels = [];
+    this.barOpenData = [];
+    this.barClosedData = [];
+    this.barDataSetMap = new Map();
     let filteredData: any[] = this.cabTableAllData;
     filteredData = filteredData.filter((row: any) =>
       row.SUBSCRIPTION_REF_ID.toUpperCase().includes(this.subId.toUpperCase()));
@@ -308,6 +454,56 @@ export class ContractAssetBalanceComponent implements OnInit {
     this.size = filteredData.length;
     this.offset = 0;
 
+
+    // Graph filtering
+    // Graph label filtering
+    for (let i = 0; i < this.cabTableFiltered.length; i++) {
+      let rowOuName: string = this.cabTableFiltered[i]['OU_NAME'];
+      let curBalanceAmtUsd: number = 0;
+      let rowBalanceAmtUsd: number = this.cabTableFiltered[i]['BALANCE_AMOUNT_USD'];
+      let curStatus: string = this.cabTableFiltered[i]['CURRENT_STATUS'];
+      if (!this.barLabels.includes(rowOuName)) {
+        this.barLabels.push(rowOuName);
+        let newStatusAmtMap = new Map<string,number>();
+        newStatusAmtMap.set("OPEN", 0);
+        newStatusAmtMap.set("CLOSED", 0);
+        this.barDataSetMap.set(rowOuName, newStatusAmtMap);
+      }
+      let curStatusAmtMap = this.barDataSetMap.get(rowOuName)!;
+      curBalanceAmtUsd = curStatusAmtMap.get(curStatus)! + rowBalanceAmtUsd;
+      curStatusAmtMap.set(curStatus, curBalanceAmtUsd);
+      this.barDataSetMap.set(rowOuName, curStatusAmtMap);
+    }
+    console.log(this.barDataSetMap);
+
+    // Graph data filtering
+    for (let i = 0; i < this.barLabels.length; i++) {
+      let ouName = this.barLabels[i];
+      let statusAmtMap = this.barDataSetMap.get(ouName)!;
+      console.log(statusAmtMap);
+      let openTrxBalanceAmtUsd = statusAmtMap.get("OPEN")!;
+      this.barOpenData.push(openTrxBalanceAmtUsd);
+      let closedTrxBalanceAmtUsd = statusAmtMap.get("CLOSED")!;
+      this.barClosedData.push(closedTrxBalanceAmtUsd);
+    }
+
+    this.barChartData = {
+      labels: this.barLabels,
+      datasets: [
+        { data: this.barOpenData, label: 'Open Transaction Status'},
+        { data: this.barClosedData, label: 'Closed Transaction Status'},
+      ]};
+
+  }
+
+  onMinYValueChange(minYValue: number) {
+    this.minYValue = minYValue;
+    this.filterGraphYAxisScale();
+  }
+
+  onMaxYValueChange(maxYValue: number) {
+    this.maxYValue = maxYValue;
+    this.filterGraphYAxisScale();
   }
 
   onSubIdChange(subId: string) {

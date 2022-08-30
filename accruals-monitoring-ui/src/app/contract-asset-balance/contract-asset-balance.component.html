@@ -1,10 +1,16 @@
 <h3>Contract Asset Balances</h3>
 
 <cui-modal></cui-modal>
+<div>
+  <button id="tableBtn" class="btn" (click)="getTableView()">View Table</button>
+</div>
+<div>
+  <button id="graphBtn" class="btn" (click)="getGraphView()">View Graph</button>
+</div>
 
 <div class="tableFilter givemespace">
     <div class="row">
-        <div class="col-md-2">
+        <div id="subId" class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input type="search" [ngModel]="subId" (ngModelChange)="onSubIdChange($event)">
@@ -12,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div id="itemName"class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input type="search" [ngModel]="itemName" (ngModelChange)="onItemNameChange($event)" />
@@ -20,7 +26,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div id="trxStatus" class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text select">
                     <select id="select-type-basic" [ngModel]="selectedTrxStatus" (ngModelChange)="onTrxStatusChange($event)">
@@ -30,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div id="ouName" class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input type="search" [ngModel]="ouName" (ngModelChange)="onOuNameChange($event)" />
@@ -41,7 +47,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div id="startDate" class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input id="input-type-date" type="date" [ngModel]="startDate" (ngModelChange)="onStartDateChange($event)">
@@ -49,7 +55,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div id="endDate" class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input id="input-type-date" type="date" [ngModel]="endDate" (ngModelChange)="onEndDateChange($event)">
@@ -57,12 +63,36 @@
                 </div>
             </div>
         </div>
+        <div id="minYValGraph" class="col-md-2">
+          <div class="form-group input--icon">
+              <div class="form-group__text">
+                  <input type="number" [ngModel]="minYValue" (ngModelChange)="onMinYValueChange($event)">
+                  <label>Min Y value</label>
+              </div>
+          </div>
+        </div>
+        <div id="maxYValGraph" class="col-md-2">
+          <div class="form-group input--icon">
+              <div class="form-group__text">
+                  <input type="number" [ngModel]="maxYValue" (ngModelChange)="onMaxYValueChange($event)">
+                  <label>Max Y value</label>
+              </div>
+          </div>
+        </div>
     </div>
 </div>
 
 <cui-loader *ngIf="cabTableLoading" label="Loading..." color="info"></cui-loader>
-<cui-table *ngIf="cabTableAllData.length" [options]="cabTableOptions" [data]="cabTableFiltered" [limit]="limit" [offset]="offset"></cui-table>
-<cui-pager *ngIf="cabTableFiltered.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
+<cui-table id="cabTable" *ngIf="cabTableAllData.length" [options]="cabTableOptions" [data]="cabTableFiltered" [limit]="limit" [offset]="offset"></cui-table>
+<cui-pager id="cabPager" *ngIf="cabTableFiltered.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
+
+<canvas baseChart
+        id="ouBalanceChart"
+        [data]="barChartData"
+        [legend]="barChartLegend"
+        [options]="barChartOptions"
+        [type]="'bar'">
+</canvas>
 
 <ng-template #viewDetails let-item="celldata"><span><a class="link" (click)="viewTrxDetails(item)">View Details</a></span></ng-template>
 
@@ -91,7 +121,7 @@
                 </div>
             </div>
         </div>
-    
+
         <cui-input type="textarea" [(model)]="comments" label="Add a comment"></cui-input>
     </div>
 
@@ -99,4 +129,9 @@
         <button class="btn" (click)="save()">Save</button>
         <button class="btn" (click)="closeModal()">Close</button>
     </div>
+</ng-template>
+
+<ng-template #cabGraph>
+  <h3>Graph</h3>
+  <button class="btn" (click)="closeModal()">Close</button>
 </ng-template>

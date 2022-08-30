@@ -1,8 +1,9 @@
 import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { 
-  CuiPagerModule, 
+import { NgChartsModule } from 'ng2-charts';
+import {
+  CuiPagerModule,
   CuiTableModule,
   CuiFilterModule,
   CuiTabsNavModule,
@@ -48,14 +49,15 @@ export function initApp(authService: AuthenticationService) {
     CuiTabsNavModule,
     CuiModalModule,
     CuiLoaderModule,
-    CuiInputModule
+    CuiInputModule,
+    NgChartsModule
   ],
   providers: [
-    { 
-      provide: APP_INITIALIZER, 
-      useFactory: initApp, 
-      deps: [AuthenticationService], 
-      multi: true 
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initApp,
+      deps: [AuthenticationService],
+      multi: true
     },
     { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }
   ],
