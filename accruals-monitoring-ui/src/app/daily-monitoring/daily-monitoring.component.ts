@@ -42,7 +42,7 @@ export class DailyMonitoringComponent implements OnInit {
     ORG_ID: 'Org ID',
     TABLE_NAME: 'Table Name',
     UNIQUE_PROCESS_ID: 'Unique Process ID',
-    ATTRIBUTE7: 'Transaction Source',
+    TRX_SOURCE: 'Transaction Source',
     SUBSCRIPTION_REF_ID: 'Subscription Ref ID',
     ITEM_NAME: 'Item Name',
     UNIQUE_ID: 'Unique ID',
@@ -51,7 +51,7 @@ export class DailyMonitoringComponent implements OnInit {
     AMOUNT: 'Amount',
     PROCESS_STATUS: 'Process Status',
     ERROR_MESSAGE: 'Error Message',
-    NUM_ATTRIBUTE7: 'Error Category'    
+    ERROR_CATEGORY: 'Error Category'    
   }));
 
   tableName: string = '';
