@@ -17,6 +17,8 @@ export class DailyMonitoringComponent implements OnInit {
   viewDetailsTemplate!: TemplateRef<any>;
   @ViewChild('numberCell', { static: true })
   numberCellTemplate!: TemplateRef<any>;
+  @ViewChild('dateCell', { static: true })
+  dateCellTemplate!: TemplateRef<any>;
 
   summaryTableOptions!: CuiTableOptions;
   summaryTableData: any[] = [];
@@ -34,6 +36,23 @@ export class DailyMonitoringComponent implements OnInit {
   detailsTableOptions!: CuiTableOptions;
   detailsTableData: any[] = [];
   detailsDataFiltered: any[] = [];
+
+  detailsColumnMappings: Map<string, string> = new Map(Object.entries({
+    CREATION_DATE: 'Creation Date',
+    ORG_ID: 'Org ID',
+    TABLE_NAME: 'Table Name',
+    UNIQUE_PROCESS_ID: 'Unique Process ID',
+    ATTRIBUTE7: 'Transaction Source',
+    SUBSCRIPTION_REF_ID: 'Subscription Ref ID',
+    ITEM_NAME: 'Item Name',
+    UNIQUE_ID: 'Unique ID',
+    TRANSACTION_ID: 'Transaction ID',
+    CUSTOMER_TRX_LINE_ID: 'Customer Trx Line ID',
+    AMOUNT: 'Amount',
+    PROCESS_STATUS: 'Process Status',
+    ERROR_MESSAGE: 'Error Message',
+    NUM_ATTRIBUTE7: 'Error Category'    
+  }));
 
   tableName: string = '';
   orgId: string = '';
@@ -129,13 +148,21 @@ export class DailyMonitoringComponent implements OnInit {
       let allStatuses = [ ...new Set(
         this.detailsTableData.map((row: any) => row['PROCESS_STATUS'])) ];
       this.status.push(...allStatuses);
-
-      for (let column of Object.keys(this.detailsTableData[0])) {
-        detailsColumns.push(new CuiTableColumnOption({
-          'name': column,
-          'sortable': false,
-          'key': column
-        }));
+      for (let column of this.detailsColumnMappings.keys()) {
+        if(column.includes('DATE')) {
+          detailsColumns.push(new CuiTableColumnOption({
+            'name': this.detailsColumnMappings.get(column),
+            'sortable': false,
+            'key': column,
+            'template': this.dateCellTemplate
+          }));
+        } else {
+          detailsColumns.push(new CuiTableColumnOption({
+            'name': this.detailsColumnMappings.get(column),
+            'sortable': false,
+            'key': column
+          }));
+        }
       }
 
       this.detailsTableOptions = new CuiTableOptions({
@@ -274,11 +301,11 @@ export class DailyMonitoringComponent implements OnInit {
     this.detailsOffset = 0;
 
     // Populate detailsGraphLabels
-    console.log(this.detailsDataFiltered);
+    //console.log(this.detailsDataFiltered);
     for (let i = 0; i < this.detailsDataFiltered.length; i++) {
       let creationDate: string = this.detailsDataFiltered[i]['CREATION_DATE'];
       let creationDay = creationDate.split("T")[0];
-      console.log(creationDay);
+     // console.log(creationDay);
       if (!this.detailsGraphLabels.includes(creationDay)) {
         this.detailsGraphLabels.push(creationDay);
         this.detailsDateErrorsMap.set(creationDay, 0);

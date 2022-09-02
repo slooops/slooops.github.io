@@ -21,6 +21,8 @@
     <span>{{transformNumber(row, column)}}</span>
 </ng-template>
 
+<ng-template #dateCell let-row="celldata">{{row.CREATION_DATE | date:'M/d/yy'}}</ng-template>
+
 <ng-template #viewDetails>
     <h4>View Details </h4>
 
