@@ -118,6 +118,11 @@ spec:
             configMapKeyRef:
               key: last.run.query
               name: db-properties
+        - name: EXCEPTION_REPORT_QUERY
+          valueFrom:
+            configMapKeyRef:
+              key: exception.report.query
+              name: db-properties
         - name: CORS_URL
           valueFrom: 
             configMapKeyRef:
@@ -225,6 +230,11 @@ spec:
           valueFrom:
             configMapKeyRef:
               key: last.run.query
+              name: db-properties
+        - name: EXCEPTION_REPORT_QUERY
+          valueFrom:
+            configMapKeyRef:
+              key: exception.report.query
               name: db-properties
         - name: CORS_URL
           valueFrom: 
