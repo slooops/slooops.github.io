@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CuiTableColumnOption, CuiTableOptions } from '@cisco-ngx/cui-components';
 import { ApiHttpService } from '../providers/http.service';
@@ -20,8 +21,12 @@ export class ProgramDetailsComponent implements OnInit {
 
   programColumnMappings: Map<string, string> = new Map(Object.entries({
     OU_NAME: 'Operating Unit',
-    STATUS: 'Status',
-    COMPLETION_DATE: 'Completion Date' 
+    RESPONSIBILITY_NAME: 'Responsibility Name',
+    USER_CONCURRENT_PROGRAM_NAME: 'Program Name',
+    ACTUAL_START_DATE: 'Start Date',
+    ACTUAL_COMPLETION_DATE: 'End Date',
+    PHASE_CODE: 'Phase Code',
+    STATUS_CODE: 'Status Code',
   }));
 
   constructor(private http:ApiHttpService) { }
@@ -36,8 +41,10 @@ export class ProgramDetailsComponent implements OnInit {
 
       let programColumns: CuiTableColumnOption[] = [];
 
-      for(let column of Object.keys(this.programTableData[0])) {
+      for(let column of this.programColumnMappings.keys()) {
         if(column.includes('DATE')) {
+          console.log("DATE");
+          console.log(column);
           programColumns.push(new CuiTableColumnOption({
             'name': this.programColumnMappings.get(column),
             'sortable': false,
@@ -60,6 +67,12 @@ export class ProgramDetailsComponent implements OnInit {
         dynamicData: false
       });
     });
+  }
+
+  transformDate(row: any, column: any): string {
+    let cell = row[column.key];
+    return formatDate(cell, 'M/d/yy, h:mm a z', 'en-US');
+    
   }
 
 }
