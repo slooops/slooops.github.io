@@ -7,7 +7,7 @@
 <br />
 <div class="givemespace">
     <h4>Last Program Run</h4>
-    <cui-table *ngIf="programTableData.length" [options]="programTableOptions" [data]="programTableData" [limit]="limit" [offset]="offset"></cui-table>
+    <cui-table *ngIf="programTableData.length" [options]="programTableOptions" [data]="programTableData"></cui-table>
 </div>
 
 <ng-template #dateCell let-row="celldata" let-column="celltemplate">
