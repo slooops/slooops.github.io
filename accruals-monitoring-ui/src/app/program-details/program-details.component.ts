@@ -43,8 +43,6 @@ export class ProgramDetailsComponent implements OnInit {
 
       for(let column of this.programColumnMappings.keys()) {
         if(column.includes('DATE')) {
-          console.log("DATE");
-          console.log(column);
           programColumns.push(new CuiTableColumnOption({
             'name': this.programColumnMappings.get(column),
             'sortable': false,
