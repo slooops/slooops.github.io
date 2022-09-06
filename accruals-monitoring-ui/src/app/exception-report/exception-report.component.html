@@ -2,7 +2,7 @@
 
 <div class="tableFilter givemespace">
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input type="search" [ngModel]="subId" (ngModelChange)="onSubIdChange($event)">
@@ -10,7 +10,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group input--icon">
                 <div class="form-group__text">
                     <input type="search" [ngModel]="itemName" (ngModelChange)="onItemNameChange($event)" />
@@ -18,7 +18,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
+        <!-- <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text select">
                     <select id="select-type-basic" [ngModel]="selectedTrxStatus" (ngModelChange)="onTrxStatusChange($event)">
@@ -27,7 +27,7 @@
                     <label for="select-type-basic">Transaction Status</label>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="col-md-2">
             <div class="form-group input--icon">
                 <div class="form-group__text">
@@ -58,4 +58,14 @@
     </div>
 </div>
 
-<p>exception-report works!</p>
+<div>
+    <cui-loader *ngIf="reportTableLoading" label="Loading..." color="info"></cui-loader>
+    <cui-table id="reportTable" *ngIf="reportTableAllData.length" [options]="reportTableOptions" [data]="reportTableFiltered" [limit]="limit" [offset]="offset"></cui-table>
+    <cui-pager id="reportPager" *ngIf="reportTableFiltered.length" [page]="offset" [limit]="limit" [totalItems]="size" [showPageDetails]="true" (onPageChanged)="onPageUpdated($event)"></cui-pager>
+</div>
+<ng-template #dateCell let-row="celldata" let-column="celltemplate">
+    <span>{{transformDate(row, column)}}</span>
+</ng-template>
+<ng-template #amountCell let-row="celldata" let-column="celltemplate">
+        {{transformNumber(row, column)}}
+</ng-template>
