@@ -51,7 +51,7 @@ export class DailyMonitoringComponent implements OnInit {
     AMOUNT: 'Amount',
     PROCESS_STATUS: 'Process Status',
     ERROR_MESSAGE: 'Error Message',
-    ERROR_CATEGORY: 'Error Category'    
+    ERROR_CATEGORY: 'Error Category'
   }));
 
   tableName: string = '';
@@ -65,8 +65,9 @@ export class DailyMonitoringComponent implements OnInit {
 
   detailsLineChartLegend: boolean = true;
   detailsGraphLabels: string[] = [];
-  detailsDateErrorsMap: Map<string, number> = new Map();
-  detailsErrorCountDates: any[] = [];
+  detailsDateErrorsMap: Map<string, Map<string, number>> = new Map();
+  detailsErrorCatCountMap: Map<string, number> = new Map();
+  detailsErrorCatDatasetMap: Map<string, number[]> = new Map();
   detailsLineChartOptions: ChartOptions<'line'> = {
     responsive: true,
     scales: {
@@ -88,10 +89,12 @@ export class DailyMonitoringComponent implements OnInit {
   }
   detailsLineChartData: ChartConfiguration<'line'>['data'] = {
     labels: this.detailsGraphLabels,
-    datasets: [{
-      label: 'Daily Monitoring Details Error Count by Creation Day',
-      data: this.detailsErrorCountDates
-    }]
+    datasets: [
+      {
+        label: 'Daily Monitoring Details Total Error Count by Creation Day',
+        data: []
+      }
+    ]
   };
 
   offset = 0;
@@ -139,18 +142,19 @@ export class DailyMonitoringComponent implements OnInit {
 
     this.http.get('daily-monitoring/details').subscribe((data:any) => {
       this.detailsTableData = data;
+      // console.log(this.detailsTableData);
       this.detailsDataFiltered = this.detailsTableData;
       this.filterData();
       let detailsColumns: CuiTableColumnOption[] = [];
 
       let tables = [...new Set(this.detailsTableData.map((row: any) => row['TABLE_NAME']))];
-      if (this.tables.length !== 1) {
+      if (this.tables.length === 1) {
         this.tables.push(...tables);
       }
 
       let allStatuses = [ ...new Set(
         this.detailsTableData.map((row: any) => row['PROCESS_STATUS'])) ];
-      if (this.status.length !== 1) {
+      if (this.status.length === 1) {
         this.status.push(...allStatuses);
       }
 
@@ -261,7 +265,6 @@ export class DailyMonitoringComponent implements OnInit {
   filterData(): void {
     this.detailsDateErrorsMap = new Map();
     this.detailsGraphLabels = [];
-    this.detailsErrorCountDates = [];
     let filteredData: any[] = this.detailsTableData;
 
     filteredData = filteredData.filter((row: any) => {
@@ -306,43 +309,83 @@ export class DailyMonitoringComponent implements OnInit {
     this.detailsSize = filteredData.length;
     this.detailsOffset = 0;
 
-    // Populate detailsGraphLabels
-    //console.log(this.detailsDataFiltered);
+    // Get creation days data
     for (let i = 0; i < this.detailsDataFiltered.length; i++) {
       let creationDate: string = this.detailsDataFiltered[i]['CREATION_DATE'];
       let creationDay = creationDate.split("T")[0];
      // console.log(creationDay);
       if (!this.detailsGraphLabels.includes(creationDay)) {
         this.detailsGraphLabels.push(creationDay);
-        this.detailsDateErrorsMap.set(creationDay, 0);
+        this.detailsErrorCatCountMap = new Map();
+        this.detailsErrorCatCountMap.set("total", 0);
+        this.detailsDateErrorsMap.set(creationDay, this.detailsErrorCatCountMap);
       }
     }
-    // Graph data filtering
-    this.detailsDateErrorsMap.forEach((value: number, key: string) => {
-      let errorCount = 0;
+
+    // Get error categories
+
+    // detailsDateErrorsMap: Map<string, Map<string, number>> = new Map();
+    // detailsErrorCatCountMap: Map<string, number> = new Map();
+    console.log(this.detailsDateErrorsMap);
+    console.log(this.detailsDataFiltered);
+
+    // for each date, get the error count
+    this.detailsDateErrorsMap.forEach((value: Map<String, number>, key: string) => {
+      let errorCountMap = this.detailsDateErrorsMap.get(key);
       for (let i = 0; i < this.detailsDataFiltered.length; i++) {
         let creationDate: string = this.detailsDataFiltered[i]['CREATION_DATE'];
         let creationDay = creationDate.split("T")[0];
         if (creationDay === key) {
-          errorCount += 1;
+          let errorCategory: string = this.detailsDataFiltered[i]['ERROR_CATEGORY'];
+          let curTotalErrorCountDate = errorCountMap!.get('total');
+          errorCountMap!.set('total', curTotalErrorCountDate! + 1);
+          if (!errorCountMap!.has(errorCategory)) {
+            errorCountMap!.set(errorCategory, 1);
+          }
+          else {
+            let curErrorCategoryCount = errorCountMap!.get(errorCategory);
+            errorCountMap!.set(errorCategory, curErrorCategoryCount! + 1);
+          }
+          this.detailsDateErrorsMap.set(key, errorCountMap!);
         }
       }
-      this.detailsDateErrorsMap.set(key, errorCount);
+      console.log(this.detailsDateErrorsMap);
     });
-    // populate detailsErrorCountDates
+    // populate datasets for graphs for each day
     for (let i = 0; i < this.detailsGraphLabels.length; i++) {
       let creationDay = this.detailsGraphLabels[i];
-      let errorCount = this.detailsDateErrorsMap.get(creationDay)!;
-      this.detailsErrorCountDates.push(errorCount);
+      // for each
+      let errorCountMap = this.detailsDateErrorsMap.get(creationDay);
+      console.log(errorCountMap);
+      errorCountMap!.forEach((value: number, key: string) => {
+        let arrayDateErrorCounts: any = this.detailsErrorCatDatasetMap.get(key);
+        console.log(arrayDateErrorCounts);
+        if (arrayDateErrorCounts === undefined || arrayDateErrorCounts.length == 0) {
+          let newArrayDateErrorCounts: any = [];
+          newArrayDateErrorCounts!.push(value);
+          this.detailsErrorCatDatasetMap.set(key, newArrayDateErrorCounts!)
+        }
+        else {
+          arrayDateErrorCounts!.push(value);
+          this.detailsErrorCatDatasetMap.set(key, arrayDateErrorCounts!);
+        }
+      });
     }
+    console.log(this.detailsErrorCatDatasetMap);
+
+    let errorDatasets: { label: string, data: any[] }[] = [];
+    this.detailsErrorCatDatasetMap.forEach((value: Array<number>, key: string) => {
+      let errorDataset: { label: string, data: any[] } = {
+        label: "Error Category " + key,
+        data: value
+      };
+      errorDatasets.push(errorDataset)
+    });
 
     // Update the graph
     this.detailsLineChartData = {
       labels: this.detailsGraphLabels,
-      datasets: [{
-        label: 'Error Count by Creation Day',
-        data: this.detailsErrorCountDates
-      }]
+      datasets: errorDatasets
     };
   }
 
