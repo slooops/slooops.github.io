@@ -142,12 +142,18 @@ export class DailyMonitoringComponent implements OnInit {
       this.detailsDataFiltered = this.detailsTableData;
       this.filterData();
       let detailsColumns: CuiTableColumnOption[] = [];
+
       let tables = [...new Set(this.detailsTableData.map((row: any) => row['TABLE_NAME']))];
-      this.tables.push(...tables);
+      if (this.tables.length !== 1) {
+        this.tables.push(...tables);
+      }
 
       let allStatuses = [ ...new Set(
         this.detailsTableData.map((row: any) => row['PROCESS_STATUS'])) ];
-      this.status.push(...allStatuses);
+      if (this.status.length !== 1) {
+        this.status.push(...allStatuses);
+      }
+
       for (let column of this.detailsColumnMappings.keys()) {
         if(column.includes('DATE')) {
           detailsColumns.push(new CuiTableColumnOption({
