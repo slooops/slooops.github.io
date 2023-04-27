@@ -1,0 +1,54 @@
+---
+# Source: templates/dev.yaml
+
+# codectl version : 1.5.6
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: 'rev-ops-monitoring-backend-service'
+  namespace: 'rev-operations-dashboard-rtp2'
+  labels:
+    softwareId: 'd7c7615e6575481186019c284daa67946d68f871'
+    softwareName: 'rev-ops-monitoring'
+spec:
+  ports:
+    - name: "server"
+      protocol: "TCP"
+      port: 8080
+  selector:
+      app: 'rev-ops-monitoring-server'
+  type: ClusterIP
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'rev-ops-monitoring-server'
+  namespace: 'rev-operations-dashboard-rtp2'
+  labels:
+    softwareId: 'd7c7615e6575481186019c284daa67946d68f871'
+    softwareName: 'rev-ops-monitoring'
+spec:
+  selector:
+    matchLabels:
+      app: 'rev-ops-monitoring-service'
+  replicas: 1
+  template:
+    metadata:
+      namespace: 'rev-operations-dashboard-rtp2'
+      labels:
+        app: 'rev-ops-monitoring-service'
+        environment: 'dev'
+        softwareId: 'd7c7615e6575481186019c284daa67946d68f871'
+        softwareName: 'rev-ops-monitoring-server'
+    spec:
+      containers:
+      - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring'
+        imagePullPolicy: IfNotPresent
+        name: 'rev-ops-monitoring-server'
+        ports:
+        - containerPort: 8080
+      imagePullSecrets:
+      - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+
