@@ -49,6 +49,47 @@ spec:
         name: 'rev-ops-monitoring-server'
         ports:
         - containerPort: 8080
+        env:
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: db.name
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: db.url
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: TSV_TOP_SKU_EXC_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsv.topsku.exc.query
+            - name: TSV_SUB_SKU_EXC_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsv.subsku.exc.query
+            - name: STANDARD_AR_EXC_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: std.ar.exc.query
+            - name: CORS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: cors.url
       imagePullSecrets:
       - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 
