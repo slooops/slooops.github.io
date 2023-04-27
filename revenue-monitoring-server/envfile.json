@@ -1,5 +1,5 @@
 {
-    "DATABASE_NAME": "local",
+    "DATABASE_NAME": "localhost",
     "DATABASE_URL":"jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS3CG1,cn=OracleContext,dc=cisco,dc=com",
     "DATABASE_USERNAME":"APPSRO",
     "DATABASE_PASSWORD":"read0nly",
