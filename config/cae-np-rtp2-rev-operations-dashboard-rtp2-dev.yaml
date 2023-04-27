@@ -32,13 +32,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: 'rev-ops-monitoring-service'
+      app: 'rev-ops-monitoring-server'
   replicas: 1
   template:
     metadata:
       namespace: 'rev-operations-dashboard-rtp2'
       labels:
-        app: 'rev-ops-monitoring-service'
+        app: 'rev-ops-monitoring-server'
         environment: 'dev'
         softwareId: 'd7c7615e6575481186019c284daa67946d68f871'
         softwareName: 'rev-ops-monitoring-server'
