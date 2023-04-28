@@ -21,7 +21,7 @@ export interface PeriodClose {
 })
 export class PrecloseComponent implements OnInit {
 
-  arInterfaceCompletionValue = 0.50;
+  arInterfaceCompletionValue = 0;
   startTimeEdit = false;
   closeTimeEdit = false;
   editComments = false;
