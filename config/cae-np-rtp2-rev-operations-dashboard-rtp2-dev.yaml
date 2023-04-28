@@ -50,46 +50,61 @@ spec:
         ports:
         - containerPort: 8080
         env:
-            - name: DATABASE_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: db.name
-            - name: DATABASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: db.url
-            - name: DATABASE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: username
-            - name: DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: password
-            - name: TSV_TOP_SKU_EXC_QUERY
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: tsv.topsku.exc.query
-            - name: TSV_SUB_SKU_EXC_QUERY
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: tsv.subsku.exc.query
-            - name: STANDARD_AR_EXC_QUERY
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: std.ar.exc.query
-            - name: CORS_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: server-properties
-                  key: cors.url
+          - name: DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: db.name
+          - name: DATABASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: db.url
+          - name: DATABASE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: username
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: password
+          - name: TSV_TOP_SKU_EXC_QUERY
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: tsv.topsku.exc.query
+          - name: TSV_SUB_SKU_EXC_QUERY
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: tsv.subsku.exc.query
+          - name: STANDARD_AR_EXC_QUERY
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: std.ar.exc.query
+          - name: CORS_URL
+            valueFrom:
+              configMapKeyRef:
+                name: server-properties
+                key: cors.url
+          - name: REVENUE_CONTROLS_QUERY
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: revenue.controls.query
+          - name: PERIOD_CLOSE_INVOICE_STATS
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: period.close.invoice.stats
+          - name: PERIOD_CLOSE_INTERFACE_LOAD_PRECLOSE
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: period.close.interface.load.preclose
       imagePullSecrets:
       - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 
