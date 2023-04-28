@@ -1,0 +1,250 @@
+<br>
+<div class="container" style="overflow: auto;">
+  <div class="col-lg-4" style="float: left;">
+    <div>
+      <label>Preclose Start Time: &nbsp;</label>
+      <span> {{preCloseStartTime}}</span>
+    </div>
+    <div>
+      <label>Preclose End Time: &nbsp;</label>
+      <span> {{expectedCloseTime}}</span>
+    </div>
+    <div>
+      <label>Expected Close Time: &nbsp;</label>
+      <span *ngIf="!closeTimeEdit"> {{expectedCloseTime}}
+        <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
+      </span>
+      <span *ngIf="closeTimeEdit">
+        <input type="date" id="closeTime" name="closeTime">&nbsp;
+        <input id="updateCloseTime" type="submit" value="Update" (click)="updateContent($event)">
+      </span>
+    </div>
+    <br>
+    <div>
+      <span>
+        <label for="entity">Entity:&nbsp;</label>
+        <mat-form-field appearance="fill">
+          <mat-label>Select</mat-label>
+          <mat-select [formControl]="entities" id="entity" name="entity" [(ngModel)]="selectedEntities" (ngModelChange)="selectedEntity()" multiple>
+            <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span>
+    </div>
+  </div>
+  <div class="col-lg-4" style="float: right;">
+    <div>
+      <label>Volume</label>
+    </div>
+    <div>
+      <label>Product:</label>
+      <span>&nbsp;37,000 &nbsp;</span>
+      <span class="legendIcon">
+        <i class="fa fa-info-circle"></i>
+        <!-- <span id="tooltiptext">Period Close Tracking</span> -->
+      </span>
+    </div>
+    <div>
+      <label>Service:</label>
+      <span>&nbsp;28,363 &nbsp;</span>
+      <i class="fa fa-info-circle legendIcon"></i>
+    </div>
+    <div>
+      <label>Subscription:</label>
+      <span>&nbsp;15,999 &nbsp;</span>
+      <i class="fa fa-info-circle legendIcon"></i>
+    </div>
+  </div>
+  <br>
+  <br>
+  <table mat-table class="table table-responsive">
+    <thead>
+      <tr>
+        <th *ngIf="entitySelected">Operating Unit</th>
+        <th>AR Interface</th>
+        <th>Invoicing</th>
+        <th>Accounting</th>
+        <th>GL Posting</th>
+        <th>NGCCRM</th>
+        <th>Inter Company</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td *ngIf="entitySelected"></td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+      </tr>
+      <tr *ngFor="let data of selectedPeriodCloseData">
+        <td><span>{{ data.operatingUnit }}</span></td>
+        <td><span>{{ data.arInterface }}</span></td>
+        <td><span>{{ data.invoicing }}</span></td>
+        <td><span>{{ data.accounting }}</span></td>
+        <td><span>{{ data.glPosting }}</span></td>
+        <td><span>{{ data.ngccrm }}</span></td>
+        <td><span>{{ data.interCompany }}</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Interface Load</p>
+
+  <table class="table table-responsive table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>Line Type</th>
+        <th>Q3FY22</th>
+        <th>Q4FY22</th>
+        <th>Q1FY23</th>
+        <th>Q2FY23</th>
+        <th>Quarter over Quarter</th>
+        <th>Year over Year</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>PROD</td>
+        <td>66,181</td>
+        <td>44,223</td>
+        <td>25,807</td>
+        <td>31,617</td>
+        <td>23%</td>
+        <td>19%</td>
+      </tr>
+      <tr>
+        <td>SERVICE</td>
+        <td>53,539</td>
+        <td>59,159</td>
+        <td>23,563</td>
+        <td>70,236</td>
+        <td>198%</td>
+        <td>40%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="preCloseProgramTableData.length">Invoices Generated</p>
+  <cui-table *ngIf="preCloseProgramTableData.length" [options]="programTableOptions" [data]="preCloseProgramTableData" style="justify-content: center;"></cui-table>
+
+
+  <p>Cash posted in last week of Quarter Ends (USD Amount) :</p>
+
+  <table class="table table-responsive">
+    <thead>
+      <tr>
+        <th>Quarter</th>
+        <th>WD-5</th>
+        <th>WD-4</th>
+        <th>WD-3</th>
+        <th>WD-2</th>
+        <th>WD-1</th>
+        <th>WD-0</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Q1FY19</td>
+        <td>146,023,697.03</td>
+        <td>70,455,519.56</td>
+        <td>185,059,053.37</td>
+        <td>270,653,320.22</td>
+        <td>992,499,355.83</td>
+        <td>1,470,905.36</td>
+        <td>1,666,899,182.25</td>
+      </tr>
+      <tr>
+        <td>Q2FY19</td>
+        <td>28,721,949.48</td>
+        <td>401,652,108.44</td>
+        <td>205,820,446.54</td>
+        <td>471,329,927.68</td>
+        <td>746,671,093.88</td>
+        <td>8,646,702.16</td>
+        <td>1,862,847,118.00</td>
+      </tr>
+      <tr>
+        <td>Q3FY19</td>
+        <td>138,315,377.47</td>
+        <td>150,285,696.60</td>
+        <td>165,496,627.15</td>
+        <td>315,071,818.76</td>
+        <td>1,283,866,975.42</td>
+        <td>13,407,331.75</td>
+        <td>2,066,484,435.72</td>
+      </tr>
+      <tr>
+        <td>Q4FY19</td>
+        <td>146,348,215.32</td>
+        <td>77,776,043.42</td>
+        <td>274,847,687.17</td>
+        <td>400,959,386.48</td>
+        <td>747,779,990.96</td>
+        <td>98,557,571.60</td>
+        <td>1,747,214,623.57</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <br>
+  <br>
+  <div class="col-sm-6" style="float: left;">
+    <div>
+      <label>Comments: &nbsp;</label>
+      <div *ngIf="!editComments">
+        <ul>
+          <li *ngFor="let comment of comments">{{comment}}</li>
+        </ul>
+        <br>
+        <input id="editComments" type="submit" value="Edit" (click)="editContent($event)">
+      </div>
+      <div *ngIf="editComments">
+        <textarea></textarea>
+        <br>
+        <input id="updateComments" type="submit" value="Update" (click)="updateContent($event)">
+      </div>
+    </div>
+  </div>
+
+</div>
+

@@ -10,16 +10,37 @@ import {
   CuiModalModule,
   CuiLoaderModule,
   CuiInputModule,
+  CuiProgressbarModule,
 } from '@cisco-ngx/cui-components';
+
+import {
+  CngProgressbarModule,
+	CngSortModule,
+	CngTableModule,
+	CngTabsModule,
+} from '@cisco/cui-ng';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpConfigInterceptor } from './providers/http-config.interceptor';
 import { AuthenticationService } from './providers/authentication.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StandardArExceptionsComponent } from './standard-ar-exceptions/standard-ar-exceptions.component';
 import { TsvExceptionsTopSkuComponent } from './tsv-exceptions-top-sku/tsv-exceptions-top-sku.component';
 import { TsvExceptionsSubSkuComponent } from './tsv-exceptions-sub-sku/tsv-exceptions-sub-sku.component';
+import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
+import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatSelectModule} from '@angular/material/select';
+import { LoginComponent } from './login/login.component';
+import { HomeComponent } from './home/home.component';
+import { MenuComponent } from './menu/menu.component';
+import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
+import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
+
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -32,7 +53,14 @@ export function initApp(authService: AuthenticationService) {
     AppComponent,
     StandardArExceptionsComponent,
     TsvExceptionsTopSkuComponent,
-    TsvExceptionsSubSkuComponent
+    TsvExceptionsSubSkuComponent,
+    RevenueControlsComponent,
+    PeriodCloseTrackingComponent,
+    LoginComponent,
+    HomeComponent,
+    MenuComponent,
+    PrecloseComponent,
+    MidcloseComponent
   ],
   imports: [
     BrowserModule,
@@ -46,8 +74,19 @@ export function initApp(authService: AuthenticationService) {
     CuiModalModule,
     CuiLoaderModule,
     CuiInputModule,
-    NgChartsModule
-  ],
+    NgChartsModule,
+    CuiProgressbarModule,
+    CngSortModule,
+		CngTableModule,
+		CngTabsModule,
+    CngProgressbarModule,
+    MatProgressBarModule,
+    FontAwesomeModule,
+    MatTabsModule,
+    BrowserAnimationsModule,
+    MatSelectModule,
+    ReactiveFormsModule
+    ],
   providers: [
     {
       provide: APP_INITIALIZER,

@@ -10,7 +10,7 @@
 }
 
 .cui .table th {
-    background-color: #6c757d;
+    background-color: #049fd9;
     color: white;
 }
 
@@ -21,3 +21,6 @@
     background-color: var(--cui-table-striping-odd); }
   .cui .table.table--bordered > tbody > tr.active td:first-child {
     border-left: var(--cui-accent-thickness) solid var(--cui-accent-color); }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

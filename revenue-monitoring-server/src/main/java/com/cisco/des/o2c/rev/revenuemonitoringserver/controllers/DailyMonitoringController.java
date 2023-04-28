@@ -29,7 +29,7 @@ public class DailyMonitoringController {
         System.out.println("Standard ar execeptions");
         return new ResponseEntity<>(service.getStdArExceptions(), HttpStatus.OK);
     }
-    
+
     @GetMapping("/tsv-topsku-exceptions")
     public ResponseEntity<List<Map<String, Object>>> getTsvTopSkuExceptions() {
         System.out.println("TSV top sku exceptions");
@@ -40,6 +40,24 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getTsvSubSkuExceptions() {
         System.out.println("TSV sub sku exceptions");
         return new ResponseEntity<>(service.getTsvSubSkuExceptions(), HttpStatus.OK);
+    }
+
+    @GetMapping("/revenue-controls")
+    public ResponseEntity<List<Map<String, Object>>> getRevenueControls() {
+        System.out.println("Revenue Controls");
+        return new ResponseEntity<>(service.getRevenueControls(), HttpStatus.OK);
+    }
+
+    @GetMapping("/period-close-invoice-stats")
+    public ResponseEntity<List<Map<String, Object>>> getPeriodCloseInvoiceStats() {
+        System.out.println("Period Close Invoice Stats");
+        return new ResponseEntity<>(service.getPeriodCloseInvoiceStats(), HttpStatus.OK);
+    }
+
+    @GetMapping("/period-close-interface-load")
+    public ResponseEntity<List<Map<String, Object>>> getPeriodCloseInterfaceLoad() {
+        System.out.println("Period Close Invoice Stats");
+        return new ResponseEntity<>(service.getPeriodCloseInterfaceLoad(), HttpStatus.OK);
     }
     // getMonitoringDetails
     // @GetMapping("/last-program-run")

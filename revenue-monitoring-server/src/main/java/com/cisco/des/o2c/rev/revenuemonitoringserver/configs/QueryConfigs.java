@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:queries.properties")
 public class QueryConfigs { // TODO
 
-
     @Value("${standard.ar.exc.query}")
     public String stdArExcQuery;
 
@@ -19,6 +18,15 @@ public class QueryConfigs { // TODO
     @Value("${tsv.subsku.exc.query}")
     public String tsvSubSkuExcQuery;
 
+    @Value("${revenue.controls.query}")
+    public String revenueControlsQuery;
+
+    @Value("${period.close.invoice.stats}")
+    public String periodCloseInvoiceStats;
+
+    @Value("${period.close.interface.load.preclose}")
+    public String periodCloseInterfaceLoadPreclose;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -27,5 +35,14 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "tsvSubSkuExcQuery" )
     public String getTsvSubSkuExcQuery() { return this.tsvSubSkuExcQuery; }
+
+    @Bean( name = "revenueControlsQuery")
+    public String getRevenueControls() { return this.revenueControlsQuery; }
+
+    @Bean( name = "periodCloseInvoiceStats")
+    public String getPeriodCloseInvoiceStats() { return this.periodCloseInvoiceStats; }
+
+    @Bean( name = "periodCloseInterfaceLoadPreclose")
+    public String getPeriodCloseInterfaceLoad() { return this.periodCloseInterfaceLoadPreclose; }
 
 }

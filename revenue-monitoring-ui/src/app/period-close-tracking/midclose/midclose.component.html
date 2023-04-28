@@ -1,0 +1,129 @@
+<br>
+<div class="container" style="overflow: auto;">
+  <div class="col-lg-4" style="float: left;">
+    <div>
+      <label>Preclose Start Time: &nbsp;</label>
+      <span> {{preCloseStartTime}}</span>
+    </div>
+    <div>
+      <label>Preclose End Time: &nbsp;</label>
+      <span> {{expectedCloseTime}}</span>
+    </div>
+    <div>
+      <label>Expected Close Time: &nbsp;</label>
+      <span *ngIf="!closeTimeEdit"> {{expectedCloseTime}}
+        <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
+      </span>
+      <span *ngIf="closeTimeEdit">
+        <input type="date" id="closeTime" name="closeTime">&nbsp;
+        <input type="submit" value="Update">
+      </span>
+    </div>
+    <br>
+  </div>
+  <div class="col-lg-4" style="float: right;">
+    <div>
+      <label>Volume</label>
+    </div>
+    <div>
+      <label>Product:</label>
+      <span>&nbsp;37,000 &nbsp;</span>
+      <span class="legendIcon">
+        <i class="fa fa-info-circle"></i>
+        <!-- <span id="tooltiptext">Period Close Tracking</span> -->
+      </span>
+    </div>
+    <div>
+      <label>Service:</label>
+      <span>&nbsp;28,363 &nbsp;</span>
+      <i class="fa fa-info-circle legendIcon"></i>
+    </div>
+    <div>
+      <label>Subscription:</label>
+      <span>&nbsp;15,999 &nbsp;</span>
+      <i class="fa fa-info-circle legendIcon"></i>
+    </div>
+  </div>
+  <br>
+  <br>
+  <table class="table table-responsive">
+    <thead>
+      <tr>
+        <th>AR Interface</th>
+        <th>Invoicing</th>
+        <th>Accounting</th>
+        <th>GL Posting</th>
+        <th>NGCCRM</th>
+        <th>Inter Company</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <cng-label *ngIf="pctTracking.controls.customLabel.value">
+              {{ pctTracking.controls.customLabel.value }}
+            </cng-label>
+          </cng-progressbar>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <br>
+  <br>
+  <div class="col-sm-6" style="float: left;">
+    <div>
+      <label>Comments: &nbsp;</label>
+      <div *ngIf="!editComments">
+        <ul>
+          <li *ngFor="let comment of comments">{{comment}}</li>
+        </ul>
+        <br>
+        <input id="editComments" type="submit" value="Edit" (click)="editContent($event)">
+      </div>
+      <div *ngIf="editComments">
+        <textarea></textarea>
+        <br>
+        <input type="submit" value="Update">
+      </div>
+    </div>
+  </div>
+
+</div>

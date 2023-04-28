@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   constructor ( ) {}
+  isLoggedIn: boolean = true;
   title = 'Revenue Operations Dashboard';
 
 

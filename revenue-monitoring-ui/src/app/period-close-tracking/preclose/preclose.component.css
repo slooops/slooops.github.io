@@ -1,0 +1,36 @@
+th {
+  text-align: center !important;
+}
+
+#editCloseTime:hover {
+  cursor: pointer;
+}
+
+td{
+  text-align: center;
+}
+
+.legendIcon {
+  color: darkgrey;
+}
+
+.legendIcon:hover .tooltiptext{
+  visibility: visible;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: grey;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+::ng-deep .mat-ink-bar {
+  background-color: #049fd9 !important;}

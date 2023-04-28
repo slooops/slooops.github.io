@@ -1,0 +1,32 @@
+<div class="row dbl-padding-bottom">
+  <div class="col-lg-6 col-xl-4 base-padding-bottom">
+      <nav class="sidebar" role="navigation">
+          <div class="sidebar__header">
+              <div class="sidebar__header-title text-center">
+                  <p><span class="icon-cisco icon-size-48"></span></p>
+                  <h4>Operations Dashboard</h4>
+              </div>
+          </div>
+          <ul>
+              <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                <a [routerLink]="['/home']">Home</a>
+              </li>
+              <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                  <a [routerLink]="['/standard-ar']">Standard AR</a>
+              </li>
+              <!-- <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                  <a [routerLink]="['/tsv-exceptions-top-sku']">Revenue Accruals Top Sku</a>
+              </li>
+              <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                  <a [routerLink]="['/tsv-exceptions-sub-sku']">Revenue Accruals Sub Sku</a>
+              </li> -->
+              <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+                <a [routerLink]="['/revenue-controls']">Revenue Controls</a>
+            </li>
+            <li class="sidebar__item" [routerLinkActive]="['sidebar__item--selected']">
+              <a [routerLink]="['/period-close-tracking']">Period Close Tracking</a>
+          </li>
+          </ul>
+      </nav>
+  </div>
+</div>
