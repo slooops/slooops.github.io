@@ -10,6 +10,10 @@
       <span> {{expectedCloseTime}}</span>
     </div>
     <div>
+      <label>Current Quarter: &nbsp;</label>
+      <span> {{currentQuarter}}</span>
+    </div>
+    <div>
       <label>Expected Close Time: &nbsp;</label>
       <span *ngIf="!closeTimeEdit"> {{expectedCloseTime}}
         <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
