@@ -21,7 +21,7 @@ export interface PeriodClose {
 })
 export class MidcloseComponent implements OnInit {
 
-  arInterfaceCompletionValue = 0.50;
+  arInterfaceCompletionValue = 0;
   startTimeEdit = false;
   closeTimeEdit = false;
   editComments = false;
@@ -32,6 +32,7 @@ export class MidcloseComponent implements OnInit {
 
   preCloseStartTime = "25-MAR-2023 07:00:00 AM PST";
   expectedCloseTime = "25-MAR-2023 02:30:00 PM PST";
+  currentQuarter = "Q3FY23";
   comments: any[] = [
     "Lockbox is delayed as treasurey didn’t receive the file",
     "Accounting is running long US entity by 30 minutes due to service",
