@@ -33,11 +33,7 @@ export class PrecloseComponent implements OnInit {
   preCloseStartTime = "29-APR-2023 07:00:00 AM PST";
   expectedCloseTime = "29-APR-2023 02:30:00 PM PST";
   currentQuarter = "Q3FY23";
-  comments: any[] = [
-    "Lockbox is delayed as treasurey didn’t receive the file",
-    "Accounting is running long US entity by 30 minutes due to service",
-    "VT extracts are running long by 30 minutes"
-  ];
+  comments: any[] = [];
   public pctTracking = new FormGroup({
 		value: new FormControl(this.arInterfaceCompletionValue),
 		color: new FormControl(CngProgressbarColor.SUCCESS),
