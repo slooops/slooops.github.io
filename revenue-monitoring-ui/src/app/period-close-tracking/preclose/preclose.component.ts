@@ -4,15 +4,16 @@ import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components
 import { CngProgressbarColor } from '@cisco/cui-ng';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
-export interface PeriodClose {
-  operatingUnit: string;
-  arInterface: string;
-  invoicing: string;
-  accounting: string;
-  glPosting: string;
-  ngccrm: string;
-  interCompany: string;
-}
+
+// export interface PeriodClose {
+//   operatingUnit: string;
+//   arInterface: string;
+//   invoicing: string;
+//   accounting: string;
+//   glPosting: string;
+//   ngccrm: string;
+//   interCompany: string;
+// }
 
 @Component({
   selector: 'app-preclose',
@@ -21,18 +22,23 @@ export interface PeriodClose {
 })
 export class PrecloseComponent implements OnInit {
 
-  arInterfaceCompletionValue = 0;
+  arInterfaceCompletionValue = 1;
   startTimeEdit = false;
   closeTimeEdit = false;
   editComments = false;
+
+  templateObject = Object;
 
   selectedEntities: string[] = [];
 
   entities = new FormControl('');
 
-  preCloseStartTime = "25-MAR-2023 07:00:00 AM PST";
+  preCloseStartTime: String;
+  preCloseEndTime: String;
+  productVolume: Number;
+  serviceVolume: Number;
+
   expectedCloseTime = "25-MAR-2023 02:30:00 PM PST";
-  currentQuarter = "Q3FY23";
   comments: any[] = [
     "Lockbox is delayed as treasurey didn’t receive the file",
     "Accounting is running long US entity by 30 minutes due to service",
@@ -45,26 +51,42 @@ export class PrecloseComponent implements OnInit {
 		customLabel: new FormControl((this.arInterfaceCompletionValue*100+'%').toString())
 	});
 
-  entityList: string[] = ['ALL', 'CN', 'PY', 'AUS', 'ITL', 'NZ', 'UK', 'US'];
+  entityList: string[] = [];
 
-  periodCloseColumns: string[] = ['operatingUnit', 'arInterface', 'invoicing', 'accounting', 'glPosting', 'ngccrm', 'interCompany'];
+  // periodCloseData: PeriodClose[] = [
+  //   {operatingUnit: 'CN', arInterface: 'Completed', invoicing: 'Completed', accounting: 'Completed', glPosting: 'Completed', ngccrm: 'Completed', interCompany: 'Completed'},
+  //   {operatingUnit: 'PY', arInterface: 'Completed', invoicing: 'Completed', accounting: 'Completed', glPosting: 'Completed', ngccrm: 'Completed', interCompany: 'Completed'},
+  //   {operatingUnit: 'AUS', arInterface: 'Completed', invoicing: 'Completed', accounting: 'Completed', glPosting: 'Completed', ngccrm: 'Completed', interCompany: 'Completed'},
+  //   {operatingUnit: 'ITL', arInterface: 'In Progress', invoicing: 'In Progress', accounting: 'In Progress', glPosting: 'In Progress', ngccrm: 'In Progress', interCompany: 'In Progress'},
+  //   {operatingUnit: 'NZ', arInterface: 'In Progress', invoicing: 'In Progress', accounting: 'In Progress', glPosting: 'In Progress', ngccrm: 'In Progress', interCompany: 'In Progress'},
+  //   {operatingUnit: 'UK', arInterface: 'Yet to Start', invoicing: 'Yet to Start', accounting: 'Yet to Start', glPosting: 'Yet to Start', ngccrm: 'Yet to Start', interCompany: 'Yet to Start'},
+  //   {operatingUnit: 'US', arInterface: 'Yet to Start', invoicing: 'Yet to Start', accounting: 'Yet to Start', glPosting: 'Yet to Start', ngccrm: 'Yet to Start', interCompany: 'Yet to Start'}
+  // ]
 
-  periodCloseData: PeriodClose[] = [
-    {operatingUnit: 'CN', arInterface: 'Completed', invoicing: 'Completed', accounting: 'Completed', glPosting: 'Completed', ngccrm: 'Completed', interCompany: 'Completed'},
-    {operatingUnit: 'PY', arInterface: 'Completed', invoicing: 'Completed', accounting: 'Completed', glPosting: 'Completed', ngccrm: 'Completed', interCompany: 'Completed'},
-    {operatingUnit: 'AUS', arInterface: 'Completed', invoicing: 'Completed', accounting: 'Completed', glPosting: 'Completed', ngccrm: 'Completed', interCompany: 'Completed'},
-    {operatingUnit: 'ITL', arInterface: 'In Progress', invoicing: 'In Progress', accounting: 'In Progress', glPosting: 'In Progress', ngccrm: 'In Progress', interCompany: 'In Progress'},
-    {operatingUnit: 'NZ', arInterface: 'In Progress', invoicing: 'In Progress', accounting: 'In Progress', glPosting: 'In Progress', ngccrm: 'In Progress', interCompany: 'In Progress'},
-    {operatingUnit: 'UK', arInterface: 'Yet to Start', invoicing: 'Yet to Start', accounting: 'Yet to Start', glPosting: 'Yet to Start', ngccrm: 'Yet to Start', interCompany: 'Yet to Start'},
-    {operatingUnit: 'US', arInterface: 'Yet to Start', invoicing: 'Yet to Start', accounting: 'Yet to Start', glPosting: 'Yet to Start', ngccrm: 'Yet to Start', interCompany: 'Yet to Start'}
-  ]
-
-  selectedPeriodCloseData: PeriodClose[] = [];
+  selectedPeriodCloseData: any[] = [];
   entitySelected: boolean = false;
+
+
 
   programTableOptions!: CuiTableOptions;
   preCloseProgramTableData: any[] = [];
   midCloseProgramTableData: any[] = [];
+
+  interfaceLoadHeaders: any[] = [];
+  interfaceLoadData: any[] = [];
+  qeCashCollectedData: any[] = [];
+  qeCashCollectedTableOptions!: CuiTableOptions;
+
+  monthEndStatusData: any[] = [];
+  selectedMonthEndStatusData: any[] = [];
+  meStatusColumns: string[] = []
+  // monthEndStatusDataTableOptions!: CuiTableOptions;
+
+
+  periodQuarterData: any[] = [];
+  periodQuarter: String;
+  period: String;
+  quarter: String;
 
   dynamicInterfaceLoadColumns: string[] = [];
   interfaceLoadColumns: string[] = [];
@@ -82,6 +104,110 @@ export class PrecloseComponent implements OnInit {
   ngOnInit(): void {
     this.getPeriodCloseInvoice();
     this.getInterfaceLoad();
+    this.getPeriodQuarter();
+    this.getStartEndTime();
+    this.getPrecloseVolume();
+    this.getQECashCollected();
+    this.getPrecloseMeStatus();
+  }
+
+  getPeriodQuarter() {
+    this.http.get('period-quarter-details').subscribe((data:any) => {
+      // console.log("period-quarter-details Data", data);
+      this.period = data[0]["PERIOD_NAME"];
+      this.quarter = data[0]["QUARTER"];
+    })
+  }
+
+  getStartEndTime() {
+    this.http.get('preclose-start-end-time').subscribe((data:any) => {
+      console.log("preclose-start-end-time", data);
+      this.preCloseStartTime = new Date(data[0]["CLOSE_START_TIME"]).toLocaleString('en-US') + ' PST';
+      this.preCloseEndTime = new Date(data[0]["CLOSE_END_TIME"]).toLocaleString('en-US') + ' PST';
+    })
+  }
+
+  getPrecloseVolume() {
+    this.http.get('preclose-volume').subscribe((data:any) => {
+      console.log("preclose-volume", data);
+      this.productVolume = data[0]["LINE_COUNT"];
+      this.serviceVolume = data[1]["LINE_COUNT"];
+    })
+  }
+
+  getQECashCollected() {
+    this.http.get('pclose-qe-cash-collected').subscribe((data:any) => {
+      console.log("pclose-qe-cash-collected", data);
+
+      // Rows
+      this.qeCashCollectedData = data;
+
+      // Columns
+      let tableColumns: CuiTableColumnOption[] = [];
+
+      for (let column_name of Object.keys(data[0])) {
+        tableColumns.push(new CuiTableColumnOption({
+          'name': column_name,
+          'sortable': false,
+          'key': column_name
+        }));
+      }
+
+      this.qeCashCollectedTableOptions = new CuiTableOptions({
+        bordered: true,
+        // striped: true,
+        // fixed: true,
+        columns: tableColumns,
+        dynamicData: true
+      });
+    })
+  }
+
+  getPrecloseMeStatus() {
+    this.http.get('preclose-me-status').subscribe((data:any) => {
+      console.log("preclose-me-status", data);
+
+      // create ou category status mappings { ou -> { category -> status } }
+      let ouStatusMapping: any = {};
+      data.forEach(row => {
+        let operatingUnit = row['OPERATING_UNIT'];
+        let category = row['CATEGORY'];
+        let closeStatus = row['CLOSE_STATUS'];
+        if (!(operatingUnit in ouStatusMapping)) {
+          ouStatusMapping[operatingUnit] = {};
+          ouStatusMapping[operatingUnit][category] = closeStatus;
+        }
+        else {
+          ouStatusMapping[operatingUnit][category] = closeStatus;
+        }
+      });
+
+      console.log("ouStatusMapping", ouStatusMapping);
+
+      // Get column names
+      this.meStatusColumns.push('Operating Unit');
+
+      // For any operating unit, iterate through all the categories
+      // These categories will be columns for the new table
+      let tempOperatingUnit = data[0]['OPERATING_UNIT'];
+      for (let category of Object.keys(ouStatusMapping[tempOperatingUnit])) {
+        this.meStatusColumns.push(category);
+      }
+
+      // Get rows by building each row as an object and pushing it to array of rows
+      for (let ou of Object.keys(ouStatusMapping)) {
+        this.entityList.push(ou);
+        let tableRowObj = {};
+        let ouStatusesObj = ouStatusMapping[ou];
+        tableRowObj['OPERATING_UNIT'] = ou;
+        for (let category of Object.keys(ouStatusesObj)) {
+          tableRowObj[category] = ouStatusMapping[ou][category];
+        }
+        this.monthEndStatusData.push(tableRowObj);
+      }
+
+      console.log("monthEndStatusData", this.monthEndStatusData);
+    })
   }
 
   getPeriodCloseInvoice(){
@@ -91,6 +217,8 @@ export class PrecloseComponent implements OnInit {
         return invData;
       });
       this.preCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'PRECLOSE');
+
+      // console.log("this.preCloseProgramTableData", this.preCloseProgramTableData);
       this.midCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'MIDCLOSE');
       let programColumns: CuiTableColumnOption[] = [];
 
@@ -115,6 +243,49 @@ export class PrecloseComponent implements OnInit {
 
   getInterfaceLoad(){
     this.http.get('period-close-interface-load').subscribe((data:any) => {
+
+        console.log("period-close-interface-load Data", data);
+        this.interfaceLoadColumns.push('Line Type');
+
+        const emptyArray: number[] = [];
+
+        let prod_array: any[] = ['PROD'];
+        let service_array: any[] = ['SERVICE'];
+
+        data.forEach(row => {
+          // console.log(row);
+
+          if (!this.interfaceLoadColumns.includes(row['QUARTER'])) {
+            this.interfaceLoadColumns.push(row['QUARTER']);
+          }
+          if (row['LINE_TYPE'] === "PRODUCT") {
+            prod_array.push(row['LINE_COUNT']);
+            if (row['MOM_COMP_PERCENTAGE'] != null) {
+              prod_array.push(row['MOM_COMP_PERCENTAGE'].toFixed(2) + '%');
+            }
+            if (row['QOQ_COMP_PERCENTAGE'] != null) {
+              prod_array.push(row['QOQ_COMP_PERCENTAGE'].toFixed(2) + '%');
+            }
+          }
+          else if (row['LINE_TYPE'] === "SERVICE") {
+            service_array.push(row['LINE_COUNT']);
+            if (row['MOM_COMP_PERCENTAGE'] != null) {
+              service_array.push(row['MOM_COMP_PERCENTAGE'].toFixed(2) + '%');
+            }
+            if (row['QOQ_COMP_PERCENTAGE'] != null) {
+              service_array.push(row['QOQ_COMP_PERCENTAGE'].toFixed(2) + '%');
+            }
+          }
+        });
+        this.interfaceLoadColumns.push('Quarter over Quarter');
+        this.interfaceLoadColumns.push('Year over Year');
+        this.interfaceLoadData.push(prod_array);
+        this.interfaceLoadData.push(service_array);
+
+        console.log("RESULT");
+        console.log("COLS", this.interfaceLoadColumns);
+        console.log("ROWS", this.interfaceLoadData);
+
         let interfaceSet = new Set<string>();
         for(let value of data.values()){
           Object.keys(value).forEach(key => {
@@ -124,7 +295,7 @@ export class PrecloseComponent implements OnInit {
           })
         }
         this.dynamicInterfaceLoadColumns.push(...interfaceSet.values());
-        this.setInterfaceLoadColumns();
+        // this.setInterfaceLoadColumns();
     })
   }
 
@@ -134,16 +305,22 @@ export class PrecloseComponent implements OnInit {
   }
 
   selectedEntity(){
+
+    // console.log("1: ", this.monthEndStatusData);
+    // console.log("2: ", this.periodCloseData);
+
     if(this.selectedEntities.length>0){
       this.entitySelected = true;
     } else {
       this.entitySelected = false;
     }
     if(this.selectedEntities.includes('ALL')){
-      this.selectedPeriodCloseData = this.periodCloseData;
+      this.selectedPeriodCloseData = this.monthEndStatusData;
     } else {
-      this.selectedPeriodCloseData = this.periodCloseData.filter(data => this.selectedEntities.includes(data.operatingUnit));
+      this.selectedPeriodCloseData = this.monthEndStatusData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
     }
+
+    console.log("selectedPeriodCloseData: ", this.selectedPeriodCloseData);
   }
 
 
