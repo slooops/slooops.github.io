@@ -51,7 +51,7 @@ public class DailyMonitoringController {
     @GetMapping("/period-close-invoice-stats")
     public ResponseEntity<List<Map<String, Object>>> getPeriodCloseInvoiceStats() {
         System.out.println("Period Close Invoice Stats");
-        return new ResponseEntity<>(service.getPeriodCloseInvoiceStats(), HttpStatus.OK);
+        return new ResponseEntity<>(service.getPcloseInvStats(), HttpStatus.OK);
     }
 
     @GetMapping("/period-close-interface-load")
@@ -65,4 +65,29 @@ public class DailyMonitoringController {
     //     System.out.println("last program run");
     //     return new ResponseEntity<>(service.getProgramLastRun(), HttpStatus.OK);
     // }
+
+    @GetMapping("/period-quarter-details")
+    public ResponseEntity<List<Map<String, Object>>> getPeriodQuarter() {
+        return new ResponseEntity<>(service.getPeriodQuarter(), HttpStatus.OK);
+    }
+
+    @GetMapping("/preclose-start-end-time")
+    public ResponseEntity<List<Map<String, Object>>> getPcloseStartEndTime() {
+        return new ResponseEntity<>(service.getPcloseStartEndTime(), HttpStatus.OK);
+    }
+
+    @GetMapping("/preclose-volume")
+    public ResponseEntity<List<Map<String, Object>>> getPcloseVolume() {
+        return new ResponseEntity<>(service.getPcloseVolume(), HttpStatus.OK);
+    }
+
+    @GetMapping("/preclose-me-status")
+    public ResponseEntity<List<Map<String, Object>>> getPcloseMEStatus() {
+        return new ResponseEntity<>(service.getPcloseMEStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping("/pclose-qe-cash-collected")
+    public ResponseEntity<List<Map<String, Object>>> getPcloseQECashCollected() {
+        return new ResponseEntity<>(service.getPcloseQECashCollected(), HttpStatus.OK);
+    }
 }
