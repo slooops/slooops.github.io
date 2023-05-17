@@ -161,7 +161,7 @@ export class PrecloseComponent implements OnInit {
 
       for (let column_name of Object.keys(data[0])) {
         tableColumns.push(new CuiTableColumnOption({
-          'name': column_name.replace(/_/g, ' '),
+          'name': column_name.replace(/_/g, '-'),
           'sortable': false,
           'key': column_name
         }));
