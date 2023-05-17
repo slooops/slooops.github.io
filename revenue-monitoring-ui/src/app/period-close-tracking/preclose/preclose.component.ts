@@ -125,8 +125,11 @@ export class PrecloseComponent implements OnInit {
   getStartEndTime() {
     this.http.get('preclose-start-end-time').subscribe((data:any) => {
       console.log("preclose-start-end-time", data);
-      this.preCloseStartTime = new Date(data[0]["CLOSE_START_TIME"]).toLocaleString('en-US', { timeZone: 'America/Los_Angeles'}) + ' PST';
-      this.preCloseEndTime = new Date(data[0]["CLOSE_END_TIME"]).toLocaleString('en-US', { timeZone: 'America/Los_Angeles'}) + ' PST';
+      this.preCloseStartTime = new Date(data[0]["CLOSE_START_TIME"]).toLocaleString('en-US') + ' PST';
+      this.preCloseEndTime = new Date(data[0]["CLOSE_END_TIME"]).toLocaleString('en-US') + ' PST';
+
+      console.log("preCloseStartTime", this.preCloseStartTime);
+      console.log("preCloseEndTime", this.preCloseEndTime);
     })
   }
 
