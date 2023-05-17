@@ -144,7 +144,7 @@ export class PrecloseComponent implements OnInit {
 
       // Rows
       data.map(cashData => {
-        console.log("cashCollectedData: ", cashData);
+        // console.log("cashCollectedData: ", cashData);
         cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
         cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
         cashData.WD_2 = '$' + cashData.WD_2.toLocaleString('en-US');
@@ -235,14 +235,19 @@ export class PrecloseComponent implements OnInit {
   getPeriodCloseInvoice(){
     this.http.get('period-close-invoice-stats').subscribe((data: any) => {
       data.map(invData => {
-        console.log("invData: ", invData);
-        invData.TRANSACTION_AMOUNT = invData.TRANSACTION_AMOUNT.toLocaleString('en-US');
-        invData.USD_AMOUNT = '$' + invData.USD_AMOUNT.toLocaleString('en-US');
-        invData.INVOICE_COUNT = invData.INVOICE_COUNT.toLocaleString('en-US');
+        // console.log("invData: ", invData);
+
+        for (let col of Object.keys(invData)) {
+          if (col.includes("AMOUNT")) {
+            invData[col] = '$' + invData[col].toLocaleString('en-US');
+          }
+          if (col.includes("COUNT")) {
+            invData[col] = invData[col].toLocaleString('en-US');
+          }
+        }
         return invData;
       });
-      this.preCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'PRECLOSE');
-      this.midCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'MIDCLOSE');
+      this.preCloseProgramTableData = data;
       let programColumns: CuiTableColumnOption[] = [];
 
       for(let column of Object.keys(data[0])) {
@@ -285,21 +290,21 @@ export class PrecloseComponent implements OnInit {
             this.interfaceLoadColumns.push(row['QUARTER']);
           }
           if (row['LINE_TYPE'] === "PRODUCT") {
-            prod_array.push(row['LINE_COUNT']);
-            if (row['MOM_COMP_PERCENTAGE'] != null) {
-              prod_array.push(row['MOM_COMP_PERCENTAGE'].toFixed(2) + '%');
+            prod_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
+            if (row['QOQ_PERCENTAGE'] != null) {
+              prod_array.push(row['QOQ_PERCENTAGE'].toFixed(0) + '%');
             }
-            if (row['QOQ_COMP_PERCENTAGE'] != null) {
-              prod_array.push(row['QOQ_COMP_PERCENTAGE'].toFixed(2) + '%');
+            if (row['YOY_PERCENTAGE'] != null) {
+              prod_array.push(row['YOY_PERCENTAGE'].toFixed(0) + '%');
             }
           }
           else if (row['LINE_TYPE'] === "SERVICE") {
-            service_array.push(row['LINE_COUNT']);
-            if (row['MOM_COMP_PERCENTAGE'] != null) {
-              service_array.push(row['MOM_COMP_PERCENTAGE'].toFixed(2) + '%');
+            service_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
+            if (row['QOQ_PERCENTAGE'] != null) {
+              service_array.push(row['QOQ_PERCENTAGE'].toFixed(0) + '%');
             }
-            if (row['QOQ_COMP_PERCENTAGE'] != null) {
-              service_array.push(row['QOQ_COMP_PERCENTAGE'].toFixed(2) + '%');
+            if (row['YOY_PERCENTAGE'] != null) {
+              service_array.push(row['YOY_PERCENTAGE'].toFixed(0) + '%');
             }
           }
         });
@@ -332,6 +337,8 @@ export class PrecloseComponent implements OnInit {
 
   selectedEntity(){
     console.log("selectedEntities: ", this.selectedEntities);
+    console.log("ouStatusMapping", this.ouStatusMapping);
+
 
     if(this.selectedEntities.length>0){
       this.entitySelected = true;
@@ -344,25 +351,30 @@ export class PrecloseComponent implements OnInit {
       }
     }
 
-    // Reset progressBarStatusMapping
-    let ouStatusesObj = this.ouStatusMapping['America'];
-    for (let category of Object.keys(ouStatusesObj)) {
-      this.progressBarStatusMapping[category]['steps'] = 0;
-      this.progressBarStatusMapping[category]['total'] = 0;
-      this.progressBarStatusMapping[category]['value'] = 0;
-    }
 
-    // Update progressBarStatusMapping
-    for (let ou of Object.keys(this.ouStatusMapping)) {
-      if (this.selectedEntities.includes(ou)) {
-        let ouStatusesObj = this.ouStatusMapping[ou];
-        for (let category of Object.keys(ouStatusesObj)) {
-          this.progressBarStatusMapping[category]['steps'] += this.ouStatusMapping[ou][category]['stepsCompleted'];
-          this.progressBarStatusMapping[category]['total'] += 100;
-          this.progressBarStatusMapping[category]['value'] = 100 * this.progressBarStatusMapping[category]['steps'] / this.progressBarStatusMapping[category]['total'];
+    // Reset and update progressBarStatusMapping
+    if (Object.keys(this.ouStatusMapping).length !== 0) {
+      // Reset progressBarStatusMapping before reupdating it with new selected entities
+      let ouStatusesObj = this.ouStatusMapping['America'];
+      for (let category of Object.keys(ouStatusesObj)) {
+        this.progressBarStatusMapping[category]['steps'] = 0;
+        this.progressBarStatusMapping[category]['total'] = 0;
+        this.progressBarStatusMapping[category]['value'] = 0;
+      }
+
+      // Update progressBarStatusMapping
+      for (let ou of Object.keys(this.ouStatusMapping)) {
+        if (this.selectedEntities.includes(ou)) {
+          let ouStatusesObj = this.ouStatusMapping[ou];
+          for (let category of Object.keys(ouStatusesObj)) {
+            this.progressBarStatusMapping[category]['steps'] += this.ouStatusMapping[ou][category]['stepsCompleted'];
+            this.progressBarStatusMapping[category]['total'] += 100;
+            this.progressBarStatusMapping[category]['value'] = 100 * this.progressBarStatusMapping[category]['steps'] / this.progressBarStatusMapping[category]['total'];
+          }
         }
       }
     }
+
     this.selectedPeriodCloseData = this.monthEndStatusData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
 
     console.log("progressBarStatusMapping", this.progressBarStatusMapping);

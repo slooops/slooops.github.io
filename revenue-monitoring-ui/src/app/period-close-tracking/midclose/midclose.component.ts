@@ -84,11 +84,11 @@ export class MidcloseComponent implements OnInit {
   getPeriodCloseInvoice(){
     this.http.get('period-close-invoice-stats').subscribe((data: any) => {
       data.map(invData => {
-        invData.TRANSACTION_AMOUNT = invData.TRANSACTION_AMOUNT.toLocaleString('en-US');
+        // invData.TRANSACTION_AMOUNT = invData.TRANSACTION_AMOUNT.toLocaleString('en-US');
         return invData;
       });
-      this.preCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'PRECLOSE');
-      this.midCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'MIDCLOSE');
+      // this.preCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'PRECLOSE');
+      this.midCloseProgramTableData = data;
       let programColumns: CuiTableColumnOption[] = [];
 
       for(let column of this.programColumnMappings.keys()) {

@@ -14,6 +14,10 @@ td {
   text-align: center !important;
 }
 
+li.ng-star-inserted {
+  text-align: left !important;
+}
+
 .equal-width {
   width: 100%;
   /* table-layout: fixed; */
