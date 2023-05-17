@@ -39,7 +39,7 @@ export class PrecloseComponent implements OnInit {
   productVolume: Number;
   serviceVolume: Number;
 
-  expectedCloseTime = "25-MAR-2023 02:30:00 PM PST";
+  // expectedCloseTime = "25-MAR-2023 02:30:00 PM PST";
   comments: any[] = [
     "Lockbox is delayed as treasurey didn’t receive the file",
     "Accounting is running long US entity by 30 minutes due to service",
