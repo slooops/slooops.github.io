@@ -226,8 +226,9 @@ export class PrecloseComponent implements OnInit {
         }
         this.monthEndStatusData.push(tableRowObj);
       }
-
+      this.entityList.push('All');
       console.log("monthEndStatusData", this.monthEndStatusData);
+      console.log("entityList", this.entityList);
     })
   }
 
@@ -337,14 +338,14 @@ export class PrecloseComponent implements OnInit {
     } else {
       this.entitySelected = false;
     }
-    if(this.selectedEntities.includes('ALL')) {
+    if(this.selectedEntities.includes('All')) {
       for (let entity of this.entityList) {
         this.selectedEntities.push(entity);
       }
     }
 
     // Reset progressBarStatusMapping
-    let ouStatusesObj = this.ouStatusMapping['CISCO US OPERATING UNIT'];
+    let ouStatusesObj = this.ouStatusMapping['America'];
     for (let category of Object.keys(ouStatusesObj)) {
       this.progressBarStatusMapping[category]['steps'] = 0;
       this.progressBarStatusMapping[category]['total'] = 0;
