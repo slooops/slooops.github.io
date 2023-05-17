@@ -40,7 +40,7 @@ import { HomeComponent } from './home/home.component';
 import { MenuComponent } from './menu/menu.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
-
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -85,7 +85,8 @@ export function initApp(authService: AuthenticationService) {
     MatTabsModule,
     BrowserAnimationsModule,
     MatSelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgbModule
     ],
   providers: [
     {

@@ -10,6 +10,8 @@
   },
   "private": true,
   "dependencies": {
+    "@ng-bootstrap/ng-bootstrap": "13.1.1",
+    "@popperjs/core": "2.11.6",
     "@angular/animations": "~14.1.0",
     "@angular/cdk": "*",
     "@angular/common": "~14.1.0",

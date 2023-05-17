@@ -6,9 +6,25 @@ th {
   cursor: pointer;
 }
 
-td{
-  text-align: center;
+td {
+  text-align: center !important;
 }
+
+.ng-star-inserted {
+  text-align: center !important;
+}
+
+.equal-width {
+  width: 100%;
+  /* table-layout: fixed; */
+}
+
+.equal-width td tr th {
+  width: 14.2857%;
+  /* border: 1px solid black; */
+}
+
+
 
 .legendIcon {
   color: darkgrey;

@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components';
 import { CngProgressbarColor } from '@cisco/cui-ng';
 import { ApiHttpService } from 'src/app/providers/http.service';
-
+import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 
 // export interface PeriodClose {
 //   operatingUnit: string;
@@ -30,6 +30,7 @@ export class PrecloseComponent implements OnInit {
   templateObject = Object;
 
   selectedEntities: string[] = [];
+  prevSelectedEntities: string[] = [];
 
   entities = new FormControl('');
 
@@ -91,12 +92,12 @@ export class PrecloseComponent implements OnInit {
   dynamicInterfaceLoadColumns: string[] = [];
   interfaceLoadColumns: string[] = [];
 
-  programColumnMappings: Map<string, string> = new Map(Object.entries({
-    QUARTER: 'Quarter',
-    INVOICE_COUNT: 'Invoice Count',
-    TRANSACTION_AMOUNT: 'Transaction Amount',
-    USD_AMOUNT: 'USD Amount'
-  }));
+  // programColumnMappings: Map<string, string> = new Map(Object.entries({
+  //   QUARTER: 'Quarter',
+  //   INVOICE_COUNT: 'Invoice Count',
+  //   TRANSACTION_AMOUNT: 'Transaction Amount',
+  //   USD_AMOUNT: 'USD Amount'
+  // }));
 
 
   constructor(private http:ApiHttpService) { }
@@ -130,8 +131,8 @@ export class PrecloseComponent implements OnInit {
   getPrecloseVolume() {
     this.http.get('preclose-volume').subscribe((data:any) => {
       console.log("preclose-volume", data);
-      this.productVolume = data[0]["LINE_COUNT"];
-      this.serviceVolume = data[1]["LINE_COUNT"];
+      this.productVolume = data[0]["LINE_COUNT"].toLocaleString('en-US');
+      this.serviceVolume = data[1]["LINE_COUNT"].toLocaleString('en-US');
     })
   }
 
@@ -140,6 +141,17 @@ export class PrecloseComponent implements OnInit {
       console.log("pclose-qe-cash-collected", data);
 
       // Rows
+      data.map(cashData => {
+        console.log("cashCollectedData: ", cashData);
+        cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
+        cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
+        cashData.WD_2 = '$' + cashData.WD_2.toLocaleString('en-US');
+        cashData.WD_3 = '$' + cashData.WD_3.toLocaleString('en-US');
+        cashData.WD_4 = '$' + cashData.WD_4.toLocaleString('en-US');
+        cashData.WD_5 = '$' + cashData.WD_5.toLocaleString('en-US');
+        cashData.TOTAL = '$' + cashData.TOTAL.toLocaleString('en-US');
+        return cashData;
+      });
       this.qeCashCollectedData = data;
 
       // Columns
@@ -147,7 +159,7 @@ export class PrecloseComponent implements OnInit {
 
       for (let column_name of Object.keys(data[0])) {
         tableColumns.push(new CuiTableColumnOption({
-          'name': column_name,
+          'name': column_name.replace(/_/g, ' '),
           'sortable': false,
           'key': column_name
         }));
@@ -185,13 +197,13 @@ export class PrecloseComponent implements OnInit {
       console.log("ouStatusMapping", ouStatusMapping);
 
       // Get column names
-      this.meStatusColumns.push('Operating Unit');
+      this.meStatusColumns.push('OPERATING UNIT');
 
       // For any operating unit, iterate through all the categories
       // These categories will be columns for the new table
       let tempOperatingUnit = data[0]['OPERATING_UNIT'];
       for (let category of Object.keys(ouStatusMapping[tempOperatingUnit])) {
-        this.meStatusColumns.push(category);
+        this.meStatusColumns.push(category.replace(/_/g, ' '));
       }
 
       // Get rows by building each row as an object and pushing it to array of rows
@@ -207,13 +219,17 @@ export class PrecloseComponent implements OnInit {
       }
 
       console.log("monthEndStatusData", this.monthEndStatusData);
+      console.log("entityList", this.entityList);
     })
   }
 
   getPeriodCloseInvoice(){
     this.http.get('period-close-invoice-stats').subscribe((data: any) => {
       data.map(invData => {
+        console.log("invData: ", invData);
         invData.TRANSACTION_AMOUNT = invData.TRANSACTION_AMOUNT.toLocaleString('en-US');
+        invData.USD_AMOUNT = '$' + invData.USD_AMOUNT.toLocaleString('en-US');
+        invData.INVOICE_COUNT = invData.INVOICE_COUNT.toLocaleString('en-US');
         return invData;
       });
       this.preCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'PRECLOSE');
@@ -222,12 +238,14 @@ export class PrecloseComponent implements OnInit {
       this.midCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'MIDCLOSE');
       let programColumns: CuiTableColumnOption[] = [];
 
-      for(let column of this.programColumnMappings.keys()) {
-        programColumns.push(new CuiTableColumnOption({
-          'name': this.programColumnMappings.get(column),
-          'sortable': false,
-          'key': column
-        }));
+      for(let column of Object.keys(data[0])) {
+        if (column !== 'CLOSE_TYPE') {
+          programColumns.push(new CuiTableColumnOption({
+            'name': column.replace(/_/g, ' '),
+            'sortable': false,
+            'key': column
+          }));
+        }
       }
 
       this.programTableOptions = new CuiTableOptions({
@@ -237,6 +255,9 @@ export class PrecloseComponent implements OnInit {
         columns: programColumns,
         dynamicData: true
       });
+
+      console.log("preCloseProgramTableData: ", this.preCloseProgramTableData);
+
     })
   }
 
@@ -306,7 +327,8 @@ export class PrecloseComponent implements OnInit {
 
   selectedEntity(){
 
-    // console.log("1: ", this.monthEndStatusData);
+    console.log("selectedEntities: ", this.selectedEntities);
+    console.log("this.monthEndStatusData ", this.monthEndStatusData);
     // console.log("2: ", this.periodCloseData);
 
     if(this.selectedEntities.length>0){
@@ -314,12 +336,16 @@ export class PrecloseComponent implements OnInit {
     } else {
       this.entitySelected = false;
     }
-    if(this.selectedEntities.includes('ALL')){
-      this.selectedPeriodCloseData = this.monthEndStatusData;
-    } else {
-      this.selectedPeriodCloseData = this.monthEndStatusData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
+    if(this.selectedEntities.includes('ALL')) {
+      for (let entity of this.entityList) {
+        this.selectedEntities.push(entity);
+      }
     }
 
+    // this.selectedEntities = this.selectedEntities.filter((element) => element !== 'ALL');
+    this.selectedPeriodCloseData = this.monthEndStatusData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
+
+    // this.prevSelectedEntities = this.selectedEntities;
     console.log("selectedPeriodCloseData: ", this.selectedPeriodCloseData);
   }
 

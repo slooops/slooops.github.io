@@ -10,11 +10,11 @@
       <span> {{period}}</span>
     </div>
     <div>
-      <label>Preclose Start Time: &nbsp;</label>
+      <label>Scheduled Start: &nbsp;</label>
       <span> {{preCloseStartTime}}</span>
     </div>
     <div>
-      <label>Preclose End Time: &nbsp;</label>
+      <label>Scheduled End: &nbsp;</label>
       <span> {{preCloseEndTime}}</span>
     </div>
     <div>
@@ -40,7 +40,7 @@
       </span>
     </div>
   </div>
-  <div class="col-lg-4" style="float: right;">
+  <!-- <div class="col-lg-4" style="float: right;">
     <div>
       <label>Volume</label>
     </div>
@@ -49,7 +49,6 @@
       <span>&nbsp;{{productVolume}} &nbsp;</span>
       <span class="legendIcon">
         <i class="fa fa-info-circle"></i>
-        <!-- <span id="tooltiptext">Period Close Tracking</span> -->
       </span>
     </div>
     <div>
@@ -57,10 +56,10 @@
       <span>&nbsp;{{serviceVolume}} &nbsp;</span>
       <i class="fa fa-info-circle legendIcon"></i>
     </div>
-  </div>
+  </div> -->
   <br>
   <br>
-  <table mat-table class="table table-responsive">
+  <table mat-table class="table table-responsive equal-width">
     <thead>
       <tr>
         <th *ngFor="let col of meStatusColumns">{{ col }}</th>
@@ -68,44 +67,40 @@
     </thead>
     <tbody>
       <tr>
-        <td *ngIf="entitySelected"></td>
+        <td></td>
         <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+            <p><ngb-progressbar [showValue]="true" type="success" [value]="100"></ngb-progressbar></p>
+        </td>
+        <td>
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value" class="progessBar">
             <cng-label *ngIf="pctTracking.controls.customLabel.value">
               {{ pctTracking.controls.customLabel.value }}
             </cng-label>
           </cng-progressbar>
         </td>
         <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value" class="progessBar">
             <cng-label *ngIf="pctTracking.controls.customLabel.value">
               {{ pctTracking.controls.customLabel.value }}
             </cng-label>
           </cng-progressbar>
         </td>
         <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value" class="progessBar">
             <cng-label *ngIf="pctTracking.controls.customLabel.value">
               {{ pctTracking.controls.customLabel.value }}
             </cng-label>
           </cng-progressbar>
         </td>
         <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value" class="progessBar">
             <cng-label *ngIf="pctTracking.controls.customLabel.value">
               {{ pctTracking.controls.customLabel.value }}
             </cng-label>
           </cng-progressbar>
         </td>
         <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
-        </td>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
+          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value" class="progessBar">
             <cng-label *ngIf="pctTracking.controls.customLabel.value">
               {{ pctTracking.controls.customLabel.value }}
             </cng-label>
@@ -190,7 +185,7 @@
 
 
 
-  <p>Interface Load</p>
+  <p style="text-align: center;">Interface Load</p>
   <table class="table table-responsive table-bordered table-striped">
     <thead>
       <tr>
@@ -207,13 +202,13 @@
   <p *ngIf="preCloseProgramTableData.length">Invoices Generated</p>
   <cui-table *ngIf="preCloseProgramTableData.length" [options]="programTableOptions" [data]="preCloseProgramTableData" style="justify-content: center;"></cui-table>
 
-  <p *ngIf="qeCashCollectedData.length">Cash posted in last week of Quarter Ends (USD Amount) :</p>
+  <p *ngIf="qeCashCollectedData.length">Cash posted in last week of Quarter Ends</p>
   <cui-table *ngIf="qeCashCollectedData.length" [options]="qeCashCollectedTableOptions" [data]="qeCashCollectedData" style="justify-content: center;"></cui-table>
 
 
   <br>
   <br>
-  <!-- <div class="col-sm-6" style="float: left;">
+  <div class="col-sm-6" style="float: left;">
     <div>
       <label>Comments: &nbsp;</label>
       <div *ngIf="!editComments">
@@ -229,7 +224,7 @@
         <input id="updateComments" type="submit" value="Update" (click)="updateContent($event)">
       </div>
     </div>
-  </div> -->
+  </div>
 
 </div>
 
