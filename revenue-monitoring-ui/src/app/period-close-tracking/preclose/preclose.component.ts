@@ -116,7 +116,7 @@ export class PrecloseComponent implements OnInit {
 
   getPeriodQuarter() {
     this.http.get('period-quarter-details').subscribe((data:any) => {
-      // console.log("period-quarter-details Data", data);
+      console.log("period-quarter-details Data", data);
       this.period = data[0]["PERIOD_NAME"];
       this.quarter = data[0]["QUARTER"];
     })
@@ -125,8 +125,8 @@ export class PrecloseComponent implements OnInit {
   getStartEndTime() {
     this.http.get('preclose-start-end-time').subscribe((data:any) => {
       console.log("preclose-start-end-time", data);
-      this.preCloseStartTime = new Date(data[0]["CLOSE_START_TIME"]).toLocaleString('en-US') + ' PST';
-      this.preCloseEndTime = new Date(data[0]["CLOSE_END_TIME"]).toLocaleString('en-US') + ' PST';
+      this.preCloseStartTime = new Date(data[0]["CLOSE_START_TIME"]).toLocaleString('en-US', { timeZone: 'America/Los_Angeles'}) + ' PST';
+      this.preCloseEndTime = new Date(data[0]["CLOSE_END_TIME"]).toLocaleString('en-US', { timeZone: 'America/Los_Angeles'}) + ' PST';
     })
   }
 
