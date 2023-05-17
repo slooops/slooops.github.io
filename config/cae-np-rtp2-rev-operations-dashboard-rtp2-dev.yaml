@@ -90,21 +90,46 @@ spec:
               configMapKeyRef:
                 name: server-properties
                 key: cors.url
-          - name: REVENUE_CONTROLS_QUERY
+          - name: REVENUE_CONTROLS_Q
             valueFrom:
               configMapKeyRef:
                 name: db-properties
                 key: revenue.controls.query
-          - name: PERIOD_CLOSE_INVOICE_STATS
+          - name: PCLOSE_INVOICE_STATS_Q
             valueFrom:
               configMapKeyRef:
                 name: db-properties
-                key: period.close.invoice.stats
-          - name: PERIOD_CLOSE_INTERFACE_LOAD_PRECLOSE
+                key: pclose.invoice.stats.query
+          - name: PCLOSE_INTERFACE_LOAD_Q
             valueFrom:
               configMapKeyRef:
                 name: db-properties
-                key: period.close.interface.load.preclose
+                key: pclose.interface.load.query
+          - name: PERIOD_AND_QUARTER_Q
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: period.quarter.query
+          - name: PCLOSE_START_END_TIME_Q
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: pclose.start.end.time.query
+          - name: PCLOSE_VOLUME_Q
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: pclose.volume.query
+          - name: PCLOSE_ME_STATUS_Q
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: pclose.me.status.query
+          - name: PCLOSE_QE_CASH_COLLECTED_Q
+            valueFrom:
+              configMapKeyRef:
+                name: db-properties
+                key: pclose.qe.cash.collected.query
       imagePullSecrets:
       - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 
