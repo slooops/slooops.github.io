@@ -83,6 +83,8 @@ export class PrecloseComponent implements OnInit {
   meStatusColumns: string[] = []
   // monthEndStatusDataTableOptions!: CuiTableOptions;
 
+  progressBarStatusMapping: any = {};
+  ouStatusMapping: any = {};
 
   periodQuarterData: any[] = [];
   periodQuarter: String;
@@ -180,46 +182,52 @@ export class PrecloseComponent implements OnInit {
       console.log("preclose-me-status", data);
 
       // create ou category status mappings { ou -> { category -> status } }
-      let ouStatusMapping: any = {};
+
       data.forEach(row => {
         let operatingUnit = row['OPERATING_UNIT'];
         let category = row['CATEGORY'];
         let closeStatus = row['CLOSE_STATUS'];
-        if (!(operatingUnit in ouStatusMapping)) {
-          ouStatusMapping[operatingUnit] = {};
-          ouStatusMapping[operatingUnit][category] = closeStatus;
+        let stepsCompleted = row['STEPS_COMPLETED'];
+        if (!(operatingUnit in this.ouStatusMapping)) {
+          this.ouStatusMapping[operatingUnit] = {};
+          this.ouStatusMapping[operatingUnit][category] = {};
+          this.ouStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
+          this.ouStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
         }
-        else {
-          ouStatusMapping[operatingUnit][category] = closeStatus;
+        else if (!(category in this.ouStatusMapping[operatingUnit])) {
+          this.ouStatusMapping[operatingUnit][category] = {};
+          this.ouStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
+          this.ouStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
         }
       });
 
-      console.log("ouStatusMapping", ouStatusMapping);
+      console.log("ouStatusMapping", this.ouStatusMapping);
 
       // Get column names
       this.meStatusColumns.push('OPERATING UNIT');
 
       // For any operating unit, iterate through all the categories
-      // These categories will be columns for the new table
+      // These categories will be columns for the new table and keys for progressBarStatusMapping
       let tempOperatingUnit = data[0]['OPERATING_UNIT'];
-      for (let category of Object.keys(ouStatusMapping[tempOperatingUnit])) {
+      for (let category of Object.keys(this.ouStatusMapping[tempOperatingUnit])) {
         this.meStatusColumns.push(category.replace(/_/g, ' '));
+        this.progressBarStatusMapping[category] = {};
+
       }
 
-      // Get rows by building each row as an object and pushing it to array of rows
-      for (let ou of Object.keys(ouStatusMapping)) {
+      // Get rows of table by building each row as an object and pushing it to array
+      for (let ou of Object.keys(this.ouStatusMapping)) {
         this.entityList.push(ou);
         let tableRowObj = {};
-        let ouStatusesObj = ouStatusMapping[ou];
+        let ouStatusesObj = this.ouStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
         for (let category of Object.keys(ouStatusesObj)) {
-          tableRowObj[category] = ouStatusMapping[ou][category];
+          tableRowObj[category] = this.ouStatusMapping[ou][category]['closeStatus'];
         }
         this.monthEndStatusData.push(tableRowObj);
       }
 
       console.log("monthEndStatusData", this.monthEndStatusData);
-      console.log("entityList", this.entityList);
     })
   }
 
@@ -233,8 +241,6 @@ export class PrecloseComponent implements OnInit {
         return invData;
       });
       this.preCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'PRECLOSE');
-
-      // console.log("this.preCloseProgramTableData", this.preCloseProgramTableData);
       this.midCloseProgramTableData = data.filter(invData => invData.CLOSE_TYPE.trim() === 'MIDCLOSE');
       let programColumns: CuiTableColumnOption[] = [];
 
@@ -274,8 +280,6 @@ export class PrecloseComponent implements OnInit {
         let service_array: any[] = ['SERVICE'];
 
         data.forEach(row => {
-          // console.log(row);
-
           if (!this.interfaceLoadColumns.includes(row['QUARTER'])) {
             this.interfaceLoadColumns.push(row['QUARTER']);
           }
@@ -326,10 +330,7 @@ export class PrecloseComponent implements OnInit {
   }
 
   selectedEntity(){
-
     console.log("selectedEntities: ", this.selectedEntities);
-    console.log("this.monthEndStatusData ", this.monthEndStatusData);
-    // console.log("2: ", this.periodCloseData);
 
     if(this.selectedEntities.length>0){
       this.entitySelected = true;
@@ -342,10 +343,28 @@ export class PrecloseComponent implements OnInit {
       }
     }
 
-    // this.selectedEntities = this.selectedEntities.filter((element) => element !== 'ALL');
+    // Reset progressBarStatusMapping
+    let ouStatusesObj = this.ouStatusMapping['CISCO US OPERATING UNIT'];
+    for (let category of Object.keys(ouStatusesObj)) {
+      this.progressBarStatusMapping[category]['steps'] = 0;
+      this.progressBarStatusMapping[category]['total'] = 0;
+      this.progressBarStatusMapping[category]['value'] = 0;
+    }
+
+    // Update progressBarStatusMapping
+    for (let ou of Object.keys(this.ouStatusMapping)) {
+      if (this.selectedEntities.includes(ou)) {
+        let ouStatusesObj = this.ouStatusMapping[ou];
+        for (let category of Object.keys(ouStatusesObj)) {
+          this.progressBarStatusMapping[category]['steps'] += this.ouStatusMapping[ou][category]['stepsCompleted'];
+          this.progressBarStatusMapping[category]['total'] += 100;
+          this.progressBarStatusMapping[category]['value'] = 100 * this.progressBarStatusMapping[category]['steps'] / this.progressBarStatusMapping[category]['total'];
+        }
+      }
+    }
     this.selectedPeriodCloseData = this.monthEndStatusData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
 
-    // this.prevSelectedEntities = this.selectedEntities;
+    console.log("progressBarStatusMapping", this.progressBarStatusMapping);
     console.log("selectedPeriodCloseData: ", this.selectedPeriodCloseData);
   }
 
