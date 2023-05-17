@@ -129,8 +129,8 @@ export class PrecloseComponent implements OnInit {
       console.log("preclose-start-end-time", data);
       let pStartDate = new Date(data[0]["CLOSE_START_TIME"]);
       let pEndDate = new Date(data[0]["CLOSE_END_TIME"]);
-      this.preCloseStartTime = this.datePipe.transform(pStartDate, 'short', 'en-US') + ' PST';
-      this.preCloseEndTime = this.datePipe.transform(pEndDate, 'short', 'en-US') + ' PST';
+      this.preCloseStartTime = this.datePipe.transform(pStartDate.toISOString(), 'short', 'en-US') + ' PST';
+      this.preCloseEndTime = this.datePipe.transform(pEndDate.toISOString(), 'short', 'en-US') + ' PST';
 
       console.log("preCloseStartTime", this.preCloseStartTime);
       console.log("preCloseEndTime", this.preCloseEndTime);
