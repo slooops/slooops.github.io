@@ -41,6 +41,7 @@ import { MenuComponent } from './menu/menu.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DatePipe } from '@angular/common';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -89,6 +90,7 @@ export function initApp(authService: AuthenticationService) {
     NgbModule
     ],
   providers: [
+    DatePipe,
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,

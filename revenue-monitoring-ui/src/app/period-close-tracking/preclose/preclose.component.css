@@ -28,6 +28,9 @@ li.ng-star-inserted {
   /* border: 1px solid black; */
 }
 
+#tableHeading {
+  text-align: left !important;
+}
 
 
 .legendIcon {

@@ -4,6 +4,7 @@ import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components
 import { CngProgressbarColor } from '@cisco/cui-ng';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
+import { DatePipe } from '@angular/common';
 
 // export interface PeriodClose {
 //   operatingUnit: string;
@@ -28,6 +29,7 @@ export class PrecloseComponent implements OnInit {
   editComments = false;
 
   templateObject = Object;
+  datePipe: DatePipe = new DatePipe('en-US');
 
   selectedEntities: string[] = [];
   prevSelectedEntities: string[] = [];
@@ -125,8 +127,10 @@ export class PrecloseComponent implements OnInit {
   getStartEndTime() {
     this.http.get('preclose-start-end-time').subscribe((data:any) => {
       console.log("preclose-start-end-time", data);
-      this.preCloseStartTime = new Date(data[0]["CLOSE_START_TIME"]).toLocaleString('en-US') + ' PST';
-      this.preCloseEndTime = new Date(data[0]["CLOSE_END_TIME"]).toLocaleString('en-US') + ' PST';
+      let pStartDate = new Date(data[0]["CLOSE_START_TIME"]);
+      let pEndDate = new Date(data[0]["CLOSE_END_TIME"]);
+      this.preCloseStartTime = this.datePipe.transform(pStartDate, 'short', 'en-US') + ' PST';
+      this.preCloseEndTime = this.datePipe.transform(pEndDate, 'short', 'en-US') + ' PST';
 
       console.log("preCloseStartTime", this.preCloseStartTime);
       console.log("preCloseEndTime", this.preCloseEndTime);
