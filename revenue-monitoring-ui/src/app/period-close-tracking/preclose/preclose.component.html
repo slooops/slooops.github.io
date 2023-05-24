@@ -87,10 +87,18 @@
     </thead>
     <tbody>
       <tr *ngFor="let row of interfaceLoadData">
-        <td *ngFor="let cell of row">{{ cell }}</td>
+        <ng-container *ngFor="let cell of row; let i = index">
+          <td *ngIf="i < row.length - 2">{{ cell }}</td>
+          <td *ngIf="i >= row.length - 2">
+            <span *ngIf="cell.slice(0,-1) > 0">⬆</span>
+            <span *ngIf="cell.slice(0,-1) < 0">⬇</span>
+            {{ cell }} 
+          </td>
+        </ng-container>
       </tr>
     </tbody>
   </table>
+  
 
   <p id="tableHeading" *ngIf="preCloseProgramTableData.length"><b>Invoices Generated</b></p>
   <cui-table *ngIf="preCloseProgramTableData.length" [options]="programTableOptions" [data]="preCloseProgramTableData" style="justify-content: center;"></cui-table>
