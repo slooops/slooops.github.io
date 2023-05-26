@@ -90,9 +90,10 @@
         <ng-container *ngFor="let cell of row; let i = index">
           <td *ngIf="i < row.length - 2">{{ cell }}</td>
           <td *ngIf="i >= row.length - 2">
-            <span *ngIf="cell.slice(0,-1) > 0">⬆</span>
-            <span *ngIf="cell.slice(0,-1) < 0">⬇</span>
-            {{ cell }} 
+            <span *ngIf="cell.slice(0,-1) > 0">⬆ {{ cell }}</span>
+            <span *ngIf="cell.slice(0,-1) < 0">⬇ {{ getAbsoluteValue(cell.slice(0,-1)) }}%</span>
+            <span *ngIf="cell.slice(0,-1) == 0">0%</span>
+  
           </td>
         </ng-container>
       </tr>

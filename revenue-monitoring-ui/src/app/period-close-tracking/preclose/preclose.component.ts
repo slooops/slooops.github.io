@@ -405,4 +405,8 @@ export class PrecloseComponent implements OnInit {
     }
   }
 
+  getAbsoluteValue(number: number) {
+    return Math.abs(number);
+  }
+
 }
