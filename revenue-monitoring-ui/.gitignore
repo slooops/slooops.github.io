@@ -38,6 +38,7 @@ testem.log
 /typings
 .dockerignore
 .version
+src/assets/config/config.json
 
 # System files
 .DS_Store
