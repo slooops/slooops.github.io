@@ -109,16 +109,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
           // let endDate = new Date(row["CLOSE_END_TIME"]);
           // this.preCloseStartTime = this.datePipe.transform(startDate.toISOString(), 'short', 'en-US') + ' PST';
           // this.preCloseEndTime = this.datePipe.transform(endDate.toISOString(), 'short', 'en-US') + ' PST';
-          this.preCloseStartTime = row["CLOSE_START_TIME"];
-          this.preCloseEndTime = row["CLOSE_END_TIME"];
+          this.preCloseStartTime = row["CLOSE_START_TIME"] + ' PST';
+          this.preCloseEndTime = row["CLOSE_END_TIME"] + ' PST';
         }
         else if (row["CLOSE_TYPE"] == 'MIDCLOSE') {
           // let startDate = new Date(row["CLOSE_START_TIME"]);
           // let endDate = new Date(row["CLOSE_END_TIME"]);
           // this.midCloseStartTime = this.datePipe.transform(startDate.toISOString(), 'short', 'en-US') + ' PST';
           // this.midCloseEndTime = this.datePipe.transform(endDate.toISOString(), 'short', 'en-US') + ' PST';
-          this.midCloseStartTime = row["CLOSE_START_TIME"];
-          this.midCloseEndTime = row["CLOSE_END_TIME"];
+          this.midCloseStartTime = row["CLOSE_START_TIME"] + ' PST';
+          this.midCloseEndTime = row["CLOSE_END_TIME"] + ' PST';
         }
       });
 
