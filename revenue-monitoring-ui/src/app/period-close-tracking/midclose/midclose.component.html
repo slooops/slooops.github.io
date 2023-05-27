@@ -2,112 +2,109 @@
 <div class="container" style="overflow: auto;">
   <div class="col-lg-4" style="float: left;">
     <div>
-      <label>Current Quarter: &nbsp;</label>
-      <span> {{currentQuarter}}</span>
+      <label>Quarter: &nbsp;</label>
+      <span> {{quarter}}</span>
     </div>
     <div>
-      <label>Preclose Start Time: &nbsp;</label>
-      <span> {{preCloseStartTime}}</span>
+      <label>Period: &nbsp;</label>
+      <span> {{period}}</span>
     </div>
     <div>
-      <label>Preclose End Time: &nbsp;</label>
-      <span> {{expectedCloseTime}}</span>
+      <label>Scheduled Start: &nbsp;</label>
+      <span> {{midCloseStartTime}}</span>
+    </div>
+    <div>
+      <label>Scheduled End: &nbsp;</label>
+      <span> {{midCloseEndTime}}</span>
     </div>
     <div>
       <label>Expected Close Time: &nbsp;</label>
-      <span *ngIf="!closeTimeEdit"> {{expectedCloseTime}}
+      <span *ngIf="!closeTimeEdit"> {{midCloseEndTime}}
         <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
       </span>
       <span *ngIf="closeTimeEdit">
         <input type="date" id="closeTime" name="closeTime">&nbsp;
-        <input type="submit" value="Update">
+        <input id="updateCloseTime" type="submit" value="Update" (click)="updateContent($event)">
       </span>
     </div>
     <br>
+    <div>
+      <span>
+        <label for="entity">Entity:&nbsp;</label>
+        <mat-form-field appearance="fill">
+          <mat-label>Select</mat-label>
+          <mat-select [formControl]="entities" id="entity" name="entity" [(ngModel)]="selectedEntities" (ngModelChange)="selectedEntity()" multiple>
+            <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span>
+    </div>
   </div>
-  <div class="col-lg-4" style="float: right;">
+  <!-- <div class="col-lg-4" style="float: right;">
     <div>
       <label>Volume</label>
     </div>
     <div>
       <label>Product:</label>
-      <span>&nbsp;37,000 &nbsp;</span>
+      <span>&nbsp;{{productVolume}} &nbsp;</span>
       <span class="legendIcon">
         <i class="fa fa-info-circle"></i>
-        <!-- <span id="tooltiptext">Period Close Tracking</span> -->
       </span>
     </div>
     <div>
       <label>Service:</label>
-      <span>&nbsp;28,363 &nbsp;</span>
+      <span>&nbsp;{{serviceVolume}} &nbsp;</span>
       <i class="fa fa-info-circle legendIcon"></i>
     </div>
-    <div>
-      <label>Subscription:</label>
-      <span>&nbsp;15,999 &nbsp;</span>
-      <i class="fa fa-info-circle legendIcon"></i>
-    </div>
-  </div>
+  </div> -->
   <br>
   <br>
-  <table class="table table-responsive">
+  <table mat-table class="table table-responsive equal-width">
     <thead>
       <tr>
-        <th>AR Interface</th>
-        <th>Invoicing</th>
-        <th>Accounting</th>
-        <th>GL Posting</th>
-        <th>NGCCRM</th>
-        <th>Inter Company</th>
+        <th *ngFor="let col of meStatusColumns">{{ col }}</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
+        <td></td>
+        <td *ngFor="let category of templateObject.keys(mCloseProgBarStatusMapping)">
+            <p><ngb-progressbar [showValue]="true" type="success" [value]="mCloseProgBarStatusMapping[category]['value']"></ngb-progressbar></p>
         </td>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
-        </td>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
-        </td>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
-        </td>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
-        </td>
-        <td>
-          <cng-progressbar [value]="pctTracking.controls.value.value" [size]="'large'" [color]="pctTracking.controls.color.value" [label]="pctTracking.controls.label.value">
-            <cng-label *ngIf="pctTracking.controls.customLabel.value">
-              {{ pctTracking.controls.customLabel.value }}
-            </cng-label>
-          </cng-progressbar>
-        </td>
+      </tr>
+      <tr *ngFor="let row of mcloseSelectedMonthEndStatusTableData">
+        <td *ngFor="let category of templateObject.keys(row)">{{ row[category] }}</td>
       </tr>
     </tbody>
   </table>
+
+  <p style="text-align: center;" id="tableHeading"><b>Interface Load</b></p>
+  <table class="table table-responsive table-bordered table-striped">
+    <thead>
+      <tr>
+        <th *ngFor="let col of interfaceLoadColumns">{{ col }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of midcloseInterfaceLoadData">
+        <ng-container *ngFor="let cell of row; let i = index">
+          <td *ngIf="i < row.length - 2">{{ cell }}</td>
+          <td *ngIf="i >= row.length - 2">
+            <span *ngIf="cell.slice(0,-1) > 0">⬆</span>
+            <span *ngIf="cell.slice(0,-1) < 0">⬇</span>
+            {{ cell }}
+          </td>
+        </ng-container>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <p id="tableHeading" *ngIf="midCloseProgramTableData.length"><b>Invoices Generated</b></p>
+  <cui-table *ngIf="midCloseProgramTableData.length" [options]="programTableOptions" [data]="midCloseProgramTableData" style="justify-content: center;"></cui-table>
+
+  <!-- <p id="tableHeading" *ngIf="qeCashCollectedData.length"><b>Cash posted in last week of Quarter Ends</b></p>
+  <cui-table *ngIf="qeCashCollectedData.length" [options]="qeCashCollectedTableOptions" [data]="qeCashCollectedData" style="justify-content: center;"></cui-table> -->
 
 
   <br>
@@ -125,9 +122,10 @@
       <div *ngIf="editComments">
         <textarea></textarea>
         <br>
-        <input type="submit" value="Update">
+        <input id="updateComments" type="submit" value="Update" (click)="updateContent($event)">
       </div>
     </div>
   </div>
 
 </div>
+

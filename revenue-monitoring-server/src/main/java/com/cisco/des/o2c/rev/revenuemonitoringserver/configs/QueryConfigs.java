@@ -29,23 +29,23 @@ public class QueryConfigs { // TODO
     @Value("${period-quarter.q}")
     public String periodAndQuarter;
     
-    @Value("${p_start-end.time.q}")
-    public String pcloseStartEndTime;
+    @Value("${start-end.time.q}")
+    public String closeStartEndTime;
     
-    @Value("${p_volume.q}")
-    public String pcloseVolume;
+    @Value("${volume.q}")
+    public String closeVolume;
 
-    @Value("${p_me.status.q}")
-    public String pcloseMEStatus;
+    @Value("${me.status.q}")
+    public String closeMEStatus;
 
-    @Value("${p_inv.stats.q}")
-    public String pcloseInvStats;
+    @Value("${inv.stats.q}")
+    public String closeInvStats;
 
-    @Value("${p_interface.load.q}")
-    public String pcloseInterfaceLoad;
+    @Value("${interface.load.q}")
+    public String closeInterfaceLoad;
 
-    @Value("${p.qe.cash.collected.q}")
-    public String pcloseQECashCollected;
+    @Value("${qe.cash.collected.q}")
+    public String closeQECashCollected;
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -68,21 +68,21 @@ public class QueryConfigs { // TODO
     @Bean( name = "periodAndQuarter")
     public String getPeriodAndQuarter() { return this.periodAndQuarter; }
     
-    @Bean( name = "pcloseStartEndTime")
-    public String getPcloseStartEndTime() { return this.pcloseStartEndTime; }
+    @Bean( name = "closeStartEndTime")
+    public String getCloseStartEndTime() { return this.closeStartEndTime; }
 
-    @Bean( name = "pcloseVolume")
-    public String getPcloseVolume() { return this.pcloseVolume; }
+    @Bean( name = "closeVolume")
+    public String getCloseVolume() { return this.closeVolume; }
 
-    @Bean( name = "pcloseMEStatus")
-    public String getPcloseMEStatus() { return this.pcloseMEStatus; }
+    @Bean( name = "closeMEStatus")
+    public String getCloseMEStatus() { return this.closeMEStatus; }
 
-    @Bean( name = "pcloseInvStats")
-    public String getPcloseInvStats() { return this.pcloseInvStats; }
+    @Bean( name = "closeInvStats")
+    public String getCloseInvStats() { return this.closeInvStats; }
 
-    @Bean( name = "pcloseInterfaceLoad")
-    public String getPcloseInterfaceLoad() { return this.pcloseInterfaceLoad; }
+    @Bean( name = "closeInterfaceLoad")
+    public String getCloseInterfaceLoad() { return this.closeInterfaceLoad; }
 
-    @Bean( name = "pcloseQECashCollected")
-    public String getPcloseQECashCollected() { return this.pcloseQECashCollected; }
+    @Bean( name = "closeQECashCollected")
+    public String getCloseQECashCollected() { return this.closeQECashCollected; }
 }

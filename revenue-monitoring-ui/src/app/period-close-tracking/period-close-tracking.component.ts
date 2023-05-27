@@ -29,6 +29,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   preCloseStartTime: String;
   preCloseEndTime: String;
+  midCloseStartTime: String;
+  midCloseEndTime: String;
   productVolume: Number;
   serviceVolume: Number;
 
@@ -39,26 +41,30 @@ export class PeriodCloseTrackingComponent implements OnInit {
     "VT extracts are running long by 30 minutes"
   ];
 
-  entityList: string[] = [];
-
-  selectedPeriodCloseData: any[] = [];
-  entitySelected: boolean = false;
-
   programTableOptions!: CuiTableOptions;
   preCloseProgramTableData: any[] = [];
   midCloseProgramTableData: any[] = [];
 
   interfaceLoadHeaders: any[] = [];
-  interfaceLoadData: any[] = [];
+  precloseInterfaceLoadData: any[] = [];
+  midcloseInterfaceLoadData: any[] = [];
   qeCashCollectedData: any[] = [];
   qeCashCollectedTableOptions!: CuiTableOptions;
 
-  monthEndStatusData: any[] = [];
-  selectedMonthEndStatusData: any[] = [];
+  entityList: string[] = [];
+  entitySelected: boolean = false;
+  pcloseMonthEndStatusData: any[] = [];
+  mcloseMonthEndStatusData: any[] = [];
+  pcloseMonthEndStatusTableData: any[] = [];
+  mcloseMonthEndStatusTableData: any[] = [];
+  pcloseSelectedMonthEndStatusTableData: any[] = [];
+  mcloseSelectedMonthEndStatusTableData: any[] = [];
   meStatusColumns: string[] = []
 
-  progressBarStatusMapping: any = {};
-  ouStatusMapping: any = {};
+  pCloseProgBarStatusMapping: any = {};
+  mCloseProgBarStatusMapping: any = {};
+  pcloseOuStatusMapping: any = {};
+  mcloseOuStatusMapping: any = {};
 
   periodQuarterData: any[] = [];
   periodQuarter: String;
@@ -95,13 +101,27 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getStartEndTime() {
     this.http.get('preclose-start-end-time').subscribe((data:any) => {
       console.log("preclose-start-end-time", data);
-      let pStartDate = new Date(data[0]["CLOSE_START_TIME"]);
-      let pEndDate = new Date(data[0]["CLOSE_END_TIME"]);
-      this.preCloseStartTime = this.datePipe.transform(pStartDate.toISOString(), 'short', 'en-US') + ' PST';
-      this.preCloseEndTime = this.datePipe.transform(pEndDate.toISOString(), 'short', 'en-US') + ' PST';
+
+
+      data.forEach( row => {
+        if (row["CLOSE_TYPE"] == 'PRECLOSE') {
+          let startDate = new Date(row["CLOSE_START_TIME"]);
+          let endDate = new Date(row["CLOSE_END_TIME"]);
+          this.preCloseStartTime = this.datePipe.transform(startDate.toISOString(), 'short', 'en-US') + ' PST';
+          this.preCloseEndTime = this.datePipe.transform(endDate.toISOString(), 'short', 'en-US') + ' PST';
+        }
+        else if (row["CLOSE_TYPE"] == 'MIDCLOSE') {
+          let startDate = new Date(row["CLOSE_START_TIME"]);
+          let endDate = new Date(row["CLOSE_END_TIME"]);
+          this.midCloseStartTime = this.datePipe.transform(startDate.toISOString(), 'short', 'en-US') + ' PST';
+          this.midCloseEndTime = this.datePipe.transform(endDate.toISOString(), 'short', 'en-US') + ' PST';
+        }
+      });
 
       console.log("preCloseStartTime", this.preCloseStartTime);
       console.log("preCloseEndTime", this.preCloseEndTime);
+      console.log("midCloseStartTime", this.midCloseStartTime);
+      console.log("midCloseEndTime", this.midCloseEndTime);
     })
   }
 
@@ -157,52 +177,89 @@ export class PeriodCloseTrackingComponent implements OnInit {
       console.log("PRECLOSE-ME-STATUS", data);
 
       // create ou category status mappings { ou -> { category -> status } }
+      this.pcloseMonthEndStatusData = data.filter(obj => obj['CLOSE_TYPE'] == 'PRECLOSE');
+      this.mcloseMonthEndStatusData = data.filter(obj => obj['CLOSE_TYPE'] == 'MIDCLOSE');
 
-      data.forEach(row => {
+      // setup preclose data (pcloseOuStatusMapping)
+      this.pcloseMonthEndStatusData.forEach(row => {
         let operatingUnit = row['OPERATING_UNIT'];
         let category = row['CATEGORY'];
         let closeStatus = row['CLOSE_STATUS'];
         let stepsCompleted = row['STEPS_COMPLETED'];
-        if (!(operatingUnit in this.ouStatusMapping)) {
-          this.ouStatusMapping[operatingUnit] = {};
-          this.ouStatusMapping[operatingUnit][category] = {};
-          this.ouStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
-          this.ouStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
+        if (!(operatingUnit in this.pcloseOuStatusMapping)) {
+          this.pcloseOuStatusMapping[operatingUnit] = {};
+          this.pcloseOuStatusMapping[operatingUnit][category] = {};
+          this.pcloseOuStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
+          this.pcloseOuStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
         }
-        else if (!(category in this.ouStatusMapping[operatingUnit])) {
-          this.ouStatusMapping[operatingUnit][category] = {};
-          this.ouStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
-          this.ouStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
+        else if (!(category in this.pcloseOuStatusMapping[operatingUnit])) {
+          this.pcloseOuStatusMapping[operatingUnit][category] = {};
+          this.pcloseOuStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
+          this.pcloseOuStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
         }
       });
 
-      console.log("ouStatusMapping", this.ouStatusMapping);
+      // setup midclose data (mcloseOuStatusMapping)
+      this.mcloseMonthEndStatusData.forEach(row => {
+        let operatingUnit = row['OPERATING_UNIT'];
+        let category = row['CATEGORY'];
+        let closeStatus = row['CLOSE_STATUS'];
+        let stepsCompleted = row['STEPS_COMPLETED'];
+        if (!(operatingUnit in this.mcloseOuStatusMapping)) {
+          this.mcloseOuStatusMapping[operatingUnit] = {};
+          this.mcloseOuStatusMapping[operatingUnit][category] = {};
+          this.mcloseOuStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
+          this.mcloseOuStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
+        }
+        else if (!(category in this.mcloseOuStatusMapping[operatingUnit])) {
+          this.mcloseOuStatusMapping[operatingUnit][category] = {};
+          this.mcloseOuStatusMapping[operatingUnit][category]['closeStatus'] = closeStatus;
+          this.mcloseOuStatusMapping[operatingUnit][category]['stepsCompleted'] = stepsCompleted;
+        }
+      });
+
+      console.log("pcloseOuStatusMapping", this.pcloseOuStatusMapping);
+      console.log("mcloseOuStatusMapping", this.mcloseOuStatusMapping);
 
       // Get column names
       this.meStatusColumns.push('OPERATING UNIT');
 
       // For any operating unit, iterate through all the categories
-      // These categories will be columns for the new table and keys for progressBarStatusMapping
+      // These categories will be columns for the new table and keys for pCloseProgBarStatusMapping
       let tempOperatingUnit = data[0]['OPERATING_UNIT'];
-      for (let category of Object.keys(this.ouStatusMapping[tempOperatingUnit])) {
+      for (let category of Object.keys(this.pcloseOuStatusMapping[tempOperatingUnit])) {
         this.meStatusColumns.push(category.replace(/_/g, ' '));
-        this.progressBarStatusMapping[category] = {};
+        // create new object for progress bar category mappings
+        this.pCloseProgBarStatusMapping[category] = {};
+        this.mCloseProgBarStatusMapping[category] = {};
 
       }
 
       // Get rows of table by building each row as an object and pushing it to array
-      for (let ou of Object.keys(this.ouStatusMapping)) {
+      // Preclose
+      for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
         this.entityList.push(ou);
         let tableRowObj = {};
-        let ouStatusesObj = this.ouStatusMapping[ou];
+        let ouStatusesObj = this.pcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
         for (let category of Object.keys(ouStatusesObj)) {
-          tableRowObj[category] = this.ouStatusMapping[ou][category]['closeStatus'];
+          tableRowObj[category] = this.pcloseOuStatusMapping[ou][category]['closeStatus'];
         }
-        this.monthEndStatusData.push(tableRowObj);
+        this.pcloseMonthEndStatusTableData.push(tableRowObj);
+      }
+      // Midclose
+      for (let ou of Object.keys(this.mcloseOuStatusMapping)) {
+        let tableRowObj = {};
+        let ouStatusesObj = this.mcloseOuStatusMapping[ou];
+        tableRowObj['OPERATING_UNIT'] = ou;
+        for (let category of Object.keys(ouStatusesObj)) {
+          tableRowObj[category] = this.mcloseOuStatusMapping[ou][category]['closeStatus'];
+        }
+        this.mcloseMonthEndStatusTableData.push(tableRowObj);
       }
       this.entityList.push('All');
-      console.log("monthEndStatusData", this.monthEndStatusData);
+      console.log("pcloseMonthEndStatusTableData", this.pcloseMonthEndStatusTableData);
+      console.log("mcloseMonthEndStatusTableData", this.mcloseMonthEndStatusTableData);
       console.log("entityList", this.entityList);
     })
   }
@@ -210,7 +267,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getPeriodCloseInvoice(){
     this.http.get('period-close-invoice-stats').subscribe((data: any) => {
       data.map(invData => {
-        console.log("PERIOD-CLOSE-INVOICE-STATS: ", invData);
+        // console.log("PERIOD-CLOSE-INVOICE-STATS: ", invData);
 
         for (let col of Object.keys(invData)) {
           if (col.includes("AMOUNT")) {
@@ -222,7 +279,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
         return invData;
       });
-      this.preCloseProgramTableData = data;
+      console.log("PERIOD-CLOSE-INVOICE-STATS: ", data);
+      // array.filter(obj => obj.category === category);
+      this.preCloseProgramTableData = data.filter(obj => obj['CLOSE_TYPE'] == 'PRECLOSE');
+      this.midCloseProgramTableData = data.filter(obj => obj['CLOSE_TYPE'] == 'MIDCLOSE');
       let programColumns: CuiTableColumnOption[] = [];
 
       for(let column of Object.keys(data[0])) {
@@ -257,40 +317,77 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
         const emptyArray: number[] = [];
 
-        let prod_array: any[] = ['PROD'];
-        let service_array: any[] = ['SERVICE'];
+        let preclose_prod_array: any[] = ['PROD'];
+        let preclose_service_array: any[] = ['SERVICE'];
+        let midclose_prod_array: any[] = ['PROD'];
+        let midclose_service_array: any[] = ['SERVICE'];
 
         data.forEach(row => {
-          if (!this.interfaceLoadColumns.includes(row['QUARTER'])) {
+          if (!this.interfaceLoadColumns.includes(row['QUARTER']) && row['QUARTER'] !== undefined) {
             this.interfaceLoadColumns.push(row['QUARTER']);
           }
+          if (!this.interfaceLoadColumns.includes(row['PERIOD_NAME']) && row['PERIOD_NAME'] !== undefined) {
+            this.interfaceLoadColumns.push(row['PERIOD_NAME']);
+          }
           if (row['LINE_TYPE'] === "PRODUCT") {
-            prod_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
-            if (row['QOQ_PERCENTAGE'] != null) {
-              prod_array.push(row['QOQ_PERCENTAGE'].toFixed(0) + '%');
+            if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+              preclose_prod_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
             }
-            if (row['YOY_PERCENTAGE'] != null) {
-              prod_array.push(row['YOY_PERCENTAGE'].toFixed(0) + '%');
+            if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+              midclose_prod_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
+            }
+            if (row['MOM_PERCENTAGE'] != null) {
+              if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+                preclose_prod_array.push(row['MOM_PERCENTAGE'].toFixed(0) + '%');
+              }
+              else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+                midclose_prod_array.push(row['MOM_PERCENTAGE'].toFixed(0) + '%');
+              }
+            }
+            if (row['PQM_PERCENTAGE'] != null) {
+              if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+                preclose_prod_array.push(row['PQM_PERCENTAGE'].toFixed(0) + '%');
+              }
+              else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+                midclose_prod_array.push(row['PQM_PERCENTAGE'].toFixed(0) + '%');
+              }
             }
           }
           else if (row['LINE_TYPE'] === "SERVICE") {
-            service_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
-            if (row['QOQ_PERCENTAGE'] != null) {
-              service_array.push(row['QOQ_PERCENTAGE'].toFixed(0) + '%');
+            if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+              preclose_service_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
             }
-            if (row['YOY_PERCENTAGE'] != null) {
-              service_array.push(row['YOY_PERCENTAGE'].toFixed(0) + '%');
+            if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+              midclose_service_array.push(row['LINE_COUNT'].toLocaleString('en-US'));
+            }
+            if (row['MOM_PERCENTAGE'] != null) {
+              if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+                preclose_service_array.push(row['MOM_PERCENTAGE'].toFixed(0) + '%');
+              }
+              else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+                midclose_service_array.push(row['MOM_PERCENTAGE'].toFixed(0) + '%');
+              }
+            }
+            if (row['PQM_PERCENTAGE'] != null) {
+              if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+                preclose_service_array.push(row['PQM_PERCENTAGE'].toFixed(0) + '%');
+              }
+              else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+                midclose_service_array.push(row['PQM_PERCENTAGE'].toFixed(0) + '%');
+              }
             }
           }
         });
-        this.interfaceLoadColumns.push('Quarter over Quarter');
-        this.interfaceLoadColumns.push('Year over Year');
-        this.interfaceLoadData.push(prod_array);
-        this.interfaceLoadData.push(service_array);
+        this.interfaceLoadColumns.push('MOM Percentage');
+        this.interfaceLoadColumns.push('PQM Percentage');
+        this.precloseInterfaceLoadData.push(preclose_prod_array);
+        this.precloseInterfaceLoadData.push(preclose_service_array);
+        this.midcloseInterfaceLoadData.push(midclose_prod_array);
+        this.midcloseInterfaceLoadData.push(midclose_service_array);
 
         console.log("RESULT");
         console.log("COLS", this.interfaceLoadColumns);
-        console.log("ROWS", this.interfaceLoadData);
+        console.log("precloseInterfaceLoadData", this.precloseInterfaceLoadData);
 
         let interfaceSet = new Set<string>();
         for(let value of data.values()){
@@ -312,8 +409,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   selectedEntity(){
     console.log("selectedEntities: ", this.selectedEntities);
-    console.log("ouStatusMapping", this.ouStatusMapping);
-
 
     if(this.selectedEntities.length>0){
       this.entitySelected = true;
@@ -327,33 +422,53 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
 
 
-    // Reset and update progressBarStatusMapping
-    if (Object.keys(this.ouStatusMapping).length !== 0) {
-      // Reset progressBarStatusMapping before reupdating it with new selected entities
-      let ouStatusesObj = this.ouStatusMapping['America'];
+    // Reset and update pCloseProgBarStatusMapping
+    // Get categories list and use them to reset progress bar
+    if (Object.keys(this.pcloseOuStatusMapping).length !== 0) {
+      // Reset pCloseProgBarStatusMapping before reupdating it with new selected entities
+      let ouStatusesObj = this.pcloseOuStatusMapping['America'];
       for (let category of Object.keys(ouStatusesObj)) {
-        this.progressBarStatusMapping[category]['steps'] = 0;
-        this.progressBarStatusMapping[category]['total'] = 0;
-        this.progressBarStatusMapping[category]['value'] = 0;
+        this.pCloseProgBarStatusMapping[category]['steps'] = 0;
+        this.pCloseProgBarStatusMapping[category]['total'] = 0;
+        this.pCloseProgBarStatusMapping[category]['value'] = 0;
+
+        this.mCloseProgBarStatusMapping[category]['steps'] = 0;
+        this.mCloseProgBarStatusMapping[category]['total'] = 0;
+        this.mCloseProgBarStatusMapping[category]['value'] = 0;
       }
 
-      // Update progressBarStatusMapping
-      for (let ou of Object.keys(this.ouStatusMapping)) {
+      // Update pCloseProgBarStatusMapping
+      // Preclose
+      for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
         if (this.selectedEntities.includes(ou)) {
-          let ouStatusesObj = this.ouStatusMapping[ou];
+          let ouStatusesObj = this.pcloseOuStatusMapping[ou];
           for (let category of Object.keys(ouStatusesObj)) {
-            this.progressBarStatusMapping[category]['steps'] += this.ouStatusMapping[ou][category]['stepsCompleted'];
-            this.progressBarStatusMapping[category]['total'] += 100;
-            this.progressBarStatusMapping[category]['value'] = 100 * this.progressBarStatusMapping[category]['steps'] / this.progressBarStatusMapping[category]['total'];
+            this.pCloseProgBarStatusMapping[category]['steps'] += this.pcloseOuStatusMapping[ou][category]['stepsCompleted'];
+            this.pCloseProgBarStatusMapping[category]['total'] += 100;
+            this.pCloseProgBarStatusMapping[category]['value'] = 100 * this.pCloseProgBarStatusMapping[category]['steps'] / this.pCloseProgBarStatusMapping[category]['total'];
+          }
+        }
+      }
+      // Midclose
+      for (let ou of Object.keys(this.mcloseOuStatusMapping)) {
+        if (this.selectedEntities.includes(ou)) {
+          let ouStatusesObj = this.mcloseOuStatusMapping[ou];
+          for (let category of Object.keys(ouStatusesObj)) {
+            this.mCloseProgBarStatusMapping[category]['steps'] += this.mcloseOuStatusMapping[ou][category]['stepsCompleted'];
+            this.mCloseProgBarStatusMapping[category]['total'] += 100;
+            this.mCloseProgBarStatusMapping[category]['value'] = 100 * this.mCloseProgBarStatusMapping[category]['steps'] / this.mCloseProgBarStatusMapping[category]['total'];
           }
         }
       }
     }
 
-    this.selectedPeriodCloseData = this.monthEndStatusData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
+    this.pcloseSelectedMonthEndStatusTableData = this.pcloseMonthEndStatusTableData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
+    this.mcloseSelectedMonthEndStatusTableData = this.mcloseMonthEndStatusTableData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
 
-    console.log("progressBarStatusMapping", this.progressBarStatusMapping);
-    console.log("selectedPeriodCloseData: ", this.selectedPeriodCloseData);
+    console.log("pCloseProgBarStatusMapping", this.pCloseProgBarStatusMapping);
+    console.log("pcloseSelectedMonthEndStatusTableData: ", this.pcloseSelectedMonthEndStatusTableData);
+    console.log("mCloseProgBarStatusMapping", this.mCloseProgBarStatusMapping);
+    console.log("mcloseSelectedMonthEndStatusTableData: ", this.mcloseSelectedMonthEndStatusTableData);
   }
 
 

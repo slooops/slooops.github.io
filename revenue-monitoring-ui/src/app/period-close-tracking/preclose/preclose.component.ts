@@ -14,10 +14,7 @@ import { PeriodCloseTrackingComponent } from '../period-close-tracking.component
   styleUrls: ['./preclose.component.css']
 })
 export class PrecloseComponent extends PeriodCloseTrackingComponent implements OnInit {
-
-
   constructor(http:ApiHttpService) {
     super(http);
   }
-
 }
