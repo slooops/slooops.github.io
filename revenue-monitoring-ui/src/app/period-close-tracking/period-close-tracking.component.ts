@@ -231,13 +231,15 @@ export class PeriodCloseTrackingComponent implements OnInit {
       // For any operating unit, iterate through all the categories
       // These categories will be columns for the new table and keys for pCloseProgBarStatusMapping
       let tempOperatingUnit = data[0]['OPERATING_UNIT'];
-      for (let category of Object.keys(this.pcloseOuStatusMapping[tempOperatingUnit])) {
+      for (let category of Object.keys(this.pcloseOuStatusMapping[tempOperatingUnit]).sort()) {
         this.meStatusColumns.push(category.replace(/_/g, ' '));
         // create new object for progress bar category mappings
         this.pCloseProgBarStatusMapping[category] = {};
         this.mCloseProgBarStatusMapping[category] = {};
 
       }
+
+      console.log("meStatusColumns: ", this.meStatusColumns);
 
       // Get rows of table by building each row as an object and pushing it to array
       // Preclose
@@ -246,7 +248,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let tableRowObj = {};
         let ouStatusesObj = this.pcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
-        for (let category of Object.keys(ouStatusesObj)) {
+        for (let category of Object.keys(ouStatusesObj).sort()) {
           tableRowObj[category] = this.pcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.pcloseMonthEndStatusTableData.push(tableRowObj);
@@ -256,7 +258,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let tableRowObj = {};
         let ouStatusesObj = this.mcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
-        for (let category of Object.keys(ouStatusesObj)) {
+        for (let category of Object.keys(ouStatusesObj).sort()) {
           tableRowObj[category] = this.mcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.mcloseMonthEndStatusTableData.push(tableRowObj);
@@ -473,6 +475,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
     console.log("pcloseSelectedMonthEndStatusTableData: ", this.pcloseSelectedMonthEndStatusTableData);
     console.log("mCloseProgBarStatusMapping", this.mCloseProgBarStatusMapping);
     console.log("mcloseSelectedMonthEndStatusTableData: ", this.mcloseSelectedMonthEndStatusTableData);
+
+
+    for (let row of this.pcloseSelectedMonthEndStatusTableData) {
+      console.log("row: ", row);
+      for (let category of Object.keys(row)) {
+        console.log("row[category] " + category + " :" , row[category]);
+      }
+    }
   }
 
 
