@@ -18,6 +18,10 @@ td{
   visibility: visible;
 }
 
+#tableHeading {
+  text-align: left !important;
+}
+
 .tooltiptext {
   visibility: hidden;
   width: 120px;
