@@ -17,4 +17,8 @@ export class PrecloseComponent extends PeriodCloseTrackingComponent implements O
   constructor(http:ApiHttpService) {
     super(http);
   }
+
+  getAbsoluteValue(number: number) {
+    return Math.abs(number);
+  }
 }
