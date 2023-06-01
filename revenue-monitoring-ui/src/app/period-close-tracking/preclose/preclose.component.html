@@ -75,7 +75,8 @@
       <tr *ngFor="let row of pcloseSelectedMonthEndStatusTableData">
         <td *ngFor="let category of templateObject.keys(row)">
           <span *ngIf="row[category] === 'Completed'">✓</span>
-          <span *ngIf="row[category] !== ('Completed') ">{{ row[category] }}</span>
+          <span *ngIf="row[category].toLowerCase() === 'na'">–</span>
+          <span *ngIf="row[category].toLowerCase() !== 'completed' && row[category].toLowerCase() !== 'na'">{{ row[category] }}</span>
         </td>      
       </tr>
     </tbody>
