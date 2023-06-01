@@ -1,6 +1,6 @@
 <br>
 <div class="container" style="overflow: auto;">
-  <div class="col-lg-4" style="float: left;">
+  <div class="" style="float: left;">
     <div>
       <label>Quarter: &nbsp;</label>
       <span> {{quarter}}</span>
@@ -23,7 +23,7 @@
         <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
       </span>
       <span *ngIf="closeTimeEdit">
-        <input type="date" id="closeTime" name="closeTime">&nbsp;
+        <input type="date" id="closeTime" name="closeTime"> &nbsp;
         <input id="updateCloseTime" type="submit" value="Update" (click)="updateContent($event)">
       </span>
     </div>
@@ -37,7 +37,7 @@
             <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
           </mat-select>
         </mat-form-field>
-        <div>Legend:    ✓ Completed   ⏳ In progress   ⏸️ Yet to start </div>
+        <div>Legend: &nbsp;  &nbsp; ✓ Completed  &nbsp;  &nbsp; ⏳ In progress  &nbsp;  &nbsp; ⚠️ Delayed  &nbsp;  &nbsp; 🛑 Stopped  &nbsp;  &nbsp; ⏸️ Yet to start </div>
         <br>
       </span>
     </div>
@@ -77,10 +77,13 @@
       <tr *ngFor="let row of mcloseSelectedMonthEndStatusTableData">
         <td *ngFor="let category of templateObject.keys(row)">
           <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
-          <span *ngIf="row[category].toLowerCase() === 'na'">—</span>
+          <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
           <span *ngIf="row[category].toLowerCase() === 'in progress'">⏳</span>
           <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
-          <span *ngIf="['completed', 'na', 'in progress', 'yet to start'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>        </td>
+          <span *ngIf="row[category].toLowerCase() === 'delayed'">⚠️</span>
+          <span *ngIf="row[category].toLowerCase() === 'stopped'">🛑</span>
+          <span *ngIf="['completed', 'na', 'in progress', 'yet to start', 'delayed', 'stopped'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>       
+        </td>
       </tr>
     </tbody>
   </table>
