@@ -37,6 +37,8 @@
             <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
           </mat-select>
         </mat-form-field>
+        <div>Legend:    ✓ Completed   ⏳ In progress   ⏸️ Yet to start </div>
+        <br>
       </span>
     </div>
   </div>
@@ -74,9 +76,11 @@
       </tr>
       <tr *ngFor="let row of pcloseSelectedMonthEndStatusTableData">
         <td *ngFor="let category of templateObject.keys(row)">
-          <span *ngIf="row[category] === 'Completed'">✓</span>
-          <span *ngIf="row[category].toLowerCase() === 'na'">–</span>
-          <span *ngIf="row[category].toLowerCase() !== 'completed' && row[category].toLowerCase() !== 'na'">{{ row[category] }}</span>
+          <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
+          <span *ngIf="row[category].toLowerCase() === 'na'">—</span>
+          <span *ngIf="row[category].toLowerCase() === 'in progress'">⏳</span>
+          <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
+          <span *ngIf="['completed', 'na', 'in progress', 'yet to start'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>
         </td>      
       </tr>
     </tbody>
