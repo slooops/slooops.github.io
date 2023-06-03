@@ -42,6 +42,7 @@ import { PrecloseComponent } from './period-close-tracking/preclose/preclose.com
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
+import { NgCircleProgressModule } from 'ng-circle-progress';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -87,7 +88,18 @@ export function initApp(authService: AuthenticationService) {
     BrowserAnimationsModule,
     MatSelectModule,
     ReactiveFormsModule,
-    NgbModule
+    NgbModule,
+    NgCircleProgressModule.forRoot({
+      radius: 20,
+      outerStrokeWidth: 4,
+      innerStrokeWidth: 0,
+      outerStrokeColor: "#78C000",
+      animationDuration: 300,
+      showUnits: false,
+      showSubtitle: false,
+      titleFontSize: '14',
+
+    })
     ],
   providers: [
     DatePipe,

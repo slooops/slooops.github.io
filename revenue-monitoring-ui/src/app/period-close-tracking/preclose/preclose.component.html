@@ -71,7 +71,9 @@
       <tr>
         <td></td>
         <td *ngFor="let category of templateObject.keys(pCloseProgBarStatusMapping)">
-            <p><ngb-progressbar [showValue]="true" type="success" [value]="pCloseProgBarStatusMapping[category]['value']"></ngb-progressbar></p>
+          <p>
+            <circle-progress [percent]="pCloseProgBarStatusMapping[category]['value']"></circle-progress>
+          </p>
         </td>
       </tr>
       <tr *ngFor="let row of pcloseSelectedMonthEndStatusTableData">
