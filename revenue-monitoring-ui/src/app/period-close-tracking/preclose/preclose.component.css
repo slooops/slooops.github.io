@@ -10,9 +10,10 @@ td {
   text-align: center !important;
 }
 
-.ng-star-inserted {
-  text-align: center !important;
+::ng-deep .mat-select-panel {
+  max-height: 500px !important;
 }
+
 
 li.ng-star-inserted {
   text-align: left !important;

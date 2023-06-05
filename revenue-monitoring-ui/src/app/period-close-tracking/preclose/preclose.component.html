@@ -1,44 +1,35 @@
 <br>
-<div class="container" style="overflow: auto;">
-  <div class="" style="float: left;">
-    <div>
-      <label>Quarter: &nbsp;</label>
-      <span> {{quarter}}</span>
-    </div>
-    <div>
-      <label>Period: &nbsp;</label>
-      <span> {{period}}</span>
-    </div>
-    <div>
-      <label>Scheduled Start: &nbsp;</label>
-      <span> {{preCloseStartTime}}</span>
-    </div>
-    <div>
-      <label>Scheduled End: &nbsp;</label>
-      <span> {{preCloseEndTime}}</span>
-    </div>
-    <div>
-      <label>Expected Close Time: &nbsp;</label>
+<div>
+  <div>
+    <h5>Quarter: &nbsp;&nbsp; {{quarter}}  &nbsp;&nbsp; | &nbsp;&nbsp; Period  &nbsp;&nbsp; {{period}} </h5> <br>
+    <p>Start:  &nbsp;&nbsp;  {{preCloseStartTime}}  &nbsp;&nbsp; | &nbsp;&nbsp; End:  {{preCloseEndTime}}   
+      &nbsp;&nbsp; | &nbsp;&nbsp; Expected Close Time:  &nbsp;&nbsp;       
       <span *ngIf="!closeTimeEdit"> {{preCloseEndTime}}
         <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
       </span>
       <span *ngIf="closeTimeEdit">
         <input type="date" id="closeTime" name="closeTime">&nbsp;
         <input id="updateCloseTime" type="submit" value="Update" (click)="updateContent($event)">
-      </span>
-    </div>
-    <br>
+      </span></p>
     <div>
-      <span>
-        <label for="entity">Entity:&nbsp;</label>
-        <mat-form-field appearance="fill">
-          <mat-label>Select</mat-label>
+
+    </div>
+    <br><br>
+    <div>
+      <h2>Entity View</h2>
+      <span style="display: flex; align-items: center;">
+        <mat-form-field appearance="standard" a>
+          <mat-label>Select Entites</mat-label>
           <mat-select [formControl]="entities" id="entity" name="entity" [(ngModel)]="selectedEntities" (ngModelChange)="selectedEntity()" multiple>
             <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
           </mat-select>
         </mat-form-field>
-        <div>Legend: &nbsp;  &nbsp; ✓ Completed  &nbsp;  &nbsp; ⏳ In progress  &nbsp;  &nbsp; ⚠️ Delayed  &nbsp;  &nbsp; 🛑 Stopped  &nbsp;  &nbsp; ⏸️ Yet to start </div>
-        <br>
+        <div> &nbsp;  &nbsp; &nbsp;  &nbsp; Legend: &nbsp;  &nbsp; 
+          ✓ Completed  &nbsp;  &nbsp; 
+          ⏳ In progress  &nbsp;  &nbsp; 
+          ⚠️ Delayed  &nbsp;  &nbsp; 
+          🛑 Stopped  &nbsp;  &nbsp; 
+          ⏸️ Yet to start </div>
       </span>
     </div>
   </div>
@@ -59,8 +50,6 @@
       <i class="fa fa-info-circle legendIcon"></i>
     </div>
   </div> -->
-  <br>
-  <br>
   <table mat-table class="table table-responsive equal-width">
     <thead>
       <tr>
@@ -90,7 +79,9 @@
     </tbody>
   </table>
 
-  <p style="text-align: center;" id="tableHeading"><b>Interface Load</b></p>
+  <br><br>
+  <h2>Interface Load</h2>
+  <br>
   <table class="table table-responsive table-bordered table-striped">
     <thead>
       <tr>
@@ -111,13 +102,13 @@
     </tbody>
   </table>
 
-
-  <p id="tableHeading" *ngIf="preCloseProgramTableData.length"><b>Invoices Generated</b></p>
+  <br><br>
+  <h2>Invoices Generated</h2>
+  <br>
   <cui-table *ngIf="preCloseProgramTableData.length" [options]="programTableOptions" [data]="preCloseProgramTableData" style="justify-content: center;"></cui-table>
 
   <!-- <p id="tableHeading" *ngIf="qeCashCollectedData.length"><b>Cash posted in last week of Quarter Ends</b></p>
   <cui-table *ngIf="qeCashCollectedData.length" [options]="qeCashCollectedTableOptions" [data]="qeCashCollectedData" style="justify-content: center;"></cui-table> -->
-
 
   <br>
   <br>
