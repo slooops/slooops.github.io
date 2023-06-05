@@ -38,7 +38,9 @@ testem.log
 /typings
 .dockerignore
 .version
-src/assets/config/config.json
+revenue-monitoring-ui/src/assets/config/config.json
+revenue-monitoring-ui/package-lock.json
+
 
 # System files
 .DS_Store

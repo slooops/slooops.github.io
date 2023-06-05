@@ -243,8 +243,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
       // Get rows of table by building each row as an object and pushing it to array
       // Preclose
+      this.entityList.push('All');
       for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
         this.entityList.push(ou);
+        this.entityList.sort((a, b) => a.localeCompare(b));
         let tableRowObj = {};
         let ouStatusesObj = this.pcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
@@ -263,7 +265,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
         this.mcloseMonthEndStatusTableData.push(tableRowObj);
       }
-      this.entityList.push('All');
       console.log("pcloseMonthEndStatusTableData", this.pcloseMonthEndStatusTableData);
       console.log("mcloseMonthEndStatusTableData", this.mcloseMonthEndStatusTableData);
       console.log("entityList", this.entityList);
