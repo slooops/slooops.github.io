@@ -95,10 +95,10 @@ export function initApp(authService: AuthenticationService) {
       innerStrokeWidth: 0,
       outerStrokeColor: "#78C000",
       animationDuration: 300,
-      showUnits: false,
+      showUnits: true,
       showSubtitle: false,
       titleFontSize: '14',
-
+      
     })
     ],
   providers: [
