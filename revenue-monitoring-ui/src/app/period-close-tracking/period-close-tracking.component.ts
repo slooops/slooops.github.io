@@ -59,7 +59,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseMonthEndStatusTableData: any[] = [];
   pcloseSelectedMonthEndStatusTableData: any[] = [];
   mcloseSelectedMonthEndStatusTableData: any[] = [];
-  meStatusColumns: string[] = []
+  meStatusColumns: string[] = ['OPERATING UNIT', 'AR INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY', 'NGCCRM', 'GL POSTING']
+  meStatusDesiredOrder: string[] = ['OPERATING_UNIT', 'AR_INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY', 'NGCCRM', 'GL_POSTING']
 
   pCloseProgBarStatusMapping: any = {};
   mCloseProgBarStatusMapping: any = {};
@@ -226,13 +227,13 @@ export class PeriodCloseTrackingComponent implements OnInit {
       console.log("mcloseOuStatusMapping", this.mcloseOuStatusMapping);
 
       // Get column names
-      this.meStatusColumns.push('OPERATING UNIT');
+      // this.meStatusColumns.push('OPERATING UNIT');
 
       // For any operating unit, iterate through all the categories
       // These categories will be columns for the new table and keys for pCloseProgBarStatusMapping
       let tempOperatingUnit = data[0]['OPERATING_UNIT'];
-      for (let category of Object.keys(this.pcloseOuStatusMapping[tempOperatingUnit]).sort()) {
-        this.meStatusColumns.push(category.replace(/_/g, ' '));
+      for (let category of Object.keys(this.pcloseOuStatusMapping[tempOperatingUnit]).sort(this.customMeStatusCatSort.bind(this))) {
+        // this.meStatusColumns.push(category.replace(/_/g, ' '));
         // create new object for progress bar category mappings
         this.pCloseProgBarStatusMapping[category] = {};
         this.mCloseProgBarStatusMapping[category] = {};
@@ -250,7 +251,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let tableRowObj = {};
         let ouStatusesObj = this.pcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
-        for (let category of Object.keys(ouStatusesObj).sort()) {
+        for (let category of Object.keys(ouStatusesObj).sort(this.customMeStatusCatSort.bind(this))) {
           tableRowObj[category] = this.pcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.pcloseMonthEndStatusTableData.push(tableRowObj);
@@ -260,7 +261,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let tableRowObj = {};
         let ouStatusesObj = this.mcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
-        for (let category of Object.keys(ouStatusesObj).sort()) {
+        for (let category of Object.keys(ouStatusesObj).sort(this.customMeStatusCatSort.bind(this))) {
           tableRowObj[category] = this.mcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.mcloseMonthEndStatusTableData.push(tableRowObj);
@@ -472,6 +473,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.pcloseSelectedMonthEndStatusTableData = this.pcloseMonthEndStatusTableData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
     this.mcloseSelectedMonthEndStatusTableData = this.mcloseMonthEndStatusTableData.filter(data => this.selectedEntities.includes(data.OPERATING_UNIT));
 
+
     console.log("pCloseProgBarStatusMapping", this.pCloseProgBarStatusMapping);
     console.log("pcloseSelectedMonthEndStatusTableData: ", this.pcloseSelectedMonthEndStatusTableData);
     console.log("mCloseProgBarStatusMapping", this.mCloseProgBarStatusMapping);
@@ -501,6 +503,19 @@ export class PeriodCloseTrackingComponent implements OnInit {
     } else if(event.target.id === "updateComments"){
       this.editComments = false;
     }
+  }
+
+  customMeStatusCatSort(a: string, b:string): number {
+    const indexA = this.meStatusDesiredOrder.indexOf(a);
+    const indexB = this.meStatusDesiredOrder.indexOf(b);
+
+    if (indexA === -1) {
+      return 1; // Move items not in the desired order to the end
+    }
+    if (indexB === -1) {
+      return -1; // Move items not in the desired order to the end
+    }
+    return indexA - indexB;
   }
 
 }
