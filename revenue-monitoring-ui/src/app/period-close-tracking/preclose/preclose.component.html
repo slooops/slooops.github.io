@@ -31,7 +31,7 @@
     <br /><br />
     <div>
       <h2>Entity View</h2>
-      <span style="display: flex; align-items: center;">
+      <span style="display: flex; align-items: center">
         <div>
           <mat-form-field appearance="standard" a>
             <mat-label>Select Entites</mat-label>
@@ -140,8 +140,10 @@
     </tbody>
   </table>
 
+  <br /><br />
+  <h2>Interface Load</h2>
   <div class="header-container">
-    <h2>Interface Load</h2>
+    <p>Legend: &nbsp;&nbsp; Number of lines</p>
     <button
       mat-stroked-button
       (click)="
@@ -151,7 +153,6 @@
       Download
     </button>
   </div>
-  <br />
   <table class="table table-responsive table-bordered table-striped">
     <thead>
       <tr>
@@ -181,7 +182,7 @@
     *ngIf="preCloseProgramTableData.length"
     [options]="programTableOptions"
     [data]="preCloseProgramTableData"
-    style="justify-content: center;"
+    style="justify-content: center"
   ></cui-table>
 
   <!-- <p id="tableHeading" *ngIf="qeCashCollectedData.length"><b>Cash posted in last week of Quarter Ends</b></p>

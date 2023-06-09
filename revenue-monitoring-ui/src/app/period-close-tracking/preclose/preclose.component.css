@@ -14,7 +14,6 @@ td {
   max-height: 500px !important;
 }
 
-
 li.ng-star-inserted {
   text-align: left !important;
 }
@@ -33,12 +32,11 @@ li.ng-star-inserted {
   text-align: left !important;
 }
 
-
 .legendIcon {
   color: darkgrey;
 }
 
-.legendIcon:hover .tooltiptext{
+.legendIcon:hover .tooltiptext {
   visibility: visible;
 }
 
@@ -64,4 +62,5 @@ li.ng-star-inserted {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 5px;
 }

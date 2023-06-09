@@ -6,7 +6,7 @@ th {
   cursor: pointer;
 }
 
-td{
+td {
   text-align: center;
 }
 
@@ -14,7 +14,7 @@ td{
   color: darkgrey;
 }
 
-.legendIcon:hover .tooltiptext{
+.legendIcon:hover .tooltiptext {
   visibility: visible;
 }
 
@@ -48,4 +48,5 @@ td{
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 5px;
 }
