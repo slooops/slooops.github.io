@@ -57,4 +57,11 @@ li.ng-star-inserted {
 }
 
 ::ng-deep .mat-ink-bar {
-  background-color: #049fd9 !important;}
+  background-color: #049fd9 !important;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

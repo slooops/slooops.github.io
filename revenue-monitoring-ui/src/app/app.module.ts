@@ -43,6 +43,7 @@ import { MidcloseComponent } from './period-close-tracking/midclose/midclose.com
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
+import { MatButtonModule } from '@angular/material/button';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -99,8 +100,9 @@ export function initApp(authService: AuthenticationService) {
       showSubtitle: false,
       titleFontSize: '14',
       
-    })
-    ],
+    }),
+    MatButtonModule
+  ],
   providers: [
     DatePipe,
     {
