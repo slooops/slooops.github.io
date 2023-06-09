@@ -1,44 +1,67 @@
-<br>
+<br />
 <div class="container" style="overflow: auto;">
   <div class="" style="float: left;">
     <div>
       <label>Quarter: &nbsp;</label>
-      <span> {{quarter}}</span>
+      <span> {{ quarter }}</span>
     </div>
     <div>
       <label>Period: &nbsp;</label>
-      <span> {{period}}</span>
+      <span> {{ period }}</span>
     </div>
     <div>
       <label>Scheduled Start: &nbsp;</label>
-      <span> {{midCloseStartTime}}</span>
+      <span> {{ midCloseStartTime }}</span>
     </div>
     <div>
       <label>Scheduled End: &nbsp;</label>
-      <span> {{midCloseEndTime}}</span>
+      <span> {{ midCloseEndTime }}</span>
     </div>
     <div>
       <label>Expected Close Time: &nbsp;</label>
-      <span *ngIf="!closeTimeEdit"> {{midCloseEndTime}}
-        <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
+      <span *ngIf="!closeTimeEdit">
+        {{ midCloseEndTime }}
+        <i
+          id="editCloseTime"
+          class="fa fa-edit"
+          (click)="editContent($event)"
+        ></i>
       </span>
       <span *ngIf="closeTimeEdit">
-        <input type="date" id="closeTime" name="closeTime"> &nbsp;
-        <input id="updateCloseTime" type="submit" value="Update" (click)="updateContent($event)">
+        <input type="date" id="closeTime" name="closeTime" /> &nbsp;
+        <input
+          id="updateCloseTime"
+          type="submit"
+          value="Update"
+          (click)="updateContent($event)"
+        />
       </span>
     </div>
-    <br>
+    <br />
     <div>
       <span>
         <label for="entity">Entity:&nbsp;</label>
         <mat-form-field appearance="fill">
-          <mat-label>Select</mat-label>
-          <mat-select [formControl]="entities" id="entity" name="entity" [(ngModel)]="selectedEntities" (ngModelChange)="selectedEntity()" multiple>
-            <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
+          <mat-label>Select Entities</mat-label>
+          <mat-select
+            [formControl]="entities"
+            id="entity"
+            name="entity"
+            [(ngModel)]="selectedEntities"
+            (ngModelChange)="selectedEntity()"
+            multiple
+          >
+            <mat-option *ngFor="let entity of entityList" [value]="entity">{{
+              entity
+            }}</mat-option>
           </mat-select>
         </mat-form-field>
-        <div>Legend: &nbsp;  &nbsp; ✓ Completed  &nbsp;  &nbsp; ⏳ In progress  &nbsp;  &nbsp; ⚠️ Delayed  &nbsp;  &nbsp; 🛑 Stopped  &nbsp;  &nbsp; ⏸️ Yet to start </div>
-        <br>
+        <div>
+          Legend: &nbsp; &nbsp; ✓ Completed &nbsp; &nbsp; ⏳ In progress &nbsp;
+          &nbsp; ⚠️ Delayed &nbsp; &nbsp; 🛑 Stopped &nbsp; &nbsp; ⏸️ Yet to
+          start
+        </div>
+        <br />
       </span>
     </div>
   </div>
@@ -59,8 +82,8 @@
       <i class="fa fa-info-circle legendIcon"></i>
     </div>
   </div> -->
-  <br>
-  <br>
+  <br />
+  <br />
   <table mat-table class="table table-responsive equal-width">
     <thead>
       <tr>
@@ -70,9 +93,15 @@
     <tbody>
       <tr>
         <td></td>
-        <td *ngFor="let category of templateObject.keys(mCloseProgBarStatusMapping)">
-          <p>               
-            <circle-progress [percent]="mCloseProgBarStatusMapping[category]['value']"></circle-progress>
+        <td
+          *ngFor="
+            let category of templateObject.keys(mCloseProgBarStatusMapping)
+          "
+        >
+          <p>
+            <circle-progress
+              [percent]="mCloseProgBarStatusMapping[category]['value']"
+            ></circle-progress>
           </p>
         </td>
       </tr>
@@ -84,7 +113,19 @@
           <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
           <span *ngIf="row[category].toLowerCase() === 'delayed'">⚠️</span>
           <span *ngIf="row[category].toLowerCase() === 'stopped'">🛑</span>
-          <span *ngIf="['completed', 'na', 'in progress', 'yet to start', 'delayed', 'stopped'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>       
+          <span
+            *ngIf="
+              [
+                'completed',
+                'na',
+                'in progress',
+                'yet to start',
+                'delayed',
+                'stopped'
+              ].indexOf(row[category].toLowerCase()) === -1
+            "
+            >{{ row[category] }}</span
+          >
         </td>
       </tr>
     </tbody>
@@ -94,33 +135,40 @@
   <table class="table table-responsive table-bordered table-striped">
     <thead>
       <tr>
-        <th *ngFor="let col of interfaceLoadColumns">{{ col }}</th>
+        <th *ngFor="let col of mcloseInterfaceLoadColumns">{{ col }}</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of midcloseInterfaceLoadData">
+      <tr *ngFor="let row of midcloseInterfaceLoadTableData">
         <ng-container *ngFor="let cell of row; let i = index">
           <td *ngIf="i < row.length - 2">{{ cell }}</td>
           <td *ngIf="i >= row.length - 2">
-            <span *ngIf="cell.slice(0,-1) > 0">⬆ {{ cell }}</span>
-            <span *ngIf="cell.slice(0,-1) < 0">⬇ {{ getAbsoluteValue(cell.slice(0,-1)) }}%</span>
-            <span *ngIf="cell.slice(0,-1) == 0">0%</span>  
+            <span *ngIf="cell.slice(0, -1) > 0">⬆ {{ cell }}</span>
+            <span *ngIf="cell.slice(0, -1) < 0"
+              >⬇ {{ getAbsoluteValue(cell.slice(0, -1)) }}%</span
+            >
+            <span *ngIf="cell.slice(0, -1) == 0">0%</span>
           </td>
         </ng-container>
       </tr>
     </tbody>
   </table>
 
-
-  <p id="tableHeading" *ngIf="midCloseProgramTableData.length"><b>Invoices Generated</b></p>
-  <cui-table *ngIf="midCloseProgramTableData.length" [options]="programTableOptions" [data]="midCloseProgramTableData" style="justify-content: center;"></cui-table>
+  <p id="tableHeading" *ngIf="midCloseProgramTableData.length">
+    <b>Invoices Generated</b>
+  </p>
+  <cui-table
+    *ngIf="midCloseProgramTableData.length"
+    [options]="programTableOptions"
+    [data]="midCloseProgramTableData"
+    style="justify-content: center;"
+  ></cui-table>
 
   <!-- <p id="tableHeading" *ngIf="qeCashCollectedData.length"><b>Cash posted in last week of Quarter Ends</b></p>
   <cui-table *ngIf="qeCashCollectedData.length" [options]="qeCashCollectedTableOptions" [data]="qeCashCollectedData" style="justify-content: center;"></cui-table> -->
 
-
-  <br>
-  <br>
+  <br />
+  <br />
   <!-- <div class="col-sm-6" style="float: left;">
     <div>
       <label>Comments: &nbsp;</label>
@@ -138,6 +186,4 @@
       </div>
     </div>
   </div> -->
-
 </div>
-

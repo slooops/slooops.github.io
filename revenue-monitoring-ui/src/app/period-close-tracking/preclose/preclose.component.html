@@ -1,35 +1,77 @@
-<br>
+<br />
 <div>
   <div>
-    <h5>Quarter: &nbsp;&nbsp; {{quarter}}  &nbsp;&nbsp; | &nbsp;&nbsp; Period  &nbsp;&nbsp; {{period}} </h5> <br>
-    <p>Start:  &nbsp;&nbsp;  {{preCloseStartTime}}  &nbsp;&nbsp; | &nbsp;&nbsp; End:  {{preCloseEndTime}}   
-      &nbsp;&nbsp; | &nbsp;&nbsp; Expected Close Time:  &nbsp;&nbsp;       
-      <span *ngIf="!closeTimeEdit"> {{preCloseEndTime}}
-        <i id="editCloseTime" class="fa fa-edit" (click)="editContent($event)"></i>
+    <h5>
+      Quarter: &nbsp;&nbsp; {{ quarter }} &nbsp;&nbsp; | &nbsp;&nbsp; Period
+      &nbsp;&nbsp; {{ period }}
+    </h5>
+    <br />
+    <p>
+      Start: &nbsp;&nbsp; {{ preCloseStartTime }} &nbsp;&nbsp; | &nbsp;&nbsp;
+      End: {{ preCloseEndTime }}
+      &nbsp;&nbsp; | &nbsp;&nbsp; Expected Close Time: &nbsp;&nbsp;
+      <span *ngIf="!closeTimeEdit">
+        {{ preCloseEndTime }}
+        <i
+          id="editCloseTime"
+          class="fa fa-edit"
+          (click)="editContent($event)"
+        ></i>
       </span>
       <span *ngIf="closeTimeEdit">
-        <input type="date" id="closeTime" name="closeTime">&nbsp;
-        <input id="updateCloseTime" type="submit" value="Update" (click)="updateContent($event)">
-      </span></p>
-    <div>
-
-    </div>
-    <br><br>
+        <input type="date" id="closeTime" name="closeTime" />&nbsp;
+        <input
+          id="updateCloseTime"
+          type="submit"
+          value="Update"
+          (click)="updateContent($event)"
+        />
+      </span>
+    </p>
+    <div></div>
+    <br /><br />
     <div>
       <h2>Entity View</h2>
       <span style="display: flex; align-items: center;">
-        <mat-form-field appearance="standard" a>
-          <mat-label>Select Entites</mat-label>
-          <mat-select [formControl]="entities" id="entity" name="entity" [(ngModel)]="selectedEntities" (ngModelChange)="selectedEntity()" multiple>
-            <mat-option *ngFor="let entity of entityList" [value]="entity">{{entity}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <div> &nbsp;  &nbsp; &nbsp;  &nbsp; Legend: &nbsp;  &nbsp; 
-          ✓ Completed  &nbsp;  &nbsp; 
-          ⏳ In progress  &nbsp;  &nbsp; 
-          ⚠️ Delayed  &nbsp;  &nbsp; 
-          🛑 Stopped  &nbsp;  &nbsp; 
-          ⏸️ Yet to start </div>
+        <div>
+          <mat-form-field appearance="standard" a>
+            <mat-label>Select Entites</mat-label>
+            <mat-select
+              [formControl]="entities"
+              id="entity"
+              name="entity"
+              [(ngModel)]="selectedEntities"
+              (ngModelChange)="selectedEntity()"
+              multiple
+            >
+              <mat-option *ngFor="let entity of entityList" [value]="entity">{{
+                entity
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field appearance="standard" a>
+            <mat-label>Select Statuses</mat-label>
+            <mat-select
+              [formControl]="statuses"
+              id="status"
+              name="status"
+              [(ngModel)]="selectedStatuses"
+              (ngModelChange)="selectedStatus()"
+              multiple
+            >
+              <mat-option *ngFor="let status of statusList" [value]="status">{{
+                status
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div>
+          &nbsp; &nbsp; &nbsp; &nbsp; Legend: &nbsp; &nbsp; ✓ Completed &nbsp;
+          &nbsp; ⏳ In progress &nbsp; &nbsp; ⚠️ Delayed &nbsp; &nbsp; 🛑
+          Stopped &nbsp; &nbsp; ⏸️ Yet to start
+        </div>
       </span>
     </div>
   </div>
@@ -59,9 +101,15 @@
     <tbody>
       <tr>
         <td></td>
-        <td *ngFor="let category of templateObject.keys(pCloseProgBarStatusMapping)">
+        <td
+          *ngFor="
+            let category of templateObject.keys(pCloseProgBarStatusMapping)
+          "
+        >
           <p>
-            <circle-progress [percent]="pCloseProgBarStatusMapping[category]['value']"></circle-progress>
+            <circle-progress
+              [percent]="pCloseProgBarStatusMapping[category]['value']"
+            ></circle-progress>
           </p>
         </td>
       </tr>
@@ -73,45 +121,64 @@
           <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
           <span *ngIf="row[category].toLowerCase() === 'delayed'">⚠️</span>
           <span *ngIf="row[category].toLowerCase() === 'stopped'">🛑</span>
-          <span *ngIf="['completed', 'na', 'in progress', 'yet to start', 'delayed', 'stopped'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>
-        </td>      
+          <span
+            *ngIf="
+              [
+                'completed',
+                'na',
+                'in progress',
+                'yet to start',
+                'delayed',
+                'stopped'
+              ].indexOf(row[category].toLowerCase()) === -1
+            "
+            >{{ row[category] }}</span
+          >
+        </td>
       </tr>
     </tbody>
   </table>
 
-  <br><br>
+  <br /><br />
   <h2>Interface Load</h2>
-  <br>
+  <br />
   <table class="table table-responsive table-bordered table-striped">
     <thead>
       <tr>
-        <th *ngFor="let col of interfaceLoadColumns">{{ col }}</th>
+        <th *ngFor="let col of pcloseInterfaceLoadColumns">{{ col }}</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of precloseInterfaceLoadData">
+      <tr *ngFor="let row of precloseInterfaceLoadTableData">
         <ng-container *ngFor="let cell of row; let i = index">
           <td *ngIf="i < row.length - 2">{{ cell }}</td>
           <td *ngIf="i >= row.length - 2">
-            <span *ngIf="cell.slice(0,-1) > 0">⬆ {{ cell }}</span>
-            <span *ngIf="cell.slice(0,-1) < 0">⬇ {{ getAbsoluteValue(cell.slice(0,-1)) }}%</span>
-            <span *ngIf="cell.slice(0,-1) == 0">0%</span>  
+            <span *ngIf="cell.slice(0, -1) > 0">⬆ {{ cell }}</span>
+            <span *ngIf="cell.slice(0, -1) < 0"
+              >⬇ {{ getAbsoluteValue(cell.slice(0, -1)) }}%</span
+            >
+            <span *ngIf="cell.slice(0, -1) == 0">0%</span>
           </td>
         </ng-container>
       </tr>
     </tbody>
   </table>
 
-  <br><br>
+  <br /><br />
   <h2>Invoices Generated</h2>
-  <br>
-  <cui-table *ngIf="preCloseProgramTableData.length" [options]="programTableOptions" [data]="preCloseProgramTableData" style="justify-content: center;"></cui-table>
+  <br />
+  <cui-table
+    *ngIf="preCloseProgramTableData.length"
+    [options]="programTableOptions"
+    [data]="preCloseProgramTableData"
+    style="justify-content: center;"
+  ></cui-table>
 
   <!-- <p id="tableHeading" *ngIf="qeCashCollectedData.length"><b>Cash posted in last week of Quarter Ends</b></p>
   <cui-table *ngIf="qeCashCollectedData.length" [options]="qeCashCollectedTableOptions" [data]="qeCashCollectedData" style="justify-content: center;"></cui-table> -->
 
-  <br>
-  <br>
+  <br />
+  <br />
   <!-- <div class="col-sm-6" style="float: left;">
     <div>
       <label>Comments: &nbsp;</label>
@@ -129,6 +196,4 @@
       </div>
     </div>
   </div> -->
-
 </div>
-
