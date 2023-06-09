@@ -61,7 +61,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseSelectedMonthEndStatusTableData: any[] = [];
   meStatusColumns: string[] = ['OPERATING UNIT', 'AR INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY', 'NGCCRM', 'GL POSTING']
   meStatusDesiredOrder: string[] = ['OPERATING_UNIT', 'AR_INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY', 'NGCCRM', 'GL_POSTING']
-
+  pcloseExecutionWindow: string[] = ['','0800-1200 PST','0800-1200 PST','0800-1200 PST','0800-1200 PST','0800-1200 PST','0800-1200 PST']
+  mcloseExecutionWindow: string[] = ['','0800-1200 PST','0800-1200 PST','0800-1200 PST','0800-1200 PST','0800-1200 PST','0800-1200 PST']
   pCloseProgBarStatusMapping: any = {};
   mCloseProgBarStatusMapping: any = {};
   pcloseOuStatusMapping: any = {};

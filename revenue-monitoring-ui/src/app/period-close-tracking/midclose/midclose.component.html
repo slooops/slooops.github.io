@@ -67,13 +67,16 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
+      <tr *ngIf="selectedEntities && selectedEntities.length > 0">
         <td></td>
         <td *ngFor="let category of templateObject.keys(mCloseProgBarStatusMapping)">
-          <p>               
+          <p>
             <circle-progress [percent]="mCloseProgBarStatusMapping[category]['value']"></circle-progress>
           </p>
         </td>
+      </tr>
+      <tr *ngIf="selectedEntities && selectedEntities.length > 0">
+        <td *ngFor='let row of mcloseExecutionWindow'>{{ row }}</td>
       </tr>
       <tr *ngFor="let row of mcloseSelectedMonthEndStatusTableData">
         <td *ngFor="let category of templateObject.keys(row)">
@@ -83,11 +86,11 @@
           <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
           <span *ngIf="row[category].toLowerCase() === 'delayed'">⚠️</span>
           <span *ngIf="row[category].toLowerCase() === 'stopped'">🛑</span>
-          <span *ngIf="['completed', 'na', 'in progress', 'yet to start', 'delayed', 'stopped'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>       
+          <span *ngIf="['completed', 'na', 'in progress', 'yet to start', 'delayed', 'stopped'].indexOf(row[category].toLowerCase()) === -1">{{ row[category] }}</span>
         </td>
       </tr>
     </tbody>
-  </table>
+  </table>  
 
   <div class="header-container">
     <h2>Interface Load</h2>
