@@ -10,8 +10,8 @@
       <p><label>Start:</label> &nbsp;&nbsp; {{ midCloseStartTime }}</p>
       <p><label>End:</label> &nbsp;&nbsp;&nbsp;&nbsp; {{ midCloseEndTime }}</p>
       <p>
-        <label>Expected Close Time:</label> &nbsp;&nbsp;
-        <span *ngIf="!closeTimeEdit">
+        <label>Expected Close Time:</label> &nbsp;&nbsp; {{ midCloseEndTime }}
+        <!-- <span *ngIf="!closeTimeEdit">
           {{ midCloseEndTime }}
           <i
             id="editCloseTime"
@@ -27,7 +27,7 @@
             value="Update"
             (click)="updateContent($event)"
           />
-        </span>
+        </span> -->
       </p>
       <br /><br />
       <div>

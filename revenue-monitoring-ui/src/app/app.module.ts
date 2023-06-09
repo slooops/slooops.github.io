@@ -15,9 +15,9 @@ import {
 
 import {
   CngProgressbarModule,
-	CngSortModule,
-	CngTableModule,
-	CngTabsModule,
+  CngSortModule,
+  CngTableModule,
+  CngTabsModule,
 } from '@cisco/cui-ng';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -30,11 +30,11 @@ import { TsvExceptionsTopSkuComponent } from './tsv-exceptions-top-sku/tsv-excep
 import { TsvExceptionsSubSkuComponent } from './tsv-exceptions-sub-sku/tsv-exceptions-sub-sku.component';
 import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatSelectModule} from '@angular/material/select';
+import { MatSelectModule } from '@angular/material/select';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { MenuComponent } from './menu/menu.component';
@@ -63,7 +63,7 @@ export function initApp(authService: AuthenticationService) {
     HomeComponent,
     MenuComponent,
     PrecloseComponent,
-    MidcloseComponent
+    MidcloseComponent,
   ],
   imports: [
     BrowserModule,
@@ -80,8 +80,8 @@ export function initApp(authService: AuthenticationService) {
     NgChartsModule,
     CuiProgressbarModule,
     CngSortModule,
-		CngTableModule,
-		CngTabsModule,
+    CngTableModule,
+    CngTabsModule,
     CngProgressbarModule,
     MatProgressBarModule,
     FontAwesomeModule,
@@ -94,14 +94,12 @@ export function initApp(authService: AuthenticationService) {
       radius: 20,
       outerStrokeWidth: 4,
       innerStrokeWidth: 0,
-      outerStrokeColor: "#78C000",
       animationDuration: 300,
       showUnits: true,
       showSubtitle: false,
       titleFontSize: '14',
-      
     }),
-    MatButtonModule
+    MatButtonModule,
   ],
   providers: [
     DatePipe,
@@ -109,10 +107,14 @@ export function initApp(authService: AuthenticationService) {
       provide: APP_INITIALIZER,
       useFactory: initApp,
       deps: [AuthenticationService],
-      multi: true
+      multi: true,
     },
-    { provide: HTTP_INTERCEPTORS, useClass: HttpConfigInterceptor, multi: true }
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpConfigInterceptor,
+      multi: true,
+    },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
