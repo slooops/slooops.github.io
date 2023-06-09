@@ -7,18 +7,15 @@ import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
 
-
 @Component({
   selector: 'app-preclose',
   templateUrl: './preclose.component.html',
   styleUrls: ['./preclose.component.css']
 })
+
 export class PrecloseComponent extends PeriodCloseTrackingComponent implements OnInit {
   constructor(http:ApiHttpService) {
     super(http);
   }
 
-  getAbsoluteValue(number: number) {
-    return Math.abs(number);
-  }
 }

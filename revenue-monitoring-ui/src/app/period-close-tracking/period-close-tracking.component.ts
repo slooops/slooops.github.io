@@ -102,6 +102,25 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'GL_POSTING'
   ];
 
+  pcloseExecutionWindow: string[] = [
+    '',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST'
+  ];
+  mcloseExecutionWindow: string[] = [
+    '',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST',
+    '0800-1200 PST'
+  ];
+
   pCloseProgBarStatusMapping: any = {};
   mCloseProgBarStatusMapping: any = {};
   pcloseOuStatusMapping: any = {};
@@ -730,8 +749,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
 
     // midclose
-    this.mcloseSelectedOUData = this.mcloseMonthEndStatusTableData.filter(
-      data => this.selectedEntities.includes(data.OPERATING_UNIT)
+    this.mcloseSelectedStatusData = this.mcloseMonthEndStatusTableData.filter(
+      this.selectedStatusFilter.bind(this)
     );
     if (
       this.selectedEntities.length !== 0 &&
@@ -790,6 +809,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
   }
 
+  getAbsoluteValue(number: number) {
+    return Math.abs(number);
+  }
+
   customMeStatusCatSort(a: string, b: string): number {
     const indexA = this.meStatusDesiredOrder.indexOf(a);
     const indexB = this.meStatusDesiredOrder.indexOf(b);
@@ -801,5 +824,41 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return -1; // Move items not in the desired order to the end
     }
     return indexA - indexB;
+  }
+
+  exportTableToCSV(rows: any[][], headers: string[]) {
+    let csvData = headers.join(',') + '\n';
+
+    for (let row of rows) {
+      let rowData = [];
+      for (let cell of row) {
+        // Add double quotes around data to handle commas within the cell's data
+        rowData.push(cell ? '"' + cell + '"' : '');
+      }
+      csvData += rowData.join(',') + '\n';
+    }
+
+    let blob = new Blob(['\ufeff' + csvData], {
+      type: 'text/csv;charset=utf-8;'
+    });
+    let dwldLink = document.createElement('a');
+    let url = URL.createObjectURL(blob);
+
+    let isSafariBrowser =
+      navigator.userAgent.indexOf('Safari') != -1 &&
+      navigator.userAgent.indexOf('Chrome') == -1;
+
+    // If Safari open in a new window to save file with random filename.
+    if (isSafariBrowser) {
+      dwldLink.setAttribute('target', '_blank');
+    }
+
+    dwldLink.setAttribute('href', url);
+    dwldLink.setAttribute('download', 'table_data.csv');
+    dwldLink.style.visibility = 'hidden';
+
+    document.body.appendChild(dwldLink);
+    dwldLink.click();
+    document.body.removeChild(dwldLink);
   }
 }

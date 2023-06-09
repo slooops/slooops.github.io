@@ -20,12 +20,9 @@ export interface PeriodClose {
   templateUrl: './midclose.component.html',
   styleUrls: ['./midclose.component.css']
 })
+
 export class MidcloseComponent extends PeriodCloseTrackingComponent implements OnInit {
   constructor(http:ApiHttpService) {
     super(http);
-  }
-
-  getAbsoluteValue(number: number) {
-    return Math.abs(number);
   }
 }
