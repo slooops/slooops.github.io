@@ -505,6 +505,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
   }
 
+  getAbsoluteValue(number: number) {
+    return Math.abs(number);
+  }
+
   customMeStatusCatSort(a: string, b:string): number {
     const indexA = this.meStatusDesiredOrder.indexOf(a);
     const indexB = this.meStatusDesiredOrder.indexOf(b);
