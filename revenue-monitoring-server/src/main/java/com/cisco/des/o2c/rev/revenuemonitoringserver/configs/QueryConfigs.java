@@ -47,6 +47,9 @@ public class QueryConfigs { // TODO
     @Value("${qe.cash.collected.q}")
     public String closeQECashCollected;
 
+    @Value("${dashboard.comments.q}")
+    public String dashboardComments;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -85,4 +88,7 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "closeQECashCollected")
     public String getCloseQECashCollected() { return this.closeQECashCollected; }
+
+    @Bean( name = "dashboardComments" )
+    public String getDashboardComments() { return this.dashboardComments; }
 }

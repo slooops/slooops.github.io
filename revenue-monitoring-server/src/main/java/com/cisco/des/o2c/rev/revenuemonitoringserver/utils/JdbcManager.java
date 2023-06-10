@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
+import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,8 +65,8 @@ public class JdbcManager {
         return result;
     }
 
-    public int update(String sql, Map<String, Object> params) {
-        return namedParameterJdbcTemplate.update(sql, params);
+    public int update(String sql) {
+        return jdbcTemplate.update(sql);
     }
 
 
