@@ -38,8 +38,8 @@ testem.log
 /typings
 .dockerignore
 .version
-revenue-monitoring-ui/src/assets/config/config.json
-revenue-monitoring-ui/package-lock.json
+/revenue-monitoring-ui/src/assets/config/config.json
+/revenue-monitoring-ui/package-lock.json
 
 
 # System files

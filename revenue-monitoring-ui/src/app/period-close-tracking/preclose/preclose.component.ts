@@ -1,13 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
-import {
-  CuiTableOptions,
-  CuiTableColumnOption,
-} from '@cisco-ngx/cui-components';
-import { CngProgressbarColor } from '@cisco/cui-ng';
 import { ApiHttpService } from 'src/app/providers/http.service';
-import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
-import { DatePipe } from '@angular/common';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
 
 @Component({
@@ -27,6 +19,13 @@ export class PrecloseComponent
   updatedComments: string;
 
   updateComments() {
-    console.log(this.updatedComments);
+    this.http
+      .post('pclose-update-dashboard-comments', this.updatedComments)
+      .subscribe((data: any) => {
+        console.log(data);
+        this.updatedComments = '';
+        this.showCommentSave = false;
+        this.getComments();
+      });
   }
 }

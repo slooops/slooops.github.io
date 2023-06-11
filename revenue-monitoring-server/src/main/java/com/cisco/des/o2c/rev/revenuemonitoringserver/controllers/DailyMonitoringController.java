@@ -1,13 +1,13 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.DashboardComments;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,13 +91,15 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/pclose-dashboard-comments")
-    public ResponseEntity<List<Map<String, Object>>> getDashboardComments() throws SQLException {
+    public ResponseEntity<List<Map<String, Object>>> getDashboardComments() {
         return new ResponseEntity<>(service.getDashboardComments(), HttpStatus.OK);
     }
 
-    @PostMapping("/pclose-update-dashboard-comments")
-    public ResponseEntity<String> updateDashboardComments(String comments) throws SQLException {
+    @RequestMapping(value = "/pclose-update-dashboard-comments", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String,String> updateDashboardComments(@RequestBody String comments){
         service.updateDashboardComments(comments);
-        return new ResponseEntity<>(service.updateDashboardComments(comments), HttpStatus.OK);
+        Map<String,String> result = new HashMap<>();
+        result.put("message", "Comments updated.");
+        return result;
     }
 }

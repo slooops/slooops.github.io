@@ -4,7 +4,7 @@
     "DATABASE_USERNAME":"APPSRO",
     "DATABASE_PASSWORD":"read0nly",
     "RDAC_OSUSER": "",
-    "ASK_QE_ME_DASH_BOARD_STATUS_Q": "SELECT period_name, close_type, comments FROM ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS",
+    "ASK_QE_ME_DASH_BOARD_STATUS_Q": "SELECT period_name, close_type, comments, creation_date FROM ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS",
     "REVENUE_CONTROLS_Q": "SELECT OU_NAME,Transaction_type,sum(LINE_AMOUNT_TRXN_CURR) Amount ,'Records Stuck With Error' Comments FROM ARFINRO.XXCFIR_REV_MONITORING_AR WHERE comments IS NOT NULL group by OU_NAME,Transaction_type order by OU_NAME",
     "PERIOD_AND_QUARTER_Q": "SELECT Period_name, 'Q' || quarter_num || 'FY' || period_year \"QUARTER\" FROM gl_periods WHERE period_set_name = 'Fiscal Year' AND SYSDATE - 15 BETWEEN start_date AND end_date + 1",
     "CLOSE_START_END_TIME_Q": "select CLOSE_TYPE, CLOSE_START_TIME, CLOSE_END_TIME, a.* from arfinro.ASK_QE_ME_INTERFACE_LOAD a where 1=1 and period_name='APR-23' and line_type = 'PRODUCT'",

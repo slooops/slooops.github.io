@@ -1,4 +1,5 @@
 <br />
+<br />
 <div>
   <div>
     <h4>
@@ -74,23 +75,7 @@
       </span>
     </div>
   </div>
-  <!-- <div class="col-lg-4" style="float: right;">
-    <div>
-      <label>Volume</label>
-    </div>
-    <div>
-      <label>Product:</label>
-      <span>&nbsp;{{productVolume}} &nbsp;</span>
-      <span class="legendIcon">
-        <i class="fa fa-info-circle"></i>
-      </span>
-    </div>
-    <div>
-      <label>Service:</label>
-      <span>&nbsp;{{serviceVolume}} &nbsp;</span>
-      <i class="fa fa-info-circle legendIcon"></i>
-    </div>
-  </div> -->
+
   <table mat-table class="table table-responsive equal-width">
     <thead>
       <tr>
@@ -185,27 +170,53 @@
     [data]="preCloseProgramTableData"
     style="justify-content: center"
   ></cui-table>
-
-  <!-- <p id="tableHeading" *ngIf="qeCashCollectedData.length"><b>Cash posted in last week of Quarter Ends</b></p>
-  <cui-table *ngIf="qeCashCollectedData.length" [options]="qeCashCollectedTableOptions" [data]="qeCashCollectedData" style="justify-content: center;"></cui-table> -->
-
   <br />
-  <br />
-  <!-- <div class="col-sm-6" style="float: left;">
+  <div>
+    <h3>Comments</h3>
+    <form>
+      <input
+        name="comments"
+        class="form-control form-control-sm"
+        type="text"
+        placeholder="Add a comment"
+        [(ngModel)]="updatedComments"
+        (focus)="showCommentSave = true"
+        style="width: 40%; height: 60px"
+      />
+      <br />
+      <span *ngIf="showCommentSave">
+        <button
+          mat-raised-button
+          (click)="updateComments()"
+          style="background-color: #049fd9; color: white"
+        >
+          Save</button
+        >&nbsp;
+        <button
+          mat-raised-button
+          (click)="showCommentSave = false"
+          style="color: #049fd9"
+        >
+          Cancel
+        </button>
+        <br /><br />
+      </span>
+    </form>
     <div>
-      <label>Comments: &nbsp;</label>
-      <div *ngIf="!editComments">
-        <ul>
-          <li *ngFor="let comment of comments">{{comment}}</li>
+      <div *ngFor="let comment of dashComments">
+        <ul *ngIf="comment.CLOSE_TYPE === 'PRECLOSE'">
+          <li>
+            <p style="margin-bottom: 10px">
+              <b>admin</b> &nbsp;
+              <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
+            </p>
+            <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>
+          </li>
         </ul>
-        <br>
-        <input id="editComments" type="submit" value="Edit" (click)="editContent($event)">
-      </div>
-      <div *ngIf="editComments">
-        <textarea></textarea>
-        <br>
-        <input id="updateComments" type="submit" value="Update" (click)="updateContent($event)">
       </div>
     </div>
-  </div> -->
+  </div>
+
+  <br />
+  <br />
 </div>

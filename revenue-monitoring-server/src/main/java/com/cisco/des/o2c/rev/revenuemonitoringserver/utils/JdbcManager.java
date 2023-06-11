@@ -1,7 +1,5 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 
-import oracle.jdbc.OracleTypes;
-import oracle.jdbc.oracore.OracleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
@@ -12,10 +10,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
-import java.sql.PreparedStatement;
-import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -65,8 +60,8 @@ public class JdbcManager {
         return result;
     }
 
-    public int update(String sql) {
-        return jdbcTemplate.update(sql);
+    public int update(String sql, String comments) {
+        return jdbcTemplate.update(sql, comments);
     }
 
 
