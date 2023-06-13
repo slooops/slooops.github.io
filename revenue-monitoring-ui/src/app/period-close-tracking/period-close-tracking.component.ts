@@ -518,28 +518,34 @@ export class PeriodCloseTrackingComponent implements OnInit {
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push('MOM Percentage');
+              this.pcloseInterfaceLoadColumns.push(
+                'Month Over Month Percentage'
+              );
               preclose_prod_array.push(row['MOM_PERCENTAGE'].toFixed(0) + '%');
             }
             if (
               row['PQM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push('PQM Percentage');
+              this.pcloseInterfaceLoadColumns.push(
+                'Prior Quarter Month Percentage'
+              );
               preclose_prod_array.push(row['PQM_PERCENTAGE'].toFixed(0) + '%');
             }
             if (
               row['QOQ_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push('QOQ PERCENTAGE');
+              this.pcloseInterfaceLoadColumns.push(
+                'Quarter Over Quarter Percentage'
+              );
               preclose_prod_array.push(row['QOQ_PERCENTAGE'].toFixed(0) + '%');
             }
             if (
               row['YOY_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push('YOY PERCENTAGE');
+              this.pcloseInterfaceLoadColumns.push('Year over Year Percentage');
               preclose_prod_array.push(row['YOY_PERCENTAGE'].toFixed(0) + '%');
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
@@ -597,28 +603,34 @@ export class PeriodCloseTrackingComponent implements OnInit {
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push('MOM Percentage');
+              this.mcloseInterfaceLoadColumns.push(
+                'Month Over Month Percentage'
+              );
               midclose_prod_array.push(row['MOM_PERCENTAGE'].toFixed(0) + '%');
             }
             if (
               row['PQM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push('PQM Percentage');
+              this.mcloseInterfaceLoadColumns.push(
+                'Prior Quarter Month Percentage'
+              );
               midclose_prod_array.push(row['PQM_PERCENTAGE'].toFixed(0) + '%');
             }
             if (
               row['QOQ_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push('QOQ PERCENTAGE');
+              this.mcloseInterfaceLoadColumns.push(
+                'Quarter Over Quarter Percentage'
+              );
               midclose_prod_array.push(row['QOQ_PERCENTAGE'].toFixed(0) + '%');
             }
             if (
               row['YOY_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push('YOY PERCENTAGE');
+              this.mcloseInterfaceLoadColumns.push('Year over Year Percentage');
               midclose_prod_array.push(row['YOY_PERCENTAGE'].toFixed(0) + '%');
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
