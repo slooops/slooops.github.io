@@ -64,3 +64,7 @@ li.ng-star-inserted {
   align-items: center;
   padding-bottom: 5px;
 }
+
+.cuiAlign {
+  text-align: center !important;
+}
