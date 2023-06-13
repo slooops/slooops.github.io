@@ -5,10 +5,9 @@ import { PeriodCloseTrackingComponent } from '../period-close-tracking.component
 @Component({
   selector: 'app-preclose',
   templateUrl: './preclose.component.html',
-  styleUrls: ['./preclose.component.css']
+  styleUrls: ['./preclose.component.css'],
 })
-export class PrecloseComponent extends PeriodCloseTrackingComponent
-  implements OnInit {
+export class PrecloseComponent extends PeriodCloseTrackingComponent {
   constructor(http: ApiHttpService) {
     super(http);
   }
@@ -17,11 +16,9 @@ export class PrecloseComponent extends PeriodCloseTrackingComponent
   updatedComments: string;
 
   updateComments() {
-    console.log('this.updatedComments', this.updatedComments);
     this.http
       .post('pclose-update-dashboard-comments', this.updatedComments)
       .subscribe((data: any) => {
-        console.log(data);
         this.updatedComments = '';
         this.showCommentSave = false;
         this.getComments();

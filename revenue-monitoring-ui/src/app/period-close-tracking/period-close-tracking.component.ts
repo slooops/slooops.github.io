@@ -38,26 +38,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
   datePipe: DatePipe = new DatePipe('en-US');
   selectedEntities: string[] = [];
   selectedStatuses: string[] = [];
-  entityListHardCoded: string[] = [
-    'All',
-    'America',
-    'Australia',
-    'Brazil',
-    'BROADSOFT',
-    'Canada',
-    'China',
-    'China Panyu',
-    'Germany',
-    'India',
-    'Italy',
-    'Japan',
-    'Mexico',
-    'Netherlands',
-    'Russia',
-    'South Africa',
-    'South Korea',
-    'United Kingdom',
-  ];
 
   statuses = new FormControl('');
   defaultSelectedEntities: string[] = localStorage.getItem('selectentity')
@@ -343,9 +323,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   getPrecloseMeStatus() {
-    // console.log('here getPrecloseMeStatus: ');
     this.getEndpointData('preclose-me-status').subscribe((data: any) => {
-      console.log('preclose-me-status', data);
       // create ou category status mappings { ou -> { category -> status } }
       this.pcloseMonthEndStatusData = data.filter(
         (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
@@ -429,6 +407,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
       // Preclose
       this.entityList.push('All');
       for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
+        console.log(ou);
         this.entityList.push(ou);
         this.entityList.sort((a, b) => a.localeCompare(b));
         let tableRowObj = {};
@@ -1011,7 +990,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getComments() {
     this.getEndpointData('pclose-dashboard-comments').subscribe((data: any) => {
-      console.log('pclose-dashboard-comments', data);
       data = data.sort(
         (a, b) =>
           new Date(b['CREATION_DATE']).getTime() -
