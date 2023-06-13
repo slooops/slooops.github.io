@@ -49,6 +49,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { TimeagoClock, TimeagoModule } from 'ngx-timeago';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -107,7 +108,7 @@ export function initApp(authService: AuthenticationService) {
       titleFontSize: '14',
     }),
     MatButtonModule,
-    MatIconModule,
+    MatTooltipModule,
   ],
   providers: [
     DatePipe,

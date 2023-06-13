@@ -136,7 +136,11 @@
               >⏸️</span
             >
             <span *ngIf="row[category].toLowerCase() === 'delayed'">⚠️</span>
-            <span *ngIf="row[category].toLowerCase() === 'stopped'">🛑</span>
+            <span
+              matTooltip="Refer to comments below"
+              *ngIf="row[category].toLowerCase() === 'stopped'"
+              >🛑</span
+            >
             <span
               *ngIf="
                 [
