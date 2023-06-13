@@ -37,11 +37,10 @@
             <mat-form-field appearance="standard" a>
               <mat-label>Select Entites</mat-label>
               <mat-select
-                [(value)]="defaultSelectedEntity"
                 id="entity"
                 name="entity"
                 [(ngModel)]="selectedEntities"
-                (ngModelChange)="selectedEntity()"
+                (ngModelChange)="selectedEntity(selectedEntities)"
                 multiple
               >
                 <mat-option

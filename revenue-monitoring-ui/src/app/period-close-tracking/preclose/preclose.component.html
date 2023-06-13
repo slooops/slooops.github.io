@@ -37,19 +37,22 @@
           <mat-form-field appearance="standard" a>
             <mat-label>Select Entites</mat-label>
             <mat-select
-              [value]="defaultSelectedEntity"
+              [formControl]="entities"
               id="entity"
               name="entity"
-              [(ngModel)]="selectedEntities"
-              (ngModelChange)="selectedEntity()"
               multiple
             >
-              <mat-option *ngFor="let entity of entityList" [value]="entity">{{
-                entity
-              }}</mat-option>
+              <mat-option
+                *ngFor="let entity of entityList"
+                [value]="entity"
+                (onSelectionChange)="entityChange()"
+                [disabled]="entity !== 'All' && allEntitiesSelected"
+                >{{ entity }}</mat-option
+              >
             </mat-select>
           </mat-form-field>
         </div>
+        &nbsp;
         <div>
           <mat-form-field appearance="standard" a>
             <mat-label>Select Statuses</mat-label>
