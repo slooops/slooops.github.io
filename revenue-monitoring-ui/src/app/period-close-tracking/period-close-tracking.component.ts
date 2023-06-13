@@ -881,7 +881,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
       (row) => row[category] && row[category].toLowerCase() === 'delayed'
     );
     if (hasDelayedItem) {
-      return '#FFFF00'; // Yellow for delayed
+      return '#FFD429'; // Yellow for delayed
     }
 
     return '#78C000'; // Default green
