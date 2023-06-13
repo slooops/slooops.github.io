@@ -388,7 +388,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.entityList = [];
       this.entityList.push('All');
       for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
-        console.log(ou);
         this.entityList.push(ou);
         this.entityList.sort((a, b) => a.localeCompare(b));
         let tableRowObj = {};
