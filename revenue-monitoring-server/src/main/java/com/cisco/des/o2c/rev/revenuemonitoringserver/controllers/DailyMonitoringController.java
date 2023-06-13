@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
+import java.util.concurrent.ConcurrentHashMap;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class DailyMonitoringController {
 
     private DailyMonitoringService service;
+    private final Map<String, List<Map<String, Object>>> cachedResults = new ConcurrentHashMap<>();
 
     @Autowired
     public DailyMonitoringController(DailyMonitoringService service) {
@@ -101,5 +104,14 @@ public class DailyMonitoringController {
         Map<String,String> result = new HashMap<>();
         result.put("message", "Comments updated.");
         return result;
+    }
+
+    private boolean resultsHaveChanged(String queryType, List<Map<String, Object>> queryResults) {
+        List<Map<String, Object>> cachedResults = this.cachedResults.get(queryType);
+        return cachedResults == null || !cachedResults.equals(queryResults);
+    }
+
+    private void cacheRequest(String queryType, List<Map<String, Object>> queryResults) {
+        cachedResults.put(queryType, queryResults);
     }
 }
