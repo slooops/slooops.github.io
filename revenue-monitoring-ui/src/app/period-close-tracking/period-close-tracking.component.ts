@@ -294,10 +294,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   getPrecloseMeStatus() {
-    // console.log('here getPrecloseMeStatus: ');
     this.getEndpointData('preclose-me-status').subscribe((data: any) => {
-      // console.log('preclose-me-status', data);
-
       this.pcloseMonthEndStatusTableData = [];
       this.pcloseSelectedMonthEndStatusTableData = [];
 
@@ -391,6 +388,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.entityList = [];
       this.entityList.push('All');
       for (let ou of Object.keys(this.pcloseOuStatusMapping)) {
+        console.log(ou);
         this.entityList.push(ou);
         this.entityList.sort((a, b) => a.localeCompare(b));
         let tableRowObj = {};
@@ -972,7 +970,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getComments() {
     this.getEndpointData('pclose-dashboard-comments').subscribe((data: any) => {
-      console.log('pclose-dashboard-comments', data);
       data = data.sort(
         (a, b) =>
           new Date(b['CREATION_DATE']).getTime() -
