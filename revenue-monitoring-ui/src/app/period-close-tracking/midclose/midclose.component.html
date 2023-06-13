@@ -111,8 +111,13 @@
           >
             <p>
               <circle-progress
-                [percent]="pCloseProgBarStatusMapping[category]['value']"
-                [outerStrokeColor]="getMCircleColor(category)"
+                [percent]="mCloseProgBarStatusMapping[category]['value']"
+                [outerStrokeColor]="
+                  getCircleColor(
+                    category,
+                    mcloseSelectedMonthEndStatusTableData
+                  )
+                "
               ></circle-progress>
             </p>
           </td>
