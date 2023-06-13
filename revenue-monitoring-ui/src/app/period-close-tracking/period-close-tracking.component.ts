@@ -898,6 +898,21 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
     return false;
   }
+
+  getPCircleColor(category: string): string {
+    const hasStoppedItem = this.pcloseSelectedMonthEndStatusTableData.some(
+      (row) => row[category] && row[category].toLowerCase() === 'stopped'
+    );
+    return hasStoppedItem ? '#FF0000' : '#78C000';
+  }
+
+  getMCircleColor(category: string): string {
+    const hasStoppedItem = this.pcloseSelectedMonthEndStatusTableData.some(
+      (row) => row[category] && row[category].toLowerCase() === 'stopped'
+    );
+    return hasStoppedItem ? '#FF0000' : '#78C000';
+  }
+
   editContent(event: any) {
     if (event.target.id === 'editCloseTime') {
       this.closeTimeEdit = true;

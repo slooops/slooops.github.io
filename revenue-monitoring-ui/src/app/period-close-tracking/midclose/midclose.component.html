@@ -111,7 +111,8 @@
           >
             <p>
               <circle-progress
-                [percent]="mCloseProgBarStatusMapping[category]['value']"
+                [percent]="pCloseProgBarStatusMapping[category]['value']"
+                [outerStrokeColor]="getMCircleColor(category)"
               ></circle-progress>
             </p>
           </td>

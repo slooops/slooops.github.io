@@ -96,6 +96,7 @@
           <p>
             <circle-progress
               [percent]="pCloseProgBarStatusMapping[category]['value']"
+              [outerStrokeColor]="getPCircleColor(category)"
             ></circle-progress>
           </p>
         </td>

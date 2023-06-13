@@ -103,7 +103,6 @@ export function initApp(authService: AuthenticationService) {
       outerStrokeWidth: 4,
       innerStrokeWidth: 0,
       animationDuration: 300,
-      showUnits: true,
       showSubtitle: false,
       titleFontSize: '14',
     }),
