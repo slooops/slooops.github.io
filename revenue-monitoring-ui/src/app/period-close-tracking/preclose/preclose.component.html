@@ -114,11 +114,13 @@
           <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
           <span
             matTooltip="Refer to comments below"
+            matTooltipPosition="right"
             *ngIf="row[category].toLowerCase() === 'delayed'"
             >⚠️</span
           >
           <span
             matTooltip="Refer to comments below"
+            matTooltipPosition="right"
             *ngIf="row[category].toLowerCase() === 'stopped'"
             >🛑</span
           >
