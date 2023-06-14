@@ -147,7 +147,11 @@
     <button
       mat-stroked-button
       (click)="
-        exportTableToCSV(precloseInterfaceLoadData, pcloseInterfaceLoadColumns)
+        exportTableToExcel(
+          precloseInterfaceLoadTableData,
+          'Preclose Interface Load',
+          'pcloseInterfaceLoadTableData'
+        )
       "
     >
       Download
@@ -161,14 +165,18 @@
     </thead>
     <tbody>
       <tr *ngFor="let row of precloseInterfaceLoadTableData">
-        <ng-container *ngFor="let cell of row; let i = index">
-          <td *ngIf="i < row.length - 2">{{ cell }}</td>
-          <td *ngIf="i >= row.length - 2">
-            <span *ngIf="cell.slice(0, -1) > 0">⬆ {{ cell }}</span>
-            <span *ngIf="cell.slice(0, -1) < 0"
-              >⬇ {{ getAbsoluteValue(cell.slice(0, -1)) }}%</span
+        <ng-container
+          *ngFor="let key of templateObject.keys(row); let i = index"
+        >
+          <td *ngIf="i < templateObject.keys(row).length - 2">
+            {{ row[key] }}
+          </td>
+          <td *ngIf="i >= templateObject.keys(row).length - 2">
+            <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
+            <span *ngIf="row[key].slice(0, -1) < 0"
+              >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
             >
-            <span *ngIf="cell.slice(0, -1) == 0">0%</span>
+            <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
           </td>
         </ng-container>
       </tr>
@@ -177,6 +185,21 @@
 
   <br /><br />
   <h2>Invoices Generated</h2>
+  <div class="header-container">
+    <p>Legend: &nbsp;&nbsp; Number of lines</p>
+    <button
+      mat-stroked-button
+      (click)="
+        exportTableToExcel(
+          preCloseProgramTableData,
+          'Preclose Invoices Generated',
+          'pcloseInvoicesGeneratedTableData'
+        )
+      "
+    >
+      Download
+    </button>
+  </div>
   <br />
   <cui-table
     *ngIf="preCloseProgramTableData.length"
