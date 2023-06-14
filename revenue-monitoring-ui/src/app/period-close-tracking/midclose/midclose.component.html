@@ -231,9 +231,7 @@
     ></cui-table>
 
     <br /><br />
-    <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">
-      Cash Posted
-    </h2>
+    <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
     <div class="header-container">
       <p>Legend: &nbsp;&nbsp; In Last Week of Quarter Ends</p>
       <button
@@ -249,7 +247,6 @@
         Download
       </button>
     </div>
-    <br />
     <cui-table
       *ngIf="qeCashCollectedData.length"
       [options]="qeCashCollectedTableOptions"

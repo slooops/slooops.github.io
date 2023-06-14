@@ -3,13 +3,13 @@ import {
   OnDestroy,
   OnInit,
   TemplateRef,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
 import {
   CuiTableColumnOption,
-  CuiTableOptions
+  CuiTableOptions,
 } from '@cisco-ngx/cui-components';
 import { map } from 'rxjs';
 import { DatePipe } from '@angular/common';
@@ -22,7 +22,7 @@ import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-period-close-tracking',
   templateUrl: './period-close-tracking.component.html',
-  styleUrls: ['./period-close-tracking.component.css']
+  styleUrls: ['./period-close-tracking.component.css'],
 })
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 120000; //ms
@@ -57,7 +57,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'Russia',
     'South Africa',
     'South Korea',
-    'United Kingdom'
+    'United Kingdom',
   ];
 
   statuses = new FormControl('');
@@ -125,7 +125,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'ACCOUNTING',
     'INTERCOMPANY',
     'NGCCRM',
-    'GL POSTING'
+    'GL POSTING',
   ];
   meStatusDesiredOrder: string[] = [
     'OPERATING_UNIT',
@@ -134,7 +134,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'ACCOUNTING',
     'INTERCOMPANY',
     'NGCCRM',
-    'GL_POSTING'
+    'GL_POSTING',
   ];
   meStatusCategories: string[] = [
     'AR_INTERFACE',
@@ -142,7 +142,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'ACCOUNTING',
     'INTERCOMPANY',
     'NGCCRM',
-    'GL_POSTING'
+    'GL_POSTING',
   ];
 
   pcloseExecutionWindow: string[] = [
@@ -152,7 +152,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     '0800-1200 PST',
     '0800-1200 PST',
     '0800-1200 PST',
-    '0800-1200 PST'
+    '0800-1200 PST',
   ];
   mcloseExecutionWindow: string[] = [
     '',
@@ -161,7 +161,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     '0800-1200 PST',
     '0800-1200 PST',
     '0800-1200 PST',
-    '0800-1200 PST'
+    '0800-1200 PST',
   ];
 
   pCloseProgBarStatusMapping: any = {};
@@ -183,7 +183,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   constructor(http: ApiHttpService) {
     this.http = http;
 
-    window.onbeforeunload = function() {
+    window.onbeforeunload = function () {
       localStorage.clear();
       return '';
     };
@@ -221,7 +221,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getPeriodQuarterStartEndTime() {
     this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
-      data.forEach(row => {
+      data.forEach((row) => {
         if (row['CLOSE_TYPE'] == 'PRECLOSE') {
           this.preclosePeriod = row['PERIOD_NAME'];
           this.precloseQuarter = row['QUARTER'];
@@ -255,7 +255,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
       // Rows
-      data.map(cashData => {
+      data.map((cashData) => {
         cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
         cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
         cashData.WD_2 = '$' + cashData.WD_2.toLocaleString('en-US');
@@ -277,7 +277,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
           new CuiTableColumnOption({
             name: column_name.replace(/_/g, '-'),
             sortable: false,
-            key: column_name
+            key: column_name,
           })
         );
       }
@@ -287,7 +287,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // striped: true,
         // fixed: true,
         columns: tableColumns,
-        dynamicData: true
+        dynamicData: true,
       });
     });
   }
@@ -301,17 +301,17 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.mcloseSelectedMonthEndStatusTableData = [];
       // create ou category status mappings { ou -> { category -> status } }
       this.pcloseMonthEndStatusData = data.filter(
-        obj => obj['CLOSE_TYPE'] == 'PRECLOSE'
+        (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
       );
       this.mcloseMonthEndStatusData = data.filter(
-        obj => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+        (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
       );
 
       this.statusList = [];
       this.statusList.push('All');
 
       // setup preclose data (pcloseOuStatusMapping)
-      this.pcloseMonthEndStatusData.forEach(row => {
+      this.pcloseMonthEndStatusData.forEach((row) => {
         let operatingUnit = row['OPERATING_UNIT'];
         let category = row['CATEGORY'];
         let stepsCompleted = row['STEPS_COMPLETED'];
@@ -324,17 +324,15 @@ export class PeriodCloseTrackingComponent implements OnInit {
         if (!(operatingUnit in this.pcloseOuStatusMapping)) {
           this.pcloseOuStatusMapping[operatingUnit] = {};
           this.pcloseOuStatusMapping[operatingUnit][category] = {};
-          this.pcloseOuStatusMapping[operatingUnit][category][
-            'closeStatus'
-          ] = closeStatus;
+          this.pcloseOuStatusMapping[operatingUnit][category]['closeStatus'] =
+            closeStatus;
           this.pcloseOuStatusMapping[operatingUnit][category][
             'stepsCompleted'
           ] = stepsCompleted;
         } else if (!(category in this.pcloseOuStatusMapping[operatingUnit])) {
           this.pcloseOuStatusMapping[operatingUnit][category] = {};
-          this.pcloseOuStatusMapping[operatingUnit][category][
-            'closeStatus'
-          ] = closeStatus;
+          this.pcloseOuStatusMapping[operatingUnit][category]['closeStatus'] =
+            closeStatus;
           this.pcloseOuStatusMapping[operatingUnit][category][
             'stepsCompleted'
           ] = stepsCompleted;
@@ -342,7 +340,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
       });
 
       // setup midclose data (mcloseOuStatusMapping)
-      this.mcloseMonthEndStatusData.forEach(row => {
+      this.mcloseMonthEndStatusData.forEach((row) => {
         let operatingUnit = row['OPERATING_UNIT'];
         let category = row['CATEGORY'];
         let closeStatus = row['CLOSE_STATUS'];
@@ -350,17 +348,15 @@ export class PeriodCloseTrackingComponent implements OnInit {
         if (!(operatingUnit in this.mcloseOuStatusMapping)) {
           this.mcloseOuStatusMapping[operatingUnit] = {};
           this.mcloseOuStatusMapping[operatingUnit][category] = {};
-          this.mcloseOuStatusMapping[operatingUnit][category][
-            'closeStatus'
-          ] = closeStatus;
+          this.mcloseOuStatusMapping[operatingUnit][category]['closeStatus'] =
+            closeStatus;
           this.mcloseOuStatusMapping[operatingUnit][category][
             'stepsCompleted'
           ] = stepsCompleted;
         } else if (!(category in this.mcloseOuStatusMapping[operatingUnit])) {
           this.mcloseOuStatusMapping[operatingUnit][category] = {};
-          this.mcloseOuStatusMapping[operatingUnit][category][
-            'closeStatus'
-          ] = closeStatus;
+          this.mcloseOuStatusMapping[operatingUnit][category]['closeStatus'] =
+            closeStatus;
           this.mcloseOuStatusMapping[operatingUnit][category][
             'stepsCompleted'
           ] = stepsCompleted;
@@ -395,9 +391,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
         for (let category of Object.keys(ouStatusesObj).sort(
           this.customMeStatusCatSort.bind(this)
         )) {
-          tableRowObj[category] = this.pcloseOuStatusMapping[ou][category][
-            'closeStatus'
-          ];
+          tableRowObj[category] =
+            this.pcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.pcloseMonthEndStatusTableData.push(tableRowObj);
       }
@@ -409,9 +404,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
         for (let category of Object.keys(ouStatusesObj).sort(
           this.customMeStatusCatSort.bind(this)
         )) {
-          tableRowObj[category] = this.mcloseOuStatusMapping[ou][category][
-            'closeStatus'
-          ];
+          tableRowObj[category] =
+            this.mcloseOuStatusMapping[ou][category]['closeStatus'];
         }
         this.mcloseMonthEndStatusTableData.push(tableRowObj);
       }
@@ -433,7 +427,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getPeriodCloseInvoice() {
     this.getEndpointData('period-close-invoice-stats').subscribe(
       (data: any) => {
-        data.map(invData => {
+        data.map((invData) => {
           for (let col of Object.keys(invData)) {
             if (col.includes('AMOUNT')) {
               invData[col] = '$' + invData[col].toLocaleString('en-US');
@@ -446,10 +440,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
         });
         // array.filter(obj => obj.category === category);
         this.preCloseProgramTableData = data.filter(
-          obj => obj['CLOSE_TYPE'] == 'PRECLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
         );
         this.midCloseProgramTableData = data.filter(
-          obj => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
         );
         let programColumns: CuiTableColumnOption[] = [];
 
@@ -461,7 +455,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
               new CuiTableColumnOption({
                 name: column.replace(/_/g, ' '),
                 sortable: false,
-                key: column
+                key: column,
               })
             );
           }
@@ -472,7 +466,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
           // striped: true,
           // fixed: true,
           columns: programColumns,
-          dynamicData: true
+          dynamicData: true,
         });
       }
     );
@@ -482,10 +476,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
         this.precloseInterfaceLoadData = data.filter(
-          obj => obj['CLOSE_TYPE'] == 'PRECLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
         );
         this.midcloseInterfaceLoadData = data.filter(
-          obj => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
         );
 
         this.precloseInterfaceLoadTableData = [];
@@ -515,7 +509,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // let midclose_service_array: any[] = ['SERVICE'];
 
         // preclose
-        this.precloseInterfaceLoadData.forEach(row => {
+        this.precloseInterfaceLoadData.forEach((row) => {
           if (
             !this.pcloseInterfaceLoadColumns.includes(row['PERIOD_NAME']) &&
             row['PERIOD_NAME'] !== undefined
@@ -523,9 +517,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
             this.pcloseInterfaceLoadColumns.push(row['PERIOD_NAME']);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
-            preclose_prod_row[row['PERIOD_NAME']] = row[
-              'LINE_COUNT'
-            ].toLocaleString('en-US');
+            preclose_prod_row[row['PERIOD_NAME']] =
+              row['LINE_COUNT'].toLocaleString('en-US');
             if (
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
@@ -565,9 +558,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
-            preclose_service_row[row['PERIOD_NAME']] = row[
-              'LINE_COUNT'
-            ].toLocaleString('en-US');
+            preclose_service_row[row['PERIOD_NAME']] =
+              row['LINE_COUNT'].toLocaleString('en-US');
             if (
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
@@ -602,7 +594,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.precloseInterfaceLoadTableData.push(preclose_service_row);
 
         // midclose
-        this.midcloseInterfaceLoadData.forEach(row => {
+        this.midcloseInterfaceLoadData.forEach((row) => {
           if (
             !this.mcloseInterfaceLoadColumns.includes(row['PERIOD_NAME']) &&
             row['PERIOD_NAME'] !== undefined
@@ -610,9 +602,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
             this.mcloseInterfaceLoadColumns.push(row['PERIOD_NAME']);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
-            midclose_prod_row[row['PERIOD_NAME']] = row[
-              'LINE_COUNT'
-            ].toLocaleString('en-US');
+            midclose_prod_row[row['PERIOD_NAME']] =
+              row['LINE_COUNT'].toLocaleString('en-US');
             if (
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
@@ -652,9 +643,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
-            midclose_service_row[row['PERIOD_NAME']] = row[
-              'LINE_COUNT'
-            ].toLocaleString('en-US');
+            midclose_service_row[row['PERIOD_NAME']] =
+              row['LINE_COUNT'].toLocaleString('en-US');
             if (
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
@@ -695,7 +685,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
         let interfaceSet = new Set<string>();
         for (let value of data.values()) {
-          Object.keys(value).forEach(key => {
+          Object.keys(value).forEach((key) => {
             if (key === 'QUARTER') {
               interfaceSet.add(value[key]);
             }
@@ -709,9 +699,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   entityChange() {
     this.valueSetOnload = false;
-    this.entities.valueChanges.subscribe(data => {
+    this.entities.valueChanges.subscribe((data) => {
       if (data.includes('All')) {
-        data = data.filter(ele => ele === 'All');
+        data = data.filter((ele) => ele === 'All');
         this.allEntitiesSelected = true;
         this.entities.patchValue(['All'], { emitEvent: false, onlySelf: true });
       } else {
@@ -757,9 +747,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
         if (this.selectedEntities.includes(ou)) {
           let ouStatusesObj = this.pcloseOuStatusMapping[ou];
           for (let category of Object.keys(ouStatusesObj)) {
-            this.pCloseProgBarStatusMapping[category][
-              'steps'
-            ] += this.pcloseOuStatusMapping[ou][category]['stepsCompleted'];
+            this.pCloseProgBarStatusMapping[category]['steps'] +=
+              this.pcloseOuStatusMapping[ou][category]['stepsCompleted'];
             this.pCloseProgBarStatusMapping[category]['total'] += 100;
             this.pCloseProgBarStatusMapping[category]['value'] =
               (100 * this.pCloseProgBarStatusMapping[category]['steps']) /
@@ -772,9 +761,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
         if (this.selectedEntities.includes(ou)) {
           let ouStatusesObj = this.mcloseOuStatusMapping[ou];
           for (let category of Object.keys(ouStatusesObj)) {
-            this.mCloseProgBarStatusMapping[category][
-              'steps'
-            ] += this.mcloseOuStatusMapping[ou][category]['stepsCompleted'];
+            this.mCloseProgBarStatusMapping[category]['steps'] +=
+              this.mcloseOuStatusMapping[ou][category]['stepsCompleted'];
             this.mCloseProgBarStatusMapping[category]['total'] += 100;
             this.mCloseProgBarStatusMapping[category]['value'] =
               (100 * this.mCloseProgBarStatusMapping[category]['steps']) /
@@ -786,7 +774,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     // preclose
     this.pcloseSelectedOUData = this.pcloseMonthEndStatusTableData.filter(
-      data => this.selectedEntities.includes(data.OPERATING_UNIT)
+      (data) => this.selectedEntities.includes(data.OPERATING_UNIT)
     );
     if (
       this.selectedEntities.length !== 0 &&
@@ -797,16 +785,18 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.selectedStatus.length !== 0 &&
       this.selectedEntities.length === 0
     ) {
-      this.pcloseSelectedMonthEndStatusTableData = this.pcloseSelectedStatusData;
+      this.pcloseSelectedMonthEndStatusTableData =
+        this.pcloseSelectedStatusData;
     } else {
-      this.pcloseSelectedMonthEndStatusTableData = this.pcloseSelectedOUData.filter(
-        element => this.pcloseSelectedStatusData.includes(element)
-      );
+      this.pcloseSelectedMonthEndStatusTableData =
+        this.pcloseSelectedOUData.filter((element) =>
+          this.pcloseSelectedStatusData.includes(element)
+        );
     }
 
     // midclose
     this.mcloseSelectedOUData = this.mcloseMonthEndStatusTableData.filter(
-      data => this.selectedEntities.includes(data.OPERATING_UNIT)
+      (data) => this.selectedEntities.includes(data.OPERATING_UNIT)
     );
     if (
       this.selectedEntities.length !== 0 &&
@@ -817,11 +807,13 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.selectedStatus.length !== 0 &&
       this.selectedEntities.length === 0
     ) {
-      this.mcloseSelectedMonthEndStatusTableData = this.mcloseSelectedStatusData;
+      this.mcloseSelectedMonthEndStatusTableData =
+        this.mcloseSelectedStatusData;
     } else {
-      this.mcloseSelectedMonthEndStatusTableData = this.mcloseSelectedOUData.filter(
-        element => this.mcloseSelectedStatusData.includes(element)
-      );
+      this.mcloseSelectedMonthEndStatusTableData =
+        this.mcloseSelectedOUData.filter((element) =>
+          this.mcloseSelectedStatusData.includes(element)
+        );
     }
 
     console.log(
@@ -857,11 +849,13 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.selectedStatus.length !== 0 &&
       this.selectedEntities.length === 0
     ) {
-      this.pcloseSelectedMonthEndStatusTableData = this.pcloseSelectedStatusData;
+      this.pcloseSelectedMonthEndStatusTableData =
+        this.pcloseSelectedStatusData;
     } else {
-      this.pcloseSelectedMonthEndStatusTableData = this.pcloseSelectedOUData.filter(
-        element => this.pcloseSelectedStatusData.includes(element)
-      );
+      this.pcloseSelectedMonthEndStatusTableData =
+        this.pcloseSelectedOUData.filter((element) =>
+          this.pcloseSelectedStatusData.includes(element)
+        );
     }
 
     // midclose
@@ -877,11 +871,13 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.selectedStatus.length !== 0 &&
       this.selectedEntities.length === 0
     ) {
-      this.mcloseSelectedMonthEndStatusTableData = this.mcloseSelectedStatusData;
+      this.mcloseSelectedMonthEndStatusTableData =
+        this.mcloseSelectedStatusData;
     } else {
-      this.mcloseSelectedMonthEndStatusTableData = this.mcloseSelectedOUData.filter(
-        element => this.mcloseSelectedStatusData.includes(element)
-      );
+      this.mcloseSelectedMonthEndStatusTableData =
+        this.mcloseSelectedOUData.filter((element) =>
+          this.mcloseSelectedStatusData.includes(element)
+        );
     }
   }
 
@@ -896,14 +892,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getCircleColor(category: string, data: any[]): string {
     const hasStoppedItem = data.some(
-      row => row[category] && row[category].toLowerCase() === 'stopped'
+      (row) => row[category] && row[category].toLowerCase() === 'stopped'
     );
     if (hasStoppedItem) {
       return '#FF0000'; // Red for stopped
     }
 
     const hasDelayedItem = data.some(
-      row => row[category] && row[category].toLowerCase() === 'delayed'
+      (row) => row[category] && row[category].toLowerCase() === 'delayed'
     );
     if (hasDelayedItem) {
       return '#FFD429'; // Yellow for delayed
@@ -964,44 +960,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
     return indexA - indexB;
   }
 
-  // exportTableToCSV(precloseInterfaceLoadData, pcloseInterfaceLoadColumns)
-
-  exportTableToCSV(rows: any[][], headers: string[]) {
-    let csvData = headers.join(',') + '\n';
-
-    for (let row of rows) {
-      let rowData = [];
-      for (let cell of row) {
-        // Add double quotes around data to handle commas within the cell's data
-        rowData.push(cell ? '"' + cell + '"' : '');
-      }
-      csvData += rowData.join(',') + '\n';
-    }
-
-    let blob = new Blob(['\ufeff' + csvData], {
-      type: 'text/csv;charset=utf-8;'
-    });
-    let dwldLink = document.createElement('a');
-    let url = URL.createObjectURL(blob);
-
-    let isSafariBrowser =
-      navigator.userAgent.indexOf('Safari') != -1 &&
-      navigator.userAgent.indexOf('Chrome') == -1;
-
-    // If Safari open in a new window to save file with random filename.
-    if (isSafariBrowser) {
-      dwldLink.setAttribute('target', '_blank');
-    }
-
-    dwldLink.setAttribute('href', url);
-    dwldLink.setAttribute('download', 'table_data.csv');
-    dwldLink.style.visibility = 'hidden';
-
-    document.body.appendChild(dwldLink);
-    dwldLink.click();
-    document.body.removeChild(dwldLink);
-  }
-
   getEndpointData(endpoint: string): Observable<any> {
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
@@ -1017,14 +975,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
           new Date(b['CREATION_DATE']).getTime() -
           new Date(a['CREATION_DATE']).getTime()
       );
-      data.forEach(ele => {
+      data.forEach((ele) => {
         const val =
           new Date(ele['CREATION_DATE']).toLocaleString('en-us', {
             month: 'long',
             year: 'numeric',
             day: 'numeric',
             hour: 'numeric',
-            minute: 'numeric'
+            minute: 'numeric',
           }) + ' PST';
         ele['CREATION_DATE'] = val;
       });
@@ -1039,7 +997,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     let excelBuffer: any = XLSX.write(workbook, {
       bookType: 'xlsx',
-      type: 'array'
+      type: 'array',
     });
     this.saveAsExcelFile(excelBuffer, filename);
   }
