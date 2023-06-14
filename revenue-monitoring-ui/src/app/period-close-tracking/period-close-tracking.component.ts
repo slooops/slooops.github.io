@@ -169,10 +169,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
   pcloseOuStatusMapping: any = {};
   mcloseOuStatusMapping: any = {};
 
-  periodQuarterData: any[] = [];
-  periodQuarter: String;
-  period: String;
-  quarter: String;
+  preclosePeriod: String = '';
+  midclosePeriod: String = '';
+  precloseQuarter: String = '';
+  midcloseQuarter: String = '';
 
   dynamicInterfaceLoadColumns: string[] = [];
   pcloseInterfaceLoadColumns: string[] = [];
@@ -192,8 +192,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   ngOnInit(): void {
     this.getPeriodCloseInvoice();
     this.getInterfaceLoad();
-    this.getPeriodQuarter();
-    this.getStartEndTime();
+    this.getPeriodQuarterStartEndTime();
     this.getPrecloseVolume();
     this.getQECashCollected();
     this.getPrecloseMeStatus();
@@ -220,17 +219,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
     return prettyDate;
   }
 
-  getPeriodQuarter() {
-    this.getEndpointData('period-quarter-details').subscribe((data: any) => {
-      this.period = data[0]['PERIOD_NAME'];
-      this.quarter = data[0]['QUARTER'];
-    });
-  }
-
-  getStartEndTime() {
+  getPeriodQuarterStartEndTime() {
     this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
       data.forEach(row => {
         if (row['CLOSE_TYPE'] == 'PRECLOSE') {
+          this.preclosePeriod = row['PERIOD_NAME'];
+          this.precloseQuarter = row['QUARTER'];
           this.preCloseStartTime = this.extractDatePrettify(
             row['CLOSE_START_TIME']
           );
@@ -238,6 +232,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
             row['CLOSE_END_TIME']
           );
         } else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
+          this.midclosePeriod = row['PERIOD_NAME'];
+          this.midcloseQuarter = row['QUARTER'];
           this.midCloseStartTime = this.extractDatePrettify(
             row['CLOSE_START_TIME']
           );

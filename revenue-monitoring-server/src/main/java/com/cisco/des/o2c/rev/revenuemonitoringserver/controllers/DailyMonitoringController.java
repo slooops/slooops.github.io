@@ -68,11 +68,6 @@ public class DailyMonitoringController {
     //     return new ResponseEntity<>(service.getProgramLastRun(), HttpStatus.OK);
     // }
 
-    @GetMapping("/period-quarter-details")
-    public ResponseEntity<List<Map<String, Object>>> getPeriodQuarter() {
-        return new ResponseEntity<>(service.getPeriodQuarter(), HttpStatus.OK);
-    }
-
     @GetMapping("/preclose-start-end-time")
     public ResponseEntity<List<Map<String, Object>>> getCloseStartEndTime() {
         return new ResponseEntity<>(service.getCloseStartEndTime(), HttpStatus.OK);
