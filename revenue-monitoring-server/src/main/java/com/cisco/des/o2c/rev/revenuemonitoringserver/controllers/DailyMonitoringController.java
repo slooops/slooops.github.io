@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.async.DeferredResult;
+
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 import java.util.HashMap;
@@ -95,18 +96,20 @@ public class DailyMonitoringController {
 
     @RequestMapping(value = "/pclose-update-dashboard-comments", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String,String> updateDashboardComments(@RequestBody String comments){
-        service.updateDashboardComments(comments);
+        String[] input = comments.split(",");
+        String comment = input[0];
+        String closeType = input[1];
+        service.updateDashboardComments(comment, closeType);
         Map<String,String> result = new HashMap<>();
         result.put("message", "Comments updated.");
         return result;
     }
 
-    private boolean resultsHaveChanged(String queryType, List<Map<String, Object>> queryResults) {
-        List<Map<String, Object>> cachedResults = this.cachedResults.get(queryType);
-        return cachedResults == null || !cachedResults.equals(queryResults);
-    }
-
-    private void cacheRequest(String queryType, List<Map<String, Object>> queryResults) {
-        cachedResults.put(queryType, queryResults);
+    @GetMapping("/pclose-dashboard-timestamp")
+    public Map<String,Date> getDate(){
+        Date date = new Date();
+        Map<String,Date> timeNow = new HashMap<>();
+        timeNow.put("timeNow", date);
+        return timeNow;
     }
 }

@@ -29,14 +29,10 @@ import { StandardArExceptionsComponent } from './standard-ar-exceptions/standard
 import { TsvExceptionsTopSkuComponent } from './tsv-exceptions-top-sku/tsv-exceptions-top-sku.component';
 import { TsvExceptionsSubSkuComponent } from './tsv-exceptions-sub-sku/tsv-exceptions-sub-sku.component';
 import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
-import {
-  MyClock,
-  PeriodCloseTrackingComponent,
-} from './period-close-tracking/period-close-tracking.component';
+import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
@@ -48,7 +44,6 @@ import { MidcloseComponent } from './period-close-tracking/midclose/midclose.com
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
-import { TimeagoClock, TimeagoModule } from 'ngx-timeago';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 
@@ -98,9 +93,6 @@ export function initApp(authService: AuthenticationService) {
     MatSelectModule,
     ReactiveFormsModule,
     NgbModule,
-    TimeagoModule.forRoot({
-      clock: { provide: TimeagoClock, useClass: MyClock },
-    }),
     NgCircleProgressModule.forRoot({
       radius: 20,
       outerStrokeWidth: 4,

@@ -1,9 +1,6 @@
 <h1 style="padding-left: 16px">Period Close Progress</h1>
 <div style="float: right; margin-top: -100px">
-  Dashboard updated: <span *ngIf="timeFlag"> Just now </span>
-  <span *ngIf="!timeFlag">
-    {{ setTime | timeago : false }}
-  </span>
+  Dashboard updated: Today at {{ timeNow }}
 </div>
 <br />
 <mat-tab-group animationDuration="500ms" style="padding-left: 16px">

@@ -60,8 +60,8 @@ public class JdbcManager {
         return result;
     }
 
-    public int update(String sql, String comments) {
-        return jdbcTemplate.update(sql, comments);
+    public int update(String sql, String closeType, String comments) {
+        return jdbcTemplate.update(sql, closeType, comments);
     }
 
 
