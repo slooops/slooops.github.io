@@ -186,21 +186,21 @@ export class PeriodCloseTrackingComponent implements OnInit {
   // 'AR_INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY','NGCCRM', 'GL_POSTING'
   pcloseExecutionWindow: string[] = [
     '',
-    '0700-0830 PST',
-    '0830-0930 PST',
-    '0930-1430 PST',
-    '1230-1430 PST',
-    '1230-1430 PST',
-    '1430-1500 PST'
+    '07:00 - 08:30 PST',
+    '08:30 - 09:30 PST',
+    '09:30 - 14:30 PST',
+    '12:30 - 14:30 PST',
+    '12:30 - 14:30 PST',
+    '14:30 - 15:00 PST'
   ];
   mcloseExecutionWindow: string[] = [
     '',
-    '0025-0110 PST',
-    '0110-0210 PST',
-    '0210-0540 PST',
-    '0340-0540 PST',
-    '0340-0540 PST',
-    '0540-0640 PST'
+    '00:25 - 01:10 PST',
+    '01:10 - 02:10 PST',
+    '02:10 - 05:40 PST',
+    '03:40 - 05:40 PST',
+    '03:40 - 05:40 PST',
+    '05:40 - 06:40 PST'
   ];
 
   pCloseProgBarStatusMapping: any = {};
@@ -699,11 +699,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
         // midclose
         this.midcloseInterfaceLoadData.forEach(row => {
+          console.log('midcloseInterfaceLoadData row: ', row);
           if (
-            !this.mcloseInterfaceLoadColumns.includes(row['PERIOD_NAME']) &&
-            row['PERIOD_NAME'] !== undefined
+            !this.mcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
+            row['QUARTER'] !== undefined
           ) {
-            this.mcloseInterfaceLoadColumns.push(row['PERIOD_NAME']);
+            this.mcloseInterfaceLoadColumns.push(row['QUARTER']);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
             midclose_prod_row[row['PERIOD_NAME']] = row[
