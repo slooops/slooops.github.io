@@ -996,15 +996,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
           );
         }
         // to here
-        const val =
-          new Date(ele['CREATION_DATE']).toLocaleString('en-us', {
-            month: 'long',
-            year: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric'
-          }) + ' PST';
-        ele['CREATION_DATE'] = val;
+
+        ele['CREATION_DATE'] = this.extractDatePrettify(ele['CREATION_DATE']);
       });
       this.dashComments = data;
     });
