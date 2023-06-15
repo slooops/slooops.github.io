@@ -136,11 +136,13 @@
               >⏸️</span
             >
             <span
+              matTooltipPosition="right"
               matTooltip="Refer to comments below"
               *ngIf="row[category].toLowerCase() === 'delayed'"
               >⚠️</span
             >
             <span
+              matTooltipPosition="right"
               matTooltip="Refer to comments below"
               *ngIf="row[category].toLowerCase() === 'stopped'"
               >🛑</span
@@ -207,9 +209,8 @@
     </table>
 
     <br /><br />
-    <h2>Invoices Generated</h2>
     <div class="header-container">
-      <p>Legend: &nbsp;&nbsp; Number of lines</p>
+      <h2>Invoices Generated</h2>
       <button
         mat-stroked-button
         (click)="
@@ -231,11 +232,8 @@
     ></cui-table>
 
     <br /><br />
-    <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">
-      Cash Posted
-    </h2>
     <div class="header-container">
-      <p>Legend: &nbsp;&nbsp; In Last Week of Quarter Ends</p>
+      <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
       <button
         mat-stroked-button
         (click)="
@@ -249,7 +247,6 @@
         Download
       </button>
     </div>
-    <br />
     <cui-table
       *ngIf="qeCashCollectedData.length"
       [options]="qeCashCollectedTableOptions"

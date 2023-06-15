@@ -50,6 +50,7 @@ import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { TimeagoClock, TimeagoModule } from 'ngx-timeago';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ErrorDashComponent } from './error-dash/error-dash.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -70,6 +71,7 @@ export function initApp(authService: AuthenticationService) {
     MenuComponent,
     PrecloseComponent,
     MidcloseComponent,
+    ErrorDashComponent,
   ],
   imports: [
     BrowserModule,
