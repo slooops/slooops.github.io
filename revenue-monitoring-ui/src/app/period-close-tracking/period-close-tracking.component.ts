@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./period-close-tracking.component.css']
 })
 export class PeriodCloseTrackingComponent implements OnInit {
-  refreshInterval = 15000; //ms
+  refreshInterval = 120000; //ms
   timeNow: any;
   now: any;
   startTimeEdit = false;
