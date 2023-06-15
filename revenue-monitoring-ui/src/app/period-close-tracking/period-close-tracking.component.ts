@@ -964,44 +964,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
     return indexA - indexB;
   }
 
-  // exportTableToCSV(precloseInterfaceLoadData, pcloseInterfaceLoadColumns)
-
-  exportTableToCSV(rows: any[][], headers: string[]) {
-    let csvData = headers.join(',') + '\n';
-
-    for (let row of rows) {
-      let rowData = [];
-      for (let cell of row) {
-        // Add double quotes around data to handle commas within the cell's data
-        rowData.push(cell ? '"' + cell + '"' : '');
-      }
-      csvData += rowData.join(',') + '\n';
-    }
-
-    let blob = new Blob(['\ufeff' + csvData], {
-      type: 'text/csv;charset=utf-8;'
-    });
-    let dwldLink = document.createElement('a');
-    let url = URL.createObjectURL(blob);
-
-    let isSafariBrowser =
-      navigator.userAgent.indexOf('Safari') != -1 &&
-      navigator.userAgent.indexOf('Chrome') == -1;
-
-    // If Safari open in a new window to save file with random filename.
-    if (isSafariBrowser) {
-      dwldLink.setAttribute('target', '_blank');
-    }
-
-    dwldLink.setAttribute('href', url);
-    dwldLink.setAttribute('download', 'table_data.csv');
-    dwldLink.style.visibility = 'hidden';
-
-    document.body.appendChild(dwldLink);
-    dwldLink.click();
-    document.body.removeChild(dwldLink);
-  }
-
   getEndpointData(endpoint: string): Observable<any> {
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
@@ -1018,6 +980,22 @@ export class PeriodCloseTrackingComponent implements OnInit {
           new Date(a['CREATION_DATE']).getTime()
       );
       data.forEach(ele => {
+        // delete later
+        if (ele['COMMENTS'] === 'hello') {
+          console.log('raw date: ', ele['CREATION_DATE']);
+          console.log('new date: ', new Date(ele['CREATION_DATE']));
+          console.log(
+            'locale string date: ',
+            new Date(ele['CREATION_DATE']).toLocaleString('en-us', {
+              month: 'long',
+              year: 'numeric',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric'
+            })
+          );
+        }
+        // to here
         const val =
           new Date(ele['CREATION_DATE']).toLocaleString('en-us', {
             month: 'long',
