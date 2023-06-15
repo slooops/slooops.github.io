@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./period-close-tracking.component.css']
 })
 export class PeriodCloseTrackingComponent implements OnInit {
-  refreshInterval = 120000; //ms
+  refreshInterval = 15000; //ms
   timeNow: any;
   now: any;
   startTimeEdit = false;
@@ -699,7 +699,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
         // midclose
         this.midcloseInterfaceLoadData.forEach(row => {
-          console.log('midcloseInterfaceLoadData row: ', row);
           if (
             !this.mcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
             row['QUARTER'] !== undefined
@@ -795,6 +794,11 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
         this.dynamicInterfaceLoadColumns.push(...interfaceSet.values());
         // this.setInterfaceLoadColumns();
+
+        console.log(
+          'pcloseSelectedMonthEndStatusTableData: ',
+          this.pcloseSelectedMonthEndStatusTableData
+        );
       }
     );
   }
@@ -1130,9 +1134,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   getEndpointData(endpoint: string): Observable<any> {
+    let uniqueId = Date.now();
+    let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
+
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(endpoint))
+      switchMap(() => this.http.get(cacheBustingUrl))
     );
     return polling$;
   }
