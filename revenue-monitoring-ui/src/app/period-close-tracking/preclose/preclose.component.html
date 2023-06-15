@@ -3,8 +3,8 @@
 <div>
   <div>
     <h4>
-      <label>Quarter:</label> &nbsp;&nbsp; {{ quarter }} &nbsp;&nbsp; |
-      &nbsp;&nbsp; <label>Period:</label> &nbsp;&nbsp; {{ period }}
+      <label>Quarter:</label> &nbsp;&nbsp; {{ precloseQuarter }} &nbsp;&nbsp; |
+      &nbsp;&nbsp; <label>Period:</label> &nbsp;&nbsp; {{ preclosePeriod }}
     </h4>
     <br />
     <p><label>Start:</label> &nbsp;&nbsp; {{ preCloseStartTime }}</p>
@@ -103,11 +103,13 @@
           <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
           <span
             matTooltip="Refer to comments below"
+            matTooltipPosition="right"
             *ngIf="row[category].toLowerCase() === 'delayed'"
             >⚠️</span
           >
           <span
             matTooltip="Refer to comments below"
+            matTooltipPosition="right"
             *ngIf="row[category].toLowerCase() === 'stopped'"
             >🛑</span
           >
@@ -173,9 +175,8 @@
   </table>
 
   <br /><br />
-  <h2>Invoices Generated</h2>
   <div class="header-container">
-    <p>Legend: &nbsp;&nbsp; Number of lines</p>
+    <h2>Invoices Generated</h2>
     <button
       mat-stroked-button
       (click)="
@@ -189,7 +190,6 @@
       Download
     </button>
   </div>
-  <br />
   <cui-table
     *ngIf="preCloseProgramTableData.length"
     [options]="programTableOptions"

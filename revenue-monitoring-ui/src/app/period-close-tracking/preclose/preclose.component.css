@@ -61,8 +61,8 @@ li.ng-star-inserted {
 .header-container {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding-bottom: 5px;
+  align-items: flex-end;
+  padding-bottom: 8px;
 }
 
 .cuiAlign {

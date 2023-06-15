@@ -17,7 +17,6 @@ public class DailyMonitoringService {
     private String revenueControlsQuery;
     private String closeInvStats;
     private String closeInterfaceLoad;
-    private String periodAndQuarter;
     private String closeStartEndTime;
     private String closeVolume;
     private String closeMEStatus;
@@ -27,9 +26,9 @@ public class DailyMonitoringService {
 //    Connection conn;
 
     @Autowired
-    public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, String tsvSubSkuExcQuery,
-                                 String revenueControlsQuery, String closeInvStats, String closeInterfaceLoad,
-                                 String periodAndQuarter, String closeStartEndTime, String closeVolume,
+    public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
+                                 String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
+                                 String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -38,7 +37,6 @@ public class DailyMonitoringService {
         this.revenueControlsQuery = revenueControlsQuery;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
-        this.periodAndQuarter = periodAndQuarter;
         this.closeStartEndTime = closeStartEndTime;
         this.closeVolume = closeVolume;
         this.closeMEStatus = closeMEStatus;
@@ -80,10 +78,6 @@ public class DailyMonitoringService {
         Stream.of(product, service).forEach(interfaceLoad::addAll);
 
         return interfaceLoad;
-    }
-
-    public List<Map<String,Object>> getPeriodQuarter() { 
-        return jdbcManager.queryForList(periodAndQuarter); 
     }
 
     public List<Map<String,Object>> getCloseStartEndTime() { 

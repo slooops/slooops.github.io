@@ -26,8 +26,6 @@ public class QueryConfigs { // TODO
 
     // @Value("${period.close.interface.load.preclose}")
     // public String periodCloseInterfaceLoadPreclose;
-    @Value("${period-quarter.q}")
-    public String periodAndQuarter;
     
     @Value("${start-end.time.q}")
     public String closeStartEndTime;
@@ -67,9 +65,6 @@ public class QueryConfigs { // TODO
 
     // @Bean( name = "periodCloseInterfaceLoadPreclose")
     // public String getPeriodCloseInterfaceLoad() { return this.periodCloseInterfaceLoadPreclose; }
-
-    @Bean( name = "periodAndQuarter")
-    public String getPeriodAndQuarter() { return this.periodAndQuarter; }
     
     @Bean( name = "closeStartEndTime")
     public String getCloseStartEndTime() { return this.closeStartEndTime; }
