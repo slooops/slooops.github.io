@@ -7,6 +7,7 @@ import { RevenueControlsComponent } from './revenue-controls/revenue-controls.co
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
+import { ErrorDashComponent } from './error-dash/error-dash.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/period-close-tracking', pathMatch: 'full' },
@@ -16,12 +17,12 @@ const routes: Routes = [
   { path: 'tsv-exceptions-top-sku', component: TsvExceptionsTopSkuComponent },
   { path: 'tsv-exceptions-sub-sku', component: TsvExceptionsSubSkuComponent },
   { path: 'revenue-controls', component: RevenueControlsComponent },
-  { path: 'period-close-tracking', component: PeriodCloseTrackingComponent }
-
+  { path: 'period-close-tracking', component: PeriodCloseTrackingComponent },
+  { path: 'error-dash', component: ErrorDashComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
