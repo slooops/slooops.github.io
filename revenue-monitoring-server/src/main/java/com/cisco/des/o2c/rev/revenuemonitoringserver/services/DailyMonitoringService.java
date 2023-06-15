@@ -102,9 +102,9 @@ public class DailyMonitoringService {
 
     public List<Map<String,Object>> getDashboardComments() { return jdbcManager.queryForList(dashboardComments); }
 
-    public String updateDashboardComments(String comments) {
-        String updateComments = "INSERT INTO ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS (QUARTER, PERIOD_NAME, PERIOD_YEAR, PERIOD_NUM, CLOSE_TYPE, COMMENTS, CREATION_DATE) VALUES ('Q4FY2023','MAY-23',2023,11,'PRECLOSE',?,SYSDATE)";
-        jdbcManager.update(updateComments, comments);
+    public String updateDashboardComments(String comments, String closeType) {
+        String updateComments = "INSERT INTO ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS (QUARTER, PERIOD_NAME, PERIOD_YEAR, PERIOD_NUM, CLOSE_TYPE, COMMENTS, CREATION_DATE) VALUES ('Q4FY2023','MAY-23',2023,11,?,?,SYSDATE)";
+        jdbcManager.update(updateComments, closeType, comments);
         return ("Completed");
     }
 

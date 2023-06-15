@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
 
@@ -16,8 +16,9 @@ export class PrecloseComponent extends PeriodCloseTrackingComponent {
   updatedComments: string;
 
   updateComments() {
+    let comments = this.updatedComments + ',PRECLOSE';
     this.http
-      .post('pclose-update-dashboard-comments', this.updatedComments)
+      .post('pclose-update-dashboard-comments', comments)
       .subscribe((data: any) => {
         this.updatedComments = '';
         this.showCommentSave = false;

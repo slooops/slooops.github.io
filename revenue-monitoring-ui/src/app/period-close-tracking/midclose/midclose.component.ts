@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { CuiTableOptions, CuiTableColumnOption } from '@cisco-ngx/cui-components';
+import {
+  CuiTableOptions,
+  CuiTableColumnOption,
+} from '@cisco-ngx/cui-components';
 import { CngProgressbarColor } from '@cisco/cui-ng';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
@@ -18,11 +21,24 @@ export interface PeriodClose {
 @Component({
   selector: 'app-midclose',
   templateUrl: './midclose.component.html',
-  styleUrls: ['./midclose.component.css']
+  styleUrls: ['./midclose.component.css'],
 })
-
-export class MidcloseComponent extends PeriodCloseTrackingComponent implements OnInit {
-  constructor(http:ApiHttpService) {
+export class MidcloseComponent extends PeriodCloseTrackingComponent {
+  constructor(http: ApiHttpService) {
     super(http);
+  }
+
+  showCommentSave: boolean = false;
+  updatedComments: string;
+
+  updateComments() {
+    let comments = this.updatedComments + ',MIDCLOSE';
+    this.http
+      .post('pclose-update-dashboard-comments', comments)
+      .subscribe((data: any) => {
+        this.updatedComments = '';
+        this.showCommentSave = false;
+        this.getComments();
+      });
   }
 }
