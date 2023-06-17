@@ -46,6 +46,12 @@ import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatIconModule } from '@angular/material/icon';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DetailViewComponent } from './detail-view/detail-view.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -67,6 +73,7 @@ export function initApp(authService: AuthenticationService) {
     PrecloseComponent,
     MidcloseComponent,
     ErrorDashComponent,
+    DetailViewComponent,
   ],
   imports: [
     BrowserModule,
@@ -103,6 +110,10 @@ export function initApp(authService: AuthenticationService) {
     }),
     MatButtonModule,
     MatTooltipModule,
+    MatTableModule,
+    MatSortModule,
+    MatIconModule,
+    MatCheckboxModule,
   ],
   providers: [
     DatePipe,
