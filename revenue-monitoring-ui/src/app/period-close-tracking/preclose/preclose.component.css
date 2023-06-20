@@ -68,3 +68,7 @@ li.ng-star-inserted {
 .cuiAlign {
   text-align: center !important;
 }
+
+ul {
+  list-style-type: none;
+}
