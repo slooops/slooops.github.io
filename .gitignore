@@ -42,3 +42,6 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+/revenue-monitoring-ui/src/assets/config/config.json
+/revenue-monitoring-ui/package-lock.json
