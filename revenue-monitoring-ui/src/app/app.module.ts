@@ -52,6 +52,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 
 import { ErrorDashComponent } from './error-dash/error-dash.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DetailViewComponent } from './detail-view/detail-view.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -73,6 +78,7 @@ export function initApp(authService: AuthenticationService) {
     PrecloseComponent,
     MidcloseComponent,
     ErrorDashComponent,
+    DetailViewComponent,
   ],
   imports: [
     BrowserModule,
@@ -114,6 +120,10 @@ export function initApp(authService: AuthenticationService) {
     MatSidenavModule,
     MatListModule,
     MatMenuModule,
+    MatTableModule,
+    MatSortModule,
+    MatIconModule,
+    MatCheckboxModule,
   ],
   providers: [
     DatePipe,

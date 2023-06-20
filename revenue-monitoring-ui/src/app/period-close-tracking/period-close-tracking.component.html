@@ -1,9 +1,18 @@
 <br />
-<h3 style="padding-left: 16px">Period Close Progress</h3>
-<div style="float: right; margin-top: -50px">
+<div style="float: right; margin-top: 0px">
   Dashboard updated: Today at {{ timeNow }}
 </div>
-<br />
+<div class="row">
+  <span class="col-sm-6" style="float: left">
+    <h3 style="padding-left: 16px">Period Close Progress</h3>
+  </span>
+  <span class="col-sm-6" style="float: right">
+    <h6>
+      <label>Quarter:</label> &nbsp;&nbsp; {{ midcloseQuarter }} &nbsp;&nbsp; |
+      &nbsp;&nbsp; <label>Period:</label> &nbsp;&nbsp; {{ midclosePeriod }}
+    </h6>
+  </span>
+</div>
 <mat-tab-group animationDuration="500ms" style="padding-left: 16px">
   <mat-tab label="Pre-Close">
     <app-preclose></app-preclose>

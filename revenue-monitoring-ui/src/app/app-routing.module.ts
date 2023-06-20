@@ -8,6 +8,7 @@ import { PeriodCloseTrackingComponent } from './period-close-tracking/period-clo
 import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
+import { DetailViewComponent } from './detail-view/detail-view.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/period-close-tracking', pathMatch: 'full' },
@@ -19,6 +20,7 @@ const routes: Routes = [
   { path: 'revenue-controls', component: RevenueControlsComponent },
   { path: 'period-close-tracking', component: PeriodCloseTrackingComponent },
   { path: 'error-dash', component: ErrorDashComponent },
+  { path: 'detail-view', component: DetailViewComponent },
 ];
 
 @NgModule({
