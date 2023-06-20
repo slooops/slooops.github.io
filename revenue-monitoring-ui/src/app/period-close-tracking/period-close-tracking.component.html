@@ -1,6 +1,16 @@
-<h1 style="padding-left: 16px">Period Close Progress</h1>
-<div style="float: right; margin-top: -100px">
-  Dashboard updated: Today at {{ timeNow }}
+<div style="float: right; margin-top: -25px">Updated at {{ timeNow }}</div>
+
+<div
+  style="display: flex; justify-content: space-between; align-items: flex-end"
+>
+  <h1 class="header-container" style="padding-left: 16px">
+    Period Close Progress
+  </h1>
+
+  <h6>
+    <label>Quarter:</label> &nbsp;&nbsp; {{ midcloseQuarter }} &nbsp;&nbsp; |
+    &nbsp;&nbsp; <label>Period:</label> &nbsp;&nbsp; {{ midclosePeriod }}
+  </h6>
 </div>
 <br />
 <mat-tab-group animationDuration="500ms" style="padding-left: 16px">
