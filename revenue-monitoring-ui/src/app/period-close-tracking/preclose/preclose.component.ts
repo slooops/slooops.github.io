@@ -8,6 +8,7 @@ import { PeriodCloseTrackingComponent } from '../period-close-tracking.component
   styleUrls: ['./preclose.component.css'],
 })
 export class PrecloseComponent extends PeriodCloseTrackingComponent {
+  username: string = 'Admin';
   constructor(http: ApiHttpService) {
     super(http);
   }

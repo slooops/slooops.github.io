@@ -1,5 +1,4 @@
 <br />
-<br />
 <div>
   <div>
     <h4>
@@ -12,7 +11,8 @@
     <p>
       <label>Expected Close Time:</label> &nbsp;&nbsp; {{ preCloseEndTime }}
     </p>
-    <br /><br />
+    <mat-divider></mat-divider>
+    <br />
     <div>
       <h2>Entity View</h2>
       <span style="display: flex; align-items: center">
@@ -130,8 +130,8 @@
       </tr>
     </tbody>
   </table>
-
-  <br /><br />
+  <mat-divider></mat-divider>
+  <br />
   <h2>Interface Load</h2>
   <div class="header-container">
     <p>Legend: &nbsp;&nbsp; Number of lines</p>
@@ -173,8 +173,9 @@
       </tr>
     </tbody>
   </table>
+  <mat-divider></mat-divider>
 
-  <br /><br />
+  <br />
   <div class="header-container">
     <h2>Invoices Generated</h2>
     <button
@@ -196,6 +197,8 @@
     [data]="preCloseProgramTableData"
     class="cuiAlign"
   ></cui-table>
+  <mat-divider></mat-divider>
+
   <br />
   <div>
     <h3>Comments</h3>
@@ -228,12 +231,15 @@
         <br /><br />
       </span>
     </form>
+    <mat-divider></mat-divider>
+    <br />
     <div>
       <div *ngFor="let comment of dashComments">
         <ul *ngIf="comment.CLOSE_TYPE === 'PRECLOSE'">
           <li>
-            <p style="margin-bottom: 10px">
-              <b>Admin</b> &nbsp;
+            <p style="margin-bottom: 10px; color: #454444">
+              <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
+              <b>{{ username }}</b> &nbsp;
               <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
             </p>
             <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>

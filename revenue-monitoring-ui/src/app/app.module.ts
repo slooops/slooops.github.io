@@ -45,6 +45,12 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbar, MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 
 export function initApp(authService: AuthenticationService) {
@@ -103,6 +109,11 @@ export function initApp(authService: AuthenticationService) {
     }),
     MatButtonModule,
     MatTooltipModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatMenuModule,
   ],
   providers: [
     DatePipe,

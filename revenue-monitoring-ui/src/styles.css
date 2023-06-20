@@ -1,26 +1,35 @@
 /* You can add global styles to this file, and also import other style files */
 @import url("css/cui-standard.min.css");
-
+@import "~font-awesome/css/font-awesome.css";
 .givemespace {
-    margin: 8px 0 8px 0;
+  margin: 8px 0 8px 0;
 }
 
 .modal__content {
-    margin: 40px;
+  margin: 40px;
 }
 
 .cui .table th {
-    background-color: #049fd9;
-    color: white;
+  background-color: #049fd9;
+  color: white;
 }
 
 /* cui-table with borders is also striped */
 .cui .table.table--bordered > tbody > tr:nth-child(odd) {
-    background-color: var(--cui-table-striping-even); }
-  .cui .table.table--bordered > tbody > tr:nth-child(even) {
-    background-color: var(--cui-table-striping-odd); }
-  .cui .table.table--bordered > tbody > tr.active td:first-child {
-    border-left: var(--cui-accent-thickness) solid var(--cui-accent-color); }
+  background-color: var(--cui-table-striping-even);
+}
+.cui .table.table--bordered > tbody > tr:nth-child(even) {
+  background-color: var(--cui-table-striping-odd);
+}
+.cui .table.table--bordered > tbody > tr.active td:first-child {
+  border-left: var(--cui-accent-thickness) solid var(--cui-accent-color);
+}
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}

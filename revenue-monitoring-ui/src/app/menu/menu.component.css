@@ -1,3 +1,11 @@
 .sidebar {
   background-color: #049fd9;
 }
+
+.mat-list-item {
+  color: white;
+}
+
+.mat-nav-list .active {
+  background-color: rgba(198, 198, 198, 0.137);
+}

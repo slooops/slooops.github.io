@@ -28,6 +28,8 @@ export class MidcloseComponent extends PeriodCloseTrackingComponent {
     super(http);
   }
 
+  username: string = 'Admin';
+
   showCommentSave: boolean = false;
   updatedComments: string;
 
