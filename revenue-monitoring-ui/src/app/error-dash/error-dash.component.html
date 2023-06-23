@@ -1,18 +1,18 @@
-<div style="margin-left: 16px">
-  <h1>Error Dashboard</h1>
+<br />
+<div>
+  <!-- <h1>Error Dashboard</h1>
   <br />
   <br />
   <h4>
     <label>Quarter:</label> &nbsp;&nbsp; {{ precloseQuarter }} &nbsp;&nbsp; |
     &nbsp;&nbsp; <label>Period:</label> &nbsp;&nbsp; {{ preclosePeriod }}
   </h4>
-  <br />
-  <img
+  <br /> -->
+  <!-- <img
     src="assets/viz_dummy.png"
     alt="Error Summary Image"
     style="width: 60vw"
-  />
-  <br /><br /><br />
+  /> -->
   <div
     style="
       display: flex;
@@ -31,6 +31,7 @@
     mat-table
     [dataSource]="dataSource"
     matSort
+    class="mat-elevation-z8"
   >
     <!-- Selection Column -->
     <ng-container matColumnDef="select">
@@ -109,5 +110,15 @@
     <!-- Table rows -->
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
-  <!-- <app-detail-view [data]="selectedData"></app-detail-view> -->
+
+  <mat-paginator
+    [pageSize]="15"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
 </div>
+
+<br />

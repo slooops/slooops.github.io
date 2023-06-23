@@ -30,9 +30,9 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql);
     }
 
-    public List<Map<String, Object>> queryForListWithParams(String sql, Map<String, String> paramMap) {
-        return namedParameterJdbcTemplate.queryForList(sql, paramMap);
-    }
+//    public List<Map<String, Object>> queryForListWithParams(String sql, Map<String, String> paramMap) {
+//        return namedParameterJdbcTemplate.queryForList(sql, paramMap);
+//    }
 
     public Map<String, Object> simpleJdbcCall(String schema, String catalogName, String proc,
                                               Map<String, Integer> inParamTypes, Map<String, Integer> outParamTypes,
@@ -62,6 +62,10 @@ public class JdbcManager {
 
     public int update(String sql, String closeType, String comments) {
         return jdbcTemplate.update(sql, closeType, comments);
+    }
+
+    public List<Map<String, Object>> queryForListWithParams(String sql, String appName, String batchSource, String entity, String type){
+        return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
 
 

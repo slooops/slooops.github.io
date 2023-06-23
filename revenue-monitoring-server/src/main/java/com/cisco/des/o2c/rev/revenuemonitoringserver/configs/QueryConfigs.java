@@ -21,6 +21,15 @@ public class QueryConfigs { // TODO
     @Value("${revenue.controls.q}")
     public String revenueControlsQuery;
 
+    @Value("${error.summary.q}")
+    public String errorSummary;
+
+    @Value("${error.details.all.q}")
+    public String allErrorDetails;
+
+    @Value("${error.details.q}")
+    public String errorDetails;
+
     // @Value("${period.close.invoice.stats}")
     // public String periodCloseInvoiceStats;
 
@@ -47,6 +56,9 @@ public class QueryConfigs { // TODO
 
     @Value("${dashboard.comments.q}")
     public String dashboardComments;
+
+    @Value("${update.comments.q}")
+    public String updateComments;
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -86,4 +98,16 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "dashboardComments" )
     public String getDashboardComments() { return this.dashboardComments; }
+
+    @Bean( name = "updateComments" )
+    public String getUpdateComments() { return this.updateComments; }
+
+    @Bean( name = "errorSummary" )
+    public String getErrorSummary() { return this.errorSummary; }
+
+    @Bean( name = "allErrorDetails" )
+    public String getAllErrorDetails() { return this.allErrorDetails; }
+
+    @Bean( name = "errorDetails" )
+    public String getErrorDetails() { return this.errorDetails; }
 }

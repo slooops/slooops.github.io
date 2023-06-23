@@ -1193,7 +1193,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 }
 
-export class commentsModel {
+interface commentsModel {
   CLOSE_TYPE: string;
   COMMENTS: string;
   PERIOD_NAME: string;

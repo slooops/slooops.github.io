@@ -1,20 +1,14 @@
 import { Component, OnDestroy, OnInit, ViewChild, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
-import { MatTableModule } from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
-import { FormControl } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
-import { map } from 'rxjs';
-import { DatePipe } from '@angular/common';
-import { MatSelect } from '@angular/material/select';
 import { switchMap, startWith } from 'rxjs/operators';
-import { Observable, interval, Subscription } from 'rxjs';
-import * as XLSX from 'xlsx';
+import { Observable, interval } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
-import { HttpClient } from '@angular/common/http';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatSortModule } from '@angular/material/sort';
+import { DataService } from '../providers/data.service';
+import { errorDashModel } from '../error-dash/error-dash.component';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-detail-view',
@@ -29,30 +23,65 @@ export class DetailViewComponent implements OnInit {
   refreshInterval = 120000; //ms
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
-  dataSource = new MatTableDataSource<any>();
+  dataSource: any;
+  errorDetailsData: errorDetailsModel[];
+  errorData: errorDashModel[];
+  allErrorsSelected: boolean;
+  length: number;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
-    private apiHttpService: ApiHttpService,
     private router: Router,
-    private httpClient: HttpClient
+    http: ApiHttpService,
+    private dataService: DataService
   ) {
-    window.onbeforeunload = function () {
-      localStorage.clear();
-      return '';
-    };
+    this.http = http;
   }
 
   ngOnInit(): void {
-    this.getPeriodQuarterStartEndTime();
-    this.httpClient.get<any[]>('assets/detail-view.json').subscribe((data) => {
-      this.dataSource.data = data;
+    // this.getPeriodQuarterStartEndTime();
+    this.allErrorsSelected = this.dataService.getAllErrorsSelected();
+    this.errorData = this.dataService.getErrorData();
+    this.getErrorDetails();
+  }
+
+  getErrorDetails() {
+    if (this.allErrorsSelected || this.errorData.length === 0) {
+      this.getAllErrorDetails();
+    } else {
+      this.getSelectedErrorDetails();
+    }
+  }
+
+  getAllErrorDetails() {
+    this.http.get('error-details').subscribe((data: any) => {
+      this.errorDetailsData = data;
+      this.dataSource = new MatTableDataSource<errorDetailsModel>(
+        this.errorDetailsData
+      );
+      this.length = this.errorDetailsData.length;
+      this.setSortAndPaginator();
     });
+  }
+
+  getSelectedErrorDetails() {
+    this.http
+      .post('selected-error-details', this.errorData)
+      .subscribe((data: any) => {
+        this.errorDetailsData = data;
+        this.dataSource = new MatTableDataSource<errorDetailsModel>(
+          this.errorDetailsData
+        );
+        this.length = this.errorDetailsData.length;
+        this.setSortAndPaginator();
+      });
   }
 
   getEndpointData(endpoint: string): Observable<any> {
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.apiHttpService.get(endpoint))
+      switchMap(() => this.http.get(endpoint))
     );
     return polling$;
   }
@@ -111,7 +140,6 @@ export class DetailViewComponent implements OnInit {
     'APPLICATION_NAME',
     'BATCH_SOURCE',
     'ORDER_NUMBER',
-    'INTERFACE_LINE_ID',
     'ENTITY',
     'TYPE',
     'AGING',
@@ -121,7 +149,26 @@ export class DetailViewComponent implements OnInit {
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-  ngAfterViewInit() {
-    // this.dataSource.sort = this.sort;
+  setSortAndPaginator() {
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
   }
+}
+
+interface errorDetailsModel {
+  PERIOD_NAME: number;
+  APPLICATION_NAME: string;
+  BATCH_SOURCE: string;
+  ORDER_NUMBER: number;
+  ENTITY: string;
+  TRANSACTION_TYPE: string;
+  AMOUNT_USD: number;
+  NO_OF_RECORDS: number;
+  AGING: number;
+  AMOUNT: number;
+  LINE_ID: number;
+  MESSAGE_TEXT: string;
+  SUB_APPLICATION: string;
+  TRXN_CURRENCY: string;
+  TYPE: string;
 }
