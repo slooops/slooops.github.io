@@ -80,7 +80,6 @@ public class DailyMonitoringController {
 
     @GetMapping("/error-details")
     public ResponseEntity<List<Map<String, Object>>> getAllErrorDetails(){
-        System.out.println("here");
         return new ResponseEntity<>(service.getAllErrorDetails(), HttpStatus.OK);
     }
 
