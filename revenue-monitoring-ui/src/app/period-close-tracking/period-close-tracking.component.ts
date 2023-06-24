@@ -308,8 +308,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
       });
       this.qeCashCollectedData = data;
 
-      // console.log('qeCashCollectedData', this.qeCashCollectedData);
-
       // Columns
       let tableColumns: CuiTableColumnOption[] = [];
 
@@ -337,9 +335,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getEndpointData('preclose-me-status').subscribe((data: any) => {
       this.pcloseMonthEndStatusTableData = [];
       this.pcloseSelectedMonthEndStatusTableData = [];
+      this.pcloseOuStatusMapping = {};
 
       this.mcloseMonthEndStatusTableData = [];
       this.mcloseSelectedMonthEndStatusTableData = [];
+      this.mcloseOuStatusMapping = {};
+
       // create ou category status mappings { ou -> { category -> status } }
       this.pcloseMonthEndStatusData = data.filter(
         obj => obj['CLOSE_TYPE'] == 'PRECLOSE'
@@ -412,9 +413,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
           ] = stepsCompleted;
         }
       });
-
-      // Get column names
-      // this.meStatusColumns.push('OPERATING UNIT');
 
       // For any operating unit, iterate through all the categories
       // These categories will be columns for the new table and keys for pCloseProgBarStatusMapping
@@ -536,8 +534,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let programColumns: CuiTableColumnOption[] = [];
         let precloseProgramColumns: CuiTableColumnOption[] = [];
         let midcloseProgramColumns: CuiTableColumnOption[] = [];
-
-        // console.log('midCloseProgramTableData', this.midCloseProgramTableData);
 
         for (let column of Object.keys(data[0])) {
           if (column !== 'CLOSE_TYPE') {
@@ -794,11 +790,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
         this.dynamicInterfaceLoadColumns.push(...interfaceSet.values());
         // this.setInterfaceLoadColumns();
-
-        console.log(
-          'pcloseSelectedMonthEndStatusTableData: ',
-          this.pcloseSelectedMonthEndStatusTableData
-        );
       }
     );
   }
