@@ -134,13 +134,12 @@ pipeline {
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:ui-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
-                        "dev-ui-int",
+                        "dev-int-ui",
                     ]
                 )  
             }
         }
 
-        
     }
     post {
         always {
