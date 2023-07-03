@@ -35,7 +35,7 @@
   >
     <!-- Selection Column -->
     <ng-container matColumnDef="select">
-      <th style="padding-right: 5px" mat-header-cell *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         <mat-checkbox
           (change)="$event ? masterToggle() : null"
           [checked]="selection.hasValue() && isAllSelected()"
@@ -110,6 +110,16 @@
     <!-- Table rows -->
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!dataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
 
   <mat-paginator
     [pageSize]="15"
