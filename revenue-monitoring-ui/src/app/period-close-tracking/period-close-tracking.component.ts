@@ -1173,6 +1173,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    console.log('HERE');
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
