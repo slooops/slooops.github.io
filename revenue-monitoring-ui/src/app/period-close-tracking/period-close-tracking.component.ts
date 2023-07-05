@@ -541,16 +541,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
           }
         }
 
-        midcloseProgramColumns = programColumns.filter(
+        precloseProgramColumns = programColumns.filter(
           (ele) => ele.name !== 'QUARTER'
         );
-        precloseProgramColumns = programColumns;
+        midcloseProgramColumns = programColumns;
 
         this.pcloseInvGenTableOptions = new CuiTableOptions({
           bordered: true,
           // striped: true,
           // fixed: true,
-          columns: precloseProgramColumns,
+          columns: midcloseProgramColumns,
           dynamicData: true,
         });
         console.log(precloseProgramColumns);
@@ -558,7 +558,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
           bordered: true,
           // striped: true,
           // fixed: true,
-          columns: midcloseProgramColumns,
+          columns: precloseProgramColumns,
           dynamicData: true,
         });
         console.log(midcloseProgramColumns);
