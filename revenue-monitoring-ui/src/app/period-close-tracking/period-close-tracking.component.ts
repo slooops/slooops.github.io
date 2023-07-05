@@ -158,28 +158,28 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   meStatusColumns: string[] = [
     'OPERATING UNIT',
-    'AR INTERFACE',
+    'ELIGIBLE FOR INVOICING',
     'INVOICING',
     'ACCOUNTING',
     'INTERCOMPANY',
-    'NGCCRM',
+    'DEFFERRALS',
     'GL POSTING',
   ];
   meStatusDesiredOrder: string[] = [
     'OPERATING_UNIT',
-    'AR_INTERFACE',
+    'ELIGIBLE_FOR_INVOICING',
     'INVOICING',
     'ACCOUNTING',
     'INTERCOMPANY',
-    'NGCCRM',
+    'DEFFERRALS',
     'GL_POSTING',
   ];
   meStatusCategories: string[] = [
-    'AR_INTERFACE',
+    'ELIGIBLE_FOR_INVOICING',
     'INVOICING',
     'ACCOUNTING',
     'INTERCOMPANY',
-    'NGCCRM',
+    'DEFFERRALS',
     'GL_POSTING',
   ];
 
@@ -541,16 +541,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
           }
         }
 
-        precloseProgramColumns = programColumns.filter(
+        precloseProgramColumns = programColumns;
+        midcloseProgramColumns = programColumns.filter(
           (ele) => ele.name !== 'QUARTER'
         );
-        midcloseProgramColumns = programColumns;
 
         this.pcloseInvGenTableOptions = new CuiTableOptions({
           bordered: true,
           // striped: true,
           // fixed: true,
-          columns: midcloseProgramColumns,
+          columns: precloseProgramColumns,
           dynamicData: true,
         });
         console.log(precloseProgramColumns);
@@ -558,7 +558,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
           bordered: true,
           // striped: true,
           // fixed: true,
-          columns: precloseProgramColumns,
+          columns: midcloseProgramColumns,
           dynamicData: true,
         });
         console.log(midcloseProgramColumns);
