@@ -2,10 +2,10 @@
 <div style="overflow-x: hidden">
   <div>
     <p>
-      <label>Start Time:</label> &nbsp;&nbsp;
+      <label>Expected Start Time:</label> &nbsp;&nbsp;
       {{ midCloseStartTime }} &nbsp;&nbsp; | &nbsp;&nbsp;
-      <label>End Time:</label> {{ midCloseEndTime }} &nbsp;&nbsp; | &nbsp;&nbsp;
-      <label>Actual End Time:</label> &nbsp;&nbsp; June 25, 2023 at 3:52:00 PST
+      <label>Expected End Time:</label> {{ midCloseEndTime }} &nbsp;&nbsp; |
+      &nbsp;&nbsp; <label>Actual End Time:</label> &nbsp;&nbsp;
       <!-- {{ midCloseEndTime }} -->
     </p>
     <mat-divider></mat-divider>
@@ -197,7 +197,7 @@
     [data]="midCloseProgramTableData"
     class="cuiAlign"
   ></cui-table>
-  <!-- <mat-divider></mat-divider>
+  <mat-divider></mat-divider>
   <br />
   <div class="header-container">
     <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
@@ -219,7 +219,7 @@
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
     class="cuiAlign"
-  ></cui-table> -->
+  ></cui-table>
   <mat-divider></mat-divider>
   <br />
   <div>
