@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./period-close-tracking.component.css']
 })
 export class PeriodCloseTrackingComponent implements OnInit {
-  refreshInterval = 120000; //ms
+  refreshInterval = 30000; //ms
   timeNow: any;
   now: any;
   startTimeEdit = false;
@@ -162,7 +162,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'INVOICING',
     'ACCOUNTING',
     'INTERCOMPANY',
-    'DEFFERRALS',
+    'DEFERRALS',
     'GL POSTING'
   ];
   meStatusDesiredOrder: string[] = [
@@ -171,7 +171,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'INVOICING',
     'ACCOUNTING',
     'INTERCOMPANY',
-    'DEFFERRALS',
+    'DEFERRALS',
     'GL_POSTING'
   ];
   meStatusCategories: string[] = [
@@ -179,7 +179,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'INVOICING',
     'ACCOUNTING',
     'INTERCOMPANY',
-    'DEFFERRALS',
+    'DEFERRALS',
     'GL_POSTING'
   ];
 
