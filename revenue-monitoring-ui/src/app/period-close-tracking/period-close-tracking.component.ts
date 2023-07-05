@@ -135,8 +135,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
   midcloseInterfaceLoadData: any[] = [];
   precloseInterfaceLoadTableData: any[] = [];
   midcloseInterfaceLoadTableData: any[] = [];
-  pclose_last_period = 'JUN-23'; // hardcoded for now
-  mclose_last_period = 'APR-23'; // hardcoded for now
+  pclose_last_period = 'JUL-23'; // hardcoded for now
+  mclose_last_period = 'JUN-23'; // hardcoded for now
 
   qeCashCollectedData: any[] = [];
   qeCashCollectedTableOptions!: CuiTableOptions;
@@ -547,10 +547,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
           }
         }
 
-        precloseProgramColumns = programColumns.filter(
+        midcloseProgramColumns = programColumns.filter(
           ele => ele.name !== 'QUARTER'
         );
-        midcloseProgramColumns = programColumns;
+        precloseProgramColumns = programColumns;
 
         this.pcloseInvGenTableOptions = new CuiTableOptions({
           bordered: true,
@@ -607,15 +607,19 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // let midclose_service_array: any[] = ['SERVICE'];
 
         // preclose
+        console.log(
+          'precloseInterfaceLoadData: ',
+          this.precloseInterfaceLoadData
+        );
         this.precloseInterfaceLoadData.forEach(row => {
           if (
-            !this.pcloseInterfaceLoadColumns.includes(row['PERIOD_NAME']) &&
-            row['PERIOD_NAME'] !== undefined
+            !this.pcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
+            row['QUARTER'] !== undefined
           ) {
-            this.pcloseInterfaceLoadColumns.push(row['PERIOD_NAME']);
+            this.pcloseInterfaceLoadColumns.push(row['QUARTER']);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
-            preclose_prod_row[row['PERIOD_NAME']] = row[
+            preclose_prod_row[row['QUARTER']] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
             if (
@@ -684,16 +688,17 @@ export class PeriodCloseTrackingComponent implements OnInit {
             }
           }
         });
+        console.log('preclose_prod_row: ', preclose_prod_row);
         this.precloseInterfaceLoadTableData.push(preclose_prod_row);
         this.precloseInterfaceLoadTableData.push(preclose_service_row);
 
         // midclose
         this.midcloseInterfaceLoadData.forEach(row => {
           if (
-            !this.mcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
-            row['QUARTER'] !== undefined
+            !this.mcloseInterfaceLoadColumns.includes(row['PERIOD_NAME']) &&
+            row['PERIOD_NAME'] !== undefined
           ) {
-            this.mcloseInterfaceLoadColumns.push(row['QUARTER']);
+            this.mcloseInterfaceLoadColumns.push(row['PERIOD_NAME']);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
             midclose_prod_row[row['PERIOD_NAME']] = row[
@@ -767,6 +772,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
         });
         this.midcloseInterfaceLoadTableData.push(midclose_prod_row);
         this.midcloseInterfaceLoadTableData.push(midclose_service_row);
+
+        console.log(
+          'precloseInterfaceLoadTableData:',
+          this.precloseInterfaceLoadTableData
+        );
+
+        console.log(
+          'this.pcloseInterfaceLoadColumns:',
+          this.pcloseInterfaceLoadColumns
+        );
 
         let interfaceSet = new Set<string>();
         for (let value of data.values()) {

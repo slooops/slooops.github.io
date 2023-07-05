@@ -201,6 +201,30 @@
   ></cui-table>
   <mat-divider></mat-divider>
 
+  <mat-divider></mat-divider>
+  <br />
+  <div class="header-container">
+    <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
+    <button
+      mat-stroked-button
+      (click)="
+        exportTableToExcel(
+          qeCashCollectedData,
+          'Preclose Quarter End Cash Posted',
+          'pcloseQECashCollectedTableData'
+        )
+      "
+    >
+      Download
+    </button>
+  </div>
+  <cui-table
+    *ngIf="qeCashCollectedData.length"
+    [options]="qeCashCollectedTableOptions"
+    [data]="qeCashCollectedData"
+    class="cuiAlign"
+  ></cui-table>
+
   <br />
   <div>
     <h3>Comments</h3>
