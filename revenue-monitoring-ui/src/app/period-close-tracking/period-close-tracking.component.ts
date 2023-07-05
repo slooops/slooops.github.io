@@ -658,7 +658,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
-            preclose_service_row[row['PERIOD_NAME']] = row[
+            preclose_service_row[row['QUARTER']] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
             if (
@@ -740,7 +740,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
-            midclose_service_row[row['PERIOD_NAME']] = row[
+            midclose_service_row[row['QUARTER']] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
             if (
@@ -796,6 +796,11 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
         this.dynamicInterfaceLoadColumns.push(...interfaceSet.values());
         // this.setInterfaceLoadColumns();
+
+        console.log(
+          'precloseInterfaceLoadTableData: ',
+          this.precloseInterfaceLoadTableData
+        );
       }
     );
   }
@@ -1173,7 +1178,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    console.log('HERE');
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
