@@ -1,5 +1,5 @@
 {
-  "api_url": "https://rev-operations-dashboard-int-api.cisco.com/api/",
+  "api_url": "https://rev-operations-dashboard-api.cisco.com/api/",
   "authClientId": "frs-oauth-nprd",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }
