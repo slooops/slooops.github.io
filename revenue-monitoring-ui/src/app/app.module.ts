@@ -58,6 +58,8 @@ import { MatSortModule } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DetailViewComponent } from './detail-view/detail-view.component';
+import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
+import { InvoiceStatusComponent } from './invoice-status/invoice-status.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -80,6 +82,8 @@ export function initApp(authService: AuthenticationService) {
     MidcloseComponent,
     ErrorDashComponent,
     DetailViewComponent,
+    LoadingSymbolComponent,
+    InvoiceStatusComponent,
   ],
   imports: [
     BrowserModule,
