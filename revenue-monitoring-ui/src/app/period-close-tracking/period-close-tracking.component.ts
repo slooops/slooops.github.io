@@ -136,7 +136,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   precloseInterfaceLoadTableData: any[] = [];
   midcloseInterfaceLoadTableData: any[] = [];
   pclose_last_period = 'JUN-23'; // hardcoded for now
-  mclose_last_period = this.pclose_last_period; // hardcoded for now
+  mclose_last_period = 'APR-23'; // hardcoded for now
 
   qeCashCollectedData: any[] = [];
   qeCashCollectedTableOptions!: CuiTableOptions;
@@ -584,10 +584,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.midcloseInterfaceLoadTableData = [];
 
         this.pcloseInterfaceLoadColumns = [];
-        this.pcloseInterfaceLoadColumns.push('Line Type');
+        this.pcloseInterfaceLoadColumns.push('LINE TYPE');
 
         this.mcloseInterfaceLoadColumns = [];
-        this.mcloseInterfaceLoadColumns.push('Line Type');
+        this.mcloseInterfaceLoadColumns.push('LINE TYPE');
 
         const emptyArray: number[] = [];
 
@@ -622,38 +622,32 @@ export class PeriodCloseTrackingComponent implements OnInit {
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push(
-                'Month Over Month Percentage'
-              );
-              preclose_prod_row['Month Over Month Percentage'] =
+              this.pcloseInterfaceLoadColumns.push('MONTH OVER MONTH');
+              preclose_prod_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['PQM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push(
-                'Prior Quarter Month Percentage'
-              );
-              preclose_prod_row['Prior Quarter Month Percentage'] =
+              this.pcloseInterfaceLoadColumns.push('PRIOR QUARTER MONTH');
+              preclose_prod_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['QOQ_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push(
-                'Quarter Over Quarter Percentage'
-              );
-              preclose_prod_row['Quarter Over Quarter Percentage'] =
+              this.pcloseInterfaceLoadColumns.push('QUARTER OVER QUARTER');
+              preclose_prod_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['YOY_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              this.pcloseInterfaceLoadColumns.push('Year over Year Percentage');
-              preclose_prod_row['Year over Year Percentage'] =
+              this.pcloseInterfaceLoadColumns.push('YEAR OVER YEAR');
+              preclose_prod_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
@@ -664,28 +658,28 @@ export class PeriodCloseTrackingComponent implements OnInit {
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              preclose_service_row['Month Over Month Percentage'] =
+              preclose_service_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['PQM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              preclose_service_row['Prior Quarter Month Percentage'] =
+              preclose_service_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['QOQ_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              preclose_service_row['Quarter Over Quarter Percentage'] =
+              preclose_service_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['YOY_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.pclose_last_period
             ) {
-              preclose_service_row['Year over Year Percentage'] =
+              preclose_service_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           }
@@ -696,10 +690,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // midclose
         this.midcloseInterfaceLoadData.forEach(row => {
           if (
-            !this.mcloseInterfaceLoadColumns.includes(row['PERIOD_NAME']) &&
-            row['PERIOD_NAME'] !== undefined
+            !this.mcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
+            row['QUARTER'] !== undefined
           ) {
-            this.mcloseInterfaceLoadColumns.push(row['PERIOD_NAME']);
+            this.mcloseInterfaceLoadColumns.push(row['QUARTER']);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
             midclose_prod_row[row['PERIOD_NAME']] = row[
@@ -709,38 +703,32 @@ export class PeriodCloseTrackingComponent implements OnInit {
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push(
-                'Month Over Month Percentage'
-              );
-              midclose_prod_row['Month Over Month Percentage'] =
+              this.mcloseInterfaceLoadColumns.push('MONTH OVER MONTH');
+              midclose_prod_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['PQM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push(
-                'Prior Quarter Month Percentage'
-              );
-              midclose_prod_row['Prior Quarter Month Percentage'] =
+              this.mcloseInterfaceLoadColumns.push('PRIOR QUARTER MONTH');
+              midclose_prod_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['QOQ_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push(
-                'Quarter Over Quarter Percentage'
-              );
-              midclose_prod_row['Quarter Over Quarter Percentage'] =
+              this.mcloseInterfaceLoadColumns.push('QUARTER OVER QUARTER');
+              midclose_prod_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['YOY_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              this.mcloseInterfaceLoadColumns.push('Year over Year Percentage');
-              midclose_prod_row['Year over Year Percentage'] =
+              this.mcloseInterfaceLoadColumns.push('YEAR OVER YEAR');
+              midclose_prod_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
@@ -751,28 +739,28 @@ export class PeriodCloseTrackingComponent implements OnInit {
               row['MOM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              midclose_service_row['Month Over Month Percentage'] =
+              midclose_service_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['PQM_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              midclose_service_row['Prior Quarter Month Percentage'] =
+              midclose_service_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['QOQ_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              midclose_service_row['Quarter Over Quarter Percentage'] =
+              midclose_service_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
             if (
               row['YOY_PERCENTAGE'] != null &&
               row['PERIOD_NAME'] === this.mclose_last_period
             ) {
-              midclose_service_row['Year over Year Percentage'] =
+              midclose_service_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           }

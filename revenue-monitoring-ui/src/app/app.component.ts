@@ -3,11 +3,11 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   constructor() {}
-  title = 'Revenue Operations Dashboard';
+  title = 'Operations Dashboard';
 
   menuOpened = false;
   username: string = 'Admin';
