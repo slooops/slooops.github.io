@@ -6,7 +6,7 @@
   "RDAC_OSUSER": "",
   "ASK_QE_ME_DASH_BOARD_STATUS_Q": "SELECT period_name, close_type, comments, creation_date FROM ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS",
   "UPDATE_COMMENTS_Q": "INSERT INTO ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS (QUARTER, PERIOD_NAME, PERIOD_YEAR, PERIOD_NUM, CLOSE_TYPE, COMMENTS, CREATION_DATE) VALUES ('Q4FY2023','JUN-23',2023,10,?,?,SYSDATE)",
-  "ERROR_SUMMARY_Q": "select * from ARFINRO.ASK_ORG_ERRO_AMT_V" ,
+  "ERROR_SUMMARY_Q": "select * from ARFINRO.ASK_ORG_ERRO_AMT_V",
   "ERROR_DETAILS_ALL_Q": "select * from ARFINRO.ASK_ORG_ERRO_AMT_DETAIL_V",
   "ERROR_DETAILS_Q": "select * from ARFINRO.ASK_ORG_ERRO_AMT_DETAIL_V where application_name = ? and batch_source = ? and entity = ? and type = ?",
   "REVENUE_CONTROLS_Q": "SELECT OU_NAME,Transaction_type,sum(LINE_AMOUNT_TRXN_CURR) Amount ,'Records Stuck With Error' Comments FROM ARFINRO.XXCFIR_REV_MONITORING_AR WHERE comments IS NOT NULL group by OU_NAME,Transaction_type order by OU_NAME",
