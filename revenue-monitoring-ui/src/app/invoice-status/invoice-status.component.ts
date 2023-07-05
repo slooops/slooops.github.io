@@ -31,7 +31,6 @@ export class InvoiceStatusComponent implements OnInit {
   length: number;
 
   // invoiceStatusData: invoiceStatusModel[];
-  // selectedErrors: invoiceStatusModel[];
   // dataSource: any;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -138,7 +137,7 @@ export class InvoiceStatusComponent implements OnInit {
   ]);
 }
 
-export interface errorDashModel {
+export interface invoiceStatusModel {
   OPERATING_UNIT: string;
   SALES_ORDER: string;
   LINE_ID: string;
