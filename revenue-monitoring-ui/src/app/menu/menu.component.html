@@ -24,12 +24,36 @@
     >
       Revenue Controls
     </mat-list-item> -->
-    <mat-list-item
+    <mat-expansion-panel
+      [class.mat-elevation-z0]="true"
+      style="background-color: #007dab"
+      [expanded]="true"
+      hideToggle
+    >
+      <mat-expansion-panel-header style="font-size: medium; color: white">
+        Period Close Tracking
+      </mat-expansion-panel-header>
+      <mat-nav-list>
+        <mat-list-item
+          [routerLink]="['/period-close-tracking-preclose']"
+          routerLinkActive="active"
+        >
+          Pre-close
+        </mat-list-item>
+        <mat-list-item
+          [routerLink]="['/period-close-tracking-midclose']"
+          routerLinkActive="active"
+        >
+          Mid-close
+        </mat-list-item>
+      </mat-nav-list>
+    </mat-expansion-panel>
+    <!-- <mat-list-item
       [routerLink]="['/period-close-tracking']"
       routerLinkActive="active"
     >
       Period Close Tracking
-    </mat-list-item>
+    </mat-list-item> -->
     <mat-list-item [routerLink]="['/error-dash']" routerLinkActive="active">
       Error Dashboard
     </mat-list-item>

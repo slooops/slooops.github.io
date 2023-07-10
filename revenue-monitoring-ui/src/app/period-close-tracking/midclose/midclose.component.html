@@ -1,13 +1,30 @@
 <br />
-<div style="overflow-x: hidden">
+<div style="float: right; margin-top: 0px">
+  Dashboard updated: Today at {{ timeNow }}
+</div>
+<h3 style="margin-left: 10px">AR Period Close Progress: Mid-close</h3>
+<br />
+<div style="overflow-x: hidden; padding-left: 10px">
   <div>
-    <p>
-      <label>Expected Start Time:</label> &nbsp;&nbsp;
-      {{ midCloseStartTime }} &nbsp;&nbsp; | &nbsp;&nbsp;
-      <label>Expected End Time:</label> {{ midCloseEndTime }} &nbsp;&nbsp; |
-      &nbsp;&nbsp; <label>Actual End Time:</label> &nbsp;&nbsp;
-      <!-- {{ midCloseEndTime }} -->
-    </p>
+    <div class="row">
+      <span class="col-sm-9" style="float: left">
+        <p>
+          <label>Expected Start Time:</label> &nbsp;
+          {{ midCloseStartTime }} &nbsp;|&nbsp;
+          <label>Expected End Time:</label> &nbsp;
+          {{ midCloseEndTime }} &nbsp;|&nbsp;
+          <label>Actual End Time:</label> &nbsp;
+          <!-- {{ midCloseEndTime }} -->
+        </p>
+      </span>
+      <span class="col-sm-3">
+        <p style="float: right">
+          <label>Quarter:</label> &nbsp; {{ midcloseQuarter }} &nbsp;|&nbsp;
+          <label>Period:</label> &nbsp;
+          {{ midclosePeriod }}
+        </p>
+      </span>
+    </div>
     <mat-divider></mat-divider>
     <div class="row">
       <div class="col-sm-3">

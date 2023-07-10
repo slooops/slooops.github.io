@@ -9,6 +9,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { errorDashModel } from '../error-dash/error-dash.component';
 import { MatPaginator } from '@angular/material/paginator';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-detail-view',
@@ -18,16 +19,55 @@ import { MatPaginator } from '@angular/material/paginator';
 export class DetailViewComponent implements OnInit {
   protected http: ApiHttpService;
 
+  displayedColumns: string[] = [
+    'select',
+    // 'PERIOD_YEAR',
+    'PERIOD_NAME',
+    'APPLICATION_NAME',
+    'SUB_APPLICATION',
+    'BATCH_SOURCE',
+    'ORDER_NUMBER',
+    'LINE_ID',
+    'ENTITY',
+    'TYPE',
+    'AGING',
+    'AMOUNT',
+    'TRXN_CURRENCY',
+    'AMOUNT_USD',
+    'INC_NUMBER',
+    'MESSAGE_TEXT',
+  ];
+
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+
   preclosePeriod: String = '';
   precloseQuarter: String = '';
   refreshInterval = 120000; //ms
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
-  dataSource: any;
+  dataSource: MatTableDataSource<errorDetailsModel>;
   errorDetailsData: errorDetailsModel[];
   errorData: errorDashModel[];
   allErrorsSelected: boolean;
   length: number;
+
+  searchForm: FormGroup = new FormGroup({
+    appName: new FormControl(''),
+    batchSource: new FormControl(''),
+    entity: new FormControl(''),
+  });
+
+  columns: FormControl = new FormControl('');
+
+  appNameOptions: string[] = [];
+  batchSourceOptions: string[] = [];
+  entityOptions: string[] = [];
+
+  applicationNameFilter: string[] = [];
+  batchSourceFilter: string[] = [];
+  entityFilter: string[] = [];
+
+  columnFilter: string[] = this.displayedColumns;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -57,11 +97,11 @@ export class DetailViewComponent implements OnInit {
   getAllErrorDetails() {
     this.http.get('error-details').subscribe((data: any) => {
       this.errorDetailsData = data;
-      this.dataSource = new MatTableDataSource<errorDetailsModel>(
-        this.errorDetailsData
-      );
+      this.dataSource = new MatTableDataSource(this.errorDetailsData);
+      this.filterData();
       this.length = this.errorDetailsData.length;
       this.setSortAndPaginator();
+      this.dataSource.filterPredicate = this.filterPredicate;
     });
   }
 
@@ -70,12 +110,53 @@ export class DetailViewComponent implements OnInit {
       .post('selected-error-details', this.errorData)
       .subscribe((data: any) => {
         this.errorDetailsData = data;
-        this.dataSource = new MatTableDataSource<errorDetailsModel>(
-          this.errorDetailsData
-        );
+        this.dataSource = new MatTableDataSource(this.errorDetailsData);
+        this.filterData();
         this.length = this.errorDetailsData.length;
         this.setSortAndPaginator();
+        this.dataSource.filterPredicate = this.filterPredicate;
       });
+  }
+
+  filterData() {
+    let appName = [];
+    let batchSource = [];
+    let entity = [];
+    this.errorDetailsData.forEach((data) => {
+      appName.push(data.APPLICATION_NAME);
+      batchSource.push(data.BATCH_SOURCE);
+      entity.push(data.ENTITY);
+    });
+    this.appNameOptions = [...new Set(appName)];
+    this.batchSourceOptions = [...new Set(batchSource)];
+    this.entityOptions = [...new Set(entity)];
+  }
+
+  filterPredicate = (data: errorDetailsModel, filter: any) => {
+    const filters = JSON.parse(filter);
+    const appNameMatch =
+      filters.applicationNameFilter.length === 0 ||
+      filters.applicationNameFilter.includes(data.APPLICATION_NAME);
+    const batchSourceMatch =
+      filters.batchSourceFilter.length === 0 ||
+      filters.batchSourceFilter.includes(data.BATCH_SOURCE);
+    const entityMatch =
+      filters.entityFilter.length === 0 ||
+      filters.entityFilter.includes(data.ENTITY);
+    return appNameMatch && batchSourceMatch && entityMatch;
+  };
+
+  filter() {
+    this.searchForm.valueChanges.subscribe((data) => {
+      this.applicationNameFilter = data['appName'];
+      this.batchSourceFilter = data['batchSource'];
+      this.entityFilter = data['entity'];
+      this.dataSource.filter = JSON.stringify({
+        applicationNameFilter: this.applicationNameFilter,
+        batchSourceFilter: this.batchSourceFilter,
+        entityFilter: this.entityFilter,
+      });
+    });
   }
 
   getEndpointData(endpoint: string): Observable<any> {
@@ -128,27 +209,6 @@ export class DetailViewComponent implements OnInit {
     this.selectedData = row;
   }
 
-  // for the view details button
-  viewSummary() {
-    this.router.navigate(['/error-dash']);
-  }
-
-  displayedColumns: string[] = [
-    'select',
-    // 'PERIOD_YEAR',
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'BATCH_SOURCE',
-    'ORDER_NUMBER',
-    'ENTITY',
-    'TYPE',
-    'AGING',
-    'AMOUNT_USD',
-    'MESSAGE_TEXT',
-  ];
-
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-
   setSortAndPaginator() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
@@ -158,17 +218,18 @@ export class DetailViewComponent implements OnInit {
 interface errorDetailsModel {
   PERIOD_NAME: number;
   APPLICATION_NAME: string;
+  SUB_APPLICATION: string;
   BATCH_SOURCE: string;
   ORDER_NUMBER: number;
+  LINE_ID: number;
   ENTITY: string;
-  TRANSACTION_TYPE: string;
-  AMOUNT_USD: number;
-  NO_OF_RECORDS: number;
+  TYPE: string;
   AGING: number;
   AMOUNT: number;
-  LINE_ID: number;
+  TRANSACTION_TYPE: string;
+  AMOUNT_USD: number;
+  INC_NUMBER: any;
+  NO_OF_RECORDS: number;
   MESSAGE_TEXT: string;
-  SUB_APPLICATION: string;
   TRXN_CURRENCY: string;
-  TYPE: string;
 }

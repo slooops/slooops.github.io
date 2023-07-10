@@ -1,3 +1,87 @@
-.w-75 {
-  padding-left: 20px;
+.table-responsive {
+  overflow: auto;
+}
+
+/* .mat-column-select {
+  overflow: initial;
+} */
+
+.mat-column-select {
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.mat-column-PERIOD_NAME {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.mat-column-APPLICATION_NAME {
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.mat-column-SUB_APPLICATION {
+  min-width: 220px;
+  max-width: 220px;
+}
+
+.mat-column-BATCH_SOURCE {
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.mat-column-ORDER_NUMBER {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.mat-column-LINE_ID {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.mat-column-ENTITY {
+  min-width: 210px;
+  max-width: 210px;
+}
+
+.mat-column-TYPE {
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.mat-column-AGING {
+  min-width: 70px;
+  max-width: 70px;
+}
+
+.mat-column-AMOUNT {
+  min-width: 90px;
+  max-width: 90px;
+}
+
+.mat-column-AMOUNT_USD {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.mat-column-TRXN_CURRENCY {
+  min-width: 90px;
+  max-width: 90px;
+}
+
+.mat-column-MESSAGE_TEXT {
+  min-width: 520px;
+  max-width: 520px;
+}
+
+.mat-column-INC_NUMBER {
+  min-width: 100px;
+  max-width: 100px;
+}
+
+mat-header-cell,
+mat-cell {
+  flex: none;
 }

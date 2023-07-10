@@ -1,158 +1,262 @@
 <br />
 <div>
-  <h1>Error Detail View</h1>
+  <h2>Error Detail View</h2>
 
   <div
     style="
       display: flex;
-      justify-content: end;
+      justify-content: space-between;
       align-items: center;
       padding: 8px;
     "
   >
-    <button
-      mat-stroked-button
-      style="margin-right: 8px"
-      (click)="viewSummary()"
-    >
-      View Summary
-    </button>
-    <button mat-stroked-button style="margin-right: 8px">Download</button>
+    <form [formGroup]="searchForm" class="search__form">
+      <mat-form-field appearance="standard">
+        <mat-label>Select Application Name</mat-label>
+        <mat-select
+          id="appName"
+          name="appName"
+          formControlName="appName"
+          [(value)]="applicationNameFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let appName of appNameOptions"
+            [value]="appName"
+            (onSelectionChange)="filter()"
+            >{{ appName }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field appearance="standard">
+        <mat-label>Select Batch Source</mat-label>
+        <mat-select
+          id="batchSource"
+          name="batchSource"
+          formControlName="batchSource"
+          [(value)]="batchSourceFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let batchSource of batchSourceOptions"
+            [value]="batchSource"
+            (onSelectionChange)="filter()"
+            >{{ batchSource }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field appearance="standard">
+        <mat-label>Select Entity</mat-label>
+        <mat-select
+          id="entity"
+          name="entity"
+          formControlName="entity"
+          [(value)]="entityFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let entity of entityOptions"
+            [value]="entity"
+            (onSelectionChange)="filter()"
+            >{{ entity }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </form>
 
-    <button
-      mat-stroked-button
-      [disabled]="!selection?.hasValue()"
-      (click)="viewSummary()"
-    >
-      Send Notification
-    </button>
+    <!-- <mat-form-field appearance="standard">
+        <mat-label>Columns</mat-label>
+        <mat-select
+          id="columns"
+          name="columns"
+          [formControl]="columns"
+          multiple
+        >
+          <mat-option *ngFor="let column of columnFilter" [value]="columns">{{
+            column
+          }}</mat-option>
+        </mat-select>
+      </mat-form-field> -->
+    <div>
+      <button
+        mat-stroked-button
+        style="margin-right: 8px"
+        [routerLink]="'/error-dash'"
+      >
+        View Summary
+      </button>
+      <button mat-stroked-button style="margin-right: 8px">Download</button>
+
+      <button
+        mat-stroked-button
+        [disabled]="!selection?.hasValue()"
+        [routerLink]="'/error-dash'"
+      >
+        Send Notification
+      </button>
+    </div>
   </div>
-  <table
-    style="width: -webkit-fill-available"
-    mat-table
-    [dataSource]="dataSource"
-    matSort
-    class="mat-elevation-z8"
-  >
-    <!-- Selection Column -->
-    <ng-container matColumnDef="select">
-      <th style="padding-right: 5px" mat-header-cell *matHeaderCellDef>
-        <mat-checkbox
-          (change)="$event ? masterToggle() : null"
-          [checked]="selection.hasValue() && isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()"
-        >
-        </mat-checkbox>
-      </th>
-      <td mat-cell *matCellDef="let row">
-        <mat-checkbox
-          (click)="$event.stopPropagation()"
-          (change)="$event ? selection.toggle(row) : null"
-          [checked]="selection.isSelected(row)"
-        >
-        </mat-checkbox>
-      </td>
+  <div class="table-responsive">
+    <table
+      style="width: -webkit-fill-available"
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+    >
+      <!-- Selection Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox
+            (change)="$event ? masterToggle() : null"
+            [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()"
+          >
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-checkbox
+            (click)="$event.stopPropagation()"
+            (change)="$event ? selection.toggle(row) : null"
+            [checked]="selection.isSelected(row)"
+          >
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+      <!-- Period Year Column -->
+      <!-- <ng-container matColumnDef="PERIOD_YEAR">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Period Year</th>
+        <td mat-cell *matCellDef="let record">{{ record.PERIOD_YEAR }}</td>
+      </ng-container> -->
+
+      <!-- Period Name Column -->
+      <ng-container matColumnDef="PERIOD_NAME">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Period Name</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.PERIOD_NAME }}
+        </td>
+      </ng-container>
+
+      <!-- Application Name Column -->
+      <ng-container matColumnDef="APPLICATION_NAME">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          Application Name
+        </th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.APPLICATION_NAME }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="SUB_APPLICATION">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          Sub Application
+        </th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.SUB_APPLICATION }}
+        </td>
+      </ng-container>
+
+      <!-- Batch Source Column -->
+      <ng-container matColumnDef="BATCH_SOURCE">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Batch Source</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.BATCH_SOURCE }}
+        </td>
+      </ng-container>
+
+      <!-- Order Number Column -->
+      <ng-container matColumnDef="ORDER_NUMBER">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Order Number</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.ORDER_NUMBER }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="LINE_ID">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Line ID</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.LINE_ID }}
+        </td>
+      </ng-container>
+
+      <!-- Entity Column -->
+      <ng-container matColumnDef="ENTITY">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Entity</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.ENTITY }}
+        </td>
+      </ng-container>
+
+      <!-- Type Column -->
+      <ng-container matColumnDef="TYPE">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.TYPE }}
+        </td>
+      </ng-container>
+
+      <!-- Aging Column -->
+      <ng-container matColumnDef="AGING">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Aging</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.AGING }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="AMOUNT">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.AMOUNT }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="TRXN_CURRENCY">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.TRXN_CURRENCY }}
+        </td>
+      </ng-container>
+
+      <!-- Amount USD Column -->
+      <ng-container matColumnDef="AMOUNT_USD">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount USD</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.AMOUNT_USD }}
+        </td>
+      </ng-container>
+
+      <!-- Message Text Column -->
+      <ng-container matColumnDef="MESSAGE_TEXT">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Message</th>
+        <td mat-cell *matCellDef="let record">
+          {{ record.MESSAGE_TEXT }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="INC_NUMBER">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Incident</th>
+        <td mat-cell *matCellDef="let record">
+          <!-- {{ record.INC_NUMBER }} -->
+          <a href="https://www.google.com/" target="_blank">INC12345</a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!dataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
     </ng-container>
-
-    <!-- Period Year Column -->
-    <!-- <ng-container matColumnDef="PERIOD_YEAR">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Period Year</th>
-      <td mat-cell *matCellDef="let record">{{ record.PERIOD_YEAR }}</td>
-    </ng-container> -->
-
-    <!-- Period Name Column -->
-    <ng-container matColumnDef="PERIOD_NAME">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Period Name
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.PERIOD_NAME }}
-      </td>
-    </ng-container>
-
-    <!-- Application Name Column -->
-    <ng-container matColumnDef="APPLICATION_NAME">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Application Name
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.APPLICATION_NAME }}
-      </td>
-    </ng-container>
-
-    <!-- Batch Source Column -->
-    <ng-container matColumnDef="BATCH_SOURCE">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Batch Source
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.BATCH_SOURCE }}
-      </td>
-    </ng-container>
-
-    <!-- Order Number Column -->
-    <ng-container matColumnDef="ORDER_NUMBER">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Order Number
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.ORDER_NUMBER }}
-      </td>
-    </ng-container>
-
-    <!-- Entity Column -->
-    <ng-container matColumnDef="ENTITY">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Entity
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.ENTITY }}
-      </td>
-    </ng-container>
-
-    <!-- Type Column -->
-    <ng-container matColumnDef="TYPE">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Type
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.TYPE }}
-      </td>
-    </ng-container>
-
-    <!-- Aging Column -->
-    <ng-container matColumnDef="AGING">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Aging
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.AGING }}
-      </td>
-    </ng-container>
-
-    <!-- Amount USD Column -->
-    <ng-container matColumnDef="AMOUNT_USD">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Amount USD
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.AMOUNT_USD }}
-      </td>
-    </ng-container>
-
-    <!-- Message Text Column -->
-    <ng-container matColumnDef="MESSAGE_TEXT">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header [ngClass]="'w-75'">
-        Message Text
-      </th>
-      <td mat-cell *matCellDef="let record" [ngClass]="'w-75'">
-        {{ record.MESSAGE_TEXT }}
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
+  </div>
 
   <mat-paginator
     [pageSize]="15"

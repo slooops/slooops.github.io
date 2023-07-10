@@ -4,6 +4,7 @@
 
 .mat-list-item {
   color: white;
+  margin-left: 7px;
 }
 
 .mat-nav-list .active {

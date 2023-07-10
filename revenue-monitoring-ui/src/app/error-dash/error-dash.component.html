@@ -13,25 +13,82 @@
     alt="Error Summary Image"
     style="width: 60vw"
   /> -->
+  <h2>Error Summary</h2>
+
   <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 8px;
-    "
+    style="display: flex; justify-content: space-between; align-items: center"
   >
-    <h2>Error Summary</h2>
-    <button mat-stroked-button (click)="viewDetails()">
-      {{ selection.hasValue() ? "View Selected" : "View Details" }}
-    </button>
+    <form [formGroup]="searchForm" class="search__form">
+      <mat-form-field appearance="standard">
+        <mat-label>Select Application Name</mat-label>
+        <mat-select
+          id="appName"
+          name="appName"
+          formControlName="appName"
+          [(value)]="applicationNameFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let appName of appNameOptions"
+            [value]="appName"
+            (onSelectionChange)="filter()"
+            >{{ appName }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field appearance="standard">
+        <mat-label>Select Batch Source</mat-label>
+        <mat-select
+          id="batchSource"
+          name="batchSource"
+          formControlName="batchSource"
+          [(value)]="batchSourceFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let batchSource of batchSourceOptions"
+            [value]="batchSource"
+            (onSelectionChange)="filter()"
+            >{{ batchSource }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field appearance="standard">
+        <mat-label>Select Entity</mat-label>
+        <mat-select
+          id="entity"
+          name="entity"
+          formControlName="entity"
+          [(value)]="entityFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let entity of entityOptions"
+            [value]="entity"
+            (onSelectionChange)="filter()"
+            >{{ entity }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </form>
+    <div>
+      <button
+        mat-stroked-button
+        (click)="viewDetails()"
+        style="margin-right: 8px"
+      >
+        {{ selection.hasValue() ? "View Selected" : "View Details" }}
+      </button>
+      <button mat-stroked-button>Download</button>
+    </div>
   </div>
   <table
     style="width: -webkit-fill-available"
     mat-table
     [dataSource]="dataSource"
     matSort
-    class="mat-elevation-z8"
   >
     <!-- Selection Column -->
     <ng-container matColumnDef="select">
