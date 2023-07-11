@@ -11,10 +11,10 @@ import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-invoice-status',
-  templateUrl: './invoice-status.component.html',
-  styleUrls: ['./invoice-status.component.css'],
+  templateUrl: './order-lifecycle.component.html',
+  styleUrls: ['./order-lifecycle.component.css'],
 })
-export class InvoiceStatusComponent implements OnInit {
+export class OrderLifecycleComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     private router: Router,
@@ -137,7 +137,7 @@ export class InvoiceStatusComponent implements OnInit {
   ]);
 }
 
-export interface invoiceStatusModel {
+export interface orderLifecycleModel {
   OPERATING_UNIT: string;
   SALES_ORDER: string;
   LINE_ID: string;
