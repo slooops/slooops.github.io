@@ -135,8 +135,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
   midcloseInterfaceLoadData: any[] = [];
   precloseInterfaceLoadTableData: any[] = [];
   midcloseInterfaceLoadTableData: any[] = [];
-  pclose_last_period = 'JUL-23'; // hardcoded for now
-  mclose_last_period = 'JUL-23'; // hardcoded for now
 
   qeCashCollectedData: any[] = [];
   qeCashCollectedTableOptions!: CuiTableOptions;
@@ -210,6 +208,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   preclosePeriod: String = '';
   midclosePeriod: String = '';
+  isQuarterEnd: boolean = false;
+  // pclose_last_period = 'JUL-23'; // hardcoded for now
+  // mclose_last_period = 'JUL-23'; // hardcoded for now
   precloseQuarter: String = '';
   midcloseQuarter: String = '';
 
@@ -229,13 +230,28 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getPeriodQuarterStartEndTime();
     this.getPeriodCloseInvoice();
     this.getInterfaceLoad();
-    this.getPeriodQuarterStartEndTime();
     this.getQECashCollected();
     this.getPrecloseMeStatus();
     this.getComments();
     this.getCurrentTime();
+  }
+
+  getIsQuarterEnd(): void {
+    // this.preclosePeriod = 'JUN-23';
+    let periodMonth = this.preclosePeriod.split('-')[0];
+    if (
+      periodMonth === 'OCT' ||
+      periodMonth === 'JAN' ||
+      periodMonth === 'APR' ||
+      periodMonth === 'JUL'
+    ) {
+      this.isQuarterEnd = true;
+    } else {
+      this.isQuarterEnd = false;
+    }
   }
 
   extractDatePrettify(date: string) {
@@ -289,6 +305,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
             row['CLOSE_END_TIME']
           );
         }
+        this.getIsQuarterEnd();
       });
     });
   }
@@ -549,9 +566,15 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
         precloseProgramColumns = programColumns;
         midcloseProgramColumns = programColumns;
-        // midcloseProgramColumns = programColumns.filter(
-        //   ele => ele.name !== 'QUARTER'
-        // );
+
+        if (!this.isQuarterEnd) {
+          precloseProgramColumns = programColumns.filter(
+            ele => ele.name !== 'QUARTER'
+          );
+          midcloseProgramColumns = programColumns.filter(
+            ele => ele.name !== 'QUARTER'
+          );
+        }
 
         this.pcloseInvGenTableOptions = new CuiTableOptions({
           bordered: true,
@@ -609,83 +632,62 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // let midclose_prod_array: any[] = ['PROD'];
         // let midclose_service_array: any[] = ['SERVICE'];
 
+        let fiscalType = '';
+        if (this.isQuarterEnd) {
+          fiscalType = 'QUARTER';
+        } else {
+          fiscalType = 'PERIOD_NAME';
+        }
+
         // preclose
-        console.log(
-          'precloseInterfaceLoadData: ',
-          this.precloseInterfaceLoadData
-        );
         this.precloseInterfaceLoadData.forEach(row => {
           if (
-            !this.pcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
-            row['QUARTER'] !== undefined
+            !this.pcloseInterfaceLoadColumns.includes(row[fiscalType]) &&
+            row[fiscalType] !== undefined
           ) {
-            this.pcloseInterfaceLoadColumns.push(row['QUARTER']);
+            this.pcloseInterfaceLoadColumns.push(row[fiscalType]);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
-            preclose_prod_row[row['QUARTER']] = row[
+            preclose_prod_row[row[fiscalType]] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
-            if (
-              row['MOM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               this.pcloseInterfaceLoadColumns.push('MONTH OVER MONTH');
               preclose_prod_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['PQM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               this.pcloseInterfaceLoadColumns.push('PRIOR QUARTER MONTH');
               preclose_prod_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['QOQ_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
               this.pcloseInterfaceLoadColumns.push('QUARTER OVER QUARTER');
               preclose_prod_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['YOY_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
               this.pcloseInterfaceLoadColumns.push('YEAR OVER YEAR');
               preclose_prod_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
-            preclose_service_row[row['QUARTER']] = row[
+            preclose_service_row[row[fiscalType]] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
-            if (
-              row['MOM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               preclose_service_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['PQM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               preclose_service_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['QOQ_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
               preclose_service_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['YOY_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.pclose_last_period
-            ) {
+            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
               preclose_service_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
@@ -698,76 +700,52 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // midclose
         this.midcloseInterfaceLoadData.forEach(row => {
           if (
-            !this.mcloseInterfaceLoadColumns.includes(row['QUARTER']) &&
-            row['QUARTER'] !== undefined
+            !this.mcloseInterfaceLoadColumns.includes(row[fiscalType]) &&
+            row[fiscalType] !== undefined
           ) {
-            this.mcloseInterfaceLoadColumns.push(row['QUARTER']);
+            this.mcloseInterfaceLoadColumns.push(row[fiscalType]);
           }
           if (row['LINE_TYPE'] === 'PRODUCT') {
-            midclose_prod_row[row['QUARTER']] = row[
+            midclose_prod_row[row[fiscalType]] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
-            if (
-              row['MOM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               this.mcloseInterfaceLoadColumns.push('MONTH OVER MONTH');
               midclose_prod_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['PQM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               this.mcloseInterfaceLoadColumns.push('PRIOR QUARTER MONTH');
               midclose_prod_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['QOQ_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
               this.mcloseInterfaceLoadColumns.push('QUARTER OVER QUARTER');
               midclose_prod_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['YOY_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
               this.mcloseInterfaceLoadColumns.push('YEAR OVER YEAR');
               midclose_prod_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }
           } else if (row['LINE_TYPE'] === 'SERVICE') {
-            midclose_service_row[row['QUARTER']] = row[
+            midclose_service_row[row[fiscalType]] = row[
               'LINE_COUNT'
             ].toLocaleString('en-US');
-            if (
-              row['MOM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               midclose_service_row['MONTH OVER MONTH'] =
                 row['MOM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['PQM_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
               midclose_service_row['PRIOR QUARTER MONTH'] =
                 row['PQM_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['QOQ_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
               midclose_service_row['QUARTER OVER QUARTER'] =
                 row['QOQ_PERCENTAGE'].toFixed(0) + '%';
             }
-            if (
-              row['YOY_PERCENTAGE'] != null &&
-              row['PERIOD_NAME'] === this.mclose_last_period
-            ) {
+            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
               midclose_service_row['YEAR OVER YEAR'] =
                 row['YOY_PERCENTAGE'].toFixed(0) + '%';
             }

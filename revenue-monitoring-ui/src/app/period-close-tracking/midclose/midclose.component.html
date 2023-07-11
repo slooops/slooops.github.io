@@ -233,7 +233,7 @@
   ></cui-table>
   <mat-divider></mat-divider>
   <br />
-  <div class="header-container">
+  <div *ngIf="isQuarterEnd" class="header-container">
     <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
     <button
       mat-stroked-button
@@ -249,7 +249,7 @@
     </button>
   </div>
   <cui-table
-    *ngIf="qeCashCollectedData.length"
+    *ngIf="isQuarterEnd && qeCashCollectedData.length"
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
     class="cuiAlign periodclosetbale"

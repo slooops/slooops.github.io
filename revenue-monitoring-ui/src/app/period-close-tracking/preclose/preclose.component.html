@@ -227,7 +227,7 @@
     </button>
   </div>
   <cui-table
-    *ngIf="preCloseProgramTableData.length"
+    *ngIf="isQuarterEnd && preCloseProgramTableData.length"
     [options]="pcloseInvGenTableOptions"
     [data]="preCloseProgramTableData"
     class="cuiAlign periodclosetbale"
@@ -236,7 +236,7 @@
 
   <mat-divider></mat-divider>
   <br />
-  <div class="header-container">
+  <div *ngIf="isQuarterEnd" class="header-container">
     <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
     <button
       mat-stroked-button
