@@ -60,7 +60,7 @@ public class QueryConfigs { // TODO
     @Value("${update.comments.q}")
     public String updateComments;
 
-    @Value("${ORDER_STATUS_Q}")
+    @Value("${order.status.q}")
     public String orderStatus;
 
     @Bean( name = "stdArExcQuery" )

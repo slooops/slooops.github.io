@@ -82,73 +82,86 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-
-  <table class="table table-responsive equal-width">
-    <thead>
-      <tr>
-        <th *ngFor="let col of meStatusColumns">{{ col }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        *ngIf="precloseSelectedEntities && precloseSelectedEntities.length > 0"
-      >
-        <td></td>
-        <td
-          *ngFor="
-            let category of templateObject.keys(pCloseProgBarStatusMapping)
+  <div class="periodclosetbale">
+    <table class="table table-responsive equal-width">
+      <thead>
+        <tr>
+          <th *ngFor="let col of meStatusColumns">{{ col }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngIf="
+            precloseSelectedEntities && precloseSelectedEntities.length > 0
           "
         >
-          <p>
-            <circle-progress
-              [percent]="pCloseProgBarStatusMapping[category]['value']"
-              [outerStrokeColor]="
-                getCircleColor(category, pcloseSelectedMonthEndStatusTableData)
-              "
-            ></circle-progress>
-          </p>
-        </td>
-      </tr>
-      <tr
-        *ngIf="precloseSelectedEntities && precloseSelectedEntities.length > 0"
-      >
-        <td *ngFor="let row of pcloseExecutionWindow">{{ row }}</td>
-      </tr>
-      <tr *ngFor="let row of pcloseSelectedMonthEndStatusTableData">
-        <td *ngFor="let category of templateObject.keys(row)">
-          <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
-          <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
-          <span *ngIf="row[category].toLowerCase() === 'in progress'">⏳</span>
-          <span *ngIf="row[category].toLowerCase() === 'yet to start'">⏸️</span>
-          <span
-            matTooltip="Refer to comments below"
-            matTooltipPosition="right"
-            *ngIf="row[category].toLowerCase() === 'delayed'"
-            >⚠️</span
-          >
-          <span
-            matTooltip="Refer to comments below"
-            matTooltipPosition="right"
-            *ngIf="row[category].toLowerCase() === 'stopped'"
-            >🛑</span
-          >
-          <span
-            *ngIf="
-              [
-                'completed',
-                'na',
-                'in progress',
-                'yet to start',
-                'delayed',
-                'stopped'
-              ].indexOf(row[category].toLowerCase()) === -1
+          <td></td>
+          <td
+            *ngFor="
+              let category of templateObject.keys(pCloseProgBarStatusMapping)
             "
-            >{{ row[category] }}</span
           >
-        </td>
-      </tr>
-    </tbody>
-  </table>
+            <p>
+              <circle-progress
+                [percent]="pCloseProgBarStatusMapping[category]['value']"
+                [outerStrokeColor]="
+                  getCircleColor(
+                    category,
+                    pcloseSelectedMonthEndStatusTableData
+                  )
+                "
+              ></circle-progress>
+            </p>
+          </td>
+        </tr>
+        <tr
+          *ngIf="
+            precloseSelectedEntities && precloseSelectedEntities.length > 0
+          "
+        >
+          <td *ngFor="let row of pcloseExecutionWindow">{{ row }}</td>
+        </tr>
+        <tr *ngFor="let row of pcloseSelectedMonthEndStatusTableData">
+          <td *ngFor="let category of templateObject.keys(row)">
+            <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
+            <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
+            <span *ngIf="row[category].toLowerCase() === 'in progress'"
+              >⏳</span
+            >
+            <span *ngIf="row[category].toLowerCase() === 'yet to start'"
+              >⏸️</span
+            >
+            <span
+              matTooltip="Refer to comments below"
+              matTooltipPosition="right"
+              *ngIf="row[category].toLowerCase() === 'delayed'"
+              >⚠️</span
+            >
+            <span
+              matTooltip="Refer to comments below"
+              matTooltipPosition="right"
+              *ngIf="row[category].toLowerCase() === 'stopped'"
+              >🛑</span
+            >
+            <span
+              *ngIf="
+                [
+                  'completed',
+                  'na',
+                  'in progress',
+                  'yet to start',
+                  'delayed',
+                  'stopped'
+                ].indexOf(row[category].toLowerCase()) === -1
+              "
+              >{{ row[category] }}</span
+            >
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <mat-divider></mat-divider>
   <br />
 
@@ -168,31 +181,33 @@
       Download
     </button>
   </div>
-  <table class="table table-responsive table-bordered table-striped">
-    <thead>
-      <tr>
-        <th *ngFor="let col of pcloseInterfaceLoadColumns">{{ col }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of precloseInterfaceLoadTableData">
-        <ng-container
-          *ngFor="let key of templateObject.keys(row); let i = index"
-        >
-          <td *ngIf="i < templateObject.keys(row).length - 2">
-            {{ row[key] }}
-          </td>
-          <td *ngIf="i >= templateObject.keys(row).length - 2">
-            <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
-            <span *ngIf="row[key].slice(0, -1) < 0"
-              >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
-            >
-            <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
-          </td>
-        </ng-container>
-      </tr>
-    </tbody>
-  </table>
+  <div class="periodclosetbale">
+    <table class="table table-responsive table-bordered table-striped">
+      <thead>
+        <tr>
+          <th *ngFor="let col of pcloseInterfaceLoadColumns">{{ col }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of precloseInterfaceLoadTableData">
+          <ng-container
+            *ngFor="let key of templateObject.keys(row); let i = index"
+          >
+            <td *ngIf="i < templateObject.keys(row).length - 2">
+              {{ row[key] }}
+            </td>
+            <td *ngIf="i >= templateObject.keys(row).length - 2">
+              <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
+              <span *ngIf="row[key].slice(0, -1) < 0"
+                >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
+              >
+              <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
+            </td>
+          </ng-container>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <mat-divider></mat-divider>
 
   <br />
@@ -215,7 +230,7 @@
     *ngIf="preCloseProgramTableData.length"
     [options]="pcloseInvGenTableOptions"
     [data]="preCloseProgramTableData"
-    class="cuiAlign"
+    class="cuiAlign periodclosetbale"
   ></cui-table>
   <mat-divider></mat-divider>
 
@@ -240,7 +255,7 @@
     *ngIf="qeCashCollectedData.length"
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
-    class="cuiAlign"
+    class="cuiAlign periodclosetbale"
   ></cui-table>
 
   <br />
