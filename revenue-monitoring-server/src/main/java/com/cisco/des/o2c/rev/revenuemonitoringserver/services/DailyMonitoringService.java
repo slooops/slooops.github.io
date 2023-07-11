@@ -30,6 +30,8 @@ public class DailyMonitoringService {
 
     private String errorDetails;
 
+    private String orderStatus;
+
 //    Connection conn;
 
     @Autowired
@@ -37,7 +39,7 @@ public class DailyMonitoringService {
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
-                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments) {
+                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments, String orderStatus) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -54,6 +56,7 @@ public class DailyMonitoringService {
         this.allErrorDetails = allErrorDetails;
         this.errorDetails = errorDetails;
         this.updateComments = updateComments;
+        this.orderStatus = orderStatus;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -123,6 +126,10 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getErrorDetails(String appName, String batchSource, String entity, String type) {
         List<Map<String, Object>> result = jdbcManager.queryForListWithParams(errorDetails, appName, batchSource, entity, type);
         return result;
+    }
+
+    public List<Map<String, Object>> getOrderStatus() {
+        return jdbcManager.queryForList(orderStatus);
     }
 
 }

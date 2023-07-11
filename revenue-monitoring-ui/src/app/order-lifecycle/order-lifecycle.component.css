@@ -34,3 +34,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.cui .table th  {
+  background-color: #ffffff;
+
+  color: white;
+}

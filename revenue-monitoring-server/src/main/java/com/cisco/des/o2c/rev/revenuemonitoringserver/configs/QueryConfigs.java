@@ -60,6 +60,9 @@ public class QueryConfigs { // TODO
     @Value("${update.comments.q}")
     public String updateComments;
 
+    @Value("${ORDER_STATUS_Q}")
+    public String orderStatus;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -110,4 +113,7 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "errorDetails" )
     public String getErrorDetails() { return this.errorDetails; }
+
+    @Bean( name = "orderStatus" )
+    public String getOrderStatus() {return this.orderStatus; }
 }

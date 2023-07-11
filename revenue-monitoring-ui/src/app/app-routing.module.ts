@@ -8,9 +8,9 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { DetailViewComponent } from './detail-view/detail-view.component';
-import { InvoiceStatusComponent } from './invoice-status/invoice-status.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
+import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 
 const routes: Routes = [
   {
@@ -34,7 +34,7 @@ const routes: Routes = [
   },
   { path: 'error-dash', component: ErrorDashComponent },
   { path: 'detail-view', component: DetailViewComponent },
-  { path: 'invoice-status', component: InvoiceStatusComponent },
+  { path: 'invoice-status', component: OrderLifecycleComponent },
 ];
 
 @NgModule({

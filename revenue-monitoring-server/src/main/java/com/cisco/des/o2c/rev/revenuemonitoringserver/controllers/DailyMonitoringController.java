@@ -111,4 +111,9 @@ public class DailyMonitoringController {
         timeNow.put("timeNow", date);
         return timeNow;
     }
+
+    @GetMapping("/order-status")
+    public ResponseEntity<List<Map<String, Object>>> getOrderStatus(){
+        return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
+    }
 }

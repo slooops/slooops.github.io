@@ -24,46 +24,69 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.getInvoiceStatus();
+    this.getOrderLifecycle();
   }
 
   protected http: ApiHttpService;
   length: number;
 
-  // invoiceStatusData: invoiceStatusModel[];
-  // dataSource: any;
-
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  // getInvoiceStatus() {
-  //   this.http.get('invoice-status').subscribe((data: any) => {
-  //     this.invoiceStatusData = data;
-  //     this.dataSource = new MatTableDataSource<invoiceStatusModel>(
-  //       this.invoiceStatusData
-  //     );
-  //     this.length = this.invoiceStatusData.length;
-  //   });
-  // }
+  orderLifecycleStatus: OrderLifecycleModel[];
+  dataSource: any;
+
+  getOrderLifecycle() {
+    this.http.get('order-status').subscribe((data: any) => {
+      this.orderLifecycleStatus = data;
+      this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
+        this.orderLifecycleStatus
+      );
+      this.length = this.orderLifecycleStatus.length;
+      this.setSortAndPaginator();
+    });
+  }
 
   displayedColumns: string[] = [
-    'OPERATING_UNIT',
+    'PROGRAM_NAME',
+    'ACCOUNT',
+    'SFDC_STATUS',
+    'STATUS_AS_OF_DATE',
+    'DEAL_ID',
     'SALES_ORDER',
-    'LINE_ID',
-    'TRX_NUMBER',
-    'TRX_DATE',
-    'CURRENCY',
-    'LINE_AMOUNT',
-    'TAX_AMOUNT',
-    'ORDERED_ITEM',
-    'RULE_START_DATE',
-    'RULE_END_DATE',
-    'TRX_TYPE',
-    'PAYMENT_TERM',
-    'COLLECTOR_NAME',
-    'BILL_TO_CUSTOMER_NAME',
-    'STATUS',
-    'Accounting',
-    'GL_Posting',
+    'EXPECTED_BOOK_DATE',
+    'ACTUAL_BOOK_DATE',
+    // 'LINE_TYPE',
+    'ORDER_STATUS',
+    'INVOICING_STATUS',
+    'REV_ACCR_STATUS',
+    'GL_POSTING_STATUS',
+    'HOLD_RELEASE_TARGET_DATE',
+    'ACCRUALS_EXECUTION_TIME',
+    // 'CURRENCY',
+    'ORDER_TOTAL',
+    'ORDER_TOTAL_USD',
+    'TOTAL_CONTRAC_VALUE',
+    'SUBSCRIPTION_ID',
+    'INVOICE_DATE',
+    'INVOICE_AMOUNT',
+    'INVOICE_LINES',
+    // 'STATUS',
+    'COMMENTS',
+    'AGING_BOOKING',
+    'AGING_HOLD_RELEASE',
+    // 'LAST_UPDATE_DATE',
+    // 'ENABLED_FLAG',
+    // 'CURRENT_PERIOD_FLAG',
+    // 'WEB_ORDER_ID',
+    // 'QUOTE_NUMBER',
+    // 'CONTEXT',
+    // 'TOTAL_LINE_COUNT',
+    // 'HEADER_ID',
+    // 'ORDER_CREATION_DATE',
+    // 'ORDER_LEVEL_HOLD',
+    // 'LINE_LEVEL_HOLD',
+    // 'CUST_PO_NUMBER',
+    'TERM_IN_YEARS',
   ];
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -72,88 +95,47 @@ export class OrderLifecycleComponent implements OnInit {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
   }
-
-  dataSource = new MatTableDataSource([
-    {
-      OPERATING_UNIT: 'CISCO BRAZIL CA OPERATING UNIT',
-      SALES_ORDER: '115,904,895',
-      LINE_ID: '1,179,190,828',
-      TRX_NUMBER: 'None',
-      TRX_DATE: 'None',
-      CURRENCY: 'BRL',
-      LINE_AMOUNT: '766.39',
-      TAX_AMOUNT: '0',
-      ORDERED_ITEM: 'C9200L-DNA-E-24-3Y',
-      RULE_START_DATE: '8/13/23 12:00',
-      RULE_END_DATE: '8/12/26 12:00',
-      TRX_TYPE: 'None',
-      PAYMENT_TERM: 'None',
-      COLLECTOR_NAME: 'None',
-      BILL_TO_CUSTOMER_NAME: 'None',
-      STATUS: 'ORDER NOT INTERFACED TO AR FOR INVOICING',
-      Accounting: '',
-      'GL Posting': '',
-    },
-    {
-      OPERATING_UNIT: 'CISCO BRAZIL CA OPERATING UNIT',
-      SALES_ORDER: '115,904,895',
-      LINE_ID: '1,179,190,827',
-      TRX_NUMBER: 'None',
-      TRX_DATE: 'None',
-      CURRENCY: 'BRL',
-      LINE_AMOUNT: '552.91',
-      TAX_AMOUNT: '0',
-      ORDERED_ITEM: 'CON-SNT-C920L24G',
-      RULE_START_DATE: '8/13/23 12:00',
-      RULE_END_DATE: '8/12/24 12:00',
-      TRX_TYPE: 'None',
-      PAYMENT_TERM: 'None',
-      COLLECTOR_NAME: 'None',
-      BILL_TO_CUSTOMER_NAME: 'None',
-      STATUS: 'ORDER NOT INTERFACED TO AR FOR INVOICING',
-      Accounting: '',
-      'GL Posting': '',
-    },
-    {
-      OPERATING_UNIT: 'CISCO BRAZIL CA OPERATING UNIT',
-      SALES_ORDER: '115,904,895',
-      LINE_ID: '1,179,190,814',
-      TRX_NUMBER: '54,193',
-      TRX_DATE: '6/29/23 12:00',
-      CURRENCY: 'BRL',
-      LINE_AMOUNT: '5,580.55',
-      TAX_AMOUNT: '568.82',
-      ORDERED_ITEM: 'C9200L-24P-4G-E',
-      RULE_START_DATE: 'None',
-      RULE_END_DATE: 'None',
-      TRX_TYPE: 'INVOICE',
-      PAYMENT_TERM: '60 NET',
-      COLLECTOR_NAME: 'Brasil1',
-      BILL_TO_CUSTOMER_NAME: 'PROMONLOGICALIS TECNOL E PARTICIP LTDA',
-      STATUS: 'INVOICED',
-      Accounting: '',
-      'GL Posting': '',
-    },
-  ]);
 }
 
-export interface orderLifecycleModel {
-  OPERATING_UNIT: string;
+export interface OrderLifecycleModel {
+  PROGRAM_NAME: string;
+  ACCOUNT: string;
+  SFDC_STATUS: string;
+  STATUS_AS_OF_DATE: string;
+  DEAL_ID: string;
   SALES_ORDER: string;
-  LINE_ID: string;
-  TRX_NUMBER: string;
-  TRX_DATE: string;
-  CURRENCY: string;
-  LINE_AMOUNT: string;
-  TAX_AMOUNT: string;
-  ORDERED_ITEM: string;
-  RULE_START_DATE: string;
-  RULE_END_DATE: string;
-  TRX_TYPE: string;
-  PAYMENT_TERM: string;
-  COLLECTOR_NAME: string;
-  BILL_TO_CUSTOMER_NAME: string;
-  STATUS: string;
-  Accounting: string;
-  GL_Posting: string;
+  EXPECTED_BOOK_DATE: string;
+  ACTUAL_BOOK_DATE: string;
+  // LINE_TYPE: string;
+  ORDER_STATUS: string;
+  INVOICING_STATUS: string;
+  REV_ACCR_STATUS: string;
+  GL_POSTING_STATUS: string;
+  HOLD_RELEASE_TARGET_DATE: string;
+  ACCRUALS_EXECUTION_TIME: string;
+  // CURRENCY: string;
+  ORDER_TOTAL: string;
+  ORDER_TOTAL_USD: string;
+  TOTAL_CONTRAC_VALUE: string;
+  SUBSCRIPTION_ID: string;
+  INVOICE_DATE: string;
+  INVOICE_AMOUNT: string;
+  INVOICE_LINES: string;
+  // STATUS: string;
+  COMMENTS: string;
+  AGING_BOOKING: string;
+  AGING_HOLD_RELEASE: string;
+  // LAST_UPDATE_DATE: string;
+  // ENABLED_FLAG: string;
+  // CURRENT_PERIOD_FLAG: string;
+  // WEB_ORDER_ID: string;
+  // QUOTE_NUMBER: string;
+  // CONTEXT: string;
+  // TOTAL_LINE_COUNT: string;
+  // HEADER_ID: string;
+  // ORDER_CREATION_DATE: string;
+  // ORDER_LEVEL_HOLD: string;
+  // LINE_LEVEL_HOLD: string;
+  // CUST_PO_NUMBER: string;
+  TERM_IN_YEARS: string;
 }
