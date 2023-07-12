@@ -184,5 +184,10 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: error.details.query
+            - name: ORDER_STATUS_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
