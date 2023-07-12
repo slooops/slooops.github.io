@@ -1,5 +1,7 @@
 <br />
 <div>
+  <h2>Large Order Lifecycle Status</h2>
+
   <div
     style="
       display: flex;
@@ -8,7 +10,61 @@
       padding-bottom: 8px;
     "
   >
-    <h2>Order Lifecycle Status</h2>
+    <form [formGroup]="searchForm" class="search__form">
+      <mat-form-field appearance="standard">
+        <mat-label>Select Program Name</mat-label>
+        <mat-select
+          id="progname"
+          name="progname"
+          formControlName="progName"
+          [(value)]="programNameFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let progName of progNameOptions"
+            [value]="progName"
+            (onSelectionChange)="filter()"
+            >{{ progName }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field appearance="standard">
+        <mat-label>Select Account</mat-label>
+        <mat-select
+          id="account"
+          name="account"
+          formControlName="account"
+          [(value)]="accountFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let acc of accountOptions"
+            [value]="acc"
+            (onSelectionChange)="filter()"
+            >{{ acc }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field appearance="standard">
+        <mat-label>Select Order Status</mat-label>
+        <mat-select
+          id="orderstatus"
+          name="orderstatus"
+          formControlName="orderStats"
+          [(value)]="orderStatusFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let ordstats of orderStatusOptions"
+            [value]="ordstats"
+            (onSelectionChange)="filter()"
+            >{{ ordstats }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </form>
   </div>
   <div class="table table-responsive" style="overflow: auto; max-width: 100%">
     <table
@@ -16,14 +72,10 @@
       mat-table
       [dataSource]="dataSource"
       matSort
-      class="mat-elevation-z6"
+      class="mat-elevation-z8"
     >
       <!-- Table header -->
-      <tr
-        mat-header-row
-        *matHeaderRowDef="displayedColumns"
-        style="text-align: center"
-      ></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 
       <!-- Table rows -->
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
@@ -37,7 +89,7 @@
         >
           Program Name
         </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
+        <td mat-cell *matCellDef="let record">
           {{ record.PROGRAM_NAME }}
         </td>
       </ng-container>

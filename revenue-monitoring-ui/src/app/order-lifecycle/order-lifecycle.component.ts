@@ -8,6 +8,7 @@ import { Observable, interval } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-invoice-status',
@@ -27,9 +28,22 @@ export class OrderLifecycleComponent implements OnInit {
     this.getOrderLifecycle();
   }
 
+  searchForm: FormGroup = new FormGroup({
+    progName: new FormControl(''),
+    account: new FormControl(''),
+    orderStats: new FormControl(''),
+  });
+
   protected http: ApiHttpService;
   length: number;
 
+  progNameOptions: string[] = [];
+  accountOptions: string[] = [];
+  orderStatusOptions: string[] = [];
+
+  programNameFilter: string[] = [];
+  accountFilter: string[] = [];
+  orderStatusFilter: string[] = [];
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
@@ -41,8 +55,51 @@ export class OrderLifecycleComponent implements OnInit {
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
+      this.filterData();
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
+      this.dataSource.filterPredicate = this.filterPredicate;
+    });
+  }
+
+  filterData() {
+    let progName = [];
+    let account = [];
+    let orderStatus = [];
+    this.orderLifecycleStatus.forEach((data) => {
+      progName.push(data.PROGRAM_NAME);
+      account.push(data.ACCOUNT);
+      orderStatus.push(data.ORDER_STATUS);
+    });
+    this.progNameOptions = [...new Set(progName)];
+    this.accountOptions = [...new Set(account)];
+    this.orderStatusOptions = [...new Set(orderStatus)];
+  }
+
+  filterPredicate = (data: OrderLifecycleModel, filter: any) => {
+    const filters = JSON.parse(filter);
+    const progNameMatch =
+      filters.progNameFilter.length === 0 ||
+      filters.progNameFilter.includes(data.PROGRAM_NAME);
+    const accountMatch =
+      filters.accountFilter.length === 0 ||
+      filters.accountFilter.includes(data.ACCOUNT);
+    const orderStatusMatch =
+      filters.orderStatusFilter.length === 0 ||
+      filters.orderStatusFilter.includes(data.ORDER_STATUS);
+    return progNameMatch && accountMatch && orderStatusMatch;
+  };
+
+  filter() {
+    this.searchForm.valueChanges.subscribe((data) => {
+      this.programNameFilter = data['progName'];
+      this.accountFilter = data['account'];
+      this.orderStatusFilter = data['orderStats'];
+      this.dataSource.filter = JSON.stringify({
+        progNameFilter: this.programNameFilter,
+        accountFilter: this.accountFilter,
+        orderStatusFilter: this.orderStatusFilter,
+      });
     });
   }
 

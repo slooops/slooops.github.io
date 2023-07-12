@@ -2,7 +2,10 @@
   overflow: auto;
 }
 
-mat-header-cell,
-mat-cell {
-  flex: none;
+th {
+  justify-items: center !important;
+}
+
+td {
+  justify-items: center !important;
 }

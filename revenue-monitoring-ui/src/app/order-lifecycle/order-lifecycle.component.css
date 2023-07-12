@@ -1,4 +1,4 @@
-.table-responsive {
+/* .table-responsive {
   display: block;
   width: 100%;
   overflow-x: auto;
@@ -25,18 +25,17 @@
     overflow: hidden;
     vertical-align: middle;
   }
+} */
+
+table {
+  width: 100%;
+  text-align: center !important;
 }
 
-.custom-cell {
-  width: min-content;
-  max-width: 15vw;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.mat-sort-header-container {
+  justify-content: center;
 }
 
-.cui .table th  {
-  background-color: #ffffff;
-
-  color: white;
+.mat-header-cell {
+  white-space: break-spaces !important;
 }
