@@ -2,10 +2,14 @@
   overflow: auto;
 }
 
-th {
-  justify-items: center !important;
+.mat-header-cell {
+  white-space: break-spaces !important;
 }
 
 td {
-  justify-items: center !important;
+  text-align: center !important;
+}
+
+th {
+  padding-left: 30px !important;
 }

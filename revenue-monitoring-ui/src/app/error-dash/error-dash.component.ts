@@ -14,6 +14,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-error-dash',
@@ -189,6 +190,38 @@ export class ErrorDashComponent implements OnInit {
   setSortAndPaginator() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
+  }
+
+  export(sheetName: string, filename: string) {
+    if (this.isAllSelected() || this.selection.selected.length === 0) {
+      this.exportTableToExcel(
+        this.dataSource.filteredData,
+        sheetName,
+        filename
+      );
+    } else if (!this.isAllSelected()) {
+      this.exportTableToExcel(this.selection.selected, sheetName, filename);
+    }
+  }
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
+    let link = document.createElement('a'); // create link
+    link.href = url;
+    link.download = filename + '.xlsx';
+    link.click(); // triggers the download process and save file prompt in browser
+    window.URL.revokeObjectURL(url); // revoke temp URL
   }
 }
 

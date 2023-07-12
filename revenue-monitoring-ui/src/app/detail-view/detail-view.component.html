@@ -87,8 +87,12 @@
       >
         View Summary
       </button>
-      <button mat-stroked-button style="margin-right: 8px">Download</button>
-
+      <button
+        mat-stroked-button
+        (click)="export('Error Details', 'error_details')"
+      >
+        Download
+      </button>
       <button
         mat-stroked-button
         [disabled]="!selection?.hasValue()"

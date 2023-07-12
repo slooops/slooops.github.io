@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -9,6 +9,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormGroup, FormControl } from '@angular/forms';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-invoice-status',
@@ -48,6 +49,8 @@ export class OrderLifecycleComponent implements OnInit {
 
   orderLifecycleStatus: OrderLifecycleModel[];
   dataSource: any;
+  selection = new SelectionModel<any>(true, []);
+  selectedData: any;
 
   getOrderLifecycle() {
     this.http.get('order-status').subscribe((data: any) => {
@@ -104,6 +107,7 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   displayedColumns: string[] = [
+    'select',
     'PROGRAM_NAME',
     'ACCOUNT',
     'SFDC_STATUS',
@@ -151,6 +155,56 @@ export class OrderLifecycleComponent implements OnInit {
   setSortAndPaginator() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
+  }
+
+  @Input() data: any;
+
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  masterToggle() {
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.dataSource.data.forEach((row) => this.selection.select(row));
+  }
+
+  onRowClicked(row: any) {
+    this.selectedData = row;
+  }
+
+  export(sheetName: string, filename: string) {
+    if (this.isAllSelected() || this.selection.selected.length === 0) {
+      this.exportTableToExcel(
+        this.dataSource.filteredData,
+        sheetName,
+        filename
+      );
+    } else if (!this.isAllSelected()) {
+      this.exportTableToExcel(this.selection.selected, sheetName, filename);
+    }
+  }
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
+    let link = document.createElement('a'); // create link
+    link.href = url;
+    link.download = filename + '.xlsx';
+    link.click(); // triggers the download process and save file prompt in browser
+    window.URL.revokeObjectURL(url); // revoke temp URL
   }
 }
 
