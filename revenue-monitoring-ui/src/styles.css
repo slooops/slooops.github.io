@@ -113,3 +113,7 @@ body {
 .mat-form-field.mat-focused .mat-form-field-label {
   color: #007dab;
 }
+
+.sortArrow .mat-sort-header-arrow {
+  color: white !important;
+}

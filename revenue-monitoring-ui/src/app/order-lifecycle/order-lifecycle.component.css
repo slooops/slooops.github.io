@@ -1,8 +1,14 @@
 .table-responsive {
   overflow: auto;
 }
+
 .mat-header-cell {
-  white-space: break-spaces !important;
+  font-size: 13px;
+  white-space: normal !important;
+}
+
+.mat-cell {
+  font-size: 13px;
 }
 
 td {
@@ -11,4 +17,8 @@ td {
 
 th {
   padding-left: 30px !important;
+}
+
+.highlight {
+  background: #42a948; /* green */
 }

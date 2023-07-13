@@ -1,6 +1,6 @@
 <br />
 <div>
-  <h2>Large Order Lifecycle Status</h2>
+  <!-- <h2>Large Order Lifecycle Status</h2> -->
 
   <div
     style="
@@ -76,13 +76,16 @@
       </button>
     </div>
   </div>
-  <div class="table table-responsive" style="overflow: auto; max-width: 100%">
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
+  >
     <table
       style="width: -webkit-fill-available"
       mat-table
       [dataSource]="dataSource"
       matSort
-      class="mat-elevation-z8"
+      class="mat-elevation-z8 table table-responsive"
     >
       <!-- Selection Column -->
       <ng-container matColumnDef="select">
@@ -112,7 +115,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Program Name
+          PROGRAM NAME
         </th>
         <td mat-cell *matCellDef="let record">
           {{ record.PROGRAM_NAME }}
@@ -127,25 +130,10 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Account
+          ACCOUNT
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ACCOUNT }}
-        </td>
-      </ng-container>
-
-      <!-- SFDC_STATUS Column -->
-      <ng-container matColumnDef="SFDC_STATUS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Sfdc Status
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.SFDC_STATUS }}
         </td>
       </ng-container>
 
@@ -157,7 +145,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Status As Of Date
+          STATUS AS OF DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
@@ -165,36 +153,6 @@
               ? "NA"
               : (record.STATUS_AS_OF_DATE | date : "M/d/yyyy")
           }}
-        </td>
-      </ng-container>
-
-      <!-- DEAL_ID Column -->
-      <ng-container matColumnDef="DEAL_ID">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Deal Id
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.DEAL_ID }}
-        </td>
-      </ng-container>
-
-      <!-- SALES_ORDER Column -->
-      <ng-container matColumnDef="SALES_ORDER">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Sales Order
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.SALES_ORDER }}
         </td>
       </ng-container>
 
@@ -206,7 +164,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Expected Book Date
+          EXPECTED BOOK DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
@@ -217,7 +175,6 @@
         </td>
       </ng-container>
 
-      <!-- ACTUAL_BOOK_DATE Column -->
       <ng-container matColumnDef="ACTUAL_BOOK_DATE">
         <th
           class="custom-cell"
@@ -225,7 +182,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Actual Book Date
+          ACTUAL BOOK DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
@@ -233,6 +190,66 @@
               ? "NA"
               : (record.ACTUAL_BOOK_DATE | date : "M/d/yyyy")
           }}
+        </td>
+      </ng-container>
+
+      <!-- AGING_BOOKING Column -->
+      <ng-container matColumnDef="AGING_BOOKING">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          AGING BOOKING
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.AGING_BOOKING }}
+        </td>
+      </ng-container>
+
+      <!-- AGING_HOLD_RELEASE Column -->
+      <ng-container matColumnDef="AGING_HOLD_RELEASE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          AGING HOLD RELEASE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.AGING_HOLD_RELEASE }}
+        </td>
+      </ng-container>
+
+      <!-- SALES_ORDER Column -->
+      <ng-container matColumnDef="SALES_ORDER">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          SALES ORDER
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.SALES_ORDER }}
+        </td>
+      </ng-container>
+
+      <!-- ORDER_VALUE Column -->
+      <ng-container matColumnDef="ORDER_VALUE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          ORDER VALUE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.ORDER_VALUE }}
         </td>
       </ng-container>
 
@@ -244,7 +261,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Order Status
+          ORDER STATUS
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_STATUS.split("_").join(" ") }}
@@ -259,7 +276,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Invoicing Status
+          INVOICING STATUS
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICING_STATUS }}
@@ -274,7 +291,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Rev Accr Status
+          REV ACCR STATUS
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.REV_ACCR_STATUS }}
@@ -289,7 +306,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Gl Posting Status
+          GL POSTING STATUS
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.GL_POSTING_STATUS }}
@@ -304,7 +321,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Hold Release Target Date
+          HOLD RELEASE TARGET DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
@@ -323,7 +340,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Accruals Execution Time
+          ACCRUALS EXECUTION TIME
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ACCRUALS_EXECUTION_TIME }}
@@ -338,25 +355,10 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Order Total
+          ORDER TOTAL
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_TOTAL }}
-        </td>
-      </ng-container>
-
-      <!-- ORDER_TOTAL_USD Column -->
-      <ng-container matColumnDef="ORDER_TOTAL_USD">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Order Total Usd
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.ORDER_TOTAL_USD }}
         </td>
       </ng-container>
 
@@ -368,7 +370,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Total Contract Value
+          TOTAL CONTRACT VALUE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.TOTAL_CONTRAC_VALUE }}
@@ -383,7 +385,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Subscription Id
+          SUBSCRIPTION ID
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.SUBSCRIPTION_ID }}
@@ -398,7 +400,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Invoice Date
+          INVOICE DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
@@ -406,6 +408,21 @@
               ? "NA"
               : (record.INVOICE_DATE | date : "M/d/yyyy")
           }}
+        </td>
+      </ng-container>
+
+      <!-- BILLING_SCHEDULE Column -->
+      <ng-container matColumnDef="BILLING_SCHEDULE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          BILLING SCHEDULE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.BILLING_SCHEDULE }}
         </td>
       </ng-container>
 
@@ -417,10 +434,100 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Invoice Amount
+          INVOICE AMOUNT
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICE_AMOUNT }}
+        </td>
+      </ng-container>
+
+      <!-- Term Column -->
+      <ng-container matColumnDef="TERM_IN_YEARS">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          TERM
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.TERM_IN_YEARS }} Years
+        </td>
+      </ng-container>
+
+      <!-- DEAL_ID Column -->
+      <ng-container matColumnDef="DEAL_ID">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          DEAL ID
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.DEAL_ID }}
+        </td>
+      </ng-container>
+
+      <!-- SFDC_STATUS Column -->
+      <ng-container matColumnDef="SFDC_STATUS">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          SFDC STATUS
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.SFDC_STATUS }}
+        </td>
+      </ng-container>
+
+      <!-- LINE_TYPE Column -->
+      <ng-container matColumnDef="LINE_TYPE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          LINE TYPE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.LINE_TYPE }}
+        </td>
+      </ng-container>
+
+      <!-- ORDER_TOTAL_USD Column -->
+      <ng-container matColumnDef="TOTAL_LINE_COUNT">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          TOTAL LINE COUNT
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.TOTAL_LINE_COUNT }}
+        </td>
+      </ng-container>
+
+      <!-- ORDER_TOTAL_USD Column -->
+      <ng-container matColumnDef="LINES_ON_HOLD">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          LINES ON HOLD
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.LINES_ON_HOLD }}
         </td>
       </ng-container>
 
@@ -432,7 +539,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Invoice Lines
+          INVOICE LINES
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICE_LINES }}
@@ -447,55 +554,10 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          Comments
+          COMMENTS
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.COMMENTS }}
-        </td>
-      </ng-container>
-
-      <!-- AGING_BOOKING Column -->
-      <ng-container matColumnDef="AGING_BOOKING">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Aging Booking
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.AGING_BOOKING }}
-        </td>
-      </ng-container>
-
-      <!-- AGING_HOLD_RELEASE Column -->
-      <ng-container matColumnDef="AGING_HOLD_RELEASE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Aging Hold Release
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.AGING_HOLD_RELEASE }}
-        </td>
-      </ng-container>
-
-      <!-- Term Column -->
-      <ng-container matColumnDef="TERM_IN_YEARS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          Term
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.TERM_IN_YEARS }} Years
         </td>
       </ng-container>
 
@@ -503,7 +565,11 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 
       <!-- Table rows -->
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns; let entry"
+        [ngClass]="{ highlight: entry.INVOICING_STATUS == 'COMPLETED' }"
+      ></tr>
     </table>
   </div>
 
@@ -518,7 +584,7 @@
   </div>
 
   <mat-paginator
-    [pageSize]="15"
+    [pageSize]="100"
     length="length"
     [pageSizeOptions]="[]"
     showFirstLastButtons
