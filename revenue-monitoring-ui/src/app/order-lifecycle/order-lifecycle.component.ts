@@ -63,7 +63,6 @@ export class OrderLifecycleComponent implements OnInit {
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
-      console.log(this.orderLifecycleStatus);
       this.filterData();
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();

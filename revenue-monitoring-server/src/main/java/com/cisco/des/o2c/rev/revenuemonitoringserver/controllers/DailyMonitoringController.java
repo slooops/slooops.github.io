@@ -104,7 +104,7 @@ public class DailyMonitoringController {
         return result;
     }
 
-    @GetMapping("/pclose-dashboard-timestamp")
+    @GetMapping("/dashboard-timestamp")
     public Map<String,Date> getDate(){
         Date date = new Date();
         Map<String,Date> timeNow = new HashMap<>();
