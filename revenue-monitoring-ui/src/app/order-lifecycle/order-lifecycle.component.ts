@@ -141,6 +141,8 @@ export class OrderLifecycleComponent implements OnInit {
     'TOTAL_LINE_COUNT',
     'LINES_ON_HOLD',
     'INVOICE_LINES',
+    'PERIODIC_BILLING_ELIGIBLE',
+    'INVOICE_RELEASE_DATE',
     'COMMENTS',
   ];
 
