@@ -27,16 +27,21 @@ export class OrderLifecycleComponent implements OnInit {
 
   ngOnInit(): void {
     this.getOrderLifecycle();
+    this.getCurrentTime();
   }
 
   searchForm: FormGroup = new FormGroup({
     progName: new FormControl(''),
     account: new FormControl(''),
     orderStats: new FormControl(''),
+    salesOrder: new FormControl(''),
   });
 
   protected http: ApiHttpService;
   length: number;
+
+  refreshInterval = 3600000; //ms
+  timeNow: any;
 
   progNameOptions: string[] = [];
   accountOptions: string[] = [];
@@ -53,7 +58,7 @@ export class OrderLifecycleComponent implements OnInit {
   selectedData: any;
 
   getOrderLifecycle() {
-    this.http.get('order-status').subscribe((data: any) => {
+    this.getEndpointData('order-status').subscribe((data: any) => {
       this.orderLifecycleStatus = data;
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
@@ -112,9 +117,9 @@ export class OrderLifecycleComponent implements OnInit {
     'PROGRAM_NAME',
     'ACCOUNT',
     'STATUS_AS_OF_DATE',
-    'EXPECTED_BOOK_DATE',
+    // 'EXPECTED_BOOK_DATE',
     'ACTUAL_BOOK_DATE',
-    'AGING_BOOKING',
+    // 'AGING_BOOKING',
     'AGING_HOLD_RELEASE',
     'SALES_ORDER',
     'ORDER_VALUE',
@@ -122,18 +127,18 @@ export class OrderLifecycleComponent implements OnInit {
     'INVOICING_STATUS',
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
-    'HOLD_RELEASE_TARGET_DATE',
+    // 'HOLD_RELEASE_TARGET_DATE',
     'ACCRUALS_EXECUTION_TIME',
-    'ORDER_TOTAL',
-    'TOTAL_CONTRAC_VALUE',
+    // 'ORDER_TOTAL',
+    // 'TOTAL_CONTRAC_VALUE',
     'SUBSCRIPTION_ID',
     'INVOICE_DATE',
     'BILLING_SCHEDULE',
     'INVOICE_AMOUNT',
     'TERM_IN_YEARS',
     'DEAL_ID',
-    'SFDC_STATUS',
-    'LINE_TYPE',
+    // 'SFDC_STATUS',
+    // 'LINE_TYPE',
     'TOTAL_LINE_COUNT',
     'LINES_ON_HOLD',
     'INVOICE_LINES',
@@ -195,6 +200,26 @@ export class OrderLifecycleComponent implements OnInit {
     link.download = filename + '.xlsx';
     link.click(); // triggers the download process and save file prompt in browser
     window.URL.revokeObjectURL(url); // revoke temp URL
+  }
+
+  getCurrentTime() {
+    this.getEndpointData('dashboard-timestamp').subscribe((data: any) => {
+      this.timeNow = new Date(data['timeNow']).toLocaleString('en-us', {
+        hour: 'numeric',
+        minute: 'numeric',
+      });
+    });
+  }
+
+  getEndpointData(endpoint: string): Observable<any> {
+    let uniqueId = Date.now();
+    let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
+
+    const polling$ = interval(this.refreshInterval).pipe(
+      startWith(0), // Emit initial value immediately
+      switchMap(() => this.http.get(cacheBustingUrl))
+    );
+    return polling$;
   }
 }
 

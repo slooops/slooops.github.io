@@ -60,6 +60,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DetailViewComponent } from './detail-view/detail-view.component';
 import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -131,6 +133,8 @@ export function initApp(authService: AuthenticationService) {
     MatCheckboxModule,
     MatPaginatorModule,
     MatExpansionModule,
+    MatInputModule,
+    MatFormFieldModule,
   ],
   providers: [
     DatePipe,

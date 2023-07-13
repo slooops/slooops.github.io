@@ -1,7 +1,7 @@
 <br />
+<div style="float: right">Dashboard updated: Today at {{ timeNow }}</div>
+<br />
 <div>
-  <!-- <h2>Large Order Lifecycle Status</h2> -->
-
   <div
     style="
       display: flex;
@@ -64,6 +64,15 @@
           >
         </mat-select>
       </mat-form-field>
+      <!-- &nbsp;
+      <mat-form-field appearance="standard">
+        <input
+          matInput
+          class="form-field"
+          formControlName="salesOrder"
+          placeholder="Search Sales Order"
+        />
+      </mat-form-field> -->
     </form>
     <div>
       <button
@@ -157,7 +166,7 @@
       </ng-container>
 
       <!-- EXPECTED_BOOK_DATE Column -->
-      <ng-container matColumnDef="EXPECTED_BOOK_DATE">
+      <!-- <ng-container matColumnDef="EXPECTED_BOOK_DATE">
         <th
           class="custom-cell"
           mat-header-cell
@@ -173,7 +182,7 @@
               : (record.EXPECTED_BOOK_DATE | date : "M/d/yyyy")
           }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <ng-container matColumnDef="ACTUAL_BOOK_DATE">
         <th
@@ -194,7 +203,7 @@
       </ng-container>
 
       <!-- AGING_BOOKING Column -->
-      <ng-container matColumnDef="AGING_BOOKING">
+      <!-- <ng-container matColumnDef="AGING_BOOKING">
         <th
           class="custom-cell"
           mat-header-cell
@@ -206,7 +215,7 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.AGING_BOOKING }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- AGING_HOLD_RELEASE Column -->
       <ng-container matColumnDef="AGING_HOLD_RELEASE">
@@ -231,7 +240,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          SALES ORDER
+          SALES ORDER (#)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.SALES_ORDER }}
@@ -246,7 +255,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          ORDER VALUE
+          ORDER VALUE ($M)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_VALUE }}
@@ -291,7 +300,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          REV ACCR STATUS
+          REVENUE ACCRUALS STATUS
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.REV_ACCR_STATUS }}
@@ -314,7 +323,7 @@
       </ng-container>
 
       <!-- HOLD_RELEASE_TARGET_DATE Column -->
-      <ng-container matColumnDef="HOLD_RELEASE_TARGET_DATE">
+      <!-- <ng-container matColumnDef="HOLD_RELEASE_TARGET_DATE">
         <th
           class="custom-cell"
           mat-header-cell
@@ -330,7 +339,7 @@
               : (record.HOLD_RELEASE_TARGET_DATE | date : "M/d/yyyy")
           }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- ACCRUALS_EXECUTION_TIME Column -->
       <ng-container matColumnDef="ACCRUALS_EXECUTION_TIME">
@@ -348,7 +357,7 @@
       </ng-container>
 
       <!-- ORDER_TOTAL Column -->
-      <ng-container matColumnDef="ORDER_TOTAL">
+      <!-- <ng-container matColumnDef="ORDER_TOTAL">
         <th
           class="custom-cell"
           mat-header-cell
@@ -360,10 +369,10 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_TOTAL }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- TOTAL_CONTRACT_VALUE Column -->
-      <ng-container matColumnDef="TOTAL_CONTRAC_VALUE">
+      <!-- <ng-container matColumnDef="TOTAL_CONTRAC_VALUE">
         <th
           class="custom-cell"
           mat-header-cell
@@ -375,7 +384,7 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.TOTAL_CONTRAC_VALUE }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- SUBSCRIPTION_ID Column -->
       <ng-container matColumnDef="SUBSCRIPTION_ID">
@@ -434,7 +443,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          INVOICE AMOUNT
+          INVOICE AMOUNT ($M)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICE_AMOUNT }}
@@ -472,7 +481,7 @@
       </ng-container>
 
       <!-- SFDC_STATUS Column -->
-      <ng-container matColumnDef="SFDC_STATUS">
+      <!-- <ng-container matColumnDef="SFDC_STATUS">
         <th
           class="custom-cell"
           mat-header-cell
@@ -484,10 +493,10 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.SFDC_STATUS }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- LINE_TYPE Column -->
-      <ng-container matColumnDef="LINE_TYPE">
+      <!-- <ng-container matColumnDef="LINE_TYPE">
         <th
           class="custom-cell"
           mat-header-cell
@@ -499,7 +508,7 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.LINE_TYPE }}
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <!-- ORDER_TOTAL_USD Column -->
       <ng-container matColumnDef="TOTAL_LINE_COUNT">
