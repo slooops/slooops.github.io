@@ -106,7 +106,8 @@ public class DailyMonitoringController {
 
     @GetMapping("/dashboard-timestamp")
     public Map<String,Date> getDate(){
-        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        Date date =  calendar.getTime();
         Map<String,Date> timeNow = new HashMap<>();
         timeNow.put("timeNow", date);
         return timeNow;

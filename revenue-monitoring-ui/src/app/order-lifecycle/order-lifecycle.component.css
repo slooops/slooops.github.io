@@ -3,20 +3,17 @@
 }
 
 .mat-header-cell {
-  font-size: 13px;
+  font-size: 12px;
   white-space: normal !important;
+  justify-content: center !important;
 }
 
 .mat-cell {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 td {
   text-align: center !important;
-}
-
-th {
-  padding-left: 30px !important;
 }
 
 .highlight {
