@@ -50,6 +50,8 @@ export class OrderLifecycleComponent implements OnInit {
   programNameFilter: string[] = [];
   accountFilter: string[] = [];
   orderStatusFilter: string[] = [];
+  invoiceStatusFilter: string[] = [];
+  eligibleBillingFilter: string[] = [];
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
@@ -119,7 +121,7 @@ export class OrderLifecycleComponent implements OnInit {
     'ACCOUNT',
     'STATUS_AS_OF_DATE',
     'ACTUAL_BOOK_DATE',
-    'AGING_HOLD_RELEASE',
+    // 'AGING_HOLD_RELEASE',
     'SALES_ORDER',
     'ORDER_VALUE',
     'ORDER_STATUS',
