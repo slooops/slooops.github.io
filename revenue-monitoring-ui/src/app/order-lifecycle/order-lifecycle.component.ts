@@ -35,6 +35,8 @@ export class OrderLifecycleComponent implements OnInit {
     account: new FormControl(''),
     orderStats: new FormControl(''),
     salesOrder: new FormControl(''),
+    invoiceStats: new FormControl(''),
+    flexibleInvoice: new FormControl(''),
   });
 
   protected http: ApiHttpService;
@@ -46,12 +48,14 @@ export class OrderLifecycleComponent implements OnInit {
   progNameOptions: string[] = [];
   accountOptions: string[] = [];
   orderStatusOptions: string[] = [];
+  invoiceStatusOptions: string[] = [];
+  flexibleInvoiceOptions: string[] = [];
 
   programNameFilter: string[] = [];
   accountFilter: string[] = [];
   orderStatusFilter: string[] = [];
   invoiceStatusFilter: string[] = [];
-  eligibleBillingFilter: string[] = [];
+  flexibleInvoiceFilter: string[] = [];
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
@@ -78,14 +82,20 @@ export class OrderLifecycleComponent implements OnInit {
     let progName = [];
     let account = [];
     let orderStatus = [];
+    let invoiceStatus = [];
+    let flexibleInvoice = [];
     this.orderLifecycleStatus.forEach((data) => {
       progName.push(data.PROGRAM_NAME);
       account.push(data.ACCOUNT);
       orderStatus.push(data.ORDER_STATUS);
+      invoiceStatus.push(data.INVOICING_STATUS);
+      flexibleInvoice.push(data.FLEXIBLE_INVOICE_ELIGIBLE);
     });
     this.progNameOptions = [...new Set(progName)];
     this.accountOptions = [...new Set(account)];
     this.orderStatusOptions = [...new Set(orderStatus)];
+    this.invoiceStatusOptions = [...new Set(invoiceStatus)];
+    this.flexibleInvoiceOptions = [...new Set(flexibleInvoice)];
   }
 
   filterPredicate = (data: OrderLifecycleModel, filter: any) => {
@@ -99,7 +109,19 @@ export class OrderLifecycleComponent implements OnInit {
     const orderStatusMatch =
       filters.orderStatusFilter.length === 0 ||
       filters.orderStatusFilter.includes(data.ORDER_STATUS);
-    return progNameMatch && accountMatch && orderStatusMatch;
+    const invoiceStatusMatch =
+      filters.invoiceStatusFilter.length === 0 ||
+      filters.invoiceStatusFilter.includes(data.INVOICING_STATUS);
+    const flexibleInvoiceMatch =
+      filters.flexibleInvoiceFilter.length === 0 ||
+      filters.flexibleInvoiceFilter.includes(data.FLEXIBLE_INVOICE_ELIGIBLE);
+    return (
+      progNameMatch &&
+      accountMatch &&
+      orderStatusMatch &&
+      invoiceStatusMatch &&
+      flexibleInvoiceMatch
+    );
   };
 
   filter() {
@@ -107,10 +129,14 @@ export class OrderLifecycleComponent implements OnInit {
       this.programNameFilter = data['progName'];
       this.accountFilter = data['account'];
       this.orderStatusFilter = data['orderStats'];
+      this.invoiceStatusFilter = data['invoiceStats'];
+      this.flexibleInvoiceFilter = data['flexibleInvoice'];
       this.dataSource.filter = JSON.stringify({
         progNameFilter: this.programNameFilter,
         accountFilter: this.accountFilter,
         orderStatusFilter: this.orderStatusFilter,
+        invoiceStatusFilter: this.invoiceStatusFilter,
+        flexibleInvoiceFilter: this.flexibleInvoiceFilter,
       });
     });
   }
