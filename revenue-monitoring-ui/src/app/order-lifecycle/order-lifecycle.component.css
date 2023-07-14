@@ -16,6 +16,10 @@ td {
   text-align: center !important;
 }
 
+.mat-column-COMMENTS {
+  text-align: left !important;
+}
+
 .highlight {
   background: #42a948; /* green */
 }
