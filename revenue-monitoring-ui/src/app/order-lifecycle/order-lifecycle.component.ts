@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
-  styleUrls: ['./order-lifecycle.component.css']
+  styleUrls: ['./order-lifecycle.component.css'],
 })
 export class OrderLifecycleComponent implements OnInit {
   constructor(
@@ -34,7 +34,7 @@ export class OrderLifecycleComponent implements OnInit {
     progName: new FormControl(''),
     account: new FormControl(''),
     orderStats: new FormControl(''),
-    salesOrder: new FormControl('')
+    salesOrder: new FormControl(''),
   });
 
   protected http: ApiHttpService;
@@ -53,6 +53,7 @@ export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
+  selectedArr: OrderLifecycleModel[];
   dataSource: any;
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
@@ -75,7 +76,7 @@ export class OrderLifecycleComponent implements OnInit {
     let progName = [];
     let account = [];
     let orderStatus = [];
-    this.orderLifecycleStatus.forEach(data => {
+    this.orderLifecycleStatus.forEach((data) => {
       progName.push(data.PROGRAM_NAME);
       account.push(data.ACCOUNT);
       orderStatus.push(data.ORDER_STATUS);
@@ -100,14 +101,14 @@ export class OrderLifecycleComponent implements OnInit {
   };
 
   filter() {
-    this.searchForm.valueChanges.subscribe(data => {
+    this.searchForm.valueChanges.subscribe((data) => {
       this.programNameFilter = data['progName'];
       this.accountFilter = data['account'];
       this.orderStatusFilter = data['orderStats'];
       this.dataSource.filter = JSON.stringify({
         progNameFilter: this.programNameFilter,
         accountFilter: this.accountFilter,
-        orderStatusFilter: this.orderStatusFilter
+        orderStatusFilter: this.orderStatusFilter,
       });
     });
   }
@@ -117,9 +118,7 @@ export class OrderLifecycleComponent implements OnInit {
     'PROGRAM_NAME',
     'ACCOUNT',
     'STATUS_AS_OF_DATE',
-    // 'EXPECTED_BOOK_DATE',
     'ACTUAL_BOOK_DATE',
-    // 'AGING_BOOKING',
     'AGING_HOLD_RELEASE',
     'SALES_ORDER',
     'ORDER_VALUE',
@@ -127,24 +126,20 @@ export class OrderLifecycleComponent implements OnInit {
     'INVOICING_STATUS',
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
-    // 'HOLD_RELEASE_TARGET_DATE',
     'ACCRUALS_EXECUTION_TIME',
-    // 'ORDER_TOTAL',
-    // 'TOTAL_CONTRAC_VALUE',
+
     'SUBSCRIPTION_ID',
     'INVOICE_DATE',
-    'BILLING_SCHEDULE',
+    'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICE_AMOUNT',
     'TERM_IN_YEARS',
     'DEAL_ID',
-    // 'SFDC_STATUS',
-    // 'LINE_TYPE',
+
     'TOTAL_LINE_COUNT',
     'LINES_ON_HOLD',
     'INVOICE_LINES',
-    'PERIODIC_BILLING_ELIGIBLE',
-    'INVOICE_RELEASE_DATE',
-    'COMMENTS'
+    'FUTURE_INVOICE_RELEASE_DATE',
+    'COMMENTS',
   ];
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -165,7 +160,7 @@ export class OrderLifecycleComponent implements OnInit {
   masterToggle() {
     this.isAllSelected()
       ? this.selection.clear()
-      : this.dataSource.data.forEach(row => this.selection.select(row));
+      : this.dataSource.data.forEach((row) => this.selection.select(row));
   }
 
   onRowClicked(row: any) {
@@ -174,13 +169,10 @@ export class OrderLifecycleComponent implements OnInit {
 
   export(sheetName: string, filename: string) {
     if (this.isAllSelected() || this.selection.selected.length === 0) {
-      this.exportTableToExcel(
-        this.dataSource.filteredData,
-        sheetName,
-        filename
-      );
+      this.exportTableToExcel(this.orderLifecycleStatus, sheetName, filename);
     } else if (!this.isAllSelected()) {
-      this.exportTableToExcel(this.selection.selected, sheetName, filename);
+      this.selectedArr = this.selection.selected;
+      this.exportTableToExcel(this.selectedArr, sheetName, filename);
     }
   }
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -189,7 +181,7 @@ export class OrderLifecycleComponent implements OnInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     let excelBuffer: any = XLSX.write(workbook, {
       bookType: 'xlsx',
-      type: 'array'
+      type: 'array',
     });
     this.saveAsExcelFile(excelBuffer, filename);
   }
@@ -208,7 +200,7 @@ export class OrderLifecycleComponent implements OnInit {
     this.getEndpointData('dashboard-timestamp').subscribe((data: any) => {
       this.timeNow = new Date(data['timeNow']).toLocaleString('en-us', {
         hour: 'numeric',
-        minute: 'numeric'
+        minute: 'numeric',
       });
     });
   }
@@ -229,9 +221,7 @@ export interface OrderLifecycleModel {
   PROGRAM_NAME: string;
   ACCOUNT: string;
   STATUS_AS_OF_DATE: string;
-  EXPECTED_BOOK_DATE: string;
   ACTUAL_BOOK_DATE: string;
-  AGING_BOOKING: string;
   AGING_HOLD_RELEASE: string;
   SALES_ORDER: string;
   ORDER_VALUE: string;
@@ -239,20 +229,18 @@ export interface OrderLifecycleModel {
   INVOICING_STATUS: string;
   REV_ACCR_STATUS: string;
   GL_POSTING_STATUS: string;
-  HOLD_RELEASE_TARGET_DATE: string;
   ACCRUALS_EXECUTION_TIME: string;
-  ORDER_TOTAL: string;
-  TOTAL_CONTRAC_VALUE: string;
+
   SUBSCRIPTION_ID: string;
   INVOICE_DATE: string;
-  BILING_SCHEDULE: string;
   INVOICE_AMOUNT: string;
   TERM_IN_YEARS: string;
   DEAL_ID: string;
-  SFDC_STATUS: string;
-  LINE_TYPE: string;
+
   TOTAL_LINE_COUNT: string;
   LINES_ON_HOLD: string;
   INVOICE_LINES: string;
   COMMENTS: string;
+  FUTURE_INVOICE_RELEASE_DATE: string;
+  FLEXIBLE_INVOICE_ELIGIBLE: string;
 }

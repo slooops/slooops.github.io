@@ -421,7 +421,7 @@
       </ng-container>
 
       <!-- BILLING_SCHEDULE Column -->
-      <ng-container matColumnDef="BILLING_SCHEDULE">
+      <!-- <ng-container matColumnDef="BILLING_SCHEDULE">
         <th
           class="custom-cell"
           mat-header-cell
@@ -432,6 +432,21 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.BILLING_SCHEDULE }}
+        </td>
+      </ng-container> -->
+
+      <!-- PERIODIC BILLING ELIGIBLE Column -->
+      <ng-container matColumnDef="FLEXIBLE_INVOICE_ELIGIBLE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          PERIODIC BILLING ELIGIBLE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.FLEXIBLE_INVOICE_ELIGIBLE }}
         </td>
       </ng-container>
 
@@ -461,7 +476,7 @@
           TERM
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.TERM_IN_YEARS }} Years
+          {{ record.TERM_IN_YEARS }} Yrs
         </td>
       </ng-container>
 
@@ -555,33 +570,18 @@
         </td>
       </ng-container>
 
-      <!-- PERIODIC BILLING ELIGIBLE Column -->
-      <ng-container matColumnDef="PERIODIC_BILLING_ELIGIBLE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          PERIODIC BILLING ELIGIBLE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          <!-- {{ record.COMMENTS }} -->
-        </td>
-      </ng-container>
-
       <!-- INVOICE RELEASE DATE Column -->
-      <ng-container matColumnDef="INVOICE_RELEASE_DATE">
+      <ng-container matColumnDef="FUTURE_INVOICE_RELEASE_DATE">
         <th
           class="custom-cell"
           mat-header-cell
           *matHeaderCellDef
           mat-sort-header
         >
-          INVOICE RELEASE DATE
+          FUTURE INVOICE RELEASE DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          <!-- {{ record.COMMENTS }} -->
+          {{ record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy" }}
         </td>
       </ng-container>
 
