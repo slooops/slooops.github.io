@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
-  styleUrls: ['./order-lifecycle.component.css'],
+  styleUrls: ['./order-lifecycle.component.css']
 })
 export class OrderLifecycleComponent implements OnInit {
   constructor(
@@ -34,7 +34,7 @@ export class OrderLifecycleComponent implements OnInit {
     progName: new FormControl(''),
     account: new FormControl(''),
     orderStats: new FormControl(''),
-    salesOrder: new FormControl(''),
+    salesOrder: new FormControl('')
   });
 
   protected http: ApiHttpService;
@@ -59,6 +59,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
+      console.log('order-status: ', data);
       this.orderLifecycleStatus = data;
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
@@ -74,7 +75,7 @@ export class OrderLifecycleComponent implements OnInit {
     let progName = [];
     let account = [];
     let orderStatus = [];
-    this.orderLifecycleStatus.forEach((data) => {
+    this.orderLifecycleStatus.forEach(data => {
       progName.push(data.PROGRAM_NAME);
       account.push(data.ACCOUNT);
       orderStatus.push(data.ORDER_STATUS);
@@ -99,14 +100,14 @@ export class OrderLifecycleComponent implements OnInit {
   };
 
   filter() {
-    this.searchForm.valueChanges.subscribe((data) => {
+    this.searchForm.valueChanges.subscribe(data => {
       this.programNameFilter = data['progName'];
       this.accountFilter = data['account'];
       this.orderStatusFilter = data['orderStats'];
       this.dataSource.filter = JSON.stringify({
         progNameFilter: this.programNameFilter,
         accountFilter: this.accountFilter,
-        orderStatusFilter: this.orderStatusFilter,
+        orderStatusFilter: this.orderStatusFilter
       });
     });
   }
@@ -143,7 +144,7 @@ export class OrderLifecycleComponent implements OnInit {
     'INVOICE_LINES',
     'PERIODIC_BILLING_ELIGIBLE',
     'INVOICE_RELEASE_DATE',
-    'COMMENTS',
+    'COMMENTS'
   ];
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -164,7 +165,7 @@ export class OrderLifecycleComponent implements OnInit {
   masterToggle() {
     this.isAllSelected()
       ? this.selection.clear()
-      : this.dataSource.data.forEach((row) => this.selection.select(row));
+      : this.dataSource.data.forEach(row => this.selection.select(row));
   }
 
   onRowClicked(row: any) {
@@ -188,7 +189,7 @@ export class OrderLifecycleComponent implements OnInit {
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     let excelBuffer: any = XLSX.write(workbook, {
       bookType: 'xlsx',
-      type: 'array',
+      type: 'array'
     });
     this.saveAsExcelFile(excelBuffer, filename);
   }
@@ -207,7 +208,7 @@ export class OrderLifecycleComponent implements OnInit {
     this.getEndpointData('dashboard-timestamp').subscribe((data: any) => {
       this.timeNow = new Date(data['timeNow']).toLocaleString('en-us', {
         hour: 'numeric',
-        minute: 'numeric',
+        minute: 'numeric'
       });
     });
   }
