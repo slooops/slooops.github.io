@@ -1,0 +1,160 @@
+import { Component, OnInit, Inject, Input, ViewChild } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ApiHttpService } from '../providers/http.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatSort } from '@angular/material/sort';
+import * as XLSX from 'xlsx';
+import { FormGroup, FormControl } from '@angular/forms';
+
+@Component({
+  selector: 'app-order-lifecycle-summary',
+  templateUrl: './order-lifecycle-summary.component.html',
+  styleUrls: ['./order-lifecycle-summary.component.css'],
+})
+export class OrderLifecycleSummaryComponent implements OnInit {
+  selectedArr: OrderLifecycleSummaryModel[];
+  constructor(
+    public dialogRef: MatDialogRef<OrderLifecycleSummaryComponent>,
+    @Inject(MAT_DIALOG_DATA) public injectData: any,
+    http: ApiHttpService
+  ) {
+    this.http = http;
+  }
+
+  protected http: ApiHttpService;
+  summaryModel: OrderLifecycleSummaryModel[];
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+
+  dataSource: any;
+
+  searchForm: FormGroup = new FormGroup({
+    progName: new FormControl(''),
+    status: new FormControl(''),
+  });
+
+  progNameOptions: string[] = [];
+  statusOptions: string[] = [];
+
+  programNameFilter: string[] = [];
+  statusFilter: string[] = [];
+
+  closeDialog() {
+    this.dialogRef.close(/* optional result to pass back */);
+  }
+
+  ngOnInit(): void {
+    this.getOrderLifecycleSummary();
+  }
+
+  displayedColumns = [
+    'select',
+    'PROGRAM_NAME',
+    'ORDER_COUNT',
+    'STATUS',
+    'COMPLETION',
+  ];
+
+  getOrderLifecycleSummary() {
+    this.http.get('order-status-summary').subscribe((data: any) => {
+      this.summaryModel = data;
+      this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
+        this.summaryModel
+      );
+      this.filterData();
+      this.dataSource.sort = this.sort;
+      this.dataSource.filterPredicate = this.filterPredicate;
+    });
+  }
+
+  filterData() {
+    let progName = [];
+    let status = [];
+
+    this.summaryModel.forEach((data) => {
+      progName.push(data.PROGRAM_NAME);
+      status.push(data.STATUS);
+    });
+    this.progNameOptions = [...new Set(progName)];
+    this.statusOptions = [...new Set(status)];
+  }
+
+  filterPredicate = (data: OrderLifecycleSummaryModel, filter: any) => {
+    const filters = JSON.parse(filter);
+    const progNameMatch =
+      filters.progNameFilter.length === 0 ||
+      filters.progNameFilter.includes(data.PROGRAM_NAME);
+    const statusMatch =
+      filters.statusFilter.length === 0 ||
+      filters.statusFilter.includes(data.STATUS);
+
+    return progNameMatch && statusMatch;
+  };
+
+  filter() {
+    this.searchForm.valueChanges.subscribe((data) => {
+      this.programNameFilter = data['progName'];
+      this.statusFilter = data['status'];
+      this.dataSource.filter = JSON.stringify({
+        progNameFilter: this.programNameFilter,
+        statusFilter: this.statusFilter,
+      });
+    });
+  }
+
+  export(sheetName: string, filename: string) {
+    if (this.isAllSelected() || this.selection.selected.length === 0) {
+      this.exportTableToExcel(this.summaryModel, sheetName, filename);
+    } else if (!this.isAllSelected()) {
+      this.selectedArr = this.selection.selected;
+      this.exportTableToExcel(this.selectedArr, sheetName, filename);
+    }
+  }
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
+    let link = document.createElement('a'); // create link
+    link.href = url;
+    link.download = filename + '.xlsx';
+    link.click(); // triggers the download process and save file prompt in browser
+    window.URL.revokeObjectURL(url); // revoke temp URL
+  }
+
+  @Input() data: any;
+  selection = new SelectionModel<any>(true, []);
+  selectedData: any;
+
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  masterToggle() {
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.dataSource.data.forEach((row) => this.selection.select(row));
+  }
+
+  onRowClicked(row: any) {
+    this.selectedData = row;
+  }
+}
+
+export interface OrderLifecycleSummaryModel {
+  PROGRAM_NAME: string;
+  ORDER_COUNT: number;
+  STATUS: string;
+  COMPLETION: string;
+}

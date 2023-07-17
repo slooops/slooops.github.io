@@ -117,4 +117,9 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getOrderStatus(){
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
     }
+
+    @GetMapping("/order-status-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOrderStatusSummary(){
+        return new ResponseEntity<>(service.getOrderStatusSummary(), HttpStatus.OK);
+    }
 }

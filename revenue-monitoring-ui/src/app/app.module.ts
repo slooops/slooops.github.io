@@ -62,6 +62,11 @@ import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.componen
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {
+  MAT_DIALOG_DEFAULT_OPTIONS,
+  MatDialogModule,
+} from '@angular/material/dialog';
+import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -86,6 +91,7 @@ export function initApp(authService: AuthenticationService) {
     DetailViewComponent,
     LoadingSymbolComponent,
     OrderLifecycleComponent,
+    OrderLifecycleSummaryComponent,
   ],
   imports: [
     BrowserModule,
@@ -135,6 +141,7 @@ export function initApp(authService: AuthenticationService) {
     MatExpansionModule,
     MatInputModule,
     MatFormFieldModule,
+    MatDialogModule,
   ],
   providers: [
     DatePipe,
@@ -149,6 +156,7 @@ export function initApp(authService: AuthenticationService) {
       useClass: HttpConfigInterceptor,
       multi: true,
     },
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
   ],
   bootstrap: [AppComponent],
 })

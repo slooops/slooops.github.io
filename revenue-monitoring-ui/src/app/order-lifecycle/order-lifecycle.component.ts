@@ -10,6 +10,8 @@ import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
+import { MatDialog } from '@angular/material/dialog';
+import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order-lifecycle-summary.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -20,7 +22,8 @@ export class OrderLifecycleComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     private router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private dialog: MatDialog
   ) {
     this.http = http;
   }
@@ -66,11 +69,12 @@ export class OrderLifecycleComponent implements OnInit {
 
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
-      console.log('order-status: ', data);
+      console.log(data);
       this.orderLifecycleStatus = data;
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
+
       this.filterData();
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
@@ -91,6 +95,7 @@ export class OrderLifecycleComponent implements OnInit {
       invoiceStatus.push(data.INVOICING_STATUS);
       flexibleInvoice.push(data.FLEXIBLE_INVOICE_ELIGIBLE);
     });
+
     this.progNameOptions = [...new Set(progName)];
     this.accountOptions = [...new Set(account)];
     this.orderStatusOptions = [...new Set(orderStatus)];
@@ -141,13 +146,18 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
+  openDialog() {
+    const dialogRef = this.dialog.open(OrderLifecycleSummaryComponent, {
+      width: '700px',
+    });
+  }
+
   displayedColumns = [
     'select',
     'PROGRAM_NAME',
     'ACCOUNT',
     'STATUS_AS_OF_DATE',
     'ACTUAL_BOOK_DATE',
-    // 'AGING_HOLD_RELEASE',
     'SALES_ORDER',
     'ORDER_VALUE',
     'ORDER_STATUS',
@@ -250,7 +260,6 @@ export interface OrderLifecycleModel {
   ACCOUNT: string;
   STATUS_AS_OF_DATE: string;
   ACTUAL_BOOK_DATE: string;
-  AGING_HOLD_RELEASE: string;
   SALES_ORDER: string;
   ORDER_VALUE: string;
   ORDER_STATUS: string;

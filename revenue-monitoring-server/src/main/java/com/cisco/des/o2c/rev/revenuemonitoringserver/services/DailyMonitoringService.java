@@ -1,7 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifeCycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +27,11 @@ public class DailyMonitoringService {
     private String dashboardComments;
     private String updateComments;
     private String errorSummary;
-
     private String allErrorDetails;
-
     private String errorDetails;
-
     private String orderStatus;
+    private String orderStatusSummary;
+
 
 //    Connection conn;
 
@@ -39,7 +40,8 @@ public class DailyMonitoringService {
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
-                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments, String orderStatus) {
+                                  String errorSummary, String allErrorDetails, String errorDetails,
+                                  String updateComments, String orderStatus, String orderStatusSummary) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -57,6 +59,7 @@ public class DailyMonitoringService {
         this.errorDetails = errorDetails;
         this.updateComments = updateComments;
         this.orderStatus = orderStatus;
+        this.orderStatusSummary = orderStatusSummary;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -129,7 +132,24 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getOrderStatus() {
-        return jdbcManager.queryForList(orderStatus);
+        List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
+        result.forEach(data -> {
+            data.remove("AGING_BOOKING");
+            data.remove("AGING_HOLD_RELEASE");
+            data.remove("EXPECTED_BOOK_DATE");
+            data.remove("HOLD_RELEASE_TARGET_DATE");
+            data.remove("LINE_TYPE");
+            data.remove("ORDER_TOTAL");
+            data.remove("SFDC_STATUS");
+            data.remove("TOTAL_CONTRACT_VALUE");
+        });
+
+
+        return result;
+    }
+
+    public List<Map<String, Object>> getOrderStatusSummary() {
+        return jdbcManager.queryForList(orderStatusSummary);
     }
 
 }
