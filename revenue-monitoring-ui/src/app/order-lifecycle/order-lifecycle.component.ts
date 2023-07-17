@@ -93,8 +93,21 @@ export class OrderLifecycleComponent implements OnInit {
           ) {
             continue;
           }
+
           if (data[key] === null) {
-            data[key] = 'TBD';
+            if (
+              key == 'SALES_ORDER' ||
+              key == 'ORDER_VALUE' ||
+              key == 'INVOICE_AMOUNT' ||
+              key == 'DEAL_ID' ||
+              key == 'TOTAL_LINE_COUNT' ||
+              key == 'LINES_ON_HOLD' ||
+              key == 'INVOICE_LINES'
+            ) {
+              data[key] = 'NA';
+            } else {
+              data[key] = 'TBD';
+            }
           }
         }
       });
@@ -295,7 +308,7 @@ export interface OrderLifecycleModel {
   ACCOUNT: string;
   STATUS_AS_OF_DATE: string;
   ACTUAL_BOOK_DATE: string;
-  SALES_ORDER: number;
+  SALES_ORDER: string;
   ORDER_VALUE: string;
   ORDER_STATUS: string;
   CONTRACT_NUMBER: string;
