@@ -119,9 +119,9 @@ body {
 }
 
 .orderTable .mat-sort-header-container {
-  display: inline-table !important;
+  display: inline-block !important;
 }
 
 .orderTable .mat-sort-header-arrow {
-  display: inline-table !important;
+  display: inline-block !important;
 }
