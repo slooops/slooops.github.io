@@ -117,3 +117,11 @@ body {
 .sortArrow .mat-sort-header-arrow {
   color: white !important;
 }
+
+.orderTable .mat-sort-header-container {
+  display: inline-table !important;
+}
+
+.orderTable .mat-sort-header-arrow {
+  display: inline-table !important;
+}

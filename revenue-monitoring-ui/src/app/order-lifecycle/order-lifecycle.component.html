@@ -100,6 +100,17 @@
           >
         </mat-select>
       </mat-form-field>
+      &nbsp;
+      <mat-form-field class="filter" floatLabel="never">
+        <mat-label>Search Sales Order Number</mat-label>
+        <input matInput (keyup)="filter()" formControlName="salesOrdr" />
+        <i
+          matSuffix
+          class="fa fa-search"
+          style="color: gray"
+          (click)="applyFilter()"
+        ></i>
+      </mat-form-field>
       <!-- &nbsp;
       <mat-form-field appearance="standard">
         <input
@@ -132,7 +143,7 @@
       mat-table
       [dataSource]="dataSource"
       matSort
-      class="mat-elevation-z8 table table-responsive"
+      class="mat-elevation-z8 table table-responsive orderTable"
     >
       <!-- Selection Column -->
       <ng-container matColumnDef="select">
@@ -196,8 +207,8 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.STATUS_AS_OF_DATE == "NA"
-              ? "NA"
+            record.STATUS_AS_OF_DATE == null
+              ? "TBD"
               : (record.STATUS_AS_OF_DATE | date : "M/d/yyyy")
           }}
         </td>
@@ -233,8 +244,8 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.ACTUAL_BOOK_DATE == "NA"
-              ? "NA"
+            record.ACTUAL_BOOK_DATE == null
+              ? "TBD"
               : (record.ACTUAL_BOOK_DATE | date : "M/d/yyyy")
           }}
         </td>
@@ -451,8 +462,8 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.INVOICE_DATE == "NA"
-              ? "NA"
+            record.INVOICE_DATE == null
+              ? "TBD"
               : (record.INVOICE_DATE | date : "M/d/yyyy")
           }}
         </td>
@@ -619,7 +630,13 @@
           FUTURE INVOICE RELEASE DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy" }}
+          {{
+            record.FLEXIBLE_INVOICE_ELIGIBLE === "N"
+              ? "N/A"
+              : record.FUTURE_INVOICE_RELEASE_DATE == null
+              ? "TBD"
+              : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
+          }}
         </td>
       </ng-container>
 

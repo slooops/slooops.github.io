@@ -28,17 +28,6 @@ export class OrderLifecycleSummaryComponent implements OnInit {
 
   dataSource: any;
 
-  searchForm: FormGroup = new FormGroup({
-    progName: new FormControl(''),
-    status: new FormControl(''),
-  });
-
-  progNameOptions: string[] = [];
-  statusOptions: string[] = [];
-
-  programNameFilter: string[] = [];
-  statusFilter: string[] = [];
-
   closeDialog() {
     this.dialogRef.close(/* optional result to pass back */);
   }
@@ -61,44 +50,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
       this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
         this.summaryModel
       );
-      this.filterData();
       this.dataSource.sort = this.sort;
-      this.dataSource.filterPredicate = this.filterPredicate;
-    });
-  }
-
-  filterData() {
-    let progName = [];
-    let status = [];
-
-    this.summaryModel.forEach((data) => {
-      progName.push(data.PROGRAM_NAME);
-      status.push(data.STATUS);
-    });
-    this.progNameOptions = [...new Set(progName)];
-    this.statusOptions = [...new Set(status)];
-  }
-
-  filterPredicate = (data: OrderLifecycleSummaryModel, filter: any) => {
-    const filters = JSON.parse(filter);
-    const progNameMatch =
-      filters.progNameFilter.length === 0 ||
-      filters.progNameFilter.includes(data.PROGRAM_NAME);
-    const statusMatch =
-      filters.statusFilter.length === 0 ||
-      filters.statusFilter.includes(data.STATUS);
-
-    return progNameMatch && statusMatch;
-  };
-
-  filter() {
-    this.searchForm.valueChanges.subscribe((data) => {
-      this.programNameFilter = data['progName'];
-      this.statusFilter = data['status'];
-      this.dataSource.filter = JSON.stringify({
-        progNameFilter: this.programNameFilter,
-        statusFilter: this.statusFilter,
-      });
     });
   }
 

@@ -12,58 +12,19 @@
 <div
   style="
     display: flex;
-    justify-content: space-between;
+    justify-content: end;
     align-items: center;
     padding-bottom: 8px;
   "
 >
-  <form [formGroup]="searchForm" class="search__form">
-    <mat-form-field appearance="standard">
-      <mat-label>Select Program Name</mat-label>
-      <mat-select
-        id="progname"
-        name="progname"
-        formControlName="progName"
-        [(value)]="programNameFilter"
-        multiple
-      >
-        <mat-option
-          *ngFor="let progName of progNameOptions"
-          [value]="progName"
-          (onSelectionChange)="filter()"
-          >{{ progName }}</mat-option
-        >
-      </mat-select>
-    </mat-form-field>
-    &nbsp;
-    <mat-form-field appearance="standard">
-      <mat-label>Select Status</mat-label>
-      <mat-select
-        id="status"
-        name="status"
-        formControlName="status"
-        [(value)]="statusFilter"
-        multiple
-      >
-        <mat-option
-          *ngFor="let status of statusOptions"
-          [value]="status"
-          (onSelectionChange)="filter()"
-          >{{ status }}</mat-option
-        >
-      </mat-select>
-    </mat-form-field>
-  </form>
-  <div>
-    <button
-      mat-stroked-button
-      (click)="
-        export('Large Order Lifecycle SUmmary', 'large_order_lifecycle_summary')
-      "
-    >
-      Download
-    </button>
-  </div>
+  <button
+    mat-stroked-button
+    (click)="
+      export('Large Order Lifecycle SUmmary', 'large_order_lifecycle_summary')
+    "
+  >
+    Download
+  </button>
 </div>
 
 <!-- <button mat-stroked-button (click)="closeDialog()">X</button> -->

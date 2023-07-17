@@ -141,6 +141,22 @@ public class DailyMonitoringService {
             data.remove("ORDER_TOTAL");
             data.remove("SFDC_STATUS");
             data.remove("TOTAL_CONTRACT_VALUE");
+            if(data.get("STATUS_AS_OF_DATE") != null){
+                String date = data.get("STATUS_AS_OF_DATE").toString();
+                String[] dateArr = date.split(" ");
+                data.put("STATUS_AS_OF_DATE", dateArr[0]);
+            }
+            if(data.get("ACTUAL_BOOK_DATE") != null){
+                String date = data.get("ACTUAL_BOOK_DATE").toString();
+                String[] dateArr = date.split(" ");
+                data.put("ACTUAL_BOOK_DATE", dateArr[0]);
+            }
+            if(data.get("FUTURE_INVOICE_RELEASE_DATE") != null){
+                String date = data.get("FUTURE_INVOICE_RELEASE_DATE").toString();
+                String[] dateArr = date.split(" ");
+                data.put("FUTURE_INVOICE_RELEASE_DATE", dateArr[0]);
+            }
+
         });
 
 

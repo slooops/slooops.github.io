@@ -37,9 +37,9 @@ export class OrderLifecycleComponent implements OnInit {
     progName: new FormControl(''),
     account: new FormControl(''),
     orderStats: new FormControl(''),
-    salesOrder: new FormControl(''),
     invoiceStats: new FormControl(''),
     flexibleInvoice: new FormControl(''),
+    salesOrdr: new FormControl(''),
   });
 
   protected http: ApiHttpService;
@@ -59,6 +59,8 @@ export class OrderLifecycleComponent implements OnInit {
   orderStatusFilter: string[] = [];
   invoiceStatusFilter: string[] = [];
   flexibleInvoiceFilter: string[] = [];
+  salesOrderFilter: string = '';
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
@@ -69,11 +71,26 @@ export class OrderLifecycleComponent implements OnInit {
 
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
-      console.log(data);
       this.orderLifecycleStatus = data;
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
+      this.orderLifecycleStatus.forEach((data) => {
+        for (const key in data) {
+          if (
+            key == 'STATUS_AS_OF_DATE' ||
+            key == 'ACTUAL_BOOK_DATE' ||
+            key == 'INVOICE_DATE' ||
+            key == 'FUTURE_INVOICE_RELEASE_DATE' ||
+            key == 'COMMENTS'
+          ) {
+            continue;
+          }
+          if (data[key] === null) {
+            data[key] = 'TBD';
+          }
+        }
+      });
 
       this.filterData();
       this.length = this.orderLifecycleStatus.length;
@@ -120,12 +137,17 @@ export class OrderLifecycleComponent implements OnInit {
     const flexibleInvoiceMatch =
       filters.flexibleInvoiceFilter.length === 0 ||
       filters.flexibleInvoiceFilter.includes(data.FLEXIBLE_INVOICE_ELIGIBLE);
+    const salesOrderMatch =
+      data.SALES_ORDER.toString()
+        .toLowerCase()
+        .indexOf(filters.salesOrderFilter) !== -1;
     return (
       progNameMatch &&
       accountMatch &&
       orderStatusMatch &&
       invoiceStatusMatch &&
-      flexibleInvoiceMatch
+      flexibleInvoiceMatch &&
+      salesOrderMatch
     );
   };
 
@@ -136,13 +158,20 @@ export class OrderLifecycleComponent implements OnInit {
       this.orderStatusFilter = data['orderStats'];
       this.invoiceStatusFilter = data['invoiceStats'];
       this.flexibleInvoiceFilter = data['flexibleInvoice'];
-      this.dataSource.filter = JSON.stringify({
-        progNameFilter: this.programNameFilter,
-        accountFilter: this.accountFilter,
-        orderStatusFilter: this.orderStatusFilter,
-        invoiceStatusFilter: this.invoiceStatusFilter,
-        flexibleInvoiceFilter: this.flexibleInvoiceFilter,
-      });
+      this.salesOrderFilter = data['salesOrdr'];
+      this.applyFilter();
+    });
+  }
+
+  applyFilter() {
+    this.salesOrderFilter = this.searchForm.get('salesOrdr').value;
+    this.dataSource.filter = JSON.stringify({
+      progNameFilter: this.programNameFilter,
+      accountFilter: this.accountFilter,
+      orderStatusFilter: this.orderStatusFilter,
+      invoiceStatusFilter: this.invoiceStatusFilter,
+      flexibleInvoiceFilter: this.flexibleInvoiceFilter,
+      salesOrderFilter: this.salesOrderFilter,
     });
   }
 
@@ -260,24 +289,22 @@ export interface OrderLifecycleModel {
   ACCOUNT: string;
   STATUS_AS_OF_DATE: string;
   ACTUAL_BOOK_DATE: string;
-  SALES_ORDER: string;
+  SALES_ORDER: number;
   ORDER_VALUE: string;
   ORDER_STATUS: string;
   INVOICING_STATUS: string;
   REV_ACCR_STATUS: string;
   GL_POSTING_STATUS: string;
   ACCRUALS_EXECUTION_TIME: string;
-
   SUBSCRIPTION_ID: string;
   INVOICE_DATE: string;
+  FLEXIBLE_INVOICE_ELIGIBLE: string;
   INVOICE_AMOUNT: string;
   TERM_IN_YEARS: string;
   DEAL_ID: string;
-
   TOTAL_LINE_COUNT: string;
   LINES_ON_HOLD: string;
   INVOICE_LINES: string;
-  COMMENTS: string;
   FUTURE_INVOICE_RELEASE_DATE: string;
-  FLEXIBLE_INVOICE_ELIGIBLE: string;
+  COMMENTS: string;
 }

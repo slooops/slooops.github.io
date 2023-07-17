@@ -12,12 +12,13 @@
   font-size: 12px;
 }
 
-td {
-  text-align: center !important;
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
 }
 
-.mat-column-COMMENTS {
-  text-align: left !important;
+td {
+  text-align: center !important;
 }
 
 .highlight {
