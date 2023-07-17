@@ -11,13 +11,14 @@
     "
   >
     <form [formGroup]="searchForm" class="search__form">
-      <mat-form-field appearance="standard">
+      <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Program Name</mat-label>
         <mat-select
           id="progname"
           name="progname"
           formControlName="progName"
           [(value)]="programNameFilter"
+          panelClass="progPanel"
           multiple
         >
           <mat-option
@@ -29,13 +30,14 @@
         </mat-select>
       </mat-form-field>
       &nbsp;
-      <mat-form-field appearance="standard">
+      <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Account</mat-label>
         <mat-select
           id="account"
           name="account"
           formControlName="account"
           [(value)]="accountFilter"
+          panelClass="progPanel"
           multiple
         >
           <mat-option
@@ -47,13 +49,14 @@
         </mat-select>
       </mat-form-field>
       &nbsp;
-      <mat-form-field appearance="standard">
+      <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Order Status</mat-label>
         <mat-select
           id="orderstatus"
           name="orderstatus"
           formControlName="orderStats"
           [(value)]="orderStatusFilter"
+          panelClass="progPanel"
           multiple
         >
           <mat-option
@@ -65,13 +68,14 @@
         </mat-select>
       </mat-form-field>
       &nbsp;
-      <mat-form-field appearance="standard">
+      <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Invoicing Status</mat-label>
         <mat-select
           id="invoicestatus"
           name="invoicestatus"
           formControlName="invoiceStats"
           [(value)]="invoiceStatusFilter"
+          panelClass="progPanel"
           multiple
         >
           <mat-option
@@ -83,13 +87,14 @@
         </mat-select>
       </mat-form-field>
       &nbsp;
-      <mat-form-field appearance="standard">
+      <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Flexible Invoicing Eligibility</mat-label>
         <mat-select
           id="flexibleinvoice"
           name="flexibleinvoice"
           formControlName="flexibleInvoice"
           [(value)]="flexibleInvoiceFilter"
+          panelClass="progPanel"
           multiple
         >
           <mat-option
@@ -101,7 +106,7 @@
         </mat-select>
       </mat-form-field>
       &nbsp;
-      <mat-form-field class="filter" floatLabel="never">
+      <mat-form-field class="filter" floatLabel="never" [style.width.px]="125">
         <mat-label>Search Sales Order Number</mat-label>
         <input matInput (keyup)="filter()" formControlName="salesOrdr" />
         <i

@@ -10,6 +10,7 @@
 
 .mat-cell {
   font-size: 12px;
+  /* white-space: normal !important; */
 }
 
 th.mat-header-cell {
@@ -23,4 +24,12 @@ td {
 
 .highlight {
   background: #42a948 !important; /* green */
+}
+
+.mat-column-COMMENTS {
+  text-align: left !important;
+}
+
+.progPanel {
+  min-width: calc(100% + 30px) !important;
 }

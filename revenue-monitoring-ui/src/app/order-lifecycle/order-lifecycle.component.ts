@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -17,6 +23,7 @@ import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
   styleUrls: ['./order-lifecycle.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class OrderLifecycleComponent implements OnInit {
   constructor(
