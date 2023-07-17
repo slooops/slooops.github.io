@@ -1,6 +1,5 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifeCycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
