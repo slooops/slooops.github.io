@@ -16,6 +16,7 @@
 th.mat-header-cell {
   padding-bottom: unset !important;
   padding-top: unset !important;
+  padding-left: 15px !important;
 }
 
 td {

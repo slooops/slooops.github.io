@@ -157,6 +157,12 @@ public class DailyMonitoringService {
                 data.put("FUTURE_INVOICE_RELEASE_DATE", dateArr[0]);
             }
 
+            if(data.get("CONTRACT_NUMBER") == null){
+                data.put("CONTRACT_NUMBER", "Pending Hold Release");
+            } else {
+                data.put("CONTRACT_NUMBER", "Completed");
+            }
+
         });
 
 

@@ -197,18 +197,17 @@ export class OrderLifecycleComponent implements OnInit {
     'SALES_ORDER',
     'ORDER_VALUE',
     'ORDER_STATUS',
+    'CONTRACT_NUMBER',
     'INVOICING_STATUS',
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
     'ACCRUALS_EXECUTION_TIME',
-
     'SUBSCRIPTION_ID',
     'INVOICE_DATE',
     'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICE_AMOUNT',
     'TERM_IN_YEARS',
     'DEAL_ID',
-
     'TOTAL_LINE_COUNT',
     'LINES_ON_HOLD',
     'INVOICE_LINES',
@@ -299,6 +298,7 @@ export interface OrderLifecycleModel {
   SALES_ORDER: number;
   ORDER_VALUE: string;
   ORDER_STATUS: string;
+  CONTRACT_NUMBER: string;
   INVOICING_STATUS: string;
   REV_ACCR_STATUS: string;
   GL_POSTING_STATUS: string;

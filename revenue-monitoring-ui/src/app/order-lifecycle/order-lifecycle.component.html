@@ -331,6 +331,21 @@
         </td>
       </ng-container>
 
+      <!-- CONTRACT CREATED Column -->
+      <ng-container matColumnDef="CONTRACT_NUMBER">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          CONTRACT CREATED
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.CONTRACT_NUMBER }}
+        </td>
+      </ng-container>
+
       <!-- INVOICING_STATUS Column -->
       <ng-container matColumnDef="INVOICING_STATUS">
         <th
@@ -636,9 +651,7 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.FLEXIBLE_INVOICE_ELIGIBLE === "N"
-              ? "N/A"
-              : record.FUTURE_INVOICE_RELEASE_DATE == null
+            record.FUTURE_INVOICE_RELEASE_DATE == null
               ? "TBD"
               : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
           }}
@@ -669,6 +682,12 @@
         *matRowDef="let row; columns: displayedColumns; let entry"
         [ngClass]="{ highlight: entry.INVOICING_STATUS == 'Completed' }"
       ></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          <h6>No Records Found</h6>
+        </td>
+      </tr>
     </table>
   </div>
 
