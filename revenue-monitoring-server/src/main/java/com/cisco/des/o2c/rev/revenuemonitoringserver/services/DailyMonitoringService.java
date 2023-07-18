@@ -1,12 +1,13 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -130,43 +131,42 @@ public class DailyMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getOrderStatus() {
+    public OrderLifecycleModel getOrderStatus() {
+        OrderLifecycleModel orderLifecycleModel = new OrderLifecycleModel();
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
+        String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
+       "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE" };
+        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
         result.forEach(data -> {
-            data.remove("AGING_BOOKING");
-            data.remove("AGING_HOLD_RELEASE");
-            data.remove("EXPECTED_BOOK_DATE");
-            data.remove("HOLD_RELEASE_TARGET_DATE");
-            data.remove("LINE_TYPE");
-            data.remove("ORDER_TOTAL");
-            data.remove("SFDC_STATUS");
-            data.remove("TOTAL_CONTRACT_VALUE");
-            if(data.get("STATUS_AS_OF_DATE") != null){
-                String date = data.get("STATUS_AS_OF_DATE").toString();
-                String[] dateArr = date.split(" ");
-                data.put("STATUS_AS_OF_DATE", dateArr[0]);
+            for(String str: columnsToRemove){
+                data.remove(str);
             }
-            if(data.get("ACTUAL_BOOK_DATE") != null){
-                String date = data.get("ACTUAL_BOOK_DATE").toString();
-                String[] dateArr = date.split(" ");
-                data.put("ACTUAL_BOOK_DATE", dateArr[0]);
+            for(String str: dateColumns){
+                if(data.get(str) != null){
+                    String date = data.get(str).toString();
+                    String[] dateArr = date.split(" ");
+                    data.put(str, dateArr[0]);
+                } else {
+                    data.put(str, "TBD");
+                }
             }
-            if(data.get("FUTURE_INVOICE_RELEASE_DATE") != null){
-                String date = data.get("FUTURE_INVOICE_RELEASE_DATE").toString();
-                String[] dateArr = date.split(" ");
-                data.put("FUTURE_INVOICE_RELEASE_DATE", dateArr[0]);
-            }
+            String contractText = (data.get("CONTRACT_NUMBER") == null) ? "Pending Hold Release" : "Completed";
+            data.put("CONTRACT_NUMBER", contractText);
 
-            if(data.get("CONTRACT_NUMBER") == null){
-                data.put("CONTRACT_NUMBER", "Pending Hold Release");
-            } else {
-                data.put("CONTRACT_NUMBER", "Completed");
-            }
-
+            Object obj = data.remove("ACTUAL_BOOK_DATE");
+            data.put("BOOK_DATE", obj);
         });
+        orderLifecycleModel.setOrderLifecycleResult(result);
 
+        List<String> keys = result.stream().map(Map::keySet).flatMap(Set::stream).collect(Collectors.toList());
+        keys = new ArrayList<>(new HashSet<String>(keys));
+        List<String> columns = new ArrayList<>();
+        for(String key: keys){
+            columns.add(key.replaceAll("_", " "));
+        }
+        orderLifecycleModel.setColumns(columns);
 
-        return result;
+        return orderLifecycleModel;
     }
 
     public List<Map<String, Object>> getOrderStatusSummary() {

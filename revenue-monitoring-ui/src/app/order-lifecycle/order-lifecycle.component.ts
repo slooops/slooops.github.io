@@ -78,7 +78,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
-      this.orderLifecycleStatus = data;
+      this.orderLifecycleStatus = data['orderLifecycleResult'];
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
@@ -203,28 +203,28 @@ export class OrderLifecycleComponent implements OnInit {
 
   displayedColumns = [
     'select',
+    'STATUS_AS_OF_DATE',
     'PROGRAM_NAME',
     'ACCOUNT',
-    'STATUS_AS_OF_DATE',
-    'ACTUAL_BOOK_DATE',
     'SALES_ORDER',
     'ORDER_VALUE',
+    'TOTAL_LINE_COUNT',
     'ORDER_STATUS',
     'CONTRACT_NUMBER',
+    'LINES_ON_HOLD',
+    'INVOICE_LINES',
+    'INVOICE_DATE',
     'INVOICING_STATUS',
+    'INVOICE_AMOUNT',
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
     'ACCRUALS_EXECUTION_TIME',
     'SUBSCRIPTION_ID',
-    'INVOICE_DATE',
     'FLEXIBLE_INVOICE_ELIGIBLE',
-    'INVOICE_AMOUNT',
-    'TERM_IN_YEARS',
-    'DEAL_ID',
-    'TOTAL_LINE_COUNT',
-    'LINES_ON_HOLD',
-    'INVOICE_LINES',
     'FUTURE_INVOICE_RELEASE_DATE',
+    'TERM_IN_YEARS',
+    'BOOK_DATE',
+    'DEAL_ID',
     'COMMENTS',
   ];
 
@@ -304,27 +304,28 @@ export class OrderLifecycleComponent implements OnInit {
 }
 
 export interface OrderLifecycleModel {
+  select: string;
+  STATUS_AS_OF_DATE: string;
   PROGRAM_NAME: string;
   ACCOUNT: string;
-  STATUS_AS_OF_DATE: string;
-  ACTUAL_BOOK_DATE: string;
   SALES_ORDER: string;
   ORDER_VALUE: string;
+  TOTAL_LINE_COUNT: string;
   ORDER_STATUS: string;
   CONTRACT_NUMBER: string;
+  LINES_ON_HOLD: string;
+  INVOICE_LINES: string;
+  INVOICE_DATE: string;
   INVOICING_STATUS: string;
+  INVOICE_AMOUNT: string;
   REV_ACCR_STATUS: string;
   GL_POSTING_STATUS: string;
   ACCRUALS_EXECUTION_TIME: string;
   SUBSCRIPTION_ID: string;
-  INVOICE_DATE: string;
   FLEXIBLE_INVOICE_ELIGIBLE: string;
-  INVOICE_AMOUNT: string;
-  TERM_IN_YEARS: string;
-  DEAL_ID: string;
-  TOTAL_LINE_COUNT: string;
-  LINES_ON_HOLD: string;
-  INVOICE_LINES: string;
   FUTURE_INVOICE_RELEASE_DATE: string;
+  TERM_IN_YEARS: string;
+  BOOK_DATE: string;
+  DEAL_ID: string;
   COMMENTS: string;
 }

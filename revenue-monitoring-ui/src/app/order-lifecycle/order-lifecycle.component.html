@@ -1,4 +1,14 @@
 <br />
+<span class="col-sm-4"></span>
+<span class="col-sm-4"
+  ><span style="align-items: center !important">
+    <b
+      >Order Status -> Invoicing -> Revenue Accruals -> Accounting: GL
+      Posting</b
+    ></span
+  ></span
+>
+
 <div style="float: right">Dashboard updated: Today at {{ timeNow }}</div>
 <br />
 <div>
@@ -150,6 +160,24 @@
       matSort
       class="mat-elevation-z8 table table-responsive orderTable"
     >
+      <!-- STATUS_AS_OF_DATE Column -->
+      <ng-container matColumnDef="STATUS_AS_OF_DATE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          STATUS AS OF DATE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{
+            record.STATUS_AS_OF_DATE == "TBD"
+              ? "TBD"
+              : (record.STATUS_AS_OF_DATE | date : "M/d/yyyy")
+          }}
+        </td>
+      </ng-container>
       <!-- Selection Column -->
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
@@ -200,25 +228,6 @@
         </td>
       </ng-container>
 
-      <!-- STATUS_AS_OF_DATE Column -->
-      <ng-container matColumnDef="STATUS_AS_OF_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          STATUS AS OF DATE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            record.STATUS_AS_OF_DATE == null
-              ? "TBD"
-              : (record.STATUS_AS_OF_DATE | date : "M/d/yyyy")
-          }}
-        </td>
-      </ng-container>
-
       <!-- EXPECTED_BOOK_DATE Column -->
       <!-- <ng-container matColumnDef="EXPECTED_BOOK_DATE">
         <th
@@ -238,20 +247,20 @@
         </td>
       </ng-container> -->
 
-      <ng-container matColumnDef="ACTUAL_BOOK_DATE">
+      <ng-container matColumnDef="BOOK_DATE">
         <th
           class="custom-cell"
           mat-header-cell
           *matHeaderCellDef
           mat-sort-header
         >
-          ACTUAL BOOK DATE
+          BOOK DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.ACTUAL_BOOK_DATE == null
+            record.BOOK_DATE == "TBD"
               ? "TBD"
-              : (record.ACTUAL_BOOK_DATE | date : "M/d/yyyy")
+              : (record.BOOK_DATE | date : "M/d/yyyy")
           }}
         </td>
       </ng-container>
@@ -324,7 +333,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          ORDER STATUS
+          <b style="font-weight: bolder">ORDER STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_STATUS.split("_").join(" ") }}
@@ -339,7 +348,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          CONTRACT CREATED
+          <b style="font-weight: bolder">CONTRACT CREATED</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.CONTRACT_NUMBER }}
@@ -354,7 +363,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          INVOICING STATUS
+          <b style="font-weight: bolder"> INVOICING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICING_STATUS }}
@@ -369,7 +378,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          REVENUE ACCRUALS STATUS
+          <b style="font-weight: bolder"> REVENUE ACCRUALS STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.REV_ACCR_STATUS }}
@@ -384,7 +393,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          GL POSTING STATUS
+          <b style="font-weight: bolder"> GL POSTING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.GL_POSTING_STATUS }}
@@ -482,7 +491,7 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.INVOICE_DATE == null
+            record.INVOICE_DATE == "TBD"
               ? "TBD"
               : (record.INVOICE_DATE | date : "M/d/yyyy")
           }}
@@ -651,7 +660,7 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
-            record.FUTURE_INVOICE_RELEASE_DATE == null
+            record.FUTURE_INVOICE_RELEASE_DATE == "TBD"
               ? "TBD"
               : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
           }}
