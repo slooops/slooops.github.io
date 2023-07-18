@@ -27,6 +27,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   dataSource: any;
+  total: boolean = false;
 
   closeDialog() {
     this.dialogRef.close(/* optional result to pass back */);
@@ -50,8 +51,15 @@ export class OrderLifecycleSummaryComponent implements OnInit {
       this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
         this.summaryModel
       );
+
       this.dataSource.sort = this.sort;
     });
+  }
+
+  shouldDisplayCheckbox(row: any): boolean {
+    // Example: Hide checkbox for rows where 'column2' value is 'hide'
+    this.total = row.PROGRAM_NAME.includes('Total');
+    return this.total;
   }
 
   export(sheetName: string, filename: string) {

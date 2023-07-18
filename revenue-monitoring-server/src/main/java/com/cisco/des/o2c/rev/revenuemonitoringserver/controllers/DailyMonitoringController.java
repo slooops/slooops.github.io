@@ -2,6 +2,7 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -120,7 +121,7 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/order-status-summary")
-    public ResponseEntity<List<Map<String, Object>>> getOrderStatusSummary(){
+    public ResponseEntity<List<OrderLifecycleSummaryModel>> getOrderStatusSummary(){
         return new ResponseEntity<>(service.getOrderStatusSummary(), HttpStatus.OK);
     }
 }

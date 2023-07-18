@@ -1,15 +1,14 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 
 @Service
 public class DailyMonitoringService {
@@ -63,7 +62,6 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
-        System.out.println(stdArExcQuery);
         return jdbcManager.queryForList(stdArExcQuery);
     }
 
@@ -150,9 +148,7 @@ public class DailyMonitoringService {
                     data.put(str, "TBD");
                 }
             }
-            String contractText = (data.get("CONTRACT_NUMBER") == null) ? "Pending Hold Release" : "Completed";
-            data.put("CONTRACT_NUMBER", contractText);
-
+            
             Object obj = data.remove("ACTUAL_BOOK_DATE");
             data.put("BOOK_DATE", obj);
         });
@@ -168,9 +164,43 @@ public class DailyMonitoringService {
 
         return orderLifecycleModel;
     }
+    public List<OrderLifecycleSummaryModel> getOrderStatusSummary() {
+        List<Map<String, Object>> res = jdbcManager.queryForList(orderStatusSummary);
+        List<OrderLifecycleSummaryModel> resultList = mapToOrderLifecycleSummaryModelList(res);
 
-    public List<Map<String, Object>> getOrderStatusSummary() {
-        return jdbcManager.queryForList(orderStatusSummary);
+        resultList.add(6, orderLifecycleSummary(resultList, "WPA"));
+        resultList.add(2, orderLifecycleSummary(resultList, "CX EA TF"));
+        resultList.add(4,orderLifecycleSummary(resultList, "EA"));
+        int totalCount = calculateOrderCountSumByProgramName(resultList, "WPA") + calculateOrderCountSumByProgramName(resultList, "CX EA TF") + calculateOrderCountSumByProgramName(resultList,"EA" );
+        resultList.add(9, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        return resultList;
     }
+    public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
+        OrderLifecycleSummaryModel obj = new OrderLifecycleSummaryModel("Sub Total ("+programName+")", calculateOrderCountSumByProgramName(resultList, programName), null, null);
+        return obj;
+    }
+    public static List<OrderLifecycleSummaryModel> mapToOrderLifecycleSummaryModelList(List<Map<String, Object>> inputList) {
+        List<OrderLifecycleSummaryModel> resultList = new ArrayList<>();
 
+        for (Map<String, Object> map : inputList) {
+            String programName = (String) map.get("PROGRAM_NAME");
+            int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
+            String status = (String) map.get("STATUS");
+            String completion = (String) map.get("COMPLETION");
+
+            OrderLifecycleSummaryModel model = new OrderLifecycleSummaryModel(programName, orderCount, status, completion);
+            resultList.add(model);
+        }
+
+        return resultList;
+    }
+    public static int calculateOrderCountSumByProgramName(List<OrderLifecycleSummaryModel> orderSummary, String programName) {
+        int sum = 0;
+        for (OrderLifecycleSummaryModel order : orderSummary) {
+            if (order.PROGRAM_NAME.equals(programName)) {
+                sum += order.ORDER_COUNT;
+            }
+        }
+        return sum;
+    }
 }

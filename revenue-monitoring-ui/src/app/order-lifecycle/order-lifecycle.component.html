@@ -311,7 +311,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          SALES ORDER (#)
+          WEB - SALES ORDER (#)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.SALES_ORDER }}
@@ -341,7 +341,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder; color: #0d3b4c">ORDER STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c">1.ORDER STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_STATUS.split("_").join(" ") }}
@@ -356,7 +356,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder; color: #0d3b4c">CONTRACT CREATED</b>
+          <b style="font-weight: bolder; color: #0d3b4c">2.CONTRACT STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.CONTRACT_NUMBER }}
@@ -371,7 +371,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder; color: #0d3b4c"> INVOICING STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c">3.INVOICING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICING_STATUS }}
@@ -387,7 +387,7 @@
           mat-sort-header
         >
           <b style="font-weight: bolder; color: #0d3b4c">
-            REVENUE ACCRUALS STATUS</b
+            4.REVENUE ACCRUALS STATUS</b
           >
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -403,7 +403,9 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder; color: #0d3b4c"> GL POSTING STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c">
+            5.GL POSTING STATUS</b
+          >
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.GL_POSTING_STATUS }}

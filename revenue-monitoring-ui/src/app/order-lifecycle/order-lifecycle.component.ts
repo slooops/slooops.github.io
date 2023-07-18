@@ -96,16 +96,7 @@ export class OrderLifecycleComponent implements OnInit {
             continue;
           }
           if (data[key] === null) {
-            if (
-              key == 'SALES_ORDER' ||
-              key == 'ORDER_VALUE' ||
-              key == 'INVOICE_AMOUNT' ||
-              key == 'DEAL_ID' ||
-              key == 'TOTAL_LINE_COUNT' ||
-              key == 'LINES_ON_HOLD'
-            ) {
-              data[key] = 'NA';
-            } else if (key == 'INVOICE_LINES') {
+            if (key == 'INVOICE_LINES') {
               data[key] = '0';
             } else {
               data[key] = 'TBD';
@@ -220,9 +211,9 @@ export class OrderLifecycleComponent implements OnInit {
     'ORDER_STATUS',
     'CONTRACT_NUMBER',
     'LINES_ON_HOLD',
+    'INVOICING_STATUS',
     'INVOICE_LINES',
     'INVOICE_DATE',
-    'INVOICING_STATUS',
     'INVOICE_AMOUNT',
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
