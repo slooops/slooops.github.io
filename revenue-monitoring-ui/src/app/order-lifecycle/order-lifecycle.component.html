@@ -1,15 +1,12 @@
 <br />
-<span class="col-sm-4"></span>
-<span class="col-sm-4"
-  ><span style="align-items: center !important">
-    <b
-      >Order Status -> Invoicing -> Revenue Accruals -> Accounting: GL
-      Posting</b
-    ></span
-  ></span
->
+<span class="col-sm-12" style="text-align: center !important">
+  <b style="color: #0d3b4c"
+    >1: Order Status -> 2: Contract Created -> 3: Invoicing -> 4: Revenue
+    Accruals -> 5: Accounting: GL Posting
+  </b>
+  <span style="float: right">Dashboard updated: Today at {{ timeNow }}</span>
+</span>
 
-<div style="float: right">Dashboard updated: Today at {{ timeNow }}</div>
 <br />
 <div>
   <div
@@ -119,6 +116,17 @@
       <mat-form-field class="filter" floatLabel="never" [style.width.px]="125">
         <mat-label>Search Sales Order Number</mat-label>
         <input matInput (keyup)="filter()" formControlName="salesOrdr" />
+        <i
+          matSuffix
+          class="fa fa-search"
+          style="color: gray"
+          (click)="applyFilter()"
+        ></i>
+      </mat-form-field>
+      &nbsp;
+      <mat-form-field class="filter" floatLabel="never" [style.width.px]="125">
+        <mat-label>Search Subscription ID</mat-label>
+        <input matInput (keyup)="filter()" formControlName="subscriptionId" />
         <i
           matSuffix
           class="fa fa-search"
@@ -333,7 +341,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder">ORDER STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c">ORDER STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ORDER_STATUS.split("_").join(" ") }}
@@ -348,7 +356,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder">CONTRACT CREATED</b>
+          <b style="font-weight: bolder; color: #0d3b4c">CONTRACT CREATED</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.CONTRACT_NUMBER }}
@@ -363,7 +371,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder"> INVOICING STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c"> INVOICING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.INVOICING_STATUS }}
@@ -378,7 +386,9 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder"> REVENUE ACCRUALS STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c">
+            REVENUE ACCRUALS STATUS</b
+          >
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.REV_ACCR_STATUS }}
@@ -393,7 +403,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          <b style="font-weight: bolder"> GL POSTING STATUS</b>
+          <b style="font-weight: bolder; color: #0d3b4c"> GL POSTING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.GL_POSTING_STATUS }}

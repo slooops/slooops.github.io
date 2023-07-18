@@ -47,6 +47,7 @@ export class OrderLifecycleComponent implements OnInit {
     invoiceStats: new FormControl(''),
     flexibleInvoice: new FormControl(''),
     salesOrdr: new FormControl(''),
+    subscriptionId: new FormControl(''),
   });
 
   protected http: ApiHttpService;
@@ -67,6 +68,7 @@ export class OrderLifecycleComponent implements OnInit {
   invoiceStatusFilter: string[] = [];
   flexibleInvoiceFilter: string[] = [];
   salesOrderFilter: string = '';
+  subscriptionIdFilter: string = '';
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -93,7 +95,6 @@ export class OrderLifecycleComponent implements OnInit {
           ) {
             continue;
           }
-
           if (data[key] === null) {
             if (
               key == 'SALES_ORDER' ||
@@ -101,17 +102,17 @@ export class OrderLifecycleComponent implements OnInit {
               key == 'INVOICE_AMOUNT' ||
               key == 'DEAL_ID' ||
               key == 'TOTAL_LINE_COUNT' ||
-              key == 'LINES_ON_HOLD' ||
-              key == 'INVOICE_LINES'
+              key == 'LINES_ON_HOLD'
             ) {
               data[key] = 'NA';
+            } else if (key == 'INVOICE_LINES') {
+              data[key] = '0';
             } else {
               data[key] = 'TBD';
             }
           }
         }
       });
-
       this.filterData();
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
@@ -161,13 +162,18 @@ export class OrderLifecycleComponent implements OnInit {
       data.SALES_ORDER.toString()
         .toLowerCase()
         .indexOf(filters.salesOrderFilter) !== -1;
+    const subscriptionIdMatch =
+      data.SUBSCRIPTION_ID.toString()
+        .toLowerCase()
+        .indexOf(filters.subscriptionIdFilter) !== -1;
     return (
       progNameMatch &&
       accountMatch &&
       orderStatusMatch &&
       invoiceStatusMatch &&
       flexibleInvoiceMatch &&
-      salesOrderMatch
+      salesOrderMatch &&
+      subscriptionIdMatch
     );
   };
 
@@ -179,6 +185,7 @@ export class OrderLifecycleComponent implements OnInit {
       this.invoiceStatusFilter = data['invoiceStats'];
       this.flexibleInvoiceFilter = data['flexibleInvoice'];
       this.salesOrderFilter = data['salesOrdr'];
+      this.subscriptionIdFilter = data['subscriptionId'];
       this.applyFilter();
     });
   }
@@ -192,6 +199,7 @@ export class OrderLifecycleComponent implements OnInit {
       invoiceStatusFilter: this.invoiceStatusFilter,
       flexibleInvoiceFilter: this.flexibleInvoiceFilter,
       salesOrderFilter: this.salesOrderFilter,
+      subscriptionIdFilter: this.subscriptionIdFilter,
     });
   }
 
