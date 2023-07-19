@@ -168,11 +168,21 @@ public class DailyMonitoringService {
         List<Map<String, Object>> res = jdbcManager.queryForList(orderStatusSummary);
         List<OrderLifecycleSummaryModel> resultList = mapToOrderLifecycleSummaryModelList(res);
 
-        resultList.add(6, orderLifecycleSummary(resultList, "WPA"));
-        resultList.add(2, orderLifecycleSummary(resultList, "CX EA TF"));
-        resultList.add(4,orderLifecycleSummary(resultList, "EA"));
+        int lastIndexWPA = getLastIndexOfProperty(resultList, "WPA");
+        int lastIndexCXEA = getLastIndexOfProperty(resultList, "CX EA TF");
+        if(lastIndexWPA < lastIndexCXEA) {
+            resultList.add(lastIndexWPA+1, orderLifecycleSummary(resultList, "WPA"));
+            resultList.add(lastIndexCXEA+2, orderLifecycleSummary(resultList, "CX EA TF"));
+        } else {
+            resultList.add(lastIndexCXEA+1, orderLifecycleSummary(resultList, "CX EA TF"));
+            resultList.add(lastIndexWPA+2, orderLifecycleSummary(resultList, "WPA"));
+        }
         int totalCount = calculateOrderCountSumByProgramName(resultList, "WPA") + calculateOrderCountSumByProgramName(resultList, "CX EA TF") + calculateOrderCountSumByProgramName(resultList,"EA" );
-        resultList.add(9, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        if(lastIndexWPA < lastIndexCXEA){
+            resultList.add(lastIndexCXEA + 3, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        } else {
+            resultList.add(lastIndexWPA + 3, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        }
         return resultList;
     }
     public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
@@ -186,8 +196,7 @@ public class DailyMonitoringService {
             String programName = (String) map.get("PROGRAM_NAME");
             int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
             String status = (String) map.get("STATUS");
-            String completion = (String) map.get("COMPLETION");
-
+            Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue())  ;
             OrderLifecycleSummaryModel model = new OrderLifecycleSummaryModel(programName, orderCount, status, completion);
             resultList.add(model);
         }
@@ -202,5 +211,15 @@ public class DailyMonitoringService {
             }
         }
         return sum;
+    }
+
+    public static int getLastIndexOfProperty(List<OrderLifecycleSummaryModel> objects, String targetProperty) {
+        for (int i = objects.size() - 1; i >= 0; i--) {
+            OrderLifecycleSummaryModel obj = objects.get(i);
+            if (obj.getPROGRAM_NAME().equals(targetProperty)) {
+                return i;
+            }
+        }
+        return -1; // Property not found
     }
 }
