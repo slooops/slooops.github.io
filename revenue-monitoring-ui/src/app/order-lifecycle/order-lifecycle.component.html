@@ -1,6 +1,13 @@
 <br />
 <span class="col-sm-12" style="text-align: center !important">
-  <span style="float: right">Dashboard updated: Today at {{ timeNow }}</span>
+  <span style="float: right"
+    >Dashboard updated : Today at {{ timeNow }} &nbsp;<i
+      class="fa fa-info-circle"
+      matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
+      [matTooltipPosition]="'above'"
+      style="color: gray"
+    ></i
+  ></span>
 </span>
 
 <br />
@@ -346,7 +353,7 @@
       </ng-container>
 
       <!-- ORDER_STATUS Column -->
-      <ng-container matColumnDef="BOOKING_STATUS">
+      <ng-container matColumnDef="ORDER_STATUS">
         <th
           class="custom-cell"
           mat-header-cell
@@ -356,12 +363,12 @@
           <b style="font-weight: bolder; color: #0d3b4c">1.BOOKING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.BOOKING_STATUS }}
+          {{ record.ORDER_STATUS }}
         </td>
       </ng-container>
 
       <!-- CONTRACT CREATED Column -->
-      <ng-container matColumnDef="ORDER_STATUS">
+      <ng-container matColumnDef="CONTRACT_NUMBER">
         <th
           class="custom-cell"
           mat-header-cell
@@ -371,7 +378,7 @@
           <b style="font-weight: bolder; color: #0d3b4c">2.ORDER STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.ORDER_STATUS }}
+          {{ record.CONTRACT_NUMBER }}
         </td>
       </ng-container>
 
@@ -681,7 +688,7 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
             record.FUTURE_INVOICE_RELEASE_DATE == "TBD"
-              ? "TBD"
+              ? "NA"
               : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
           }}
         </td>

@@ -38,6 +38,7 @@ export class OrderLifecycleComponent implements OnInit {
   ngOnInit(): void {
     this.getOrderLifecycle();
     this.getCurrentTime();
+    this.getOrderStatusDownload();
   }
 
   searchForm: FormGroup = new FormGroup({
@@ -79,10 +80,17 @@ export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
+  orderLifeCycleDownload: OrderLifecycleModel[];
   selectedArr: OrderLifecycleModel[];
   dataSource: any;
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
+
+  getOrderStatusDownload() {
+    this.http.get('order-status-download').subscribe((data: any) => {
+      this.orderLifeCycleDownload = data;
+    });
+  }
 
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
@@ -90,7 +98,6 @@ export class OrderLifecycleComponent implements OnInit {
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
-
       this.orderLifecycleStatus.forEach((data) => {
         for (const key in data) {
           if (
@@ -254,8 +261,8 @@ export class OrderLifecycleComponent implements OnInit {
     'SALES_ORDER',
     'ORDER_VALUE',
     'TOTAL_LINE_COUNT',
-    'BOOKING_STATUS',
     'ORDER_STATUS',
+    'CONTRACT_NUMBER',
     'LINES_ON_HOLD',
     'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICING_STATUS',
@@ -299,7 +306,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   export(sheetName: string, filename: string) {
     if (this.isAllSelected() || this.selection.selected.length === 0) {
-      this.exportTableToExcel(this.orderLifecycleStatus, sheetName, filename);
+      this.exportTableToExcel(this.orderLifeCycleDownload, sheetName, filename);
     } else if (!this.isAllSelected()) {
       this.selectedArr = this.selection.selected;
       this.exportTableToExcel(this.selectedArr, sheetName, filename);
@@ -354,8 +361,8 @@ export interface OrderLifecycleModel {
   SALES_ORDER: string;
   ORDER_VALUE: string;
   TOTAL_LINE_COUNT: string;
-  BOOKING_STATUS: string;
   ORDER_STATUS: string;
+  CONTRACT_NUMBER: string;
   LINES_ON_HOLD: string;
   INVOICE_LINES: string;
   INVOICE_DATE: string;

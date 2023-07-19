@@ -66,6 +66,9 @@ public class QueryConfigs { // TODO
     @Value("${order.status.summary.q}")
     public String orderStatusSummary;
 
+    @Value("${order.status.download.q}")
+    public String orderStatusDownload;
+
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -123,4 +126,6 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "orderStatusSummary" )
     public String getOrderStatusSummary() {return this.orderStatusSummary; }
+    @Bean( name = "orderStatusDownload" )
+    public String getOrderStatusDownload() {return this.orderStatusDownload; }
 }

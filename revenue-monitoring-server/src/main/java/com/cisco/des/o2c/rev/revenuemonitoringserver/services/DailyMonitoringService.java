@@ -30,6 +30,7 @@ public class DailyMonitoringService {
     private String errorDetails;
     private String orderStatus;
     private String orderStatusSummary;
+    private String orderStatusDownload;
 
 
 //    Connection conn;
@@ -40,7 +41,7 @@ public class DailyMonitoringService {
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails,
-                                  String updateComments, String orderStatus, String orderStatusSummary) {
+                                  String updateComments, String orderStatus, String orderStatusSummary, String orderStatusDownload) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -59,6 +60,7 @@ public class DailyMonitoringService {
         this.updateComments = updateComments;
         this.orderStatus = orderStatus;
         this.orderStatusSummary = orderStatusSummary;
+        this.orderStatusDownload = orderStatusDownload;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -129,11 +131,20 @@ public class DailyMonitoringService {
         return result;
     }
 
+    public List<Map<String, Object>> getOrderStatusDownload() {
+        return jdbcManager.queryForList(orderStatusDownload);
+    }
+
     public OrderLifecycleModel getOrderStatus() {
         OrderLifecycleModel orderLifecycleModel = new OrderLifecycleModel();
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
-        String[] dateColumns = {"BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
+        String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
+       "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
+        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
         result.forEach(data -> {
+            for(String str: columnsToRemove){
+                data.remove(str);
+            }
             for(String str: dateColumns){
                 if(data.get(str) != null){
                     String date = data.get(str).toString();
@@ -143,8 +154,13 @@ public class DailyMonitoringService {
                     data.put(str, "TBD");
                 }
             }
+
+            Object obj = data.remove("ACTUAL_BOOK_DATE");
+            data.put("BOOK_DATE", obj);
         });
+
         orderLifecycleModel.setOrderLifecycleResult(result);
+
         List<String> keys = result.stream().map(Map::keySet).flatMap(Set::stream).collect(Collectors.toList());
         keys = new ArrayList<>(new HashSet<String>(keys));
         List<String> columns = new ArrayList<>();

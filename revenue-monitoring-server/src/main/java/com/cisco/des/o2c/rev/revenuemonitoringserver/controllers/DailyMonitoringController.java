@@ -115,6 +115,11 @@ public class DailyMonitoringController {
         return timeNow;
     }
 
+    @GetMapping("/order-status-download")
+    public ResponseEntity<List<Map<String, Object>>> getOrderStatusDownload(){
+        return new ResponseEntity<>(service.getOrderStatusDownload(), HttpStatus.OK);
+    }
+
     @GetMapping("/order-status")
     public ResponseEntity<OrderLifecycleModel> getOrderStatus(){
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
