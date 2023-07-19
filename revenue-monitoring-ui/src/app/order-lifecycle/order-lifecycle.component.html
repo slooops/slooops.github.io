@@ -346,7 +346,7 @@
       </ng-container>
 
       <!-- ORDER_STATUS Column -->
-      <ng-container matColumnDef="ORDER_STATUS">
+      <ng-container matColumnDef="BOOKING_STATUS">
         <th
           class="custom-cell"
           mat-header-cell
@@ -356,12 +356,12 @@
           <b style="font-weight: bolder; color: #0d3b4c">1.BOOKING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.ORDER_STATUS.split("_").join(" ") }}
+          {{ record.BOOKING_STATUS }}
         </td>
       </ng-container>
 
       <!-- CONTRACT CREATED Column -->
-      <ng-container matColumnDef="CONTRACT_NUMBER">
+      <ng-container matColumnDef="ORDER_STATUS">
         <th
           class="custom-cell"
           mat-header-cell
@@ -371,7 +371,7 @@
           <b style="font-weight: bolder; color: #0d3b4c">2.ORDER STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.CONTRACT_NUMBER }}
+          {{ record.ORDER_STATUS }}
         </td>
       </ng-container>
 

@@ -87,10 +87,10 @@ export class OrderLifecycleComponent implements OnInit {
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
       this.orderLifecycleStatus = data['orderLifecycleResult'];
-      console.log(this.orderLifecycleStatus);
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
+
       this.orderLifecycleStatus.forEach((data) => {
         for (const key in data) {
           if (
@@ -254,8 +254,8 @@ export class OrderLifecycleComponent implements OnInit {
     'SALES_ORDER',
     'ORDER_VALUE',
     'TOTAL_LINE_COUNT',
+    'BOOKING_STATUS',
     'ORDER_STATUS',
-    'CONTRACT_NUMBER',
     'LINES_ON_HOLD',
     'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICING_STATUS',
@@ -354,8 +354,8 @@ export interface OrderLifecycleModel {
   SALES_ORDER: string;
   ORDER_VALUE: string;
   TOTAL_LINE_COUNT: string;
+  BOOKING_STATUS: string;
   ORDER_STATUS: string;
-  CONTRACT_NUMBER: string;
   LINES_ON_HOLD: string;
   INVOICE_LINES: string;
   INVOICE_DATE: string;
