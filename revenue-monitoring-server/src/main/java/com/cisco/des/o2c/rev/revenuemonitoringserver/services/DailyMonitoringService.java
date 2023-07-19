@@ -133,7 +133,7 @@ public class DailyMonitoringService {
         OrderLifecycleModel orderLifecycleModel = new OrderLifecycleModel();
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
         String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
-       "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE" };
+       "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
         String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
         result.forEach(data -> {
             for(String str: columnsToRemove){
@@ -151,7 +151,11 @@ public class DailyMonitoringService {
             
             Object obj = data.remove("ACTUAL_BOOK_DATE");
             data.put("BOOK_DATE", obj);
+            data.keySet().forEach(key -> {
+                System.out.println(key);
+            });
         });
+
         orderLifecycleModel.setOrderLifecycleResult(result);
 
         List<String> keys = result.stream().map(Map::keySet).flatMap(Set::stream).collect(Collectors.toList());
@@ -168,21 +172,29 @@ public class DailyMonitoringService {
         List<Map<String, Object>> res = jdbcManager.queryForList(orderStatusSummary);
         List<OrderLifecycleSummaryModel> resultList = mapToOrderLifecycleSummaryModelList(res);
 
-        int lastIndexWPA = getLastIndexOfProperty(resultList, "WPA");
-        int lastIndexCXEA = getLastIndexOfProperty(resultList, "CX EA TF");
-        if(lastIndexWPA < lastIndexCXEA) {
-            resultList.add(lastIndexWPA+1, orderLifecycleSummary(resultList, "WPA"));
-            resultList.add(lastIndexCXEA+2, orderLifecycleSummary(resultList, "CX EA TF"));
-        } else {
-            resultList.add(lastIndexCXEA+1, orderLifecycleSummary(resultList, "CX EA TF"));
-            resultList.add(lastIndexWPA+2, orderLifecycleSummary(resultList, "WPA"));
+        List<String> newList = resultList.stream().map(ele -> ele.PROGRAM_NAME).collect(Collectors.toList());
+        List<String> programNames = new ArrayList<>(new HashSet<String>(newList));
+
+        Map<String, Integer> lastIndex = new HashMap<>();
+        for(String prog: programNames){
+            lastIndex.put(prog, getLastIndexOfProperty(resultList, prog));
         }
-        int totalCount = calculateOrderCountSumByProgramName(resultList, "WPA") + calculateOrderCountSumByProgramName(resultList, "CX EA TF") + calculateOrderCountSumByProgramName(resultList,"EA" );
-        if(lastIndexWPA < lastIndexCXEA){
-            resultList.add(lastIndexCXEA + 3, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
-        } else {
-            resultList.add(lastIndexWPA + 3, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        Map<String, Integer> lastIndexSorted = sortByValue(lastIndex);
+
+        int index = 1;
+        for(Map.Entry<String, Integer> ele: lastIndexSorted.entrySet()){
+            resultList.add(ele.getValue()+index,orderLifecycleSummary(resultList, ele.getKey()) );
+            index++;
         }
+
+        int progNameLength = resultList.size();
+        int totalCount =  0 ;
+
+        for(String prog: programNames){
+            totalCount += calculateOrderCountSumByProgramName(resultList, prog);
+        }
+        resultList.add(progNameLength, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+
         return resultList;
     }
     public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
@@ -191,7 +203,6 @@ public class DailyMonitoringService {
     }
     public static List<OrderLifecycleSummaryModel> mapToOrderLifecycleSummaryModelList(List<Map<String, Object>> inputList) {
         List<OrderLifecycleSummaryModel> resultList = new ArrayList<>();
-
         for (Map<String, Object> map : inputList) {
             String programName = (String) map.get("PROGRAM_NAME");
             int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
@@ -212,14 +223,30 @@ public class DailyMonitoringService {
         }
         return sum;
     }
-
     public static int getLastIndexOfProperty(List<OrderLifecycleSummaryModel> objects, String targetProperty) {
         for (int i = objects.size() - 1; i >= 0; i--) {
             OrderLifecycleSummaryModel obj = objects.get(i);
-            if (obj.getPROGRAM_NAME().equals(targetProperty)) {
+            if (obj.PROGRAM_NAME.equals(targetProperty)) {
                 return i;
             }
         }
         return -1; // Property not found
+    }
+    public static HashMap<String, Integer> sortByValue(Map<String, Integer> hm)
+    {
+        List<Map.Entry<String, Integer> > list =
+                new LinkedList<Map.Entry<String, Integer> >(hm.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer> >() {
+            public int compare(Map.Entry<String, Integer> o1,
+                               Map.Entry<String, Integer> o2)
+            {
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
+        HashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
+        for (Map.Entry<String, Integer> aa : list) {
+            temp.put(aa.getKey(), aa.getValue());
+        }
+        return temp;
     }
 }

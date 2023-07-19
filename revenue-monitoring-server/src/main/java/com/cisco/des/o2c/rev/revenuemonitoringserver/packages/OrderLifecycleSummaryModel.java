@@ -8,21 +8,6 @@ public class OrderLifecycleSummaryModel {
     public String STATUS;
     public Optional<Integer> COMPLETION;
 
-    public String getPROGRAM_NAME() {
-        return PROGRAM_NAME;
-    }
-
-    public int getORDER_COUNT() {
-        return ORDER_COUNT;
-    }
-
-    public String getSTATUS() {
-        return STATUS;
-    }
-
-    public Optional<Integer> getCOMPLETION() {
-        return COMPLETION;
-    }
 
     public OrderLifecycleSummaryModel(String PROGRAM_NAME, int ORDER_COUNT, String STATUS, Optional<Integer> COMPLETION) {
         this.PROGRAM_NAME = PROGRAM_NAME;

@@ -45,9 +45,9 @@ export class OrderLifecycleComponent implements OnInit {
     account: new FormControl(''),
     orderStats: new FormControl(''),
     invoiceStats: new FormControl(''),
-    flexibleInvoice: new FormControl(''),
+    // flexibleInvoice: new FormControl(''),
     salesOrdr: new FormControl(''),
-    subscriptionId: new FormControl(''),
+    // subscriptionId: new FormControl(''),
     dealId: new FormControl(''),
   });
 
@@ -87,6 +87,7 @@ export class OrderLifecycleComponent implements OnInit {
   getOrderLifecycle() {
     this.getEndpointData('order-status').subscribe((data: any) => {
       this.orderLifecycleStatus = data['orderLifecycleResult'];
+      console.log(this.orderLifecycleStatus);
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
@@ -153,8 +154,7 @@ export class OrderLifecycleComponent implements OnInit {
     // const subscriptionIdMatch =
     //   data.SALES_ORDER.toString().indexOf(filters.subscriptionIdFilter) !== -1;
     const dealIdMatch =
-      data.DEAL_ID.toString().toLowerCase().indexOf(filters.dealIdFilter) !==
-      -1;
+      data.DEAL_ID.toString().indexOf(filters.dealIdFilter) !== -1;
     return (
       progNameMatch &&
       accountMatch &&
@@ -177,6 +177,7 @@ export class OrderLifecycleComponent implements OnInit {
       this.salesOrderFilter = data['salesOrdr'];
       // this.subscriptionIdFilter = data['subscriptionId'];
       this.dealIdFilter = data['dealId'];
+
       if (
         this.programNameFilter.length > 0 &&
         this.accountFilter.length === 0
@@ -348,7 +349,6 @@ export class OrderLifecycleComponent implements OnInit {
 
 export interface OrderLifecycleModel {
   select: string;
-  // STATUS_AS_OF_DATE: string;
   PROGRAM_NAME: string;
   ACCOUNT: string;
   SALES_ORDER: string;
@@ -364,7 +364,6 @@ export interface OrderLifecycleModel {
   REV_ACCR_STATUS: string;
   GL_POSTING_STATUS: string;
   ACCRUALS_EXECUTION_TIME: string;
-  SUBSCRIPTION_ID: string;
   FLEXIBLE_INVOICE_ELIGIBLE: string;
   FUTURE_INVOICE_RELEASE_DATE: string;
   TERM_IN_YEARS: string;
