@@ -140,7 +140,7 @@ public class DailyMonitoringService {
                     String[] dateArr = date.split(" ");
                     data.put(str, dateArr[0]);
                 } else {
-                    data.put(str, "NA");
+                    data.put(str, "TBD");
                 }
             }
         });
