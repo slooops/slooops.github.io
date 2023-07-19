@@ -48,6 +48,7 @@ export class OrderLifecycleComponent implements OnInit {
     flexibleInvoice: new FormControl(''),
     salesOrdr: new FormControl(''),
     subscriptionId: new FormControl(''),
+    dealId: new FormControl(''),
   });
 
   protected http: ApiHttpService;
@@ -69,6 +70,7 @@ export class OrderLifecycleComponent implements OnInit {
   flexibleInvoiceFilter: string[] = [];
   salesOrderFilter: string = '';
   subscriptionIdFilter: string = '';
+  dealIdFilter: string = '';
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -124,12 +126,11 @@ export class OrderLifecycleComponent implements OnInit {
       invoiceStatus.push(data.INVOICING_STATUS);
       flexibleInvoice.push(data.FLEXIBLE_INVOICE_ELIGIBLE);
     });
-
     this.progNameOptions = [...new Set(progName)];
     this.accountOptions = [...new Set(account)];
     this.orderStatusOptions = [...new Set(orderStatus)];
     this.invoiceStatusOptions = [...new Set(invoiceStatus)];
-    this.flexibleInvoiceOptions = [...new Set(flexibleInvoice)];
+    // this.flexibleInvoiceOptions = [...new Set(flexibleInvoice)];
   }
 
   filterPredicate = (data: OrderLifecycleModel, filter: any) => {
@@ -146,25 +147,25 @@ export class OrderLifecycleComponent implements OnInit {
     const invoiceStatusMatch =
       filters.invoiceStatusFilter.length === 0 ||
       filters.invoiceStatusFilter.includes(data.INVOICING_STATUS);
-    const flexibleInvoiceMatch =
-      filters.flexibleInvoiceFilter.length === 0 ||
-      filters.flexibleInvoiceFilter.includes(data.FLEXIBLE_INVOICE_ELIGIBLE);
+    // const flexibleInvoiceMatch =
+    //   filters.flexibleInvoiceFilter.length === 0 ||
+    //   filters.flexibleInvoiceFilter.includes(data.FLEXIBLE_INVOICE_ELIGIBLE);
     const salesOrderMatch =
-      data.SALES_ORDER.toString()
-        .toLowerCase()
-        .indexOf(filters.salesOrderFilter) !== -1;
-    const subscriptionIdMatch =
-      data.SUBSCRIPTION_ID.toString()
-        .toLowerCase()
-        .indexOf(filters.subscriptionIdFilter) !== -1;
+      data.SALES_ORDER.toString().indexOf(filters.salesOrderFilter) !== -1;
+    // const subscriptionIdMatch =
+    //   data.SALES_ORDER.toString().indexOf(filters.subscriptionIdFilter) !== -1;
+    const dealIdMatch =
+      data.DEAL_ID.toString().toLowerCase().indexOf(filters.dealIdFilter) !==
+      -1;
     return (
       progNameMatch &&
       accountMatch &&
       orderStatusMatch &&
       invoiceStatusMatch &&
-      flexibleInvoiceMatch &&
+      // flexibleInvoiceMatch &&
       salesOrderMatch &&
-      subscriptionIdMatch
+      // subscriptionIdMatch &&
+      dealIdMatch
     );
   };
 
@@ -174,25 +175,57 @@ export class OrderLifecycleComponent implements OnInit {
       this.accountFilter = data['account'];
       this.orderStatusFilter = data['orderStats'];
       this.invoiceStatusFilter = data['invoiceStats'];
-      this.flexibleInvoiceFilter = data['flexibleInvoice'];
+      // this.flexibleInvoiceFilter = data['flexibleInvoice'];
       this.salesOrderFilter = data['salesOrdr'];
-      this.subscriptionIdFilter = data['subscriptionId'];
+      // this.subscriptionIdFilter = data['subscriptionId'];
+      this.dealIdFilter = data['dealId'];
+      const filteredAccounts = this.filterAccountByProgramNames(
+        this.orderLifecycleStatus,
+        this.programNameFilter
+      );
+      // const filteredProgramNames = this.filterProgramNameByAccount(
+      //   this.orderLifecycleStatus,
+      //   this.accountFilter
+      // );
+      this.accountOptions = [...new Set(filteredAccounts)];
+      // this.progNameOptions = [...new Set(filteredProgramNames)];
       this.applyFilter();
     });
   }
 
   applyFilter() {
     this.salesOrderFilter = this.searchForm.get('salesOrdr').value;
+    // this.subscriptionIdFilter = this.searchForm.get('subscriptionId').value;
+    this.dealIdFilter = this.searchForm.get('dealId').value;
     this.dataSource.filter = JSON.stringify({
       progNameFilter: this.programNameFilter,
       accountFilter: this.accountFilter,
       orderStatusFilter: this.orderStatusFilter,
       invoiceStatusFilter: this.invoiceStatusFilter,
-      flexibleInvoiceFilter: this.flexibleInvoiceFilter,
+      // flexibleInvoiceFilter: this.flexibleInvoiceFilter,
       salesOrderFilter: this.salesOrderFilter,
-      subscriptionIdFilter: this.subscriptionIdFilter,
+      // subscriptionIdFilter: this.subscriptionIdFilter,
+      dealIdFilter: this.dealIdFilter,
     });
   }
+
+  filterAccountByProgramNames(
+    data: OrderLifecycleModel[],
+    programNames: string[]
+  ): string[] {
+    return data
+      .filter((order) => programNames.includes(order.PROGRAM_NAME))
+      .map((order) => order.ACCOUNT);
+  }
+
+  // filterProgramNameByAccount(
+  //   data: OrderLifecycleModel[],
+  //   account: string[]
+  // ): string[] {
+  //   return data
+  //     .filter((order) => account.includes(order.ACCOUNT))
+  //     .map((order) => order.PROGRAM_NAME);
+  // }
 
   openDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleSummaryComponent, {
@@ -202,15 +235,17 @@ export class OrderLifecycleComponent implements OnInit {
 
   displayedColumns = [
     'select',
-    'STATUS_AS_OF_DATE',
+    // 'STATUS_AS_OF_DATE',
     'PROGRAM_NAME',
     'ACCOUNT',
+    'DEAL_ID',
     'SALES_ORDER',
     'ORDER_VALUE',
     'TOTAL_LINE_COUNT',
     'ORDER_STATUS',
     'CONTRACT_NUMBER',
     'LINES_ON_HOLD',
+    'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICING_STATUS',
     'INVOICE_LINES',
     'INVOICE_DATE',
@@ -218,12 +253,10 @@ export class OrderLifecycleComponent implements OnInit {
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
     'ACCRUALS_EXECUTION_TIME',
-    'SUBSCRIPTION_ID',
-    'FLEXIBLE_INVOICE_ELIGIBLE',
+    // 'SUBSCRIPTION_ID',
     'FUTURE_INVOICE_RELEASE_DATE',
     'TERM_IN_YEARS',
     'BOOK_DATE',
-    'DEAL_ID',
     'COMMENTS',
   ];
 
@@ -304,7 +337,7 @@ export class OrderLifecycleComponent implements OnInit {
 
 export interface OrderLifecycleModel {
   select: string;
-  STATUS_AS_OF_DATE: string;
+  // STATUS_AS_OF_DATE: string;
   PROGRAM_NAME: string;
   ACCOUNT: string;
   SALES_ORDER: string;
