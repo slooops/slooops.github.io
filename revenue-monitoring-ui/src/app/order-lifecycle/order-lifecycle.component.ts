@@ -62,6 +62,10 @@ export class OrderLifecycleComponent implements OnInit {
   orderStatusOptions: string[] = [];
   invoiceStatusOptions: string[] = [];
   flexibleInvoiceOptions: string[] = [];
+  progNameTemp: string[] = [];
+  accountTemp: string[] = [];
+  orderStatusTemp: string[] = [];
+  invoiceStatusTemp: string[] = [];
 
   programNameFilter: string[] = [];
   accountFilter: string[] = [];
@@ -114,22 +118,16 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   filterData() {
-    let progName = [];
-    let account = [];
-    let orderStatus = [];
-    let invoiceStatus = [];
-    let flexibleInvoice = [];
     this.orderLifecycleStatus.forEach((data) => {
-      progName.push(data.PROGRAM_NAME);
-      account.push(data.ACCOUNT);
-      orderStatus.push(data.ORDER_STATUS);
-      invoiceStatus.push(data.INVOICING_STATUS);
-      flexibleInvoice.push(data.FLEXIBLE_INVOICE_ELIGIBLE);
+      this.progNameTemp.push(data.PROGRAM_NAME);
+      this.accountTemp.push(data.ACCOUNT);
+      this.orderStatusTemp.push(data.ORDER_STATUS);
+      this.invoiceStatusTemp.push(data.INVOICING_STATUS);
     });
-    this.progNameOptions = [...new Set(progName)];
-    this.accountOptions = [...new Set(account)];
-    this.orderStatusOptions = [...new Set(orderStatus)];
-    this.invoiceStatusOptions = [...new Set(invoiceStatus)];
+    this.progNameOptions = [...new Set(this.progNameTemp)];
+    this.accountOptions = [...new Set(this.accountTemp)];
+    this.orderStatusOptions = [...new Set(this.orderStatusTemp)];
+    this.invoiceStatusOptions = [...new Set(this.invoiceStatusTemp)];
     // this.flexibleInvoiceOptions = [...new Set(flexibleInvoice)];
   }
 
@@ -179,16 +177,35 @@ export class OrderLifecycleComponent implements OnInit {
       this.salesOrderFilter = data['salesOrdr'];
       // this.subscriptionIdFilter = data['subscriptionId'];
       this.dealIdFilter = data['dealId'];
-      const filteredAccounts = this.filterAccountByProgramNames(
-        this.orderLifecycleStatus,
-        this.programNameFilter
-      );
-      // const filteredProgramNames = this.filterProgramNameByAccount(
-      //   this.orderLifecycleStatus,
-      //   this.accountFilter
-      // );
-      this.accountOptions = [...new Set(filteredAccounts)];
-      // this.progNameOptions = [...new Set(filteredProgramNames)];
+      if (
+        this.programNameFilter.length > 0 &&
+        this.accountFilter.length === 0
+      ) {
+        const filteredAccounts = this.filterAccountByProgramNames(
+          this.orderLifecycleStatus,
+          this.programNameFilter
+        );
+        this.accountOptions = [...new Set(filteredAccounts)];
+      } else if (
+        this.programNameFilter.length > 0 &&
+        this.accountFilter.length > 0
+      ) {
+        const filteredAccounts = this.filterAccountByProgramNames(
+          this.orderLifecycleStatus,
+          this.programNameFilter
+        );
+
+        this.accountFilter.forEach((data) => {
+          if (!filteredAccounts.includes(data)) {
+            this.accountFilter = this.accountFilter.filter(
+              (ele) => ele !== data
+            );
+          }
+          this.accountOptions = [...new Set(filteredAccounts)];
+        });
+      } else {
+        this.accountOptions = [...new Set(this.accountTemp)];
+      }
       this.applyFilter();
     });
   }
@@ -202,9 +219,7 @@ export class OrderLifecycleComponent implements OnInit {
       accountFilter: this.accountFilter,
       orderStatusFilter: this.orderStatusFilter,
       invoiceStatusFilter: this.invoiceStatusFilter,
-      // flexibleInvoiceFilter: this.flexibleInvoiceFilter,
       salesOrderFilter: this.salesOrderFilter,
-      // subscriptionIdFilter: this.subscriptionIdFilter,
       dealIdFilter: this.dealIdFilter,
     });
   }
@@ -217,15 +232,6 @@ export class OrderLifecycleComponent implements OnInit {
       .filter((order) => programNames.includes(order.PROGRAM_NAME))
       .map((order) => order.ACCOUNT);
   }
-
-  // filterProgramNameByAccount(
-  //   data: OrderLifecycleModel[],
-  //   account: string[]
-  // ): string[] {
-  //   return data
-  //     .filter((order) => account.includes(order.ACCOUNT))
-  //     .map((order) => order.PROGRAM_NAME);
-  // }
 
   clearFilters() {
     this.dataSource.filter = '';
