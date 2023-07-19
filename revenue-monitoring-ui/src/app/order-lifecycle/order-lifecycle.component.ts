@@ -227,6 +227,11 @@ export class OrderLifecycleComponent implements OnInit {
   //     .map((order) => order.PROGRAM_NAME);
   // }
 
+  clearFilters() {
+    this.dataSource.filter = '';
+    this.searchForm.reset();
+  }
+
   openDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleSummaryComponent, {
       width: '700px',
