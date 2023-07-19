@@ -132,32 +132,19 @@ public class DailyMonitoringService {
     public OrderLifecycleModel getOrderStatus() {
         OrderLifecycleModel orderLifecycleModel = new OrderLifecycleModel();
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
-        String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
-       "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
-        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
+        String[] dateColumns = {"BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
         result.forEach(data -> {
-            for(String str: columnsToRemove){
-                data.remove(str);
-            }
             for(String str: dateColumns){
                 if(data.get(str) != null){
                     String date = data.get(str).toString();
                     String[] dateArr = date.split(" ");
                     data.put(str, dateArr[0]);
                 } else {
-                    data.put(str, "TBD");
+                    data.put(str, "NA");
                 }
             }
-            
-            Object obj = data.remove("ACTUAL_BOOK_DATE");
-            data.put("BOOK_DATE", obj);
-            data.keySet().forEach(key -> {
-                System.out.println(key);
-            });
         });
-
         orderLifecycleModel.setOrderLifecycleResult(result);
-
         List<String> keys = result.stream().map(Map::keySet).flatMap(Set::stream).collect(Collectors.toList());
         keys = new ArrayList<>(new HashSet<String>(keys));
         List<String> columns = new ArrayList<>();
