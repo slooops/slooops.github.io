@@ -81,7 +81,9 @@
       <!-- COMPLETION Column -->
       <ng-container matColumnDef="COMPLETION">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>COMPLETION</th>
-        <td mat-cell *matCellDef="let record">{{ record.COMPLETION }}</td>
+        <td mat-cell *matCellDef="let record">
+          {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
+        </td>
       </ng-container>
 
       <!-- Table header -->

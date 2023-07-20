@@ -1,7 +1,7 @@
 <br />
 <span class="col-sm-12" style="text-align: center !important">
   <span style="float: right"
-    >Dashboard updated : Today at {{ timeNow }} &nbsp;<i
+    >Dashboard updated : {{ timeNow }} &nbsp;<i
       class="fa fa-info-circle"
       matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
       [matTooltipPosition]="'above'"
@@ -716,7 +716,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: displayedColumns; let entry"
-        [ngClass]="{ highlight: entry.INVOICING_STATUS == 'Completed' }"
+        [ngClass]="{ highlight: entry.GL_POSTING_STATUS == 'Completed' }"
       ></tr>
 
       <tr class="mat-row" *matNoDataRow>

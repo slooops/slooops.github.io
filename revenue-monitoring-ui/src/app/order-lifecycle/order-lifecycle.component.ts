@@ -37,7 +37,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   ngOnInit(): void {
     this.getOrderLifecycle();
-    this.getCurrentTime();
+    this.updateTime();
     this.getOrderStatusDownload();
   }
 
@@ -55,7 +55,7 @@ export class OrderLifecycleComponent implements OnInit {
   protected http: ApiHttpService;
   length: number;
 
-  refreshInterval = 3600000; //ms
+  refreshInterval = 14400000; //ms
   timeNow: any;
 
   progNameOptions: string[] = [];
@@ -89,6 +89,25 @@ export class OrderLifecycleComponent implements OnInit {
   getOrderStatusDownload() {
     this.http.get('order-status-download').subscribe((data: any) => {
       this.orderLifeCycleDownload = data;
+      this.orderLifeCycleDownload.forEach((ele) => {
+        for (const key in ele) {
+          if (
+            key == 'BOOK_DATE' ||
+            key == 'INVOICE_DATE' ||
+            key == 'FUTURE_INVOICE_RELEASE_DATE' ||
+            key == 'COMMENTS'
+          ) {
+            continue;
+          }
+          if (ele[key] === null) {
+            if (key == 'INVOICE_LINES') {
+              ele[key] = '0';
+            } else {
+              ele[key] = 'TBD';
+            }
+          }
+        }
+      });
     });
   }
 
@@ -308,7 +327,13 @@ export class OrderLifecycleComponent implements OnInit {
     if (this.isAllSelected() || this.selection.selected.length === 0) {
       this.exportTableToExcel(this.orderLifeCycleDownload, sheetName, filename);
     } else if (!this.isAllSelected()) {
-      this.selectedArr = this.selection.selected;
+      this.selectedArr = this.orderLifeCycleDownload.filter((data) =>
+        this.selection.selected.some((ele) => {
+          return (
+            data.DEAL_ID === ele.DEAL_ID && data.SALES_ORDER === ele.SALES_ORDER
+          );
+        })
+      );
       this.exportTableToExcel(this.selectedArr, sheetName, filename);
     }
   }
@@ -333,15 +358,6 @@ export class OrderLifecycleComponent implements OnInit {
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
 
-  getCurrentTime() {
-    this.getEndpointData('dashboard-timestamp').subscribe((data: any) => {
-      this.timeNow = new Date(data['timeNow']).toLocaleString('en-us', {
-        hour: 'numeric',
-        minute: 'numeric',
-      });
-    });
-  }
-
   getEndpointData(endpoint: string): Observable<any> {
     let uniqueId = Date.now();
     let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
@@ -351,6 +367,42 @@ export class OrderLifecycleComponent implements OnInit {
       switchMap(() => this.http.get(cacheBustingUrl))
     );
     return polling$;
+  }
+
+  updateTime() {
+    // Get the current date and time in PST timezone
+    const currentDate = new Date();
+    const currentHour = currentDate.getHours();
+
+    // Calculate the time until the next scheduled request
+    let timeUntilNextRequest: number;
+
+    if (currentHour < 8) {
+      timeUntilNextRequest = (8 - currentHour) * 60 * 60 * 1000;
+    } else if (currentHour < 12) {
+      timeUntilNextRequest = (12 - currentHour) * 60 * 60 * 1000;
+    } else if (currentHour < 16) {
+      timeUntilNextRequest = (16 - currentHour) * 60 * 60 * 1000;
+    } else if (currentHour < 23) {
+      timeUntilNextRequest = (23 - currentHour) * 60 * 60 * 1000;
+    } else {
+      // If it's 11 PM or later, schedule the next request for 8 AM next day
+      timeUntilNextRequest = (24 - currentHour + 8) * 60 * 60 * 1000;
+    }
+
+    if (currentHour >= 8 && currentHour < 12) {
+      this.timeNow = 'Today at ' + 8 + ' AM PST';
+    } else if (currentHour >= 12 && currentHour < 16) {
+      this.timeNow = 'Today at ' + 12 + ' PM PST';
+    } else if (currentHour >= 16 && currentHour < 23) {
+      this.timeNow = 'Today at ' + 4 + ' PM PST';
+    } else if (currentHour >= 23) {
+      if (currentHour !== 0) {
+        this.timeNow = 'Today at ' + 11 + ' PM PST';
+      } else if (currentHour >= 0 && currentHour < 8) {
+        this.timeNow = 'Yesterday at ' + 11 + ' PM PST';
+      }
+    }
   }
 }
 
