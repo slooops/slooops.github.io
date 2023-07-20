@@ -37,13 +37,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
     this.getOrderLifecycleSummary();
   }
 
-  displayedColumns = [
-    'select',
-    'PROGRAM_NAME',
-    'ORDER_COUNT',
-    'STATUS',
-    'COMPLETION',
-  ];
+  displayedColumns = ['PROGRAM_NAME', 'ORDER_COUNT', 'STATUS', 'COMPLETION'];
 
   getOrderLifecycleSummary() {
     this.http.get('order-status-summary').subscribe((data: any) => {
@@ -63,12 +57,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
   }
 
   export(sheetName: string, filename: string) {
-    if (this.isAllSelected() || this.selection.selected.length === 0) {
-      this.exportTableToExcel(this.summaryModel, sheetName, filename);
-    } else if (!this.isAllSelected()) {
-      this.selectedArr = this.selection.selected;
-      this.exportTableToExcel(this.selectedArr, sheetName, filename);
-    }
+    this.exportTableToExcel(this.summaryModel, sheetName, filename);
   }
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
@@ -94,22 +83,6 @@ export class OrderLifecycleSummaryComponent implements OnInit {
   @Input() data: any;
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
-
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.dataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  masterToggle() {
-    this.isAllSelected()
-      ? this.selection.clear()
-      : this.dataSource.data.forEach((row) => this.selection.select(row));
-  }
-
-  onRowClicked(row: any) {
-    this.selectedData = row;
-  }
 }
 
 export interface OrderLifecycleSummaryModel {
