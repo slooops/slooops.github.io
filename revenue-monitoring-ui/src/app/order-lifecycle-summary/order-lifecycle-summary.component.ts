@@ -24,7 +24,6 @@ export class OrderLifecycleSummaryComponent implements OnInit {
 
   protected http: ApiHttpService;
   summaryModel: OrderLifecycleSummaryModel[];
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   dataSource: any;
   total: boolean = false;
@@ -45,20 +44,9 @@ export class OrderLifecycleSummaryComponent implements OnInit {
       this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
         this.summaryModel
       );
-
-      this.dataSource.sort = this.sort;
     });
   }
 
-  shouldDisplayCheckbox(row: any): boolean {
-    // Example: Hide checkbox for rows where 'column2' value is 'hide'
-    this.total = row.PROGRAM_NAME.includes('Total');
-    return this.total;
-  }
-
-  export(sheetName: string, filename: string) {
-    this.exportTableToExcel(this.summaryModel, sheetName, filename);
-  }
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
@@ -79,10 +67,6 @@ export class OrderLifecycleSummaryComponent implements OnInit {
     link.click(); // triggers the download process and save file prompt in browser
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
-
-  @Input() data: any;
-  selection = new SelectionModel<any>(true, []);
-  selectedData: any;
 }
 
 export interface OrderLifecycleSummaryModel {
