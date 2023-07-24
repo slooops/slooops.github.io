@@ -15,8 +15,8 @@ import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.compo
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/invoice-status',
-    pathMatch: 'full'
+    redirectTo: '/period-close-tracking-preclose',
+    pathMatch: 'full',
   },
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent },
@@ -26,19 +26,19 @@ const routes: Routes = [
   { path: 'revenue-controls', component: RevenueControlsComponent },
   {
     path: 'period-close-tracking-preclose',
-    component: PrecloseComponent
+    component: PrecloseComponent,
   },
   {
     path: 'period-close-tracking-midclose',
-    component: MidcloseComponent
+    component: MidcloseComponent,
   },
   { path: 'error-dash', component: ErrorDashComponent },
   { path: 'detail-view', component: DetailViewComponent },
-  { path: 'invoice-status', component: OrderLifecycleComponent }
+  { path: 'invoice-status', component: OrderLifecycleComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}
