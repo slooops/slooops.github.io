@@ -43,7 +43,7 @@ spec:
         softwareName: "rev-ops-monitoring-server"
     spec:
       containers:
-        - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
+        - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:server-${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
           name: "rev-ops-monitoring-server"
           ports:
