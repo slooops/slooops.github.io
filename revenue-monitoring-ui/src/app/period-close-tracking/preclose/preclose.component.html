@@ -132,13 +132,13 @@
               >⏸️</span
             >
             <span
-              matTooltip="Refer to comments below"
+              matTooltip="Details included in period close comments."
               matTooltipPosition="right"
               *ngIf="row[category].toLowerCase() === 'delayed'"
               >⚠️</span
             >
             <span
-              matTooltip="Refer to comments below"
+              matTooltip="Details included in period close comments."
               matTooltipPosition="right"
               *ngIf="row[category].toLowerCase() === 'stopped'"
               >🛑</span
@@ -290,6 +290,13 @@
         <br /><br />
       </span>
     </form>
+    <span style="float: right !important">
+      For questions, please send an email to:
+      <a href="mailto:i2c-close-monitoring@cisco.com">
+        i2c-close-monitoring@cisco.com
+      </a></span
+    >
+    <br />
     <mat-divider></mat-divider>
     <br />
     <div>
