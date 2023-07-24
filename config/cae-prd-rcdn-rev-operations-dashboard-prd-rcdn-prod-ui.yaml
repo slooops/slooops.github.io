@@ -1,5 +1,5 @@
 ---
-# Source: templates/dev-ui.yaml
+# Source: templates/prod-ui.yaml
 
 # codectl version : 1.5.6
 
@@ -7,7 +7,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: "rev-ops-monitoring-ui-service"
-  namespace: "rev-operations-dashboard-rtp2"
+  namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
@@ -24,21 +24,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "rev-ops-monitoring-ui"
-  namespace: "rev-operations-dashboard-rtp2"
+  namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-ui"
+      app: "rev-ops-monitoring-ui-stg"
   replicas: 1
   template:
     metadata:
-      namespace: "rev-operations-dashboard-rtp2"
+      namespace: "rev-operations-dashboard-prd-rcdn"
       labels:
         app: "rev-ops-monitoring-ui"
-        environment: "dev-ui"
+        environment: "prod-ui"
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
         softwareName: "rev-ops-monitoring-ui"
     spec:
