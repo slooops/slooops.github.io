@@ -199,6 +199,11 @@ metadata:
   namespace: rev-operations-dashboard-prd-rcdn
 spec:
   contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: api
+      methods:
+        - "*"
     - context: /snoop.jsp
       contextMatch: exact
       policyType: public
@@ -220,21 +225,7 @@ spec:
     - context: /
       contextMatch: prefix
       policyType: web
-    - context: /api/
-      contextMatch: prefix
-      policyType: api
-      methods:
-        - "*"
   policy:
-    web:
-      allow:
-        - paths:
-            - path: /
-              pathMatch: prefix
-          when:
-            - kind: userId
-              values:
-                - "*"
     api:
       allow:
         - paths:
@@ -244,6 +235,15 @@ spec:
             - kind: clientId
               values:
                 - "frs-oauth-nprd"
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
   provider:
     cors: platform
     idp: duo

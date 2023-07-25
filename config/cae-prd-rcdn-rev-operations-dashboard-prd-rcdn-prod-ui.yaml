@@ -85,15 +85,6 @@ spec:
       methods:
         - "*"
   policy:
-    web:
-      allow:
-        - paths:
-            - path: /
-              pathMatch: prefix
-          when:
-            - kind: userId
-              values:
-                - "*"
     api:
       allow:
         - paths:
@@ -103,6 +94,15 @@ spec:
             - kind: clientId
               values:
                 - "frs-oauth-nprd"
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
   provider:
     cors: platform
     idp: duo
