@@ -201,7 +201,7 @@ spec:
   contexts:
     - context: /api/
       contextMatch: prefix
-      policyType: api
+      policyType: public
       methods:
         - "*"
     - context: /snoop.jsp

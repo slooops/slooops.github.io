@@ -58,6 +58,11 @@ metadata:
   namespace: rev-operations-dashboard-prd-rcdn
 spec:
   contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - "*"
     - context: /snoop.jsp
       contextMatch: exact
       policyType: public
@@ -79,11 +84,6 @@ spec:
     - context: /
       contextMatch: prefix
       policyType: web
-    - context: /api/
-      contextMatch: prefix
-      policyType: api
-      methods:
-        - "*"
   policy:
     api:
       allow:
