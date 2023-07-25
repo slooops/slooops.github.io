@@ -1,0 +1,109 @@
+---
+# Source: templates/prod-ui.yaml
+
+# codectl version : 1.5.6
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "rev-ops-monitoring-ui-service"
+  namespace: "rev-operations-dashboard-prd-rcdn"
+  labels:
+    softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+    softwareName: "rev-ops-monitoring"
+spec:
+  ports:
+    - name: "ui"
+      protocol: "TCP"
+      port: 4200
+  selector:
+    app: "rev-ops-monitoring-ui"
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "rev-ops-monitoring-ui"
+  namespace: "rev-operations-dashboard-prd-rcdn"
+  labels:
+    softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+    softwareName: "rev-ops-monitoring"
+spec:
+  selector:
+    matchLabels:
+      app: "rev-ops-monitoring-ui"
+  replicas: 1
+  template:
+    metadata:
+      namespace: "rev-operations-dashboard-prd-rcdn"
+      labels:
+        app: "rev-ops-monitoring-ui"
+        environment: "prod-ui"
+        softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+        softwareName: "rev-ops-monitoring-ui"
+    spec:
+      containers:
+        - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
+          imagePullPolicy: IfNotPresent
+          name: "rev-ops-monitoring-ui"
+          ports:
+            - containerPort: 4200
+      imagePullSecrets:
+        - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+---
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: operations-dashboard.cisco.com
+  namespace: rev-operations-dashboard-prd-rcdn
+spec:
+  contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - "*"
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
+      contextMatch: prefix
+      policyType: public
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
+    - context: /
+      contextMatch: prefix
+      policyType: web
+  policy:
+    api:
+      allow:
+        - paths:
+            - path: /api/
+              pathMatch: prefix
+          when:
+            - kind: clientId
+              values:
+                - "frs-oauth-prod"
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform
