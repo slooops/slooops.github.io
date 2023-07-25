@@ -31,7 +31,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-ui-stg"
+      app: "rev-ops-monitoring-ui"
   replicas: 1
   template:
     metadata:
