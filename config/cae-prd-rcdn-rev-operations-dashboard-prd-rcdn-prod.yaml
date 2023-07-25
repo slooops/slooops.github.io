@@ -195,46 +195,53 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: example.cisco.com
-  namespace: example
-
+  name: operations-dashboard-api.cisco.com
+  namespace: rev-operations-dashboard-prd-rcdn
 spec:
-  provider:
-    idp: okta
-
-  #  the order of contexts is important, it dictates processing order.
   contexts:
-    - context: /api/
+    - context: /api
+      policyType: api
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
       contextMatch: prefix
       policyType: public
-      methods:
-        - OPTIONS
-
-    - context: /api/
-      contextMatch: prefix
-      policyType: api
-
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
     - context: /
       contextMatch: prefix
-      policyType: public
-
+      policyType: web
   policy:
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
     api:
       allow:
         - paths:
-            - path: /api/admin
-              pathMatch: exact
+            - path: /
+              pathMatch: prefix
           when:
             - kind: clientId
               values:
-                - admin_client
-
-        - notPaths:
-            - path: /app/admin
-              pathMatch: exact
-          when:
-            - kind: clientId
-              values:
-                - api_client_1
-                - api_client_2
-                - api_client_3
+                - "frs-oauth-nprd"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform
