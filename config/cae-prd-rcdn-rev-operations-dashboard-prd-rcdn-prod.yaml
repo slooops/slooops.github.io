@@ -199,8 +199,6 @@ metadata:
   namespace: rev-operations-dashboard-prd-rcdn
 spec:
   contexts:
-    - context: /api
-      policyType: api
     - context: /snoop.jsp
       contextMatch: exact
       policyType: public
@@ -222,6 +220,11 @@ spec:
     - context: /
       contextMatch: prefix
       policyType: web
+    - context: /api/
+      contentMatch: prefix
+      policyType: api
+      methods:
+        - "*"
   policy:
     web:
       allow:
@@ -235,7 +238,7 @@ spec:
     api:
       allow:
         - paths:
-            - path: /
+            - path: /api/
               pathMatch: prefix
           when:
             - kind: clientId
