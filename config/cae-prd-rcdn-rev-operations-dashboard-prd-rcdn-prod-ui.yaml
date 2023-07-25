@@ -80,7 +80,7 @@ spec:
       contextMatch: prefix
       policyType: web
     - context: /api/
-      contentMatch: prefix
+      contextMatch: prefix
       policyType: api
       methods:
         - "*"
