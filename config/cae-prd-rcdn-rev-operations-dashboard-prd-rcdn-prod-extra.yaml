@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-backend-service"
+  name: "rev-ops-monitoring-backend-extra-service"
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -17,13 +17,13 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-    app: "rev-ops-monitoring-server"
+    app: "rev-ops-monitoring-server-extra"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-server"
+  name: "rev-ops-monitoring-server-extra"
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -31,21 +31,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-server"
+      app: "rev-ops-monitoring-server-extra"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-prd-rcdn"
       labels:
-        app: "rev-ops-monitoring-server"
+        app: "rev-ops-monitoring-server-extra"
         environment: "prod"
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-server"
+        softwareName: "rev-ops-monitoring-server-extra"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-server"
+          name: "rev-ops-monitoring-server-extra"
           ports:
             - containerPort: 8080
           env:
@@ -195,7 +195,7 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: operations-dashboard-api.cisco.com
+  name: order-lifecycle-dashboard-api.cisco.com
   namespace: rev-operations-dashboard-prd-rcdn
   annotations:
     ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping

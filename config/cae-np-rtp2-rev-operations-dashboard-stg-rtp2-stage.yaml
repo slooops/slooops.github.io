@@ -197,6 +197,8 @@ kind: SSOAuthConfig
 metadata:
   name: operations-dashboard-api.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
+  annotations:
+    ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
 spec:
   contexts:
     - context: /api/
@@ -232,9 +234,9 @@ spec:
             - path: /api/
               pathMatch: prefix
           when:
-            - kind: clientId
+            - kind: tokenIssuer
               values:
-                - "frs-oauth-prod"
+                - ping
     web:
       allow:
         - paths:
