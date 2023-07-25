@@ -191,3 +191,50 @@ spec:
                   key: order.status.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+---
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: example.cisco.com
+  namespace: example
+
+spec:
+  provider:
+    idp: okta
+
+  #  the order of contexts is important, it dictates processing order.
+  contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - OPTIONS
+
+    - context: /api/
+      contextMatch: prefix
+      policyType: api
+
+    - context: /
+      contextMatch: prefix
+      policyType: public
+
+  policy:
+    api:
+      allow:
+        - paths:
+            - path: /api/admin
+              pathMatch: exact
+          when:
+            - kind: clientId
+              values:
+                - admin_client
+
+        - notPaths:
+            - path: /app/admin
+              pathMatch: exact
+          when:
+            - kind: clientId
+              values:
+                - api_client_1
+                - api_client_2
+                - api_client_3

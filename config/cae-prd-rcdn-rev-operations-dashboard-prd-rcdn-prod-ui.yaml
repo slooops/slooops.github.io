@@ -50,3 +50,57 @@ spec:
             - containerPort: 4200
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+---
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: operations-dashboard.cisco.com
+  namespace: rev-operations-dashboard-prd-rcdn
+spec:
+  contexts:
+    - context: /api/v1
+      policyType: api
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
+      contextMatch: prefix
+      policyType: public
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
+    - context: /
+      contextMatch: prefix
+      policyType: web
+  policy:
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
+    api:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: clientId
+              values:
+                - "frs-oauth-nprd"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform
