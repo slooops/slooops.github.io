@@ -60,6 +60,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DetailViewComponent } from './detail-view/detail-view.component';
 import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
+import { TruncatePipe } from './shared/truncate.pipe';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -84,6 +85,7 @@ export function initApp(authService: AuthenticationService) {
     DetailViewComponent,
     LoadingSymbolComponent,
     OrderLifecycleComponent,
+    TruncatePipe,
   ],
   imports: [
     BrowserModule,

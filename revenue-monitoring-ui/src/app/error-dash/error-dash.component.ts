@@ -14,6 +14,14 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+// import { Chart, registerables } from 'chart.js';
+// Chart.register(...registerables);
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { NgChartsModule } from 'ng2-charts';
+import { TruncatePipe } from '../shared/truncate.pipe';
+import { subDays, format } from 'date-fns';
+import { groupBy, map, reduce, forEach } from 'lodash';
 
 @Component({
   selector: 'app-error-dash',
@@ -41,9 +49,37 @@ export class ErrorDashComponent implements OnInit {
   batchSourceOptions: string[] = [];
   entityOptions: string[] = [];
 
+  mostRecords: errorDashModel;
+  highDollar: errorDashModel;
+  lowDollar: errorDashModel;
+
   applicationNameFilter: string[] = [];
   batchSourceFilter: string[] = [];
   entityFilter: string[] = [];
+
+  chartOptions = {
+    responsive: true,
+    tension: 0.3,
+  };
+
+  chartData = [];
+  chartLabels = [];
+
+  chartDataAppName = [];
+  // chartAppNameLabels = [];
+
+  displayedColumns: string[] = [
+    'select',
+    // 'PERIOD_YEAR',
+    'PERIOD_NAME',
+    'APPLICATION_NAME',
+    'BATCH_SOURCE',
+    'ENTITY',
+    'TRANSACTION_TYPE',
+    'AMOUNT_USD',
+    'NO_OF_RECORDS',
+    // 'CREATION_DATE',
+  ];
 
   constructor(
     http: ApiHttpService,
@@ -68,6 +104,86 @@ export class ErrorDashComponent implements OnInit {
       this.length = this.errorDashData.length;
       this.setSortAndPaginator();
       this.dataSource.filterPredicate = this.filterPredicate;
+      this.mostRecords = this.getMostRecords();
+      this.highDollar = this.getHighDollar();
+      this.lowDollar = this.getLowDollar();
+
+      console.log('Original data: ', data);
+
+      // Find the most recent date in the data
+      const mostRecentDate = new Date(
+        Math.max(
+          ...this.errorDashData.map((item) =>
+            new Date(item.CREATION_DATE).getTime()
+          )
+        )
+      );
+
+      // Subtract seven days from the most recent date
+      const sevenDaysBeforeMostRecent = subDays(mostRecentDate, 7);
+
+      const recentData = this.errorDashData.filter(
+        (item) => new Date(item.CREATION_DATE) >= sevenDaysBeforeMostRecent
+      );
+
+      // Format the creation date to just show the date
+      recentData.forEach((item) => {
+        item.CREATION_DATE = format(new Date(item.CREATION_DATE), 'M/d');
+      });
+
+      this.chartLabels = Array.from(
+        new Set(recentData.map((item) => item.CREATION_DATE))
+      ).sort();
+
+      const groupedByBatchSource = groupBy(recentData, 'BATCH_SOURCE');
+
+      // Batch Source Graph
+      this.chartData = map(groupedByBatchSource, (group, batchSource) => {
+        const data = new Array(this.chartLabels.length).fill(0);
+
+        forEach(group, (item) => {
+          const index = this.chartLabels.indexOf(item.CREATION_DATE);
+          if (index !== -1) {
+            data[index] = item.NO_OF_RECORDS;
+          }
+        });
+
+        return { data, label: batchSource };
+      });
+
+      // Application name graph
+      const groupedByAppName = groupBy(recentData, 'APPLICATION_NAME');
+
+      this.chartDataAppName = map(groupedByAppName, (group, appName) => {
+        const data = new Array(this.chartLabels.length).fill(0);
+
+        forEach(group, (item) => {
+          const index = this.chartLabels.indexOf(item.CREATION_DATE);
+          if (index !== -1) {
+            data[index] = item.NO_OF_RECORDS;
+          }
+        });
+
+        return { data, label: appName };
+      });
+    });
+  }
+
+  getMostRecords() {
+    return this.errorDashData.reduce((prev, current) => {
+      return prev.NO_OF_RECORDS > current.NO_OF_RECORDS ? prev : current;
+    });
+  }
+
+  getHighDollar() {
+    return this.errorDashData.reduce((prev, current) => {
+      return prev.AMOUNT_USD > current.AMOUNT_USD ? prev : current;
+    });
+  }
+
+  getLowDollar() {
+    return this.errorDashData.reduce((prev, current) => {
+      return prev.AMOUNT_USD < current.AMOUNT_USD ? prev : current;
     });
   }
 
@@ -159,30 +275,18 @@ export class ErrorDashComponent implements OnInit {
       : this.dataSource.data.forEach((row) => this.selection.select(row));
   }
 
-  // for the view details button
-  viewDetails() {
-    if (this.selection.hasValue()) {
+  viewDetails(data?: errorDashModel) {
+    if (data) {
+      this.selectedData = [data];
+      this.dataService.setErrorData(this.selectedData);
+    } else if (this.selection.hasValue()) {
       this.selectedData = this.selection.selected;
-      // We can store the selected data in a service or use other means
-      // to pass it to the detail view component. Idk what I'm doing lol
+      this.dataService.setErrorData(this.selectedData);
     }
     this.dataService.setAllErrorsSelected(this.isAllSelected());
-    this.dataService.setErrorData(this.selectedData);
     // Navigate to the detail view component
     this.router.navigate(['/detail-view']);
   }
-
-  displayedColumns: string[] = [
-    'select',
-    // 'PERIOD_YEAR',
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'BATCH_SOURCE',
-    'ENTITY',
-    'TRANSACTION_TYPE',
-    'AMOUNT_USD',
-    'NO_OF_RECORDS',
-  ];
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
 
@@ -201,4 +305,5 @@ export interface errorDashModel {
   TRANSACTION_TYPE: string;
   AMOUNT_USD: number;
   NO_OF_RECORDS: number;
+  CREATION_DATE: string;
 }
