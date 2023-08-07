@@ -1,5 +1,5 @@
 {
-  "api_url": "https://operations-dashboard-api.cisco.com/api/",
-  "authClientId": "frs-oauth-prod",
+  "api_url": "https://operations-dashboard-dev-api.cisco.com/api/",
+  "authClientId": "frs-oauth-nprd",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }
