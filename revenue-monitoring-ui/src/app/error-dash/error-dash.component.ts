@@ -59,7 +59,11 @@ export class ErrorDashComponent implements OnInit {
 
   chartOptions = {
     responsive: true,
-    tension: 0.3,
+    elements: {
+      line: {
+        tension: 0.3,
+      },
+    },
   };
 
   chartData = [];
@@ -108,10 +112,8 @@ export class ErrorDashComponent implements OnInit {
       this.highDollar = this.getHighDollar();
       this.lowDollar = this.getLowDollar();
 
-      console.log('Original data: ', data);
-
-      // Find the most recent date in the data
-      const mostRecentDate = new Date(
+      // Find the most recent date of new data
+      const mostRecentDataDate = new Date(
         Math.max(
           ...this.errorDashData.map((item) =>
             new Date(item.CREATION_DATE).getTime()
@@ -119,11 +121,11 @@ export class ErrorDashComponent implements OnInit {
         )
       );
 
-      // Subtract seven days from the most recent date
-      const sevenDaysBeforeMostRecent = subDays(mostRecentDate, 7);
+      // look back 90 days from the most recent date
+      const oneQuarterLookback = subDays(mostRecentDataDate, 90);
 
       const recentData = this.errorDashData.filter(
-        (item) => new Date(item.CREATION_DATE) >= sevenDaysBeforeMostRecent
+        (item) => new Date(item.CREATION_DATE) >= oneQuarterLookback
       );
 
       // Format the creation date to just show the date
@@ -138,20 +140,26 @@ export class ErrorDashComponent implements OnInit {
       const groupedByBatchSource = groupBy(recentData, 'BATCH_SOURCE');
 
       // Batch Source Graph
-      this.chartData = map(groupedByBatchSource, (group, batchSource) => {
-        const data = new Array(this.chartLabels.length).fill(0);
+      this.chartData = map(
+        groupedByBatchSource,
+        (group, batchSource, index) => {
+          const data = new Array(this.chartLabels.length).fill(0);
 
-        forEach(group, (item) => {
-          const index = this.chartLabels.indexOf(item.CREATION_DATE);
-          if (index !== -1) {
-            data[index] = item.NO_OF_RECORDS;
-          }
-        });
+          forEach(group, (item) => {
+            const index = this.chartLabels.indexOf(item.CREATION_DATE);
+            if (index !== -1) {
+              data[index] = item.NO_OF_RECORDS;
+            }
+          });
 
-        return { data, label: batchSource };
-      });
+          return {
+            data,
+            label: batchSource,
+          };
+        }
+      );
 
-      // Application name graph
+      // Application Name Graph
       const groupedByAppName = groupBy(recentData, 'APPLICATION_NAME');
 
       this.chartDataAppName = map(groupedByAppName, (group, appName) => {

@@ -39,54 +39,50 @@
         [type]="'line'"
       ></canvas>
     </div>
-
-    <div
-      style="
-        display: flex;
-        flex-direction: column-reverse;
-        flex-wrap: wrap;
-        max-height: 30vh;
-      "
-    >
-      <a [routerLink]="['/detail-view']" (click)="viewDetails(lowDollar)">
-        <div class="callout-box">
-          <div class="box-header">⬇ Top $ Error</div>
-          <div class="box-body">
-            {{ lowDollar?.AMOUNT_USD }}
-          </div>
-        </div>
-      </a>
-
-      <a [routerLink]="['/detail-view']" (click)="viewDetails(mostRecords)">
-        <div class="callout-box">
-          <div class="box-header">Top Source</div>
-          <div class="box-body">{{ mostRecords?.APPLICATION_NAME }}</div>
-        </div>
-      </a>
-
-      <a [routerLink]="['/detail-view']" (click)="viewDetails(lowDollar)">
-        <div class="callout-box">
-          <div class="box-header">Most Expensive</div>
-          <div class="box-body">{{ lowDollar?.ENTITY | truncate }}</div>
-        </div>
-      </a>
-
-      <a [routerLink]="['/detail-view']" (click)="viewDetails(highDollar)">
-        <div class="callout-box">
-          <div class="box-header">⬆ Top $ Error</div>
-          <div class="box-body">{{ highDollar?.AMOUNT_USD }}</div>
-        </div>
-      </a>
-
-      <a [routerLink]="['/detail-view']" (click)="viewDetails(mostRecords)">
-        <div class="callout-box">
-          <div class="box-header">Most Records</div>
-          <div class="box-body">{{ mostRecords?.ENTITY | truncate }}</div>
-        </div>
-      </a>
-    </div>
   </div>
+  <div
+    style="
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      max-height: 30vh;
+    "
+  >
+    <a [routerLink]="['/detail-view']" (click)="viewDetails(lowDollar)">
+      <div class="callout-box">
+        <div class="box-header">⬇ Top $ Error</div>
+        <div class="box-body">${{ lowDollar?.AMOUNT_USD }}</div>
+      </div>
+    </a>
 
+    <a [routerLink]="['/detail-view']" (click)="viewDetails(mostRecords)">
+      <div class="callout-box">
+        <div class="box-header">Top Source</div>
+        <div class="box-body">{{ mostRecords?.APPLICATION_NAME }}</div>
+      </div>
+    </a>
+
+    <a [routerLink]="['/detail-view']" (click)="viewDetails(lowDollar)">
+      <div class="callout-box">
+        <div class="box-header">Most Expensive</div>
+        <div class="box-body">{{ lowDollar?.ENTITY | truncate }}</div>
+      </div>
+    </a>
+
+    <a [routerLink]="['/detail-view']" (click)="viewDetails(highDollar)">
+      <div class="callout-box">
+        <div class="box-header">⬆ Top $ Error</div>
+        <div class="box-body">${{ highDollar?.AMOUNT_USD }}</div>
+      </div>
+    </a>
+
+    <a [routerLink]="['/detail-view']" (click)="viewDetails(mostRecords)">
+      <div class="callout-box">
+        <div class="box-header">Most Records</div>
+        <div class="box-body">{{ mostRecords?.ENTITY | truncate }}</div>
+      </div>
+    </a>
+  </div>
   <div
     style="display: flex; justify-content: space-between; align-items: center"
   >
@@ -234,7 +230,7 @@
     </ng-container>
 
     <!-- <ng-container matColumnDef="CREATION_DATE">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>CREATION_DATE</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Creation Date</th>
       <td mat-cell *matCellDef="let record">{{ record.CREATION_DATE }}</td>
     </ng-container> -->
 
