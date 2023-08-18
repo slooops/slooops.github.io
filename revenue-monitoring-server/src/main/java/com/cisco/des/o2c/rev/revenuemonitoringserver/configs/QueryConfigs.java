@@ -63,6 +63,13 @@ public class QueryConfigs { // TODO
     @Value("${order.status.q}")
     public String orderStatus;
 
+    @Value("$INVOICE_TRACKER_HEADER_QUERY}")
+    public String invoiceTrackerHeader;
+
+    @Value("$INVOICE_TRACKER_LINE_QUERY}")
+    public String invoiceTrackerLine;
+
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -116,4 +123,12 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "orderStatus" )
     public String getOrderStatus() {return this.orderStatus; }
+
+
+    @Bean( name = "invoiceTrackerHeader" )
+    public String getInvoiceTrackerHeader() {return this.invoiceTrackerHeader; }
+
+
+    @Bean( name = "invoiceTrackerLine" )
+    public String getInvoiceTrackerline() {return this.invoiceTrackerLine; }
 }

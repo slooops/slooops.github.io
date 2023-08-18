@@ -32,6 +32,11 @@ public class DailyMonitoringService {
 
     private String orderStatus;
 
+    private String invoiceTrackerHeader;
+
+    private String invoiceTrackerLine;
+
+
 //    Connection conn;
 
     @Autowired
@@ -39,7 +44,8 @@ public class DailyMonitoringService {
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
-                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments, String orderStatus) {
+                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
+                                  String orderStatus, String invoiceTrackerHeader, String invoiceTrackerLine) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -57,6 +63,8 @@ public class DailyMonitoringService {
         this.errorDetails = errorDetails;
         this.updateComments = updateComments;
         this.orderStatus = orderStatus;
+        this.invoiceTrackerHeader = invoiceTrackerHeader;
+        this.invoiceTrackerLine = invoiceTrackerLine;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -131,5 +139,14 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getOrderStatus() {
         return jdbcManager.queryForList(orderStatus);
     }
+
+    public List<Map<String, Object>> getInvoiceTrackerHeader() {
+        return jdbcManager.queryForList(invoiceTrackerHeader);
+    }
+
+    public List<Map<String, Object>> getInvoiceTrackerLine() {
+        return jdbcManager.queryForList(invoiceTrackerLine);
+    }
+
 
 }

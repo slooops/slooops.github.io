@@ -116,4 +116,15 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getOrderStatus(){
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
     }
+
+    @GetMapping("/invoice-tracker-header")
+    public ResponseEntity<List<Map<String, Object>>> getInvoiceTrackerHeader(){
+        return new ResponseEntity<>(service.getInvoiceTrackerHeader(), HttpStatus.OK);
+    }
+
+    @GetMapping("/invoice-tracker-line")
+    public ResponseEntity<List<Map<String, Object>>> getInvoiceTrackerLine(){
+        return new ResponseEntity<>(service.getInvoiceTrackerLine(), HttpStatus.OK);
+    }
+
 }

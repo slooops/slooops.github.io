@@ -11,6 +11,7 @@ import { DetailViewComponent } from './detail-view/detail-view.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
+import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
 
 const routes: Routes = [
   {
@@ -35,6 +36,7 @@ const routes: Routes = [
   { path: 'error-dash', component: ErrorDashComponent },
   { path: 'detail-view', component: DetailViewComponent },
   { path: 'invoice-status', component: OrderLifecycleComponent },
+  { path: 'invoice-tracker', component: InvoiceTrackerComponent },
 ];
 
 @NgModule({

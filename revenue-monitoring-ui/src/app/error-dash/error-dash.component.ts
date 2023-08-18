@@ -83,6 +83,7 @@ export class ErrorDashComponent implements OnInit {
     'AMOUNT_USD',
     'NO_OF_RECORDS',
     // 'CREATION_DATE',
+    // 'PROCESSED_DATE',
   ];
 
   constructor(
@@ -131,6 +132,7 @@ export class ErrorDashComponent implements OnInit {
       // Format the creation date to just show the date
       recentData.forEach((item) => {
         item.CREATION_DATE = format(new Date(item.CREATION_DATE), 'M/d');
+        item.PROCESSED_DATE = format(new Date(item.PROCESSED_DATE), 'M/d');
       });
 
       this.chartLabels = Array.from(
@@ -162,17 +164,42 @@ export class ErrorDashComponent implements OnInit {
       // Application Name Graph
       const groupedByAppName = groupBy(recentData, 'APPLICATION_NAME');
 
-      this.chartDataAppName = map(groupedByAppName, (group, appName) => {
-        const data = new Array(this.chartLabels.length).fill(0);
+      this.chartDataAppName = [];
+
+      forEach(groupedByAppName, (group, appName) => {
+        // Creation date data
+        const creationData = new Array(this.chartLabels.length).fill(0);
+        // Processed date data
+        const processedData = new Array(this.chartLabels.length).fill(0);
 
         forEach(group, (item) => {
-          const index = this.chartLabels.indexOf(item.CREATION_DATE);
-          if (index !== -1) {
-            data[index] = item.NO_OF_RECORDS;
+          const creationIndex = this.chartLabels.indexOf(item.CREATION_DATE);
+          const processedIndex = this.chartLabels.indexOf(
+            format(new Date(item.PROCESSED_DATE), 'M/d')
+          );
+
+          if (creationIndex !== -1) {
+            creationData[creationIndex] = item.NO_OF_RECORDS;
+          }
+
+          if (processedIndex !== -1) {
+            processedData[processedIndex] = item.NO_OF_RECORDS;
           }
         });
 
-        return { data, label: appName };
+        // Add the creation data series
+        this.chartDataAppName.push({
+          data: creationData,
+          label: `${appName} (Creation)`,
+        });
+
+        // Add the processed data series if it's "AI_ERROR" (or any other condition you want)
+        if (appName === 'AI_ERROR') {
+          this.chartDataAppName.push({
+            data: processedData,
+            label: `${appName} (Processed)`,
+          });
+        }
       });
     });
   }
@@ -314,4 +341,5 @@ export interface errorDashModel {
   AMOUNT_USD: number;
   NO_OF_RECORDS: number;
   CREATION_DATE: string;
+  PROCESSED_DATE: string;
 }
