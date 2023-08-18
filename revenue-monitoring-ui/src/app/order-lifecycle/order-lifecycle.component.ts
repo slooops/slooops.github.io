@@ -18,6 +18,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from '../order-lifecycle-upload/order-lifecycle-upload.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -37,8 +38,8 @@ export class OrderLifecycleComponent implements OnInit {
 
   ngOnInit(): void {
     this.getOrderLifecycle();
-    this.updateTime();
     this.getOrderStatusDownload();
+    this.updateTime();
   }
 
   searchForm: FormGroup = new FormGroup({
@@ -85,6 +86,7 @@ export class OrderLifecycleComponent implements OnInit {
   dataSource: any;
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
+  updatedData: boolean = false;
 
   getOrderStatusDownload() {
     this.http.get('order-status-download').subscribe((data: any) => {
@@ -112,11 +114,12 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   getOrderLifecycle() {
-    this.getEndpointData('order-status').subscribe((data: any) => {
+    this.http.get('order-status').subscribe((data: any) => {
       this.orderLifecycleStatus = data['orderLifecycleResult'];
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus
       );
+      this.updatedData = false;
       this.orderLifecycleStatus.forEach((data) => {
         for (const key in data) {
           if (
@@ -271,6 +274,20 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
+  openUploadDialog() {
+    const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
+      width: '700px',
+    });
+
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data === 'uploaded') {
+        this.updatedData = true;
+        this.dataSource = null;
+        this.getOrderLifecycle();
+      }
+    });
+  }
+
   displayedColumns = [
     'select',
     // 'STATUS_AS_OF_DATE',
@@ -358,49 +375,37 @@ export class OrderLifecycleComponent implements OnInit {
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
 
-  getEndpointData(endpoint: string): Observable<any> {
-    let uniqueId = Date.now();
-    let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
-
-    const polling$ = interval(this.refreshInterval).pipe(
-      startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl))
-    );
-    return polling$;
-  }
-
   updateTime() {
     // Get the current date and time in PST timezone
     const currentDate = new Date();
-    const currentHour = currentDate.getHours();
+    const pstDate = currentDate.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+    });
+    const timestamp = Date.parse(pstDate);
+    const currentPstDate = new Date(timestamp);
 
-    // Calculate the time until the next scheduled request
-    let timeUntilNextRequest: number;
+    const currentHour = currentPstDate.getHours();
 
-    if (currentHour < 8) {
-      timeUntilNextRequest = (8 - currentHour) * 60 * 60 * 1000;
-    } else if (currentHour < 12) {
-      timeUntilNextRequest = (12 - currentHour) * 60 * 60 * 1000;
-    } else if (currentHour < 16) {
-      timeUntilNextRequest = (16 - currentHour) * 60 * 60 * 1000;
-    } else if (currentHour < 23) {
-      timeUntilNextRequest = (23 - currentHour) * 60 * 60 * 1000;
-    } else {
-      // If it's 11 PM or later, schedule the next request for 8 AM next day
-      timeUntilNextRequest = (24 - currentHour + 8) * 60 * 60 * 1000;
+    if (
+      currentHour === 8 ||
+      currentHour === 12 ||
+      currentHour === 16 ||
+      currentHour === 23
+    ) {
+      this.getOrderLifecycle();
     }
 
-    if (currentHour >= 8 && currentHour < 12) {
+    if (currentHour >= 0 && currentHour < 8) {
+      this.timeNow = 'Yesterday at ' + 11 + ' PM PST';
+    } else if (currentHour >= 8 && currentHour < 12) {
       this.timeNow = 'Today at ' + 8 + ' AM PST';
     } else if (currentHour >= 12 && currentHour < 16) {
       this.timeNow = 'Today at ' + 12 + ' PM PST';
     } else if (currentHour >= 16 && currentHour < 23) {
       this.timeNow = 'Today at ' + 4 + ' PM PST';
-    } else if (currentHour >= 23) {
+    } else {
       if (currentHour !== 0) {
         this.timeNow = 'Today at ' + 11 + ' PM PST';
-      } else if (currentHour >= 0 && currentHour < 8) {
-        this.timeNow = 'Yesterday at ' + 11 + ' PM PST';
       }
     }
   }

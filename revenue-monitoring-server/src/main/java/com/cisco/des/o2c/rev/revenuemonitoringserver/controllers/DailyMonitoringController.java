@@ -3,13 +3,18 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -100,7 +105,7 @@ public class DailyMonitoringController {
         String[] input = comments.split(",");
         String comment = input[0];
         String closeType = input[1];
-        service.updateDashboardComments(comment, closeType);
+        service.updateDashboardComments(comments, closeType);
         Map<String,String> result = new HashMap<>();
         result.put("message", "Comments updated.");
         return result;
@@ -128,5 +133,29 @@ public class DailyMonitoringController {
     @GetMapping("/order-status-summary")
     public ResponseEntity<List<OrderLifecycleSummaryModel>> getOrderStatusSummary(){
         return new ResponseEntity<>(service.getOrderStatusSummary(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+            if (!file.isEmpty()) {
+                try {
+                    service.setUpdateOrderStatusFromFile(file);
+                    return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+                }
+            } else {
+                return ResponseEntity.badRequest().body("Uploaded file is empty.");
+            }
+    }
+
+    @PostMapping(value = "/order-lifecycle-upload-manual")
+    public ResponseEntity<String> manualUpload(@RequestBody UpdateOrderModel input){
+        try{
+            service.setUpdateOrderStatusFromData(input);
+            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload data.");
+        }
     }
 }

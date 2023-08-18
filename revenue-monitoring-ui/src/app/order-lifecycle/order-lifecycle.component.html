@@ -64,7 +64,7 @@
         <input matInput (keyup)="filter()" formControlName="dealId" />
         <i
           matSuffix
-          class="fa fa-search"
+          class="fa fa-search hoverIcon"
           style="color: gray"
           (click)="applyFilter()"
         ></i>
@@ -75,7 +75,7 @@
         <input matInput (keyup)="filter()" formControlName="salesOrdr" />
         <i
           matSuffix
-          class="fa fa-search"
+          class="fa fa-search hoverIcon"
           style="color: gray"
           (click)="applyFilter()"
         ></i>
@@ -165,6 +165,10 @@
     </form>
     <div>
       <button mat-stroked-button (click)="openDialog()">View Summary</button>
+      &nbsp;
+      <button mat-stroked-button (click)="openUploadDialog()">
+        Deal Upload
+      </button>
       &nbsp;
       <button
         mat-stroked-button
@@ -728,7 +732,7 @@
   </div>
 
   <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!dataSource?.data?.length">
+    <ng-container *ngIf="!dataSource?.data?.length || updatedData">
       <tr>
         <td colspan="100%" style="text-align: center">
           <app-loading-symbol></app-loading-symbol>

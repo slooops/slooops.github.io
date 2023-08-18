@@ -1,10 +1,17 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +38,7 @@ public class DailyMonitoringService {
     private String orderStatus;
     private String orderStatusSummary;
     private String orderStatusDownload;
+    private String updateOrderStatus;
 
 
 //    Connection conn;
@@ -41,7 +49,9 @@ public class DailyMonitoringService {
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails,
-                                  String updateComments, String orderStatus, String orderStatusSummary, String orderStatusDownload) {
+                                  String updateComments, String orderStatus, String orderStatusSummary, String orderStatusDownload,
+                                  String updateOrderStatus
+    ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -61,6 +71,7 @@ public class DailyMonitoringService {
         this.orderStatus = orderStatus;
         this.orderStatusSummary = orderStatusSummary;
         this.orderStatusDownload = orderStatusDownload;
+        this.updateOrderStatus = updateOrderStatus;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -115,7 +126,7 @@ public class DailyMonitoringService {
     public List<Map<String,Object>> getDashboardComments() { return jdbcManager.queryForList(dashboardComments); }
 
     public int updateDashboardComments(String comments, String closeType) {
-        return jdbcManager.update(updateComments, closeType, comments);
+        return jdbcManager.updateComments(updateComments, closeType, comments);
     }
 
     public List<Map<String, Object>> getErrorSummary() {
@@ -171,6 +182,49 @@ public class DailyMonitoringService {
 
         return orderLifecycleModel;
     }
+
+    public void setUpdateOrderStatusFromFile(MultipartFile file) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
+            boolean isFirstLine = true;
+            while ((line = reader.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue;
+                }
+                String[] parts = line.split(",");
+                if (parts.length == 3) {
+                    UpdateOrderModel orderModel = new UpdateOrderModel();
+                    orderModel.setProgramName(parts[0]);
+                    orderModel.setAccount(parts[1]);
+                    orderModel.setDealIds(parts[2]);
+                    saveToDatabase(orderModel);
+                }
+            }
+        }
+    }
+
+    public void setUpdateOrderStatusFromData(UpdateOrderModel input){
+        UpdateOrderModel orderModel = new UpdateOrderModel();
+        orderModel.setProgramName(input.getProgramName());
+        orderModel.setAccount(input.getAccount());
+        String inputDealIds = input.getDealIds();
+        if(inputDealIds.contains(",")){
+            String[] updateDealIds = inputDealIds.replaceAll("\\s", "").split(",");
+            for(String id: updateDealIds){
+                orderModel.setDealIds(id);
+                saveToDatabase(orderModel);
+            }
+        } else {
+            orderModel.setDealIds(inputDealIds);
+            saveToDatabase(orderModel);
+        }
+    }
+
+    private void saveToDatabase(UpdateOrderModel csvData) {
+        jdbcManager.updateOrderStatus(this.updateOrderStatus, csvData.getProgramName(), csvData.getAccount(), Integer.parseInt(csvData.getDealIds()));
+    }
+
     public List<OrderLifecycleSummaryModel> getOrderStatusSummary() {
         List<Map<String, Object>> res = jdbcManager.queryForList(orderStatusSummary);
         List<OrderLifecycleSummaryModel> resultList = mapToOrderLifecycleSummaryModelList(res);

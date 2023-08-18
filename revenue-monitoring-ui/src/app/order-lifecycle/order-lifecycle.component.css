@@ -42,3 +42,7 @@ td {
 .progPanel {
   min-width: calc(100% + 30px) !important;
 }
+
+.hoverIcon {
+  cursor: pointer;
+}

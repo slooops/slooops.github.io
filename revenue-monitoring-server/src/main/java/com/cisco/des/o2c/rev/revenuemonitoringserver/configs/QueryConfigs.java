@@ -63,6 +63,9 @@ public class QueryConfigs { // TODO
     @Value("${order.status.q}")
     public String orderStatus;
 
+    @Value("${update.order.status.q}")
+    public String updateOrderStatus;
+
     @Value("${order.status.summary.q}")
     public String orderStatusSummary;
 
@@ -128,4 +131,6 @@ public class QueryConfigs { // TODO
     public String getOrderStatusSummary() {return this.orderStatusSummary; }
     @Bean( name = "orderStatusDownload" )
     public String getOrderStatusDownload() {return this.orderStatusDownload; }
+    @Bean( name= "updateOrderStatus" )
+    public String getUpdateOrderStatus() { return this.updateOrderStatus; }
 }

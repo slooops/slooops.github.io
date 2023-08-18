@@ -60,8 +60,12 @@ public class JdbcManager {
         return result;
     }
 
-    public int update(String sql, String closeType, String comments) {
+    public int updateComments(String sql, String closeType, String comments) {
         return jdbcTemplate.update(sql, closeType, comments);
+    }
+
+    public int updateOrderStatus(String sql, String progName, String account, int dealId){
+        return jdbcTemplate.update(sql, progName, account, dealId);
     }
 
     public List<Map<String, Object>> queryForListWithParams(String sql, String appName, String batchSource, String entity, String type){

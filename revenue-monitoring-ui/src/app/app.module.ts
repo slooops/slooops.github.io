@@ -47,26 +47,28 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbar, MatToolbarModule } from '@angular/material/toolbar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
-import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DetailViewComponent } from './detail-view/detail-view.component';
 import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogModule,
 } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -92,6 +94,7 @@ export function initApp(authService: AuthenticationService) {
     LoadingSymbolComponent,
     OrderLifecycleComponent,
     OrderLifecycleSummaryComponent,
+    OrderLifecycleUploadComponent,
   ],
   imports: [
     BrowserModule,
@@ -142,6 +145,7 @@ export function initApp(authService: AuthenticationService) {
     MatInputModule,
     MatFormFieldModule,
     MatDialogModule,
+    MatCardModule,
   ],
   providers: [
     DatePipe,
