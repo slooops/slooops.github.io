@@ -155,7 +155,7 @@ public class DailyMonitoringController {
             service.setUpdateOrderStatusFromData(input);
             return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
         } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload data.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
     }
 }

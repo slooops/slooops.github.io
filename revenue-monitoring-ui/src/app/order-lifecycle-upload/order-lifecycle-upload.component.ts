@@ -13,9 +13,9 @@ export class OrderLifecycleUploadComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleUploadComponent>,
-    private http: ApiHttpService,
+    public http: ApiHttpService,
     private formBuilder: FormBuilder,
-    private dialog: MatDialog
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {

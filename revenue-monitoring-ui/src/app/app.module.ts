@@ -36,8 +36,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
-import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component';
 import { MenuComponent } from './menu/menu.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
@@ -84,8 +82,6 @@ export function initApp(authService: AuthenticationService) {
     TsvExceptionsSubSkuComponent,
     RevenueControlsComponent,
     PeriodCloseTrackingComponent,
-    LoginComponent,
-    HomeComponent,
     MenuComponent,
     PrecloseComponent,
     MidcloseComponent,
