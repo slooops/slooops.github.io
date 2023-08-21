@@ -151,10 +151,12 @@ public class DailyMonitoringController {
 
     @PostMapping(value = "/order-lifecycle-upload-manual")
     public ResponseEntity<String> manualUpload(@RequestBody UpdateOrderModel input){
+        System.out.println(input.getDealIds());
         try{
             service.setUpdateOrderStatusFromData(input);
             return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
         } catch (Exception e){
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
     }
