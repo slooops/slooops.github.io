@@ -16,7 +16,7 @@ import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.compo
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/period-close-tracking-preclose',
+    redirectTo: '/error-dash',
     pathMatch: 'full',
   },
   { path: 'login', component: LoginComponent },
