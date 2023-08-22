@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,13 +8,7 @@ import { Observable, interval } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-// import { Chart, registerables } from 'chart.js';
-// Chart.register(...registerables);
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { NgChartsModule } from 'ng2-charts';
-import { TruncatePipe } from '../shared/truncate.pipe';
+import { FormControl, FormGroup } from '@angular/forms';
 import { subDays, format } from 'date-fns';
 import { groupBy, map, reduce, forEach } from 'lodash';
 
@@ -265,7 +254,7 @@ export class ErrorDashComponent implements OnInit {
 
   getEndpointData(endpoint: string): Observable<any> {
     const polling$ = interval(this.refreshInterval).pipe(
-      startWith(0), // Emit initial value immediately
+      startWith(0),
       switchMap(() => this.http.get(endpoint))
     );
     return polling$;
@@ -319,7 +308,6 @@ export class ErrorDashComponent implements OnInit {
       this.dataService.setErrorData(this.selectedData);
     }
     this.dataService.setAllErrorsSelected(this.isAllSelected());
-    // Navigate to the detail view component
     this.router.navigate(['/detail-view']);
   }
 
