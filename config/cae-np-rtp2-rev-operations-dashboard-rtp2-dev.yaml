@@ -189,5 +189,15 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.query
+            - name: INVOICE_TRACKER_HEADER_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.tracker.header.query
+            - name: INVOICE_TRACKER_LINE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.tracker.line.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
