@@ -117,8 +117,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   preCloseStartTime: String;
   preCloseEndTime: String;
+  preCloseActualEndTime: String;
   midCloseStartTime: String;
   midCloseEndTime: String;
+  midCloseActualEndTime: String;
   productVolume: Number;
   serviceVolume: Number;
 
@@ -295,6 +297,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
           this.preCloseEndTime = this.extractDatePrettify(
             row['CLOSE_END_TIME']
           );
+          this.preCloseActualEndTime = this.extractDatePrettify(
+            row['ACTUAL_CLOSE_END_TIME']
+          );
         } else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
           this.midclosePeriod = row['PERIOD_NAME'];
           this.midcloseQuarter = row['QUARTER'];
@@ -303,6 +308,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
           );
           this.midCloseEndTime = this.extractDatePrettify(
             row['CLOSE_END_TIME']
+          );
+          this.midCloseActualEndTime = this.extractDatePrettify(
+            row['ACTUAL_CLOSE_END_TIME']
           );
         }
         this.getIsQuarterEnd();
