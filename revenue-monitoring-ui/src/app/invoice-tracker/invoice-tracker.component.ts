@@ -81,6 +81,18 @@ export class InvoiceTrackerComponent implements OnInit {
   }
 
   formatHeader(column: string): string {
+    const replacements = {
+      'SO#': 'Order Number',
+      'SAF_ID#': 'SAF ID #',
+      'SAF-TYPE': 'SAF-Type',
+      'SUBSCRIPTION#': 'Subscription #',
+    };
+
+    // Check if there's a special replacement for the given column.
+    if (replacements[column]) {
+      return replacements[column];
+    }
+
     return column
       .replace(/_/g, ' ')
       .replace(
@@ -319,213 +331,6 @@ export class InvoiceTrackerComponent implements OnInit {
     },
   ];
 
-  headerColumns2 = [
-    'REQUEST_TYPE',
-    'CONTROL_CATEGORY',
-    'OPERATING_UNIT',
-    'LEDGER_CURRENCY',
-    'THRESHOLD_AMOUNT',
-    'TRAN_AMOUNT',
-    'TRX_NUMBER',
-    'BATCH_SOURCE_NAME',
-    'TRX_DATE',
-    'TRAN_CURRENCY_CODE',
-    'USD_AMOUNT',
-    'SUBSCRIPTION#',
-    'BILL_NUMBER',
-  ];
-
-  headerData2 = [
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '20,000,000',
-      TRAN_AMOUNT: '33,716,133.56',
-      TRX_NUMBER: '6,101,406,321',
-      BATCH_SOURCE_NAME: 'XAAS',
-      TRX_DATE: '23-Jan-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$33,716,133.56',
-      'SUBSCRIPTION#': 'Sub940579',
-      BILL_NUMBER: '1000715867678',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '20,000,000',
-      TRAN_AMOUNT: '72,470,510.35',
-      TRX_NUMBER: '6,101,437,414',
-      BATCH_SOURCE_NAME: 'XAAS',
-      TRX_DATE: '28-Feb-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$72,470,510.35',
-      'SUBSCRIPTION#': 'Sub1091325',
-      BILL_NUMBER: '1000717105932',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '20,000,000',
-      TRAN_AMOUNT: '24,677,173.50',
-      TRX_NUMBER: '6,101,444,540',
-      BATCH_SOURCE_NAME: 'XAAS',
-      TRX_DATE: '1-Mar-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$24,677,173.50',
-      'SUBSCRIPTION#': 'SR100784',
-      BILL_NUMBER: '600000000149',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '20,000,000',
-      TRAN_AMOUNT: '24,789,757.41',
-      TRX_NUMBER: '6,101,455,522',
-      BATCH_SOURCE_NAME: 'XAAS',
-      TRX_DATE: '13-Mar-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$24,789,757.41',
-      'SUBSCRIPTION#': 'SR100605',
-      BILL_NUMBER: '600000000216',
-    },
-  ];
-
-  headerColumns3 = [
-    'REQUEST_TYPE',
-    'CONTROL_CATEGORY',
-    'OPERATING_UNIT',
-    'LEDGER_CURRENCY',
-    'THRESHOLD_AMOUNT',
-    'TRAN_AMOUNT',
-    'TRX_NUMBER',
-    'BATCH_SOURCE_NAME',
-    'TRX_DATE',
-    'TRAN_CURRENCY_CODE',
-    'USD_AMOUNT',
-    'SAF_ID#',
-    'SAF-TYPE',
-    'REASON_CODE',
-  ];
-
-  headerData3 = [
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '20,000,000',
-      TRAN_AMOUNT: '20,679,571.49',
-      TRX_NUMBER: '97657986-4792035',
-      BATCH_SOURCE_NAME: 'ICMS-ADJ',
-      TRX_DATE: '10-Jan-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$20,679,571.49',
-      'SAF_ID#': '4,792,035',
-      'SAF-TYPE': 'DEBIT_REBILL',
-      REASON_CODE: 'WRONG SHIP TO',
-    },
-  ];
-
-  headerColumns4 = [
-    'REQUEST_TYPE',
-    'CONTROL_CATEGORY',
-    'OPERATING_UNIT',
-    'LEDGER_CURRENCY',
-    'THRESHOLD_AMOUNT',
-    'TRAN_AMOUNT',
-    'TRX_NUMBER',
-    'BATCH_SOURCE_NAME',
-    'TRX_DATE',
-    'TRAN_CURRENCY_CODE',
-    'USD_AMOUNT',
-    'USER_NAME',
-  ];
-
-  headerData4 = [
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO BRAZIL CA OPERATING UNIT',
-      LEDGER_CURRENCY: 'BRL',
-      THRESHOLD_AMOUNT: '2,000,000.00',
-      TRAN_AMOUNT: '3,530,807.37',
-      TRX_NUMBER: '13,083',
-      BATCH_SOURCE_NAME: 'MANUAL-OTHER',
-      TRX_DATE: '3-Apr-23',
-      TRAN_CURRENCY_CODE: 'BRL',
-      USD_AMOUNT: '$671,441.25',
-      USER_NAME: 'WELLOPES',
-      '': '',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO GERMANY TECH OPERATING UNIT',
-      LEDGER_CURRENCY: 'EUR',
-      THRESHOLD_AMOUNT: '2,000,000.00',
-      TRAN_AMOUNT: '-4,336,657.50',
-      TRX_NUMBER: '1,001,000,978',
-      BATCH_SOURCE_NAME: 'MANUAL-OTHER',
-      TRX_DATE: '21-Mar-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '($4,336,657.50)',
-      USER_NAME: 'KBABUD',
-      '': '',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO GERMANY TECH OPERATING UNIT',
-      LEDGER_CURRENCY: 'EUR',
-      THRESHOLD_AMOUNT: '2,000,000.00',
-      TRAN_AMOUNT: '4,336,657.50',
-      TRX_NUMBER: '1,001,000,979',
-      BATCH_SOURCE_NAME: 'MANUAL-OTHER',
-      TRX_DATE: '21-Mar-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$4,336,657.50',
-      USER_NAME: 'KBABUD',
-      '': '',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'CISCO UK HOME OPERATING UNIT',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '8,000,000.00',
-      TRAN_AMOUNT: '-177,392,666.43',
-      TRX_NUMBER: '2,220,035,625',
-      BATCH_SOURCE_NAME: 'MANUAL-OTHER',
-      TRX_DATE: '21-Feb-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '($177,392,666.43)',
-      USER_NAME: 'POOJKRIS',
-      '': '',
-    },
-    {
-      REQUEST_TYPE: 'POST_AI',
-      CONTROL_CATEGORY: 'INVOICE AMOUNT GREATER THAN THRESHOLD',
-      OPERATING_UNIT: 'NETHERLANDS Operating',
-      LEDGER_CURRENCY: 'USD',
-      THRESHOLD_AMOUNT: '2,000,000.00',
-      TRAN_AMOUNT: '4,067,146.64',
-      TRX_NUMBER: '8,880,022,914',
-      BATCH_SOURCE_NAME: 'MANUAL-OTHER',
-      TRX_DATE: '13-Apr-23',
-      TRAN_CURRENCY_CODE: 'USD',
-      USD_AMOUNT: '$4,067,146.64',
-      USER_NAME: 'KBABUD',
-    },
-  ];
-
   lineColumns1 = [
     'REQUEST_TYPE',
     'CONTROL_CATEGORY',
@@ -577,64 +382,6 @@ export class InvoiceTrackerComponent implements OnInit {
       USD_AMOUNT: '$22,793,832.00',
       CREATION_DATE: '1/28/23 7:57',
     },
-  ];
-
-  lineColumns2 = [
-    'REQUEST_TYPE',
-    'CONTROL_CATEGORY',
-    'OPERATING_UNIT',
-    'LEDGER_CURRENCY',
-    'THRESHOLD_AMOUNT',
-    'INTERFACE_LINE_AMOUNT',
-    'ORDER_NUMBER',
-    'ORDER_LINE_ID',
-    'BATCH_SOURCE_NAME',
-    'TRANSACTION CURRENCY_CODE',
-    'USD_AMOUNT',
-    'SUBSCRIPTION_NUMBER',
-    'BILL_NUMBER',
-    'WEB_ORDER_ID',
-    'CREATION_DATE',
-  ];
-
-  lineData2 = [
-    [
-      {
-        REQUEST_TYPE: 'PRE_AI',
-        CONTROL_CATEGORY: 'LINE AMOUNT GREATER THAN THRESHOLD',
-        OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-        LEDGER_CURRENCY: 'USD',
-        THRESHOLD_AMOUNT: '20,000,000',
-        INTERFACE_LINE_AMOUNT: '38,593,195.00',
-        ORDER_NUMBER: '4,153,584',
-        ORDER_LINE_ID: '1000717105932-2-341024660723882955',
-        BATCH_SOURCE_NAME: 'XAAS',
-        'TRANSACTION CURRENCY_CODE': 'USD',
-        USD_AMOUNT: '$38,593,195.00',
-        SUBSCRIPTION_NUMBER: 'Sub1091325',
-        BILL_NUMBER: '1000717105932',
-        WEB_ORDER_ID: '94,087,094',
-        CREATION_DATE: '2/28/23 6:01',
-        '': '',
-      },
-      {
-        REQUEST_TYPE: 'PRE_AI',
-        CONTROL_CATEGORY: 'LINE AMOUNT GREATER THAN THRESHOLD',
-        OPERATING_UNIT: 'CISCO US OPERATING UNIT',
-        LEDGER_CURRENCY: 'USD',
-        THRESHOLD_AMOUNT: '20,000,000',
-        INTERFACE_LINE_AMOUNT: '-37,591,556.00',
-        ORDER_NUMBER: '4,153,585',
-        ORDER_LINE_ID: '1000717105932-2-341024660723880907',
-        BATCH_SOURCE_NAME: 'XAAS',
-        'TRANSACTION CURRENCY_CODE': 'USD',
-        USD_AMOUNT: '($37,591,556.00)',
-        SUBSCRIPTION_NUMBER: 'Sub1091325',
-        BILL_NUMBER: '1000717105932',
-        WEB_ORDER_ID: '94,087,094',
-        CREATION_DATE: '2/28/23 6:01',
-      },
-    ],
   ];
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;

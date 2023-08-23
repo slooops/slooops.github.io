@@ -90,6 +90,15 @@ export class ErrorDashComponent implements OnInit {
     this.getErrorSummary();
   }
 
+  safariFriendlyDate(dateString: string): Date {
+    const [date, time] = dateString.split('T');
+    const [YYYY, MM, DD] = date.split('-').map((part) => parseInt(part, 10));
+    const [HH, mm, ss] = time
+      .split(':')
+      .map((part) => parseInt(part.split('.')[0], 10));
+    return new Date(YYYY, MM - 1, DD, HH, mm, ss);
+  }
+
   getErrorSummary() {
     this.http.get('error-summary').subscribe((data: any) => {
       this.errorDashData = data;
@@ -106,7 +115,7 @@ export class ErrorDashComponent implements OnInit {
       const mostRecentDataDate = new Date(
         Math.max(
           ...this.errorDashData.map((item) =>
-            new Date(item.CREATION_DATE).getTime()
+            this.safariFriendlyDate(item.CREATION_DATE).getTime()
           )
         )
       );
@@ -115,29 +124,38 @@ export class ErrorDashComponent implements OnInit {
       const oneQuarterLookback = subDays(mostRecentDataDate, 90);
 
       const recentData = this.errorDashData.filter(
-        (item) => new Date(item.CREATION_DATE) >= oneQuarterLookback
+        (item) =>
+          this.safariFriendlyDate(item.CREATION_DATE) >= oneQuarterLookback
       );
 
-      // Format the creation date to just show the date
+      // Format the ISO date to just show the date
       recentData.forEach((item) => {
-        item.CREATION_DATE = format(new Date(item.CREATION_DATE), 'M/d');
-        item.PROCESSED_DATE = format(new Date(item.PROCESSED_DATE), 'M/d');
+        item.FORMATTED_CREATION_DATE = format(
+          this.safariFriendlyDate(item.CREATION_DATE),
+          'M/d'
+        );
+        item.FORMATTED_PROCESSED_DATE = format(
+          this.safariFriendlyDate(item.PROCESSED_DATE),
+          'M/d'
+        );
       });
 
       this.chartLabels = Array.from(
-        new Set(recentData.map((item) => item.CREATION_DATE))
+        new Set(recentData.map((item) => item.FORMATTED_CREATION_DATE))
       ).sort();
 
+      // Batch Source Graph
       const groupedByBatchSource = groupBy(recentData, 'BATCH_SOURCE');
 
-      // Batch Source Graph
       this.chartData = map(
         groupedByBatchSource,
         (group, batchSource, index) => {
           const data = new Array(this.chartLabels.length).fill(0);
 
           forEach(group, (item) => {
-            const index = this.chartLabels.indexOf(item.CREATION_DATE);
+            const index = this.chartLabels.indexOf(
+              item.FORMATTED_CREATION_DATE
+            );
             if (index !== -1) {
               data[index] = item.NO_OF_RECORDS;
             }
@@ -156,15 +174,15 @@ export class ErrorDashComponent implements OnInit {
       this.chartDataAppName = [];
 
       forEach(groupedByAppName, (group, appName) => {
-        // Creation date data
         const creationData = new Array(this.chartLabels.length).fill(0);
-        // Processed date data
         const processedData = new Array(this.chartLabels.length).fill(0);
 
         forEach(group, (item) => {
-          const creationIndex = this.chartLabels.indexOf(item.CREATION_DATE);
+          const creationIndex = this.chartLabels.indexOf(
+            item.FORMATTED_CREATION_DATE
+          );
           const processedIndex = this.chartLabels.indexOf(
-            format(new Date(item.PROCESSED_DATE), 'M/d')
+            format(this.safariFriendlyDate(item.PROCESSED_DATE), 'M/d')
           );
 
           if (creationIndex !== -1) {
@@ -320,6 +338,8 @@ export class ErrorDashComponent implements OnInit {
 }
 
 export interface errorDashModel {
+  FORMATTED_CREATION_DATE: string;
+  FORMATTED_PROCESSED_DATE: string;
   PERIOD_YEAR: number;
   PERIOD_NAME: number;
   APPLICATION_NAME: string;

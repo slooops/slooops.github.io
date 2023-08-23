@@ -28,49 +28,13 @@
         {{ formatHeader(column) }}
       </th>
       <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{
-          column == "STATUS_AS_OF_DATE" && record[column] != "NA"
-            ? (record[column] | date : "M/d/yyyy")
-            : record[column]
-        }}
+        {{ record[column] }}
       </td>
     </ng-container>
   </table>
 </div>
 
 <br /><br />
-
-<!-- <div class="table table-responsive" style="overflow: auto; max-width: 100%">
-  <table
-    style="width: -webkit-fill-available"
-    mat-table
-    [dataSource]="lineData2"
-    matSort
-    class="mat-elevation-z6"
-    aria-describedby="Invoice tracker table"
-  >
-    <tr
-      mat-header-row
-      *matHeaderRowDef="lineColumns2"
-      style="text-align: center"
-    ></tr>
-
-    <tr mat-row *matRowDef="let row; columns: lineColumns2"></tr>
-
-    <ng-container *ngFor="let column of lineColumns2" [matColumnDef]="column">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{
-          column == "STATUS_AS_OF_DATE" && record[column] != "NA"
-            ? (record[column] | date : "M/d/yyyy")
-            : record[column]
-        }}
-      </td>
-    </ng-container>
-  </table>
-</div> -->
 
 <br />
 
@@ -82,7 +46,7 @@
       mat-table
       [dataSource]="headerData1"
       matSort
-      class="mat-elevation-z6"
+      class="mat-elevation-z8"
       aria-describedby="Invoice tracker table"
     >
       <tr
@@ -106,11 +70,7 @@
           {{ formatHeader(column) }}
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            column == "STATUS_AS_OF_DATE" && record[column] != "NA"
-              ? (record[column] | date : "M/d/yyyy")
-              : record[column]
-          }}
+          {{ record[column] }}
         </td>
       </ng-container>
     </table>
@@ -137,105 +97,3 @@
 </div>
 
 <br /><br />
-<!-- 
-<div class="table table-responsive" style="overflow: auto; max-width: 100%">
-  <table
-    style="width: -webkit-fill-available"
-    mat-table
-    [dataSource]="headerData2"
-    matSort
-    class="mat-elevation-z6"
-    aria-describedby="Invoice tracker table"
-  >
-     <tr
-      mat-header-row
-      *matHeaderRowDef="headerColumns2"
-      style="text-align: center"
-    ></tr>
-
-      <tr mat-row *matRowDef="let row; columns: headerColumns2"></tr>
-
-       <ng-container *ngFor="let column of headerColumns2" [matColumnDef]="column">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{
-          column == "STATUS_AS_OF_DATE" && record[column] != "NA"
-            ? (record[column] | date : "M/d/yyyy")
-            : record[column]
-        }}
-      </td>
-    </ng-container>
-  </table>
-</div>
-
-<br /><br />
-
-<div class="table table-responsive" style="overflow: auto; max-width: 100%">
-  <table
-    style="width: -webkit-fill-available"
-    mat-table
-    [dataSource]="headerData3"
-    matSort
-    class="mat-elevation-z6"
-    aria-describedby="Invoice tracker table"
-  >
-     <tr
-      mat-header-row
-      *matHeaderRowDef="headerColumns3"
-      style="text-align: center"
-    ></tr>
-
-      <tr mat-row *matRowDef="let row; columns: headerColumns3"></tr>
-
-       <ng-container *ngFor="let column of headerColumns3" [matColumnDef]="column">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{
-          column == "STATUS_AS_OF_DATE" && record[column] != "NA"
-            ? (record[column] | date : "M/d/yyyy")
-            : record[column]
-        }}
-      </td>
-    </ng-container>
-  </table>
-</div>
-
-<br /><br />
-
-<div class="table table-responsive" style="overflow: auto; max-width: 100%">
-  <table
-    style="width: -webkit-fill-available"
-    mat-table
-    [dataSource]="headerData4"
-    matSort
-    class="mat-elevation-z6"
-    aria-describedby="Invoice tracker table"
-  >
-     <tr
-      mat-header-row
-      *matHeaderRowDef="headerColumns4"
-      style="text-align: center"
-    ></tr>
-
-    <tr mat-row *matRowDef="let row; columns: headerColumns4"></tr>
-
-    <ng-container *ngFor="let column of headerColumns4" [matColumnDef]="column">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{
-          column == "STATUS_AS_OF_DATE" && record[column] != "NA"
-            ? (record[column] | date : "M/d/yyyy")
-            : record[column]
-        }}
-      </td>
-    </ng-container>
-  </table>
-</div>
-
-<br /><br /> -->
