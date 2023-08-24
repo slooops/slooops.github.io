@@ -21,10 +21,6 @@ export class ErrorDashComponent implements OnInit {
   protected http: ApiHttpService;
   length: number;
 
-  preclosePeriod: String = '';
-  precloseQuarter: String = '';
-  refreshInterval = 120000; //ms
-
   searchForm: FormGroup = new FormGroup({
     appName: new FormControl(''),
     batchSource: new FormControl(''),
@@ -229,10 +225,6 @@ export class ErrorDashComponent implements OnInit {
     return new Date(YYYY, MM - 1, DD, HH, mm, ss);
   }
 
-  transformAppName(appName: string): string {
-    return appName === 'AI_ERROR' ? 'AI Error' : appName;
-  }
-
   filterData() {
     let appName = [];
     let batchSource = [];
@@ -270,25 +262,6 @@ export class ErrorDashComponent implements OnInit {
         applicationNameFilter: this.applicationNameFilter,
         batchSourceFilter: this.batchSourceFilter,
         entityFilter: this.entityFilter,
-      });
-    });
-  }
-
-  getEndpointData(endpoint: string): Observable<any> {
-    const polling$ = interval(this.refreshInterval).pipe(
-      startWith(0),
-      switchMap(() => this.http.get(endpoint))
-    );
-    return polling$;
-  }
-
-  getPeriodQuarterStartEndTime() {
-    this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
-      data.forEach((row) => {
-        if (row['CLOSE_TYPE'] == 'PRECLOSE') {
-          this.preclosePeriod = row['PERIOD_NAME'];
-          this.precloseQuarter = row['QUARTER'];
-        }
       });
     });
   }
