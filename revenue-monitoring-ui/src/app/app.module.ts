@@ -62,6 +62,7 @@ import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.componen
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { TruncatePipe } from './shared/truncate.pipe';
 import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
+import { TitleCaseWithExceptionsPipe } from './title-case-with-exceptions.pipe';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -88,6 +89,7 @@ export function initApp(authService: AuthenticationService) {
     OrderLifecycleComponent,
     TruncatePipe,
     InvoiceTrackerComponent,
+    TitleCaseWithExceptionsPipe,
   ],
   imports: [
     BrowserModule,

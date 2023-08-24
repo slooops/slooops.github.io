@@ -90,15 +90,6 @@ export class ErrorDashComponent implements OnInit {
     this.getErrorSummary();
   }
 
-  safariFriendlyDate(dateString: string): Date {
-    const [date, time] = dateString.split('T');
-    const [YYYY, MM, DD] = date.split('-').map((part) => parseInt(part, 10));
-    const [HH, mm, ss] = time
-      .split(':')
-      .map((part) => parseInt(part.split('.')[0], 10));
-    return new Date(YYYY, MM - 1, DD, HH, mm, ss);
-  }
-
   getErrorSummary() {
     this.http.get('error-summary').subscribe((data: any) => {
       this.errorDashData = data;
@@ -229,6 +220,19 @@ export class ErrorDashComponent implements OnInit {
     });
   }
 
+  safariFriendlyDate(dateString: string): Date {
+    const [date, time] = dateString.split('T');
+    const [YYYY, MM, DD] = date.split('-').map((part) => parseInt(part, 10));
+    const [HH, mm, ss] = time
+      .split(':')
+      .map((part) => parseInt(part.split('.')[0], 10));
+    return new Date(YYYY, MM - 1, DD, HH, mm, ss);
+  }
+
+  transformAppName(appName: string): string {
+    return appName === 'AI_ERROR' ? 'AI Error' : appName;
+  }
+
   filterData() {
     let appName = [];
     let batchSource = [];
@@ -287,19 +291,6 @@ export class ErrorDashComponent implements OnInit {
         }
       });
     });
-  }
-
-  extractDatePrettify(date: string) {
-    let dateParts = date.split('T')[0].split('-');
-    let year = dateParts[0];
-    let month = dateParts[1];
-    let day = dateParts[2];
-
-    let timeParts = date.split('T')[1].split('.');
-    let time = timeParts[0];
-
-    let prettyDate = `${month}/${day}/${year} ${time} PST`;
-    return prettyDate;
   }
 
   selection = new SelectionModel<any>(true, []);
