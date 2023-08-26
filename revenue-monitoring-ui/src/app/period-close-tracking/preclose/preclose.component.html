@@ -227,7 +227,7 @@
     </button>
   </div>
   <cui-table
-    *ngIf="isQuarterEnd && preCloseProgramTableData.length"
+    *ngIf="preCloseProgramTableData.length"
     [options]="pcloseInvGenTableOptions"
     [data]="preCloseProgramTableData"
     class="cuiAlign periodclosetbale"
@@ -252,7 +252,7 @@
     </button>
   </div>
   <cui-table
-    *ngIf="qeCashCollectedData.length"
+    *ngIf="isQuarterEnd && qeCashCollectedData.length"
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
     class="cuiAlign periodclosetbale"
