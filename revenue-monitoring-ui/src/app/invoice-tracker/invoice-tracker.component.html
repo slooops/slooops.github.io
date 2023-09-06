@@ -3,62 +3,146 @@
 <h2>Invoice Tracker</h2>
 
 <br />
+<div style="display: flex; justify-content: space-between; align-items: center">
+  <div style="display: flex; justify-content: start; align-items: flex-end">
+    <h4 style="padding: 10px">Line Level Control</h4>
 
-<br />
-<h4>Line Level Control</h4>
-<div class="table table-responsive" style="overflow: auto; max-width: 100%">
+    <form
+      [formGroup]="searchForm"
+      class="search__form"
+      style="padding-left: 20px"
+    >
+      <mat-form-field appearance="standard">
+        <mat-label>Select Entity</mat-label>
+        <mat-select
+          id="entity"
+          name="entity"
+          formControlName="entity"
+          [(value)]="entityFilter"
+          multiple
+        >
+          <mat-option
+            *ngFor="let entity of entityOptions"
+            [value]="entity"
+            (onSelectionChange)="filter()"
+            >{{ entity }}</mat-option
+          >
+        </mat-select>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <div>
+    <!-- <button mat-stroked-button>Download</button> -->
+  </div>
+</div>
+
+<div class="periodclosetbale sortArrow" style="overflow: auto; max-width: 100%">
   <table
-    style="width: -webkit-fill-available"
+    style="width: -webkit-fill-available; text-align: center"
     mat-table
-    [dataSource]="lineData1"
+    [dataSource]="dataSourceLine"
     matSort
-    class="mat-elevation-z6"
+    class="mat-elevation-z6 table-responsive table"
     aria-describedby="Invoice tracker table"
   >
     <tr
       mat-header-row
-      *matHeaderRowDef="lineColumns1"
-      style="text-align: center"
+      *matHeaderRowDef="lineColumns"
+      style="align-items: center !important"
     ></tr>
 
-    <tr mat-row *matRowDef="let row; columns: lineColumns1"></tr>
+    <tr mat-row *matRowDef="let row; columns: lineColumns"></tr>
 
-    <ng-container *ngFor="let column of lineColumns1" [matColumnDef]="column">
+    <ng-container *ngFor="let column of lineColumns" [matColumnDef]="column">
       <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
         {{ formatHeader(column) }}
       </th>
       <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
+        {{ formatColumn(column, record[column]) }}
       </td>
     </ng-container>
   </table>
 </div>
-
-<br /><br />
+<mat-paginator
+  #linePaginator
+  [pageSize]="10"
+  length="lengthLine"
+  [pageSizeOptions]="[]"
+  showFirstLastButtons
+  aria-label="Select page"
+>
+</mat-paginator>
+<div style="display: flex; justify-content: center">
+  <ng-container *ngIf="!dataSourceLine?.data?.length">
+    <tr>
+      <td colspan="100%" style="text-align: center">
+        <app-loading-symbol></app-loading-symbol>
+      </td>
+    </tr>
+  </ng-container>
+</div>
 
 <br />
 
-<h4>Header Level Control</h4>
 <div>
-  <div class="table table-responsive" style="overflow: auto; max-width: 100%">
+  <div
+    style="display: flex; justify-content: space-between; align-items: center"
+  >
+    <div style="display: flex; justify-content: start; align-items: flex-end">
+      <h4 style="padding: 10px">Header Level Control</h4>
+
+      <form
+        [formGroup]="searchForm"
+        class="search__form"
+        style="padding-left: 20px"
+      >
+        <mat-form-field appearance="standard">
+          <mat-label>Select Entity</mat-label>
+          <mat-select
+            id="entity"
+            name="entity"
+            formControlName="entity"
+            [(value)]="entityFilter"
+            multiple
+          >
+            <mat-option
+              *ngFor="let entity of entityOptions"
+              [value]="entity"
+              (onSelectionChange)="filter()"
+              >{{ entity }}</mat-option
+            >
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </div>
+
+    <div>
+      <!-- <button mat-stroked-button>Download</button> -->
+    </div>
+  </div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
+  >
     <table
       style="width: -webkit-fill-available"
       mat-table
-      [dataSource]="headerData1"
+      [dataSource]="dataSourceHeader"
       matSort
-      class="mat-elevation-z8"
+      class="table table-responsive mat-elevation-z8"
       aria-describedby="Invoice tracker table"
     >
       <tr
         mat-header-row
-        *matHeaderRowDef="headerColumns1"
+        *matHeaderRowDef="headerColumns"
         style="text-align: center"
       ></tr>
 
-      <tr mat-row *matRowDef="let row; columns: headerColumns1"></tr>
+      <tr mat-row *matRowDef="let row; columns: headerColumns"></tr>
 
       <ng-container
-        *ngFor="let column of headerColumns1"
+        *ngFor="let column of headerColumns"
         [matColumnDef]="column"
       >
         <th
@@ -70,30 +154,37 @@
           {{ formatHeader(column) }}
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
+          {{
+            column === "TRX_DATE"
+              ? (record[column] | date : "M/d/yyyy")
+              : column === "USD AMOUNT"
+              ? "$" + record[column]
+              : record[column]
+          }}
         </td>
       </ng-container>
     </table>
   </div>
 
-  <!-- <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!headerData1?.data?.length">
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!dataSourceHeader?.data?.length">
       <tr>
         <td colspan="100%" style="text-align: center">
           <app-loading-symbol></app-loading-symbol>
         </td>
       </tr>
     </ng-container>
-  </div> -->
+  </div>
 
-  <!-- <mat-paginator
-    [pageSize]="15"
-    length="length"
+  <mat-paginator
+    #headerPaginator
+    [pageSize]="10"
+    [length]="lengthHeader"
     [pageSizeOptions]="[]"
     showFirstLastButtons
     aria-label="Select page"
   >
-  </mat-paginator> -->
+  </mat-paginator>
 </div>
 
 <br /><br />

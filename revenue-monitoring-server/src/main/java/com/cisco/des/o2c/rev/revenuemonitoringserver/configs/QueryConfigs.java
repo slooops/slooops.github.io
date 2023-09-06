@@ -63,10 +63,10 @@ public class QueryConfigs { // TODO
     @Value("${order.status.q}")
     public String orderStatus;
 
-    @Value("$INVOICE_TRACKER_HEADER_QUERY}")
+    @Value("${invoice.tracker.header.q}")
     public String invoiceTrackerHeader;
 
-    @Value("$INVOICE_TRACKER_LINE_QUERY}")
+    @Value("${invoice.tracker.line.q}")
     public String invoiceTrackerLine;
 
 

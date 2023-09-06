@@ -13,3 +13,13 @@
   padding: 16px 16px 20px 16px;
   gap: 8px;
 }
+
+.custom-cell {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep th.mat-header-cell {
+  text-align: center !important;
+}
