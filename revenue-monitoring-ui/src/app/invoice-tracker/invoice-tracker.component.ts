@@ -33,13 +33,13 @@ export class InvoiceTrackerComponent implements OnInit {
 
   invoiceLine: InvoiceLineModel[];
   dataSourceLine: any;
-  @ViewChild('lineSort') lineSort: MatSort;
+  @ViewChild('lineSort', { static: true }) lineSort: MatSort;
   @ViewChild('linePaginator') linePaginator: MatPaginator;
   lengthLine: number;
 
   invoiceHeader: InvoiceHeaderModel[];
   dataSourceHeader: any;
-  @ViewChild('headerSort') headerSort: MatSort;
+  @ViewChild('headerSort', { static: true }) headerSort: MatSort;
   @ViewChild('headerPaginator') headerPaginator: MatPaginator;
   lengthHeader: number;
 

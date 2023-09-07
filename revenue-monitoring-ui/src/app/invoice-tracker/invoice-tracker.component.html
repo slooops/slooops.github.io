@@ -43,6 +43,7 @@
     mat-table
     [dataSource]="dataSourceLine"
     matSort
+    #lineSort="matSort"
     class="mat-elevation-z6 table-responsive table"
     aria-describedby="Invoice tracker table"
   >
@@ -130,6 +131,7 @@
       mat-table
       [dataSource]="dataSourceHeader"
       matSort
+      #headerSort="matSort"
       class="table table-responsive mat-elevation-z8"
       aria-describedby="Invoice tracker table"
     >
