@@ -67,8 +67,8 @@ export class InvoiceTrackerComponent implements OnInit {
 
   // Filter Code Variables
   searchForm: FormGroup = new FormGroup({
-    appName: new FormControl(''),
-    batchSource: new FormControl(''),
+    // appName: new FormControl(''),
+    // batchSource: new FormControl(''),
     entity: new FormControl(''),
   });
 
@@ -133,48 +133,6 @@ export class InvoiceTrackerComponent implements OnInit {
       // Default: Return value as is
       return value;
     }
-  }
-
-  filterData() {
-    // let appName = [];
-    let batchSource = [];
-    let entity = [];
-    this.invoiceHeader.forEach((data) => {
-      // appName.push(data.APPLICATION_NAME);
-      batchSource.push(data.BATCH_SOURCE_NAME);
-      entity.push(data.OPERATING_UNIT);
-    });
-    // this.appNameOptions = [...new Set(appName)];
-    this.batchSourceOptions = [...new Set(batchSource)];
-    this.entityOptions = [...new Set(entity)];
-  }
-
-  filterPredicate = (data: InvoiceHeaderModel, filter: any) => {
-    const filters = JSON.parse(filter);
-    // const appNameMatch =
-    //   filters.applicationNameFilter.length === 0 ||
-    //   filters.applicationNameFilter.includes(data.APPLICATION_NAME);
-    const batchSourceMatch =
-      filters.batchSourceFilter.length === 0 ||
-      filters.batchSourceFilter.includes(data.BATCH_SOURCE_NAME);
-    const entityMatch =
-      filters.entityFilter.length === 0 ||
-      filters.entityFilter.includes(data.OPERATING_UNIT);
-    // return appNameMatch && batchSourceMatch && entityMatch;
-    return batchSourceMatch && entityMatch;
-  };
-
-  filter() {
-    this.searchForm.valueChanges.subscribe((data) => {
-      // this.applicationNameFilter = data['appName'];
-      this.batchSourceFilter = data['batchSource'];
-      this.entityFilter = data['entity'];
-      this.dataSourceLine.filter = JSON.stringify({
-        // applicationNameFilter: this.applicationNameFilter,
-        batchSourceFilter: this.batchSourceFilter,
-        entityFilter: this.entityFilter,
-      });
-    });
   }
 
   setLineSortAndPaginator() {

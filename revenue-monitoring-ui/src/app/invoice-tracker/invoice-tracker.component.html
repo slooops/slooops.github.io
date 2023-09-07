@@ -6,34 +6,6 @@
 <div style="display: flex; justify-content: space-between; align-items: center">
   <div style="display: flex; justify-content: start; align-items: flex-end">
     <h4 style="padding: 10px">Line Level Control</h4>
-
-    <form
-      [formGroup]="searchForm"
-      class="search__form"
-      style="padding-left: 20px"
-    >
-      <mat-form-field appearance="standard">
-        <mat-label>Select Entity</mat-label>
-        <mat-select
-          id="entity"
-          name="entity"
-          formControlName="entity"
-          [(value)]="entityFilter"
-          multiple
-        >
-          <mat-option
-            *ngFor="let entity of entityOptions"
-            [value]="entity"
-            (onSelectionChange)="filter()"
-            >{{ entity }}</mat-option
-          >
-        </mat-select>
-      </mat-form-field>
-    </form>
-  </div>
-
-  <div>
-    <!-- <button mat-stroked-button>Download</button> -->
   </div>
 </div>
 
@@ -92,34 +64,6 @@
   >
     <div style="display: flex; justify-content: start; align-items: flex-end">
       <h4 style="padding: 10px">Header Level Control</h4>
-
-      <form
-        [formGroup]="searchForm"
-        class="search__form"
-        style="padding-left: 20px"
-      >
-        <mat-form-field appearance="standard">
-          <mat-label>Select Entity</mat-label>
-          <mat-select
-            id="entity"
-            name="entity"
-            formControlName="entity"
-            [(value)]="entityFilter"
-            multiple
-          >
-            <mat-option
-              *ngFor="let entity of entityOptions"
-              [value]="entity"
-              (onSelectionChange)="filter()"
-              >{{ entity }}</mat-option
-            >
-          </mat-select>
-        </mat-form-field>
-      </form>
-    </div>
-
-    <div>
-      <!-- <button mat-stroked-button>Download</button> -->
     </div>
   </div>
   <div
