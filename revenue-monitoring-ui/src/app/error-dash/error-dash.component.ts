@@ -82,7 +82,6 @@ export class ErrorDashComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngOnInit(): void {
-    // this.getPeriodQuarterStartEndTime();
     this.getErrorSummary();
   }
 
@@ -102,7 +101,7 @@ export class ErrorDashComponent implements OnInit {
       const mostRecentDataDate = new Date(
         Math.max(
           ...this.errorDashData.map((item) =>
-            this.safariFriendlyDate(item.CREATION_DATE).getTime()
+            this.safariFriendlyDate(item.PROCESSED_DATE).getTime()
           )
         )
       );
@@ -114,6 +113,14 @@ export class ErrorDashComponent implements OnInit {
         (item) =>
           this.safariFriendlyDate(item.CREATION_DATE) >= oneQuarterLookback
       );
+
+      // Sort recentData based on CREATION_DATE
+      recentData.sort((a, b) => {
+        return (
+          this.safariFriendlyDate(a.CREATION_DATE).getTime() -
+          this.safariFriendlyDate(b.CREATION_DATE).getTime()
+        );
+      });
 
       // Format the ISO date to just show the date
       recentData.forEach((item) => {
@@ -127,9 +134,10 @@ export class ErrorDashComponent implements OnInit {
         );
       });
 
+      // Now you can create the set for chartLabels
       this.chartLabels = Array.from(
         new Set(recentData.map((item) => item.FORMATTED_CREATION_DATE))
-      ).sort();
+      );
 
       // Batch Source Graph
       const groupedByBatchSource = groupBy(recentData, 'BATCH_SOURCE');
