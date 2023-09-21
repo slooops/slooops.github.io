@@ -67,6 +67,7 @@ import {
 } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
+import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -91,6 +92,7 @@ export function initApp(authService: AuthenticationService) {
     OrderLifecycleComponent,
     OrderLifecycleSummaryComponent,
     OrderLifecycleUploadComponent,
+    RevenueAccrualsComponent,
   ],
   imports: [
     BrowserModule,

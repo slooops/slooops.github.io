@@ -9,8 +9,6 @@ import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
-import { switchMap, startWith } from 'rxjs/operators';
-import { Observable, interval } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';

@@ -40,18 +40,24 @@ public class DailyMonitoringService {
     private String orderStatusDownload;
     private String updateOrderStatus;
 
-
-//    Connection conn;
-
+    private String kafkaError;
+    private String kafkaInbound;
+    private String arTrxnMissing;
+    private String accrualsProcessingErrors;
+    private String accrualsDistributionErrors;
+    private String accrualsSummarizationErrors;
+    private String kafkaPublishToDownstream;
+    private String errorDistributionSummarization;
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
-                                  String errorSummary, String allErrorDetails, String errorDetails,
-                                  String updateComments, String orderStatus, String orderStatusSummary, String orderStatusDownload,
-                                  String updateOrderStatus
-    ) {
+                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
+                                  String orderStatus, String orderStatusSummary, String orderStatusDownload,
+                                  String updateOrderStatus, String kafkaError, String kafkaInbound,
+                                  String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
+                                    String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -72,6 +78,14 @@ public class DailyMonitoringService {
         this.orderStatusSummary = orderStatusSummary;
         this.orderStatusDownload = orderStatusDownload;
         this.updateOrderStatus = updateOrderStatus;
+        this.kafkaError = kafkaError;
+        this.kafkaInbound = kafkaInbound;
+        this.arTrxnMissing = arTrxnMissing;
+        this.accrualsProcessingErrors = accrualsProcessingErrors;
+        this.accrualsDistributionErrors = accrualsDistributionErrors;
+        this.accrualsSummarizationErrors = accrualsSummarizationErrors;
+        this.kafkaPublishToDownstream = kafkaPublishToDownstream;
+        this.errorDistributionSummarization = errorDistributionSummarization;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -220,6 +234,21 @@ public class DailyMonitoringService {
             saveToDatabase(orderModel);
         }
     }
+    public List<Map<String, Object>> getKafkaError() { return jdbcManager.queryForList(kafkaError); }
+
+    public List<Map<String, Object>> getKafkaInbound() { return jdbcManager.queryForList(kafkaInbound); }
+
+    public List<Map<String, Object>> getArTrxnMissing() { return jdbcManager.queryForList(arTrxnMissing); }
+
+    public List<Map<String, Object>> getAccrualsProcessingErrors() { return jdbcManager.queryForList(accrualsProcessingErrors); }
+
+    public List<Map<String, Object>> getAccrualsDistributionErrors() { return jdbcManager.queryForList(accrualsDistributionErrors); }
+
+    public List<Map<String, Object>> getAccrualsSummarizationErrors() { return jdbcManager.queryForList(accrualsSummarizationErrors); }
+
+    public List<Map<String, Object>> getKafkaPublishToDownstream() { return jdbcManager.queryForList(kafkaPublishToDownstream); }
+
+    public List<Map<String, Object>> getErrorDistributionSummarization() { return jdbcManager.queryForList(errorDistributionSummarization); }
 
     private void saveToDatabase(UpdateOrderModel csvData) {
         jdbcManager.updateOrderStatus(this.updateOrderStatus, csvData.getProgramName(), csvData.getAccount(), Integer.parseInt(csvData.getDealIds()));

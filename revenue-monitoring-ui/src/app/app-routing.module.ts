@@ -9,11 +9,12 @@ import { DetailViewComponent } from './detail-view/detail-view.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
+import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/invoice-status',
+    redirectTo: '/revenue-accruals',
     pathMatch: 'full',
   },
   { path: 'standard-ar', component: StandardArExceptionsComponent },
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'error-dash', component: ErrorDashComponent },
   { path: 'detail-view', component: DetailViewComponent },
   { path: 'invoice-status', component: OrderLifecycleComponent },
+  { path: 'revenue-accruals', component: RevenueAccrualsComponent },
 ];
 
 @NgModule({

@@ -151,13 +151,51 @@ public class DailyMonitoringController {
 
     @PostMapping(value = "/order-lifecycle-upload-manual")
     public ResponseEntity<String> manualUpload(@RequestBody UpdateOrderModel input){
-        System.out.println(input.getDealIds());
         try{
             service.setUpdateOrderStatusFromData(input);
             return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
         } catch (Exception e){
-            System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
     }
+    @GetMapping("/kafka-errors")
+    public ResponseEntity<List<Map<String, Object>>> getKafkaErrors(){
+        return new ResponseEntity<>(service.getKafkaError(), HttpStatus.OK);
+    }
+
+    @GetMapping("/kafka-inbound")
+    public ResponseEntity<List<Map<String, Object>>> getKafkaInbound(){
+        return new ResponseEntity<>(service.getKafkaInbound(), HttpStatus.OK);
+    }
+
+    @GetMapping("/ar-trxn-missing")
+    public ResponseEntity<List<Map<String, Object>>> getArTrxnMissing(){
+        return new ResponseEntity<>(service.getArTrxnMissing(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accruals-processing-errors")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsProcessingErrors(){
+        return new ResponseEntity<>(service.getAccrualsProcessingErrors(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accruals-distribution-errors")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsDistributionErrors(){
+        return new ResponseEntity<>(service.getAccrualsDistributionErrors(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accruals-summarization-errors")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsSummarizationErrors(){
+        return new ResponseEntity<>(service.getAccrualsSummarizationErrors(), HttpStatus.OK);
+    }
+
+    @GetMapping("/kafka-publish-downstream")
+    public ResponseEntity<List<Map<String, Object>>> getKafkaPublishToDownstream(){
+        return new ResponseEntity<>(service.getKafkaPublishToDownstream(), HttpStatus.OK);
+    }
+
+    @GetMapping("/error-distribution-summarization")
+    public ResponseEntity<List<Map<String, Object>>> getErrorDistributionSummarization(){
+        return new ResponseEntity<>(service.getErrorDistributionSummarization(), HttpStatus.OK);
+    }
+
 }

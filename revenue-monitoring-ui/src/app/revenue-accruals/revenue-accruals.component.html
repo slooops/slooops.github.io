@@ -1,0 +1,154 @@
+<br />
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="kafkaErrorDataSource"
+    matSort
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? kafkaErrorMasterToggle() : null"
+          [checked]="
+            kafkaErrorSelection.hasValue() && isKafkaErrorAllSelected()
+          "
+          [indeterminate]="
+            kafkaErrorSelection.hasValue() && !isKafkaErrorAllSelected()
+          "
+        >
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? kafkaErrorSelection.toggle(row) : null"
+          [checked]="kafkaErrorSelection.isSelected(row)"
+        >
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ATTRIBUTE1">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        ATTRIBUTE 1
+      </th>
+      <td mat-cell *matCellDef="let record">
+        {{ record.ATTRIBUTE1 }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="CREATION_DATE">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        CREATION DATE
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.CREATION_DATE }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ERROR_MESSAGE">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        ERROR MESSAGE
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.ERROR_MESSAGE }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="OPERATING_UNIT">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        OPERATING UNIT
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.OPERATING_UNIT }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="PERIOD_NAME">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        <b style="font-weight: bolder; color: #0d3b4c">PERIOD NAME</b>
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.PERIOD_NAME }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="PERIOD_YEAR">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        <b style="font-weight: bolder; color: #0d3b4c">PERIOD YEAR</b>
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.PERIOD_YEAR }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="REV_CREATION_DATE">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        <b style="font-weight: bolder; color: #0d3b4c">REV CREATION DATE</b>
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.REV_CREATION_DATE }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="REV_PROCESS_FLAG">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        <b style="font-weight: bolder; color: #0d3b4c">REV PROCESS FLAG</b>
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.REV_PROCESS_FLAG }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="SUBSCRIBER">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        <b style="font-weight: bolder; color: #0d3b4c">SUBSCRIBER</b>
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.SUBSCRIBER }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="SUBSCRIPTION_REF_ID">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        SUBSCRIPTION REF ID
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.SUBSCRIPTION_REF_ID }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="SUB_TAG">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        SUB TAG
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.SUB_TAG }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="TAG">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        TAG
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.TAG }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="UNIQUE_PROCESS_ID">
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        UNIQUE PROCESS ID
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record.UNIQUE_PROCESS_ID }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="kafkaErrorsDisplayedColumns"></tr>
+
+    <tr mat-row *matRowDef="let row; columns: kafkaErrorsDisplayedColumns"></tr>
+  </table>
+</div>
