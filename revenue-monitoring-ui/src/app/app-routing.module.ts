@@ -12,6 +12,7 @@ import { PrecloseComponent } from './period-close-tracking/preclose/preclose.com
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
+import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 
 const routes: Routes = [
   {
@@ -37,6 +38,8 @@ const routes: Routes = [
   { path: 'detail-view', component: DetailViewComponent },
   { path: 'invoice-status', component: OrderLifecycleComponent },
   { path: 'invoice-tracker', component: InvoiceTrackerComponent },
+  { path: 'wd0-dash', component: Wd0DashComponent },
+  
 ];
 
 @NgModule({
