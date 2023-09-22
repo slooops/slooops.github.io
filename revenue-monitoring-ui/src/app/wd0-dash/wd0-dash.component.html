@@ -1,5 +1,176 @@
-<p>wd0-dash works!</p>
-
 <br />
-
+<div style="float: right; margin-right: 20px; margin-top: 15px">
+  Quarter: Q4FY2023 | Period: OCT-23
+</div>
+<h1 style="margin-left: 10px">WD-0 Dashboard</h1>
 <br />
+<br />
+<h2 style="margin-left: 10px">Summary Level</h2>
+<div style="margin-left: 10px">
+  ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp; ⏸️
+  N/A
+</div>
+<br />
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Buy/Sell AR Close</div>
+      <div class="box-body">Phase 1</div>
+      <div class="box-header">⚠️ 9:28 AM</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Intercompany Posting</div>
+      <div class="box-body">Phase 2</div>
+      <div class="box-header">⚠️ 6:00 AM</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Data Refresh in FCC</div>
+      <div class="box-body">Phase 3</div>
+      <div class="box-header">✓ 10:26 AM</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Auto-elimination & Consolidation</div>
+      <div class="box-body">Phase 4</div>
+      <div class="box-header">✓ 10:56 AM</div>
+    </div>
+  </a>
+</div>
+<br />
+<br />
+<div style="float: right; margin-right: 20px; margin-top: 15px">
+  Quarter: Q4FY2023 | Period: OCT-23
+</div>
+<h1 style="margin-left: 10px">Close Status Details</h1>
+<mat-divider></mat-divider>
+<div>
+  <br />
+  <h2 style="margin-left: 10px">Phase 1: Buy/Sell AR Close</h2>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Start Times</div>
+    <div class="box-body">Actual: 12:39 AM</div>
+    <div class="box-header">Scheduled: 12:20 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Completion Times</div>
+    <div class="box-body">Actual: 9:28 AM</div>
+    <div class="box-header">Expected: 9:28 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Sequence Information</div>
+    <div class="box-header">
+      Final auto-invoicing run on CG1PRD: All countries start processing
+      concurrently and in the following sequence:
+    </div>
+  </div>
+</div>
+
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Sequence Information</div>
+    <div class="box-header">
+      During Phase 1, FCC will continue to consolidate automatically at the top
+      of the hour until 6AM when the automatic consolidations are placed on hold
+    </div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Legend</div>
+    <div class="box-header">
+      ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp;
+      ⏸️
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-4">
+    <br />
+    <h2 style="margin-left: 10px">AR Close</h2>
+  </div>
+  <div class="col-sm-8">
+    <div style="float: right">
+      <span>
+        <mat-form-field appearance="standard">
+          <mat-label>Select Statuses</mat-label>
+          <mat-select [formControl]="" id="status" name="status" multiple>
+            <mat-option> Test </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span>
+      &nbsp;&nbsp;
+      <span>
+        <mat-form-field appearance="standard">
+          <mat-label>Select Entites</mat-label>
+          <mat-select [formControl]="" id="entity" name="entity" multiple>
+            <mat-option>Test1 </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </span>
+    </div>
+  </div>
+</div>
+<mat-divider></mat-divider>
+<div class="arclosetable">
+  <table class="table table-responsive equal-width">
+    <thead>
+      <tr>
+        <th>Entity</th>
+        <th>Subprocess</th>
+        <th>Gross Margin Impacting</th>
+        <th>Expected Completion</th>
+        <th>Actual Completion</th>
+        <th>Status</th>
+        <th>Loaded Into FCC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>India</td>
+        <td>Invoicing</td>
+        <td>✓</td>
+        <td>⏸️</td>
+        <td>10:50</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td>India</td>
+        <td>Receivables</td>
+        <td>✓</td>
+        <td>⏸️</td>
+        <td>11:00</td>
+        <td>✓</td>
+        <td>⚠️</td>
+      </tr>
+      <tr>
+        <td>India</td>
+        <td>Revenue Posting NGCCRM</td>
+        <td>✓</td>
+        <td>⏸️</td>
+        <td>11:01</td>
+        <td>✓</td>
+        <td>🛑</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<mat-divider></mat-divider>
