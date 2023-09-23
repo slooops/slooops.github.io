@@ -5,150 +5,398 @@
     mat-table
     [dataSource]="kafkaErrorDataSource"
     matSort
+    #kafkaErrors="matSort"
     class="mat-elevation-z8 table table-responsive"
   >
-    <ng-container matColumnDef="select">
-      <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox
-          (change)="$event ? kafkaErrorMasterToggle() : null"
-          [checked]="
-            kafkaErrorSelection.hasValue() && isKafkaErrorAllSelected()
-          "
-          [indeterminate]="
-            kafkaErrorSelection.hasValue() && !isKafkaErrorAllSelected()
-          "
-        >
-        </mat-checkbox>
-      </th>
-      <td mat-cell *matCellDef="let row">
-        <mat-checkbox
-          (click)="$event.stopPropagation()"
-          (change)="$event ? kafkaErrorSelection.toggle(row) : null"
-          [checked]="kafkaErrorSelection.isSelected(row)"
-        >
-        </mat-checkbox>
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="ATTRIBUTE1">
+    <ng-container
+      *ngFor="let column of kafkaErrorsDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
       <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        ATTRIBUTE 1
-      </th>
-      <td mat-cell *matCellDef="let record">
-        {{ record.ATTRIBUTE1 }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="CREATION_DATE">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        CREATION DATE
+        {{ formatColumnHeader(column) }}
       </th>
       <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.CREATION_DATE }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="ERROR_MESSAGE">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        ERROR MESSAGE
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.ERROR_MESSAGE }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="OPERATING_UNIT">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        OPERATING UNIT
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.OPERATING_UNIT }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="PERIOD_NAME">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        <b style="font-weight: bolder; color: #0d3b4c">PERIOD NAME</b>
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.PERIOD_NAME }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="PERIOD_YEAR">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        <b style="font-weight: bolder; color: #0d3b4c">PERIOD YEAR</b>
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.PERIOD_YEAR }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="REV_CREATION_DATE">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        <b style="font-weight: bolder; color: #0d3b4c">REV CREATION DATE</b>
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.REV_CREATION_DATE }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="REV_PROCESS_FLAG">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        <b style="font-weight: bolder; color: #0d3b4c">REV PROCESS FLAG</b>
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.REV_PROCESS_FLAG }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="SUBSCRIBER">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        <b style="font-weight: bolder; color: #0d3b4c">SUBSCRIBER</b>
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.SUBSCRIBER }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="SUBSCRIPTION_REF_ID">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        SUBSCRIPTION REF ID
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.SUBSCRIPTION_REF_ID }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="SUB_TAG">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        SUB TAG
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.SUB_TAG }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="TAG">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        TAG
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.TAG }}
-      </td>
-    </ng-container>
-
-    <ng-container matColumnDef="UNIQUE_PROCESS_ID">
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        UNIQUE PROCESS ID
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record.UNIQUE_PROCESS_ID }}
+        {{ record[column] }}
       </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="kafkaErrorsDisplayedColumns"></tr>
-
     <tr mat-row *matRowDef="let row; columns: kafkaErrorsDisplayedColumns"></tr>
   </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!kafkaErrorDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #kafkaErrorPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="kafkaInboundDataSource"
+    matSort
+    #kafkaInboundSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of kafkaInboundDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="kafkaInboundDisplayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: kafkaInboundDisplayedColumns"
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!kafkaInboundDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #kafkaInboundPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="arTrxnMissingDataSource"
+    matSort
+    #arTrxnMissingSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of aRTrxnMissingDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="aRTrxnMissingDisplayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: aRTrxnMissingDisplayedColumns"
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!arTrxnMissingDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #arTrxnMissingPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="accrualsProcessingErrorsDataSource"
+    matSort
+    #accrualsProcessingErrorsSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of accrualsProcessingErrorDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="accrualsProcessingErrorDisplayedColumns"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: accrualsProcessingErrorDisplayedColumns"
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!accrualsProcessingErrorsDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #accrualsProcessingErrorsPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="kafkaPublishDownstreamDataSource"
+    matSort
+    #kafkaPublishDownstreamSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of kafkaPublishDownstreamDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="kafkaPublishDownstreamDisplayedColumns"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: kafkaPublishDownstreamDisplayedColumns"
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!kafkaPublishDownstreamDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #kafkaPublishDownstreamPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="accrualsSummarizationErrorDataSource"
+    matSort
+    #accrualsSummarizationErrorSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of accrualsSummarizationErrorDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="accrualsSummarizationErrorDisplayedColumns"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: accrualsSummarizationErrorDisplayedColumns"
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!accrualsSummarizationErrorDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #accrualsSummarizationErrorPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="accrualsDistributionErrorDataSource"
+    matSort
+    #accrualsDistributionErrorSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of accrualsDistributionErrorDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="accrualsDistributionErrorDisplayedColumns"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: accrualsDistributionErrorDisplayedColumns"
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!accrualsDistributionErrorDataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #accrualsDistributionErrorPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
+</div>
+
+<div class="periodclosetbale sortArrow">
+  <table
+    mat-table
+    [dataSource]="errorDistributionSummarizationDataSource"
+    matSort
+    #errorDistributionSummarizationSort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of errorDistributionSummarizationDisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="errorDistributionSummarizationDisplayedColumns"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="
+        let row;
+        columns: errorDistributionSummarizationDisplayedColumns
+      "
+    ></tr>
+  </table>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container
+      *ngIf="!errorDistributionSummarizationDataSource?.data?.length"
+    >
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
+
+  <mat-paginator
+    #errorDistributionSummarizationPaginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
 </div>
