@@ -291,27 +291,33 @@ export class PeriodCloseTrackingComponent implements OnInit {
         if (row['CLOSE_TYPE'] == 'PRECLOSE') {
           this.preclosePeriod = row['PERIOD_NAME'];
           this.precloseQuarter = row['QUARTER'];
-          this.preCloseStartTime = this.extractDatePrettify(
-            row['CLOSE_START_TIME']
-          );
-          this.preCloseEndTime = this.extractDatePrettify(
-            row['CLOSE_END_TIME']
-          );
-          this.preCloseActualEndTime = this.extractDatePrettify(
-            row['ACTUAL_CLOSE_END_TIME']
-          );
+          this.preCloseStartTime =
+            row['CLOSE_START_TIME'] != null
+              ? this.extractDatePrettify(row['CLOSE_START_TIME'])
+              : 'N/A';
+          this.preCloseEndTime =
+            row['CLOSE_END_TIME'] != null
+              ? this.extractDatePrettify(row['CLOSE_END_TIME'])
+              : 'N/A';
+          this.preCloseActualEndTime =
+            row['ACTUAL_CLOSE_END_TIME'] != null
+              ? this.extractDatePrettify(row['ACTUAL_CLOSE_END_TIME'])
+              : 'N/A';
         } else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
           this.midclosePeriod = row['PERIOD_NAME'];
           this.midcloseQuarter = row['QUARTER'];
-          this.midCloseStartTime = this.extractDatePrettify(
-            row['CLOSE_START_TIME']
-          );
-          this.midCloseEndTime = this.extractDatePrettify(
-            row['CLOSE_END_TIME']
-          );
-          this.midCloseActualEndTime = this.extractDatePrettify(
-            row['ACTUAL_CLOSE_END_TIME']
-          );
+          this.midCloseStartTime =
+            row['CLOSE_START_TIME'] != null
+              ? this.extractDatePrettify(row['CLOSE_START_TIME'])
+              : 'N/A';
+          this.midCloseEndTime =
+            row['CLOSE_END_TIME'] != null
+              ? this.extractDatePrettify(row['CLOSE_END_TIME'])
+              : 'N/A';
+          this.midCloseActualEndTime =
+            row['ACTUAL_CLOSE_END_TIME'] != null
+              ? this.extractDatePrettify(row['ACTUAL_CLOSE_END_TIME'])
+              : 'N/A';
         }
         this.getIsQuarterEnd();
       });
