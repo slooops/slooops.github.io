@@ -11,15 +11,15 @@
   display: flex;
   min-width: 10vw;
   width: fit-content;
-  min-height: 5vw;
+  min-height: 1vw;
   flex-direction: column;
   align-items: flex-start;
-  border-radius: 4px;
+  border-radius: 2px;
   background: var(--light-base-surface, #fff);
   box-shadow: 0px 1.850000023841858px 6.25px 0px rgba(0, 0, 0, 0.19),
     0px 0.5px 1.75px 0px rgba(0, 0, 0, 0.04);
-  padding: 16px 16px 20px 16px;
-  gap: 8px;
+  padding: 5px 5px 5px 5px;
+  gap: 1px;
 }
 
 .box-header {
@@ -37,4 +37,12 @@
   font-style: normal;
   font-weight: 400;
   line-height: 105.882%;
+}
+
+td {
+  text-align: center !important;
+}
+
+.equal-width {
+  width: 100%;
 }

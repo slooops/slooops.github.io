@@ -2,60 +2,54 @@
 <div style="float: right; margin-right: 20px; margin-top: 15px">
   Quarter: Q4FY2023 | Period: OCT-23
 </div>
-<h1 style="margin-left: 10px">WD-0 Dashboard</h1>
-<br />
-<br />
+<h1 style="margin-left: 10px; font-weight: bold">WD-0 Dashboard</h1>
 <h2 style="margin-left: 10px">Summary Level</h2>
 <div style="margin-left: 10px">
   ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp; ⏸️
   N/A
 </div>
-<br />
 <div
   style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
 >
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-header">Buy/Sell AR Close</div>
-      <div class="box-body">Phase 1</div>
-      <div class="box-header">⚠️ 9:28 AM</div>
+  <div class="callout-box">
+    <div class="box-header">Buy/Sell AR Close</div>
+    <div class="box-body">
+      <a (click)="scrollToID('wd0-phase1')">Phase 1</a>
     </div>
-  </a>
+    <div class="box-header">⚠️ 9:28 AM</div>
+  </div>
 
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-header">Intercompany Posting</div>
-      <div class="box-body">Phase 2</div>
-      <div class="box-header">⚠️ 6:00 AM</div>
+  <div class="callout-box">
+    <div class="box-header">Intercompany Posting</div>
+    <div class="box-body">
+      <a (click)="scrollToID('wd0-phase2')">Phase 2</a>
     </div>
-  </a>
+    <div class="box-header">⚠️ 6:00 AM</div>
+  </div>
 
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-header">Data Refresh in FCC</div>
-      <div class="box-body">Phase 3</div>
-      <div class="box-header">✓ 10:26 AM</div>
+  <div class="callout-box">
+    <div class="box-header">Data Refresh in FCC</div>
+    <div class="box-body">
+      <a (click)="scrollToID('wd0-phase3')">Phase 3</a>
     </div>
-  </a>
+    <div class="box-header">✓ 10:26 AM</div>
+  </div>
 
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-header">Auto-elimination & Consolidation</div>
-      <div class="box-body">Phase 4</div>
-      <div class="box-header">✓ 10:56 AM</div>
+  <div class="callout-box">
+    <div class="box-header">Auto-elimination & Consolidation</div>
+    <div class="box-body">
+      <a (click)="scrollToID('wd0-phase4')">Phase 4</a>
     </div>
-  </a>
+    <div class="box-header">✓ 10:56 AM</div>
+  </div>
 </div>
-<br />
-<br />
 <div style="float: right; margin-right: 20px; margin-top: 15px">
   Quarter: Q4FY2023 | Period: OCT-23
 </div>
-<h1 style="margin-left: 10px">Close Status Details</h1>
+<h1 style="margin-left: 10px; font-weight: bold">Close Status Details</h1>
 <mat-divider></mat-divider>
 <div>
-  <br />
-  <h2 style="margin-left: 10px">Phase 1: Buy/Sell AR Close</h2>
+  <h2 id="wd0-phase1" style="margin-left: 10px">Phase 1: Buy/Sell AR Close</h2>
 </div>
 <div
   style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
@@ -96,13 +90,12 @@
     <div class="box-header">Legend</div>
     <div class="box-header">
       ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp;
-      ⏸️
+      ⏸️ N/A
     </div>
   </div>
 </div>
 <div class="row">
   <div class="col-sm-4">
-    <br />
     <h2 style="margin-left: 10px">AR Close</h2>
   </div>
   <div class="col-sm-8">
@@ -130,7 +123,7 @@
 <mat-divider></mat-divider>
 <div class="arclosetable">
   <table class="table table-responsive equal-width">
-    <thead>
+    <thead slass="header-bg">
       <tr>
         <th>Entity</th>
         <th>Subprocess</th>
@@ -172,5 +165,254 @@
     </tbody>
   </table>
 </div>
+<mat-divider></mat-divider>
+<div>
+  <h2 id="wd0-phase2" style="margin-left: 10px">
+    Phase 2: Global Intercompany Posting (Virtual Trader - VT processing)
+  </h2>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Start Times</div>
+    <div class="box-body">Actual: 3:24 AM</div>
+    <div class="box-header">Scheduled: 12:20 AM</div>
+  </div>
 
+  <div class="callout-box">
+    <div class="box-header">Completion Times</div>
+    <div class="box-body">Actual: 6:00 AM</div>
+    <div class="box-header">Expected: 9:28 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Sequence Information</div>
+    <div class="box-header">
+      When Phase 1 completes, VT automatically starts processing Cisco
+      Intercompany for all buy-sells.
+    </div>
+  </div>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Legend</div>
+    <div class="box-header">
+      ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp;
+      ⏸️ N/A
+    </div>
+  </div>
+</div>
+<mat-divider></mat-divider>
+<div class="vttable">
+  <table class="table table-responsive equal-width">
+    <thead>
+      <tr>
+        <th>Process</th>
+        <th>Description</th>
+        <th>Subprocess</th>
+        <th>Gross Margin Impacting</th>
+        <th>Expected Duration (in mins)</th>
+        <th>Actual Duration (in mins)</th>
+        <th>Status</th>
+        <th>Loaded Into FCC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>VT entries processing</td>
+        <td>
+          As VT runs, IC entries are posted, including IC Revenues and IC COGS.
+        </td>
+        <td>Cisco Intercompany - Accounting & Posting</td>
+        <td>✓</td>
+        <td>90</td>
+        <td>156</td>
+        <td>⏸️</td>
+        <td>✓</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<mat-divider></mat-divider>
+<div>
+  <h2 id="wd0-phase3" style="margin-left: 10px">
+    Phase 3: Data refresh in FCC
+  </h2>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Start Times</div>
+    <div class="box-body">Actual: 10:00 AM</div>
+    <div class="box-header">Scheduled: 10:00 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Completion Times</div>
+    <div class="box-body">Actual: 10:26 AM</div>
+    <div class="box-header">Expected: 10:40 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Sequence Information</div>
+    <div class="box-header">
+      VT run completes on CG1PRD and when Post of VT is done on CFNPRD IT will
+      manually run the FCC consolidation
+    </div>
+  </div>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Legend</div>
+    <div class="box-header">
+      ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp;
+      ⏸️ N/A
+    </div>
+  </div>
+</div>
+<mat-divider></mat-divider>
+<div class="fcctable">
+  <table class="table table-responsive equal-width">
+    <thead>
+      <tr>
+        <th>Process</th>
+        <th>Description</th>
+        <th>Subprocess</th>
+        <th>Gross Margin Impacting</th>
+        <th>Expected Duration (in mins)</th>
+        <th>Actual Duration (in mins)</th>
+        <th>Status</th>
+        <th>Loaded Into FCC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="3">Data refresh in FCC and consolidation</td>
+        <td>
+          Starts within 10 mins from end of global VT run. This step is pushes
+          data from CFN into FCC
+        </td>
+        <td>FCC Refresh - Entities Data Push to FCC</td>
+        <td>✓</td>
+        <td rowspan="3">90</td>
+        <td rowspan="3">156</td>
+        <td rowspan="3">⏸️</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td>
+          After data has been pushed into FCC, it is then loaded into the
+          specific entities.
+        </td>
+        <td>FCC Refresh - Entities Data Push to FCC</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td>
+          Once the data has been loaded, Phase 3 will finalize with the FCC
+          consolidation.
+        </td>
+        <td>FCC Consolidations</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<mat-divider></mat-divider>
+<div>
+  <h2 id="wd0-phase4" style="margin-left: 10px">
+    Phase 4: Auto-elimination and consolidation
+  </h2>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Start Times</div>
+    <div class="box-body">Actual: 10:30 AM</div>
+    <div class="box-header">Scheduled: 10:30 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Completion Times</div>
+    <div class="box-body">Actual: 10:56 AM</div>
+    <div class="box-header">Expected: 11:15 AM</div>
+  </div>
+
+  <div class="callout-box">
+    <div class="box-header">Sequence Information</div>
+    <div class="box-header">
+      When Phase 3 completes, 3 Auto-elimination entries are posted (ICPRODSALE,
+      ICSERVSALE, DCPELIM).
+    </div>
+  </div>
+</div>
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <div class="callout-box">
+    <div class="box-header">Legend</div>
+    <div class="box-header">
+      ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Late &nbsp; 🛑 Stopped &nbsp;
+      ⏸️ N/A
+    </div>
+  </div>
+</div>
+<mat-divider></mat-divider>
+<div class="consolidationtable">
+  <table class="table table-responsive equal-width">
+    <thead>
+      <tr>
+        <th>Process</th>
+        <th>Description</th>
+        <th>Subprocess</th>
+        <th>Gross Margin Impacting</th>
+        <th>Expected Duration (in mins)</th>
+        <th>Actual Duration (in mins)</th>
+        <th>Status</th>
+        <th>Loaded Into FCC</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="3">Autoelimination and consolidation</td>
+        <td>
+          FCC Smart view refresh of auto elims, Final Gross Margin can be
+          calculated at this time but will not refresh on FCC until FCC
+        </td>
+        <td>Consol to identify auto-elims to post and send to IT</td>
+        <td>✓</td>
+        <td>15</td>
+        <td rowspan="3">156</td>
+        <td rowspan="3">⏸️</td>
+        <td>⚠️</td>
+      </tr>
+      <tr>
+        <td>
+          After data has been pushed into FCC, it is then loaded into the
+          specific entities.
+        </td>
+        <td>IT runs FCC Elimination</td>
+        <td>✓</td>
+        <td>20</td>
+        <td>⚠️</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>FCC Consolidations with elimination</td>
+        <td>✓</td>
+        <td>10</td>
+        <td>⚠️</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 <mat-divider></mat-divider>
