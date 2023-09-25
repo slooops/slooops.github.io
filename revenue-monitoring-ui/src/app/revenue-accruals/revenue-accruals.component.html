@@ -1,5 +1,93 @@
 <br />
 
+<h2>Revenue Accruals Dashboard</h2>
+
+<div style="display: flex; max-height: 50vh">
+  <div class="callout-box chart-box">
+    <canvas
+      baseChart
+      [datasets]="chartData"
+      [labels]="chartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+  <div class="callout-box chart-box">
+    <canvas
+      baseChart
+      [datasets]="chartData"
+      [labels]="chartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+</div>
+
+<div
+  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+>
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Kafka</div>
+      <div class="box-body">Errors</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Kafka</div>
+      <div class="box-body">Inbounds</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">AR Trxn</div>
+      <div class="box-body">Missings</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Accruals</div>
+      <div class="box-body">Processing Errors</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Kafka</div>
+      <div class="box-body">Publish Downstream</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Accruals</div>
+      <div class="box-body">Summarization Errors</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Accruals</div>
+      <div class="box-body">Distribution Errors</div>
+    </div>
+  </a>
+
+  <a [routerLink]="['/detail-view']">
+    <div class="callout-box">
+      <div class="box-header">Error Distribution</div>
+      <div class="box-body">Summarization</div>
+    </div>
+  </a>
+</div>
+
+<br />
+
+<h3>Kafka Erorrs</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -45,6 +133,7 @@
   </mat-paginator>
 </div>
 
+<h3>Kafka Inbound</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -93,6 +182,7 @@
   </mat-paginator>
 </div>
 
+<h3>AR Transactions Missing</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -141,6 +231,7 @@
   </mat-paginator>
 </div>
 
+<h3>Accruals Processing Errors</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -192,6 +283,7 @@
   </mat-paginator>
 </div>
 
+<h3>Kafka Published to Downstream</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -243,6 +335,7 @@
   </mat-paginator>
 </div>
 
+<h3>Accruals Summarization Errors</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -294,6 +387,7 @@
   </mat-paginator>
 </div>
 
+<h3>Accruals Distribution Errors</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table
@@ -345,6 +439,7 @@
   </mat-paginator>
 </div>
 
+<h3>Error Distribution Summarizations</h3>
 <div class="periodclosetbale sortArrow">
   <table
     mat-table

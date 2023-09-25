@@ -93,6 +93,37 @@ export class RevenueAccrualsComponent implements OnInit {
     return columnName.replace(/_/g, ' ');
   }
 
+  chartOptions = {
+    responsive: true,
+    elements: {
+      line: {
+        tension: 0.3,
+      },
+    },
+  };
+
+  chartData = [];
+  chartLabels = [];
+
+  prepareChartData(): void {
+    if (this.kafkaInbounds) {
+      this.chartLabels = this.kafkaInbounds.map((data) =>
+        new Date(data.CREATION_DATE).toLocaleDateString()
+      );
+      console.log(this.chartLabels);
+      const chartDataPoints = this.kafkaInbounds.map(
+        (data) => +data.RECORD_COUNT
+      );
+
+      this.chartData = [
+        {
+          data: chartDataPoints,
+          label: 'Record Count',
+        },
+      ];
+    }
+  }
+
   kafkaErrorsDisplayedColumns: string[] = [
     'ATTRIBUTE1',
     'CREATION_DATE',
@@ -241,6 +272,8 @@ export class RevenueAccrualsComponent implements OnInit {
       );
       this.kafkaInboundDataSource.sort = this.kafkaInboundSort;
       this.kafkaInboundDataSource.paginator = this.kafkaInboundPaginator;
+
+      this.prepareChartData();
     });
   }
 
