@@ -23,6 +23,101 @@ export class Wd0DashComponent implements OnInit {
     'Status',
     '*Loaded into FCC (Y/N)',
   ];
+  phase2DisplayedColumns: string[] = [
+    'Process',
+    'Description',
+    'Subprocess',
+    'Gross Margin Impacting',
+    'Expected Duration (in mins)',
+    'Actual Duration (in mins)',
+    'Status',
+    'Loaded into FCC',
+  ];
+
+  phase4DataSource = [
+    {
+      Process: 'Auto-elimination and consolidation',
+      Description:
+        ' FCC Smart view refresh of auto elims, Final Gross Margin can be calculated at this time but will not refresh on FCC until FCC consolidations with elimination is complete. All steps in this stage are sequential.',
+      Subprocess: 'Consol to identify auto-elims to post and send to IT',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '40',
+      'Actual Completion': '26',
+      Status: '',
+      'Loaded into FCC (Y/N)': 'Y',
+    },
+    {
+      Process: '',
+      Description:
+        ' After data has been pushed into FCC, it is then loaded into the specific entities.',
+      Subprocess: 'FCC Refresh - Entity Data Load into FCC',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '40',
+      'Actual Completion': '26',
+      Status: '',
+      'Loaded into FCC (Y/N)': 'Y',
+    },
+    {
+      Process: '',
+      Description: '',
+      Subprocess: 'FCC Consolidations ',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '40',
+      'Actual Completion': '26',
+      Status: '',
+      'Loaded into FCC (Y/N)': 'Y',
+    },
+  ];
+
+  phase3DataSource = [
+    {
+      Process: 'Data refresh in FCC and consolidation',
+      Description:
+        ' Starts within 10 mins from end of global VT run. This step is pushes data from CFN into FCC',
+      Subprocess: 'FCC Refresh - Entities Data Push to FCC',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '40',
+      'Actual Completion': '26',
+      Status: '',
+      'Loaded into FCC (Y/N)': 'Y',
+    },
+    {
+      Process: '',
+      Description:
+        ' After data has been pushed into FCC, it is then loaded into the specific entities.',
+      Subprocess: 'FCC Refresh - Entity Data Load into FCC',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '40',
+      'Actual Completion': '26',
+      Status: '',
+      'Loaded into FCC (Y/N)': 'Y',
+    },
+    {
+      Process: '',
+      Description:
+        'Once the data has been loaded, Phase 3 will finalize with the FCC consolidation',
+      Subprocess: 'FCC Consolidations ',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '40',
+      'Actual Completion': '26',
+      Status: '',
+      'Loaded into FCC (Y/N)': 'Y',
+    },
+  ];
+
+  phase2DataSource = [
+    {
+      Process: 'VT entries processing',
+      Description:
+        'As VT runs, IC entries are posted, including IC Revenues and IC COGS.',
+      Subprocess: 'Cisco Intercompany - Accounting & Posting',
+      'Gross Margin Impacting': 'Y',
+      'Expected Completion': '',
+      'Actual Completion': '1:09',
+      Status: '',
+      'Loaded into FCC (Y/N)': '',
+    },
+  ];
 
   phase1DataSource = [
     {

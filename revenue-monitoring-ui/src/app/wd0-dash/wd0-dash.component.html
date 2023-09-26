@@ -1,13 +1,12 @@
 <br />
-<div style="float: right; margin-right: 20px; margin-top: 20px">
+<div style="float: right; margin-right: 20px; margin-top: 0px">
   <p style="float: right">
     <label>Quarter:</label> Q4FY2023 &nbsp;|&nbsp;
     <label>Period:</label>
     Oct-23
   </p>
 </div>
-<h1 style="margin-left: 10px">WD-0 Dashboard</h1>
-<br />
+<h2 style="margin-left: 10px">WD-0 Dashboard</h2>
 
 <div style="float: right; margin-right: 30px">
   <div class="row">
@@ -25,23 +24,22 @@
 
 <h5 style="margin-left: 10px">Close Status Details</h5>
 
-<br />
 <mat-divider></mat-divider>
-<br />
-<h4 id="wd0-phase1" style="margin-left: 10px; margin-bottom: 10px">
+<h5 id="wd0-phase1" style="margin-left: 10px; margin-bottom: 10px">
   Phase 1: Buy/Sell AR Close
-</h4>
-<div>
+</h5>
+
+<div style="font-size: small">
   <p style="margin-left: 10px">
     <label>Scheduled Start :</label>
     12:20AM &nbsp;|&nbsp;
-    <label>Actual End :</label> 12:39AM &nbsp;|&nbsp;
-    <label>Expected Compleition: &nbsp;</label>9:28AM &nbsp;|&nbsp;
-    <label>Actual Compleition:</label> &nbsp; 9:28AM
+    <label>Actual Start :</label> 12:39AM &nbsp;|&nbsp;
+    <label>Expected Completion: &nbsp;</label>9:28AM &nbsp;|&nbsp;
+    <label>Actual Completion:</label> &nbsp; 9:28AM
   </p>
 </div>
 
-<div style="float: right; margin-right: 20px; margin-top: -25px">
+<div style="float: right; margin-right: 20px; margin-top: -35px">
   <span>
     <mat-form-field appearance="standard">
       <mat-label>Select Statuses</mat-label>
@@ -60,7 +58,7 @@
     </mat-form-field>
   </span>
 </div>
-<h4 style="margin-left: 10px">AR Close</h4>
+<h5 style="margin-left: 10px">AR Close</h5>
 
 <div class="periodclosetbale sortArrow">
   <table
@@ -96,225 +94,158 @@
   >
   </mat-paginator>
 </div>
-<br />
-
-<br /><br />
 
 <mat-divider></mat-divider>
 <div>
-  <h4 id="wd0-phase2" style="margin-left: 10px">
+  <h5 id="wd0-phase2" style="margin-left: 10px">
     Phase 2: Global Intercompany Posting (Virtual Trader - VT processing)
-  </h4>
+  </h5>
 </div>
-<div
-  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
->
-  <div class="callout-box">
-    <div class="box-header">Start Times</div>
-    <div class="box-body">Actual: 3:24 AM</div>
-    <div class="box-header">Scheduled: 12:20 AM</div>
-  </div>
 
-  <div class="callout-box">
-    <div class="box-header">Completion Times</div>
-    <div class="box-body">Actual: 6:00 AM</div>
-    <div class="box-header">Expected: 9:28 AM</div>
-  </div>
-
-  <div class="callout-box">
-    <div class="box-header">Sequence Information</div>
-    <div class="box-header">
-      When Phase 1 completes, VT automatically starts processing Cisco
-      Intercompany for all buy-sells.
-    </div>
-  </div>
+<div style="font-size: small">
+  <p style="margin-left: 10px">
+    <label>Scheduled Start :</label>
+    Unknown &nbsp;|&nbsp;
+    <label>Actual Start :</label> 3:24 AM &nbsp;|&nbsp;
+    <label>Expected Completion: &nbsp;</label>4:54 AM &nbsp;|&nbsp;
+    <label>Actual Completion:</label> &nbsp; 6:00 AM
+  </p>
 </div>
-<mat-divider></mat-divider>
-<div class="vttable">
-  <table class="table table-responsive equal-width">
-    <thead>
-      <tr>
-        <th>Process</th>
-        <th>Description</th>
-        <th>Subprocess</th>
-        <th>Gross Margin Impacting</th>
-        <th>Expected Duration (in mins)</th>
-        <th>Actual Duration (in mins)</th>
-        <th>Status</th>
-        <th>Loaded Into FCC</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>VT entries processing</td>
-        <td>
-          As VT runs, IC entries are posted, including IC Revenues and IC COGS.
-        </td>
-        <td>Cisco Intercompany - Accounting & Posting</td>
-        <td>✓</td>
-        <td>90</td>
-        <td>156</td>
-        <td>⏸️</td>
-        <td>✓</td>
-      </tr>
-    </tbody>
+
+<div class="vttable sortArrow">
+  <table
+    mat-table
+    [dataSource]="phase2DataSource"
+    matSort
+    #phase2Sort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of phase2DisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ column }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: phase2DisplayedColumns"></tr>
   </table>
+
+  <mat-paginator
+    #phase2Paginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
 </div>
+
 <mat-divider></mat-divider>
 <div>
-  <h4 id="wd0-phase3" style="margin-left: 10px">
+  <h5 id="wd0-phase3" style="margin-left: 10px">
     Phase 3: Data refresh in FCC
-  </h4>
+  </h5>
 </div>
-<div
-  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
->
-  <div class="callout-box">
-    <div class="box-header">Start Times</div>
-    <div class="box-body">Actual: 10:00 AM</div>
-    <div class="box-header">Scheduled: 10:00 AM</div>
-  </div>
 
-  <div class="callout-box">
-    <div class="box-header">Completion Times</div>
-    <div class="box-body">Actual: 10:26 AM</div>
-    <div class="box-header">Expected: 10:40 AM</div>
-  </div>
-
-  <div class="callout-box">
-    <div class="box-header">Sequence Information</div>
-    <div class="box-header">
-      VT run completes on CG1PRD and when Post of VT is done on CFNPRD IT will
-      manually run the FCC consolidation
-    </div>
-  </div>
+<div style="font-size: small">
+  <p style="margin-left: 10px">
+    <label>Start Time :</label>
+    10:00 AM &nbsp;|&nbsp;
+    <label>Expected Completion: &nbsp;</label>10:40 AM &nbsp;|&nbsp;
+    <label>Actual Completion:</label> &nbsp; 10:26 AM
+  </p>
 </div>
-<mat-divider></mat-divider>
-<div class="fcctable">
-  <table class="table table-responsive equal-width">
-    <thead>
-      <tr>
-        <th>Process</th>
-        <th>Description</th>
-        <th>Subprocess</th>
-        <th>Gross Margin Impacting</th>
-        <th>Expected Duration (in mins)</th>
-        <th>Actual Duration (in mins)</th>
-        <th>Status</th>
-        <th>Loaded Into FCC</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td rowspan="3">Data refresh in FCC and consolidation</td>
-        <td>
-          Starts within 10 mins from end of global VT run. This step is pushes
-          data from CFN into FCC
-        </td>
-        <td>FCC Refresh - Entities Data Push to FCC</td>
-        <td>✓</td>
-        <td rowspan="3">90</td>
-        <td rowspan="3">156</td>
-        <td rowspan="3">⏸️</td>
-        <td>✓</td>
-      </tr>
-      <tr>
-        <td>
-          After data has been pushed into FCC, it is then loaded into the
-          specific entities.
-        </td>
-        <td>FCC Refresh - Entities Data Push to FCC</td>
-        <td>✓</td>
-        <td>✓</td>
-      </tr>
-      <tr>
-        <td>
-          Once the data has been loaded, Phase 3 will finalize with the FCC
-          consolidation.
-        </td>
-        <td>FCC Consolidations</td>
-        <td>✓</td>
-        <td>✓</td>
-      </tr>
-    </tbody>
+
+<div class="fccable sortArrow">
+  <table
+    mat-table
+    [dataSource]="phase3DataSource"
+    matSort
+    #phase3Sort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of phase2DisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ column }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: phase2DisplayedColumns"></tr>
   </table>
+
+  <mat-paginator
+    #phase2Paginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
 </div>
+
 <mat-divider></mat-divider>
 <div>
-  <h4 id="wd0-phase4" style="margin-left: 10px">
+  <h5 id="wd0-phase4" style="margin-left: 10px">
     Phase 4: Auto-elimination and consolidation
-  </h4>
+  </h5>
 </div>
-<div
-  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
->
-  <div class="callout-box">
-    <div class="box-header">Start Times</div>
-    <div class="box-body">Actual: 10:30 AM</div>
-    <div class="box-header">Scheduled: 10:30 AM</div>
-  </div>
 
-  <div class="callout-box">
-    <div class="box-header">Completion Times</div>
-    <div class="box-body">Actual: 10:56 AM</div>
-    <div class="box-header">Expected: 11:15 AM</div>
-  </div>
-
-  <div class="callout-box">
-    <div class="box-header">Sequence Information</div>
-    <div class="box-header">
-      When Phase 3 completes, 3 Auto-elimination entries are posted (ICPRODSALE,
-      ICSERVSALE, DCPELIM).
-    </div>
-  </div>
+<div style="font-size: small">
+  <p style="margin-left: 10px">
+    <label>Start Time :</label>
+    10:00 AM &nbsp;|&nbsp;
+    <label>Expected Completion: &nbsp;</label>10:40 AM &nbsp;|&nbsp;
+    <label>Actual Completion:</label> &nbsp; 10:26 AM
+  </p>
 </div>
-<mat-divider></mat-divider>
-<div class="consolidationtable">
-  <table class="table table-responsive equal-width">
-    <thead>
-      <tr>
-        <th>Process</th>
-        <th>Description</th>
-        <th>Subprocess</th>
-        <th>Gross Margin Impacting</th>
-        <th>Expected Duration (in mins)</th>
-        <th>Actual Duration (in mins)</th>
-        <th>Status</th>
-        <th>Loaded Into FCC</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td rowspan="3">Autoelimination and consolidation</td>
-        <td>
-          FCC Smart view refresh of auto elims, Final Gross Margin can be
-          calculated at this time but will not refresh on FCC until FCC
-        </td>
-        <td>Consol to identify auto-elims to post and send to IT</td>
-        <td>✓</td>
-        <td>15</td>
-        <td rowspan="3">156</td>
-        <td rowspan="3">⏸️</td>
-        <td>⚠️</td>
-      </tr>
-      <tr>
-        <td>
-          After data has been pushed into FCC, it is then loaded into the
-          specific entities.
-        </td>
-        <td>IT runs FCC Elimination</td>
-        <td>✓</td>
-        <td>20</td>
-        <td>⚠️</td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>FCC Consolidations with elimination</td>
-        <td>✓</td>
-        <td>10</td>
-        <td>⚠️</td>
-      </tr>
-    </tbody>
+
+<div class="consolidationtable sortArrow">
+  <table
+    mat-table
+    [dataSource]="phase4DataSource"
+    matSort
+    #phase3Sort="matSort"
+    class="mat-elevation-z8 table table-responsive"
+  >
+    <ng-container
+      *ngFor="let column of phase2DisplayedColumns"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ column }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: phase2DisplayedColumns"></tr>
   </table>
+
+  <mat-paginator
+    #phase2Paginator
+    [pageSize]="10"
+    length="length"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  >
+  </mat-paginator>
 </div>
 <mat-divider></mat-divider>
