@@ -1,4 +1,4 @@
-.callout-box a {
+/*.callout-box a {
   text-decoration: none !important;
 }
 
@@ -45,4 +45,45 @@ td {
 
 .equal-width {
   width: 100%;
+}*/
+
+.vttable .table th {
+  background-color: #049fd9;
+  color: white;
+}
+
+.fccable .table th {
+  background-color: #049fd9;
+  color: white;
+}
+.consolidationtable .table th {
+  background-color: #049fd9;
+  color: white;
+}
+.periodclosetbale .table th {
+  background-color: #049fd9;
+  color: white;
+  text-align: center;
+}
+.table-row {
+  height: 10px !important;
+}
+
+.consolidationtable .table td {
+  text-wrap: wrap;
+  font-size: 12px;
+}
+
+.fccable .table td {
+  text-wrap: wrap;
+  font-size: 12px;
+}
+
+.vttable .table td {
+  text-wrap: wrap;
+  font-size: 12px;
+}
+
+.periodclosetbale .table td {
+  font-size: 12px;
 }

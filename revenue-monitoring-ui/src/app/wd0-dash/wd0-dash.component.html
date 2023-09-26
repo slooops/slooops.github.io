@@ -81,7 +81,11 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="phase1DisplayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: phase1DisplayedColumns"></tr>
+    <tr
+      mat-row
+      class="table-row"
+      *matRowDef="let row; columns: phase1DisplayedColumns"
+    ></tr>
   </table>
 
   <mat-paginator
@@ -133,18 +137,12 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: phase2DisplayedColumns"></tr>
+    <tr
+      mat-row
+      class="table-row-format"
+      *matRowDef="let row; columns: phase2DisplayedColumns"
+    ></tr>
   </table>
-
-  <mat-paginator
-    #phase2Paginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
 </div>
 
 <mat-divider></mat-divider>
@@ -184,18 +182,12 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: phase2DisplayedColumns"></tr>
+    <tr
+      mat-row
+      class="table-row-format"
+      *matRowDef="let row; columns: phase2DisplayedColumns"
+    ></tr>
   </table>
-
-  <mat-paginator
-    #phase2Paginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
 </div>
 
 <mat-divider></mat-divider>
@@ -235,17 +227,11 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: phase2DisplayedColumns"></tr>
+    <tr
+      mat-row
+      class="table-row-format"
+      *matRowDef="let row; columns: phase2DisplayedColumns"
+    ></tr>
   </table>
-
-  <mat-paginator
-    #phase2Paginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
 </div>
 <mat-divider></mat-divider>
