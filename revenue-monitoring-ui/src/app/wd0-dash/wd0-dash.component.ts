@@ -15,7 +15,6 @@ export class Wd0DashComponent implements OnInit {
   }
 
   phase1DisplayedColumns: string[] = [
-    'Process',
     'Entity',
     'Subprocess',
     'Gross Margin Impacting (Y/N)',
@@ -122,17 +121,15 @@ export class Wd0DashComponent implements OnInit {
 
   phase1DataSource = [
     {
-      Process: 'AR Close',
       Entity: 'India',
       Subprocess: 'Invoicing',
-      'Gross Margin Impacting (Y/N)': 'Y',
+      'Gross Margin Impacting (Y/N)': 'Yes',
       'Expected Completion': '',
       'Actual Completion': '1:09',
-      Status: '',
-      '*Loaded into FCC (Y/N)': '',
+      Status: 'Completed',
+      '*Loaded into FCC (Y/N)': 'NA',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -142,7 +139,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting (NGCCRM)',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -152,7 +148,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'Russia',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -162,7 +157,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -172,7 +166,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -182,7 +175,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: 'Brazil',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -192,7 +184,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -202,7 +193,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -212,7 +202,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'Mexico',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -222,7 +211,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -232,7 +220,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -242,7 +229,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: 'China Panyu',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -252,7 +238,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -262,7 +247,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -272,7 +256,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: 'Australia',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -282,7 +265,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -292,7 +274,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -302,7 +283,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'China',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -312,7 +292,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -322,7 +301,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -332,7 +310,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'Canada',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -342,7 +319,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -352,7 +328,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -362,7 +337,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'Japan',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -372,7 +346,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -382,7 +355,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -392,7 +364,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'Italy',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -402,7 +373,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -412,7 +382,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -422,7 +391,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'South Africa',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -432,7 +400,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -442,7 +409,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -452,7 +418,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: 'South Korea',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -462,7 +427,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': '',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -472,7 +436,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting (Y/N)': 'Y',
@@ -482,7 +445,6 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC (Y/N)': 'Y',
     },
     {
-      Process: '',
       Entity: '',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting (Y/N)': 'Y',
