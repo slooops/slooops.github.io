@@ -118,3 +118,11 @@ td {
   font-size: 15px;
   text-align: center;
 }
+
+.color-green {
+  color: green;
+}
+
+.color-orange {
+  color: orange;
+}

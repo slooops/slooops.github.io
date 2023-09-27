@@ -114,7 +114,7 @@ export class Wd0DashComponent implements OnInit {
       'Gross Margin Impacting': 'Yes',
       'Expected Duration (in mins)': 'NA',
       'Actual Duration (in mins)': '1:09',
-      Status: 'Completed',
+      Status: 'Delayed',
       'Loaded into FCC': 'Yes',
     },
   ];

@@ -8,91 +8,64 @@
 </div>
 <h2 style="margin-left: 10px; font-weight: bold">WD-0 Dashboard</h2>
 
-<!--
-<div style="float: right; text-align: center; margin-right: 20px">
-  <label>Legend:</label> ✓ Completed &nbsp; ⚠️ Delayed &nbsp; ⏸️ NA
-</div>
--->
 <h5 style="margin-left: 10px">Close Status Details</h5>
 
-<!--
-<div class="row">
-  <div class="col-sm-2" style="float: left">
-    <h5 style="margin-left: 10px">Close Status Details</h5>
-  </div>
-  <div
-    class="col-sm-3"
-    style="float: left; text-align: center; font-size: small"
-  >
-    <label>Legend:</label> ✓ Completed &nbsp; ⚠️ Delayed &nbsp; ⏸️ N/A
-  </div>
-  <div class="col-sm-7" style="float: right; font-size: smaller">
-    <span style="float: right">
-      <a (click)="scrollToID('wd0-phase1')">Phase 1 - Buy/Sell AR Close</a>
-      <span>⚠️ 9:28 AM</span>
-      &nbsp;|&nbsp;
-      <a (click)="scrollToID('wd0-phase2')"
-        >Phase 2 - Global Intercompany Posting (Virtual Trader - VT
-        processing)</a
-      >
-      <span>⚠️ 6:00 AM</span>
-      &nbsp;|&nbsp;
-      <a (click)="scrollToID('wd0-phase3')">Phase 3- Data refresh in FCC</a>
-      <span>✓ 10:26 AM</span>
-      &nbsp;|&nbsp;
-      <a (click)="scrollToID('wd0-phase4')"
-        >Phase 4 - Auto-elimination and consolidation</a
-      >
-      <span>✓ 10:56 AM</span>
-    </span>
-  </div>
-</div>
--->
-
-<div style="margin-left: 10px; font-size: smaller">
-  <span>
+<div class="row" style="font-size: medium; margin-left: 2px">
+  <span class="col-sm-3">
     <a (click)="scrollToID('wd0-phase1')">Phase 1 - Buy/Sell AR Close</a>
-    <span>⚠️ 9:28 AM</span>
-    &nbsp;|&nbsp;
+  </span>
+  <span class="col-sm-1 color-orange"><label>9:28AM</label></span>
+  <span class="col-sm-6">
     <a (click)="scrollToID('wd0-phase2')"
       >Phase 2 - Global Intercompany Posting (Virtual Trader - VT processing)</a
     >
-    <span>⚠️ 6:00 AM</span>
-    &nbsp;|&nbsp;
-    <a (click)="scrollToID('wd0-phase3')">Phase 3- Data refresh in FCC</a>
-    <span>✓ 10:26 AM</span>
-    &nbsp;|&nbsp;
+  </span>
+  <span class="col-sm-2 color-orange"><label>6:00AM</label></span>
+</div>
+
+<div class="row" style="font-size: medium; margin-left: 2px">
+  <span class="col-sm-3">
+    <a (click)="scrollToID('wd0-phase3')">Phase 3 - Data refresh in FCC</a>
+  </span>
+  <span class="col-sm-1 color-green"><label>10:26AM</label></span>
+  <span class="col-sm-6">
     <a (click)="scrollToID('wd0-phase4')"
       >Phase 4 - Auto-elimination and consolidation</a
     >
-    <span>✓ 10:56 AM</span>
   </span>
+  <span class="col-sm-2 color-green"><label>10:56AM</label></span>
 </div>
-
-<!--
-<div style="float: right; margin-right: 30px; font-size: smaller">
-  <div class="row">
-    <span style="float: left">
-      <a (click)="scrollToID('wd0-phase1')">Phase 1</a>
-      &nbsp;|&nbsp;
-      <a (click)="scrollToID('wd0-phase2')">Phase 2</a>
-      &nbsp;|&nbsp;
-      <a (click)="scrollToID('wd0-phase3')">Phase 3</a>
-      &nbsp;|&nbsp;
-      <a (click)="scrollToID('wd0-phase4')">Phase 4</a>
-    </span>
-  </div>
-</div>
-
-
-<h5 style="margin-left: 10px">Close Status Details</h5>
--->
 
 <mat-divider></mat-divider>
 <h5 id="wd0-phase1" style="margin-left: 10px; font-weight: bold">
   Phase 1: Buy/Sell AR Close
 </h5>
 
+<div class="row" style="margin-left: 2px">
+  <span class="col-sm-2"><label>Scheduled Start:</label></span>
+  <span class="col-sm-2">12:20AM</span>
+  <span class="col-sm-2"><label>Expected Completion: &nbsp;</label></span>
+  <span class="col-sm-6">9:25AM</span>
+</div>
+
+<div class="row" style="margin-left: 2px">
+  <span class="col-sm-2"><label>Actual Start:</label></span>
+  <span class="col-sm-2">12:39AM</span>
+  <span class="col-sm-2"><label>Actual Completion: &nbsp;</label></span>
+  <span class="col-sm-6">9:28AM</span>
+</div>
+
+<div style="font-size: small; margin-left: 10px">
+  <p>
+    <label>Sequence Infomation: &nbsp;</label>
+    Final auto-invoicing run on CG1PRD: All countries start processing
+    concurrently and in the following sequence...<a style="font-size: smaller"
+      >Read more</a
+    >
+  </p>
+</div>
+
+<!--
 <div class="row">
   <div class="col-sm-5" style="float: left">
     <p style="margin-left: 10px">
@@ -112,6 +85,7 @@
     </p>
   </div>
 </div>
+-->
 
 <!--
 <div style="font-size: small">
@@ -250,6 +224,26 @@
   </h5>
 </div>
 
+<div class="row" style="margin-left: 2px">
+  <span class="col-sm-2"><label>*Start Time:</label></span>
+  <span class="col-sm-1">10:00AM</span>
+  <span class="col-sm-2"><label>Expected Completion:</label></span>
+  <span class="col-sm-1">10:40AM</span>
+  <span class="col-sm-2"><label>Actual Completion:</label></span>
+  <span class="col-sm-4">10:26AM</span>
+</div>
+
+<div style="font-size: small; margin-left: 10px">
+  <p>
+    <label>Sequence Infomation: &nbsp;</label>
+    VT run completes on CG1PRD and when Post of VT is done on CFNPRD IT will
+    manually run the FCC consolidation...<a style="font-size: smaller"
+      >Read more</a
+    >
+  </p>
+</div>
+
+<!--
 <div class="row">
   <div class="col-sm-5" style="float: left">
     <p style="margin-left: 10px">
@@ -268,6 +262,7 @@
     </p>
   </div>
 </div>
+-->
 
 <!--
 <div style="font-size: small">
