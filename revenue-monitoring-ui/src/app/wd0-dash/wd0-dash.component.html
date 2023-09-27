@@ -1,13 +1,21 @@
 <br />
-<div style="float: right; margin-right: 20px; margin-top: 0px">
+<div style="float: right; margin-right: 20px; text-align: center">
   <p style="float: right">
     <label>Quarter:</label> Q4FY2023 &nbsp;|&nbsp;
     <label>Period:</label>
     Oct-23
   </p>
 </div>
-<h2 style="margin-left: 10px">WD-0 Dashboard</h2>
+<h2 style="margin-left: 10px; font-weight: bold">WD-0 Dashboard</h2>
 
+<!--
+<div style="float: right; text-align: center; margin-right: 20px">
+  <label>Legend:</label> ✓ Completed &nbsp; ⚠️ Delayed &nbsp; ⏸️ NA
+</div>
+-->
+<h5 style="margin-left: 10px">Close Status Details</h5>
+
+<!--
 <div class="row">
   <div class="col-sm-2" style="float: left">
     <h5 style="margin-left: 10px">Close Status Details</h5>
@@ -39,6 +47,27 @@
     </span>
   </div>
 </div>
+-->
+
+<div style="margin-left: 10px; font-size: smaller">
+  <span>
+    <a (click)="scrollToID('wd0-phase1')">Phase 1 - Buy/Sell AR Close</a>
+    <span>⚠️ 9:28 AM</span>
+    &nbsp;|&nbsp;
+    <a (click)="scrollToID('wd0-phase2')"
+      >Phase 2 - Global Intercompany Posting (Virtual Trader - VT processing)</a
+    >
+    <span>⚠️ 6:00 AM</span>
+    &nbsp;|&nbsp;
+    <a (click)="scrollToID('wd0-phase3')">Phase 3- Data refresh in FCC</a>
+    <span>✓ 10:26 AM</span>
+    &nbsp;|&nbsp;
+    <a (click)="scrollToID('wd0-phase4')"
+      >Phase 4 - Auto-elimination and consolidation</a
+    >
+    <span>✓ 10:56 AM</span>
+  </span>
+</div>
 
 <!--
 <div style="float: right; margin-right: 30px; font-size: smaller">
@@ -60,23 +89,22 @@
 -->
 
 <mat-divider></mat-divider>
-<h5 id="wd0-phase1" style="margin-left: 10px; margin-bottom: 10px">
+<h5 id="wd0-phase1" style="margin-left: 10px; font-weight: bold">
   Phase 1: Buy/Sell AR Close
 </h5>
 
 <div class="row">
-  <div class="col-sm-6" style="float: left">
+  <div class="col-sm-5" style="float: left">
     <p style="margin-left: 10px">
-      <label>Scheduled Start :</label>
-      12:20AM &nbsp;|&nbsp;
-      <label>Actual Start :</label> 12:39AM &nbsp;|&nbsp;
+      <label>Scheduled Start: &nbsp;</label>12:20AM &nbsp;|&nbsp;
       <label>Expected Completion: &nbsp;</label>9:28AM &nbsp;|&nbsp;
-      <label>Actual Completion:</label> &nbsp; 9:28AM
+      <label>Actual Start: &nbsp;</label> 12:39AM &nbsp;|&nbsp;
+      <label>Actual Completion: &nbsp;</label>9:28AM
     </p>
   </div>
-  <div class="col-sm-6" style="float: right">
+  <div class="col-sm-7" style="float: right">
     <p style="float: right">
-      <label>Sequence Infomation:</label>
+      <label>Sequence Infomation: &nbsp;</label>
       Final auto-invoicing run on CG1PRD: All countries start processing
       concurrently and in the following sequence...<a style="font-size: smaller"
         >Read more</a
@@ -118,7 +146,7 @@
 </div>
 <h5 style="margin-left: 10px">AR Close</h5>
 
-<div class="periodclosetbale sortArrow">
+<div class="arclosetbale sortArrow">
   <table
     mat-table
     [dataSource]="phase1DataSource"
@@ -145,25 +173,36 @@
       *matRowDef="let row; columns: phase1DisplayedColumns"
     ></tr>
   </table>
-
-  <mat-paginator
-    #phase1Paginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
 </div>
 
 <mat-divider></mat-divider>
 <div>
-  <h5 id="wd0-phase2" style="margin-left: 10px">
+  <h5 id="wd0-phase2" style="margin-left: 10px; font-weight: bold">
     Phase 2: Global Intercompany Posting (Virtual Trader - VT processing)
   </h5>
 </div>
 
+<div class="row">
+  <div class="col-sm-5" style="float: left">
+    <p style="margin-left: 10px">
+      <label>Scheduled Start: &nbsp;</label>Unknown &nbsp;|&nbsp;
+      <label>Expected Completion: &nbsp;</label>4:54AM &nbsp;|&nbsp;
+      <label>Actual Start: &nbsp;</label> 3:24AM &nbsp;|&nbsp;
+      <label>Actual Completion: &nbsp;</label>6:00AM
+    </p>
+  </div>
+  <div class="col-sm-7" style="float: right">
+    <p style="float: right">
+      <label>Sequence Infomation:&nbsp;</label>
+      When Phase 1 completes, VT automatically starts processing Cisco
+      Intercompany for all buy-sells....<a style="font-size: smaller"
+        >Read more</a
+      >
+    </p>
+  </div>
+</div>
+
+<!--
 <div style="font-size: small">
   <p style="margin-left: 10px">
     <label>Scheduled Start :</label>
@@ -173,6 +212,7 @@
     <label>Actual Completion:</label> &nbsp; 6:00 AM
   </p>
 </div>
+-->
 
 <div class="vttable sortArrow">
   <table
@@ -205,11 +245,31 @@
 
 <mat-divider></mat-divider>
 <div>
-  <h5 id="wd0-phase3" style="margin-left: 10px">
+  <h5 id="wd0-phase3" style="margin-left: 10px; font-weight: bold">
     Phase 3: Data refresh in FCC
   </h5>
 </div>
 
+<div class="row">
+  <div class="col-sm-5" style="float: left">
+    <p style="margin-left: 10px">
+      <label>*Start Time: &nbsp;</label>10:00AM &nbsp;|&nbsp;
+      <label>Expected Completion: &nbsp;</label>10:40AM &nbsp;|&nbsp;
+      <label>Actual Completion: &nbsp;</label>10:26AM
+    </p>
+  </div>
+  <div class="col-sm-7" style="float: right">
+    <p style="float: right">
+      <label>Sequence Infomation:&nbsp;</label>
+      VT run completes on CG1PRD and when Post of VT is done on CFNPRD IT will
+      manually run the FCC consolidation....<a style="font-size: smaller"
+        >Read more</a
+      >
+    </p>
+  </div>
+</div>
+
+<!--
 <div style="font-size: small">
   <p style="margin-left: 10px">
     <label>Start Time :</label>
@@ -218,6 +278,7 @@
     <label>Actual Completion:</label> &nbsp; 10:26 AM
   </p>
 </div>
+-->
 
 <div class="fccable sortArrow">
   <table
@@ -250,11 +311,31 @@
 
 <mat-divider></mat-divider>
 <div>
-  <h5 id="wd0-phase4" style="margin-left: 10px">
+  <h5 id="wd0-phase4" style="margin-left: 10px; font-weight: bold">
     Phase 4: Auto-elimination and consolidation
   </h5>
 </div>
 
+<div class="row">
+  <div class="col-sm-5" style="float: left">
+    <p style="margin-left: 10px">
+      <label>*Start Time: &nbsp;</label>10:30AM &nbsp;|&nbsp;
+      <label>Expected Completion: &nbsp;</label>11:15AM &nbsp;|&nbsp;
+      <label>Actual Completion: &nbsp;</label>10:56AM
+    </p>
+  </div>
+  <div class="col-sm-7" style="float: right">
+    <p style="float: right">
+      <label>Sequence Infomation:&nbsp;</label>
+      When Phase 3 completes, 3 Auto-elimination entries are posted (ICPRODSALE,
+      ICSERVSALE, DCPELIM). After the elims....<a style="font-size: smaller"
+        >Read more</a
+      >
+    </p>
+  </div>
+</div>
+
+<!--
 <div style="font-size: small">
   <p style="margin-left: 10px">
     <label>Start Time :</label>
@@ -263,6 +344,7 @@
     <label>Actual Completion:</label> &nbsp; 10:26 AM
   </p>
 </div>
+-->
 
 <div class="consolidationtable sortArrow">
   <table

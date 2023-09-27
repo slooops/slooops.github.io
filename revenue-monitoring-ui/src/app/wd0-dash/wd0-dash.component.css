@@ -50,20 +50,47 @@ td {
 .vttable .table th {
   background-color: #049fd9;
   color: white;
+  text-align: center;
+  text-wrap: wrap;
+  font-size: 15px;
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-right: unset !important;
+  padding-left: 40px !important;
 }
 
 .fccable .table th {
   background-color: #049fd9;
   color: white;
+  text-align: center;
+  text-wrap: wrap;
+  font-size: 15px;
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-right: unset !important;
+  padding-left: 60px !important;
 }
 .consolidationtable .table th {
   background-color: #049fd9;
   color: white;
+  text-align: center;
+  text-wrap: wrap;
+  font-size: 15px;
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-right: unset !important;
+  padding-left: 60px !important;
 }
-.periodclosetbale .table th {
+.arclosetbale .table th {
   background-color: #049fd9;
   color: white;
   text-align: center;
+  text-wrap: wrap;
+  font-size: 15px;
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-right: unset !important;
+  padding-left: 60px !important;
 }
 .table-row {
   height: 10px !important;
@@ -72,18 +99,22 @@ td {
 .consolidationtable .table td {
   text-wrap: wrap;
   font-size: 15px;
+  text-align: center;
 }
 
 .fccable .table td {
   text-wrap: wrap;
-  font-size: 12px;
+  font-size: 15px;
+  text-align: center;
 }
 
 .vttable .table td {
   text-wrap: wrap;
-  font-size: 12px;
+  font-size: 15px;
+  text-align: center;
 }
 
-.periodclosetbale .table td {
-  font-size: 12px;
+.arclosetbale .table td {
+  font-size: 15px;
+  text-align: center;
 }
