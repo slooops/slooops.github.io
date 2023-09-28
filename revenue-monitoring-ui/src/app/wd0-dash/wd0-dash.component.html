@@ -7,39 +7,11 @@
   </p>
 </div>
 <h2 style="margin-left: 10px; font-weight: bold">WD-0 Dashboard</h2>
-
 <h5 style="margin-left: 10px">Close Status Details</h5>
 
-<div class="row" style="font-size: medium; margin-left: 2px">
-  <span class="col-sm-3">
-    <a (click)="scrollToID('wd0-phase1')">Phase 1 - Buy/Sell AR Close</a>
-  </span>
-  <span class="col-sm-1 color-orange"><label>9:28AM</label></span>
-  <span class="col-sm-6">
-    <a (click)="scrollToID('wd0-phase2')"
-      >Phase 2 - Global Intercompany Posting (Virtual Trader - VT processing)</a
-    >
-  </span>
-  <span class="col-sm-2 color-orange"><label>6:00AM</label></span>
-</div>
-
-<div class="row" style="font-size: medium; margin-left: 2px">
-  <span class="col-sm-3">
-    <a (click)="scrollToID('wd0-phase3')">Phase 3 - Data refresh in FCC</a>
-  </span>
-  <span class="col-sm-1 color-green"><label>10:26AM</label></span>
-  <span class="col-sm-6">
-    <a (click)="scrollToID('wd0-phase4')"
-      >Phase 4 - Auto-elimination and consolidation</a
-    >
-  </span>
-  <span class="col-sm-2 color-green"><label>10:56AM</label></span>
-</div>
-
 <mat-divider></mat-divider>
-<br />
 <h5 id="wd0-phase1" style="margin-left: 10px; font-weight: bold">
-  Phase 1: Buy/Sell AR Close
+  Buy/Sell AR Close
 </h5>
 
 <div class="row" style="margin-left: 2px">
@@ -51,9 +23,9 @@
 
 <div class="row" style="margin-left: 2px">
   <span class="col-sm-2"><label>Actual Start:</label></span>
-  <span class="col-sm-2">12:39AM</span>
+  <span class="col-sm-2 color-orange"><label>12:39AM</label></span>
   <span class="col-sm-2"><label>Actual Completion: &nbsp;</label></span>
-  <span class="col-sm-6">9:28AM</span>
+  <span class="col-sm-6 color-orange"><label>9:28AM</label></span>
 </div>
 
 <div style="font-size: small; margin-left: 10px">
@@ -71,16 +43,8 @@
     <mat-form-field appearance="standard">
       <mat-label>Select Statuses</mat-label>
       <mat-select [formControl]="" id="status" name="status" multiple>
-        <mat-option> Test </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </span>
-  &nbsp;&nbsp;
-  <span>
-    <mat-form-field appearance="standard">
-      <mat-label>Select Entites</mat-label>
-      <mat-select [formControl]="" id="entity" name="entity" multiple>
-        <mat-option>Test1 </mat-option>
+        <mat-option> Completed </mat-option>
+        <mat-option> N/A </mat-option>
       </mat-select>
     </mat-form-field>
   </span>
@@ -115,175 +79,3 @@
     ></tr>
   </table>
 </div>
-
-<mat-divider></mat-divider>
-<br />
-<div>
-  <h5 id="wd0-phase2" style="margin-left: 10px; font-weight: bold">
-    Phase 2: Global Intercompany Posting (Virtual Trader - VT processing)
-  </h5>
-</div>
-
-<div class="row" style="margin-left: 2px">
-  <span class="col-sm-2"><label>Scheduled Start:</label></span>
-  <span class="col-sm-2">Unknown</span>
-  <span class="col-sm-2"><label>Expected Completion: &nbsp;</label></span>
-  <span class="col-sm-6">4:54AM</span>
-</div>
-
-<div class="row" style="margin-left: 2px">
-  <span class="col-sm-2"><label>Actual Start:</label></span>
-  <span class="col-sm-2">3:24AM</span>
-  <span class="col-sm-2"><label>Actual Completion: &nbsp;</label></span>
-  <span class="col-sm-6">6:00AM</span>
-</div>
-
-<div style="font-size: small; margin-left: 10px">
-  <p>
-    <label>Sequence Infomation: &nbsp;</label>
-    When Phase 1 completes, VT automatically starts processing Cisco
-    Intercompany for all buy-sells...<a style="font-size: smaller">Read more</a>
-  </p>
-</div>
-
-<div class="vttable sortArrow">
-  <table
-    mat-table
-    [dataSource]="phase2DataSource"
-    matSort
-    #phase2Sort="matSort"
-    class="mat-elevation-z8 table table-responsive"
-  >
-    <ng-container
-      *ngFor="let column of phase2DisplayedColumns"
-      matColumnDef="{{ column }}"
-    >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ column }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
-    <tr
-      mat-row
-      class="table-row-format"
-      *matRowDef="let row; columns: phase2DisplayedColumns"
-    ></tr>
-  </table>
-</div>
-
-<mat-divider></mat-divider>
-<br />
-<div>
-  <h5 id="wd0-phase3" style="margin-left: 10px; font-weight: bold">
-    Phase 3: Data refresh in FCC
-  </h5>
-</div>
-
-<div class="row" style="margin-left: 2px">
-  <span class="col-sm-2"><label>*Start Time:</label></span>
-  <span class="col-sm-1">10:00AM</span>
-  <span class="col-sm-2"><label>Expected Completion:</label></span>
-  <span class="col-sm-1">10:40AM</span>
-  <span class="col-sm-2"><label>Actual Completion:</label></span>
-  <span class="col-sm-4">10:26AM</span>
-</div>
-
-<div style="font-size: small; margin-left: 10px">
-  <p>
-    <label>Sequence Infomation: &nbsp;</label>
-    VT run completes on CG1PRD and when Post of VT is done on CFNPRD IT will
-    manually run the FCC consolidation...<a style="font-size: smaller"
-      >Read more</a
-    >
-  </p>
-</div>
-
-<div class="fccable sortArrow">
-  <table
-    mat-table
-    [dataSource]="phase3DataSource"
-    matSort
-    #phase3Sort="matSort"
-    class="mat-elevation-z8 table table-responsive"
-  >
-    <ng-container
-      *ngFor="let column of phase2DisplayedColumns"
-      matColumnDef="{{ column }}"
-    >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ column }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
-    <tr
-      mat-row
-      class="table-row-format"
-      *matRowDef="let row; columns: phase2DisplayedColumns"
-    ></tr>
-  </table>
-</div>
-
-<mat-divider></mat-divider>
-<br />
-<div>
-  <h5 id="wd0-phase4" style="margin-left: 10px; font-weight: bold">
-    Phase 4: Auto-elimination and consolidation
-  </h5>
-</div>
-
-<div class="row" style="margin-left: 2px">
-  <span class="col-sm-2"><label>*Start Time:</label></span>
-  <span class="col-sm-1">10:30AM</span>
-  <span class="col-sm-2"><label>Expected Completion:</label></span>
-  <span class="col-sm-1">11:15AM</span>
-  <span class="col-sm-2"><label>Actual Completion:</label></span>
-  <span class="col-sm-4">10:56AM</span>
-</div>
-
-<div style="font-size: small; margin-left: 10px">
-  <p>
-    <label>Sequence Infomation: &nbsp;</label>
-    When Phase 3 completes, 3 Auto-elimination entries are posted (ICPRODSALE,
-    ICSERVSALE, DCPELIM). After the elims...<a style="font-size: smaller"
-      >Read more</a
-    >
-  </p>
-</div>
-
-<div class="consolidationtable sortArrow">
-  <table
-    mat-table
-    [dataSource]="phase4DataSource"
-    matSort
-    #phase3Sort="matSort"
-    class="mat-elevation-z8 table table-responsive"
-  >
-    <ng-container
-      *ngFor="let column of phase2DisplayedColumns"
-      matColumnDef="{{ column }}"
-    >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ column }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="phase2DisplayedColumns"></tr>
-    <tr
-      mat-row
-      class="table-row-format"
-      *matRowDef="let row; columns: phase2DisplayedColumns"
-    ></tr>
-  </table>
-</div>
-<mat-divider></mat-divider>
