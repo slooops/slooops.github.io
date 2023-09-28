@@ -1,128 +1,22 @@
-/*.callout-box a {
-  text-decoration: none !important;
+.color-green {
+  color: rgb(21, 213, 21);
 }
 
-.callout-box a:hover {
-  text-decoration: none !important;
+.color-orange {
+  color: orange;
 }
 
-.callout-box {
-  margin: 1vw;
-  display: flex;
-  min-width: 10vw;
-  width: fit-content;
-  min-height: 1vw;
-  flex-direction: column;
-  align-items: flex-start;
-  border-radius: 2px;
-  background: var(--light-base-surface, #fff);
-  box-shadow: 0px 1.850000023841858px 6.25px 0px rgba(0, 0, 0, 0.19),
-    0px 0.5px 1.75px 0px rgba(0, 0, 0, 0.04);
-  padding: 5px 5px 5px 5px;
-  gap: 1px;
-}
-
-.box-header {
-  color: var(--light-base-chart-subtitle, rgba(0, 0, 0, 0.6));
-  font-size: 0.8vw;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 142.857%;
-  letter-spacing: 0.25px;
-}
-
-.box-body {
-  color: var(--light-base-chart-title, #000);
-  font-size: 1.5vw;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 105.882%;
+th {
+  text-align: center !important;
 }
 
 td {
   text-align: center !important;
 }
 
-.equal-width {
-  width: 100%;
-}*/
-
-.vttable .table th {
+.arclosetable .table th {
   background-color: #049fd9;
   color: white;
-  text-align: center;
   text-wrap: wrap;
-  font-size: 15px;
-  padding-bottom: unset !important;
-  padding-top: unset !important;
-  padding-right: unset !important;
-  padding-left: 40px !important;
-}
-
-.fccable .table th {
-  background-color: #049fd9;
-  color: white;
-  text-align: center;
-  text-wrap: wrap;
-  font-size: 15px;
-  padding-bottom: unset !important;
-  padding-top: unset !important;
-  padding-right: unset !important;
-  padding-left: 60px !important;
-}
-.consolidationtable .table th {
-  background-color: #049fd9;
-  color: white;
-  text-align: center;
-  text-wrap: wrap;
-  font-size: 15px;
-  padding-bottom: unset !important;
-  padding-top: unset !important;
-  padding-right: unset !important;
-  padding-left: 60px !important;
-}
-.arclosetbale .table th {
-  background-color: #049fd9;
-  color: white;
-  text-align: center;
-  text-wrap: wrap;
-  font-size: 15px;
-  padding-bottom: unset !important;
-  padding-top: unset !important;
-  padding-right: unset !important;
-  padding-left: 60px !important;
-}
-.table-row {
-  height: 10px !important;
-}
-
-.consolidationtable .table td {
-  text-wrap: wrap;
-  font-size: 15px;
-  text-align: center;
-}
-
-.fccable .table td {
-  text-wrap: wrap;
-  font-size: 15px;
-  text-align: center;
-}
-
-.vttable .table td {
-  text-wrap: wrap;
-  font-size: 15px;
-  text-align: center;
-}
-
-.arclosetbale .table td {
-  font-size: 15px;
-  text-align: center;
-}
-
-.color-green {
-  color: green;
-}
-
-.color-orange {
-  color: orange;
+  width: 16%;
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-wd0-dash',
@@ -8,7 +9,25 @@ import { Component, OnInit } from '@angular/core';
 export class Wd0DashComponent implements OnInit {
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getCloseStatus();
+  }
+
+  templateObject = Object;
+
+  closeDefaultStatus: string[] = ['All'];
+  statusList: string[] = [];
+
+  closeStatuses = new FormControl(this.closeDefaultStatus);
+
+  statusChange() {}
+
+  getCloseStatus() {
+    this.statusList = [];
+    this.statusList.push('All');
+    this.statusList.push('Completed');
+    this.statusList.push('N/A');
+  }
 
   phase1DisplayedColumns: string[] = [
     'Entity',
@@ -18,6 +37,445 @@ export class Wd0DashComponent implements OnInit {
     'Actual Completion',
     'Status',
     '*Loaded into FCC',
+  ];
+
+  testDataSource = [
+    {
+      Entity: 'India',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:09',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:42',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting (NGCCRM)',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:50',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'Brazil',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:55',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:56',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:56',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    //////////////////////
+    {
+      Entity: 'Mexico',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:05',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': 'N/A',
+          Status: 'N/A',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': 'N/A',
+          Status: 'N/A',
+          '*Loaded into FCC': 'N/A',
+        },
+      ],
+    },
+    {
+      Entity: 'China Panyu',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:57',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:50',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': 'N/A',
+          Status: 'N/A',
+          '*Loaded into FCC': 'N/A',
+        },
+      ],
+    },
+    {
+      Entity: 'Australia',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:53',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'China',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:55',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:27',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:27',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'Canada',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:04',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:40',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:40',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'Japan',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:52',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:27',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:27',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'Italy',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:53',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'South Africa',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:06',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'South Korea',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:54',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:50',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:50',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'Germany',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': 'N/A',
+          Status: 'N/A',
+          '*Loaded into FCC': 'N/A',
+        },
+      ],
+    },
+    {
+      Entity: 'NL',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '0:57',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:34',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'UKH',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '1:33',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '2:47',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '2:49',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
+    {
+      Entity: 'US',
+      Values: [
+        {
+          Subprocess: 'Invoicing',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '6:10',
+          Status: 'Completed',
+          '*Loaded into FCC': 'N/A',
+        },
+        {
+          Subprocess: 'Receivables Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': 'N/A',
+          'Actual Completion': '8:18',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+        {
+          Subprocess: 'Revenue Posting',
+          'Gross Margin Impacting': 'Yes',
+          //'Expected Completion': '9:25',
+          'Actual Completion': '9:25',
+          Status: 'Completed',
+          '*Loaded into FCC': 'Yes',
+        },
+      ],
+    },
   ];
 
   phase1DataSource = [
@@ -130,7 +588,7 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC': 'N/A',
     },
     {
-      Entity: 'ChiN/A Panyu',
+      Entity: 'China Panyu',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting': 'Yes',
       //'Expected Completion': 'N/A',
@@ -184,7 +642,7 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC': 'Yes',
     },
     {
-      Entity: 'ChiN/A',
+      Entity: 'China',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting': 'Yes',
       //'Expected Completion': 'N/A',
@@ -211,7 +669,7 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC': 'Yes',
     },
     {
-      Entity: 'CaN/Ada',
+      Entity: 'Canada',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting': 'Yes',
       //'Expected Completion': 'N/A',
@@ -346,7 +804,7 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC': 'Yes',
     },
     {
-      Entity: '',
+      Entity: 'Germany',
       Subprocess: 'Invoicing',
       'Gross Margin Impacting': 'Yes',
       //'Expected Completion': 'N/A',
@@ -355,7 +813,7 @@ export class Wd0DashComponent implements OnInit {
       '*Loaded into FCC': 'N/A',
     },
     {
-      Entity: 'Germany',
+      Entity: '',
       Subprocess: 'Receivables Posting',
       'Gross Margin Impacting': 'Yes',
       //'Expected Completion': 'N/A',
@@ -448,7 +906,7 @@ export class Wd0DashComponent implements OnInit {
       Entity: '',
       Subprocess: 'Revenue Posting',
       'Gross Margin Impacting': 'Yes',
-      'Expected Completion': '9:25',
+      //'Expected Completion': '9:25',
       'Actual Completion': '9:25',
       Status: 'Completed',
       '*Loaded into FCC': 'Yes',

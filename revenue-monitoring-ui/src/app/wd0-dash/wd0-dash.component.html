@@ -42,40 +42,60 @@
   <span>
     <mat-form-field appearance="standard">
       <mat-label>Select Statuses</mat-label>
-      <mat-select [formControl]="" id="status" name="status" multiple>
-        <mat-option> Completed </mat-option>
-        <mat-option> N/A </mat-option>
+      <mat-select
+        [formControl]="closeStatuses"
+        id="status"
+        name="status"
+        multiple
+      >
+        <mat-option
+          *ngFor="let status of statusList"
+          [value]="status"
+          (onSelectionChange)="statusChange()"
+          >{{ status }}</mat-option
+        >
       </mat-select>
     </mat-form-field>
   </span>
 </div>
 <h5 style="margin-left: 10px">AR Close</h5>
 
-<div class="arclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="phase1DataSource"
-    matSort
-    #phase1Sort="matSort"
-    class="mat-elevation-z8 table table-responsive"
-  >
-    <ng-container
-      *ngFor="let column of phase1DisplayedColumns"
-      matColumnDef="{{ column }}"
-    >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ column }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+<div class="arclosetable">
+  <table class="table table-responsive equal-width">
+    <thead>
+      <tr>
+        <th *ngFor="let col of phase1DisplayedColumns">{{ col }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!--To display values when data source is in simple json form like phase1DataSource-->
+      <!-- <tr *ngFor="let row of phase1DataSource">
+        <td
+          *ngFor="let category of templateObject.keys(row)"
+          [ngClass]="{ 'color-green': row[category] === 'Completed' }"
+        >
+          {{ row[category] }}
+        </td>
+      </tr> -->
 
-    <tr mat-header-row *matHeaderRowDef="phase1DisplayedColumns"></tr>
-    <tr
-      mat-row
-      class="table-row"
-      *matRowDef="let row; columns: phase1DisplayedColumns"
-    ></tr>
+      <!--To display data based on entity grouping, data must be in form as testDataSource-->
+      <ng-container *ngFor="let data of testDataSource">
+        <ng-container *ngFor="let valueSource of data.Values; let i = index">
+          <tr>
+            <td *ngIf="i == 0" [attr.rowspan]="data.Values.length">
+              {{ data.Entity }}
+            </td>
+            <td
+              *ngFor="let category of templateObject.keys(valueSource)"
+              [ngClass]="{
+                'color-green': valueSource[category] === 'Completed'
+              }"
+            >
+              {{ valueSource[category] }}
+            </td>
+          </tr>
+        </ng-container>
+      </ng-container>
+    </tbody>
   </table>
 </div>
