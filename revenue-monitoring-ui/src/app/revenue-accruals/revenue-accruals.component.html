@@ -2,22 +2,79 @@
 
 <h2>Revenue Accruals Dashboard</h2>
 
-<div style="display: flex; max-height: 50vh">
+<div style="display: flex; overflow-x: auto; max-height: 40vh">
   <div class="callout-box chart-box">
+    <h2>Inbound Errors</h2>
     <canvas
       baseChart
-      [datasets]="chartData"
-      [labels]="chartLabels"
+      [datasets]="inboundChartData"
+      [labels]="inboundChartLabels"
       [options]="chartOptions"
       [type]="'line'"
     >
     </canvas>
   </div>
   <div class="callout-box chart-box">
+    <h2>AR Trxn Missing</h2>
     <canvas
       baseChart
-      [datasets]="chartData"
-      [labels]="chartLabels"
+      [datasets]="arTrxnMissingChartData"
+      [labels]="arTrxnMissingChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+  <div class="callout-box chart-box">
+    <h2>Accruals Processing Error</h2>
+    <canvas
+      baseChart
+      [datasets]="accrualsProcessingErrorChartData"
+      [labels]="accrualsProcessingErrorChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+  <div class="callout-box chart-box">
+    <h2>Kafka Publish Downstream</h2>
+    <canvas
+      baseChart
+      [datasets]="kafkaPublishDownstreamChartData"
+      [labels]="kafkaPublishDownstreamChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+  <div class="callout-box chart-box">
+    <h2>Accruals Summarization Error</h2>
+    <canvas
+      baseChart
+      [datasets]="accrualsSummarizationErrorChartData"
+      [labels]="accrualsSummarizationErrorChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+  <div class="callout-box chart-box">
+    <h2>Accruals Distribution Error</h2>
+    <canvas
+      baseChart
+      [datasets]="accrualsDistributionErrorChartData"
+      [labels]="accrualsDistributionErrorChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+  <div class="callout-box chart-box">
+    <h2>Error Distribution Summarization</h2>
+    <canvas
+      baseChart
+      [datasets]="errorDistributionSummarizationChartData"
+      [labels]="errorDistributionSummarizationChartLabels"
       [options]="chartOptions"
       [type]="'line'"
     >

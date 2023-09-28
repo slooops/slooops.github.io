@@ -102,24 +102,136 @@ export class RevenueAccrualsComponent implements OnInit {
     },
   };
 
-  chartData = [];
-  chartLabels = [];
+  inboundChartData = [];
+  inboundChartLabels = [];
 
-  prepareChartData(): void {
+  prepareInboundChartData(): void {
     if (this.kafkaInbounds) {
-      this.chartLabels = this.kafkaInbounds.map((data) =>
+      this.inboundChartLabels = this.kafkaInbounds.map((data) =>
         new Date(data.CREATION_DATE).toLocaleDateString()
       );
-      console.log(this.chartLabels);
+      console.log(this.inboundChartLabels);
       const chartDataPoints = this.kafkaInbounds.map(
         (data) => +data.RECORD_COUNT
       );
 
-      this.chartData = [
+      this.inboundChartData = [
         {
           data: chartDataPoints,
           label: 'Record Count',
         },
+      ];
+    }
+  }
+
+  arTrxnMissingChartData = [];
+  arTrxnMissingChartLabels = [];
+
+  prepareARTrxnMissingChartData(): void {
+    if (this.arTrxnMissings) {
+      this.arTrxnMissingChartLabels = this.arTrxnMissings.map((data) =>
+        new Date(data.ACCRUAL_CREATION_DATE).toLocaleDateString()
+      );
+      const chartDataPoints = this.arTrxnMissings.map(
+        (data) => +data.AMOUNT_USD
+      );
+
+      this.arTrxnMissingChartData = [
+        { data: chartDataPoints, label: 'Amount USD' },
+      ];
+    }
+  }
+
+  accrualsProcessingErrorChartData = [];
+  accrualsProcessingErrorChartLabels = [];
+
+  prepareAccrualsProcessingErrorChartData(): void {
+    if (this.accrualsProcessingErrors) {
+      this.accrualsProcessingErrorChartLabels =
+        this.accrualsProcessingErrors.map((data) =>
+          new Date(data.CREATION_DATE).toLocaleDateString()
+        );
+      const chartDataPoints = this.accrualsProcessingErrors.map(
+        (data) => +data.AMOUNT_USD
+      );
+
+      this.accrualsProcessingErrorChartData = [
+        { data: chartDataPoints, label: 'Amount USD' },
+      ];
+    }
+  }
+
+  kafkaPublishDownstreamChartData = [];
+  kafkaPublishDownstreamChartLabels = [];
+
+  prepareKafkaPublishDownstreamChartData(): void {
+    if (this.kafkaPublishDownstream) {
+      this.kafkaPublishDownstreamChartLabels = this.kafkaPublishDownstream.map(
+        (data) => new Date(data.CREATION_DATE).toLocaleDateString()
+      );
+      const chartDataPoints = this.kafkaPublishDownstream.map(
+        (data) => +data.COUNT_SUB_REF_ID
+      );
+
+      this.kafkaPublishDownstreamChartData = [
+        { data: chartDataPoints, label: 'Count Sub Ref ID' },
+      ];
+    }
+  }
+
+  accrualsSummarizationErrorChartData = [];
+  accrualsSummarizationErrorChartLabels = [];
+
+  prepareAccrualsSummarizationErrorChartData(): void {
+    if (this.accrualsSummarizationErrors) {
+      this.accrualsSummarizationErrorChartLabels =
+        this.accrualsSummarizationErrors.map((data) =>
+          new Date(data.CREATION_DATE).toLocaleDateString()
+        );
+      const chartDataPoints = this.accrualsSummarizationErrors.map(
+        (data) => +data.COUNT_RECORDS
+      );
+
+      this.accrualsSummarizationErrorChartData = [
+        { data: chartDataPoints, label: 'Count Records' },
+      ];
+    }
+  }
+
+  accrualsDistributionErrorChartData = [];
+  accrualsDistributionErrorChartLabels = [];
+
+  prepareAccrualsDistributionErrorChartData(): void {
+    if (this.accrualsDistributionErrors) {
+      this.accrualsDistributionErrorChartLabels =
+        this.accrualsDistributionErrors.map((data) =>
+          new Date(data.CREATION_DATE).toLocaleDateString()
+        );
+      const chartDataPoints = this.accrualsDistributionErrors.map(
+        (data) => +data.COUNT_RECORDS
+      );
+
+      this.accrualsDistributionErrorChartData = [
+        { data: chartDataPoints, label: 'Count Records' },
+      ];
+    }
+  }
+
+  errorDistributionSummarizationChartData = [];
+  errorDistributionSummarizationChartLabels = [];
+
+  prepareErrorDistributionSummarizationChartData(): void {
+    if (this.errorDistributionSummarizations) {
+      this.errorDistributionSummarizationChartLabels =
+        this.errorDistributionSummarizations.map((data) =>
+          new Date(data.CREATION_DATE).toLocaleDateString()
+        );
+      const chartDataPoints = this.errorDistributionSummarizations.map(
+        (data) => +data.AMOUNT
+      );
+
+      this.errorDistributionSummarizationChartData = [
+        { data: chartDataPoints, label: 'Amount' },
       ];
     }
   }
@@ -273,7 +385,7 @@ export class RevenueAccrualsComponent implements OnInit {
       this.kafkaInboundDataSource.sort = this.kafkaInboundSort;
       this.kafkaInboundDataSource.paginator = this.kafkaInboundPaginator;
 
-      this.prepareChartData();
+      this.prepareInboundChartData();
     });
   }
 
@@ -285,6 +397,8 @@ export class RevenueAccrualsComponent implements OnInit {
       );
       this.arTrxnMissingDataSource.sort = this.arTrxnMissingSort;
       this.arTrxnMissingDataSource.paginator = this.arTrxnMissingPaginator;
+
+      this.prepareARTrxnMissingChartData();
     });
   }
 
@@ -299,6 +413,8 @@ export class RevenueAccrualsComponent implements OnInit {
         this.accrualsProcessingErrorsSort;
       this.accrualsProcessingErrorsDataSource.paginator =
         this.accrualsProcessingErrorsPaginator;
+
+      this.prepareAccrualsProcessingErrorChartData();
     });
   }
 
@@ -313,6 +429,7 @@ export class RevenueAccrualsComponent implements OnInit {
         this.kafkaPublishDownstreamSort;
       this.kafkaPublishDownstreamDataSource.paginator =
         this.kafkaPublishDownstreamPaginator;
+      this.prepareKafkaPublishDownstreamChartData();
     });
   }
 
@@ -327,6 +444,8 @@ export class RevenueAccrualsComponent implements OnInit {
         this.accrualsSummarizationErrorSort;
       this.accrualsSummarizationErrorDataSource.paginator =
         this.accrualsSummarizationErrorPaginator;
+
+      this.prepareAccrualsSummarizationErrorChartData();
     });
   }
 
@@ -341,6 +460,7 @@ export class RevenueAccrualsComponent implements OnInit {
         this.accrualsDistributionErrorSort;
       this.accrualsDistributionErrorDataSource.paginator =
         this.accrualsDistributionErrorPaginator;
+      this.prepareAccrualsDistributionErrorChartData();
     });
   }
 
@@ -355,6 +475,7 @@ export class RevenueAccrualsComponent implements OnInit {
         this.errorDistributionSummarizationSort;
       this.errorDistributionSummarizationDataSource.paginator =
         this.errorDistributionSummarizationPaginator;
+      this.prepareErrorDistributionSummarizationChartData();
     });
   }
 }
