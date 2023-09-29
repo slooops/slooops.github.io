@@ -102,25 +102,107 @@ export class RevenueAccrualsComponent implements OnInit {
     },
   };
 
-  inboundChartData = [];
-  inboundChartLabels = [];
+  kafkaInboundvsErrorchartData = [];
+  kafkachartLabels = [];
 
-  prepareInboundChartData(): void {
-    if (this.kafkaInbounds) {
-      this.inboundChartLabels = this.kafkaInbounds.map((data) =>
+  prepareInboundvsErrorChartData(): void {
+    if (this.kafkaInbounds && this.kafkaErrors) {
+      const dates: string[] = [];
+
+      const revSumByDate: number[] = [];
+      const sbpSumByDate: number[] = [];
+
+      this.kafkachartLabels = this.kafkaInbounds.map((data) =>
         new Date(data.CREATION_DATE).toLocaleDateString()
       );
-      console.log(this.inboundChartLabels);
-      const chartDataPoints = this.kafkaInbounds.map(
-        (data) => +data.RECORD_COUNT
-      );
 
-      this.inboundChartData = [
+      this.kafkachartLabels = Array.from(new Set(this.kafkachartLabels));
+
+      this.kafkaInbounds.forEach((item) => {
+        const creationDate = item.CREATION_DATE;
+        const subscriber = item.SUBSCRIBER;
+        const recordCount = item.RECORD_COUNT;
+
+        if (!dates.includes(creationDate)) {
+          dates.push(creationDate);
+          revSumByDate.push(0);
+          sbpSumByDate.push(0);
+        }
+
+        if (subscriber === 'REV') {
+          const dateIndex = dates.indexOf(creationDate);
+          revSumByDate[dateIndex] += recordCount;
+        } else if (subscriber === 'SbpRevenueAccrualTsvConsumer') {
+          const dateIndex = dates.indexOf(creationDate);
+          sbpSumByDate[dateIndex] += recordCount;
+        }
+      });
+
+      const errorDates: string[] = [];
+      const revErrorsByDate: number[] = [];
+      const sbpErrorsByDate: number[] = [];
+
+      this.kafkaErrors.forEach((item) => {
+        const creationDate = item.CREATION_DATE;
+        const subscriber = item.SUBSCRIBER;
+
+        // Find the index of creationDate in the errorDates array
+        const errorDateIndex = errorDates.indexOf(creationDate);
+
+        if (errorDateIndex === -1) {
+          // If creationDate is not found, add it and initialize error counts
+          errorDates.push(creationDate);
+          revErrorsByDate.push(subscriber === 'REV' ? 1 : 0);
+          sbpErrorsByDate.push(
+            subscriber === 'SbpRevenueAccrualTsvConsumer' ? 1 : 0
+          );
+        } else {
+          if (subscriber === 'REV') {
+            revErrorsByDate[errorDateIndex]++;
+          } else if (subscriber === 'SbpRevenueAccrualTsvConsumer') {
+            sbpErrorsByDate[errorDateIndex]++;
+          }
+        }
+      });
+
+      errorDates.reverse();
+      revErrorsByDate.reverse();
+      sbpErrorsByDate.reverse();
+
+      this.kafkaInboundvsErrorchartData = [
         {
-          data: chartDataPoints,
-          label: 'Record Count',
+          data: revSumByDate,
+          label: 'REV (Inbound)',
+        },
+        {
+          data: sbpSumByDate,
+          label: 'SbpRevenueAccrualTsvConsumer (Inbound)',
+        },
+        {
+          data: revErrorsByDate,
+          label: 'REV (Errors)',
+        },
+        {
+          data: sbpErrorsByDate,
+          label: 'SbpRevenueAccrualTsvConsumer (Errors)',
         },
       ];
+
+      this.kafkaInboundvsErrorchartData.forEach((dataset) => {
+        if (dataset.label === 'REV (Inbound)') {
+          dataset.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+          dataset.borderColor = 'rgba(255, 0, 0, 1)';
+        } else if (dataset.label === 'SbpRevenueAccrualTsvConsumer (Inbound)') {
+          dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
+          dataset.borderColor = 'rgba(5, 189, 245, 1)';
+        } else if (dataset.label === 'REV (Errors)') {
+          dataset.backgroundColor = 'rgba(2, 158, 66, 1)';
+          dataset.borderColor = 'rgba(2, 158, 66, 1)';
+        } else if (dataset.label === 'SbpRevenueAccrualTsvConsumer (Errors)') {
+          dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
+          dataset.borderColor = 'rgba(245, 109, 5, 1)';
+        }
+      });
     }
   }
 
@@ -373,6 +455,7 @@ export class RevenueAccrualsComponent implements OnInit {
       );
       this.kafkaErrorDataSource.sort = this.kafkaErrorsSort;
       this.kafkaErrorDataSource.paginator = this.kafkaErrorPaginator;
+      this.prepareInboundvsErrorChartData();
     });
   }
 
@@ -384,8 +467,6 @@ export class RevenueAccrualsComponent implements OnInit {
       );
       this.kafkaInboundDataSource.sort = this.kafkaInboundSort;
       this.kafkaInboundDataSource.paginator = this.kafkaInboundPaginator;
-
-      this.prepareInboundChartData();
     });
   }
 

@@ -42,3 +42,7 @@
 .chart-box {
   min-width: 47vw;
 }
+
+.table-responsive {
+  overflow: auto;
+}

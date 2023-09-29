@@ -2,15 +2,15 @@
 
 <h2>Revenue Accruals Dashboard</h2>
 
-<div style="display: flex; overflow-x: auto; max-height: 40vh">
+<div style="display: flex">
   <div class="callout-box chart-box">
     <h2>Inbound Errors</h2>
     <canvas
       baseChart
-      [datasets]="inboundChartData"
-      [labels]="inboundChartLabels"
+      [datasets]="kafkaInboundvsErrorchartData"
+      [labels]="kafkachartLabels"
       [options]="chartOptions"
-      [type]="'line'"
+      [type]="'bar'"
     >
     </canvas>
   </div>
@@ -82,9 +82,7 @@
   </div>
 </div>
 
-<div
-  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
->
+<div style="display: flex; flex-direction: row; flex-wrap: wrap">
   <a [routerLink]="['/detail-view']">
     <div class="callout-box">
       <div class="box-header">Kafka</div>
@@ -145,29 +143,43 @@
 <br />
 
 <h3>Kafka Erorrs</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="kafkaErrorDataSource"
-    matSort
-    #kafkaErrors="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of kafkaErrorsDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      style="width: -webkit-fill-available"
+      mat-table
+      [dataSource]="kafkaErrorDataSource"
+      matSort
+      #kafkaErrors="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of kafkaErrorsDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="kafkaErrorsDisplayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: kafkaErrorsDisplayedColumns"></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="kafkaErrorsDisplayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: kafkaErrorsDisplayedColumns"
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!kafkaErrorDataSource?.data?.length">
@@ -191,32 +203,42 @@
 </div>
 
 <h3>Kafka Inbound</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="kafkaInboundDataSource"
-    matSort
-    #kafkaInboundSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of kafkaInboundDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="kafkaInboundDataSource"
+      matSort
+      #kafkaInboundSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of kafkaInboundDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="kafkaInboundDisplayedColumns"></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: kafkaInboundDisplayedColumns"
-    ></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="kafkaInboundDisplayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: kafkaInboundDisplayedColumns"
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!kafkaInboundDataSource?.data?.length">
@@ -240,32 +262,42 @@
 </div>
 
 <h3>AR Transactions Missing</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="arTrxnMissingDataSource"
-    matSort
-    #arTrxnMissingSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of aRTrxnMissingDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="arTrxnMissingDataSource"
+      matSort
+      #arTrxnMissingSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of aRTrxnMissingDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="aRTrxnMissingDisplayedColumns"></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: aRTrxnMissingDisplayedColumns"
-    ></tr>
-  </table>
+      <tr mat-header-row *matHeaderRowDef="aRTrxnMissingDisplayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: aRTrxnMissingDisplayedColumns"
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!arTrxnMissingDataSource?.data?.length">
@@ -289,35 +321,45 @@
 </div>
 
 <h3>Accruals Processing Errors</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="accrualsProcessingErrorsDataSource"
-    matSort
-    #accrualsProcessingErrorsSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of accrualsProcessingErrorDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="accrualsProcessingErrorsDataSource"
+      matSort
+      #accrualsProcessingErrorsSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of accrualsProcessingErrorDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr
-      mat-header-row
-      *matHeaderRowDef="accrualsProcessingErrorDisplayedColumns"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: accrualsProcessingErrorDisplayedColumns"
-    ></tr>
-  </table>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="accrualsProcessingErrorDisplayedColumns"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: accrualsProcessingErrorDisplayedColumns"
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!accrualsProcessingErrorsDataSource?.data?.length">
@@ -341,35 +383,45 @@
 </div>
 
 <h3>Kafka Published to Downstream</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="kafkaPublishDownstreamDataSource"
-    matSort
-    #kafkaPublishDownstreamSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of kafkaPublishDownstreamDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="kafkaPublishDownstreamDataSource"
+      matSort
+      #kafkaPublishDownstreamSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of kafkaPublishDownstreamDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr
-      mat-header-row
-      *matHeaderRowDef="kafkaPublishDownstreamDisplayedColumns"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: kafkaPublishDownstreamDisplayedColumns"
-    ></tr>
-  </table>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="kafkaPublishDownstreamDisplayedColumns"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: kafkaPublishDownstreamDisplayedColumns"
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!kafkaPublishDownstreamDataSource?.data?.length">
@@ -393,35 +445,48 @@
 </div>
 
 <h3>Accruals Summarization Errors</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="accrualsSummarizationErrorDataSource"
-    matSort
-    #accrualsSummarizationErrorSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of accrualsSummarizationErrorDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="accrualsSummarizationErrorDataSource"
+      matSort
+      #accrualsSummarizationErrorSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of accrualsSummarizationErrorDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr
-      mat-header-row
-      *matHeaderRowDef="accrualsSummarizationErrorDisplayedColumns"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: accrualsSummarizationErrorDisplayedColumns"
-    ></tr>
-  </table>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="accrualsSummarizationErrorDisplayedColumns"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          columns: accrualsSummarizationErrorDisplayedColumns
+        "
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!accrualsSummarizationErrorDataSource?.data?.length">
@@ -445,35 +510,45 @@
 </div>
 
 <h3>Accruals Distribution Errors</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="accrualsDistributionErrorDataSource"
-    matSort
-    #accrualsDistributionErrorSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of accrualsDistributionErrorDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="accrualsDistributionErrorDataSource"
+      matSort
+      #accrualsDistributionErrorSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of accrualsDistributionErrorDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr
-      mat-header-row
-      *matHeaderRowDef="accrualsDistributionErrorDisplayedColumns"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: accrualsDistributionErrorDisplayedColumns"
-    ></tr>
-  </table>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="accrualsDistributionErrorDisplayedColumns"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: accrualsDistributionErrorDisplayedColumns"
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container *ngIf="!accrualsDistributionErrorDataSource?.data?.length">
@@ -497,38 +572,48 @@
 </div>
 
 <h3>Error Distribution Summarizations</h3>
-<div class="periodclosetbale sortArrow">
-  <table
-    mat-table
-    [dataSource]="errorDistributionSummarizationDataSource"
-    matSort
-    #errorDistributionSummarizationSort="matSort"
-    class="mat-elevation-z8 table table-responsive"
+<div>
+  <div
+    class="periodclosetbale sortArrow"
+    style="overflow: auto; max-width: 100%"
   >
-    <ng-container
-      *ngFor="let column of errorDistributionSummarizationDisplayedColumns"
-      matColumnDef="{{ column }}"
+    <table
+      mat-table
+      [dataSource]="errorDistributionSummarizationDataSource"
+      matSort
+      #errorDistributionSummarizationSort="matSort"
+      class="mat-elevation-z8 table table-responsive"
     >
-      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
-        {{ formatColumnHeader(column) }}
-      </th>
-      <td class="custom-cell" mat-cell *matCellDef="let record">
-        {{ record[column] }}
-      </td>
-    </ng-container>
+      <ng-container
+        *ngFor="let column of errorDistributionSummarizationDisplayedColumns"
+        matColumnDef="{{ column }}"
+      >
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          {{ formatColumnHeader(column) }}
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record[column] }}
+        </td>
+      </ng-container>
 
-    <tr
-      mat-header-row
-      *matHeaderRowDef="errorDistributionSummarizationDisplayedColumns"
-    ></tr>
-    <tr
-      mat-row
-      *matRowDef="
-        let row;
-        columns: errorDistributionSummarizationDisplayedColumns
-      "
-    ></tr>
-  </table>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="errorDistributionSummarizationDisplayedColumns"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="
+          let row;
+          columns: errorDistributionSummarizationDisplayedColumns
+        "
+      ></tr>
+    </table>
+  </div>
 
   <div style="display: flex; justify-content: center">
     <ng-container
