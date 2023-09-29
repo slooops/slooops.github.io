@@ -42,12 +42,23 @@
 </div>
 
 <div class="reduce-space" style="font-size: small; margin-left: 10px">
-  <p>
+  <!-- <p>
     <label>Sequence Infomation: &nbsp;</label>
     Final auto-invoicing run on CG1PRD: All countries start processing
     concurrently and in the following sequence...<a style="font-size: smaller"
       >Read more</a
     >
+  </p> -->
+  <p class="clearfix">
+    <label class="reduce-space">Sequence Infomation: &nbsp;</label>
+    <span class="collapsable float-left">
+      {{
+        info.length > firstCount ? (info | slice : 0 : counter) + "..." : info
+      }}
+      <span class="blueTxt" *ngIf="info.length > 140" (click)="toggleSkil()">
+        {{ showTxt }}
+      </span>
+    </span>
   </p>
 </div>
 

@@ -27,3 +27,8 @@ td {
   padding-top: 0px;
   padding-bottom: 0px;
 }
+
+.blueTxt {
+  color: blue;
+  cursor: pointer;
+}

@@ -11,14 +11,46 @@ export class Wd0DashComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCloseStatus();
+
+    //for read more/less section
+    this.last_index = this.info.substring(0, 140).lastIndexOf(' ');
+    if (this.last_index > 140) this.last_index = 140;
+    this.counter = this.last_index;
   }
 
+  //to display data in table
   templateObject = Object;
 
+  //status filter
   closeDefaultStatus: string[] = ['All'];
   statusList: string[] = [];
-
   closeStatuses = new FormControl(this.closeDefaultStatus);
+
+  //for read more/less section
+  last_index = 140;
+  counter = 140;
+  firstCount = 140;
+  showTxt = 'Show More';
+
+  info =
+    'Final auto-invoicing run on CG1PRD: All countries start processing concurrently and in the following sequence: ' +
+    '1. Invoicing,  2. Receivables Posting,  3. Revenue Posting in NGCCRM (Next Generation Commit Compliance and Revenue Management, Deferred revenue posting) and JEs in CFNPRD. ' +
+    "Each country processes independently of one another. Given the higher volume of transactions, US 020 is typically last to complete the 'Buy/Sell AR Close' phase. " +
+    'All Posting are on CFNPRD. ' +
+    'During Phase 1, FCC will continue to consolidate automatically at the top of the hour until 6AM when the automatic consolidations are placed ' +
+    'on hold. Around 6AM, Phase 1 is expected to complete, and then Phase 2 begins (VT processing). The FCC consolidation is on hold until the ' +
+    'completion of Phase 2, when IT triggers a manual consolidation.' +
+    '*If the processing completes within 5 minutes of the hour, the data will not be relfected until the following FCC refresh.';
+
+  toggleSkil() {
+    if (this.counter < 141) {
+      this.counter = this.info.length;
+      this.showTxt = 'Show less';
+    } else {
+      this.counter = this.last_index;
+      this.showTxt = 'Show More';
+    }
+  }
 
   statusChange() {}
 
@@ -26,6 +58,7 @@ export class Wd0DashComponent implements OnInit {
     this.statusList = [];
     this.statusList.push('All');
     this.statusList.push('Completed');
+    this.statusList.push('Delayed');
     this.statusList.push('N/A');
   }
 
