@@ -143,3 +143,61 @@
     </tbody>
   </table>
 </div>
+
+<!--Comments section-->
+<mat-divider></mat-divider>
+<br />
+<div>
+  <h3>Comments</h3>
+  <form>
+    <input
+      name="comments"
+      class="form-control form-control-sm"
+      type="text"
+      placeholder="Add a comment"
+      (focus)="showCommentSave = true"
+      style="width: 40%; height: 60px"
+    />
+    <br />
+    <span *ngIf="showCommentSave">
+      <button
+        mat-raised-button
+        (click)="updateComments()"
+        style="background-color: #049fd9; color: white"
+      >
+        Save</button
+      >&nbsp;
+      <button
+        mat-raised-button
+        (click)="showCommentSave = false"
+        style="color: #049fd9"
+      >
+        Cancel
+      </button>
+      <br /><br />
+    </span>
+  </form>
+  <span style="float: right !important">
+    For questions, please send an email to:
+    <a href="mailto:i2c-close-monitoring@cisco.com">
+      i2c-wd0-dashboard@cisco.com
+    </a></span
+  >
+  <!-- <br />
+  <mat-divider></mat-divider>
+  <br />
+  <div>
+    <div *ngFor="let comment of dashComments">
+      <ul *ngIf="comment.CLOSE_TYPE === 'PRECLOSE'">
+        <li>
+          <p style="margin-bottom: 10px; color: #454444">
+            <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
+            <b>{{ username }}</b> &nbsp;
+            <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
+          </p>
+          <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>
+        </li>
+      </ul>
+    </div>
+  </div> -->
+</div>

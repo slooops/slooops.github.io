@@ -52,6 +52,7 @@ export class Wd0DashComponent implements OnInit {
     }
   }
 
+  showCommentSave: boolean = false;
   statusChange() {}
 
   getCloseStatus() {
@@ -63,6 +64,8 @@ export class Wd0DashComponent implements OnInit {
     this.statusList.push('Yet to start');
     this.statusList.push('N/A');
   }
+
+  updateComments() {}
 
   phase1DisplayedColumns: string[] = [
     'Entity',
