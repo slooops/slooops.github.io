@@ -263,9 +263,9 @@ spec:
             - path: /
               pathMatch: prefix
           when:
-            - kind: userId
+            - kind: memberOf
               values:
-                - "*"
+                - "i2c-it-ops-admin-Owner"
   provider:
     cors: platform
     idp: duo
