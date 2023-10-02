@@ -9,17 +9,16 @@ import {
   KafkaInboundModel,
   AccrualsProcessingErrorModel,
   ARTrxnMissingModel,
-} from './revenue-accruals.interface';
+} from '../revenue-accruals/revenue-accruals.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-
 @Component({
-  selector: 'app-revenue-accruals-monitoring',
-  templateUrl: './revenue-accruals.component.html',
-  styleUrls: ['./revenue-accruals.component.css'],
+  selector: 'app-rev-accruals2',
+  templateUrl: './rev-accruals2.component.html',
+  styleUrls: ['./rev-accruals2.component.css'],
 })
-export class RevenueAccrualsComponent implements OnInit {
+export class RevAccruals2Component implements OnInit {
   constructor(http: ApiHttpService) {
     this.http = http;
   }

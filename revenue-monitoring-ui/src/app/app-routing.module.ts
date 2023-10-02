@@ -10,6 +10,7 @@ import { PrecloseComponent } from './period-close-tracking/preclose/preclose.com
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
+import { RevAccruals2Component } from './rev-accruals2/rev-accruals2.component';
 
 const routes: Routes = [
   {
@@ -33,6 +34,7 @@ const routes: Routes = [
   { path: 'detail-view', component: DetailViewComponent },
   { path: 'invoice-status', component: OrderLifecycleComponent },
   { path: 'revenue-accruals', component: RevenueAccrualsComponent },
+  { path: 'revenue-accruals2', component: RevAccruals2Component },
 ];
 
 @NgModule({

@@ -68,6 +68,7 @@ import {
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
 import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
+import { RevAccruals2Component } from './rev-accruals2/rev-accruals2.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -93,6 +94,7 @@ export function initApp(authService: AuthenticationService) {
     OrderLifecycleSummaryComponent,
     OrderLifecycleUploadComponent,
     RevenueAccrualsComponent,
+    RevAccruals2Component,
   ],
   imports: [
     BrowserModule,
