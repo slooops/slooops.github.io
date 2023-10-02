@@ -265,7 +265,7 @@ spec:
           when:
             - kind: memberOf
               values:
-                - "i2c-it-ops-admin-Owner"
+                - "i2c-it-ops-admin"
   provider:
     cors: platform
     idp: duo
