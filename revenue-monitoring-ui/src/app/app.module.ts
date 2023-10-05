@@ -64,6 +64,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
@@ -161,6 +162,10 @@ export function initApp(authService: AuthenticationService) {
       multi: true,
     },
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
+    {
+      provide: MatDialogRef,
+      useValue: {},
+    },
   ],
   bootstrap: [AppComponent],
 })

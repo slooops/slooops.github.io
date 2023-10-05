@@ -15,17 +15,17 @@
         >
         </canvas>
       </div>
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(kafkaErrorDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">Kafka</div>
-          <div class="box-body">Errors</div>
+          <div class="box-header"></div>
+          <div class="box-body">Kafka Errors</div>
         </div>
       </a>
 
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(kafkaInboundDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">Kafka</div>
-          <div class="box-body">Inbounds</div>
+          <div class="box-header"></div>
+          <div class="box-body">Kafka Inbounds</div>
         </div>
       </a>
       <div class="callout-box chart-box">
@@ -39,10 +39,9 @@
         >
         </canvas>
       </div>
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(arTrxMissingDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">AR Trxn</div>
-          <div class="box-body">Missings</div>
+          <div class="box-body">AR Trxn Missings</div>
         </div>
       </a>
     </div>
@@ -58,10 +57,9 @@
         >
         </canvas>
       </div>
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(accrualsProcessingErrorsDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">Accruals</div>
-          <div class="box-body">Processing Errors</div>
+          <div class="box-body">Accruals Processing Errors</div>
         </div>
       </a>
 
@@ -76,10 +74,9 @@
         >
         </canvas>
       </div>
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(kafkaPublishedDownstreamDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">Kafka</div>
-          <div class="box-body">Publish Downstream</div>
+          <div class="box-body">Kafka Publish Downstream</div>
         </div>
       </a>
     </div>
@@ -96,10 +93,9 @@
         >
         </canvas>
       </div>
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(accrualsSummarizationErrorsDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">Accruals</div>
-          <div class="box-body">Summarization Errors</div>
+          <div class="box-body">Accruals Summarization Errors</div>
         </div>
       </a>
       <div class="callout-box chart-box">
@@ -113,10 +109,9 @@
         >
         </canvas>
       </div>
-      <a [routerLink]="['/detail-view']">
+      <a (click)="openDialog(accrualsDistributionErrorsDialogTemplate)">
         <div class="callout-box">
-          <div class="box-header">Accruals</div>
-          <div class="box-body">Distribution Errors</div>
+          <div class="box-body">Accruals Distribution Errors</div>
         </div>
       </a>
     </div>
@@ -133,509 +128,642 @@
       >
       </canvas>
     </div>
-    <a [routerLink]="['/detail-view']">
+    <a (click)="openDialog(errorDistributionSummarizationsDialogTemplate)">
       <div class="callout-box">
-        <div class="box-header">Error Distribution</div>
-        <div class="box-body">Summarization</div>
+        <div class="box-body">Error Distribution Summarization</div>
       </div>
     </a>
   </div>
 </div>
-
 <br />
 
-<h3>Kafka Erorrs</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      style="width: -webkit-fill-available"
-      mat-table
-      [dataSource]="kafkaErrorDataSource"
-      matSort
-      #kafkaErrors="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of kafkaErrorsDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #kafkaErrorDialogTemplate>
+    <h2 mat-dialog-title>
+      Kafka Erorrs
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          style="width: -webkit-fill-available"
+          mat-table
+          [dataSource]="kafkaErrorDataSource"
+          matSort
+          #kafkaErrors="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of kafkaErrorsDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="kafkaErrorsDisplayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: kafkaErrorsDisplayedColumns"
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="kafkaErrorsDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: kafkaErrorsDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!kafkaErrorDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
-
-  <mat-paginator
-    #kafkaErrorPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!kafkaErrorDataSource?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
+    </div>
+    <mat-paginator
+      #kafkaErrorPaginator
+      [pageSize]="10"
+      length="length"
+      [pageSizeOptions]="[]"
+      showFirstLastButtons
+      aria-label="Select page"
+    >
+    </mat-paginator>
+  </ng-template>
 </div>
 
-<h3>Kafka Inbound</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="kafkaInboundDataSource"
-      matSort
-      #kafkaInboundSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of kafkaInboundDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #kafkaInboundDialogTemplate>
+    <h2 mat-dialog-title>
+      Kafka Inbound
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="kafkaInboundDataSource"
+          matSort
+          #kafkaInboundSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of kafkaInboundDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="kafkaInboundDisplayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: kafkaInboundDisplayedColumns"
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="kafkaInboundDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: kafkaInboundDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!kafkaInboundDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!kafkaInboundDataSource?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #kafkaInboundPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #kafkaInboundPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>
 
-<h3>AR Transactions Missing</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="arTrxnMissingDataSource"
-      matSort
-      #arTrxnMissingSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of aRTrxnMissingDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #arTrxMissingDialogTemplate>
+    <h2 mat-dialog-title>
+      AR Transactions Missing
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="arTrxnMissingDataSource"
+          matSort
+          #arTrxnMissingSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of aRTrxnMissingDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="aRTrxnMissingDisplayedColumns"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: aRTrxnMissingDisplayedColumns"
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="aRTrxnMissingDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: aRTrxnMissingDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!arTrxnMissingDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!arTrxnMissingDataSource?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #arTrxnMissingPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #arTrxnMissingPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>
 
-<h3>Accruals Processing Errors</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="accrualsProcessingErrorsDataSource"
-      matSort
-      #accrualsProcessingErrorsSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of accrualsProcessingErrorDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #accrualsProcessingErrorsDialogTemplate>
+    <h2 mat-dialog-title>
+      Accruals Processing Errors
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="accrualsProcessingErrorsDataSource"
+          matSort
+          #accrualsProcessingErrorsSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of accrualsProcessingErrorDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="accrualsProcessingErrorDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: accrualsProcessingErrorDisplayedColumns"
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="accrualsProcessingErrorDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: accrualsProcessingErrorDisplayedColumns
+            "
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!accrualsProcessingErrorsDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!accrualsProcessingErrorsDataSource?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #accrualsProcessingErrorsPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #accrualsProcessingErrorsPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>
 
-<h3>Kafka Published to Downstream</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="kafkaPublishDownstreamDataSource"
-      matSort
-      #kafkaPublishDownstreamSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of kafkaPublishDownstreamDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #kafkaPublishedDownstreamDialogTemplate>
+    <h2 mat-dialog-title>
+      Kafka Published to Downstream
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="kafkaPublishDownstreamDataSource"
+          matSort
+          #kafkaPublishDownstreamSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of kafkaPublishDownstreamDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="kafkaPublishDownstreamDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: kafkaPublishDownstreamDisplayedColumns"
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="kafkaPublishDownstreamDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: kafkaPublishDownstreamDisplayedColumns
+            "
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!kafkaPublishDownstreamDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!kafkaPublishDownstreamDataSource?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #kafkaPublishDownstreamPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #kafkaPublishDownstreamPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>
 
-<h3>Accruals Summarization Errors</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="accrualsSummarizationErrorDataSource"
-      matSort
-      #accrualsSummarizationErrorSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of accrualsSummarizationErrorDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #accrualsSummarizationErrorsDialogTemplate>
+    <h2 mat-dialog-title>
+      Accruals Summarization Errors
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="accrualsSummarizationErrorDataSource"
+          matSort
+          #accrualsSummarizationErrorSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of accrualsSummarizationErrorDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="accrualsSummarizationErrorDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="
-          let row;
-          columns: accrualsSummarizationErrorDisplayedColumns
-        "
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="accrualsSummarizationErrorDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: accrualsSummarizationErrorDisplayedColumns
+            "
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!accrualsSummarizationErrorDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container
+          *ngIf="!accrualsSummarizationErrorDataSource?.data?.length"
+        >
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #accrualsSummarizationErrorPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #accrualsSummarizationErrorPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>
 
-<h3>Accruals Distribution Errors</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="accrualsDistributionErrorDataSource"
-      matSort
-      #accrualsDistributionErrorSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of accrualsDistributionErrorDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #accrualsDistributionErrorsDialogTemplate>
+    <h2 mat-dialog-title>
+      Accruals Distribution Errors
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="accrualsDistributionErrorDataSource"
+          matSort
+          #accrualsDistributionErrorSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="let column of accrualsDistributionErrorDisplayedColumns"
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="accrualsDistributionErrorDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: accrualsDistributionErrorDisplayedColumns"
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="accrualsDistributionErrorDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: accrualsDistributionErrorDisplayedColumns
+            "
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!accrualsDistributionErrorDataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container
+          *ngIf="!accrualsDistributionErrorDataSource?.data?.length"
+        >
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #accrualsDistributionErrorPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #accrualsDistributionErrorPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>
 
-<h3>Error Distribution Summarizations</h3>
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      mat-table
-      [dataSource]="errorDistributionSummarizationDataSource"
-      matSort
-      #errorDistributionSummarizationSort="matSort"
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <ng-container
-        *ngFor="let column of errorDistributionSummarizationDisplayedColumns"
-        matColumnDef="{{ column }}"
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #errorDistributionSummarizationsDialogTemplate>
+    <h2 mat-dialog-title>
+      Error Distribution Summarizations
+      <a style="float: right !important; text-decoration: none"
+        ><i
+          class="fa fa-close"
+          style="font-size: 24px; color: gray"
+          (click)="closeDialog('closed')"
+        ></i
+      ></a>
+    </h2>
+    <br />
+    <div>
+      <div
+        class="periodclosetbale sortArrow"
+        style="overflow: auto; max-width: 100%"
       >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+        <table
+          mat-table
+          [dataSource]="errorDistributionSummarizationDataSource"
+          matSort
+          #errorDistributionSummarizationSort="matSort"
+          class="mat-elevation-z8 table table-responsive"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
+          <ng-container
+            *ngFor="
+              let column of errorDistributionSummarizationDisplayedColumns
+            "
+            matColumnDef="{{ column }}"
+          >
+            <th
+              class="custom-cell"
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+            >
+              {{ formatColumnHeader(column) }}
+            </th>
+            <td class="custom-cell" mat-cell *matCellDef="let record">
+              {{ record[column] }}
+            </td>
+          </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="errorDistributionSummarizationDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="
-          let row;
-          columns: errorDistributionSummarizationDisplayedColumns
-        "
-      ></tr>
-    </table>
-  </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="errorDistributionSummarizationDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="
+              let row;
+              columns: errorDistributionSummarizationDisplayedColumns
+            "
+          ></tr>
+        </table>
+      </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container
-      *ngIf="!errorDistributionSummarizationDataSource?.data?.length"
-    >
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
-  </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container
+          *ngIf="!errorDistributionSummarizationDataSource?.data?.length"
+        >
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
 
-  <mat-paginator
-    #errorDistributionSummarizationPaginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+      <mat-paginator
+        #errorDistributionSummarizationPaginator
+        [pageSize]="10"
+        length="length"
+        [pageSizeOptions]="[]"
+        showFirstLastButtons
+        aria-label="Select page"
+      >
+      </mat-paginator>
+    </div>
+  </ng-template>
 </div>

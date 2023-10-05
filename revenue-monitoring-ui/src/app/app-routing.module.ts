@@ -15,7 +15,7 @@ import { RevAccruals2Component } from './rev-accruals2/rev-accruals2.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/revenue-accruals',
+    redirectTo: '/revenue-accruals2',
     pathMatch: 'full',
   },
   { path: 'standard-ar', component: StandardArExceptionsComponent },

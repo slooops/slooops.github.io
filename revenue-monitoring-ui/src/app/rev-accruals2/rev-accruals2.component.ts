@@ -1,4 +1,12 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import {
   KafkaPublishDownstreamModel,
@@ -13,13 +21,21 @@ import {
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { DatePipe } from '@angular/common';
+
 @Component({
   selector: 'app-rev-accruals2',
   templateUrl: './rev-accruals2.component.html',
   styleUrls: ['./rev-accruals2.component.css'],
 })
-export class RevAccruals2Component implements OnInit {
-  constructor(http: ApiHttpService) {
+export class RevAccruals2Component implements OnInit, AfterViewInit {
+  constructor(
+    http: ApiHttpService,
+    public dialog: MatDialog,
+    public dialogRef: MatDialogRef<RevAccruals2Component>,
+    private viewContainerRef: ViewContainerRef
+  ) {
     this.http = http;
   }
 
@@ -112,7 +128,7 @@ export class RevAccruals2Component implements OnInit {
       const sbpSumByDate: number[] = [];
 
       this.kafkaInboundvsErrorchartLabels = this.kafkaInbounds.map((data) =>
-        new Date(data.CREATION_DATE).toLocaleDateString()
+        new Date(data.REV_CREATION_DATE).toLocaleDateString()
       );
 
       this.kafkaInboundvsErrorchartLabels = Array.from(
@@ -120,8 +136,10 @@ export class RevAccruals2Component implements OnInit {
       );
 
       this.kafkaInbounds.forEach((item) => {
-        const creationDate = item.CREATION_DATE;
-        const subscriber = item.SUBSCRIBER;
+        let creationDate = item.REV_CREATION_DATE;
+        const datePipe = new DatePipe('en-US');
+        creationDate = datePipe.transform(creationDate, 'yyyy-MM-dd');
+        const subscriber = item.SOURCE;
         const recordCount = item.RECORD_COUNT;
 
         if (!dates.includes(creationDate)) {
@@ -130,10 +148,10 @@ export class RevAccruals2Component implements OnInit {
           sbpSumByDate.push(0);
         }
 
-        if (subscriber === 'REV') {
+        if (subscriber === 'OPL') {
           const dateIndex = dates.indexOf(creationDate);
           revSumByDate[dateIndex] += recordCount;
-        } else if (subscriber === 'SbpRevenueAccrualTsvConsumer') {
+        } else if (subscriber === 'SBP') {
           const dateIndex = dates.indexOf(creationDate);
           sbpSumByDate[dateIndex] += recordCount;
         }
@@ -144,23 +162,21 @@ export class RevAccruals2Component implements OnInit {
       const sbpErrorsByDate: number[] = [];
 
       this.kafkaErrors.forEach((item) => {
-        const creationDate = item.CREATION_DATE;
-        const subscriber = item.SUBSCRIBER;
+        let creationDate = item.REV_CREATION_DATE;
+        const datePipe = new DatePipe('en-US');
+        creationDate = datePipe.transform(creationDate, 'yyyy-MM-dd');
+        const subscriber = item.ATTRIBUTE1;
 
-        // Find the index of creationDate in the errorDates array
         const errorDateIndex = errorDates.indexOf(creationDate);
 
         if (errorDateIndex === -1) {
-          // If creationDate is not found, add it and initialize error counts
           errorDates.push(creationDate);
-          revErrorsByDate.push(subscriber === 'REV' ? 1 : 0);
-          sbpErrorsByDate.push(
-            subscriber === 'SbpRevenueAccrualTsvConsumer' ? 1 : 0
-          );
+          revErrorsByDate.push(subscriber === 'OPL' ? 1 : 0);
+          sbpErrorsByDate.push(subscriber === 'SBP' ? 1 : 0);
         } else {
-          if (subscriber === 'REV') {
+          if (subscriber === 'OPL') {
             revErrorsByDate[errorDateIndex]++;
-          } else if (subscriber === 'SbpRevenueAccrualTsvConsumer') {
+          } else if (subscriber === 'SBP') {
             sbpErrorsByDate[errorDateIndex]++;
           }
         }
@@ -173,33 +189,33 @@ export class RevAccruals2Component implements OnInit {
       this.kafkaInboundvsErrorchartData = [
         {
           data: revSumByDate,
-          label: 'REV (Inbound)',
+          label: 'OPL (Inbound)',
         },
         {
           data: sbpSumByDate,
-          label: 'SbpRevenueAccrualTsvConsumer (Inbound)',
+          label: 'SBP (Inbound)',
         },
         {
           data: revErrorsByDate,
-          label: 'REV (Errors)',
+          label: 'OPL (Errors)',
         },
         {
           data: sbpErrorsByDate,
-          label: 'SbpRevenueAccrualTsvConsumer (Errors)',
+          label: 'SBP (Errors)',
         },
       ];
 
       this.kafkaInboundvsErrorchartData.forEach((dataset) => {
-        if (dataset.label === 'REV (Inbound)') {
+        if (dataset.label === 'OPL (Inbound)') {
           dataset.backgroundColor = 'rgba(255, 0, 0, 0.9)';
           dataset.borderColor = 'rgba(255, 0, 0, 1)';
-        } else if (dataset.label === 'SbpRevenueAccrualTsvConsumer (Inbound)') {
+        } else if (dataset.label === 'SBP (Inbound)') {
           dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
           dataset.borderColor = 'rgba(5, 189, 245, 1)';
-        } else if (dataset.label === 'REV (Errors)') {
+        } else if (dataset.label === 'OPL (Errors)') {
           dataset.backgroundColor = 'rgba(2, 158, 66, 1)';
           dataset.borderColor = 'rgba(2, 158, 66, 1)';
-        } else if (dataset.label === 'SbpRevenueAccrualTsvConsumer (Errors)') {
+        } else if (dataset.label === 'SBP (Errors)') {
           dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
           dataset.borderColor = 'rgba(245, 109, 5, 1)';
         }
@@ -454,8 +470,6 @@ export class RevAccruals2Component implements OnInit {
       this.kafkaErrorDataSource = new MatTableDataSource<KafkaErrorModel>(
         this.kafkaErrors
       );
-      this.kafkaErrorDataSource.sort = this.kafkaErrorsSort;
-      this.kafkaErrorDataSource.paginator = this.kafkaErrorPaginator;
       this.prepareInboundvsErrorChartData();
     });
   }
@@ -559,5 +573,30 @@ export class RevAccruals2Component implements OnInit {
         this.errorDistributionSummarizationPaginator;
       this.prepareErrorDistributionSummarizationChartData();
     });
+  }
+
+  ngAfterViewInit() {
+    this.kafkaErrorDataSource.sort = this.kafkaErrorsSort;
+    this.kafkaErrorDataSource.paginator = this.kafkaErrorPaginator;
+  }
+
+  openDialog(dialogTemplate: TemplateRef<any>) {
+    this.dialogRef = this.dialog.open(dialogTemplate, {
+      width: '1500px',
+      height: '800px',
+      data: {},
+    });
+  }
+
+  openKafkaInboundDialog(dialogTemplate: TemplateRef<any>) {
+    this.dialogRef = this.dialog.open(dialogTemplate, {
+      width: '1500px',
+      height: '800px',
+      data: {},
+    });
+  }
+
+  closeDialog(result) {
+    this.dialogRef.close(result);
   }
 }
