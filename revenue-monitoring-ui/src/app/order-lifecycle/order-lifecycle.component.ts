@@ -19,6 +19,7 @@ import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from '../order-lifecycle-upload/order-lifecycle-upload.component';
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-invoice-status',
@@ -35,11 +36,12 @@ export class OrderLifecycleComponent implements OnInit {
   ) {
     this.http = http;
   }
-
+  currentDate: Date;
   ngOnInit(): void {
     this.getOrderLifecycle();
     this.getOrderStatusDownload();
     this.updateTime();
+    this.currentDate = new Date();
   }
 
   searchForm: FormGroup = new FormGroup({
@@ -58,7 +60,6 @@ export class OrderLifecycleComponent implements OnInit {
 
   refreshInterval = 14400000; //ms
   timeNow: any;
-
   progNameOptions: string[] = [];
   accountOptions: string[] = [];
   orderStatusOptions: string[] = [];
@@ -288,6 +289,22 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
+  modifiedElements: OrderLifecycleModel[] = [];
+
+  onStatusChange(element: OrderLifecycleModel) {
+    if (!this.modifiedElements.includes(element)) {
+      this.modifiedElements.push(element);
+    }
+  }
+
+  updateHoldStatusAndDate() {
+    this.http
+      .post('hold-release-status-date', this.modifiedElements)
+      .subscribe((data) => {});
+
+    this.modifiedElements = [];
+  }
+
   displayedColumns = [
     'select',
     // 'STATUS_AS_OF_DATE',
@@ -301,6 +318,8 @@ export class OrderLifecycleComponent implements OnInit {
     'CONTRACT_NUMBER',
     'LINES_ON_HOLD',
     'FLEXIBLE_INVOICE_ELIGIBLE',
+    'HOLD_RELEASE_DATE',
+    'HOLD_RELEASE_STATUS',
     'INVOICING_STATUS',
     'INVOICE_LINES',
     'INVOICE_DATE',
@@ -434,4 +453,6 @@ export interface OrderLifecycleModel {
   BOOK_DATE: string;
   DEAL_ID: string;
   COMMENTS: string;
+  HOLD_RELEASE_STATUS: string;
+  HOLD_RELEASE_DATE: Date;
 }

@@ -133,6 +133,7 @@
       <button mat-stroked-button type="button" (click)="clearFilters()">
         Reset
       </button>
+
       <!-- &nbsp;
       <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Flexible Invoicing Eligibility</mat-label>
@@ -164,6 +165,14 @@
       </mat-form-field> -->
     </form>
     <div>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="updateHoldStatusAndDate()"
+      >
+        Save
+      </button>
+      &nbsp;
       <button mat-stroked-button (click)="openDialog()">View Summary</button>
       &nbsp;
       <button mat-stroked-button (click)="openUploadDialog()">
@@ -556,6 +565,62 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.FLEXIBLE_INVOICE_ELIGIBLE }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="HOLD_RELEASE_STATUS">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          HOLD RELEASE STATUS
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          <mat-form-field appearance="standard">
+            <input
+              #statusInput
+              matInput
+              placeholder="Enter Status"
+              [(ngModel)]="record.HOLD_RELEASE_STATUS"
+              (ngModelChange)="onStatusChange(record)"
+            />
+            <!-- <i
+              matSuffix
+              class="fa fa-arrow-circle-right hoverIcon"
+              style="color: gray"
+              (click)="updateHoldStatusAndDate()"
+            ></i> -->
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="HOLD_RELEASE_DATE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          HOLD RELEASE DATE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          <mat-form-field>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              placeholder="Select Date"
+              [min]="currentDate"
+              [readonly]="true"
+              [(ngModel)]="record.HOLD_RELEASE_DATE"
+            />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="picker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </td>
       </ng-container>
 

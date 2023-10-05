@@ -46,3 +46,24 @@ td {
 .hoverIcon {
   cursor: pointer;
 }
+
+.mat-column-HOLD_RELEASE_DATE .mat-form-field-infix {
+  width: 80px;
+  padding-bottom: 0.3em 0;
+  border-top: 0.8em solid transparent;
+}
+
+.mat-column-HOLD_RELEASE_STATUS .mat-form-field-infix {
+  width: 100px;
+  padding-bottom: 0.3em 0;
+  border-top: 0.3em solid transparent;
+}
+
+.cui input {
+  font-size: 12px !important;
+}
+
+.table > tbody > tr > td {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}

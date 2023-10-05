@@ -1,11 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

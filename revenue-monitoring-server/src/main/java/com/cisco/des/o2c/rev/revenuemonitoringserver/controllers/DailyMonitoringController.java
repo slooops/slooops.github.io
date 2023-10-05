@@ -1,9 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.ErrorSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,11 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @CrossOrigin(origins = "${CORS_URL}")
@@ -159,5 +155,10 @@ public class DailyMonitoringController {
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
+    }
+    @PostMapping(value = "/hold-release-status-date")
+    public ResponseEntity<String> holdReleaseStatusAndDate(@RequestBody List<Map<String,Object>> updatedDeal){
+        System.out.println(updatedDeal);
+        return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }
 }

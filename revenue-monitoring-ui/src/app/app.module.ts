@@ -60,6 +60,8 @@ import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.componen
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
@@ -142,6 +144,8 @@ export function initApp(authService: AuthenticationService) {
     MatFormFieldModule,
     MatDialogModule,
     MatCardModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   providers: [
     DatePipe,
