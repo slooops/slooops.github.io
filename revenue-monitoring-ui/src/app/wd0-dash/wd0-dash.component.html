@@ -1,21 +1,15 @@
-<div style="float: right; margin-right: 20px; text-align: center">
-  <p style="float: right">
-    <label>Quarter:</label> Q4FY2023 &nbsp;|&nbsp;
-    <label>Period:</label>
-    Oct-23
-  </p>
+<div class="row" style="margin-left: 2px; margin-bottom: 10px; margin-top: 5px">
+  <span class="col-sm-9" style="height: 20px"><h5>Buy/Sell AR Close</h5></span>
+
+  <span class="col-sm-3" style="height: 20px"
+    ><div style="float: right; margin-right: 5px">
+      <label>Quarter:</label> Q4FY2023 &nbsp;|&nbsp;<label>Period:</label>
+      Oct-23
+    </div></span
+  >
 </div>
-<h2 class="reduce-space" style="margin-left: 10px; font-weight: bold">
-  WD-0 Dashboard
-</h2>
-<h5 class="reduce-space" style="margin-left: 10px">Close Status Details</h5>
 
-<mat-divider></mat-divider>
-<h5 id="wd0-phase1" style="margin-left: 10px; font-weight: bold">
-  Buy/Sell AR Close
-</h5>
-
-<div class="row reduce-space" style="margin-left: 2px">
+<div class="row" style="margin-left: 2px">
   <span class="col-sm-2" style="height: 20px"
     ><label>Scheduled Start:</label></span
   >
@@ -26,120 +20,54 @@
   <span class="col-sm-6" style="height: 20px">9:25AM</span>
 </div>
 
-<div class="row reduce-space" style="margin-left: 2px">
+<div class="row" style="margin-left: 2px">
   <span class="col-sm-2" style="height: 20px"
     ><label>Actual Start:</label></span
   >
-  <span class="col-sm-2 color-green" style="height: 20px"
-    ><label>12:20AM</label></span
-  >
+  <span class="col-sm-2 color-green" style="height: 20px">12:20AM</span>
   <span class="col-sm-2" style="height: 20px"
     ><label>Actual Completion: &nbsp;</label></span
   >
-  <span class="col-sm-6 color-orange" style="height: 20px"
-    ><label>9:28AM</label></span
-  >
+  <span class="col-sm-6 color-orange" style="height: 20px">9:28AM</span>
 </div>
 
 <div class="reduce-space" style="font-size: small; margin-left: 10px">
-  <!-- <p>
-    <label>Sequence Infomation: &nbsp;</label>
-    Final auto-invoicing run on CG1PRD: All countries start processing
-    concurrently and in the following sequence...<a style="font-size: smaller"
-      >Read more</a
-    >
-  </p> -->
   <p class="clearfix">
     <label class="reduce-space">Sequence Infomation: &nbsp;</label>
     <span class="collapsable float-left">
       {{
         info.length > firstCount ? (info | slice : 0 : counter) + "..." : info
       }}
-      <span class="blueTxt" *ngIf="info.length > 140" (click)="toggleSkil()">
+      <span class="blueTxt" *ngIf="info.length > 151" (click)="toggleSkil()">
         {{ showTxt }}
       </span>
     </span>
   </p>
 </div>
 
-<div style="float: right; margin-right: 20px; margin-top: -35px">
-  <span class="reduce-space">
-    <mat-form-field appearance="standard">
-      <mat-label>Select Statuses</mat-label>
-      <mat-select
-        [formControl]="closeStatuses"
-        id="status"
-        name="status"
-        multiple
-      >
-        <mat-option
-          *ngFor="let status of statusList"
-          [value]="status"
-          (onSelectionChange)="statusChange()"
-          >{{ status }}</mat-option
-        >
-      </mat-select>
-    </mat-form-field>
-  </span>
-</div>
-<h5 class="reduce-space" style="margin-left: 10px">AR Close</h5>
-
 <div class="arclosetable">
   <table class="table table-responsive equal-width">
     <thead>
       <tr>
-        <th *ngFor="let col of phase1DisplayedColumns">{{ col }}</th>
+        <th *ngFor="let col of displayedColumns">{{ col }}</th>
       </tr>
     </thead>
     <tbody>
-      <!--To display values when data source is in simple json form like phase1DataSource-->
-      <!-- <tr *ngFor="let row of phase1DataSource">
-        <td
-          *ngFor="let category of templateObject.keys(row)"
-          [ngClass]="{ 'color-green': row[category] === 'Completed' }"
-        >
-          {{ row[category] }}
+      <!--To display values when data source is in simple json form like DataSource-->
+      <tr *ngFor="let row of dataSource">
+        <td *ngFor="let category of templateObject.keys(row)">
+          <span *ngIf="row[category] === 'Completed'" class="color-green">
+            {{ row[category] }}</span
+          >
+          <span *ngIf="row[category] === 'Delayed'" class="color-orange">
+            {{ row[category] }}</span
+          >
+          <span
+            *ngIf="['Completed', 'Delayed'].indexOf(row[category]) === -1"
+            >{{ row[category] }}</span
+          >
         </td>
-      </tr> -->
-
-      <!--To display data based on entity grouping, data must be in form as testDataSource-->
-      <ng-container *ngFor="let data of testDataSource">
-        <ng-container *ngFor="let valueSource of data.Values; let i = index">
-          <tr>
-            <td *ngIf="i == 0" [attr.rowspan]="data.Values.length">
-              {{ data.Entity }}
-            </td>
-            <td *ngFor="let category of templateObject.keys(valueSource)">
-              <span
-                *ngIf="valueSource[category] === 'Completed'"
-                class="color-green"
-              >
-                {{ valueSource[category] }}</span
-              >
-              <span
-                *ngIf="valueSource[category] === 'Delayed'"
-                class="color-orange"
-              >
-                {{ valueSource[category] }}</span
-              >
-              <span
-                *ngIf="
-                  ['Completed', 'Delayed'].indexOf(valueSource[category]) === -1
-                "
-                >{{ valueSource[category] }}</span
-              >
-            </td>
-            <!-- <td
-              *ngFor="let category of templateObject.keys(valueSource)"
-              [ngClass]="{
-                'color-green': valueSource[category] === 'Completed'
-              }"
-            >
-              {{ valueSource[category] }}
-            </td> -->
-          </tr>
-        </ng-container>
-      </ng-container>
+      </tr>
     </tbody>
   </table>
 </div>

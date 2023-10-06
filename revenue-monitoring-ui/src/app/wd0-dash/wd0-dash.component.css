@@ -15,10 +15,10 @@ td {
 }
 
 .arclosetable .table th {
-  background-color: #049fd9;
+  background-color: #049fd9 !important;
   color: white;
   text-wrap: wrap;
-  width: 16%;
+  width: 14%;
 }
 
 .reduce-space {
