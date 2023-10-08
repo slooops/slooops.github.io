@@ -22,6 +22,18 @@
   gap: 8px;
 }
 
+.canvas-container {
+  position: relative;
+}
+
+.expand-icon {
+  position: absolute;
+  top: 10px; /* Adjust the top position as needed */
+  right: 10px; /* Adjust the right position as needed */
+  z-index: 2; /* Ensure the icon appears above the canvas */
+  cursor: pointer; /* Optionally, set a pointer cursor for interaction */
+}
+
 .box-header {
   color: var(--light-base-chart-subtitle, rgba(0, 0, 0, 0.6));
   font-size: 0.8vw;
@@ -40,9 +52,14 @@
 }
 
 .chart-box {
-  min-width: 47vw;
+  min-width: 31.5vw;
 }
 
 .table-responsive {
   overflow: auto;
+}
+
+.active {
+  width: 1500px;
+  height: 800px;
 }

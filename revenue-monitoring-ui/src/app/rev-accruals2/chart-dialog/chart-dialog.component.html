@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>
+  {{ chartName }}
+  <a style="float: right !important; text-decoration: none"
+    ><i
+      class="fa fa-close"
+      style="font-size: 24px; color: gray"
+      (click)="closeDialog()"
+    ></i
+  ></a>
+</h2>
+<br />
+<canvas
+  baseChart
+  [datasets]="chartData"
+  [labels]="chartLabels"
+  [options]="chartOptions"
+  [type]="chartType"
+  class="active"
+>
+</canvas>
