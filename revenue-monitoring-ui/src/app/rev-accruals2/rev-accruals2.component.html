@@ -1,183 +1,135 @@
 <br />
-<div>
-  <div class="flex-container">
-    <div class="row">
-      <div class="callout-box chart-box canvas-container">
-        <h3>Inbound Errors</h3>
-        <canvas
-          baseChart
-          [datasets]="kafkaInboundvsErrorchartData"
-          [labels]="kafkaInboundvsErrorchartLabels"
-          [type]="'line'"
-        >
-        </canvas>
-        <div class="expand-icon">
-          <i
-            class="fa fa-arrows-alt"
-            aria-hidden="true"
-            (click)="setChart('inboundError')"
-          ></i>
-        </div>
-      </div>
-      <a (click)="setTable('kafkaError')">
-        <div class="callout-box">
-          <div class="box-header"></div>
-          <div class="box-body">Kafka Errors</div>
-        </div>
-      </a>
+<div class="row">
+  <div class="chart-box">
+    <h4>Inbound Errors</h4>
 
-      <a (click)="setTable('kafkaInbound')">
-        <div class="callout-box">
-          <div class="box-header"></div>
-          <div class="box-body">Kafka Inbounds</div>
-        </div>
-      </a>
-      <div class="callout-box chart-box canvas-container">
-        <h2>AR Trxn Missing</h2>
-        <canvas
-          baseChart
-          [datasets]="arTrxnMissingChartData"
-          [labels]="arTrxnMissingChartLabels"
-          [options]="chartOptions"
-          [type]="'line'"
-        >
-        </canvas>
-        <div class="expand-icon">
-          <i
-            class="fa fa-arrows-alt"
-            aria-hidden="true"
-            (click)="setChart('artrxnMissing')"
-          ></i>
-        </div>
-      </div>
-      <a (click)="setTable('artrxnmissing')">
-        <div class="callout-box">
-          <div class="box-body">AR Trxn Missings</div>
-        </div>
-      </a>
-    </div>
-    <div class="row">
-      <div class="callout-box chart-box canvas-container">
-        <h2>Accruals Processing Error</h2>
-        <canvas
-          baseChart
-          [datasets]="accrualsProcessingErrorChartData"
-          [labels]="accrualsProcessingErrorChartLabels"
-          [options]="chartOptions"
-          [type]="'line'"
-        >
-        </canvas>
-        <div class="expand-icon">
-          <i
-            class="fa fa-arrows-alt"
-            aria-hidden="true"
-            (click)="setChart('accrualsprocessingError')"
-          ></i>
-        </div>
-      </div>
-      <a (click)="setTable('accrualsprocessingerror')">
-        <div class="callout-box">
-          <div class="box-body">Accruals Processing Errors</div>
-        </div>
-      </a>
+    <a (click)="setTable('kafkaError')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
 
-      <div class="callout-box chart-box canvas-container">
-        <h2>Kafka Publish Downstream</h2>
-        <canvas
-          baseChart
-          [datasets]="kafkaPublishDownstreamChartData"
-          [labels]="kafkaPublishDownstreamChartLabels"
-          [options]="chartOptions"
-          [type]="'line'"
-        >
-        </canvas>
-        <div class="expand-icon">
-          <i
-            class="fa fa-arrows-alt"
-            aria-hidden="true"
-            (click)="setChart('kafkapublishDownstream')"
-          ></i>
-        </div>
-      </div>
-      <a (click)="setTable('kakfapublishdownstream')">
-        <div class="callout-box">
-          <div class="box-body">Kafka Publish Downstream</div>
-        </div>
-      </a>
-    </div>
-    <br />
-    <div class="row">
-      <div class="callout-box chart-box canvas-container">
-        <h2>Accruals Summarization Error</h2>
-        <canvas
-          baseChart
-          [datasets]="accrualsSummarizationErrorChartData"
-          [labels]="accrualsSummarizationErrorChartLabels"
-          [options]="chartOptions"
-          [type]="'line'"
-        >
-        </canvas>
-        <div class="expand-icon">
-          <i
-            class="fa fa-arrows-alt"
-            aria-hidden="true"
-            (click)="setChart('accrualssummarizationError')"
-          ></i>
-        </div>
-      </div>
-      <a (click)="setTable('accrualssummarizationerror')">
-        <div class="callout-box">
-          <div class="box-body">Accruals Summarization Errors</div>
-        </div>
-      </a>
-      <div class="callout-box chart-box canvas-container">
-        <h2>Accruals Distribution Error</h2>
-        <canvas
-          baseChart
-          [datasets]="accrualsDistributionErrorChartData"
-          [labels]="accrualsDistributionErrorChartLabels"
-          [options]="chartOptions"
-          [type]="'bar'"
-        >
-        </canvas>
-        <div class="expand-icon">
-          <i
-            class="fa fa-arrows-alt"
-            aria-hidden="true"
-            (click)="setChart('accrualsdistributionError')"
-          ></i>
-        </div>
-      </div>
-      <a (click)="setTable('accrualsdistributionerror')">
-        <div class="callout-box">
-          <div class="box-body">Accruals Distribution Errors</div>
-        </div>
-      </a>
-    </div>
-  </div>
-  <div>
-    <div class="callout-box chart-box canvas-container">
-      <h2>Error Distribution Summarization</h2>
-      <canvas
-        baseChart
-        [datasets]="errorDistributionSummarizationChartData"
-        [labels]="errorDistributionSummarizationChartLabels"
-        [options]="chartOptions"
-        [type]="'bar'"
-      >
-      </canvas>
-      <div class="expand-icon">
-        <i
-          class="fa fa-arrows-alt"
-          aria-hidden="true"
-          (click)="setChart('errordistributionSummarization')"
-        ></i>
-      </div>
-    </div>
-    <a (click)="setTable('errordistributionsummarization')">
-      <div class="callout-box">
-        <div class="box-body">Error Distribution Summarization</div>
-      </div>
+    <a (click)="setTable('kafkaInbound')" class="table-icon-2">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+
+    <a (click)="setChart('inboundError')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i>
     </a>
+
+    <canvas
+      baseChart
+      [datasets]="kafkaInboundvsErrorchartData"
+      [labels]="kafkaInboundvsErrorchartLabels"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+
+  <div class="chart-box">
+    <h4>AR Trxn Missing</h4>
+    <a (click)="setTable('artrxnMissing')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+    <a (click)="setChart('artrxnMissing')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i>
+    </a>
+    <canvas
+      baseChart
+      [datasets]="arTrxnMissingChartData"
+      [labels]="arTrxnMissingChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+
+  <div class="chart-box">
+    <h4>Accruals Processing Error</h4>
+    <a (click)="setTable('accrualsprocessingError')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+    <a (click)="setChart('accrualsprocessingError')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i>
+    </a>
+    <canvas
+      baseChart
+      [datasets]="accrualsProcessingErrorChartData"
+      [labels]="accrualsProcessingErrorChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+
+  <div class="chart-box">
+    <h4>Kafka Publish Downstream</h4>
+    <a (click)="setTable('kafkapublishDownstream')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+    <a (click)="setChart('kafkapublishDownstream')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i>
+    </a>
+    <canvas
+      baseChart
+      [datasets]="kafkaPublishDownstreamChartData"
+      [labels]="kafkaPublishDownstreamChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+
+  <div class="chart-box">
+    <h4>Accruals Summarization Error</h4>
+    <a (click)="setTable('accrualssummarizationError')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+    <a (click)="setChart('accrualssummarizationError')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i>
+    </a>
+    <canvas
+      baseChart
+      [datasets]="accrualsSummarizationErrorChartData"
+      [labels]="accrualsSummarizationErrorChartLabels"
+      [options]="chartOptions"
+      [type]="'line'"
+    >
+    </canvas>
+  </div>
+
+  <div class="chart-box">
+    <h4>Accruals Distribution Error</h4>
+    <a (click)="setTable('accrualsdistributionError')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+    <a (click)="setChart('accrualsdistributionError')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i>
+    </a>
+    <canvas
+      baseChart
+      [datasets]="accrualsDistributionErrorChartData"
+      [labels]="accrualsDistributionErrorChartLabels"
+      [options]="chartOptions"
+      [type]="'bar'"
+    >
+    </canvas>
+  </div>
+
+  <div class="chart-box">
+    <h4>Error Distribution Summarization</h4>
+    <a (click)="setTable('errordistributionsummarization')" class="table-icon">
+      <i class="fa fa-table table-symbol"></i
+    ></a>
+
+    <a (click)="setChart('errordistributionsummarization')" class="expand-icon">
+      <i class="fa fa-arrows-alt"></i
+    ></a>
+    <canvas
+      baseChart
+      [datasets]="errorDistributionSummarizationChartData"
+      [labels]="errorDistributionSummarizationChartLabels"
+      [options]="chartOptions"
+      [type]="'bar'"
+    >
+    </canvas>
   </div>
 </div>
