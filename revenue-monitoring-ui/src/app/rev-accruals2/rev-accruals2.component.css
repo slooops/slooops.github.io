@@ -52,7 +52,19 @@
 }
 
 .chart-box {
-  min-width: 31.5vw;
+  position: relative;
+  min-width: 30vw;
+  margin: 1vw;
+  display: flex;
+  width: fit-content;
+  flex-direction: column;
+  align-items: flex-start;
+  border-radius: 4px;
+  background: var(--light-base-surface, #fff);
+  box-shadow: 0px 1.850000023841858px 6.25px 0px rgba(0, 0, 0, 0.19),
+    0px 0.5px 1.75px 0px rgba(0, 0, 0, 0.04);
+  padding: 16px 16px 20px 16px;
+  gap: 8px;
 }
 
 .table-responsive {
@@ -62,4 +74,48 @@
 .active {
   width: 1500px;
   height: 800px;
+}
+
+.see-more-link {
+  transition: letter-spacing 0.3s ease-in-out;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9em;
+  color: black !important;
+  margin-left: 10px;
+  font-variant: all-small-caps;
+}
+
+.see-more-link:hover {
+  text-decoration: none !important;
+  letter-spacing: 0.05rem;
+}
+
+.chart-box {
+  position: relative;
+}
+
+h4 {
+  width: calc(100% - 110px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+}
+
+.table-symbol {
+  display: flex;
+  align-items: flex-end;
+  padding-left: 15px;
+  padding-right: 6px;
 }

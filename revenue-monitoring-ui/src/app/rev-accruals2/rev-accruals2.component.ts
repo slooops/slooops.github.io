@@ -95,8 +95,11 @@ export class RevAccruals2Component implements OnInit {
       const revSumByDate: number[] = [];
       const sbpSumByDate: number[] = [];
 
-      this.kafkaInboundvsErrorchartLabels = kafkaInbounds.map((data) =>
-        new Date(data.REV_CREATION_DATE).toLocaleDateString()
+      this.kafkaInboundvsErrorchartLabels = this.kafkaInbounds.map((data) =>
+        new Date(data.REV_CREATION_DATE).toLocaleDateString('en-US', {
+          month: 'numeric',
+          day: 'numeric',
+        })
       );
 
       this.kafkaInboundvsErrorchartLabels = Array.from(
@@ -198,9 +201,11 @@ export class RevAccruals2Component implements OnInit {
     });
     if (artrxnMissing) {
       this.arTrxnMissingChartLabels = artrxnMissing.map((data) =>
-        new Date(data.ACCRUAL_CREATION_DATE).toLocaleDateString()
+        new Date(data.ACCRUAL_CREATION_DATE).toLocaleDateString('en-US', {
+          month: 'numeric',
+          day: 'numeric',
+        })
       );
-
       this.arTrxnMissingChartLabels = Array.from(
         new Set(this.arTrxnMissingChartLabels)
       );
@@ -255,7 +260,11 @@ export class RevAccruals2Component implements OnInit {
     });
     if (accrualsProcessingErrors) {
       this.accrualsProcessingErrorChartLabels = accrualsProcessingErrors.map(
-        (data) => new Date(data.CREATION_DATE).toLocaleDateString()
+        (data) =>
+          new Date(data.CREATION_DATE).toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+          })
       );
 
       this.accrualsProcessingErrorChartLabels = Array.from(
@@ -314,7 +323,11 @@ export class RevAccruals2Component implements OnInit {
   prepareKafkaPublishDownstreamChartData(): void {
     if (this.kafkaPublishDownstream) {
       this.kafkaPublishDownstreamChartLabels = this.kafkaPublishDownstream.map(
-        (data) => new Date(data.CREATION_DATE).toLocaleDateString()
+        (data) =>
+          new Date(data.CREATION_DATE).toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+          })
       );
       const chartDataPoints = this.kafkaPublishDownstream.map(
         (data) => +data.COUNT_SUB_REF_ID
@@ -349,7 +362,10 @@ export class RevAccruals2Component implements OnInit {
     if (accrualssummarizationErrors) {
       this.accrualsSummarizationErrorChartLabels =
         accrualssummarizationErrors.map((data) =>
-          new Date(data.SUMM_CREATION_DATE).toLocaleDateString()
+          new Date(data.CREATION_DATE).toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+          })
         );
       this.accrualsSummarizationErrorChartLabels = Array.from(
         new Set(this.accrualsSummarizationErrorChartLabels)
@@ -402,7 +418,10 @@ export class RevAccruals2Component implements OnInit {
     if (accrualsDistributionErrors) {
       this.accrualsDistributionErrorChartLabels =
         accrualsDistributionErrors.map((data) =>
-          new Date(data.DIST_CREATION_DATE).toLocaleDateString()
+          new Date(data.CREATION_DATE).toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+          })
         );
       this.accrualsDistributionErrorChartLabels = Array.from(
         new Set(this.accrualsDistributionErrorChartLabels)
@@ -455,7 +474,10 @@ export class RevAccruals2Component implements OnInit {
     if (errorDistributionSummarization) {
       this.errorDistributionSummarizationChartLabels =
         errorDistributionSummarization.map((data) =>
-          new Date(data.SUMM_CREATION_DATE).toLocaleDateString()
+          new Date(data.CREATION_DATE).toLocaleDateString('en-US', {
+            month: 'numeric',
+            day: 'numeric',
+          })
         );
 
       this.errorDistributionSummarizationChartLabels = Array.from(
