@@ -172,15 +172,20 @@ export class RevAccruals2Component implements OnInit {
         if (dataset.label === 'OPL (Inbound)') {
           dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
           dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.pointBackgroundColor = 'rgba(245, 109, 5, 1)';
         } else if (dataset.label === 'SBP (Inbound)') {
           dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
           dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         } else if (dataset.label === 'OPL (Errors)') {
           dataset.backgroundColor = 'rgba(2, 158, 66, 1)';
           dataset.borderColor = 'rgba(2, 158, 66, 1)';
+          dataset.pointBackgroundColor = 'rgba(2, 158, 66, 1)';
         } else if (dataset.label === 'SBP (Errors)') {
           dataset.backgroundColor = 'rgba(255, 0, 0, 0.9)';
           dataset.borderColor = 'rgba(255, 0, 0, 1)';
+          dataset.fillStyle = 'rgba(255, 0, 0, 1)';
+          dataset.pointBackgroundColor = 'rgba(255, 0, 0, 1)';
         }
       });
     }
@@ -238,8 +243,9 @@ export class RevAccruals2Component implements OnInit {
 
       this.arTrxnMissingChartData.forEach((dataset) => {
         if (dataset.label === 'XAAS') {
-          dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
-          dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
+          dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         }
       });
     }
@@ -309,9 +315,11 @@ export class RevAccruals2Component implements OnInit {
         if (dataset.label === 'XAAS') {
           dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
           dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.pointBackgroundColor = 'rgba(245, 109, 5, 1)';
         } else if (dataset.label === 'OM') {
           dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
           dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         }
       });
     }
@@ -339,8 +347,9 @@ export class RevAccruals2Component implements OnInit {
 
       this.kafkaPublishDownstreamChartData.forEach((dataset) => {
         if (dataset.label === 'Count Sub Ref ID') {
-          dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
-          dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
+          dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         }
       });
     }
@@ -395,8 +404,9 @@ export class RevAccruals2Component implements OnInit {
 
       this.accrualsSummarizationErrorChartData.forEach((dataset) => {
         if (dataset.label === 'Record Count') {
-          dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
-          dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
+          dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         }
       });
     }
@@ -451,8 +461,9 @@ export class RevAccruals2Component implements OnInit {
 
       this.accrualsDistributionErrorChartData.forEach((dataset) => {
         if (dataset.label === 'Record Count') {
-          dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
-          dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
+          dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         }
       });
     }
@@ -522,9 +533,11 @@ export class RevAccruals2Component implements OnInit {
         if (dataset.label === 'CONTRACT ASSETS') {
           dataset.backgroundColor = 'rgba(245, 109, 5, 1)';
           dataset.borderColor = 'rgba(245, 109, 5, 1)';
+          dataset.pointBackgroundColor = 'rgba(245, 109, 5, 1)';
         } else if (dataset.label === 'REVENUE') {
           dataset.backgroundColor = 'rgba(5, 189, 245, 1)';
           dataset.borderColor = 'rgba(5, 189, 245, 1)';
+          dataset.pointBackgroundColor = 'rgba(5, 189, 245, 1)';
         }
       });
     }
@@ -856,12 +869,12 @@ export class RevAccruals2Component implements OnInit {
 
   setTable(table: string) {
     let dataSource, displayedColumns, title, length;
-    if (table === 'kafkaError') {
+    if (table === 'kafkaerror') {
       dataSource = new MatTableDataSource<KafkaErrorModel>(this.kafkaErrors);
       displayedColumns = this.kafkaErrorsDisplayedColumns;
       title = 'Kafka Errors';
       length = this.kafkaErrors.length;
-    } else if (table === 'kafkaInbound') {
+    } else if (table === 'kafkainbound') {
       dataSource = new MatTableDataSource<KafkaInboundModel>(
         this.kafkaInbounds
       );
