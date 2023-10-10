@@ -15,13 +15,25 @@
       <i class="fa fa-arrows-alt"></i>
     </a>
 
-    <canvas
-      baseChart
-      [datasets]="kafkaInboundvsErrorchartData"
-      [labels]="kafkaInboundvsErrorchartLabels"
-      [type]="'line'"
+    <div
+      *ngIf="
+        !kafkaInboundvsErrorchartData?.length;
+        else kafkaInboundvsErrorChart
+      "
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+
+    <ng-template #kafkaInboundvsErrorChart>
+      <canvas
+        baseChart
+        [datasets]="kafkaInboundvsErrorchartData"
+        [labels]="kafkaInboundvsErrorchartLabels"
+        [type]="'line'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 
   <div class="chart-box">
@@ -32,14 +44,24 @@
     <a (click)="setChart('artrxnMissing')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
-    <canvas
-      baseChart
-      [datasets]="arTrxnMissingChartData"
-      [labels]="arTrxnMissingChartLabels"
-      [options]="chartOptions"
-      [type]="'line'"
+
+    <div
+      *ngIf="!arTrxnMissingChartData?.length; else arTrxnMissingChart"
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+
+    <ng-template #arTrxnMissingChart>
+      <canvas
+        baseChart
+        [datasets]="arTrxnMissingChartData"
+        [labels]="arTrxnMissingChartLabels"
+        [options]="chartOptions"
+        [type]="'line'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 
   <div class="chart-box">
@@ -50,14 +72,26 @@
     <a (click)="setChart('accrualsprocessingError')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
-    <canvas
-      baseChart
-      [datasets]="accrualsProcessingErrorChartData"
-      [labels]="accrualsProcessingErrorChartLabels"
-      [options]="chartOptions"
-      [type]="'line'"
+    <div
+      *ngIf="
+        !accrualsProcessingErrorChartData?.length;
+        else accrualsProcessingErrorChart
+      "
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+
+    <ng-template #accrualsProcessingErrorChart>
+      <canvas
+        baseChart
+        [datasets]="accrualsProcessingErrorChartData"
+        [labels]="accrualsProcessingErrorChartLabels"
+        [options]="chartOptions"
+        [type]="'line'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 
   <div class="chart-box">
@@ -68,14 +102,26 @@
     <a (click)="setChart('kafkapublishDownstream')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
-    <canvas
-      baseChart
-      [datasets]="kafkaPublishDownstreamChartData"
-      [labels]="kafkaPublishDownstreamChartLabels"
-      [options]="chartOptions"
-      [type]="'line'"
+    <div
+      *ngIf="
+        !kafkaPublishDownstreamChartData?.length;
+        else kafkaPublishDownstreamChart
+      "
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+
+    <ng-template #kafkaPublishDownstreamChart>
+      <canvas
+        baseChart
+        [datasets]="kafkaPublishDownstreamChartData"
+        [labels]="kafkaPublishDownstreamChartLabels"
+        [options]="chartOptions"
+        [type]="'line'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 
   <div class="chart-box">
@@ -86,14 +132,25 @@
     <a (click)="setChart('accrualssummarizationError')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
-    <canvas
-      baseChart
-      [datasets]="accrualsSummarizationErrorChartData"
-      [labels]="accrualsSummarizationErrorChartLabels"
-      [options]="chartOptions"
-      [type]="'line'"
+    <div
+      *ngIf="
+        !accrualsSummarizationErrorChartData?.length;
+        else accrualsSummarizationErrorChart
+      "
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+    <ng-template #accrualsSummarizationErrorChart>
+      <canvas
+        baseChart
+        [datasets]="accrualsSummarizationErrorChartData"
+        [labels]="accrualsSummarizationErrorChartLabels"
+        [options]="chartOptions"
+        [type]="'line'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 
   <div class="chart-box">
@@ -104,14 +161,25 @@
     <a (click)="setChart('accrualsdistributionError')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
-    <canvas
-      baseChart
-      [datasets]="accrualsDistributionErrorChartData"
-      [labels]="accrualsDistributionErrorChartLabels"
-      [options]="chartOptions"
-      [type]="'bar'"
+    <div
+      *ngIf="
+        !accrualsDistributionErrorChartData?.length;
+        else accrualsDistributionErrorChart
+      "
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+    <ng-template #accrualsDistributionErrorChart>
+      <canvas
+        baseChart
+        [datasets]="accrualsDistributionErrorChartData"
+        [labels]="accrualsDistributionErrorChartLabels"
+        [options]="chartOptions"
+        [type]="'bar'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 
   <div class="chart-box">
@@ -123,13 +191,24 @@
     <a (click)="setChart('errordistributionsummarization')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i
     ></a>
-    <canvas
-      baseChart
-      [datasets]="errorDistributionSummarizationChartData"
-      [labels]="errorDistributionSummarizationChartLabels"
-      [options]="chartOptions"
-      [type]="'bar'"
+    <div
+      *ngIf="
+        !errorDistributionSummarizationChartData?.length;
+        else errorDistributionSummarizationChart
+      "
+      class="loading-container"
     >
-    </canvas>
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+    <ng-template #errorDistributionSummarizationChart>
+      <canvas
+        baseChart
+        [datasets]="errorDistributionSummarizationChartData"
+        [labels]="errorDistributionSummarizationChartLabels"
+        [options]="chartOptions"
+        [type]="'bar'"
+      >
+      </canvas>
+    </ng-template>
   </div>
 </div>
