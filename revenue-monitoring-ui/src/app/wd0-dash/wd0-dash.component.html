@@ -1,5 +1,19 @@
+<div style="float: right; margin-top: 0px; margin-right: 5px">
+  Dashboard updated: Today at
+</div>
+<br />
+
 <div class="row" style="margin-left: 2px; margin-bottom: 10px; margin-top: 5px">
-  <span class="col-sm-9" style="height: 20px"><h5>Buy/Sell AR Close</h5></span>
+  <span class="col-sm-9" style="height: 20px">
+    <label>Expected Start Time:</label>
+    12:20AM &nbsp;|&nbsp;
+    <label>Expected End Time:</label>
+    9:25AM &nbsp;|&nbsp;
+    <label>Actual Start Time:</label> &nbsp;
+    <span class="color-green">12:20AM</span> &nbsp;|&nbsp;
+    <label>Actual End Time:</label> &nbsp;
+    <span class="color-orange">9:28AM</span>
+  </span>
 
   <span class="col-sm-3" style="height: 20px"
     ><div style="float: right; margin-right: 5px">
@@ -9,28 +23,6 @@
   >
 </div>
 
-<div class="row" style="margin-left: 2px">
-  <span class="col-sm-2" style="height: 20px"
-    ><label>Scheduled Start:</label></span
-  >
-  <span class="col-sm-2" style="height: 20px">12:20AM</span>
-  <span class="col-sm-2" style="height: 20px"
-    ><label>Expected Completion: &nbsp;</label></span
-  >
-  <span class="col-sm-6" style="height: 20px">9:25AM</span>
-</div>
-
-<div class="row" style="margin-left: 2px">
-  <span class="col-sm-2" style="height: 20px"
-    ><label>Actual Start:</label></span
-  >
-  <span class="col-sm-2 color-green" style="height: 20px">12:20AM</span>
-  <span class="col-sm-2" style="height: 20px"
-    ><label>Actual Completion: &nbsp;</label></span
-  >
-  <span class="col-sm-6 color-orange" style="height: 20px">9:28AM</span>
-</div>
-
 <div class="reduce-space" style="font-size: small; margin-left: 10px">
   <p class="clearfix">
     <label class="reduce-space">Sequence Infomation: &nbsp;</label>
@@ -38,7 +30,7 @@
       {{
         info.length > firstCount ? (info | slice : 0 : counter) + "..." : info
       }}
-      <span class="blueTxt" *ngIf="info.length > 151" (click)="toggleSkil()">
+      <span class="blueTxt" *ngIf="info.length > 201" (click)="toggleSkil()">
         {{ showTxt }}
       </span>
     </span>
@@ -71,61 +63,11 @@
     </tbody>
   </table>
 </div>
-
-<!--Comments section-->
 <mat-divider></mat-divider>
-<br />
-<div>
-  <h3>Comments</h3>
-  <form>
-    <input
-      name="comments"
-      class="form-control form-control-sm"
-      type="text"
-      placeholder="Add a comment"
-      (focus)="showCommentSave = true"
-      style="width: 40%; height: 60px"
-    />
-    <br />
-    <span *ngIf="showCommentSave">
-      <button
-        mat-raised-button
-        (click)="updateComments()"
-        style="background-color: #049fd9; color: white"
-      >
-        Save</button
-      >&nbsp;
-      <button
-        mat-raised-button
-        (click)="showCommentSave = false"
-        style="color: #049fd9"
-      >
-        Cancel
-      </button>
-      <br /><br />
-    </span>
-  </form>
-  <span style="float: right !important">
-    For questions, please send an email to:
-    <a href="mailto:i2c-close-monitoring@cisco.com">
-      i2c-wd0-dashboard@cisco.com
-    </a></span
-  >
-  <!-- <br />
-  <mat-divider></mat-divider>
-  <br />
-  <div>
-    <div *ngFor="let comment of dashComments">
-      <ul *ngIf="comment.CLOSE_TYPE === 'PRECLOSE'">
-        <li>
-          <p style="margin-bottom: 10px; color: #454444">
-            <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
-            <b>{{ username }}</b> &nbsp;
-            <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
-          </p>
-          <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>
-        </li>
-      </ul>
-    </div>
-  </div> -->
-</div>
+
+<span style="float: right !important">
+  For questions, please send an email to:
+  <a href="mailto:i2c-close-monitoring@cisco.com">
+    i2c-wd0-dashboard@cisco.com
+  </a></span
+>

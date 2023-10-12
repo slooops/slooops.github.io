@@ -11,8 +11,8 @@ export class Wd0DashComponent implements OnInit {
 
   ngOnInit(): void {
     //for read more/less section
-    this.last_index = this.info.substring(0, 150).lastIndexOf(' ');
-    if (this.last_index > 150) this.last_index = 150;
+    this.last_index = this.info.substring(0, 200).lastIndexOf(' ');
+    if (this.last_index > 200) this.last_index = 200;
     this.counter = this.last_index;
   }
 
@@ -20,9 +20,9 @@ export class Wd0DashComponent implements OnInit {
   templateObject = Object;
 
   //for read more/less section
-  last_index = 150;
-  counter = 150;
-  firstCount = 150;
+  last_index = 200;
+  counter = 200;
+  firstCount = 200;
   showTxt = 'Show More';
 
   info =
@@ -36,7 +36,7 @@ export class Wd0DashComponent implements OnInit {
     '*If the processing completes within 5 minutes of the hour, the data will not be reflected until the following FCC refresh.';
 
   toggleSkil() {
-    if (this.counter < 151) {
+    if (this.counter < 201) {
       this.counter = this.info.length;
       this.showTxt = 'Show less';
     } else {
@@ -44,10 +44,6 @@ export class Wd0DashComponent implements OnInit {
       this.showTxt = 'Show More';
     }
   }
-
-  showCommentSave: boolean = false;
-
-  updateComments() {}
 
   displayedColumns: string[] = [
     'Entity',

@@ -1,9 +1,11 @@
 .color-green {
-  color: rgb(21, 213, 21);
+  /* color: rgb(21, 213, 21); */
+  color: #78c000;
 }
 
 .color-orange {
-  color: orange;
+  /* color: orange; */
+  color: #ffd429;
 }
 
 th {
