@@ -1,17 +1,17 @@
 <br />
 <div class="row">
-  <div class="chart-box">
+  <div class="chart-box" [class.expanded]="isExpanded">
     <h4>Inbound Errors</h4>
 
     <a (click)="setTable('kafkaerror')" class="table-icon">
-      <i class="fa fa-table table-symbol"></i
-    ></a>
+      <i class="fa fa-table table-symbol"></i>
+    </a>
 
     <a (click)="setTable('kafkainbound')" class="table-icon-2">
-      <i class="fa fa-table table-symbol"></i
-    ></a>
+      <i class="fa fa-table table-symbol"></i>
+    </a>
 
-    <a (click)="setChart('inboundError')" class="expand-icon">
+    <a (click)="toggleExpand()" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
 
@@ -27,6 +27,7 @@
 
     <ng-template #kafkaInboundvsErrorChart>
       <canvas
+        ngClass="{'expanded-chart': isExpanded}"
         baseChart
         [datasets]="kafkaInboundvsErrorchartData"
         [labels]="kafkaInboundvsErrorchartLabels"

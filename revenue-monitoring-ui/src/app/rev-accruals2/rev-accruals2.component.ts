@@ -21,6 +21,8 @@ import { TableDialogComponent } from './table-dialog/table-dialog.component';
   styleUrls: ['./rev-accruals2.component.css'],
 })
 export class RevAccruals2Component implements OnInit {
+  isExpanded = false;
+
   constructor(
     http: ApiHttpService,
     public dialog: MatDialog,
@@ -188,6 +190,16 @@ export class RevAccruals2Component implements OnInit {
           dataset.pointBackgroundColor = 'rgba(255, 0, 0, 1)';
         }
       });
+    }
+  }
+
+  toggleExpand() {
+    this.isExpanded = !this.isExpanded;
+    const chartBox = document.querySelector('.chart-box');
+    if (this.isExpanded) {
+      chartBox.classList.add('expanded');
+    } else {
+      chartBox.classList.remove('expanded');
     }
   }
 
