@@ -89,7 +89,7 @@ export class Wd0DashComponent implements OnInit {
       'Receivables Posting': '1:56',
       'Revenue Posting': '1:56',
       'Intercompany Posting': '2:15',
-      Status: 'Delayed',
+      Status: 'Completed',
       '*Loaded into FCC': 'Yes',
     },
     {

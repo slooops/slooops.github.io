@@ -1,5 +1,5 @@
 <div style="float: right; margin-top: 0px; margin-right: 5px">
-  Dashboard updated: Today at
+  Dashboard updated: Today at 11:25 AM
 </div>
 <br />
 
@@ -41,7 +41,9 @@
   <table class="table table-responsive equal-width">
     <thead>
       <tr>
-        <th *ngFor="let col of displayedColumns">{{ col }}</th>
+        <th *ngFor="let col of displayedColumns">
+          <span style="font-weight: bolder">{{ col }}</span>
+        </th>
       </tr>
     </thead>
     <tbody>
