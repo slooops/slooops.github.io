@@ -207,61 +207,61 @@ spec:
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---
-# apiVersion: cae.cisco.com/v1
-# kind: SSOAuthConfig
-# metadata:
-#   name: operations-dashboard-api.cisco.com
-#   namespace: rev-operations-dashboard-stg-rtp2
-#   annotations:
-#     ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
-# spec:
-#   contexts:
-#     - context: /api/
-#       contextMatch: prefix
-#       policyType: public
-#       methods:
-#         - "*"
-#     - context: /snoop.jsp
-#       contextMatch: exact
-#       policyType: public
-#     - context: /pingpong.html
-#       contextMatch: exact
-#       policyType: public
-#     - context: /favicon.ico
-#       contextMatch: exact
-#       policyType: public
-#     - context: /.emantest.html
-#       contextMatch: exact
-#       policyType: public
-#     - context: /pub/
-#       contextMatch: prefix
-#       policyType: public
-#     - context: ^/.*/pingpong\.html$
-#       contextMatch: regex
-#       policyType: public
-#     - context: /
-#       contextMatch: prefix
-#       policyType: web
-#   policy:
-#     api:
-#       allow:
-#         - paths:
-#             - path: /api/
-#               pathMatch: prefix
-#           when:
-#             - kind: tokenIssuer
-#               values:
-#                 - ping
-#     web:
-#       allow:
-#         - paths:
-#             - path: /
-#               pathMatch: prefix
-#           when:
-#             - kind: userId
-#               values:
-#                 - "*"
-#   provider:
-#     cors: platform
-#     idp: duo
-#     sso: platform
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: order-lifecycle-dashboard-api-stg.cisco.com
+  namespace: rev-operations-dashboard-stg-rtp2
+  annotations:
+    ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
+spec:
+  contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - "*"
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
+      contextMatch: prefix
+      policyType: public
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
+    - context: /
+      contextMatch: prefix
+      policyType: web
+  policy:
+    api:
+      allow:
+        - paths:
+            - path: /api/
+              pathMatch: prefix
+          when:
+            - kind: tokenIssuer
+              values:
+                - ping
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform
