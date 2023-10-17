@@ -597,7 +597,7 @@
           INVOICE ELIGIBLE DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.INVOICE_ELIGIBLE_DATE }}
+          {{ record.INVOICE_ELIGIBLE_DATE == "TBD" ? "" : record.CLO_COMMENTS }}
         </td>
       </ng-container>
 
@@ -806,7 +806,7 @@
           CLO UPDATES
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.CLO_COMMENTS }}
+          {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
         </td>
       </ng-container>
 

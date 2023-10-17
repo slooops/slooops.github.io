@@ -8,7 +8,16 @@
     ></i
   ></a>
 </h2>
-<br />
+<div
+  style="
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    padding-bottom: 8px;
+  "
+>
+  <button mat-stroked-button>Download</button>
+</div>
 <mat-dialog-content>
   <!-- your-component.component.html -->
   <div
@@ -22,7 +31,7 @@
     >
       <!-- Account, Deal ID, and Order Status Column -->
       <ng-container matColumnDef="accountDealStatus">
-        <th mat-header-cell *matHeaderCellDef>ROW LABELS</th>
+        <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
           <div>
             <p style="margin-top: 1em; margin-right: 3em">
