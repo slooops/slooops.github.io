@@ -39,6 +39,10 @@ td {
   white-space: normal !important;
 }
 
+.mat-column-CLO_COMMENTS {
+  white-space: unset !important;
+}
+
 .progPanel {
   min-width: calc(100% + 30px) !important;
 }

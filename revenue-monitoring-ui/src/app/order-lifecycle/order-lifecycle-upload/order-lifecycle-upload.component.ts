@@ -1,6 +1,6 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { ApiHttpService } from '../providers/http.service';
+import { ApiHttpService } from '../../providers/http.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({

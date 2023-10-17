@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, Input, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ApiHttpService } from '../providers/http.service';
+import { ApiHttpService } from '../../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatSort } from '@angular/material/sort';

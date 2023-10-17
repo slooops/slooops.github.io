@@ -67,8 +67,9 @@ import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogModule,
 } from '@angular/material/dialog';
-import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
-import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
+import { OrderLifecycleSummaryComponent } from './order-lifecycle/order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from './order-lifecycle/order-lifecycle-upload/order-lifecycle-upload.component';
+import { OrderLifecycleRevSummaryComponent } from './order-lifecycle/order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -93,6 +94,7 @@ export function initApp(authService: AuthenticationService) {
     OrderLifecycleComponent,
     OrderLifecycleSummaryComponent,
     OrderLifecycleUploadComponent,
+    OrderLifecycleRevSummaryComponent,
   ],
   imports: [
     BrowserModule,

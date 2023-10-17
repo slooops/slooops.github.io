@@ -9,17 +9,15 @@ import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
-import { switchMap, startWith } from 'rxjs/operators';
-import { Observable, interval } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
-import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order-lifecycle-summary.component';
-import { OrderLifecycleUploadComponent } from '../order-lifecycle-upload/order-lifecycle-upload.component';
-import { HttpParams } from '@angular/common/http';
+import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
+import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -270,14 +268,14 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   openDialog() {
-    const dialogRef = this.dialog.open(OrderLifecycleSummaryComponent, {
-      width: '700px',
+    this.dialog.open(OrderLifecycleSummaryComponent, {
+      width: '800px',
     });
   }
 
   openUploadDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
-      width: '700px',
+      width: '800px',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -286,6 +284,12 @@ export class OrderLifecycleComponent implements OnInit {
         this.dataSource = null;
         this.getOrderLifecycle();
       }
+    });
+  }
+
+  openRevSummaryDialog() {
+    this.dialog.open(OrderLifecycleRevSummaryComponent, {
+      width: '1200px',
     });
   }
 
@@ -316,10 +320,12 @@ export class OrderLifecycleComponent implements OnInit {
     'TOTAL_LINE_COUNT',
     'ORDER_STATUS',
     'CONTRACT_NUMBER',
+    // 'DEAL_UPLOAD_DATE',
     'LINES_ON_HOLD',
     'FLEXIBLE_INVOICE_ELIGIBLE',
-    'HOLD_RELEASE_DATE',
-    'HOLD_RELEASE_STATUS',
+    'INVOICE_ELIGIBLE_DATE',
+    // 'HOLD_RELEASE_DATE',
+    // 'HOLD_RELEASE_STATUS',
     'INVOICING_STATUS',
     'INVOICE_LINES',
     'INVOICE_DATE',
@@ -331,6 +337,7 @@ export class OrderLifecycleComponent implements OnInit {
     'FUTURE_INVOICE_RELEASE_DATE',
     'TERM_IN_YEARS',
     'BOOK_DATE',
+    'CLO_COMMENTS',
     'COMMENTS',
   ];
 
@@ -455,4 +462,7 @@ export interface OrderLifecycleModel {
   COMMENTS: string;
   HOLD_RELEASE_STATUS: string;
   HOLD_RELEASE_DATE: Date;
+  DEAL_UPLOAD_DATE: string;
+  INVOICE_ELIGIBLE_DATE: string;
+  CLO_COMMENTS: string;
 }

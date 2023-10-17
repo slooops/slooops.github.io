@@ -37,6 +37,7 @@ public class DailyMonitoringService {
     private String orderStatusSummary;
     private String orderStatusDownload;
     private String updateOrderStatus;
+    private String orderStatusRevSummary;
 
 
 //    Connection conn;
@@ -48,7 +49,7 @@ public class DailyMonitoringService {
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails,
                                   String updateComments, String orderStatus, String orderStatusSummary, String orderStatusDownload,
-                                  String updateOrderStatus
+                                  String updateOrderStatus, String orderStatusRevSummary
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -70,6 +71,7 @@ public class DailyMonitoringService {
         this.orderStatusSummary = orderStatusSummary;
         this.orderStatusDownload = orderStatusDownload;
         this.updateOrderStatus = updateOrderStatus;
+        this.orderStatusRevSummary = orderStatusRevSummary;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -251,6 +253,11 @@ public class DailyMonitoringService {
         resultList.add(progNameLength, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
 
         return resultList;
+    }
+
+
+    public List<Map<String, Object>> getOrderStatusRevSummary() {
+        return jdbcManager.queryForList(orderStatusRevSummary);
     }
     public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
         OrderLifecycleSummaryModel obj = new OrderLifecycleSummaryModel("Sub Total ("+programName+")", calculateOrderCountSumByProgramName(resultList, programName), null, null);

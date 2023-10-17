@@ -165,12 +165,16 @@
       </mat-form-field> -->
     </form>
     <div>
-      <button
+      <!-- <button
         mat-stroked-button
         type="button"
         (click)="updateHoldStatusAndDate()"
       >
         Save
+      </button>
+      &nbsp; -->
+      <button mat-stroked-button (click)="openRevSummaryDialog()">
+        View Rev Summary
       </button>
       &nbsp;
       <button mat-stroked-button (click)="openDialog()">View Summary</button>
@@ -395,6 +399,21 @@
         </td>
       </ng-container>
 
+      <!-- DEAL UPLOAD DATE Column -->
+      <ng-container matColumnDef="DEAL_UPLOAD_DATE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          DEAL UPLOAD DATE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.DEAL_UPLOAD_DATE }}
+        </td>
+      </ng-container>
+
       <!-- INVOICING_STATUS Column -->
       <ng-container matColumnDef="INVOICING_STATUS">
         <th
@@ -565,6 +584,20 @@
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.FLEXIBLE_INVOICE_ELIGIBLE }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="INVOICE_ELIGIBLE_DATE">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          INVOICE ELIGIBLE DATE
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.INVOICE_ELIGIBLE_DATE }}
         </td>
       </ng-container>
 
@@ -760,6 +793,20 @@
               ? "NA"
               : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
           }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="CLO_COMMENTS">
+        <th
+          class="custom-cell"
+          mat-header-cell
+          *matHeaderCellDef
+          mat-sort-header
+        >
+          CLO UPDATES
+        </th>
+        <td class="custom-cell" mat-cell *matCellDef="let record">
+          {{ record.CLO_COMMENTS }}
         </td>
       </ng-container>
 
