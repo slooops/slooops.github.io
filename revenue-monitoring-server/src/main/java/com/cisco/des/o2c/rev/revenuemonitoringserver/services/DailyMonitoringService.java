@@ -4,6 +4,7 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -36,6 +37,10 @@ public class DailyMonitoringService {
 
     private String invoiceTrackerLine;
 
+    private String wd0ArMidCloseStatusQuery;
+
+    private String wd0ArMidCloseHeaderDataQuery;
+
 
 //    Connection conn;
 
@@ -45,7 +50,8 @@ public class DailyMonitoringService {
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
-                                  String orderStatus, String invoiceTrackerHeader, String invoiceTrackerLine) {
+                                  String orderStatus, String invoiceTrackerHeader, String invoiceTrackerLine,
+                                  String wd0ArMidCloseStatusQuery, String wd0ArMidCloseHeaderDataQuery) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -65,6 +71,8 @@ public class DailyMonitoringService {
         this.orderStatus = orderStatus;
         this.invoiceTrackerHeader = invoiceTrackerHeader;
         this.invoiceTrackerLine = invoiceTrackerLine;
+        this.wd0ArMidCloseStatusQuery = wd0ArMidCloseStatusQuery;
+        this.wd0ArMidCloseHeaderDataQuery = wd0ArMidCloseHeaderDataQuery;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -146,6 +154,58 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getInvoiceTrackerLine() {
         return jdbcManager.queryForList(invoiceTrackerLine);
+    }
+
+    public List<Map<String, Object>> getWd0ArMidCloseStatus() {
+
+        //return jdbcManager.queryForList(wd0ArMidCloseStatusQuery);
+        List<Map<String, Object>> returnList = new ArrayList<>();
+        Map<String, Object>  mapObject1 = new HashMap<>();
+
+        mapObject1.put("ENTITY", "India");
+        mapObject1.put("INVOICING_STATUS", "1:09");
+        mapObject1.put("STANDARD_AR_POSTING", "1:42");
+        mapObject1.put("CUSTOM_REVENUE_POSTING", "1:50");
+        mapObject1.put("DEFERRALS_POSTING", "1:52");
+        mapObject1.put("INTERCOMPANY_POSTING", "1:55");
+        mapObject1.put("EXECUTION_STATUS", "Completed");
+        mapObject1.put("FCC_LOAD_STATUS", "Yes");
+        returnList.add(mapObject1);
+
+        Map<String, Object>  mapObject2 = new HashMap<>();
+
+        mapObject2.put("ENTITY", "Brazil");
+        mapObject2.put("INVOICING_STATUS", "0:55");
+        mapObject2.put("STANDARD_AR_POSTING", "1:56");
+        mapObject2.put("CUSTOM_REVENUE_POSTING", "1:57");
+        mapObject2.put("DEFERRALS_POSTING", "1:58");
+        mapObject2.put("INTERCOMPANY_POSTING", "2:03");
+        mapObject2.put("EXECUTION_STATUS", "Completed");
+        mapObject2.put("FCC_LOAD_STATUS", "Yes");
+        returnList.add(mapObject2);
+
+        return returnList;
+
+    }
+
+    public List<Map<String, Object>> getWd0ArMidCloseHeaderData(){
+
+        //return jdbcManager.queryForList(wd0ArMidCloseHeaderDataQuery);
+
+        List<Map<String, Object>> returnList = new ArrayList<>();
+        Map<String, Object>  mapObject = new HashMap<>();
+
+        mapObject.put("CLOSE_TYPE", "MIDCLOSE");
+        mapObject.put("EXPECTED_START_TIME", "2023-09-24T12:20:00.000+00:00");
+        mapObject.put("EXPECTED_END_TIME", "2023-09-24T09:25:00.000+00:00");
+        mapObject.put("ACTUAL_START_TIME", "2023-09-24T12:20:00.000+00:00");
+        mapObject.put("ACTUAL_END_TIME", "2023-09-24T09:28:00.000+00:00");
+        mapObject.put("QUARTER", "Q1FY24");
+        mapObject.put("PERIOD_NAME", "OCT-23");
+        mapObject.put("PERIOD_YEAR", "2023");
+        returnList.add(mapObject);
+
+        return returnList;
     }
 
 

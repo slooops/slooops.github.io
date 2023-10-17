@@ -22,5 +22,7 @@
   "STANDARD_AR_EXC_QUERY": "SELECT period_name, period_year, quarter, ou_name, creation_date, trx_number, customer_trx_id, customer_trx_line_id, batch_source, transaction_type, trx_name, inventory_item_id, item_rev_account, item_catalog, org_id, ledger_id, currency_code, line_amount_trxn_curr, oa_flag, tsv_flag, meraki_flag, rev_account, unearn_account, sla_transferred, original_line_ref, original_oa_flag, original_tsv_flag, original_meraki_flag, original_rev_account, original_unearn_account, comments FROM arfinro.xxcfir_rev_monitoring_ar where rownum<= 100 order by creation_date",
   "INVOICE_TRACKER_HEADER_QUERY": "select * from ARFINRO.XXCFI_AR_TRX_CTL_INV_HDR_V",
   "INVOICE_TRACKER_LINE_QUERY": "SELECT REQUEST_TYPE, CONTROL_CATEGORY, OPERATING_UNIT, THRESHOLD_AMOUNT, INTERFACE_LINE_AMOUNT, ORDER_NUMBER, ORDER_LINE_ID, BATCH_SOURCE_NAME, CURRENCY_CODE, USD_AMOUNT, CREATION_DATE, SUBSCRIPTION_NUMBER, BILL_NUMBER, WEB_ORDER_ID FROM ARFINRO.XXCFI_AR_TRX_CTL_INV_LN_THR_V",
-  "CORS_URL": "http://localhost:4200"
+  "CORS_URL": "http://localhost:4200",
+  "WD0_AR_MIDCLOSE_STATUS_QUERY": "select * from ARFINRO.XXCFI_OPS_DASH_CLOSE_STATUS",
+  "WD0_AR_MIDCLOSE_HEADER_DATA_QUERY": "select * from ARFINRO.XXCFI_OPS_DASH_CLOSE_STATUS"
 }
