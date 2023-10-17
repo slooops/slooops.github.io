@@ -23,6 +23,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   newDataSource: any;
   length: number;
+  isNaN: Function = Number.isNaN;
 
   grandTotalSalesOrderCount: number = 0;
   grandTotalOrderValue: number = 0;
@@ -34,12 +35,13 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   getOrderLifecycleRevSummary() {
     this.http.get('order-status-rev-summary').subscribe((data: any) => {
-      this.test(data);
+      console.log(data);
+      this.pivotData(data);
       this.setSortAndPaginator();
     });
   }
 
-  test(originalData) {
+  pivotData(originalData) {
     const groupedData = [];
 
     for (const item of originalData) {
@@ -79,6 +81,11 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
         salesOrderCount: parseFloat(item.SALES_ORDER_COUNT),
         totalOrderValue: parseFloat(item.TOTAL_ORDER_VALUE),
         totalLineCount: parseFloat(item.TOTAL_LINE_COUNT),
+        qtrRevEstimate: parseFloat(item.CURRENT_QTR_REV_ESTIMATE),
+        qtrAccrualGlRev: parseFloat(item.CURRENT_QTR_ACCR_GL_REV),
+        qtrInvGlRev: parseFloat(item.CURRENT_QTR_INV_GL_REV),
+        qtrRevRecog: parseFloat(item.CURRENT_QTR_REVENUE_RECOG),
+        revNotRecog: parseFloat(item.REVENUE_NOT_RECOG),
       };
 
       // Add the order status to the deal's orderStatuses array
@@ -144,20 +151,63 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       account.totalLineCountSum = dealTotalLineCountSum;
     });
 
+    // Calculate grand totals
+    const grandTotalSalesOrderCount = groupedData.reduce((total, account) => {
+      return (
+        total +
+        account.deals.reduce((dealTotal, deal) => {
+          return (
+            dealTotal +
+            deal.orderStatuses.reduce((statusTotal, status) => {
+              return statusTotal + status.salesOrderCount;
+            }, 0)
+          );
+        }, 0)
+      );
+    }, 0);
+
+    const grandTotalOrderValue = groupedData.reduce((total, account) => {
+      return (
+        total +
+        account.deals.reduce((dealTotal, deal) => {
+          return (
+            dealTotal +
+            deal.orderStatuses.reduce((statusTotal, status) => {
+              return statusTotal + status.totalOrderValue;
+            }, 0)
+          );
+        }, 0)
+      );
+    }, 0);
+
+    const grandTotalTotalLineCount = groupedData.reduce((total, account) => {
+      return (
+        total +
+        account.deals.reduce((dealTotal, deal) => {
+          return (
+            dealTotal +
+            deal.orderStatuses.reduce((statusTotal, status) => {
+              return statusTotal + status.totalLineCount;
+            }, 0)
+          );
+        }, 0)
+      );
+    }, 0);
+
+    // Add the grand total row to groupedData
+    groupedData.push({
+      account: 'Grand Total',
+      deals: [], // No deals for grand total
+      grandTotalSalesOrderCount,
+      grandTotalOrderValue,
+      grandTotalTotalLineCount,
+    });
+
+    console.log(groupedData);
+
     this.newDataSource = new MatTableDataSource(groupedData);
 
     this.length = groupedData.length;
-
-    // Calculate the grand totals
-    groupedData.forEach((account) => {
-      account.deals.forEach((deal) => {
-        deal.orderStatuses.forEach((status) => {
-          this.grandTotalSalesOrderCount += status.salesOrderCount;
-          this.grandTotalOrderValue += status.totalOrderValue;
-          this.grandTotalTotalLineCount += status.totalLineCount;
-        });
-      });
-    });
   }
 
   closeDialog() {
