@@ -36,6 +36,10 @@ public class DailyMonitoringService {
 
     private String invoiceTrackerLine;
 
+    private String wd0ArMidCloseStatusQuery;
+
+    private String wd0ArMidCloseHeaderDataQuery;
+
 
 //    Connection conn;
 
@@ -45,7 +49,8 @@ public class DailyMonitoringService {
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
-                                  String orderStatus, String invoiceTrackerHeader, String invoiceTrackerLine) {
+                                  String orderStatus, String invoiceTrackerHeader, String invoiceTrackerLine,
+                                  String wd0ArMidCloseStatusQuery, String wd0ArMidCloseHeaderDataQuery) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -65,6 +70,8 @@ public class DailyMonitoringService {
         this.orderStatus = orderStatus;
         this.invoiceTrackerHeader = invoiceTrackerHeader;
         this.invoiceTrackerLine = invoiceTrackerLine;
+        this.wd0ArMidCloseStatusQuery = wd0ArMidCloseStatusQuery;
+        this.wd0ArMidCloseHeaderDataQuery = wd0ArMidCloseHeaderDataQuery;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -148,5 +155,11 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(invoiceTrackerLine);
     }
 
+    public List<Map<String, Object>> getWd0ArMidCloseStatus() {
+        return jdbcManager.queryForList(wd0ArMidCloseStatusQuery);
+    }
 
+    public List<Map<String, Object>> getWd0ArMidCloseHeaderData(){
+        return jdbcManager.queryForList(wd0ArMidCloseHeaderDataQuery);
+    }
 }

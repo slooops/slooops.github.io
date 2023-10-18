@@ -127,4 +127,22 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getInvoiceTrackerLine(), HttpStatus.OK);
     }
 
+    @GetMapping("/wd0-ar-midclose-status")
+    public ResponseEntity<List<Map<String, Object>>> getWd0ArMidCloseStatus(){
+        return new ResponseEntity<>(service.getWd0ArMidCloseStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping("/dashboard-current-timestamp")
+    public Map<String,Date> getCurrentTimestamp() {
+        Date date = new Date();
+        Map<String,Date> timeNow = new HashMap<>();
+        timeNow.put("timeNow", date);
+        return timeNow;
+    }
+
+    @GetMapping("/wd0-ar-midclose-header-data")
+    public ResponseEntity<List<Map<String, Object>>> getWd0ArMidCloseHeaderData() {
+        return new ResponseEntity<>(service.getWd0ArMidCloseHeaderData(), HttpStatus.OK);
+    }
+
 }
