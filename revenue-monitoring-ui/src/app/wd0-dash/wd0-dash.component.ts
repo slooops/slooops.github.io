@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiHttpService } from 'src/app/providers/http.service';
 import { FormControl } from '@angular/forms';
+import { DatePipe } from '@angular/common';
+import { switchMap, startWith } from 'rxjs/operators';
+import { Observable, interval } from 'rxjs';
 
 @Component({
   selector: 'app-wd0-dash',
@@ -7,14 +11,19 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./wd0-dash.component.css'],
 })
 export class Wd0DashComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {
-    //for read more/less section
-    this.last_index = this.info.substring(0, 200).lastIndexOf(' ');
-    if (this.last_index > 200) this.last_index = 200;
-    this.counter = this.last_index;
-  }
+  protected http: ApiHttpService;
+  refreshInterval = 300000; //ms
+  timeNow: any;
+  expectedStartTime: String = '';
+  expectedEndTime: String = '';
+  actualStartTime: String = '';
+  actualEndTime: String = '';
+  elimStatConsDate: String = '';
+  periodName: String = '';
+  quarter: String = '';
+  wd0ArMidCloseTableData: any[] = [];
+  actualStartTimeStatus: any;
+  actualEndTimeStatus: any;
 
   //to display data in table
   templateObject = Object;
@@ -35,16 +44,6 @@ export class Wd0DashComponent implements OnInit {
     'completion of Phase 2, when IT triggers a manual consolidation. ' +
     'If the processing completes within 5 minutes of the hour, the data will not be reflected until the following FCC refresh.';
 
-  toggleSkil() {
-    if (this.counter < 201) {
-      this.counter = this.info.length;
-      this.showTxt = 'Show less';
-    } else {
-      this.counter = this.last_index;
-      this.showTxt = 'Show More';
-    }
-  }
-
   displayedColumns: string[] = [
     'Entity',
     'Invoicing',
@@ -55,6 +54,144 @@ export class Wd0DashComponent implements OnInit {
     'Status',
     'Loaded into FCC',
   ];
+
+  monthMap = {
+    '01': 'January',
+    '02': 'February',
+    '03': 'March',
+    '04': 'April',
+    '05': 'May',
+    '06': 'June',
+    '07': 'July',
+    '08': 'August',
+    '09': 'September',
+    '10': 'October',
+    '11': 'November',
+    '12': 'December',
+  };
+  constructor(http: ApiHttpService) {
+    this.http = http;
+  }
+
+  ngOnInit(): void {
+    this.setReadMoreOrLessSection();
+    this.getPeriodQuarterStartEndTime();
+    this.getCurrentTime();
+    this.getWd0ArCloseStatus();
+  }
+
+  //for read more/less section
+  toggleSkil() {
+    if (this.counter < 201) {
+      this.counter = this.info.length;
+      this.showTxt = 'Show less';
+    } else {
+      this.counter = this.last_index;
+      this.showTxt = 'Show More';
+    }
+  }
+
+  //for read more/less section
+  setReadMoreOrLessSection() {
+    this.last_index = this.info.substring(0, 200).lastIndexOf(' ');
+    if (this.last_index > 200) this.last_index = 200;
+    this.counter = this.last_index;
+  }
+
+  getCurrentTime() {
+    this.getEndpointData('dashboard-current-timestamp').subscribe(
+      (data: any) => {
+        this.timeNow = new Date(data['timeNow']).toLocaleString('en-us', {
+          hour: 'numeric',
+          minute: 'numeric',
+        });
+      }
+    );
+  }
+
+  getWd0ArCloseStatus() {
+    this.getEndpointData('wd0-ar-midclose-status').subscribe((data: any) => {
+      this.wd0ArMidCloseTableData = [];
+
+      data.forEach((row) => {
+        let arMidCloseDataRowObj = {};
+        arMidCloseDataRowObj['Entity'] = row['ENTITY'];
+        arMidCloseDataRowObj['Invoicing'] = row['INVOICING_STATUS'];
+        arMidCloseDataRowObj['Standard AR Posting'] =
+          row['STANDARD_AR_POSTING'];
+        arMidCloseDataRowObj['Custom Revenue Posting'] =
+          row['CUSTOM_REVENUE_POSTING'];
+        arMidCloseDataRowObj['Deferrals Posting'] = row['DEFERALS_POSTING'];
+        arMidCloseDataRowObj['Intercompany Posting'] =
+          row['INTERCOMPANY_POSTING'];
+        arMidCloseDataRowObj['Status'] = row['EXECUTION_STATUS'];
+        arMidCloseDataRowObj['Loaded into FCC'] = row['FCC_LOAD_STATUS'];
+        this.wd0ArMidCloseTableData.push(arMidCloseDataRowObj);
+      });
+    });
+  }
+
+  getPeriodQuarterStartEndTime() {
+    this.getEndpointData('wd0-ar-midclose-header-data').subscribe(
+      (data: any) => {
+        data.forEach((row) => {
+          this.periodName = row['PERIOD_NAME'];
+          this.quarter = row['QUARTER'];
+
+          // this.expectedStartTime = this.extractTimeFromDate(
+          //   row['EXPECTED_START_TIME']
+          // );
+          // this.expectedEndTime = this.extractTimeFromDate(
+          //   row['EXPECTED_END_TIME']
+          // );
+          // this.actualStartTime = this.extractTimeFromDate(
+          //   row['ACTUAL_START_TIME']
+          // );
+          // this.actualEndTime = this.extractTimeFromDate(row['ACTUAL_END_TIME']);
+          // this.elimStatConsDate = row['ELIM_STAT_CONS_DATE'];
+
+          this.expectedStartTime = '12:20 AM';
+          this.expectedEndTime = '5:00 AM';
+          this.actualStartTime = '12:20 AM';
+          this.actualEndTime = '4:30 AM';
+          this.elimStatConsDate = '7:30 AM';
+        });
+      }
+    );
+  }
+
+  extractTimeFromDate(dateString: string) {
+    //TODO: need to fix
+    console.log('value:' + dateString);
+    //let dateParts = date.split(' ');
+    //console.log(dateString);
+    //let timeParts = dateParts[1].split(':');
+    // let month;
+    // for (const ele in this.monthMap) {
+    //   if (ele === dateParts[1]) {
+    //     month = this.monthMap[ele];
+    //   }
+    // }
+    // let day = dateParts[2];
+
+    // let timeParts = date.split('T')[1].split('.');
+    // let time = timeParts[0];
+
+    // let extractedTimePart = `${timeParts[0]}:${timeParts[1]} ${dateParts[2]}`;
+    //return extractedTimePart;
+    return ' ';
+  }
+
+  getEndpointData(endpoint: string): Observable<any> {
+    let uniqueId = Date.now();
+    let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
+
+    const polling$ = interval(this.refreshInterval).pipe(
+      startWith(0), // Emit initial value immediately
+      switchMap(() => this.http.get(cacheBustingUrl))
+    );
+    return polling$;
+  }
 
   dataSource = [
     {
