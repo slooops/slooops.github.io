@@ -69,10 +69,10 @@ public class QueryConfigs { // TODO
     @Value("$INVOICE_TRACKER_LINE_QUERY}")
     public String invoiceTrackerLine;
 
-    @Value("${WD0_AR_MIDCLOSE_STATUS_QUERY}")
+    @Value("${wd0.ar.midclose.status.query}")
     public String wd0ArMidCloseStatusQuery;
 
-    @Value("${WD0_AR_MIDCLOSE_HEADER_DATA_QUERY}")
+    @Value("${wd0.ar.midclose.header.data.query}")
     public String wd0ArMidCloseHeaderDataQuery;
 
 
