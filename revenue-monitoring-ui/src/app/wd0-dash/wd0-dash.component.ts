@@ -18,12 +18,15 @@ export class Wd0DashComponent implements OnInit {
   expectedEndTime: String = '';
   actualStartTime: String = '';
   actualEndTime: String = '';
-  elimStatConsDate: String = '';
+  elimStatConsExpectedEndTime: String = '';
+  elimStatConsActualEndTime: String = '';
   periodName: String = '';
   quarter: String = '';
   wd0ArMidCloseTableData: any[] = [];
-  actualStartTimeStatus: any;
-  actualEndTimeStatus: any;
+  expectedStartDate: Date;
+  expectedEndDate: Date;
+  actualStartDate: Date;
+  actualEndDate: Date;
 
   //to display data in table
   templateObject = Object;
@@ -55,20 +58,6 @@ export class Wd0DashComponent implements OnInit {
     'Loaded into FCC',
   ];
 
-  monthMap = {
-    '01': 'January',
-    '02': 'February',
-    '03': 'March',
-    '04': 'April',
-    '05': 'May',
-    '06': 'June',
-    '07': 'July',
-    '08': 'August',
-    '09': 'September',
-    '10': 'October',
-    '11': 'November',
-    '12': 'December',
-  };
   constructor(http: ApiHttpService) {
     this.http = http;
   }
@@ -138,48 +127,50 @@ export class Wd0DashComponent implements OnInit {
           this.periodName = row['PERIOD_NAME'];
           this.quarter = row['QUARTER'];
 
-          // this.expectedStartTime = this.extractTimeFromDate(
-          //   row['EXPECTED_START_TIME']
-          // );
-          // this.expectedEndTime = this.extractTimeFromDate(
-          //   row['EXPECTED_END_TIME']
-          // );
-          // this.actualStartTime = this.extractTimeFromDate(
-          //   row['ACTUAL_START_TIME']
-          // );
-          // this.actualEndTime = this.extractTimeFromDate(row['ACTUAL_END_TIME']);
-          // this.elimStatConsDate = row['ELIM_STAT_CONS_DATE'];
+          this.expectedStartTime = this.extractTimeFromDate(
+            row['EXPECTED_START_TIME']
+          );
+          this.expectedStartDate = new Date(row['EXPECTED_START_TIME']);
 
-          this.expectedStartTime = '12:20 AM';
-          this.expectedEndTime = '5:00 AM';
-          this.actualStartTime = '12:20 AM';
-          this.actualEndTime = '4:30 AM';
-          this.elimStatConsDate = '7:30 AM';
+          this.expectedEndTime = this.extractTimeFromDate(
+            row['EXPECTED_END_TIME']
+          );
+          this.expectedEndDate = new Date(row['EXPECTED_END_TIME']);
+
+          this.actualStartTime = this.extractTimeFromDate(
+            row['ACTUAL_START_TIME']
+          );
+          this.actualStartDate = new Date(row['ACTUAL_START_TIME']);
+
+          this.actualEndTime = this.extractTimeFromDate(row['ACTUAL_END_TIME']);
+          this.actualEndDate = new Date(row['ACTUAL_END_TIME']);
+
+          this.elimStatConsExpectedEndTime = this.extractTimeFromDate(
+            row['ELIM_STAT_CONS_EXPECTED_DATE']
+          );
+          this.elimStatConsActualEndTime = this.extractTimeFromDate(
+            row['ELIM_STAT_CONS_ACTUAL_DATE']
+          );
         });
       }
     );
   }
 
-  extractTimeFromDate(dateString: string) {
-    //TODO: need to fix
-    console.log('value:' + dateString);
-    //let dateParts = date.split(' ');
-    //console.log(dateString);
-    //let timeParts = dateParts[1].split(':');
-    // let month;
-    // for (const ele in this.monthMap) {
-    //   if (ele === dateParts[1]) {
-    //     month = this.monthMap[ele];
-    //   }
-    // }
-    // let day = dateParts[2];
+  extractTimeFromDate(date: string) {
+    let time = date.split('T')[1].split('.');
+    let timeParts = time[0].split(':');
+    let hours: number = parseInt(timeParts[0]);
+    let hourFormat: string = '';
 
-    // let timeParts = date.split('T')[1].split('.');
-    // let time = timeParts[0];
-
-    // let extractedTimePart = `${timeParts[0]}:${timeParts[1]} ${dateParts[2]}`;
-    //return extractedTimePart;
-    return ' ';
+    if (hours < 12) {
+      hourFormat = 'AM';
+    } else if ((hours = 12)) {
+      hourFormat = 'PM';
+    } else {
+      hourFormat = 'PM';
+      hours = hours - 12;
+    }
+    return `${hours}:${timeParts[1]} ${hourFormat}`;
   }
 
   getEndpointData(endpoint: string): Observable<any> {
@@ -193,156 +184,156 @@ export class Wd0DashComponent implements OnInit {
     return polling$;
   }
 
-  dataSource = [
-    {
-      Entity: 'US',
-      Invoicing: 'Yet to start',
-      'Standard AR Posting': 'Yet to start',
-      'Custom Revenue Posting': 'Yet to start',
-      'Deferrals Posting': 'Yet to start',
-      'Intercompany Posting': 'Yet to start',
-      Status: 'Yet to start',
-      'Loaded into FCC': 'Yet to start',
-    },
-    {
-      Entity: 'UKH',
-      Invoicing: '1:33',
-      'Standard AR Posting': 'In progress',
-      'Custom Revenue Posting': 'Yet to start',
-      'Deferrals Posting': 'Yet to start',
-      'Intercompany Posting': 'Yet to start',
-      Status: 'In progress',
-      'Loaded into FCC': 'Yet to start',
-    },
-    {
-      Entity: 'India',
-      Invoicing: '1:09',
-      'Standard AR Posting': '1:42',
-      'Custom Revenue Posting': '1:50',
-      'Deferrals Posting': '1:55',
-      'Intercompany Posting': 'In Progress',
-      Status: 'In Progress',
-      'Loaded into FCC': 'Yet to start',
-    },
-    {
-      Entity: 'Brazil',
-      Invoicing: '0:55',
-      'Standard AR Posting': '1:56',
-      'Custom Revenue Posting': '1:56',
-      'Deferrals Posting': '1:58',
-      'Intercompany Posting': '2:15',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'Mexico',
-      Invoicing: '1:05',
-      'Standard AR Posting': 'N/A',
-      'Custom Revenue Posting': 'N/A',
-      'Deferrals Posting': '1:17',
-      'Intercompany Posting': '1:30',
-      Status: 'Completed',
-      'Loaded into FCC': 'N/A',
-    },
-    {
-      Entity: 'China Panyu',
-      Invoicing: '0:57',
-      'Standard AR Posting': '1:50',
-      'Custom Revenue Posting': 'N/A',
-      'Deferrals Posting': '1:52',
-      'Intercompany Posting': '1:55',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'Australia',
-      Invoicing: '0:53',
-      'Standard AR Posting': '1:34',
-      'Custom Revenue Posting': '1:34',
-      'Deferrals Posting': '1:44',
-      'Intercompany Posting': '1:55',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'China',
-      Invoicing: '0:53',
-      'Standard AR Posting': '1:27',
-      'Custom Revenue Posting': '1:27',
-      'Deferrals Posting': '1:30',
-      'Intercompany Posting': '1:35',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'Canada',
-      Invoicing: '1:04',
-      'Standard AR Posting': '1:40',
-      'Custom Revenue Posting': '1:40',
-      'Deferrals Posting': '1:45',
-      'Intercompany Posting': '1:50',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'Japan',
-      Invoicing: '0:52',
-      'Standard AR Posting': '1:27',
-      'Custom Revenue Posting': '1:27',
-      'Deferrals Posting': '1:30',
-      'Intercompany Posting': '1:35',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'Italy',
-      Invoicing: '0:54',
-      'Standard AR Posting': '1:34',
-      'Custom Revenue Posting': '1:34',
-      'Deferrals Posting': '1:49',
-      'Intercompany Posting': '1:56',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'South Africa',
-      Invoicing: '1:06',
-      'Standard AR Posting': '1:34',
-      'Custom Revenue Posting': '1:34',
-      'Deferrals Posting': '1:49',
-      'Intercompany Posting': '2:05',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'South Korea',
-      Invoicing: '0:54',
-      'Standard AR Posting': '1:50',
-      'Custom Revenue Posting': '1:50',
-      'Deferrals Posting': '1:55',
-      'Intercompany Posting': '1:57',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'Germany',
-      Invoicing: '1:34',
-      'Standard AR Posting': '1:37',
-      'Custom Revenue Posting': 'N/A',
-      'Deferrals Posting': '1:40',
-      'Intercompany Posting': '1:57',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-    {
-      Entity: 'NL',
-      Invoicing: '0:57',
-      'Standard AR Posting': '1:34',
-      'Custom Revenue Posting': '1:34',
-      'Deferrals Posting': '1:42',
-      'Intercompany Posting': '1:48',
-      Status: 'Completed',
-      'Loaded into FCC': 'Yes',
-    },
-  ];
+  // dataSource = [
+  //   {
+  //     Entity: 'US',
+  //     Invoicing: 'Yet to start',
+  //     'Standard AR Posting': 'Yet to start',
+  //     'Custom Revenue Posting': 'Yet to start',
+  //     'Deferrals Posting': 'Yet to start',
+  //     'Intercompany Posting': 'Yet to start',
+  //     Status: 'Yet to start',
+  //     'Loaded into FCC': 'Yet to start',
+  //   },
+  //   {
+  //     Entity: 'UKH',
+  //     Invoicing: '1:33',
+  //     'Standard AR Posting': 'In progress',
+  //     'Custom Revenue Posting': 'Yet to start',
+  //     'Deferrals Posting': 'Yet to start',
+  //     'Intercompany Posting': 'Yet to start',
+  //     Status: 'In progress',
+  //     'Loaded into FCC': 'Yet to start',
+  //   },
+  //   {
+  //     Entity: 'India',
+  //     Invoicing: '1:09',
+  //     'Standard AR Posting': '1:42',
+  //     'Custom Revenue Posting': '1:50',
+  //     'Deferrals Posting': '1:55',
+  //     'Intercompany Posting': 'In Progress',
+  //     Status: 'In Progress',
+  //     'Loaded into FCC': 'Yet to start',
+  //   },
+  //   {
+  //     Entity: 'Brazil',
+  //     Invoicing: '0:55',
+  //     'Standard AR Posting': '1:56',
+  //     'Custom Revenue Posting': '1:56',
+  //     'Deferrals Posting': '1:58',
+  //     'Intercompany Posting': '2:15',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'Mexico',
+  //     Invoicing: '1:05',
+  //     'Standard AR Posting': 'N/A',
+  //     'Custom Revenue Posting': 'N/A',
+  //     'Deferrals Posting': '1:17',
+  //     'Intercompany Posting': '1:30',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'N/A',
+  //   },
+  //   {
+  //     Entity: 'China Panyu',
+  //     Invoicing: '0:57',
+  //     'Standard AR Posting': '1:50',
+  //     'Custom Revenue Posting': 'N/A',
+  //     'Deferrals Posting': '1:52',
+  //     'Intercompany Posting': '1:55',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'Australia',
+  //     Invoicing: '0:53',
+  //     'Standard AR Posting': '1:34',
+  //     'Custom Revenue Posting': '1:34',
+  //     'Deferrals Posting': '1:44',
+  //     'Intercompany Posting': '1:55',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'China',
+  //     Invoicing: '0:53',
+  //     'Standard AR Posting': '1:27',
+  //     'Custom Revenue Posting': '1:27',
+  //     'Deferrals Posting': '1:30',
+  //     'Intercompany Posting': '1:35',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'Canada',
+  //     Invoicing: '1:04',
+  //     'Standard AR Posting': '1:40',
+  //     'Custom Revenue Posting': '1:40',
+  //     'Deferrals Posting': '1:45',
+  //     'Intercompany Posting': '1:50',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'Japan',
+  //     Invoicing: '0:52',
+  //     'Standard AR Posting': '1:27',
+  //     'Custom Revenue Posting': '1:27',
+  //     'Deferrals Posting': '1:30',
+  //     'Intercompany Posting': '1:35',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'Italy',
+  //     Invoicing: '0:54',
+  //     'Standard AR Posting': '1:34',
+  //     'Custom Revenue Posting': '1:34',
+  //     'Deferrals Posting': '1:49',
+  //     'Intercompany Posting': '1:56',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'South Africa',
+  //     Invoicing: '1:06',
+  //     'Standard AR Posting': '1:34',
+  //     'Custom Revenue Posting': '1:34',
+  //     'Deferrals Posting': '1:49',
+  //     'Intercompany Posting': '2:05',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'South Korea',
+  //     Invoicing: '0:54',
+  //     'Standard AR Posting': '1:50',
+  //     'Custom Revenue Posting': '1:50',
+  //     'Deferrals Posting': '1:55',
+  //     'Intercompany Posting': '1:57',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'Germany',
+  //     Invoicing: '1:34',
+  //     'Standard AR Posting': '1:37',
+  //     'Custom Revenue Posting': 'N/A',
+  //     'Deferrals Posting': '1:40',
+  //     'Intercompany Posting': '1:57',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  //   {
+  //     Entity: 'NL',
+  //     Invoicing: '0:57',
+  //     'Standard AR Posting': '1:34',
+  //     'Custom Revenue Posting': '1:34',
+  //     'Deferrals Posting': '1:42',
+  //     'Intercompany Posting': '1:48',
+  //     Status: 'Completed',
+  //     'Loaded into FCC': 'Yes',
+  //   },
+  // ];
 }

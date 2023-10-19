@@ -4,24 +4,34 @@
 <br />
 
 <div class="row" style="margin-left: 1px; margin-bottom: 5px; margin-top: 5px">
-  <span class="col-sm-9" style="height: 20px">
-    <label>Expected Start Time:</label>
+  <span class="col-sm-9" style="height: 20px; font-size: small">
+    <label>Expected Mid Close Start Time:</label>
     {{ expectedStartTime }} &nbsp;|&nbsp;
-    <label>Expected End Time:</label>
-    {{ expectedEndTime }} &nbsp;|&nbsp; <label>Actual Start Time:</label> &nbsp;
+    <label>Expected Mid Close End Time:</label>
+    {{ expectedEndTime }} &nbsp;|&nbsp;
+    <label>Actual Mid Close Start Time:</label> &nbsp;
     <span
       [ngClass]="
-        actualStartTime <= expectedStartTime ? 'color-green' : 'color-orange'
+        actualStartDate <= expectedStartDate ? 'color-green' : 'color-orange'
       "
       >{{ actualStartTime }}</span
     >
-    &nbsp;|&nbsp; <label>Actual End Time:</label> &nbsp;
+    &nbsp;|&nbsp; <label>Actual Mid Close End Time:</label> &nbsp;
     <span
       [ngClass]="
-        actualEndTime <= expectedEndTime ? 'color-green' : 'color-orange'
+        actualEndDate <= expectedEndDate ? 'color-green' : 'color-orange'
       "
       >{{ actualEndTime }}</span
+    >&nbsp;|&nbsp;
+    <label
+      >Eliminations, Stat Rules and Consolidations Expected End
+      Time:&nbsp;</label
     >
+    {{ elimStatConsExpectedEndTime }} &nbsp;|&nbsp;
+    <label
+      >Eliminations, Stat Rules and Consolidations Actual End Time:&nbsp;</label
+    >
+    {{ elimStatConsActualEndTime }}
   </span>
 
   <span class="col-sm-3" style="height: 20px"
@@ -32,11 +42,8 @@
   >
 </div>
 
-<div style="margin-left: 10px">
-  <label>Eliminations, Stat Rules and Consolidations:&nbsp;</label>
-  {{ elimStatConsDate }}
-</div>
-
+<br />
+<br />
 <div class="reduce-space" style="font-size: small; margin-left: 10px">
   <p class="clearfix">
     <label class="reduce-space">Sequence Infomation: &nbsp;</label>
