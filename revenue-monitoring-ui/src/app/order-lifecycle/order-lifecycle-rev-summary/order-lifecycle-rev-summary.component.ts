@@ -44,33 +44,29 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   pivotData(originalData) {
     for (const item of originalData) {
-      // Find the account in the groupedData array
       let account = this.groupedData.find(
         (group) => group.account === item.ACCOUNT
       );
 
-      // If the account doesn't exist, create it
       if (!account) {
         account = {
           account: item.ACCOUNT,
           salesOrderSum: 0,
           totalOrderValueSum: 0,
-          totalLineCountSum: 0, // Initialize totalLineCountSum
+          totalLineCountSum: 0,
           deals: [],
         };
         this.groupedData.push(account);
       }
 
-      // Find the deal in the account's deals array
       let deal = account.deals.find((deal) => deal.dealId === item.DEAL_ID);
 
-      // If the deal doesn't exist, create it
       if (!deal) {
         deal = {
           dealId: item.DEAL_ID,
           salesOrderSum: 0,
           totalOrderValueSum: 0,
-          totalLineCountSum: 0, // Initialize totalLineCountSum
+          totalLineCountSum: 0,
           orderStatuses: [],
         };
         account.deals.push(deal);
@@ -89,10 +85,8 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
         revNotRecog: parseFloat(item.REVENUE_NOT_RECOG),
       };
 
-      // Add the order status to the deal's orderStatuses array
       deal.orderStatuses.push(orderStatus);
 
-      // Update the salesOrderSum, totalOrderValueSum, and totalLineCountSum at each level
       account.salesOrderSum += orderStatus.salesOrderCount;
       account.totalOrderValueSum += orderStatus.totalOrderValue;
       account.totalLineCountSum += orderStatus.totalLineCount;
@@ -101,7 +95,6 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       deal.totalLineCountSum += orderStatus.totalLineCount;
     }
 
-    // Calculate the sum of salesOrderCount, totalOrderValue, and totalLineCount at the order status level
     this.groupedData.forEach((account) => {
       account.deals.forEach((deal) => {
         deal.orderStatuses.forEach((status) => {
@@ -112,7 +105,6 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       });
     });
 
-    // Calculate the sum of salesOrderCount, totalOrderValue, and totalLineCount at the deal level
     this.groupedData.forEach((account) => {
       account.deals.forEach((deal) => {
         const orderStatusSalesOrderSum = deal.orderStatuses.reduce(
@@ -133,7 +125,6 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       });
     });
 
-    // Calculate the sum of salesOrderCount, totalOrderValue, and totalLineCount at the account level
     this.groupedData.forEach((account) => {
       const dealSalesOrderSum = account.deals.reduce(
         (sum, deal) => sum + deal.salesOrderSum,
@@ -152,7 +143,6 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       account.totalLineCountSum = dealTotalLineCountSum;
     });
 
-    // Calculate grand totals
     const grandTotalSalesOrderCount = this.groupedData.reduce(
       (total, account) => {
         return (
@@ -207,11 +197,9 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     let grandTotalQtrRevRecog = 0;
     let grandTotalRevNotRecog = 0;
 
-    // Iterate through the data structure
     this.groupedData.forEach((account) => {
       account.deals.forEach((deal) => {
         deal.orderStatuses.forEach((status) => {
-          // Accumulate values
           grandTotalQtrRevEstimate += parseFloat(status.qtrRevEstimate);
           grandTotalQtrAccrualGlRev += parseFloat(status.qtrAccrualGlRev);
           grandTotalQtrInvGlRev += parseFloat(status.qtrInvGlRev);
@@ -221,10 +209,9 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       });
     });
 
-    // Add the grand total row to groupedData
     this.groupedData.push({
       account: 'Grand Total',
-      deals: [], // No deals for grand total
+      deals: [],
       grandTotalSalesOrderCount,
       grandTotalOrderValue,
       grandTotalTotalLineCount,
