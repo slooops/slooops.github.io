@@ -159,16 +159,21 @@ export class Wd0DashComponent implements OnInit {
   extractTimeFromDate(date: string) {
     let time = date.split('T')[1].split('.');
     let timeParts = time[0].split(':');
-    let hours: number = parseInt(timeParts[0]);
+    let hours: string = '';
     let hourFormat: string = '';
 
-    if (hours < 12) {
+    if (0 == parseInt(timeParts[0])) {
+      hours = '00';
       hourFormat = 'AM';
-    } else if ((hours = 12)) {
+    } else if (parseInt(timeParts[0]) < 12) {
+      hours = timeParts[0];
+      hourFormat = 'AM';
+    } else if (parseInt(timeParts[0]) == 12) {
+      hours = timeParts[0];
       hourFormat = 'PM';
     } else {
+      hours = (parseInt(timeParts[0]) - 12).toString();
       hourFormat = 'PM';
-      hours = hours - 12;
     }
     return `${hours}:${timeParts[1]} ${hourFormat}`;
   }
