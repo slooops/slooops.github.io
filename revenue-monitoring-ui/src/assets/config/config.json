@@ -1,5 +1,5 @@
 {
-  "api_url": "https://order-lifecycle-dashboard-api-stg.cisco.com/api/",
-  "authClientId": "frs-oauth-nprd",
+  "api_url": "https://order-lifecycle-dashboard-api.cisco.com/api/",
+  "authClientId": "frs-oauth-prod",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }
