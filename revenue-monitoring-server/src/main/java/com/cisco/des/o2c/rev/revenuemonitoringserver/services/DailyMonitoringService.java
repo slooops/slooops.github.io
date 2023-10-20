@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +39,7 @@ public class DailyMonitoringService {
     private String orderStatusDownload;
     private String updateOrderStatus;
     private String orderStatusRevSummary;
+    private String updateInvoiceEligibleDate;
 
 
 //    Connection conn;
@@ -49,7 +51,7 @@ public class DailyMonitoringService {
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails,
                                   String updateComments, String orderStatus, String orderStatusSummary, String orderStatusDownload,
-                                  String updateOrderStatus, String orderStatusRevSummary
+                                  String updateOrderStatus, String orderStatusRevSummary, String updateInvoiceEligibleDate
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -72,6 +74,7 @@ public class DailyMonitoringService {
         this.orderStatusDownload = orderStatusDownload;
         this.updateOrderStatus = updateOrderStatus;
         this.orderStatusRevSummary = orderStatusRevSummary;
+        this.updateInvoiceEligibleDate = updateInvoiceEligibleDate;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -310,5 +313,24 @@ public class DailyMonitoringService {
             temp.put(aa.getKey(), aa.getValue());
         }
         return temp;
+    }
+
+    public void updateInvoiceEligibleDate(List<Map<String,Object>> updatedDeals){
+
+        for(Map<String,Object> deal: updatedDeals){
+            String dateString = deal.get("INVOICE_ELIGIBLE_DATE").toString();
+            int dealId = Integer.parseInt(deal.get("DEAL_ID").toString());
+            String salesOrder = deal.get("SALES_ORDER").toString();
+            System.out.println(dateString + " " + dealId + " " + salesOrder);
+            try {
+                Instant instant = Instant.parse(dateString);
+                Date date = Date.from(instant);
+                int ret = jdbcManager.updateInvoiceEligibleDate(updateInvoiceEligibleDate, date, dealId, salesOrder);
+                System.out.println(ret);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }

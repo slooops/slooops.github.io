@@ -161,9 +161,9 @@ public class DailyMonitoringController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
     }
-    @PostMapping(value = "/hold-release-status-date")
-    public ResponseEntity<String> holdReleaseStatusAndDate(@RequestBody List<Map<String,Object>> updatedDeal){
-        System.out.println(updatedDeal);
+    @PostMapping(value = "/invoice-eligible-date")
+    public ResponseEntity<String> invoiceEligibleDateUpdate(@RequestBody List<Map<String,Object>> updatedDeals){
+        service.updateInvoiceEligibleDate(updatedDeals);
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }
 }

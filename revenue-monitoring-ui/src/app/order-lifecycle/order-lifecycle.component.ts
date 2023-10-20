@@ -143,6 +143,9 @@ export class OrderLifecycleComponent implements OnInit {
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
       this.dataSource.filterPredicate = this.filterPredicate;
+      // this.dateSelected = new Array(this.orderLifecycleStatus.length).fill(
+      //   false
+      // );
     });
   }
 
@@ -293,21 +296,50 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
-  modifiedElements: OrderLifecycleModel[] = [];
+  // modifiedElements: OrderLifecycleModel[] = [];
 
-  onStatusChange(element: OrderLifecycleModel) {
-    if (!this.modifiedElements.includes(element)) {
-      this.modifiedElements.push(element);
-    }
-  }
+  // dateSelected: boolean[];
 
-  updateHoldStatusAndDate() {
-    this.http
-      .post('hold-release-status-date', this.modifiedElements)
-      .subscribe((data) => {});
+  // saveButton: boolean = false;
 
-    this.modifiedElements = [];
-  }
+  // onDateSelected(rowIndex: number, element: OrderLifecycleModel) {
+  //   this.dateSelected[rowIndex] = true;
+  //   console.log(rowIndex);
+  //   if (!this.modifiedElements.includes(element)) {
+  //     this.modifiedElements.push(element);
+  //   }
+  //   console.log(this.orderLifecycleStatus[0]);
+  //   this.selection.select(this.orderLifecycleStatus[rowIndex]);
+  //   if (this.modifiedElements.length > 0) {
+  //     this.saveButton = true;
+  //   }
+  // }
+
+  // onResetDate(rowIndex: number, element: OrderLifecycleModel) {
+  //   this.dateSelected[rowIndex] = false;
+  //   this.selection.deselect(this.orderLifecycleStatus[rowIndex]);
+  //   element.INVOICE_ELIGIBLE_DATE = null;
+  //   const recordIndex = this.modifiedElements.findIndex(
+  //     (record) => record === element
+  //   );
+
+  //   if (recordIndex !== -1) {
+  //     this.modifiedElements.splice(recordIndex, 1);
+  //   }
+  //   if (this.modifiedElements.length > 0) {
+  //     this.saveButton = true;
+  //   } else {
+  //     this.saveButton = false;
+  //   }
+  // }
+
+  // updateHoldStatusAndDate() {
+  //   this.http
+  //     .post('invoice-eligible-date', this.modifiedElements)
+  //     .subscribe((data) => {});
+
+  //   this.modifiedElements = [];
+  // }
 
   displayedColumns = [
     'select',
@@ -315,17 +347,15 @@ export class OrderLifecycleComponent implements OnInit {
     'PROGRAM_NAME',
     'ACCOUNT',
     'DEAL_ID',
+    'DEAL_UPLOAD_DATE',
     'SALES_ORDER',
     'ORDER_VALUE',
     'TOTAL_LINE_COUNT',
     'ORDER_STATUS',
     'CONTRACT_NUMBER',
-    // 'DEAL_UPLOAD_DATE',
     'LINES_ON_HOLD',
     'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICE_ELIGIBLE_DATE',
-    // 'HOLD_RELEASE_DATE',
-    // 'HOLD_RELEASE_STATUS',
     'INVOICING_STATUS',
     'INVOICE_LINES',
     'INVOICE_DATE',
@@ -333,7 +363,6 @@ export class OrderLifecycleComponent implements OnInit {
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
     'ACCRUALS_EXECUTION_TIME',
-    // 'SUBSCRIPTION_ID',
     'FUTURE_INVOICE_RELEASE_DATE',
     'TERM_IN_YEARS',
     'BOOK_DATE',
@@ -460,9 +489,7 @@ export interface OrderLifecycleModel {
   BOOK_DATE: string;
   DEAL_ID: string;
   COMMENTS: string;
-  HOLD_RELEASE_STATUS: string;
-  HOLD_RELEASE_DATE: Date;
+  INVOICE_ELIGIBLE_DATE: Date;
   DEAL_UPLOAD_DATE: string;
-  INVOICE_ELIGIBLE_DATE: string;
   CLO_COMMENTS: string;
 }

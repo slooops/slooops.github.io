@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +68,11 @@ public class JdbcManager {
     public int updateOrderStatus(String sql, String progName, String account, int dealId){
         return jdbcTemplate.update(sql, progName, account, dealId);
     }
+
+    public int updateInvoiceEligibleDate(String sql, Date invoiceElgibileDate, int dealId, String salesOrder){
+        return jdbcTemplate.update(sql, invoiceElgibileDate, dealId, salesOrder);
+    }
+
 
     public List<Map<String, Object>> queryForListWithParams(String sql, String appName, String batchSource, String entity, String type){
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);

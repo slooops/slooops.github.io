@@ -51,16 +51,10 @@ td {
   cursor: pointer;
 }
 
-.mat-column-HOLD_RELEASE_DATE .mat-form-field-infix {
+.mat-column-INVOICE_ELIGIBLE_DATE .mat-form-field-infix {
   width: 80px;
-  padding-bottom: 0.3em 0;
-  border-top: 0.8em solid transparent;
-}
-
-.mat-column-HOLD_RELEASE_STATUS .mat-form-field-infix {
-  width: 100px;
-  padding-bottom: 0.3em 0;
-  border-top: 0.3em solid transparent;
+  padding-bottom: 0.3em;
+  padding-top: 0.7em;
 }
 
 .cui input {
@@ -70,4 +64,32 @@ td {
 .table > tbody > tr > td {
   padding-bottom: 0 !important;
   padding-top: 0 !important;
+}
+
+.highlight-link {
+  padding: 5px;
+}
+
+.highlight-link:hover {
+  background-color: rgb(
+    240,
+    238,
+    238
+  ) !important; /* Change this to your desired highlight color */
+}
+
+.custom-menu {
+  min-width: 180px; /* Set a minimum width if desired */
+  width: auto;
+  max-width: 100%; /* Allow the menu to grow up to the screen width */
+}
+
+.viewHighlight {
+  padding: 12px;
+  font-weight: 600;
+}
+
+.viewHighlight:hover {
+  background-color: rgb(240, 238, 238) !important;
+  cursor: pointer;
 }

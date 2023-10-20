@@ -13,12 +13,7 @@
 <br />
 <div>
   <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 8px;
-    "
+    style="display: flex; justify-content: space-between; align-items: center"
   >
     <form [formGroup]="searchForm" class="search__form">
       <mat-form-field appearance="standard" [style.width.px]="125">
@@ -133,6 +128,14 @@
       <button mat-stroked-button type="button" (click)="clearFilters()">
         Reset
       </button>
+      <!-- &nbsp;
+      <button
+        mat-stroked-button
+        *ngIf="saveButton"
+        (click)="updateHoldStatusAndDate()"
+      >
+        Save
+      </button> -->
 
       <!-- &nbsp;
       <mat-form-field appearance="standard" [style.width.px]="125">
@@ -164,33 +167,22 @@
         />
       </mat-form-field> -->
     </form>
-    <div>
-      <!-- <button
-        mat-stroked-button
-        type="button"
-        (click)="updateHoldStatusAndDate()"
-      >
-        Save
-      </button>
-      &nbsp; -->
-      <button mat-stroked-button (click)="openRevSummaryDialog()">
-        View Rev Summary
-      </button>
-      &nbsp;
-      <button mat-stroked-button (click)="openDialog()">View Summary</button>
-      &nbsp;
-      <button mat-stroked-button (click)="openUploadDialog()">
-        Deal Upload
-      </button>
-      &nbsp;
-      <button
-        mat-stroked-button
-        (click)="
-          export('Large Order Lifecycle Status', 'large_order_lifecycle_status')
-        "
-      >
-        Download
-      </button>
+    <div class="highlight-link">
+      <a
+        style="color: black; text-decoration: none"
+        [matMenuTriggerFor]="dropdownMenu"
+        >Options&nbsp;
+        <i
+          class="fa fa-ellipsis-v"
+          aria-hidden="true"
+          style="
+            font-size: large;
+            color: #4f5051;
+            padding-right: 0.4em;
+            padding-left: 6px;
+          "
+        ></i>
+      </a>
     </div>
   </div>
   <div
@@ -410,7 +402,11 @@
           DEAL UPLOAD DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.DEAL_UPLOAD_DATE }}
+          {{
+            record.DEAL_UPLOAD_DATE == "TBD"
+              ? "TBD"
+              : (record.DEAL_UPLOAD_DATE | date : "M/d/yyyy")
+          }}
         </td>
       </ng-container>
 
@@ -596,64 +592,39 @@
         >
           INVOICE ELIGIBLE DATE
         </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.INVOICE_ELIGIBLE_DATE == "TBD" ? "" : record.CLO_COMMENTS }}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="HOLD_RELEASE_STATUS">
-        <th
+        <td
           class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+          mat-cell
+          *matCellDef="let record; let i = index"
         >
-          HOLD RELEASE STATUS
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          <mat-form-field appearance="standard">
-            <input
-              #statusInput
-              matInput
-              placeholder="Enter Status"
-              [(ngModel)]="record.HOLD_RELEASE_STATUS"
-              (ngModelChange)="onStatusChange(record)"
-            />
-            <!-- <i
-              matSuffix
-              class="fa fa-arrow-circle-right hoverIcon"
-              style="color: gray"
-              (click)="updateHoldStatusAndDate()"
-            ></i> -->
-          </mat-form-field>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="HOLD_RELEASE_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          HOLD RELEASE DATE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          <mat-form-field>
+          {{
+            record.INVOICE_ELIGIBLE_DATE == "TBD"
+              ? "TBD"
+              : (record.INVOICE_ELIGIBLE_DATE | date : "M/d/yyyy")
+          }}
+          <!-- <mat-form-field floatLabel="never">
             <input
               matInput
               [matDatepicker]="picker"
               placeholder="Select Date"
               [min]="currentDate"
               [readonly]="true"
-              [(ngModel)]="record.HOLD_RELEASE_DATE"
+              [(ngModel)]="record.INVOICE_ELIGIBLE_DATE"
+              (ngModelChange)="onDateSelected(i, record)"
             />
             <mat-datepicker-toggle
+              *ngIf="!dateSelected[i]"
               matSuffix
               [for]="picker"
             ></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
+            <i
+              class="fa fa-times"
+              aria-hidden="true"
+              *ngIf="dateSelected[i]"
+              (click)="onResetDate(i, record)"
+            ></i>
+            <mat-datepicker #picker> </mat-datepicker>
+          </mat-form-field> -->
         </td>
       </ng-container>
 
@@ -864,3 +835,27 @@
 </div>
 
 <br />
+
+<mat-menu #dropdownMenu="matMenu" class="custom-menu">
+  <div (click)="openRevSummaryDialog()" class="viewHighlight">
+    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    >&nbsp;&nbsp;View Rev Summary
+  </div>
+  <div (click)="openDialog()" class="viewHighlight">
+    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    >&nbsp;&nbsp;View Summary
+  </div>
+  <div (click)="openUploadDialog()" class="viewHighlight">
+    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    >&nbsp;&nbsp;Deal Upload
+  </div>
+  <div
+    (click)="
+      export('Large Order Lifecycle Status', 'large_order_lifecycle_status')
+    "
+    class="viewHighlight"
+  >
+    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    >&nbsp;&nbsp;Download
+  </div>
+</mat-menu>

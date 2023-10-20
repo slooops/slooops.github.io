@@ -2,9 +2,9 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-order-lifecycle-rev-summary',
@@ -28,6 +28,8 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   grandTotalSalesOrderCount: number = 0;
   grandTotalOrderValue: number = 0;
   grandTotalTotalLineCount: number = 0;
+  groupedData = [];
+  flattenedData = [];
 
   ngOnInit(): void {
     this.getOrderLifecycleRevSummary();
@@ -35,18 +37,17 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   getOrderLifecycleRevSummary() {
     this.http.get('order-status-rev-summary').subscribe((data: any) => {
-      console.log(data);
       this.pivotData(data);
       this.setSortAndPaginator();
     });
   }
 
   pivotData(originalData) {
-    const groupedData = [];
-
     for (const item of originalData) {
       // Find the account in the groupedData array
-      let account = groupedData.find((group) => group.account === item.ACCOUNT);
+      let account = this.groupedData.find(
+        (group) => group.account === item.ACCOUNT
+      );
 
       // If the account doesn't exist, create it
       if (!account) {
@@ -57,7 +58,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
           totalLineCountSum: 0, // Initialize totalLineCountSum
           deals: [],
         };
-        groupedData.push(account);
+        this.groupedData.push(account);
       }
 
       // Find the deal in the account's deals array
@@ -101,7 +102,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     }
 
     // Calculate the sum of salesOrderCount, totalOrderValue, and totalLineCount at the order status level
-    groupedData.forEach((account) => {
+    this.groupedData.forEach((account) => {
       account.deals.forEach((deal) => {
         deal.orderStatuses.forEach((status) => {
           deal.salesOrderSum += status.salesOrderCount;
@@ -112,7 +113,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     });
 
     // Calculate the sum of salesOrderCount, totalOrderValue, and totalLineCount at the deal level
-    groupedData.forEach((account) => {
+    this.groupedData.forEach((account) => {
       account.deals.forEach((deal) => {
         const orderStatusSalesOrderSum = deal.orderStatuses.reduce(
           (sum, status) => sum + status.salesOrderCount,
@@ -133,7 +134,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     });
 
     // Calculate the sum of salesOrderCount, totalOrderValue, and totalLineCount at the account level
-    groupedData.forEach((account) => {
+    this.groupedData.forEach((account) => {
       const dealSalesOrderSum = account.deals.reduce(
         (sum, deal) => sum + deal.salesOrderSum,
         0
@@ -152,21 +153,24 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     });
 
     // Calculate grand totals
-    const grandTotalSalesOrderCount = groupedData.reduce((total, account) => {
-      return (
-        total +
-        account.deals.reduce((dealTotal, deal) => {
-          return (
-            dealTotal +
-            deal.orderStatuses.reduce((statusTotal, status) => {
-              return statusTotal + status.salesOrderCount;
-            }, 0)
-          );
-        }, 0)
-      );
-    }, 0);
+    const grandTotalSalesOrderCount = this.groupedData.reduce(
+      (total, account) => {
+        return (
+          total +
+          account.deals.reduce((dealTotal, deal) => {
+            return (
+              dealTotal +
+              deal.orderStatuses.reduce((statusTotal, status) => {
+                return statusTotal + status.salesOrderCount;
+              }, 0)
+            );
+          }, 0)
+        );
+      },
+      0
+    );
 
-    const grandTotalOrderValue = groupedData.reduce((total, account) => {
+    const grandTotalOrderValue = this.groupedData.reduce((total, account) => {
       return (
         total +
         account.deals.reduce((dealTotal, deal) => {
@@ -180,34 +184,231 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       );
     }, 0);
 
-    const grandTotalTotalLineCount = groupedData.reduce((total, account) => {
-      return (
-        total +
-        account.deals.reduce((dealTotal, deal) => {
-          return (
-            dealTotal +
-            deal.orderStatuses.reduce((statusTotal, status) => {
-              return statusTotal + status.totalLineCount;
-            }, 0)
-          );
-        }, 0)
-      );
-    }, 0);
+    const grandTotalTotalLineCount = this.groupedData.reduce(
+      (total, account) => {
+        return (
+          total +
+          account.deals.reduce((dealTotal, deal) => {
+            return (
+              dealTotal +
+              deal.orderStatuses.reduce((statusTotal, status) => {
+                return statusTotal + status.totalLineCount;
+              }, 0)
+            );
+          }, 0)
+        );
+      },
+      0
+    );
+
+    let grandTotalQtrRevEstimate = 0;
+    let grandTotalQtrAccrualGlRev = 0;
+    let grandTotalQtrInvGlRev = 0;
+    let grandTotalQtrRevRecog = 0;
+    let grandTotalRevNotRecog = 0;
+
+    // Iterate through the data structure
+    this.groupedData.forEach((account) => {
+      account.deals.forEach((deal) => {
+        deal.orderStatuses.forEach((status) => {
+          // Accumulate values
+          grandTotalQtrRevEstimate += parseFloat(status.qtrRevEstimate);
+          grandTotalQtrAccrualGlRev += parseFloat(status.qtrAccrualGlRev);
+          grandTotalQtrInvGlRev += parseFloat(status.qtrInvGlRev);
+          grandTotalQtrRevRecog += parseFloat(status.qtrRevRecog);
+          grandTotalRevNotRecog += parseFloat(status.revNotRecog);
+        });
+      });
+    });
 
     // Add the grand total row to groupedData
-    groupedData.push({
+    this.groupedData.push({
       account: 'Grand Total',
       deals: [], // No deals for grand total
       grandTotalSalesOrderCount,
       grandTotalOrderValue,
       grandTotalTotalLineCount,
+      grandTotalQtrRevEstimate,
+      grandTotalQtrAccrualGlRev,
+      grandTotalQtrInvGlRev,
+      grandTotalQtrRevRecog,
+      grandTotalRevNotRecog,
     });
 
-    console.log(groupedData);
+    this.newDataSource = new MatTableDataSource(this.groupedData);
 
-    this.newDataSource = new MatTableDataSource(groupedData);
+    this.length = this.groupedData.length;
+  }
 
-    this.length = groupedData.length;
+  flattenData(groupedData) {
+    const flattenedData = [];
+
+    groupedData.forEach((account) => {
+      const accountData = {
+        ACCOUNT: account.account,
+        'DEAL ID': '',
+        'ORDER STATUS': '',
+        'COUNT OF SALES ORDER':
+          account.account !== 'Grand Total'
+            ? account.salesOrderSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : account.grandTotalSalesOrderCount
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        'SUM OF ORDER VALUE':
+          account.account !== 'Grand Total'
+            ? '$ ' +
+              account.totalOrderValueSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '$ ' +
+              account.grandTotalOrderValue
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        'SUM OF TOTAL LINE COUNT':
+          account.account !== 'Grand Total'
+            ? account.totalLineCountSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : account.grandTotalTotalLineCount
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        'TOTAL QTR REVENUE ESTIMATE':
+          account.account === 'Grand Total'
+            ? '$ ' +
+              account.grandTotalQtrRevEstimate
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '',
+        'INVOICED GL REVENUE FOR QTR':
+          account.account === 'Grand Total'
+            ? '$ ' +
+              account.grandTotalQtrInvGlRev
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '',
+        'ACCRUED GL REVENUE FOR QTR':
+          account.account === 'Grand Total'
+            ? '$ ' +
+              account.grandTotalQtrAccrualGlRev
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '',
+        'TOTAL REV RECOGNIZED FOR QTR':
+          account.account === 'Grand Total'
+            ? '$ ' +
+              account.grandTotalQtrRevRecog
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '',
+        'REVENUE NOT RECOGNIZED':
+          account.account === 'Grand Total'
+            ? '$ ' +
+              account.grandTotalRevNotRecog
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            : '',
+      };
+
+      flattenedData.push(accountData);
+
+      account.deals.forEach((deal) => {
+        const dealData = {
+          ACCOUNT: '',
+          'DEAL ID': deal.dealId,
+          'ORDER STATUS': '',
+          'COUNT OF SALES ORDER': deal.salesOrderSum
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'SUM OF ORDER VALUE':
+            '$ ' +
+            deal.totalOrderValueSum
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'SUM OF TOTAL LINE COUNT': deal.totalLineCountSum
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+        };
+
+        flattenedData.push(dealData);
+
+        deal.orderStatuses.forEach((status) => {
+          const statusData = {
+            ACCOUNT: '',
+            'DEAL ID': '',
+            'ORDER STATUS': status.status,
+            'COUNT OF SALES ORDER': status.salesOrderCount
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'SUM OF ORDER VALUE':
+              '$ ' +
+              status.totalOrderValue
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'SUM OF TOTAL LINE COUNT': status.totalLineCount
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'TOTAL QTR REVENUE ESTIMATE':
+              '$ ' +
+              status.qtrRevEstimate
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'INVOICED GL REVENUE FOR QTR':
+              '$ ' +
+              status.qtrInvGlRev
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'ACCRUED GL REVENUE FOR QTR':
+              '$ ' +
+              status.qtrAccrualGlRev
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'TOTAL REV RECOGNIZED FOR QTR':
+              '$ ' +
+              status.qtrRevRecog
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+            'REVENUE NOT RECOGNIZED':
+              '$ ' +
+              status.revNotRecog
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          };
+
+          flattenedData.push(statusData);
+        });
+      });
+    });
+
+    return flattenedData;
+  }
+
+  export(sheetName: string, filename: string) {
+    this.flattenedData = this.flattenData(this.groupedData);
+    this.exportTableToExcel(this.flattenedData, sheetName, filename);
+  }
+
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
+    let link = document.createElement('a'); // create link
+    link.href = url;
+    link.download = filename + '.xlsx';
+    link.click(); // triggers the download process and save file prompt in browser
+    window.URL.revokeObjectURL(url); // revoke temp URL
   }
 
   closeDialog() {

@@ -34,10 +34,7 @@
 <!-- <button mat-stroked-button (click)="closeDialog()">X</button> -->
 
 <mat-dialog-content>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
+  <div class="periodclosetbale sortArrow" style="max-width: 100%">
     <table
       style="width: -webkit-fill-available"
       mat-table
@@ -71,7 +68,7 @@
       </ng-container>
 
       <!-- Table header -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
 
       <!-- Table rows -->
       <tr
