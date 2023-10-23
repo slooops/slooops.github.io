@@ -75,17 +75,6 @@
           (click)="applyFilter()"
         ></i>
       </mat-form-field>
-      <!-- &nbsp;
-      <mat-form-field class="filter" floatLabel="never" [style.width.px]="125">
-        <mat-label>Search Subscription ID</mat-label>
-        <input matInput (keyup)="filter()" formControlName="subscriptionId" />
-        <i
-          matSuffix
-          class="fa fa-search"
-          style="color: gray"
-          (click)="applyFilter()"
-        ></i>
-      </mat-form-field> -->
       &nbsp;
       <mat-form-field appearance="standard" [style.width.px]="125">
         <mat-label>Select Booking Status</mat-label>
@@ -128,44 +117,6 @@
       <button mat-stroked-button type="button" (click)="clearFilters()">
         Reset
       </button>
-      <!-- &nbsp;
-      <button
-        mat-stroked-button
-        *ngIf="saveButton"
-        (click)="updateHoldStatusAndDate()"
-      >
-        Save
-      </button> -->
-
-      <!-- &nbsp;
-      <mat-form-field appearance="standard" [style.width.px]="125">
-        <mat-label>Select Flexible Invoicing Eligibility</mat-label>
-        <mat-select
-          id="flexibleinvoice"
-          name="flexibleinvoice"
-          formControlName="flexibleInvoice"
-          [(value)]="flexibleInvoiceFilter"
-          panelClass="progPanel"
-          multiple
-        >
-          <mat-option
-            *ngFor="let flexInvoice of flexibleInvoiceOptions"
-            [value]="flexInvoice"
-            (onSelectionChange)="filter()"
-            >{{ flexInvoice }}</mat-option
-          >
-        </mat-select>
-      </mat-form-field> -->
-
-      <!-- &nbsp;
-      <mat-form-field appearance="standard">
-        <input
-          matInput
-          class="form-field"
-          formControlName="salesOrder"
-          placeholder="Search Sales Order"
-        />
-      </mat-form-field> -->
     </form>
     <div class="highlight-link">
       <a
@@ -196,25 +147,6 @@
       matSort
       class="mat-elevation-z8 table table-responsive orderTable"
     >
-      <!-- STATUS_AS_OF_DATE Column -->
-      <!-- <ng-container matColumnDef="STATUS_AS_OF_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          STATUS AS OF DATE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            record.STATUS_AS_OF_DATE == "TBD"
-              ? "TBD"
-              : (record.STATUS_AS_OF_DATE | date : "M/d/yyyy")
-          }}
-        </td>
-      </ng-container> -->
-      <!-- Selection Column -->
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
           <mat-checkbox
@@ -264,25 +196,6 @@
         </td>
       </ng-container>
 
-      <!-- EXPECTED_BOOK_DATE Column -->
-      <!-- <ng-container matColumnDef="EXPECTED_BOOK_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          EXPECTED BOOK DATE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            record.EXPECTED_BOOK_DATE == "NA"
-              ? "NA"
-              : (record.EXPECTED_BOOK_DATE | date : "M/d/yyyy")
-          }}
-        </td>
-      </ng-container> -->
-
       <ng-container matColumnDef="BOOK_DATE">
         <th
           class="custom-cell"
@@ -301,37 +214,6 @@
         </td>
       </ng-container>
 
-      <!-- AGING_BOOKING Column -->
-      <!-- <ng-container matColumnDef="AGING_BOOKING">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          AGING BOOKING
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.AGING_BOOKING }}
-        </td>
-      </ng-container> -->
-
-      <!-- AGING_HOLD_RELEASE Column -->
-      <!-- <ng-container matColumnDef="AGING_HOLD_RELEASE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          AGING HOLD RELEASE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.AGING_HOLD_RELEASE }}
-        </td>
-      </ng-container> -->
-
-      <!-- SALES_ORDER Column -->
       <ng-container matColumnDef="SALES_ORDER">
         <th
           class="custom-cell"
@@ -455,26 +337,6 @@
         </td>
       </ng-container>
 
-      <!-- HOLD_RELEASE_TARGET_DATE Column -->
-      <!-- <ng-container matColumnDef="HOLD_RELEASE_TARGET_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          HOLD RELEASE TARGET DATE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            record.HOLD_RELEASE_TARGET_DATE == "NA"
-              ? "NA"
-              : (record.HOLD_RELEASE_TARGET_DATE | date : "M/d/yyyy")
-          }}
-        </td>
-      </ng-container> -->
-
-      <!-- ACCRUALS_EXECUTION_TIME Column -->
       <ng-container matColumnDef="ACCRUALS_EXECUTION_TIME">
         <th
           class="custom-cell"
@@ -489,37 +351,6 @@
         </td>
       </ng-container>
 
-      <!-- ORDER_TOTAL Column -->
-      <!-- <ng-container matColumnDef="ORDER_TOTAL">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          ORDER TOTAL
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.ORDER_TOTAL }}
-        </td>
-      </ng-container> -->
-
-      <!-- TOTAL_CONTRACT_VALUE Column -->
-      <!-- <ng-container matColumnDef="TOTAL_CONTRAC_VALUE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          TOTAL CONTRACT VALUE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.TOTAL_CONTRAC_VALUE }}
-        </td>
-      </ng-container> -->
-
-      <!-- SUBSCRIPTION_ID Column -->
       <ng-container matColumnDef="SUBSCRIPTION_ID">
         <th
           class="custom-cell"
@@ -553,22 +384,6 @@
         </td>
       </ng-container>
 
-      <!-- BILLING_SCHEDULE Column -->
-      <!-- <ng-container matColumnDef="BILLING_SCHEDULE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          BILLING SCHEDULE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.BILLING_SCHEDULE }}
-        </td>
-      </ng-container> -->
-
-      <!-- PERIODIC BILLING ELIGIBLE Column -->
       <ng-container matColumnDef="FLEXIBLE_INVOICE_ELIGIBLE">
         <th
           class="custom-cell"
@@ -673,37 +488,6 @@
         </td>
       </ng-container>
 
-      <!-- SFDC_STATUS Column -->
-      <!-- <ng-container matColumnDef="SFDC_STATUS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          SFDC STATUS
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.SFDC_STATUS }}
-        </td>
-      </ng-container> -->
-
-      <!-- LINE_TYPE Column -->
-      <!-- <ng-container matColumnDef="LINE_TYPE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          LINE TYPE
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.LINE_TYPE }}
-        </td>
-      </ng-container> -->
-
-      <!-- ORDER_TOTAL_USD Column -->
       <ng-container matColumnDef="TOTAL_LINE_COUNT">
         <th
           class="custom-cell"
@@ -843,7 +627,7 @@
   </div>
   <div (click)="openDialog()" class="viewHighlight">
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
-    >&nbsp;&nbsp;View Summary
+    >&nbsp;&nbsp;View Deal Summary
   </div>
   <div (click)="openUploadDialog()" class="viewHighlight">
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i

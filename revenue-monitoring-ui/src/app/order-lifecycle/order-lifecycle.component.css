@@ -31,16 +31,18 @@ td {
   text-align: left !important;
 }
 
+.mat-column-CLO_COMMENTS {
+  text-align: left !important;
+  white-space: normal !important;
+  min-width: 300px !important;
+}
+
 .mat-column-ACCOUNT {
   white-space: normal !important;
 }
 
 .mat-column-ORDER_STATUS {
   white-space: normal !important;
-}
-
-.mat-column-CLO_COMMENTS {
-  white-space: unset !important;
 }
 
 .progPanel {
