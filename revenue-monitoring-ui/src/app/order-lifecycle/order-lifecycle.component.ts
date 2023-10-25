@@ -130,7 +130,7 @@ export class OrderLifecycleComponent implements OnInit {
           ) {
             continue;
           }
-          if (data[key] === null) {
+          if (data[key] === null && key != 'DEAL_UPLOAD_DATE') {
             if (key == 'INVOICE_LINES') {
               data[key] = '0';
             } else {
