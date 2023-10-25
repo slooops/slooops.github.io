@@ -4,7 +4,7 @@
 <br />
 
 <div class="row" style="margin-bottom: 5px; margin-top: 5px">
-  <span class="col-sm-12" style="height: 20px; font-size: small">
+  <span class="col-sm-9" style="font-size: small">
     <label>Expected Mid Close Start Time:</label>
     {{ expectedStartTime }} &nbsp;|&nbsp;
     <label>Expected Mid Close End Time:</label>
@@ -34,28 +34,28 @@
     >
     {{ elimStatConsActualEndTime }}
   </span>
+  <span class="col-sm-3"
+    ><div style="float: right; margin-right: 5px">
+      <label>Quarter:</label> {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
+      {{ periodName }}
+    </div></span
+  >
 </div>
-<span
-  style="height: 20px; float: right !important; margin-top: -25px !important"
-  ><div>
-    <label>Quarter:</label> {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
-    {{ periodName }}
-  </div></span
->
 
-<br />
-<div class="reduce-space" style="font-size: small; margin-top: 4px">
-  <p class="clearfix">
-    <label class="reduce-space">Sequence Infomation: &nbsp;</label>
-    <span class="collapsable float-left">
-      {{
-        info.length > firstCount ? (info | slice : 0 : counter) + "..." : info
-      }}
-      <span class="blueTxt" *ngIf="info.length > 201" (click)="toggleSkil()">
-        {{ showTxt }}
+<div class="row">
+  <div class="col-sm-12" style="font-size: small; margin-top: 4px">
+    <p class="clearfix">
+      <label class="reduce-space">Sequence Infomation: &nbsp;</label>
+      <span class="collapsable float-left">
+        {{
+          info.length > firstCount ? (info | slice : 0 : counter) + "..." : info
+        }}
+        <span class="blueTxt" *ngIf="info.length > 201" (click)="toggleSkil()">
+          {{ showTxt }}
+        </span>
       </span>
-    </span>
-  </p>
+    </p>
+  </div>
 </div>
 
 <div class="arclosetable">
