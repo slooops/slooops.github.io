@@ -157,6 +157,10 @@ export class Wd0DashComponent implements OnInit {
   }
 
   extractTimeFromDate(date: string) {
+    if (null === date) {
+      return '-';
+    }
+
     let time = date.split('T')[1].split('.');
     let timeParts = time[0].split(':');
     let hours: string = '';
