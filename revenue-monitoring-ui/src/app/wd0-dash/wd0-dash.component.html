@@ -3,8 +3,8 @@
 </div>
 <br />
 
-<div class="row" style="margin-left: 1px; margin-bottom: 5px; margin-top: 5px">
-  <span class="col-sm-9" style="height: 20px; font-size: small">
+<div class="row" style="margin-bottom: 5px; margin-top: 5px">
+  <span class="col-sm-12" style="height: 20px; font-size: small">
     <label>Expected Mid Close Start Time:</label>
     {{ expectedStartTime }} &nbsp;|&nbsp;
     <label>Expected Mid Close End Time:</label>
@@ -23,6 +23,7 @@
       "
       >{{ actualEndTime }}</span
     >&nbsp;|&nbsp;
+    <br />
     <label
       >Eliminations, Stat Rules and Consolidations Expected End
       Time:&nbsp;</label
@@ -33,21 +34,17 @@
     >
     {{ elimStatConsActualEndTime }}
   </span>
-
-  <span class="col-sm-3" style="height: 20px"
-    ><div style="float: right; margin-right: 5px">
-      <label>Quarter:</label> {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
-      {{ periodName }}
-    </div></span
-  >
 </div>
+<span
+  style="height: 20px; float: right !important; margin-top: -25px !important"
+  ><div>
+    <label>Quarter:</label> {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
+    {{ periodName }}
+  </div></span
+>
 
 <br />
-<br />
-<div
-  class="reduce-space"
-  style="font-size: small; margin-left: 10px; margin-top: 4px"
->
+<div class="reduce-space" style="font-size: small; margin-top: 4px">
   <p class="clearfix">
     <label class="reduce-space">Sequence Infomation: &nbsp;</label>
     <span class="collapsable float-left">
