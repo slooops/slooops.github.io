@@ -1,10 +1,5 @@
-<div style="float: right; margin-top: 0px; margin-right: 5px">
-  Dashboard updated: Today at {{ timeNow }}
-</div>
-<br />
-
-<div class="row" style="margin-bottom: 5px; margin-top: 5px">
-  <span class="col-sm-9" style="font-size: small">
+<div class="row media" style="margin-bottom: 5px; margin-top: 5px">
+  <span class="col-sm-9 media" style="font-size: small">
     <label>Expected Mid Close Start Time:</label>
     {{ expectedStartTime }} &nbsp;|&nbsp;
     <label>Expected Mid Close End Time:</label>
@@ -34,16 +29,22 @@
     >
     {{ elimStatConsActualEndTime }}
   </span>
-  <span class="col-sm-3"
-    ><div style="float: right; margin-right: 5px">
+  <span class="col-sm-3">
+    <div style="float: right; margin-right: 5px">
+      Dashboard updated: Today at {{ timeNow }}
+    </div>
+    <div style="float: right; margin-right: 5px">
       <label>Quarter:</label> {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
       {{ periodName }}
-    </div></span
-  >
+    </div>
+  </span>
 </div>
 
 <div class="row">
-  <div class="col-sm-12" style="font-size: small; margin-top: 4px">
+  <div
+    class="col-sm-12 media"
+    style="font-size: small; margin-top: 4px; margin-right: 5px"
+  >
     <p class="clearfix">
       <label class="reduce-space">Sequence Infomation: &nbsp;</label>
       <span class="collapsable float-left">
@@ -59,7 +60,7 @@
 </div>
 
 <div class="arclosetable">
-  <table class="table table-responsive equal-width">
+  <table class="table table-responsive equal-width media">
     <thead>
       <tr>
         <th *ngFor="let col of displayedColumns">

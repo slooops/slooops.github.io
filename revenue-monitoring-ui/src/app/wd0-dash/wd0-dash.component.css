@@ -34,3 +34,15 @@ td {
   color: blue;
   cursor: pointer;
 }
+
+@media screen and (max-width: 1024px) {
+  .media {
+    font-size: smaller !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .media {
+    font-size: 8px !important;
+  }
+}
