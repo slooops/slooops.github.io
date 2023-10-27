@@ -22,3 +22,9 @@ th.mat-header-cell {
 td {
   text-align: center !important;
 }
+
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

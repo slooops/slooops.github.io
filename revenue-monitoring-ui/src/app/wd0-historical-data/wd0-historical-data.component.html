@@ -1,4 +1,60 @@
-<h4 style="margin-top: 5px">Mid Close Invoice Volumes</h4>
+<!-- <h2 style="padding-top: 14px">Mid Close Invoice Volumes</h2>
+
+<div style="display: flex; justify-content: space-between; padding-top: 20px">
+  <div style="flex: 1; padding-right: 20px">
+    <canvas
+      baseChart
+      [datasets]="chartProcessedData"
+      [labels]="barChartLabels"
+      [options]="barChartOptions"
+      [legend]="barChartLegend"
+      chartType="barChartType"
+    >
+    </canvas>
+  </div>
+
+  <div style="flex: 1; padding-left: 20px; padding-right: 40px">
+    <canvas
+      baseChart
+      [datasets]="lineChartData"
+      [labels]="lineChartLabels"
+      [options]="lineChartOptions"
+      [legend]="lineChartLegend"
+      chartType="lineChartType"
+    >
+    </canvas>
+  </div>
+</div> -->
+
+<div class="row">
+  <div class="col-sm-3">
+    <h4 style="padding-top: 14px">Mid Close Invoice Volumes Data</h4>
+  </div>
+  <div
+    class="col-sm-6 justify-content-center align-items-center"
+    style="display: flex; align-items: center; padding-top: 16px"
+  >
+    <p class="m-0">Legend: Number of lines</p>
+  </div>
+  <div
+    class="col-sm-3 justify-content-end align-items-center"
+    style="display: flex"
+  >
+    <button
+      mat-stroked-button
+      (click)="
+        exportTableToExcel(
+          historicalData,
+          'HistoricalData',
+          'HistoricalDataReport'
+        )
+      "
+    >
+      Download
+    </button>
+  </div>
+</div>
+
 <div class="periodclosetbale sortArrow" style="overflow: auto; max-width: 100%">
   <table
     mat-table
