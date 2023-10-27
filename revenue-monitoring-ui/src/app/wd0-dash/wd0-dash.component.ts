@@ -42,9 +42,6 @@ export class Wd0DashComponent implements OnInit {
     '1. Invoicing,  2. Standard AR Posting,  3. Custom Revenue Posting 4. Deferrals Posting, 5. Intercompany Posting and JEs in CFNPRD. ' +
     "Each country processes independently of one another. Given the higher volume of transactions, US 020 is typically last to complete the 'Buy/Sell AR Close' phase. " +
     'All Posting are on CFNPRD. ' +
-    'During Phase 1, FCC will continue to consolidate automatically at the top of the hour until 6AM when the automatic consolidations are placed ' +
-    'on hold. Around 6AM, Phase 1 is expected to complete, and then Phase 2 begins (VT processing). The FCC consolidation is on hold until the ' +
-    'completion of Phase 2, when IT triggers a manual consolidation. ' +
     'If the processing completes within 5 minutes of the hour, the data will not be reflected until the following FCC refresh.';
 
   displayedColumns: string[] = [

@@ -4,7 +4,7 @@
 
 .mat-header-cell {
   font-size: 12px;
-  white-space: normal !important;
+  /* white-space: normal !important; */
   justify-content: center !important;
 }
 

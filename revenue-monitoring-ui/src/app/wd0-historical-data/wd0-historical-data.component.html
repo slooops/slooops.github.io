@@ -1,11 +1,9 @@
-<br />
-
-<h4>Mid Close Invoice Volumes</h4>
+<h4 style="margin-top: 5px">Mid Close Invoice Volumes</h4>
 <div class="periodclosetbale sortArrow" style="overflow: auto; max-width: 100%">
   <table
     mat-table
     [dataSource]="dataSource"
-    class="mat-elevation-z6 table table-responsive"
+    class="mat-elevation-z6 table table-responsive table-striped"
   >
     <ng-container *ngFor="let column of displayedColumns">
       <ng-container matColumnDef="{{ column }}">

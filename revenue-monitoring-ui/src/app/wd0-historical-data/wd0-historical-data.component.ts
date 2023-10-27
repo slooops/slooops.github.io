@@ -64,4 +64,5 @@ export interface HistoricalDataModel {
   OCT_23: string;
   OCT_24: string | null;
   SEP_20: string;
+  SEQUENCE_NUMBER: string;
 }
