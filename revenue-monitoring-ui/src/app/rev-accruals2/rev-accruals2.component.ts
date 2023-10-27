@@ -868,8 +868,8 @@ export class RevAccruals2Component implements OnInit {
     chartName: string
   ) {
     const dialogRef = this.dialog.open(ChartDialogComponent, {
-      width: '1200px',
-      height: '800px',
+      width: '90vw',
+      height: 'fit-content',
       data: {
         chartData: chartData,
         chartLabels: chartLabels,
@@ -946,8 +946,8 @@ export class RevAccruals2Component implements OnInit {
     length: string
   ) {
     const dialogRef = this.dialog.open(TableDialogComponent, {
-      width: '1300px',
-      height: '800px',
+      width: '90vw',
+      height: 'fit-content',
       data: {
         dataSource: dataSource,
         displayedColumns: displayedColumns,

@@ -1,7 +1,63 @@
-<br />
-<div class="row">
-  <div class="chart-box" [class.expanded]="isExpanded">
-    <h4>Inbound Errors</h4>
+<div style="display: flex; margin-left: 2vw; margin-top: 1vh">
+  <div style="margin: 1vw">
+    <div class="widget-container">
+      <div class="main-content">
+        <div class="left-content">
+          <div class="icon">⬆</div>
+          <div class="sub-heads">Trend</div>
+        </div>
+
+        <div class="right-content">
+          <div class="sub-heads">Top Kafka Erorrs</div>
+          <div class="amount">4,065 Records</div>
+          <div class="sub-heads">Source: SBP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vertical-separator"></div>
+
+  <div style="margin: 1vw">
+    <div class="widget-container">
+      <div class="main-content">
+        <div class="left-content">
+          <div class="icon">⬇</div>
+          <div class="sub-heads">Trend</div>
+        </div>
+
+        <div class="right-content">
+          <div class="sub-heads">Top Missing AR Transaction</div>
+          <div class="amount">$2,316,384</div>
+          <div class="sub-heads">Batch Source: XAAS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vertical-separator"></div>
+
+  <div style="margin: 1vw">
+    <div class="widget-container">
+      <div class="main-content">
+        <div class="left-content">
+          <div class="icon">⬇</div>
+          <div class="sub-heads">Trend</div>
+        </div>
+
+        <div class="right-content">
+          <div class="sub-heads">Leading Negative Processing Erorr</div>
+          <div class="amount">-$55,757.47</div>
+          <div class="sub-heads">Source: XAAS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" style="margin-left: 0.1vw">
+  <div class="chart-box">
+    <h6>Inbound Errors</h6>
 
     <a (click)="setTable('kafkaerror')" class="table-icon">
       <i class="fa fa-table table-symbol"></i>
@@ -11,7 +67,7 @@
       <i class="fa fa-table table-symbol"></i>
     </a>
 
-    <a (click)="toggleExpand()" class="expand-icon">
+    <a (click)="setTable('kafkaError')" class="expand-icon">
       <i class="fa fa-arrows-alt"></i>
     </a>
 
@@ -27,7 +83,6 @@
 
     <ng-template #kafkaInboundvsErrorChart>
       <canvas
-        ngClass="{'expanded-chart': isExpanded}"
         baseChart
         [datasets]="kafkaInboundvsErrorchartData"
         [labels]="kafkaInboundvsErrorchartLabels"
@@ -38,7 +93,7 @@
   </div>
 
   <div class="chart-box">
-    <h4>AR Trxn Missing</h4>
+    <h6>AR Trxn Missing</h6>
     <a (click)="setTable('artrxnmissing')" class="table-icon">
       <i class="fa fa-table table-symbol"></i
     ></a>
@@ -66,7 +121,7 @@
   </div>
 
   <div class="chart-box">
-    <h4>Accruals Processing Error</h4>
+    <h6>Accruals Processing Error</h6>
     <a (click)="setTable('accrualsprocessingerror')" class="table-icon">
       <i class="fa fa-table table-symbol"></i
     ></a>
@@ -96,7 +151,7 @@
   </div>
 
   <div class="chart-box">
-    <h4>Kafka Publish Downstream</h4>
+    <h6>Kafka Publish Downstream</h6>
     <a (click)="setTable('kakfapublishdownstream')" class="table-icon">
       <i class="fa fa-table table-symbol"></i
     ></a>
@@ -126,7 +181,7 @@
   </div>
 
   <div class="chart-box">
-    <h4>Accruals Summarization Error</h4>
+    <h6>Accruals Summarization Error</h6>
     <a (click)="setTable('accrualssummarizationerror')" class="table-icon">
       <i class="fa fa-table table-symbol"></i
     ></a>
@@ -155,7 +210,7 @@
   </div>
 
   <div class="chart-box">
-    <h4>Accruals Distribution Error</h4>
+    <h6>Accruals Distribution Error</h6>
     <a (click)="setTable('accrualsdistributionerror')" class="table-icon">
       <i class="fa fa-table table-symbol"></i
     ></a>
@@ -184,7 +239,7 @@
   </div>
 
   <div class="chart-box">
-    <h4>Error Distribution Summarization</h4>
+    <h6>Error Distribution Summarization</h6>
     <a (click)="setTable('errordistributionsummarization')" class="table-icon">
       <i class="fa fa-table table-symbol"></i
     ></a>

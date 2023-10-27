@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>
+<h4 mat-dialog-title>
   {{ title }}
   <a style="float: right !important; text-decoration: none"
     ><i
@@ -7,83 +7,73 @@
       (click)="closeDialog()"
     ></i
   ></a>
-</h2>
+</h4>
 <br />
-<div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
+<div class="periodclosetbale sortArrow" style="overflow: auto; max-width: 100%">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    class="mat-elevation-z8 table table-responsive"
   >
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      matSort
-      class="mat-elevation-z8 table table-responsive"
-    >
-      <!-- Selection Column -->
-      <ng-container matColumnDef="select">
-        <th mat-header-cell *matHeaderCellDef>
-          <mat-checkbox
-            (change)="$event ? masterToggle() : null"
-            [checked]="selection.hasValue() && isAllSelected()"
-            [indeterminate]="selection.hasValue() && !isAllSelected()"
-          >
-          </mat-checkbox>
-        </th>
-        <td mat-cell *matCellDef="let row">
-          <mat-checkbox
-            (click)="$event.stopPropagation()"
-            (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)"
-          >
-          </mat-checkbox>
-        </td>
-      </ng-container>
-      <ng-container
-        *ngFor="let column of displayedColumns | slice : 1"
-        matColumnDef="{{ column }}"
-      >
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
+    <!-- Selection Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          (change)="$event ? masterToggle() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()"
         >
-          {{ formatColumnHeader(column) }}
-        </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record[column] }}
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-      <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-          <h6 style="text-align: center">No Records Found</h6>
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!dataSource?.data?.length">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)"
+        >
+        </mat-checkbox>
+      </td>
     </ng-container>
-  </div>
+    <ng-container
+      *ngFor="let column of displayedColumns | slice : 1"
+      matColumnDef="{{ column }}"
+    >
+      <th class="custom-cell" mat-header-cell *matHeaderCellDef mat-sort-header>
+        {{ formatColumnHeader(column) }}
+      </th>
+      <td class="custom-cell" mat-cell *matCellDef="let record">
+        {{ record[column] }}
+      </td>
+    </ng-container>
 
-  <mat-paginator
-    #paginator
-    [pageSize]="10"
-    length="length"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  >
-  </mat-paginator>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+        <h6 style="text-align: center">No Records Found</h6>
+      </td>
+    </tr>
+  </table>
 </div>
+
+<div style="display: flex; justify-content: center">
+  <ng-container *ngIf="!dataSource?.data?.length">
+    <tr>
+      <td colspan="100%" style="text-align: center">
+        <app-loading-symbol></app-loading-symbol>
+      </td>
+    </tr>
+  </ng-container>
+</div>
+
+<mat-paginator
+  #paginator
+  [pageSize]="10"
+  length="length"
+  [pageSizeOptions]="[]"
+  showFirstLastButtons
+  aria-label="Select page"
+>
+</mat-paginator>

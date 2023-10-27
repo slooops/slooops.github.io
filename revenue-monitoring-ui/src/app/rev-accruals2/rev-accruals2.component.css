@@ -6,28 +6,16 @@
   width: fit-content;
   flex-direction: column;
   align-items: flex-start;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--light-base-surface, #fff);
   box-shadow: 0px 1.850000023841858px 6.25px 0px rgba(0, 0, 0, 0.19),
     0px 0.5px 1.75px 0px rgba(0, 0, 0, 0.04);
-  padding: 16px 16px 20px 16px;
-  gap: 8px;
-  transition: width 0.3s ease;
+  padding: 1vw 1vw 1.5vw 1vw;
   min-height: 15vw;
-}
-
-.chart-box.expanded {
-  width: 94.7vw;
-  transition: width 1s ease;
 }
 
 .table-responsive {
   overflow: auto;
-}
-
-.active {
-  width: 1500px;
-  height: 800px;
 }
 
 .expand-icon {
@@ -85,7 +73,7 @@ h4 {
   align-items: center;
   justify-content: center;
   min-width: 28vw;
-  min-height: 15vw;
+  min-height: 14vw;
   width: 100%;
   height: 100%;
 }
@@ -95,4 +83,76 @@ h4 {
   align-items: flex-end;
   padding-left: 15px;
   padding-right: 6px;
+}
+
+.custom-line,
+.custom-line-small {
+  border: 0;
+  height: 1px;
+  background-color: #e0e0e0; /* Light gray color */
+  width: 70%;
+  margin: 1vw auto; /* auto for left and right margins to center the line */
+}
+
+.custom-line-small {
+  margin: 0.5vw auto; /* Adjust top/bottom margin as needed */
+}
+
+.vertical-separator {
+  width: 1px;
+  height: auto;
+  background-color: #e0e0e0;
+  margin: 2vw 1vw 2.5vw 1vw;
+}
+
+.widget-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.left-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1; /* Takes up half the space */
+}
+
+.right-content {
+  padding-left: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Left aligns the text */
+  flex: 2; /* Takes up the other half of the space */
+}
+
+.icon {
+  font-size: 41px;
+}
+
+.sub-heads {
+  color: #000;
+  text-align: center;
+  font-family: Roboto Flex;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 20px; /* 166.667% */
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  width: max-content;
+}
+
+.amount {
+  font-size: 28px;
+  font-weight: 300;
+  color: #000000;
+  width: max-content;
 }
