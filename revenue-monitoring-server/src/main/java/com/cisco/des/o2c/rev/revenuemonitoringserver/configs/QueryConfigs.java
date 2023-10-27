@@ -75,6 +75,9 @@ public class QueryConfigs { // TODO
     @Value("${wd0.ar.midclose.header.data.query}")
     public String wd0ArMidCloseHeaderDataQuery;
 
+    @Value("${wd0.historical.data.q}")
+    public String wd0HistoricalDataQuery;
+
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -143,4 +146,7 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "wd0ArMidCloseHeaderDataQuery")
     public String getWd0ArMidCloseHeaderDataQuery() { return this.wd0ArMidCloseHeaderDataQuery; }
+
+    @Bean(name = "wd0HistoricalDataQuery")
+    public String getWd0HistoricalDataQuery(){ return this.wd0HistoricalDataQuery; }
 }

@@ -145,4 +145,9 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getWd0ArMidCloseHeaderData(), HttpStatus.OK);
     }
 
+    @GetMapping("/wd0-historical-data")
+    public ResponseEntity<List<Map<String, Object>>> getWd0HistoricalData() {
+        return new ResponseEntity<>(service.getWd0HistoricalData(), HttpStatus.OK);
+    }
+
 }

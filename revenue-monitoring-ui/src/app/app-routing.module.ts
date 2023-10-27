@@ -13,11 +13,12 @@ import { MidcloseComponent } from './period-close-tracking/midclose/midclose.com
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
+import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/period-close-tracking-preclose',
+    redirectTo: '/wd0-dash',
     pathMatch: 'full',
   },
   { path: 'login', component: LoginComponent },
@@ -39,7 +40,7 @@ const routes: Routes = [
   { path: 'invoice-status', component: OrderLifecycleComponent },
   { path: 'invoice-tracker', component: InvoiceTrackerComponent },
   { path: 'wd0-dash', component: Wd0DashComponent },
-  
+  { path: 'historical-data', component: Wd0HistoricalDataComponent },
 ];
 
 @NgModule({

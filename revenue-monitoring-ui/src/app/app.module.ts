@@ -63,6 +63,7 @@ import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.compo
 import { TruncatePipe } from './shared/truncate.pipe';
 import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
+import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -90,6 +91,7 @@ export function initApp(authService: AuthenticationService) {
     TruncatePipe,
     InvoiceTrackerComponent,
     Wd0DashComponent,
+    Wd0HistoricalDataComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,24 @@
+.table-responsive {
+  overflow: auto;
+}
+
+.mat-header-cell {
+  font-size: 12px;
+  white-space: normal !important;
+  justify-content: center !important;
+}
+
+.mat-cell {
+  font-size: 12px;
+  /* white-space: normal !important; */
+}
+
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-left: 15px !important;
+}
+
+td {
+  text-align: center !important;
+}
