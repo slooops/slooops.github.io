@@ -19,6 +19,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   historicalData: HistoricalDataModel[];
   dataSource: any;
   chartProcessedData: any[] = [];
+  tableData: any[] = [];
 
   ngOnInit(): void {
     this.getHistoricalData();
@@ -78,7 +79,36 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   getHistoricalData() {
     this.http.get('wd0-historical-data').subscribe((data: any) => {
+      const grandTotal = {};
+      data.forEach((obj) => {
+        for (const key in obj) {
+          if (obj[key] && !isNaN(parseInt(obj[key]))) {
+            if (grandTotal[key]) {
+              grandTotal[key] += parseInt(obj[key]);
+            } else {
+              grandTotal[key] = parseInt(obj[key]);
+            }
+          }
+        }
+      });
+      const grandTotalObject = { ENTITY: 'Grand Total' };
+      for (const key in grandTotal) {
+        grandTotalObject[key] = grandTotal[key].toString();
+      }
+      data.push(grandTotalObject);
+
       this.historicalData = data;
+      const entityMap = new Map<string, boolean>();
+
+      for (const data of this.historicalData) {
+        const entity = data.ENTITY;
+
+        if (entityMap.has(entity)) {
+          data.ENTITY = null;
+        } else {
+          entityMap.set(entity, true);
+        }
+      }
       this.displayedColumns = Object.keys(this.historicalData[0]);
       this.dataSource = new MatTableDataSource<HistoricalDataModel>(
         this.historicalData
@@ -237,31 +267,24 @@ export class Wd0HistoricalDataComponent implements OnInit {
 }
 
 export interface HistoricalDataModel {
-  APR_20: string;
-  APR_21: string;
-  APR_22: string;
-  APR_23: string;
-  AUG_20: string;
-  DEC_20: string;
-  ENTITY: string;
-  FEB_20: string;
-  JAN_20: string;
-  JAN_21: string;
-  JAN_22: string;
-  JAN_23: string;
-  JUL_19: string;
-  JUL_20: string;
-  JUL_21: string;
-  JUL_22: string;
-  JUL_23: string;
-  JUN_19: string;
-  LINE_TYPE: string;
-  NOV_20: string;
-  OCT_20: string;
-  OCT_21: string;
-  OCT_22: string;
-  OCT_23: string;
+  APR_20: string | null;
+  APR_21: string | null;
+  APR_22: string | null;
+  APR_23: string | null;
+  ENTITY: string | null;
+  JAN_20: string | null;
+  JAN_21: string | null;
+  JAN_22: string | null;
+  JAN_23: string | null;
+  JUL_19: string | null;
+  JUL_20: string | null;
+  JUL_21: string | null;
+  JUL_22: string | null;
+  JUL_23: string | null;
+  LINE_TYPE: string | null;
+  OCT_20: string | null;
+  OCT_21: string | null;
+  OCT_22: string | null;
+  OCT_23: string | null;
   OCT_24: string | null;
-  SEP_20: string;
-  SEQUENCE_NUMBER: string;
 }
