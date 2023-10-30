@@ -73,7 +73,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'invoice-status',
+    path: 'large-deal-tracker',
     component: OrderLifecycleComponent,
     data: {
       title: 'Large Deal Processing Tracker',
