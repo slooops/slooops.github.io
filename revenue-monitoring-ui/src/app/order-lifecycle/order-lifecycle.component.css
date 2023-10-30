@@ -31,6 +31,12 @@ td {
   text-align: left !important;
 }
 
+.mat-column-CLO_COMMENTS {
+  text-align: left !important;
+  white-space: normal !important;
+  min-width: 300px !important;
+}
+
 .mat-column-ACCOUNT {
   white-space: normal !important;
 }
@@ -44,5 +50,48 @@ td {
 }
 
 .hoverIcon {
+  cursor: pointer;
+}
+
+.mat-column-INVOICE_ELIGIBLE_DATE .mat-form-field-infix {
+  width: 80px;
+  padding-bottom: 0.3em;
+  padding-top: 0.7em;
+}
+
+.cui input {
+  font-size: 12px !important;
+}
+
+.table > tbody > tr > td {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+.highlight-link {
+  padding: 5px;
+}
+
+.highlight-link:hover {
+  background-color: rgb(
+    240,
+    238,
+    238
+  ) !important; /* Change this to your desired highlight color */
+}
+
+.custom-menu {
+  min-width: 180px; /* Set a minimum width if desired */
+  width: auto;
+  max-width: 100%; /* Allow the menu to grow up to the screen width */
+}
+
+.viewHighlight {
+  padding: 12px;
+  font-weight: 600;
+}
+
+.viewHighlight:hover {
+  background-color: rgb(240, 238, 238) !important;
   cursor: pointer;
 }

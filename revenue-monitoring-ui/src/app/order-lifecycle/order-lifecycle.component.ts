@@ -15,8 +15,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
-import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order-lifecycle-summary.component';
-import { OrderLifecycleUploadComponent } from '../order-lifecycle-upload/order-lifecycle-upload.component';
+import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
+import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -33,11 +34,12 @@ export class OrderLifecycleComponent implements OnInit {
   ) {
     this.http = http;
   }
-
+  currentDate: Date;
   ngOnInit(): void {
     this.getOrderLifecycle();
     this.getOrderStatusDownload();
     this.updateTime();
+    this.currentDate = new Date();
   }
 
   searchForm: FormGroup = new FormGroup({
@@ -56,7 +58,6 @@ export class OrderLifecycleComponent implements OnInit {
 
   refreshInterval = 14400000; //ms
   timeNow: any;
-
   progNameOptions: string[] = [];
   accountOptions: string[] = [];
   orderStatusOptions: string[] = [];
@@ -129,7 +130,7 @@ export class OrderLifecycleComponent implements OnInit {
           ) {
             continue;
           }
-          if (data[key] === null) {
+          if (data[key] === null && key != 'DEAL_UPLOAD_DATE') {
             if (key == 'INVOICE_LINES') {
               data[key] = '0';
             } else {
@@ -142,6 +143,9 @@ export class OrderLifecycleComponent implements OnInit {
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
       this.dataSource.filterPredicate = this.filterPredicate;
+      // this.dateSelected = new Array(this.orderLifecycleStatus.length).fill(
+      //   false
+      // );
     });
   }
 
@@ -267,14 +271,14 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   openDialog() {
-    const dialogRef = this.dialog.open(OrderLifecycleSummaryComponent, {
-      width: '700px',
+    this.dialog.open(OrderLifecycleSummaryComponent, {
+      width: '800px',
     });
   }
 
   openUploadDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
-      width: '700px',
+      width: '800px',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -286,12 +290,64 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
+  openRevSummaryDialog() {
+    this.dialog.open(OrderLifecycleRevSummaryComponent, {
+      width: '1200px',
+    });
+  }
+
+  // modifiedElements: OrderLifecycleModel[] = [];
+
+  // dateSelected: boolean[];
+
+  // saveButton: boolean = false;
+
+  // onDateSelected(rowIndex: number, element: OrderLifecycleModel) {
+  //   this.dateSelected[rowIndex] = true;
+  //   console.log(rowIndex);
+  //   if (!this.modifiedElements.includes(element)) {
+  //     this.modifiedElements.push(element);
+  //   }
+  //   console.log(this.orderLifecycleStatus[0]);
+  //   this.selection.select(this.orderLifecycleStatus[rowIndex]);
+  //   if (this.modifiedElements.length > 0) {
+  //     this.saveButton = true;
+  //   }
+  // }
+
+  // onResetDate(rowIndex: number, element: OrderLifecycleModel) {
+  //   this.dateSelected[rowIndex] = false;
+  //   this.selection.deselect(this.orderLifecycleStatus[rowIndex]);
+  //   element.INVOICE_ELIGIBLE_DATE = null;
+  //   const recordIndex = this.modifiedElements.findIndex(
+  //     (record) => record === element
+  //   );
+
+  //   if (recordIndex !== -1) {
+  //     this.modifiedElements.splice(recordIndex, 1);
+  //   }
+  //   if (this.modifiedElements.length > 0) {
+  //     this.saveButton = true;
+  //   } else {
+  //     this.saveButton = false;
+  //   }
+  // }
+
+  // updateHoldStatusAndDate() {
+  //   this.http
+  //     .post('invoice-eligible-date', this.modifiedElements)
+  //     .subscribe((data) => {});
+
+  //   this.modifiedElements = [];
+  // }
+
   displayedColumns = [
     'select',
     // 'STATUS_AS_OF_DATE',
     'PROGRAM_NAME',
     'ACCOUNT',
     'DEAL_ID',
+    'DEAL_UPLOAD_DATE',
     'SALES_ORDER',
     'ORDER_VALUE',
     'TOTAL_LINE_COUNT',
@@ -299,6 +355,7 @@ export class OrderLifecycleComponent implements OnInit {
     'CONTRACT_NUMBER',
     'LINES_ON_HOLD',
     'FLEXIBLE_INVOICE_ELIGIBLE',
+    'INVOICE_ELIGIBLE_DATE',
     'INVOICING_STATUS',
     'INVOICE_LINES',
     'INVOICE_DATE',
@@ -306,10 +363,10 @@ export class OrderLifecycleComponent implements OnInit {
     'REV_ACCR_STATUS',
     'GL_POSTING_STATUS',
     'ACCRUALS_EXECUTION_TIME',
-    // 'SUBSCRIPTION_ID',
     'FUTURE_INVOICE_RELEASE_DATE',
     'TERM_IN_YEARS',
     'BOOK_DATE',
+    'CLO_COMMENTS',
     'COMMENTS',
   ];
 
@@ -432,4 +489,7 @@ export interface OrderLifecycleModel {
   BOOK_DATE: string;
   DEAL_ID: string;
   COMMENTS: string;
+  INVOICE_ELIGIBLE_DATE: Date;
+  DEAL_UPLOAD_DATE: string;
+  CLO_COMMENTS: string;
 }

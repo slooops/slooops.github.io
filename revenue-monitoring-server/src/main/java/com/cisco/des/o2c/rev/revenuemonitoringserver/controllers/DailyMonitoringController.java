@@ -1,9 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.ErrorSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -18,7 +18,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @CrossOrigin(origins = "${CORS_URL}")
@@ -172,6 +171,11 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getOrderStatusSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/order-status-rev-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOrderStatusRevSummary(){
+        return new ResponseEntity<>(service.getOrderStatusRevSummary(), HttpStatus.OK);
+    }
+
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
             if (!file.isEmpty()) {
@@ -235,4 +239,9 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getErrorDistributionSummarization(), HttpStatus.OK);
     }
 
+    @PostMapping(value = "/invoice-eligible-date")
+    public ResponseEntity<String> invoiceEligibleDateUpdate(@RequestBody List<Map<String,Object>> updatedDeals){
+        service.updateInvoiceEligibleDate(updatedDeals);
+        return ResponseEntity.status(HttpStatus.OK).body("successful.");
+    }
 }

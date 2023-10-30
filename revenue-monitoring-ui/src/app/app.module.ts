@@ -65,17 +65,20 @@ import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical
 import { TitleCaseWithExceptionsPipe } from './title-case-with-exceptions.pipe';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
-import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
 import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
 import { ChartDialogComponent } from './revenue-accruals/chart-dialog/chart-dialog.component';
 import { TableDialogComponent } from './revenue-accruals/table-dialog/table-dialog.component';
+import { OrderLifecycleSummaryComponent } from './order-lifecycle/order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from './order-lifecycle/order-lifecycle-upload/order-lifecycle-upload.component';
+import { OrderLifecycleRevSummaryComponent } from './order-lifecycle/order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -108,6 +111,7 @@ export function initApp(authService: AuthenticationService) {
     RevenueAccrualsComponent,
     ChartDialogComponent,
     TableDialogComponent,
+    OrderLifecycleRevSummaryComponent,
   ],
   imports: [
     BrowserModule,
@@ -159,6 +163,8 @@ export function initApp(authService: AuthenticationService) {
     MatFormFieldModule,
     MatDialogModule,
     MatCardModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
   ],
   providers: [
     DatePipe,

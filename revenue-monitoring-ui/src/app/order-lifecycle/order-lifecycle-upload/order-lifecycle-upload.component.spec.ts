@@ -11,7 +11,7 @@ import {
 } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload.component';
-import { ApiHttpService } from '../providers/http.service';
+import { ApiHttpService } from '../../providers/http.service';
 import { TemplateRef } from '@angular/core';
 
 describe('OrderLifecycleUploadComponent', () => {

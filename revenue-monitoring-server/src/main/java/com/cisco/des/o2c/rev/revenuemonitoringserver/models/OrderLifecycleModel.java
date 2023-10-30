@@ -1,4 +1,4 @@
-package com.cisco.des.o2c.rev.revenuemonitoringserver.packages;
+package com.cisco.des.o2c.rev.revenuemonitoringserver.models;
 
 import java.util.List;
 import java.util.Map;

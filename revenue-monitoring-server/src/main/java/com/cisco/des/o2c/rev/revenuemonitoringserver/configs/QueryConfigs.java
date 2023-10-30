@@ -109,6 +109,11 @@ public class QueryConfigs { // TODO
 
     @Value("${error.distribution.summarization.q}")
     public String errorDistributionSummarization;
+    @Value(("${order.status.rev.summary.q}"))
+    public String orderStatusRevSummary;
+    @Value(("${update.invoice.eligible.date.q}"))
+    public String updateInvoiceEligibleDate;
+
 
 
     @Bean( name = "stdArExcQuery" )
@@ -228,4 +233,8 @@ public class QueryConfigs { // TODO
         return this.errorDistributionSummarization;
     }
 
+    @Bean( name = "orderStatusRevSummary" )
+    public String getOrderStatusRevSummary() {return this.orderStatusRevSummary; }
+    @Bean( name = "updateInvoiceEligibleDate" )
+    public String getUpdateInvoiceEligibleDate() {return this.updateInvoiceEligibleDate; }
 }

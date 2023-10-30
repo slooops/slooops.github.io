@@ -1,11 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,6 +38,8 @@ public class DailyMonitoringService {
     private String orderStatusSummary;
     private String orderStatusDownload;
     private String updateOrderStatus;
+    private String orderStatusRevSummary;
+    private String updateInvoiceEligibleDate;
 
     private String invoiceTrackerHeader;
 
@@ -73,7 +74,9 @@ public class DailyMonitoringService {
                                   String orderStatus, String orderStatusSummary, String orderStatusDownload,
                                   String updateOrderStatus, String kafkaError, String kafkaInbound,
                                   String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
-                                    String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization) {
+                                  String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
+                                  String orderStatusRevSummary, String updateInvoiceEligibleDate
+    ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -107,6 +110,8 @@ public class DailyMonitoringService {
         this.accrualsSummarizationErrors = accrualsSummarizationErrors;
         this.kafkaPublishToDownstream = kafkaPublishToDownstream;
         this.errorDistributionSummarization = errorDistributionSummarization;
+        this.orderStatusRevSummary = orderStatusRevSummary;
+        this.updateInvoiceEligibleDate = updateInvoiceEligibleDate;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -207,7 +212,7 @@ public class DailyMonitoringService {
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
         String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
        "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
-        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE"};
+        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE", "INVOICE_ELIGIBLE_DATE"};
         result.forEach(data -> {
             for(String str: columnsToRemove){
                 data.remove(str);
@@ -325,6 +330,11 @@ public class DailyMonitoringService {
 
         return resultList;
     }
+
+
+    public List<Map<String, Object>> getOrderStatusRevSummary() {
+        return jdbcManager.queryForList(orderStatusRevSummary);
+    }
     public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
         OrderLifecycleSummaryModel obj = new OrderLifecycleSummaryModel("Sub Total ("+programName+")", calculateOrderCountSumByProgramName(resultList, programName), null, null);
         return obj;
@@ -376,5 +386,24 @@ public class DailyMonitoringService {
             temp.put(aa.getKey(), aa.getValue());
         }
         return temp;
+    }
+
+    public void updateInvoiceEligibleDate(List<Map<String,Object>> updatedDeals){
+
+        for(Map<String,Object> deal: updatedDeals){
+            String dateString = deal.get("INVOICE_ELIGIBLE_DATE").toString();
+            int dealId = Integer.parseInt(deal.get("DEAL_ID").toString());
+            String salesOrder = deal.get("SALES_ORDER").toString();
+            System.out.println(dateString + " " + dealId + " " + salesOrder);
+            try {
+                Instant instant = Instant.parse(dateString);
+                Date date = Date.from(instant);
+                int ret = jdbcManager.updateInvoiceEligibleDate(updateInvoiceEligibleDate, date, dealId, salesOrder);
+                System.out.println(ret);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }

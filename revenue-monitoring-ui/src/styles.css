@@ -126,3 +126,11 @@ body {
 .mat-form-field.mat-focused .mat-form-field-ripple {
   background-color: black !important;
 }
+
+.mat-calendar-body-selected {
+  background-color: #049fd9;
+}
+
+.mat-calendar-body-selected {
+  background-color: #049fd9;
+}

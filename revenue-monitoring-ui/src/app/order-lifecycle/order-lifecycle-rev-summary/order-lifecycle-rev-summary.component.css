@@ -1,0 +1,23 @@
+.mat-header-cell {
+  font-size: 12.5px;
+  padding-left: 25px !important;
+}
+
+.mat-cell {
+  font-size: 12.5px;
+}
+
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+}
+
+.mat-column-accountDealStatus {
+  text-align: left !important;
+}
+
+.mat-paginator-sticky {
+  bottom: 0px !important;
+  position: sticky !important;
+  z-index: 10 !important;
+}
