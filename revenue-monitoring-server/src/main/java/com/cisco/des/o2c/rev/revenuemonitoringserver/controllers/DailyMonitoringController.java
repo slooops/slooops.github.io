@@ -1,6 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.OrderLifecycleSummaryModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -8,8 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -100,25 +107,31 @@ public class DailyMonitoringController {
         String[] input = comments.split(",");
         String comment = input[0];
         String closeType = input[1];
-        service.updateDashboardComments(comment, closeType);
+        service.updateDashboardComments(comments, closeType);
         Map<String,String> result = new HashMap<>();
         result.put("message", "Comments updated.");
         return result;
     }
 
-    @GetMapping("/pclose-dashboard-timestamp")
+    @GetMapping("/dashboard-timestamp")
     public Map<String,Date> getDate(){
-        Date date = new Date();
+        Calendar calendar = Calendar.getInstance();
+        Date date =  calendar.getTime();
         Map<String,Date> timeNow = new HashMap<>();
         timeNow.put("timeNow", date);
         return timeNow;
     }
 
+    @GetMapping("/order-status-download")
+    public ResponseEntity<List<Map<String, Object>>> getOrderStatusDownload(){
+        return new ResponseEntity<>(service.getOrderStatusDownload(), HttpStatus.OK);
+    }
+
     @GetMapping("/order-status")
-    public ResponseEntity<List<Map<String, Object>>> getOrderStatus(HttpServletRequest request, @RequestHeader HttpHeaders header){
-        System.out.println(request.getHeader("auth_user"));
+    public ResponseEntity<OrderLifecycleModel> getOrderStatus(){
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
     }
+
 
 
     @GetMapping("/invoice-tracker-header")
@@ -152,6 +165,74 @@ public class DailyMonitoringController {
     @GetMapping("/wd0-historical-data")
     public ResponseEntity<List<Map<String, Object>>> getWd0HistoricalData() {
         return new ResponseEntity<>(service.getWd0HistoricalData(), HttpStatus.OK);
+    }
+
+    @GetMapping("/order-status-summary")
+    public ResponseEntity<List<OrderLifecycleSummaryModel>> getOrderStatusSummary(){
+        return new ResponseEntity<>(service.getOrderStatusSummary(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+            if (!file.isEmpty()) {
+                try {
+                    service.setUpdateOrderStatusFromFile(file);
+                    return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+                }
+            } else {
+                return ResponseEntity.badRequest().body("Uploaded file is empty.");
+            }
+    }
+
+    @PostMapping(value = "/order-lifecycle-upload-manual")
+    public ResponseEntity<String> manualUpload(@RequestBody UpdateOrderModel input){
+        try{
+            service.setUpdateOrderStatusFromData(input);
+            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
+        }
+    }
+    @GetMapping("/kafka-errors")
+    public ResponseEntity<List<Map<String, Object>>> getKafkaErrors(){
+        return new ResponseEntity<>(service.getKafkaError(), HttpStatus.OK);
+    }
+
+    @GetMapping("/kafka-inbound")
+    public ResponseEntity<List<Map<String, Object>>> getKafkaInbound(){
+        return new ResponseEntity<>(service.getKafkaInbound(), HttpStatus.OK);
+    }
+
+    @GetMapping("/ar-trxn-missing")
+    public ResponseEntity<List<Map<String, Object>>> getArTrxnMissing(){
+        return new ResponseEntity<>(service.getArTrxnMissing(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accruals-processing-errors")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsProcessingErrors(){
+        return new ResponseEntity<>(service.getAccrualsProcessingErrors(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accruals-distribution-errors")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsDistributionErrors(){
+        return new ResponseEntity<>(service.getAccrualsDistributionErrors(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accruals-summarization-errors")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsSummarizationErrors(){
+        return new ResponseEntity<>(service.getAccrualsSummarizationErrors(), HttpStatus.OK);
+    }
+
+    @GetMapping("/kafka-publish-downstream")
+    public ResponseEntity<List<Map<String, Object>>> getKafkaPublishToDownstream(){
+        return new ResponseEntity<>(service.getKafkaPublishToDownstream(), HttpStatus.OK);
+    }
+
+    @GetMapping("/error-distribution-summarization")
+    public ResponseEntity<List<Map<String, Object>>> getErrorDistributionSummarization(){
+        return new ResponseEntity<>(service.getErrorDistributionSummarization(), HttpStatus.OK);
     }
 
 }

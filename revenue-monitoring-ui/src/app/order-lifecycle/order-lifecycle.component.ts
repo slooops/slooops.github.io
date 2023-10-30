@@ -1,92 +1,316 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
-import { switchMap, startWith } from 'rxjs/operators';
-import { Observable, interval } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
+import { FormGroup, FormControl } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import { MatDialog } from '@angular/material/dialog';
+import { OrderLifecycleSummaryComponent } from '../order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from '../order-lifecycle-upload/order-lifecycle-upload.component';
 
 @Component({
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
   styleUrls: ['./order-lifecycle.component.css'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class OrderLifecycleComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     private router: Router,
-    private dataService: DataService
+    private dataService: DataService,
+    private dialog: MatDialog
   ) {
     this.http = http;
   }
 
   ngOnInit(): void {
     this.getOrderLifecycle();
+    this.getOrderStatusDownload();
+    this.updateTime();
   }
+
+  searchForm: FormGroup = new FormGroup({
+    progName: new FormControl(''),
+    account: new FormControl(''),
+    orderStats: new FormControl(''),
+    invoiceStats: new FormControl(''),
+    // flexibleInvoice: new FormControl(''),
+    salesOrdr: new FormControl(''),
+    // subscriptionId: new FormControl(''),
+    dealId: new FormControl(''),
+  });
 
   protected http: ApiHttpService;
   length: number;
 
+  refreshInterval = 14400000; //ms
+  timeNow: any;
+
+  progNameOptions: string[] = [];
+  accountOptions: string[] = [];
+  orderStatusOptions: string[] = [];
+  invoiceStatusOptions: string[] = [];
+  flexibleInvoiceOptions: string[] = [];
+  progNameTemp: string[] = [];
+  accountTemp: string[] = [];
+  orderStatusTemp: string[] = [];
+  invoiceStatusTemp: string[] = [];
+
+  programNameFilter: string[] = [];
+  accountFilter: string[] = [];
+  orderStatusFilter: string[] = [];
+  invoiceStatusFilter: string[] = [];
+  flexibleInvoiceFilter: string[] = [];
+  salesOrderFilter: string = '';
+  subscriptionIdFilter: string = '';
+  dealIdFilter: string = '';
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   orderLifecycleStatus: OrderLifecycleModel[];
+  orderLifeCycleDownload: OrderLifecycleModel[];
+  selectedArr: OrderLifecycleModel[];
   dataSource: any;
+  selection = new SelectionModel<any>(true, []);
+  selectedData: any;
+  updatedData: boolean = false;
 
-  getOrderLifecycle() {
-    this.http.get('order-status').subscribe((data: any) => {
-      this.orderLifecycleStatus = data;
-      this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
-        this.orderLifecycleStatus
-      );
-      this.length = this.orderLifecycleStatus.length;
-      this.setSortAndPaginator();
+  getOrderStatusDownload() {
+    this.http.get('order-status-download').subscribe((data: any) => {
+      this.orderLifeCycleDownload = data;
+      this.orderLifeCycleDownload.forEach((ele) => {
+        for (const key in ele) {
+          if (
+            key == 'BOOK_DATE' ||
+            key == 'INVOICE_DATE' ||
+            key == 'FUTURE_INVOICE_RELEASE_DATE' ||
+            key == 'COMMENTS'
+          ) {
+            continue;
+          }
+          if (ele[key] === null) {
+            if (key == 'INVOICE_LINES') {
+              ele[key] = '0';
+            } else {
+              ele[key] = 'TBD';
+            }
+          }
+        }
+      });
     });
   }
 
-  displayedColumns: string[] = [
+  getOrderLifecycle() {
+    this.http.get('order-status').subscribe((data: any) => {
+      this.orderLifecycleStatus = data['orderLifecycleResult'];
+      this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
+        this.orderLifecycleStatus
+      );
+      this.updatedData = false;
+      this.orderLifecycleStatus.forEach((data) => {
+        for (const key in data) {
+          if (
+            key == 'STATUS_AS_OF_DATE' ||
+            key == 'ACTUAL_BOOK_DATE' ||
+            key == 'INVOICE_DATE' ||
+            key == 'FUTURE_INVOICE_RELEASE_DATE' ||
+            key == 'COMMENTS'
+          ) {
+            continue;
+          }
+          if (data[key] === null) {
+            if (key == 'INVOICE_LINES') {
+              data[key] = '0';
+            } else {
+              data[key] = 'TBD';
+            }
+          }
+        }
+      });
+      this.filterData();
+      this.length = this.orderLifecycleStatus.length;
+      this.setSortAndPaginator();
+      this.dataSource.filterPredicate = this.filterPredicate;
+    });
+  }
+
+  filterData() {
+    this.orderLifecycleStatus.forEach((data) => {
+      this.progNameTemp.push(data.PROGRAM_NAME);
+      this.accountTemp.push(data.ACCOUNT);
+      this.orderStatusTemp.push(data.ORDER_STATUS);
+      this.invoiceStatusTemp.push(data.INVOICING_STATUS);
+    });
+    this.progNameOptions = [...new Set(this.progNameTemp)];
+    this.accountOptions = [...new Set(this.accountTemp)];
+    this.orderStatusOptions = [...new Set(this.orderStatusTemp)];
+    this.invoiceStatusOptions = [...new Set(this.invoiceStatusTemp)];
+    // this.flexibleInvoiceOptions = [...new Set(flexibleInvoice)];
+  }
+
+  filterPredicate = (data: OrderLifecycleModel, filter: any) => {
+    const filters = JSON.parse(filter);
+    const progNameMatch =
+      filters.progNameFilter.length === 0 ||
+      filters.progNameFilter.includes(data.PROGRAM_NAME);
+    const accountMatch =
+      filters.accountFilter.length === 0 ||
+      filters.accountFilter.includes(data.ACCOUNT);
+    const orderStatusMatch =
+      filters.orderStatusFilter.length === 0 ||
+      filters.orderStatusFilter.includes(data.ORDER_STATUS);
+    const invoiceStatusMatch =
+      filters.invoiceStatusFilter.length === 0 ||
+      filters.invoiceStatusFilter.includes(data.INVOICING_STATUS);
+    // const flexibleInvoiceMatch =
+    //   filters.flexibleInvoiceFilter.length === 0 ||
+    //   filters.flexibleInvoiceFilter.includes(data.FLEXIBLE_INVOICE_ELIGIBLE);
+    const salesOrderMatch =
+      data.SALES_ORDER.toString().indexOf(filters.salesOrderFilter) !== -1;
+    // const subscriptionIdMatch =
+    //   data.SALES_ORDER.toString().indexOf(filters.subscriptionIdFilter) !== -1;
+    const dealIdMatch =
+      data.DEAL_ID.toString().indexOf(filters.dealIdFilter) !== -1;
+    return (
+      progNameMatch &&
+      accountMatch &&
+      orderStatusMatch &&
+      invoiceStatusMatch &&
+      // flexibleInvoiceMatch &&
+      salesOrderMatch &&
+      // subscriptionIdMatch &&
+      dealIdMatch
+    );
+  };
+
+  filter() {
+    this.searchForm.valueChanges.subscribe((data) => {
+      this.programNameFilter = data['progName'];
+      this.accountFilter = data['account'];
+      this.orderStatusFilter = data['orderStats'];
+      this.invoiceStatusFilter = data['invoiceStats'];
+      // this.flexibleInvoiceFilter = data['flexibleInvoice'];
+      this.salesOrderFilter = data['salesOrdr'];
+      // this.subscriptionIdFilter = data['subscriptionId'];
+      this.dealIdFilter = data['dealId'];
+
+      if (
+        this.programNameFilter.length > 0 &&
+        this.accountFilter.length === 0
+      ) {
+        const filteredAccounts = this.filterAccountByProgramNames(
+          this.orderLifecycleStatus,
+          this.programNameFilter
+        );
+        this.accountOptions = [...new Set(filteredAccounts)];
+      } else if (
+        this.programNameFilter.length > 0 &&
+        this.accountFilter.length > 0
+      ) {
+        const filteredAccounts = this.filterAccountByProgramNames(
+          this.orderLifecycleStatus,
+          this.programNameFilter
+        );
+
+        this.accountFilter.forEach((data) => {
+          if (!filteredAccounts.includes(data)) {
+            this.accountFilter = this.accountFilter.filter(
+              (ele) => ele !== data
+            );
+          }
+          this.accountOptions = [...new Set(filteredAccounts)];
+        });
+      } else {
+        this.accountOptions = [...new Set(this.accountTemp)];
+      }
+      this.applyFilter();
+    });
+  }
+
+  applyFilter() {
+    this.salesOrderFilter = this.searchForm.get('salesOrdr').value;
+    // this.subscriptionIdFilter = this.searchForm.get('subscriptionId').value;
+    this.dealIdFilter = this.searchForm.get('dealId').value;
+    this.dataSource.filter = JSON.stringify({
+      progNameFilter: this.programNameFilter,
+      accountFilter: this.accountFilter,
+      orderStatusFilter: this.orderStatusFilter,
+      invoiceStatusFilter: this.invoiceStatusFilter,
+      salesOrderFilter: this.salesOrderFilter,
+      dealIdFilter: this.dealIdFilter,
+    });
+  }
+
+  filterAccountByProgramNames(
+    data: OrderLifecycleModel[],
+    programNames: string[]
+  ): string[] {
+    return data
+      .filter((order) => programNames.includes(order.PROGRAM_NAME))
+      .map((order) => order.ACCOUNT);
+  }
+
+  clearFilters() {
+    this.dataSource.filter = '';
+    this.searchForm.reset();
+  }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(OrderLifecycleSummaryComponent, {
+      width: '700px',
+    });
+  }
+
+  openUploadDialog() {
+    const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
+      width: '700px',
+    });
+
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data === 'uploaded') {
+        this.updatedData = true;
+        this.dataSource = null;
+        this.getOrderLifecycle();
+      }
+    });
+  }
+
+  displayedColumns = [
+    'select',
+    // 'STATUS_AS_OF_DATE',
     'PROGRAM_NAME',
     'ACCOUNT',
-    'SFDC_STATUS',
-    'STATUS_AS_OF_DATE',
     'DEAL_ID',
     'SALES_ORDER',
-    'EXPECTED_BOOK_DATE',
-    'ACTUAL_BOOK_DATE',
-    // 'LINE_TYPE',
+    'ORDER_VALUE',
+    'TOTAL_LINE_COUNT',
     'ORDER_STATUS',
+    'CONTRACT_NUMBER',
+    'LINES_ON_HOLD',
+    'FLEXIBLE_INVOICE_ELIGIBLE',
     'INVOICING_STATUS',
-    'REV_ACCR_STATUS',
-    'GL_POSTING_STATUS',
-    'HOLD_RELEASE_TARGET_DATE',
-    'ACCRUALS_EXECUTION_TIME',
-    // 'CURRENCY',
-    'ORDER_TOTAL',
-    'ORDER_TOTAL_USD',
-    'TOTAL_CONTRAC_VALUE',
-    'SUBSCRIPTION_ID',
+    'INVOICE_LINES',
     'INVOICE_DATE',
     'INVOICE_AMOUNT',
-    'INVOICE_LINES',
-    // 'STATUS',
-    'COMMENTS',
-    'AGING_BOOKING',
-    'AGING_HOLD_RELEASE',
-    // 'LAST_UPDATE_DATE',
-    // 'ENABLED_FLAG',
-    // 'CURRENT_PERIOD_FLAG',
-    // 'WEB_ORDER_ID',
-    // 'QUOTE_NUMBER',
-    // 'CONTEXT',
-    // 'TOTAL_LINE_COUNT',
-    // 'HEADER_ID',
-    // 'ORDER_CREATION_DATE',
-    // 'ORDER_LEVEL_HOLD',
-    // 'LINE_LEVEL_HOLD',
-    // 'CUST_PO_NUMBER',
+    'REV_ACCR_STATUS',
+    'GL_POSTING_STATUS',
+    'ACCRUALS_EXECUTION_TIME',
+    // 'SUBSCRIPTION_ID',
+    'FUTURE_INVOICE_RELEASE_DATE',
     'TERM_IN_YEARS',
+    'BOOK_DATE',
+    'COMMENTS',
   ];
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;
@@ -95,47 +319,117 @@ export class OrderLifecycleComponent implements OnInit {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
   }
+
+  @Input() data: any;
+
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.dataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  masterToggle() {
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.dataSource.data.forEach((row) => this.selection.select(row));
+  }
+
+  onRowClicked(row: any) {
+    this.selectedData = row;
+  }
+
+  export(sheetName: string, filename: string) {
+    if (this.isAllSelected() || this.selection.selected.length === 0) {
+      this.exportTableToExcel(this.orderLifeCycleDownload, sheetName, filename);
+    } else if (!this.isAllSelected()) {
+      this.selectedArr = this.orderLifeCycleDownload.filter((data) =>
+        this.selection.selected.some((ele) => {
+          return (
+            data.DEAL_ID === ele.DEAL_ID && data.SALES_ORDER === ele.SALES_ORDER
+          );
+        })
+      );
+      this.exportTableToExcel(this.selectedArr, sheetName, filename);
+    }
+  }
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
+    let link = document.createElement('a'); // create link
+    link.href = url;
+    link.download = filename + '.xlsx';
+    link.click(); // triggers the download process and save file prompt in browser
+    window.URL.revokeObjectURL(url); // revoke temp URL
+  }
+
+  updateTime() {
+    // Get the current date and time in PST timezone
+    const currentDate = new Date();
+    const pstDate = currentDate.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+    });
+    const timestamp = Date.parse(pstDate);
+    const currentPstDate = new Date(timestamp);
+
+    const currentHour = currentPstDate.getHours();
+
+    if (
+      currentHour === 8 ||
+      currentHour === 12 ||
+      currentHour === 16 ||
+      currentHour === 23
+    ) {
+      this.getOrderLifecycle();
+    }
+
+    if (currentHour >= 0 && currentHour < 8) {
+      this.timeNow = 'Yesterday at ' + 11 + ' PM PST';
+    } else if (currentHour >= 8 && currentHour < 12) {
+      this.timeNow = 'Today at ' + 8 + ' AM PST';
+    } else if (currentHour >= 12 && currentHour < 16) {
+      this.timeNow = 'Today at ' + 12 + ' PM PST';
+    } else if (currentHour >= 16 && currentHour < 23) {
+      this.timeNow = 'Today at ' + 4 + ' PM PST';
+    } else {
+      if (currentHour !== 0) {
+        this.timeNow = 'Today at ' + 11 + ' PM PST';
+      }
+    }
+  }
 }
 
 export interface OrderLifecycleModel {
+  select: string;
   PROGRAM_NAME: string;
   ACCOUNT: string;
-  SFDC_STATUS: string;
-  STATUS_AS_OF_DATE: string;
-  DEAL_ID: string;
   SALES_ORDER: string;
-  EXPECTED_BOOK_DATE: string;
-  ACTUAL_BOOK_DATE: string;
-  // LINE_TYPE: string;
+  ORDER_VALUE: string;
+  TOTAL_LINE_COUNT: string;
   ORDER_STATUS: string;
+  CONTRACT_NUMBER: string;
+  LINES_ON_HOLD: string;
+  INVOICE_LINES: string;
+  INVOICE_DATE: string;
   INVOICING_STATUS: string;
+  INVOICE_AMOUNT: string;
   REV_ACCR_STATUS: string;
   GL_POSTING_STATUS: string;
-  HOLD_RELEASE_TARGET_DATE: string;
   ACCRUALS_EXECUTION_TIME: string;
-  // CURRENCY: string;
-  ORDER_TOTAL: string;
-  ORDER_TOTAL_USD: string;
-  TOTAL_CONTRAC_VALUE: string;
-  SUBSCRIPTION_ID: string;
-  INVOICE_DATE: string;
-  INVOICE_AMOUNT: string;
-  INVOICE_LINES: string;
-  // STATUS: string;
-  COMMENTS: string;
-  AGING_BOOKING: string;
-  AGING_HOLD_RELEASE: string;
-  // LAST_UPDATE_DATE: string;
-  // ENABLED_FLAG: string;
-  // CURRENT_PERIOD_FLAG: string;
-  // WEB_ORDER_ID: string;
-  // QUOTE_NUMBER: string;
-  // CONTEXT: string;
-  // TOTAL_LINE_COUNT: string;
-  // HEADER_ID: string;
-  // ORDER_CREATION_DATE: string;
-  // ORDER_LEVEL_HOLD: string;
-  // LINE_LEVEL_HOLD: string;
-  // CUST_PO_NUMBER: string;
+  FLEXIBLE_INVOICE_ELIGIBLE: string;
+  FUTURE_INVOICE_RELEASE_DATE: string;
   TERM_IN_YEARS: string;
+  BOOK_DATE: string;
+  DEAL_ID: string;
+  COMMENTS: string;
 }

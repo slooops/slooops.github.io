@@ -117,3 +117,12 @@ body {
 .sortArrow .mat-sort-header-arrow {
   color: white !important;
 }
+
+.mat-tab-group.mat-primary .mat-ink-bar,
+.mat-tab-nav-bar.mat-primary .mat-ink-bar {
+  background-color: #049fd9 !important;
+}
+
+.mat-form-field.mat-focused .mat-form-field-ripple {
+  background-color: black !important;
+}

@@ -1,0 +1,178 @@
+<h4 mat-dialog-title>
+  Deal Upload
+  <a style="float: right !important; text-decoration: none"
+    ><i
+      class="fa fa-close"
+      style="font-size: 24px; color: gray"
+      (click)="closeDialog('closed')"
+    ></i
+  ></a>
+</h4>
+<mat-tab-group>
+  <mat-tab label="File Upload" style="text-align: center">
+    <br />
+    <div style="display: flex; justify-content: end; align-items: center">
+      <a href="../../assets/Large Order Upload Sample.csv" download
+        ><i class="fa fa-download" aria-hidden="true">
+          &nbsp;Download Sample Template</i
+        ></a
+      >
+    </div>
+    <br />
+    <div
+      class="file-drop-zone"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      cdkDropList
+    >
+      <i style="color: gray" class="fa fa-2x fa-upload"></i>
+      <p>Drag and drop your file here</p>
+      <p>or</p>
+      <button mat-raised-button (click)="fileInput.click()">Select File</button>
+      <input
+        [multiple]="false"
+        style="display: none"
+        (change)="onFileSelected($event)"
+        #fileInput
+        type="file"
+        accept=".csv"
+      />
+      <br />
+      <br />
+      <span *ngIf="selectedFile">
+        <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
+        File selected:
+        <a
+          ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
+        >
+        &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
+      </span>
+
+      <mat-error style="text-align: center" *ngIf="validationError"
+        ><i class="fa fa-times-circle" style="color: #ff052b">
+          {{ validationError }}</i
+        ></mat-error
+      >
+    </div>
+    <br />
+    <div style="text-align: center" *ngIf="fileSelected">
+      <button
+        class="btn btn-primary"
+        mat-stroked-button
+        (click)="uploadDealsFile(dialogTemplate)"
+        style="color: white"
+      >
+        Upload
+      </button>
+    </div>
+    <!-- <mat-error
+        style="text-align: center; margin-top: 5px"
+        *ngIf="noFileSelected"
+      >
+        <i class="fa fa-times-circle" style="color: #ff052b"> No file selected</i>
+      </mat-error> -->
+  </mat-tab>
+  <mat-tab label="Enter Dead IDs">
+    <br />
+    <form [formGroup]="updateForm">
+      <mat-form-field appearance="standard">
+        <mat-label>Program Name</mat-label>
+        <input
+          matInput
+          formControlName="programName"
+          placeholder="Enter Program Name"
+          name="programName"
+          required
+        />
+        <mat-error *ngIf="updateForm.get('programName').hasError('required')"
+          >Program Name is required</mat-error
+        >
+        <mat-error *ngIf="updateForm.get('programName').hasError('pattern')"
+          >Invalid input. Please enter only one Program Name using alphabets
+          only.</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="standard">
+        <mat-label>Account</mat-label>
+        <input
+          matInput
+          formControlName="account"
+          placeholder="Enter Account"
+          name="account"
+          required
+        />
+        <mat-error *ngIf="updateForm.get('account').hasError('required')"
+          >Account is required</mat-error
+        >
+        <mat-error *ngIf="updateForm.get('account').hasError('pattern')"
+          >Invalid input. Please enter only one Account using alphabets
+          only.</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="standard">
+        <mat-label
+          >Deal Ids ( Please enter comma-separated string of numbers
+          )</mat-label
+        >
+        <input
+          matInput
+          formControlName="dealIds"
+          placeholder="Enter Deal Ids"
+          name="dealIds"
+          required
+        />
+        <mat-error *ngIf="updateForm.get('dealIds').hasError('required')"
+          >Deal Ids are required</mat-error
+        >
+        <mat-error *ngIf="updateForm.get('dealIds').hasError('pattern')"
+          >Invalid input. Please enter only numbers.</mat-error
+        >
+      </mat-form-field>
+    </form>
+
+    <br />
+    <div style="text-align: center">
+      <button
+        mat-stroked-button
+        class="btn btn-primary"
+        type="submit"
+        (click)="submitDealIds(dialogTemplate)"
+      >
+        Upload
+      </button>
+    </div>
+
+    <mat-error style="text-align: center; margin-top: 5px" *ngIf="validForm">
+      <i class="fa fa-times-circle" style="color: #ff052b">
+        Form cannot have empty values</i
+      >
+    </mat-error>
+  </mat-tab>
+</mat-tab-group>
+
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #dialogTemplate>
+    <br />
+    <h6>
+      <span *ngIf="uploadText === 'Deals upload failed!'"
+        ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
+      ></span>
+      <span *ngIf="uploadText === 'Deals upload successful!'"
+        ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
+      ></span>
+      <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
+    </h6>
+    <br />
+    <div style="text-align: center">
+      <button
+        class="btn btn-primary"
+        mat-stroked-button
+        (click)="closeOkDialog()"
+      >
+        Ok
+      </button>
+    </div>
+  </ng-template>
+</div>

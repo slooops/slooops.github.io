@@ -36,8 +36,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
-import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component';
 import { MenuComponent } from './menu/menu.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
@@ -47,15 +45,15 @@ import { NgCircleProgressModule } from 'ng-circle-progress';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbar, MatToolbarModule } from '@angular/material/toolbar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
-import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { DetailViewComponent } from './detail-view/detail-view.component';
 import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
@@ -65,6 +63,19 @@ import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.compo
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { TitleCaseWithExceptionsPipe } from './title-case-with-exceptions.pipe';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
+import {
+  MAT_DIALOG_DEFAULT_OPTIONS,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
+import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
+import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
+import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
+import { ChartDialogComponent } from './revenue-accruals/chart-dialog/chart-dialog.component';
+import { TableDialogComponent } from './revenue-accruals/table-dialog/table-dialog.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -80,8 +91,6 @@ export function initApp(authService: AuthenticationService) {
     TsvExceptionsSubSkuComponent,
     RevenueControlsComponent,
     PeriodCloseTrackingComponent,
-    LoginComponent,
-    HomeComponent,
     MenuComponent,
     PrecloseComponent,
     MidcloseComponent,
@@ -94,6 +103,11 @@ export function initApp(authService: AuthenticationService) {
     Wd0DashComponent,
     Wd0HistoricalDataComponent,
     TitleCaseWithExceptionsPipe,
+    OrderLifecycleSummaryComponent,
+    OrderLifecycleUploadComponent,
+    RevenueAccrualsComponent,
+    ChartDialogComponent,
+    TableDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -141,6 +155,10 @@ export function initApp(authService: AuthenticationService) {
     MatCheckboxModule,
     MatPaginatorModule,
     MatExpansionModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatDialogModule,
+    MatCardModule,
   ],
   providers: [
     DatePipe,
@@ -154,6 +172,11 @@ export function initApp(authService: AuthenticationService) {
       provide: HTTP_INTERCEPTORS,
       useClass: HttpConfigInterceptor,
       multi: true,
+    },
+    { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
+    {
+      provide: MatDialogRef,
+      useValue: {},
     },
   ],
   bootstrap: [AppComponent],

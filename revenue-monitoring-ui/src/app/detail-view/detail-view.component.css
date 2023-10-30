@@ -2,7 +2,14 @@
   overflow: auto;
 }
 
-mat-header-cell,
-mat-cell {
-  flex: none;
+.mat-header-cell {
+  white-space: break-spaces !important;
+}
+
+td {
+  text-align: center !important;
+}
+
+th {
+  padding-left: 30px !important;
 }

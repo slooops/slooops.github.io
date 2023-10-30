@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.url
+                  key: cors.order.lifecycle.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -189,5 +189,15 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.query
+            - name: ORDER_STATUS_SUMMARY_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.summary.q
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret

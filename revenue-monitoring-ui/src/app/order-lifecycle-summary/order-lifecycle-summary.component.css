@@ -1,0 +1,17 @@
+.mat-header-cell {
+  font-size: 13px;
+  padding-left: 25px !important;
+}
+
+.mat-cell {
+  font-size: 13px;
+}
+
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+}
+
+.bold {
+  font-weight: bold;
+}

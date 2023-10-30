@@ -165,7 +165,12 @@
       >
         {{ selection.hasValue() ? "View Selected" : "View Details" }}
       </button>
-      <button mat-stroked-button>Download</button>
+      <button
+        mat-stroked-button
+        (click)="export('Error Summary', 'error_summary')"
+      >
+        Download
+      </button>
     </div>
   </div>
   <table

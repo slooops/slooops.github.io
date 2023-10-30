@@ -77,6 +77,38 @@ public class QueryConfigs { // TODO
 
     @Value("${wd0.historical.data.q}")
     public String wd0HistoricalDataQuery;
+    @Value("${update.order.status.q}")
+    public String updateOrderStatus;
+
+    @Value("${order.status.summary.q}")
+    public String orderStatusSummary;
+
+    @Value("${order.status.download.q}")
+    public String orderStatusDownload;
+
+    @Value("${kafka.error.q}")
+    public String kafkaError;
+
+    @Value("${kafka.inbound.q}")
+    public String kafkaInbound;
+
+    @Value("${ar.trxn.missing.q}")
+    public String arTrxnMissing;
+
+    @Value("${accruals.processing.errors.q}")
+    public String accrualsProcessingErrors;
+
+    @Value("${accruals.distribution.errors.q}")
+    public String accrualsDistributionErrors;
+
+    @Value("${accruals.summarization.errors.q}")
+    public String accrualsSummarizationErrors;
+
+    @Value("${kafka.publish.to.downstream.q}")
+    public String kafkaPublishToDownstream;
+
+    @Value("${error.distribution.summarization.q}")
+    public String errorDistributionSummarization;
 
 
     @Bean( name = "stdArExcQuery" )
@@ -149,4 +181,51 @@ public class QueryConfigs { // TODO
 
     @Bean(name = "wd0HistoricalDataQuery")
     public String getWd0HistoricalDataQuery(){ return this.wd0HistoricalDataQuery; }
+    @Bean( name = "orderStatusSummary" )
+    public String getOrderStatusSummary() {return this.orderStatusSummary; }
+    @Bean( name = "orderStatusDownload" )
+    public String getOrderStatusDownload() {return this.orderStatusDownload; }
+    @Bean( name= "updateOrderStatus" )
+    public String getUpdateOrderStatus() { return this.updateOrderStatus; }
+
+    @Bean( name = "kafkaError" )
+    public String getKafkaError() {
+        return this.kafkaError;
+    }
+
+    @Bean( name = "kafkaInbound" )
+    public String getKafkaInbound() {
+        return this.kafkaInbound;
+    }
+
+    @Bean( name = "arTrxnMissing" )
+    public String getArTrxnMissing() {
+        return this.arTrxnMissing;
+    }
+
+    @Bean( name = "accrualsProcessingErrors" )
+    public String getAccrualsProcessingErrors() {
+        return this.accrualsProcessingErrors;
+    }
+
+    @Bean( name = "accrualsDistributionErrors" )
+    public String getAccrualsDistributionErrors() {
+        return this.accrualsDistributionErrors;
+    }
+
+    @Bean( name = "accrualsSummarizationErrors" )
+    public String getAccrualsSummarizationErrors() {
+        return this.accrualsSummarizationErrors;
+    }
+
+    @Bean( name = "kafkaPublishToDownstream" )
+    public String getKafkaPublishToDownstream() {
+        return this.kafkaPublishToDownstream;
+    }
+
+    @Bean( name = "errorDistributionSummarization" )
+    public String getErrorDistributionSummarization() {
+        return this.errorDistributionSummarization;
+    }
+
 }
