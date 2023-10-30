@@ -2,26 +2,28 @@ import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthenticationService {
-
-  constructor(private appConfig: AppConfigService) { }
+  constructor(private appConfig: AppConfigService) {}
 
   async getValidToken() {
     const date = new Date();
-    const timestampCurr = Math.floor(date.getTime() / 1000); /* current time seconds */
-    const accessTokenExpire = parseInt(sessionStorage.getItem('accessTokenExpireTime') 
-    || '0');
-    const accessTokenExpireMax = accessTokenExpire + 3 * 60 * 60; /* 3 hours between cals -> logout */
-
+    const timestampCurr = Math.floor(
+      date.getTime() / 1000
+    ); /* current time seconds */
+    const accessTokenExpire = parseInt(
+      sessionStorage.getItem('accessTokenExpireTime') || '0'
+    );
+    const accessTokenExpireMax =
+      accessTokenExpire + 3 * 60 * 60; /* 3 hours between cals -> logout */
 
     if (timestampCurr < accessTokenExpireMax) {
       if (accessTokenExpire < timestampCurr) {
         this.ssoLogout();
       }
-
-    } else { /* logout if 3 hours after expiration of token */
+    } else {
+      /* logout if 3 hours after expiration of token */
       this.ssoLogout();
     }
   }
@@ -32,8 +34,12 @@ export class AuthenticationService {
     let ssoUrl = 'https://cloudsso.cisco.com';
 
     const href = window.location.href;
-    if (href.search('-dev') !== -1 || href.search('-ts1') !== -1 
-      || href.search('-ts3') !== -1) {
+    if (
+      href.search('-dev') !== -1 ||
+      href.search('-ts1') !== -1 ||
+      href.search('-ts3') !== -1 ||
+      href.search('-int') !== -1
+    ) {
       ssoUrl = 'https://cloudsso-test.cisco.com';
     } else if (href.search('localhost') !== -1) {
       ssoUrl = '';
@@ -51,24 +57,26 @@ export class AuthenticationService {
     sessionStorage.removeItem('expires_in');
     sessionStorage.removeItem('accessTokenExpireTime');
 
-
     /* GET TOKEN */
 
     let dataJson: any = {
-      client_id: authClientId, 
+      client_id: authClientId,
       grant_type: 'client_credentials',
-      response_type: 'token', 
-      client_secret: authClientSecret
+      response_type: 'token',
+      client_secret: authClientSecret,
     };
 
-    let data = Object.keys(dataJson).map((key) => {
-      return encodeURIComponent(key) + '=' + encodeURIComponent(dataJson[key]);
-    }).join('&');
+    let data = Object.keys(dataJson)
+      .map((key) => {
+        return (
+          encodeURIComponent(key) + '=' + encodeURIComponent(dataJson[key])
+        );
+      })
+      .join('&');
 
     if (ssoUrl) {
       await this.postRequest(tokenSsoUrl, data);
     }
-
   }
 
   postRequest(url: string, data: any) {
@@ -79,29 +87,33 @@ export class AuthenticationService {
       body: data,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-      }
-    }).then(response => response.json())
-    .then(info => {
-      const tknObjStr = JSON.stringify(info);
-      sessionStorage.setItem('refreshTokenData', tknObjStr);
-      if (sessionStorage.getItem('accessToken')) {
-        const appendToken = sessionStorage.getItem('accessToken') + ' ' + info.access_token;
-        sessionStorage.setItem('accessToken', appendToken);
-      } else {
-        sessionStorage.setItem('accessToken', info.access_token);
-      }
-      sessionStorage.setItem('expires_in', info.expires_in);
+      },
+    })
+      .then((response) => response.json())
+      .then((info) => {
+        const tknObjStr = JSON.stringify(info);
+        sessionStorage.setItem('refreshTokenData', tknObjStr);
+        if (sessionStorage.getItem('accessToken')) {
+          const appendToken =
+            sessionStorage.getItem('accessToken') + ' ' + info.access_token;
+          sessionStorage.setItem('accessToken', appendToken);
+        } else {
+          sessionStorage.setItem('accessToken', info.access_token);
+        }
+        sessionStorage.setItem('expires_in', info.expires_in);
 
-      const expires_in = info.expires_in;
-      const dateCurr = new Date();
-      const timeStampCurr = Math.floor(dateCurr.getTime() / 1000); /* current time seconds */
-      const expireTime = timeStampCurr + expires_in - 300; /* time 5 min before token expire */
-      sessionStorage.setItem('accessTokenExpireTime', '' + expireTime);
-    });
+        const expires_in = info.expires_in;
+        const dateCurr = new Date();
+        const timeStampCurr = Math.floor(
+          dateCurr.getTime() / 1000
+        ); /* current time seconds */
+        const expireTime =
+          timeStampCurr + expires_in - 300; /* time 5 min before token expire */
+        sessionStorage.setItem('accessTokenExpireTime', '' + expireTime);
+      });
   }
 
   ssoLogout() {
     sessionStorage.clear();
   }
-
 }

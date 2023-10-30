@@ -159,38 +159,6 @@ export class DetailViewComponent implements OnInit {
     });
   }
 
-  getEndpointData(endpoint: string): Observable<any> {
-    const polling$ = interval(this.refreshInterval).pipe(
-      startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(endpoint))
-    );
-    return polling$;
-  }
-
-  getPeriodQuarterStartEndTime() {
-    this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
-      data.forEach((row) => {
-        if (row['CLOSE_TYPE'] == 'PRECLOSE') {
-          this.preclosePeriod = row['PERIOD_NAME'];
-          this.precloseQuarter = row['QUARTER'];
-        }
-      });
-    });
-  }
-
-  extractDatePrettify(date: string) {
-    let dateParts = date.split('T')[0].split('-');
-    let year = dateParts[0];
-    let month = dateParts[1];
-    let day = dateParts[2];
-
-    let timeParts = date.split('T')[1].split('.');
-    let time = timeParts[0];
-
-    let prettyDate = `${month}/${day}/${year} ${time} PST`;
-    return prettyDate;
-  }
-
   @Input() data: any;
 
   isAllSelected() {

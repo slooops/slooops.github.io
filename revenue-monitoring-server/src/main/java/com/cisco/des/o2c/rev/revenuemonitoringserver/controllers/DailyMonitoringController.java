@@ -3,11 +3,13 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.packages.ErrorSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -113,9 +115,11 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/order-status")
-    public ResponseEntity<List<Map<String, Object>>> getOrderStatus(){
+    public ResponseEntity<List<Map<String, Object>>> getOrderStatus(HttpServletRequest request, @RequestHeader HttpHeaders header){
+        System.out.println(request.getHeader("auth_user"));
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
     }
+
 
     @GetMapping("/invoice-tracker-header")
     public ResponseEntity<List<Map<String, Object>>> getInvoiceTrackerHeader(){

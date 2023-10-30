@@ -58,14 +58,24 @@
     <a [routerLink]="['/detail-view']" (click)="viewDetails(mostRecords)">
       <div class="callout-box">
         <div class="box-header">Top Source</div>
-        <div class="box-body">{{ mostRecords?.APPLICATION_NAME }}</div>
+        <div class="box-body">
+          {{
+            mostRecords?.APPLICATION_NAME == "AI_ERROR"
+              ? "AI Error"
+              : mostRecords?.APPLICATION_NAME
+          }}
+        </div>
       </div>
     </a>
 
     <a [routerLink]="['/detail-view']" (click)="viewDetails(lowDollar)">
       <div class="callout-box">
         <div class="box-header">Most Expensive</div>
-        <div class="box-body">{{ lowDollar?.ENTITY | truncate }}</div>
+        <div class="box-body">
+          {{
+            lowDollar?.ENTITY | truncate | titleCaseWithExceptions : "US" : "UK"
+          }}
+        </div>
       </div>
     </a>
 
@@ -79,7 +89,13 @@
     <a [routerLink]="['/detail-view']" (click)="viewDetails(mostRecords)">
       <div class="callout-box">
         <div class="box-header">Most Records</div>
-        <div class="box-body">{{ mostRecords?.ENTITY | truncate }}</div>
+        <div class="box-body">
+          {{
+            mostRecords?.ENTITY
+              | truncate
+              | titleCaseWithExceptions : "US" : "UK"
+          }}
+        </div>
       </div>
     </a>
   </div>
@@ -100,7 +116,7 @@
             *ngFor="let appName of appNameOptions"
             [value]="appName"
             (onSelectionChange)="filter()"
-            >{{ appName }}</mat-option
+            >{{ appName == "AI_ERROR" ? "AI Error" : appName }}</mat-option
           >
         </mat-select>
       </mat-form-field>
@@ -194,7 +210,13 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header>
         Application Name
       </th>
-      <td mat-cell *matCellDef="let record">{{ record.APPLICATION_NAME }}</td>
+      <td mat-cell *matCellDef="let record">
+        {{
+          record.APPLICATION_NAME == "AI_ERROR"
+            ? "AI Error"
+            : record.APPLICATION_NAME
+        }}
+      </td>
     </ng-container>
 
     <!-- Batch Source Column -->
@@ -206,7 +228,9 @@
     <!-- Entity Column -->
     <ng-container matColumnDef="ENTITY">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Entity</th>
-      <td mat-cell *matCellDef="let record">{{ record.ENTITY }}</td>
+      <td mat-cell *matCellDef="let record">
+        {{ record.ENTITY | titleCaseWithExceptions : "US" : "UK" }}
+      </td>
     </ng-container>
 
     <!-- Transaction Type Column -->
@@ -232,9 +256,9 @@
     <!-- <ng-container matColumnDef="CREATION_DATE">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Creation Date</th>
       <td mat-cell *matCellDef="let record">{{ record.CREATION_DATE }}</td>
-    </ng-container> -->
+    </ng-container>
 
-    <!-- <ng-container matColumnDef="PROCESSED_DATE">
+    <ng-container matColumnDef="PROCESSED_DATE">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>Processed Date</th>
       <td mat-cell *matCellDef="let record">{{ record.PROCESSED_DATE }}</td>
     </ng-container> -->
@@ -257,7 +281,7 @@
   </div>
 
   <mat-paginator
-    [pageSize]="100"
+    [pageSize]="15"
     length="length"
     [pageSizeOptions]="[]"
     showFirstLastButtons

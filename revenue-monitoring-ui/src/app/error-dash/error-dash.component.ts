@@ -1,27 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
-import { switchMap, startWith } from 'rxjs/operators';
-import { Observable, interval } from 'rxjs';
+
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-// import { Chart, registerables } from 'chart.js';
-// Chart.register(...registerables);
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { NgChartsModule } from 'ng2-charts';
-import { TruncatePipe } from '../shared/truncate.pipe';
+import { FormControl, FormGroup } from '@angular/forms';
 import { subDays, format } from 'date-fns';
-import { groupBy, map, reduce, forEach } from 'lodash';
+import { groupBy, map, forEach } from 'lodash';
 
 @Component({
   selector: 'app-error-dash',
@@ -31,10 +19,6 @@ import { groupBy, map, reduce, forEach } from 'lodash';
 export class ErrorDashComponent implements OnInit {
   protected http: ApiHttpService;
   length: number;
-
-  preclosePeriod: String = '';
-  precloseQuarter: String = '';
-  refreshInterval = 120000; //ms
 
   searchForm: FormGroup = new FormGroup({
     appName: new FormControl(''),
@@ -97,7 +81,6 @@ export class ErrorDashComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   ngOnInit(): void {
-    // this.getPeriodQuarterStartEndTime();
     this.getErrorSummary();
   }
 
@@ -117,7 +100,7 @@ export class ErrorDashComponent implements OnInit {
       const mostRecentDataDate = new Date(
         Math.max(
           ...this.errorDashData.map((item) =>
-            new Date(item.CREATION_DATE).getTime()
+            this.safariFriendlyDate(item.PROCESSED_DATE).getTime()
           )
         )
       );
@@ -126,29 +109,47 @@ export class ErrorDashComponent implements OnInit {
       const oneQuarterLookback = subDays(mostRecentDataDate, 90);
 
       const recentData = this.errorDashData.filter(
-        (item) => new Date(item.CREATION_DATE) >= oneQuarterLookback
+        (item) =>
+          this.safariFriendlyDate(item.CREATION_DATE) >= oneQuarterLookback
       );
 
-      // Format the creation date to just show the date
-      recentData.forEach((item) => {
-        item.CREATION_DATE = format(new Date(item.CREATION_DATE), 'M/d');
-        item.PROCESSED_DATE = format(new Date(item.PROCESSED_DATE), 'M/d');
+      // Sort recentData based on CREATION_DATE
+      recentData.sort((a, b) => {
+        return (
+          this.safariFriendlyDate(a.CREATION_DATE).getTime() -
+          this.safariFriendlyDate(b.CREATION_DATE).getTime()
+        );
       });
 
-      this.chartLabels = Array.from(
-        new Set(recentData.map((item) => item.CREATION_DATE))
-      ).sort();
+      // Format the ISO date to just show the date
+      recentData.forEach((item) => {
+        item.FORMATTED_CREATION_DATE = format(
+          this.safariFriendlyDate(item.CREATION_DATE),
+          'M/d'
+        );
+        item.FORMATTED_PROCESSED_DATE = format(
+          this.safariFriendlyDate(item.PROCESSED_DATE),
+          'M/d'
+        );
+      });
 
-      const groupedByBatchSource = groupBy(recentData, 'BATCH_SOURCE');
+      // Now you can create the set for chartLabels
+      this.chartLabels = Array.from(
+        new Set(recentData.map((item) => item.FORMATTED_CREATION_DATE))
+      );
 
       // Batch Source Graph
+      const groupedByBatchSource = groupBy(recentData, 'BATCH_SOURCE');
+
       this.chartData = map(
         groupedByBatchSource,
         (group, batchSource, index) => {
           const data = new Array(this.chartLabels.length).fill(0);
 
           forEach(group, (item) => {
-            const index = this.chartLabels.indexOf(item.CREATION_DATE);
+            const index = this.chartLabels.indexOf(
+              item.FORMATTED_CREATION_DATE
+            );
             if (index !== -1) {
               data[index] = item.NO_OF_RECORDS;
             }
@@ -167,15 +168,15 @@ export class ErrorDashComponent implements OnInit {
       this.chartDataAppName = [];
 
       forEach(groupedByAppName, (group, appName) => {
-        // Creation date data
         const creationData = new Array(this.chartLabels.length).fill(0);
-        // Processed date data
         const processedData = new Array(this.chartLabels.length).fill(0);
 
         forEach(group, (item) => {
-          const creationIndex = this.chartLabels.indexOf(item.CREATION_DATE);
+          const creationIndex = this.chartLabels.indexOf(
+            item.FORMATTED_CREATION_DATE
+          );
           const processedIndex = this.chartLabels.indexOf(
-            format(new Date(item.PROCESSED_DATE), 'M/d')
+            format(this.safariFriendlyDate(item.PROCESSED_DATE), 'M/d')
           );
 
           if (creationIndex !== -1) {
@@ -222,6 +223,15 @@ export class ErrorDashComponent implements OnInit {
     });
   }
 
+  safariFriendlyDate(dateString: string): Date {
+    const [date, time] = dateString.split('T');
+    const [YYYY, MM, DD] = date.split('-').map((part) => parseInt(part, 10));
+    const [HH, mm, ss] = time
+      .split(':')
+      .map((part) => parseInt(part.split('.')[0], 10));
+    return new Date(YYYY, MM - 1, DD, HH, mm, ss);
+  }
+
   filterData() {
     let appName = [];
     let batchSource = [];
@@ -263,38 +273,6 @@ export class ErrorDashComponent implements OnInit {
     });
   }
 
-  getEndpointData(endpoint: string): Observable<any> {
-    const polling$ = interval(this.refreshInterval).pipe(
-      startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(endpoint))
-    );
-    return polling$;
-  }
-
-  getPeriodQuarterStartEndTime() {
-    this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
-      data.forEach((row) => {
-        if (row['CLOSE_TYPE'] == 'PRECLOSE') {
-          this.preclosePeriod = row['PERIOD_NAME'];
-          this.precloseQuarter = row['QUARTER'];
-        }
-      });
-    });
-  }
-
-  extractDatePrettify(date: string) {
-    let dateParts = date.split('T')[0].split('-');
-    let year = dateParts[0];
-    let month = dateParts[1];
-    let day = dateParts[2];
-
-    let timeParts = date.split('T')[1].split('.');
-    let time = timeParts[0];
-
-    let prettyDate = `${month}/${day}/${year} ${time} PST`;
-    return prettyDate;
-  }
-
   selection = new SelectionModel<any>(true, []);
   selectedData: errorDashModel[] = [];
 
@@ -319,7 +297,6 @@ export class ErrorDashComponent implements OnInit {
       this.dataService.setErrorData(this.selectedData);
     }
     this.dataService.setAllErrorsSelected(this.isAllSelected());
-    // Navigate to the detail view component
     this.router.navigate(['/detail-view']);
   }
 
@@ -332,6 +309,8 @@ export class ErrorDashComponent implements OnInit {
 }
 
 export interface errorDashModel {
+  FORMATTED_CREATION_DATE: string;
+  FORMATTED_PROCESSED_DATE: string;
   PERIOD_YEAR: number;
   PERIOD_NAME: number;
   APPLICATION_NAME: string;

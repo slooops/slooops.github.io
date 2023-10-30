@@ -64,6 +64,7 @@ import { TruncatePipe } from './shared/truncate.pipe';
 import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
+import { TitleCaseWithExceptionsPipe } from './title-case-with-exceptions.pipe';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -92,6 +93,7 @@ export function initApp(authService: AuthenticationService) {
     InvoiceTrackerComponent,
     Wd0DashComponent,
     Wd0HistoricalDataComponent,
+    TitleCaseWithExceptionsPipe,
   ],
   imports: [
     BrowserModule,
