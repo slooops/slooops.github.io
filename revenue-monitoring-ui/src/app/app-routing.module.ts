@@ -18,29 +18,100 @@ import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/wd0-dash',
+    redirectTo: '/period-close-tracking-preclose',
     pathMatch: 'full',
   },
-  { path: 'login', component: LoginComponent },
-  { path: 'home', component: HomeComponent },
-  { path: 'standard-ar', component: StandardArExceptionsComponent },
-  { path: 'tsv-exceptions-top-sku', component: TsvExceptionsTopSkuComponent },
-  { path: 'tsv-exceptions-sub-sku', component: TsvExceptionsSubSkuComponent },
-  { path: 'revenue-controls', component: RevenueControlsComponent },
+  {
+    path: 'login',
+    component: LoginComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
+  {
+    path: 'home',
+    component: HomeComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
+  {
+    path: 'standard-ar',
+    component: StandardArExceptionsComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
+  {
+    path: 'tsv-exceptions-top-sku',
+    component: TsvExceptionsTopSkuComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
+  {
+    path: 'tsv-exceptions-sub-sku',
+    component: TsvExceptionsSubSkuComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
+  {
+    path: 'revenue-controls',
+    component: RevenueControlsComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
   {
     path: 'period-close-tracking-preclose',
     component: PrecloseComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Control Tower',
+    },
   },
   {
     path: 'period-close-tracking-midclose',
     component: MidcloseComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Control Tower',
+    },
   },
-  { path: 'error-dash', component: ErrorDashComponent },
-  { path: 'detail-view', component: DetailViewComponent },
-  { path: 'invoice-status', component: OrderLifecycleComponent },
-  { path: 'invoice-tracker', component: InvoiceTrackerComponent },
-  { path: 'wd0-dash', component: Wd0DashComponent },
-  { path: 'historical-data', component: Wd0HistoricalDataComponent },
+  {
+    path: 'error-dash',
+    component: ErrorDashComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Control Tower',
+    },
+  },
+  {
+    path: 'detail-view',
+    component: DetailViewComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Control Tower',
+    },
+  },
+  {
+    path: 'invoice-status',
+    component: OrderLifecycleComponent,
+    data: {
+      title: 'Large Deal Processing Tracker',
+      header: 'Large Deal Processing Tracker',
+    },
+  },
+  {
+    path: 'invoice-tracker',
+    component: InvoiceTrackerComponent,
+    data: { title: 'Home', header: 'Home' },
+  },
+  {
+    path: 'wd0-dash',
+    component: Wd0DashComponent,
+    data: {
+      title: 'WD+0 Mid Close Status Dashboard',
+      header: 'WD+0 Mid Close Status Dashboard',
+    },
+  },
+  {
+    path: 'historical-data',
+    component: Wd0HistoricalDataComponent,
+    data: {
+      title: 'WD+0 Mid Close Status Dashboard',
+      header: 'WD+0 Mid Close Status Dashboard',
+    },
+  },
 ];
 
 @NgModule({
