@@ -1,0 +1,48 @@
+.color-green {
+  /* color: rgb(21, 213, 21); */
+  color: #78c000;
+}
+
+.color-orange {
+  /* color: orange; */
+  color: #ffd429;
+}
+
+th {
+  text-align: center !important;
+}
+
+td {
+  text-align: center !important;
+}
+
+.arclosetable .table th {
+  background-color: #049fd9 !important;
+  color: white;
+  text-wrap: wrap;
+  width: 12%;
+}
+
+.reduce-space {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+.blueTxt {
+  color: blue;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 1024px) {
+  .media {
+    font-size: smaller !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .media {
+    font-size: 8px !important;
+  }
+}

@@ -24,7 +24,7 @@
     >
       Revenue Controls
     </mat-list-item> -->
-    <mat-expansion-panel
+    <!-- <mat-expansion-panel
       [class.mat-elevation-z0]="true"
       style="background-color: #007dab"
       [expanded]="true"
@@ -47,7 +47,7 @@
           Mid-close
         </mat-list-item>
       </mat-nav-list>
-    </mat-expansion-panel>
+    </mat-expansion-panel> -->
     <!-- <mat-list-item
       [routerLink]="['/period-close-tracking']"
       routerLinkActive="active"
@@ -60,5 +60,15 @@
     <!-- <mat-list-item [routerLink]="['/invoice-status']" routerLinkActive="active">
       Order Lifecycle
     </mat-list-item> -->
+
+    <mat-list-item [routerLink]="['/wd0-dash']" routerLinkActive="active">
+      WD+0 Mid Close Status
+    </mat-list-item>
+    <mat-list-item
+      [routerLink]="['/historical-data']"
+      routerLinkActive="active"
+    >
+      Mid Close Volumes
+    </mat-list-item>
   </mat-nav-list>
 </div>

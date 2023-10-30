@@ -69,6 +69,15 @@ public class QueryConfigs { // TODO
     @Value("$INVOICE_TRACKER_LINE_QUERY}")
     public String invoiceTrackerLine;
 
+    @Value("${wd0.ar.midclose.status.query}")
+    public String wd0ArMidCloseStatusQuery;
+
+    @Value("${wd0.ar.midclose.header.data.query}")
+    public String wd0ArMidCloseHeaderDataQuery;
+
+    @Value("${wd0.historical.data.q}")
+    public String wd0HistoricalDataQuery;
+
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -131,4 +140,13 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "invoiceTrackerLine" )
     public String getInvoiceTrackerline() {return this.invoiceTrackerLine; }
+
+    @Bean( name = "wd0ArMidCloseStatusQuery")
+    public String getWd0ArMidCloseStatusQuery() { return this.wd0ArMidCloseStatusQuery; }
+
+    @Bean( name = "wd0ArMidCloseHeaderDataQuery")
+    public String getWd0ArMidCloseHeaderDataQuery() { return this.wd0ArMidCloseHeaderDataQuery; }
+
+    @Bean(name = "wd0HistoricalDataQuery")
+    public String getWd0HistoricalDataQuery(){ return this.wd0HistoricalDataQuery; }
 }
