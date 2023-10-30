@@ -100,9 +100,9 @@ spec:
             - path: /
               pathMatch: prefix
           when:
-            - kind: userId
+            - kind: memberOf
               values:
-                - "*"
+                - "i2c-it-ops-perioclose"
   provider:
     cors: platform
     idp: duo
