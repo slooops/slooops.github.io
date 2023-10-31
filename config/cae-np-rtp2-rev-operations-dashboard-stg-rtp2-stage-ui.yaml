@@ -93,7 +93,7 @@ spec:
           when:
             - kind: clientId
               values:
-                - "frs-oauth-prod"
+                - "frs-oauth-nprd"
     web:
       allow:
         - paths:
