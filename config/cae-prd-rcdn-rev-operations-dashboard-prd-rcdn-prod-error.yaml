@@ -266,6 +266,10 @@ spec:
             - kind: memberOf
               values:
                 - "i2c-it-ops-admin"
+        - when:
+            - kind: userId
+              values:
+                - "*"
   provider:
     cors: platform
     idp: duo
