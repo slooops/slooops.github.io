@@ -162,7 +162,15 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/wd0-historical-data")
-    public ResponseEntity<List<Map<String, Object>>> getWd0HistoricalData() {
+    public ResponseEntity<List<Map<String, Object>>> getWd0HistoricalData(HttpServletRequest request,
+                                                                          @RequestBody(required = false) String reqBody, @RequestHeader HttpHeaders headers) {
+        System.out.println(headers);
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            System.out.println(headerName + ": " + headerValue);
+        }
         return new ResponseEntity<>(service.getWd0HistoricalData(), HttpStatus.OK);
     }
 

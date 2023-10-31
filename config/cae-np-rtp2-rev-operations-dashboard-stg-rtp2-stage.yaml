@@ -205,7 +205,7 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: operations-dashboard-api.cisco.com
+  name: operations-dashboard-api-stg.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
   annotations:
     ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
