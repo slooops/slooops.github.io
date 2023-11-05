@@ -2,6 +2,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
@@ -22,6 +23,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   protected http: ApiHttpService;
 
   newDataSource: any;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
   length: number;
   isNaN: Function = Number.isNaN;
 
@@ -225,6 +227,22 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.newDataSource = new MatTableDataSource(this.groupedData);
 
     this.length = this.groupedData.length;
+  }
+
+  applySort() {
+    this.groupedData.sort((a, b) => {
+      if (a.ACCOUNT < b.ACCOUNT) {
+        return -1;
+      }
+      if (a.ACCOUNT > b.ACCOUNT) {
+        return 1;
+      }
+      return 0;
+    });
+
+    this.newDataSource.data = this.groupedData;
+
+    console.log(this.newDataSource.data);
   }
 
   flattenData(groupedData) {

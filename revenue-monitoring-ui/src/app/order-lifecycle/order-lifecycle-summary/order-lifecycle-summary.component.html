@@ -1,37 +1,31 @@
-<h2 mat-dialog-title>
-  Order Lifecycle Summary
-  <a style="float: right !important; text-decoration: none"
+<h4 mat-dialog-title>
+  Large Deal Summary
+  <a
+    style="
+      float: right !important;
+      text-decoration: none;
+      margin-top: 8px !important;
+    "
     ><i
+      class="fa fa-download"
+      style="font-size: 20px; color: gray"
+      aria-hidden="true"
+      (click)="
+        exportTableToExcel(
+          summaryModel,
+          'Large Deal Summary',
+          'large_deal_summary'
+        )
+      "
+    ></i
+    >&nbsp;&nbsp;
+    <i
       class="fa fa-close"
-      style="font-size: 24px; color: gray"
+      style="font-size: 20px; color: gray"
       (click)="closeDialog()"
     ></i
   ></a>
-</h2>
-
-<div
-  style="
-    display: flex;
-    justify-content: end;
-    align-items: center;
-    padding-bottom: 8px;
-  "
->
-  <button
-    mat-stroked-button
-    (click)="
-      exportTableToExcel(
-        summaryModel,
-        'Large Order Lifecycle SUmmary',
-        'large_order_lifecycle_summary'
-      )
-    "
-  >
-    Download
-  </button>
-</div>
-
-<!-- <button mat-stroked-button (click)="closeDialog()">X</button> -->
+</h4>
 
 <mat-dialog-content>
   <div class="periodclosetbale sortArrow" style="max-width: 100%">
