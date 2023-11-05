@@ -19,6 +19,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     return from(this.auth.getValidToken()).pipe(
       switchMap((inf) => {
         const token: string = sessionStorage.getItem('accessToken') || '';
+        console.log(req.headers);
 
         if (!req.headers.has('Authorization')) {
           if (token) {
@@ -40,8 +41,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
             headers: req.headers.set('Accept', 'application/json'),
           });
         }
-
-        console.log(req.headers);
 
         return next.handle(req);
       })
