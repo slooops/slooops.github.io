@@ -89,10 +89,7 @@ export class AuthenticationService {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
-      .then((response) => {
-        console.log(response.json());
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((info) => {
         const tknObjStr = JSON.stringify(info);
         sessionStorage.setItem('refreshTokenData', tknObjStr);
