@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://error-dashboard-api.cisco.com/api/",
+    "target": "https://error-dashboard-dev-api.cisco.com/api/",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
