@@ -15,7 +15,7 @@ public class UserRoleInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        Collections.list(request.getHeaderNames()).forEach(System.out::println);
+//        Collections.list(request.getHeaderNames()).forEach();
     return true;
     }
 

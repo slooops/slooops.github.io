@@ -19,8 +19,6 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     return from(this.auth.getValidToken()).pipe(
       switchMap((inf) => {
         const token: string = sessionStorage.getItem('accessToken') || '';
-        console.log(req.headers);
-
         if (!req.headers.has('Authorization')) {
           if (token) {
             req = req.clone({

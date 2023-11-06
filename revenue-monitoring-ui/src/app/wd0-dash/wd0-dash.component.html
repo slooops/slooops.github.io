@@ -1,17 +1,18 @@
 <div class="row media" style="margin-bottom: 5px; margin-top: 5px">
   <span class="col-sm-9 media" style="font-size: small">
-    <label>Expected Mid Close Start Time:</label>
+    <label class="labelFont">Expected Mid Close Start Time:</label>
     {{ expectedStartTime }} &nbsp;|&nbsp;
-    <label>Expected Mid Close End Time:</label>
+    <label class="labelFont">Expected Mid Close End Time:</label>
     {{ expectedEndTime }} &nbsp;|&nbsp;
-    <label>Actual Mid Close Start Time:</label> &nbsp;
+    <label class="labelFont">Actual Mid Close Start Time:</label> &nbsp;
     <span
       [ngClass]="
         actualStartDate <= expectedStartDate ? 'color-green' : 'color-orange'
       "
       >{{ actualStartTime }}</span
     >
-    &nbsp;|&nbsp; <label>Actual Mid Close End Time:</label> &nbsp;
+    &nbsp;|&nbsp;
+    <label class="labelFont">Actual Mid Close End Time:</label> &nbsp;
     <span
       [ngClass]="
         actualEndDate <= expectedEndDate ? 'color-green' : 'color-orange'
@@ -19,12 +20,12 @@
       >{{ actualEndTime }}</span
     >&nbsp;|&nbsp;
     <br />
-    <label
+    <label class="labelFont"
       >Eliminations, Stat Rules and Consolidations Expected End
       Time:&nbsp;</label
     >
     {{ elimStatConsExpectedEndTime }} &nbsp;|&nbsp;
-    <label
+    <label class="labelFont"
       >Eliminations, Stat Rules and Consolidations Actual End Time:&nbsp;</label
     >
     {{ elimStatConsActualEndTime }}
@@ -34,7 +35,8 @@
       Dashboard updated: Today at {{ timeNow }}
     </div>
     <div style="float: right; margin-right: 5px">
-      <label>Quarter:</label> {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
+      <label class="labelFont">Quarter:</label>
+      {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
       {{ periodName }}
     </div>
   </span>
@@ -46,7 +48,7 @@
     style="font-size: small; margin-top: 4px; margin-right: 5px"
   >
     <p class="clearfix">
-      <label class="reduce-space">Sequence Infomation: &nbsp;</label>
+      <label class="reduce-space labelFont">Sequence Infomation: &nbsp;</label>
       <span class="collapsable float-left">
         {{
           info.length > firstCount ? (info | slice : 0 : counter) + "..." : info
@@ -69,7 +71,6 @@
       </tr>
     </thead>
     <tbody>
-      <!--To display values when data source is in simple json form like DataSource-->
       <tr *ngFor="let row of wd0ArMidCloseTableData">
         <td *ngFor="let category of templateObject.keys(row)">
           <span *ngIf="row[category] === 'Completed'" class="color-green">

@@ -1,13 +1,13 @@
-<br />
-<div style="float: right; margin-top: 0px">
+<div style="float: right; margin-top: 5px">
   Dashboard updated: Today at {{ timeNow }}
 </div>
-<h3 style="margin-left: 10px">AR Period Close Progress: Pre-close</h3>
-<br />
+<h4 style="margin-left: 10px; margin-top: 5px">
+  AR Period Close Progress: Pre-close
+</h4>
 <div style="overflow-x: hidden; padding-left: 10px">
   <div>
     <div class="row">
-      <span class="col-sm-9" style="float: left">
+      <span class="col-sm-9" style="float: left; font-size: small">
         <p>
           <label>Expected Start Time:</label>
           {{ preCloseStartTime }} &nbsp;|&nbsp;
@@ -18,7 +18,7 @@
         </p>
       </span>
       <span class="col-sm-3">
-        <p style="float: right">
+        <p style="float: right; font-size: small">
           <label>Quarter:</label> {{ precloseQuarter }} &nbsp;|&nbsp;
           <label>Period:</label>
           {{ preclosePeriod }}
@@ -82,8 +82,11 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <div class="periodclosetbale">
-    <table class="table table-responsive equal-width">
+  <div class="periodclosetbale" style="overflow: auto; max-width: 100%">
+    <table
+      style="width: -webkit-fill-available"
+      class="table table-responsive equal-width"
+    >
       <thead>
         <tr>
           <th *ngFor="let col of meStatusColumns">{{ col }}</th>

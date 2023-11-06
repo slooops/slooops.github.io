@@ -46,3 +46,7 @@ td {
     font-size: 8px !important;
   }
 }
+
+.labelFont {
+  font-size: 12px;
+}
