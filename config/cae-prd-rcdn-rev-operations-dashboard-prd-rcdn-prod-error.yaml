@@ -265,7 +265,7 @@ spec:
           when:
             - kind: memberOf
               values:
-                - "i2c-it-ops-admin"
+                - "i2c-it-ops-perioclose"
         - when:
             - kind: userId
               values:
