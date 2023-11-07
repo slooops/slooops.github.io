@@ -17,7 +17,7 @@ RUN chown -R node:root /ui
 
 EXPOSE 4200
 
-CMD ng serve --host 0.0.0.0 &
+RUN ng serve --host 0.0.0.0
 
 WORKDIR /proxy-server
 COPY ./node-proxy-server /proxy-server
