@@ -21,9 +21,6 @@ RUN chown -R node:root /ui
 # Expose port for Angular app
 EXPOSE 4200
 
-# Switch to a non-root user
-USER 1000
-
 # Install PM2 globally
 RUN npm install -g pm2
 
