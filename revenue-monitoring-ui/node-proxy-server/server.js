@@ -10,7 +10,7 @@ const proxyPath = "/api";
 
 const targetURL = "https://error-dashboard-dev-api.cisco.com";
 
-app.use((req, next) => {
+app.use((req, res, next) => {
   console.log("Request Header from SSO:", req.headers["auth_user"]);
   next();
 });
