@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
@@ -6,7 +7,7 @@ const port = process.env.PORT || 3000;
 
 // Define the path for the proxy, e.g., '/api', and the target URL
 const proxyPath = "/api";
-const targetURL = "https://error-dashboard-dev-api.cisco.com"; // Target the same server as your Angular app
+const targetURL = "http://localhost:8080"; // Target the same server as your Angular app
 
 app.use((req, res, next) => {
   console.log("Request Headers from SSO:", req.headers);
@@ -25,6 +26,14 @@ const apiProxy = createProxyMiddleware(proxyPath, {
 
 // Use the API proxy middleware
 app.use(proxyPath, apiProxy);
+
+app.use(express.static("../angular-app/dist"));
+
+app.use(express.static(path.join(__dirname, "../angular-app/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../angular-app/dist", "index.html"));
+});
 
 // Start the proxy server
 app.listen(port, () => {
