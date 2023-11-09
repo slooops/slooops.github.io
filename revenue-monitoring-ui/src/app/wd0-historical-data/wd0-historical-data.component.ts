@@ -147,6 +147,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
         this.historicalData
       );
 
+      console.log(this.historicalData);
+
       // Once the data is fetched, generate the charts
       this.generateLineChart(this.historicalData);
       this.generateBarChart(this.historicalData);
@@ -217,25 +219,40 @@ export class Wd0HistoricalDataComponent implements OnInit {
   // Method to sum entity data
   sumEntityData(historicalData: HistoricalDataModel[]): any {
     const entitySums = {};
-    historicalData.forEach((data) => {
-      const entity = data.ENTITY;
-      if (!entitySums[entity]) {
-        entitySums[entity] = {};
+    let currentEntity = '';
+
+    historicalData.forEach((data, index) => {
+      // Skip the 'Grand Total' line
+      if (data.ENTITY === 'Grand Total') {
+        return;
       }
+
+      // If the entity is not null, it's a new country
+      if (data.ENTITY) {
+        currentEntity = data.ENTITY;
+      }
+
+      // Ensure the entity has been initialized in the entitySums
+      if (!entitySums[currentEntity]) {
+        entitySums[currentEntity] = {};
+      }
+
+      // Sum up the values for the current entity
       Object.keys(data).forEach((key) => {
         if (
           key.includes('_') &&
           !['ENTITY', 'LINE_TYPE', 'SEQUENCE_NUMBER'].includes(key)
         ) {
           const value = parseInt(data[key] || '0', 10);
-          if (entitySums[entity][key]) {
-            entitySums[entity][key] += value;
+          if (entitySums[currentEntity][key]) {
+            entitySums[currentEntity][key] += value;
           } else {
-            entitySums[entity][key] = value;
+            entitySums[currentEntity][key] = value;
           }
         }
       });
     });
+
     return entitySums;
   }
 
