@@ -6,7 +6,6 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const proxyPath = "/api";
-// const targetURL = "http://localhost:8080";
 
 const targetURL = "https://error-dashboard-dev-api.cisco.com";
 
@@ -27,7 +26,6 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../ui/dist", "index.html"));
 });
 
-// Start the proxy server
 app.listen(port, () => {
   console.log(`Proxy server is running on port ${port}`);
 });
