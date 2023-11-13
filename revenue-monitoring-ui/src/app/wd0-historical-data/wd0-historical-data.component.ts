@@ -124,10 +124,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
           }
         }
       });
-      const grandTotalObject = { ENTITY: 'Grand Total' };
+      const grandTotalObject = { ENTITY: 'Grand Total', LINE_TYPE: 'Total' }; // Added LINE_TYPE here
       for (const key in grandTotal) {
         grandTotalObject[key] = grandTotal[key].toString();
       }
+
       data.unshift(grandTotalObject); // This will add the grand total to the start of the array
 
       this.historicalData = data;
@@ -148,7 +149,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       );
 
       console.log(this.historicalData);
-
       // Once the data is fetched, generate the charts
       this.generateLineChart(this.historicalData);
       this.generateBarChart(this.historicalData);
@@ -256,20 +256,37 @@ export class Wd0HistoricalDataComponent implements OnInit {
     return entitySums;
   }
 
-  // Method to get sorted months
+  // Method to get sorted months considering the fiscal year starting in August
   getSortedMonths(entityData: any): string[] {
     const allMonths = new Set<string>();
     Object.values(entityData).forEach((entity: any) => {
       Object.keys(entity).forEach((month) => allMonths.add(month));
     });
+
     const sortedMonths = Array.from(allMonths).sort((a, b) => {
       const [monthA, yearA] = a.split('_');
       const [monthB, yearB] = b.split('_');
-      const dateA = new Date(+yearA, this.monthStringToNumber(monthA) - 1);
-      const dateB = new Date(+yearB, this.monthStringToNumber(monthB) - 1);
-      return dateA.getTime() - dateB.getTime();
+      const fiscalYearA = this.getFiscalYear(monthA, yearA);
+      const fiscalYearB = this.getFiscalYear(monthB, yearB);
+      return fiscalYearA.getTime() - fiscalYearB.getTime();
     });
+
     return sortedMonths;
+  }
+
+  // Helper method to get the start of the fiscal year for a given month and year
+  getFiscalYear(month: string, year: string): Date {
+    const fiscalYearStartMonth = 8; // August
+    const monthNumber = this.monthStringToNumber(month);
+    let fiscalYear = parseInt(year, 10);
+
+    // If the month is before August, it belongs to the current fiscal year
+    if (monthNumber < fiscalYearStartMonth) {
+      fiscalYear++;
+    }
+
+    const fiscalYearStartDate = new Date(fiscalYear, fiscalYearStartMonth - 1);
+    return fiscalYearStartDate;
   }
 
   // Method to sum quarterly data
