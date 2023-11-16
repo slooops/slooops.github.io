@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-wd0-historical-data',
@@ -11,9 +12,17 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./wd0-historical-data.component.css'],
 })
 export class Wd0HistoricalDataComponent implements OnInit {
+  @ViewChild('barChartTemplate') barChartTemplate: TemplateRef<any>;
+  @ViewChild('lineChartTemplate') lineChartTemplate: TemplateRef<any>;
+
+  private lineChart: Chart | null = null;
+  private barChart: Chart | null = null;
+
+  private currentDialogRef: MatDialogRef<any>;
+
   protected http: ApiHttpService;
 
-  constructor(http: ApiHttpService) {
+  constructor(http: ApiHttpService, private dialog: MatDialog) {
     this.http = http;
     Chart.register(...registerables);
   }
@@ -29,7 +38,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
     this.getHistoricalData();
   }
 
-  generateLineChart(historicalData: HistoricalDataModel[]) {
+  generateLineChart(
+    historicalData: HistoricalDataModel[],
+    canvasId: string = 'lineChartCanvasId'
+  ) {
     const filteredData = this.filterDataByDate(
       historicalData,
       new Date(2022, 9) // October 2022
@@ -37,7 +49,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
     const entityData = this.sumEntityData(filteredData);
     const labels = this.getSortedMonths(entityData).map((label) =>
       label.replace(/_/g, ' ')
-    ); // Replace underscores
+    );
 
     const datasets = Object.keys(entityData).map((entity) => {
       return {
@@ -49,7 +61,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       };
     });
 
-    new Chart('lineChartCanvasId', {
+    this.lineChart = new Chart(canvasId, {
       type: 'line',
       data: {
         labels: labels,
@@ -65,7 +77,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
-  generateBarChart(historicalData: HistoricalDataModel[]) {
+  generateBarChart(
+    historicalData: HistoricalDataModel[],
+    canvasId: string = 'barChartCanvasId'
+  ) {
     const filteredData = this.filterDataByDate(
       historicalData,
       new Date(2022, 9)
@@ -94,7 +109,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       },
     ];
 
-    new Chart('barChartCanvasId', {
+    this.barChart = new Chart(canvasId, {
       type: 'bar',
       data: {
         labels: labels,
@@ -148,7 +163,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
         this.historicalData
       );
 
-      console.log(this.historicalData);
       // Once the data is fetched, generate the charts
       this.generateLineChart(this.historicalData);
       this.generateBarChart(this.historicalData);
@@ -178,6 +192,39 @@ export class Wd0HistoricalDataComponent implements OnInit {
     link.download = filename + '.xlsx';
     link.click(); // triggers the download process and save file prompt in browser
     window.URL.revokeObjectURL(url); // revoke temp URL
+  }
+
+  openChartDialog(chartType: string): void {
+    let dialogRef;
+    if (chartType === 'bar') {
+      dialogRef = this.dialog.open(this.barChartTemplate, {
+        width: '80vw',
+      });
+    } else if (chartType === 'line') {
+      dialogRef = this.dialog.open(this.lineChartTemplate, {
+        width: '80vw',
+      });
+    }
+
+    dialogRef.afterOpened().subscribe(() => {
+      if (chartType === 'bar') {
+        this.generateBarChart(this.historicalData, 'modalBarChartCanvasId');
+      } else if (chartType === 'line') {
+        this.generateLineChart(this.historicalData, 'modalLineChartCanvasId');
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      // Handle tasks after closing the dialog
+    });
+
+    this.currentDialogRef = dialogRef; // Store the reference
+  }
+
+  closeDialog(): void {
+    if (this.currentDialogRef) {
+      this.currentDialogRef.close();
+    }
   }
 
   filterDataByDate(
@@ -289,7 +336,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
     return fiscalYearStartDate;
   }
 
-  // Method to sum quarterly data
   sumQuarterlyData(historicalData: HistoricalDataModel[]): any {
     const quarterlySums = {};
     historicalData.forEach((data) => {
@@ -299,15 +345,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
           !['ENTITY', 'LINE_TYPE', 'SEQUENCE_NUMBER'].includes(key)
         ) {
           const [month, year] = key.split('_');
-          const quarter = `Q${Math.ceil(
-            this.monthStringToNumber(month) / 3
-          )}_${year}`;
+          const quarter = this.getFiscalQuarter(month, year);
           const lineType = data.LINE_TYPE ? data.LINE_TYPE.toLowerCase() : null;
           const valueString = data[key];
           const value = valueString ? parseInt(valueString, 10) : 0;
 
           if (lineType && !isNaN(value)) {
-            // Check if lineType is not null and value is a number
             if (!quarterlySums[quarter]) {
               quarterlySums[quarter] = { service: 0, product: 0 };
             }
@@ -317,6 +360,17 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
     });
     return quarterlySums;
+  }
+
+  private getFiscalQuarter(month: string, year: string): string {
+    const fiscalMonths = {
+      OCT: 'Q1',
+      JAN: 'Q2',
+      APR: 'Q3',
+      JUL: 'Q4',
+    };
+    const fiscalQuarter = fiscalMonths[month];
+    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
   }
 }
 

@@ -52,6 +52,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
@@ -139,6 +140,7 @@ export function initApp(authService: AuthenticationService) {
     MatCheckboxModule,
     MatPaginatorModule,
     MatExpansionModule,
+    MatDialogModule,
   ],
   providers: [
     DatePipe,

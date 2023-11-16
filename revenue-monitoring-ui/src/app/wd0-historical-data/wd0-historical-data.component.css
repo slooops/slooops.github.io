@@ -45,6 +45,7 @@ td {
 }
 
 .chart-carousel {
+  margin-top: 1vh;
   display: flex;
   /* max-height: 50vh; */
   width: 100%; /* or set to a fixed width if needed */
@@ -76,4 +77,44 @@ td {
 .scrollable-table .boldrow {
   position: sticky;
   top: 56px;
+}
+
+.chart-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.chart-header a {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black; /* Set the color of the arrows */
+}
+
+.chart-header a:hover {
+  text-decoration: none !important;
+}
+
+.expand-icon {
+  color: black; /* Set the color of the arrows */
+  font-size: 14px; /* Adjust the size as needed */
+  border: none;
+  background: none;
+}
+
+.expand-icon:hover {
+  text-decoration: none;
+}
+
+.close-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: black; /* Adjust the color as needed */
+}
+
+.close-icon:hover {
+  /* Styles for hover state */
 }

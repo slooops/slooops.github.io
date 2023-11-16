@@ -1,15 +1,46 @@
-<br />
 <div class="sticky-charts">
   <div class="chart-carousel">
     <div class="chart-box">
+      <div class="chart-header">
+        <h6>Service & Product Lines</h6>
+        <a (click)="openChartDialog('bar')">
+          <i class="fa fa-arrows-alt"></i>
+        </a>
+      </div>
       <canvas id="barChartCanvasId"></canvas>
     </div>
 
     <div class="chart-box">
+      <div class="chart-header">
+        <h6>Total Lines by Entity</h6>
+        <a (click)="openChartDialog('line')">
+          <i class="fa fa-arrows-alt"></i>
+        </a>
+      </div>
       <canvas id="lineChartCanvasId"></canvas>
     </div>
   </div>
 </div>
+
+<ng-template #barChartTemplate>
+  <div class="chart-header">
+    <h6>Service & Product Lines</h6>
+    <a (click)="closeDialog()">
+      <i class="fa fa-times"></i>
+    </a>
+  </div>
+  <canvas id="modalBarChartCanvasId"></canvas>
+</ng-template>
+
+<ng-template #lineChartTemplate>
+  <div class="chart-header">
+    <h6>Total Lines by Entity</h6>
+    <a (click)="closeDialog()">
+      <i class="fa fa-times"></i>
+    </a>
+  </div>
+  <canvas id="modalLineChartCanvasId"></canvas>
+</ng-template>
 
 <div class="row">
   <div class="col-sm-4">
