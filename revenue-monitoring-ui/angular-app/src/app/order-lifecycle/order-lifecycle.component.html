@@ -412,34 +412,44 @@
           mat-cell
           *matCellDef="let record; let i = index"
         >
-          {{
-            record.INVOICE_ELIGIBLE_DATE == "TBD"
-              ? "TBD"
-              : (record.INVOICE_ELIGIBLE_DATE | date : "M/d/yyyy")
-          }}
-          <!-- <mat-form-field floatLabel="never">
-            <input
-              matInput
-              [matDatepicker]="picker"
-              placeholder="Select Date"
-              [min]="currentDate"
-              [readonly]="true"
-              [(ngModel)]="record.INVOICE_ELIGIBLE_DATE"
-              (ngModelChange)="onDateSelected(i, record)"
-            />
-            <mat-datepicker-toggle
-              *ngIf="!dateSelected[i]"
-              matSuffix
-              [for]="picker"
-            ></mat-datepicker-toggle>
-            <i
-              class="fa fa-times"
-              aria-hidden="true"
-              *ngIf="dateSelected[i]"
-              (click)="onResetDate(i, record)"
-            ></i>
-            <mat-datepicker #picker> </mat-datepicker>
-          </mat-form-field> -->
+          <span *ngIf="!updateClo">
+            {{
+              record.INVOICE_ELIGIBLE_DATE == "TBD"
+                ? ""
+                : (record.INVOICE_ELIGIBLE_DATE | date : "M/d/yyyy")
+            }}</span
+          >
+          <span *ngIf="updateClo">
+            <mat-form-field floatLabel="never">
+              <input
+                matInput
+                [matDatepicker]="picker"
+                placeholder="Select Date"
+                [min]="currentDate"
+                [readonly]="true"
+                [(ngModel)]="record.INVOICE_ELIGIBLE_DATE"
+              />
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker>
+                <mat-datepicker-actions style="margin-top: 0px !important">
+                  <button mat-button matDatepickerCancel>Cancel</button>
+                  <button
+                    mat-raised-button
+                    style="background-color: #049fd9"
+                    matDatepickerApply
+                    (click)="
+                      saveInvoiceEligibleDate(record.INVOICE_ELIGIBLE_DATE)
+                    "
+                  >
+                    Save
+                  </button>
+                </mat-datepicker-actions>
+              </mat-datepicker>
+            </mat-form-field>
+          </span>
         </td>
       </ng-container>
 
@@ -560,8 +570,49 @@
         >
           CLO UPDATES
         </th>
-        <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
+        <td
+          class="custom-cell"
+          mat-cell
+          *matCellDef="let record; let i = index"
+        >
+          <div *ngIf="!isEditingCloUpdates(record); else editMode">
+            {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
+            <span *ngIf="updateClo && record.CLO_COMMENTS != 'TBD'">
+              <i
+                class="fa fa-pencil-square-o hoverIcon"
+                style="font-weight: bold; color: rgb(79, 78, 78)"
+                aria-hidden="true"
+                (click)="startEditing(record, i)"
+              ></i>
+            </span>
+          </div>
+          <ng-template #editMode>
+            <div>
+              <textarea
+                [(ngModel)]="record.CLO_COMMENTS"
+                placeholder="{{ originalValue }}"
+                style="
+                  width: 100% !important;
+                  margin-top: 10px !important;
+                  border-radius: 5px;
+                  font-size: small;
+                "
+              ></textarea>
+              <i
+                class="fa fa-save hoverIcon"
+                (click)="saveCloUpdates(record)"
+                style="color: #00668a; font-weight: bold"
+                >&nbsp;Save</i
+              >
+              &nbsp;
+              <i
+                class="fa fa-undo hoverIcon"
+                style="color: #2c2c2c; font-weight: bold"
+                (click)="rollbackCloUpdatesValue(record, i)"
+                >&nbsp;Undo</i
+              >
+            </div>
+          </ng-template>
         </td>
       </ng-container>
 

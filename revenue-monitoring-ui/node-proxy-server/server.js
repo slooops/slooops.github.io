@@ -9,8 +9,22 @@ const proxyPath = "/api";
 
 const targetURL = "https://error-dashboard-dev-api.cisco.com";
 
+app.use(express.json());
+
+async function makeAutomaticPost(authUser) {
+  try {
+    const postData = {
+      auth_user: authUser,
+    };
+
+    const response = await axios.post(`${targetURL}/user/auth-user`, postData);
+  } catch (error) {
+    console.error("Error in automatic POST request:", error.message);
+  }
+}
+
 app.use((req, res, next) => {
-  console.log("Request Header from SSO:", req.headers["auth_user"]);
+  makeAutomaticPost(req.headers["auth_user"]);
   next();
 });
 

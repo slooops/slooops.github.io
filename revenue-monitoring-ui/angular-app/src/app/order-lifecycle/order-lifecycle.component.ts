@@ -1,5 +1,6 @@
 import {
   Component,
+  ElementRef,
   Input,
   OnInit,
   ViewChild,
@@ -12,7 +13,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { FormGroup, FormControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
@@ -86,6 +87,9 @@ export class OrderLifecycleComponent implements OnInit {
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
   updatedData: boolean = false;
+  updateClo: boolean = true;
+  editingRow: OrderLifecycleModel;
+  originalValue: string;
 
   getOrderStatusDownload() {
     this.http.get('order-status-download').subscribe((data: any) => {
@@ -296,50 +300,34 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
-  // modifiedElements: OrderLifecycleModel[] = [];
+  isEditingCloUpdates(row: OrderLifecycleModel): boolean {
+    return this.editingRow === row;
+  }
 
-  // dateSelected: boolean[];
+  startEditing(record: OrderLifecycleModel, index: number) {
+    this.editingRow = record;
+    this.originalValue = record.CLO_COMMENTS;
+  }
 
-  // saveButton: boolean = false;
+  stopEditing() {
+    this.editingRow = null;
+  }
 
-  // onDateSelected(rowIndex: number, element: OrderLifecycleModel) {
-  //   this.dateSelected[rowIndex] = true;
-  //   console.log(rowIndex);
-  //   if (!this.modifiedElements.includes(element)) {
-  //     this.modifiedElements.push(element);
-  //   }
-  //   console.log(this.orderLifecycleStatus[0]);
-  //   this.selection.select(this.orderLifecycleStatus[rowIndex]);
-  //   if (this.modifiedElements.length > 0) {
-  //     this.saveButton = true;
-  //   }
-  // }
+  saveCloUpdates(record: OrderLifecycleModel) {
+    this.dataSource = this.getOrderLifecycle();
+    console.log('Save row:', record);
+    this.stopEditing();
+  }
 
-  // onResetDate(rowIndex: number, element: OrderLifecycleModel) {
-  //   this.dateSelected[rowIndex] = false;
-  //   this.selection.deselect(this.orderLifecycleStatus[rowIndex]);
-  //   element.INVOICE_ELIGIBLE_DATE = null;
-  //   const recordIndex = this.modifiedElements.findIndex(
-  //     (record) => record === element
-  //   );
+  rollbackCloUpdatesValue(record: OrderLifecycleModel, index: number) {
+    record.CLO_COMMENTS = this.originalValue;
+    this.stopEditing();
+  }
 
-  //   if (recordIndex !== -1) {
-  //     this.modifiedElements.splice(recordIndex, 1);
-  //   }
-  //   if (this.modifiedElements.length > 0) {
-  //     this.saveButton = true;
-  //   } else {
-  //     this.saveButton = false;
-  //   }
-  // }
-
-  // updateHoldStatusAndDate() {
-  //   this.http
-  //     .post('invoice-eligible-date', this.modifiedElements)
-  //     .subscribe((data) => {});
-
-  //   this.modifiedElements = [];
-  // }
+  saveInvoiceEligibleDate(value: any) {
+    this.dataSource = this.getOrderLifecycle();
+    console.log(value);
+  }
 
   displayedColumns = [
     'select',

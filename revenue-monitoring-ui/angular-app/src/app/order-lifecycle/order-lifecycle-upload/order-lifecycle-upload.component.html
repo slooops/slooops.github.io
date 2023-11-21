@@ -130,6 +130,40 @@
           >Invalid input. Please enter only numbers.</mat-error
         >
       </mat-form-field>
+
+      <mat-form-field appearance="standard">
+        <mat-label>Invoice Eligible Dates</mat-label>
+        <input
+          matInput
+          formControlName="dealIds"
+          placeholder="Enter Deal Ids"
+          name="dealIds"
+          required
+        />
+        <mat-error *ngIf="updateForm.get('dealIds').hasError('required')"
+          >Deal Ids are required</mat-error
+        >
+        <mat-error *ngIf="updateForm.get('dealIds').hasError('pattern')"
+          >Invalid input. Please enter only numbers.</mat-error
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="standard">
+        <mat-label>CLO Updates</mat-label>
+        <input
+          matInput
+          formControlName="dealIds"
+          placeholder="Enter Deal Ids"
+          name="dealIds"
+          required
+        />
+        <mat-error *ngIf="updateForm.get('dealIds').hasError('required')"
+          >Deal Ids are required</mat-error
+        >
+        <mat-error *ngIf="updateForm.get('dealIds').hasError('pattern')"
+          >Invalid input. Please enter only numbers.</mat-error
+        >
+      </mat-form-field>
     </form>
 
     <br />
