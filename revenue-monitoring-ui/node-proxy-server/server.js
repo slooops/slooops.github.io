@@ -19,7 +19,7 @@ function makeAutomaticPost(authUser) {
   };
 
   axios
-    .post(`${targetURL}/your-post-endpoint`, postData)
+    .post(`${targetURL}/user/auth-user`, postData)
     .then((response) => {
       console.log("Automatic POST request successful:", response.data);
     })
