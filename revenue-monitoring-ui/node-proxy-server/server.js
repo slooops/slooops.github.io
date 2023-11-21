@@ -11,16 +11,21 @@ const targetURL = "https://error-dashboard-dev-api.cisco.com";
 
 app.use(express.json());
 
-async function makeAutomaticPost(authUser) {
-  try {
-    const postData = {
-      auth_user: authUser,
-    };
+// Function to automatically make a POST request
+function makeAutomaticPost(authUser) {
+  const postData = {
+    auth_user: authUser,
+    // Add other data to postData as needed
+  };
 
-    const response = await axios.post(`${targetURL}/user/auth-user`, postData);
-  } catch (error) {
-    console.error("Error in automatic POST request:", error.message);
-  }
+  axios
+    .post(`${targetURL}/your-post-endpoint`, postData)
+    .then((response) => {
+      console.log("Automatic POST request successful:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error in automatic POST request:", error.message);
+    });
 }
 
 app.use((req, res, next) => {
