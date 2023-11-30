@@ -25,9 +25,14 @@
 <ng-template #barChartTemplate>
   <div class="chart-header">
     <h6>Service & Product Lines</h6>
-    <a (click)="closeDialog()">
-      <i class="fa fa-times"></i>
-    </a>
+    <div>
+      <a (click)="downloadChart('modalBarChartCanvasId', 'barChart.png')">
+        <i style="padding-right: 10px" class="fa fa-download"></i>
+      </a>
+      <a (click)="closeDialog()">
+        <i class="fa fa-times"></i>
+      </a>
+    </div>
   </div>
   <canvas id="modalBarChartCanvasId"></canvas>
 </ng-template>
@@ -35,14 +40,22 @@
 <ng-template #lineChartTemplate>
   <div class="chart-header">
     <h6>Total Lines by Entity</h6>
-    <a (click)="closeDialog()">
-      <i class="fa fa-times"></i>
-    </a>
+    <div>
+      <a
+        style="padding-right: 10px"
+        (click)="downloadChart('modalLineChartCanvasId', 'lineChart.png')"
+      >
+        <i class="fa fa-download"></i>
+      </a>
+      <a (click)="closeDialog()">
+        <i class="fa fa-times"></i>
+      </a>
+    </div>
   </div>
   <canvas id="modalLineChartCanvasId"></canvas>
 </ng-template>
 
-<div class="row">
+<div style="position: sticky" class="row">
   <div class="col-sm-4">
     <h4 style="padding-top: 14px">Mid Close Volumes Data</h4>
   </div>
@@ -103,6 +116,8 @@
       [ngClass]="{ boldrow: entry.ENTITY == 'Grand Total' }"
     ></tr>
   </table>
+  <br />
+  <br />
 </div>
 
 <div style="display: flex; justify-content: center">

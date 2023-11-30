@@ -372,6 +372,32 @@ export class Wd0HistoricalDataComponent implements OnInit {
     const fiscalQuarter = fiscalMonths[month];
     return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
   }
+
+  downloadChart(canvasId: string, fileName: string) {
+    // Get the canvas element by its ID
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+
+    if (canvas) {
+      // Get the image data URL
+      const imageUrl = canvas.toDataURL('image/png');
+
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = fileName;
+
+      // Append the link to the body (required for Firefox)
+      document.body.appendChild(link);
+
+      // Simulate a click on the link
+      link.click();
+
+      // Remove the link after download
+      document.body.removeChild(link);
+    } else {
+      console.error('Canvas with specified ID not found');
+    }
+  }
 }
 
 export interface HistoricalDataModel {
