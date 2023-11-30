@@ -589,7 +589,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
           columns: precloseProgramColumns,
           dynamicData: true,
         });
-        console.log(precloseProgramColumns);
         this.mcloseInvGenTableOptions = new CuiTableOptions({
           bordered: true,
           // striped: true,
@@ -597,7 +596,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
           columns: midcloseProgramColumns,
           dynamicData: true,
         });
-        console.log(midcloseProgramColumns);
       }
     );
   }
@@ -697,7 +695,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
             }
           }
         });
-        console.log('preclose_prod_row: ', preclose_prod_row);
         this.precloseInterfaceLoadTableData.push(preclose_prod_row);
         this.precloseInterfaceLoadTableData.push(preclose_service_row);
 
@@ -756,16 +753,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.midcloseInterfaceLoadTableData.push(midclose_prod_row);
         this.midcloseInterfaceLoadTableData.push(midclose_service_row);
 
-        console.log(
-          'midcloseInterfaceLoadTableData:',
-          this.midcloseInterfaceLoadTableData
-        );
-
-        console.log(
-          'this.mcloseInterfaceLoadColumns:',
-          this.mcloseInterfaceLoadColumns
-        );
-
         let interfaceSet = new Set<string>();
         for (let value of data.values()) {
           Object.keys(value).forEach((key) => {
@@ -776,11 +763,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         }
         this.dynamicInterfaceLoadColumns.push(...interfaceSet.values());
         // this.setInterfaceLoadColumns();
-
-        console.log(
-          'precloseInterfaceLoadTableData: ',
-          this.precloseInterfaceLoadTableData
-        );
       }
     );
   }
@@ -1140,23 +1122,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
           new Date(a['CREATION_DATE']).getTime()
       );
       data.forEach((ele) => {
-        // delete later
-        if (ele['COMMENTS'] === 'hello') {
-          console.log('raw date: ', ele['CREATION_DATE']);
-          console.log('new date: ', new Date(ele['CREATION_DATE']));
-          console.log(
-            'locale string date: ',
-            new Date(ele['CREATION_DATE']).toLocaleString('en-us', {
-              month: 'long',
-              year: 'numeric',
-              day: 'numeric',
-              hour: 'numeric',
-              minute: 'numeric',
-            })
-          );
-        }
-        // to here
-
         ele['CREATION_DATE'] = this.extractDatePrettify(ele['CREATION_DATE']);
       });
       this.dashComments = data;

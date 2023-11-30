@@ -24,7 +24,6 @@ import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
   styleUrls: ['./order-lifecycle.component.css'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class OrderLifecycleComponent implements OnInit {
   constructor(
@@ -315,7 +314,12 @@ export class OrderLifecycleComponent implements OnInit {
 
   saveCloUpdates(record: OrderLifecycleModel) {
     this.dataSource = this.getOrderLifecycle();
-    console.log('Save row:', record);
+    let cloMap = {
+      dealId: record.DEAL_ID,
+      orderID: record.SALES_ORDER,
+      cloComments: record.CLO_COMMENTS,
+    };
+    this.http.post('update-clo-comments', cloMap).subscribe((data) => {});
     this.stopEditing();
   }
 
@@ -324,9 +328,17 @@ export class OrderLifecycleComponent implements OnInit {
     this.stopEditing();
   }
 
-  saveInvoiceEligibleDate(value: any) {
+  saveInvoiceEligibleDate(record: OrderLifecycleModel) {
     this.dataSource = this.getOrderLifecycle();
-    console.log(value);
+    let dateMap = {
+      dealId: record.DEAL_ID,
+      orderID: record.SALES_ORDER,
+      invoiceEligibleDate: record.INVOICE_ELIGIBLE_DATE.toLocaleDateString(),
+    };
+
+    this.http
+      .post('update-invoice-eligible-date', dateMap)
+      .subscribe((data) => {});
   }
 
   displayedColumns = [

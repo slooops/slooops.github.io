@@ -5,6 +5,7 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,9 @@ import java.util.*;
 public class DailyMonitoringController {
     @Autowired
     private DailyMonitoringService service;
+
+    @Autowired
+    private UserRoleService userService;
 
     @GetMapping("/standard-ar-exceptions")
     public ResponseEntity<List<Map<String, Object>>> getStdArExceptions() {
@@ -199,6 +203,19 @@ public class DailyMonitoringController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
     }
+
+    @RequestMapping(value = "/update-invoice-eligible-date", method = RequestMethod.POST)
+    public Map<String,String> updateInvoiceEligibleDate(@RequestBody Map<String, String> updatedModel){
+        System.out.println(updatedModel);
+        return null;
+    }
+
+    @RequestMapping(value = "/update-clo-comments", method = RequestMethod.POST)
+    public Map<String,String> updateCLOComments(@RequestBody Map<String, String> updatedModel){
+        System.out.println(updatedModel);
+        return null;
+    }
+
     @GetMapping("/kafka-errors")
     public ResponseEntity<List<Map<String, Object>>> getKafkaErrors(){
         return new ResponseEntity<>(service.getKafkaError(), HttpStatus.OK);
@@ -243,5 +260,11 @@ public class DailyMonitoringController {
     public ResponseEntity<String> invoiceEligibleDateUpdate(@RequestBody List<Map<String,Object>> updatedDeals){
         service.updateInvoiceEligibleDate(updatedDeals);
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
+    }
+
+    @GetMapping(value = "/user-role")
+    public ResponseEntity<List<String>> getUserRoles(){
+        List<String> userRoles = userService.userGroups();
+        return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
 }

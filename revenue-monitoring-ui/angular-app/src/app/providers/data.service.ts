@@ -7,6 +7,7 @@ import { errorDashModel } from '../error-dash/error-dash.component';
 export class DataService {
   selectedErrorData: errorDashModel[] = [];
   allErrorsSelected: boolean = true;
+  userRoles: string[] = [];
 
   constructor() {}
 
@@ -24,5 +25,13 @@ export class DataService {
 
   getAllErrorsSelected() {
     return this.allErrorsSelected;
+  }
+
+  setUserRoles(userRoles: any) {
+    this.userRoles = userRoles;
+  }
+
+  geUserRoles() {
+    return this.userRoles;
   }
 }

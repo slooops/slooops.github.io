@@ -29,6 +29,7 @@
       style="background-color: #007dab"
       [expanded]="true"
       hideToggle
+      *ngIf="isAdmin || checkRole('periodClose')"
     >
       <mat-expansion-panel-header style="font-size: medium; color: white">
         Period Close Tracking
@@ -54,15 +55,21 @@
     <mat-list-item
       [routerLink]="['/large-deal-tracker']"
       routerLinkActive="active"
+      *ngIf="isAdmin || checkRole('largeDeal')"
     >
       Large Deal Tracker
     </mat-list-item>
-    <mat-list-item [routerLink]="['/wd0-dash']" routerLinkActive="active">
+    <mat-list-item
+      [routerLink]="['/wd0-dash']"
+      routerLinkActive="active"
+      *ngIf="isAdmin || checkRole('wd0')"
+    >
       WD+0 Mid Close Status
     </mat-list-item>
     <mat-list-item
       [routerLink]="['/historical-data']"
       routerLinkActive="active"
+      *ngIf="isAdmin || checkRole('midcloseVolumes')"
     >
       Mid Close Volumes
     </mat-list-item>

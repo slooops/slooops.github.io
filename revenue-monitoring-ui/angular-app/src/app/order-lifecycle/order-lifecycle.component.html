@@ -408,7 +408,7 @@
           INVOICE ELIGIBLE DATE
         </th>
         <td
-          class="custom-cell"
+          class="custom-cell dateInputCell"
           mat-cell
           *matCellDef="let record; let i = index"
         >
@@ -428,21 +428,20 @@
                 [min]="currentDate"
                 [readonly]="true"
                 [(ngModel)]="record.INVOICE_ELIGIBLE_DATE"
+                class="calendarInput"
               />
               <mat-datepicker-toggle
                 matSuffix
                 [for]="picker"
               ></mat-datepicker-toggle>
               <mat-datepicker #picker>
-                <mat-datepicker-actions style="margin-top: 0px !important">
+                <mat-datepicker-actions>
                   <button mat-button matDatepickerCancel>Cancel</button>
                   <button
                     mat-raised-button
                     style="background-color: #049fd9"
                     matDatepickerApply
-                    (click)="
-                      saveInvoiceEligibleDate(record.INVOICE_ELIGIBLE_DATE)
-                    "
+                    (click)="saveInvoiceEligibleDate(record)"
                   >
                     Save
                   </button>

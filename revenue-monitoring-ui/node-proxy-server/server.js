@@ -10,23 +10,26 @@ const proxyPath = "/api";
 
 const targetURL = "https://error-dashboard-dev-api.cisco.com";
 
+let hasMadePostRequest = false;
+
 app.use(express.json());
 
-// Function to automatically make a POST request
 function makeAutomaticPost(authUser) {
-  const postData = {
-    auth_user: authUser,
-    // Add other data to postData as needed
-  };
+  if (!hasMadePostRequest) {
+    const postData = {
+      auth_user: authUser,
+    };
 
-  axios
-    .post(`${targetURL}/user/auth-user`, postData)
-    .then((response) => {
-      console.log("Automatic POST request successful:", response.data);
-    })
-    .catch((error) => {
-      console.error("Error in automatic POST request:", error.message);
-    });
+    axios
+      .post(`${targetURL}/user/auth-user`, postData)
+      .then((response) => {
+        console.log("Automatic POST request successful:", response.data);
+        hasMadePostRequest = true;
+      })
+      .catch((error) => {
+        console.error("Error in automatic POST request:", error.message);
+      });
+  }
 }
 
 app.use((req, res, next) => {
