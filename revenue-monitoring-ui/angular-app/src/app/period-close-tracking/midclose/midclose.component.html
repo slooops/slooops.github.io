@@ -257,8 +257,8 @@
   <mat-divider></mat-divider>
   <br />
   <div>
-    <h3>Comments</h3>
-    <form>
+    <h3 *ngIf="dashComments.length > 0 || showComments">Comments</h3>
+    <form *ngIf="showComments">
       <input
         name="comments"
         class="form-control form-control-sm"
@@ -287,6 +287,13 @@
         <br /><br />
       </span>
     </form>
+    <span style="float: right !important">
+      For questions, please send an email to:
+      <a href="mailto:i2c-close-monitoring@cisco.com">
+        i2c-close-monitoring&#64;cisco.com
+      </a></span
+    >
+    <br />
     <mat-divider></mat-divider>
     <br />
     <div>

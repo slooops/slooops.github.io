@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
+import { DataService } from 'src/app/providers/data.service';
 
 @Component({
   selector: 'app-preclose',
@@ -9,8 +10,8 @@ import { PeriodCloseTrackingComponent } from '../period-close-tracking.component
 })
 export class PrecloseComponent extends PeriodCloseTrackingComponent {
   username: string = 'Admin';
-  constructor(http: ApiHttpService) {
-    super(http);
+  constructor(http: ApiHttpService, dataService: DataService) {
+    super(http, dataService);
   }
 
   showCommentSave: boolean = false;

@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  Input,
-  OnInit,
-  ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,7 +6,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
@@ -58,6 +51,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   refreshInterval = 14400000; //ms
   timeNow: any;
+  dealUpload: boolean = false;
   progNameOptions: string[] = [];
   accountOptions: string[] = [];
   orderStatusOptions: string[] = [];
@@ -86,9 +80,10 @@ export class OrderLifecycleComponent implements OnInit {
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
   updatedData: boolean = false;
-  updateClo: boolean = true;
+  updateClo: boolean = false;
   editingRow: OrderLifecycleModel;
   originalValue: string;
+  dealUploadFlag: boolean = false;
 
   getOrderStatusDownload() {
     this.http.get('order-status-download').subscribe((data: any) => {
@@ -122,6 +117,13 @@ export class OrderLifecycleComponent implements OnInit {
         this.orderLifecycleStatus
       );
       this.updatedData = false;
+      this.updateClo =
+        this.dataService.geUserRoles().includes('admin') ||
+        this.dataService.geUserRoles().includes('cloUpdate');
+
+      this.dealUploadFlag =
+        this.dataService.geUserRoles().includes('admin') ||
+        this.dataService.geUserRoles().includes('dealUpload');
       this.orderLifecycleStatus.forEach((data) => {
         for (const key in data) {
           if (

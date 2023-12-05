@@ -9,6 +9,7 @@ import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
+import { DataService } from '../providers/data.service';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -24,6 +25,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   editComments = false;
   showpreStatusFilter = true;
   showmidStatusFilter = true;
+  showComments: boolean = false;
 
   monthMap = {
     '01': 'January',
@@ -221,9 +223,11 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseInterfaceLoadColumns: string[] = [];
 
   protected http: ApiHttpService;
+  protected dataService: DataService;
 
-  constructor(http: ApiHttpService) {
+  constructor(http: ApiHttpService, dataService: DataService) {
     this.http = http;
+    this.dataService = dataService;
 
     window.onbeforeunload = function () {
       localStorage.clear();
@@ -280,6 +284,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         hour: 'numeric',
         minute: 'numeric',
       });
+      this.showComments = this.dataService.geUserRoles().includes('admin');
     });
   }
 

@@ -7,6 +7,7 @@ import {
 import { CngProgressbarColor } from '@cisco/cui-ng';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
+import { DataService } from 'src/app/providers/data.service';
 
 export interface PeriodClose {
   operatingUnit: string;
@@ -24,8 +25,8 @@ export interface PeriodClose {
   styleUrls: ['./midclose.component.css'],
 })
 export class MidcloseComponent extends PeriodCloseTrackingComponent {
-  constructor(http: ApiHttpService) {
-    super(http);
+  constructor(http: ApiHttpService, dataService: DataService) {
+    super(http, dataService);
   }
 
   username: string = 'Admin';

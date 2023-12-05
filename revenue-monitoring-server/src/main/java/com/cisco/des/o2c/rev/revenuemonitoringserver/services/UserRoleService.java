@@ -14,7 +14,7 @@ public class UserRoleService {
 
     private String authorizedUser;
 
-    String[] userRoleGroups = {"admin", "periodClose", "largeDeal", "wd0", "midcloseVolumes", "cloUpdate"};
+    String[] userRoleGroups = {"admin", "periodClose", "largeDeal", "wd0", "midcloseVolumes", "cloUpdate", "dealUpload"};
 
     public String getAuthorizedUser() {
         return authorizedUser;
@@ -32,6 +32,7 @@ public class UserRoleService {
     public List<String> userGroups(){
         List<String> userRoles = new ArrayList<>();
         userRoles.add("admin");
+//        userRoles.add("cloUpdate");
         return userRoles;
 
     }

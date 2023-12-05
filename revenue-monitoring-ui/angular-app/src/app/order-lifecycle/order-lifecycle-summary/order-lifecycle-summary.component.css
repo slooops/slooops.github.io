@@ -5,6 +5,7 @@
 
 .mat-cell {
   font-size: 13px;
+  text-align: center;
 }
 
 th.mat-header-cell {

@@ -97,8 +97,8 @@ const routes: Routes = [
     path: 'historical-data',
     component: Wd0HistoricalDataComponent,
     data: {
-      title: 'WD+0 Mid Close Status Dashboard',
-      header: 'WD+0 Mid Close Status Dashboard',
+      title: 'WD+0 Mid Close Volumes Dashboard',
+      header: 'WD+0 Mid Close Volumes Dashboard',
     },
   },
   {

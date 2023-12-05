@@ -5,12 +5,10 @@
 .mat-header-cell {
   font-size: 12px;
   white-space: normal !important;
-  justify-content: center !important;
 }
 
 .mat-cell {
   font-size: 12px;
-  /* white-space: normal !important; */
 }
 
 th.mat-header-cell {
@@ -22,7 +20,9 @@ th.mat-header-cell {
 td {
   text-align: center !important;
 }
-
+th {
+  text-align: center !important;
+}
 .highlight {
   background: #42a948 !important; /* green */
 }

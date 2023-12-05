@@ -1,4 +1,4 @@
-<br />
+<!-- <br /> -->
 <span class="col-sm-12" style="text-align: center !important">
   <span style="float: right"
     >Dashboard updated : {{ timeNow }} &nbsp;<i
@@ -9,7 +9,6 @@
     ></i
   ></span>
 </span>
-
 <br />
 <div>
   <div
@@ -419,7 +418,7 @@
                 : (record.INVOICE_ELIGIBLE_DATE | date : "M/d/yyyy")
             }}</span
           >
-          <span *ngIf="updateClo">
+          <span *ngIf="updateClo && record.GL_POSTING_STATUS != 'Completed'">
             <mat-form-field floatLabel="never">
               <input
                 matInput
@@ -576,7 +575,13 @@
         >
           <div *ngIf="!isEditingCloUpdates(record); else editMode">
             {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
-            <span *ngIf="updateClo && record.CLO_COMMENTS != 'TBD'">
+            <span
+              *ngIf="
+                updateClo &&
+                record.CLO_COMMENTS != 'TBD' &&
+                record.GL_POSTING_STATUS != 'Completed'
+              "
+            >
               <i
                 class="fa fa-pencil-square-o hoverIcon"
                 style="font-weight: bold; color: rgb(79, 78, 78)"
@@ -679,7 +684,11 @@
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
     >&nbsp;&nbsp;View Deal Summary
   </div>
-  <div (click)="openUploadDialog()" class="viewHighlight">
+  <div
+    (click)="openUploadDialog()"
+    class="viewHighlight"
+    *ngIf="dealUploadFlag"
+  >
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
     >&nbsp;&nbsp;Deal Upload
   </div>
