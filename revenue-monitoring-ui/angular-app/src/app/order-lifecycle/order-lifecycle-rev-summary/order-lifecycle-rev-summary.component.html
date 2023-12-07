@@ -20,7 +20,53 @@
     ></i
   ></a>
 </h3>
+
 <mat-dialog-content>
+  <mat-accordion displayMode="flat" multi class="mat-table">
+    <section class="mat-elevation-z2 mat-header-row">
+      <span class="mat-header-cell">Account</span>
+      <span class="mat-header-cell">Deal ID</span>
+      <span class="mat-header-cell">Order Status</span>
+      <span class="mat-header-cell">Count of Sales Order</span>
+      <span class="mat-header-cell">Sum of Order Value</span>
+      <span class="mat-header-cell">Sum of Total Line Count</span>
+      <span class="mat-header-cell">Total Qtr Revenue Estimate</span>
+      <span class="mat-header-cell">Invoiced GL Revenue for Qtr</span>
+      <span class="mat-header-cell">Accrued GL Revenue for Qtr</span>
+      <span class="mat-header-cell">Total Rev Recognized for Qtr</span>
+      <span class="mat-header-cell">Revenue Not Recognized</span>
+    </section>
+
+    <mat-expansion-panel *ngFor="let item of displayedRows$ | async">
+      <mat-expansion-panel-header class="mat-row">
+        <span class="mat-cell">{{ item.account }}</span>
+        <span class="mat-cell">{{ item.dealid || "" }}</span>
+        <span class="mat-cell">{{ item.orderstatus || "" }}</span>
+        <span class="mat-cell">{{ item.countofsalesorder }}</span>
+        <span class="mat-cell">{{ item.sumofordervalue | currency }}</span>
+        <span class="mat-cell">{{ item.sumoftotallinecount }}</span>
+        <span class="mat-cell">{{
+          item.totalqtrrevenueestimate | currency
+        }}</span>
+        <span class="mat-cell">{{
+          item.invoicedglrevenueforqtr | currency
+        }}</span>
+        <span class="mat-cell">{{
+          item.accruedglrevenueforqtr | currency
+        }}</span>
+        <span class="mat-cell">{{
+          item.totalrevrecognizedforqtr | currency
+        }}</span>
+        <span class="mat-cell">{{ item.revenuenotrecognized | currency }}</span>
+      </mat-expansion-panel-header>
+      <div class="mat-row details">
+        <pre>{{ item | json }}</pre>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</mat-dialog-content>
+
+<!-- <mat-dialog-content>
   <div class="periodclosetbale sortArrow" style="max-width: 100%">
     <table
       mat-table
@@ -325,4 +371,4 @@
     >
     </mat-paginator>
   </div>
-</mat-dialog-content>
+</mat-dialog-content> -->
