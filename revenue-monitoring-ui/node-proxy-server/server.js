@@ -1,25 +1,34 @@
 const express = require("express");
 const path = require("path");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 const proxyPath = "/api";
 
-const targetURL = "https://order-lifecycle-dashboard-api.cisco.com";
+// const targetURL = "https://order-lifecycle-dashboard-api.cisco.com";
+
+let hasMadePostRequest = false;
 
 app.use(express.json());
 
-async function makeAutomaticPost(authUser) {
-  try {
+function makeAutomaticPost(authUser) {
+  if (!hasMadePostRequest) {
     const postData = {
       auth_user: authUser,
     };
 
-    const response = await axios.post(`${targetURL}/user/auth-user`, postData);
-  } catch (error) {
-    console.error("Error in automatic POST request:", error.message);
+    axios
+      .post(`${targetURL}/user/auth-user`, postData)
+      .then((response) => {
+        console.log("Automatic POST request successful:", response.data);
+        hasMadePostRequest = true;
+      })
+      .catch((error) => {
+        console.error("Error in automatic POST request:", error.message);
+      });
   }
 }
 
