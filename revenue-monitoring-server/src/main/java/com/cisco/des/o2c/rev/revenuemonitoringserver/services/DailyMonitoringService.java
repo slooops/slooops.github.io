@@ -212,7 +212,7 @@ public class DailyMonitoringService {
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
         String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
        "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
-        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE", "INVOICE_ELIGIBLE_DATE"};
+        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE", "INVOICE_ELIGIBLE_DATE", "DEAL_UPLOAD_DATE"};
         result.forEach(data -> {
             for(String str: columnsToRemove){
                 data.remove(str);

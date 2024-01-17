@@ -286,7 +286,7 @@
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
             record.DEAL_UPLOAD_DATE == "TBD"
-              ? "TBD"
+              ? ""
               : (record.DEAL_UPLOAD_DATE | date : "M/d/yyyy")
           }}
         </td>
