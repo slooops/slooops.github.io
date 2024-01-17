@@ -7,7 +7,7 @@ const port = process.env.PORT || 3000;
 
 const proxyPath = "/api";
 
-const targetURL = "https://order-lifecycle-dashboard-dev-api.cisco.com";
+const targetURL = "https://order-lifecycle-dashboard-api.cisco.com";
 
 app.use(express.json());
 
