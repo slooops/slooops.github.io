@@ -17,7 +17,7 @@ import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.co
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/period-close-tracking-preclose',
+    redirectTo: '/large-deal-tracker',
     pathMatch: 'full',
   },
   {
