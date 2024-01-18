@@ -1,76 +1,124 @@
-// .mat-header-cell {
-//   font-size: 12.5px;
-//   padding-left: 25px !important;
-// }
-
-// .mat-cell {
-//   font-size: 12.5px;
-// }
-
-// th.mat-header-cell {
-//   padding-bottom: unset !important;
-//   padding-top: unset !important;
-// }
-
-// .mat-column-accountDealStatus {
-//   text-align: left !important;
-// }
-
-// .mat-paginator-sticky {
-//   bottom: 0px !important;
-//   position: sticky !important;
-//   z-index: 10 !important;
-// }
-
-.mat-accordion .mat-header-row {
-  padding-left: 1.5rem;
-  padding-right: 2rem;
-  border-bottom: none;
-}
-
-.mat-expansion-panel-header.mat-row {
-  border-bottom: none;
-}
-
-//copied from https://github.com/angular/material2/blob/master/src/lib/table/table.scss
-$mat-header-row-height: 56px;
-$mat-row-height: 48px;
-$mat-row-horizontal-padding: 24px;
-
-.mat-table {
-  display: block;
-}
-
-.mat-header-row {
-  min-height: $mat-header-row-height;
-}
-
-.mat-row {
-  min-height: $mat-row-height;
-}
-
-.mat-row,
-.mat-header-row {
-  display: flex;
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  align-items: center;
-  padding: 0 $mat-row-horizontal-padding;
-  box-sizing: border-box;
-
-  // Workaround for https://goo.gl/pFmjJD in IE 11. Adds a pseudo
-  // element that will stretch the row the correct height. See:
-  // https://connect.microsoft.com/IE/feedback/details/802625
-  &::after {
-    display: inline-block;
-    min-height: inherit;
-    content: "";
-  }
-}
-
-.mat-cell,
 .mat-header-cell {
-  flex: 1;
+  font-size: 12.5px;
+  padding-left: 25px !important;
+}
+
+.mat-cell {
+  font-size: 12.5px;
+}
+
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+}
+
+.mat-column-accountDealStatus {
+  text-align: left !important;
+}
+
+.mat-paginator-sticky {
+  bottom: 0px !important;
+  position: sticky !important;
+  z-index: 10 !important;
+}
+
+// .mat-accordion .mat-header-row {
+//   padding-left: 1.5rem;
+//   padding-right: 2rem;
+//   border-bottom: none;
+// }
+
+// .mat-expansion-panel-header.mat-row {
+//   border-bottom: none;
+// }
+
+// //copied from https://github.com/angular/material2/blob/master/src/lib/table/table.scss
+// $mat-header-row-height: 56px;
+// $mat-row-height: 48px;
+// $mat-row-horizontal-padding: 24px;
+
+// .mat-table {
+//   display: block;
+// }
+
+// .mat-header-row {
+//   min-height: $mat-header-row-height;
+// }
+
+// .mat-row {
+//   min-height: $mat-row-height;
+// }
+
+// .mat-row,
+// .mat-header-row {
+//   display: flex;
+//   border-bottom-width: 1px;
+//   border-bottom-style: solid;
+//   align-items: center;
+//   padding: 0 $mat-row-horizontal-padding;
+//   box-sizing: border-box;
+
+//   // Workaround for https://goo.gl/pFmjJD in IE 11. Adds a pseudo
+//   // element that will stretch the row the correct height. See:
+//   // https://connect.microsoft.com/IE/feedback/details/802625
+//   &::after {
+//     display: inline-block;
+//     min-height: inherit;
+//     content: "";
+//   }
+// }
+
+// .mat-cell,
+// .mat-header-cell {
+//   flex: 1;
+//   overflow: hidden;
+//   word-wrap: break-word;
+// }
+
+table {
+  width: 100%;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #efefef;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
   overflow: hidden;
-  word-wrap: break-word;
+  display: flex;
+}
+
+.example-element-diagram {
+  min-width: 80px;
+  border: 2px solid black;
+  padding: 8px;
+  font-weight: lighter;
+  margin: 8px 0;
+  height: 104px;
+}
+
+.example-element-symbol {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: normal;
+}
+
+.example-element-description {
+  padding: 16px;
+}
+
+.example-element-description-attribution {
+  opacity: 0.5;
 }
