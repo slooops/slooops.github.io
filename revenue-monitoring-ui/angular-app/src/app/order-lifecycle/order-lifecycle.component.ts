@@ -87,7 +87,7 @@ export class OrderLifecycleComponent implements OnInit {
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
   updatedData: boolean = false;
-  updateClo: boolean = true;
+  updateClo: boolean = false;
   editingRow: OrderLifecycleModel;
   originalValue: string;
 
