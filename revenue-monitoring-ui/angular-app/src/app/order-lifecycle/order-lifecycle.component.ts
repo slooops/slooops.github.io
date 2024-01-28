@@ -24,7 +24,6 @@ import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
   styleUrls: ['./order-lifecycle.component.css'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class OrderLifecycleComponent implements OnInit {
   constructor(
