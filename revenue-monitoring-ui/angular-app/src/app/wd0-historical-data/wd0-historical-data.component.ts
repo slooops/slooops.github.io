@@ -80,36 +80,69 @@ export class Wd0HistoricalDataComponent implements OnInit {
   getHistoricalData() {
     this.http.get('wd0-historical-data').subscribe((data: any) => {
       const grandTotal = {};
+      const serviceTotal = {};
+      const productTotal = {};
+
       data.forEach((obj) => {
         for (const key in obj) {
           if (obj[key] && !isNaN(parseInt(obj[key]))) {
-            if (grandTotal[key]) {
-              grandTotal[key] += parseInt(obj[key]);
-            } else {
-              grandTotal[key] = parseInt(obj[key]);
+            // Update grandTotal
+            grandTotal[key] = (grandTotal[key] || 0) + parseInt(obj[key]);
+
+            // Update serviceTotal or productTotal based on LINE_TYPE
+            if (obj.LINE_TYPE === 'Service') {
+              serviceTotal[key] = (serviceTotal[key] || 0) + parseInt(obj[key]);
+            } else if (obj.LINE_TYPE === 'Product') {
+              productTotal[key] = (productTotal[key] || 0) + parseInt(obj[key]);
             }
           }
         }
       });
-      const grandTotalObject = { ENTITY: 'Grand Total' };
-      for (const key in grandTotal) {
-        grandTotalObject[key] = grandTotal[key].toString();
-      }
-      data.push(grandTotalObject);
+
+      // Example of populating the grandTotalObject correctly
+      const grandTotalObject = { ENTITY: 'Grand Total', LINE_TYPE: 'Total' };
+      Object.keys(grandTotal).forEach((key) => {
+        grandTotalObject[key] = grandTotal[key];
+      });
+
+      // Inserting the total rows correctly
+      data.unshift(grandTotalObject);
+
+      // Similar approach for serviceTotalObject and productTotalObject
+      const serviceTotalObject = {
+        ENTITY: 'Service Total',
+        LINE_TYPE: 'Service',
+      };
+      Object.keys(serviceTotal).forEach((key) => {
+        serviceTotalObject[key] = serviceTotal[key];
+      });
+
+      const productTotalObject = {
+        ENTITY: 'Product Total',
+        LINE_TYPE: 'Product',
+      };
+      Object.keys(productTotal).forEach((key) => {
+        productTotalObject[key] = productTotal[key];
+      });
+
+      data.splice(1, 0, serviceTotalObject, productTotalObject);
 
       this.historicalData = data;
-      const entityMap = new Map<string, boolean>();
 
-      for (const data of this.historicalData) {
-        const entity = data.ENTITY;
+      const allKeys = new Set();
+      data.forEach((obj) => {
+        Object.keys(obj).forEach((key) => {
+          allKeys.add(key);
+        });
+      });
 
-        if (entityMap.has(entity)) {
-          data.ENTITY = null;
-        } else {
-          entityMap.set(entity, true);
-        }
-      }
-      this.displayedColumns = Object.keys(this.historicalData[0]);
+      this.displayedColumns = [
+        'ENTITY',
+        'LINE_TYPE',
+        ...Array.from(allKeys).filter(
+          (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
+        ),
+      ].map((key) => String(key));
       this.dataSource = new MatTableDataSource<HistoricalDataModel>(
         this.historicalData
       );
