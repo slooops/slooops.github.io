@@ -21,6 +21,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
   chartProcessedData: any[] = [];
   tableData: any[] = [];
 
+  summaryDataSource: MatTableDataSource<any>;
+
   ngOnInit(): void {
     this.getHistoricalData();
     this.processLineChartData();
@@ -129,6 +131,18 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
       this.historicalData = data;
 
+      const entityMap = new Map<string, boolean>();
+
+      for (const data of this.historicalData) {
+        const entity = data.ENTITY;
+
+        if (entityMap.has(entity)) {
+          data.ENTITY = null;
+        } else {
+          entityMap.set(entity, true);
+        }
+      }
+
       const allKeys = new Set();
       data.forEach((obj) => {
         Object.keys(obj).forEach((key) => {
@@ -143,17 +157,48 @@ export class Wd0HistoricalDataComponent implements OnInit {
           (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
         ),
       ].map((key) => String(key));
-      this.dataSource = new MatTableDataSource<HistoricalDataModel>(
-        this.historicalData
+      // Add these rows for summary table but not in the main table
+      data.splice(1, 0, serviceTotalObject, productTotalObject);
+
+      // Create a filtered list for the main table to exclude 'Service Total' and 'Product Total'
+      const filteredDataForMainTable = data.filter(
+        (row: any) =>
+          row.ENTITY !== 'Service Total' && row.ENTITY !== 'Product Total'
       );
 
-      this.processChartData();
-      this.barChartData = this.chartProcessedData;
+      // Setup dataSource for the main table with filtered data
+      this.dataSource = new MatTableDataSource<HistoricalDataModel>(
+        filteredDataForMainTable
+      );
+
+      // Setup dataSource for the summary table with just the total rows
+      this.summaryDataSource = new MatTableDataSource([
+        serviceTotalObject,
+        productTotalObject,
+      ]);
+
+      // this.processChartData();
+      // this.barChartData = this.chartProcessedData;
     });
   }
 
   formatColumnHeader(columnName: string): string {
     return columnName.replace(/_/g, ' ');
+  }
+
+  getTrend(
+    row: any,
+    prevColumn: string,
+    currentColumn: string
+  ): 'up' | 'down' | 'same' {
+    const prevValue = parseFloat(row[prevColumn]);
+    const currentValue = parseFloat(row[currentColumn]);
+
+    if (!isNaN(prevValue) && !isNaN(currentValue)) {
+      if (currentValue > prevValue) return 'up';
+      else if (currentValue < prevValue) return 'down';
+    }
+    return 'same';
   }
 
   processChartData() {
