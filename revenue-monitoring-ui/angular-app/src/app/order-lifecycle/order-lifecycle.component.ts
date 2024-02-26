@@ -1,19 +1,10 @@
-import {
-  Component,
-  ElementRef,
-  Input,
-  OnInit,
-  ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
 import { SelectionModel } from '@angular/cdk/collections';
-import { DataService } from '../providers/data.service';
 import { MatPaginator } from '@angular/material/paginator';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
@@ -26,12 +17,7 @@ import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary
   styleUrls: ['./order-lifecycle.component.css'],
 })
 export class OrderLifecycleComponent implements OnInit {
-  constructor(
-    http: ApiHttpService,
-    private router: Router,
-    private dataService: DataService,
-    private dialog: MatDialog
-  ) {
+  constructor(http: ApiHttpService, private dialog: MatDialog) {
     this.http = http;
   }
   currentDate: Date;
@@ -47,16 +33,14 @@ export class OrderLifecycleComponent implements OnInit {
     account: new FormControl(''),
     orderStats: new FormControl(''),
     invoiceStats: new FormControl(''),
-    // flexibleInvoice: new FormControl(''),
     salesOrdr: new FormControl(''),
-    // subscriptionId: new FormControl(''),
     dealId: new FormControl(''),
   });
 
   protected http: ApiHttpService;
   length: number;
 
-  refreshInterval = 14400000; //ms
+  refreshInterval = 14400000;
   timeNow: any;
   progNameOptions: string[] = [];
   accountOptions: string[] = [];
@@ -142,13 +126,26 @@ export class OrderLifecycleComponent implements OnInit {
           }
         }
       });
+
+      this.orderLifecycleStatus.sort((a, b) => {
+        const isEmptyA = a.DEAL_UPLOAD_DATE === '';
+        const isEmptyB = b.DEAL_UPLOAD_DATE === '';
+
+        if (isEmptyA && isEmptyB) {
+          return 0;
+        } else if (isEmptyA) {
+          return 1;
+        } else if (isEmptyB) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
+
       this.filterData();
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
       this.dataSource.filterPredicate = this.filterPredicate;
-      // this.dateSelected = new Array(this.orderLifecycleStatus.length).fill(
-      //   false
-      // );
     });
   }
 
@@ -163,7 +160,6 @@ export class OrderLifecycleComponent implements OnInit {
     this.accountOptions = [...new Set(this.accountTemp)];
     this.orderStatusOptions = [...new Set(this.orderStatusTemp)];
     this.invoiceStatusOptions = [...new Set(this.invoiceStatusTemp)];
-    // this.flexibleInvoiceOptions = [...new Set(flexibleInvoice)];
   }
 
   filterPredicate = (data: OrderLifecycleModel, filter: any) => {
@@ -180,13 +176,8 @@ export class OrderLifecycleComponent implements OnInit {
     const invoiceStatusMatch =
       filters.invoiceStatusFilter.length === 0 ||
       filters.invoiceStatusFilter.includes(data.INVOICING_STATUS);
-    // const flexibleInvoiceMatch =
-    //   filters.flexibleInvoiceFilter.length === 0 ||
-    //   filters.flexibleInvoiceFilter.includes(data.FLEXIBLE_INVOICE_ELIGIBLE);
     const salesOrderMatch =
       data.SALES_ORDER.toString().indexOf(filters.salesOrderFilter) !== -1;
-    // const subscriptionIdMatch =
-    //   data.SALES_ORDER.toString().indexOf(filters.subscriptionIdFilter) !== -1;
     const dealIdMatch =
       data.DEAL_ID.toString().indexOf(filters.dealIdFilter) !== -1;
     return (
@@ -194,9 +185,7 @@ export class OrderLifecycleComponent implements OnInit {
       accountMatch &&
       orderStatusMatch &&
       invoiceStatusMatch &&
-      // flexibleInvoiceMatch &&
       salesOrderMatch &&
-      // subscriptionIdMatch &&
       dealIdMatch
     );
   };
@@ -207,9 +196,7 @@ export class OrderLifecycleComponent implements OnInit {
       this.accountFilter = data['account'];
       this.orderStatusFilter = data['orderStats'];
       this.invoiceStatusFilter = data['invoiceStats'];
-      // this.flexibleInvoiceFilter = data['flexibleInvoice'];
       this.salesOrderFilter = data['salesOrdr'];
-      // this.subscriptionIdFilter = data['subscriptionId'];
       this.dealIdFilter = data['dealId'];
 
       if (
@@ -247,7 +234,6 @@ export class OrderLifecycleComponent implements OnInit {
 
   applyFilter() {
     this.salesOrderFilter = this.searchForm.get('salesOrdr').value;
-    // this.subscriptionIdFilter = this.searchForm.get('subscriptionId').value;
     this.dealIdFilter = this.searchForm.get('dealId').value;
     this.dataSource.filter = JSON.stringify({
       progNameFilter: this.programNameFilter,
@@ -330,7 +316,6 @@ export class OrderLifecycleComponent implements OnInit {
 
   displayedColumns = [
     'select',
-    // 'STATUS_AS_OF_DATE',
     'PROGRAM_NAME',
     'ACCOUNT',
     'DEAL_ID',
@@ -409,16 +394,15 @@ export class OrderLifecycleComponent implements OnInit {
 
   saveAsExcelFile(buffer: any, filename: string) {
     let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
-    let link = document.createElement('a'); // create link
+    let url = window.URL.createObjectURL(data);
+    let link = document.createElement('a');
     link.href = url;
     link.download = filename + '.xlsx';
-    link.click(); // triggers the download process and save file prompt in browser
-    window.URL.revokeObjectURL(url); // revoke temp URL
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   updateTime() {
-    // Get the current date and time in PST timezone
     const currentDate = new Date();
     const pstDate = currentDate.toLocaleString('en-US', {
       timeZone: 'America/Los_Angeles',

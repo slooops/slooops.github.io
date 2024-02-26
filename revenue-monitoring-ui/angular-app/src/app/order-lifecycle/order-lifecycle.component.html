@@ -284,11 +284,7 @@
           DEAL UPLOAD DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            record.DEAL_UPLOAD_DATE == "TBD"
-              ? ""
-              : (record.DEAL_UPLOAD_DATE | date : "M/d/yyyy")
-          }}
+          {{ record.DEAL_UPLOAD_DATE | date : "M/d/yyyy" }}
         </td>
       </ng-container>
 
@@ -638,7 +634,9 @@
       <tr
         mat-row
         *matRowDef="let row; columns: displayedColumns; let entry"
-        [ngClass]="{ highlight: entry.GL_POSTING_STATUS == 'Completed' }"
+        [ngClass]="{
+          'completed-row': entry?.GL_POSTING_STATUS === 'Completed'
+        }"
       ></tr>
 
       <tr class="mat-row" *matNoDataRow>

@@ -51,9 +51,6 @@ public class DailyMonitoringService {
 
     private String wd0HistoricalDataQuery;
 
-
-//    Connection conn;
-
     private String kafkaError;
     private String kafkaInbound;
     private String arTrxnMissing;
@@ -223,7 +220,9 @@ public class DailyMonitoringService {
                     String[] dateArr = date.split(" ");
                     data.put(str, dateArr[0]);
                 } else {
-                    data.put(str, "TBD");
+                    if(!str.equals("DEAL_UPLOAD_DATE")){
+                        data.put(str, "TBD");
+                    }
                 }
             }
 
@@ -345,7 +344,7 @@ public class DailyMonitoringService {
             String programName = (String) map.get("PROGRAM_NAME");
             int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
             String status = (String) map.get("STATUS");
-            Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue())  ;
+            Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue());
             OrderLifecycleSummaryModel model = new OrderLifecycleSummaryModel(programName, orderCount, status, completion);
             resultList.add(model);
         }
