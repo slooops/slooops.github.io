@@ -32,3 +32,15 @@ td {
 .boldrow {
   font-weight: bold !important;
 }
+
+/* .total-row-separator {
+  border-bottom: 2px solid black !important;
+}
+
+table.mat-table tr.mat-row.total-row-separator td {
+  border-bottom: 2px solid black !important;
+} */
+
+td.mat-cell tr.mat-row.total-row-separator {
+  border-bottom: 1px solid black;
+}

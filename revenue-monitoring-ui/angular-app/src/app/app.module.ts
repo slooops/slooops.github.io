@@ -79,6 +79,7 @@ import { TableDialogComponent } from './revenue-accruals/table-dialog/table-dial
 import { OrderLifecycleSummaryComponent } from './order-lifecycle/order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from './order-lifecycle/order-lifecycle-upload/order-lifecycle-upload.component';
 import { OrderLifecycleRevSummaryComponent } from './order-lifecycle/order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
+import { FormatNumberPipe } from './format-number.pipe';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -112,6 +113,7 @@ export function initApp(authService: AuthenticationService) {
     ChartDialogComponent,
     TableDialogComponent,
     OrderLifecycleRevSummaryComponent,
+    FormatNumberPipe,
   ],
   imports: [
     BrowserModule,

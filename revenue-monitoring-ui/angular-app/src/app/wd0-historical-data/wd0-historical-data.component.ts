@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { RegressionService } from '../regression.service';
+import * as d3 from 'd3';
 
 @Component({
   selector: 'app-wd0-historical-data',
@@ -11,75 +13,22 @@ import * as XLSX from 'xlsx';
 export class Wd0HistoricalDataComponent implements OnInit {
   protected http: ApiHttpService;
 
-  constructor(http: ApiHttpService) {
+  constructor(
+    http: ApiHttpService,
+    private regressionService: RegressionService
+  ) {
     this.http = http;
   }
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
   dataSource: any;
-  chartProcessedData: any[] = [];
-  tableData: any[] = [];
-
-  summaryDataSource: MatTableDataSource<any>;
 
   ngOnInit(): void {
     this.getHistoricalData();
-    this.processLineChartData();
   }
 
-  public barChartOptions = {
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          stacked: true,
-        },
-      ],
-      yAxes: [
-        {
-          stacked: true,
-        },
-      ],
-    },
-  };
-  public barChartLabels = [
-    'APR 21',
-    'JUL 21',
-    'OCT 22',
-    'JAN 22',
-    'APR 22',
-    'JUL 22',
-    'OCT 23',
-    'JAN 23',
-    'APR 23',
-    'JUL 23',
-  ];
-  public barChartType = 'bar';
-  public barChartLegend = true;
-  public barChartData: any[] = [];
-
-  public lineChartOptions = {
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          display: true,
-        },
-      ],
-      yAxes: [
-        {
-          display: true,
-        },
-      ],
-    },
-  };
-  public lineChartLabels = this.barChartLabels;
-  public lineChartType = 'line';
-  public lineChartLegend = true;
-  public lineChartData: any[] = [];
-
-  getHistoricalData() {
+  private getHistoricalData() {
     this.http.get('wd0-historical-data').subscribe((data: any) => {
       const grandTotal = {};
       const serviceTotal = {};
@@ -101,84 +50,121 @@ export class Wd0HistoricalDataComponent implements OnInit {
         }
       });
 
-      // Example of populating the grandTotalObject correctly
-      const grandTotalObject = { ENTITY: 'Grand Total', LINE_TYPE: 'Total' };
-      Object.keys(grandTotal).forEach((key) => {
-        grandTotalObject[key] = grandTotal[key];
-      });
-
-      // Inserting the total rows correctly
-      data.unshift(grandTotalObject);
-
-      // Similar approach for serviceTotalObject and productTotalObject
+      const grandTotalObject = {
+        ENTITY: 'Grand Total',
+        LINE_TYPE: 'Total',
+        ...grandTotal,
+      };
       const serviceTotalObject = {
         ENTITY: 'Service Total',
         LINE_TYPE: 'Service',
+        ...serviceTotal,
       };
-      Object.keys(serviceTotal).forEach((key) => {
-        serviceTotalObject[key] = serviceTotal[key];
-      });
-
       const productTotalObject = {
         ENTITY: 'Product Total',
         LINE_TYPE: 'Product',
+        ...productTotal,
       };
-      Object.keys(productTotal).forEach((key) => {
-        productTotalObject[key] = productTotal[key];
-      });
 
-      data.splice(1, 0, serviceTotalObject, productTotalObject);
+      // Insert total rows at the beginning of the data array
+      data.unshift(grandTotalObject, serviceTotalObject, productTotalObject);
 
       this.historicalData = data;
 
-      const entityMap = new Map<string, boolean>();
+      this.removeDuplicateEntityEntries(data);
 
-      for (const data of this.historicalData) {
-        const entity = data.ENTITY;
+      this.dataSource = new MatTableDataSource<HistoricalDataModel>(
+        this.historicalData
+      );
 
-        if (entityMap.has(entity)) {
-          data.ENTITY = null;
-        } else {
-          entityMap.set(entity, true);
-        }
+      // Linear Regeression
+      this.regression();
+
+      this.initializeChart();
+    });
+  }
+
+  initializeChart(): void {
+    const margin = { top: 10, right: 30, bottom: 30, left: 60 },
+      width = 460 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+    const svg = d3
+      .select('#my_dataviz')
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    d3.csv(
+      'https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered.csv'
+    ).then((data) => {
+      const allGroup = new Set(data.map((d) => d.name));
+
+      d3.select('#selectButton')
+        .selectAll('myOptions')
+        .data(Array.from(allGroup))
+        .enter()
+        .append('option')
+        .text((d) => d)
+        .attr('value', (d) => d);
+
+      const myColor = d3
+        .scaleOrdinal()
+        .domain(Array.from(allGroup))
+        .range(d3.schemeSet2);
+
+      const x = d3
+        .scaleLinear()
+        .domain(d3.extent(data, (d) => d.year))
+        .range([0, width]);
+      svg
+        .append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .call(d3.axisBottom(x).ticks(7));
+
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => +d.n)])
+        .range([height, 0]);
+      svg.append('g').call(d3.axisLeft(y));
+
+      let line = svg
+        .append('g')
+        .append('path')
+        .datum(data.filter((d) => d.name == 'Helen'))
+        .attr(
+          'd',
+          d3
+            .line()
+            .x((d) => x(d.year))
+            .y((d) => y(+d.n))
+        )
+        .attr('stroke', myColor('valueA'))
+        .style('stroke-width', 4)
+        .style('fill', 'none');
+
+      function update(selectedGroup) {
+        const dataFilter = data.filter((d) => d.name == selectedGroup);
+        line
+          .datum(dataFilter)
+          .transition()
+          .duration(1000)
+          .attr(
+            'd',
+            d3
+              .line()
+              .x((d) => x(d.year))
+              .y((d) => y(+d.n))
+          )
+          .attr('stroke', myColor(selectedGroup));
       }
 
-      const allKeys = new Set();
-      data.forEach((obj) => {
-        Object.keys(obj).forEach((key) => {
-          allKeys.add(key);
-        });
+      d3.select('#selectButton').on('change', function (event) {
+        const selectedOption = d3.select(this).property('value');
+        update(selectedOption);
       });
-
-      this.displayedColumns = [
-        'ENTITY',
-        'LINE_TYPE',
-        ...Array.from(allKeys).filter(
-          (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
-        ),
-      ].map((key) => String(key));
-      // Add these rows for summary table but not in the main table
-      data.splice(1, 0, serviceTotalObject, productTotalObject);
-
-      // Create a filtered list for the main table to exclude 'Service Total' and 'Product Total'
-      const filteredDataForMainTable = data.filter(
-        (row: any) =>
-          row.ENTITY !== 'Service Total' && row.ENTITY !== 'Product Total'
-      );
-
-      // Setup dataSource for the main table with filtered data
-      this.dataSource = new MatTableDataSource<HistoricalDataModel>(
-        filteredDataForMainTable
-      );
-
-      // Setup dataSource for the summary table with just the total rows
-      this.summaryDataSource = new MatTableDataSource([
-        serviceTotalObject,
-        productTotalObject,
-      ]);
-
-      // this.processChartData();
-      // this.barChartData = this.chartProcessedData;
     });
   }
 
@@ -186,140 +172,58 @@ export class Wd0HistoricalDataComponent implements OnInit {
     return columnName.replace(/_/g, ' ');
   }
 
+  isProductTotalRow(row: any): boolean {
+    return row.ENTITY === 'Product Total';
+  }
+
   getTrend(
     row: any,
     prevColumn: string,
     currentColumn: string
-  ): 'up' | 'down' | 'same' {
+  ): { trend: 'up' | 'down' | 'same'; change: number } {
     const prevValue = parseFloat(row[prevColumn]);
     const currentValue = parseFloat(row[currentColumn]);
 
     if (!isNaN(prevValue) && !isNaN(currentValue)) {
-      if (currentValue > prevValue) return 'up';
-      else if (currentValue < prevValue) return 'down';
+      const change = ((currentValue - prevValue) / prevValue) * 100;
+      if (currentValue > prevValue) return { trend: 'up', change: change };
+      else if (currentValue < prevValue)
+        return { trend: 'down', change: change };
+      else return { trend: 'same', change: 0 };
     }
-    return 'same';
+    return { trend: 'same', change: 0 };
   }
 
-  processChartData() {
-    const entities = ['United Kingdom', 'US', 'Canada', 'India'];
-    const productData = {};
-    const serviceData = {};
-
-    const chartColors = {
-      'United Kingdom-Product': 'rgb(0,119,188)', // Darker shade of 009EDC
-      'United Kingdom-Service': 'rgb(77,184,255)', // Lighter tint of 009EDC
-      'US-Product': 'rgb(30,68,113)', // Given dark blue 1e4471
-      'US-Service': 'rgb(62,106,178)', // Slightly lighter version of 1e4471
-      'Canada-Product': 'rgb(64,170,128)', // Soft green complementary to 009EDC
-      'Canada-Service': 'rgb(128,213,170)', // Lighter version of the chosen green
-      'India-Product': 'rgb(255,165,0)', // Soft orange
-      'India-Service': 'rgb(255,213,128)', // Lighter version of chosen orange
-    };
-
-    for (let entry of this.historicalData) {
-      if (entities.includes(entry.ENTITY)) {
-        if (entry.LINE_TYPE === 'Product') {
-          if (!productData[entry.ENTITY]) {
-            productData[entry.ENTITY] = [];
-          }
-          productData[entry.ENTITY].push(
-            entry.APR_21,
-            entry.JUL_21,
-            entry.OCT_22,
-            entry.JAN_22,
-            entry.APR_22,
-            entry.JUL_22,
-            entry.OCT_23,
-            entry.JAN_23,
-            entry.APR_23,
-            entry.JUL_23
-          );
-        }
-        if (entry.LINE_TYPE === 'Service') {
-          if (!serviceData[entry.ENTITY]) {
-            serviceData[entry.ENTITY] = [];
-          }
-          serviceData[entry.ENTITY].push(
-            entry.APR_21,
-            entry.JUL_21,
-            entry.OCT_22,
-            entry.JAN_22,
-            entry.APR_22,
-            entry.JUL_22,
-            entry.OCT_23,
-            entry.JAN_23,
-            entry.APR_23,
-            entry.JUL_23
-          );
-        }
-      }
-    }
-
-    this.chartProcessedData = [];
-
-    entities.forEach((entity) => {
-      if (productData[entity]) {
-        this.chartProcessedData.push({
-          data: productData[entity],
-          label: `${entity} - Product`,
-          stack: entity,
-          backgroundColor: chartColors[`${entity}-Product`], // <-- fixed this line
-        });
-      }
-      if (serviceData[entity]) {
-        this.chartProcessedData.push({
-          data: serviceData[entity],
-          label: `${entity} - Service`,
-          stack: entity,
-          backgroundColor: chartColors[`${entity}-Service`], // <-- fixed this line
-        });
-      }
-    });
-  }
-
-  processLineChartData() {
-    const totalProductData = [];
-    const totalServiceData = [];
-
-    this.chartProcessedData.forEach((chartData) => {
-      if (chartData.label.includes('Product')) {
-        totalProductData.push(...chartData.data);
-      }
-      if (chartData.label.includes('Service')) {
-        totalServiceData.push(...chartData.data);
+  private removeDuplicateEntityEntries(data: any[]) {
+    const entityMap = new Map<string, boolean>();
+    data.forEach((row) => {
+      if (row.ENTITY && entityMap.has(row.ENTITY)) {
+        // Optionally, adjust based on your specific requirements
+        row.ENTITY = null; // This line effectively marks duplicates
+      } else {
+        entityMap.set(row.ENTITY, true);
       }
     });
 
-    const reducedProductData = this.reduceData(totalProductData);
-    const reducedServiceData = this.reduceData(totalServiceData);
-
-    this.lineChartData = [
-      {
-        data: reducedProductData,
-        label: 'Total Product',
-        borderColor: '#FF5733', // Choose the color of your choice
-        fill: false,
-      },
-      {
-        data: reducedServiceData,
-        label: 'Total Service',
-        borderColor: '#33C2FF', // Choose the color of your choice
-        fill: false,
-      },
-    ];
+    // Update displayedColumns based on the processed data
+    this.updateDisplayedColumns(data);
   }
 
-  reduceData(data: number[]): number[] {
-    let reducedData = [];
+  private updateDisplayedColumns(data: any[]) {
+    const allKeys = new Set();
 
-    for (let i = 0; i < data.length; i += 10) {
-      let chunk = data.slice(i, i + 10);
-      let sum = chunk.reduce((a, b) => a + b, 0);
-      reducedData.push(sum);
-    }
-
-    return reducedData;
+    data.forEach((obj) => {
+      Object.keys(obj).forEach((key) => {
+        allKeys.add(key);
+      });
+    });
+    this.displayedColumns = [
+      'ENTITY',
+      'LINE_TYPE',
+      ...Array.from(allKeys).filter(
+        (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
+      ),
+    ].map((key) => String(key));
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -342,27 +246,67 @@ export class Wd0HistoricalDataComponent implements OnInit {
     link.click(); // triggers the download process and save file prompt in browser
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
+
+  private regression() {
+    // Filter out rows for totals and null ENTITY values
+    const filteredData = this.historicalData.filter(
+      (row) =>
+        row.ENTITY &&
+        !['Grand Total', 'Service Total', 'Product Total'].includes(row.ENTITY)
+    );
+
+    // Identify all potential quarter keys, excluding non-date keys
+    const quarterKeys = Object.keys(filteredData[0] || {}).filter(
+      (key) =>
+        /^[A-Za-z]{3}_\d{2}$/.test(key) &&
+        filteredData.some((row) => !isNaN(parseFloat(row[key])))
+    );
+
+    // Define custom sort logic for quarters based on fiscal year ending in July
+    const fiscalQuarterSorter = (a, b) => {
+      const monthOrder = { Oct: 1, Jan: 2, Apr: 3, Jul: 4 };
+      const [monthA, yearA] = a.split('_');
+      const [monthB, yearB] = b.split('_');
+      return yearA === yearB
+        ? monthOrder[monthA] - monthOrder[monthB]
+        : parseInt(yearA, 10) - parseInt(yearB, 10);
+    };
+
+    // Sort quarter keys based on custom logic
+    const sortedQuarterKeys = quarterKeys.sort(fiscalQuarterSorter);
+
+    // Select the most recent 3 quarters
+    const recentQuarters = sortedQuarterKeys.slice(-3);
+
+    // Now, for the sake of demonstration, let's extract Y values (e.g., sales) for these quarters for service lines
+    let x = [],
+      y = [];
+    filteredData.forEach((row) => {
+      if (row.LINE_TYPE === 'Service' || row.LINE_TYPE === 'Product') {
+        // Adjust based on your criteria
+        recentQuarters.forEach((quarter, index) => {
+          const value = parseFloat(row[quarter]);
+          if (!isNaN(value)) {
+            // Ensure we only include valid numerical values
+            x.push(index + 1); // X values representing the quarters in a simple numerical form
+            y.push(value); // Corresponding Y values
+          }
+        });
+      }
+    });
+
+    // Assuming 'x' and 'y' are populated, perform linear regression using your RegressionService
+    if (x.length && y.length) {
+      // Ensure we have data to work with
+      const { slope, intercept } =
+        this.regressionService.performLinearRegression(x, y);
+      console.log(`Slope: ${slope}, Intercept: ${intercept}`); // For demonstration
+    }
+  }
 }
 
 export interface HistoricalDataModel {
-  APR_20: string | null;
-  APR_21: string | null;
-  APR_22: string | null;
-  APR_23: string | null;
+  [key: string]: string | null;
   ENTITY: string | null;
-  JAN_20: string | null;
-  JAN_21: string | null;
-  JAN_22: string | null;
-  JAN_23: string | null;
-  JUL_19: string | null;
-  JUL_20: string | null;
-  JUL_21: string | null;
-  JUL_22: string | null;
-  JUL_23: string | null;
   LINE_TYPE: string | null;
-  OCT_20: string | null;
-  OCT_21: string | null;
-  OCT_22: string | null;
-  OCT_23: string | null;
-  OCT_24: string | null;
 }
