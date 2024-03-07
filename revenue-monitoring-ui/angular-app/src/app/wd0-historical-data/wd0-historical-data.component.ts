@@ -3,7 +3,9 @@ import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
-import * as d3 from 'd3';
+import { Chart, registerables } from 'chart.js';
+import { runtimes } from './runtimes';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-wd0-historical-data',
@@ -18,7 +20,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
     private regressionService: RegressionService
   ) {
     this.http = http;
+    Chart.register(...registerables);
   }
+
+  private barChart: Chart | null = null;
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
@@ -26,6 +31,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   ngOnInit(): void {
     this.getHistoricalData();
+    this.getRegressionData();
   }
 
   private getHistoricalData() {
@@ -77,94 +83,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         this.historicalData
       );
 
-      // Linear Regeression
-      this.regression();
-
-      this.initializeChart();
-    });
-  }
-
-  initializeChart(): void {
-    const margin = { top: 10, right: 30, bottom: 30, left: 60 },
-      width = 460 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
-
-    const svg = d3
-      .select('#my_dataviz')
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`);
-
-    d3.csv(
-      'https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered.csv'
-    ).then((data) => {
-      const allGroup = new Set(data.map((d) => d.name));
-
-      d3.select('#selectButton')
-        .selectAll('myOptions')
-        .data(Array.from(allGroup))
-        .enter()
-        .append('option')
-        .text((d) => d)
-        .attr('value', (d) => d);
-
-      const myColor = d3
-        .scaleOrdinal()
-        .domain(Array.from(allGroup))
-        .range(d3.schemeSet2);
-
-      const x = d3
-        .scaleLinear()
-        .domain(d3.extent(data, (d) => d.year))
-        .range([0, width]);
-      svg
-        .append('g')
-        .attr('transform', `translate(0, ${height})`)
-        .call(d3.axisBottom(x).ticks(7));
-
-      const y = d3
-        .scaleLinear()
-        .domain([0, d3.max(data, (d) => +d.n)])
-        .range([height, 0]);
-      svg.append('g').call(d3.axisLeft(y));
-
-      let line = svg
-        .append('g')
-        .append('path')
-        .datum(data.filter((d) => d.name == 'Helen'))
-        .attr(
-          'd',
-          d3
-            .line()
-            .x((d) => x(d.year))
-            .y((d) => y(+d.n))
-        )
-        .attr('stroke', myColor('valueA'))
-        .style('stroke-width', 4)
-        .style('fill', 'none');
-
-      function update(selectedGroup) {
-        const dataFilter = data.filter((d) => d.name == selectedGroup);
-        line
-          .datum(dataFilter)
-          .transition()
-          .duration(1000)
-          .attr(
-            'd',
-            d3
-              .line()
-              .x((d) => x(d.year))
-              .y((d) => y(+d.n))
-          )
-          .attr('stroke', myColor(selectedGroup));
-      }
-
-      d3.select('#selectButton').on('change', function (event) {
-        const selectedOption = d3.select(this).property('value');
-        update(selectedOption);
-      });
+      this.generateBarChart(this.historicalData);
     });
   }
 
@@ -226,6 +145,126 @@ export class Wd0HistoricalDataComponent implements OnInit {
     ].map((key) => String(key));
   }
 
+  generateBarChart(
+    historicalData: HistoricalDataModel[],
+    canvasId: string = 'barChartCanvasId'
+  ) {
+    const filteredData = this.filterDataByDate(
+      historicalData,
+      new Date(2022, 9)
+    ); // October 2022
+
+    const quarterlyData = this.sumQuarterlyData(filteredData);
+
+    const labels = Object.keys(quarterlyData).map((label) =>
+      label.replace(/_/g, ' ')
+    ); // Replace underscores
+
+    const datasets = [
+      {
+        label: 'Service',
+        data: labels.map(
+          (label) => quarterlyData[label.replace(/ /g, '_')].service || 0
+        ), // Replace spaces back to underscores to match keys
+        backgroundColor: 'rgb(0,119,188)',
+      },
+      {
+        label: 'Product',
+        data: labels.map(
+          (label) => quarterlyData[label.replace(/ /g, '_')].product || 0
+        ), // Replace spaces back to underscores to match keys
+        backgroundColor: 'rgb(77,184,255)',
+      },
+    ];
+
+    this.barChart = new Chart(canvasId, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: datasets,
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+  }
+
+  filterDataByDate(
+    historicalData: HistoricalDataModel[],
+    startDate: Date
+  ): HistoricalDataModel[] {
+    return historicalData.filter((data) => {
+      const keys = Object.keys(data).filter((key) => key.includes('_')); // Only consider keys with an underscore
+
+      return keys.some((key) => {
+        const [month, year] = key.split('_');
+
+        // Check if year is defined and adjust if it's only two digits
+        const fullYear = year && year.length === 2 ? `20${year}` : year;
+        if (fullYear && !isNaN(+fullYear)) {
+          const monthNumber = this.monthStringToNumber(month);
+          if (!isNaN(monthNumber)) {
+            const date = new Date(+fullYear, monthNumber - 1);
+            return date >= startDate;
+          }
+        }
+        return false;
+      });
+    });
+  }
+
+  private monthStringToNumber(month: string): number {
+    const months = {
+      JAN: 1,
+      APR: 4,
+      JUL: 7,
+      OCT: 10,
+    };
+    const monthNumber = months[month] || 0;
+    return monthNumber;
+  }
+
+  sumQuarterlyData(historicalData: HistoricalDataModel[]): any {
+    const quarterlySums = {};
+    historicalData.forEach((data) => {
+      Object.keys(data).forEach((key) => {
+        if (
+          key.includes('_') &&
+          !['ENTITY', 'LINE_TYPE', 'SEQUENCE_NUMBER'].includes(key)
+        ) {
+          const [month, year] = key.split('_');
+          const quarter = this.getFiscalQuarter(month, year);
+          const lineType = data.LINE_TYPE ? data.LINE_TYPE.toLowerCase() : null;
+          const valueString = data[key];
+          const value = valueString ? parseInt(valueString, 10) : 0;
+
+          if (lineType && !isNaN(value)) {
+            if (!quarterlySums[quarter]) {
+              quarterlySums[quarter] = { service: 0, product: 0 };
+            }
+            quarterlySums[quarter][lineType] += value;
+          }
+        }
+      });
+    });
+    return quarterlySums;
+  }
+
+  private getFiscalQuarter(month: string, year: string): string {
+    const fiscalMonths = {
+      OCT: 'Q1',
+      JAN: 'Q2',
+      APR: 'Q3',
+      JUL: 'Q4',
+    };
+    const fiscalQuarter = fiscalMonths[month];
+    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
+  }
+
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
@@ -247,61 +286,80 @@ export class Wd0HistoricalDataComponent implements OnInit {
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
 
-  private regression() {
-    // Filter out rows for totals and null ENTITY values
-    const filteredData = this.historicalData.filter(
-      (row) =>
-        row.ENTITY &&
-        !['Grand Total', 'Service Total', 'Product Total'].includes(row.ENTITY)
-    );
+  upperCI: number;
+  lowerCI: number;
 
-    // Identify all potential quarter keys, excluding non-date keys
-    const quarterKeys = Object.keys(filteredData[0] || {}).filter(
-      (key) =>
-        /^[A-Za-z]{3}_\d{2}$/.test(key) &&
-        filteredData.some((row) => !isNaN(parseFloat(row[key])))
-    );
+  getRegressionData() {
+    this.http.get('wd0-regression').subscribe((data: any) => {
+      const regressionData = this.processRegressionData(data);
 
-    // Define custom sort logic for quarters based on fiscal year ending in July
-    const fiscalQuarterSorter = (a, b) => {
-      const monthOrder = { Oct: 1, Jan: 2, Apr: 3, Jul: 4 };
-      const [monthA, yearA] = a.split('_');
-      const [monthB, yearB] = b.split('_');
-      return yearA === yearB
-        ? monthOrder[monthA] - monthOrder[monthB]
-        : parseInt(yearA, 10) - parseInt(yearB, 10);
-    };
+      const regressionResults =
+        this.regressionService.performMultipleLinearRegression(
+          regressionData.X,
+          regressionData.y
+        );
 
-    // Sort quarter keys based on custom logic
-    const sortedQuarterKeys = quarterKeys.sort(fiscalQuarterSorter);
+      console.log('Coefficients:', regressionResults.coefficients);
+      console.log('Intercept:', regressionResults.intercept);
 
-    // Select the most recent 3 quarters
-    const recentQuarters = sortedQuarterKeys.slice(-3);
+      console.log('Lower CI:', regressionResults.lowerCI);
+      console.log('Upper CI:', regressionResults.upperCI);
 
-    // Now, for the sake of demonstration, let's extract Y values (e.g., sales) for these quarters for service lines
-    let x = [],
-      y = [];
-    filteredData.forEach((row) => {
-      if (row.LINE_TYPE === 'Service' || row.LINE_TYPE === 'Product') {
-        // Adjust based on your criteria
-        recentQuarters.forEach((quarter, index) => {
-          const value = parseFloat(row[quarter]);
-          if (!isNaN(value)) {
-            // Ensure we only include valid numerical values
-            x.push(index + 1); // X values representing the quarters in a simple numerical form
-            y.push(value); // Corresponding Y values
-          }
-        });
-      }
+      this.upperCI = regressionResults.upperCI;
+      this.lowerCI = regressionResults.lowerCI;
+
+      const newInput = [[27718, 10417]]; // [PRODUCT, SERVICE]
+      const predictedRuntimes = this.regressionService.predict(newInput);
+      console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
     });
+  }
 
-    // Assuming 'x' and 'y' are populated, perform linear regression using your RegressionService
-    if (x.length && y.length) {
-      // Ensure we have data to work with
-      const { slope, intercept } =
-        this.regressionService.performLinearRegression(x, y);
-      console.log(`Slope: ${slope}, Intercept: ${intercept}`); // For demonstration
+  // This method will transform the backend data into two arrays: productLines and serviceLines.
+  processRegressionData(data: any[]): { X: number[][]; y: number[][] } {
+    // Initialize empty arrays for product and service line counts
+    const productLines: number[] = [];
+    const serviceLines: number[] = [];
+    const y: number[] = []; // This will store your actual runtimes
+
+    // Filter out months that are missing from the actual runtimes data
+    const filteredData = data.filter((entry) =>
+      runtimes.some((runtime) => runtime.PERIOD_NAME === entry.PERIOD_NAME)
+    );
+
+    // Assuming the filteredData is sorted by period and each period has two entries: one for PRODUCT and one for SERVICE
+    for (let i = 0; i < filteredData.length; i += 2) {
+      const productEntry =
+        filteredData[i].LINE_TYPE === 'PRODUCT'
+          ? filteredData[i]
+          : filteredData[i + 1];
+      const serviceEntry =
+        filteredData[i].LINE_TYPE === 'SERVICE'
+          ? filteredData[i]
+          : filteredData[i + 1];
+
+      // Check if the period for this entry exists in the runtimes array
+      const runtimeEntry = runtimes.find(
+        (rt) => rt.PERIOD_NAME === productEntry.PERIOD_NAME
+      );
+      if (runtimeEntry) {
+        // Add the line counts and runtime to the respective arrays
+        productLines.push(productEntry.LINE_COUNT);
+        serviceLines.push(serviceEntry.LINE_COUNT);
+        y.push(runtimeEntry.Actual_Run_Time);
+      }
     }
+
+    // Combine productLines and serviceLines into a 2D array for X
+    const X = productLines.map((productCount, index) => [
+      productCount,
+      serviceLines[index],
+    ]);
+
+    // Convert y into a 2D array for MLR
+    const yFormatted = y.map((runtime) => [runtime]); // Wrap each runtime value in an array
+
+    // Return the formatted 2D array yFormatted as part of the object
+    return { X, y: yFormatted };
   }
 }
 

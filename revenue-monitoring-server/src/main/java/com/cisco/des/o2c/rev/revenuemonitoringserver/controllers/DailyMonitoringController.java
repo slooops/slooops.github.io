@@ -244,4 +244,10 @@ public class DailyMonitoringController {
         service.updateInvoiceEligibleDate(updatedDeals);
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }
+
+    @GetMapping("/wd0-regression")
+    public ResponseEntity<List<Map<String, Object>>> getWd0Regression() {
+        return new ResponseEntity<>(service.getWd0Regression(), HttpStatus.OK);
+    }
+
 }

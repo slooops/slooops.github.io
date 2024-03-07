@@ -37,6 +37,8 @@
     "date-fns": "^2.30.0",
     "font-awesome": "^4.7.0",
     "material": "^0.5.3",
+    "ml-matrix": "^6.11.0",
+    "ml-regression-multivariate-linear": "^2.0.4",
     "ml-regression-simple-linear": "^3.0.0",
     "ng-circle-progress": "^1.7.1",
     "ng2-charts": "^4.1.1",

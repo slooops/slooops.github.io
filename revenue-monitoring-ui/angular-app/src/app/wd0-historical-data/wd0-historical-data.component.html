@@ -1,11 +1,28 @@
-<!-- <br /> -->
-<!-- <script src="https://d3js.org/d3.v6.js"></script>
-<select id="selectButton"></select>
-<div id="my_dataviz"></div> -->
+<br />
+<h1>Mid Close Volumes</h1>
+
+<div style="display: flex; align-items: flex-end">
+  <div style="width: 50vw; padding-left: 1vw">
+    <canvas id="barChartCanvasId"></canvas>
+  </div>
+  <br />
+
+  <div class="slider-container">
+    <div class="slider-title">Estimated Mid Close Runtime</div>
+    <div class="slider">
+      <div class="time">{{ lowerCI | number : "1.2-2" }} hrs</div>
+      <div class="slider-bar">
+        <span class="slider-circle start-circle"> </span>
+        <!-- <span class="slider-circle end-circle"></span> -->
+      </div>
+      <div class="time">{{ upperCI | number : "1.2-2" }} hrs</div>
+    </div>
+  </div>
+</div>
 
 <div class="row">
   <div class="col-sm-4">
-    <h4 style="padding-top: 14px">Mid Close Volumes All Entities</h4>
+    <h4 style="padding-top: 14px">&nbsp;All Entities</h4>
   </div>
   <div
     class="col-sm-5 justify-content-center align-items-center"
@@ -38,6 +55,7 @@
     mat-table
     [dataSource]="dataSource"
     class="table table-responsive table-striped"
+    aria-label="Mid Close Volumes Table"
   >
     <ng-container
       *ngFor="let column of displayedColumns; let i = index"

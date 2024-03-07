@@ -62,6 +62,8 @@ public class DailyMonitoringService {
     private String accrualsSummarizationErrors;
     private String kafkaPublishToDownstream;
     private String errorDistributionSummarization;
+    private String wd0Regression;
+
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
@@ -75,7 +77,7 @@ public class DailyMonitoringService {
                                   String updateOrderStatus, String kafkaError, String kafkaInbound,
                                   String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
-                                  String orderStatusRevSummary, String updateInvoiceEligibleDate
+                                  String orderStatusRevSummary, String updateInvoiceEligibleDate, String wd0Regression
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -112,6 +114,7 @@ public class DailyMonitoringService {
         this.errorDistributionSummarization = errorDistributionSummarization;
         this.orderStatusRevSummary = orderStatusRevSummary;
         this.updateInvoiceEligibleDate = updateInvoiceEligibleDate;
+        this.wd0Regression = wd0Regression;
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -406,4 +409,10 @@ public class DailyMonitoringService {
         }
 
     }
+
+    public List<Map<String, Object>> getWd0Regression() {
+        return jdbcManager.queryForList(wd0Regression);
+    }
+
+
 }
