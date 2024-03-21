@@ -32,6 +32,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ngOnInit(): void {
     this.getHistoricalData();
     this.getRegressionData();
+    this.createLineGraph();
   }
 
   private getHistoricalData() {
@@ -293,6 +294,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     this.http.get('wd0-regression').subscribe((data: any) => {
       const regressionData = this.processRegressionData(data);
 
+      console.log('Regression Data:', regressionData);
+
       const regressionResults =
         this.regressionService.performMultipleLinearRegression(
           regressionData.X,
@@ -311,7 +314,102 @@ export class Wd0HistoricalDataComponent implements OnInit {
       const newInput = [[27718, 10417]]; // [PRODUCT, SERVICE]
       const predictedRuntimes = this.regressionService.predict(newInput);
       console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
+
+      //chart data collection
+      console.log(
+        `OCT-24: ${this.regressionService.predict([[23050, 15246]])}`
+      );
+      console.log(`NOV-24: ${this.regressionService.predict([[19926, 2859]])}`);
+      console.log(`DEC-24: ${this.regressionService.predict([[20341, 8383]])}`);
+      console.log(`JAN-24: ${this.regressionService.predict([[20341, 8383]])}`);
+      console.log(`FEB-24: ${this.regressionService.predict([[16105, 1946]])}`);
+
+      const months = [
+        { period: 'OCT-24', product: 23050, service: 15246, df: 23 },
+        { period: 'NOV-24', product: 19926, service: 2859, df: 24 },
+        { period: 'DEC-24', product: 20341, service: 8383, df: 25 },
+        { period: 'JAN-24', product: 20341, service: 8383, df: 26 },
+        { period: 'FEB-24', product: 16105, service: 1946, df: 27 },
+      ];
+
+      months.forEach((month) => {
+        const input = [[month.product, month.service]];
+        const { predictedRuntime, lowerCI, upperCI } =
+          this.regressionService.predictWithConfidenceIntervals(
+            input,
+            month.df
+          );
+        console.log(
+          `${month.period}: Predicted runtime = ${predictedRuntime}, Lower CI = ${lowerCI}, Upper CI = ${upperCI}`
+        );
+      });
     });
+  }
+
+  createLineGraph() {
+    this.http.get('wd0-current-month').subscribe((data: any) => {
+      console.log('Current Month Data:', data);
+    });
+    const ctx = (
+      document.getElementById('lineChartCanvas') as HTMLCanvasElement
+    ).getContext('2d');
+    if (ctx) {
+      const lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['OCT-24', 'NOV-24', 'DEC-24', 'JAN-24', 'FEB-24'],
+          datasets: [
+            {
+              label: 'Predicted Runtime',
+              data: [4.457, 4.49, 4.484, 4.484, 4.525],
+              yAxisID: 'y',
+              tension: 0.3,
+            },
+            {
+              label: 'Lower Confidence Interval',
+              data: [3.178, 3.214, 3.21, 3.213, 3.256],
+              yAxisID: 'y',
+              tension: 0.3,
+            },
+            {
+              label: 'Upper Confidence Interval',
+              data: [5.737, 5.767, 5.758, 5.756, 5.794],
+              yAxisID: 'y',
+              tension: 0.3,
+            },
+            {
+              label: 'Product',
+              data: [23050, 19926, 20341, 20341, 16105],
+              yAxisID: 'y1',
+              tension: 0.3,
+            },
+            {
+              label: 'Service',
+              data: [15246, 2859, 8383, 8383, 1946],
+              yAxisID: 'y1',
+              tension: 0.3,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              beginAtZero: false,
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              beginAtZero: true,
+              grid: {
+                drawOnChartArea: false, // only want the grid lines for one axis to show up
+              },
+            },
+          },
+        },
+      });
+    }
   }
 
   // This method will transform the backend data into two arrays: productLines and serviceLines.

@@ -250,4 +250,9 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getWd0Regression(), HttpStatus.OK);
     }
 
+    @GetMapping("/wd0-current-month")
+    public ResponseEntity<List<Map<String, Object>>> getWd0CurrentMonth() {
+        return new ResponseEntity<>(service.getWd0CurrentMonth(), HttpStatus.OK);
+    }
+
 }

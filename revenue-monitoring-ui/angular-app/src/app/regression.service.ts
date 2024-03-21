@@ -33,6 +33,7 @@ export class RegressionService {
 
     const modelIntercept = regression.weights[2][0]; // this is the intercept
     const degreesOfFreedom = y.length - 2; // n (observations) - p (product & service)
+    console.log('Degrees of Freedom =', degreesOfFreedom);
     const criticalValue = this.getCriticalValue(degreesOfFreedom);
 
     const lowerConfidenceInterval = modelIntercept - criticalValue * stdError;
@@ -58,6 +59,31 @@ export class RegressionService {
       );
     }
     return this.model.predict(X).map((result) => result[0]);
+  }
+
+  predictWithConfidenceIntervals(
+    X: number[][],
+    degreesOfFreedom: number
+  ): {
+    predictedRuntime: number;
+    lowerCI: number;
+    upperCI: number;
+  } {
+    if (!this.model) {
+      throw new Error(
+        'Model not set. Please train the model before predicting.'
+      );
+    }
+
+    const predictedRuntime = this.model.predict(X)[0][0];
+    const stdError = this.model.stdError;
+    // Use the provided degrees of freedom to get the critical value
+    const criticalValue = this.getCriticalValue(degreesOfFreedom);
+
+    const lowerCI = predictedRuntime - criticalValue * stdError;
+    const upperCI = predictedRuntime + criticalValue * stdError;
+
+    return { predictedRuntime, lowerCI, upperCI };
   }
 
   getCriticalValue(degreesOfFreedom: number): number {

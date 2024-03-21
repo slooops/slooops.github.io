@@ -119,6 +119,10 @@ public class QueryConfigs { // TODO
     @Value(("${wd0.regression.q}"))
     public String wd0Regression;
 
+    @Value(("${wd0.current.month.q}"))
+    public String wd0CurrentMonth;
+
+
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -244,4 +248,8 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "wd0Regression" )
     public String getWd0Regression() {return this.wd0Regression; }
+
+    @Bean( name = "wd0CurrentMonth" )
+    public String getWd0CurrentMonth() {return this.wd0CurrentMonth; }
+
 }

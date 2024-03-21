@@ -39,5 +39,6 @@
   "KAFKA_PUBLISH_TO_DOWNSTREAM_QUERY": "select * from ARFINRO.ASK_ORG_KAFKA_PUBLISH_V",
   "ERRORS_DISTRIBUTION_SUMMARIZATION_QUERY": "select * from ARFINRO.ASK_ORG_ACCRUAL_SUMM_DIST_V",
   "WD0_REGRESSION_QUERY": "select period_year,period_num,period_name,line_type,line_count from arfinro.ASK_QE_ME_INTERFACE_LOAD\nwhere close_type='MIDCLOSE'\norder by period_year,period_num",
+  "WDO_CURRENT_MONTH_QUERY": "select * from arfinro.XXCFI_ASK_I2C_DASH_LOAD_SUMM_V1",
   "CORS_URL": "http://localhost:4200"
 }
