@@ -1,7 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import url("css/cui-standard.min.css");
 @import "~font-awesome/css/font-awesome.css";
-@import "~material-icons/iconfont/material-icons.css";
 
 .givemespace {
   margin: 8px 0 8px 0;
