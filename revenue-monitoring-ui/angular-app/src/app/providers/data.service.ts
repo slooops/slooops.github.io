@@ -31,7 +31,7 @@ export class DataService {
     this.userRoles = userRoles;
   }
 
-  geUserRoles() {
+  getUserRoles() {
     return this.userRoles;
   }
 }

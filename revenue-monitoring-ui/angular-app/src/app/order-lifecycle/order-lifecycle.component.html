@@ -282,11 +282,7 @@
           DEAL UPLOAD DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
-          {{
-            record.DEAL_UPLOAD_DATE == "TBD"
-              ? "TBD"
-              : (record.DEAL_UPLOAD_DATE | date : "M/d/yyyy")
-          }}
+          {{ record.DEAL_UPLOAD_DATE | date : "M/d/yyyy" }}
         </td>
       </ng-container>
 
@@ -577,6 +573,27 @@
             <span
               *ngIf="
                 updateClo &&
+                record.CLO_COMMENTS == 'TBD' &&
+                record.GL_POSTING_STATUS != 'Completed'
+              "
+              class="test"
+            >
+              <input
+                *ngIf="record.CLO_COMMENTS == 'TBD'"
+                type="text"
+                placeholder="Click to edit"
+                disabled
+              />
+              <i
+                class="fa fa-pencil-square-o hoverIcon"
+                style="font-weight: bold; color: rgb(79, 78, 78)"
+                aria-hidden="true"
+                (click)="startEditing(record, i)"
+              ></i>
+            </span>
+            <span
+              *ngIf="
+                updateClo &&
                 record.CLO_COMMENTS != 'TBD' &&
                 record.GL_POSTING_STATUS != 'Completed'
               "
@@ -635,17 +652,17 @@
       </ng-container>
 
       <!-- Table header -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
 
       <!-- Table rows -->
       <tr
         mat-row
-        *matRowDef="let row; columns: displayedColumns; let entry"
+        *matRowDef="let row; columns: columnsToDisplay; let entry"
         [ngClass]="{ highlight: entry.GL_POSTING_STATUS == 'Completed' }"
       ></tr>
 
       <tr class="mat-row" *matNoDataRow>
-        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+        <td class="mat-cell" [attr.colspan]="columnsToDisplay.length">
           <h6>No Records Found</h6>
         </td>
       </tr>
@@ -702,4 +719,19 @@
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
     >&nbsp;&nbsp;Download
   </div>
+  <!-- <div class="viewHighlight submenu">
+    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    >&nbsp;&nbsp;Select Columns
+    <mat-selection-list #column (selectionChange)="logSelectedColumns($event)">
+      <mat-list-option
+        *ngFor="let column of displayedColumns"
+        [value]="column"
+        [selected]="true"
+        style="font-weight: 400"
+        >{{ column }}</mat-list-option
+      >
+    </mat-selection-list>
+  </div> -->
 </mat-menu>
+
+<!-- <mat-menu *ngIf="ifColumnSelect" class="submenu-content"> </mat-menu> -->

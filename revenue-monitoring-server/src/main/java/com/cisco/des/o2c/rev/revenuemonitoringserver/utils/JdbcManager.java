@@ -31,10 +31,6 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql);
     }
 
-//    public List<Map<String, Object>> queryForListWithParams(String sql, Map<String, String> paramMap) {
-//        return namedParameterJdbcTemplate.queryForList(sql, paramMap);
-//    }
-
     public Map<String, Object> simpleJdbcCall(String schema, String catalogName, String proc,
                                               Map<String, Integer> inParamTypes, Map<String, Integer> outParamTypes,
                                               Map<String, Object> params) {
@@ -73,10 +69,8 @@ public class JdbcManager {
         return jdbcTemplate.update(sql, invoiceElgibileDate, dealId, salesOrder);
     }
 
-
     public List<Map<String, Object>> queryForListWithParams(String sql, String appName, String batchSource, String entity, String type){
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
-
 
 }

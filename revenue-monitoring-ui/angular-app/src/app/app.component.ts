@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
+import { ApiHttpService } from './providers/http.service';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +13,17 @@ export class AppComponent {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private titleService: Title
-  ) {}
+    private titleService: Title,
+    http: ApiHttpService
+  ) {
+    this.http = http;
+  }
+
+  protected http: ApiHttpService;
 
   menuOpened = false;
-  username: string = 'Admin';
+  // username: string = 'Admin';
+  userRoles: String[] = [];
 
   header: string = '';
 

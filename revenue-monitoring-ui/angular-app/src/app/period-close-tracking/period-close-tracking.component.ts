@@ -284,7 +284,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         hour: 'numeric',
         minute: 'numeric',
       });
-      this.showComments = this.dataService.geUserRoles().includes('admin');
+      this.showComments = this.dataService.getUserRoles().includes('admin');
     });
   }
 

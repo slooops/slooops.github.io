@@ -16,10 +16,11 @@ import java.util.Map;
 public class UserRoleController {
 
     @Autowired
-    private UserRoleService userService;
+    private DailyMonitoringService userService;
 
     @PostMapping(value = "/auth-user")
     public ResponseEntity<String> getAuthUser(@RequestBody Map<String,String> authUser){
+//        System.out.println(authUser.get("auth_user"));
         userService.setAuthorizedUser(authUser.get("auth_user"));
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }

@@ -16,3 +16,11 @@ th.mat-header-cell {
 .bold {
   font-weight: bold;
 }
+
+td {
+  text-align: center !important;
+}
+
+th {
+  text-align: center !important;
+}

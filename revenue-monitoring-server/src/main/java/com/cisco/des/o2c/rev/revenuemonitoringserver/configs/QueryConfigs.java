@@ -114,6 +114,9 @@ public class QueryConfigs { // TODO
     @Value(("${update.invoice.eligible.date.q}"))
     public String updateInvoiceEligibleDate;
 
+    @Value(("${persona.access.q}"))
+    public String personaAccessRoles;
+
 
 
     @Bean( name = "stdArExcQuery" )
@@ -237,4 +240,7 @@ public class QueryConfigs { // TODO
     public String getOrderStatusRevSummary() {return this.orderStatusRevSummary; }
     @Bean( name = "updateInvoiceEligibleDate" )
     public String getUpdateInvoiceEligibleDate() {return this.updateInvoiceEligibleDate; }
+
+    @Bean( name = "personaAccessRoles")
+    public String getPersonaAccessRoles() {return this.personaAccessRoles;}
 }

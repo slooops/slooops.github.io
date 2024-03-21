@@ -2,6 +2,7 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UserRoleInfo;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,9 +52,6 @@ public class DailyMonitoringService {
 
     private String wd0HistoricalDataQuery;
 
-
-//    Connection conn;
-
     private String kafkaError;
     private String kafkaInbound;
     private String arTrxnMissing;
@@ -62,6 +60,8 @@ public class DailyMonitoringService {
     private String accrualsSummarizationErrors;
     private String kafkaPublishToDownstream;
     private String errorDistributionSummarization;
+    private String personaAccessRoles;
+    private String authorizedUser="avudutha";
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
@@ -75,7 +75,7 @@ public class DailyMonitoringService {
                                   String updateOrderStatus, String kafkaError, String kafkaInbound,
                                   String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
-                                  String orderStatusRevSummary, String updateInvoiceEligibleDate
+                                  String orderStatusRevSummary, String updateInvoiceEligibleDate, String personaAccessRoles
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -112,6 +112,37 @@ public class DailyMonitoringService {
         this.errorDistributionSummarization = errorDistributionSummarization;
         this.orderStatusRevSummary = orderStatusRevSummary;
         this.updateInvoiceEligibleDate = updateInvoiceEligibleDate;
+        this.personaAccessRoles = personaAccessRoles;
+    }
+
+    public String getAuthorizedUser() {
+        return authorizedUser;
+    }
+
+    public void setAuthorizedUser(String authorizedUser) {
+        this.authorizedUser = authorizedUser;
+    }
+
+    public UserRoleInfo getUserRoles() {
+        List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
+        List<Map<String, Object>> filteredUsers = rolesList.stream()
+                .filter(user -> user.get("USER_NAME").equals(authorizedUser.toUpperCase()))
+                .collect(Collectors.toList());
+
+        List<String> roles = rolesList.stream()
+                .filter(user -> user.get("USER_NAME").equals(authorizedUser.toUpperCase()))
+                .map(user -> (String) user.get("USER_ROLE"))
+                .collect(Collectors.toList());
+
+        if (!filteredUsers.isEmpty()) {
+            Map<String, Object> user = filteredUsers.get(0);
+            String userName = (String) user.get("USER_NAME");
+            String userEmail = (String) user.get("USER_EMAIL");
+
+            return new UserRoleInfo(userName, userEmail, roles);
+        } else {
+            return null;
+        }
     }
 
     public List<Map<String, Object>> getStdArExceptions() {
@@ -212,7 +243,7 @@ public class DailyMonitoringService {
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
         String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
        "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
-        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE", "INVOICE_ELIGIBLE_DATE"};
+        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE", "INVOICE_ELIGIBLE_DATE", "DEAL_UPLOAD_DATE"};
         result.forEach(data -> {
             for(String str: columnsToRemove){
                 data.remove(str);
@@ -223,7 +254,9 @@ public class DailyMonitoringService {
                     String[] dateArr = date.split(" ");
                     data.put(str, dateArr[0]);
                 } else {
-                    data.put(str, "TBD");
+                    if(!str.equals("DEAL_UPLOAD_DATE")){
+                        data.put(str, "TBD");
+                    }
                 }
             }
 
@@ -345,7 +378,7 @@ public class DailyMonitoringService {
             String programName = (String) map.get("PROGRAM_NAME");
             int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
             String status = (String) map.get("STATUS");
-            Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue())  ;
+            Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue());
             OrderLifecycleSummaryModel model = new OrderLifecycleSummaryModel(programName, orderCount, status, completion);
             resultList.add(model);
         }

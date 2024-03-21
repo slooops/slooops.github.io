@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { ApiHttpService } from '../providers/http.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-menu',
@@ -8,7 +9,11 @@ import { ApiHttpService } from '../providers/http.service';
   styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent implements OnInit {
-  constructor(private dataService: DataService, http: ApiHttpService) {
+  constructor(
+    private dataService: DataService,
+    http: ApiHttpService,
+    private router: Router
+  ) {
     this.http = http;
   }
 
@@ -18,19 +23,48 @@ export class MenuComponent implements OnInit {
   ngOnInit(): void {
     this.getUserRoles();
   }
-  isAdmin: boolean = false;
+  isAdmin: boolean = true;
   rolesReady = false;
+  errorPath: boolean = true;
 
   getUserRoles() {
     this.http.get('user-role').subscribe((data: any) => {
-      this.userRoles = data;
-      this.dataService.setUserRoles(data);
-      this.isAdmin = this.userRoles.includes('admin');
+      this.userRoles = data['userRoles'];
+      this.dataService.setUserRoles(this.userRoles);
+      this.isAdmin = this.userRoles.includes('ADMIN');
       this.rolesReady = true;
+      let redirectPath = this.redirectPath();
+      this.errorPath = redirectPath === 'error' ? true : false;
+      this.redirect(redirectPath);
     });
   }
 
   checkRole(role: String) {
     return this.rolesReady && this.userRoles.includes(role);
+  }
+
+  redirectPath() {
+    if (
+      this.userRoles.includes('ADMIN') ||
+      this.userRoles.includes('PERIOD_CLOSE')
+    ) {
+      return 'period-close-tracking-preclose';
+    } else {
+      if (this.userRoles.includes('LARGE_DEAL')) {
+        return 'large-deal-tracker';
+      } else {
+        if (this.userRoles.includes('WD0')) {
+          return 'wd0-dash';
+        } else if (this.userRoles.includes('MIDCLOSE_VOLUMES')) {
+          return 'mid-close-volumes';
+        } else {
+          return 'error';
+        }
+      }
+    }
+  }
+
+  redirect(navigateString) {
+    this.router.navigateByUrl(navigateString);
   }
 }

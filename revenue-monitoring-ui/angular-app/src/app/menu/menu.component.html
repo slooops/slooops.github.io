@@ -1,12 +1,13 @@
 <div style="background-color: #007dab; height: 100%">
-  <mat-nav-list>
-    <!-- <mat-list-item [routerLink]="['/home']" routerLinkActive="active">
+  <div *ngIf="!errorPath">
+    <mat-nav-list>
+      <!-- <mat-list-item [routerLink]="['/home']" routerLinkActive="active">
       Home
     </mat-list-item>
     <mat-list-item [routerLink]="['/standard-ar']" routerLinkActive="active">
       Standard AR
     </mat-list-item> -->
-    <!-- <mat-list-item
+      <!-- <mat-list-item
       [routerLink]="['/tsv-exceptions-top-sku']"
       routerLinkActive="active"
     >
@@ -18,13 +19,13 @@
     >
       Revenue Accruals Sub Sku
     </mat-list-item> -->
-    <!-- <mat-list-item
+      <!-- <mat-list-item
       [routerLink]="['/revenue-controls']"
       routerLinkActive="active"
     >
       Revenue Controls
     </mat-list-item> -->
-    <mat-expansion-panel
+      <!-- <mat-expansion-panel
       [class.mat-elevation-z0]="true"
       style="background-color: #007dab"
       [expanded]="true"
@@ -48,36 +49,31 @@
           Mid-close
         </mat-list-item>
       </mat-nav-list>
-    </mat-expansion-panel>
-    <!-- <mat-list-item [routerLink]="['/error-dash']" routerLinkActive="active">
+    </mat-expansion-panel> -->
+      <!-- <mat-list-item [routerLink]="['/error-dash']" routerLinkActive="active">
       Error Dashboard
     </mat-list-item> -->
-    <mat-list-item
-      [routerLink]="['/large-deal-tracker']"
-      routerLinkActive="active"
-      *ngIf="isAdmin || checkRole('largeDeal')"
-    >
-      Large Deal Tracker
-    </mat-list-item>
-    <mat-list-item
-      [routerLink]="['/wd0-dash']"
-      routerLinkActive="active"
-      *ngIf="isAdmin || checkRole('wd0')"
-    >
-      WD+0 Mid Close Status
-    </mat-list-item>
-    <mat-list-item
-      [routerLink]="['/historical-data']"
-      routerLinkActive="active"
-      *ngIf="isAdmin || checkRole('midcloseVolumes')"
-    >
-      Mid Close Volumes
-    </mat-list-item>
-    <!-- <mat-list-item
-      [routerLink]="['/revenue-accruals']"
-      routerLinkActive="active"
-    >
-      Revenue Accruals
-    </mat-list-item> -->
-  </mat-nav-list>
+      <mat-list-item
+        [routerLink]="['/large-deal-tracker']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('largeDeal')"
+      >
+        Large Deal Tracker
+      </mat-list-item>
+      <mat-list-item
+        [routerLink]="['/wd0-dash']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('WD0')"
+      >
+        WD+0 Mid Close Status
+      </mat-list-item>
+      <mat-list-item
+        [routerLink]="['/mid-close-volumes']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')"
+      >
+        Mid Close Volumes
+      </mat-list-item>
+    </mat-nav-list>
+  </div>
 </div>

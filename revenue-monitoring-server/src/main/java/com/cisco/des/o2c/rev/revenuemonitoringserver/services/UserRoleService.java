@@ -6,23 +6,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserRoleService {
 
     private JdbcManager jdbcManager;
 
-    private String authorizedUser;
+    private String authorizedUser = "avudutha@cisco.com";
+//    private String personaAccessRoles;
+
+//
+//    public UserRoleService(JdbcManager jdbcManager, String personaAccessRoles){
+//        this.personaAccessRoles = personaAccessRoles;
+//    }
 
     String[] userRoleGroups = {"admin", "periodClose", "largeDeal", "wd0", "midcloseVolumes", "cloUpdate", "dealUpload"};
 
-    public String getAuthorizedUser() {
-        return authorizedUser;
-    }
-
-    public void setAuthorizedUser(String authorizedUser) {
-        this.authorizedUser = authorizedUser;
-    }
+//    public String getAuthorizedUser() {
+//        return authorizedUser;
+//    }
+//
+//    public void setAuthorizedUser(String authorizedUser) {
+//        this.authorizedUser = authorizedUser;
+//    }
 
     @Autowired
     public UserRoleService(JdbcManager jdbcManager) {
@@ -36,4 +43,8 @@ public class UserRoleService {
         return userRoles;
 
     }
+//
+//    public List<Map<String, Object>> getUserRoles() {
+//        return jdbcManager.queryForList(personaAccessRoles);
+//    }
 }

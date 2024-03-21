@@ -80,6 +80,8 @@ import { OrderLifecycleSummaryComponent } from './order-lifecycle/order-lifecycl
 import { OrderLifecycleUploadComponent } from './order-lifecycle/order-lifecycle-upload/order-lifecycle-upload.component';
 import { OrderLifecycleRevSummaryComponent } from './order-lifecycle/order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 import { DataService } from './providers/data.service';
+import { HomeComponent } from './home/home.component';
+import { ErrorComponent } from './error/error.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -113,6 +115,8 @@ export function initApp(authService: AuthenticationService) {
     ChartDialogComponent,
     TableDialogComponent,
     OrderLifecycleRevSummaryComponent,
+    HomeComponent,
+    ErrorComponent,
   ],
   imports: [
     BrowserModule,

@@ -15,7 +15,7 @@ spec:
   ports:
     - name: "ui"
       protocol: "TCP"
-      port: 4200
+      port: 3000
   selector:
     app: "rev-ops-monitoring-ui-extra"
   type: ClusterIP
@@ -47,6 +47,6 @@ spec:
           imagePullPolicy: IfNotPresent
           name: "rev-ops-monitoring-ui-extra"
           ports:
-            - containerPort: 4200
+            - containerPort: 3000
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret

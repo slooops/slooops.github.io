@@ -1,37 +1,25 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-order-lifecycle-rev-summary',
   templateUrl: './order-lifecycle-rev-summary.component.html',
-  styleUrls: ['./order-lifecycle-rev-summary.component.css'],
+  styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
 })
 export class OrderLifecycleRevSummaryComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleRevSummaryComponent>,
-    @Inject(MAT_DIALOG_DATA) public injectData: any,
     http: ApiHttpService
   ) {
     this.http = http;
   }
   protected http: ApiHttpService;
 
-  newDataSource: any;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  length: number;
-  isNaN: Function = Number.isNaN;
-
-  grandTotalSalesOrderCount: number = 0;
-  grandTotalOrderValue: number = 0;
-  grandTotalTotalLineCount: number = 0;
   groupedData = [];
   flattenedData = [];
+  grandTotalData = [];
 
   ngOnInit(): void {
     this.getOrderLifecycleRevSummary();
@@ -40,7 +28,6 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   getOrderLifecycleRevSummary() {
     this.http.get('order-status-rev-summary').subscribe((data: any) => {
       this.pivotData(data);
-      this.setSortAndPaginator();
     });
   }
 
@@ -55,8 +42,13 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
           account: item.ACCOUNT,
           salesOrderSum: 0,
           totalOrderValueSum: 0,
-          totalLineCountSum: 0,
           deals: [],
+          qtrRevEstimateSum: 0,
+          qtrAccrualGlRevSum: 0,
+          qtrInvGlRevSum: 0,
+          qtrRevRecogSum: 0,
+          revNotRecogSum: 0,
+          expanded: false,
         };
         this.groupedData.push(account);
       }
@@ -68,131 +60,49 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
           dealId: item.DEAL_ID,
           salesOrderSum: 0,
           totalOrderValueSum: 0,
-          totalLineCountSum: 0,
           orderStatuses: [],
+          qtrRevEstimateSum: 0,
+          qtrAccrualGlRevSum: 0,
+          qtrInvGlRevSum: 0,
+          qtrRevRecogSum: 0,
+          revNotRecogSum: 0,
+          expanded: false,
         };
         account.deals.push(deal);
       }
 
-      // Create an order status object
       const orderStatus = {
         status: item.ORDER_STATUS,
-        salesOrderCount: parseFloat(item.SALES_ORDER_COUNT),
-        totalOrderValue: parseFloat(item.TOTAL_ORDER_VALUE),
-        totalLineCount: parseFloat(item.TOTAL_LINE_COUNT),
-        qtrRevEstimate: parseFloat(item.CURRENT_QTR_REV_ESTIMATE),
-        qtrAccrualGlRev: parseFloat(item.CURRENT_QTR_ACCR_GL_REV),
-        qtrInvGlRev: parseFloat(item.CURRENT_QTR_INV_GL_REV),
-        qtrRevRecog: parseFloat(item.CURRENT_QTR_REVENUE_RECOG),
-        revNotRecog: parseFloat(item.REVENUE_NOT_RECOG),
+        salesOrderCount: +item.SALES_ORDER_COUNT,
+        totalOrderValue: +item.TOTAL_ORDER_VALUE,
+        qtrRevEstimate: +item.CURRENT_QTR_REV_ESTIMATE,
+        qtrAccrualGlRev: +item.CURRENT_QTR_ACCR_GL_REV,
+        qtrInvGlRev: +item.CURRENT_QTR_INV_GL_REV,
+        qtrRevRecog: +item.CURRENT_QTR_REVENUE_RECOG,
+        revNotRecog: +item.REVENUE_NOT_RECOG,
       };
 
       deal.orderStatuses.push(orderStatus);
 
       account.salesOrderSum += orderStatus.salesOrderCount;
       account.totalOrderValueSum += orderStatus.totalOrderValue;
-      account.totalLineCountSum += orderStatus.totalLineCount;
+      account.qtrRevEstimateSum += orderStatus.qtrRevEstimate;
+      account.qtrAccrualGlRevSum += orderStatus.qtrAccrualGlRev;
+      account.qtrInvGlRevSum += orderStatus.qtrInvGlRev;
+      account.qtrRevRecogSum += orderStatus.qtrRevRecog;
+      account.revNotRecogSum += orderStatus.revNotRecog;
+
       deal.salesOrderSum += orderStatus.salesOrderCount;
       deal.totalOrderValueSum += orderStatus.totalOrderValue;
-      deal.totalLineCountSum += orderStatus.totalLineCount;
+      deal.qtrRevEstimateSum += orderStatus.qtrRevEstimate;
+      deal.qtrAccrualGlRevSum += orderStatus.qtrAccrualGlRev;
+      deal.qtrInvGlRevSum += orderStatus.qtrInvGlRev;
+      deal.qtrRevRecogSum += orderStatus.qtrRevRecog;
+      deal.revNotRecogSum += orderStatus.revNotRecog;
     }
 
-    this.groupedData.forEach((account) => {
-      account.deals.forEach((deal) => {
-        deal.orderStatuses.forEach((status) => {
-          deal.salesOrderSum += status.salesOrderCount;
-          deal.totalOrderValueSum += status.totalOrderValue;
-          deal.totalLineCountSum += status.totalLineCount;
-        });
-      });
-    });
-
-    this.groupedData.forEach((account) => {
-      account.deals.forEach((deal) => {
-        const orderStatusSalesOrderSum = deal.orderStatuses.reduce(
-          (sum, status) => sum + status.salesOrderCount,
-          0
-        );
-        const orderStatusTotalOrderValueSum = deal.orderStatuses.reduce(
-          (sum, status) => sum + status.totalOrderValue,
-          0
-        );
-        const orderStatusTotalLineCountSum = deal.orderStatuses.reduce(
-          (sum, status) => sum + status.totalLineCount,
-          0
-        );
-        deal.salesOrderSum = orderStatusSalesOrderSum;
-        deal.totalOrderValueSum = orderStatusTotalOrderValueSum;
-        deal.totalLineCountSum = orderStatusTotalLineCountSum;
-      });
-    });
-
-    this.groupedData.forEach((account) => {
-      const dealSalesOrderSum = account.deals.reduce(
-        (sum, deal) => sum + deal.salesOrderSum,
-        0
-      );
-      const dealTotalOrderValueSum = account.deals.reduce(
-        (sum, deal) => sum + deal.totalOrderValueSum,
-        0
-      );
-      const dealTotalLineCountSum = account.deals.reduce(
-        (sum, deal) => sum + deal.totalLineCountSum,
-        0
-      );
-      account.salesOrderSum = dealSalesOrderSum;
-      account.totalOrderValueSum = dealTotalOrderValueSum;
-      account.totalLineCountSum = dealTotalLineCountSum;
-    });
-
-    const grandTotalSalesOrderCount = this.groupedData.reduce(
-      (total, account) => {
-        return (
-          total +
-          account.deals.reduce((dealTotal, deal) => {
-            return (
-              dealTotal +
-              deal.orderStatuses.reduce((statusTotal, status) => {
-                return statusTotal + status.salesOrderCount;
-              }, 0)
-            );
-          }, 0)
-        );
-      },
-      0
-    );
-
-    const grandTotalOrderValue = this.groupedData.reduce((total, account) => {
-      return (
-        total +
-        account.deals.reduce((dealTotal, deal) => {
-          return (
-            dealTotal +
-            deal.orderStatuses.reduce((statusTotal, status) => {
-              return statusTotal + status.totalOrderValue;
-            }, 0)
-          );
-        }, 0)
-      );
-    }, 0);
-
-    const grandTotalTotalLineCount = this.groupedData.reduce(
-      (total, account) => {
-        return (
-          total +
-          account.deals.reduce((dealTotal, deal) => {
-            return (
-              dealTotal +
-              deal.orderStatuses.reduce((statusTotal, status) => {
-                return statusTotal + status.totalLineCount;
-              }, 0)
-            );
-          }, 0)
-        );
-      },
-      0
-    );
-
+    let grandTotalSalesOrderCount = 0;
+    let grandTotalOrderValue = 0;
     let grandTotalQtrRevEstimate = 0;
     let grandTotalQtrAccrualGlRev = 0;
     let grandTotalQtrInvGlRev = 0;
@@ -202,6 +112,8 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.groupedData.forEach((account) => {
       account.deals.forEach((deal) => {
         deal.orderStatuses.forEach((status) => {
+          grandTotalSalesOrderCount += parseFloat(status.salesOrderCount);
+          grandTotalOrderValue += parseFloat(status.totalOrderValue);
           grandTotalQtrRevEstimate += parseFloat(status.qtrRevEstimate);
           grandTotalQtrAccrualGlRev += parseFloat(status.qtrAccrualGlRev);
           grandTotalQtrInvGlRev += parseFloat(status.qtrInvGlRev);
@@ -211,12 +123,12 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       });
     });
 
-    this.groupedData.push({
-      account: 'Grand Total',
-      deals: [],
+    this.groupedData.sort((a, b) => b.qtrRevEstimateSum - a.qtrRevEstimateSum);
+
+    this.grandTotalData.push({
+      account: 'GRAND TOTAL',
       grandTotalSalesOrderCount,
       grandTotalOrderValue,
-      grandTotalTotalLineCount,
       grandTotalQtrRevEstimate,
       grandTotalQtrAccrualGlRev,
       grandTotalQtrInvGlRev,
@@ -224,25 +136,106 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
       grandTotalRevNotRecog,
     });
 
-    this.newDataSource = new MatTableDataSource(this.groupedData);
-
-    this.length = this.groupedData.length;
+    this.calculateTotalPages();
+    this.setPage(1);
   }
 
-  applySort() {
-    this.groupedData.sort((a, b) => {
-      if (a.ACCOUNT < b.ACCOUNT) {
-        return -1;
+  pageSize = 2;
+  currentPage = 1;
+  totalPages = 0;
+  paginatedData: any[] = [];
+  pages: number[] = [];
+
+  calculateTotalPages(): void {
+    this.totalPages = Math.ceil(this.groupedData.length / this.pageSize);
+    this.pages = Array.from(
+      { length: this.totalPages },
+      (_, index) => index + 1
+    );
+  }
+
+  setPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      const startIndex = (page - 1) * this.pageSize;
+      this.paginatedData = this.groupedData.slice(
+        startIndex,
+        startIndex + this.pageSize
+      );
+    }
+  }
+
+  prevPage(): void {
+    this.setPage(this.currentPage - 1);
+  }
+
+  nextPage(): void {
+    this.setPage(this.currentPage + 1);
+  }
+
+  sortingColumn: string = '';
+
+  sortEnable(column: string) {
+    const selectedColumn = this.displayedColumns.find(
+      (col) => col.name === column
+    );
+
+    if (selectedColumn) {
+      if (selectedColumn.sortingOrder === 'desc') {
+        selectedColumn.sorted = false;
+      } else {
+        selectedColumn.sorted = true;
       }
-      if (a.ACCOUNT > b.ACCOUNT) {
-        return 1;
+      selectedColumn.sortingOrder =
+        selectedColumn.sortingOrder === ''
+          ? 'asc'
+          : selectedColumn.sortingOrder === 'asc'
+          ? 'desc'
+          : '';
+    }
+
+    if (column === 'ACCOUNT/ DEAL IDs') {
+      this.sortData('account', selectedColumn.sortingOrder);
+    } else if (column === 'COUNT OF SALES ORDER') {
+      this.sortData('salesOrderSum', selectedColumn.sortingOrder);
+    } else if (column === 'SUM OF ORDER VALUE ($M)') {
+      this.sortData('totalOrderValueSum', selectedColumn.sortingOrder);
+    } else if (column === 'TOTAL QTR REVENUE ESTIMATE ($M) (A)') {
+      this.sortData('qtrRevEstimateSum', selectedColumn.sortingOrder);
+    } else if (column === 'INVOICED GL REVENUE FOR QTR ($M) (B)') {
+      this.sortData('qtrInvGlRevSum', selectedColumn.sortingOrder);
+    } else if (column === 'ACCRUED GL REVENUE FOR QTR ($M) (C)') {
+      this.sortData('qtrAccrualGlRevSum', selectedColumn.sortingOrder);
+    } else if (column === 'TOTAL REV RECOGNIZED FOR QTR ($M) (D = B+C)') {
+      this.sortData('qtrRevRecogSum', selectedColumn.sortingOrder);
+    } else if (column === 'REVENUE NOT RECOGNIZED ($M) (E = A-D)') {
+      this.sortData('revNotRecogSum', selectedColumn.sortingOrder);
+    }
+  }
+
+  sortData(column: string, sortingOrder: string) {
+    this.paginatedData.sort((a, b) => {
+      const valueA = a[column] || '';
+      const valueB = b[column] || '';
+
+      if (typeof valueA === 'string') {
+        return sortingOrder === 'asc'
+          ? valueA.localeCompare(valueB)
+          : sortingOrder === 'desc'
+          ? valueB.localeCompare(valueA)
+          : valueA.localeCompare(valueB);
+      } else {
+        return sortingOrder === 'asc'
+          ? valueA - valueB
+          : sortingOrder === 'desc'
+          ? valueB - valueA
+          : valueA - valueB;
       }
-      return 0;
     });
+  }
 
-    this.newDataSource.data = this.groupedData;
-
-    console.log(this.newDataSource.data);
+  isDealCompleted(deal): boolean {
+    return deal.orderStatuses.every((status) => status.status === 'Completed');
   }
 
   flattenData(groupedData) {
@@ -254,7 +247,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
         'DEAL ID': '',
         'ORDER STATUS': '',
         'COUNT OF SALES ORDER':
-          account.account !== 'Grand Total'
+          account.account !== 'GRAND TOTAL'
             ? account.salesOrderSum
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -262,7 +255,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         'SUM OF ORDER VALUE':
-          account.account !== 'Grand Total'
+          account.account !== 'GRAND TOTAL'
             ? '$ ' +
               account.totalOrderValueSum
                 .toString()
@@ -271,49 +264,56 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
               account.grandTotalOrderValue
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-        'SUM OF TOTAL LINE COUNT':
-          account.account !== 'Grand Total'
-            ? account.totalLineCountSum
-                .toString()
-                .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            : account.grandTotalTotalLineCount
-                .toString()
-                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         'TOTAL QTR REVENUE ESTIMATE':
-          account.account === 'Grand Total'
+          account.account === 'GRAND TOTAL'
             ? '$ ' +
               account.grandTotalQtrRevEstimate
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            : '',
+            : '$ ' +
+              account.qtrRevEstimateSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         'INVOICED GL REVENUE FOR QTR':
-          account.account === 'Grand Total'
+          account.account === 'GRAND TOTAL'
             ? '$ ' +
               account.grandTotalQtrInvGlRev
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            : '',
+            : '$ ' +
+              account.qtrInvGlRevSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         'ACCRUED GL REVENUE FOR QTR':
-          account.account === 'Grand Total'
+          account.account === 'GRAND TOTAL'
             ? '$ ' +
               account.grandTotalQtrAccrualGlRev
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            : '',
+            : '$ ' +
+              account.qtrAccrualGlRevSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         'TOTAL REV RECOGNIZED FOR QTR':
-          account.account === 'Grand Total'
+          account.account === 'GRAND TOTAL'
             ? '$ ' +
               account.grandTotalQtrRevRecog
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            : '',
+            : '$ ' +
+              account.qtrRevRecogSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         'REVENUE NOT RECOGNIZED':
-          account.account === 'Grand Total'
+          account.account === 'GRAND TOTAL'
             ? '$ ' +
               account.grandTotalRevNotRecog
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            : '',
+            : '$ ' +
+              account.revNotRecogSum
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
       };
 
       flattenedData.push(accountData);
@@ -331,9 +331,31 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
             deal.totalOrderValueSum
               .toString()
               .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-          'SUM OF TOTAL LINE COUNT': deal.totalLineCountSum
-            .toString()
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'TOTAL QTR REVENUE ESTIMATE':
+            '$ ' +
+            deal.qtrRevEstimateSum
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'INVOICED GL REVENUE FOR QTR':
+            '$ ' +
+            deal.qtrInvGlRevSum
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'ACCRUED GL REVENUE FOR QTR':
+            '$ ' +
+            deal.qtrAccrualGlRevSum
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'TOTAL REV RECOGNIZED FOR QTR':
+            '$ ' +
+            deal.qtrRevRecogSum
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
+          'REVENUE NOT RECOGNIZED':
+            '$ ' +
+            deal.revNotRecogSum
+              .toString()
+              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
         };
 
         flattenedData.push(dealData);
@@ -351,9 +373,6 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
               status.totalOrderValue
                 .toString()
                 .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
-            'SUM OF TOTAL LINE COUNT': status.totalLineCount
-              .toString()
-              .replace(/\B(?=(\d{3})+(?!\d))/g, ','),
             'TOTAL QTR REVENUE ESTIMATE':
               '$ ' +
               status.qtrRevEstimate
@@ -408,84 +427,50 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   saveAsExcelFile(buffer: any, filename: string) {
     let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
-    let link = document.createElement('a'); // create link
+    let url = window.URL.createObjectURL(data);
+    let link = document.createElement('a');
     link.href = url;
     link.download = filename + '.xlsx';
-    link.click(); // triggers the download process and save file prompt in browser
-    window.URL.revokeObjectURL(url); // revoke temp URL
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   closeDialog() {
     this.dialogRef.close();
   }
 
-  formatColumnHeader(columnName: string): string {
-    return columnName.replace(/_/g, ' ');
-  }
-
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-
-  setSortAndPaginator() {
-    this.newDataSource.paginator = this.paginator;
-  }
-  selection = new SelectionModel<any>(true, []);
-  selectedData: any;
-
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.newDataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  masterToggle() {
-    this.isAllSelected()
-      ? this.selection.clear()
-      : this.newDataSource.data.forEach((row) => this.selection.select(row));
-  }
-
-  onRowClicked(row: any) {
-    this.selectedData = row;
-  }
-
-  displayedColumns = [
-    'select',
-    'ACCOUNT',
-    'DEAL_ID',
-    'ORDER_STATUS',
-    'SALES_ORDER_COUNT',
-    'TOTAL_ORDER_VALUE',
-    'TOTAL_LINE_COUNT',
-    'CURRENT_QTR_REV_ESTIMATE',
-    'CURRENT_QTR_INV_GL_REV',
-    'CURRENT_QTR_ACCR_GL_REV',
-    'CURRENT_QTR_REVENUE_RECOG',
-    'REVENUE_NOT_RECOG',
+  displayedColumns: {
+    name: string;
+    sorted: boolean;
+    sortingOrder: 'asc' | 'desc' | '';
+  }[] = [
+    { name: 'ACCOUNT/ DEAL IDs', sorted: false, sortingOrder: '' },
+    { name: 'COUNT OF SALES ORDER', sorted: false, sortingOrder: '' },
+    { name: 'SUM OF ORDER VALUE ($M)', sorted: false, sortingOrder: '' },
+    {
+      name: 'TOTAL QTR REVENUE ESTIMATE ($M) (A)',
+      sorted: false,
+      sortingOrder: '',
+    },
+    {
+      name: 'INVOICED GL REVENUE FOR QTR ($M) (B)',
+      sorted: false,
+      sortingOrder: '',
+    },
+    {
+      name: 'ACCRUED GL REVENUE FOR QTR ($M) (C)',
+      sorted: false,
+      sortingOrder: '',
+    },
+    {
+      name: 'TOTAL REV RECOGNIZED FOR QTR ($M) (D = B+C)',
+      sorted: false,
+      sortingOrder: '',
+    },
+    {
+      name: 'REVENUE NOT RECOGNIZED ($M) (E = A-D)',
+      sorted: false,
+      sortingOrder: '',
+    },
   ];
-
-  newdisplayedColumns: string[] = [
-    'accountDealStatus',
-    'salesOrderSum',
-    'totalOrderValueSum',
-    'totalLineCountSum',
-    'CURRENT_QTR_REV_ESTIMATE',
-    'CURRENT_QTR_INV_GL_REV',
-    'CURRENT_QTR_ACCR_GL_REV',
-    'CURRENT_QTR_REVENUE_RECOG',
-    'REVENUE_NOT_RECOG',
-  ];
-}
-
-export interface OrderLifecycleRevSummaryModel {
-  ACCOUNT: string;
-  CURRENT_QTR_ACCR_GL_REV: string;
-  CURRENT_QTR_INV_GL_REV: string;
-  CURRENT_QTR_REVENUE_RECOG: string;
-  CURRENT_QTR_REV_ESTIMATE: string;
-  DEAL_ID: string;
-  ORDER_STATUS: string;
-  REVENUE_NOT_RECOG: string;
-  SALES_ORDER_COUNT: string;
-  TOTAL_LINE_COUNT: string;
-  TOTAL_ORDER_VALUE: string;
 }

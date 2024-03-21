@@ -104,3 +104,21 @@ th {
   background-color: rgb(240, 238, 238) !important;
   cursor: pointer;
 }
+
+input[type="text"] {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #000000;
+  width: 100px !important;
+  font-size: 12px !important;
+}
+
+.test {
+  position: relative;
+}
+
+.test .fa.fa-pencil-square-o {
+  position: absolute;
+  top: 0;
+  right: 0;
+}

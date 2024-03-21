@@ -13,12 +13,24 @@ import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.compo
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
+import { HomeComponent } from './home/home.component';
+import { ErrorComponent } from './error/error.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/period-close-tracking-preclose',
+    redirectTo: '/large-deal-tracker',
     pathMatch: 'full',
+  },
+  {
+    path: 'home',
+    component: HomeComponent,
+    data: { title: 'Home', header: '' },
+  },
+  {
+    path: 'error',
+    component: ErrorComponent,
+    data: { title: 'Error', header: '' },
   },
   {
     path: 'standard-ar',
@@ -94,7 +106,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'historical-data',
+    path: 'mid-close-volumes',
     component: Wd0HistoricalDataComponent,
     data: {
       title: 'WD+0 Mid Close Volumes Dashboard',

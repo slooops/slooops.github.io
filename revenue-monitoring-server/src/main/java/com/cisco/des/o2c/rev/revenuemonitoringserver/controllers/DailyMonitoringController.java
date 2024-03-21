@@ -1,9 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.ErrorSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.DailyMonitoringService;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,8 +260,8 @@ public class DailyMonitoringController {
     }
 
     @GetMapping(value = "/user-role")
-    public ResponseEntity<List<String>> getUserRoles(){
-        List<String> userRoles = userService.userGroups();
+    public ResponseEntity<UserRoleInfo> getUserRoles(){
+        UserRoleInfo userRoles = service.getUserRoles();
         return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
 }
