@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.url
+                  key: cors.error.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -189,6 +189,26 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.query
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
+            - name: ORDER_STATUS_SUMMARY_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.summary.q
+            - name: ORDER_STATUS_SUMMARY_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.summary.q
             - name: INVOICE_TRACKER_HEADER_QUERY
               valueFrom:
                 configMapKeyRef:
@@ -199,5 +219,80 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: invoice.tracker.line.query
+            - name: WD0_AR_MIDCLOSE_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.ar.midclose.status.query
+            - name: WD0_AR_MIDCLOSE_HEADER_DATA_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.ar.midclose.header.data.query
+            - name: WD0_HISTORICAL_DATA_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.historical.data.q
+            - name: UPDATE_ORDER_STATUS_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: update.order.status.query
+            - name: ORDER_STATUS_REV_SUMMARY_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.rev.summary.q
+            - name: KAFKA_ERROR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: kafka.error.q
+            - name: KAFKA_INBOUND_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: kafka.inbound.q
+            - name: AR_TRXN_MISSING_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: ar.trxn.missing.q
+            - name: ACCRUALS_PROCESSING_ERRORS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.processing.errors.q
+            - name: ACCRUALS_DISTRIBUTION_ERRORS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.distribution.errors.q
+            - name: ACCRUALS_SUMMARIZATION_ERRORS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.summarization.errors.q
+            - name: KAFKA_PUBLISH_TO_DOWNSTREAM_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: kafka.publish.to.downstream.q
+            - name: ERRORS_DISTRIBUTION_SUMMARIZATION_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: error.distribution.summarization.q
+            - name: UPDATE_INVOICE_ELIGIBLE_DATE_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: update.invoice.eligible.date.q
+            - name: PERSONA_ACCESS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: persona.access.q
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret

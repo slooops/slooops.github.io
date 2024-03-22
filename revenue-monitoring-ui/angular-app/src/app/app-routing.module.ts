@@ -25,7 +25,10 @@ const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
-    data: { title: 'Home', header: '' },
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Control Tower',
+    },
   },
   {
     path: 'error',
