@@ -1,5 +1,5 @@
 {
-  "api_url": "https://error-dashboard-api.cisco.com/api/",
+  "api_url": "https://operations-dashboard-api.cisco.com/api/",
   "authClientId": "frs-oauth-prod",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }

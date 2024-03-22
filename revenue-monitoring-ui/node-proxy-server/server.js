@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 const proxyPath = "/api";
 
-const targetURL = "https://error-dashboard-api.cisco.com";
+const targetURL = "https://operations-dashboard-api.cisco.com";
 
 let hasMadePostRequest = false;
 
