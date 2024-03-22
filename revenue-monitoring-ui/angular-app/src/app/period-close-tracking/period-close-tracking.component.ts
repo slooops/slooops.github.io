@@ -284,7 +284,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         hour: 'numeric',
         minute: 'numeric',
       });
-      this.showComments = this.dataService.getUserRoles().includes('admin');
     });
   }
 
@@ -535,6 +534,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const data = JSON.parse(localStorage.getItem('midclosestatus'));
         this.selectedStatus(data, 'MIDCLOSE');
       }
+      this.showComments = this.dataService.getUserRoles().includes('ADMIN');
     });
   }
 

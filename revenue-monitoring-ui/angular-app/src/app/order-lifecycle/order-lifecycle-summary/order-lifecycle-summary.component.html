@@ -72,6 +72,16 @@
       ></tr>
     </table>
   </div>
+
+  <div style="display: flex; justify-content: center">
+    <ng-container *ngIf="!dataSource?.data?.length">
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+    </ng-container>
+  </div>
 </mat-dialog-content>
 
 <br />

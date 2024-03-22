@@ -19,7 +19,7 @@ import { ErrorComponent } from './error/error.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/large-deal-tracker',
+    redirectTo: '/home',
     pathMatch: 'full',
   },
   {

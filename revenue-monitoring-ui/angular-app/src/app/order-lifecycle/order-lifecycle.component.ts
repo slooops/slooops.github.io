@@ -12,6 +12,7 @@ import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
 import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 import { DataService } from '../providers/data.service';
+import { ColumnSelectComponent } from './column-select/column-select.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -82,6 +83,7 @@ export class OrderLifecycleComponent implements OnInit {
   originalValue: string;
   dealUploadFlag: boolean = false;
   ifColumnSelect: boolean = false;
+  showDialog: boolean = false;
 
   columnSelect() {
     this.ifColumnSelect != this.ifColumnSelect;
@@ -379,37 +381,35 @@ export class OrderLifecycleComponent implements OnInit {
 
   selectedColumnsToDisplay: string[] = [];
 
-  logSelectedColumns(event: any) {
-    const selectedShoes = event.source.selectedOptions.selected.map(
-      (option) => option.value
-    );
-    console.log('Selected shoes:', selectedShoes);
-    this.columnsDisplaySort(selectedShoes);
+  logSelectedColumns() {
+    const dialogRef = this.dialog.open(ColumnSelectComponent, {
+      width: '600px',
+      data: this.selectedColumnsToDisplay,
+    });
+
+    dialogRef.afterClosed().subscribe((data) => {
+      this.selectedColumnsToDisplay = data;
+      this.selectedColumnsToDisplay.unshift('select');
+      this.columnsDisplaySort(this.selectedColumnsToDisplay);
+    });
   }
 
-  columnsDisplaySort(selectedShoes: string[]) {
-    selectedShoes.sort((a, b) => {
+  columnsDisplaySort(selectedColumns: string[]) {
+    selectedColumns.sort((a, b) => {
       let indexA = this.displayedColumns.indexOf(a);
       let indexB = this.displayedColumns.indexOf(b);
 
-      // If both elements exist in orderArray, sort based on their indices
       if (indexA !== -1 && indexB !== -1) {
         return indexA - indexB;
-      }
-
-      // If only one of the elements exists in orderArray, prioritize the one that exists
-      else if (indexA !== -1) {
-        return -1; // Place 'a' before 'b'
+      } else if (indexA !== -1) {
+        return -1;
       } else if (indexB !== -1) {
-        return 1; // Place 'b' before 'a'
-      }
-
-      // If neither element exists in orderArray, maintain their original order
-      else {
+        return 1;
+      } else {
         return 0;
       }
     });
-    this.columnsToDisplay = selectedShoes;
+    this.columnsToDisplay = selectedColumns;
   }
 
   @ViewChild(MatSort, { static: true }) sort: MatSort;

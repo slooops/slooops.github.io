@@ -28,6 +28,7 @@ export class MenuComponent implements OnInit {
   errorPath: boolean = true;
 
   getUserRoles() {
+    this.dataService.setLoading(true);
     this.http.get('user-role').subscribe((data: any) => {
       this.userRoles = data['userRoles'];
       this.dataService.setUserRoles(this.userRoles);
@@ -65,6 +66,7 @@ export class MenuComponent implements OnInit {
   }
 
   redirect(navigateString) {
+    this.dataService.setLoading(false);
     this.router.navigateByUrl(navigateString);
   }
 }

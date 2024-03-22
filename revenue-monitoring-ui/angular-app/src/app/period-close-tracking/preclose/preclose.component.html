@@ -163,6 +163,15 @@
         </tr>
       </tbody>
     </table>
+    <span style="display: flex; justify-content: center">
+      <ng-container *ngIf="precloseSelectedEntities.length == 0">
+        <tr>
+          <td colspan="100%" style="text-align: center">
+            <app-loading-symbol></app-loading-symbol>
+          </td>
+        </tr>
+      </ng-container>
+    </span>
   </div>
 
   <mat-divider></mat-divider>
@@ -263,7 +272,9 @@
 
   <br />
   <div>
-    <h3 *ngIf="dashComments.length > 0 || showComments">Comments</h3>
+    <h3 *ngIf="(dashComments && dashComments.length > 0) || showComments">
+      Comments
+    </h3>
     <form *ngIf="showComments">
       <input
         name="comments"
@@ -318,6 +329,7 @@
     </div>
   </div>
 
+  <br />
   <br />
   <br />
 </div>

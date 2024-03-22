@@ -1,1 +1,9 @@
-
+<div style="display: flex; justify-content: center">
+  <ng-container *ngIf="loading">
+    <tr>
+      <td colspan="100%" style="text-align: center">
+        <app-loading-symbol></app-loading-symbol>
+      </td>
+    </tr>
+  </ng-container>
+</div>

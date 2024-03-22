@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { errorDashModel } from '../error-dash/error-dash.component';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +9,7 @@ export class DataService {
   selectedErrorData: errorDashModel[] = [];
   allErrorsSelected: boolean = true;
   userRoles: string[] = [];
+  private loadingSubject = new BehaviorSubject<boolean>(false);
 
   constructor() {}
 
@@ -33,5 +35,13 @@ export class DataService {
 
   getUserRoles() {
     return this.userRoles;
+  }
+
+  setLoading(loading: boolean) {
+    this.loadingSubject.next(loading);
+  }
+
+  isLoading() {
+    return this.loadingSubject.asObservable();
   }
 }

@@ -719,19 +719,8 @@
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
     >&nbsp;&nbsp;Download
   </div>
-  <!-- <div class="viewHighlight submenu">
+  <div class="viewHighlight" (click)="logSelectedColumns()">
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
-    >&nbsp;&nbsp;Select Columns
-    <mat-selection-list #column (selectionChange)="logSelectedColumns($event)">
-      <mat-list-option
-        *ngFor="let column of displayedColumns"
-        [value]="column"
-        [selected]="true"
-        style="font-weight: 400"
-        >{{ column }}</mat-list-option
-      >
-    </mat-selection-list>
-  </div> -->
+    >&nbsp;&nbsp;Columns Filter
+  </div>
 </mat-menu>
-
-<!-- <mat-menu *ngIf="ifColumnSelect" class="submenu-content"> </mat-menu> -->

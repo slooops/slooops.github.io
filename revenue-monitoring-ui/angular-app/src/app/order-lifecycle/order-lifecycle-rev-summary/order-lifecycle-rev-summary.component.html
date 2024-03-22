@@ -222,6 +222,16 @@
       </tbody>
     </table>
 
+    <div style="display: flex; justify-content: center">
+      <ng-container *ngIf="!paginatedData?.length">
+        <tr>
+          <td colspan="100%" style="text-align: center">
+            <app-loading-symbol></app-loading-symbol>
+          </td>
+        </tr>
+      </ng-container>
+    </div>
+
     <nav aria-label="Page navigation" style="float: right !important">
       <ul class="pagination">
         <li class="page-item" [class.disabled]="currentPage === 1">

@@ -82,6 +82,7 @@ import { OrderLifecycleRevSummaryComponent } from './order-lifecycle/order-lifec
 import { DataService } from './providers/data.service';
 import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
+import { ColumnSelectComponent } from './order-lifecycle/column-select/column-select.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -117,6 +118,7 @@ export function initApp(authService: AuthenticationService) {
     OrderLifecycleRevSummaryComponent,
     HomeComponent,
     ErrorComponent,
+    ColumnSelectComponent,
   ],
   imports: [
     BrowserModule,
