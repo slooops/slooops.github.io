@@ -33,7 +33,6 @@ export class RegressionService {
 
     const modelIntercept = regression.weights[2][0]; // this is the intercept
     const degreesOfFreedom = y.length - 2; // n (observations) - p (product & service)
-    console.log('Degrees of Freedom =', degreesOfFreedom);
     const criticalValue = this.getCriticalValue(degreesOfFreedom);
 
     const lowerConfidenceInterval = modelIntercept - criticalValue * stdError;

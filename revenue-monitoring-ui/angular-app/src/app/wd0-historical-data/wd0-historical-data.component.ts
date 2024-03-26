@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
 import { runtimes } from './runtimes';
+import { tr } from 'date-fns/locale';
 Chart.register(...registerables);
 
 @Component({
@@ -89,7 +90,18 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   formatColumnHeader(columnName: string): string {
-    return columnName.replace(/_/g, ' ');
+    // Check if columnName matches the expected "MMM_YY" pattern
+    if (columnName.match(/[A-Z]{3}_[0-9]{2}/)) {
+      // Extract the month and year from the columnName
+      const [month, year] = columnName.split('_');
+      // Convert the month to a fiscal quarter
+      const quarter = this.getFiscalQuarter(month, `FY${year}`);
+      // Replace underscores with spaces and return the fiscal quarter format
+      return quarter.replace(/_/g, ' ');
+    } else {
+      // For any columnName that doesn't match the pattern, replace underscores with spaces
+      return columnName.replace(/_/g, ' ');
+    }
   }
 
   isProductTotalRow(row: any): boolean {
@@ -143,7 +155,30 @@ export class Wd0HistoricalDataComponent implements OnInit {
       ...Array.from(allKeys).filter(
         (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
       ),
+      'trend',
     ].map((key) => String(key));
+  }
+
+  private monthStringToNumber(month: string): number {
+    const months = {
+      JAN: 1,
+      APR: 4,
+      JUL: 7,
+      OCT: 10,
+    };
+    const monthNumber = months[month] || 0;
+    return monthNumber;
+  }
+
+  private getFiscalQuarter(month: string, year: string): string {
+    const fiscalMonths = {
+      OCT: 'Q1',
+      JAN: 'Q2',
+      APR: 'Q3',
+      JUL: 'Q4',
+    };
+    const fiscalQuarter = fiscalMonths[month];
+    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
   }
 
   generateBarChart(
@@ -218,17 +253,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
-  private monthStringToNumber(month: string): number {
-    const months = {
-      JAN: 1,
-      APR: 4,
-      JUL: 7,
-      OCT: 10,
-    };
-    const monthNumber = months[month] || 0;
-    return monthNumber;
-  }
-
   sumQuarterlyData(historicalData: HistoricalDataModel[]): any {
     const quarterlySums = {};
     historicalData.forEach((data) => {
@@ -253,17 +277,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
     });
     return quarterlySums;
-  }
-
-  private getFiscalQuarter(month: string, year: string): string {
-    const fiscalMonths = {
-      OCT: 'Q1',
-      JAN: 'Q2',
-      APR: 'Q3',
-      JUL: 'Q4',
-    };
-    const fiscalQuarter = fiscalMonths[month];
-    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -294,35 +307,34 @@ export class Wd0HistoricalDataComponent implements OnInit {
     this.http.get('wd0-regression').subscribe((data: any) => {
       const regressionData = this.processRegressionData(data);
 
-      console.log('Regression Data:', regressionData);
-
       const regressionResults =
         this.regressionService.performMultipleLinearRegression(
           regressionData.X,
           regressionData.y
         );
 
-      console.log('Coefficients:', regressionResults.coefficients);
-      console.log('Intercept:', regressionResults.intercept);
+      // console.log('Coefficients:', regressionResults.coefficients);
+      // console.log('Intercept:', regressionResults.intercept);
 
-      console.log('Lower CI:', regressionResults.lowerCI);
-      console.log('Upper CI:', regressionResults.upperCI);
+      // console.log('Lower CI:', regressionResults.lowerCI);
+      // console.log('Upper CI:', regressionResults.upperCI);
 
       this.upperCI = regressionResults.upperCI;
       this.lowerCI = regressionResults.lowerCI;
 
       const newInput = [[27718, 10417]]; // [PRODUCT, SERVICE]
       const predictedRuntimes = this.regressionService.predict(newInput);
-      console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
+
+      // console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
 
       //chart data collection
-      console.log(
-        `OCT-24: ${this.regressionService.predict([[23050, 15246]])}`
-      );
-      console.log(`NOV-24: ${this.regressionService.predict([[19926, 2859]])}`);
-      console.log(`DEC-24: ${this.regressionService.predict([[20341, 8383]])}`);
-      console.log(`JAN-24: ${this.regressionService.predict([[20341, 8383]])}`);
-      console.log(`FEB-24: ${this.regressionService.predict([[16105, 1946]])}`);
+      // console.log(
+      //   `OCT-24: ${this.regressionService.predict([[23050, 15246]])}`
+      // );
+      // console.log(`NOV-24: ${this.regressionService.predict([[19926, 2859]])}`);
+      // console.log(`DEC-24: ${this.regressionService.predict([[20341, 8383]])}`);
+      // console.log(`JAN-24: ${this.regressionService.predict([[20341, 8383]])}`);
+      // console.log(`FEB-24: ${this.regressionService.predict([[16105, 1946]])}`);
 
       const months = [
         { period: 'OCT-24', product: 23050, service: 15246, df: 23 },
@@ -332,17 +344,17 @@ export class Wd0HistoricalDataComponent implements OnInit {
         { period: 'FEB-24', product: 16105, service: 1946, df: 27 },
       ];
 
-      months.forEach((month) => {
-        const input = [[month.product, month.service]];
-        const { predictedRuntime, lowerCI, upperCI } =
-          this.regressionService.predictWithConfidenceIntervals(
-            input,
-            month.df
-          );
-        console.log(
-          `${month.period}: Predicted runtime = ${predictedRuntime}, Lower CI = ${lowerCI}, Upper CI = ${upperCI}`
-        );
-      });
+      // months.forEach((month) => {
+      //   const input = [[month.product, month.service]];
+      //   const { predictedRuntime, lowerCI, upperCI } =
+      //     this.regressionService.predictWithConfidenceIntervals(
+      //       input,
+      //       month.df
+      //     );
+      //   console.log(
+      //     `${month.period}: Predicted runtime = ${predictedRuntime}, Lower CI = ${lowerCI}, Upper CI = ${upperCI}`
+      //   );
+      // });
     });
   }
 
@@ -360,11 +372,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
           labels: ['OCT-24', 'NOV-24', 'DEC-24', 'JAN-24', 'FEB-24'],
           datasets: [
             {
-              label: 'Predicted Runtime',
-              data: [4.457, 4.49, 4.484, 4.484, 4.525],
+              label: 'Actual Run Time',
+              data: [3.6, 4, 4, 4.1, 4.2],
               yAxisID: 'y',
               tension: 0.3,
             },
+
             {
               label: 'Lower Confidence Interval',
               data: [3.178, 3.214, 3.21, 3.213, 3.256],
