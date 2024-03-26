@@ -3,10 +3,20 @@
 <div style="display: flex; align-items: flex-end">
   <div style="width: 48vw; padding-left: 1vw">
     <canvas id="barChartCanvasId"></canvas>
+    <p class="chart-description">
+      Bar chart dispalying the total product and total service lines sold by
+      fiscal quarter.
+    </p>
   </div>
 
   <div style="width: 48vw; padding-left: 1vw">
     <canvas id="lineChartCanvas"></canvas>
+    <p class="chart-description">
+      Line chart depicting ML-predicted finish times for Mid Close, comparing
+      fastest and slowest predictions within a 95% confidence interval to
+      historical actual finish times, and current product and service line loads
+      (right axis).
+    </p>
   </div>
 
   <br />
@@ -31,7 +41,7 @@
     class="col-sm-5 justify-content-center align-items-center"
     style="display: flex; align-items: center; padding-top: 16px"
   >
-    <p>Legend: Number of Lines</p>
+    <p>Legend: Number of Lines. Data refreshed every 5 minutes.</p>
   </div>
   <div
     class="col-sm-3 justify-content-end align-items-center"

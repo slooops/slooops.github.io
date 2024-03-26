@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
 import { runtimes } from './runtimes';
-import { tr } from 'date-fns/locale';
+import { Observable, interval, startWith, switchMap } from 'rxjs';
 Chart.register(...registerables);
 
 @Component({
@@ -24,6 +24,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     Chart.register(...registerables);
   }
 
+  refreshInterval = 300000; //ms = 5 minutes
+
   private barChart: Chart | null = null;
 
   displayedColumns: string[] = [];
@@ -37,7 +39,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   private getHistoricalData() {
-    this.http.get('wd0-historical-data').subscribe((data: any) => {
+    this.getEndpointData('wd0-historical-data').subscribe((data: any) => {
       const grandTotal = {};
       const serviceTotal = {};
       const productTotal = {};
@@ -60,17 +62,17 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
       const grandTotalObject = {
         ENTITY: 'Grand Total',
-        LINE_TYPE: 'Total',
+        LINE_TYPE: '—',
         ...grandTotal,
       };
       const serviceTotalObject = {
         ENTITY: 'Service Total',
-        LINE_TYPE: 'Service',
+        LINE_TYPE: '—',
         ...serviceTotal,
       };
       const productTotalObject = {
         ENTITY: 'Product Total',
-        LINE_TYPE: 'Product',
+        LINE_TYPE: '—',
         ...productTotal,
       };
 
@@ -95,7 +97,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       // Extract the month and year from the columnName
       const [month, year] = columnName.split('_');
       // Convert the month to a fiscal quarter
-      const quarter = this.getFiscalQuarter(month, `FY${year}`);
+      const quarter = this.getFiscalQuarter(month, `${year}`);
       // Replace underscores with spaces and return the fiscal quarter format
       return quarter.replace(/_/g, ' ');
     } else {
@@ -300,11 +302,22 @@ export class Wd0HistoricalDataComponent implements OnInit {
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
 
+  getEndpointData(endpoint: string): Observable<any> {
+    let uniqueId = Date.now();
+    let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
+
+    const polling$ = interval(this.refreshInterval).pipe(
+      startWith(0), // Emit initial value immediately
+      switchMap(() => this.http.get(cacheBustingUrl))
+    );
+    return polling$;
+  }
+
   upperCI: number;
   lowerCI: number;
 
   getRegressionData() {
-    this.http.get('wd0-regression').subscribe((data: any) => {
+    this.getEndpointData('wd0-regression').subscribe((data: any) => {
       const regressionData = this.processRegressionData(data);
 
       const regressionResults =
@@ -372,32 +385,32 @@ export class Wd0HistoricalDataComponent implements OnInit {
           labels: ['OCT-24', 'NOV-24', 'DEC-24', 'JAN-24', 'FEB-24'],
           datasets: [
             {
-              label: 'Actual Run Time',
+              label: 'Actual Run Time (hrs)',
               data: [3.6, 4, 4, 4.1, 4.2],
               yAxisID: 'y',
               tension: 0.3,
             },
 
             {
-              label: 'Lower Confidence Interval',
+              label: 'Fastest Time (hrs)',
               data: [3.178, 3.214, 3.21, 3.213, 3.256],
               yAxisID: 'y',
               tension: 0.3,
             },
             {
-              label: 'Upper Confidence Interval',
+              label: 'Slowest Time (hrs)',
               data: [5.737, 5.767, 5.758, 5.756, 5.794],
               yAxisID: 'y',
               tension: 0.3,
             },
             {
-              label: 'Product',
+              label: 'Product (lines)',
               data: [23050, 19926, 20341, 20341, 16105],
               yAxisID: 'y1',
               tension: 0.3,
             },
             {
-              label: 'Service',
+              label: 'Service (lines)',
               data: [15246, 2859, 8383, 8383, 1946],
               yAxisID: 'y1',
               tension: 0.3,
@@ -410,6 +423,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
               type: 'linear',
               position: 'left',
               beginAtZero: false,
+              title: {
+                display: true,
+                text: 'Hours',
+              },
             },
             y1: {
               type: 'linear',
@@ -417,6 +434,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
               beginAtZero: true,
               grid: {
                 drawOnChartArea: false, // only want the grid lines for one axis to show up
+              },
+              title: {
+                display: true,
+                text: 'Lines',
               },
             },
           },
