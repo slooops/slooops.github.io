@@ -106,6 +106,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
     }
   }
 
+  //for the blue line on the table
   isProductTotalRow(row: any): boolean {
     return row.ENTITY === 'Product Total';
   }
@@ -317,7 +318,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
   lowerCI: number;
 
   getRegressionData() {
-    this.getEndpointData('wd0-regression').subscribe((data: any) => {
+    const newMonthData = [[0, 0]];
+
+    this.getEndpointData('wd0-current-month').subscribe((data: any) => {
+      // Iterate over the data to assign the LINE_COUNT to the corresponding position
+      data.forEach((item: any) => {
+        if (item.LINE_TYPE === 'PRODUCT') {
+          newMonthData[0][0] = item.LINE_COUNT;
+        } else if (item.LINE_TYPE === 'SERVICE') {
+          newMonthData[0][1] = item.LINE_COUNT;
+        }
+      });
+    });
+
+    this.http.get('wd0-regression').subscribe((data: any) => {
+      console.log('Regression Data:', data);
       const regressionData = this.processRegressionData(data);
 
       const regressionResults =
@@ -326,28 +341,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
           regressionData.y
         );
 
-      // console.log('Coefficients:', regressionResults.coefficients);
-      // console.log('Intercept:', regressionResults.intercept);
-
-      // console.log('Lower CI:', regressionResults.lowerCI);
-      // console.log('Upper CI:', regressionResults.upperCI);
-
       this.upperCI = regressionResults.upperCI;
       this.lowerCI = regressionResults.lowerCI;
 
-      const newInput = [[27718, 10417]]; // [PRODUCT, SERVICE]
-      const predictedRuntimes = this.regressionService.predict(newInput);
+      const predictedRuntimes = this.regressionService.predict(newMonthData);
 
-      // console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
+      console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
 
-      //chart data collection
-      // console.log(
-      //   `OCT-24: ${this.regressionService.predict([[23050, 15246]])}`
-      // );
-      // console.log(`NOV-24: ${this.regressionService.predict([[19926, 2859]])}`);
-      // console.log(`DEC-24: ${this.regressionService.predict([[20341, 8383]])}`);
-      // console.log(`JAN-24: ${this.regressionService.predict([[20341, 8383]])}`);
-      // console.log(`FEB-24: ${this.regressionService.predict([[16105, 1946]])}`);
+      // chart data collection
+      console.log(
+        `OCT-24: ${this.regressionService.predict([[23050, 15246]])}`
+      );
+      console.log(`NOV-24: ${this.regressionService.predict([[19926, 2859]])}`);
+      console.log(`DEC-24: ${this.regressionService.predict([[20341, 8383]])}`);
+      console.log(`JAN-24: ${this.regressionService.predict([[20341, 8383]])}`);
+      console.log(`FEB-24: ${this.regressionService.predict([[16105, 1946]])}`);
 
       const months = [
         { period: 'OCT-24', product: 23050, service: 15246, df: 23 },
@@ -357,24 +365,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
         { period: 'FEB-24', product: 16105, service: 1946, df: 27 },
       ];
 
-      // months.forEach((month) => {
-      //   const input = [[month.product, month.service]];
-      //   const { predictedRuntime, lowerCI, upperCI } =
-      //     this.regressionService.predictWithConfidenceIntervals(
-      //       input,
-      //       month.df
-      //     );
-      //   console.log(
-      //     `${month.period}: Predicted runtime = ${predictedRuntime}, Lower CI = ${lowerCI}, Upper CI = ${upperCI}`
-      //   );
-      // });
+      months.forEach((month) => {
+        const input = [[month.product, month.service]];
+        const { predictedRuntime, lowerCI, upperCI } =
+          this.regressionService.predictWithConfidenceIntervals(
+            input,
+            month.df
+          );
+        console.log(
+          `${month.period}: Predicted runtime = ${predictedRuntime}, Lower CI = ${lowerCI}, Upper CI = ${upperCI}`
+        );
+      });
     });
   }
 
   createLineGraph() {
-    this.http.get('wd0-current-month').subscribe((data: any) => {
-      console.log('Current Month Data:', data);
-    });
     const ctx = (
       document.getElementById('lineChartCanvas') as HTMLCanvasElement
     ).getContext('2d');
