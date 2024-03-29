@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
 import { runtimes } from './runtimes';
-import { Observable, interval, startWith, switchMap } from 'rxjs';
+import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 Chart.register(...registerables);
 
 @Component({
@@ -35,7 +35,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ngOnInit(): void {
     this.getHistoricalData();
     this.getRegressionData();
-    this.createLineGraph();
   }
 
   private getHistoricalData() {
@@ -129,6 +128,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
     return { trend: 'same', change: 0 };
   }
 
+  //removes the second country name row that repeats the above row
   private removeDuplicateEntityEntries(data: any[]) {
     const entityMap = new Map<string, boolean>();
     data.forEach((row) => {
@@ -319,9 +319,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   getRegressionData() {
     const newMonthData = [[0, 0]];
-
+    let newMonthName = [];
     this.getEndpointData('wd0-current-month').subscribe((data: any) => {
-      // Iterate over the data to assign the LINE_COUNT to the corresponding position
+      // double check product and service lines are going into the correct order of the array
       data.forEach((item: any) => {
         if (item.LINE_TYPE === 'PRODUCT') {
           newMonthData[0][0] = item.LINE_COUNT;
@@ -329,57 +329,78 @@ export class Wd0HistoricalDataComponent implements OnInit {
           newMonthData[0][1] = item.LINE_COUNT;
         }
       });
+      newMonthName = data[0].PERIOD_NAME;
     });
 
     this.http.get('wd0-regression').subscribe((data: any) => {
-      console.log('Regression Data:', data);
-      const regressionData = this.processRegressionData(data);
-
-      const regressionResults =
-        this.regressionService.performMultipleLinearRegression(
-          regressionData.X,
-          regressionData.y
-        );
-
-      this.upperCI = regressionResults.upperCI;
-      this.lowerCI = regressionResults.lowerCI;
-
-      const predictedRuntimes = this.regressionService.predict(newMonthData);
-
-      console.log(`Predicted runtime: ${predictedRuntimes[0]}`);
-
-      // chart data collection
-      console.log(
-        `OCT-24: ${this.regressionService.predict([[23050, 15246]])}`
+      //get last 6 months names for graph
+      const productEntries = data.filter(
+        (entry) => entry.LINE_TYPE === 'PRODUCT'
       );
-      console.log(`NOV-24: ${this.regressionService.predict([[19926, 2859]])}`);
-      console.log(`DEC-24: ${this.regressionService.predict([[20341, 8383]])}`);
-      console.log(`JAN-24: ${this.regressionService.predict([[20341, 8383]])}`);
-      console.log(`FEB-24: ${this.regressionService.predict([[16105, 1946]])}`);
+      const last6ProductEntries = productEntries.slice(-6); // Get the last 6 entries
+      const last6MonthNames = last6ProductEntries.map(
+        (entry) => entry.PERIOD_NAME
+      );
+      last6MonthNames.push(newMonthName);
 
-      const months = [
-        { period: 'OCT-24', product: 23050, service: 15246, df: 23 },
-        { period: 'NOV-24', product: 19926, service: 2859, df: 24 },
-        { period: 'DEC-24', product: 20341, service: 8383, df: 25 },
-        { period: 'JAN-24', product: 20341, service: 8383, df: 26 },
-        { period: 'FEB-24', product: 16105, service: 1946, df: 27 },
-      ];
+      // prep the data and run regression (this sets a model in the service)
+      const regressionData = this.processRegressionData(data);
+      this.regressionService.performMultipleLinearRegression(
+        regressionData.X,
+        regressionData.y
+      );
 
-      months.forEach((month) => {
-        const input = [[month.product, month.service]];
-        const { predictedRuntime, lowerCI, upperCI } =
-          this.regressionService.predictWithConfidenceIntervals(
-            input,
-            month.df
-          );
-        console.log(
-          `${month.period}: Predicted runtime = ${predictedRuntime}, Lower CI = ${lowerCI}, Upper CI = ${upperCI}`
+      //collect last 6 months of data for graph
+      const last6MonthsData = regressionData.X.slice(-6);
+      console.log(last6MonthsData);
+      const degreesOfFreedomBase = regressionData.X.length - 2;
+      const combine6MonthsWithDFData = last6MonthsData.map(
+        (monthData, index) => {
+          return {
+            X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
+            degreesOfFreedom: degreesOfFreedomBase - (5 - index), // Adjust the index for the last 6 months
+          };
+        }
+      );
+      last6MonthsData.push(newMonthData[0]);
+
+      let fastestTimes = [];
+      let slowestTimes = [];
+
+      // get last 6 months confidence intervals
+      combine6MonthsWithDFData.forEach((data) => {
+        const result = this.regressionService.predictWithConfidenceIntervals(
+          data.X,
+          data.degreesOfFreedom
         );
+        fastestTimes.push(+result.lowerCI.toFixed(3));
+        slowestTimes.push(+result.upperCI.toFixed(3));
       });
+
+      //for next month prediction (.lengh-1 is for the degress of freedom)
+      const upcomingMonthPrediction =
+        this.regressionService.predictWithConfidenceIntervals(
+          newMonthData,
+          regressionData.X.length - 1
+        );
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(3));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(3));
+
+      this.createLineGraph(
+        fastestTimes,
+        slowestTimes,
+        last6MonthNames,
+        last6MonthsData
+      );
     });
   }
 
-  createLineGraph() {
+  createLineGraph(
+    fastestTimes: any[],
+    slowestTimes: any[],
+    labels: string[],
+    lines: any[]
+  ) {
     const ctx = (
       document.getElementById('lineChartCanvas') as HTMLCanvasElement
     ).getContext('2d');
@@ -387,36 +408,36 @@ export class Wd0HistoricalDataComponent implements OnInit {
       const lineChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['OCT-24', 'NOV-24', 'DEC-24', 'JAN-24', 'FEB-24'],
+          labels: labels,
           datasets: [
             {
               label: 'Actual Run Time (hrs)',
-              data: [3.6, 4, 4, 4.1, 4.2],
+              data: [3.6, 4, 4, 4.1, 4.2, 3.82],
               yAxisID: 'y',
               tension: 0.3,
             },
 
             {
               label: 'Fastest Time (hrs)',
-              data: [3.178, 3.214, 3.21, 3.213, 3.256],
+              data: fastestTimes,
               yAxisID: 'y',
               tension: 0.3,
             },
             {
               label: 'Slowest Time (hrs)',
-              data: [5.737, 5.767, 5.758, 5.756, 5.794],
+              data: slowestTimes,
               yAxisID: 'y',
               tension: 0.3,
             },
             {
               label: 'Product (lines)',
-              data: [23050, 19926, 20341, 20341, 16105],
+              data: lines.map((line) => line[0]),
               yAxisID: 'y1',
               tension: 0.3,
             },
             {
               label: 'Service (lines)',
-              data: [15246, 2859, 8383, 8383, 1946],
+              data: lines.map((line) => line[1]),
               yAxisID: 'y1',
               tension: 0.3,
             },
