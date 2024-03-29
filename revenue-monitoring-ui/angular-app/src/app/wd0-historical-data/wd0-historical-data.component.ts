@@ -24,7 +24,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
     Chart.register(...registerables);
   }
 
-  refreshInterval = 10000; //ms = 5 minutes
+  refreshInterval = 300000; //ms = 5 minutes
 
   private barChart: Chart | null = null;
   private lineChart: Chart | null = null;
