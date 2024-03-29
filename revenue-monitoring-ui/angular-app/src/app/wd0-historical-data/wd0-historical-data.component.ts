@@ -24,9 +24,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
     Chart.register(...registerables);
   }
 
-  refreshInterval = 300000; //ms = 5 minutes
+  refreshInterval = 10000; //ms = 5 minutes
 
   private barChart: Chart | null = null;
+  private lineChart: Chart | null = null;
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
@@ -188,6 +189,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
     historicalData: HistoricalDataModel[],
     canvasId: string = 'barChartCanvasId'
   ) {
+    if (this.barChart) {
+      this.barChart.destroy();
+    }
+
+    console.log('barchart refresh');
+
     const filteredData = this.filterDataByDate(
       historicalData,
       new Date(2022, 9)
@@ -332,7 +339,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       newMonthName = data[0].PERIOD_NAME;
     });
 
-    this.http.get('wd0-regression').subscribe((data: any) => {
+    this.getEndpointData('wd0-regression').subscribe((data: any) => {
       //get last 6 months names for graph
       const productEntries = data.filter(
         (entry) => entry.LINE_TYPE === 'PRODUCT'
@@ -352,7 +359,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
       //collect last 6 months of data for graph
       const last6MonthsData = regressionData.X.slice(-6);
-      console.log(last6MonthsData);
       const degreesOfFreedomBase = regressionData.X.length - 2;
       const combine6MonthsWithDFData = last6MonthsData.map(
         (monthData, index) => {
@@ -395,81 +401,84 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
-  createLineGraph(
-    fastestTimes: any[],
-    slowestTimes: any[],
-    labels: string[],
-    lines: any[]
-  ) {
-    const ctx = (
-      document.getElementById('lineChartCanvas') as HTMLCanvasElement
-    ).getContext('2d');
-    if (ctx) {
-      const lineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Actual Run Time (hrs)',
-              data: [3.6, 4, 4, 4.1, 4.2, 3.82],
-              yAxisID: 'y',
-              tension: 0.3,
-            },
+  createLineGraph(fastestTimes, slowestTimes, labels, lines) {
+    const canvas = document.getElementById(
+      'lineChartCanvas'
+    ) as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
 
-            {
-              label: 'Fastest Time (hrs)',
-              data: fastestTimes,
-              yAxisID: 'y',
-              tension: 0.3,
+    // Check if lineChart already exists. If so, destroy it.
+    if (this.lineChart) {
+      this.lineChart.destroy();
+    }
+
+    console.log('line chart refreshed with no errors');
+
+    // Now, recreate the chart with the new data
+    this.lineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Actual Run Time (hrs)',
+            data: [3.6, 4, 4, 4.1, 4.2, 3.82],
+            yAxisID: 'y',
+            tension: 0.3,
+          },
+
+          {
+            label: 'Fastest Time (hrs)',
+            data: fastestTimes,
+            yAxisID: 'y',
+            tension: 0.3,
+          },
+          {
+            label: 'Slowest Time (hrs)',
+            data: slowestTimes,
+            yAxisID: 'y',
+            tension: 0.3,
+          },
+          {
+            label: 'Product (lines)',
+            data: lines.map((line) => line[0]),
+            yAxisID: 'y1',
+            tension: 0.3,
+          },
+          {
+            label: 'Service (lines)',
+            data: lines.map((line) => line[1]),
+            yAxisID: 'y1',
+            tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Hours',
             },
-            {
-              label: 'Slowest Time (hrs)',
-              data: slowestTimes,
-              yAxisID: 'y',
-              tension: 0.3,
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            beginAtZero: true,
+            grid: {
+              drawOnChartArea: false, // only want the grid lines for one axis to show up
             },
-            {
-              label: 'Product (lines)',
-              data: lines.map((line) => line[0]),
-              yAxisID: 'y1',
-              tension: 0.3,
-            },
-            {
-              label: 'Service (lines)',
-              data: lines.map((line) => line[1]),
-              yAxisID: 'y1',
-              tension: 0.3,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            y: {
-              type: 'linear',
-              position: 'left',
-              beginAtZero: false,
-              title: {
-                display: true,
-                text: 'Hours',
-              },
-            },
-            y1: {
-              type: 'linear',
-              position: 'right',
-              beginAtZero: true,
-              grid: {
-                drawOnChartArea: false, // only want the grid lines for one axis to show up
-              },
-              title: {
-                display: true,
-                text: 'Lines',
-              },
+            title: {
+              display: true,
+              text: 'Lines',
             },
           },
         },
-      });
-    }
+      },
+    });
   }
 
   // This method will transform the backend data into two arrays: productLines and serviceLines.
