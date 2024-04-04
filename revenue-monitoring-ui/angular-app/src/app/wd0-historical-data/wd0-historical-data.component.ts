@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { RegressionService } from '../regression.service';
+import { Chart, registerables } from 'chart.js';
+import { runtimes } from './runtimes';
+import { Observable, interval, last, startWith, switchMap } from 'rxjs';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-wd0-historical-data',
@@ -11,237 +16,275 @@ import * as XLSX from 'xlsx';
 export class Wd0HistoricalDataComponent implements OnInit {
   protected http: ApiHttpService;
 
-  constructor(http: ApiHttpService) {
+  constructor(
+    http: ApiHttpService,
+    private regressionService: RegressionService
+  ) {
     this.http = http;
+    Chart.register(...registerables);
   }
+
+  refreshInterval = 300000; //ms = 5 minutes
+
+  private barChart: Chart | null = null;
+  private lineChart: Chart | null = null;
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
   dataSource: any;
-  chartProcessedData: any[] = [];
-  tableData: any[] = [];
 
   ngOnInit(): void {
     this.getHistoricalData();
-    this.processLineChartData();
+    this.getRegressionData();
   }
 
-  public barChartOptions = {
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          stacked: true,
-        },
-      ],
-      yAxes: [
-        {
-          stacked: true,
-        },
-      ],
-    },
-  };
-  public barChartLabels = [
-    'APR 21',
-    'JUL 21',
-    'OCT 22',
-    'JAN 22',
-    'APR 22',
-    'JUL 22',
-    'OCT 23',
-    'JAN 23',
-    'APR 23',
-    'JUL 23',
-  ];
-  public barChartType = 'bar';
-  public barChartLegend = true;
-  public barChartData: any[] = [];
-
-  public lineChartOptions = {
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          display: true,
-        },
-      ],
-      yAxes: [
-        {
-          display: true,
-        },
-      ],
-    },
-  };
-  public lineChartLabels = this.barChartLabels;
-  public lineChartType = 'line';
-  public lineChartLegend = true;
-  public lineChartData: any[] = [];
-
-  getHistoricalData() {
-    this.http.get('wd0-historical-data').subscribe((data: any) => {
+  private getHistoricalData() {
+    this.getEndpointData('wd0-historical-data').subscribe((data: any) => {
       const grandTotal = {};
+      const serviceTotal = {};
+      const productTotal = {};
+
       data.forEach((obj) => {
         for (const key in obj) {
           if (obj[key] && !isNaN(parseInt(obj[key]))) {
-            if (grandTotal[key]) {
-              grandTotal[key] += parseInt(obj[key]);
-            } else {
-              grandTotal[key] = parseInt(obj[key]);
+            // Update grandTotal
+            grandTotal[key] = (grandTotal[key] || 0) + parseInt(obj[key]);
+
+            // Update serviceTotal or productTotal based on LINE_TYPE
+            if (obj.LINE_TYPE === 'Service') {
+              serviceTotal[key] = (serviceTotal[key] || 0) + parseInt(obj[key]);
+            } else if (obj.LINE_TYPE === 'Product') {
+              productTotal[key] = (productTotal[key] || 0) + parseInt(obj[key]);
             }
           }
         }
       });
-      const grandTotalObject = { ENTITY: 'Grand Total' };
-      for (const key in grandTotal) {
-        grandTotalObject[key] = grandTotal[key].toString();
-      }
-      data.push(grandTotalObject);
+
+      const grandTotalObject = {
+        ENTITY: 'Grand Total',
+        LINE_TYPE: '—',
+        ...grandTotal,
+      };
+      const serviceTotalObject = {
+        ENTITY: 'Service Total',
+        LINE_TYPE: '—',
+        ...serviceTotal,
+      };
+      const productTotalObject = {
+        ENTITY: 'Product Total',
+        LINE_TYPE: '—',
+        ...productTotal,
+      };
+
+      // Insert total rows at the beginning of the data array
+      data.unshift(grandTotalObject, serviceTotalObject, productTotalObject);
 
       this.historicalData = data;
-      const entityMap = new Map<string, boolean>();
 
-      for (const data of this.historicalData) {
-        const entity = data.ENTITY;
+      this.removeDuplicateEntityEntries(data);
 
-        if (entityMap.has(entity)) {
-          data.ENTITY = null;
-        } else {
-          entityMap.set(entity, true);
-        }
-      }
-      this.displayedColumns = Object.keys(this.historicalData[0]);
       this.dataSource = new MatTableDataSource<HistoricalDataModel>(
         this.historicalData
       );
 
-      this.processChartData();
-      this.barChartData = this.chartProcessedData;
+      this.generateBarChart(this.historicalData);
     });
   }
 
   formatColumnHeader(columnName: string): string {
-    return columnName.replace(/_/g, ' ');
+    // Check if columnName matches the expected "MMM_YY" pattern
+    if (columnName.match(/[A-Z]{3}_[0-9]{2}/)) {
+      // Extract the month and year from the columnName
+      const [month, year] = columnName.split('_');
+      // Convert the month to a fiscal quarter
+      const quarter = this.getFiscalQuarter(month, `${year}`);
+      // Replace underscores with spaces and return the fiscal quarter format
+      return quarter.replace(/_/g, ' ');
+    } else {
+      // For any columnName that doesn't match the pattern, replace underscores with spaces
+      return columnName.replace(/_/g, ' ');
+    }
   }
 
-  processChartData() {
-    const entities = ['United Kingdom', 'US', 'Canada', 'India'];
-    const productData = {};
-    const serviceData = {};
+  //for the blue line on the table
+  isProductTotalRow(row: any): boolean {
+    return row.ENTITY === 'Product Total';
+  }
 
-    const chartColors = {
-      'United Kingdom-Product': 'rgb(0,119,188)', // Darker shade of 009EDC
-      'United Kingdom-Service': 'rgb(77,184,255)', // Lighter tint of 009EDC
-      'US-Product': 'rgb(30,68,113)', // Given dark blue 1e4471
-      'US-Service': 'rgb(62,106,178)', // Slightly lighter version of 1e4471
-      'Canada-Product': 'rgb(64,170,128)', // Soft green complementary to 009EDC
-      'Canada-Service': 'rgb(128,213,170)', // Lighter version of the chosen green
-      'India-Product': 'rgb(255,165,0)', // Soft orange
-      'India-Service': 'rgb(255,213,128)', // Lighter version of chosen orange
-    };
+  getTrend(
+    row: any,
+    prevColumn: string,
+    currentColumn: string
+  ): { trend: 'up' | 'down' | 'same'; change: number } {
+    const prevValue = parseFloat(row[prevColumn]);
+    const currentValue = parseFloat(row[currentColumn]);
 
-    for (let entry of this.historicalData) {
-      if (entities.includes(entry.ENTITY)) {
-        if (entry.LINE_TYPE === 'Product') {
-          if (!productData[entry.ENTITY]) {
-            productData[entry.ENTITY] = [];
-          }
-          productData[entry.ENTITY].push(
-            entry.APR_21,
-            entry.JUL_21,
-            entry.OCT_22,
-            entry.JAN_22,
-            entry.APR_22,
-            entry.JUL_22,
-            entry.OCT_23,
-            entry.JAN_23,
-            entry.APR_23,
-            entry.JUL_23
-          );
-        }
-        if (entry.LINE_TYPE === 'Service') {
-          if (!serviceData[entry.ENTITY]) {
-            serviceData[entry.ENTITY] = [];
-          }
-          serviceData[entry.ENTITY].push(
-            entry.APR_21,
-            entry.JUL_21,
-            entry.OCT_22,
-            entry.JAN_22,
-            entry.APR_22,
-            entry.JUL_22,
-            entry.OCT_23,
-            entry.JAN_23,
-            entry.APR_23,
-            entry.JUL_23
-          );
-        }
+    if (!isNaN(prevValue) && !isNaN(currentValue)) {
+      const change = ((currentValue - prevValue) / prevValue) * 100;
+      if (currentValue > prevValue) return { trend: 'up', change: change };
+      else if (currentValue < prevValue)
+        return { trend: 'down', change: change };
+      else return { trend: 'same', change: 0 };
+    }
+    return { trend: 'same', change: 0 };
+  }
+
+  //removes the second country name row that repeats the above row
+  private removeDuplicateEntityEntries(data: any[]) {
+    const entityMap = new Map<string, boolean>();
+    data.forEach((row) => {
+      if (row.ENTITY && entityMap.has(row.ENTITY)) {
+        // Optionally, adjust based on your specific requirements
+        row.ENTITY = null; // This line effectively marks duplicates
+      } else {
+        entityMap.set(row.ENTITY, true);
       }
+    });
+
+    // Update displayedColumns based on the processed data
+    this.updateDisplayedColumns(data);
+  }
+
+  private updateDisplayedColumns(data: any[]) {
+    const allKeys = new Set();
+
+    data.forEach((obj) => {
+      Object.keys(obj).forEach((key) => {
+        allKeys.add(key);
+      });
+    });
+    this.displayedColumns = [
+      'ENTITY',
+      'LINE_TYPE',
+      ...Array.from(allKeys).filter(
+        (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
+      ),
+      'trend',
+    ].map((key) => String(key));
+  }
+
+  private monthStringToNumber(month: string): number {
+    const months = {
+      JAN: 1,
+      APR: 4,
+      JUL: 7,
+      OCT: 10,
+    };
+    const monthNumber = months[month] || 0;
+    return monthNumber;
+  }
+
+  private getFiscalQuarter(month: string, year: string): string {
+    const fiscalMonths = {
+      OCT: 'Q1',
+      JAN: 'Q2',
+      APR: 'Q3',
+      JUL: 'Q4',
+    };
+    const fiscalQuarter = fiscalMonths[month];
+    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
+  }
+
+  generateBarChart(
+    historicalData: HistoricalDataModel[],
+    canvasId: string = 'barChartCanvasId'
+  ) {
+    if (this.barChart) {
+      this.barChart.destroy();
     }
 
-    this.chartProcessedData = [];
+    const filteredData = this.filterDataByDate(
+      historicalData,
+      new Date(2022, 9)
+    ); // October 2022
 
-    entities.forEach((entity) => {
-      if (productData[entity]) {
-        this.chartProcessedData.push({
-          data: productData[entity],
-          label: `${entity} - Product`,
-          stack: entity,
-          backgroundColor: chartColors[`${entity}-Product`], // <-- fixed this line
-        });
-      }
-      if (serviceData[entity]) {
-        this.chartProcessedData.push({
-          data: serviceData[entity],
-          label: `${entity} - Service`,
-          stack: entity,
-          backgroundColor: chartColors[`${entity}-Service`], // <-- fixed this line
-        });
-      }
-    });
-  }
+    const quarterlyData = this.sumQuarterlyData(filteredData);
 
-  processLineChartData() {
-    const totalProductData = [];
-    const totalServiceData = [];
+    const labels = Object.keys(quarterlyData).map((label) =>
+      label.replace(/_/g, ' ')
+    ); // Replace underscores
 
-    this.chartProcessedData.forEach((chartData) => {
-      if (chartData.label.includes('Product')) {
-        totalProductData.push(...chartData.data);
-      }
-      if (chartData.label.includes('Service')) {
-        totalServiceData.push(...chartData.data);
-      }
-    });
-
-    const reducedProductData = this.reduceData(totalProductData);
-    const reducedServiceData = this.reduceData(totalServiceData);
-
-    this.lineChartData = [
+    const datasets = [
       {
-        data: reducedProductData,
-        label: 'Total Product',
-        borderColor: '#FF5733', // Choose the color of your choice
-        fill: false,
+        label: 'Service',
+        data: labels.map(
+          (label) => quarterlyData[label.replace(/ /g, '_')].service || 0
+        ), // Replace spaces back to underscores to match keys
+        backgroundColor: 'rgb(0,119,188)',
       },
       {
-        data: reducedServiceData,
-        label: 'Total Service',
-        borderColor: '#33C2FF', // Choose the color of your choice
-        fill: false,
+        label: 'Product',
+        data: labels.map(
+          (label) => quarterlyData[label.replace(/ /g, '_')].product || 0
+        ), // Replace spaces back to underscores to match keys
+        backgroundColor: 'rgb(77,184,255)',
       },
     ];
+
+    this.barChart = new Chart(canvasId, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: datasets,
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      },
+    });
   }
 
-  reduceData(data: number[]): number[] {
-    let reducedData = [];
+  filterDataByDate(
+    historicalData: HistoricalDataModel[],
+    startDate: Date
+  ): HistoricalDataModel[] {
+    return historicalData.filter((data) => {
+      const keys = Object.keys(data).filter((key) => key.includes('_')); // Only consider keys with an underscore
 
-    for (let i = 0; i < data.length; i += 10) {
-      let chunk = data.slice(i, i + 10);
-      let sum = chunk.reduce((a, b) => a + b, 0);
-      reducedData.push(sum);
-    }
+      return keys.some((key) => {
+        const [month, year] = key.split('_');
 
-    return reducedData;
+        // Check if year is defined and adjust if it's only two digits
+        const fullYear = year && year.length === 2 ? `20${year}` : year;
+        if (fullYear && !isNaN(+fullYear)) {
+          const monthNumber = this.monthStringToNumber(month);
+          if (!isNaN(monthNumber)) {
+            const date = new Date(+fullYear, monthNumber - 1);
+            return date >= startDate;
+          }
+        }
+        return false;
+      });
+    });
+  }
+
+  sumQuarterlyData(historicalData: HistoricalDataModel[]): any {
+    const quarterlySums = {};
+    historicalData.forEach((data) => {
+      Object.keys(data).forEach((key) => {
+        if (
+          key.includes('_') &&
+          !['ENTITY', 'LINE_TYPE', 'SEQUENCE_NUMBER'].includes(key)
+        ) {
+          const [month, year] = key.split('_');
+          const quarter = this.getFiscalQuarter(month, year);
+          const lineType = data.LINE_TYPE ? data.LINE_TYPE.toLowerCase() : null;
+          const valueString = data[key];
+          const value = valueString ? parseInt(valueString, 10) : 0;
+
+          if (lineType && !isNaN(value)) {
+            if (!quarterlySums[quarter]) {
+              quarterlySums[quarter] = { service: 0, product: 0 };
+            }
+            quarterlySums[quarter][lineType] += value;
+          }
+        }
+      });
+    });
+    return quarterlySums;
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -264,27 +307,227 @@ export class Wd0HistoricalDataComponent implements OnInit {
     link.click(); // triggers the download process and save file prompt in browser
     window.URL.revokeObjectURL(url); // revoke temp URL
   }
+
+  getEndpointData(endpoint: string): Observable<any> {
+    let uniqueId = Date.now();
+    let cacheBustingUrl = `${endpoint}?cacheBuster=${uniqueId}`;
+
+    const polling$ = interval(this.refreshInterval).pipe(
+      startWith(0), // Emit initial value immediately
+      switchMap(() => this.http.get(cacheBustingUrl))
+    );
+    return polling$;
+  }
+
+  upperCI: number;
+  lowerCI: number;
+
+  getRegressionData() {
+    const newMonthData = [[0, 0]];
+    let newMonthName = [];
+    this.getEndpointData('wd0-current-month').subscribe((data: any) => {
+      // double check product and service lines are going into the correct order of the array
+      data.forEach((item: any) => {
+        if (item.LINE_TYPE === 'PRODUCT') {
+          newMonthData[0][0] = item.LINE_COUNT;
+        } else if (item.LINE_TYPE === 'SERVICE') {
+          newMonthData[0][1] = item.LINE_COUNT;
+        }
+      });
+      newMonthName = data[0].PERIOD_NAME;
+    });
+
+    this.getEndpointData('wd0-regression').subscribe((data: any) => {
+      //get last 6 months names for graph
+      const productEntries = data.filter(
+        (entry) => entry.LINE_TYPE === 'PRODUCT'
+      );
+      const last6ProductEntries = productEntries.slice(-6); // Get the last 6 entries
+      const last6MonthNames = last6ProductEntries.map(
+        (entry) => entry.PERIOD_NAME
+      );
+      last6MonthNames.push(newMonthName);
+
+      // prep the data and run regression (this sets a model in the service)
+      const regressionData = this.processRegressionData(data);
+      this.regressionService.performMultipleLinearRegression(
+        regressionData.X,
+        regressionData.y
+      );
+
+      //collect last 6 months of data for graph
+      const last6MonthsData = regressionData.X.slice(-6);
+      const degreesOfFreedomBase = regressionData.X.length - 2;
+      const combine6MonthsWithDFData = last6MonthsData.map(
+        (monthData, index) => {
+          return {
+            X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
+            degreesOfFreedom: degreesOfFreedomBase - (5 - index), // Adjust the index for the last 6 months
+          };
+        }
+      );
+      last6MonthsData.push(newMonthData[0]);
+
+      let fastestTimes = [];
+      let slowestTimes = [];
+
+      // get last 6 months confidence intervals
+      combine6MonthsWithDFData.forEach((data) => {
+        const result = this.regressionService.predictWithConfidenceIntervals(
+          data.X,
+          data.degreesOfFreedom
+        );
+        fastestTimes.push(+result.lowerCI.toFixed(3));
+        slowestTimes.push(+result.upperCI.toFixed(3));
+      });
+
+      //for next month prediction (.lengh-1 is for the degress of freedom)
+      const upcomingMonthPrediction =
+        this.regressionService.predictWithConfidenceIntervals(
+          newMonthData,
+          regressionData.X.length - 1
+        );
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(3));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(3));
+
+      this.createLineGraph(
+        fastestTimes,
+        slowestTimes,
+        last6MonthNames,
+        last6MonthsData
+      );
+    });
+  }
+
+  createLineGraph(fastestTimes, slowestTimes, labels, lines) {
+    const canvas = document.getElementById(
+      'lineChartCanvas'
+    ) as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+
+    // Check if lineChart already exists. If so, destroy it.
+    if (this.lineChart) {
+      this.lineChart.destroy();
+    }
+
+    // Now, recreate the chart with the new data
+    this.lineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Actual Run Time (hrs)',
+            data: [3.6, 4, 4, 4.1, 4.2, 3.82],
+            yAxisID: 'y',
+            tension: 0.3,
+          },
+
+          {
+            label: 'Fastest Time (hrs)',
+            data: fastestTimes,
+            yAxisID: 'y',
+            tension: 0.3,
+          },
+          {
+            label: 'Slowest Time (hrs)',
+            data: slowestTimes,
+            yAxisID: 'y',
+            tension: 0.3,
+          },
+          {
+            label: 'Product (lines)',
+            data: lines.map((line) => line[0]),
+            yAxisID: 'y1',
+            tension: 0.3,
+          },
+          {
+            label: 'Service (lines)',
+            data: lines.map((line) => line[1]),
+            yAxisID: 'y1',
+            tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        scales: {
+          y: {
+            type: 'linear',
+            position: 'left',
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Hours',
+            },
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            beginAtZero: true,
+            grid: {
+              drawOnChartArea: false, // only want the grid lines for one axis to show up
+            },
+            title: {
+              display: true,
+              text: 'Lines',
+            },
+          },
+        },
+      },
+    });
+  }
+
+  // This method will transform the backend data into two arrays: productLines and serviceLines.
+  processRegressionData(data: any[]): { X: number[][]; y: number[][] } {
+    // Initialize empty arrays for product and service line counts
+    const productLines: number[] = [];
+    const serviceLines: number[] = [];
+    const y: number[] = []; // This will store your actual runtimes
+
+    // Filter out months that are missing from the actual runtimes data
+    const filteredData = data.filter((entry) =>
+      runtimes.some((runtime) => runtime.PERIOD_NAME === entry.PERIOD_NAME)
+    );
+
+    // Assuming the filteredData is sorted by period and each period has two entries: one for PRODUCT and one for SERVICE
+    for (let i = 0; i < filteredData.length; i += 2) {
+      const productEntry =
+        filteredData[i].LINE_TYPE === 'PRODUCT'
+          ? filteredData[i]
+          : filteredData[i + 1];
+      const serviceEntry =
+        filteredData[i].LINE_TYPE === 'SERVICE'
+          ? filteredData[i]
+          : filteredData[i + 1];
+
+      // Check if the period for this entry exists in the runtimes array
+      const runtimeEntry = runtimes.find(
+        (rt) => rt.PERIOD_NAME === productEntry.PERIOD_NAME
+      );
+      if (runtimeEntry) {
+        // Add the line counts and runtime to the respective arrays
+        productLines.push(productEntry.LINE_COUNT);
+        serviceLines.push(serviceEntry.LINE_COUNT);
+        y.push(runtimeEntry.Actual_Run_Time);
+      }
+    }
+
+    // Combine productLines and serviceLines into a 2D array for X
+    const X = productLines.map((productCount, index) => [
+      productCount,
+      serviceLines[index],
+    ]);
+
+    // Convert y into a 2D array for MLR
+    const yFormatted = y.map((runtime) => [runtime]); // Wrap each runtime value in an array
+
+    // Return the formatted 2D array yFormatted as part of the object
+    return { X, y: yFormatted };
+  }
 }
 
 export interface HistoricalDataModel {
-  APR_20: string | null;
-  APR_21: string | null;
-  APR_22: string | null;
-  APR_23: string | null;
+  [key: string]: string | null;
   ENTITY: string | null;
-  JAN_20: string | null;
-  JAN_21: string | null;
-  JAN_22: string | null;
-  JAN_23: string | null;
-  JUL_19: string | null;
-  JUL_20: string | null;
-  JUL_21: string | null;
-  JUL_22: string | null;
-  JUL_23: string | null;
   LINE_TYPE: string | null;
-  OCT_20: string | null;
-  OCT_21: string | null;
-  OCT_22: string | null;
-  OCT_23: string | null;
-  OCT_24: string | null;
 }
