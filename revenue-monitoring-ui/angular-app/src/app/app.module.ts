@@ -83,6 +83,7 @@ import { DataService } from './providers/data.service';
 import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
 import { ColumnSelectComponent } from './order-lifecycle/column-select/column-select.component';
+import { CloUpdatesComponent } from './order-lifecycle/clo-updates/clo-updates.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -119,6 +120,7 @@ export function initApp(authService: AuthenticationService) {
     HomeComponent,
     ErrorComponent,
     ColumnSelectComponent,
+    CloUpdatesComponent,
   ],
   imports: [
     BrowserModule,

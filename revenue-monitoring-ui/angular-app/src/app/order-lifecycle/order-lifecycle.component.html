@@ -115,6 +115,15 @@
       <button mat-stroked-button type="button" (click)="clearFilters()">
         Reset
       </button>
+      &nbsp;
+      <button
+        mat-raised-button
+        color="warn"
+        *ngIf="selection.hasValue() && updateClo"
+        (click)="deleteSelectedRows()"
+      >
+        Delete
+      </button>
     </form>
     <div class="highlight-link">
       <a
@@ -659,6 +668,7 @@
         mat-row
         *matRowDef="let row; columns: columnsToDisplay; let entry"
         [ngClass]="{ highlight: entry.GL_POSTING_STATUS == 'Completed' }"
+        [hidden]="!showRecord"
       ></tr>
 
       <tr class="mat-row" *matNoDataRow>
@@ -709,6 +719,10 @@
   >
     <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
     >&nbsp;&nbsp;Deal Upload
+  </div>
+  <div (click)="openCloUpdateDialog()" class="viewHighlight" *ngIf="updateClo">
+    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    >&nbsp;&nbsp;CLO Updates
   </div>
   <div
     (click)="

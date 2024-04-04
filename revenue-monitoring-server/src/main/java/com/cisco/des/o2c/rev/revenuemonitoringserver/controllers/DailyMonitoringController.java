@@ -253,9 +253,9 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getErrorDistributionSummarization(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/invoice-eligible-date")
-    public ResponseEntity<String> invoiceEligibleDateUpdate(@RequestBody List<Map<String,Object>> updatedDeals){
-        service.updateInvoiceEligibleDate(updatedDeals);
+    @PostMapping(value = "/delete-selected-deals")
+    public ResponseEntity<String> deleteSelectedDeals(@RequestBody List<Map<String,Object>> selectedDeals){
+        System.out.println(selectedDeals);
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }
 

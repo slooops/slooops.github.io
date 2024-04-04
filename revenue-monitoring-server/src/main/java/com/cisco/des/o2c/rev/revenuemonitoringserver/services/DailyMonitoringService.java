@@ -421,22 +421,4 @@ public class DailyMonitoringService {
         return temp;
     }
 
-    public void updateInvoiceEligibleDate(List<Map<String,Object>> updatedDeals){
-
-        for(Map<String,Object> deal: updatedDeals){
-            String dateString = deal.get("INVOICE_ELIGIBLE_DATE").toString();
-            int dealId = Integer.parseInt(deal.get("DEAL_ID").toString());
-            String salesOrder = deal.get("SALES_ORDER").toString();
-            System.out.println(dateString + " " + dealId + " " + salesOrder);
-            try {
-                Instant instant = Instant.parse(dateString);
-                Date date = Date.from(instant);
-                int ret = jdbcManager.updateInvoiceEligibleDate(updateInvoiceEligibleDate, date, dealId, salesOrder);
-                System.out.println(ret);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
 }

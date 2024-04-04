@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatPaginator } from '@angular/material/paginator';
@@ -13,6 +13,7 @@ import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-li
 import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
 import { DataService } from '../providers/data.service';
 import { ColumnSelectComponent } from './column-select/column-select.component';
+import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 
 @Component({
   selector: 'app-invoice-status',
@@ -20,6 +21,8 @@ import { ColumnSelectComponent } from './column-select/column-select.component';
   styleUrls: ['./order-lifecycle.component.css'],
 })
 export class OrderLifecycleComponent implements OnInit {
+  @ViewChild(MatTable) table: MatTable<any>;
+
   constructor(
     http: ApiHttpService,
     private dialog: MatDialog,
@@ -84,6 +87,7 @@ export class OrderLifecycleComponent implements OnInit {
   dealUploadFlag: boolean = false;
   ifColumnSelect: boolean = false;
   showDialog: boolean = false;
+  showRecord: boolean = true;
 
   columnSelect() {
     this.ifColumnSelect != this.ifColumnSelect;
@@ -168,6 +172,20 @@ export class OrderLifecycleComponent implements OnInit {
       this.length = this.orderLifecycleStatus.length;
       this.setSortAndPaginator();
       this.dataSource.filterPredicate = this.filterPredicate;
+    });
+  }
+
+  deleteSelectedRows() {
+    let rowsToDelete = this.dataSource.data.filter((row) =>
+      this.selection.isSelected(row)
+    );
+    this.http.post('delete-selected-deals', rowsToDelete).subscribe((data) => {
+      console.log(data);
+      // if (data === 'uploaded') {
+      this.updatedData = true;
+      this.dataSource = null;
+      this.getOrderLifecycle();
+      // }
     });
   }
 
@@ -304,6 +322,12 @@ export class OrderLifecycleComponent implements OnInit {
   openRevSummaryDialog() {
     this.dialog.open(OrderLifecycleRevSummaryComponent, {
       width: '1200px',
+    });
+  }
+
+  openCloUpdateDialog() {
+    this.dialog.open(CloUpdatesComponent, {
+      width: '600px',
     });
   }
 
