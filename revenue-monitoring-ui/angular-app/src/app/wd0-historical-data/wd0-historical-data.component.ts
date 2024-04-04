@@ -193,8 +193,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       this.barChart.destroy();
     }
 
-    console.log('barchart refresh');
-
     const filteredData = this.filterDataByDate(
       historicalData,
       new Date(2022, 9)
@@ -411,8 +409,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
     if (this.lineChart) {
       this.lineChart.destroy();
     }
-
-    console.log('line chart refreshed with no errors');
 
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
