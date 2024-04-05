@@ -4,7 +4,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
-import { runtimes } from './runtimes';
 import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 Chart.register(...registerables);
 
@@ -40,6 +39,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   private getHistoricalData() {
     this.getEndpointData('wd0-historical-data').subscribe((data: any) => {
+      console.log(data);
       const grandTotal = {};
       const serviceTotal = {};
       const productTotal = {};
@@ -350,6 +350,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
       // prep the data and run regression (this sets a model in the service)
       const regressionData = this.processRegressionData(data);
+
       this.regressionService.performMultipleLinearRegression(
         regressionData.X,
         regressionData.y
@@ -424,13 +425,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
           },
 
           {
-            label: 'Lower Runtime Prediction Bound (hrs)',
+            label: 'Lower Bound (hrs)',
             data: fastestTimes,
             yAxisID: 'y',
             tension: 0.3,
           },
           {
-            label: 'Upper Runtime Prediction Bound (hrs)',
+            label: 'Upper Bound (hrs)',
             data: slowestTimes,
             yAxisID: 'y',
             tension: 0.3,
@@ -477,19 +478,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
-  // This method will transform the backend data into two arrays: productLines and serviceLines.
   processRegressionData(data: any[]): { X: number[][]; y: number[][] } {
+    // Define the outlier periods that should be excluded from the dataset
+    const excludePeriods = ['JUL-23', 'APR-23'];
+
     // Initialize empty arrays for product and service line counts
     const productLines: number[] = [];
     const serviceLines: number[] = [];
-    const y: number[] = []; // This will store your actual runtimes
+    const executionTimes: number[] = []; // This will store your execution times
 
-    // Filter out months that are missing from the actual runtimes data
-    const filteredData = data.filter((entry) =>
-      runtimes.some((runtime) => runtime.PERIOD_NAME === entry.PERIOD_NAME)
+    // Filter out the outlier months
+    const filteredData = data.filter(
+      (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
     );
 
-    // Assuming the filteredData is sorted by period and each period has two entries: one for PRODUCT and one for SERVICE
+    // Process the filtered data
     for (let i = 0; i < filteredData.length; i += 2) {
       const productEntry =
         filteredData[i].LINE_TYPE === 'PRODUCT'
@@ -500,16 +503,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
           ? filteredData[i]
           : filteredData[i + 1];
 
-      // Check if the period for this entry exists in the runtimes array
-      const runtimeEntry = runtimes.find(
-        (rt) => rt.PERIOD_NAME === productEntry.PERIOD_NAME
-      );
-      if (runtimeEntry) {
-        // Add the line counts and runtime to the respective arrays
-        productLines.push(productEntry.LINE_COUNT);
-        serviceLines.push(serviceEntry.LINE_COUNT);
-        y.push(runtimeEntry.Actual_Run_Time);
-      }
+      // Since execution time is repeated for each product and service line, select it from the product line
+      const executionTime = productEntry.EXECUTION_TIME;
+
+      // Add the line counts and execution time to the respective arrays
+      productLines.push(productEntry.LINE_COUNT);
+      serviceLines.push(serviceEntry.LINE_COUNT);
+      executionTimes.push(executionTime);
     }
 
     // Combine productLines and serviceLines into a 2D array for X
@@ -518,10 +518,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
       serviceLines[index],
     ]);
 
-    // Convert y into a 2D array for MLR
-    const yFormatted = y.map((runtime) => [runtime]); // Wrap each runtime value in an array
+    // Convert executionTimes into a 2D array for MLR
+    const yFormatted = executionTimes.map((time) => [time]); // Wrap each execution time value in an array
 
-    // Return the formatted 2D array yFormatted as part of the object
+    // Return the formatted 2D arrays
     return { X, y: yFormatted };
   }
 }
