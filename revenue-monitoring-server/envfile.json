@@ -38,7 +38,7 @@
   "KAFKA_PUBLISH_TO_DOWNSTREAM_QUERY": "select * from ARFINRO.ASK_ORG_KAFKA_PUBLISH_V",
   "ERRORS_DISTRIBUTION_SUMMARIZATION_QUERY": "select * from ARFINRO.ASK_ORG_ACCRUAL_SUMM_DIST_V",
   "PERSONA_ACCESS_QUERY": "select * from ARFINRO.XXCFI_LARGE_DEAL_DSH_USER_ACCESS",
-  "WD0_REGRESSION_QUERY": "select period_year,period_num,period_name,line_type,line_count from arfinro.ASK_QE_ME_INTERFACE_LOAD\nwhere close_type='MIDCLOSE'\norder by period_year,period_num",
+  "WD0_REGRESSION_QUERY": "select period_year,period_num,period_name,line_type,line_count,execution_time from arfinro.ASK_QE_ME_INTERFACE_LOAD\nwhere close_type='MIDCLOSE'\norder by period_year,period_num",
   "WDO_CURRENT_MONTH_QUERY": "select * from arfinro.XXCFI_ASK_I2C_DASH_LOAD_SUMM_V1",
   "DELETE_SELECTED_DEALS_QUERY": "UPDATE arfinro.XXCFI_ASK_LARG_ORDER_STATUS SET enabled_flag='N' WHERE deal_id=? AND sales_order=?",
   "CLO_BULK_UPDATE_QUERY": "UPDATE arfinro.XXCFI_ASK_LARG_ORDER_STATUS SET clo_comments=?, clo_comments_updated_by=?, clo_comments_updated_date=SYSDATE, invoice_eligible_date=? WHERE deal_id=? AND sales_order=NVL(?, sales_order) AND program_name=? AND account=?",
