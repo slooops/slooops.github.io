@@ -59,7 +59,7 @@ public class DailyMonitoringService {
     private String kafkaPublishToDownstream;
     private String errorDistributionSummarization;
     private String personaAccessRoles;
-    private String authorizedUser="avudutha";
+    private String authorizedUser;
     private String wd0Regression;
 
     private String wd0CurrentMonth;
