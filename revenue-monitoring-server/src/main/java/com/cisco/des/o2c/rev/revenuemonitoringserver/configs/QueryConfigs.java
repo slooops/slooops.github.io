@@ -109,13 +109,20 @@ public class QueryConfigs { // TODO
 
     @Value("${error.distribution.summarization.q}")
     public String errorDistributionSummarization;
+
     @Value(("${order.status.rev.summary.q}"))
     public String orderStatusRevSummary;
+
     @Value(("${update.invoice.eligible.date.q}"))
     public String updateInvoiceEligibleDate;
 
     @Value(("${persona.access.q}"))
     public String personaAccessRoles;
+    @Value(("${wd0.regression.q}"))
+    public String wd0Regression;
+
+    @Value(("${wd0.current.month.q}"))
+    public String wd0CurrentMonth;
 
 
 
@@ -243,4 +250,10 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "personaAccessRoles")
     public String getPersonaAccessRoles() {return this.personaAccessRoles;}
+    @Bean( name = "wd0Regression" )
+    public String getWd0Regression() {return this.wd0Regression; }
+
+    @Bean( name = "wd0CurrentMonth" )
+    public String getWd0CurrentMonth() {return this.wd0CurrentMonth; }
+
 }

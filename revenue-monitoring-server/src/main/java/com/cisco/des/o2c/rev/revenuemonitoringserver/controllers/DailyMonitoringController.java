@@ -264,4 +264,14 @@ public class DailyMonitoringController {
         UserRoleInfo userRoles = service.getUserRoles();
         return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
+    @GetMapping("/wd0-regression")
+    public ResponseEntity<List<Map<String, Object>>> getWd0Regression() {
+        return new ResponseEntity<>(service.getWd0Regression(), HttpStatus.OK);
+    }
+
+    @GetMapping("/wd0-current-month")
+    public ResponseEntity<List<Map<String, Object>>> getWd0CurrentMonth() {
+        return new ResponseEntity<>(service.getWd0CurrentMonth(), HttpStatus.OK);
+    }
+
 }

@@ -1,126 +1,152 @@
-<div class="sticky-charts">
-  <div class="chart-carousel">
-    <div class="chart-box">
-      <div class="chart-header">
-        <h6>Service & Product Lines</h6>
-        <a (click)="openChartDialog('bar')">
-          <i class="fa fa-arrows-alt"></i>
-        </a>
-      </div>
-      <canvas id="barChartCanvasId"></canvas>
-    </div>
+<br />
 
-    <div class="chart-box">
-      <div class="chart-header">
-        <h6>Total Lines by Entity</h6>
-        <a (click)="openChartDialog('line')">
-          <i class="fa fa-arrows-alt"></i>
-        </a>
-      </div>
-      <canvas id="lineChartCanvasId"></canvas>
-    </div>
+<div style="display: flex; align-items: flex-end">
+  <div style="width: 48vw; padding-left: 1vw">
+    <canvas id="barChartCanvasId"></canvas>
+    <p class="chart-description">
+      Bar chart dispalying the total product and total service lines sold by
+      fiscal quarter.
+    </p>
   </div>
+
+  <div style="width: 48vw; padding-left: 1vw">
+    <canvas id="lineChartCanvas"></canvas>
+    <p class="chart-description">
+      Line chart depicting ML-predicted finish times for Mid Close, comparing
+      fastest and slowest predictions within a 95% confidence interval to
+      historical actual finish times, and current product and service line loads
+      (right axis).
+    </p>
+  </div>
+
+  <br />
+
+  <!-- <div class="slider-container">
+    <div class="slider-title">Estimated Mid Close Runtime</div>
+    <div class="slider">
+      <div class="time">{{ lowerCI | number : "1.2-2" }} hrs</div>
+      <div class="slider-bar">
+        <span class="slider-circle start-circle"> </span>
+      </div>
+      <div class="time">{{ upperCI | number : "1.2-2" }} hrs</div>
+    </div>
+  </div> -->
 </div>
 
-<ng-template #barChartTemplate>
-  <div class="chart-header">
-    <h6>Service & Product Lines</h6>
-    <div>
-      <a (click)="downloadChart('modalBarChartCanvasId', 'barChart.png')">
-        <i style="padding-right: 10px" class="fa fa-download"></i>
-      </a>
-      <a (click)="closeDialog()">
-        <i class="fa fa-times"></i>
-      </a>
-    </div>
-  </div>
-  <canvas id="modalBarChartCanvasId"></canvas>
-</ng-template>
-
-<ng-template #lineChartTemplate>
-  <div class="chart-header">
-    <h6>Total Lines by Entity</h6>
-    <div>
-      <a
-        style="padding-right: 10px"
-        (click)="downloadChart('modalLineChartCanvasId', 'lineChart.png')"
-      >
-        <i class="fa fa-download"></i>
-      </a>
-      <a (click)="closeDialog()">
-        <i class="fa fa-times"></i>
-      </a>
-    </div>
-  </div>
-  <canvas id="modalLineChartCanvasId"></canvas>
-</ng-template>
-
-<div style="position: sticky" class="row">
+<div class="row">
   <div class="col-sm-4">
-    <h4 style="padding-top: 14px">Mid Close Volumes Data</h4>
+    <h4 style="padding-top: 14px">&nbsp;All Entities</h4>
   </div>
   <div
     class="col-sm-5 justify-content-center align-items-center"
     style="display: flex; align-items: center; padding-top: 16px"
   >
-    <p class="m-0">Legend: Number of lines</p>
+    <p>Legend: Number of Lines. Data refreshed every 5 minutes.</p>
   </div>
   <div
     class="col-sm-3 justify-content-end align-items-center"
     style="display: flex"
   >
-    <a style="float: right !important; text-decoration: none">
-      <i
-        class="fa fa-download"
-        style="font-size: 20px; color: gray"
-        aria-hidden="true"
-        (click)="
-          exportTableToExcel(
-            historicalData,
-            'HistoricalData',
-            'HistoricalDataReport'
-          )
-        "
-      ></i
-    ></a>
-    &nbsp;&nbsp;
+    <i
+      class="fa fa-download"
+      style="font-size: 20px; color: gray; cursor: pointer"
+      aria-hidden="true"
+      (click)="
+        exportTableToExcel(
+          historicalData,
+          'HistoricalData',
+          'HistoricalDataReport'
+        )
+      "
+    ></i
+    >&nbsp;&nbsp;&nbsp;
   </div>
 </div>
 
-<div
-  class="scrollable-table periodclosetbale sortArrow"
-  style="overflow: auto; max-width: 100%"
->
+<div class="periodclosetbale sortArrow" style="overflow: auto; max-width: 100%">
   <table
     mat-table
     [dataSource]="dataSource"
     class="table table-responsive table-striped"
+    aria-label="Mid Close Volumes Table"
   >
     <ng-container
       *ngFor="let column of displayedColumns; let i = index"
       [matColumnDef]="column"
     >
-      <th *matHeaderCellDef>
+      <th mat-header-cell *matHeaderCellDef>
         {{ formatColumnHeader(column) | uppercase }}
       </th>
-      <td mat-cell *matCellDef="let record">
-        <span *ngIf="column == 'ENTITY' || column == 'LINE_TYPE'"
-          ><b> {{ record[column] }}</b></span
-        >
-        <span *ngIf="column != 'ENTITY' && column != 'LINE_TYPE'">{{
-          record[column]
-        }}</span>
+      <td
+        mat-cell
+        *matCellDef="let row; let rowIndex = index"
+        [ngStyle]="
+          isProductTotalRow(row)
+            ? { 'border-bottom': '2px solid rgb(0, 158, 220)' }
+            : {}
+        "
+      >
+        <ng-container *ngIf="column !== 'trend'; else trendContent">
+          <span *ngIf="column === 'ENTITY' || column === 'LINE_TYPE'"
+            ><b> {{ row[column] }}</b></span
+          >
+          <span *ngIf="column !== 'ENTITY' && column !== 'LINE_TYPE'">
+            {{ row[column] | formatNumber }}
+          </span>
+        </ng-container>
+        <ng-template #trendContent>
+          <span
+            *ngIf="
+              getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
+                .trend === 'up'
+            "
+          >
+            ⬆
+            {{
+              getTrend(
+                row,
+                displayedColumns[i - 2],
+                displayedColumns[i - 1]
+              ).change.toFixed(0)
+            }}%
+          </span>
+          <span
+            *ngIf="
+              getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
+                .trend === 'down'
+            "
+          >
+            ⬇
+            {{
+              getTrend(
+                row,
+                displayedColumns[i - 2],
+                displayedColumns[i - 1]
+              ).change.toFixed(0)
+            }}%
+          </span>
+          <span
+            *ngIf="
+              getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
+                .trend === 'same'
+            "
+          >
+            —
+          </span>
+        </ng-template>
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr
       mat-row
-      *matRowDef="let row; columns: displayedColumns; let entry"
-      [ngClass]="{ boldrow: entry.ENTITY == 'Grand Total' }"
+      *matRowDef="let row; columns: displayedColumns"
+      [ngStyle]="
+        isProductTotalRow(row)
+          ? { 'total-row-separator': 'total-row-separator' }
+          : {}
+      "
     ></tr>
   </table>
-  <br />
-  <br />
 </div>
 
 <div style="display: flex; justify-content: center">

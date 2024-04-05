@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-backend-extra-service"
+  name: "rev-ops-monitoring-backend-final-service"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -17,13 +17,13 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-    app: "rev-ops-monitoring-server-extra"
+    app: "rev-ops-monitoring-server-final"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-server-extra"
+  name: "rev-ops-monitoring-server-final"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -31,21 +31,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-server-extra"
+      app: "rev-ops-monitoring-server-final"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-stg-rtp2"
       labels:
-        app: "rev-ops-monitoring-server-extra"
+        app: "rev-ops-monitoring-server-final"
         environment: "stage"
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-server-extra"
+        softwareName: "rev-ops-monitoring-server-final"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-extra"
+          name: "rev-ops-monitoring-final"
           ports:
             - containerPort: 8080
           env:

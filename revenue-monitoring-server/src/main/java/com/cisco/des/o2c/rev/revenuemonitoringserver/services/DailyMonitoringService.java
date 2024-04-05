@@ -5,6 +5,7 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UserRoleInfo;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,6 +63,10 @@ public class DailyMonitoringService {
     private String errorDistributionSummarization;
     private String personaAccessRoles;
     private String authorizedUser="avudutha";
+    private String wd0Regression;
+
+    private String wd0CurrentMonth;
+
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
@@ -75,7 +80,8 @@ public class DailyMonitoringService {
                                   String updateOrderStatus, String kafkaError, String kafkaInbound,
                                   String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
-                                  String orderStatusRevSummary, String updateInvoiceEligibleDate, String personaAccessRoles
+                                  String orderStatusRevSummary, String updateInvoiceEligibleDate, String personaAccessRoles, 
+                                  String wd0Regression, String wd0CurrentMonth
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -113,6 +119,8 @@ public class DailyMonitoringService {
         this.orderStatusRevSummary = orderStatusRevSummary;
         this.updateInvoiceEligibleDate = updateInvoiceEligibleDate;
         this.personaAccessRoles = personaAccessRoles;
+        this.wd0Regression = wd0Regression;
+        this.wd0CurrentMonth = wd0CurrentMonth;
     }
 
     public String getAuthorizedUser() {
@@ -421,4 +429,12 @@ public class DailyMonitoringService {
         return temp;
     }
 
+
+    public List<Map<String, Object>> getWd0Regression() {
+        return jdbcManager.queryForList(wd0Regression);
+    }
+
+    public List<Map<String, Object>> getWd0CurrentMonth() {
+        return jdbcManager.queryForList(wd0CurrentMonth);
+    }
 }
