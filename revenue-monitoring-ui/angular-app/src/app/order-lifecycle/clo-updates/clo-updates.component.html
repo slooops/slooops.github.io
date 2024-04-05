@@ -62,7 +62,7 @@
         <button
           class="btn btn-primary"
           mat-stroked-button
-          (click)="uploadDealsFile(dialogTemplate)"
+          (click)="uploadCLODataFile(dialogTemplate)"
           style="color: white"
         >
           Upload
@@ -141,7 +141,12 @@
       </form>
       <br />
       <div style="text-align: center">
-        <button mat-stroked-button class="btn btn-primary" type="submit">
+        <button
+          mat-stroked-button
+          class="btn btn-primary"
+          type="submit"
+          (click)="submitCLOData(dialogTemplate)"
+        >
           Upload
         </button>
       </div>

@@ -1,8 +1,5 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.OrderLifecycleSummaryModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UpdateOrderModel;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UserRoleInfo;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -66,6 +63,10 @@ public class DailyMonitoringService {
     private String wd0Regression;
 
     private String wd0CurrentMonth;
+    private String deleteSelectedDeals;
+    private String cloBulkUpdate;
+    private String invoiceEligibleUpdate;
+    private String cloCommentUpdate;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -80,8 +81,9 @@ public class DailyMonitoringService {
                                   String updateOrderStatus, String kafkaError, String kafkaInbound,
                                   String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
-                                  String orderStatusRevSummary, String updateInvoiceEligibleDate, String personaAccessRoles, 
-                                  String wd0Regression, String wd0CurrentMonth
+                                  String orderStatusRevSummary, String personaAccessRoles,
+                                  String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
+                                  String invoiceEligibleUpdate, String cloCommentUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -117,10 +119,13 @@ public class DailyMonitoringService {
         this.kafkaPublishToDownstream = kafkaPublishToDownstream;
         this.errorDistributionSummarization = errorDistributionSummarization;
         this.orderStatusRevSummary = orderStatusRevSummary;
-        this.updateInvoiceEligibleDate = updateInvoiceEligibleDate;
         this.personaAccessRoles = personaAccessRoles;
         this.wd0Regression = wd0Regression;
         this.wd0CurrentMonth = wd0CurrentMonth;
+        this.deleteSelectedDeals = deleteSelectedDeals;
+        this.cloBulkUpdate = cloBulkUpdate;
+        this.invoiceEligibleUpdate = invoiceEligibleUpdate;
+        this.cloCommentUpdate = cloCommentUpdate;
     }
 
     public String getAuthorizedUser() {
@@ -436,5 +441,71 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getWd0CurrentMonth() {
         return jdbcManager.queryForList(wd0CurrentMonth);
+    }
+
+    public void deleteSelectedDeals(List<Map<String,Object>> selectedDeals){
+        for(Map<String,Object> deal:selectedDeals){
+            deleteDeals((int)deal.get("DEAL_ID"), (String)deal.get("SALES_ORDER"));
+        }
+    }
+
+    public void deleteDeals(int dealId, String salesOrder){
+        int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, dealId, salesOrder);
+        System.out.println(test);
+    }
+
+    public void setCloBulkUpdateFromFile(MultipartFile file) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
+            boolean isFirstLine = true;
+            while ((line = reader.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue;
+                }
+                String[] parts = line.split(",");
+                if (parts.length == 6) {
+                    UpdateCLOData cloData = new UpdateCLOData();
+                    cloData.setProgramName(parts[0]);
+                    cloData.setAccount(parts[1]);
+                    cloData.setDealIds(parts[2]);
+                    cloData.setOrderNum(parts[3]);
+                    cloData.setInvoiceDate(parts[4]);
+                    cloData.setCloComments(parts[5]);
+                    saveToDatabaseCLOUpdate(cloData);
+                }
+            }
+        }
+    }
+
+    public void setCloBulkUpdate(UpdateCLOData input){
+        System.out.println("here2");
+        UpdateCLOData cloData = new UpdateCLOData();
+        cloData.setProgramName(input.getProgramName());
+        cloData.setAccount(input.getAccount());
+        cloData.setDealIds(input.getDealIds());
+        cloData.setOrderNum(input.getOrderNum());
+        cloData.setInvoiceDate(input.getInvoiceDate());
+        cloData.setCloComments(input.getCloComments());
+        System.out.println(cloData.getCloComments());
+        System.out.println(cloData.getInvoiceDate());
+        System.out.println(cloData.getOrderNum());
+        System.out.println(cloData.getOrderNum().getClass());
+        saveToDatabaseCLOUpdate(cloData);
+
+    }
+
+    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData) {
+        System.out.println("here3");
+        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), cloData.getInvoiceDate(), cloData.getCloComments(), authorizedUser);
+        System.out.println(test);
+    }
+
+    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel){
+        jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("cloComments"), authorizedUser);
+    }
+
+    public void setCloCommentUpdate(Map<String, String> updatedModel){
+        jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("invoiceEligibleDate"), authorizedUser);
     }
 }

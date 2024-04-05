@@ -113,9 +113,6 @@ public class QueryConfigs { // TODO
     @Value(("${order.status.rev.summary.q}"))
     public String orderStatusRevSummary;
 
-    @Value(("${update.invoice.eligible.date.q}"))
-    public String updateInvoiceEligibleDate;
-
     @Value(("${persona.access.q}"))
     public String personaAccessRoles;
     @Value(("${wd0.regression.q}"))
@@ -124,7 +121,15 @@ public class QueryConfigs { // TODO
     @Value(("${wd0.current.month.q}"))
     public String wd0CurrentMonth;
 
+    @Value("${delete.selected.deals.q}")
+    public String deleteSelectedDeals;
 
+    @Value("${clo.bulk.update.q}")
+    public String cloBulkUpdate;
+    @Value("${invoice.eligible.update.q}")
+    public String invoiceEligibleUpdate;
+    @Value("${clo.comment.update.q}")
+    public String cloCommentUpdate;
 
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
@@ -245,8 +250,6 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "orderStatusRevSummary" )
     public String getOrderStatusRevSummary() {return this.orderStatusRevSummary; }
-    @Bean( name = "updateInvoiceEligibleDate" )
-    public String getUpdateInvoiceEligibleDate() {return this.updateInvoiceEligibleDate; }
 
     @Bean( name = "personaAccessRoles")
     public String getPersonaAccessRoles() {return this.personaAccessRoles;}
@@ -255,5 +258,14 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "wd0CurrentMonth" )
     public String getWd0CurrentMonth() {return this.wd0CurrentMonth; }
+    @Bean( name = "deleteSelectedDeals" )
+    public String getDeleteSelectedDeals() {return this.deleteSelectedDeals; }
+    @Bean( name = "cloBulkUpdate" )
+    public String getCloBulkUpdate() {return this.cloBulkUpdate; }
+    @Bean( name = "invoiceEligibleUpdate" )
+    public String getInvoiceEligibleUpdate() {return this.invoiceEligibleUpdate; }
+    @Bean( name = "cloCommentUpdate" )
+    public String getCloCommentUpdate() {return this.cloCommentUpdate; }
+
 
 }

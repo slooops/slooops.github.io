@@ -37,6 +37,7 @@ export class CloUpdatesComponent implements OnInit {
   selectedFile: File | null = null;
   fileSelected: boolean = false;
   validationError: string | null = null;
+  updateCloData: UpdateCLOData;
   isLoading: boolean = false;
   validForm: boolean = false;
   uploadText: string = '';
@@ -59,56 +60,62 @@ export class CloUpdatesComponent implements OnInit {
     this.handleFiles(input.files[0]);
   }
 
-  uploadDealsFile(dialogTemplate: TemplateRef<any>) {
+  uploadCLODataFile(dialogTemplate: TemplateRef<any>) {
     if (this.selectedFile) {
       let file = this.selectedFile;
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
       this.isLoading = true;
 
-      // this.http
-      //   .post('order-lifecycle-upload', formData, { responseType: 'text' })
-      //   .subscribe(
-      //     (response) => {
-      //       this.uploadText = 'Deals upload successful!';
-      //       this.closeDialog('uploaded');
-      //       this.dialog.open(dialogTemplate);
-      //     },
-      //     (error) => {
-      //       this.uploadText = 'Deals upload failed!';
-      //       this.closeDialog('error');
-      //       this.dialog.open(dialogTemplate);
-      //     }
-      //   );
+      this.http
+        .post('clo-bulk-upload-file', formData, { responseType: 'text' })
+        .subscribe(
+          (response) => {
+            this.uploadText = 'CLO Data upload successful!';
+            this.closeDialog('uploaded');
+            this.dialog.open(dialogTemplate);
+          },
+          (error) => {
+            this.uploadText = 'CLO Data upload failed!';
+            this.closeDialog('error');
+            this.dialog.open(dialogTemplate);
+          }
+        );
     }
   }
 
-  submitDealIds(dialogTemplate: TemplateRef<any>) {
+  submitCLOData(dialogTemplate: TemplateRef<any>) {
     if (this.updateForm.valid) {
       this.validForm = false;
       const formData = this.updateForm.value;
 
-      // this.updateModel = {
-      //   programName: formData.programName,
-      //   account: formData.account,
-      //   dealIds: formData.dealIds,
-      // };
-      // this.http
-      //   .post('order-lifecycle-upload-manual', this.updateModel, {
-      //     responseType: 'text',
-      //   })
-      //   .subscribe(
-      //     (data) => {
-      //       this.uploadText = 'Deals upload successful!';
-      //       this.closeDialog('uploaded');
-      //       this.dialog.open(dialogTemplate);
-      //     },
-      //     (error) => {
-      //       this.uploadText = 'Deals upload failed!';
-      //       this.closeDialog('error');
-      //       this.dialog.open(dialogTemplate);
-      //     }
-      //   );
+      this.updateCloData = {
+        programName: formData.programName,
+        account: formData.account,
+        dealIds: formData.dealIds,
+        orderNum: formData.orderNum,
+        invoiceDate: formData.invoiceDate.toLocaleDateString('en-US', {
+          timeZone: 'America/Los_Angeles',
+        }),
+        cloComments: formData.cloComments,
+      };
+      console.log(this.updateCloData);
+      this.http
+        .post('clo-bulk-upload', this.updateCloData, {
+          responseType: 'text',
+        })
+        .subscribe(
+          (data) => {
+            this.uploadText = 'Deals upload successful!';
+            this.closeDialog('uploaded');
+            this.dialog.open(dialogTemplate);
+          },
+          (error) => {
+            this.uploadText = 'Deals upload failed!';
+            this.closeDialog('error');
+            this.dialog.open(dialogTemplate);
+          }
+        );
     } else {
       this.validForm = true;
     }
@@ -184,4 +191,13 @@ export class CloUpdatesComponent implements OnInit {
     this.selectedFile = null;
     this.validationError = null;
   }
+}
+
+interface UpdateCLOData {
+  programName: string;
+  account: string;
+  dealIds: string;
+  orderNum: string;
+  invoiceDate: string;
+  cloComments: string;
 }

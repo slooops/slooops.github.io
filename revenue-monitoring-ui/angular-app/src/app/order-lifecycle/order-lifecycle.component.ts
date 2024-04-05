@@ -179,14 +179,19 @@ export class OrderLifecycleComponent implements OnInit {
     let rowsToDelete = this.dataSource.data.filter((row) =>
       this.selection.isSelected(row)
     );
-    this.http.post('delete-selected-deals', rowsToDelete).subscribe((data) => {
-      console.log(data);
-      // if (data === 'uploaded') {
-      this.updatedData = true;
-      this.dataSource = null;
-      this.getOrderLifecycle();
-      // }
-    });
+    this.http
+      .post('delete-selected-deals', rowsToDelete, {
+        responseType: 'text',
+      })
+      .subscribe((data) => {
+        console.log(data);
+        // if (data === 'uploaded') {
+        this.selection.clear();
+        this.updatedData = true;
+        this.dataSource = null;
+        this.getOrderLifecycle();
+        // }
+      });
   }
 
   filterData() {
@@ -326,8 +331,16 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   openCloUpdateDialog() {
-    this.dialog.open(CloUpdatesComponent, {
+    const dialogRef = this.dialog.open(CloUpdatesComponent, {
       width: '600px',
+    });
+
+    dialogRef.afterClosed().subscribe((data) => {
+      if (data === 'uploaded') {
+        this.updatedData = true;
+        this.dataSource = null;
+        this.getOrderLifecycle();
+      }
     });
   }
 
@@ -350,6 +363,8 @@ export class OrderLifecycleComponent implements OnInit {
       dealId: record.DEAL_ID,
       orderID: record.SALES_ORDER,
       cloComments: record.CLO_COMMENTS,
+      programName: record.PROGRAM_NAME,
+      account: record.ACCOUNT,
     };
     this.http.post('update-clo-comments', cloMap).subscribe((data) => {});
     this.stopEditing();
@@ -365,7 +380,14 @@ export class OrderLifecycleComponent implements OnInit {
     let dateMap = {
       dealId: record.DEAL_ID,
       orderID: record.SALES_ORDER,
-      invoiceEligibleDate: record.INVOICE_ELIGIBLE_DATE.toLocaleDateString(),
+      invoiceEligibleDate: record.INVOICE_ELIGIBLE_DATE.toLocaleDateString(
+        'en-US',
+        {
+          timeZone: 'America/Los_Angeles',
+        }
+      ),
+      programName: record.PROGRAM_NAME,
+      account: record.ACCOUNT,
     };
 
     this.http

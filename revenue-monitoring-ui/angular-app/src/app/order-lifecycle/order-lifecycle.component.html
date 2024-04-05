@@ -119,7 +119,7 @@
       <button
         mat-raised-button
         color="warn"
-        *ngIf="selection.hasValue() && updateClo"
+        *ngIf="selection.hasValue() && dealUploadFlag"
         (click)="deleteSelectedRows()"
       >
         Delete

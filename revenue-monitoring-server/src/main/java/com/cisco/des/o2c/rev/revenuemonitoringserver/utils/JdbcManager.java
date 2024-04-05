@@ -73,4 +73,21 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
 
+    public int deleteSelectedDeals(String sql, int dealId, String salesOrder){
+        return jdbcTemplate.update(sql, dealId, salesOrder);
+    }
+
+    public int updateCLoData(String sql, String progName, String account, int dealId, String salesOrder, String invoiceDate, String cloComments, String updatedBy){
+        System.out.println("here4");
+        System.out.println(sql);
+        return jdbcTemplate.update(sql, cloComments, updatedBy, invoiceDate, dealId, salesOrder, progName, account);
+    }
+
+    public int updateCloComments(String sql, String progName, String account, int dealId, String salesOrder, String cloComments, String updatedBy){
+        return jdbcTemplate.update(sql, cloComments, updatedBy, dealId, salesOrder, progName, account);
+    }
+
+    public int updateInvoiceDate(String sql, String progName, String account, int dealId, String salesOrder, String invoiceDate, String updatedBy){
+        return jdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, progName, account);
+    }
 }
