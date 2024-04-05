@@ -299,6 +299,31 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: wd0.current.month.q
+            - name: PERSONA_ACCESS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: persona.access.q
+            - name: DELETE_SELECTED_DEALS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: delete.selected.deals.q
+            - name: CLO_BULK_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.bulk.update.q
+            - name: INVOICE_ELIGIBLE_DATE_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.eligible.update.q
+            - name: CLO_COMMENTS_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.comment.update.q
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---

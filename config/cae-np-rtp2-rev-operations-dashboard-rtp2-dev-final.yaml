@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.error.url
+                  key: cors.order.lifecycle.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -189,16 +189,6 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.query
-            - name: ORDER_STATUS_DOWNLOAD_Q
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: order.status.download.query
-            - name: ORDER_STATUS_DOWNLOAD_Q
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: order.status.download.query
             - name: ORDER_STATUS_SUMMARY_Q
               valueFrom:
                 configMapKeyRef:
@@ -209,6 +199,16 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.summary.q
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
             - name: INVOICE_TRACKER_HEADER_QUERY
               valueFrom:
                 configMapKeyRef:
@@ -289,10 +289,40 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: update.invoice.eligible.date.q
+            - name: WD0_REGRESSION_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.regression.q
+            - name: WDO_CURRENT_MONTH_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.current.month.q
             - name: PERSONA_ACCESS_QUERY
               valueFrom:
                 configMapKeyRef:
                   name: db-properties
                   key: persona.access.q
+            - name: DELETE_SELECTED_DEALS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: delete.selected.deals.q
+            - name: CLO_BULK_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.bulk.update.q
+            - name: INVOICE_ELIGIBLE_DATE_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.eligible.update.q
+            - name: CLO_COMMENTS_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.comment.update.q
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret

@@ -54,7 +54,7 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: order-lifecycle-dashboard.cisco.com
+  name: operations-control-tower.cisco.com
   namespace: rev-operations-dashboard-prd-rcdn
 spec:
   contexts:
