@@ -66,12 +66,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
         ...grandTotal,
       };
       const serviceTotalObject = {
-        ENTITY: 'Service Total',
+        ENTITY: 'Service Lines',
         LINE_TYPE: '—',
         ...serviceTotal,
       };
       const productTotalObject = {
-        ENTITY: 'Product Total',
+        ENTITY: 'Product Lines',
         LINE_TYPE: '—',
         ...productTotal,
       };
@@ -424,13 +424,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
           },
 
           {
-            label: 'Fastest Time (hrs)',
+            label: 'Lower Runtime Prediction Bound (hrs)',
             data: fastestTimes,
             yAxisID: 'y',
             tension: 0.3,
           },
           {
-            label: 'Slowest Time (hrs)',
+            label: 'Upper Runtime Prediction Bound (hrs)',
             data: slowestTimes,
             yAxisID: 'y',
             tension: 0.3,

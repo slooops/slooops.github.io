@@ -75,8 +75,14 @@
       [matColumnDef]="column"
     >
       <th mat-header-cell *matHeaderCellDef>
-        {{ formatColumnHeader(column) | uppercase }}
+        <ng-container *ngIf="column === 'trend'; else otherHeader">
+          QoQ Trend
+        </ng-container>
+        <ng-template #otherHeader>
+          {{ formatColumnHeader(column) | uppercase }}
+        </ng-template>
       </th>
+
       <td
         mat-cell
         *matCellDef="let row; let rowIndex = index"
