@@ -33,6 +33,8 @@ function makeAutomaticPost(authUser) {
 }
 
 app.use((req, res, next) => {
+  console.log(req);
+  console.log(req.headers["auth_user"]);
   makeAutomaticPost(req.headers["auth_user"]);
   next();
 });

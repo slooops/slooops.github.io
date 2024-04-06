@@ -18,7 +18,7 @@ public class UserRoleController {
 
     @PostMapping(value = "/auth-user")
     public ResponseEntity<String> getAuthUser(@RequestBody Map<String,String> authUser){
-        System.out.println(authUser.get("auth_user"));
+        System.out.println("loggedinUser:"+authUser.get("auth_user"));
         userService.setAuthorizedUser(authUser.get("auth_user"));
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }
