@@ -19,9 +19,9 @@ function makeAutomaticPost(authUser) {
     const postData = {
       auth_user: authUser,
     };
-
+    console.log(postData + "here2");
     axios
-      .post(`${targetURL}/user/auth-user`, postData)
+      .post(`${targetURL}/api/auth-user`, postData)
       .then((response) => {
         console.log("Automatic POST request successful:", response.data);
         hasMadePostRequest = true;
@@ -33,17 +33,11 @@ function makeAutomaticPost(authUser) {
 }
 
 app.use((req, res, next) => {
-  console.log(req);
-  console.log(req.headers["auth_user"]);
   makeAutomaticPost(req.headers["auth_user"]);
+  console.log(req.headers["auth_user"] + "here 1");
+  // makeAutomaticPost("avudutha");
   next();
 });
-
-const apiProxy = createProxyMiddleware(proxyPath, {
-  target: targetURL,
-  changeOrigin: true,
-});
-app.use(proxyPath, apiProxy);
 
 app.use(express.static(path.join(__dirname, "../ui/dist")));
 

@@ -59,7 +59,7 @@ public class DailyMonitoringService {
     private String kafkaPublishToDownstream;
     private String errorDistributionSummarization;
     private String personaAccessRoles;
-    private String authorizedUser;
+//    private String authorizedUser;
     private String wd0Regression;
 
     private String wd0CurrentMonth;
@@ -128,15 +128,15 @@ public class DailyMonitoringService {
         this.cloCommentUpdate = cloCommentUpdate;
     }
 
-    public String getAuthorizedUser() {
-        return authorizedUser;
-    }
+//    public String getAuthorizedUser() {
+//        return authorizedUser;
+//    }
+//
+//    public void setAuthorizedUser(String authorizedUser) {
+//        this.authorizedUser = authorizedUser;
+//    }
 
-    public void setAuthorizedUser(String authorizedUser) {
-        this.authorizedUser = authorizedUser;
-    }
-
-    public UserRoleInfo getUserRoles() {
+    public UserRoleInfo getUserRoles(String authorizedUser) {
         List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
         List<Map<String, Object>> filteredUsers = rolesList.stream()
                 .filter(user -> user.get("USER_NAME").equals(authorizedUser.toUpperCase()))
@@ -454,7 +454,7 @@ public class DailyMonitoringService {
         System.out.println(test);
     }
 
-    public void setCloBulkUpdateFromFile(MultipartFile file) throws IOException {
+    public void setCloBulkUpdateFromFile(MultipartFile file, String authorizedUser) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean isFirstLine = true;
@@ -472,13 +472,13 @@ public class DailyMonitoringService {
                     cloData.setOrderNum(parts[3]);
                     cloData.setInvoiceDate(parts[4]);
                     cloData.setCloComments(parts[5]);
-                    saveToDatabaseCLOUpdate(cloData);
+                    saveToDatabaseCLOUpdate(cloData, authorizedUser);
                 }
             }
         }
     }
 
-    public void setCloBulkUpdate(UpdateCLOData input){
+    public void setCloBulkUpdate(UpdateCLOData input, String authorizedUser){
         System.out.println("here2");
         UpdateCLOData cloData = new UpdateCLOData();
         cloData.setProgramName(input.getProgramName());
@@ -491,21 +491,21 @@ public class DailyMonitoringService {
         System.out.println(cloData.getInvoiceDate());
         System.out.println(cloData.getOrderNum());
         System.out.println(cloData.getOrderNum().getClass());
-        saveToDatabaseCLOUpdate(cloData);
+        saveToDatabaseCLOUpdate(cloData, authorizedUser);
 
     }
 
-    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData) {
+    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String authorizedUser) {
         System.out.println("here3");
         int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), cloData.getInvoiceDate(), cloData.getCloComments(), authorizedUser);
         System.out.println(test);
     }
 
-    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel){
+    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String authorizedUser){
         jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("cloComments"), authorizedUser);
     }
 
-    public void setCloCommentUpdate(Map<String, String> updatedModel){
+    public void setCloCommentUpdate(Map<String, String> updatedModel, String authorizedUser){
         jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("invoiceEligibleDate"), authorizedUser);
     }
 }

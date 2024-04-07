@@ -16,12 +16,12 @@ public class UserRoleController {
     @Autowired
     private DailyMonitoringService userService;
 
-    @PostMapping(value = "/auth-user")
-    public ResponseEntity<String> getAuthUser(@RequestBody Map<String,String> authUser){
-        System.out.println("loggedinUser:"+authUser.get("auth_user"));
-        userService.setAuthorizedUser(authUser.get("auth_user"));
-        return ResponseEntity.status(HttpStatus.OK).body("successful.");
-    }
+//    @PostMapping(value = "/auth-user")
+//    public ResponseEntity<String> getAuthUser(@RequestBody Map<String,String> authUser){
+//        System.out.println("loggedinUser:"+authUser.get("auth_user"));
+//        userService.setAuthorizedUser(authUser.get("auth_user"));
+//        return ResponseEntity.status(HttpStatus.OK).body("successful.");
+//    }
 
 
 }

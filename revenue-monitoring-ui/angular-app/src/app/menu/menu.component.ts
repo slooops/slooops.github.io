@@ -21,19 +21,28 @@ export class MenuComponent implements OnInit {
 
   userRoles: String[] = [];
   ngOnInit(): void {
-    this.getUserRoles();
+    setTimeout(() => {
+      this.getUserRoles();
+    }, 2000);
   }
   isAdmin: boolean = true;
   rolesReady = false;
   errorPath: boolean = true;
+  loggedinUser: string;
 
   getUserRoles() {
     this.dataService.setLoading(true);
-    this.http.get('user-role').subscribe((data: any) => {
+    const loggedinUser = {
+      loggedinUser: this.loggedinUser,
+    };
+    this.http.post('user-role', loggedinUser).subscribe((data: any) => {
+      console.log(data);
       this.userRoles = data['userRoles'];
+      this.loggedinUser = data['username'];
       this.dataService.setUserRoles(this.userRoles);
       this.isAdmin = this.userRoles.includes('ADMIN');
       this.rolesReady = true;
+      console.log(this.loggedinUser);
       let redirectPath = this.redirectPath();
       this.errorPath = redirectPath === 'error' ? true : false;
       this.redirect(redirectPath);
