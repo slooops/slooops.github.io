@@ -15,21 +15,18 @@ let hasMadePostRequest = false;
 app.use(express.json());
 
 function makeAutomaticPost(authUser) {
-  if (!hasMadePostRequest) {
-    const postData = {
-      auth_user: authUser,
-    };
-    console.log(postData + "here2");
-    axios
-      .post(`${targetURL}/api/auth-user`, postData)
-      .then((response) => {
-        console.log("Automatic POST request successful:", response.data);
-        hasMadePostRequest = true;
-      })
-      .catch((error) => {
-        console.error("Error in automatic POST request:", error.message);
-      });
-  }
+  const postData = {
+    auth_user: authUser,
+  };
+  console.log(postData + "here2");
+  axios
+    .post(`${targetURL}/api/auth-user`, postData)
+    .then((response) => {
+      console.log("Automatic POST request successful:", response.data);
+    })
+    .catch((error) => {
+      console.error("Error in automatic POST request:", error.message);
+    });
 }
 
 app.use((req, res, next) => {
