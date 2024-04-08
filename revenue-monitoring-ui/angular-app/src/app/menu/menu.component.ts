@@ -21,9 +21,7 @@ export class MenuComponent implements OnInit {
 
   userRoles: String[] = [];
   ngOnInit(): void {
-    setTimeout(() => {
-      this.getUserRoles();
-    }, 3000);
+    this.getUserRoles();
   }
   isAdmin: boolean = true;
   rolesReady = false;
