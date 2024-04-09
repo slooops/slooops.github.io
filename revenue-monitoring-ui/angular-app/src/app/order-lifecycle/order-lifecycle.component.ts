@@ -32,6 +32,7 @@ export class OrderLifecycleComponent implements OnInit {
   }
   currentDate: Date;
   ngOnInit(): void {
+    this.username = this.dataService.getUsername();
     this.getOrderLifecycle();
     this.getOrderStatusDownload();
     this.updateTime();
@@ -88,6 +89,8 @@ export class OrderLifecycleComponent implements OnInit {
   ifColumnSelect: boolean = false;
   showDialog: boolean = false;
   showRecord: boolean = true;
+
+  username: any;
 
   columnSelect() {
     this.ifColumnSelect != this.ifColumnSelect;
@@ -366,7 +369,9 @@ export class OrderLifecycleComponent implements OnInit {
       programName: record.PROGRAM_NAME,
       account: record.ACCOUNT,
     };
-    this.http.post('update-clo-comments', cloMap).subscribe((data) => {});
+    this.http
+      .post('update-clo-comments', cloMap, this.username)
+      .subscribe((data) => {});
     this.stopEditing();
   }
 
@@ -391,7 +396,7 @@ export class OrderLifecycleComponent implements OnInit {
     };
 
     this.http
-      .post('update-invoice-eligible-date', dateMap)
+      .post('update-invoice-eligible-date', dateMap, this.username)
       .subscribe((data) => {});
   }
 

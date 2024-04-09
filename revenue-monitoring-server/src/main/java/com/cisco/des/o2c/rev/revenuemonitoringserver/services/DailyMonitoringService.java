@@ -454,7 +454,7 @@ public class DailyMonitoringService {
         System.out.println(test);
     }
 
-    public void setCloBulkUpdateFromFile(MultipartFile file) throws IOException {
+    public void setCloBulkUpdateFromFile(MultipartFile file, String username) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean isFirstLine = true;
@@ -472,13 +472,13 @@ public class DailyMonitoringService {
                     cloData.setOrderNum(parts[3]);
                     cloData.setInvoiceDate(parts[4]);
                     cloData.setCloComments(parts[5]);
-                    saveToDatabaseCLOUpdate(cloData);
+                    saveToDatabaseCLOUpdate(cloData, username);
                 }
             }
         }
     }
 
-    public void setCloBulkUpdate(UpdateCLOData input){
+    public void setCloBulkUpdate(UpdateCLOData input, String username){
         System.out.println("here2");
         UpdateCLOData cloData = new UpdateCLOData();
         cloData.setProgramName(input.getProgramName());
@@ -491,21 +491,21 @@ public class DailyMonitoringService {
         System.out.println(cloData.getInvoiceDate());
         System.out.println(cloData.getOrderNum());
         System.out.println(cloData.getOrderNum().getClass());
-        saveToDatabaseCLOUpdate(cloData);
+        saveToDatabaseCLOUpdate(cloData, username);
 
     }
 
-    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData) {
+    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username) {
         System.out.println("here3");
-        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), cloData.getInvoiceDate(), cloData.getCloComments(), authorizedUser);
+        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), cloData.getInvoiceDate(), cloData.getCloComments(), username);
         System.out.println(test);
     }
 
-    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel){
-        jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("cloComments"), authorizedUser);
+    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String username){
+        jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("cloComments"), username);
     }
 
-    public void setCloCommentUpdate(Map<String, String> updatedModel){
-        jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("invoiceEligibleDate"), authorizedUser);
+    public void setCloCommentUpdate(Map<String, String> updatedModel, String username){
+        jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("invoiceEligibleDate"), username);
     }
 }

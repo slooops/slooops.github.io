@@ -9,6 +9,7 @@ export class DataService {
   selectedErrorData: errorDashModel[] = [];
   allErrorsSelected: boolean = true;
   userRoles: string[] = [];
+  username: any;
   private loadingSubject = new BehaviorSubject<boolean>(false);
 
   constructor() {}
@@ -43,5 +44,13 @@ export class DataService {
 
   isLoading() {
     return this.loadingSubject.asObservable();
+  }
+
+  setUsername(username: any) {
+    this.username = username;
+  }
+
+  getUsername() {
+    return this.username;
   }
 }

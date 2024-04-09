@@ -1,6 +1,7 @@
 import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { DataService } from 'src/app/providers/data.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
@@ -11,12 +12,14 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;
   currentDate: Date;
+  username: any;
 
   constructor(
     public dialogRef: MatDialogRef<CloUpdatesComponent>,
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private dataService: DataService
   ) {}
 
   ngOnInit(): void {
@@ -32,6 +35,7 @@ export class CloUpdatesComponent implements OnInit {
       invoiceDate: [''],
       cloComments: [''],
     });
+    this.username = this.dataService.getUsername();
   }
 
   selectedFile: File | null = null;
@@ -67,20 +71,18 @@ export class CloUpdatesComponent implements OnInit {
       formData.append('file', file, file.name);
       this.isLoading = true;
 
-      this.http
-        .post('clo-bulk-upload-file', formData, { responseType: 'text' })
-        .subscribe(
-          (response) => {
-            this.uploadText = 'CLO Data upload successful!';
-            this.closeDialog('uploaded');
-            this.dialog.open(dialogTemplate);
-          },
-          (error) => {
-            this.uploadText = 'CLO Data upload failed!';
-            this.closeDialog('error');
-            this.dialog.open(dialogTemplate);
-          }
-        );
+      this.http.post('clo-bulk-upload-file', formData, this.username).subscribe(
+        (response) => {
+          this.uploadText = 'CLO Data upload successful!';
+          this.closeDialog('uploaded');
+          this.dialog.open(dialogTemplate);
+        },
+        (error) => {
+          this.uploadText = 'CLO Data upload failed!';
+          this.closeDialog('error');
+          this.dialog.open(dialogTemplate);
+        }
+      );
     }
   }
 
@@ -101,9 +103,7 @@ export class CloUpdatesComponent implements OnInit {
       };
       console.log(this.updateCloData);
       this.http
-        .post('clo-bulk-upload', this.updateCloData, {
-          responseType: 'text',
-        })
+        .post('clo-bulk-upload', this.updateCloData, this.username)
         .subscribe(
           (data) => {
             this.uploadText = 'Deals upload successful!';

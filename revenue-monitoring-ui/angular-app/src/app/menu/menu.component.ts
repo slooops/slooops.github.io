@@ -36,6 +36,7 @@ export class MenuComponent implements OnInit {
       })
       .subscribe((data) => {
         let username = data;
+        this.dataService.setUsername(username);
         this.getUserRoles(username);
       });
   }
