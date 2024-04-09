@@ -295,9 +295,10 @@ public class DailyMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
-    @GetMapping(value = "/user-role")
-    public ResponseEntity<UserRoleInfo> getUserRoles() {
+    @PostMapping(value = "/user-role")
+    public ResponseEntity<UserRoleInfo> getUserRoles(@RequestBody String username) {
         System.out.println("here 1st");
+        System.out.println(username);
         UserRoleInfo userRoles = service.getUserRoles();
         System.out.println(userRoles.getUserRoles());
         return ResponseEntity.status(HttpStatus.OK).body(userRoles);

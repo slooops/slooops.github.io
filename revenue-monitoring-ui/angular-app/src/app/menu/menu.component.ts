@@ -29,20 +29,19 @@ export class MenuComponent implements OnInit {
   loggedinUser: string;
 
   getUserId() {
+    this.dataService.setLoading(true);
     this.http
       .get('user-id', {
         responseType: 'text',
       })
       .subscribe((data) => {
-        console.log(data);
-        this.getUserRoles();
+        let username = data;
+        this.getUserRoles(username);
       });
   }
 
-  getUserRoles() {
-    this.dataService.setLoading(true);
-
-    this.http.get('user-role').subscribe((data: any) => {
+  getUserRoles(username: any) {
+    this.http.post('user-role', username).subscribe((data: any) => {
       console.log(data);
       this.userRoles = data['userRoles'];
       this.dataService.setUserRoles(this.userRoles);
