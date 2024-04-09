@@ -21,12 +21,23 @@ export class MenuComponent implements OnInit {
 
   userRoles: String[] = [];
   ngOnInit(): void {
-    this.getUserRoles();
+    this.getUserId();
   }
   isAdmin: boolean = true;
   rolesReady = false;
   errorPath: boolean = true;
   loggedinUser: string;
+
+  getUserId() {
+    this.http
+      .get('user-id', {
+        responseType: 'text',
+      })
+      .subscribe((data) => {
+        console.log(data);
+        this.getUserRoles();
+      });
+  }
 
   getUserRoles() {
     this.dataService.setLoading(true);

@@ -280,13 +280,19 @@ public class DailyMonitoringController {
     }
 
     @PostMapping(value = "/auth-user")
-    public ResponseEntity<String> getAuthUser(@RequestBody Map<String,String> authUser){
+    public ResponseEntity<String> postAuthUser(@RequestBody Map<String,String> authUser){
         System.out.println("loggedinUser:"+authUser.get("auth_user"));
         System.out.println("here 2nd");
 //        this.authorizedUser = authUser.get("auth_user");
         service.setAuthorizedUser(authUser.get("auth_user"));
 //        authorizedUser = "ssreepat";
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
+    }
+
+    @GetMapping(value="/user-id")
+    public ResponseEntity<String> getAuthUser(){
+        String user = service.getAuthorizedUser();
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
     @GetMapping(value = "/user-role")
