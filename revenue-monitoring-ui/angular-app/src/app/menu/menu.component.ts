@@ -31,7 +31,7 @@ export class MenuComponent implements OnInit {
   getUserId() {
     this.dataService.setLoading(true);
     this.http.getUser('/user/data').subscribe((data) => {
-      console.log('internal method ' + data);
+      console.log('internal method ' + JSON.stringify(data));
     });
     this.http
       .get('user-id', {
