@@ -4,18 +4,15 @@ import { AppConfigService } from './app-config.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
-
   hostUrl: string = '';
 
-  constructor (
-    private http: HttpClient, private config: AppConfigService
-  ) {
+  constructor(private http: HttpClient, private config: AppConfigService) {
     this.hostUrl = this.config.getApiUrl();
   }
 
   public getHostUrl(): string {
     return this.hostUrl;
-}
+  }
 
   public get(url: string, options?: any) {
     return this.http.get(this.hostUrl + url, options);
@@ -32,5 +29,8 @@ export class ApiHttpService {
   public delete(url: string, options?: any) {
     return this.http.delete(this.hostUrl + url, options);
   }
-  
+
+  public getUser(url: string, options?: any) {
+    return this.http.get(url, options);
+  }
 }

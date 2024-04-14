@@ -30,11 +30,15 @@ export class MenuComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
+    this.http.getUser('/user/data').subscribe((data) => {
+      console.log('internal method ' + data);
+    });
     this.http
       .get('user-id', {
         responseType: 'text',
       })
       .subscribe((data) => {
+        console.log(data);
         let username = data;
         this.dataService.setUsername(username);
         this.getUserRoles(username);
@@ -43,7 +47,6 @@ export class MenuComponent implements OnInit {
 
   getUserRoles(username: any) {
     this.http.post('user-role', username).subscribe((data: any) => {
-      console.log(data);
       this.userRoles = data['userRoles'];
       this.dataService.setUserRoles(this.userRoles);
       this.isAdmin = this.userRoles.includes('ADMIN');

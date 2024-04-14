@@ -281,13 +281,19 @@ public class DailyMonitoringController {
 
     @PostMapping(value = "/auth-user")
     public ResponseEntity<String> postAuthUser(@RequestBody Map<String,String> authUser){
+        System.out.println("in set method");
+        System.out.println(authUser.get("auth_user"));
         service.setAuthorizedUser(authUser.get("auth_user"));
+        System.out.println("after set");
         return ResponseEntity.status(HttpStatus.OK).body("successful.");
     }
 
     @GetMapping(value="/user-id")
     public ResponseEntity<String> getAuthUser(){
+        System.out.println("in get user");
         String user = service.getAuthorizedUser();
+        System.out.println(user);
+        System.out.println("after get user");
         return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 
