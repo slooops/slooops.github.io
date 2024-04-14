@@ -14,7 +14,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, "../angular-app/dist")));
+app.use(express.static(path.join(__dirname, "../ui/dist")));
 
 // Define API endpoint
 app.get("/user/data", (req, res) => {
@@ -24,7 +24,7 @@ app.get("/user/data", (req, res) => {
 });
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../angular-app/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../ui/dist", "index.html"));
 });
 
 app.listen(port, () => {
