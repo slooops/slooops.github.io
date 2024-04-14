@@ -136,14 +136,14 @@ public class DailyMonitoringService {
         this.authorizedUser = authorizedUser;
     }
 
-    public UserRoleInfo getUserRoles() {
+    public UserRoleInfo getUserRoles(String username) {
         List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
         List<Map<String, Object>> filteredUsers = rolesList.stream()
-                .filter(user -> user.get("USER_NAME").equals(authorizedUser.toUpperCase()))
+                .filter(user -> user.get("USER_NAME").equals(username.toUpperCase()))
                 .collect(Collectors.toList());
 
         List<String> roles = rolesList.stream()
-                .filter(user -> user.get("USER_NAME").equals(authorizedUser.toUpperCase()))
+                .filter(user -> user.get("USER_NAME").equals(username.toUpperCase()))
                 .map(user -> (String) user.get("USER_ROLE"))
                 .collect(Collectors.toList());
 

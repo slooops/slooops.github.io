@@ -33,7 +33,7 @@ export class MenuComponent implements OnInit {
     this.http.getUser('/user/data').subscribe((data) => {
       console.log(data['auth_user']);
       console.log('internal method ' + JSON.stringify(data));
-      let username = data;
+      let username = data['auth_user'];
       this.dataService.setUsername(username);
       this.getUserRoles(username);
     });
