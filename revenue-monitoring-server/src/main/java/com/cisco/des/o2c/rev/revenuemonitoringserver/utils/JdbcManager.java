@@ -61,8 +61,8 @@ public class JdbcManager {
         return jdbcTemplate.update(sql, closeType, comments);
     }
 
-    public int updateOrderStatus(String sql, String progName, String account, int dealId){
-        return jdbcTemplate.update(sql, progName, account, dealId);
+    public int updateOrderStatus(String sql, String progName, String account, int dealId, String username){
+        return jdbcTemplate.update(sql, progName, account, dealId, username);
     }
 
     public int updateInvoiceEligibleDate(String sql, Date invoiceElgibileDate, int dealId, String salesOrder){
@@ -73,8 +73,8 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
 
-    public int deleteSelectedDeals(String sql, int dealId, String salesOrder){
-        return jdbcTemplate.update(sql, dealId, salesOrder);
+    public int deleteSelectedDeals(String sql, String username,  int dealId, String salesOrder){
+        return jdbcTemplate.update(sql, username, dealId, salesOrder);
     }
 
     public int updateCLoData(String sql, String progName, String account, int dealId, String salesOrder, String invoiceDate, String cloComments, String updatedBy){

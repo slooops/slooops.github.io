@@ -1,8 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { StandardArExceptionsComponent } from './standard-ar-exceptions/standard-ar-exceptions.component';
-import { TsvExceptionsTopSkuComponent } from './tsv-exceptions-top-sku/tsv-exceptions-top-sku.component';
-import { TsvExceptionsSubSkuComponent } from './tsv-exceptions-sub-sku/tsv-exceptions-sub-sku.component';
 import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { DetailViewComponent } from './detail-view/detail-view.component';
@@ -34,21 +31,6 @@ const routes: Routes = [
     path: 'error',
     component: ErrorComponent,
     data: { title: 'Error', header: '' },
-  },
-  {
-    path: 'standard-ar',
-    component: StandardArExceptionsComponent,
-    data: { title: 'Home', header: 'Home' },
-  },
-  {
-    path: 'tsv-exceptions-top-sku',
-    component: TsvExceptionsTopSkuComponent,
-    data: { title: 'Home', header: 'Home' },
-  },
-  {
-    path: 'tsv-exceptions-sub-sku',
-    component: TsvExceptionsSubSkuComponent,
-    data: { title: 'Home', header: 'Home' },
   },
   {
     path: 'revenue-controls',

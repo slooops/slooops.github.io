@@ -170,10 +170,10 @@ public class DailyMonitoringController {
     }
 
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
         if (!file.isEmpty()) {
             try {
-                service.setUpdateOrderStatusFromFile(file);
+                service.setUpdateOrderStatusFromFile(file, username);
                 return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
@@ -196,7 +196,8 @@ public class DailyMonitoringController {
     @RequestMapping(value = "/update-invoice-eligible-date", method = RequestMethod.POST)
     public ResponseEntity<String> updateInvoiceEligibleDate(@RequestBody Map<String, String> updatedModel, @RequestBody String username) {
         try {
-            service.setUpdateInvoiceEligibleDate(updatedModel, username);
+            System.out.println(username);
+//            service.setUpdateInvoiceEligibleDate(updatedModel, username);
             return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
@@ -204,7 +205,7 @@ public class DailyMonitoringController {
     }
 
     @PostMapping(value = "/clo-bulk-upload-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file, @RequestBody String username) {
+    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
         if (!file.isEmpty()) {
             try {
                 System.out.println(file);
@@ -269,9 +270,12 @@ public class DailyMonitoringController {
     }
 
     @PostMapping(value = "/delete-selected-deals")
-    public ResponseEntity<String> deleteSelectedDeals(@RequestBody List<Map<String, Object>> selectedDeals) {
+    public ResponseEntity<String> deleteSelectedDeals(@RequestBody Map<String, Object> requestData) {
         try {
-            service.deleteSelectedDeals(selectedDeals);
+            List<Map<String, Object>> selectedDeals = (List<Map<String, Object>>) requestData.get("deleteRows");
+            String username = (String) requestData.get("username");
+            System.out.println("delete by: "+username);
+            service.deleteSelectedDeals(selectedDeals, username);
             return ResponseEntity.status(HttpStatus.OK).body("successful.");
         } catch (Exception e) {
             System.out.println(e);
@@ -279,23 +283,6 @@ public class DailyMonitoringController {
         }
     }
 
-    @PostMapping(value = "/auth-user")
-    public ResponseEntity<String> postAuthUser(@RequestBody Map<String,String> authUser){
-        System.out.println("in set method");
-        System.out.println(authUser.get("auth_user"));
-        service.setAuthorizedUser(authUser.get("auth_user"));
-        System.out.println("after set");
-        return ResponseEntity.status(HttpStatus.OK).body("successful.");
-    }
-
-    @GetMapping(value="/user-id")
-    public ResponseEntity<String> getAuthUser(){
-        System.out.println("in get user");
-        String user = service.getAuthorizedUser();
-        System.out.println(user);
-        System.out.println("after get user");
-        return ResponseEntity.status(HttpStatus.OK).body(user);
-    }
 
     @PostMapping(value = "/user-role")
     public ResponseEntity<UserRoleInfo> getUserRoles(@RequestBody String username) {
@@ -316,10 +303,11 @@ public class DailyMonitoringController {
     }
 
     @PostMapping("/clo-bulk-upload")
-    public ResponseEntity<String> manualCLOUpload(@RequestBody UpdateCLOData input, @RequestBody String username) {
+    public ResponseEntity<String> manualCLOUpload(@RequestBody UpdateCLOData input) {
         System.out.println("here");
         try {
-            service.setCloBulkUpdate(input, username);
+            System.out.println(input.getUsername());
+            service.setCloBulkUpdate(input, input.getUsername());
             return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
         } catch (Exception e) {
             System.out.println(e);

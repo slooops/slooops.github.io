@@ -2,6 +2,7 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ApiHttpService } from '../../providers/http.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DataService } from 'src/app/providers/data.service';
 
 @Component({
   selector: 'app-order-lifecycle-upload',
@@ -10,12 +11,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class OrderLifecycleUploadComponent implements OnInit {
   updateForm: FormGroup;
+  username: any;
 
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleUploadComponent>,
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private dataService: DataService
   ) {}
 
   ngOnInit(): void {
@@ -30,6 +33,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
         [Validators.required, Validators.pattern(/^\s*\d+(\s*,\s*\d+)*\s*$/)],
       ],
     });
+    this.username = this.dataService.getUsername();
   }
 
   closeDialog(result) {
@@ -63,6 +67,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
       let file = this.selectedFile;
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
+      formData.append('username', this.username);
       this.isLoading = true;
 
       this.http
@@ -91,6 +96,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
         programName: formData.programName,
         account: formData.account,
         dealIds: formData.dealIds,
+        username: this.username,
       };
       this.http
         .post('order-lifecycle-upload-manual', this.updateModel, {
@@ -183,4 +189,5 @@ interface UpdateOrder {
   programName: string;
   account: string;
   dealIds: string;
+  username: string;
 }

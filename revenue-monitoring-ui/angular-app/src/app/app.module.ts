@@ -25,9 +25,6 @@ import { AppComponent } from './app.component';
 import { HttpConfigInterceptor } from './providers/http-config.interceptor';
 import { AuthenticationService } from './providers/authentication.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StandardArExceptionsComponent } from './standard-ar-exceptions/standard-ar-exceptions.component';
-import { TsvExceptionsTopSkuComponent } from './tsv-exceptions-top-sku/tsv-exceptions-top-sku.component';
-import { TsvExceptionsSubSkuComponent } from './tsv-exceptions-sub-sku/tsv-exceptions-sub-sku.component';
 import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -95,9 +92,6 @@ export function initApp(authService: AuthenticationService) {
 @NgModule({
   declarations: [
     AppComponent,
-    StandardArExceptionsComponent,
-    TsvExceptionsTopSkuComponent,
-    TsvExceptionsSubSkuComponent,
     RevenueControlsComponent,
     PeriodCloseTrackingComponent,
     MenuComponent,

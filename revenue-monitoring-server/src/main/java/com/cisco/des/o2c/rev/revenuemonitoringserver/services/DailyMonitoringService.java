@@ -290,7 +290,7 @@ public class DailyMonitoringService {
         return orderLifecycleModel;
     }
 
-    public void setUpdateOrderStatusFromFile(MultipartFile file) throws IOException {
+    public void setUpdateOrderStatusFromFile(MultipartFile file, String username) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean isFirstLine = true;
@@ -305,7 +305,7 @@ public class DailyMonitoringService {
                     orderModel.setProgramName(parts[0]);
                     orderModel.setAccount(parts[1]);
                     orderModel.setDealIds(parts[2]);
-                    saveToDatabase(orderModel);
+                    saveToDatabase(orderModel, username);
                 }
             }
         }
@@ -316,15 +316,16 @@ public class DailyMonitoringService {
         orderModel.setProgramName(input.getProgramName());
         orderModel.setAccount(input.getAccount());
         String inputDealIds = input.getDealIds();
+        String username = input.getUsername();
         if(inputDealIds.contains(",")){
             String[] updateDealIds = inputDealIds.replaceAll("\\s", "").split(",");
             for(String id: updateDealIds){
                 orderModel.setDealIds(id);
-                saveToDatabase(orderModel);
+                saveToDatabase(orderModel, username);
             }
         } else {
             orderModel.setDealIds(inputDealIds);
-            saveToDatabase(orderModel);
+            saveToDatabase(orderModel, username);
         }
     }
     public List<Map<String, Object>> getKafkaError() { return jdbcManager.queryForList(kafkaError); }
@@ -343,8 +344,8 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getErrorDistributionSummarization() { return jdbcManager.queryForList(errorDistributionSummarization); }
 
-    private void saveToDatabase(UpdateOrderModel csvData) {
-        jdbcManager.updateOrderStatus(this.updateOrderStatus, csvData.getProgramName(), csvData.getAccount(), Integer.parseInt(csvData.getDealIds()));
+    private void saveToDatabase(UpdateOrderModel csvData, String username) {
+        jdbcManager.updateOrderStatus(this.updateOrderStatus, csvData.getProgramName(), csvData.getAccount(), Integer.parseInt(csvData.getDealIds()), username);
     }
 
     public List<OrderLifecycleSummaryModel> getOrderStatusSummary() {
@@ -443,14 +444,14 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(wd0CurrentMonth);
     }
 
-    public void deleteSelectedDeals(List<Map<String,Object>> selectedDeals){
+    public void deleteSelectedDeals(List<Map<String,Object>> selectedDeals, String username){
         for(Map<String,Object> deal:selectedDeals){
-            deleteDeals((int)deal.get("DEAL_ID"), (String)deal.get("SALES_ORDER"));
+            deleteDeals(username, (int)deal.get("DEAL_ID"), (String)deal.get("SALES_ORDER"));
         }
     }
 
-    public void deleteDeals(int dealId, String salesOrder){
-        int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, dealId, salesOrder);
+    public void deleteDeals(String username, int dealId, String salesOrder){
+        int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, username, dealId, salesOrder);
         System.out.println(test);
     }
 
@@ -469,7 +470,11 @@ public class DailyMonitoringService {
                     cloData.setProgramName(parts[0]);
                     cloData.setAccount(parts[1]);
                     cloData.setDealIds(parts[2]);
-                    cloData.setOrderNum(parts[3]);
+                    if(parts[3].equals("")){
+                        cloData.setOrderNum("0");
+                    } else {
+                        cloData.setOrderNum(parts[3]);
+                    }
                     cloData.setInvoiceDate(parts[4]);
                     cloData.setCloComments(parts[5]);
                     saveToDatabaseCLOUpdate(cloData, username);
@@ -484,7 +489,11 @@ public class DailyMonitoringService {
         cloData.setProgramName(input.getProgramName());
         cloData.setAccount(input.getAccount());
         cloData.setDealIds(input.getDealIds());
-        cloData.setOrderNum(input.getOrderNum());
+        if(input.getOrderNum().equals("")){
+            cloData.setOrderNum("0");
+        } else {
+            cloData.setOrderNum(input.getOrderNum());
+        }
         cloData.setInvoiceDate(input.getInvoiceDate());
         cloData.setCloComments(input.getCloComments());
         System.out.println(cloData.getCloComments());

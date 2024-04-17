@@ -120,7 +120,7 @@
         mat-raised-button
         color="warn"
         *ngIf="selection.hasValue() && dealUploadFlag"
-        (click)="deleteSelectedRows()"
+        (click)="deleteSelectedRows(dialogConfirmTemplate)"
       >
         Delete
       </button>
@@ -408,7 +408,7 @@
           *matHeaderCellDef
           mat-sort-header
         >
-          INVOICE ELIGIBLE DATE
+          INVOICE ELIGIBLE DATE (CLO)
         </th>
         <td
           class="custom-cell dateInputCell"
@@ -738,3 +738,70 @@
     >&nbsp;&nbsp;Columns Filter
   </div>
 </mat-menu>
+
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #dialogConfirmTemplate>
+    <br />
+    <span *ngIf="!deletedDeals">
+      <h6>
+        <b style="font-weight: 500"
+          >&nbsp;Are you sure you want to delete the selected deals?</b
+        >
+      </h6>
+      <br />
+      <div style="text-align: center">
+        <button class="btn btn-success" (click)="deleteConfirmationDialog()">
+          Yes
+        </button>
+        <button class="btn btn-danger" (click)="closeOkDialog()">No</button>
+      </div>
+    </span>
+
+    <span *ngIf="deletedDeals">
+      <h6>
+        <span *ngIf="uploadText === 'Delete request failed!'"
+          ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
+        ></span>
+        <span *ngIf="uploadText === 'Deals deleted successfully!'"
+          ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
+        ></span>
+        <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
+      </h6>
+      <br />
+      <div style="text-align: center">
+        <button
+          class="btn btn-primary"
+          mat-stroked-button
+          (click)="closeOkDialog()"
+        >
+          Ok
+        </button>
+      </div>
+    </span>
+  </ng-template>
+</div>
+
+<!-- <div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #dialogTemplate>
+    <br />
+    <h6>
+      <span *ngIf="uploadText === 'Delete request failed!'"
+        ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
+      ></span>
+      <span *ngIf="uploadText === 'Deals deleted successfully!'"
+        ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
+      ></span>
+      <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
+    </h6>
+    <br />
+    <div style="text-align: center">
+      <button
+        class="btn btn-primary"
+        mat-stroked-button
+        (click)="closeOkDialog()"
+      >
+        Ok
+      </button>
+    </div>
+  </ng-template>
+</div> -->

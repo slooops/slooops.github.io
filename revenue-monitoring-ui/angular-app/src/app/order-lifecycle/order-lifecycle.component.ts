@@ -1,5 +1,10 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+  TemplateRef,
+} from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from '../providers/http.service';
@@ -178,23 +183,45 @@ export class OrderLifecycleComponent implements OnInit {
     });
   }
 
-  deleteSelectedRows() {
-    let rowsToDelete = this.dataSource.data.filter((row) =>
+  uploadText: string;
+  rowsToDelete: any;
+  deletedDeals: boolean = false;
+
+  deleteSelectedRows(dialogTemplate: TemplateRef<any>) {
+    this.rowsToDelete = this.dataSource.data.filter((row) =>
       this.selection.isSelected(row)
     );
+    this.dialog.open(dialogTemplate);
+  }
+
+  deleteConfirmationDialog() {
+    const body = {
+      deleteRows: this.rowsToDelete,
+      username: this.username,
+    };
     this.http
-      .post('delete-selected-deals', rowsToDelete, {
+      .post('delete-selected-deals', body, {
         responseType: 'text',
       })
-      .subscribe((data) => {
-        console.log(data);
-        // if (data === 'uploaded') {
-        this.selection.clear();
-        this.updatedData = true;
-        this.dataSource = null;
-        this.getOrderLifecycle();
-        // }
-      });
+      .subscribe(
+        (data) => {
+          this.uploadText = 'Deals deleted successfully!';
+          this.selection.clear();
+          this.updatedData = true;
+          this.dataSource = null;
+          this.getOrderLifecycle();
+          this.deletedDeals = true;
+        },
+        (error) => {
+          this.uploadText = 'Delete request failed!';
+        }
+      );
+  }
+
+  closeOkDialog(): void {
+    this.selection.clear();
+    this.deletedDeals = false;
+    this.dialog.closeAll();
   }
 
   filterData() {
@@ -370,7 +397,9 @@ export class OrderLifecycleComponent implements OnInit {
       account: record.ACCOUNT,
     };
     this.http
-      .post('update-clo-comments', cloMap, this.username)
+      .post('update-clo-comments', cloMap, {
+        responseType: 'text',
+      })
       .subscribe((data) => {});
     this.stopEditing();
   }
@@ -395,8 +424,12 @@ export class OrderLifecycleComponent implements OnInit {
       account: record.ACCOUNT,
     };
 
+    console.log(this.username);
+
     this.http
-      .post('update-invoice-eligible-date', dateMap, this.username)
+      .post('update-invoice-eligible-date', dateMap, {
+        responseType: 'text',
+      })
       .subscribe((data) => {});
   }
 

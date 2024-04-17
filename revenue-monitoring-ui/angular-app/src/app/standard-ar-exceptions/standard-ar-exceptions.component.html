@@ -1,7 +1,0 @@
-<div class="givemespace">
-    <h4>Standard AR Exception Records</h4>
-    <cui-table *ngIf="programTableData.length" [options]="programTableOptions" [data]="programTableData"></cui-table>
-</div>
-
-<ng-template #dateCell let-row="celldata" let-column="celltemplate">
-    <span>{{transformDate(row, column)}}</span></ng-template>

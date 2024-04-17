@@ -69,20 +69,25 @@ export class CloUpdatesComponent implements OnInit {
       let file = this.selectedFile;
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
-      this.isLoading = true;
+      formData.append('username', this.username);
 
-      this.http.post('clo-bulk-upload-file', formData, this.username).subscribe(
-        (response) => {
-          this.uploadText = 'CLO Data upload successful!';
-          this.closeDialog('uploaded');
-          this.dialog.open(dialogTemplate);
-        },
-        (error) => {
-          this.uploadText = 'CLO Data upload failed!';
-          this.closeDialog('error');
-          this.dialog.open(dialogTemplate);
-        }
-      );
+      this.isLoading = true;
+      this.http
+        .post('clo-bulk-upload-file', formData, {
+          responseType: 'text',
+        })
+        .subscribe(
+          (response) => {
+            this.uploadText = 'CLO Data upload successful!';
+            this.closeDialog('uploaded');
+            this.dialog.open(dialogTemplate);
+          },
+          (error) => {
+            this.uploadText = 'CLO Data upload failed!';
+            this.closeDialog('error');
+            this.dialog.open(dialogTemplate);
+          }
+        );
     }
   }
 
@@ -100,18 +105,21 @@ export class CloUpdatesComponent implements OnInit {
           timeZone: 'America/Los_Angeles',
         }),
         cloComments: formData.cloComments,
+        username: this.username,
       };
       console.log(this.updateCloData);
       this.http
-        .post('clo-bulk-upload', this.updateCloData, this.username)
+        .post('clo-bulk-upload', this.updateCloData, {
+          responseType: 'text',
+        })
         .subscribe(
           (data) => {
-            this.uploadText = 'Deals upload successful!';
+            this.uploadText = 'CLO Data upload successful!';
             this.closeDialog('uploaded');
             this.dialog.open(dialogTemplate);
           },
           (error) => {
-            this.uploadText = 'Deals upload failed!';
+            this.uploadText = 'CLO Data upload failed!';
             this.closeDialog('error');
             this.dialog.open(dialogTemplate);
           }
@@ -200,4 +208,5 @@ interface UpdateCLOData {
   orderNum: string;
   invoiceDate: string;
   cloComments: string;
+  username: string;
 }
