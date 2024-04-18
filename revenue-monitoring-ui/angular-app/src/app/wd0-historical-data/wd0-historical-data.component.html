@@ -4,18 +4,15 @@
   <div style="width: 48vw; padding-left: 1vw">
     <canvas id="barChartCanvasId"></canvas>
     <p class="chart-description">
-      Bar chart dispalying the total product and total service lines sold by
-      fiscal quarter.
+      Product and service lines by fiscal quarter.
     </p>
   </div>
 
   <div style="width: 48vw; padding-left: 1vw">
     <canvas id="lineChartCanvas"></canvas>
     <p class="chart-description">
-      Line chart depicting ML-predicted finish times for Mid Close, comparing
-      fastest and slowest predictions within a 95% confidence interval to
-      historical actual finish times, and current product and service line loads
-      (right axis).
+      ML-predicted upper & lower bounds execution window based for historical
+      data.
     </p>
   </div>
 
@@ -68,7 +65,7 @@
     mat-table
     [dataSource]="dataSource"
     class="table table-responsive table-striped"
-    aria-label="Mid Close Volumes Table"
+    aria-label="WD+0 Mid Close Volumes Table"
   >
     <ng-container
       *ngFor="let column of displayedColumns; let i = index"
@@ -109,12 +106,15 @@
           >
             ⬆
             {{
-              getTrend(
-                row,
-                displayedColumns[i - 2],
-                displayedColumns[i - 1]
-              ).change.toFixed(0)
-            }}%
+              getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
+                .change === "—"
+                ? "—"
+                : (getTrend(
+                    row,
+                    displayedColumns[i - 2],
+                    displayedColumns[i - 1]
+                  ).change | number : "1.0-0") + "%"
+            }}
           </span>
           <span
             *ngIf="
@@ -124,12 +124,15 @@
           >
             ⬇
             {{
-              getTrend(
-                row,
-                displayedColumns[i - 2],
-                displayedColumns[i - 1]
-              ).change.toFixed(0)
-            }}%
+              getTrend(row, displayedColumns[i - 2], displayedColumns[i - 1])
+                .change === "—"
+                ? "—"
+                : (getTrend(
+                    row,
+                    displayedColumns[i - 2],
+                    displayedColumns[i - 1]
+                  ).change | number : "1.0-0") + "%"
+            }}
           </span>
           <span
             *ngIf="
@@ -164,3 +167,5 @@
     </tr>
   </ng-container>
 </div>
+
+<br /><br /><br />

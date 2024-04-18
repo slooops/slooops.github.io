@@ -5,6 +5,7 @@ import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
 import { Observable, interval, last, startWith, switchMap } from 'rxjs';
+import { monthEndDates } from './monthEndDates';
 Chart.register(...registerables);
 
 @Component({
@@ -33,13 +34,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
   dataSource: any;
 
   ngOnInit(): void {
-    this.getHistoricalData();
     this.getRegressionData();
+
+    this.getHistoricalData();
   }
 
   private getHistoricalData() {
     this.getEndpointData('wd0-historical-data').subscribe((data: any) => {
-      console.log(data);
       const grandTotal = {};
       const serviceTotal = {};
       const productTotal = {};
@@ -108,25 +109,35 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   //for the blue line on the table
   isProductTotalRow(row: any): boolean {
-    return row.ENTITY === 'Product Total';
+    return row.ENTITY === 'Product Lines';
   }
 
   getTrend(
     row: any,
     prevColumn: string,
     currentColumn: string
-  ): { trend: 'up' | 'down' | 'same'; change: number } {
+  ): { trend: 'up' | 'down' | 'same'; change: string | number } {
+    // Note the change type includes string now
     const prevValue = parseFloat(row[prevColumn]);
     const currentValue = parseFloat(row[currentColumn]);
 
     if (!isNaN(prevValue) && !isNaN(currentValue)) {
-      const change = ((currentValue - prevValue) / prevValue) * 100;
+      if (prevValue === 0 && currentValue !== 0) {
+        // Special case: Previous quarter is 0, current quarter has a value
+        return { trend: 'up', change: '—' }; // Use a dash for the change
+      } else if (prevValue === 0 && currentValue === 0) {
+        // Both values are 0
+        return { trend: 'same', change: '—' }; // Consider it as no change
+      }
+
+      const change =
+        prevValue !== 0 ? ((currentValue - prevValue) / prevValue) * 100 : '—'; // Calculate change normally if prevValue is not 0
       if (currentValue > prevValue) return { trend: 'up', change: change };
       else if (currentValue < prevValue)
         return { trend: 'down', change: change };
-      else return { trend: 'same', change: 0 };
+      else return { trend: 'same', change: 0 }; // If the values are equal
     }
-    return { trend: 'same', change: 0 };
+    return { trend: 'same', change: '—' }; // Default case when values are not numbers
   }
 
   //removes the second country name row that repeats the above row
@@ -163,17 +174,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
     ].map((key) => String(key));
   }
 
-  private monthStringToNumber(month: string): number {
-    const months = {
-      JAN: 1,
-      APR: 4,
-      JUL: 7,
-      OCT: 10,
-    };
-    const monthNumber = months[month] || 0;
-    return monthNumber;
-  }
-
   private getFiscalQuarter(month: string, year: string): string {
     const fiscalMonths = {
       OCT: 'Q1',
@@ -193,12 +193,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       this.barChart.destroy();
     }
 
-    const filteredData = this.filterDataByDate(
-      historicalData,
-      new Date(2022, 9)
-    ); // October 2022
-
-    const quarterlyData = this.sumQuarterlyData(filteredData);
+    const quarterlyData = this.sumQuarterlyData(historicalData);
 
     const labels = Object.keys(quarterlyData).map((label) =>
       label.replace(/_/g, ' ')
@@ -206,18 +201,18 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     const datasets = [
       {
-        label: 'Service',
-        data: labels.map(
-          (label) => quarterlyData[label.replace(/ /g, '_')].service || 0
-        ), // Replace spaces back to underscores to match keys
-        backgroundColor: 'rgb(0,119,188)',
-      },
-      {
         label: 'Product',
         data: labels.map(
           (label) => quarterlyData[label.replace(/ /g, '_')].product || 0
         ), // Replace spaces back to underscores to match keys
         backgroundColor: 'rgb(77,184,255)',
+      },
+      {
+        label: 'Service',
+        data: labels.map(
+          (label) => quarterlyData[label.replace(/ /g, '_')].service || 0
+        ), // Replace spaces back to underscores to match keys
+        backgroundColor: 'rgb(0,119,188)',
       },
     ];
 
@@ -234,30 +229,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
           },
         },
       },
-    });
-  }
-
-  filterDataByDate(
-    historicalData: HistoricalDataModel[],
-    startDate: Date
-  ): HistoricalDataModel[] {
-    return historicalData.filter((data) => {
-      const keys = Object.keys(data).filter((key) => key.includes('_')); // Only consider keys with an underscore
-
-      return keys.some((key) => {
-        const [month, year] = key.split('_');
-
-        // Check if year is defined and adjust if it's only two digits
-        const fullYear = year && year.length === 2 ? `20${year}` : year;
-        if (fullYear && !isNaN(+fullYear)) {
-          const monthNumber = this.monthStringToNumber(month);
-          if (!isNaN(monthNumber)) {
-            const date = new Date(+fullYear, monthNumber - 1);
-            return date >= startDate;
-          }
-        }
-        return false;
-      });
     });
   }
 
@@ -323,30 +294,44 @@ export class Wd0HistoricalDataComponent implements OnInit {
   lowerCI: number;
 
   getRegressionData() {
+    const numberOfMonths = 4;
     const newMonthData = [[0, 0]];
     let newMonthName = [];
-    this.getEndpointData('wd0-current-month').subscribe((data: any) => {
-      // double check product and service lines are going into the correct order of the array
-      data.forEach((item: any) => {
-        if (item.LINE_TYPE === 'PRODUCT') {
-          newMonthData[0][0] = item.LINE_COUNT;
-        } else if (item.LINE_TYPE === 'SERVICE') {
-          newMonthData[0][1] = item.LINE_COUNT;
-        }
-      });
-      newMonthName = data[0].PERIOD_NAME;
-    });
 
-    this.getEndpointData('wd0-regression').subscribe((data: any) => {
-      //get last 6 months names for graph
+    //check if today is a month end
+    let fetchDataForNewMonth = false;
+    const today = new Date().toISOString().slice(0, 10); // Get today's date as YYYY-MM-DD
+    if (monthEndDates.includes(today)) {
+      fetchDataForNewMonth = true; // Flag to fetch new month data
+    }
+
+    if (fetchDataForNewMonth) {
+      // Check if today is one of the fiscal Saturdays
+      this.getEndpointData('wd0-current-month').subscribe((data: any) => {
+        // double check product and service lines are going into the correct order of the array
+        data.forEach((item: any) => {
+          if (item.LINE_TYPE === 'PRODUCT') {
+            newMonthData[0][0] = item.LINE_COUNT;
+          } else if (item.LINE_TYPE === 'SERVICE') {
+            newMonthData[0][1] = item.LINE_COUNT;
+          }
+        });
+        newMonthName = data[0].PERIOD_NAME;
+      });
+    }
+
+    this.http.get('wd0-regression').subscribe((data: any) => {
+      //get recent months names for graph
       const productEntries = data.filter(
         (entry) => entry.LINE_TYPE === 'PRODUCT'
       );
-      const last6ProductEntries = productEntries.slice(-6); // Get the last 6 entries
-      const last6MonthNames = last6ProductEntries.map(
+      const recentProductEntries = productEntries.slice(-numberOfMonths); // Get the last 12 entries
+      const recentMonthNames = recentProductEntries.map(
         (entry) => entry.PERIOD_NAME
       );
-      last6MonthNames.push(newMonthName);
+      if (fetchDataForNewMonth) {
+        recentMonthNames.push(newMonthName);
+      }
 
       // prep the data and run regression (this sets a model in the service)
       const regressionData = this.processRegressionData(data);
@@ -356,30 +341,31 @@ export class Wd0HistoricalDataComponent implements OnInit {
         regressionData.y
       );
 
-      //collect last 6 months of data for graph
-      const last6MonthsData = regressionData.X.slice(-6);
+      //collect recent months of data for graph
+      const recentMonthsData = regressionData.X.slice(-numberOfMonths);
       const degreesOfFreedomBase = regressionData.X.length - 2;
-      const combine6MonthsWithDFData = last6MonthsData.map(
+      const combineRecentMonthsWithDFData = recentMonthsData.map(
         (monthData, index) => {
           return {
             X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
-            degreesOfFreedom: degreesOfFreedomBase - (5 - index), // Adjust the index for the last 6 months
+            degreesOfFreedom:
+              degreesOfFreedomBase - (numberOfMonths - 1 - index), // Adjust the index for the last 12 months
           };
         }
       );
-      last6MonthsData.push(newMonthData[0]);
+      recentMonthsData.push(newMonthData[0]);
 
       let fastestTimes = [];
       let slowestTimes = [];
 
       // get last 6 months confidence intervals
-      combine6MonthsWithDFData.forEach((data) => {
+      combineRecentMonthsWithDFData.forEach((data) => {
         const result = this.regressionService.predictWithConfidenceIntervals(
           data.X,
           data.degreesOfFreedom
         );
-        fastestTimes.push(+result.lowerCI.toFixed(3));
-        slowestTimes.push(+result.upperCI.toFixed(3));
+        fastestTimes.push(+result.lowerCI.toFixed(2));
+        slowestTimes.push(+result.upperCI.toFixed(2));
       });
 
       //for next month prediction (.lengh-1 is for the degress of freedom)
@@ -388,19 +374,24 @@ export class Wd0HistoricalDataComponent implements OnInit {
           newMonthData,
           regressionData.X.length - 1
         );
-      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(3));
-      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(3));
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+
+      let actualTimes = regressionData.y
+        .slice(-numberOfMonths)
+        .map((time) => time[0]);
 
       this.createLineGraph(
         fastestTimes,
         slowestTimes,
-        last6MonthNames,
-        last6MonthsData
+        recentMonthNames,
+        recentMonthsData,
+        actualTimes
       );
     });
   }
 
-  createLineGraph(fastestTimes, slowestTimes, labels, lines) {
+  createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
     const canvas = document.getElementById(
       'lineChartCanvas'
     ) as HTMLCanvasElement;
@@ -413,52 +404,73 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
-      type: 'line',
+      type: 'line', // This specifies the default chart type
       data: {
         labels: labels,
         datasets: [
           {
-            label: 'Actual Run Time (hrs)',
-            data: [3.6, 4, 4, 4.1, 4.2, 3.82],
-            yAxisID: 'y',
-            tension: 0.3,
-          },
-
-          {
-            label: 'Lower Bound (hrs)',
-            data: fastestTimes,
-            yAxisID: 'y',
-            tension: 0.3,
-          },
-          {
-            label: 'Upper Bound (hrs)',
-            data: slowestTimes,
-            yAxisID: 'y',
-            tension: 0.3,
-          },
-          {
             label: 'Product (lines)',
             data: lines.map((line) => line[0]),
-            yAxisID: 'y1',
-            tension: 0.3,
+            yAxisID: 'y',
+            type: 'bar', // Change this dataset to a bar chart
+            backgroundColor: 'rgb(77,184,255, 0.5)', // Example background color for bars
+            // barThickness: 20,
           },
           {
             label: 'Service (lines)',
             data: lines.map((line) => line[1]),
+            yAxisID: 'y',
+            type: 'bar', // Change this dataset to a bar chart
+            backgroundColor: 'rgb(0,119,188, 0.5)', // Example background color for bars
+            // barThickness: 20,
+          },
+          {
+            label: 'Actual Run (hrs)',
+            data: actualTimes,
             yAxisID: 'y1',
             tension: 0.3,
+            type: 'line', // Explicitly setting type to line for clarity
+            borderColor: '#ffce56', // Orange color for the actual run line
+            backgroundColor: '#ffce5650', // Orange color for the actual run line
+            pointBackgroundColor: '#ffce56', // Orange color for the actual run line
+          },
+          {
+            label: 'Lower Bound (hrs)',
+            data: fastestTimes,
+            yAxisID: 'y1',
+            tension: 0.3,
+            type: 'line',
+            borderColor: '#FF6384', // Red color for the lower bound line
+            backgroundColor: '#FF638450', // Red color for the lower bound line
+            pointBackgroundColor: '#FF6384', // Red color for the lower bound line
+          },
+          {
+            label: 'Upper Bound (hrs)',
+            data: slowestTimes,
+            yAxisID: 'y1',
+            tension: 0.3,
+            type: 'line',
+            borderColor: '#48bc84', // Green color for the upper bound line
+            backgroundColor: '#48bc8450', // Green color for the upper bound line
+            pointBackgroundColor: '#48bc84', // Green color for the upper bound line
           },
         ],
       },
       options: {
         scales: {
+          x: {
+            grid: {
+              offset: false,
+            },
+          },
+
           y: {
             type: 'linear',
             position: 'left',
             beginAtZero: false,
             title: {
               display: true,
-              text: 'Hours',
+              text: 'Lines',
             },
           },
           y1: {
@@ -470,8 +482,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
             },
             title: {
               display: true,
-              text: 'Lines',
+              text: 'Hours',
             },
+          },
+        },
+        plugins: {
+          legend: {
+            onClick: () => false, // Disable toggling visibility by clicking on legend items
           },
         },
       },
