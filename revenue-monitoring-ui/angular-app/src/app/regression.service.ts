@@ -29,7 +29,7 @@ export class RegressionService {
       .slice(0, -1)
       .map((weight) => weight[0]);
 
-    const stdError = regression.stdError;
+    const stdError = regression.stdError * 1.1;
 
     const modelIntercept = regression.weights[2][0]; // this is the intercept
     const degreesOfFreedom = y.length - 2; // n (observations) - p (product & service)
@@ -75,7 +75,7 @@ export class RegressionService {
     }
 
     const predictedRuntime = this.model.predict(X)[0][0];
-    const stdError = this.model.stdError;
+    const stdError = this.model.stdError * 1.1;
     // Use the provided degrees of freedom to get the critical value
     const criticalValue = this.getCriticalValue(degreesOfFreedom);
 
