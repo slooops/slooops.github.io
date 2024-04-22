@@ -1,13 +1,13 @@
 #angular build
-FROM node:16.14.2-alpine
+FROM node:18.13
 RUN adduser node root
 
 COPY ./angular-app /ui
 WORKDIR /ui
 
 RUN export NODE_OPTIONS="--max-old-space-size=5120"
-RUN npm install --legacy-peer-deps
-RUN npm install -g @angular/cli@14.1.0 --legacy-peer-deps
+RUN npm install
+RUN npm install -g @angular/cli@14.1.0
 
 RUN chmod -R 775 /ui
 RUN chown -R node:root /ui
