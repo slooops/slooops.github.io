@@ -7,10 +7,7 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 app.use((req, res, next) => {
-  // makeAutomaticPost(req.headers["auth_user"]);
-  // console.log(req.headers["auth_user"] + "here 1");
   authUserName = req.headers["auth_user"];
-  // makeAutomaticPost("karcai");
   next();
 });
 
