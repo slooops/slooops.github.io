@@ -7,7 +7,7 @@ WORKDIR /ui
 
 RUN export NODE_OPTIONS="--max-old-space-size=5120"
 RUN npm install --legacy-peer-deps
-RUN npm install esbuild@latest --save-dev
+RUN npm install esbuild@latest --save-dev --legacy-peer-deps
 RUN npm install -g @angular/cli@14.1.0 --legacy-peer-deps
 
 RUN chmod -R 775 /ui
