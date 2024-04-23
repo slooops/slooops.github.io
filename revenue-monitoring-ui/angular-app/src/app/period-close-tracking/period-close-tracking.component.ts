@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
-import {
-  CuiTableColumnOption,
-  CuiTableOptions,
-} from '@cisco-ngx/cui-components';
+// import {
+//   CuiTableColumnOption,
+//   CuiTableOptions,
+// } from '@cisco-ngx/cui-components';
 import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
@@ -128,8 +128,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   dashComments: commentsModel[];
 
-  pcloseInvGenTableOptions!: CuiTableOptions;
-  mcloseInvGenTableOptions!: CuiTableOptions;
+  // pcloseInvGenTableOptions!: CuiTableOptions;
+  // mcloseInvGenTableOptions!: CuiTableOptions;
 
   preCloseProgramTableData: any[] = [];
   midCloseProgramTableData: any[] = [];
@@ -141,7 +141,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   midcloseInterfaceLoadTableData: any[] = [];
 
   qeCashCollectedData: any[] = [];
-  qeCashCollectedTableOptions!: CuiTableOptions;
+  // qeCashCollectedTableOptions!: CuiTableOptions;
 
   entityList: string[] = [];
   statusList: string[] = [];
@@ -342,25 +342,25 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.qeCashCollectedData = data;
 
       // Columns
-      let tableColumns: CuiTableColumnOption[] = [];
+      // let tableColumns: CuiTableColumnOption[] = [];
 
       for (let column_name of Object.keys(data[0])) {
-        tableColumns.push(
-          new CuiTableColumnOption({
-            name: column_name.replace(/_/g, '-'),
-            sortable: false,
-            key: column_name,
-          })
-        );
+        // tableColumns.push(
+        //   new CuiTableColumnOption({
+        //     name: column_name.replace(/_/g, '-'),
+        //     sortable: false,
+        //     key: column_name,
+        //   })
+        // );
       }
 
-      this.qeCashCollectedTableOptions = new CuiTableOptions({
-        bordered: true,
-        // striped: true,
-        // fixed: true,
-        columns: tableColumns,
-        dynamicData: true,
-      });
+      // this.qeCashCollectedTableOptions = new CuiTableOptions({
+      //   bordered: true,
+      //   // striped: true,
+      //   // fixed: true,
+      //   columns: tableColumns,
+      //   dynamicData: true,
+      // });
     });
   }
 
@@ -559,48 +559,48 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.midCloseProgramTableData = data.filter(
           (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
         );
-        let programColumns: CuiTableColumnOption[] = [];
-        let precloseProgramColumns: CuiTableColumnOption[] = [];
-        let midcloseProgramColumns: CuiTableColumnOption[] = [];
+        // let programColumns: CuiTableColumnOption[] = [];
+        // let precloseProgramColumns: CuiTableColumnOption[] = [];
+        // let midcloseProgramColumns: CuiTableColumnOption[] = [];
 
         for (let column of Object.keys(data[0])) {
           if (column !== 'CLOSE_TYPE') {
-            programColumns.push(
-              new CuiTableColumnOption({
-                name: column.replace(/_/g, ' '),
-                sortable: false,
-                key: column,
-              })
-            );
+            // programColumns.push(
+            //   new CuiTableColumnOption({
+            //     name: column.replace(/_/g, ' '),
+            //     sortable: false,
+            //     key: column,
+            //   })
+            // );
           }
         }
 
-        precloseProgramColumns = programColumns;
-        midcloseProgramColumns = programColumns;
+        // precloseProgramColumns = programColumns;
+        // midcloseProgramColumns = programColumns;
 
-        if (!this.isQuarterEnd) {
-          precloseProgramColumns = programColumns.filter(
-            (ele) => ele.name !== 'QUARTER'
-          );
-          midcloseProgramColumns = programColumns.filter(
-            (ele) => ele.name !== 'QUARTER'
-          );
-        }
+        // if (!this.isQuarterEnd) {
+        //   precloseProgramColumns = programColumns.filter(
+        //     (ele) => ele.name !== 'QUARTER'
+        //   );
+        //   midcloseProgramColumns = programColumns.filter(
+        //     (ele) => ele.name !== 'QUARTER'
+        //   );
+        // }
 
-        this.pcloseInvGenTableOptions = new CuiTableOptions({
-          bordered: true,
-          // striped: true,
-          // fixed: true,
-          columns: precloseProgramColumns,
-          dynamicData: true,
-        });
-        this.mcloseInvGenTableOptions = new CuiTableOptions({
-          bordered: true,
-          // striped: true,
-          // fixed: true,
-          columns: midcloseProgramColumns,
-          dynamicData: true,
-        });
+        // this.pcloseInvGenTableOptions = new CuiTableOptions({
+        //   bordered: true,
+        //   // striped: true,
+        //   // fixed: true,
+        //   columns: precloseProgramColumns,
+        //   dynamicData: true,
+        // });
+        // this.mcloseInvGenTableOptions = new CuiTableOptions({
+        //   bordered: true,
+        //   // striped: true,
+        //   // fixed: true,
+        //   columns: midcloseProgramColumns,
+        //   dynamicData: true,
+        // });
       }
     );
   }

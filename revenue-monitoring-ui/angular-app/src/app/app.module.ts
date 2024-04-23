@@ -2,23 +2,23 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgChartsModule } from 'ng2-charts';
-import {
-  CuiPagerModule,
-  CuiTableModule,
-  CuiFilterModule,
-  CuiTabsNavModule,
-  CuiModalModule,
-  CuiLoaderModule,
-  CuiInputModule,
-  CuiProgressbarModule,
-} from '@cisco-ngx/cui-components';
+// import {
+//   CuiPagerModule,
+//   CuiTableModule,
+//   CuiFilterModule,
+//   CuiTabsNavModule,
+//   CuiModalModule,
+//   CuiLoaderModule,
+//   CuiInputModule,
+//   CuiProgressbarModule,
+// } from '@cisco-ngx/cui-components';
 
-import {
-  CngProgressbarModule,
-  CngSortModule,
-  CngTableModule,
-  CngTabsModule,
-} from '@cisco/cui-ng';
+// import {
+//   CngProgressbarModule,
+//   CngSortModule,
+//   CngTableModule,
+//   CngTabsModule,
+// } from '@cisco/cui-ng';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -123,19 +123,19 @@ export function initApp(authService: AuthenticationService) {
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    CuiTableModule,
-    CuiPagerModule,
-    CuiFilterModule,
-    CuiTabsNavModule,
-    CuiModalModule,
-    CuiLoaderModule,
-    CuiInputModule,
+    // CuiTableModule,
+    // CuiPagerModule,
+    // CuiFilterModule,
+    // CuiTabsNavModule,
+    // CuiModalModule,
+    // CuiLoaderModule,
+    // CuiInputModule,
     NgChartsModule,
-    CuiProgressbarModule,
-    CngSortModule,
-    CngTableModule,
-    CngTabsModule,
-    CngProgressbarModule,
+    // CuiProgressbarModule,
+    // CngSortModule,
+    // CngTableModule,
+    // CngTabsModule,
+    // CngProgressbarModule,
     MatProgressBarModule,
     FontAwesomeModule,
     MatTabsModule,
