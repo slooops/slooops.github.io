@@ -204,21 +204,6 @@ public class DailyMonitoringController {
         }
     }
 
-    @PostMapping(value = "/clo-bulk-upload-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
-        if (!file.isEmpty()) {
-            try {
-                System.out.println(file);
-                service.setCloBulkUpdateFromFile(file, username);
-                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
-            }
-        } else {
-            return ResponseEntity.badRequest().body("Uploaded file is empty.");
-        }
-    }
-
     @RequestMapping(value = "/update-clo-comments", method = RequestMethod.POST)
     public ResponseEntity<String> updateCLOComments(@RequestBody Map<String, String> updatedModel, @RequestBody String username) {
         try {
@@ -312,6 +297,21 @@ public class DailyMonitoringController {
         } catch (Exception e) {
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload CLO data.");
+        }
+    }
+
+    @PostMapping(value = "/clo-bulk-upload-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
+        if (!file.isEmpty()) {
+            try {
+                System.out.println(file);
+                service.setCloBulkUpdateFromFile(file, username);
+                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Uploaded file is empty.");
         }
     }
 }

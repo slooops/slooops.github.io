@@ -470,11 +470,7 @@ public class DailyMonitoringService {
                     cloData.setProgramName(parts[0]);
                     cloData.setAccount(parts[1]);
                     cloData.setDealIds(parts[2]);
-                    if(parts[3].equals("")){
-                        cloData.setOrderNum("0");
-                    } else {
-                        cloData.setOrderNum(parts[3]);
-                    }
+                    cloData.setOrderNum(parts[3]);
                     cloData.setInvoiceDate(parts[4]);
                     cloData.setCloComments(parts[5]);
                     saveToDatabaseCLOUpdate(cloData, username);
@@ -489,11 +485,7 @@ public class DailyMonitoringService {
         cloData.setProgramName(input.getProgramName());
         cloData.setAccount(input.getAccount());
         cloData.setDealIds(input.getDealIds());
-        if(input.getOrderNum().equals("")){
-            cloData.setOrderNum("0");
-        } else {
-            cloData.setOrderNum(input.getOrderNum());
-        }
+        cloData.setOrderNum(input.getOrderNum());
         cloData.setInvoiceDate(input.getInvoiceDate());
         cloData.setCloComments(input.getCloComments());
         System.out.println(cloData.getCloComments());
