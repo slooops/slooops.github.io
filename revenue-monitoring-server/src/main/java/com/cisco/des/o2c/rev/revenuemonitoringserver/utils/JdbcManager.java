@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,22 +74,22 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
 
-    public int deleteSelectedDeals(String sql, String username, int dealId, String salesOrder){
-        return jdbcTemplate.update(sql, username, dealId, salesOrder);
+    public int deleteSelectedDeals(String sql, String username, int dealId, String salesOrder, String salesOrder2){
+        return jdbcTemplate.update(sql, username, dealId, salesOrder, salesOrder2);
     }
 
-    public int updateCLoData(String sql, String progName, String account, int dealId, String salesOrder, String invoiceDate, String cloComments, String updatedBy){
+    public int updateCLoData(String sql, String progName, String account, int dealId, String salesOrder, Timestamp invoiceDate, String cloComments, String updatedBy){
         System.out.println("here4");
         System.out.println(sql);
         System.out.println(salesOrder);
-        return jdbcTemplate.update(sql, cloComments, updatedBy, invoiceDate, dealId, salesOrder, progName, account);
+        return jdbcTemplate.update(sql, cloComments, updatedBy, invoiceDate, dealId, salesOrder, salesOrder, progName, account);
     }
 
     public int updateCloComments(String sql, String progName, String account, int dealId, String salesOrder, String cloComments, String updatedBy){
-        return jdbcTemplate.update(sql, cloComments, updatedBy, dealId, salesOrder, progName, account);
+        return jdbcTemplate.update(sql, cloComments, updatedBy, dealId, salesOrder, salesOrder, progName, account);
     }
 
-    public int updateInvoiceDate(String sql, String progName, String account, int dealId, String salesOrder, String invoiceDate, String updatedBy){
-        return jdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, progName, account);
+    public int updateInvoiceDate(String sql, String progName, String account, int dealId, String salesOrder, Timestamp invoiceDate, String updatedBy){
+        return jdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, salesOrder, progName, account);
     }
 }

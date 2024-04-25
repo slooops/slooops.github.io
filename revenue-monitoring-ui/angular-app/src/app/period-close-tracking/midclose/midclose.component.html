@@ -240,6 +240,28 @@
     [data]="midCloseProgramTableData"
     class="cuiAlign periodclosetbale"
   ></cui-table> -->
+
+  <div class="periodclosetbale">
+    <table
+      *ngIf="midCloseProgramTableData.length"
+      class="table table-striped table-bordered"
+    >
+      <thead>
+        <tr>
+          <th *ngFor="let column of mcloseInvGenTableColumns">
+            {{ replaceUnderscoreWithEmpty(column) }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of midCloseProgramTableData">
+          <td *ngFor="let column of mcloseInvGenTableColumns">
+            {{ row[column] }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <mat-divider></mat-divider>
   <br />
   <div *ngIf="isQuarterEnd" class="header-container">
@@ -263,6 +285,27 @@
     [data]="qeCashCollectedData"
     class="cuiAlign periodclosetbale"
   ></cui-table> -->
+  <div class="periodclosetbale" *ngIf="isQuarterEnd">
+    <table
+      *ngIf="qeCashCollectedData.length"
+      class="table table-striped table-bordered"
+    >
+      <thead>
+        <tr>
+          <th *ngFor="let column of qeCashCollectedTableColumns">
+            {{ replaceUnderscoreWithDash(column) }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of qeCashCollectedData">
+          <td *ngFor="let column of qeCashCollectedTableColumns">
+            {{ row[column] }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <mat-divider></mat-divider>
   <br />
   <div>

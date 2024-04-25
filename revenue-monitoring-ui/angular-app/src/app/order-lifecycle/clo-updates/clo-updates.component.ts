@@ -101,9 +101,7 @@ export class CloUpdatesComponent implements OnInit {
         account: formData.account,
         dealIds: formData.dealIds,
         orderNum: formData.orderNum,
-        invoiceDate: formData.invoiceDate.toLocaleDateString('en-US', {
-          timeZone: 'America/Los_Angeles',
-        }),
+        invoiceDate: formData.invoiceDate,
         cloComments: formData.cloComments,
         username: this.username,
       };

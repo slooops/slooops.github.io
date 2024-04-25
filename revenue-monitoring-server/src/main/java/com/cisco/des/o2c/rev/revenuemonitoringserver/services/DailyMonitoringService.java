@@ -10,6 +10,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -451,11 +454,19 @@ public class DailyMonitoringService {
     }
 
     public void deleteDeals(String username, int dealId, String salesOrder){
-        int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, username, dealId, salesOrder);
+        System.out.println("delete sales order"+salesOrder);
+        String so;
+        if(salesOrder.equals("TBD")){
+            so = "0";
+        } else {
+            so = salesOrder;
+        }
+        System.out.println(so);
+        int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, username, dealId, so, so);
         System.out.println(test);
     }
 
-    public void setCloBulkUpdateFromFile(MultipartFile file, String username) throws IOException {
+    public void setCloBulkUpdateFromFile(MultipartFile file, String username) throws IOException, ParseException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             boolean isFirstLine = true;
@@ -470,7 +481,11 @@ public class DailyMonitoringService {
                     cloData.setProgramName(parts[0]);
                     cloData.setAccount(parts[1]);
                     cloData.setDealIds(parts[2]);
-                    cloData.setOrderNum(parts[3]);
+                    if(parts[3].equals("")){
+                        cloData.setOrderNum("0");
+                    } else {
+                        cloData.setOrderNum(parts[3]);
+                    }
                     cloData.setInvoiceDate(parts[4]);
                     cloData.setCloComments(parts[5]);
                     saveToDatabaseCLOUpdate(cloData, username);
@@ -479,13 +494,17 @@ public class DailyMonitoringService {
         }
     }
 
-    public void setCloBulkUpdate(UpdateCLOData input, String username){
+    public void setCloBulkUpdate(UpdateCLOData input, String username) throws ParseException {
         System.out.println("here2");
         UpdateCLOData cloData = new UpdateCLOData();
         cloData.setProgramName(input.getProgramName());
         cloData.setAccount(input.getAccount());
         cloData.setDealIds(input.getDealIds());
-        cloData.setOrderNum(input.getOrderNum());
+        if(input.getOrderNum().equals("")){
+            cloData.setOrderNum("0");
+        } else {
+            cloData.setOrderNum(input.getOrderNum());
+        }
         cloData.setInvoiceDate(input.getInvoiceDate());
         cloData.setCloComments(input.getCloComments());
         System.out.println(cloData.getCloComments());
@@ -496,17 +515,42 @@ public class DailyMonitoringService {
 
     }
 
-    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username) {
+    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username) throws ParseException {
         System.out.println("here3");
-        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), cloData.getInvoiceDate(), cloData.getCloComments(), username);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        java.util.Date date = dateFormat.parse(cloData.getInvoiceDate());
+        Timestamp timestamp = new Timestamp(date.getTime());
+        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), timestamp, cloData.getCloComments(), username);
         System.out.println(test);
     }
 
-    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String username){
-        jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("cloComments"), username);
+    public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String username) throws ParseException {
+        String so;
+        System.out.println(updatedModel.get("orderID"));
+        if(updatedModel.get("orderID").equals("TBD")){
+            so = "0";
+        } else {
+            so = updatedModel.get("orderId");
+        }
+        System.out.println(updatedModel.get("invoiceEligibleDate"));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        java.util.Date date = dateFormat.parse(updatedModel.get("invoiceEligibleDate"));
+
+        Timestamp timestamp = new Timestamp(date.getTime());
+        int test = jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, timestamp, username);
+        System.out.println(test);
     }
 
     public void setCloCommentUpdate(Map<String, String> updatedModel, String username){
-        jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), updatedModel.get("orderId"), updatedModel.get("invoiceEligibleDate"), username);
+        String so;
+        System.out.println(updatedModel.get("orderID"));
+        if(updatedModel.get("orderID").equals("TBD")){
+            so = "0";
+        } else {
+            so = updatedModel.get("orderId");
+        }
+        System.out.println(updatedModel.get("cloComments"));
+        int test = jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, updatedModel.get("cloComments"), username);
+        System.out.println(test);
     }
 }

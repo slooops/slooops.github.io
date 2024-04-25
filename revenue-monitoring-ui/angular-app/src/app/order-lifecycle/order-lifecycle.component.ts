@@ -388,6 +388,7 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   saveCloUpdates(record: OrderLifecycleModel) {
+    console.log(record);
     this.dataSource = this.getOrderLifecycle();
     let cloMap = {
       dealId: record.DEAL_ID,
@@ -395,12 +396,18 @@ export class OrderLifecycleComponent implements OnInit {
       cloComments: record.CLO_COMMENTS,
       programName: record.PROGRAM_NAME,
       account: record.ACCOUNT,
+      username: this.username,
     };
+    console.log(cloMap);
     this.http
       .post('update-clo-comments', cloMap, {
         responseType: 'text',
       })
-      .subscribe((data) => {});
+      .subscribe((data) => {
+        this.updatedData = true;
+        this.dataSource = null;
+        this.getOrderLifecycle();
+      });
     this.stopEditing();
   }
 
@@ -410,27 +417,26 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   saveInvoiceEligibleDate(record: OrderLifecycleModel) {
+    console.log(record);
     this.dataSource = this.getOrderLifecycle();
     let dateMap = {
       dealId: record.DEAL_ID,
       orderID: record.SALES_ORDER,
-      invoiceEligibleDate: record.INVOICE_ELIGIBLE_DATE.toLocaleDateString(
-        'en-US',
-        {
-          timeZone: 'America/Los_Angeles',
-        }
-      ),
+      invoiceEligibleDate: record.INVOICE_ELIGIBLE_DATE,
       programName: record.PROGRAM_NAME,
       account: record.ACCOUNT,
+      username: this.username,
     };
-
-    console.log(this.username);
-
+    console.log(dateMap);
     this.http
       .post('update-invoice-eligible-date', dateMap, {
         responseType: 'text',
       })
-      .subscribe((data) => {});
+      .subscribe((data) => {
+        this.updatedData = true;
+        this.dataSource = null;
+        this.getOrderLifecycle();
+      });
   }
 
   displayedColumns = [

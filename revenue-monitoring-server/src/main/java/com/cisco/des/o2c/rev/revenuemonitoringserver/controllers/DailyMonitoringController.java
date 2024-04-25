@@ -193,27 +193,6 @@ public class DailyMonitoringController {
         }
     }
 
-    @RequestMapping(value = "/update-invoice-eligible-date", method = RequestMethod.POST)
-    public ResponseEntity<String> updateInvoiceEligibleDate(@RequestBody Map<String, String> updatedModel, @RequestBody String username) {
-        try {
-            System.out.println(username);
-//            service.setUpdateInvoiceEligibleDate(updatedModel, username);
-            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
-        }
-    }
-
-    @RequestMapping(value = "/update-clo-comments", method = RequestMethod.POST)
-    public ResponseEntity<String> updateCLOComments(@RequestBody Map<String, String> updatedModel, @RequestBody String username) {
-        try {
-            service.setCloCommentUpdate(updatedModel, username);
-            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
-        }
-    }
-
     @GetMapping("/kafka-errors")
     public ResponseEntity<List<Map<String, Object>>> getKafkaErrors() {
         return new ResponseEntity<>(service.getKafkaError(), HttpStatus.OK);
@@ -254,6 +233,25 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getErrorDistributionSummarization(), HttpStatus.OK);
     }
 
+    @GetMapping("/wd0-regression")
+    public ResponseEntity<List<Map<String, Object>>> getWd0Regression() {
+        return new ResponseEntity<>(service.getWd0Regression(), HttpStatus.OK);
+    }
+
+    @GetMapping("/wd0-current-month")
+    public ResponseEntity<List<Map<String, Object>>> getWd0CurrentMonth() {
+        return new ResponseEntity<>(service.getWd0CurrentMonth(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/user-role")
+    public ResponseEntity<UserRoleInfo> getUserRoles(@RequestBody String username) {
+        System.out.println(username);
+        UserRoleInfo userRoles = service.getUserRoles(username);
+        System.out.println(userRoles.getUserRoles());
+        return ResponseEntity.status(HttpStatus.OK).body(userRoles);
+    }
+
+
     @PostMapping(value = "/delete-selected-deals")
     public ResponseEntity<String> deleteSelectedDeals(@RequestBody Map<String, Object> requestData) {
         try {
@@ -266,25 +264,6 @@ public class DailyMonitoringController {
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete.");
         }
-    }
-
-
-    @PostMapping(value = "/user-role")
-    public ResponseEntity<UserRoleInfo> getUserRoles(@RequestBody String username) {
-        System.out.println(username);
-        UserRoleInfo userRoles = service.getUserRoles(username);
-        System.out.println(userRoles.getUserRoles());
-        return ResponseEntity.status(HttpStatus.OK).body(userRoles);
-    }
-
-    @GetMapping("/wd0-regression")
-    public ResponseEntity<List<Map<String, Object>>> getWd0Regression() {
-        return new ResponseEntity<>(service.getWd0Regression(), HttpStatus.OK);
-    }
-
-    @GetMapping("/wd0-current-month")
-    public ResponseEntity<List<Map<String, Object>>> getWd0CurrentMonth() {
-        return new ResponseEntity<>(service.getWd0CurrentMonth(), HttpStatus.OK);
     }
 
     @PostMapping("/clo-bulk-upload")
@@ -314,4 +293,31 @@ public class DailyMonitoringController {
             return ResponseEntity.badRequest().body("Uploaded file is empty.");
         }
     }
+
+    @RequestMapping(value = "/update-invoice-eligible-date", method = RequestMethod.POST)
+    public ResponseEntity<String> updateInvoiceEligibleDate(@RequestBody Map<String, String> updatedModel) {
+        try {
+            String username = (String) updatedModel.get("username");
+            System.out.println(username);
+            service.setUpdateInvoiceEligibleDate(updatedModel, username);
+            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
+        } catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
+        }
+    }
+
+    @RequestMapping(value = "/update-clo-comments", method = RequestMethod.POST)
+    public ResponseEntity<String> updateCLOComments(@RequestBody Map<String, String> updatedModel) {
+        System.out.println(updatedModel);
+        try {
+            String username = (String) updatedModel.get("username");
+            System.out.println(username);
+            service.setCloCommentUpdate(updatedModel, username);
+            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
+        }
+    }
+
 }

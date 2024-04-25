@@ -326,6 +326,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
     });
   }
 
+  qeCashCollectedTableColumns: any[] = [];
+
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
       // Rows
@@ -342,9 +344,11 @@ export class PeriodCloseTrackingComponent implements OnInit {
       this.qeCashCollectedData = data;
 
       // Columns
-      // let tableColumns: CuiTableColumnOption[] = [];
+      let tableColumns: any[] = [];
 
       for (let column_name of Object.keys(data[0])) {
+        tableColumns.push(column_name);
+
         // tableColumns.push(
         //   new CuiTableColumnOption({
         //     name: column_name.replace(/_/g, '-'),
@@ -354,6 +358,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // );
       }
 
+      this.qeCashCollectedTableColumns = tableColumns;
+
       // this.qeCashCollectedTableOptions = new CuiTableOptions({
       //   bordered: true,
       //   // striped: true,
@@ -362,6 +368,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
       //   dynamicData: true,
       // });
     });
+  }
+
+  replaceUnderscoreWithDash(column: string): string {
+    return column.replace(/_/g, '-');
   }
 
   getPrecloseMeStatus() {
@@ -538,6 +548,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
     });
   }
 
+  pcloseInvGenTableColumns: any[] = [];
+  mcloseInvGenTableColumns: any[] = [];
   getPeriodCloseInvoice() {
     this.getEndpointData('period-close-invoice-stats').subscribe(
       (data: any) => {
@@ -559,50 +571,43 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.midCloseProgramTableData = data.filter(
           (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
         );
-        // let programColumns: CuiTableColumnOption[] = [];
-        // let precloseProgramColumns: CuiTableColumnOption[] = [];
-        // let midcloseProgramColumns: CuiTableColumnOption[] = [];
+        let programColumns: any[] = [];
 
         for (let column of Object.keys(data[0])) {
           if (column !== 'CLOSE_TYPE') {
-            // programColumns.push(
-            //   new CuiTableColumnOption({
-            //     name: column.replace(/_/g, ' '),
-            //     sortable: false,
-            //     key: column,
-            //   })
-            // );
+            if (!this.isQuarterEnd) {
+              if (column !== 'QUARTER') {
+                programColumns.push(column);
+              }
+            } else {
+              programColumns.push(column);
+            }
           }
         }
 
-        // precloseProgramColumns = programColumns;
-        // midcloseProgramColumns = programColumns;
+        this.pcloseInvGenTableColumns = programColumns;
+        this.mcloseInvGenTableColumns = programColumns;
 
         // if (!this.isQuarterEnd) {
-        //   precloseProgramColumns = programColumns.filter(
+        //   console.log('here');
+        //   this.pcloseInvGenTableColumns = this.pcloseInvGenTableColumns.filter(
         //     (ele) => ele.name !== 'QUARTER'
         //   );
-        //   midcloseProgramColumns = programColumns.filter(
+        //   this.mcloseInvGeTableColumns = this.mcloseInvGenTableColumns.filter(
         //     (ele) => ele.name !== 'QUARTER'
         //   );
         // }
 
-        // this.pcloseInvGenTableOptions = new CuiTableOptions({
-        //   bordered: true,
-        //   // striped: true,
-        //   // fixed: true,
-        //   columns: precloseProgramColumns,
-        //   dynamicData: true,
-        // });
-        // this.mcloseInvGenTableOptions = new CuiTableOptions({
-        //   bordered: true,
-        //   // striped: true,
-        //   // fixed: true,
-        //   columns: midcloseProgramColumns,
-        //   dynamicData: true,
-        // });
+        // console.log(this.pcloseInvGenTableColumns);
+        // // console.log(this.mcloseInvGenTableColumns);
+
+        // console.log(this.preCloseProgramTableData);
       }
     );
+  }
+
+  replaceUnderscoreWithEmpty(column: string): string {
+    return column.replace(/_/g, ' ');
   }
 
   getInterfaceLoad() {
