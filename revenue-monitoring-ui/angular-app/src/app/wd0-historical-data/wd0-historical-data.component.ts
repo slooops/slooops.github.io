@@ -325,10 +325,15 @@ export class Wd0HistoricalDataComponent implements OnInit {
       const productEntries = data.filter(
         (entry) => entry.LINE_TYPE === 'PRODUCT'
       );
-      const recentProductEntries = productEntries.slice(-numberOfMonths); // Get the last 12 entries
+      const recentProductEntries = productEntries.slice(-numberOfMonths - 1); // Get the last few months
       const recentMonthNames = recentProductEntries.map(
         (entry) => entry.PERIOD_NAME
       );
+
+      if (!recentProductEntries[recentProductEntries.length - 1].LINE_COUNT) {
+        recentMonthNames.pop();
+      }
+
       if (fetchDataForNewMonth) {
         recentMonthNames.push(newMonthName);
       }
@@ -401,6 +406,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     if (this.lineChart) {
       this.lineChart.destroy();
     }
+
+    console.log('lines', lines);
 
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
@@ -496,20 +503,15 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   processRegressionData(data: any[]): { X: number[][]; y: number[][] } {
-    // Define the outlier periods that should be excluded from the dataset
     const excludePeriods = ['JUL-23', 'APR-23'];
-
-    // Initialize empty arrays for product and service line counts
     const productLines: number[] = [];
     const serviceLines: number[] = [];
-    const executionTimes: number[] = []; // This will store your execution times
+    const executionTimes: number[] = [];
 
-    // Filter out the outlier months
     const filteredData = data.filter(
       (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
     );
 
-    // Process the filtered data
     for (let i = 0; i < filteredData.length; i += 2) {
       const productEntry =
         filteredData[i].LINE_TYPE === 'PRODUCT'
@@ -520,25 +522,23 @@ export class Wd0HistoricalDataComponent implements OnInit {
           ? filteredData[i]
           : filteredData[i + 1];
 
-      // Since execution time is repeated for each product and service line, select it from the product line
-      const executionTime = productEntry.EXECUTION_TIME;
-
-      // Add the line counts and execution time to the respective arrays
-      productLines.push(productEntry.LINE_COUNT);
-      serviceLines.push(serviceEntry.LINE_COUNT);
-      executionTimes.push(executionTime);
+      if (
+        productEntry.LINE_COUNT != null &&
+        serviceEntry.LINE_COUNT != null &&
+        productEntry.EXECUTION_TIME != null
+      ) {
+        productLines.push(productEntry.LINE_COUNT);
+        serviceLines.push(serviceEntry.LINE_COUNT);
+        executionTimes.push(productEntry.EXECUTION_TIME);
+      }
     }
 
-    // Combine productLines and serviceLines into a 2D array for X
     const X = productLines.map((productCount, index) => [
       productCount,
       serviceLines[index],
     ]);
+    const yFormatted = executionTimes.map((time) => [time]);
 
-    // Convert executionTimes into a 2D array for MLR
-    const yFormatted = executionTimes.map((time) => [time]); // Wrap each execution time value in an array
-
-    // Return the formatted 2D arrays
     return { X, y: yFormatted };
   }
 }
