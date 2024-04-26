@@ -88,7 +88,7 @@ pipeline {
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:server-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
-                        "dev-final",
+                        "dev-wd0",
                     ]
                 )  
             }
@@ -134,7 +134,7 @@ pipeline {
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:ui-$GIT_COMMIT",
                     // The dev environments we are deploying to
                     environments: [
-                        "dev-final-ui",
+                        "dev-wd0-ui",
                     ]
                 )  
             }

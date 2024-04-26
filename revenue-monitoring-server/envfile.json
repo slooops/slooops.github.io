@@ -44,5 +44,5 @@
   "CLO_BULK_UPDATE_QUERY": "UPDATE arfinro.XXCFI_ASK_LARG_ORDER_STATUS SET clo_comments=?, clo_comments_updated_by=?, clo_comments_updated_date=SYSDATE, invoice_eligible_date=? WHERE deal_id=? AND NVL(sales_order, 0)=DECODE(?,'0',NVL(sales_order, 0),?) AND program_name=? AND account=?",
   "INVOICE_ELIGIBLE_DATE_UPDATE_QUERY": "UPDATE arfinro.XXCFI_ASK_LARG_ORDER_STATUS SET invoice_eligible_date=?, clo_comments_updated_by=?, clo_comments_updated_date=SYSDATE WHERE deal_id=? AND NVL(sales_order,0)=DECODE(?,'0',NVL(sales_order,0),?) AND program_name=? AND account=?",
   "CLO_COMMENTS_UPDATE_QUERY": "UPDATE arfinro.XXCFI_ASK_LARG_ORDER_STATUS SET clo_comments=?, clo_comments_updated_by=?, clo_comments_updated_date=SYSDATE WHERE deal_id=? AND NVL(sales_order,0)=DECODE(?,'0',NVL(sales_order,0),?) AND program_name=? AND account=?",
-  "CORS_URL": "http://localhost:3000"
+  "CORS_URL": "http://localhost:4200"
 }
