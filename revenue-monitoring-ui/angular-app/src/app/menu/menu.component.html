@@ -11,7 +11,7 @@
     >
       Revenue Controls
     </mat-list-item> -->
-      <mat-expansion-panel
+      <!-- <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         style="background-color: #007dab"
         [expanded]="true"
@@ -35,28 +35,26 @@
             Mid-close
           </mat-list-item>
         </mat-nav-list>
-      </mat-expansion-panel>
+      </mat-expansion-panel> -->
       <!-- <mat-list-item [routerLink]="['/error-dash']" routerLinkActive="active">
       Error Dashboard
     </mat-list-item> -->
-      <mat-list-item
+      <!-- <mat-list-item
         [routerLink]="['/large-deal-tracker']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('LARGE_DEAL')"
       >
         Large Deal Tracker
-      </mat-list-item>
-      <mat-list-item
-        [routerLink]="['/wd0-dash']"
-        routerLinkActive="active"
-        *ngIf="isAdmin || checkRole('WD0')"
-      >
+      </mat-list-item> -->
+      <!-- *ngIf="isAdmin || checkRole('WD0')" -->
+
+      <mat-list-item [routerLink]="['/wd0-dash']" routerLinkActive="active">
         WD+0 Mid Close Status
       </mat-list-item>
+      <!-- *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')" -->
       <mat-list-item
         [routerLink]="['/mid-close-volumes']"
         routerLinkActive="active"
-        *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')"
       >
         WD+0 Mid Close Volumes
       </mat-list-item>
