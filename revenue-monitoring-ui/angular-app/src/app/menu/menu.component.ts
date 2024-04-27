@@ -21,7 +21,7 @@ export class MenuComponent implements OnInit {
 
   userRoles: String[] = [];
   ngOnInit(): void {
-    // this.getUserId();
+    this.getUserId();
   }
   isAdmin: boolean = true;
   rolesReady = false;
@@ -45,7 +45,7 @@ export class MenuComponent implements OnInit {
       this.rolesReady = true;
       let redirectPath = this.redirectPath();
       this.errorPath = redirectPath === 'error' ? true : false;
-      this.redirect(redirectPath);
+      // this.redirect(redirectPath);
     });
   }
 
