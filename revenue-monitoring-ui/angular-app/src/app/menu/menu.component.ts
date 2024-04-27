@@ -21,7 +21,7 @@ export class MenuComponent implements OnInit {
 
   userRoles: String[] = [];
   ngOnInit(): void {
-    this.getUserId();
+    // this.getUserId();
   }
   isAdmin: boolean = true;
   rolesReady = false;
