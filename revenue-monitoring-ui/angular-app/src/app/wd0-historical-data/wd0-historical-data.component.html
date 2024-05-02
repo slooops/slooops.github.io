@@ -1,4 +1,4 @@
-<!-- <br />
+<br />
 
 <div style="display: flex; align-items: flex-end">
   <div style="width: 48vw; padding-left: 1vw">
@@ -16,18 +16,8 @@
     </p>
   </div>
 
-  <br /> </div>  -->
-
-<!-- <div class="slider-container">
-    <div class="slider-title">Estimated Mid Close Runtime</div>
-    <div class="slider">
-      <div class="time">{{ lowerCI | number : "1.2-2" }} hrs</div>
-      <div class="slider-bar">
-        <span class="slider-circle start-circle"> </span>
-      </div>
-      <div class="time">{{ upperCI | number : "1.2-2" }} hrs</div>
-    </div>
-  </div> -->
+  <br />
+</div>
 
 <div class="row">
   <div class="col-sm-4">
@@ -48,11 +38,8 @@
       style="font-size: 20px; color: gray; cursor: pointer"
       aria-hidden="true"
       (click)="
-        exportTableToExcel(
-          historicalData,
-          'HistoricalData',
-          'HistoricalDataReport'
-        )
+        refreshExportData();
+        exportTableToExcel(exportData, 'HistoricalData', 'HistoricalDataReport')
       "
     ></i
     >&nbsp;&nbsp;&nbsp;

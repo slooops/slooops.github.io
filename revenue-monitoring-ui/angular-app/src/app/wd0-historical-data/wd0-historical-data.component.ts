@@ -11,7 +11,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-wd0-historical-data',
   templateUrl: './wd0-historical-data.component.html',
-  styleUrls: ['./wd0-historical-data.component.css'],
+  styleUrls: ['./wd0-historical-data.component.scss'],
 })
 export class Wd0HistoricalDataComponent implements OnInit {
   protected http: ApiHttpService;
@@ -31,11 +31,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
+  exportData: ExportDataModel[];
+
   dataSource: any;
 
   ngOnInit(): void {
     this.getRegressionData();
-
+    this.refreshExportData();
     this.getHistoricalData();
   }
 
@@ -258,6 +260,51 @@ export class Wd0HistoricalDataComponent implements OnInit {
     return quarterlySums;
   }
 
+  refreshExportData() {
+    this.getEndpointData('wd0-historical-data').subscribe((data: any) => {
+      const grandTotal = {};
+      const serviceTotal = {};
+      const productTotal = {};
+
+      data.forEach((obj) => {
+        for (const key in obj) {
+          if (obj[key] && !isNaN(parseInt(obj[key]))) {
+            // Update grandTotal
+            grandTotal[key] = (grandTotal[key] || 0) + parseInt(obj[key]);
+
+            // Update serviceTotal or productTotal based on LINE_TYPE
+            if (obj.LINE_TYPE === 'Service') {
+              serviceTotal[key] = (serviceTotal[key] || 0) + parseInt(obj[key]);
+            } else if (obj.LINE_TYPE === 'Product') {
+              productTotal[key] = (productTotal[key] || 0) + parseInt(obj[key]);
+            }
+          }
+        }
+      });
+
+      const grandTotalObject = {
+        ENTITY: 'Grand Total',
+        LINE_TYPE: '—',
+        ...grandTotal,
+      };
+      const serviceTotalObject = {
+        ENTITY: 'Service Lines',
+        LINE_TYPE: '—',
+        ...serviceTotal,
+      };
+      const productTotalObject = {
+        ENTITY: 'Product Lines',
+        LINE_TYPE: '—',
+        ...productTotal,
+      };
+
+      // Insert total rows at the beginning of the data array
+      data.unshift(grandTotalObject, serviceTotalObject, productTotalObject);
+
+      this.exportData = data;
+    });
+  }
+
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
@@ -358,6 +405,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
           };
         }
       );
+
+      if (!recentProductEntries[recentProductEntries.length - 1].LINE_COUNT) {
+        recentMonthsData.pop();
+      }
+
       recentMonthsData.push(newMonthData[0]);
 
       let fastestTimes = [];
@@ -544,6 +596,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
 }
 
 export interface HistoricalDataModel {
+  [key: string]: string | null;
+  ENTITY: string | null;
+  LINE_TYPE: string | null;
+}
+
+export interface ExportDataModel {
   [key: string]: string | null;
   ENTITY: string | null;
   LINE_TYPE: string | null;
