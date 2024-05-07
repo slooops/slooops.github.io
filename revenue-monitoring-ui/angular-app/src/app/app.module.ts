@@ -82,6 +82,7 @@ import { ErrorComponent } from './error/error.component';
 import { ColumnSelectComponent } from './order-lifecycle/column-select/column-select.component';
 import { CloUpdatesComponent } from './order-lifecycle/clo-updates/clo-updates.component';
 import { FormatNumberPipe } from './format-number.pipe';
+import { CmsComponent } from './cms/cms.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -117,6 +118,7 @@ export function initApp(authService: AuthenticationService) {
     ColumnSelectComponent,
     CloUpdatesComponent,
     FormatNumberPipe,
+    CmsComponent,
   ],
   imports: [
     BrowserModule,
