@@ -83,6 +83,8 @@ import { ColumnSelectComponent } from './order-lifecycle/column-select/column-se
 import { CloUpdatesComponent } from './order-lifecycle/clo-updates/clo-updates.component';
 import { FormatNumberPipe } from './format-number.pipe';
 import { CmsComponent } from './cms/cms.component';
+import { ToolTipRendererDirective } from './tool-tip-renderer.directive';
+import { CustomToolTipComponent } from './custom-tool-tip/custom-tool-tip.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -119,6 +121,8 @@ export function initApp(authService: AuthenticationService) {
     CloUpdatesComponent,
     FormatNumberPipe,
     CmsComponent,
+    ToolTipRendererDirective,
+    CustomToolTipComponent,
   ],
   imports: [
     BrowserModule,

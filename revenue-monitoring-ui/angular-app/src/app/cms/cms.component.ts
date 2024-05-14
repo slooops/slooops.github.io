@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
+import * as XLSX from 'xlsx';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-cms',
@@ -12,13 +14,23 @@ export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
 
+  unpostedSummaryData: any[] = [];
+  unpostedDetailsData: any[] = [];
+
+  receiptErrorSummaryData: any[] = [];
+
+  ctmDetails: any[] = [];
+  boomiDetails: any[] = [];
+
+  @ViewChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+
   constructor(http: ApiHttpService) {
     this.http = http;
   }
 
   ngOnInit(): void {
     this.getUnPostedSummary();
-    //this.getUnPostedDetails(); //query taking time to execute
+    // this.getUnPostedDetails(); //query taking time to execute
     this.getReceiptErrorSummary();
     //this.getReceiptErrorDetails(); //query taking time to execute
     this.getCtmStatus();
@@ -28,21 +40,24 @@ export class CmsComponent implements OnInit {
   }
 
   getUnPostedSummary() {
-    //cms/getdata?query=unpostedSummary
     this.getEndpointData('unpostedSummary').subscribe((data: any) => {
-      console.log(data);
+      this.unpostedSummaryData = data;
+
+      console.log('unposted summary', data);
     });
   }
 
   getUnPostedDetails() {
     this.getEndpointData('unpostedDetails').subscribe((data: any) => {
+      this.unpostedDetailsData = data;
       console.log(data);
     });
   }
 
   getReceiptErrorSummary() {
     this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
-      console.log(data);
+      this.receiptErrorSummaryData = data;
+      console.log('reciept error summary', data);
     });
   }
 
@@ -54,25 +69,27 @@ export class CmsComponent implements OnInit {
 
   getCtmStatus() {
     this.getEndpointData('ctmStatus').subscribe((data: any) => {
-      console.log(data);
+      console.log('c-m status', data);
     });
   }
 
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
-      console.log(data);
+      this.ctmDetails = data;
+      console.log('c-m deets', data);
     });
   }
 
   getBoomiStatus() {
     this.getEndpointData('boomiStatus').subscribe((data: any) => {
-      console.log(data);
+      console.log('boomi status', data);
     });
   }
 
   getBoomiDetails() {
     this.getEndpointData('boomiDetails').subscribe((data: any) => {
-      console.log(data);
+      this.boomiDetails = data;
+      console.log('boomi details', data);
     });
   }
 
@@ -90,5 +107,27 @@ export class CmsComponent implements OnInit {
     //   switchMap(() => this.http.get(url))
     // );
     // return polling$;
+  }
+
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    console.log(data);
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
+    let link = document.createElement('a'); // create link
+    link.href = url;
+    link.download = filename + '.xlsx';
+    link.click(); // triggers the download process and save file prompt in browser
+    window.URL.revokeObjectURL(url); // revoke temp URL
   }
 }
