@@ -62,9 +62,7 @@ public class DailyMonitoringService {
     private String kafkaPublishToDownstream;
     private String errorDistributionSummarization;
     private String personaAccessRoles;
-    private String authorizedUser;
     private String wd0Regression;
-
     private String wd0CurrentMonth;
     private String deleteSelectedDeals;
     private String cloBulkUpdate;
@@ -129,14 +127,6 @@ public class DailyMonitoringService {
         this.cloBulkUpdate = cloBulkUpdate;
         this.invoiceEligibleUpdate = invoiceEligibleUpdate;
         this.cloCommentUpdate = cloCommentUpdate;
-    }
-
-    public String getAuthorizedUser() {
-        return authorizedUser;
-    }
-
-    public void setAuthorizedUser(String authorizedUser) {
-        this.authorizedUser = authorizedUser;
     }
 
     public UserRoleInfo getUserRoles(String username) {
