@@ -19,8 +19,17 @@ export class CmsComponent implements OnInit {
 
   receiptErrorSummaryData: any[] = [];
 
+  ctmStatus: any[] = [];
   ctmDetails: any[] = [];
+  boomiStatus: any[] = [];
   boomiDetails: any[] = [];
+
+  colorMapping: { [key: string]: string } = {
+    BLUE: '#049fd9',
+    RED: '#ef2828',
+    YELLOW: '#efc920',
+    GREEN: '#12e370',
+  };
 
   @ViewChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
 
@@ -69,19 +78,21 @@ export class CmsComponent implements OnInit {
 
   getCtmStatus() {
     this.getEndpointData('ctmStatus').subscribe((data: any) => {
-      console.log('c-m status', data);
+      this.ctmStatus = data;
+      console.log('ctm status', data);
     });
   }
 
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
       this.ctmDetails = data;
-      console.log('c-m deets', data);
+      console.log('ctm deets', data);
     });
   }
 
   getBoomiStatus() {
     this.getEndpointData('boomiStatus').subscribe((data: any) => {
+      this.boomiStatus = data;
       console.log('boomi status', data);
     });
   }
@@ -91,6 +102,10 @@ export class CmsComponent implements OnInit {
       this.boomiDetails = data;
       console.log('boomi details', data);
     });
+  }
+
+  getColorCode(colorName: string): string {
+    return this.colorMapping[colorName] || '#049fd9'; // Default to Cisco blue if color not found
   }
 
   getEndpointData(queryParam: string): Observable<any> {

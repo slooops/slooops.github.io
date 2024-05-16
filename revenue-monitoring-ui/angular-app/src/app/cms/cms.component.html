@@ -1,22 +1,24 @@
 <div class="top-right">
-  <button
-    class="export-button"
-    (click)="
-      exportTableToExcel(
-        unpostedSummaryData,
-        'Unposted Summary Data',
-        'Unposted Summary Data'
-      );
-      exportTableToExcel(
-        receiptErrorSummaryData,
-        'Receipt Error Summary Data',
-        'Receipt Error Summary Data'
-      )
-    "
-  >
-    <i class="fa fa-download"></i>
-    Export
-  </button>
+  <div>
+    <button
+      class="export-button"
+      (click)="
+        exportTableToExcel(
+          unpostedSummaryData,
+          'Unposted Summary Data',
+          'Unposted Summary Data'
+        );
+        exportTableToExcel(
+          receiptErrorSummaryData,
+          'Receipt Error Summary Data',
+          'Receipt Error Summary Data'
+        )
+      "
+    >
+      <i class="fa fa-download"></i>
+      Export
+    </button>
+  </div>
 </div>
 
 <div
@@ -52,6 +54,9 @@
           class="slider-circle circle-1"
           customToolTip
           [contentTemplate]="ctmTooltip"
+          [ngStyle]="{
+            'background-color': getColorCode(ctmStatus[0]?.COLOR)
+          }"
         >
           <p class="circle-caption" style="left: -0.6vh">Control-M</p>
         </span>
@@ -76,10 +81,14 @@
             </tbody>
           </table>
         </ng-template>
+
         <span
           class="slider-circle circle-2"
           customToolTip
           [contentTemplate]="boomiTooltip"
+          [ngStyle]="{
+            'background-color': getColorCode(boomiStatus[0]?.COLOR)
+          }"
         >
           <p class="circle-caption">Boomi</p>
         </span>
@@ -105,9 +114,15 @@
           </table>
         </ng-template>
 
-        <span class="slider-circle circle-3">
+        <span
+          class="slider-circle circle-3"
+          customToolTip
+          [contentTemplate]="highRadiusTooltip"
+          [ngStyle]="{ 'background-color': getColorCode('BLUE') }"
+        >
           <p class="circle-caption" style="left: -1.1vh">High Radius</p>
         </span>
+        <ng-template #highRadiusTooltip>Coming soon</ng-template>
       </div>
     </div>
   </div>
@@ -115,68 +130,76 @@
 
 <hr />
 
-<h4 style="font-weight: 600">Unposted Summary Table</h4>
-<div class="arclosetable">
-  <table class="table table-responsive equal-width styled-table">
-    <thead>
-      <tr>
-        <th>Organization ID</th>
-        <th>Number of Payments</th>
-        <th>Remittance Amount (USD)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of unpostedSummaryData">
-        <td>{{ item.ORG_ID }}</td>
-        <td>{{ item.NO_OF_PAYMENTS }}</td>
-        <td>{{ item.REMITTANCE_AMOUNT_USD | number : "1.2-2" }}</td>
-      </tr>
-    </tbody>
-  </table>
+<div style="display: flex; flex-direction: row; flex-wrap: wrap">
+  <div class="callout-box callout-box-table">
+    <h4 style="font-weight: 600; padding-top: 0.8vh">Unposted Summary Table</h4>
+    <div class="arclosetable">
+      <table class="table table-responsive equal-width styled-table">
+        <thead>
+          <tr>
+            <th>Organization ID</th>
+            <th>Number of Payments</th>
+            <th>Remittance Amount (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of unpostedSummaryData">
+            <td>{{ item.ORG_ID }}</td>
+            <td>{{ item.NO_OF_PAYMENTS }}</td>
+            <td>{{ item.REMITTANCE_AMOUNT_USD | number : "1.2-2" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display: flex; justify-content: center">
+      <ng-container *ngIf="!unpostedSummaryData?.length">
+        <tr>
+          <td colspan="100%" style="text-align: center">
+            <app-loading-symbol></app-loading-symbol>
+          </td>
+          <br />
+        </tr>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="callout-box callout-box-table">
+    <h4 style="font-weight: 600; padding-top: 0.8vh">
+      Receipt Error Summary Table
+    </h4>
+
+    <div class="arclosetable">
+      <table class="table table-responsive equal-width styled-table">
+        <thead>
+          <tr>
+            <th>Operating Unit</th>
+            <th>Number of Payments</th>
+            <th>Unapplied Amount (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of receiptErrorSummaryData">
+            <td>{{ item.OPERATING_UNIT }}</td>
+            <td>{{ item.NO_OF_PAYMENTS }}</td>
+            <td>{{ item.UNAPPLIED_AMOUNT_USD | number : "1.2-2" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: center">
+      <ng-container *ngIf="!receiptErrorSummaryData?.length">
+        <tr>
+          <td colspan="100%" style="text-align: center">
+            <app-loading-symbol></app-loading-symbol>
+          </td>
+          <br />
+        </tr>
+      </ng-container>
+    </div>
+  </div>
 </div>
 
-<div style="display: flex; justify-content: center">
-  <ng-container *ngIf="!unpostedSummaryData?.length">
-    <tr>
-      <td colspan="100%" style="text-align: center">
-        <app-loading-symbol></app-loading-symbol>
-      </td>
-    </tr>
-  </ng-container>
-</div>
-
-<br />
-
-<h4 style="font-weight: 600">Receipt Error Summary Table</h4>
-
-<div class="arclosetable">
-  <table class="table table-responsive equal-width styled-table">
-    <thead>
-      <tr>
-        <th>Operating Unit</th>
-        <th>Number of Payments</th>
-        <th>Unapplied Amount (USD)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of receiptErrorSummaryData">
-        <td>{{ item.OPERATING_UNIT }}</td>
-        <td>{{ item.NO_OF_PAYMENTS }}</td>
-        <td>{{ item.UNAPPLIED_AMOUNT_USD | number : "1.2-2" }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div style="display: flex; justify-content: center">
-  <ng-container *ngIf="!receiptErrorSummaryData?.length">
-    <tr>
-      <td colspan="100%" style="text-align: center">
-        <app-loading-symbol></app-loading-symbol>
-      </td>
-    </tr>
-  </ng-container>
-</div>
 <br />
 
 <br /><br />

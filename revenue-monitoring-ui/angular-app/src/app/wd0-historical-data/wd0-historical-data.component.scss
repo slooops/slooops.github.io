@@ -21,6 +21,16 @@ th.mat-header-cell {
 
 td {
   text-align: center !important;
+  font-size: 11px;
+}
+
+table.mat-table {
+  border-collapse: collapse;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
 }
 
 .header-container {

@@ -372,21 +372,36 @@ export class Wd0HistoricalDataComponent implements OnInit {
       const productEntries = data.filter(
         (entry) => entry.LINE_TYPE === 'PRODUCT'
       );
-      const recentProductEntries = productEntries.slice(-numberOfMonths - 1); // Get the last few months
+      const recentProductEntries = productEntries.slice(-numberOfMonths); // Get the last few months
       const recentMonthNames = recentProductEntries.map(
         (entry) => entry.PERIOD_NAME
       );
 
       if (!recentProductEntries[recentProductEntries.length - 1].LINE_COUNT) {
-        recentMonthNames.pop();
+        // recentMonthNames.pop();
+        // recentMonthsData.pop();
       }
 
       if (fetchDataForNewMonth) {
         recentMonthNames.push(newMonthName);
       }
 
+      console.log(data);
+
+      //FOR TESTING ONLY!!!!!!!!!!!!!
+      // const dataLength = data.length;
+      // if (dataLength >= 2) {
+      //   for (let i = dataLength - 2; i < dataLength; i++) {
+      //     if (data[i].EXECUTION_TIME === null) {
+      //       data[i].EXECUTION_TIME = 4.0;
+      //     }
+      //   }
+      // }
+
       // prep the data and run regression (this sets a model in the service)
       const regressionData = this.processRegressionData(data);
+
+      console.log(regressionData);
 
       this.regressionService.performMultipleLinearRegression(
         regressionData.X,
@@ -406,11 +421,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
         }
       );
 
-      if (!recentProductEntries[recentProductEntries.length - 1].LINE_COUNT) {
-        recentMonthsData.pop();
+      if (fetchDataForNewMonth) {
+        recentMonthsData.push(newMonthData[0]);
       }
-
-      recentMonthsData.push(newMonthData[0]);
 
       let fastestTimes = [];
       let slowestTimes = [];
@@ -438,6 +451,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
         .slice(-numberOfMonths)
         .map((time) => time[0]);
 
+      console.log('recentMonthNames', recentMonthNames);
+      console.log('recentMonthsData', recentMonthsData);
+      console.log('actualTimes', actualTimes);
+
       this.createLineGraph(
         fastestTimes,
         slowestTimes,
@@ -460,6 +477,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     }
 
     console.log('lines', lines);
+    console.log('actualTimes', actualTimes);
+    console.log('labels', labels);
 
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
