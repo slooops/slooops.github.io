@@ -94,7 +94,17 @@ td {
 }
 
 tr.mat-header-row {
-  height: 30px;
+  height: 28px;
+}
+
+::ng-deep .mat-sort-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center !important;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  color: #ffffff; /* Change to your desired color */
 }
 
 .slider-container {

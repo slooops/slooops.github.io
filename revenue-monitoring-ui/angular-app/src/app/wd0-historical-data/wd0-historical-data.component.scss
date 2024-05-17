@@ -33,6 +33,10 @@ tr.mat-row {
   border-bottom: 0px;
 }
 
+tr.mat-header-row {
+  height: 40px;
+}
+
 .header-container {
   display: flex;
   justify-content: center;
