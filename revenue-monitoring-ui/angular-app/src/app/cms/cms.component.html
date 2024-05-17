@@ -140,8 +140,8 @@
         <table
           mat-table
           [dataSource]="unpostedSummaryData"
-          matSort
           #unpostedSummarySort="matSort"
+          matSort
           class="arclosetable styled-table"
         >
           <!-- Organization ID Column -->
@@ -204,10 +204,11 @@
 
       <ng-container *ngIf="receiptErrorSummaryData?.data?.length">
         <table
+          #receiptErrorSummary
           mat-table
           [dataSource]="receiptErrorSummaryData"
-          matSort
           #receiptErrorSummarySort="matSort"
+          matSort
           class="arclosetable styled-table"
         >
           <!-- Operating Unit Column -->

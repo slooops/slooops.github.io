@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  AfterViewInit,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -11,7 +17,7 @@ import * as XLSX from 'xlsx';
   templateUrl: './cms.component.html',
   styleUrls: ['./cms.component.css'],
 })
-export class CmsComponent implements OnInit, AfterViewInit {
+export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
 
   unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
@@ -54,9 +60,7 @@ export class CmsComponent implements OnInit, AfterViewInit {
     this.getCtmDetails();
     this.getBoomiStatus();
     this.getBoomiDetails();
-  }
 
-  ngAfterViewInit() {
     this.unpostedSummaryData.sort = this.unpostedSummarySort;
     this.receiptErrorSummaryData.sort = this.receiptErrorSummarySort;
   }
