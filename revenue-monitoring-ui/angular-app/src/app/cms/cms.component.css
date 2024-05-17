@@ -41,13 +41,42 @@ a {
   line-height: 120%;
 }
 
-.chart-box {
-  min-width: 47vw;
+.mat-header-row {
+  background-color: #049fd9 !important;
 }
 
-.arclosetable .table th {
-  background-color: #049fd9 !important;
-  color: rgb(255, 255, 255);
+.mat-header-cell {
+  color: rgb(255, 255, 255) !important;
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px !important;
+  padding: 1vh !important;
+}
+
+/* Styling for table rows */
+.mat-row:nth-child(odd) {
+  background-color: #f2f2f2 !important;
+}
+
+.mat-row:nth-child(even) {
+  background-color: #ffffff !important;
+}
+
+.mat-cell {
+  text-align: center !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 0.4vh !important;
+  border: 0px !important;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
+}
+
+td {
+  font-size: 11px;
 }
 
 th {
@@ -60,17 +89,12 @@ th {
 td {
   text-align: center !important;
   font-size: 11px;
-  font-weight: 600;
   padding: 0.4vh !important ;
   border: 0px !important;
 }
 
-.styled-table tbody tr:nth-child(odd) {
-  background-color: #f2f2f2 !important;
-}
-
-.styled-table tbody tr:nth-child(even) {
-  background-color: #ffffff;
+tr.mat-header-row {
+  height: 30px;
 }
 
 .slider-container {

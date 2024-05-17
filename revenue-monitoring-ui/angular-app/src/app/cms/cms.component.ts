@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { MatTableDataSource } from '@angular/material/table';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
-import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-cms',
@@ -14,10 +14,9 @@ export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
 
-  unpostedSummaryData: any[] = [];
+  unpostedSummaryData = new MatTableDataSource<any>();
   unpostedDetailsData: any[] = [];
-
-  receiptErrorSummaryData: any[] = [];
+  receiptErrorSummaryData = new MatTableDataSource<any>();
 
   ctmStatus: any[] = [];
   ctmDetails: any[] = [];
@@ -31,7 +30,17 @@ export class CmsComponent implements OnInit {
     GREEN: '#12e370',
   };
 
-  @ViewChild('tooltipTemplate') tooltipTemplate: TemplateRef<any>;
+  unpostedSummaryDisplayedColumns: string[] = [
+    'ORG_ID',
+    'NO_OF_PAYMENTS',
+    'REMITTANCE_AMOUNT_USD',
+  ];
+
+  receiptErrorSummaryDisplayedColumns: string[] = [
+    'OPERATING_UNIT',
+    'NO_OF_PAYMENTS',
+    'UNAPPLIED_AMOUNT_USD',
+  ];
 
   constructor(http: ApiHttpService) {
     this.http = http;
@@ -50,8 +59,7 @@ export class CmsComponent implements OnInit {
 
   getUnPostedSummary() {
     this.getEndpointData('unpostedSummary').subscribe((data: any) => {
-      this.unpostedSummaryData = data;
-
+      this.unpostedSummaryData.data = data;
       console.log('unposted summary', data);
     });
   }
@@ -65,7 +73,7 @@ export class CmsComponent implements OnInit {
 
   getReceiptErrorSummary() {
     this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
-      this.receiptErrorSummaryData = data;
+      this.receiptErrorSummaryData.data = data;
       console.log('reciept error summary', data);
     });
   }
@@ -105,7 +113,7 @@ export class CmsComponent implements OnInit {
   }
 
   getColorCode(colorName: string): string {
-    return this.colorMapping[colorName] || '#049fd9'; // Default to Cisco blue if color not found
+    return this.colorMapping[colorName] || '#6993a2a1'; // Default to Cisco blue if color not found
   }
 
   getEndpointData(queryParam: string): Observable<any> {
