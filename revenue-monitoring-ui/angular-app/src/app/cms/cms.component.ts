@@ -19,6 +19,7 @@ import * as XLSX from 'xlsx';
 })
 export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
+  //refreshInterval = 300000; //ms
 
   unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
   receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
@@ -102,7 +103,7 @@ export class CmsComponent implements OnInit {
   }
 
   getColorCode(colorName: string): string {
-    return this.colorMapping[colorName] || '#049fd9'; // Default to Cisco blue if color not found
+    return this.colorMapping[colorName] || '#6993a2a1'; // Default to offline color if not found
   }
 
   getEndpointData(queryParam: string): Observable<any> {
