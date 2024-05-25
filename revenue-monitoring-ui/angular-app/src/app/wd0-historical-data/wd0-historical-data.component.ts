@@ -365,10 +365,11 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     }
 
     // Helper function to process regression data
-    const processRegressionData = (data: any) => {
+    const fetchRecentMonths = (data: any) => {
+      console.log('Recent months data:', data);
       const filteredData = data.filter((entry: any) => {
         return !(
-          entry.PERIOD_NAME === newMonthName && entry.LINE_COUNT === null
+          entry.PERIOD_NAME === newMonthName || entry.LINE_COUNT === null
         );
       });
 
@@ -387,7 +388,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
       // Ensure there are no null execution times
       filteredData.forEach((entry: any) => {
-        if (entry.EXECUTION_TIME === null) {
+        if (entry.EXECUTION_TIME === null && entry.LINE_COUNT !== null) {
           entry.EXECUTION_TIME = 4.0; // Replace with a default value
         }
       });
@@ -443,10 +444,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         .slice(-numberOfMonths)
         .map((time) => time[0]);
 
-      console.log('Recent month names:', recentMonthNames);
-      console.log('Recent months data:', recentMonthsData);
-      console.log('Actual times:', actualTimes);
-
       this.createLineGraph(
         fastestTimes,
         slowestTimes,
@@ -462,6 +459,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         .pipe(
           tap((data: any) => {
             // Process the current month data
+            console.log('Current month data:', data);
             data.forEach((item: any) => {
               if (item.LINE_TYPE === 'PRODUCT') {
                 newMonthData[0][0] = item.LINE_COUNT;
@@ -470,16 +468,15 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
               }
             });
             newMonthName = data[0].PERIOD_NAME;
-            console.log('Current month data:', data);
           }),
           switchMap(() => this.http.get('wd0-regression'))
         )
         .subscribe((data: any) => {
-          processRegressionData(data);
+          fetchRecentMonths(data);
         });
     } else {
       this.http.get('wd0-regression').subscribe((data: any) => {
-        processRegressionData(data);
+        fetchRecentMonths(data);
       });
     }
   }
@@ -494,10 +491,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     if (this.lineChart) {
       this.lineChart.destroy();
     }
-
-    console.log('lines', lines);
-    console.log('actualTimes', actualTimes);
-    console.log('labels', labels);
 
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
