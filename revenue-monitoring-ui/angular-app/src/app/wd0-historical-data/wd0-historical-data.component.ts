@@ -366,7 +366,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     // Helper function to process regression data
     const fetchRecentMonths = (data: any) => {
-      console.log('Recent months data:', data);
+      // console.log('Recent months data:', data);
       const filteredData = data.filter((entry: any) => {
         return !(
           entry.PERIOD_NAME === newMonthName || entry.LINE_COUNT === null
@@ -459,7 +459,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         .pipe(
           tap((data: any) => {
             // Process the current month data
-            console.log('Current month data:', data);
+            // console.log('Current month data:', data);
             data.forEach((item: any) => {
               if (item.LINE_TYPE === 'PRODUCT') {
                 newMonthData[0][0] = item.LINE_COUNT;
