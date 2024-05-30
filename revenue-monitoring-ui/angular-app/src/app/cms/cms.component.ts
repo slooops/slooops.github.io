@@ -87,6 +87,7 @@ export class CmsComponent implements OnInit {
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
       this.ctmDetails = data;
+      console.log(this.ctmDetails);
     });
   }
 
@@ -99,6 +100,7 @@ export class CmsComponent implements OnInit {
   getBoomiDetails() {
     this.getEndpointData('boomiDetails').subscribe((data: any) => {
       this.boomiDetails = data;
+      console.log(this.boomiDetails);
     });
   }
 

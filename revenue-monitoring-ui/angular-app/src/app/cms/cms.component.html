@@ -76,7 +76,14 @@
                 <td>{{ detail.EXTRACT_NAME }}</td>
                 <td>{{ detail.STATUS }}</td>
                 <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
-                <td>{{ detail.COLOR_CODE }}</td>
+                <td>
+                  <span
+                    class="color-circle"
+                    [ngStyle]="{
+                      'background-color': getColorCode(detail.COLOR_CODE)
+                    }"
+                  ></span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -108,7 +115,14 @@
                 <td>{{ detail.EXTRACT_NAME }}</td>
                 <td>{{ detail.STATUS }}</td>
                 <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
-                <td>{{ detail.COLOR_CODE }}</td>
+                <td>
+                  <span
+                    class="color-circle"
+                    [ngStyle]="{
+                      'background-color': getColorCode(detail.COLOR_CODE)
+                    }"
+                  ></span>
+                </td>
               </tr>
             </tbody>
           </table>
