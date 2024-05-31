@@ -369,7 +369,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       // console.log('Recent months data:', data);
       const filteredData = data.filter((entry: any) => {
         return !(
-          entry.PERIOD_NAME === newMonthName || entry.LINE_COUNT === null
+          entry.PERIOD_NAME === newMonthName && entry.LINE_COUNT === null
         );
       });
 
@@ -386,10 +386,21 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         recentMonthNames.push(newMonthName);
       }
 
-      // Ensure there are no null execution times
+      // Ensure there are no null execution times only when fetchDataForNewMonth is true
       filteredData.forEach((entry: any) => {
-        if (entry.EXECUTION_TIME === null && entry.LINE_COUNT !== null) {
+        if (
+          entry.EXECUTION_TIME === null &&
+          entry.LINE_COUNT !== null &&
+          fetchDataForNewMonth
+        ) {
+          console.log('Null execution time found:', entry);
           entry.EXECUTION_TIME = 4.0; // Replace with a default value
+        } else if (
+          entry.EXECUTION_TIME === null &&
+          entry.LINE_COUNT !== null &&
+          !fetchDataForNewMonth
+        ) {
+          entry.EXECUTION_TIME = 0.0; // Replace with a default value
         }
       });
 
@@ -459,7 +470,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         .pipe(
           tap((data: any) => {
             // Process the current month data
-            // console.log('Current month data:', data);
             data.forEach((item: any) => {
               if (item.LINE_TYPE === 'PRODUCT') {
                 newMonthData[0][0] = item.LINE_COUNT;
