@@ -40,6 +40,9 @@ export class CmsComponent implements OnInit {
   boomiStatus: any[] = [];
   boomiDetails: any[] = [];
 
+  unpostedSummaryLoading = false;
+  receiptErrorSummaryLoading = false;
+
   colorMapping: { [key: string]: string } = {
     BLUE: '#049fd9',
     RED: '#ef2828',
@@ -66,15 +69,24 @@ export class CmsComponent implements OnInit {
     this.receiptErrorSummaryData.sort = this.receiptErrorSummarySort;
   }
 
+  ngAfterViewInit() {
+    this.unpostedSummaryData.sort = this.unpostedSummarySort;
+    this.receiptErrorSummaryData.sort = this.receiptErrorSummarySort;
+  }
+
   getUnPostedSummary() {
+    // this.unpostedSummaryLoading = true;
     this.getEndpointData('unpostedSummary').subscribe((data: any) => {
       this.unpostedSummaryData.data = data;
+      // this.unpostedSummaryLoading = false;
     });
   }
 
   getReceiptErrorSummary() {
+    // this.receiptErrorSummaryLoading = true;
     this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
       this.receiptErrorSummaryData.data = data;
+      // this.receiptErrorSummaryLoading = false;
     });
   }
 
@@ -144,5 +156,13 @@ export class CmsComponent implements OnInit {
     link.download = filename + '.xlsx';
     link.click(); // triggers the download process and save file prompt in browser
     window.URL.revokeObjectURL(url); // revoke temp URL
+  }
+
+  refreshUnpostedSummary() {
+    this.getUnPostedSummary();
+  }
+
+  refreshReceiptErrorSummary() {
+    this.getReceiptErrorSummary();
   }
 }
