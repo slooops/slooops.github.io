@@ -1,0 +1,234 @@
+.table-responsive {
+  overflow: auto;
+}
+
+.mat-header-cell {
+  font-size: 10.5px;
+  white-space: normal !important;
+  text-align: center !important;
+}
+
+.mat-cell {
+  font-size: 10.5px;
+  text-align: center !important;
+}
+
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-left: 10px !important;
+}
+
+td {
+  padding-left: 8px !important;
+}
+
+.highlight {
+  background: #42a948 !important; /* green */
+}
+
+.mat-column-COMMENTS {
+  white-space: unset !important;
+  text-align: left !important;
+}
+
+.mat-column-CLO_COMMENTS {
+  text-align: left !important;
+  white-space: normal !important;
+  min-width: 300px !important;
+  padding: 0px !important;
+  padding-left: 5px !important;
+}
+
+.mat-column-ACCOUNT {
+  white-space: normal !important;
+  max-width: 70px !important;
+  min-width: 70px !important;
+}
+
+.mat-column-PROGRAM_NAME {
+  max-width: 69px !important;
+  min-width: 65px !important;
+}
+
+.mat-column-DEAL_ID {
+  max-width: 65px !important;
+  min-width: 65px !important;
+}
+
+.mat-column-DEAL_UPLOAD_DATE {
+  max-width: 67px !important;
+  min-width: 65px !important;
+}
+
+.mat-column-SALES_ORDER {
+  max-width: 92px !important;
+  min-width: 70px !important;
+}
+
+.mat-column-ORDER_VALUE {
+  max-width: 59px !important;
+  min-width: 57px !important;
+}
+
+.mat-column-TOTAL_LINE_COUNT {
+  max-width: 59px !important;
+  min-width: 57px !important;
+}
+
+.mat-column-ORDER_STATUS {
+  white-space: normal !important;
+  max-width: 73px !important;
+  min-width: 60px !important;
+}
+
+.mat-column-CONTRACT_NUMBER {
+  white-space: normal !important;
+  max-width: 78px !important;
+  min-width: 78px !important;
+}
+
+.mat-column-LINES_ON_HOLD {
+  max-width: 50px !important;
+  min-width: 50px !important;
+}
+
+.mat-column-FLEXIBLE_INVOICE_ELIGIBLE {
+  max-width: 65px !important;
+  min-width: 60px !important;
+}
+
+.mat-column-INVOICING_STATUS {
+  white-space: normal !important;
+  max-width: 80px !important;
+  min-width: 80px !important;
+}
+
+.mat-column-INVOICE_LINES {
+  max-width: 60px !important;
+  min-width: 60px !important;
+}
+
+.mat-column-INVOICE_DATE {
+  max-width: 66px !important;
+  min-width: 60px !important;
+}
+
+.mat-column-INVOICE_AMOUNT {
+  max-width: 70px !important;
+  min-width: 70px !important;
+}
+
+.mat-column-REV_ACCR_STATUS {
+  white-space: normal !important;
+  max-width: 80px !important;
+  min-width: 78px !important;
+}
+
+.mat-column-GL_POSTING_STATUS {
+  white-space: normal !important;
+  max-width: 78px !important;
+  min-width: 78px !important;
+}
+
+.mat-column-ACCRUALS_EXECUTION_TIME {
+  max-width: 75px !important;
+  min-width: 70px !important;
+}
+
+.mat-column-FUTURE_INVOICE_RELEASE_DATE {
+  max-width: 65px !important;
+  min-width: 65px !important;
+}
+
+.mat-column-TERM_IN_YEARS {
+  max-width: 70px !important;
+  min-width: 65px !important;
+}
+
+.mat-column-BOOK_DATE {
+  max-width: 67px !important;
+  min-width: 65px !important;
+}
+
+.progPanel {
+  min-width: calc(100% + 30px) !important;
+}
+
+.hoverIcon {
+  cursor: pointer;
+}
+
+.mat-column-INVOICE_ELIGIBLE_DATE .mat-form-field {
+  width: 80px !important;
+}
+
+.mat-column-INVOICE_ELIGIBLE_DATE .calendarInput {
+  font-size: 12px !important;
+}
+
+.mat-column-INVOICE_ELIGIBLE_DATE {
+  white-space: normal !important;
+  padding: 0px !important;
+  max-width: 80px !important;
+  min-width: 75px !important;
+}
+
+.cui input {
+  font-size: 12px !important;
+}
+
+.table > tbody > tr > td {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+.highlight-link {
+  padding: 5px;
+}
+
+.highlight-link:hover {
+  background-color: rgb(
+    240,
+    238,
+    238
+  ) !important; /* Change this to your desired highlight color */
+}
+
+.custom-menu {
+  min-width: 180px; /* Set a minimum width if desired */
+  width: auto;
+  max-width: 100%; /* Allow the menu to grow up to the screen width */
+}
+
+.viewHighlight {
+  padding: 12px;
+  font-weight: 600;
+}
+
+.viewHighlight:hover {
+  background-color: rgb(240, 238, 238) !important;
+  cursor: pointer;
+}
+
+input[type="text"] {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #000000;
+  width: 100px !important;
+  font-size: 12px !important;
+}
+
+.test {
+  position: relative;
+}
+
+.test .fa.fa-pencil-square-o {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.mat-table {
+  border-spacing: 0px; /* Adjust the border-spacing as needed */
+}

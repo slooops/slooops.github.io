@@ -1,17 +1,13 @@
-<div class="col-sm-12" style="text-align: center !important">
-  <div style="float: right">
-    Dashboard updated : {{ timeNow }} &nbsp;<i
-      class="fa fa-info-circle"
-      matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
-      [matTooltipPosition]="'above'"
-      style="color: gray"
-    ></i>
-  </div>
-</div>
-<br />
-<div>
-  <div
-    style="display: flex; justify-content: space-between; align-items: center"
+<div class="row" style="padding-left: 5px">
+  <span
+    class="col-lg-9"
+    style="
+      float: left;
+      font-size: smaller;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    "
   >
     <form [formGroup]="searchForm" class="search__form">
       <mat-form-field appearance="standard" [style.width.px]="125">
@@ -64,7 +60,7 @@
       </mat-form-field>
       &nbsp;
       <mat-form-field class="filter" floatLabel="never" [style.width.px]="125">
-        <mat-label>Search Order / Subscription </mat-label>
+        <mat-label>Search Order # </mat-label>
         <input matInput (keyup)="filter()" formControlName="salesOrdr" />
         <i
           matSuffix
@@ -112,7 +108,12 @@
         </mat-select>
       </mat-form-field>
       &nbsp;
-      <button mat-stroked-button type="button" (click)="clearFilters()">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="clearFilters()"
+        style="font-size: 12px"
+      >
         Reset
       </button>
       &nbsp;
@@ -121,38 +122,63 @@
         color="warn"
         *ngIf="selection.hasValue() && dealUploadFlag"
         (click)="deleteSelectedRows(dialogConfirmTemplate)"
+        style="font-size: 12px"
       >
         Delete
       </button>
     </form>
-    <div class="highlight-link">
+  </span>
+  <span class="col-lg-3">
+    <span
+      style="
+        float: right !important;
+        text-align: right !important;
+        font-size: 12px;
+      "
+    >
+      Dashboard updated: {{ timeNow }} &nbsp;<i
+        class="fa fa-info-circle"
+        matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
+        [matTooltipPosition]="'above'"
+        style="color: gray"
+      ></i>
+    </span>
+    <br />
+    <span
+      class="highlight-link"
+      style="
+        float: right !important;
+        text-align: right !important;
+        font-size: 12px;
+        top: 8px;
+      "
+    >
       <a
         style="color: black; text-decoration: none"
         [matMenuTriggerFor]="dropdownMenu"
-        >Options&nbsp;
+        >Options&nbsp;&nbsp;
         <i
           class="fa fa-ellipsis-v"
           aria-hidden="true"
           style="
             font-size: large;
             color: #4f5051;
-            padding-right: 0.4em;
-            padding-left: 6px;
+            justify-content: end;
+            float: right;
           "
         ></i>
       </a>
-    </div>
-  </div>
-  <div
-    class="periodclosetbale sortArrow"
-    style="overflow: auto; max-width: 100%"
-  >
+    </span>
+  </span>
+</div>
+
+<div>
+  <div class="periodclosetbale sortArrow" style="overflow: auto">
     <table
       style="width: -webkit-fill-available"
       mat-table
       [dataSource]="dataSource"
-      matSort
-      class="mat-elevation-z8 table table-responsive orderTable"
+      class="table table-responsive orderTable"
     >
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
@@ -175,12 +201,7 @@
 
       <!-- PROGRAM_NAME Column -->
       <ng-container matColumnDef="PROGRAM_NAME">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           PROGRAM NAME
         </th>
         <td mat-cell *matCellDef="let record">
@@ -190,28 +211,14 @@
 
       <!-- ACCOUNT Column -->
       <ng-container matColumnDef="ACCOUNT">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          ACCOUNT
-        </th>
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>ACCOUNT</th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.ACCOUNT }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="BOOK_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          BOOK DATE
-        </th>
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>BOOK DATE</th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{
             record.BOOK_DATE == "TBD"
@@ -222,14 +229,7 @@
       </ng-container>
 
       <ng-container matColumnDef="SALES_ORDER">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          ORDER / SUBSCRIPTION (#)
-        </th>
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>ORDER (#)</th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.SALES_ORDER }}
         </td>
@@ -237,12 +237,7 @@
 
       <!-- ORDER_VALUE Column -->
       <ng-container matColumnDef="ORDER_VALUE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           ORDER VALUE ($M)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -252,12 +247,7 @@
 
       <!-- ORDER_STATUS Column -->
       <ng-container matColumnDef="ORDER_STATUS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           <b style="font-weight: bolder; color: #0d3b4c">1.BOOKING STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -267,12 +257,7 @@
 
       <!-- CONTRACT CREATED Column -->
       <ng-container matColumnDef="CONTRACT_NUMBER">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           <b style="font-weight: bolder; color: #0d3b4c">2.ORDER STATUS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -282,13 +267,8 @@
 
       <!-- DEAL UPLOAD DATE Column -->
       <ng-container matColumnDef="DEAL_UPLOAD_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          DEAL UPLOAD DATE
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
+          UPLOAD DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.DEAL_UPLOAD_DATE | date : "M/d/yyyy" }}
@@ -297,12 +277,7 @@
 
       <!-- INVOICING_STATUS Column -->
       <ng-container matColumnDef="INVOICING_STATUS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           <b style="font-weight: bolder; color: #0d3b4c">3.INVOICING</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -312,12 +287,7 @@
 
       <!-- REV_ACCR_STATUS Column -->
       <ng-container matColumnDef="REV_ACCR_STATUS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           <b style="font-weight: bolder; color: #0d3b4c"> 4.REVENUE ACCRUALS</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -327,12 +297,7 @@
 
       <!-- GL_POSTING_STATUS Column -->
       <ng-container matColumnDef="GL_POSTING_STATUS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           <b style="font-weight: bolder; color: #0d3b4c"> 5.GL POSTING</b>
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -341,12 +306,7 @@
       </ng-container>
 
       <ng-container matColumnDef="ACCRUALS_EXECUTION_TIME">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           ACCRUALS EXECUTION TIME (IN MINS)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -355,12 +315,7 @@
       </ng-container>
 
       <ng-container matColumnDef="SUBSCRIPTION_ID">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           SUBSCRIPTION ID
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -370,12 +325,7 @@
 
       <!-- INVOICE_DATE Column -->
       <ng-container matColumnDef="INVOICE_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           INVOICE DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -388,12 +338,7 @@
       </ng-container>
 
       <ng-container matColumnDef="FLEXIBLE_INVOICE_ELIGIBLE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           FLEXIBLE INVOICE ELIGIBLE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -402,12 +347,7 @@
       </ng-container>
 
       <ng-container matColumnDef="INVOICE_ELIGIBLE_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           INVOICE ELIGIBLE DATE (CLO)
         </th>
         <td
@@ -457,12 +397,7 @@
 
       <!-- INVOICE_AMOUNT Column -->
       <ng-container matColumnDef="INVOICE_AMOUNT">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           INVOICE AMOUNT ($M)
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -472,14 +407,7 @@
 
       <!-- Term Column -->
       <ng-container matColumnDef="TERM_IN_YEARS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          TERM
-        </th>
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>TERM</th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.TERM_IN_YEARS }} Yrs
         </td>
@@ -487,27 +415,15 @@
 
       <!-- DEAL_ID Column -->
       <ng-container matColumnDef="DEAL_ID">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          DEAL ID
-        </th>
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>DEAL ID</th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.DEAL_ID }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="TOTAL_LINE_COUNT">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          TOTAL LINE COUNT
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
+          LINE COUNT
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.TOTAL_LINE_COUNT }}
@@ -516,12 +432,7 @@
 
       <!-- ORDER_TOTAL_USD Column -->
       <ng-container matColumnDef="LINES_ON_HOLD">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           LINES ON HOLD
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -531,12 +442,7 @@
 
       <!-- INVOICE_LINES Column -->
       <ng-container matColumnDef="INVOICE_LINES">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           INVOICE LINES
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -546,12 +452,7 @@
 
       <!-- INVOICE RELEASE DATE Column -->
       <ng-container matColumnDef="FUTURE_INVOICE_RELEASE_DATE">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           FUTURE INVOICE RELEASE DATE
         </th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
@@ -564,12 +465,7 @@
       </ng-container>
 
       <ng-container matColumnDef="CLO_COMMENTS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
           CLO UPDATES
         </th>
         <td
@@ -647,14 +543,7 @@
 
       <!-- COMMENTS Column -->
       <ng-container matColumnDef="COMMENTS">
-        <th
-          class="custom-cell"
-          mat-header-cell
-          *matHeaderCellDef
-          mat-sort-header
-        >
-          COMMENTS
-        </th>
+        <th class="custom-cell" mat-header-cell *matHeaderCellDef>COMMENTS</th>
         <td class="custom-cell" mat-cell *matCellDef="let record">
           {{ record.COMMENTS }}
         </td>
@@ -701,27 +590,51 @@
 <br />
 <br />
 <br />
-<br />
-
 <mat-menu #dropdownMenu="matMenu" class="custom-menu">
-  <div (click)="openRevSummaryDialog()" class="viewHighlight">
-    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+  <div
+    (click)="openRevSummaryDialog()"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
     >&nbsp;&nbsp;View Rev Summary
   </div>
-  <div (click)="openDialog()" class="viewHighlight">
-    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+  <div (click)="openDialog()" class="viewHighlight" style="font-size: small">
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
     >&nbsp;&nbsp;View Deal Summary
   </div>
   <div
     (click)="openUploadDialog()"
     class="viewHighlight"
     *ngIf="dealUploadFlag"
+    style="font-size: small"
   >
-    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
     >&nbsp;&nbsp;Deal Upload
   </div>
-  <div (click)="openCloUpdateDialog()" class="viewHighlight" *ngIf="updateClo">
-    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+  <div
+    (click)="openCloUpdateDialog()"
+    class="viewHighlight"
+    *ngIf="updateClo"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
     >&nbsp;&nbsp;CLO Updates
   </div>
   <div
@@ -729,12 +642,25 @@
       export('Large Order Lifecycle Status', 'large_order_lifecycle_status')
     "
     class="viewHighlight"
+    style="font-size: small"
   >
-    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
     >&nbsp;&nbsp;Download
   </div>
-  <div class="viewHighlight" (click)="logSelectedColumns()">
-    <i class="fa fa-angle-right" aria-hidden="true" style="font-size: large"></i
+  <div
+    class="viewHighlight"
+    (click)="logSelectedColumns()"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
     >&nbsp;&nbsp;Columns Filter
   </div>
 </mat-menu>

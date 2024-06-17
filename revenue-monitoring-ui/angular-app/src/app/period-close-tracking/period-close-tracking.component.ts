@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
-// import {
-//   CuiTableColumnOption,
-//   CuiTableOptions,
-// } from '@cisco-ngx/cui-components';
+
 import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
@@ -636,9 +633,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let midclose_prod_row = {};
         let midclose_service_row = {};
 
-        preclose_prod_row['LINE_TYPE'] = 'PROD';
+        preclose_prod_row['LINE_TYPE'] = 'PRODUCT';
         preclose_service_row['LINE_TYPE'] = 'SERVICE';
-        midclose_prod_row['LINE_TYPE'] = 'PROD';
+        midclose_prod_row['LINE_TYPE'] = 'PRODUCT';
         midclose_service_row['LINE_TYPE'] = 'SERVICE';
 
         // let preclose_prod_array: any[] = ['PROD'];

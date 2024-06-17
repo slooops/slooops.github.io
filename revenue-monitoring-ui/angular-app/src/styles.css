@@ -15,7 +15,7 @@
 }
 
 /* cui-table with borders is also striped */
-.cui .table.table--bordered > tbody > tr:nth-child(odd) {
+/* .cui .table.table--bordered > tbody > tr:nth-child(odd) {
   background-color: var(--cui-table-striping-even);
 }
 .cui .table.table--bordered > tbody > tr:nth-child(even) {
@@ -23,7 +23,7 @@
 }
 .cui .table.table--bordered > tbody > tr.active td:first-child {
   border-left: var(--cui-accent-thickness) solid var(--cui-accent-color);
-}
+} */
 
 html,
 body {

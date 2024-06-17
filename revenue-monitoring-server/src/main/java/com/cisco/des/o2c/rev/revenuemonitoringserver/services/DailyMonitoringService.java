@@ -444,7 +444,6 @@ public class DailyMonitoringService {
     }
 
     public void deleteDeals(String username, int dealId, String salesOrder){
-        System.out.println("delete sales order"+salesOrder);
         String so;
         if(salesOrder.equals("TBD")){
             so = "0";
@@ -465,13 +464,14 @@ public class DailyMonitoringService {
                     isFirstLine = false;
                     continue;
                 }
-                String[] parts = line.split(",");
-                if (parts.length == 6) {
+                String[] parts = line.split(",", -1);
+
+                if(parts.length == 6) {
                     UpdateCLOData cloData = new UpdateCLOData();
                     cloData.setProgramName(parts[0]);
                     cloData.setAccount(parts[1]);
                     cloData.setDealIds(parts[2]);
-                    if(parts[3].equals("")){
+                    if (parts[3].equals("")) {
                         cloData.setOrderNum("0");
                     } else {
                         cloData.setOrderNum(parts[3]);
@@ -485,7 +485,6 @@ public class DailyMonitoringService {
     }
 
     public void setCloBulkUpdate(UpdateCLOData input, String username) throws ParseException {
-        System.out.println("here2");
         UpdateCLOData cloData = new UpdateCLOData();
         cloData.setProgramName(input.getProgramName());
         cloData.setAccount(input.getAccount());
@@ -497,21 +496,48 @@ public class DailyMonitoringService {
         }
         cloData.setInvoiceDate(input.getInvoiceDate());
         cloData.setCloComments(input.getCloComments());
-        System.out.println(cloData.getCloComments());
-        System.out.println(cloData.getInvoiceDate());
-        System.out.println(cloData.getOrderNum());
-        System.out.println(cloData.getOrderNum().getClass());
         saveToDatabaseCLOUpdate(cloData, username);
-
     }
 
-    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username) throws ParseException {
-        System.out.println("here3");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        java.util.Date date = dateFormat.parse(cloData.getInvoiceDate());
-        Timestamp timestamp = new Timestamp(date.getTime());
-        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), timestamp, cloData.getCloComments(), username);
-        System.out.println(test);
+    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username)  {
+        Timestamp timestamp;
+        if(cloData.getInvoiceDate().isEmpty()){
+            timestamp = null;
+        } else {
+            java.util.Date date = timeStampGenerator(cloData.getInvoiceDate());
+            timestamp = new Timestamp(date.getTime());
+        }
+//        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), timestamp, cloData.getCloComments(), username);
+//        System.out.println(test);
+    }
+
+    private static final List<SimpleDateFormat> dateFormats = new ArrayList<>();
+
+    static {
+        dateFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+        dateFormats.add(new SimpleDateFormat("yyyy-MM-dd"));
+        dateFormats.add(new SimpleDateFormat("yyyy-dd-MM"));
+        dateFormats.add(new SimpleDateFormat("mm/dd/yy"));
+        dateFormats.add(new SimpleDateFormat("mm/dd/yyyy"));
+        dateFormats.add(new SimpleDateFormat("m/dd/yy"));
+        dateFormats.add(new SimpleDateFormat("mm-dd-yy"));
+        dateFormats.add(new SimpleDateFormat("mm-dd-yyyy"));
+        dateFormats.add(new SimpleDateFormat("dd/mm/yy"));
+        dateFormats.add(new SimpleDateFormat("dd/mm/yyyy"));
+        dateFormats.add(new SimpleDateFormat("dd-mm-yy"));
+        dateFormats.add(new SimpleDateFormat("dd-mm-yyyy"));
+    }
+
+    private static Date timeStampGenerator(String invoiceDate){
+
+        for (SimpleDateFormat dateFormat : dateFormats) {
+            try {
+                return dateFormat.parse(invoiceDate);
+            } catch (ParseException e) {
+                // Ignore parse exception and try the next format
+            }
+        }
+        throw new IllegalArgumentException("No valid date format found for: " + invoiceDate);
     }
 
     public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String username) throws ParseException {
