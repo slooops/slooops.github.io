@@ -12,6 +12,7 @@ import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical
 import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
 import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
+import { CmsComponent } from './cms/cms.component';
 
 const routes: Routes = [
   {
@@ -103,7 +104,15 @@ const routes: Routes = [
     component: RevenueAccrualsComponent,
     data: {
       title: 'Revenue Accruals Dashboard',
-      header: 'Revenue Accruals  Dashboard',
+      header: 'Revenue Accruals Dashboard',
+    },
+  },
+  {
+    path: 'cms',
+    component: CmsComponent,
+    data: {
+      title: 'CMS Dashboard',
+      header: 'CMS Dashboard',
     },
   },
 ];

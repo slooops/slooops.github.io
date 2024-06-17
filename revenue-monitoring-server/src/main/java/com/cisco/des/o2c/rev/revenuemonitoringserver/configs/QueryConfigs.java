@@ -131,6 +131,39 @@ public class QueryConfigs { // TODO
     @Value("${clo.comment.update.q}")
     public String cloCommentUpdate;
 
+    @Value(("${cms.unposted.summary.query}"))
+    public String cmsUnpostedSummaryQuery;
+
+    @Value(("${cms.unposted.details.query}"))
+    public String cmsUnpostedDetailsQuery;
+
+    @Value(("${cms.receipt.error.summary}"))
+    public String cmsReceiptErrorSummaryQuery;
+
+    @Value(("${cms.receipt.error.details.query}"))
+    public String cmsReceiptErrorDetailsQuery;
+
+    @Value(("${cms.job.run.status.query}"))
+    public String cmsJobRunStatusQuery;
+
+    @Value(("${cms.ctm.status.query}"))
+    public String cmsCtmStatusQuery;
+
+    @Value(("${cms.ctm.details.query}"))
+    public String cmsCtmDetailsQuery;
+
+    @Value(("${cms.boomi.status.query}"))
+    public String cmsBoomiStatusQuery;
+
+    @Value(("${cms.boomi.details.query}"))
+    public String cmsBoomiDetailsQuery;
+
+    @Value(("${cms.extract.count.query}"))
+    public String cmsExtractCountQuery;
+
+    @Value(("${cms.extract.details.query}"))
+    public String cmsExtractDetailsQuery;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -266,6 +299,39 @@ public class QueryConfigs { // TODO
     public String getInvoiceEligibleUpdate() {return this.invoiceEligibleUpdate; }
     @Bean( name = "cloCommentUpdate" )
     public String getCloCommentUpdate() {return this.cloCommentUpdate; }
+
+    @Bean( name = "cmsUnpostedSummaryQuery")
+    public String getCmsUnpostedSummaryQuery(){ return this.cmsUnpostedSummaryQuery; }
+
+    @Bean( name = "cmsUnpostedDetailsQuery")
+    public String getCmsUnpostedDetailsQuery(){ return this.cmsUnpostedDetailsQuery; }
+
+    @Bean( name = "cmsReceiptErrorSummaryQuery")
+    public String getCmsReceiptErrorSummaryQuery(){ return this.cmsReceiptErrorSummaryQuery; }
+
+    @Bean( name = "cmsReceiptErrorDetailsQuery")
+    public String getCmsReceiptErrorDetailsQuery(){ return this.cmsReceiptErrorDetailsQuery; }
+
+    @Bean( name = "cmsJobRunStatusQuery")
+    public String getCmsJobRunStatusQuery(){ return this.cmsJobRunStatusQuery; }
+
+    @Bean( name = "cmsCtmStatusQuery")
+    public String getCmsCtmStatusQuery(){ return this.cmsCtmStatusQuery; }
+
+    @Bean( name = "cmsCtmDetailsQuery")
+    public String getCmsCtmDetailsQuery(){ return this.cmsCtmDetailsQuery; }
+
+    @Bean( name = "cmsBoomiStatusQuery")
+    public String getCmsBoomiStatusQuery(){ return this.cmsBoomiStatusQuery; }
+
+    @Bean( name = "cmsBoomiDetailsQuery")
+    public String getCmsBoomiDetailsQuery(){ return this.cmsBoomiDetailsQuery; }
+
+    @Bean( name = "cmsExtractCountQuery")
+    public String getCmsExtractCountQuery(){ return this.cmsExtractCountQuery; }
+
+    @Bean( name = "cmsExtractDetailsQuery")
+    public String getCmsExtractDetailsQuery(){ return this.cmsExtractDetailsQuery; }
 
 
 }
