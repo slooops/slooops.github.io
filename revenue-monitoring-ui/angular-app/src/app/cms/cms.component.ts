@@ -78,6 +78,7 @@ export class CmsComponent implements OnInit {
     // this.unpostedSummaryLoading = true;
     this.getEndpointData('unpostedSummary').subscribe((data: any) => {
       this.unpostedSummaryData.data = data;
+      console.log('unposted summary loaded');
       // this.unpostedSummaryLoading = false;
     });
   }
@@ -86,6 +87,7 @@ export class CmsComponent implements OnInit {
     // this.receiptErrorSummaryLoading = true;
     this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
       this.receiptErrorSummaryData.data = data;
+      console.log('receipt error loaded');
       // this.receiptErrorSummaryLoading = false;
     });
   }
