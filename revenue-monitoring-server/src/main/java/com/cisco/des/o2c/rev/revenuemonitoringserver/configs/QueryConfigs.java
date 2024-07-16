@@ -164,6 +164,33 @@ public class QueryConfigs { // TODO
     @Value(("${cms.extract.details.query}"))
     public String cmsExtractDetailsQuery;
 
+    @Value(("${cms.latest.request.status.query}"))
+    public String cmsLatestRequestStatusQuery;
+
+    @Value(("${cms.collections.error.summary.query}"))
+    public String cmsCollectionsErrorSummaryQuery;
+
+    @Value(("${cms.invoice.pdf.extract.error.query}"))
+    public String cmsInvoicePdfExtractErrorQuery;
+
+    @Value(("${cms.invoice.extract.error.query}"))
+    public String cmsInvoiceExtractErrorQuery;
+
+    @Value(("${cms.customer.master.error.query}"))
+    public String cmsCustomerExtractErrorQuery;
+
+    @Value(("${cms.alternate.payer.error.query}"))
+    public String cmsAlternatePayerErrorQuery;
+
+    @Value(("${cms.sales.invoice.header.extract.error.query}"))
+    public String cmsSalesInvoiceHeaderExtractErrorQuery;
+
+    @Value(("${cms.customer.contacts.error.query}"))
+    public String cmsCustomerContactsErrorQuery;
+
+    @Value(("${cms.sales.invoice.item.extract.query}"))
+    public String cmsSalesInvoiceItemExtractErrorQuery;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -333,5 +360,31 @@ public class QueryConfigs { // TODO
     @Bean( name = "cmsExtractDetailsQuery")
     public String getCmsExtractDetailsQuery(){ return this.cmsExtractDetailsQuery; }
 
+    @Bean( name = "cmsLatestRequestStatusQuery")
+    public String getCmsLatestRequestStatusQuery(){ return this.cmsLatestRequestStatusQuery; }
+
+    @Bean( name = "cmsCollectionsErrorSummaryQuery")
+    public String getCmsCollectionsErrorSummaryQuery(){ return this.cmsCollectionsErrorSummaryQuery; }
+
+    @Bean ( name = "cmsInvoicePdfExtractErrorQuery")
+    public String getCmsInvoicePdfExtractErrorQuery(){ return this.cmsInvoicePdfExtractErrorQuery; }
+
+    @Bean( name = "cmsInvoiceExtractErrorQuery")
+    public String getCmsInvoiceExtractErrorQuery(){ return this.cmsInvoiceExtractErrorQuery; }
+
+    @Bean( name = "cmsCustomerExtractErrorQuery")
+    public String getCmsCustomerExtractErrorQuery(){ return this.cmsCustomerExtractErrorQuery; }
+
+    @Bean( name = "cmsAlternatePayerErrorQuery")
+    public String getCmsAlternatePayerErrorQuery(){ return this.cmsAlternatePayerErrorQuery; }
+
+    @Bean( name = "cmsSalesInvoiceHeaderExtractErrorQuery")
+    public String getCmsSalesInvoiceHeaderExtractErrorQuery(){ return this.cmsSalesInvoiceHeaderExtractErrorQuery; }
+
+    @Bean( name = "cmsCustomerContactsErrorQuery")
+    public String getCmsCustomerContactsErrorQuery(){ return this.cmsCustomerContactsErrorQuery; }
+
+    @Bean( name = "cmsSalesInvoiceItemExtractErrorQuery")
+    public String getCmsSalesInvoiceItemExtractErrorQuery(){ return this.cmsSalesInvoiceItemExtractErrorQuery; }
 
 }

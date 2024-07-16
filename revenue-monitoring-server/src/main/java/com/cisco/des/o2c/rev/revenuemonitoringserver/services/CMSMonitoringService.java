@@ -3,8 +3,10 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@PropertySource("classpath:server.properties")
 public class CMSMonitoringService {
 
     private String unpostedSummaryQuery;
@@ -29,12 +32,29 @@ public class CMSMonitoringService {
     private String boomiDetailsQuery;
     private String extractCountQuery;
     private String extractDetailsQuery;
+    private String latestRequestStatusQuery;
+    private String collectionsErrorSummaryQuery;
+    private String invoicePdfExtractErrQuery;
+    private String invoiceExtractErrQuery;
+    private String customerMasterErrQuery;
+    private String alternatePayerErrQuery;
+    private String salesInvoiceHeaderExtractErrQuery;
+    private String customerContactsErrQuery;
+    private String salesInvoiceItemExtractErrQuery;
+
     private String URL = "";
     private String USER = "";
     private String PASSWORD = "";
     private static final String STAGE_DB = "TS1CG1";
     private static final String PROD_DB = "CG1PRD";
     private static final String CTM_PROD = "CTM_PROD";
+
+    @Value("${database.url.cg1}")
+    public String databaseURLCG1;
+    @Value("${database.username.cg1}")
+    public String databaseUsernameCG1;
+    @Value("${database.password.cg1}")
+    public String databasePasswordCG1;
     private Logger logger = LoggerFactory.getLogger(CMSMonitoringService.class);
 
     @Autowired
@@ -46,7 +66,12 @@ public class CMSMonitoringService {
                                 String cmsReceiptErrorDetailsQuery, String cmsJobRunStatusQuery,
                                 String cmsCtmStatusQuery, String cmsCtmDetailsQuery,
                                 String cmsBoomiStatusQuery, String cmsBoomiDetailsQuery,
-                                String cmsExtractCountQuery, String cmsExtractDetailsQuery){
+                                String cmsExtractCountQuery, String cmsExtractDetailsQuery,
+                                String cmsLatestRequestStatusQuery, String cmsCollectionsErrorSummaryQuery,
+                                String cmsInvoicePdfExtractErrorQuery, String cmsInvoiceExtractErrorQuery,
+                                String cmsCustomerExtractErrorQuery, String cmsAlternatePayerErrorQuery,
+                                String cmsSalesInvoiceHeaderExtractErrorQuery, String cmsCustomerContactsErrorQuery,
+                                String cmsSalesInvoiceItemExtractErrorQuery) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.receiptErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
@@ -58,6 +83,15 @@ public class CMSMonitoringService {
         this.boomiDetailsQuery = cmsBoomiDetailsQuery;
         this.extractCountQuery = cmsExtractCountQuery;
         this.extractDetailsQuery = cmsExtractDetailsQuery;
+        this.latestRequestStatusQuery = cmsLatestRequestStatusQuery;
+        this.collectionsErrorSummaryQuery = cmsCollectionsErrorSummaryQuery;
+        this.invoicePdfExtractErrQuery = cmsInvoicePdfExtractErrorQuery;
+        this.invoiceExtractErrQuery = cmsInvoiceExtractErrorQuery;
+        this.customerMasterErrQuery = cmsCustomerExtractErrorQuery;
+        this.alternatePayerErrQuery = cmsAlternatePayerErrorQuery;
+        this.salesInvoiceHeaderExtractErrQuery = cmsSalesInvoiceHeaderExtractErrorQuery;
+        this.customerContactsErrQuery = cmsCustomerContactsErrorQuery;
+        this.salesInvoiceItemExtractErrQuery = cmsSalesInvoiceItemExtractErrorQuery;
     }
 
     @Cacheable("unpostedSummary")
@@ -175,6 +209,97 @@ public class CMSMonitoringService {
         return null;
     }
 
+    public List<Map<String, Object>> getLatestRequestStatus() {
+        try {
+            logger.info("In getLatestRequestStatus():: retrieving data");
+            return executeQuery(latestRequestStatusQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getLatestRequestStatus():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getCollectionsErrorSummary() {
+        try {
+            logger.info("In getCollectionsErrorSummary():: retrieving data");
+            return executeQuery(collectionsErrorSummaryQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getCollectionsErrorSummary():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getAlternatePayerErr() {
+        try {
+            logger.info("In getAlternatePayerErr():: retrieving data");
+            return executeQuery(alternatePayerErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getAlternatePayerErr():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getSalesInvoiceHeaderExtractErr() {
+        try {
+            logger.info("In getSalesInvoiceHeaderExtractErr():: retrieving data");
+            return executeQuery(salesInvoiceHeaderExtractErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getSalesInvoiceHeaderExtractErr():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getCustomerContactsErr() {
+        try {
+            logger.info("In getCustomerContactsErr():: retrieving data");
+            return executeQuery(customerContactsErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getCustomerContactsErr():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getSalesInvoiceItemExtractErr() {
+        try {
+            logger.info("In getSalesInvoiceItemExtractErr():: retrieving data");
+            return executeQuery(salesInvoiceItemExtractErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getSalesInvoiceItemExtractErr():: " + e);
+        }
+        return null;
+    }
+
+
+    public List<Map<String, Object>> getInvoicePdfExtractErr() {
+        try {
+            logger.info("In getInvoicePdfExtractErr():: retrieving data");
+            return executeQuery(invoicePdfExtractErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getInvoicePdfExtractErr():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getInvoiceExtractErr() {
+        try {
+            logger.info("In getInvoiceExtractErr():: retrieving data");
+            return executeQuery(invoiceExtractErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getInvoiceExtractErr():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getCustomerMasterErr() {
+        try {
+            logger.info("In getCustomerMasterErr():: retrieving data");
+            return executeQuery(customerMasterErrQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getCustomerMasterErr():: " + e);
+        }
+        return null;
+    }
+
     /*
      * The cache is cleared at every 15 minutes
      */
@@ -225,9 +350,15 @@ public class CMSMonitoringService {
             USER = "ARFINRO";
             PASSWORD = "Wf0Q9q5W";
         }else if(dbName.equalsIgnoreCase(PROD_DB)){
-            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CG1PRD,cn=OracleContext,dc=cisco,dc=com";
-            USER = "ARFINRO";
-            PASSWORD = "Sp0nge8ob";
+//            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CG1PRD,cn=OracleContext,dc=cisco,dc=com";
+//            USER = "ARFINRO";
+//            PASSWORD = "Sp0nge8ob";
+            URL = databaseURLCG1;
+            USER = databaseUsernameCG1;
+            PASSWORD = databasePasswordCG1;
+            logger.info("DB url " + URL);
+            logger.info("DB user " + USER);
+            logger.info("DB pwd " + PASSWORD);
         }else if(dbName.equalsIgnoreCase(CTM_PROD)){
             URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CTMRPRD,cn=OracleContext,dc=cisco,dc=com";
             USER = "CTMO2C";
