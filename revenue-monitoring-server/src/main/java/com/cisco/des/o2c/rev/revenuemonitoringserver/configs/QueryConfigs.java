@@ -191,6 +191,9 @@ public class QueryConfigs { // TODO
     @Value(("${cms.sales.invoice.item.extract.query}"))
     public String cmsSalesInvoiceItemExtractErrorQuery;
 
+    @Value(("${cms.interface.errors.query}"))
+    public String cmsInterfaceErrorsQuery;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -386,5 +389,8 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "cmsSalesInvoiceItemExtractErrorQuery")
     public String getCmsSalesInvoiceItemExtractErrorQuery(){ return this.cmsSalesInvoiceItemExtractErrorQuery; }
+
+    @Bean( name = "cmsInterfaceErrorsQuery")
+    public String getCmsInterfaceErrorsQuery(){ return this.cmsInterfaceErrorsQuery; }
 
 }

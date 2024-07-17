@@ -41,6 +41,7 @@ public class CMSMonitoringService {
     private String salesInvoiceHeaderExtractErrQuery;
     private String customerContactsErrQuery;
     private String salesInvoiceItemExtractErrQuery;
+    private String interfaceErrorsQuery;
 
     private String URL = "";
     private String USER = "";
@@ -71,7 +72,7 @@ public class CMSMonitoringService {
                                 String cmsInvoicePdfExtractErrorQuery, String cmsInvoiceExtractErrorQuery,
                                 String cmsCustomerExtractErrorQuery, String cmsAlternatePayerErrorQuery,
                                 String cmsSalesInvoiceHeaderExtractErrorQuery, String cmsCustomerContactsErrorQuery,
-                                String cmsSalesInvoiceItemExtractErrorQuery) {
+                                String cmsSalesInvoiceItemExtractErrorQuery, String cmsInterfaceErrorsQuery) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.receiptErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
@@ -92,6 +93,7 @@ public class CMSMonitoringService {
         this.salesInvoiceHeaderExtractErrQuery = cmsSalesInvoiceHeaderExtractErrorQuery;
         this.customerContactsErrQuery = cmsCustomerContactsErrorQuery;
         this.salesInvoiceItemExtractErrQuery = cmsSalesInvoiceItemExtractErrorQuery;
+        this.interfaceErrorsQuery = cmsInterfaceErrorsQuery;
     }
 
     @Cacheable("unpostedSummary")
@@ -296,6 +298,16 @@ public class CMSMonitoringService {
             return executeQuery(customerMasterErrQuery, "TS1CG1");
         } catch (Exception e) {
             logger.error("Exception in getCustomerMasterErr():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getInterfaceErrors() {
+        try {
+            logger.info("In getInterfaceErrors():: retrieving data");
+            return executeQuery(interfaceErrorsQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getInterfaceErrors():: " + e);
         }
         return null;
     }

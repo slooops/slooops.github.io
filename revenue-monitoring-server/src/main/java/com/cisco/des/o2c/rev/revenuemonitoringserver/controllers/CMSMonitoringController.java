@@ -36,6 +36,8 @@ public class CMSMonitoringController {
     private static final String SALES_INVOICE_HEADER_EXTRACT_ERR = "salesInvoiceHeaderExtractErr";
     private static final String CUSTOMER_CONTACTS_ERR = "customerContactsErr";
     private static final String SALES_INVOICE_ITEM_EXTRACT_ERR = "salesInvoiceItemExtractErr";
+    private static final String INTERFACE_ERRORS = "interfaceErrors";
+
 
 
 
@@ -52,33 +54,27 @@ public class CMSMonitoringController {
         }
 
         switch(query){
-//            case UNPOSTED_SUMMARY: //??
-//                return getUnpostedSummary();
-            case UNPOSTED_DETAILS:
-                return getUnpostedDetails();
+            case UNPOSTED_SUMMARY:
+                return new ResponseEntity<>(cmsMonitoringService.getUnpostedSummaryData(), HttpStatus.OK);
+//            case UNPOSTED_DETAILS:
+//                return getUnpostedDetails();
 //            case RECEIPT_ERROR_SUMMARY: //??
 //                return getReceiptErrorSummary();
-            case RECEIPT_ERROR_DETAILS:
-                return getReceiptErrorDetails();
+//            case RECEIPT_ERROR_DETAILS:
+//                return getReceiptErrorDetails();
 //            case JOB_RUN_STATUS: //??
-//                return getJobRunStatus();
+//                return new ResponseEntity<>(cmsMonitoringService.getJobRunStatus(), HttpStatus.OK);
             case CTM_STATUS:
-                //return getCtmStatus();
                 return new ResponseEntity<>(cmsMonitoringService.getCtmStatus(), HttpStatus.OK);
             case CTM_DETAILS:
-                //return getCtmDetails();
                 return new ResponseEntity<>(cmsMonitoringService.getCtmDetails(), HttpStatus.OK);
             case BOOMI_STATUS:
-                //return getBoomiStatus();
                 return new ResponseEntity<>(cmsMonitoringService.getBoomiStatus(), HttpStatus.OK);
             case BOOMI_DETAILS:
-                //return getBoomiDetails();
                 return new ResponseEntity<>(cmsMonitoringService.getBoomiDetails(), HttpStatus.OK);
             case EXTRACT_COUNT:
-                //return getExtractCount();
                 return new ResponseEntity<>(cmsMonitoringService.getExtractCount(), HttpStatus.OK);
             case EXTRACT_DETAILS:
-                //return getExtractDetails();
                 return new ResponseEntity<>(cmsMonitoringService.getExtractDetails(), HttpStatus.OK);
             case LATEST_REQUEST_STATUS:
                 return new ResponseEntity<>(cmsMonitoringService.getLatestRequestStatus(), HttpStatus.OK);
@@ -98,54 +94,45 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getCustomerContactsErr(), HttpStatus.OK);
             case SALES_INVOICE_ITEM_EXTRACT_ERR:
                 return new ResponseEntity<>(cmsMonitoringService.getSalesInvoiceItemExtractErr(), HttpStatus.OK);
+            case INTERFACE_ERRORS:
+                return new ResponseEntity<>(cmsMonitoringService.getInterfaceErrors(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;
         }
     }
 
-//    private ResponseEntity<List<Map<String, Object>>> getUnpostedSummary() {
-//        return new ResponseEntity<>(cmsMonitoringService.getUnpostedSummaryData(), HttpStatus.OK);
+//    @GetMapping("/cms/getdatawithdate")
+//    public ResponseEntity<List<Map<String, Object>>> getDataWithDate(@RequestParam("query") String query,
+//                                                                     @RequestParam("date") String date) {
+//        if(query.isEmpty() || query.isBlank() || date.isEmpty() || date.isBlank()){
+//            logger.error("Request parameter is null or empty!");
+//            return null;
+//        }
+//        System.out.println("Query: " + query + " Date: " + date );
+//
+////        switch(query){
+////
+////            case SALES_INVOICE_ITEM_EXTRACT_ERR:
+////                return new ResponseEntity<>(cmsMonitoringService.getSalesInvoiceItemExtractErr(), HttpStatus.OK);
+////            default:
+////                logger.error("Request parameter does not match with defined values!");
+////                return null;
+////        }
+//
+//        return null;
 //    }
 
-    private ResponseEntity<List<Map<String, Object>>> getUnpostedDetails() {
-        return new ResponseEntity<>(cmsMonitoringService.getUnpostedDetailsData(), HttpStatus.OK);
-    }
+//    private ResponseEntity<List<Map<String, Object>>> getUnpostedDetails() {
+//        return new ResponseEntity<>(cmsMonitoringService.getUnpostedDetailsData(), HttpStatus.OK);
+//    }
 
 //    private ResponseEntity<List<Map<String, Object>>> getReceiptErrorSummary() {
 //        return new ResponseEntity<>(cmsMonitoringService.getReceiptErrorSummaryData(), HttpStatus.OK);
 //    }
 
-    private ResponseEntity<List<Map<String, Object>>> getReceiptErrorDetails() {
-        return new ResponseEntity<>(cmsMonitoringService.getReceiptErrorDetailsData(), HttpStatus.OK);
-    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getJobRunStatus() {
-//        return new ResponseEntity<>(cmsMonitoringService.getJobRunStatus(), HttpStatus.OK);
-//    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getCtmStatus() {
-//        return new ResponseEntity<>(cmsMonitoringService.getCtmStatus(), HttpStatus.OK);
-//    }
-//
-//    private ResponseEntity<List<Map<String, Object>>> getCtmDetails() {
-//        return new ResponseEntity<>(cmsMonitoringService.getCtmDetails(), HttpStatus.OK);
-//    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getBoomiStatus() {
-//        return new ResponseEntity<>(cmsMonitoringService.getBoomiStatus(), HttpStatus.OK);
-//    }
-//
-//    private ResponseEntity<List<Map<String, Object>>> getBoomiDetails() {
-//        return new ResponseEntity<>(cmsMonitoringService.getBoomiDetails(), HttpStatus.OK);
-//    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getExtractCount() {
-//        return new ResponseEntity<>(cmsMonitoringService.getExtractCount(), HttpStatus.OK);
-//    }
-//
-//    private ResponseEntity<List<Map<String, Object>>> getExtractDetails() {
-//        return new ResponseEntity<>(cmsMonitoringService.getExtractDetails(), HttpStatus.OK);
+//    private ResponseEntity<List<Map<String, Object>>> getReceiptErrorDetails() {
+//        return new ResponseEntity<>(cmsMonitoringService.getReceiptErrorDetailsData(), HttpStatus.OK);
 //    }
 
 }
