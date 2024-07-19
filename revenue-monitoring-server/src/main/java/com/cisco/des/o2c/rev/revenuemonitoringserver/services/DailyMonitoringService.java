@@ -534,7 +534,6 @@ public class DailyMonitoringService {
             try {
                 return dateFormat.parse(invoiceDate);
             } catch (ParseException e) {
-                // Ignore parse exception and try the next format
             }
         }
         throw new IllegalArgumentException("No valid date format found for: " + invoiceDate);
@@ -542,19 +541,17 @@ public class DailyMonitoringService {
 
     public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String username) throws ParseException {
         String so;
-        System.out.println(updatedModel.get("orderID"));
         if(updatedModel.get("orderID").equals("TBD")){
             so = "0";
         } else {
-            so = updatedModel.get("orderId");
+            so = updatedModel.get("orderID");
         }
-        System.out.println(updatedModel.get("invoiceEligibleDate"));
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         java.util.Date date = dateFormat.parse(updatedModel.get("invoiceEligibleDate"));
 
         Timestamp timestamp = new Timestamp(date.getTime());
+
         int test = jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, timestamp, username);
-        System.out.println(test);
     }
 
     public void setCloCommentUpdate(Map<String, String> updatedModel, String username){
@@ -563,10 +560,8 @@ public class DailyMonitoringService {
         if(updatedModel.get("orderID").equals("TBD")){
             so = "0";
         } else {
-            so = updatedModel.get("orderId");
+            so = updatedModel.get("orderID");
         }
-        System.out.println(updatedModel.get("cloComments"));
         int test = jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, updatedModel.get("cloComments"), username);
-        System.out.println(test);
     }
 }

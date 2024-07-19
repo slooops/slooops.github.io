@@ -388,7 +388,6 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   saveCloUpdates(record: OrderLifecycleModel) {
-    console.log(record);
     this.dataSource = this.getOrderLifecycle();
     let cloMap = {
       dealId: record.DEAL_ID,
@@ -398,7 +397,6 @@ export class OrderLifecycleComponent implements OnInit {
       account: record.ACCOUNT,
       username: this.username,
     };
-    console.log(cloMap);
     this.http
       .post('update-clo-comments', cloMap, {
         responseType: 'text',
@@ -417,7 +415,6 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   saveInvoiceEligibleDate(record: OrderLifecycleModel) {
-    console.log(record);
     this.dataSource = this.getOrderLifecycle();
     let dateMap = {
       dealId: record.DEAL_ID,
@@ -427,7 +424,6 @@ export class OrderLifecycleComponent implements OnInit {
       account: record.ACCOUNT,
       username: this.username,
     };
-    console.log(dateMap);
     this.http
       .post('update-invoice-eligible-date', dateMap, {
         responseType: 'text',
