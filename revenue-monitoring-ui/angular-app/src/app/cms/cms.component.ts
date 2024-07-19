@@ -1,12 +1,5 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  AfterViewInit,
-  ChangeDetectorRef,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
-import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
@@ -50,9 +43,6 @@ export class CmsComponent implements OnInit {
     GREEN: '#12e370',
   };
 
-  @ViewChild('unpostedSummarySort') unpostedSummarySort: MatSort;
-  @ViewChild('receiptErrorSummarySort') receiptErrorSummarySort: MatSort;
-
   constructor(http: ApiHttpService) {
     this.http = http;
   }
@@ -64,14 +54,6 @@ export class CmsComponent implements OnInit {
     this.getCtmDetails();
     this.getBoomiStatus();
     this.getBoomiDetails();
-
-    this.unpostedSummaryData.sort = this.unpostedSummarySort;
-    this.receiptErrorSummaryData.sort = this.receiptErrorSummarySort;
-  }
-
-  ngAfterViewInit() {
-    this.unpostedSummaryData.sort = this.unpostedSummarySort;
-    this.receiptErrorSummaryData.sort = this.receiptErrorSummarySort;
   }
 
   getUnPostedSummary() {
