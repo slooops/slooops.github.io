@@ -7,8 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -310,6 +313,34 @@ public class CMSMonitoringService {
             logger.error("Exception in getInterfaceErrors():: " + e);
         }
         return null;
+    }
+
+    public List<Map<String, Object>> getApiStatus() {
+        HashMap<String, Object> apiResponse = new HashMap<>();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        try {
+            logger.info("In getApiStatus():: retrieving data");
+            String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/healthCheck";
+            //String uri = "https://cms-flask-dev-ext-rtp2.cisco.com/api/v1/healthCheck";
+            apiResponse.put("API Name", "CMS CAE Healthcheck");
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, null, String.class);
+
+            if( result.getStatusCode().is2xxSuccessful() ) {
+                apiResponse.put("API Status", "GREEN");
+            } else if ( result.getStatusCode().is4xxClientError() || result.getStatusCode().is5xxServerError() ) {
+                apiResponse.put("API Status", "RED");
+            } else {
+                apiResponse.put("API Status", "YELLOW");
+            }
+
+        } catch (Exception e) {
+            logger.error("Exception in getApiStatus():: " + e);
+            apiResponse.put("API Status", "RED");
+        }
+        response.add(apiResponse);
+        return response;
     }
 
     /*

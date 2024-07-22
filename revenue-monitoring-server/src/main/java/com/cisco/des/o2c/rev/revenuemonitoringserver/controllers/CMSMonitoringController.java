@@ -37,7 +37,7 @@ public class CMSMonitoringController {
     private static final String CUSTOMER_CONTACTS_ERR = "customerContactsErr";
     private static final String SALES_INVOICE_ITEM_EXTRACT_ERR = "salesInvoiceItemExtractErr";
     private static final String INTERFACE_ERRORS = "interfaceErrors";
-
+    private static final String API_STATUS = "apiStatus";
 
 
 
@@ -96,6 +96,8 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getSalesInvoiceItemExtractErr(), HttpStatus.OK);
             case INTERFACE_ERRORS:
                 return new ResponseEntity<>(cmsMonitoringService.getInterfaceErrors(), HttpStatus.OK);
+            case API_STATUS:
+                return new ResponseEntity<>(cmsMonitoringService.getApiStatus(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;
