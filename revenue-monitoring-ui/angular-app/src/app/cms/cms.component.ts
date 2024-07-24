@@ -17,6 +17,9 @@ export class CmsComponent implements OnInit {
   unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
   receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
 
+  extractCount: MatTableDataSource<any> = new MatTableDataSource([]);
+  extractDetailsData: MatTableDataSource<any> = new MatTableDataSource([]);
+
   unpostedSummaryDisplayedColumns: string[] = [
     'ORG_ID',
     'NO_OF_PAYMENTS',
@@ -28,10 +31,23 @@ export class CmsComponent implements OnInit {
     'UNAPPLIED_AMOUNT_USD',
   ];
 
+  extractDetailsDisplayedColumns: string[] = [
+    'BOOMI_STATUS',
+    'CTM_STATUS',
+    'EXTRACT_NAME',
+    'FILE_NAME',
+    'FILE_REC_COUNT',
+    'HRC_COUNT',
+    'REQUEST_ID',
+    'STG_REC_COUNT',
+    'TOTAL_ELIGIBLE_REC_COUNT',
+  ];
+
   ctmStatus: any[] = [];
   ctmDetails: any[] = [];
   boomiStatus: any[] = [];
   boomiDetails: any[] = [];
+  extractErrorCode: number;
 
   unpostedSummaryLoading = false;
   receiptErrorSummaryLoading = false;
@@ -54,6 +70,36 @@ export class CmsComponent implements OnInit {
     this.getCtmDetails();
     this.getBoomiStatus();
     this.getBoomiDetails();
+    this.getExtractCount();
+    this.getExtractDetails();
+  }
+
+  getExtractCount() {
+    this.getEndpointData('extractCount').subscribe((data: any) => {
+      if (data && data.length > 0) {
+        this.extractErrorCode = data[0].ERROR_CODE;
+      }
+      this.extractCount.data = data;
+    });
+  }
+
+  getExtractDetails() {
+    this.getEndpointData('extractDetails').subscribe((data: any) => {
+      // Map the data to only include the desired fields
+      const mappedData = data.map((item: any) => ({
+        BOOMI_STATUS: item.BOOMI_STATUS,
+        CTM_STATUS: item.CTM_STATUS,
+        EXTRACT_NAME: item.EXTRACT_NAME,
+        FILE_NAME: item.FILE_NAME,
+        FILE_REC_COUNT: item.FILE_REC_COUNT,
+        HRC_COUNT: item.HRC_COUNT,
+        REQUEST_ID: item.REQUEST_ID,
+        STG_REC_COUNT: item.STG_REC_COUNT,
+        TOTAL_ELIGIBLE_REC_COUNT: item.TOTAL_ELIGIBLE_REC_COUNT,
+      }));
+      this.extractDetailsData.data = mappedData;
+      console.log('extract details: ', this.extractDetailsData);
+    });
   }
 
   getUnPostedSummary() {
@@ -70,6 +116,8 @@ export class CmsComponent implements OnInit {
     this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
       this.receiptErrorSummaryData.data = data;
       console.log('receipt error loaded');
+      console.log(this.receiptErrorSummaryData);
+
       // this.receiptErrorSummaryLoading = false;
     });
   }
