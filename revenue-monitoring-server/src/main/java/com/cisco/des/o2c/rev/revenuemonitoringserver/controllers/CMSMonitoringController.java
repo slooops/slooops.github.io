@@ -38,6 +38,9 @@ public class CMSMonitoringController {
     private static final String SALES_INVOICE_ITEM_EXTRACT_ERR = "salesInvoiceItemExtractErr";
     private static final String INTERFACE_ERRORS = "interfaceErrors";
     private static final String API_STATUS = "apiStatus";
+    private static final String INTERFACE_ERROR_COUNT_IN_XHRS = "interfaceErrorCountInXHrs";
+    private static final String UNPOSTED_TOTAL_AMOUNT = "unpostedTotalAmount";
+    private static final String TOTAL_RECONCILIATION_ERROR = "totalReconciliationError";
 
 
 
@@ -98,6 +101,12 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getInterfaceErrors(), HttpStatus.OK);
             case API_STATUS:
                 return new ResponseEntity<>(cmsMonitoringService.getApiStatus(), HttpStatus.OK);
+            case INTERFACE_ERROR_COUNT_IN_XHRS:
+                return new ResponseEntity<>(cmsMonitoringService.getInterfaceErrorCountInXHrs(), HttpStatus.OK);
+            case UNPOSTED_TOTAL_AMOUNT:
+                return new ResponseEntity<>(cmsMonitoringService.getUnpostedTotalAmount(), HttpStatus.OK);
+            case TOTAL_RECONCILIATION_ERROR:
+                return new ResponseEntity<>(cmsMonitoringService.getTotalReconciliationError(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;

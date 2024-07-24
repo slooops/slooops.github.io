@@ -45,6 +45,9 @@ public class CMSMonitoringService {
     private String customerContactsErrQuery;
     private String salesInvoiceItemExtractErrQuery;
     private String interfaceErrorsQuery;
+    private String interfaceErrorCountInXHrsQuery;
+    private String unpostedTotalAmountQuery;
+    private String totalReconciliationErrorQuery;
 
     private String URL = "";
     private String USER = "";
@@ -75,7 +78,9 @@ public class CMSMonitoringService {
                                 String cmsInvoicePdfExtractErrorQuery, String cmsInvoiceExtractErrorQuery,
                                 String cmsCustomerExtractErrorQuery, String cmsAlternatePayerErrorQuery,
                                 String cmsSalesInvoiceHeaderExtractErrorQuery, String cmsCustomerContactsErrorQuery,
-                                String cmsSalesInvoiceItemExtractErrorQuery, String cmsInterfaceErrorsQuery) {
+                                String cmsSalesInvoiceItemExtractErrorQuery, String cmsInterfaceErrorsQuery,
+                                String cmsInterfaceErrorCountInXhrsQuery, String cmsUnpostedTotalAmountQuery,
+                                String cmsTotalReconciliationErrorQuery) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.receiptErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
@@ -97,6 +102,9 @@ public class CMSMonitoringService {
         this.customerContactsErrQuery = cmsCustomerContactsErrorQuery;
         this.salesInvoiceItemExtractErrQuery = cmsSalesInvoiceItemExtractErrorQuery;
         this.interfaceErrorsQuery = cmsInterfaceErrorsQuery;
+        this.interfaceErrorCountInXHrsQuery = cmsInterfaceErrorCountInXhrsQuery;
+        this.unpostedTotalAmountQuery = cmsUnpostedTotalAmountQuery;
+        this.totalReconciliationErrorQuery = cmsTotalReconciliationErrorQuery;
     }
 
     @Cacheable("unpostedSummary")
@@ -341,6 +349,36 @@ public class CMSMonitoringService {
         }
         response.add(apiResponse);
         return response;
+    }
+
+    public List<Map<String, Object>> getInterfaceErrorCountInXHrs() {
+        try {
+            logger.info("In getInterfaceErrorCountInXHrs():: retrieving data");
+            return executeQuery(interfaceErrorCountInXHrsQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getInterfaceErrorCountInXHrs():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getUnpostedTotalAmount() {
+        try {
+            logger.info("In getUnpostedTotalAmount():: retrieving data");
+            return executeQuery(unpostedTotalAmountQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getUnpostedTotalAmount():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getTotalReconciliationError() {
+        try {
+            logger.info("In getTotalReconciliationError():: retrieving data");
+            return executeQuery(totalReconciliationErrorQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getTotalReconciliationError():: " + e);
+        }
+        return null;
     }
 
     /*

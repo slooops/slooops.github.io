@@ -194,6 +194,15 @@ public class QueryConfigs { // TODO
     @Value(("${cms.interface.errors.query}"))
     public String cmsInterfaceErrorsQuery;
 
+    @Value(("${cms.interface.error.count.in.xhrs.query}"))
+    public String cmsInterfaceErrorCountInXhrsQuery;
+
+    @Value(("${cms.unposted.total.amount.query}"))
+    public String cmsUnpostedTotalAmountQuery;
+
+    @Value(("${cms.total.reconciliation.error.query}"))
+    public String cmsTotalReconciliationErrorQuery;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -392,5 +401,14 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "cmsInterfaceErrorsQuery")
     public String getCmsInterfaceErrorsQuery(){ return this.cmsInterfaceErrorsQuery; }
+
+    @Bean( name = "cmsInterfaceErrorCountInXhrsQuery")
+    public String getCmsInterfaceErrorCountInXhrsQuery(){ return this.cmsInterfaceErrorCountInXhrsQuery; }
+
+    @Bean( name = "cmsUnpostedTotalAmountQuery")
+    public String getCmsUnpostedTotalAmountQuery(){ return this.cmsUnpostedTotalAmountQuery; }
+
+    @Bean( name = "cmsTotalReconciliationErrorQuery")
+    public String getCmsTotalReconciliationErrorQuery(){ return this.cmsTotalReconciliationErrorQuery; }
 
 }
