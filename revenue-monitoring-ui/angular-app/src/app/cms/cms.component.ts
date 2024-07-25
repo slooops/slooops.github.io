@@ -17,14 +17,21 @@ export class CmsComponent implements OnInit {
   unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
   receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
 
-  extractCount: MatTableDataSource<any> = new MatTableDataSource([]);
+  unpostedAmount: MatTableDataSource<any> = new MatTableDataSource([]);
   extractDetailsData: MatTableDataSource<any> = new MatTableDataSource([]);
+
+  collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
+    []
+  );
+  latestRequestStatus: MatTableDataSource<any> = new MatTableDataSource([]);
+  interfaceErrors: MatTableDataSource<any> = new MatTableDataSource([]);
 
   unpostedSummaryDisplayedColumns: string[] = [
     'ORG_ID',
     'NO_OF_PAYMENTS',
     'REMITTANCE_AMOUNT_USD',
   ];
+
   receiptErrorSummaryDisplayedColumns: string[] = [
     'OPERATING_UNIT',
     'NO_OF_PAYMENTS',
@@ -43,14 +50,27 @@ export class CmsComponent implements OnInit {
     'TOTAL_ELIGIBLE_REC_COUNT',
   ];
 
+  latestRequestStatusDisplayedColumns: string[] = [
+    'EXTRACT_NAME',
+    'FILE_NAME',
+    'FILE_REC_COUNT',
+    'SOURCE_TYPE',
+    'STATUS',
+    'STG_REC_COUNT',
+    'TOTAL_ELIGIBLE_REC_COUNT',
+  ];
+
+  collectionsErrorSummaryDisplayedColumns: string[] = ['EXTRACT_TYPE', 'COUNT'];
+
+  interfaceErrorsDisplayedColumns: string[] = ['OPERATING_UNIT', 'TOTAL'];
+
   ctmStatus: any[] = [];
   ctmDetails: any[] = [];
   boomiStatus: any[] = [];
   boomiDetails: any[] = [];
-  extractErrorCode: number;
 
-  unpostedSummaryLoading = false;
-  receiptErrorSummaryLoading = false;
+  interfaceErrorCount: number;
+  extractCount: number;
 
   colorMapping: { [key: string]: string } = {
     BLUE: '#049fd9',
@@ -64,7 +84,7 @@ export class CmsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getUnPostedSummary();
+    this.getUnpostedSummary();
     this.getReceiptErrorSummary();
     this.getCtmStatus();
     this.getCtmDetails();
@@ -72,17 +92,64 @@ export class CmsComponent implements OnInit {
     this.getBoomiDetails();
     this.getExtractCount();
     this.getExtractDetails();
+    this.getUnpostedAmount();
+    this.getInterfaceErrorCount();
+    this.getCollectionsErrorSummary();
+    this.getLatestRequestStatus();
+    this.getInterfaceErrors();
+  }
+
+  //not working, returns null
+  getUnpostedAmount() {
+    this.getEndpointData('unpostedTotalAmount').subscribe((data: any) => {
+      this.unpostedAmount = data;
+      console.log('unposted amount: ', this.unpostedAmount);
+    });
+  }
+
+  //not working, returns null
+  getInterfaceErrorCount() {
+    this.getEndpointData('interfaceErrorCountInXHrs').subscribe((data: any) => {
+      this.interfaceErrorCount = data;
+      console.log('interface error count: ', this.interfaceErrorCount);
+    });
+  }
+
+  //not working, likely issue with DB
+  getInterfaceErrors() {
+    console.log('getting interface errors');
+    this.getEndpointData('interfaceErrors').subscribe((data: any) => {
+      this.interfaceErrors.data = data;
+      console.log('interface errors: ', this.interfaceErrors);
+    });
+  }
+
+  // this is for extract status apparently?
+  getCollectionsErrorSummary() {
+    this.getEndpointData('collectionsErrorSummary').subscribe((data: any) => {
+      // Rename the column 'COUNT(*)' to 'COUNT'
+      const mappedData = data.map((item: any) => ({
+        COUNT: item['COUNT(*)'],
+        EXTRACT_TYPE: item.EXTRACT_TYPE,
+      }));
+      this.collectionsErrorSummaryData.data = mappedData;
+    });
+  }
+
+  getLatestRequestStatus() {
+    this.getEndpointData('latestRequestStatus').subscribe((data: any) => {
+      this.latestRequestStatus.data = data;
+      console.log('latest request status: ', this.latestRequestStatus);
+    });
   }
 
   getExtractCount() {
     this.getEndpointData('extractCount').subscribe((data: any) => {
-      if (data && data.length > 0) {
-        this.extractErrorCode = data[0].ERROR_CODE;
-      }
-      this.extractCount.data = data;
+      this.extractCount = data[0].ERROR_CODE;
     });
   }
 
+  //not currently used, because I thought this was extract status
   getExtractDetails() {
     this.getEndpointData('extractDetails').subscribe((data: any) => {
       // Map the data to only include the desired fields
@@ -98,25 +165,22 @@ export class CmsComponent implements OnInit {
         TOTAL_ELIGIBLE_REC_COUNT: item.TOTAL_ELIGIBLE_REC_COUNT,
       }));
       this.extractDetailsData.data = mappedData;
-      console.log('extract details: ', this.extractDetailsData);
     });
   }
 
-  getUnPostedSummary() {
+  getUnpostedSummary() {
     // this.unpostedSummaryLoading = true;
     this.getEndpointData('unpostedSummary').subscribe((data: any) => {
       this.unpostedSummaryData.data = data;
-      console.log('unposted summary loaded');
       // this.unpostedSummaryLoading = false;
     });
   }
 
+  //no longer used
   getReceiptErrorSummary() {
     // this.receiptErrorSummaryLoading = true;
     this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
       this.receiptErrorSummaryData.data = data;
-      console.log('receipt error loaded');
-      console.log(this.receiptErrorSummaryData);
 
       // this.receiptErrorSummaryLoading = false;
     });
@@ -131,7 +195,6 @@ export class CmsComponent implements OnInit {
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
       this.ctmDetails = data;
-      console.log(this.ctmDetails);
     });
   }
 
@@ -144,7 +207,6 @@ export class CmsComponent implements OnInit {
   getBoomiDetails() {
     this.getEndpointData('boomiDetails').subscribe((data: any) => {
       this.boomiDetails = data;
-      console.log(this.boomiDetails);
     });
   }
 
@@ -191,7 +253,7 @@ export class CmsComponent implements OnInit {
   }
 
   refreshUnpostedSummary() {
-    this.getUnPostedSummary();
+    this.getUnpostedSummary();
   }
 
   refreshReceiptErrorSummary() {
