@@ -48,6 +48,8 @@ public class CMSMonitoringService {
     private String interfaceErrorCountInXHrsQuery;
     private String unpostedTotalAmountQuery;
     private String totalReconciliationErrorQuery;
+    private String boomiStatusHrToCg1Query;
+    private String boomiDetailsHrToCg1Query;
 
     private String URL = "";
     private String USER = "";
@@ -80,7 +82,8 @@ public class CMSMonitoringService {
                                 String cmsSalesInvoiceHeaderExtractErrorQuery, String cmsCustomerContactsErrorQuery,
                                 String cmsSalesInvoiceItemExtractErrorQuery, String cmsInterfaceErrorsQuery,
                                 String cmsInterfaceErrorCountInXhrsQuery, String cmsUnpostedTotalAmountQuery,
-                                String cmsTotalReconciliationErrorQuery) {
+                                String cmsTotalReconciliationErrorQuery, String cmsBoomiStatusHrToCg1Query,
+                                String cmsBoomiDetailsHrToCg1Query) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.receiptErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
@@ -105,6 +108,8 @@ public class CMSMonitoringService {
         this.interfaceErrorCountInXHrsQuery = cmsInterfaceErrorCountInXhrsQuery;
         this.unpostedTotalAmountQuery = cmsUnpostedTotalAmountQuery;
         this.totalReconciliationErrorQuery = cmsTotalReconciliationErrorQuery;
+        this.boomiStatusHrToCg1Query = cmsBoomiStatusHrToCg1Query;
+        this.boomiDetailsHrToCg1Query = cmsBoomiDetailsHrToCg1Query;
     }
 
     @Cacheable("unpostedSummary")
@@ -380,6 +385,27 @@ public class CMSMonitoringService {
         }
         return null;
     }
+
+    public List<Map<String, Object>> getBoomiStatusHrToCg1() {
+        try {
+            logger.info("In getBoomiStatusHrToCG1():: retrieving data");
+            return executeQuery(boomiStatusHrToCg1Query, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getBoomiStatusHrToCG1():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getBoomiDetailsHrToCg1() {
+        try {
+            logger.info("In getBoomiDetailsHrToCG1():: retrieving data");
+            return executeQuery(boomiDetailsHrToCg1Query, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getBoomiDetailsHrToCG1():: " + e);
+        }
+        return null;
+    }
+
 
     /*
      * The cache is cleared at every 15 minutes

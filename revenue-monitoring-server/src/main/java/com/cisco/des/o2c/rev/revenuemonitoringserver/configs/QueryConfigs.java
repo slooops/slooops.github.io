@@ -203,6 +203,12 @@ public class QueryConfigs { // TODO
     @Value(("${cms.total.reconciliation.error.query}"))
     public String cmsTotalReconciliationErrorQuery;
 
+    @Value(("${cms.boomi.status.hr.to.cg1.query}"))
+    public String cmsBoomiStatusHrToCg1Query;
+
+    @Value(("${cms.boomi.details.hr.to.cg1.query}"))
+    public String cmsBoomiDetailsHrToCg1Query;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -411,4 +417,9 @@ public class QueryConfigs { // TODO
     @Bean( name = "cmsTotalReconciliationErrorQuery")
     public String getCmsTotalReconciliationErrorQuery(){ return this.cmsTotalReconciliationErrorQuery; }
 
+    @Bean( name = "cmsBoomiStatusHrToCg1Query")
+    public String getCmsBoomiStatusHrToCg1Query(){ return this.cmsBoomiStatusHrToCg1Query; }
+
+    @Bean( name = "cmsBoomiDetailsHrToCg1Query")
+    public String getCmsBoomiDetailsHrToCg1Query(){ return this.cmsBoomiDetailsHrToCg1Query; }
 }

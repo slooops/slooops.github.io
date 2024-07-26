@@ -25,6 +25,8 @@ public class CMSMonitoringController {
     private static final String CTM_DETAILS = "ctmDetails";
     private static final String BOOMI_STATUS = "boomiStatus";
     private static final String BOOMI_DETAILS = "boomiDetails";
+    private static final String BOOMI_STATUS_HR_TO_CG1 = "boomiStatusFromHr";
+    private static final String BOOMI_DETAILS_HR_TO_CG1 = "boomiDetailsFromHr";
     private static final String EXTRACT_COUNT = "extractCount";
     private static final String EXTRACT_DETAILS = "extractDetails";
     private static final String LATEST_REQUEST_STATUS = "latestRequestStatus";
@@ -107,6 +109,10 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getUnpostedTotalAmount(), HttpStatus.OK);
             case TOTAL_RECONCILIATION_ERROR:
                 return new ResponseEntity<>(cmsMonitoringService.getTotalReconciliationError(), HttpStatus.OK);
+            case BOOMI_STATUS_HR_TO_CG1:
+                return new ResponseEntity<>(cmsMonitoringService.getBoomiStatusHrToCg1(), HttpStatus.OK);
+            case BOOMI_DETAILS_HR_TO_CG1:
+                return new ResponseEntity<>(cmsMonitoringService.getBoomiDetailsHrToCg1(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;
