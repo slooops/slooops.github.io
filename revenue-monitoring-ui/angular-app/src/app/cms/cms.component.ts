@@ -27,7 +27,7 @@ export class CmsComponent implements OnInit {
   interfaceErrors: MatTableDataSource<any> = new MatTableDataSource([]);
 
   unpostedSummaryDisplayedColumns: string[] = [
-    'ORG_ID',
+    'OPERATING_UNIT',
     'NO_OF_PAYMENTS',
     'REMITTANCE_AMOUNT_USD',
   ];
