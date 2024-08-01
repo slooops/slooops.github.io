@@ -85,6 +85,8 @@ import { FormatNumberPipe } from './format-number.pipe';
 import { CmsComponent } from './cms/cms.component';
 import { ToolTipRendererDirective } from './tool-tip-renderer.directive';
 import { CustomToolTipComponent } from './custom-tool-tip/custom-tool-tip.component';
+import { CmsDetailsComponent } from './cms-details/cms-details.component';
+import { CmsModalComponent } from './cms-modal/cms-modal.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -123,6 +125,8 @@ export function initApp(authService: AuthenticationService) {
     CmsComponent,
     ToolTipRendererDirective,
     CustomToolTipComponent,
+    CmsDetailsComponent,
+    CmsModalComponent,
   ],
   imports: [
     BrowserModule,
