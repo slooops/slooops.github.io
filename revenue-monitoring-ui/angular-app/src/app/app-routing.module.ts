@@ -13,6 +13,7 @@ import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.co
 import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
+import { CmsDetailsComponent } from './cms-details/cms-details.component';
 
 const routes: Routes = [
   {
@@ -110,6 +111,14 @@ const routes: Routes = [
   {
     path: 'cms',
     component: CmsComponent,
+    data: {
+      title: 'CMS Dashboard',
+      header: 'CMS Dashboard',
+    },
+  },
+  {
+    path: 'cms-details',
+    component: CmsDetailsComponent,
     data: {
       title: 'CMS Dashboard',
       header: 'CMS Dashboard',

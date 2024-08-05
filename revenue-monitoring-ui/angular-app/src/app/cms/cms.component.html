@@ -12,6 +12,21 @@
           receiptErrorSummaryData.data,
           'Receipt Error Summary Data',
           'Receipt Error Summary Data'
+        );
+        exportTableToExcel(
+          interfaceErrors.data,
+          'Interface Errors Summary Data',
+          'Interface Errors Summary Data'
+        );
+        exportTableToExcel(
+          collectionsErrorSummaryData.data,
+          'Extract Status Summary Data',
+          'Collections Error Data'
+        );
+        exportTableToExcel(
+          latestRequestStatus.data,
+          'Latest Request Status',
+          'Latest Request Status'
         )
       "
     >
@@ -21,10 +36,10 @@
   </div>
 </div>
 
-<div style="display: flex; justify-content: space-evenly">
-  <div class="flowchart-container">
+<div style="display: flex">
+  <div class="flowchart-container" style="width: 49vw">
     <div class="slider-container">
-      <div class="slider-title">Application Status</div>
+      <h4 class="slider-title">Application Status</h4>
       <div class="slider">
         <div class="slider-bar">
           <div class="top-slider-bar"></div>
@@ -72,9 +87,9 @@
             <span
               class="slider-circle circle-3 lower-circle"
               customToolTip
-              [contentTemplate]="boomiTooltip"
+              [contentTemplate]="boomiTooltipFromHr"
               [ngStyle]="{
-                'background-color': getColorCode(boomiStatus[0]?.COLOR)
+                'background-color': getColorCode(boomiStatusFromHr[0]?.STATUS)
               }"
             ></span>
             <p class="circle-caption circle-3-caption lower-caption-3">Boomi</p>
@@ -115,31 +130,27 @@
   </div>
   <div class="vertical-divider"></div>
 
-  <div class="slider-container">
+  <div class="slider-container" style="display: flex; justify-content: center">
     <div class="callout-box">
-      <div class="slider-title" style="margin-bottom: 0px">API Status</div>
+      <h4 style="font-weight: 500">API Status</h4>
       <table>
-        <thead>
+        <!-- <thead>
           <tr>
-            <th>Extract Name</th>
-            <th>Status</th>
-            <th>Last Update</th>
-            <th>Color</th>
+            <th>API Name</th>
+            <th></th>
           </tr>
-        </thead>
+        </thead> -->
         <tbody>
-          <tr *ngFor="let detail of boomiDetails">
-            <td>{{ detail.EXTRACT_NAME }}</td>
-            <td>{{ detail.STATUS }}</td>
-            <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
+          <tr *ngFor="let detail of apiStatus">
             <td>
               <span
                 class="color-circle"
                 [ngStyle]="{
-                  'background-color': getColorCode(detail.COLOR_CODE)
+                  'background-color': getColorCode(detail['API Status'])
                 }"
               ></span>
             </td>
+            <td>{{ detail["API Name"] }}</td>
           </tr>
         </tbody>
       </table>
@@ -153,21 +164,21 @@
       <tr>
         <th>Extract Name</th>
         <th>Status</th>
+        <th></th>
         <th>Last Update</th>
-        <th>Color</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let detail of ctmDetails">
-        <td>{{ detail.EXTRACT_NAME }}</td>
-        <td>{{ detail.STATUS }}</td>
-        <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
+        <td>{{ replaceUnderscore(detail.EXTRACT_NAME) }}</td>
+        <td>{{ replaceUnderscore(detail.STATUS) }}</td>
         <td>
           <span
             class="color-circle"
             [ngStyle]="{ 'background-color': getColorCode(detail.COLOR_CODE) }"
           ></span>
         </td>
+        <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
       </tr>
     </tbody>
   </table>
@@ -179,21 +190,42 @@
       <tr>
         <th>Extract Name</th>
         <th>Status</th>
+        <th></th>
         <th>Last Update</th>
-        <th>Color</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let detail of boomiDetails">
-        <td>{{ detail.EXTRACT_NAME }}</td>
-        <td>{{ detail.STATUS }}</td>
-        <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
+        <td>{{ replaceUnderscore(detail.EXTRACT_NAME) }}</td>
+        <td>{{ replaceUnderscore(detail.STATUS) }}</td>
         <td>
           <span
             class="color-circle"
             [ngStyle]="{ 'background-color': getColorCode(detail.COLOR_CODE) }"
           ></span>
         </td>
+        <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
+      </tr>
+    </tbody>
+  </table>
+</ng-template>
+
+<ng-template #boomiTooltipFromHr>
+  <table>
+    <thead>
+      <tr>
+        <th>Boomi Status</th>
+        <th>Creation Date</th>
+        <th>File Name</th>
+        <th>Process Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of boomiDetailsFromHr">
+        <td>{{ replaceUnderscore(detail.BOOMI_STATUS) }}</td>
+        <td>{{ detail.CREATION_DATE | date : "short" }}</td>
+        <td>{{ detail.FILE_NAME }}</td>
+        <td>{{ replaceUnderscore(detail.PROCESS_STATUS) }}</td>
       </tr>
     </tbody>
   </table>
@@ -205,30 +237,26 @@
 
 <div style="display: flex; flex-direction: row; flex-wrap: wrap">
   <div style="display: flex; flex-direction: column">
-    <h5 style="padding-left: 1vw">Collections</h5>
+    <h4 style="padding-left: 1vw; font-weight: 600">Collections</h4>
 
     <div class="widget-tray">
-      <a>
-        <div class="callout-box">
-          <div class="box-body">{{ extractCount }}</div>
+      <div class="callout-box">
+        <div class="box-body">{{ extractCount }}</div>
 
-          <div class="box-header">Extract Errors in the Last 7 Days</div>
-        </div>
-      </a>
-      <a>
-        <div class="callout-box">
-          <div class="box-body">2</div>
+        <div class="box-header">Extract Errors in the Last 7 Days</div>
+      </div>
 
-          <div class="box-header">Reconciliation Errors</div>
-        </div>
-      </a>
-      <a>
-        <div class="callout-box">
-          <div class="box-body">3</div>
+      <div class="callout-box">
+        <div class="box-body">2</div>
 
-          <div class="box-header">HRC App Vs Core Erorr/Mismatch</div>
-        </div>
-      </a>
+        <div class="box-header">Reconciliation Errors</div>
+      </div>
+
+      <div class="callout-box">
+        <div class="box-body">3</div>
+
+        <div class="box-header">HRC App Vs Core Erorr/Mismatch</div>
+      </div>
     </div>
 
     <div class="callout-box callout-box-table">
@@ -266,13 +294,25 @@
           <table
             mat-table
             [dataSource]="collectionsErrorSummaryData"
-            class="arclosetable styled-table"
-            style="width: 45vw; overflow-x: auto"
+            class="arclosetable"
+            style="width: 47vw; overflow-x: auto"
           >
             <!-- Extract Type Column -->
             <ng-container matColumnDef="EXTRACT_TYPE">
               <th mat-header-cell *matHeaderCellDef>Extract Type</th>
-              <td mat-cell *matCellDef="let element">
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{
+                  'clickable-row': element.COUNT > 0,
+                  'non-clickable-row': element.COUNT === 0
+                }"
+                (click)="
+                  element.COUNT > 0
+                    ? navigateToDetails(element.EXTRACT_TYPE)
+                    : null
+                "
+              >
                 {{ element.EXTRACT_TYPE }}
               </td>
             </ng-container>
@@ -280,7 +320,21 @@
             <!-- Count Column -->
             <ng-container matColumnDef="COUNT">
               <th mat-header-cell *matHeaderCellDef>Count</th>
-              <td mat-cell *matCellDef="let element">{{ element.COUNT }}</td>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{
+                  'clickable-row': element.COUNT > 0,
+                  'non-clickable-row': element.COUNT === 0
+                }"
+                (click)="
+                  element.COUNT > 0
+                    ? navigateToDetails(element.EXTRACT_TYPE)
+                    : null
+                "
+              >
+                {{ element.COUNT }}
+              </td>
             </ng-container>
 
             <!-- Header and Row Declarations -->
@@ -294,6 +348,10 @@
                 let row;
                 columns: collectionsErrorSummaryDisplayedColumns
               "
+              [ngClass]="{
+                'clickable-row': row.COUNT > 0,
+                'non-clickable-row': row.COUNT === 0
+              }"
             ></tr>
           </table>
         </ng-container>
@@ -337,6 +395,9 @@
           >
             <i class="fa fa-download"></i>
           </button>
+          <button mat-icon-button (click)="openFullTableModal()">
+            <i class="fa fa-table"></i>
+          </button>
         </div>
       </div>
       <div class="arclosetable">
@@ -345,30 +406,14 @@
           <table
             mat-table
             [dataSource]="latestRequestStatus"
-            class="arclosetable styled-table"
-            style="width: 45vw; overflow-x: auto"
+            class="arclosetable"
+            style="width: 47vw; overflow-x: auto"
           >
             <!-- Extract Name Column -->
             <ng-container matColumnDef="EXTRACT_NAME">
               <th mat-header-cell *matHeaderCellDef>Extract Name</th>
               <td mat-cell *matCellDef="let element">
-                {{ element.EXTRACT_NAME }}
-              </td>
-            </ng-container>
-
-            <!-- File Name Column -->
-            <ng-container matColumnDef="FILE_NAME">
-              <th mat-header-cell *matHeaderCellDef>File Name</th>
-              <td mat-cell *matCellDef="let element">
-                {{ element.FILE_NAME }}
-              </td>
-            </ng-container>
-
-            <!-- File Rec Count Column -->
-            <ng-container matColumnDef="FILE_REC_COUNT">
-              <th mat-header-cell *matHeaderCellDef>File Rec Count</th>
-              <td mat-cell *matCellDef="let element">
-                {{ element.FILE_REC_COUNT }}
+                {{ replaceUnderscore(element.EXTRACT_NAME) }}
               </td>
             </ng-container>
 
@@ -376,31 +421,15 @@
             <ng-container matColumnDef="SOURCE_TYPE">
               <th mat-header-cell *matHeaderCellDef>Source Type</th>
               <td mat-cell *matCellDef="let element">
-                {{ element.SOURCE_TYPE }}
+                {{ replaceUnderscore(element.SOURCE_TYPE) }}
               </td>
             </ng-container>
 
             <!-- Status Column -->
             <ng-container matColumnDef="STATUS">
               <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let element">{{ element.STATUS }}</td>
-            </ng-container>
-
-            <!-- STG Rec Count Column -->
-            <ng-container matColumnDef="STG_REC_COUNT">
-              <th mat-header-cell *matHeaderCellDef>STG Rec Count</th>
               <td mat-cell *matCellDef="let element">
-                {{ element.STG_REC_COUNT }}
-              </td>
-            </ng-container>
-
-            <!-- Total Eligible Rec Count Column -->
-            <ng-container matColumnDef="TOTAL_ELIGIBLE_REC_COUNT">
-              <th mat-header-cell *matHeaderCellDef>
-                Total Eligible Rec Count
-              </th>
-              <td mat-cell *matCellDef="let element">
-                {{ element.TOTAL_ELIGIBLE_REC_COUNT }}
+                {{ replaceUnderscore(element.STATUS) }}
               </td>
             </ng-container>
 
@@ -430,29 +459,27 @@
   <div class="vertical-divider"></div>
 
   <div style="display: flex; flex-direction: column">
-    <h5 style="padding-left: 1vw">Cash App</h5>
+    <h4 style="padding-left: 1vw; font-weight: 600">Cash App</h4>
     <div class="widget-tray">
-      <a>
-        <div class="callout-box">
-          <div class="box-body">3</div>
-
-          <div class="box-header">Interface Errors in last 48 hours</div>
+      <div class="callout-box">
+        <div class="box-body">
+          {{ interfaceErrorCount }}
         </div>
-      </a>
-      <a>
-        <div class="callout-box">
-          <div class="box-body">$1.33</div>
 
-          <div class="box-header">Unapplied Amount (Millions)</div>
-        </div>
-      </a>
-      <a>
-        <div class="callout-box">
-          <div class="box-body">$2.1</div>
+        <div class="box-header">Interface Errors in last 48 hours</div>
+      </div>
 
-          <div class="box-header">Unposted Amount (Millions)</div>
-        </div>
-      </a>
+      <!-- <div class="callout-box">
+        <div class="box-body">$1.33</div>
+
+        <div class="box-header">Unapplied Amount (Millions)</div>
+      </div> -->
+
+      <div class="callout-box">
+        <div class="box-body">{{ unpostedAmount }}</div>
+
+        <div class="box-header">Unposted Amount</div>
+      </div>
     </div>
 
     <div class="callout-box callout-box-table">
@@ -491,7 +518,7 @@
           <table
             mat-table
             [dataSource]="interfaceErrors"
-            class="arclosetable styled-table"
+            class="arclosetable"
             style="width: 45vw; overflow-x: auto"
           >
             <!-- Operating Unit Column -->
@@ -567,13 +594,15 @@
           <table
             mat-table
             [dataSource]="unpostedSummaryData"
-            class="arclosetable styled-table"
+            class="arclosetable"
             style="width: 45vw; overflow-x: auto"
           >
             <!-- Organization ID Column -->
-            <ng-container matColumnDef="ORG_ID">
-              <th mat-header-cell *matHeaderCellDef>Organization ID</th>
-              <td mat-cell *matCellDef="let element">{{ element.ORG_ID }}</td>
+            <ng-container matColumnDef="OPERATING_UNIT">
+              <th mat-header-cell *matHeaderCellDef>Operating Unit</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.OPERATING_UNIT) }}
+              </td>
             </ng-container>
 
             <!-- Number of Payments Column -->
@@ -653,7 +682,7 @@
             #receiptErrorSummary
             mat-table
             [dataSource]="receiptErrorSummaryData"
-            class="arclosetable styled-table"
+            class="arclosetable"
             style="width: 45vw"
           >
             <!-- Operating Unit Column -->

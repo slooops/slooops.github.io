@@ -1,0 +1,128 @@
+.mat-header-row {
+  background-color: #049fd9 !important;
+}
+
+.mat-header-cell {
+  color: rgb(255, 255, 255) !important;
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px !important;
+  padding: 1vh !important;
+}
+
+/* Styling for table rows */
+.mat-row:nth-child(odd) {
+  background-color: #f2f2f2 !important;
+}
+
+.mat-row:nth-child(even) {
+  background-color: #ffffff !important;
+}
+
+.mat-cell {
+  text-align: center !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 0.4vh !important;
+  border: 0px !important;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
+}
+
+td {
+  font-size: 11px;
+}
+
+th {
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px;
+  padding: 0.5vh !important ;
+}
+
+td {
+  text-align: center !important;
+  font-size: 11px;
+  padding: 0.4vh !important ;
+  border: 0px !important;
+}
+
+tr.mat-header-row {
+  height: 28px;
+}
+
+::ng-deep .mat-sort-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center !important;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  color: #ffffff; /* Change to your desired color */
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28vw;
+  min-height: 14vw;
+  width: 100%;
+  height: 100%;
+}
+
+.dialog-callout-box {
+  margin: 1vw;
+  display: flex;
+  min-width: 9vw;
+  width: fit-content;
+  min-height: 5vw;
+  flex-direction: column;
+  padding: 0.5vh 1vw;
+  gap: 8px;
+  word-wrap: break-word;
+  background-color: #f2f2f2;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px;
+  align-items: center;
+  height: fit-content;
+}
+
+::ng-deep.mat-dialog-container {
+  margin: 1vw;
+  display: flex;
+  min-width: 9vw;
+  width: fit-content;
+  min-height: 5vw;
+  flex-direction: column;
+  padding: 0.5vh 1vw;
+  gap: 8px;
+  word-wrap: break-word;
+  background-color: #f2f2f2;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px;
+  align-items: center;
+  height: fit-content;
+}
+
+.mat-dialog-content {
+  display: block;
+  margin: 0px;
+  padding: 0px;
+  max-height: 65vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mat-dialog-actions {
+  justify-content: flex-end;
+}
+
+.mat-dialog-title {
+  margin: 0;
+}
