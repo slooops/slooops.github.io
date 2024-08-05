@@ -16,20 +16,7 @@ import java.util.Map;
 @RequestMapping("/api")
 public class CMSMonitoringController {
 
-    private static final String UNPOSTED_SUMMARY = "unpostedSummary";
-    private static final String UNPOSTED_DETAILS = "unpostedDetails";
-    private static final String RECEIPT_ERROR_SUMMARY = "receiptErrorSummary";
-    private static final String RECEIPT_ERROR_DETAILS = "receiptErrorDetails";
-    private static final String JOB_RUN_STATUS = "jobRunStatus";
-    private static final String CTM_STATUS = "ctmStatus";
-    private static final String CTM_DETAILS = "ctmDetails";
-    private static final String BOOMI_STATUS = "boomiStatus";
-    private static final String BOOMI_DETAILS = "boomiDetails";
-    private static final String BOOMI_STATUS_HR_TO_CG1 = "boomiStatusFromHr";
-    private static final String BOOMI_DETAILS_HR_TO_CG1 = "boomiDetailsFromHr";
-    private static final String EXTRACT_COUNT = "extractCount";
-    private static final String EXTRACT_DETAILS = "extractDetails";
-    private static final String LATEST_REQUEST_STATUS = "latestRequestStatus";
+    //Collections Table Data - Extract Status
     private static final String COLLECTIONS_ERROR_SUMMARY = "collectionsErrorSummary";
     private static final String INVOICE_PDF_EXTRACT_ERR = "invoicePdfExtractErr";
     private static final String INVOICE_EXTRACT_ERR = "invoiceExtractErr";
@@ -38,13 +25,59 @@ public class CMSMonitoringController {
     private static final String SALES_INVOICE_HEADER_EXTRACT_ERR = "salesInvoiceHeaderExtractErr";
     private static final String CUSTOMER_CONTACTS_ERR = "customerContactsErr";
     private static final String SALES_INVOICE_ITEM_EXTRACT_ERR = "salesInvoiceItemExtractErr";
+
+    //Collections Table Data - Latest request status
+    private static final String LATEST_REQUEST_STATUS = "latestRequestStatus";
+
+    //CashApps Table Data - Interface error in last X hours
     private static final String INTERFACE_ERRORS = "interfaceErrors";
-    private static final String API_STATUS = "apiStatus";
-    private static final String INTERFACE_ERROR_COUNT_IN_XHRS = "interfaceErrorCountInXHrs";
-    private static final String UNPOSTED_TOTAL_AMOUNT = "unpostedTotalAmount";
+
+    //CashApps Table Data - Unposted Amount
+    private static final String UNPOSTED_SUMMARY = "unpostedSummary";
+    private static final String UNPOSTED_DETAILS = "unpostedDetails";
+
+    //CashApps Table Data - Unapplied errors
+    private static final String UNAPPLIED_ERROR_SUMMARY = "unappliedErrorSummary";
+    private static final String UNAPPLIED_ERROR_DETAILS = "unappliedErrorDetails";
+
+    //Collections Widgets Data - Extract Errors in last X days
+    private static final String EXTRACT_COUNT = "extractCount";
+    private static final String EXTRACT_DETAILS = "extractDetails";
+
+    //Collections Widgets Data - Reconcilliation Errors
     private static final String TOTAL_RECONCILIATION_ERROR = "totalReconciliationError";
 
+    //Collections Widgets Data - HRC App vs Core Error/mismatch
+    //TODO
 
+    //Cash App Widgets Data - Interface Errors in last X hours
+    private static final String INTERFACE_ERROR_COUNT_IN_XHRS = "interfaceErrorCountInXHrs";
+
+    //Cash App Widgets Data - Unapplied Amount
+    //TODO
+
+    //Cash App Widgets Data - Unposted Amount
+    private static final String UNPOSTED_TOTAL_AMOUNT = "unpostedTotalAmount";
+
+    //Application Status - Top Section
+    private static final String CTM_STATUS = "ctmStatus";
+    private static final String CTM_DETAILS = "ctmDetails";
+    private static final String BOOMI_STATUS = "boomiStatus";
+    private static final String BOOMI_DETAILS = "boomiDetails";
+
+    //Application Status - Bottom Section
+    private static final String BOOMI_STATUS_HR_TO_CG1 = "boomiStatusFromHr";
+    private static final String BOOMI_DETAILS_HR_TO_CG1 = "boomiDetailsFromHr";
+
+    //TODO
+    //ctm details  for bottom section
+    //ctm status  for bottom section
+
+    //API Status
+    private static final String API_STATUS = "apiStatus";
+
+    //ToCheck
+    private static final String JOB_RUN_STATUS = "jobRunStatus";
 
     private Logger logger = LoggerFactory.getLogger(CMSMonitoringController.class);
 
@@ -63,8 +96,8 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getUnpostedSummaryData(), HttpStatus.OK);
 //            case UNPOSTED_DETAILS:
 //                return getUnpostedDetails();
-//            case RECEIPT_ERROR_SUMMARY: //??
-//                return getReceiptErrorSummary();
+            case UNAPPLIED_ERROR_SUMMARY:
+                return new ResponseEntity<>(cmsMonitoringService.getUnappliedErrorSummaryData(), HttpStatus.OK);
 //            case RECEIPT_ERROR_DETAILS:
 //                return getReceiptErrorDetails();
 //            case JOB_RUN_STATUS: //??

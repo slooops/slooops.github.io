@@ -26,7 +26,7 @@ public class CMSMonitoringService {
 
     private String unpostedSummaryQuery;
     private String unpostedDetailsQuery;
-    private String receiptErrorSummaryQuery;
+    private String unappliedErrorSummaryQuery;
     private String receiptErrorDetailsQuery;
     private String jobRunStatusQuery;
     private String ctmStatusQuery;
@@ -86,7 +86,7 @@ public class CMSMonitoringService {
                                 String cmsBoomiDetailsHrToCg1Query) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
-        this.receiptErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
+        this.unappliedErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
         this.receiptErrorDetailsQuery = cmsReceiptErrorDetailsQuery;
         this.jobRunStatusQuery = cmsJobRunStatusQuery;
         this.ctmStatusQuery = cmsCtmStatusQuery;
@@ -134,13 +134,13 @@ public class CMSMonitoringService {
         return null;
     }
 
-    @Cacheable("receiptErrorSummary")
-    public List<Map<String, Object>> getReceiptErrorSummaryData() {
+    @Cacheable("unappliedErrorSummary")
+    public List<Map<String, Object>> getUnappliedErrorSummaryData() {
         try {
-            logger.info("In getReceiptErrorSummaryData():: retrieving data");
-            return executeQuery(receiptErrorSummaryQuery, "TS1CG1");
+            logger.info("In getUnappliedErrorSummaryData():: retrieving data");
+            return executeQuery(unappliedErrorSummaryQuery, "TS1CG1");
         } catch (Exception e) {
-            logger.error("Exception in getReceiptErrorSummaryData():: " + e);
+            logger.error("Exception in getUnappliedErrorSummaryData():: " + e);
         }
         return null;
     }
@@ -227,6 +227,7 @@ public class CMSMonitoringService {
         return null;
     }
 
+    @Cacheable("latestRequestStatus")
     public List<Map<String, Object>> getLatestRequestStatus() {
         try {
             logger.info("In getLatestRequestStatus():: retrieving data");
@@ -237,6 +238,7 @@ public class CMSMonitoringService {
         return null;
     }
 
+    @Cacheable("extractStatus")
     public List<Map<String, Object>> getCollectionsErrorSummary() {
         try {
             logger.info("In getCollectionsErrorSummary():: retrieving data");
@@ -318,6 +320,7 @@ public class CMSMonitoringService {
         return null;
     }
 
+    @Cacheable("interfaceErrors")
     public List<Map<String, Object>> getInterfaceErrors() {
         try {
             logger.info("In getInterfaceErrors():: retrieving data");
