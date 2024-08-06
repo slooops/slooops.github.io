@@ -50,6 +50,7 @@ public class CMSMonitoringService {
     private String totalReconciliationErrorQuery;
     private String boomiStatusHrToCg1Query;
     private String boomiDetailsHrToCg1Query;
+    private String totalUnappliedAmountQuery;
 
     private String URL = "";
     private String USER = "";
@@ -83,7 +84,7 @@ public class CMSMonitoringService {
                                 String cmsSalesInvoiceItemExtractErrorQuery, String cmsInterfaceErrorsQuery,
                                 String cmsInterfaceErrorCountInXhrsQuery, String cmsUnpostedTotalAmountQuery,
                                 String cmsTotalReconciliationErrorQuery, String cmsBoomiStatusHrToCg1Query,
-                                String cmsBoomiDetailsHrToCg1Query) {
+                                String cmsBoomiDetailsHrToCg1Query, String cmsTotalUnappliedAmountQuery) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.unappliedErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
@@ -110,6 +111,7 @@ public class CMSMonitoringService {
         this.totalReconciliationErrorQuery = cmsTotalReconciliationErrorQuery;
         this.boomiStatusHrToCg1Query = cmsBoomiStatusHrToCg1Query;
         this.boomiDetailsHrToCg1Query = cmsBoomiDetailsHrToCg1Query;
+        this.totalUnappliedAmountQuery = cmsTotalUnappliedAmountQuery;
     }
 
     @Cacheable("unpostedSummary")
@@ -375,6 +377,16 @@ public class CMSMonitoringService {
             return executeQuery(unpostedTotalAmountQuery, "TS1CG1");
         } catch (Exception e) {
             logger.error("Exception in getUnpostedTotalAmount():: " + e);
+        }
+        return null;
+    }
+
+    public List<Map<String, Object>> getTotalUnappliedAmount() {
+        try {
+            logger.info("In getTotalUnappliedAmount():: retrieving data");
+            return executeQuery(totalUnappliedAmountQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getTotalUnappliedAmount():: " + e);
         }
         return null;
     }

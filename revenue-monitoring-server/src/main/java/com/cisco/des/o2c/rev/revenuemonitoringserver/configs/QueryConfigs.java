@@ -209,6 +209,9 @@ public class QueryConfigs { // TODO
     @Value(("${cms.boomi.details.hr.to.cg1.query}"))
     public String cmsBoomiDetailsHrToCg1Query;
 
+    @Value(("${cms.total.unapplied.amount.query}"))
+    public String cmsTotalUnappliedAmountQuery;
+
     @Bean( name = "stdArExcQuery" )
     public String getStdArExcQuery() { return this.stdArExcQuery; }
 
@@ -422,4 +425,8 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "cmsBoomiDetailsHrToCg1Query")
     public String getCmsBoomiDetailsHrToCg1Query(){ return this.cmsBoomiDetailsHrToCg1Query; }
+
+    @Bean( name = "cmsTotalUnappliedAmountQuery")
+    public String getCmsTotalUnappliedAmountQuery(){ return this.cmsTotalUnappliedAmountQuery; }
+
 }

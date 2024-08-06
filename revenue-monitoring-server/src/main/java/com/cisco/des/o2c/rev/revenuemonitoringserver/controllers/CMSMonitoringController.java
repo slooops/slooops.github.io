@@ -54,7 +54,7 @@ public class CMSMonitoringController {
     private static final String INTERFACE_ERROR_COUNT_IN_XHRS = "interfaceErrorCountInXHrs";
 
     //Cash App Widgets Data - Unapplied Amount
-    //TODO
+    private static final String TOTAL_UNAPPLIED_AMOUNT = "totalUnappliedAmount";
 
     //Cash App Widgets Data - Unposted Amount
     private static final String UNPOSTED_TOTAL_AMOUNT = "unpostedTotalAmount";
@@ -146,6 +146,8 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getBoomiStatusHrToCg1(), HttpStatus.OK);
             case BOOMI_DETAILS_HR_TO_CG1:
                 return new ResponseEntity<>(cmsMonitoringService.getBoomiDetailsHrToCg1(), HttpStatus.OK);
+            case TOTAL_UNAPPLIED_AMOUNT:
+                return new ResponseEntity<>(cmsMonitoringService.getTotalUnappliedAmount(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;
