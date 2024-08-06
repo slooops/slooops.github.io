@@ -20,12 +20,11 @@
 </div>
 
 <mat-dialog-content>
-  <div class="arclosetable">
+  <div>
     <ng-container *ngIf="data?.length">
       <table
         mat-table
         [dataSource]="data"
-        class="arclosetable"
         style="width: 100%; overflow-x: auto"
       >
         <ng-container matColumnDef="EXTRACT_NAME">

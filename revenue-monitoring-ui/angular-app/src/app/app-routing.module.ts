@@ -14,6 +14,7 @@ import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
 import { CmsDetailsComponent } from './cms-details/cms-details.component';
+import { RolComponent } from './rol/rol.component';
 
 const routes: Routes = [
   {
@@ -122,6 +123,14 @@ const routes: Routes = [
     data: {
       title: 'CMS Dashboard',
       header: 'CMS Dashboard',
+    },
+  },
+  {
+    path: 'rol',
+    component: RolComponent,
+    data: {
+      title: 'ROL SBP Dashboard',
+      header: 'ROL SBP Dashboard',
     },
   },
 ];

@@ -20,16 +20,14 @@ export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
 
-  unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
-  receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
-
-  extractDetailsData: MatTableDataSource<any> = new MatTableDataSource([]);
-
   collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
     []
   );
   latestRequestStatus: MatTableDataSource<any> = new MatTableDataSource([]);
+
   interfaceErrors: MatTableDataSource<any> = new MatTableDataSource([]);
+  unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
+  receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
 
   unpostedSummaryDisplayedColumns: string[] = [
     'OPERATING_UNIT',
@@ -38,9 +36,11 @@ export class CmsComponent implements OnInit {
   ];
 
   receiptErrorSummaryDisplayedColumns: string[] = [
-    'OPERATING_UNIT',
-    'NO_OF_PAYMENTS',
-    'UNAPPLIED_AMOUNT_USD',
+    'ORG_ID',
+    'BAI2_FILE_NAME',
+    'DEPOSIT_DATE',
+    'RECEIPT_DATE',
+    'RECEIPT_AMOUNT',
   ];
 
   extractDetailsDisplayedColumns: string[] = [
@@ -80,6 +80,7 @@ export class CmsComponent implements OnInit {
   interfaceErrorCount: number;
   extractCount: number;
   unpostedAmount: string | null = null;
+  unappliedAmount: string | null = null;
 
   colorMapping: { [key: string]: string } = {
     BLUE: '#049fd9',
@@ -98,13 +99,11 @@ export class CmsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUnpostedSummary();
-    this.getReceiptErrorSummary();
     this.getCtmStatus();
     this.getCtmDetails();
     this.getBoomiStatus();
     this.getBoomiDetails();
     this.getExtractCount();
-    this.getExtractDetails();
     this.getUnpostedAmount();
     this.getInterfaceErrorCount();
     this.getCollectionsErrorSummary();
@@ -113,34 +112,19 @@ export class CmsComponent implements OnInit {
     this.getApiStatus();
     this.getBoomiStatusFromHr();
     this.getBoomiDetailsFromHr();
+    this.getUnappliedErrorSummary();
+    this.getTotalUnappliedAmount();
   }
 
-  getApiStatus() {
-    this.getEndpointData('apiStatus').subscribe((data: any) => {
-      this.apiStatus = data;
+  // collections widgets
+  getExtractCount() {
+    this.getEndpointData('extractCount').subscribe((data: any) => {
+      this.extractCount = data[0].ERROR_CODE;
     });
   }
 
-  getUnpostedAmount() {
-    this.getEndpointData('unpostedTotalAmount').subscribe((data: any) => {
-      const amount = data[0]?.TOTAL_UNPOSTED_AMOUNT;
-      this.unpostedAmount = amount ? this.formatAmount(amount) : null;
-    });
-  }
-
-  getInterfaceErrorCount() {
-    this.getEndpointData('interfaceErrorCountInXHrs').subscribe((data: any) => {
-      this.interfaceErrorCount = data[0]?.INTERFACE_ERROR_COUNT;
-    });
-  }
-
-  getInterfaceErrors() {
-    this.getEndpointData('interfaceErrors').subscribe((data: any) => {
-      this.interfaceErrors.data = data;
-    });
-  }
-
-  // this is for extract status apparently?
+  // collections tables
+  // this is extract status apparently?
   getCollectionsErrorSummary() {
     this.getEndpointData('collectionsErrorSummary').subscribe((data: any) => {
       // Rename the column 'COUNT(*)' to 'COUNT'
@@ -155,32 +139,35 @@ export class CmsComponent implements OnInit {
   getLatestRequestStatus() {
     this.getEndpointData('latestRequestStatus').subscribe((data: any) => {
       this.latestRequestStatus.data = data;
-      console.log('latest request status: ', this.latestRequestStatus);
     });
   }
 
-  getExtractCount() {
-    this.getEndpointData('extractCount').subscribe((data: any) => {
-      this.extractCount = data[0].ERROR_CODE;
+  //cash app widgets
+  getInterfaceErrorCount() {
+    this.getEndpointData('interfaceErrorCountInXHrs').subscribe((data: any) => {
+      this.interfaceErrorCount = data[0]?.INTERFACE_ERROR_COUNT;
     });
   }
 
-  //not currently used, because I thought this was extract status
-  getExtractDetails() {
-    this.getEndpointData('extractDetails').subscribe((data: any) => {
-      // Map the data to only include the desired fields
-      const mappedData = data.map((item: any) => ({
-        BOOMI_STATUS: item.BOOMI_STATUS,
-        CTM_STATUS: item.CTM_STATUS,
-        EXTRACT_NAME: item.EXTRACT_NAME,
-        FILE_NAME: item.FILE_NAME,
-        FILE_REC_COUNT: item.FILE_REC_COUNT,
-        HRC_COUNT: item.HRC_COUNT,
-        REQUEST_ID: item.REQUEST_ID,
-        STG_REC_COUNT: item.STG_REC_COUNT,
-        TOTAL_ELIGIBLE_REC_COUNT: item.TOTAL_ELIGIBLE_REC_COUNT,
-      }));
-      this.extractDetailsData.data = mappedData;
+  getTotalUnappliedAmount() {
+    this.getEndpointData('totalUnappliedAmount').subscribe((data: any) => {
+      console.log(data);
+      // const amount = data[0]?.TOTAL_UNAPPLIED_AMOUNT;
+      // this.unappliedAmount = amount ? this.formatAmount(amount) : null;
+    });
+  }
+
+  getUnpostedAmount() {
+    this.getEndpointData('unpostedTotalAmount').subscribe((data: any) => {
+      const amount = data[0]?.TOTAL_UNPOSTED_AMOUNT;
+      this.unpostedAmount = amount ? this.formatAmount(amount) : null;
+    });
+  }
+
+  //cash app tables
+  getInterfaceErrors() {
+    this.getEndpointData('interfaceErrors').subscribe((data: any) => {
+      this.interfaceErrors.data = data;
     });
   }
 
@@ -188,17 +175,19 @@ export class CmsComponent implements OnInit {
     // this.unpostedSummaryLoading = true;
     this.getEndpointData('unpostedSummary').subscribe((data: any) => {
       this.unpostedSummaryData.data = data;
-      // this.unpostedSummaryLoading = false;
     });
   }
 
-  //no longer used
-  getReceiptErrorSummary() {
-    // this.receiptErrorSummaryLoading = true;
-    this.getEndpointData('receiptErrorSummary').subscribe((data: any) => {
+  getUnappliedErrorSummary() {
+    this.getEndpointData('unappliedErrorSummary').subscribe((data: any) => {
       this.receiptErrorSummaryData.data = data;
+    });
+  }
 
-      // this.receiptErrorSummaryLoading = false;
+  // top bar app status and api status
+  getApiStatus() {
+    this.getEndpointData('apiStatus').subscribe((data: any) => {
+      this.apiStatus = data;
     });
   }
 
@@ -237,6 +226,7 @@ export class CmsComponent implements OnInit {
       this.boomiDetailsFromHr = data;
     });
   }
+
   getColorCode(colorName: string): string {
     return this.colorMapping[colorName] || '#6993a2a1'; // Default to offline color if not found
   }
@@ -258,7 +248,6 @@ export class CmsComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    console.log(data);
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
@@ -317,13 +306,5 @@ export class CmsComponent implements OnInit {
 
   navigateToDetails(extractType: string): void {
     this.router.navigate(['/cms-details'], { queryParams: { extractType } });
-  }
-
-  refreshUnpostedSummary() {
-    this.getUnpostedSummary();
-  }
-
-  refreshReceiptErrorSummary() {
-    this.getReceiptErrorSummary();
   }
 }
