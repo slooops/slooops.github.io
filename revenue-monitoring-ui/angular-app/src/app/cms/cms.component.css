@@ -5,8 +5,7 @@ a {
 .callout-box {
   margin: 1vw;
   display: flex;
-  min-width: 9vw;
-  width: fit-content;
+  width: 14vw;
   min-height: 5vw;
   flex-direction: column;
   padding: 0.5vh 1vw;
@@ -21,6 +20,8 @@ a {
 }
 
 .callout-box.callout-box-table {
+  width: fit-content;
+
   padding: 0.5vh 0vw;
   /* width: 47vw; */
 }
@@ -180,7 +181,7 @@ tr.mat-header-row {
   top: -70px;
   left: 97px;
   height: 10px;
-  background: linear-gradient(to right, #16371e43, #16371e21);
+  background: linear-gradient(to right, #16371e43, #16371e10);
   position: relative;
   margin: 0 10px;
   width: 180px;
@@ -283,7 +284,7 @@ tr.mat-header-row {
   height: 94px; /* Adjust as needed */
   border: 10px solid transparent; /* Border width to match bar thickness */
   border-top-color: #16371e43; /* Color of the curve */
-  border-right-color: #16371e21; /* Color of the curve */
+  border-right-color: #16371e10; /* Color of the curve */
   border-radius: 50%; /* Make it a quarter circle */
   transform: rotate(45deg); /* Rotate to make it fit */
   z-index: -1;
@@ -322,7 +323,7 @@ tr.mat-header-row {
   top: 0px;
   border-width: 5px 0 5px 5px;
   left: 197px; /* Adjust to position correctly */
-  border-color: transparent transparent transparent #c8c8c8;
+  border-color: transparent transparent transparent #cdcdcd;
 }
 
 .lc-3 {
@@ -338,7 +339,7 @@ tr.mat-header-row {
 .lc-3 {
   top: 84px; /* Adjust to position correctly */
 
-  border-color: transparent #d6d6d6 transparent transparent;
+  border-color: transparent #e3e3e3 transparent transparent;
 }
 
 .top-right {
@@ -347,21 +348,40 @@ tr.mat-header-row {
   right: 1.25vh;
 }
 
-.export-button {
-  background-color: #ffffff00;
-  color: rgb(0, 0, 0);
-  padding: 0.625vh 1.25vh; /* 10px / 16 * 1vh, 20px / 16 * 1vh */
-  text-align: center;
-  text-decoration: none;
+.hover-container {
+  position: relative;
   display: inline-block;
-  font-size: 13px;
-  margin: 0.25vh 0.125vh;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 6px;
 }
 
-.export-button .fa {
-  margin-right: 0.5vh;
+.hover-container .hover-table {
+  display: none;
+  position: absolute;
+  background-color: #f2f2f2;
+  min-width: 160px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px;
+  padding: 12px 16px;
+  z-index: 1;
+}
+
+.hover-container:hover .hover-table {
+  display: block;
+  top: 40px; /* Adjust this to control the vertical positioning */
+  left: 0; /* Adjust this to control the horizontal positioning */
+}
+
+.export-button {
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.export-button i {
+  margin-right: 8px;
 }
 
 .custom-tooltip {
@@ -412,9 +432,9 @@ tr.mat-header-row {
 .vertical-divider {
   width: 1px;
   background-color: #e0e0e0; /* Adjust the color as needed */
-  min-height: 10vh; /* Adjust the height as needed */
+  min-height: fit-content; /* Adjust the height as needed */
   height: auto;
-  margin: 1vw 1rem; /* Adjust the margin to add space around the divider */
+  margin: 0.5vw; /* Adjust the margin to add space around the divider */
 }
 
 .widget-tray {

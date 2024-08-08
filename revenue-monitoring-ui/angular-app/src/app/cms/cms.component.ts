@@ -29,6 +29,28 @@ export class CmsComponent implements OnInit {
   unpostedSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
   receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
 
+  apiStatus: any[] = [];
+  ctmStatus: any[] = [];
+  ctmDetails: any[] = [];
+  boomiStatus: any[] = [];
+  boomiDetails: any[] = [];
+  boomiStatusFromHr: any[] = [];
+  boomiDetailsFromHr: any[] = [];
+
+  extractCount: number;
+  totalReconciliationError: number;
+
+  interfaceErrorCount: number;
+  unpostedAmount: string | null = null;
+  unappliedAmount: string | null = null;
+
+  colorMapping: { [key: string]: string } = {
+    BLUE: '#049fd9',
+    RED: '#ef2828',
+    YELLOW: '#efc920',
+    GREEN: '#12e370',
+  };
+
   unpostedSummaryDisplayedColumns: string[] = [
     'OPERATING_UNIT',
     'NO_OF_PAYMENTS',
@@ -69,26 +91,6 @@ export class CmsComponent implements OnInit {
 
   interfaceErrorsDisplayedColumns: string[] = ['OPERATING_UNIT', 'TOTAL'];
 
-  apiStatus: any[] = [];
-  ctmStatus: any[] = [];
-  ctmDetails: any[] = [];
-  boomiStatus: any[] = [];
-  boomiDetails: any[] = [];
-  boomiStatusFromHr: any[] = [];
-  boomiDetailsFromHr: any[] = [];
-
-  interfaceErrorCount: number;
-  extractCount: number;
-  unpostedAmount: string | null = null;
-  unappliedAmount: string | null = null;
-
-  colorMapping: { [key: string]: string } = {
-    BLUE: '#049fd9',
-    RED: '#ef2828',
-    YELLOW: '#efc920',
-    GREEN: '#12e370',
-  };
-
   constructor(
     http: ApiHttpService,
     private router: Router,
@@ -114,12 +116,20 @@ export class CmsComponent implements OnInit {
     this.getBoomiDetailsFromHr();
     this.getUnappliedErrorSummary();
     this.getTotalUnappliedAmount();
+    this.getTotalReconciliationError();
   }
 
   // collections widgets
   getExtractCount() {
     this.getEndpointData('extractCount').subscribe((data: any) => {
       this.extractCount = data[0].ERROR_CODE;
+    });
+  }
+
+  getTotalReconciliationError() {
+    this.getEndpointData('totalReconciliationError').subscribe((data: any) => {
+      this.totalReconciliationError = data[0].TOTAL_RECONCILIATION_ERROR;
+      console.log(this.totalReconciliationError);
     });
   }
 
@@ -154,6 +164,7 @@ export class CmsComponent implements OnInit {
       console.log(data);
       // const amount = data[0]?.TOTAL_UNAPPLIED_AMOUNT;
       // this.unappliedAmount = amount ? this.formatAmount(amount) : null;
+      this.unappliedAmount = data;
     });
   }
 
@@ -298,10 +309,8 @@ export class CmsComponent implements OnInit {
   }
 
   formatAmount(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
+    const millions = amount / 1_000_000;
+    return millions.toLocaleString('en-US', { maximumFractionDigits: 0 });
   }
 
   navigateToDetails(extractType: string): void {

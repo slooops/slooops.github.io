@@ -1,43 +1,85 @@
 <div class="top-right">
-  <div>
-    <button
-      class="export-button"
-      (click)="
-        exportTableToExcel(
-          unpostedSummaryData.data,
-          'Unposted Summary Data',
-          'Unposted Summary Data'
-        );
-        exportTableToExcel(
-          receiptErrorSummaryData.data,
-          'Unapplied Errors: Receipt Error Summary Data',
-          'Receipt Error Summary Data'
-        );
-        exportTableToExcel(
-          interfaceErrors.data,
-          'Interface Errors Summary Data',
-          'Interface Errors Summary Data'
-        );
-        exportTableToExcel(
-          collectionsErrorSummaryData.data,
-          'Extract Status Summary Data',
-          'Collections Error Data'
-        );
-        exportTableToExcel(
-          latestRequestStatus.data,
-          'Latest Request Status',
-          'Latest Request Status'
-        )
-      "
-    >
-      <i class="fa fa-download"></i>
-      Export
-    </button>
-  </div>
+  <button
+    class="export-button"
+    (click)="
+      exportTableToExcel(
+        unpostedSummaryData.data,
+        'Unposted Summary Data',
+        'Unposted Summary Data'
+      );
+      exportTableToExcel(
+        receiptErrorSummaryData.data,
+        'Unapplied Errors: Receipt Error Summary Data',
+        'Receipt Error Summary Data'
+      );
+      exportTableToExcel(
+        interfaceErrors.data,
+        'Interface Errors Summary Data',
+        'Interface Errors Summary Data'
+      );
+      exportTableToExcel(
+        collectionsErrorSummaryData.data,
+        'Extract Status Summary Data',
+        'Collections Error Data'
+      );
+      exportTableToExcel(
+        latestRequestStatus.data,
+        'Latest Request Status',
+        'Latest Request Status'
+      )
+    "
+  >
+    <i class="fa fa-download"></i>
+    Export
+  </button>
 </div>
 
 <div style="display: flex">
-  <div class="flowchart-container" style="width: 49vw">
+  <div class="flowchart-container" style="width: 25vw">
+    <h4 class="slider-title" style="margin-bottom: -20px">CG1 ➡ High Radius</h4>
+    <div class="slider">
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th>Extract</th>
+            <th>Timing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Customer Master</td>
+            <td>0030, 0630, 1230, 1830 PST</td>
+          </tr>
+          <tr>
+            <td>Customer Contacts</td>
+            <td>0030, 0630, 1230, 1830 PST</td>
+          </tr>
+          <tr>
+            <td>Customer Relationships</td>
+            <td>0030, 0630, 1230, 1830 PST</td>
+          </tr>
+          <tr>
+            <td>US Open AR/ Closed AR</td>
+            <td>20:00 PST (Except Saturday)</td>
+          </tr>
+          <tr>
+            <td>US / SIH/SIL/ Invoice PDF/ Payments Adj</td>
+            <td>20:00 PST (Except Saturday)</td>
+          </tr>
+          <tr>
+            <td>ROW Open AR/ Closed AR</td>
+            <td>07:00 PST (Except Saturday)</td>
+          </tr>
+          <tr>
+            <td>ROW SIH/SIL/ Invoice PDF/ Payments Adj</td>
+            <td>07:00 PST (Except Saturday)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="flowchart-container" style="width: 30vw">
     <div class="slider-container">
       <h4 class="slider-title">Application Status</h4>
       <div class="slider">
@@ -128,20 +170,105 @@
       </div>
     </div>
   </div>
+
+  <div class="flowchart-container" style="width: 20vw">
+    <h4 class="slider-title" style="margin-bottom: -20px">CG1 ⬅ High Radius</h4>
+    <div class="slider">
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Timing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CLS Error Reprocessing</td>
+            <td>01:00 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps BAI2 jobs</td>
+            <td>Every 60 min starting 00:30 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps Daily Report</td>
+            <td>Every 180 min starting 01:15 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps Weekly Report</td>
+            <td>Saturday 22:00 PST</td>
+          </tr>
+          <tr>
+            <td>Reconciliation Jobs</td>
+            <td>Every 120 min starting 01:00 PST</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hover-container">
+      <button class="export-button">
+        <i class="fa fa-clock-o"></i> Month End Timings
+      </button>
+      <div class="hover-table" style="width: 30vw">
+        <table style="width: 100%">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Timing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                ROW Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv PDF
+              </td>
+              <td>WD + 0 at 02:00 PST</td>
+            </tr>
+            <tr>
+              <td>
+                AMERICAS Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv
+                PDF
+              </td>
+              <td>WD + 0 at 02:00 PST</td>
+            </tr>
+            <tr>
+              <td>
+                CashApps BAI2 jobs (Does not run between WD-0 20:00 PST to WD+0
+                10:00 PST)
+              </td>
+              <td>Every 60 min starting 00:30 PST</td>
+            </tr>
+            <tr>
+              <td>CashApps MONTHEND Report</td>
+              <td>Every 60 min starting 01:15 PST</td>
+            </tr>
+            <tr>
+              <td>Reconciliation Jobs</td>
+              <td>Every 120 min starting 01:00 PST</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="vertical-divider"></div>
 
-  <div class="slider-container" style="display: flex; justify-content: center">
+  <div
+    style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 17vw;
+    "
+  >
     <div class="callout-box">
       <h4 style="font-weight: 500">API Status</h4>
-      <table>
-        <!-- <thead>
-          <tr>
-            <th>API Name</th>
-            <th></th>
-          </tr>
-        </thead> -->
+      <table style="margin-bottom: -20px">
         <tbody>
           <tr *ngFor="let detail of apiStatus">
+            <td>{{ detail["API Name"] }}</td>
             <td>
               <span
                 class="color-circle"
@@ -150,12 +277,46 @@
                 }"
               ></span>
             </td>
-            <td>{{ detail["API Name"] }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table style="margin-top: 20px; width: 100%">
+        <thead>
+          <tr>
+            <th>Directory Name</th>
+            <th>Count of Files</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Customer Master</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <td>Open AR</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <td>Closed AR</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <td>SIH / SII</td>
+            <td>0</td>
+          </tr>
+          <tr>
+            <td>Customer Contacts</td>
+            <td>0</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
+  <div
+    class="slider-container"
+    style="display: flex; justify-content: center"
+  ></div>
 </div>
 
 <ng-template #ctmTooltip>
@@ -241,21 +402,29 @@
 
     <div class="widget-tray">
       <div class="callout-box">
-        <div class="box-body">{{ extractCount }}</div>
+        <div class="box-body">
+          {{ extractCount !== undefined ? extractCount : "-" }}
+        </div>
 
-        <div class="box-header">Extract Errors in the Last 7 Days</div>
+        <div class="box-header">Extract Errors in the last week</div>
       </div>
 
       <div class="callout-box">
-        <div class="box-body">2</div>
+        <div class="box-body">
+          {{
+            totalReconciliationError !== undefined
+              ? totalReconciliationError
+              : "-"
+          }}
+        </div>
 
         <div class="box-header">Reconciliation Errors</div>
       </div>
 
       <div class="callout-box">
-        <div class="box-body">3</div>
+        <div class="box-body">-</div>
 
-        <div class="box-header">HRC App Vs Core Erorr/Mismatch</div>
+        <div class="box-header">HRC App Vs Core Mismatch</div>
       </div>
     </div>
 
@@ -294,7 +463,7 @@
           <table
             mat-table
             [dataSource]="collectionsErrorSummaryData"
-            style="width: 47vw; overflow-x: auto"
+            style="width: 46vw; overflow-x: auto"
           >
             <!-- Extract Type Column -->
             <ng-container matColumnDef="EXTRACT_TYPE">
@@ -405,7 +574,7 @@
           <table
             mat-table
             [dataSource]="latestRequestStatus"
-            style="width: 47vw; overflow-x: auto"
+            style="width: 46vw; overflow-x: auto"
           >
             <!-- Extract Name Column -->
             <ng-container matColumnDef="EXTRACT_NAME">
@@ -461,22 +630,25 @@
     <div class="widget-tray">
       <div class="callout-box">
         <div class="box-body">
-          {{ interfaceErrorCount }}
+          {{ interfaceErrorCount !== undefined ? interfaceErrorCount : "-" }}
         </div>
 
         <div class="box-header">Interface Errors in last 48 hours</div>
       </div>
 
-      <!-- <div class="callout-box">
-        <div class="box-body">$1.33</div>
-
+      <div class="callout-box">
+        <div class="box-body">
+          {{ unappliedAmount !== null ? "$" + unappliedAmount : "-" }}
+        </div>
         <div class="box-header">Unapplied Amount (Millions)</div>
-      </div> -->
+      </div>
 
       <div class="callout-box">
-        <div class="box-body">{{ unpostedAmount }}</div>
+        <div class="box-body">
+          {{ unpostedAmount !== null ? "$" + unpostedAmount : "-" }}
+        </div>
 
-        <div class="box-header">Unposted Amount</div>
+        <div class="box-header">Unposted Amount (Millions)</div>
       </div>
     </div>
 
@@ -516,7 +688,7 @@
           <table
             mat-table
             [dataSource]="interfaceErrors"
-            style="width: 45vw; overflow-x: auto"
+            style="width: 46vw; overflow-x: auto"
           >
             <!-- Operating Unit Column -->
             <ng-container matColumnDef="OPERATING_UNIT">
@@ -591,7 +763,7 @@
           <table
             mat-table
             [dataSource]="unpostedSummaryData"
-            style="width: 45vw; overflow-x: auto"
+            style="width: 46vw; overflow-x: auto"
           >
             <!-- Organization ID Column -->
             <ng-container matColumnDef="OPERATING_UNIT">
@@ -676,7 +848,7 @@
           <table
             mat-table
             [dataSource]="receiptErrorSummaryData"
-            style="width: 45vw"
+            style="width: 46vw; overflow-x: auto"
           >
             <!-- Operating Unit Column -->
             <ng-container matColumnDef="ORG_ID">
