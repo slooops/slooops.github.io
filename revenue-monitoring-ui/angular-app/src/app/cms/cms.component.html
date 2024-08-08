@@ -694,7 +694,7 @@
             <ng-container matColumnDef="OPERATING_UNIT">
               <th mat-header-cell *matHeaderCellDef>Operating Unit</th>
               <td mat-cell *matCellDef="let element">
-                {{ element.OPERATING_UNIT }}
+                {{ replaceUnderscore(element.OPERATING_UNIT) }}
               </td>
             </ng-container>
 

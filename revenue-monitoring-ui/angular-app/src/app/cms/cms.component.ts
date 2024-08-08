@@ -300,6 +300,18 @@ export class CmsComponent implements OnInit {
         }
         if (word.toLowerCase() === 'no') {
           return 'No';
+        }
+        if (word.toLowerCase() === 'unit') {
+          return 'Unit';
+        }
+        if (word.toLowerCase() === 'ccipl') {
+          return 'CCIPL';
+        }
+        if (word.toLowerCase() === 'tech') {
+          return 'Tech';
+        }
+        if (word.toLowerCase() === 'home') {
+          return 'Home';
         } else if (word.length > 4) {
           return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
         }
@@ -314,6 +326,7 @@ export class CmsComponent implements OnInit {
   }
 
   navigateToDetails(extractType: string): void {
-    this.router.navigate(['/cms-details'], { queryParams: { extractType } });
+    const url = `/cms-details?extractType=${encodeURIComponent(extractType)}`;
+    window.open(url, '_blank');
   }
 }
