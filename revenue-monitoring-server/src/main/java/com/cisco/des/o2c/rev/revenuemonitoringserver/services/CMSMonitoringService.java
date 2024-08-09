@@ -336,11 +336,13 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getApiStatus() {
         HashMap<String, Object> apiResponse = new HashMap<>();
         List<Map<String, Object>> response = new ArrayList<>();
+        HashMap<String, Object> apiResponse1 = new HashMap<>(); //temp code
+        HashMap<String, Object> apiResponse2 = new HashMap<>(); //temp code
 
         try {
             logger.info("In getApiStatus():: retrieving data");
-            String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/healthCheck";
-            //String uri = "https://cms-flask-dev-ext-rtp2.cisco.com/api/v1/healthCheck";
+            String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/public/healthCheck";
+            //String uri = "https://cms-flask-dev-ext-rtp2.cisco.com/api/v1/public/healthCheck";
             apiResponse.put("API Name", "CMS CAE Healthcheck");
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, null, String.class);
@@ -353,9 +355,38 @@ public class CMSMonitoringService {
                 apiResponse.put("API Status", "YELLOW");
             }
 
+            //adding temp code, later can be replaced with actual new APIs --start
+            apiResponse1.put("API Name", "CMS TestAPI-1");
+            apiResponse1.put("API Status", "GREEN");
+            apiResponse2.put("API Name", "CMS TestAPI-2");
+            apiResponse2.put("API Status", "GREEN");
+            //adding temp code, later can be replaced with actual new APIs --end
+
         } catch (Exception e) {
             logger.error("Exception in getApiStatus():: " + e);
             apiResponse.put("API Status", "RED");
+
+        }
+        response.add(apiResponse);
+        response.add(apiResponse1); //temp code
+        response.add(apiResponse2); //temp code
+
+        return response;
+    }
+
+    public List<Map<String, Object>> getSftpStatus() {
+        HashMap<String, Object> apiResponse = new HashMap<>();
+        List<Map<String, Object>> response = new ArrayList<>();
+        try{
+            logger.info("In getSftpStatus():: retrieving data");
+            String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/public/CiscoSFTPMonitor";
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Object> result = restTemplate.exchange(uri, HttpMethod.GET, null, Object.class);
+            apiResponse.put("SFTP Status", result.getBody());
+        } catch (Exception e){
+            logger.error("Exception in getSftpStatus():: " + e);
+            apiResponse.put("SFTP Status", "Error");
         }
         response.add(apiResponse);
         return response;

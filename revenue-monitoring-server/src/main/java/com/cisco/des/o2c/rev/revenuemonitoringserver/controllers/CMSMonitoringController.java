@@ -76,6 +76,9 @@ public class CMSMonitoringController {
     //API Status
     private static final String API_STATUS = "apiStatus";
 
+    //SFTP Status
+    private static final String SFTP_STATUS = "sftpStatus";
+
     //ToCheck
     private static final String JOB_RUN_STATUS = "jobRunStatus";
 
@@ -148,6 +151,8 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getBoomiDetailsHrToCg1(), HttpStatus.OK);
             case TOTAL_UNAPPLIED_AMOUNT:
                 return new ResponseEntity<>(cmsMonitoringService.getTotalUnappliedAmount(), HttpStatus.OK);
+            case SFTP_STATUS:
+                return new ResponseEntity<>(cmsMonitoringService.getSftpStatus(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;
