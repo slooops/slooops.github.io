@@ -169,6 +169,11 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getOrderStatusRevSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/rol-transaction-data")
+    public ResponseEntity<List<Map<String, Object>>> getRolTransactionData() {
+        return new ResponseEntity<>(service.getRolTransactionData(), HttpStatus.OK);
+    }
+
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
         if (!file.isEmpty()) {
