@@ -71,6 +71,7 @@ public class DailyMonitoringService {
     private String invoiceEligibleUpdate;
     private String cloCommentUpdate;
     private String rolTransactionData;
+    private String rolErrorsSummary;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -87,7 +88,7 @@ public class DailyMonitoringService {
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
                                   String orderStatusRevSummary, String personaAccessRoles,
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
-                                  String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData
+                                  String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -131,6 +132,7 @@ public class DailyMonitoringService {
         this.invoiceEligibleUpdate = invoiceEligibleUpdate;
         this.cloCommentUpdate = cloCommentUpdate;
         this.rolTransactionData = rolTransactionData;
+        this.rolErrorsSummary = rolErrorsSummary;
     }
 
     public String getAuthorizedUser() {
@@ -559,6 +561,10 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getRolTransactionData() {
         return jdbcManager.queryForList(rolTransactionData);
+    }
+
+    public List<Map<String, Object>> getRolErrorsSummary() {
+        return jdbcManager.queryForList(rolErrorsSummary);
     }
 
 

@@ -18,6 +18,18 @@ export class RolComponent implements OnInit {
     'TRANSACTION_ID',
   ];
 
+  rolErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
+  rolErrorDisplayedColumns: string[] = [
+    'AMOUNT',
+    'APPLICATION_NAME',
+    'CURRENCY_CODE',
+    'ERROR_APPLICATION',
+    'ORG_ID',
+    'PERIOD_NUM',
+    'PERIOD_YEAR',
+    'SUB_APPLICATION',
+  ];
+
   http: ApiHttpService;
 
   constructor(http: ApiHttpService) {
@@ -26,6 +38,7 @@ export class RolComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRolTransactionData();
+    this.getRolErrorSummaryData();
   }
 
   getRolTransactionData() {
@@ -33,6 +46,13 @@ export class RolComponent implements OnInit {
     this.http.get('rol-transaction-data').subscribe((data: any) => {
       this.rolTransactionData.data = data;
       console.log(this.rolTransactionData);
+    });
+  }
+
+  getRolErrorSummaryData() {
+    console.log('Getting rol error summary data');
+    this.http.get('rol-errors-summary').subscribe((data: any) => {
+      this.rolErrorSummaryData.data = data;
     });
   }
 

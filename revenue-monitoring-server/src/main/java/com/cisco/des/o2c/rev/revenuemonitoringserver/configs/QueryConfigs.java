@@ -212,6 +212,9 @@ public class QueryConfigs { // TODO
     @Value(("${rol.transaction.data.query}"))
     public String rolTransactionData;
 
+    @Value(("${rol.errors.summary.query}"))
+    public String rolErrorsSummary;
+
     @Value(("${cms.total.unapplied.amount.query}"))
     public String cmsTotalUnappliedAmountQuery;
 
@@ -556,6 +559,11 @@ public class QueryConfigs { // TODO
     @Bean(name = "rolTransactionData")
     public String getRolTransactionData() {
         return this.rolTransactionData;
+    }
+
+    @Bean(name = "rolErrorsSummary")
+    public String getRolErrorsSummary() {
+        return this.rolErrorsSummary;
     }
 
     @Bean(name = "cmsTotalUnappliedAmountQuery")
