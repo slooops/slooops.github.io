@@ -81,7 +81,7 @@ tr.mat-header-row {
   width: fit-content;
   min-height: 5vw;
   flex-direction: column;
-  padding: 0.5vh 1vw;
+  padding: 0;
   gap: 8px;
   word-wrap: break-word;
   background-color: #f2f2f2;
@@ -92,25 +92,8 @@ tr.mat-header-row {
   height: fit-content;
 }
 
-::ng-deep.mat-dialog-container {
-  margin: 1vw;
-  display: flex;
-  min-width: 9vw;
-  width: fit-content;
-  min-height: 5vw;
-  flex-direction: column;
-  padding: 0.5vh 1vw;
-  gap: 8px;
-  word-wrap: break-word;
-  background-color: #f2f2f2;
-  background-clip: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 8px;
-  align-items: center;
-  height: fit-content;
-}
-
-.mat-dialog-content {
+::ng-deep .mat-dialog-content {
+  /* border-radius: 8px; */
   display: block;
   margin: 0px;
   padding: 0px;
@@ -119,10 +102,27 @@ tr.mat-header-row {
   -webkit-overflow-scrolling: touch;
 }
 
+::ng-deep .mat-dialog-container {
+  padding: 0;
+}
+
 .mat-dialog-actions {
   justify-content: flex-end;
 }
 
 .mat-dialog-title {
   margin: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }

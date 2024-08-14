@@ -1,42 +1,14 @@
-<div class="top-right">
-  <button
-    class="export-button"
-    (click)="
-      exportTableToExcel(
-        unpostedSummaryData.data,
-        'Unposted Summary Data',
-        'Unposted Summary Data'
-      );
-      exportTableToExcel(
-        receiptErrorSummaryData.data,
-        'Unapplied Errors: Receipt Error Summary Data',
-        'Receipt Error Summary Data'
-      );
-      exportTableToExcel(
-        interfaceErrors.data,
-        'Interface Errors Summary Data',
-        'Interface Errors Summary Data'
-      );
-      exportTableToExcel(
-        collectionsErrorSummaryData.data,
-        'Extract Status Summary Data',
-        'Collections Error Data'
-      );
-      exportTableToExcel(
-        latestRequestStatus.data,
-        'Latest Request Status',
-        'Latest Request Status'
-      )
-    "
-  >
-    <i class="fa fa-download"></i>
-    Export
-  </button>
-</div>
-
-<div style="display: flex">
-  <div class="flowchart-container" style="width: 25vw">
-    <h4 class="slider-title" style="margin-bottom: -20px">CG1 ➡ High Radius</h4>
+<div
+  style="
+    display: flex;
+    overflow-x: scroll;
+    white-space: nowrap;
+    width: 100%;
+    margin-top: 1vw;
+  "
+>
+  <div class="callout-box" style="width: 410px">
+    <h4 class="slider-title" style="margin-bottom: -10px">CG1 ➡ High Radius</h4>
     <div class="slider">
       <table style="width: 100%">
         <thead>
@@ -79,7 +51,7 @@
     </div>
   </div>
 
-  <div class="flowchart-container" style="width: 30vw">
+  <div class="flowchart-container" style="width: 400px">
     <div class="slider-container">
       <h4 class="slider-title">Application Status</h4>
       <div class="slider">
@@ -171,8 +143,8 @@
     </div>
   </div>
 
-  <div class="flowchart-container" style="width: 20vw">
-    <h4 class="slider-title" style="margin-bottom: -20px">CG1 ⬅ High Radius</h4>
+  <div class="callout-box" style="width: 370px">
+    <h4 class="slider-title" style="margin-bottom: -10px">CG1 ⬅ High Radius</h4>
     <div class="slider">
       <table style="width: 100%">
         <thead>
@@ -205,67 +177,12 @@
         </tbody>
       </table>
     </div>
-
-    <div class="hover-container">
-      <button class="export-button">
-        <i class="fa fa-clock-o"></i> Month End Timings
-      </button>
-      <div class="hover-table" style="width: 30vw">
-        <table style="width: 100%">
-          <thead>
-            <tr>
-              <th>Job</th>
-              <th>Timing</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                ROW Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv PDF
-              </td>
-              <td>WD + 0 at 02:00 PST</td>
-            </tr>
-            <tr>
-              <td>
-                AMERICAS Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv
-                PDF
-              </td>
-              <td>WD + 0 at 02:00 PST</td>
-            </tr>
-            <tr>
-              <td>
-                CashApps BAI2 jobs (Does not run between WD-0 20:00 PST to WD+0
-                10:00 PST)
-              </td>
-              <td>Every 60 min starting 00:30 PST</td>
-            </tr>
-            <tr>
-              <td>CashApps MONTHEND Report</td>
-              <td>Every 60 min starting 01:15 PST</td>
-            </tr>
-            <tr>
-              <td>Reconciliation Jobs</td>
-              <td>Every 120 min starting 01:00 PST</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
-  <div class="vertical-divider"></div>
-
-  <div
-    style="
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 17vw;
-    "
-  >
-    <div class="callout-box">
+  <div style="display: flex; flex-direction: column; align-items: center">
+    <div class="callout-box" style="width: 170px">
       <h4 style="font-weight: 500">API Status</h4>
-      <table style="margin-bottom: -20px">
+      <table>
         <tbody>
           <tr *ngFor="let detail of apiStatus">
             <td>{{ detail["API Name"] }}</td>
@@ -280,43 +197,104 @@
           </tr>
         </tbody>
       </table>
-      <table style="margin-top: 20px; width: 100%">
-        <thead>
-          <tr>
-            <th>Directory Name</th>
-            <th>Count of Files</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Customer Master</td>
-            <td>0</td>
-          </tr>
-          <tr>
-            <td>Open AR</td>
-            <td>0</td>
-          </tr>
-          <tr>
-            <td>Closed AR</td>
-            <td>0</td>
-          </tr>
-          <tr>
-            <td>SIH / SII</td>
-            <td>0</td>
-          </tr>
-          <tr>
-            <td>Customer Contacts</td>
-            <td>0</td>
-          </tr>
-        </tbody>
-      </table>
+    </div>
+
+    <button class="export-button" (click)="openModal()">
+      <i class="fa fa-clock-o"></i> Month End Timings
+    </button>
+
+    <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+      <div
+        class="callout-box"
+        style="width: fit-content; padding: 0"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="modal-header">
+          <h4 style="font-weight: 500">Month End Timings</h4>
+
+          <button class="close-button" (click)="closeModal()">
+            <i class="fa fa-times"></i>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table style="width: fit-content">
+            <thead>
+              <tr>
+                <th>Job</th>
+                <th>Timing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  ROW Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv PDF
+                </td>
+                <td>WD + 0 at 02:00 PST</td>
+              </tr>
+              <tr>
+                <td>
+                  AMERICAS Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv
+                  PDF
+                </td>
+                <td>WD + 0 at 02:00 PST</td>
+              </tr>
+              <tr>
+                <td>
+                  CashApps BAI2 jobs (Does not run between WD-0 20:00 PST to
+                  WD+0 10:00 PST)
+                </td>
+                <td>Every 60 min starting 00:30 PST</td>
+              </tr>
+              <tr>
+                <td>CashApps MONTHEND Report</td>
+                <td>Every 60 min starting 01:15 PST</td>
+              </tr>
+              <tr>
+                <td>Reconciliation Jobs</td>
+                <td>Every 120 min starting 01:00 PST</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div
-    class="slider-container"
-    style="display: flex; justify-content: center"
-  ></div>
+  <div class="callout-box" style="width: 300px">
+    <h4 style="font-weight: 500">File Status</h4>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Directory Name</th>
+          <th>Count of Files</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Customer Master</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Open AR</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Closed AR</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>SIH / SII</td>
+          <td>0</td>
+        </tr>
+        <tr>
+          <td>Customer Contacts</td>
+          <td>0</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <ng-template #ctmTooltip>
@@ -640,7 +618,7 @@
         <div class="box-body">
           {{ unappliedAmount !== null ? "$" + unappliedAmount : "-" }}
         </div>
-        <div class="box-header">Unapplied Amount (Millions)</div>
+        <div class="box-header">Unapplied Amount</div>
       </div>
 
       <div class="callout-box">

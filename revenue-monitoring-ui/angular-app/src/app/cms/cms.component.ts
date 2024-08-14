@@ -19,6 +19,7 @@ import { th } from 'date-fns/locale';
 export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
+  isModalOpen = false;
 
   collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
     []
@@ -117,6 +118,7 @@ export class CmsComponent implements OnInit {
     this.getUnappliedErrorSummary();
     this.getTotalUnappliedAmount();
     this.getTotalReconciliationError();
+    this.getSftpStatus();
   }
 
   // collections widgets
@@ -129,7 +131,6 @@ export class CmsComponent implements OnInit {
   getTotalReconciliationError() {
     this.getEndpointData('totalReconciliationError').subscribe((data: any) => {
       this.totalReconciliationError = data[0].TOTAL_RECONCILIATION_ERROR;
-      console.log(this.totalReconciliationError);
     });
   }
 
@@ -161,10 +162,8 @@ export class CmsComponent implements OnInit {
 
   getTotalUnappliedAmount() {
     this.getEndpointData('totalUnappliedAmount').subscribe((data: any) => {
-      console.log(data);
-      // const amount = data[0]?.TOTAL_UNAPPLIED_AMOUNT;
-      // this.unappliedAmount = amount ? this.formatAmount(amount) : null;
-      this.unappliedAmount = data;
+      const amount = data[0]?.UNAPPLIED_AMOUNT;
+      this.unappliedAmount = amount ? amount.toLocaleString() : null;
     });
   }
 
@@ -199,6 +198,12 @@ export class CmsComponent implements OnInit {
   getApiStatus() {
     this.getEndpointData('apiStatus').subscribe((data: any) => {
       this.apiStatus = data;
+    });
+  }
+
+  getSftpStatus() {
+    this.getEndpointData('sftpStatus').subscribe((data: any) => {
+      console.log(data);
     });
   }
 
@@ -291,33 +296,29 @@ export class CmsComponent implements OnInit {
       return ''; // Return an empty string if value is null or undefined
     }
 
+    const specialWords = ['data', 'file', 'no', 'unit', 'tech', 'home'];
+
     return value
       .replace(/_/g, ' ')
       .split(' ')
       .map((word) => {
-        if (word.toLowerCase() === 'data') {
-          return 'Data';
+        const lowerWord = word.toLowerCase();
+        if (specialWords.includes(lowerWord)) {
+          return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
         }
-        if (word.toLowerCase() === 'no') {
-          return 'No';
-        }
-        if (word.toLowerCase() === 'unit') {
-          return 'Unit';
-        }
-        if (word.toLowerCase() === 'ccipl') {
-          return 'CCIPL';
-        }
-        if (word.toLowerCase() === 'tech') {
-          return 'Tech';
-        }
-        if (word.toLowerCase() === 'home') {
-          return 'Home';
-        } else if (word.length > 4) {
-          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-        }
-        return word;
+        return word.length > 4
+          ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          : word;
       })
       .join(' ');
+  }
+
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
   }
 
   formatAmount(amount: number): string {

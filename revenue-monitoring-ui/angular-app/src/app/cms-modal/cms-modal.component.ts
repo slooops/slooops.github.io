@@ -22,6 +22,14 @@ export class CmsModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: any[]
   ) {}
 
+  onOverlayClicked(): void {
+    this.dialogRef.close(); // Close the modal when clicking the overlay
+  }
+
+  onClose(): void {
+    this.dialogRef.close(); // Close the modal when clicking the close button
+  }
+
   replaceUnderscore(value: string | null | undefined): string {
     if (!value) {
       return '';
