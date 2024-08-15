@@ -371,7 +371,7 @@ tr.mat-header-row {
 }
 
 .export-button {
-  margin-top: 0.9vw;
+  margin: 0.9vw;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 8px;
   padding: 8px 12px;
@@ -488,4 +488,42 @@ tr.mat-header-row {
 
 .modal-body {
   padding-top: 10px;
+}
+
+.cms-table {
+  width: 100%;
+}
+
+.nested-table {
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+}
+
+.nested-table th,
+.nested-table td {
+  padding: 5px;
+  text-align: left;
+}
+
+.nested-table th {
+  background-color: #f2f2f2;
+}
+
+.nested-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.nested-table tr:nth-child(odd) {
+  background-color: #fff;
+}
+
+.table-responsive-xl {
+  overflow-x: auto;
+}
+
+.cms-table th,
+.cms-table td {
+  padding: 10px;
+  text-align: left;
 }

@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
 import { CmsModalComponent } from '../cms-modal/cms-modal.component';
+import { CmsSftpModalComponent } from '../cms-sftp-modal/cms-sftp-modal.component';
 
 import { th } from 'date-fns/locale';
 
@@ -31,6 +32,7 @@ export class CmsComponent implements OnInit {
   receiptErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
 
   apiStatus: any[] = [];
+  sftpStatus: any[] = [];
   ctmStatus: any[] = [];
   ctmDetails: any[] = [];
   boomiStatus: any[] = [];
@@ -119,6 +121,7 @@ export class CmsComponent implements OnInit {
     this.getTotalUnappliedAmount();
     this.getTotalReconciliationError();
     this.getSftpStatus();
+    // this.openSftpModal();
   }
 
   // collections widgets
@@ -138,12 +141,16 @@ export class CmsComponent implements OnInit {
   // this is extract status apparently?
   getCollectionsErrorSummary() {
     this.getEndpointData('collectionsErrorSummary').subscribe((data: any) => {
-      // Rename the column 'COUNT(*)' to 'COUNT'
-      const mappedData = data.map((item: any) => ({
-        COUNT: item['COUNT(*)'],
-        EXTRACT_TYPE: item.EXTRACT_TYPE,
-      }));
-      this.collectionsErrorSummaryData.data = mappedData;
+      if (data && Array.isArray(data)) {
+        // Rename the column 'COUNT(*)' to 'COUNT'
+        const mappedData = data.map((item: any) => ({
+          COUNT: item['COUNT(*)'],
+          EXTRACT_TYPE: item.EXTRACT_TYPE,
+        }));
+        this.collectionsErrorSummaryData.data = mappedData;
+      } else {
+        this.collectionsErrorSummaryData.data = [];
+      }
     });
   }
 
@@ -204,6 +211,7 @@ export class CmsComponent implements OnInit {
   getSftpStatus() {
     this.getEndpointData('sftpStatus').subscribe((data: any) => {
       console.log(data);
+      this.sftpStatus = this.processData(data);
     });
   }
 
@@ -291,6 +299,13 @@ export class CmsComponent implements OnInit {
     });
   }
 
+  openSftpModal() {
+    this.dialog.open(CmsSftpModalComponent, {
+      width: '80%',
+      data: this.sftpStatus,
+    });
+  }
+
   replaceUnderscore(value: string | null | undefined): string {
     if (!value) {
       return ''; // Return an empty string if value is null or undefined
@@ -319,6 +334,10 @@ export class CmsComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  processData(data: any[]): any[] {
+    return data[0]?.['SFTP Status']?.CiscoSFTPUnprocessedFiles || [];
   }
 
   formatAmount(amount: number): string {
