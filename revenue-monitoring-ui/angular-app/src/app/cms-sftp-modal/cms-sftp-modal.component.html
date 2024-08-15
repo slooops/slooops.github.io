@@ -19,7 +19,15 @@
     </div>
 
     <div class="mat-dialog-content">
-      <table class="table table-hover table-responsive-xl">
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
+      <table class="table table-hover table-responsive-xl" *ngIf="data?.length">
         <thead>
           <tr>
             <th>Directory</th>

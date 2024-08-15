@@ -371,7 +371,7 @@ tr.mat-header-row {
 }
 
 .export-button {
-  margin: 0.9vw;
+  /* margin: 0.9vw; */
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 8px;
   padding: 8px 12px;
