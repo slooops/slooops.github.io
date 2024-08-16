@@ -7,81 +7,123 @@
     margin-top: 1vw;
   "
 >
-  <div class="callout-box" style="width: 410px">
-    <h4 class="slider-title" style="margin-bottom: -10px">CG1 ➡ High Radius</h4>
-    <div class="slider">
-      <!-- <table style="width: 100%">
-        <thead>
-          <tr>
-            <th>Extract</th>
-            <th>Timing</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Customer Master</td>
-            <td>0030, 0630, 1230, 1830 PST</td>
-          </tr>
-          <tr>
-            <td>Customer Contacts</td>
-            <td>0030, 0630, 1230, 1830 PST</td>
-          </tr>
-          <tr>
-            <td>Customer Relationships</td>
-            <td>0030, 0630, 1230, 1830 PST</td>
-          </tr>
-          <tr>
-            <td>US Open AR/ Closed AR</td>
-            <td>20:00 PST (Except Saturday)</td>
-          </tr>
-          <tr>
-            <td>US / SIH/SIL/ Invoice PDF/ Payments Adj</td>
-            <td>20:00 PST (Except Saturday)</td>
-          </tr>
-          <tr>
-            <td>ROW Open AR/ Closed AR</td>
-            <td>07:00 PST (Except Saturday)</td>
-          </tr>
-          <tr>
-            <td>ROW SIH/SIL/ Invoice PDF/ Payments Adj</td>
-            <td>07:00 PST (Except Saturday)</td>
-          </tr>
-        </tbody>
-      </table> -->
-      <table style="width: 400px; table-layout: fixed">
-        <thead>
-          <tr>
-            <th style="word-break: break-word; white-space: normal">Extract</th>
-            <th style="word-break: break-word; white-space: normal">Timing</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="word-break: break-word; white-space: normal">
-              Customer Master, Customer Contacts, Customer Relationships
-            </td>
-            <td style="word-break: break-word; white-space: normal">
-              0030, 0630, 1230, 1830 PST
-            </td>
-          </tr>
-          <tr>
-            <td style="word-break: break-word; white-space: normal">
-              US Open AR/ Closed AR, US / SIH/SIL/ Invoice PDF/ Payments Adj
-            </td>
-            <td style="word-break: break-word; white-space: normal">
-              20:00 PST (Except Saturday)
-            </td>
-          </tr>
-          <tr>
-            <td style="word-break: break-word; white-space: normal">
-              ROW Open AR/ Closed AR, ROW SIH/SIL/ Invoice PDF/ Payments Adj
-            </td>
-            <td style="word-break: break-word; white-space: normal">
-              07:00 PST (Except Saturday)
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- Button to open the CG1 ➡ High Radius modal -->
+  <button class="export-button" (click)="openHighRadiusModal()">
+    <i class="fa fa-table"></i> CG1 ➡ High Radius
+  </button>
+
+  <!-- Button to open the High Radius ➡ CG1 modal -->
+  <button class="export-button" (click)="openHighRadiusToCG1Modal()">
+    <i class="fa fa-table"></i> High Radius ➡ CG1
+  </button>
+
+  <!-- Modal for CG1 ➡ High Radius -->
+  <div
+    class="modal-overlay"
+    *ngIf="isHighRadiusModalOpen"
+    (click)="closeModal()"
+  >
+    <div
+      class="callout-box"
+      style="width: fit-content; padding: 0"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h4 style="font-weight: 500">CG1 ➡ High Radius</h4>
+        <button class="close-button" (click)="closeModal()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table style="width: 400px; table-layout: fixed">
+          <thead>
+            <tr>
+              <th style="word-break: break-word; white-space: normal">Job</th>
+              <th style="word-break: break-word; white-space: normal">
+                Timing
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="word-break: break-word; white-space: normal">
+                Customer Master, Customer Contacts, Customer Relationships
+              </td>
+              <td style="word-break: break-word; white-space: normal">
+                0030, 0630, 1230, 1830 PST
+              </td>
+            </tr>
+            <tr>
+              <td style="word-break: break-word; white-space: normal">
+                US Open AR/ Closed AR, US / SIH/SIL/ Invoice PDF/ Payments Adj
+              </td>
+              <td style="word-break: break-word; white-space: normal">
+                20:00 PST (Except Saturday)
+              </td>
+            </tr>
+            <tr>
+              <td style="word-break: break-word; white-space: normal">
+                ROW Open AR/ Closed AR, ROW SIH/SIL/ Invoice PDF/ Payments Adj
+              </td>
+              <td style="word-break: break-word; white-space: normal">
+                07:00 PST (Except Saturday)
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for High Radius ➡ CG1 -->
+  <div
+    class="modal-overlay"
+    *ngIf="isHighRadiusToCG1ModalOpen"
+    (click)="closeModal()"
+  >
+    <div
+      class="callout-box"
+      style="width: fit-content; padding: 0"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <h4 style="font-weight: 500">High Radius ➡ CG1</h4>
+        <button class="close-button" (click)="closeModal()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table style="width: 100%">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Timing</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>CLS Error Reprocessing</td>
+              <td>01:00 PST</td>
+            </tr>
+            <tr>
+              <td>CashApps BAI2 jobs</td>
+              <td>Every 60 min starting 00:30 PST</td>
+            </tr>
+            <tr>
+              <td>CashApps Daily Report</td>
+              <td>Every 180 min starting 01:15 PST</td>
+            </tr>
+            <tr>
+              <td>CashApps Weekly Report</td>
+              <td>Saturday 22:00 PST</td>
+            </tr>
+            <tr>
+              <td>Reconciliation Jobs</td>
+              <td>Every 120 min starting 01:00 PST</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -177,42 +219,6 @@
     </div>
   </div>
 
-  <div class="callout-box" style="width: 370px">
-    <h4 class="slider-title" style="margin-bottom: -10px">CG1 ⬅ High Radius</h4>
-    <div class="slider">
-      <table style="width: 100%">
-        <thead>
-          <tr>
-            <th>Job</th>
-            <th>Timing</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>CLS Error Reprocessing</td>
-            <td>01:00 PST</td>
-          </tr>
-          <tr>
-            <td>CashApps BAI2 jobs</td>
-            <td>Every 60 min starting 00:30 PST</td>
-          </tr>
-          <tr>
-            <td>CashApps Daily Report</td>
-            <td>Every 180 min starting 01:15 PST</td>
-          </tr>
-          <tr>
-            <td>CashApps Weekly Report</td>
-            <td>Saturday 22:00 PST</td>
-          </tr>
-          <tr>
-            <td>Reconciliation Jobs</td>
-            <td>Every 120 min starting 01:00 PST</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
   <div style="display: flex; flex-direction: column; align-items: center">
     <div class="callout-box" style="width: 170px">
       <h4 style="font-weight: 500">API Status</h4>
@@ -233,13 +239,17 @@
       </table>
     </div>
 
-    <button class="export-button" (click)="openModal()">
+    <button
+      class="export-button"
+      style="margin-top: -10px"
+      (click)="openModal()"
+    >
       <i class="fa fa-clock-o"></i> Month End Timings
     </button>
 
     <button
       class="export-button"
-      style="width: 170px"
+      style="width: 170px; margin-top: 3px"
       (click)="openSftpModal()"
     >
       <i class="fa fa-table"></i> SFTP Status

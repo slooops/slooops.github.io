@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { ApiHttpService } from 'src/app/providers/http.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -9,14 +10,8 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./rol.component.css'],
 })
 export class RolComponent implements OnInit {
-  rolTransactionData: MatTableDataSource<any> = new MatTableDataSource([]);
-  displayedColumns: string[] = [
-    'ACCOUNT_CLASS',
-    'AMOUNT',
-    'DIST_TYPE',
-    'SEGMENT4',
-    'TRANSACTION_ID',
-  ];
+  // Only the paginator for the second table (ROL Transaction Data)
+  @ViewChild('transactionPaginator') transactionPaginator: MatPaginator;
 
   rolErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
   rolErrorDisplayedColumns: string[] = [
@@ -30,23 +25,14 @@ export class RolComponent implements OnInit {
     'SUB_APPLICATION',
   ];
 
-  http: ApiHttpService;
+  rolTransactionData: MatTableDataSource<any> = new MatTableDataSource([]);
+  displayedColumns: string[] = [];
 
-  constructor(http: ApiHttpService) {
-    this.http = http;
-  }
+  constructor(private http: ApiHttpService) {}
 
   ngOnInit(): void {
     this.getRolTransactionData();
     this.getRolErrorSummaryData();
-  }
-
-  getRolTransactionData() {
-    console.log('Getting rol transaction data');
-    this.http.get('rol-transaction-data').subscribe((data: any) => {
-      this.rolTransactionData.data = data;
-      console.log(this.rolTransactionData);
-    });
   }
 
   getRolErrorSummaryData() {
@@ -54,6 +40,28 @@ export class RolComponent implements OnInit {
     this.http.get('rol-errors-summary').subscribe((data: any) => {
       this.rolErrorSummaryData.data = data;
     });
+  }
+
+  getRolTransactionData() {
+    this.http.get('rol-transaction-data').subscribe((data: any) => {
+      if (data.length > 0) {
+        // Dynamically set displayedColumns based on keys of the first object
+        this.displayedColumns = Object.keys(data[0]);
+
+        // Filter out columns you don't want to display
+        this.removeColumns(['CUSTTRXLINEID']);
+      }
+
+      this.rolTransactionData.data = data;
+      this.rolTransactionData.paginator = this.transactionPaginator;
+      console.log(this.rolTransactionData);
+    });
+  }
+
+  removeColumns(columnsToRemove: string[]) {
+    this.displayedColumns = this.displayedColumns.filter(
+      (column) => !columnsToRemove.includes(column)
+    );
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {

@@ -334,6 +334,19 @@ export class CmsComponent implements OnInit {
 
   closeModal() {
     this.isModalOpen = false;
+    this.isHighRadiusModalOpen = false;
+    this.isHighRadiusToCG1ModalOpen = false;
+  }
+
+  isHighRadiusModalOpen = false;
+  isHighRadiusToCG1ModalOpen = false;
+
+  openHighRadiusModal() {
+    this.isHighRadiusModalOpen = true;
+  }
+
+  openHighRadiusToCG1Modal() {
+    this.isHighRadiusToCG1ModalOpen = true;
   }
 
   processData(data: any[]): any[] {
