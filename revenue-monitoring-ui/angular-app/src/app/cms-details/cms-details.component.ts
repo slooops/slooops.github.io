@@ -14,44 +14,14 @@ export class CmsDetailsComponent implements OnInit {
   protected http: ApiHttpService;
   extractType: string;
 
-  apiStatus: any[] = [];
-
-  // MatTableDataSource for all endpoints
-  invoicePdfExtractErrData: MatTableDataSource<any> = new MatTableDataSource(
-    []
-  );
-  invoiceExtractErrData: MatTableDataSource<any> = new MatTableDataSource([]);
-  customerMasterErrData: MatTableDataSource<any> = new MatTableDataSource([]);
-  alternatePayerErrData: MatTableDataSource<any> = new MatTableDataSource([]);
-  salesInvoiceHeaderExtractErrData: MatTableDataSource<any> =
-    new MatTableDataSource([]);
-  customerContactsErrData: MatTableDataSource<any> = new MatTableDataSource([]);
-  salesInvoiceItemExtractErrData: MatTableDataSource<any> =
-    new MatTableDataSource([]);
-
-  // Columns to be displayed in the tables (dynamically set)
-  invoicePdfExtractErrDisplayedColumns: string[] = [];
-  invoiceExtractErrDisplayedColumns: string[] = [];
-  customerMasterErrDisplayedColumns: string[] = [];
-  alternatePayerErrDisplayedColumns: string[] = [];
-  salesInvoiceHeaderExtractErrDisplayedColumns: string[] = [];
-  customerContactsErrDisplayedColumns: string[] = [];
-  salesInvoiceItemExtractErrDisplayedColumns: string[] = [];
+  currentData: MatTableDataSource<any> = new MatTableDataSource([]);
+  currentDisplayedColumns: string[] = [];
 
   constructor(http: ApiHttpService, private route: ActivatedRoute) {
     this.http = http;
   }
 
   ngOnInit(): void {
-    // Fetch data from all endpoints
-    this.getInvoicePdfExtractErr();
-    this.getInvoiceExtractErr();
-    this.getCustomerMasterErr();
-    this.getAlternatePayerErr();
-    this.getSalesInvoiceHeaderExtractErr();
-    this.getCustomerContactsErr();
-    this.getSalesInvoiceItemExtractErr();
-
     this.route.queryParams.subscribe((params) => {
       this.extractType = params['extractType'];
       this.loadDataBasedOnExtractType();
@@ -59,78 +29,76 @@ export class CmsDetailsComponent implements OnInit {
   }
 
   loadDataBasedOnExtractType(): void {
-    switch (this.extractType) {
-      case 'Invoice Extract':
-        this.getInvoiceExtractErr();
-        break;
-      // Add cases for other extract types as needed
-      default:
-        console.error('Unknown extract type:', this.extractType);
+    const extractTypeMapping = {
+      'Invoice Extract': this.getInvoiceExtractErr.bind(this),
+      'Invoice PDF': this.getInvoicePdfExtractErr.bind(this),
+      'Customer Extract': this.getCustomerMasterErr.bind(this),
+      'Alternate Payer': this.getAlternatePayerErr.bind(this),
+      'Sales Invoice Header Extract':
+        this.getSalesInvoiceHeaderExtractErr.bind(this),
+      'Sales Invoice Item Extract':
+        this.getSalesInvoiceItemExtractErr.bind(this),
+      'Customer Contacts': this.getCustomerContactsErr.bind(this),
+    };
+
+    const loadDataFunction = extractTypeMapping[this.extractType];
+
+    if (loadDataFunction) {
+      loadDataFunction();
+    } else {
+      console.error('Unknown extract type:', this.extractType);
     }
-  }
-
-  getInvoicePdfExtractErr() {
-    this.getEndpointData('invoicePdfExtractErr').subscribe((data: any) => {
-      this.invoicePdfExtractErrData.data = data;
-      console.log('invoice pdf extract error: ', data);
-
-      this.invoicePdfExtractErrDisplayedColumns =
-        this.getDisplayedColumns(data);
-    });
   }
 
   getInvoiceExtractErr() {
     this.getEndpointData('invoiceExtractErr').subscribe((data: any) => {
-      this.invoiceExtractErrData.data = data;
-      this.invoiceExtractErrDisplayedColumns = this.getDisplayedColumns(data);
-      console.log('invoice extract error: ', data);
+      this.setCurrentData(data);
+    });
+  }
+
+  getInvoicePdfExtractErr() {
+    this.getEndpointData('invoicePdfExtractErr').subscribe((data: any) => {
+      this.setCurrentData(data);
     });
   }
 
   getCustomerMasterErr() {
     this.getEndpointData('customerMasterErr').subscribe((data: any) => {
-      this.customerMasterErrData.data = data;
-      this.customerMasterErrDisplayedColumns = this.getDisplayedColumns(data);
-      console.log('customer master error: ', data);
+      this.setCurrentData(data);
     });
   }
 
   getAlternatePayerErr() {
     this.getEndpointData('alternatePayerErr').subscribe((data: any) => {
-      this.alternatePayerErrData.data = data;
-      this.alternatePayerErrDisplayedColumns = this.getDisplayedColumns(data);
-      console.log('alternate payer error: ', data);
+      this.setCurrentData(data);
     });
   }
 
   getSalesInvoiceHeaderExtractErr() {
     this.getEndpointData('salesInvoiceHeaderExtractErr').subscribe(
       (data: any) => {
-        this.salesInvoiceHeaderExtractErrData.data = data;
-        this.salesInvoiceHeaderExtractErrDisplayedColumns =
-          this.getDisplayedColumns(data);
-        console.log('sales invoice header extract error: ', data);
+        this.setCurrentData(data);
       }
     );
   }
 
   getCustomerContactsErr() {
     this.getEndpointData('customerContactsErr').subscribe((data: any) => {
-      this.customerContactsErrData.data = data;
-      this.customerContactsErrDisplayedColumns = this.getDisplayedColumns(data);
-      console.log('customer contacts error: ', data);
+      this.setCurrentData(data);
     });
   }
 
   getSalesInvoiceItemExtractErr() {
     this.getEndpointData('salesInvoiceItemExtractErr').subscribe(
       (data: any) => {
-        this.salesInvoiceItemExtractErrData.data = data;
-        this.salesInvoiceItemExtractErrDisplayedColumns =
-          this.getDisplayedColumns(data);
-        console.log('sales invoice item extract error: ', data);
+        this.setCurrentData(data);
       }
     );
+  }
+
+  setCurrentData(data: any[]) {
+    this.currentData.data = data;
+    this.currentDisplayedColumns = this.getDisplayedColumns(data);
   }
 
   getEndpointData(queryParam: string): Observable<any> {
@@ -144,10 +112,7 @@ export class CmsDetailsComponent implements OnInit {
   }
 
   getDisplayedColumns(data: any[]): string[] {
-    if (data && data.length > 0) {
-      return Object.keys(data[0]);
-    }
-    return [];
+    return data && data.length > 0 ? Object.keys(data[0]) : [];
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {

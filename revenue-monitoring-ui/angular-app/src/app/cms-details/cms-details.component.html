@@ -7,16 +7,16 @@
   "
 >
   <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
-    Invoice Extract Errors
+    {{ extractType }} Errors
   </h4>
   <div style="display: flex; gap: 1vh">
     <button
       mat-icon-button
       (click)="
         exportTableToExcel(
-          invoiceExtractErrData.data,
-          'Invoice Extract Errors',
-          'Invoice_Extract_Errors'
+          currentData.data,
+          extractType + ' Errors',
+          extractType + '_Errors'
         )
       "
     >
@@ -26,15 +26,15 @@
 </div>
 
 <div>
-  <!-- Invoice Extract Error Table -->
-  <ng-container *ngIf="invoiceExtractErrData?.data?.length">
+  <!-- Dynamic Data Table -->
+  <ng-container *ngIf="currentData?.data?.length">
     <table
       mat-table
-      [dataSource]="invoiceExtractErrData"
+      [dataSource]="currentData"
       style="width: 100%; overflow-x: auto"
     >
       <!-- Dynamic Columns -->
-      <ng-container *ngFor="let column of invoiceExtractErrDisplayedColumns">
+      <ng-container *ngFor="let column of currentDisplayedColumns">
         <ng-container [matColumnDef]="column">
           <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
           <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
@@ -42,19 +42,14 @@
       </ng-container>
 
       <!-- Header and Row Declarations -->
-      <tr
-        mat-header-row
-        *matHeaderRowDef="invoiceExtractErrDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: invoiceExtractErrDisplayedColumns"
-      ></tr>
+      <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns"></tr>
     </table>
   </ng-container>
+
   <div style="display: flex; justify-content: center"></div>
 
-  <ng-container *ngIf="!invoiceExtractErrData?.data?.length">
+  <ng-container *ngIf="!currentData?.data?.length">
     <div class="loading-container">
       <app-loading-symbol></app-loading-symbol>
       <br /><br /><br />
