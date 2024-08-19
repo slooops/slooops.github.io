@@ -16,6 +16,7 @@ import { CmsComponent } from './cms/cms.component';
 import { CmsDetailsComponent } from './cms-details/cms-details.component';
 import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 import { RolComponent } from './rol/rol.component';
+import { SbpComponent } from './sbp/sbp.component';
 
 const routes: Routes = [
   {
@@ -138,8 +139,16 @@ const routes: Routes = [
     path: 'rol',
     component: RolComponent,
     data: {
-      title: 'ROL SBP Dashboard',
-      header: 'ROL SBP Dashboard',
+      title: 'ROL Dashboard',
+      header: 'ROL Dashboard',
+    },
+  },
+  {
+    path: 'sbp',
+    component: SbpComponent,
+    data: {
+      title: 'SBP Dashboard',
+      header: 'SBP Dashboard',
     },
   },
 ];

@@ -215,6 +215,9 @@ public class QueryConfigs { // TODO
     @Value(("${rol.errors.summary.query}"))
     public String rolErrorsSummary;
 
+    @Value(("${sbp.summary.query}"))
+    public String sbpSummary;
+
     @Value(("${cms.total.unapplied.amount.query}"))
     public String cmsTotalUnappliedAmountQuery;
 
@@ -564,6 +567,11 @@ public class QueryConfigs { // TODO
     @Bean(name = "rolErrorsSummary")
     public String getRolErrorsSummary() {
         return this.rolErrorsSummary;
+    }
+
+    @Bean(name = "sbpSummary")
+    public String getSbpSummary() {
+        return this.sbpSummary;
     }
 
     @Bean(name = "cmsTotalUnappliedAmountQuery")
