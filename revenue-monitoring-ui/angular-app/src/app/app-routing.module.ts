@@ -21,7 +21,7 @@ import { SbpComponent } from './sbp/sbp.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/wd0-dash',
+    redirectTo: '/cms',
     pathMatch: 'full',
   },
   {
