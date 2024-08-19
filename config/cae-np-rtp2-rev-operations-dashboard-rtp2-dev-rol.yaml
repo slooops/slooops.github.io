@@ -324,5 +324,155 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: clo.comment.update.q
+            - name: CMS_UNPOSTED_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.summary.query
+            - name: CMS_UNPOSTED_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.details.query
+            - name: CMS_RECEIPT_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.receipt.error.summary
+            - name: CMS_RECEIPT_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.receipt.error.details.query
+            - name: CMS_JOB_RUN_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.job.run.status.query
+            - name: CMS_CTM_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.ctm.status.query
+            - name: CMS_CTM_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.ctm.details.query
+            - name: CMS_BOOMI_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.status.query
+            - name: CMS_BOOMI_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.details.query
+            - name: CMS_EXTRACT_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.extract.count.query
+            - name: CMS_EXTRACT_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.extract.details.query
+            - name: CMS_LATEST_REQUEST_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.latest.request.status.query
+            - name: CMS_COLLECTIONS_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.collections.error.summary.query
+            - name: CMS_INVOICE_PDF_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.invoice.pdf.extract.error.query
+            - name: CMS_INVOICE_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.invoice.extract.error.query
+            - name: CMS_CUSTOMER_MASTER_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.customer.master.error.query
+            - name: CMS_ALTERNATE_PAYER_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.alternate.payer.error.query
+            - name: CMS_SALES_INVOICE_HEADER_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.sales.invoice.header.extract.error.query
+            - name: CMS_CUSTOMER_CONTACTS_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.customer.contacts.error.query
+            - name: CMS_SALES_INVOICE_ITEM_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.sales.invoice.item.extract.query
+            - name: CMS_INTERFACE_ERRORS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.interface.errors.query
+            - name: CMS_INTERFACE_ERROR_COUNT_IN_XHRS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.interface.error.count.in.xhrs.query
+            - name: CMS_UNPOSTED_TOTAL_AMOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.total.amount.query
+            - name: CMS_TOTAL_RECONCILIATION_ERROR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.total.reconciliation.error.query
+            - name: CMS_BOOMI_STATUS_HR_TO_CG1_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.status.hr.to.cg1.query
+            - name: CMS_BOOMI_DETAILS_HR_TO_CG1_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.details.hr.to.cg1.query
+            - name: ROL_TRANSACTION_DATA_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.query
+            - name: ROL_ERRORS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.query
+            - name: SBP_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: sbp.summary.query
+            - name: CMS_TOTAL_UNAPPLIED_AMOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.total.unapplied.amount.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
