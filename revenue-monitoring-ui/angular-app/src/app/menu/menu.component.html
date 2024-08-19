@@ -47,16 +47,35 @@
         Large Deal Tracker
       </mat-list-item> -->
       <!-- *ngIf="isAdmin || checkRole('WD0')" -->
-
+      <!--
       <mat-list-item [routerLink]="['/wd0-dash']" routerLinkActive="active">
         WD+0 Mid Close Status
-      </mat-list-item>
+      </mat-list-item> -->
       <!-- *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')" -->
-      <mat-list-item
+      <!-- <mat-list-item
         [routerLink]="['/mid-close-volumes']"
         routerLinkActive="active"
       >
         WD+0 Mid Close Volumes
+      </mat-list-item> -->
+      <mat-list-item [routerLink]="['/cms']" routerLinkActive="active">
+        CMS Dashboard
+      </mat-list-item>
+      <!-- *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')" -->
+      <mat-list-item [routerLink]="['/cms-details']" routerLinkActive="active">
+        CMS Dashboard
+      </mat-list-item>
+      <mat-list-item
+        [routerLink]="['/cms-sftp-details']"
+        routerLinkActive="active"
+      >
+        CMS Dashboard SFTP Details
+      </mat-list-item>
+      <mat-list-item [routerLink]="['/rol']" routerLinkActive="active">
+        ROL Dashboard
+      </mat-list-item>
+      <mat-list-item [routerLink]="['/sbp']" routerLinkActive="active">
+        SBP Dashboard
       </mat-list-item>
     </mat-nav-list>
   </div>

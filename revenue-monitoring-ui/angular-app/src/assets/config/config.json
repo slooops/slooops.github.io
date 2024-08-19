@@ -1,5 +1,5 @@
 {
-  "api_url": "https://wd0-dashboard-dev-api.cisco.com/api/",
+  "api_url": "https://rol-dashboard-dev-api.cisco.com/api/",
   "authClientId": "frs-oauth-nprd",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }
