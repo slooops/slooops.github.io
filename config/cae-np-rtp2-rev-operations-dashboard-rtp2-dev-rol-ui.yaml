@@ -1,0 +1,52 @@
+---
+# Source: templates/dev-ui.yaml
+
+# codectl version : 1.5.6
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "rev-ops-monitoring-ui-rol-service"
+  namespace: "rev-operations-dashboard-rtp2"
+  labels:
+    softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+    softwareName: "rev-ops-monitoring"
+spec:
+  ports:
+    - name: "ui"
+      protocol: "TCP"
+      port: 3000
+  selector:
+    app: "rev-ops-monitoring-ui-rol"
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "rev-ops-monitoring-ui-rol"
+  namespace: "rev-operations-dashboard-rtp2"
+  labels:
+    softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+    softwareName: "rev-ops-monitoring"
+spec:
+  selector:
+    matchLabels:
+      app: "rev-ops-monitoring-ui-rol"
+  replicas: 1
+  template:
+    metadata:
+      namespace: "rev-operations-dashboard-rtp2"
+      labels:
+        app: "rev-ops-monitoring-ui-rol"
+        environment: "dev-ui"
+        softwareId: "d7c7615e6575481186019c284daa67946d68f871"
+        softwareName: "rev-ops-monitoring-ui-rol"
+    spec:
+      containers:
+        - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
+          imagePullPolicy: IfNotPresent
+          name: "rev-ops-monitoring-ui-rol"
+          ports:
+            - containerPort: 3000
+      imagePullSecrets:
+        - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
