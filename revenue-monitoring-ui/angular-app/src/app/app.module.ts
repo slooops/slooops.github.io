@@ -88,7 +88,7 @@ import { CustomToolTipComponent } from './custom-tool-tip/custom-tool-tip.compon
 import { CmsDetailsComponent } from './cms-details/cms-details.component';
 import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { RolComponent } from './rol/rol.component';
-import { CmsSftpModalComponent } from './cms-sftp-modal/cms-sftp-modal.component';
+import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -130,7 +130,7 @@ export function initApp(authService: AuthenticationService) {
     CmsDetailsComponent,
     CmsModalComponent,
     RolComponent,
-    CmsSftpModalComponent,
+    CmsSftpDetailsComponent,
   ],
   imports: [
     BrowserModule,

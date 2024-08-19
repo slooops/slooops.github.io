@@ -115,6 +115,38 @@ export class CmsDetailsComponent implements OnInit {
     return data && data.length > 0 ? Object.keys(data[0]) : [];
   }
 
+  replaceUnderscore(value: string | null | undefined): string {
+    if (!value) {
+      return ''; // Return an empty string if value is null or undefined
+    }
+
+    const specialWords = [
+      'data',
+      'file',
+      'no',
+      'unit',
+      'cash',
+      'citi',
+      'tech',
+      'code',
+      'home',
+    ];
+
+    return value
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map((word) => {
+        const lowerWord = word.toLowerCase();
+        if (specialWords.includes(lowerWord)) {
+          return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+        }
+        return word.length > 4
+          ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          : word;
+      })
+      .join(' ');
+  }
+
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
     console.log(data);
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);

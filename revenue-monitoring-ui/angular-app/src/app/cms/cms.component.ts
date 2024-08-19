@@ -5,12 +5,10 @@ import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
-
 import { MatDialog } from '@angular/material/dialog';
 import { CmsModalComponent } from '../cms-modal/cms-modal.component';
-import { CmsSftpModalComponent } from '../cms-sftp-modal/cms-sftp-modal.component';
-
 import { th } from 'date-fns/locale';
+import { CmsSftpDetailsComponent } from '../cms-sftp-details/cms-sftp-details.component';
 
 @Component({
   selector: 'app-cms',
@@ -299,19 +297,23 @@ export class CmsComponent implements OnInit {
     });
   }
 
-  openSftpModal() {
-    this.dialog.open(CmsSftpModalComponent, {
-      width: '80%',
-      data: this.sftpStatus,
-    });
-  }
-
   replaceUnderscore(value: string | null | undefined): string {
     if (!value) {
       return ''; // Return an empty string if value is null or undefined
     }
 
-    const specialWords = ['data', 'file', 'no', 'unit', 'tech', 'home'];
+    const specialWords = [
+      'data',
+      'file',
+      'no',
+      'unit',
+      'cash',
+      'citi',
+      'tech',
+      'home',
+      'non',
+      'apps',
+    ];
 
     return value
       .replace(/_/g, ' ')
@@ -361,5 +363,27 @@ export class CmsComponent implements OnInit {
   navigateToDetails(extractType: string): void {
     const url = `/cms-details?extractType=${encodeURIComponent(extractType)}`;
     window.open(url, '_blank');
+  }
+
+  openDetailsPage(
+    directory: string,
+    extract: string,
+    unprocessedFiles: any[]
+  ): void {
+    const dataToPass = unprocessedFiles.map((file: any) => ({
+      ...file,
+      directory,
+      extract,
+    }));
+
+    // Open the new tab
+    const newTab = window.open('/cms-sftp-details', '_blank');
+
+    // Post the data to the new tab
+    if (newTab) {
+      newTab.addEventListener('load', () => {
+        newTab.postMessage({ data: dataToPass }, '*');
+      });
+    }
   }
 }

@@ -14,6 +14,7 @@ import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
 import { CmsDetailsComponent } from './cms-details/cms-details.component';
+import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 import { RolComponent } from './rol/rol.component';
 
 const routes: Routes = [
@@ -123,6 +124,14 @@ const routes: Routes = [
     data: {
       title: 'CMS Dashboard',
       header: 'CMS Dashboard',
+    },
+  },
+  {
+    path: 'cms-sftp-details',
+    component: CmsSftpDetailsComponent,
+    data: {
+      title: 'CMS Dashboard SFTP Details',
+      header: 'CMS Dashboard SFTP Details',
     },
   },
   {
