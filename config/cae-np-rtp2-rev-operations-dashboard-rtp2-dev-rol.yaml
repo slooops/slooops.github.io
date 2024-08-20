@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.order.lifecycle.url
+                  key: cors.rol.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
