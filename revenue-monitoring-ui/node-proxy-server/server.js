@@ -7,7 +7,9 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 app.use((req, res, next) => {
-  authUserName = req.headers["auth_user"];
+  // authUserName = req.headers["auth_user"];
+  authUserName = "avudutha";
+
   next();
 });
 
