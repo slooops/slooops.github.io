@@ -468,7 +468,7 @@
 
 <hr />
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap">
+<div style="display: flex; flex-direction: row; flex-wrap: nowrap; width: 100%">
   <div style="display: flex; flex-direction: column">
     <h4 style="padding-left: 1vw; font-weight: 600">Collections</h4>
 
@@ -567,6 +567,7 @@
             <ng-container matColumnDef="COUNT">
               <th mat-header-cell *matHeaderCellDef>Count</th>
               <td
+                class="clickable-text"
                 mat-cell
                 *matCellDef="let element"
                 [ngClass]="{
@@ -939,7 +940,7 @@
             <!-- BAI2 File Name Column -->
             <ng-container matColumnDef="BAI2_FILE_NAME">
               <th mat-header-cell *matHeaderCellDef>BAI2 File Name</th>
-              <td mat-cell *matCellDef="let element">
+              <td mat-cell *matCellDef="let element" class="ellipsis-cell">
                 {{ element.BAI2_FILE_NAME }}
               </td>
             </ng-container>

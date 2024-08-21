@@ -21,9 +21,7 @@ a {
 
 .callout-box.callout-box-table {
   width: fit-content;
-
   padding: 0.5vh 0vw;
-  /* width: 47vw; */
 }
 
 .box-header {
@@ -437,7 +435,8 @@ tr.mat-header-row {
   background-color: #e0e0e0; /* Adjust the color as needed */
   min-height: fit-content; /* Adjust the height as needed */
   height: auto;
-  margin: 0.5vw; /* Adjust the margin to add space around the divider */
+  margin: 0.5vw;
+  /* margin-right: 0.6%; */
 }
 
 .widget-tray {
@@ -545,4 +544,11 @@ tr.mat-header-row {
 
 .clickable-text:hover {
   color: #0056b3; /* Darker color on hover */
+}
+
+.ellipsis-cell {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 8vw; /* Adjust the width as needed */
 }
