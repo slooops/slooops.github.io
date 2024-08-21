@@ -474,6 +474,16 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: cms.total.unapplied.amount.query
+            - name: CMS_CORE_APP_LAYER_ERROR_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.core.app.layer.error.count.query
+            - name: CMS_RECON_ERR_COUNT_EXTRACT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.recon.err.count.extract.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---
