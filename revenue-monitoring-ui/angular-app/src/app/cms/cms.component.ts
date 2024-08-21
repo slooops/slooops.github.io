@@ -19,8 +19,13 @@ export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
   isModalOpen = false;
+  sftpRefresh: string;
+  apiStatusRefresh: string;
 
   collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
+    []
+  );
+  reconciliationErrorExtract: MatTableDataSource<any> = new MatTableDataSource(
     []
   );
   latestRequestStatus: MatTableDataSource<any> = new MatTableDataSource([]);
@@ -53,30 +58,10 @@ export class CmsComponent implements OnInit {
     GREEN: '#12e370',
   };
 
-  unpostedSummaryDisplayedColumns: string[] = [
-    'OPERATING_UNIT',
-    'NO_OF_PAYMENTS',
-    'REMITTANCE_AMOUNT_USD',
-  ];
-
-  receiptErrorSummaryDisplayedColumns: string[] = [
-    'ORG_ID',
-    'BAI2_FILE_NAME',
-    'DEPOSIT_DATE',
-    'RECEIPT_DATE',
-    'RECEIPT_AMOUNT',
-  ];
-
-  extractDetailsDisplayedColumns: string[] = [
-    'BOOMI_STATUS',
-    'CTM_STATUS',
+  collectionsErrorSummaryDisplayedColumns: string[] = ['EXTRACT_TYPE', 'COUNT'];
+  reconciliationErrorExtractDisplayedColumns: string[] = [
     'EXTRACT_NAME',
-    'FILE_NAME',
-    'FILE_REC_COUNT',
-    'HRC_COUNT',
-    'REQUEST_ID',
-    'STG_REC_COUNT',
-    'TOTAL_ELIGIBLE_REC_COUNT',
+    'TOTAL_MISMATCH_COUNT',
   ];
 
   latestRequestStatusDisplayedColumns: string[] = [
@@ -89,9 +74,32 @@ export class CmsComponent implements OnInit {
     // 'TOTAL_ELIGIBLE_REC_COUNT',
   ];
 
-  collectionsErrorSummaryDisplayedColumns: string[] = ['EXTRACT_TYPE', 'COUNT'];
-
   interfaceErrorsDisplayedColumns: string[] = ['OPERATING_UNIT', 'TOTAL'];
+  unpostedSummaryDisplayedColumns: string[] = [
+    'OPERATING_UNIT',
+    'NO_OF_PAYMENTS',
+    'REMITTANCE_AMOUNT_USD',
+  ];
+  receiptErrorSummaryDisplayedColumns: string[] = [
+    'ORG_ID',
+    'BAI2_FILE_NAME',
+    'DEPOSIT_DATE',
+    'RECEIPT_DATE',
+    'RECEIPT_AMOUNT',
+  ];
+
+  //for the latest request status modal
+  extractDetailsDisplayedColumns: string[] = [
+    'BOOMI_STATUS',
+    'CTM_STATUS',
+    'EXTRACT_NAME',
+    'FILE_NAME',
+    'FILE_REC_COUNT',
+    'HRC_COUNT',
+    'REQUEST_ID',
+    'STG_REC_COUNT',
+    'TOTAL_ELIGIBLE_REC_COUNT',
+  ];
 
   constructor(
     http: ApiHttpService,
@@ -121,7 +129,8 @@ export class CmsComponent implements OnInit {
     this.getTotalReconciliationError();
     this.getAppCoreMismatchErrorCount();
     this.getSftpStatus();
-    // this.openSftpModal();
+    this.refreshFileStatus();
+    this.getReconciliationErrorExtract();
   }
 
   // collections widgets
@@ -157,6 +166,12 @@ export class CmsComponent implements OnInit {
       } else {
         this.collectionsErrorSummaryData.data = [];
       }
+    });
+  }
+
+  getReconciliationErrorExtract() {
+    this.getEndpointData('reconErrCountExtract').subscribe((data: any) => {
+      this.reconciliationErrorExtract.data = data;
     });
   }
 
@@ -209,16 +224,25 @@ export class CmsComponent implements OnInit {
 
   // top bar app status and api status
   getApiStatus() {
+    this.apiStatusRefresh = `Last Updated: ...`;
     this.getEndpointData('apiStatus').subscribe((data: any) => {
       this.apiStatus = data;
+      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
     });
   }
 
   getSftpStatus() {
-    this.getEndpointData('sftpStatus').subscribe((data: any) => {
-      console.log(data);
-      this.sftpStatus = this.processData(data);
-    });
+    this.sftpRefresh = `Last Updated: ...`;
+
+    this.getEndpointData('sftpStatus').subscribe(
+      (data: any) => {
+        this.sftpStatus = this.processData(data);
+        this.sftpRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+      },
+      (error) => {
+        console.error('Error loading SFTP status:', error);
+      }
+    );
   }
 
   getCtmStatus() {
@@ -275,6 +299,14 @@ export class CmsComponent implements OnInit {
     //   switchMap(() => this.http.get(url))
     // );
     // return polling$;
+  }
+
+  refreshFileStatus() {
+    this.getSftpStatus();
+  }
+
+  refreshApiStatus() {
+    this.getApiStatus();
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
