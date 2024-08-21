@@ -40,6 +40,7 @@ export class CmsComponent implements OnInit {
 
   extractCount: number;
   totalReconciliationError: number;
+  appCoreMismatchErrorCount: number;
 
   interfaceErrorCount: number;
   unpostedAmount: string | null = null;
@@ -118,6 +119,7 @@ export class CmsComponent implements OnInit {
     this.getUnappliedErrorSummary();
     this.getTotalUnappliedAmount();
     this.getTotalReconciliationError();
+    this.getAppCoreMismatchErrorCount();
     this.getSftpStatus();
     // this.openSftpModal();
   }
@@ -125,13 +127,19 @@ export class CmsComponent implements OnInit {
   // collections widgets
   getExtractCount() {
     this.getEndpointData('extractCount').subscribe((data: any) => {
-      this.extractCount = data[0].ERROR_CODE;
+      this.extractCount = data[0].TOTAL_DML_ERRORS;
     });
   }
 
   getTotalReconciliationError() {
     this.getEndpointData('totalReconciliationError').subscribe((data: any) => {
-      this.totalReconciliationError = data[0].TOTAL_RECONCILIATION_ERROR;
+      this.totalReconciliationError = data[0].RECONCILIATION_ERROR;
+    });
+  }
+
+  getAppCoreMismatchErrorCount() {
+    this.getEndpointData('coreAppLayerErrorCount').subscribe((data: any) => {
+      this.appCoreMismatchErrorCount = data[0].MISMATCH;
     });
   }
 

@@ -209,6 +209,12 @@ public class QueryConfigs { // TODO
     @Value(("${cms.boomi.details.hr.to.cg1.query}"))
     public String cmsBoomiDetailsHrToCg1Query;
 
+    @Value(("${cms.core.app.layer.error.count.query}"))
+    public String cmsCoreAppLayerErrorCountQuery;
+
+    @Value(("${cms.recon.err.count.extract.query}"))
+    public String cmsReconErrCountExtractQuery;
+
     @Value(("${rol.transaction.data.query}"))
     public String rolTransactionData;
 
@@ -557,6 +563,16 @@ public class QueryConfigs { // TODO
     @Bean(name = "cmsBoomiDetailsHrToCg1Query")
     public String getCmsBoomiDetailsHrToCg1Query() {
         return this.cmsBoomiDetailsHrToCg1Query;
+    }
+
+    @Bean(name = "cmsCoreAppLayerErrorCountQuery")
+    public String getCmsCoreAppLayerErrorCountQuery() {
+        return this.cmsCoreAppLayerErrorCountQuery;
+    }
+
+    @Bean(name = "cmsReconErrCountExtractQuery")
+    public String getCmsReconErrCountExtractQuery() {
+        return this.cmsReconErrCountExtractQuery;
     }
 
     @Bean(name = "rolTransactionData")

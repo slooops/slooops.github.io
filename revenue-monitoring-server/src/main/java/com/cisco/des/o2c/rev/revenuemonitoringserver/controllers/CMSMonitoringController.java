@@ -26,6 +26,9 @@ public class CMSMonitoringController {
     private static final String CUSTOMER_CONTACTS_ERR = "customerContactsErr";
     private static final String SALES_INVOICE_ITEM_EXTRACT_ERR = "salesInvoiceItemExtractErr";
 
+    //Collections Table Data - Reconciliation Error Extract
+    private static final String RECON_ERR_COUNT_EXTRACT = "reconErrCountExtract";
+
     //Collections Table Data - Latest request status
     private static final String LATEST_REQUEST_STATUS = "latestRequestStatus";
 
@@ -48,7 +51,7 @@ public class CMSMonitoringController {
     private static final String TOTAL_RECONCILIATION_ERROR = "totalReconciliationError";
 
     //Collections Widgets Data - HRC App vs Core Error/mismatch
-    //TODO
+    private static final String CORE_APP_LAYER_ERROR_COUNT = "coreAppLayerErrorCount";
 
     //Cash App Widgets Data - Interface Errors in last X hours
     private static final String INTERFACE_ERROR_COUNT_IN_XHRS = "interfaceErrorCountInXHrs";
@@ -153,43 +156,14 @@ public class CMSMonitoringController {
                 return new ResponseEntity<>(cmsMonitoringService.getTotalUnappliedAmount(), HttpStatus.OK);
             case SFTP_STATUS:
                 return new ResponseEntity<>(cmsMonitoringService.getSftpStatus(), HttpStatus.OK);
+            case CORE_APP_LAYER_ERROR_COUNT:
+                return new ResponseEntity<>(cmsMonitoringService.getCoreAppLayerErrorCount(), HttpStatus.OK);
+            case RECON_ERR_COUNT_EXTRACT:
+                return new ResponseEntity<>(cmsMonitoringService.getReconErrCountExtract(), HttpStatus.OK);
             default:
                 logger.error("Request parameter does not match with defined values!");
                 return null;
         }
     }
-
-//    @GetMapping("/cms/getdatawithdate")
-//    public ResponseEntity<List<Map<String, Object>>> getDataWithDate(@RequestParam("query") String query,
-//                                                                     @RequestParam("date") String date) {
-//        if(query.isEmpty() || query.isBlank() || date.isEmpty() || date.isBlank()){
-//            logger.error("Request parameter is null or empty!");
-//            return null;
-//        }
-//        System.out.println("Query: " + query + " Date: " + date );
-//
-////        switch(query){
-////
-////            case SALES_INVOICE_ITEM_EXTRACT_ERR:
-////                return new ResponseEntity<>(cmsMonitoringService.getSalesInvoiceItemExtractErr(), HttpStatus.OK);
-////            default:
-////                logger.error("Request parameter does not match with defined values!");
-////                return null;
-////        }
-//
-//        return null;
-//    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getUnpostedDetails() {
-//        return new ResponseEntity<>(cmsMonitoringService.getUnpostedDetailsData(), HttpStatus.OK);
-//    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getReceiptErrorSummary() {
-//        return new ResponseEntity<>(cmsMonitoringService.getReceiptErrorSummaryData(), HttpStatus.OK);
-//    }
-
-//    private ResponseEntity<List<Map<String, Object>>> getReceiptErrorDetails() {
-//        return new ResponseEntity<>(cmsMonitoringService.getReceiptErrorDetailsData(), HttpStatus.OK);
-//    }
 
 }

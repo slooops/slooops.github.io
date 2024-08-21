@@ -494,7 +494,13 @@
       </div>
 
       <div class="callout-box">
-        <div class="box-body">-</div>
+        <div class="box-body">
+          {{
+            appCoreMismatchErrorCount !== undefined
+              ? appCoreMismatchErrorCount
+              : "-"
+          }}
+        </div>
 
         <div class="box-header">HRC App Vs Core Mismatch</div>
       </div>
@@ -510,7 +516,7 @@
         "
       >
         <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
-          Extract Status
+          Job Errors
         </h4>
         <div style="display: flex; gap: 1vh">
           <button mat-icon-button [disabled]="true">

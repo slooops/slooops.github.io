@@ -51,6 +51,8 @@ public class CMSMonitoringService {
     private String boomiStatusHrToCg1Query;
     private String boomiDetailsHrToCg1Query;
     private String totalUnappliedAmountQuery;
+    private String coreAppLayerErrorCountQuery;
+    private String reconErrCountExtractQuery;
 
     private String URL = "";
     private String USER = "";
@@ -84,7 +86,8 @@ public class CMSMonitoringService {
                                 String cmsSalesInvoiceItemExtractErrorQuery, String cmsInterfaceErrorsQuery,
                                 String cmsInterfaceErrorCountInXhrsQuery, String cmsUnpostedTotalAmountQuery,
                                 String cmsTotalReconciliationErrorQuery, String cmsBoomiStatusHrToCg1Query,
-                                String cmsBoomiDetailsHrToCg1Query, String cmsTotalUnappliedAmountQuery) {
+                                String cmsBoomiDetailsHrToCg1Query, String cmsTotalUnappliedAmountQuery,
+                                String cmsCoreAppLayerErrorCountQuery, String cmsReconErrCountExtractQuery) {
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
         this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.unappliedErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
@@ -112,6 +115,8 @@ public class CMSMonitoringService {
         this.boomiStatusHrToCg1Query = cmsBoomiStatusHrToCg1Query;
         this.boomiDetailsHrToCg1Query = cmsBoomiDetailsHrToCg1Query;
         this.totalUnappliedAmountQuery = cmsTotalUnappliedAmountQuery;
+        this.coreAppLayerErrorCountQuery = cmsCoreAppLayerErrorCountQuery;
+        this.reconErrCountExtractQuery = cmsReconErrCountExtractQuery;
     }
 
     @Cacheable("unpostedSummary")
@@ -212,7 +217,7 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getExtractCount()  {
         try {
             logger.info("In getExtractCount():: retrieving data");
-            return executeQuery(extractCountQuery, "CG1PRD");
+            return executeQuery(extractCountQuery, "TS1CG1");
         } catch (Exception e) {
             logger.error("Exception in getExtractCount():: " + e);
         }
@@ -336,14 +341,14 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getApiStatus() {
         HashMap<String, Object> apiResponse = new HashMap<>();
         List<Map<String, Object>> response = new ArrayList<>();
-        HashMap<String, Object> apiResponse1 = new HashMap<>(); //temp code
-        HashMap<String, Object> apiResponse2 = new HashMap<>(); //temp code
+//        HashMap<String, Object> apiResponse1 = new HashMap<>(); //temp code
+//        HashMap<String, Object> apiResponse2 = new HashMap<>(); //temp code
 
         try {
             logger.info("In getApiStatus():: retrieving data");
             String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/public/healthCheck";
             //String uri = "https://cms-flask-dev-ext-rtp2.cisco.com/api/v1/public/healthCheck";
-            apiResponse.put("API Name", "CMS CAE Healthcheck");
+            apiResponse.put("API Name", "CAE Service");
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> result = restTemplate.exchange(uri, HttpMethod.GET, null, String.class);
 
@@ -356,10 +361,10 @@ public class CMSMonitoringService {
             }
 
             //adding temp code, later can be replaced with actual new APIs --start
-            apiResponse1.put("API Name", "CMS TestAPI-1");
-            apiResponse1.put("API Status", "GREEN");
-            apiResponse2.put("API Name", "CMS TestAPI-2");
-            apiResponse2.put("API Status", "GREEN");
+//            apiResponse1.put("API Name", "CMS TestAPI-1");
+//            apiResponse1.put("API Status", "GREEN");
+//            apiResponse2.put("API Name", "CMS TestAPI-2");
+//            apiResponse2.put("API Status", "GREEN");
             //adding temp code, later can be replaced with actual new APIs --end
 
         } catch (Exception e) {
@@ -368,8 +373,8 @@ public class CMSMonitoringService {
 
         }
         response.add(apiResponse);
-        response.add(apiResponse1); //temp code
-        response.add(apiResponse2); //temp code
+//        response.add(apiResponse1); //temp code
+//        response.add(apiResponse2); //temp code
 
         return response;
     }
@@ -432,6 +437,16 @@ public class CMSMonitoringService {
         return null;
     }
 
+    public List<Map<String, Object>> getReconErrCountExtract() {
+        try {
+            logger.info("In getReconErrCountExtract():: retrieving data");
+            return executeQuery(reconErrCountExtractQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getReconErrCountExtract():: " + e);
+        }
+        return null;
+    }
+
     public List<Map<String, Object>> getBoomiStatusHrToCg1() {
         try {
             logger.info("In getBoomiStatusHrToCG1():: retrieving data");
@@ -452,6 +467,15 @@ public class CMSMonitoringService {
         return null;
     }
 
+    public List<Map<String, Object>> getCoreAppLayerErrorCount() {
+        try {
+            logger.info("In getCoreAppLayerErrorCount():: retrieving data");
+            return executeQuery(coreAppLayerErrorCountQuery, "TS1CG1");
+        } catch (Exception e) {
+            logger.error("Exception in getCoreAppLayerErrorCount():: " + e);
+        }
+        return null;
+    }
 
     /*
      * The cache is cleared at every 15 minutes
