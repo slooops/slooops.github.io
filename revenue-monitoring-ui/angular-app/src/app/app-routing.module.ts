@@ -21,7 +21,7 @@ import { SbpComponent } from './sbp/sbp.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/cms',
+    redirectTo: '/home',
     pathMatch: 'full',
   },
   {

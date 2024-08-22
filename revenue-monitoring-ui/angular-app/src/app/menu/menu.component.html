@@ -11,7 +11,7 @@
     >
       Revenue Controls
     </mat-list-item> -->
-      <!-- <mat-expansion-panel
+      <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         style="background-color: #007dab"
         [expanded]="true"
@@ -35,46 +35,51 @@
             Mid-close
           </mat-list-item>
         </mat-nav-list>
-      </mat-expansion-panel> -->
+      </mat-expansion-panel>
       <!-- <mat-list-item [routerLink]="['/error-dash']" routerLinkActive="active">
       Error Dashboard
     </mat-list-item> -->
-      <!-- <mat-list-item
+      <mat-list-item
         [routerLink]="['/large-deal-tracker']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('LARGE_DEAL')"
       >
         Large Deal Tracker
-      </mat-list-item> -->
-      <!-- *ngIf="isAdmin || checkRole('WD0')" -->
-      <!--
-      <mat-list-item [routerLink]="['/wd0-dash']" routerLinkActive="active">
+      </mat-list-item>
+
+      <mat-list-item
+        [routerLink]="['/wd0-dash']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('WD0')"
+      >
         WD+0 Mid Close Status
-      </mat-list-item> -->
-      <!-- *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')" -->
-      <!-- <mat-list-item
+      </mat-list-item>
+      <mat-list-item
         [routerLink]="['/mid-close-volumes']"
         routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')"
       >
         WD+0 Mid Close Volumes
-      </mat-list-item> -->
-      <mat-list-item [routerLink]="['/cms']" routerLinkActive="active">
+      </mat-list-item>
+      <mat-list-item
+        [routerLink]="['/cms']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('CMS')"
+      >
         CMS Dashboard
       </mat-list-item>
-      <!-- *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')" -->
-      <!-- <mat-list-item [routerLink]="['/cms-details']" routerLinkActive="active">
-        CMS Dashboard
-      </mat-list-item> -->
-      <!-- <mat-list-item
-        [routerLink]="['/cms-sftp-details']"
+      <mat-list-item
+        [routerLink]="['/rol']"
         routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('ROL')"
       >
-        CMS Dashboard SFTP Details
-      </mat-list-item> -->
-      <mat-list-item [routerLink]="['/rol']" routerLinkActive="active">
         ROL Dashboard
       </mat-list-item>
-      <mat-list-item [routerLink]="['/sbp']" routerLinkActive="active">
+      <mat-list-item
+        [routerLink]="['/sbp']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('SBP')"
+      >
         SBP Dashboard
       </mat-list-item>
     </mat-nav-list>

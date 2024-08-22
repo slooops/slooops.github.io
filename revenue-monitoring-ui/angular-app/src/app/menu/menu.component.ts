@@ -31,8 +31,8 @@ export class MenuComponent implements OnInit {
   getUserId() {
     this.dataService.setLoading(true);
     this.http.getUser('/user/data').subscribe((data) => {
-      // let username = data['auth_user'];
-      let username = 'avudutha';
+      let username = data['auth_user'];
+      // let username = 'avudutha';
       this.dataService.setUsername(username);
       this.getUserRoles(username);
     });
@@ -46,7 +46,8 @@ export class MenuComponent implements OnInit {
       this.rolesReady = true;
       let redirectPath = this.redirectPath();
       this.errorPath = redirectPath === 'error' ? true : false;
-      // this.redirect(redirectPath);
+      console.log('redirectPath', redirectPath);
+      this.redirect(redirectPath);
     });
   }
 
@@ -68,6 +69,12 @@ export class MenuComponent implements OnInit {
           return 'wd0-dash';
         } else if (this.userRoles.includes('MIDCLOSE_VOLUMES')) {
           return 'mid-close-volumes';
+        } else if (this.userRoles.includes('CMS')) {
+          return 'cms';
+        } else if (this.userRoles.includes('ROL')) {
+          return 'rol';
+        } else if (this.userRoles.includes('SBP')) {
+          return 'sbp';
         } else {
           return 'error';
         }
@@ -76,6 +83,7 @@ export class MenuComponent implements OnInit {
   }
 
   redirect(navigateString) {
+    console.log('here');
     this.dataService.setLoading(false);
     this.router.navigateByUrl(navigateString);
   }
