@@ -1,12 +1,12 @@
 ---
-# Source: templates/stage-ui.yaml
+# Source: templates/dev-ui.yaml
 
 # codectl version : 1.5.6
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-ui-error-service-stg"
+  name: "rev-ops-monitoring-ui-rol-service"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -15,15 +15,15 @@ spec:
   ports:
     - name: "ui"
       protocol: "TCP"
-      port: 4200
+      port: 3000
   selector:
-    app: "rev-ops-monitoring-ui-error"
+    app: "rev-ops-monitoring-ui-rol"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-ui-error"
+  name: "rev-ops-monitoring-ui-rol"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -31,30 +31,30 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-ui-error"
+      app: "rev-ops-monitoring-ui-rol"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-stg-rtp2"
       labels:
-        app: "rev-ops-monitoring-ui-error"
+        app: "rev-ops-monitoring-ui-rol"
         environment: "stage-ui"
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-ui-error"
+        softwareName: "rev-ops-monitoring-ui-rol"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-ui-error"
+          name: "rev-ops-monitoring-ui-rol"
           ports:
-            - containerPort: 4200
+            - containerPort: 3000
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: error-dashboard-stg.cisco.com
+  name: rol-dashboard-stg.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
 spec:
   contexts:
@@ -93,7 +93,7 @@ spec:
           when:
             - kind: clientId
               values:
-                - "frs-oauth-prod"
+                - "frs-oauth-nprd"
     web:
       allow:
         - paths:
