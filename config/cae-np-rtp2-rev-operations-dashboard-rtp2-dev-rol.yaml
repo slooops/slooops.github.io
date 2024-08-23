@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-backend-error-service"
+  name: "rev-ops-monitoring-backend-rol-service"
   namespace: "rev-operations-dashboard-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -17,13 +17,13 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-    app: "rev-ops-monitoring-server-error"
+    app: "rev-ops-monitoring-server-rol"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-server-error"
+  name: "rev-ops-monitoring-server-rol"
   namespace: "rev-operations-dashboard-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -31,21 +31,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-server-error"
+      app: "rev-ops-monitoring-server-rol"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-rtp2"
       labels:
-        app: "rev-ops-monitoring-server-error"
+        app: "rev-ops-monitoring-server-rol"
         environment: "dev"
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-server-error"
+        softwareName: "rev-ops-monitoring-server-rol"
     spec:
       containers:
-        - image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring"
+        - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-server-error"
+          name: "rev-ops-monitoring-server-rol"
           ports:
             - containerPort: 8080
           env:
@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.error.url
+                  key: cors.rol.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -189,16 +189,6 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.query
-            - name: ORDER_STATUS_DOWNLOAD_Q
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: order.status.download.query
-            - name: ORDER_STATUS_DOWNLOAD_Q
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: order.status.download.query
             - name: ORDER_STATUS_SUMMARY_Q
               valueFrom:
                 configMapKeyRef:
@@ -209,6 +199,16 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: order.status.summary.q
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
+            - name: ORDER_STATUS_DOWNLOAD_Q
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: order.status.download.query
             - name: INVOICE_TRACKER_HEADER_QUERY
               valueFrom:
                 configMapKeyRef:
@@ -289,5 +289,200 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: update.invoice.eligible.date.q
+            - name: WD0_REGRESSION_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.regression.q
+            - name: WDO_CURRENT_MONTH_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.current.month.q
+            - name: PERSONA_ACCESS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: persona.access.q
+            - name: DELETE_SELECTED_DEALS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: delete.selected.deals.q
+            - name: CLO_BULK_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.bulk.update.q
+            - name: INVOICE_ELIGIBLE_DATE_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.eligible.update.q
+            - name: CLO_COMMENTS_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.comment.update.q
+            - name: CMS_UNPOSTED_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.summary.query
+            - name: CMS_UNPOSTED_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.details.query
+            - name: CMS_RECEIPT_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.receipt.error.summary
+            - name: CMS_RECEIPT_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.receipt.error.details.query
+            - name: CMS_JOB_RUN_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.job.run.status.query
+            - name: CMS_CTM_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.ctm.status.query
+            - name: CMS_CTM_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.ctm.details.query
+            - name: CMS_BOOMI_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.status.query
+            - name: CMS_BOOMI_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.details.query
+            - name: CMS_EXTRACT_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.extract.count.query
+            - name: CMS_EXTRACT_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.extract.details.query
+            - name: CMS_LATEST_REQUEST_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.latest.request.status.query
+            - name: CMS_COLLECTIONS_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.collections.error.summary.query
+            - name: CMS_INVOICE_PDF_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.invoice.pdf.extract.error.query
+            - name: CMS_INVOICE_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.invoice.extract.error.query
+            - name: CMS_CUSTOMER_MASTER_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.customer.master.error.query
+            - name: CMS_ALTERNATE_PAYER_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.alternate.payer.error.query
+            - name: CMS_SALES_INVOICE_HEADER_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.sales.invoice.header.extract.error.query
+            - name: CMS_CUSTOMER_CONTACTS_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.customer.contacts.error.query
+            - name: CMS_SALES_INVOICE_ITEM_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.sales.invoice.item.extract.query
+            - name: CMS_INTERFACE_ERRORS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.interface.errors.query
+            - name: CMS_INTERFACE_ERROR_COUNT_IN_XHRS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.interface.error.count.in.xhrs.query
+            - name: CMS_UNPOSTED_TOTAL_AMOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.total.amount.query
+            - name: CMS_TOTAL_RECONCILIATION_ERROR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.total.reconciliation.error.query
+            - name: CMS_BOOMI_STATUS_HR_TO_CG1_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.status.hr.to.cg1.query
+            - name: CMS_BOOMI_DETAILS_HR_TO_CG1_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.details.hr.to.cg1.query
+            - name: ROL_TRANSACTION_DATA_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.query
+            - name: ROL_ERRORS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.query
+            - name: SBP_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: sbp.summary.query
+            - name: CMS_TOTAL_UNAPPLIED_AMOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.total.unapplied.amount.query
+            - name: CMS_CORE_APP_LAYER_ERROR_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.core.app.layer.error.count.query
+            - name: CMS_RECON_ERR_COUNT_EXTRACT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.recon.err.count.extract.query
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret

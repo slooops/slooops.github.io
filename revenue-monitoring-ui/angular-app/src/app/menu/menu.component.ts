@@ -30,9 +30,6 @@ export class MenuComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
-    // let username = 'avudutha';
-    // this.dataService.setUsername(username);
-    // this.getUserRoles(username);
     this.http.getUser('/user/data').subscribe((data) => {
       let username = data['auth_user'];
       this.dataService.setUsername(username);
@@ -43,6 +40,7 @@ export class MenuComponent implements OnInit {
   getUserRoles(username: any) {
     this.http.post('user-role', username).subscribe((data: any) => {
       if (data) {
+        console.log(data);
         this.userRoles = data['userRoles'];
         this.dataService.setUserRoles(this.userRoles);
         this.isAdmin = this.userRoles.includes('ADMIN');
@@ -75,6 +73,12 @@ export class MenuComponent implements OnInit {
           return 'wd0-dash';
         } else if (this.userRoles.includes('MIDCLOSE_VOLUMES')) {
           return 'mid-close-volumes';
+        } else if (this.userRoles.includes('CMS')) {
+          return 'cms';
+        } else if (this.userRoles.includes('ROL')) {
+          return 'rol';
+        } else if (this.userRoles.includes('SBP')) {
+          return 'sbp';
         } else {
           return 'error';
         }
@@ -83,6 +87,7 @@ export class MenuComponent implements OnInit {
   }
 
   redirect(navigateString) {
+    console.log('here');
     this.dataService.setLoading(false);
     this.router.navigateByUrl(navigateString);
   }

@@ -1,347 +1,1130 @@
-<div class="top-right">
-  <div>
+<div
+  style="
+    display: flex;
+    overflow-x: scroll;
+    white-space: nowrap;
+    width: 100%;
+    margin-top: 0.6vw;
+  "
+>
+  <div style="display: flex; justify-content: space-between">
+    <div
+      class="callout-box callout-box-table"
+      style="width: 46vw; min-width: 620px; margin-bottom: 0.3vw"
+    >
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          margin-bottom: -14px;
+        "
+      >
+        <h4 style="font-weight: 550; text-align: left; padding: 0 0 0px 0.8vw">
+          File Status
+        </h4>
+        <div style="display: flex; margin: -0.5vw 0vw 0 0">
+          <p style="padding: 0.8vw 0.8vw 0 0">{{ sftpRefresh }}</p>
+          <button mat-icon-button (click)="refreshFileStatus()">
+            <i class="fa fa-refresh"></i>
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex">
+        <table style="width: 100%; overflow-x: auto">
+          <thead>
+            <tr>
+              <th>Extract</th>
+              <th>File Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of sftpStatus.slice(0, 6)">
+              <td>{{ replaceUnderscore(item.extract) }}</td>
+              <td>
+                <span
+                  class="clickable-text"
+                  (click)="
+                    openDetailsPage(
+                      item.directory,
+                      item.extract,
+                      item.unprocessedFiles
+                    )
+                  "
+                >
+                  {{ item.unprocessedFiles.length }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table style="width: 100%; overflow-x: auto">
+          <thead>
+            <tr>
+              <th>Extract</th>
+              <th>File Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of sftpStatus.slice(6, 12)">
+              <td>{{ replaceUnderscore(item.extract) }}</td>
+              <td>
+                <span
+                  class="clickable-text"
+                  (click)="
+                    openDetailsPage(
+                      item.directory,
+                      item.extract,
+                      item.unprocessedFiles
+                    )
+                  "
+                >
+                  {{ item.unprocessedFiles.length }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table style="width: 100%; overflow-x: auto">
+          <thead>
+            <tr>
+              <th>Extract</th>
+              <th>File Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of sftpStatus.slice(12, 17)">
+              <td>{{ replaceUnderscore(item.extract) }}</td>
+              <td>
+                <span
+                  class="clickable-text"
+                  (click)="
+                    openDetailsPage(
+                      item.directory,
+                      item.extract,
+                      item.unprocessedFiles
+                    )
+                  "
+                >
+                  {{ item.unprocessedFiles.length }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!sftpStatus?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br />
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="flowchart-container" style="width: 400px">
+    <div class="slider-container">
+      <h4 class="slider-title">Application Status</h4>
+      <div class="slider">
+        <div class="slider-bar">
+          <div class="top-slider-bar"></div>
+          <div class="curved-bar"></div>
+
+          <div>
+            <span
+              class="slider-circle circle-2"
+              customToolTip
+              [contentTemplate]="ctmTooltip"
+              [ngStyle]="{
+                'background-color': getColorCode(ctmStatus[0]?.COLOR)
+              }"
+            ></span>
+            <p class="circle-caption circle-2-caption">Control-M</p>
+          </div>
+
+          <div>
+            <span
+              class="slider-circle circle-2 lower-circle"
+              customToolTip
+              [contentTemplate]="highRadiusTooltip"
+              [ngStyle]="{
+                'background-color': getColorCode(ctmStatus[0]?.COLOR)
+              }"
+            ></span>
+            <p class="circle-caption circle-2-caption lower-caption">
+              Control-M
+            </p>
+          </div>
+
+          <div>
+            <span
+              class="slider-circle circle-3"
+              customToolTip
+              [contentTemplate]="boomiTooltip"
+              [ngStyle]="{
+                'background-color': getColorCode(boomiStatus[0]?.COLOR)
+              }"
+            ></span>
+            <p class="circle-caption circle-3-caption">Boomi</p>
+          </div>
+
+          <div>
+            <span
+              class="slider-circle circle-3 lower-circle"
+              customToolTip
+              [contentTemplate]="boomiTooltipFromHr"
+              [ngStyle]="{
+                'background-color': getColorCode(boomiStatusFromHr[0]?.STATUS)
+              }"
+            ></span>
+            <p class="circle-caption circle-3-caption lower-caption-3">Boomi</p>
+          </div>
+
+          <div class="curved-bar-2"></div>
+
+          <div class="slider-bar-lower"></div>
+
+          <!-- Chevron Arrows -->
+          <div class="chevron upper-chevron"></div>
+          <div class="chevron uc-2"></div>
+          <div class="chevron lower-chevron"></div>
+          <div class="chevron lc-2"></div>
+          <div class="chevron lc-3"></div>
+        </div>
+      </div>
+
+      <!-- Middle Bar -->
+      <div class="slider">
+        <div class="middle-slider-bar">
+          <span class="slider-circle circle-1">
+            <p class="circle-caption" style="left: 6px">CG1</p>
+          </span>
+        </div>
+        <div class="middle-slider-bar middle-slider-bar-end">
+          <span
+            class="slider-circle circle-4"
+            customToolTip
+            [contentTemplate]="highRadiusTooltip"
+            [ngStyle]="{ 'background-color': getColorCode('BLUE') }"
+          >
+            <p class="circle-caption" style="left: -15px">High Radius</p>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="column">
+    <div class="callout-box" style="width: 170px">
+      <h4 style="font-weight: 500">API Status</h4>
+      <table>
+        <tbody>
+          <tr *ngFor="let detail of apiStatus">
+            <td>{{ detail["API Name"] }}</td>
+            <td>
+              <span
+                class="color-circle"
+                [ngStyle]="{
+                  'background-color': getColorCode(detail['API Status'])
+                }"
+              ></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div> -->
+
+  <div class="column" style="margin: 1vw 1vw 0vw 1vw; width: 250px">
+    <h4 style="font-weight: 550">Job Timings</h4>
+
+    <button class="export-button" (click)="openHighRadiusModal()">
+      <i class="fa fa-clock-o"></i> CG1 ➡ High Radius
+    </button>
+
     <button
       class="export-button"
-      (click)="
-        exportTableToExcel(
-          unpostedSummaryData.data,
-          'Unposted Summary Data',
-          'Unposted Summary Data'
-        );
-        exportTableToExcel(
-          receiptErrorSummaryData.data,
-          'Receipt Error Summary Data',
-          'Receipt Error Summary Data'
-        )
-      "
+      style="margin-top: 0.5vw"
+      (click)="openHighRadiusToCG1Modal()"
     >
-      <i class="fa fa-download"></i>
-      Export
+      <i class="fa fa-clock-o"></i> High Radius ➡ CG1
     </button>
+
+    <button
+      class="export-button"
+      style="margin-top: 0.5vw"
+      (click)="openModal()"
+    >
+      <i class="fa fa-clock-o"></i> Month End Timings
+    </button>
+
+    <div style="display: flex">
+      <button mat-icon-button (click)="refreshApiStatus()">
+        <i class="fa fa-refresh"></i>
+      </button>
+      <tr *ngFor="let detail of apiStatus" style="margin-top: 0.5vw">
+        <td>
+          {{ detail["API Name"] }}
+        </td>
+        <td>
+          <span
+            class="color-circle"
+            [ngStyle]="{
+              'background-color': getColorCode(detail['API Status'])
+            }"
+          ></span>
+        </td>
+
+        <td>{{ apiStatusRefresh }}</td>
+      </tr>
+    </div>
   </div>
 </div>
 
+<ng-template #ctmTooltip>
+  <table>
+    <thead>
+      <tr>
+        <th>Extract Name</th>
+        <th>Status</th>
+        <th></th>
+        <th>Last Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of ctmDetails">
+        <td>{{ replaceUnderscore(detail.EXTRACT_NAME) }}</td>
+        <td>{{ replaceUnderscore(detail.STATUS) }}</td>
+        <td>
+          <span
+            class="color-circle"
+            [ngStyle]="{ 'background-color': getColorCode(detail.COLOR_CODE) }"
+          ></span>
+        </td>
+        <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
+      </tr>
+    </tbody>
+  </table>
+</ng-template>
+
+<ng-template #boomiTooltip>
+  <table>
+    <thead>
+      <tr>
+        <th>Extract Name</th>
+        <th>Status</th>
+        <th></th>
+        <th>Last Update</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of boomiDetails">
+        <td>{{ replaceUnderscore(detail.EXTRACT_NAME) }}</td>
+        <td>{{ replaceUnderscore(detail.STATUS) }}</td>
+        <td>
+          <span
+            class="color-circle"
+            [ngStyle]="{ 'background-color': getColorCode(detail.COLOR_CODE) }"
+          ></span>
+        </td>
+        <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
+      </tr>
+    </tbody>
+  </table>
+</ng-template>
+
+<ng-template #boomiTooltipFromHr>
+  <table>
+    <thead>
+      <tr>
+        <th>Boomi Status</th>
+        <th>Creation Date</th>
+        <th>File Name</th>
+        <th>Process Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of boomiDetailsFromHr">
+        <td>{{ replaceUnderscore(detail.BOOMI_STATUS) }}</td>
+        <td>{{ detail.CREATION_DATE | date : "short" }}</td>
+        <td>{{ detail.FILE_NAME }}</td>
+        <td>{{ replaceUnderscore(detail.PROCESS_STATUS) }}</td>
+      </tr>
+    </tbody>
+  </table>
+</ng-template>
+
+<ng-template #highRadiusTooltip>Coming soon</ng-template>
+
+<!-- Month End Timings Modal -->
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div
+    class="callout-box"
+    style="width: fit-content; padding: 0"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h4 style="font-weight: 500">Month End Timings</h4>
+
+      <button class="close-button" (click)="closeModal()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <table style="width: fit-content">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Timing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              ROW Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv PDF
+            </td>
+            <td>WD + 0 at 02:00 PST</td>
+          </tr>
+          <tr>
+            <td>
+              AMERICAS Open AR/Closed AR/SIH/SIL/Payment Adjustments/WPA Inv PDF
+            </td>
+            <td>WD + 0 at 02:00 PST</td>
+          </tr>
+          <tr>
+            <td>
+              CashApps BAI2 jobs (Does not run between WD-0 20:00 PST to WD+0
+              10:00 PST)
+            </td>
+            <td>Every 60 min starting 00:30 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps MONTHEND Report</td>
+            <td>Every 60 min starting 01:15 PST</td>
+          </tr>
+          <tr>
+            <td>Reconciliation Jobs</td>
+            <td>Every 120 min starting 01:00 PST</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for CG1 ➡ High Radius -->
+<div class="modal-overlay" *ngIf="isHighRadiusModalOpen" (click)="closeModal()">
+  <div
+    class="callout-box"
+    style="width: fit-content; padding: 0"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h4 style="font-weight: 500">CG1 ➡ High Radius</h4>
+      <button class="close-button" (click)="closeModal()">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <table style="width: 400px; table-layout: fixed">
+        <thead>
+          <tr>
+            <th style="word-break: break-word; white-space: normal">Job</th>
+            <th style="word-break: break-word; white-space: normal">Timing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="word-break: break-word; white-space: normal">
+              Customer Master, Customer Contacts, Customer Relationships
+            </td>
+            <td style="word-break: break-word; white-space: normal">
+              0030, 0630, 1230, 1830 PST
+            </td>
+          </tr>
+          <tr>
+            <td style="word-break: break-word; white-space: normal">
+              US Open AR/ Closed AR, US / SIH/SIL/ Invoice PDF/ Payments Adj
+            </td>
+            <td style="word-break: break-word; white-space: normal">
+              20:00 PST (Except Saturday)
+            </td>
+          </tr>
+          <tr>
+            <td style="word-break: break-word; white-space: normal">
+              ROW Open AR/ Closed AR, ROW SIH/SIL/ Invoice PDF/ Payments Adj
+            </td>
+            <td style="word-break: break-word; white-space: normal">
+              07:00 PST (Except Saturday)
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for High Radius ➡ CG1 -->
 <div
-  style="display: flex; flex-direction: row; flex-wrap: wrap; max-height: 30vh"
+  class="modal-overlay"
+  *ngIf="isHighRadiusToCG1ModalOpen"
+  (click)="closeModal()"
 >
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-body">3</div>
-
-      <div class="box-header">Interface Errors in last 48 hours</div>
+  <div
+    class="callout-box"
+    style="width: fit-content; padding: 0"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <h4 style="font-weight: 500">High Radius ➡ CG1</h4>
+      <button class="close-button" (click)="closeModal()">
+        <i class="fa fa-times"></i>
+      </button>
     </div>
-  </a>
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-body">2</div>
-
-      <div class="box-header">Extracts Errors in last 7 days</div>
-    </div>
-  </a>
-  <a [routerLink]="['/detail-view']">
-    <div class="callout-box">
-      <div class="box-body">3</div>
-
-      <div class="box-header">Interface Errors in last 48 hours</div>
-    </div>
-  </a>
-
-  <div class="slider-container">
-    <div class="slider-title">Application Status</div>
-    <div class="slider">
-      <div class="slider-bar">
-        <span
-          class="slider-circle circle-1"
-          customToolTip
-          [contentTemplate]="ctmTooltip"
-          [ngStyle]="{
-            'background-color': getColorCode(ctmStatus[0]?.COLOR)
-          }"
-        >
-          <p class="circle-caption" style="left: -0.6vh">Control-M</p>
-        </span>
-
-        <ng-template #ctmTooltip>
-          <table>
-            <thead>
-              <tr>
-                <th>Extract Name</th>
-                <th>Status</th>
-                <th>Last Update</th>
-                <th>Color</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let detail of ctmDetails">
-                <td>{{ detail.EXTRACT_NAME }}</td>
-                <td>{{ detail.STATUS }}</td>
-                <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
-                <td>
-                  <span
-                    class="color-circle"
-                    [ngStyle]="{
-                      'background-color': getColorCode(detail.COLOR_CODE)
-                    }"
-                  ></span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-template>
-
-        <span
-          class="slider-circle circle-2"
-          customToolTip
-          [contentTemplate]="boomiTooltip"
-          [ngStyle]="{
-            'background-color': getColorCode(boomiStatus[0]?.COLOR)
-          }"
-        >
-          <p class="circle-caption">Boomi</p>
-        </span>
-
-        <ng-template #boomiTooltip>
-          <table>
-            <thead>
-              <tr>
-                <th>Extract Name</th>
-                <th>Status</th>
-                <th>Last Update</th>
-                <th>Color</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let detail of boomiDetails">
-                <td>{{ detail.EXTRACT_NAME }}</td>
-                <td>{{ detail.STATUS }}</td>
-                <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
-                <td>
-                  <span
-                    class="color-circle"
-                    [ngStyle]="{
-                      'background-color': getColorCode(detail.COLOR_CODE)
-                    }"
-                  ></span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-template>
-
-        <span
-          class="slider-circle circle-3"
-          customToolTip
-          [contentTemplate]="highRadiusTooltip"
-          [ngStyle]="{ 'background-color': getColorCode('BLUE') }"
-        >
-          <p class="circle-caption" style="left: -1.1vh">High Radius</p>
-        </span>
-        <ng-template #highRadiusTooltip>Coming soon</ng-template>
-      </div>
+    <div class="modal-body">
+      <table style="width: 100%">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Timing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CLS Error Reprocessing</td>
+            <td>01:00 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps BAI2 jobs</td>
+            <td>Every 60 min starting 00:30 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps Daily Report</td>
+            <td>Every 180 min starting 01:15 PST</td>
+          </tr>
+          <tr>
+            <td>CashApps Weekly Report</td>
+            <td>Saturday 22:00 PST</td>
+          </tr>
+          <tr>
+            <td>Reconciliation Jobs</td>
+            <td>Every 120 min starting 01:00 PST</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
 
 <hr />
 
-<div style="display: flex; flex-direction: row; flex-wrap: wrap">
-  <div class="callout-box callout-box-table">
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      "
-    >
-      <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
-        Unposted Summary Table
-      </h4>
-      <div style="display: flex; gap: 1vh">
-        <button
-          mat-icon-button
-          (click)="refreshUnpostedSummary()"
-          [disabled]="unpostedSummaryLoading"
-        >
-          <i class="fa fa-refresh"></i>
-        </button>
-        <button
-          mat-icon-button
-          (click)="
-            exportTableToExcel(
-              unpostedSummaryData.data,
-              'Unposted Summary Data',
-              'Unposted Summary Data'
-            )
-          "
-        >
-          <i class="fa fa-download"></i>
-        </button>
+<div style="display: flex; flex-direction: row; flex-wrap: nowrap; width: 100%">
+  <div style="display: flex; flex-direction: column">
+    <h4 style="padding-left: 1vw; font-weight: 600">Collections</h4>
+
+    <div class="widget-tray">
+      <div class="callout-box">
+        <div class="box-body">
+          {{ extractCount !== undefined ? extractCount : "-" }}
+        </div>
+
+        <div class="box-header">Extract Errors in the last week</div>
+      </div>
+
+      <div class="callout-box">
+        <div class="box-body">
+          {{
+            totalReconciliationError !== undefined
+              ? totalReconciliationError
+              : "-"
+          }}
+        </div>
+
+        <div class="box-header">Reconciliation Errors</div>
+      </div>
+
+      <div class="callout-box">
+        <div class="box-body">
+          {{
+            appCoreMismatchErrorCount !== undefined
+              ? appCoreMismatchErrorCount
+              : "-"
+          }}
+        </div>
+
+        <div class="box-header">HRC App Vs Core Mismatch</div>
       </div>
     </div>
-    <div class="arclosetable">
-      <ng-container *ngIf="unpostedSummaryData?.data?.length">
-        <table
-          mat-table
-          [dataSource]="unpostedSummaryData"
-          #unpostedSummarySort="matSort"
-          matSort
-          class="arclosetable styled-table"
-          style="width: 46vw"
-        >
-          <!-- Organization ID Column -->
-          <ng-container matColumnDef="ORG_ID">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Organization ID
-            </th>
-            <td mat-cell *matCellDef="let element">{{ element.ORG_ID }}</td>
-          </ng-container>
 
-          <!-- Number of Payments Column -->
-          <ng-container matColumnDef="NO_OF_PAYMENTS">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Number of Payments
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.NO_OF_PAYMENTS }}
-            </td>
-          </ng-container>
+    <div class="callout-box callout-box-table">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
+          Job Errors
+        </h4>
+        <div style="display: flex; gap: 1vh">
+          <button mat-icon-button [disabled]="true">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                collectionsErrorSummaryData.data,
+                'Collections Error Summary Data',
+                'Collections Error Data'
+              )
+            "
+          >
+            <i class="fa fa-download"></i>
+          </button>
+        </div>
+      </div>
+      <div>
+        <ng-container *ngIf="collectionsErrorSummaryData?.data?.length">
+          <table
+            mat-table
+            [dataSource]="collectionsErrorSummaryData"
+            style="width: 46vw; overflow-x: auto"
+          >
+            <!-- Extract Type Column -->
+            <ng-container matColumnDef="EXTRACT_TYPE">
+              <th mat-header-cell *matHeaderCellDef>Extract Type</th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{
+                  'clickable-row': element.COUNT > 0,
+                  'non-clickable-row': element.COUNT === 0
+                }"
+                (click)="
+                  element.COUNT > 0
+                    ? navigateToDetails(element.EXTRACT_TYPE)
+                    : null
+                "
+              >
+                {{ element.EXTRACT_TYPE }}
+              </td>
+            </ng-container>
 
-          <!-- Remittance Amount USD Column -->
-          <ng-container matColumnDef="REMITTANCE_AMOUNT_USD">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Remittance Amount (USD)
-            </th>
-            <td mat-cell *matCellDef="let element">
-              ${{ element.REMITTANCE_AMOUNT_USD | number : "1.2-2" }}
-            </td>
-          </ng-container>
+            <!-- Count Column -->
+            <ng-container matColumnDef="COUNT">
+              <th mat-header-cell *matHeaderCellDef>Count</th>
+              <td
+                class="clickable-text"
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{
+                  'clickable-row': element.COUNT > 0,
+                  'non-clickable-row': element.COUNT === 0
+                }"
+                (click)="
+                  element.COUNT > 0
+                    ? navigateToDetails(element.EXTRACT_TYPE)
+                    : null
+                "
+              >
+                {{ element.COUNT }}
+              </td>
+            </ng-container>
 
-          <!-- Header and Row Declarations -->
-          <tr
-            mat-header-row
-            *matHeaderRowDef="unpostedSummaryDisplayedColumns"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: unpostedSummaryDisplayedColumns"
-          ></tr>
-        </table>
-      </ng-container>
+            <!-- Header and Row Declarations -->
+            <tr
+              mat-header-row
+              *matHeaderRowDef="collectionsErrorSummaryDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="
+                let row;
+                columns: collectionsErrorSummaryDisplayedColumns
+              "
+              [ngClass]="{
+                'clickable-row': row.COUNT > 0,
+                'non-clickable-row': row.COUNT === 0
+              }"
+            ></tr>
+          </table>
+        </ng-container>
+      </div>
+
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!collectionsErrorSummaryData?.data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
     </div>
 
-    <div style="display: flex; justify-content: center">
-      <ng-container
-        *ngIf="!unpostedSummaryData?.data?.length || unpostedSummaryLoading"
+    <div class="callout-box callout-box-table">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        "
       >
-        <div class="loading-container">
-          <app-loading-symbol></app-loading-symbol>
-          <br /><br /><br />
+        <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
+          Reconciliation Error Extract
+        </h4>
+        <div style="display: flex; gap: 1vh">
+          <button mat-icon-button [disabled]="true">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                reconciliationErrorExtract.data,
+                'Reconciliation Error Extract Data',
+                'Reconciliation_Error_Extract_Data'
+              )
+            "
+          >
+            <i class="fa fa-download"></i>
+          </button>
         </div>
-      </ng-container>
+      </div>
+      <div>
+        <!-- Reconciliation Error Extract Table -->
+        <ng-container *ngIf="reconciliationErrorExtract?.data?.length">
+          <table
+            mat-table
+            [dataSource]="reconciliationErrorExtract"
+            style="width: 46vw; overflow-x: auto"
+          >
+            <!-- Extract Name Column -->
+            <ng-container matColumnDef="EXTRACT_NAME">
+              <th mat-header-cell *matHeaderCellDef>Extract Name</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.EXTRACT_NAME) }}
+              </td>
+            </ng-container>
+
+            <!-- Total Mismatch Count Column -->
+            <ng-container matColumnDef="TOTAL_MISMATCH_COUNT">
+              <th mat-header-cell *matHeaderCellDef>Total Mismatch Count</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element["SUM(TOTAL_MISMATCH_COUNT)"] }}
+              </td>
+            </ng-container>
+
+            <!-- Header and Row Declarations -->
+            <tr
+              mat-header-row
+              *matHeaderRowDef="reconciliationErrorExtractDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="
+                let row;
+                columns: reconciliationErrorExtractDisplayedColumns
+              "
+            ></tr>
+          </table>
+        </ng-container>
+        <div style="display: flex; justify-content: center"></div>
+
+        <ng-container *ngIf="!reconciliationErrorExtract?.data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="callout-box callout-box-table">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
+          Latest Request Status
+        </h4>
+        <div style="display: flex; gap: 1vh">
+          <button mat-icon-button [disabled]="true">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                latestRequestStatus.data,
+                'Latest Request Status',
+                'Latest Request Status'
+              )
+            "
+          >
+            <i class="fa fa-download"></i>
+          </button>
+          <button mat-icon-button (click)="openFullTableModal()">
+            <i class="fa fa-table"></i>
+          </button>
+        </div>
+      </div>
+      <div>
+        <!-- Latest Request Status Table -->
+        <ng-container *ngIf="latestRequestStatus?.data?.length">
+          <table
+            mat-table
+            [dataSource]="latestRequestStatus"
+            style="width: 46vw; overflow-x: auto"
+          >
+            <!-- Extract Name Column -->
+            <ng-container matColumnDef="EXTRACT_NAME">
+              <th mat-header-cell *matHeaderCellDef>Extract Name</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.EXTRACT_NAME) }}
+              </td>
+            </ng-container>
+
+            <!-- Source Type Column -->
+            <ng-container matColumnDef="SOURCE_TYPE">
+              <th mat-header-cell *matHeaderCellDef>Source Type</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.SOURCE_TYPE) }}
+              </td>
+            </ng-container>
+
+            <!-- Status Column -->
+            <ng-container matColumnDef="STATUS">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.STATUS) }}
+              </td>
+            </ng-container>
+
+            <!-- Header and Row Declarations -->
+            <tr
+              mat-header-row
+              *matHeaderRowDef="latestRequestStatusDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: latestRequestStatusDisplayedColumns"
+            ></tr>
+          </table>
+        </ng-container>
+        <div style="display: flex; justify-content: center"></div>
+
+        <ng-container *ngIf="!latestRequestStatus?.data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
     </div>
   </div>
 
-  <div class="callout-box callout-box-table">
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      "
-    >
-      <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
-        Receipt Error Summary Table
-      </h4>
-      <div style="display: flex; gap: 1vh">
-        <button
-          mat-icon-button
-          (click)="refreshReceiptErrorSummary()"
-          [disabled]="receiptErrorSummaryLoading"
-        >
-          <i class="fa fa-refresh"></i>
-        </button>
-        <button
-          mat-icon-button
-          (click)="
-            exportTableToExcel(
-              receiptErrorSummaryData.data,
-              'Receipt Error Summary Data',
-              'Receipt Error Summary Data'
-            )
-          "
-        >
-          <i class="fa fa-download"></i>
-        </button>
+  <div class="vertical-divider"></div>
+
+  <div style="display: flex; flex-direction: column">
+    <h4 style="padding-left: 1vw; font-weight: 600">Cash App</h4>
+    <div class="widget-tray">
+      <div class="callout-box">
+        <div class="box-body">
+          {{ interfaceErrorCount !== undefined ? interfaceErrorCount : "-" }}
+        </div>
+
+        <div class="box-header">Interface Errors in last 48 hours</div>
+      </div>
+
+      <div class="callout-box">
+        <div class="box-body">
+          {{ unappliedAmount !== null ? "$" + unappliedAmount : "-" }}
+        </div>
+        <div class="box-header">Unapplied Amount</div>
+      </div>
+
+      <div class="callout-box">
+        <div class="box-body">
+          {{ unpostedAmount !== null ? "$" + unpostedAmount : "-" }}
+        </div>
+
+        <div class="box-header">Unposted Amount (Millions)</div>
       </div>
     </div>
 
-    <div class="arclosetable">
-      <!-- Receipt Error Summary Table -->
-      <ng-container *ngIf="receiptErrorSummaryData?.data?.length">
-        <table
-          #receiptErrorSummary
-          mat-table
-          [dataSource]="receiptErrorSummaryData"
-          #receiptErrorSummarySort="matSort"
-          matSort
-          class="arclosetable styled-table"
-          style="width: 46vw"
-        >
-          <!-- Operating Unit Column -->
-          <ng-container matColumnDef="OPERATING_UNIT">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Operating Unit
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.OPERATING_UNIT }}
-            </td>
-          </ng-container>
-
-          <!-- Number of Payments Column -->
-          <ng-container matColumnDef="NO_OF_PAYMENTS">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Number of Payments
-            </th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.NO_OF_PAYMENTS }}
-            </td>
-          </ng-container>
-
-          <!-- Unapplied Amount USD Column -->
-          <ng-container matColumnDef="UNAPPLIED_AMOUNT_USD">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Unapplied Amount (USD)
-            </th>
-            <td mat-cell *matCellDef="let element">
-              ${{ element.UNAPPLIED_AMOUNT_USD | number : "1.2-2" }}
-            </td>
-          </ng-container>
-
-          <!-- Header and Row Declarations -->
-          <tr
-            mat-header-row
-            *matHeaderRowDef="receiptErrorSummaryDisplayedColumns"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: receiptErrorSummaryDisplayedColumns"
-          ></tr>
-        </table>
-      </ng-container>
-      <div style="display: flex; justify-content: center"></div>
-
-      <ng-container
-        *ngIf="
-          !receiptErrorSummaryData?.data?.length || receiptErrorSummaryLoading
+    <div class="callout-box callout-box-table">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
         "
       >
-        <div class="loading-container">
-          <app-loading-symbol></app-loading-symbol>
-          <br /><br /><br />
+        <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
+          Interface Errors Summary Table
+        </h4>
+        <div style="display: flex; gap: 1vh">
+          <button mat-icon-button [disabled]="true">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                interfaceErrors.data,
+                'Interface Errors Summary Data',
+                'Interface Errors Summary Data'
+              )
+            "
+          >
+            <i class="fa fa-download"></i>
+          </button>
         </div>
-      </ng-container>
+      </div>
+      <div>
+        <!-- Interface Errors Summary Table -->
+        <ng-container *ngIf="interfaceErrors?.data?.length">
+          <table
+            mat-table
+            [dataSource]="interfaceErrors"
+            style="width: 46vw; overflow-x: auto"
+          >
+            <!-- Operating Unit Column -->
+            <ng-container matColumnDef="OPERATING_UNIT">
+              <th mat-header-cell *matHeaderCellDef>Operating Unit</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.OPERATING_UNIT) }}
+              </td>
+            </ng-container>
+
+            <!-- Total Column -->
+            <ng-container matColumnDef="TOTAL">
+              <th mat-header-cell *matHeaderCellDef>Total</th>
+              <td mat-cell *matCellDef="let element">{{ element.TOTAL }}</td>
+            </ng-container>
+
+            <!-- Header and Row Declarations -->
+            <tr
+              mat-header-row
+              *matHeaderRowDef="interfaceErrorsDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: interfaceErrorsDisplayedColumns"
+            ></tr>
+          </table>
+        </ng-container>
+        <div style="display: flex; justify-content: center"></div>
+
+        <ng-container *ngIf="!interfaceErrors?.data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="callout-box callout-box-table">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
+          Unapplied Amount (Unposted Summary)
+        </h4>
+        <div style="display: flex; gap: 1vh">
+          <button mat-icon-button [disabled]="true">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                unpostedSummaryData.data,
+                'Unposted Summary Data',
+                'Unposted Summary Data'
+              )
+            "
+          >
+            <i class="fa fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <!-- Unposted Summary Table -->
+        <ng-container *ngIf="unpostedSummaryData?.data?.length">
+          <table
+            mat-table
+            [dataSource]="unpostedSummaryData"
+            style="width: 46vw; overflow-x: auto"
+          >
+            <!-- Organization ID Column -->
+            <ng-container matColumnDef="OPERATING_UNIT">
+              <th mat-header-cell *matHeaderCellDef>Operating Unit</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.OPERATING_UNIT) }}
+              </td>
+            </ng-container>
+
+            <!-- Number of Payments Column -->
+            <ng-container matColumnDef="NO_OF_PAYMENTS">
+              <th mat-header-cell *matHeaderCellDef>Number of Payments</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.NO_OF_PAYMENTS }}
+              </td>
+            </ng-container>
+
+            <!-- Remittance Amount USD Column -->
+            <ng-container matColumnDef="REMITTANCE_AMOUNT_USD">
+              <th mat-header-cell *matHeaderCellDef>Remittance Amount (USD)</th>
+              <td mat-cell *matCellDef="let element">
+                ${{ element.REMITTANCE_AMOUNT_USD | number : "1.2-2" }}
+              </td>
+            </ng-container>
+
+            <!-- Header and Row Declarations -->
+            <tr
+              mat-header-row
+              *matHeaderRowDef="unpostedSummaryDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: unpostedSummaryDisplayedColumns"
+            ></tr>
+          </table>
+        </ng-container>
+        <div style="display: flex; justify-content: center"></div>
+
+        <ng-container *ngIf="!unpostedSummaryData?.data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="callout-box callout-box-table">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+        "
+      >
+        <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
+          Unapplied Errors (Receipt Errors)
+        </h4>
+        <div style="display: flex; gap: 1vh">
+          <button mat-icon-button [disabled]="true">
+            <i class="fa fa-refresh"></i>
+          </button>
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                receiptErrorSummaryData.data,
+                'Unapplied Errors: Receipt Error Summary Data',
+                'Receipt Error Summary Data'
+              )
+            "
+          >
+            <i class="fa fa-download"></i>
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <!-- Receipt Error Summary Table -->
+        <ng-container *ngIf="receiptErrorSummaryData?.data?.length">
+          <table
+            mat-table
+            [dataSource]="receiptErrorSummaryData"
+            style="width: 46vw; overflow-x: auto"
+          >
+            <!-- Operating Unit Column -->
+            <ng-container matColumnDef="ORG_ID">
+              <th mat-header-cell *matHeaderCellDef>Operating Unit</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.ORG_ID }}
+              </td>
+            </ng-container>
+
+            <!-- BAI2 File Name Column -->
+            <ng-container matColumnDef="BAI2_FILE_NAME">
+              <th mat-header-cell *matHeaderCellDef>BAI2 File Name</th>
+              <td mat-cell *matCellDef="let element" class="ellipsis-cell">
+                {{ element.BAI2_FILE_NAME }}
+              </td>
+            </ng-container>
+
+            <!-- Deposit Date Column -->
+            <ng-container matColumnDef="DEPOSIT_DATE">
+              <th mat-header-cell *matHeaderCellDef>Deposit Date</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.DEPOSIT_DATE | date : "shortDate" }}
+              </td>
+            </ng-container>
+
+            <!-- Receipt Date Column -->
+            <ng-container matColumnDef="RECEIPT_DATE">
+              <th mat-header-cell *matHeaderCellDef>Receipt Date</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.RECEIPT_DATE | date : "shortDate" }}
+              </td>
+            </ng-container>
+
+            <!-- Receipt Amount USD Column -->
+            <ng-container matColumnDef="RECEIPT_AMOUNT">
+              <th mat-header-cell *matHeaderCellDef>Receipt Amount (USD)</th>
+              <td mat-cell *matCellDef="let element">
+                ${{ element.RECEIPT_AMOUNT | number : "1.2-2" }}
+              </td>
+            </ng-container>
+
+            <!-- Header and Row Declarations -->
+            <tr
+              mat-header-row
+              *matHeaderRowDef="receiptErrorSummaryDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: receiptErrorSummaryDisplayedColumns"
+            ></tr>
+          </table>
+        </ng-container>
+        <div style="display: flex; justify-content: center"></div>
+
+        <ng-container *ngIf="!receiptErrorSummaryData?.data?.length">
+          <div class="loading-container">
+            <app-loading-symbol></app-loading-symbol>
+            <br /><br /><br />
+          </div>
+        </ng-container>
+      </div>
     </div>
   </div>
 </div>

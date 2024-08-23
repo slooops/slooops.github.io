@@ -35,10 +35,10 @@ public class QueryConfigs { // TODO
 
     // @Value("${period.close.interface.load.preclose}")
     // public String periodCloseInterfaceLoadPreclose;
-    
+
     @Value("${start-end.time.q}")
     public String closeStartEndTime;
-    
+
     @Value("${volume.q}")
     public String closeVolume;
 
@@ -164,174 +164,435 @@ public class QueryConfigs { // TODO
     @Value(("${cms.extract.details.query}"))
     public String cmsExtractDetailsQuery;
 
-    @Bean( name = "stdArExcQuery" )
-    public String getStdArExcQuery() { return this.stdArExcQuery; }
+    @Value(("${cms.latest.request.status.query}"))
+    public String cmsLatestRequestStatusQuery;
 
-    @Bean( name = "tsvTopSkuExcQuery" )
-    public String getTsvTopSkuExcQuery() { return this.tsvTopSkuExcQuery; }
+    @Value(("${cms.collections.error.summary.query}"))
+    public String cmsCollectionsErrorSummaryQuery;
 
-    @Bean( name = "tsvSubSkuExcQuery" )
-    public String getTsvSubSkuExcQuery() { return this.tsvSubSkuExcQuery; }
+    @Value(("${cms.invoice.pdf.extract.error.query}"))
+    public String cmsInvoicePdfExtractErrorQuery;
 
-    @Bean( name = "revenueControlsQuery")
-    public String getRevenueControls() { return this.revenueControlsQuery; }
+    @Value(("${cms.invoice.extract.error.query}"))
+    public String cmsInvoiceExtractErrorQuery;
+
+    @Value(("${cms.customer.master.error.query}"))
+    public String cmsCustomerExtractErrorQuery;
+
+    @Value(("${cms.alternate.payer.error.query}"))
+    public String cmsAlternatePayerErrorQuery;
+
+    @Value(("${cms.sales.invoice.header.extract.error.query}"))
+    public String cmsSalesInvoiceHeaderExtractErrorQuery;
+
+    @Value(("${cms.customer.contacts.error.query}"))
+    public String cmsCustomerContactsErrorQuery;
+
+    @Value(("${cms.sales.invoice.item.extract.query}"))
+    public String cmsSalesInvoiceItemExtractErrorQuery;
+
+    @Value(("${cms.interface.errors.query}"))
+    public String cmsInterfaceErrorsQuery;
+
+    @Value(("${cms.interface.error.count.in.xhrs.query}"))
+    public String cmsInterfaceErrorCountInXhrsQuery;
+
+    @Value(("${cms.unposted.total.amount.query}"))
+    public String cmsUnpostedTotalAmountQuery;
+
+    @Value(("${cms.total.reconciliation.error.query}"))
+    public String cmsTotalReconciliationErrorQuery;
+
+    @Value(("${cms.boomi.status.hr.to.cg1.query}"))
+    public String cmsBoomiStatusHrToCg1Query;
+
+    @Value(("${cms.boomi.details.hr.to.cg1.query}"))
+    public String cmsBoomiDetailsHrToCg1Query;
+
+    @Value(("${cms.core.app.layer.error.count.query}"))
+    public String cmsCoreAppLayerErrorCountQuery;
+
+    @Value(("${cms.recon.err.count.extract.query}"))
+    public String cmsReconErrCountExtractQuery;
+
+    @Value(("${rol.transaction.data.query}"))
+    public String rolTransactionData;
+
+    @Value(("${rol.errors.summary.query}"))
+    public String rolErrorsSummary;
+
+    @Value(("${sbp.summary.query}"))
+    public String sbpSummary;
+
+    @Value(("${cms.total.unapplied.amount.query}"))
+    public String cmsTotalUnappliedAmountQuery;
+
+    @Bean(name = "stdArExcQuery")
+    public String getStdArExcQuery() {
+        return this.stdArExcQuery;
+    }
+
+    @Bean(name = "tsvTopSkuExcQuery")
+    public String getTsvTopSkuExcQuery() {
+        return this.tsvTopSkuExcQuery;
+    }
+
+    @Bean(name = "tsvSubSkuExcQuery")
+    public String getTsvSubSkuExcQuery() {
+        return this.tsvSubSkuExcQuery;
+    }
+
+    @Bean(name = "revenueControlsQuery")
+    public String getRevenueControls() {
+        return this.revenueControlsQuery;
+    }
 
     // @Bean( name = "periodCloseInvoiceStats")
-    // public String getPeriodCloseInvoiceStats() { return this.periodCloseInvoiceStats; }
+    // public String getPeriodCloseInvoiceStats() { return
+    // this.periodCloseInvoiceStats; }
 
     // @Bean( name = "periodCloseInterfaceLoadPreclose")
-    // public String getPeriodCloseInterfaceLoad() { return this.periodCloseInterfaceLoadPreclose; }
-    
-    @Bean( name = "closeStartEndTime")
-    public String getCloseStartEndTime() { return this.closeStartEndTime; }
+    // public String getPeriodCloseInterfaceLoad() { return
+    // this.periodCloseInterfaceLoadPreclose; }
 
-    @Bean( name = "closeVolume")
-    public String getCloseVolume() { return this.closeVolume; }
+    @Bean(name = "closeStartEndTime")
+    public String getCloseStartEndTime() {
+        return this.closeStartEndTime;
+    }
 
-    @Bean( name = "closeMEStatus")
-    public String getCloseMEStatus() { return this.closeMEStatus; }
+    @Bean(name = "closeVolume")
+    public String getCloseVolume() {
+        return this.closeVolume;
+    }
 
-    @Bean( name = "closeInvStats")
-    public String getCloseInvStats() { return this.closeInvStats; }
+    @Bean(name = "closeMEStatus")
+    public String getCloseMEStatus() {
+        return this.closeMEStatus;
+    }
 
-    @Bean( name = "closeInterfaceLoad")
-    public String getCloseInterfaceLoad() { return this.closeInterfaceLoad; }
+    @Bean(name = "closeInvStats")
+    public String getCloseInvStats() {
+        return this.closeInvStats;
+    }
 
-    @Bean( name = "closeQECashCollected")
-    public String getCloseQECashCollected() { return this.closeQECashCollected; }
+    @Bean(name = "closeInterfaceLoad")
+    public String getCloseInterfaceLoad() {
+        return this.closeInterfaceLoad;
+    }
 
-    @Bean( name = "dashboardComments" )
-    public String getDashboardComments() { return this.dashboardComments; }
+    @Bean(name = "closeQECashCollected")
+    public String getCloseQECashCollected() {
+        return this.closeQECashCollected;
+    }
 
-    @Bean( name = "updateComments" )
-    public String getUpdateComments() { return this.updateComments; }
+    @Bean(name = "dashboardComments")
+    public String getDashboardComments() {
+        return this.dashboardComments;
+    }
 
-    @Bean( name = "errorSummary" )
-    public String getErrorSummary() { return this.errorSummary; }
+    @Bean(name = "updateComments")
+    public String getUpdateComments() {
+        return this.updateComments;
+    }
 
-    @Bean( name = "allErrorDetails" )
-    public String getAllErrorDetails() { return this.allErrorDetails; }
+    @Bean(name = "errorSummary")
+    public String getErrorSummary() {
+        return this.errorSummary;
+    }
 
-    @Bean( name = "errorDetails" )
-    public String getErrorDetails() { return this.errorDetails; }
+    @Bean(name = "allErrorDetails")
+    public String getAllErrorDetails() {
+        return this.allErrorDetails;
+    }
 
-    @Bean( name = "orderStatus" )
-    public String getOrderStatus() {return this.orderStatus; }
+    @Bean(name = "errorDetails")
+    public String getErrorDetails() {
+        return this.errorDetails;
+    }
 
+    @Bean(name = "orderStatus")
+    public String getOrderStatus() {
+        return this.orderStatus;
+    }
 
-    @Bean( name = "invoiceTrackerHeader" )
-    public String getInvoiceTrackerHeader() {return this.invoiceTrackerHeader; }
+    @Bean(name = "invoiceTrackerHeader")
+    public String getInvoiceTrackerHeader() {
+        return this.invoiceTrackerHeader;
+    }
 
+    @Bean(name = "invoiceTrackerLine")
+    public String getInvoiceTrackerline() {
+        return this.invoiceTrackerLine;
+    }
 
-    @Bean( name = "invoiceTrackerLine" )
-    public String getInvoiceTrackerline() {return this.invoiceTrackerLine; }
+    @Bean(name = "wd0ArMidCloseStatusQuery")
+    public String getWd0ArMidCloseStatusQuery() {
+        return this.wd0ArMidCloseStatusQuery;
+    }
 
-    @Bean( name = "wd0ArMidCloseStatusQuery")
-    public String getWd0ArMidCloseStatusQuery() { return this.wd0ArMidCloseStatusQuery; }
-
-    @Bean( name = "wd0ArMidCloseHeaderDataQuery")
-    public String getWd0ArMidCloseHeaderDataQuery() { return this.wd0ArMidCloseHeaderDataQuery; }
+    @Bean(name = "wd0ArMidCloseHeaderDataQuery")
+    public String getWd0ArMidCloseHeaderDataQuery() {
+        return this.wd0ArMidCloseHeaderDataQuery;
+    }
 
     @Bean(name = "wd0HistoricalDataQuery")
-    public String getWd0HistoricalDataQuery(){ return this.wd0HistoricalDataQuery; }
-    @Bean( name = "orderStatusSummary" )
-    public String getOrderStatusSummary() {return this.orderStatusSummary; }
-    @Bean( name = "orderStatusDownload" )
-    public String getOrderStatusDownload() {return this.orderStatusDownload; }
-    @Bean( name= "updateOrderStatus" )
-    public String getUpdateOrderStatus() { return this.updateOrderStatus; }
+    public String getWd0HistoricalDataQuery() {
+        return this.wd0HistoricalDataQuery;
+    }
 
-    @Bean( name = "kafkaError" )
+    @Bean(name = "orderStatusSummary")
+    public String getOrderStatusSummary() {
+        return this.orderStatusSummary;
+    }
+
+    @Bean(name = "orderStatusDownload")
+    public String getOrderStatusDownload() {
+        return this.orderStatusDownload;
+    }
+
+    @Bean(name = "updateOrderStatus")
+    public String getUpdateOrderStatus() {
+        return this.updateOrderStatus;
+    }
+
+    @Bean(name = "kafkaError")
     public String getKafkaError() {
         return this.kafkaError;
     }
 
-    @Bean( name = "kafkaInbound" )
+    @Bean(name = "kafkaInbound")
     public String getKafkaInbound() {
         return this.kafkaInbound;
     }
 
-    @Bean( name = "arTrxnMissing" )
+    @Bean(name = "arTrxnMissing")
     public String getArTrxnMissing() {
         return this.arTrxnMissing;
     }
 
-    @Bean( name = "accrualsProcessingErrors" )
+    @Bean(name = "accrualsProcessingErrors")
     public String getAccrualsProcessingErrors() {
         return this.accrualsProcessingErrors;
     }
 
-    @Bean( name = "accrualsDistributionErrors" )
+    @Bean(name = "accrualsDistributionErrors")
     public String getAccrualsDistributionErrors() {
         return this.accrualsDistributionErrors;
     }
 
-    @Bean( name = "accrualsSummarizationErrors" )
+    @Bean(name = "accrualsSummarizationErrors")
     public String getAccrualsSummarizationErrors() {
         return this.accrualsSummarizationErrors;
     }
 
-    @Bean( name = "kafkaPublishToDownstream" )
+    @Bean(name = "kafkaPublishToDownstream")
     public String getKafkaPublishToDownstream() {
         return this.kafkaPublishToDownstream;
     }
 
-    @Bean( name = "errorDistributionSummarization" )
+    @Bean(name = "errorDistributionSummarization")
     public String getErrorDistributionSummarization() {
         return this.errorDistributionSummarization;
     }
 
-    @Bean( name = "orderStatusRevSummary" )
-    public String getOrderStatusRevSummary() {return this.orderStatusRevSummary; }
+    @Bean(name = "orderStatusRevSummary")
+    public String getOrderStatusRevSummary() {
+        return this.orderStatusRevSummary;
+    }
 
-    @Bean( name = "personaAccessRoles")
-    public String getPersonaAccessRoles() {return this.personaAccessRoles;}
-    @Bean( name = "wd0Regression" )
-    public String getWd0Regression() {return this.wd0Regression; }
+    @Bean(name = "personaAccessRoles")
+    public String getPersonaAccessRoles() {
+        return this.personaAccessRoles;
+    }
 
-    @Bean( name = "wd0CurrentMonth" )
-    public String getWd0CurrentMonth() {return this.wd0CurrentMonth; }
-    @Bean( name = "deleteSelectedDeals" )
-    public String getDeleteSelectedDeals() {return this.deleteSelectedDeals; }
-    @Bean( name = "cloBulkUpdate" )
-    public String getCloBulkUpdate() {return this.cloBulkUpdate; }
-    @Bean( name = "invoiceEligibleUpdate" )
-    public String getInvoiceEligibleUpdate() {return this.invoiceEligibleUpdate; }
-    @Bean( name = "cloCommentUpdate" )
-    public String getCloCommentUpdate() {return this.cloCommentUpdate; }
+    @Bean(name = "wd0Regression")
+    public String getWd0Regression() {
+        return this.wd0Regression;
+    }
 
-    @Bean( name = "cmsUnpostedSummaryQuery")
-    public String getCmsUnpostedSummaryQuery(){ return this.cmsUnpostedSummaryQuery; }
+    @Bean(name = "wd0CurrentMonth")
+    public String getWd0CurrentMonth() {
+        return this.wd0CurrentMonth;
+    }
 
-    @Bean( name = "cmsUnpostedDetailsQuery")
-    public String getCmsUnpostedDetailsQuery(){ return this.cmsUnpostedDetailsQuery; }
+    @Bean(name = "deleteSelectedDeals")
+    public String getDeleteSelectedDeals() {
+        return this.deleteSelectedDeals;
+    }
 
-    @Bean( name = "cmsReceiptErrorSummaryQuery")
-    public String getCmsReceiptErrorSummaryQuery(){ return this.cmsReceiptErrorSummaryQuery; }
+    @Bean(name = "cloBulkUpdate")
+    public String getCloBulkUpdate() {
+        return this.cloBulkUpdate;
+    }
 
-    @Bean( name = "cmsReceiptErrorDetailsQuery")
-    public String getCmsReceiptErrorDetailsQuery(){ return this.cmsReceiptErrorDetailsQuery; }
+    @Bean(name = "invoiceEligibleUpdate")
+    public String getInvoiceEligibleUpdate() {
+        return this.invoiceEligibleUpdate;
+    }
 
-    @Bean( name = "cmsJobRunStatusQuery")
-    public String getCmsJobRunStatusQuery(){ return this.cmsJobRunStatusQuery; }
+    @Bean(name = "cloCommentUpdate")
+    public String getCloCommentUpdate() {
+        return this.cloCommentUpdate;
+    }
 
-    @Bean( name = "cmsCtmStatusQuery")
-    public String getCmsCtmStatusQuery(){ return this.cmsCtmStatusQuery; }
+    @Bean(name = "cmsUnpostedSummaryQuery")
+    public String getCmsUnpostedSummaryQuery() {
+        return this.cmsUnpostedSummaryQuery;
+    }
 
-    @Bean( name = "cmsCtmDetailsQuery")
-    public String getCmsCtmDetailsQuery(){ return this.cmsCtmDetailsQuery; }
+    @Bean(name = "cmsUnpostedDetailsQuery")
+    public String getCmsUnpostedDetailsQuery() {
+        return this.cmsUnpostedDetailsQuery;
+    }
 
-    @Bean( name = "cmsBoomiStatusQuery")
-    public String getCmsBoomiStatusQuery(){ return this.cmsBoomiStatusQuery; }
+    @Bean(name = "cmsReceiptErrorSummaryQuery")
+    public String getCmsReceiptErrorSummaryQuery() {
+        return this.cmsReceiptErrorSummaryQuery;
+    }
 
-    @Bean( name = "cmsBoomiDetailsQuery")
-    public String getCmsBoomiDetailsQuery(){ return this.cmsBoomiDetailsQuery; }
+    @Bean(name = "cmsReceiptErrorDetailsQuery")
+    public String getCmsReceiptErrorDetailsQuery() {
+        return this.cmsReceiptErrorDetailsQuery;
+    }
 
-    @Bean( name = "cmsExtractCountQuery")
-    public String getCmsExtractCountQuery(){ return this.cmsExtractCountQuery; }
+    @Bean(name = "cmsJobRunStatusQuery")
+    public String getCmsJobRunStatusQuery() {
+        return this.cmsJobRunStatusQuery;
+    }
 
-    @Bean( name = "cmsExtractDetailsQuery")
-    public String getCmsExtractDetailsQuery(){ return this.cmsExtractDetailsQuery; }
+    @Bean(name = "cmsCtmStatusQuery")
+    public String getCmsCtmStatusQuery() {
+        return this.cmsCtmStatusQuery;
+    }
 
+    @Bean(name = "cmsCtmDetailsQuery")
+    public String getCmsCtmDetailsQuery() {
+        return this.cmsCtmDetailsQuery;
+    }
+
+    @Bean(name = "cmsBoomiStatusQuery")
+    public String getCmsBoomiStatusQuery() {
+        return this.cmsBoomiStatusQuery;
+    }
+
+    @Bean(name = "cmsBoomiDetailsQuery")
+    public String getCmsBoomiDetailsQuery() {
+        return this.cmsBoomiDetailsQuery;
+    }
+
+    @Bean(name = "cmsExtractCountQuery")
+    public String getCmsExtractCountQuery() {
+        return this.cmsExtractCountQuery;
+    }
+
+    @Bean(name = "cmsExtractDetailsQuery")
+    public String getCmsExtractDetailsQuery() {
+        return this.cmsExtractDetailsQuery;
+    }
+
+    @Bean(name = "cmsLatestRequestStatusQuery")
+    public String getCmsLatestRequestStatusQuery() {
+        return this.cmsLatestRequestStatusQuery;
+    }
+
+    @Bean(name = "cmsCollectionsErrorSummaryQuery")
+    public String getCmsCollectionsErrorSummaryQuery() {
+        return this.cmsCollectionsErrorSummaryQuery;
+    }
+
+    @Bean(name = "cmsInvoicePdfExtractErrorQuery")
+    public String getCmsInvoicePdfExtractErrorQuery() {
+        return this.cmsInvoicePdfExtractErrorQuery;
+    }
+
+    @Bean(name = "cmsInvoiceExtractErrorQuery")
+    public String getCmsInvoiceExtractErrorQuery() {
+        return this.cmsInvoiceExtractErrorQuery;
+    }
+
+    @Bean(name = "cmsCustomerExtractErrorQuery")
+    public String getCmsCustomerExtractErrorQuery() {
+        return this.cmsCustomerExtractErrorQuery;
+    }
+
+    @Bean(name = "cmsAlternatePayerErrorQuery")
+    public String getCmsAlternatePayerErrorQuery() {
+        return this.cmsAlternatePayerErrorQuery;
+    }
+
+    @Bean(name = "cmsSalesInvoiceHeaderExtractErrorQuery")
+    public String getCmsSalesInvoiceHeaderExtractErrorQuery() {
+        return this.cmsSalesInvoiceHeaderExtractErrorQuery;
+    }
+
+    @Bean(name = "cmsCustomerContactsErrorQuery")
+    public String getCmsCustomerContactsErrorQuery() {
+        return this.cmsCustomerContactsErrorQuery;
+    }
+
+    @Bean(name = "cmsSalesInvoiceItemExtractErrorQuery")
+    public String getCmsSalesInvoiceItemExtractErrorQuery() {
+        return this.cmsSalesInvoiceItemExtractErrorQuery;
+    }
+
+    @Bean(name = "cmsInterfaceErrorsQuery")
+    public String getCmsInterfaceErrorsQuery() {
+        return this.cmsInterfaceErrorsQuery;
+    }
+
+    @Bean(name = "cmsInterfaceErrorCountInXhrsQuery")
+    public String getCmsInterfaceErrorCountInXhrsQuery() {
+        return this.cmsInterfaceErrorCountInXhrsQuery;
+    }
+
+    @Bean(name = "cmsUnpostedTotalAmountQuery")
+    public String getCmsUnpostedTotalAmountQuery() {
+        return this.cmsUnpostedTotalAmountQuery;
+    }
+
+    @Bean(name = "cmsTotalReconciliationErrorQuery")
+    public String getCmsTotalReconciliationErrorQuery() {
+        return this.cmsTotalReconciliationErrorQuery;
+    }
+
+    @Bean(name = "cmsBoomiStatusHrToCg1Query")
+    public String getCmsBoomiStatusHrToCg1Query() {
+        return this.cmsBoomiStatusHrToCg1Query;
+    }
+
+    @Bean(name = "cmsBoomiDetailsHrToCg1Query")
+    public String getCmsBoomiDetailsHrToCg1Query() {
+        return this.cmsBoomiDetailsHrToCg1Query;
+    }
+
+    @Bean(name = "cmsCoreAppLayerErrorCountQuery")
+    public String getCmsCoreAppLayerErrorCountQuery() {
+        return this.cmsCoreAppLayerErrorCountQuery;
+    }
+
+    @Bean(name = "cmsReconErrCountExtractQuery")
+    public String getCmsReconErrCountExtractQuery() {
+        return this.cmsReconErrCountExtractQuery;
+    }
+
+    @Bean(name = "rolTransactionData")
+    public String getRolTransactionData() {
+        return this.rolTransactionData;
+    }
+
+    @Bean(name = "rolErrorsSummary")
+    public String getRolErrorsSummary() {
+        return this.rolErrorsSummary;
+    }
+
+    @Bean(name = "sbpSummary")
+    public String getSbpSummary() {
+        return this.sbpSummary;
+    }
+
+    @Bean(name = "cmsTotalUnappliedAmountQuery")
+    public String getCmsTotalUnappliedAmountQuery() {
+        return this.cmsTotalUnappliedAmountQuery;
+    }
 
 }

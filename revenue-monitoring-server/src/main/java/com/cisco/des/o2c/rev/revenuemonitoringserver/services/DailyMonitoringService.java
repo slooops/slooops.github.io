@@ -68,6 +68,9 @@ public class DailyMonitoringService {
     private String cloBulkUpdate;
     private String invoiceEligibleUpdate;
     private String cloCommentUpdate;
+    private String rolTransactionData;
+    private String rolErrorsSummary;
+    private String sbpSummary;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -84,7 +87,7 @@ public class DailyMonitoringService {
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
                                   String orderStatusRevSummary, String personaAccessRoles,
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
-                                  String invoiceEligibleUpdate, String cloCommentUpdate
+                                  String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -127,6 +130,9 @@ public class DailyMonitoringService {
         this.cloBulkUpdate = cloBulkUpdate;
         this.invoiceEligibleUpdate = invoiceEligibleUpdate;
         this.cloCommentUpdate = cloCommentUpdate;
+        this.rolTransactionData = rolTransactionData;
+        this.rolErrorsSummary = rolErrorsSummary;
+        this.sbpSummary = sbpSummary;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -564,4 +570,19 @@ public class DailyMonitoringService {
         }
         int test = jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, updatedModel.get("cloComments"), username);
     }
+
+
+    public List<Map<String, Object>> getRolTransactionData() {
+        return jdbcManager.queryForList(rolTransactionData);
+    }
+
+    public List<Map<String, Object>> getRolErrorsSummary() {
+        return jdbcManager.queryForList(rolErrorsSummary);
+    }
+
+    public List<Map<String, Object>> getSbpSummary() {
+        return jdbcManager.queryForList(sbpSummary);
+    }
+
+
 }

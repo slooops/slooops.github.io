@@ -13,6 +13,10 @@ import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.co
 import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
+import { CmsDetailsComponent } from './cms-details/cms-details.component';
+import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
+import { RolComponent } from './rol/rol.component';
+import { SbpComponent } from './sbp/sbp.component';
 
 const routes: Routes = [
   {
@@ -113,6 +117,38 @@ const routes: Routes = [
     data: {
       title: 'CMS Dashboard',
       header: 'CMS Dashboard',
+    },
+  },
+  {
+    path: 'cms-details',
+    component: CmsDetailsComponent,
+    data: {
+      title: 'CMS Dashboard',
+      header: 'CMS Dashboard',
+    },
+  },
+  {
+    path: 'cms-sftp-details',
+    component: CmsSftpDetailsComponent,
+    data: {
+      title: 'CMS Dashboard SFTP Details',
+      header: 'CMS Dashboard SFTP Details',
+    },
+  },
+  {
+    path: 'rol',
+    component: RolComponent,
+    data: {
+      title: 'ROL Dashboard',
+      header: 'ROL Dashboard',
+    },
+  },
+  {
+    path: 'sbp',
+    component: SbpComponent,
+    data: {
+      title: 'SBP Dashboard',
+      header: 'SBP Dashboard',
     },
   },
 ];
