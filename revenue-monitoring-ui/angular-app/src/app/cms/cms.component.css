@@ -471,10 +471,9 @@ tr.mat-header-row {
 
 .modal-header {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  width: 100%;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .close-button {
@@ -482,7 +481,6 @@ tr.mat-header-row {
   border: none;
   font-size: 1.2em;
   cursor: pointer;
-  width: 60%;
   display: flex;
   justify-content: flex-end;
 }
