@@ -101,6 +101,9 @@ export class CmsComponent implements OnInit {
     'TOTAL_ELIGIBLE_REC_COUNT',
   ];
 
+  isUnpostedAmountInMillions = false;
+  isUnappliedAmountInMillions = false;
+
   constructor(
     http: ApiHttpService,
     private router: Router,
@@ -191,14 +194,18 @@ export class CmsComponent implements OnInit {
   getTotalUnappliedAmount() {
     this.getEndpointData('totalUnappliedAmount').subscribe((data: any) => {
       const amount = data[0]?.UNAPPLIED_AMOUNT;
-      this.unappliedAmount = amount ? amount.toLocaleString() : null;
+      const formattedAmount = amount ? this.formatAmount(amount) : null;
+      this.unappliedAmount = formattedAmount?.value;
+      this.isUnappliedAmountInMillions = formattedAmount?.isMillions;
     });
   }
 
   getUnpostedAmount() {
     this.getEndpointData('unpostedTotalAmount').subscribe((data: any) => {
       const amount = data[0]?.TOTAL_UNPOSTED_AMOUNT;
-      this.unpostedAmount = amount ? this.formatAmount(amount) : null;
+      const formattedAmount = amount ? this.formatAmount(amount) : null;
+      this.unpostedAmount = formattedAmount?.value;
+      this.isUnpostedAmountInMillions = formattedAmount?.isMillions;
     });
   }
 
@@ -395,9 +402,19 @@ export class CmsComponent implements OnInit {
     return data[0]?.['SFTP Status']?.CiscoSFTPUnprocessedFiles || [];
   }
 
-  formatAmount(amount: number): string {
-    const millions = amount / 1_000_000;
-    return millions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  formatAmount(amount: number): { value: string; isMillions: boolean } {
+    if (amount >= 1_000_000) {
+      const millions = amount / 1_000_000;
+      return {
+        value: millions.toLocaleString('en-US', { maximumFractionDigits: 0 }),
+        isMillions: true,
+      };
+    } else {
+      return {
+        value: amount.toLocaleString('en-US', { maximumFractionDigits: 2 }),
+        isMillions: false,
+      };
+    }
   }
 
   navigateToDetails(extractType: string): void {

@@ -369,10 +369,18 @@
     style="width: fit-content; padding: 0"
     (click)="$event.stopPropagation()"
   >
-    <div class="modal-header">
-      <h4 style="font-weight: 500">Month End Timings</h4>
-
-      <button class="close-button" (click)="closeModal()">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      "
+    >
+      <h4 style="font-weight: 600; padding: 1.7vh 1.5vh 0vh 1.6vh">
+        Month End Timings
+      </h4>
+      <button mat-icon-button (click)="closeModal()">
         <i class="fa fa-times"></i>
       </button>
     </div>
@@ -426,9 +434,18 @@
     style="width: fit-content; padding: 0"
     (click)="$event.stopPropagation()"
   >
-    <div class="modal-header">
-      <h4 style="font-weight: 500">CG1 ➡ High Radius</h4>
-      <button class="close-button" (click)="closeModal()">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      "
+    >
+      <h4 style="font-weight: 600; padding: 1.7vh 1.5vh 0vh 1.6vh">
+        CG1 ➡ High Radius
+      </h4>
+      <button mat-icon-button (click)="closeModal()">
         <i class="fa fa-times"></i>
       </button>
     </div>
@@ -482,9 +499,18 @@
     style="width: fit-content; padding: 0"
     (click)="$event.stopPropagation()"
   >
-    <div class="modal-header">
-      <h4 style="font-weight: 500">High Radius ➡ CG1</h4>
-      <button class="close-button" (click)="closeModal()">
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      "
+    >
+      <h4 style="font-weight: 600; padding: 1.7vh 1.5vh 0vh 1.6vh">
+        High Radius ➡ CG1
+      </h4>
+      <button mat-icon-button (click)="closeModal()">
         <i class="fa fa-times"></i>
       </button>
     </div>
@@ -855,15 +881,20 @@
         <div class="box-body">
           {{ unappliedAmount !== null ? "$" + unappliedAmount : "-" }}
         </div>
-        <div class="box-header">Unapplied Amount</div>
+        <div class="box-header">
+          Unapplied Amount
+          <span *ngIf="isUnappliedAmountInMillions">(Millions)</span>
+        </div>
       </div>
 
       <div class="callout-box">
         <div class="box-body">
           {{ unpostedAmount !== null ? "$" + unpostedAmount : "-" }}
         </div>
-
-        <div class="box-header">Unposted Amount (Millions)</div>
+        <div class="box-header">
+          Unposted Amount
+          <span *ngIf="isUnpostedAmountInMillions">(Millions)</span>
+        </div>
       </div>
     </div>
 
