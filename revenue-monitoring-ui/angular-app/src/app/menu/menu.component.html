@@ -60,7 +60,11 @@
       >
         WD+0 Mid Close Volumes
       </mat-list-item>
-      <mat-list-item [routerLink]="['/cms']" routerLinkActive="active">
+      <mat-list-item
+        [routerLink]="['/cms']"
+        routerLinkActive="active"
+        *ngIf="isAdmin || checkRole('CMS')"
+      >
         CMS Dashboard
       </mat-list-item>
       <!-- *ngIf="isAdmin || checkRole('CMS')" -->
