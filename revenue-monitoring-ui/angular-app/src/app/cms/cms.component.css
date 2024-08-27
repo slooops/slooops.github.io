@@ -13,14 +13,15 @@ a {
   word-wrap: break-word;
   background-color: #f2f2f2;
   background-clip: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.125);
+  outline: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 8px;
   align-items: center;
   height: fit-content;
 }
 
 .callout-box.callout-box-table {
-  width: fit-content;
+  width: 46vw;
+  /* width: fit-content; */
   padding: 0.5vh 0vw;
 }
 

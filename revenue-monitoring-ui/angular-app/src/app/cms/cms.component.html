@@ -874,26 +874,28 @@
           {{ interfaceErrorCount !== undefined ? interfaceErrorCount : "-" }}
         </div>
 
-        <div class="box-header">Interface Errors in last 48 hours</div>
+        <div class="box-header">Interface Errors in the last week</div>
       </div>
 
       <div class="callout-box">
         <div class="box-body">
-          {{ unappliedAmount !== null ? "$" + unappliedAmount : "-" }}
+          {{ unappliedAmount !== null ? "$" + unappliedAmount.value : "-" }}
         </div>
         <div class="box-header">
           Unapplied Amount
-          <span *ngIf="isUnappliedAmountInMillions">(Millions)</span>
+          <span *ngIf="unappliedAmount?.isMillions">(Million)</span>
+          <span *ngIf="unappliedAmount?.isRounded">(rounded)</span>
         </div>
       </div>
 
       <div class="callout-box">
         <div class="box-body">
-          {{ unpostedAmount !== null ? "$" + unpostedAmount : "-" }}
+          {{ unpostedAmount !== null ? "$" + unpostedAmount.value : "-" }}
         </div>
         <div class="box-header">
           Unposted Amount
-          <span *ngIf="isUnpostedAmountInMillions">(Millions)</span>
+          <span *ngIf="unpostedAmount?.isMillions">(Million)</span>
+          <span *ngIf="unpostedAmount?.isRounded">(rounded)</span>
         </div>
       </div>
     </div>

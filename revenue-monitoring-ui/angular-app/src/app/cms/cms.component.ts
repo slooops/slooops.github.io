@@ -48,8 +48,16 @@ export class CmsComponent implements OnInit {
   appCoreMismatchErrorCount: number;
 
   interfaceErrorCount: number;
-  unpostedAmount: string | null = null;
-  unappliedAmount: string | null = null;
+  unpostedAmount: {
+    value: string;
+    isMillions: boolean;
+    isRounded: boolean;
+  } | null = null;
+  unappliedAmount: {
+    value: string;
+    isMillions: boolean;
+    isRounded: boolean;
+  } | null = null;
 
   colorMapping: { [key: string]: string } = {
     BLUE: '#049fd9',
@@ -100,9 +108,6 @@ export class CmsComponent implements OnInit {
     'STG_REC_COUNT',
     'TOTAL_ELIGIBLE_REC_COUNT',
   ];
-
-  isUnpostedAmountInMillions = false;
-  isUnappliedAmountInMillions = false;
 
   constructor(
     http: ApiHttpService,
@@ -194,18 +199,14 @@ export class CmsComponent implements OnInit {
   getTotalUnappliedAmount() {
     this.getEndpointData('totalUnappliedAmount').subscribe((data: any) => {
       const amount = data[0]?.UNAPPLIED_AMOUNT;
-      const formattedAmount = amount ? this.formatAmount(amount) : null;
-      this.unappliedAmount = formattedAmount?.value;
-      this.isUnappliedAmountInMillions = formattedAmount?.isMillions;
+      this.unappliedAmount = amount ? this.formatAmount(amount) : null;
     });
   }
 
   getUnpostedAmount() {
     this.getEndpointData('unpostedTotalAmount').subscribe((data: any) => {
       const amount = data[0]?.TOTAL_UNPOSTED_AMOUNT;
-      const formattedAmount = amount ? this.formatAmount(amount) : null;
-      this.unpostedAmount = formattedAmount?.value;
-      this.isUnpostedAmountInMillions = formattedAmount?.isMillions;
+      this.unpostedAmount = amount ? this.formatAmount(amount) : null;
     });
   }
 
@@ -402,19 +403,38 @@ export class CmsComponent implements OnInit {
     return data[0]?.['SFTP Status']?.CiscoSFTPUnprocessedFiles || [];
   }
 
-  formatAmount(amount: number): { value: string; isMillions: boolean } {
+  formatAmount(amount: number): {
+    value: string;
+    isMillions: boolean;
+    isRounded: boolean;
+  } {
+    let value: string;
+    let isMillions = false;
+    let isRounded = false;
+
     if (amount >= 1_000_000) {
+      isMillions = true;
       const millions = amount / 1_000_000;
-      return {
-        value: millions.toLocaleString('en-US', { maximumFractionDigits: 0 }),
-        isMillions: true,
-      };
+      if (millions < 10) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 3 });
+      } else if (millions < 100) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (millions < 1000) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
     } else {
-      return {
-        value: amount.toLocaleString('en-US', { maximumFractionDigits: 2 }),
-        isMillions: false,
-      };
+      // Logic for amounts less than 1 million
+      if (amount < 10_000) {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else {
+        isRounded = true;
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
     }
+
+    return { value, isMillions, isRounded };
   }
 
   navigateToDetails(extractType: string): void {
