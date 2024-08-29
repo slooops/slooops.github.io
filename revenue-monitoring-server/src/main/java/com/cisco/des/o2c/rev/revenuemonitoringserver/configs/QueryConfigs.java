@@ -227,6 +227,12 @@ public class QueryConfigs { // TODO
     @Value(("${cms.total.unapplied.amount.query}"))
     public String cmsTotalUnappliedAmountQuery;
 
+    @Value(("${estimated.completion.time.query}"))
+    public String estimatedCompletionTime;
+
+    @Value(("${large.deal.summary.by.account.query}"))
+    public String largeDealSummaryByAccount;
+
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {
         return this.stdArExcQuery;
@@ -594,5 +600,16 @@ public class QueryConfigs { // TODO
     public String getCmsTotalUnappliedAmountQuery() {
         return this.cmsTotalUnappliedAmountQuery;
     }
+
+    @Bean(name = "estimatedCompletionTime")
+    public String getEstimatedCompletionTime() {
+        return this.estimatedCompletionTime;
+    }
+
+    @Bean(name = "largeDealSummaryByAccount")
+    public String getLargeDealSummaryByAccount() {
+        return this.largeDealSummaryByAccount;
+    }
+
 
 }

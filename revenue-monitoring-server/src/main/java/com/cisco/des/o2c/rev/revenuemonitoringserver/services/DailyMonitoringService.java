@@ -71,6 +71,8 @@ public class DailyMonitoringService {
     private String rolTransactionData;
     private String rolErrorsSummary;
     private String sbpSummary;
+    private String estimatedCompletionTime;
+    private String largeDealSummaryByAccount;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -87,7 +89,8 @@ public class DailyMonitoringService {
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
                                   String orderStatusRevSummary, String personaAccessRoles,
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
-                                  String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary
+                                  String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
+                                  String estimatedCompletionTime, String largeDealSummaryByAccount
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -133,6 +136,8 @@ public class DailyMonitoringService {
         this.rolTransactionData = rolTransactionData;
         this.rolErrorsSummary = rolErrorsSummary;
         this.sbpSummary = sbpSummary;
+        this.estimatedCompletionTime = estimatedCompletionTime;
+        this.largeDealSummaryByAccount = largeDealSummaryByAccount;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -377,12 +382,43 @@ public class DailyMonitoringService {
         return resultList;
     }
 
+    public List<LargeDealSummaryByAccountModel> getLargeDealSummaryByAccount() {
+        List<Map<String, Object>> res = jdbcManager.queryForList(largeDealSummaryByAccount);
+        List<LargeDealSummaryByAccountModel> resultList = mapToLargeDealSummaryByAccountModelList(res);
+        List<String> newList = resultList.stream().map(ele -> ele.ACCOUNT).collect(Collectors.toList());
+        List<String> accounts = new ArrayList<>(new HashSet<String>(newList));
 
-    public List<Map<String, Object>> getOrderStatusRevSummary() {
-        return jdbcManager.queryForList(orderStatusRevSummary);
+        Map<String, Integer> lastIndex = new HashMap<>();
+        for(String acc: accounts){
+            lastIndex.put(acc, getLastIndexOfPropertyforAccount(resultList, acc));
+        }
+        Map<String, Integer> lastIndexSorted = sortByValue(lastIndex);
+
+        int index = 1;
+        for(Map.Entry<String, Integer> ele: lastIndexSorted.entrySet()){
+            resultList.add(ele.getValue()+index,largeDealSummaryByAccount(resultList, ele.getKey()) );
+            index++;
+        }
+
+        int accLength = resultList.size();
+        int totalCount =  0 ;
+
+        for(String acc: accounts){
+            totalCount += calculateOrderCountSumByAccount(resultList, acc);
+        }
+
+        resultList.add(accLength, new LargeDealSummaryByAccountModel("Total", totalCount, null, null));
+
+        return resultList;
     }
+
     public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
         OrderLifecycleSummaryModel obj = new OrderLifecycleSummaryModel("Sub Total ("+programName+")", calculateOrderCountSumByProgramName(resultList, programName), null, null);
+        return obj;
+    }
+
+    public static LargeDealSummaryByAccountModel largeDealSummaryByAccount(List<LargeDealSummaryByAccountModel> resultList,String account){
+        LargeDealSummaryByAccountModel obj = new LargeDealSummaryByAccountModel("Sub Total ("+account+")", calculateOrderCountSumByAccount(resultList, account), null, null);
         return obj;
     }
     public static List<OrderLifecycleSummaryModel> mapToOrderLifecycleSummaryModelList(List<Map<String, Object>> inputList) {
@@ -398,6 +434,20 @@ public class DailyMonitoringService {
 
         return resultList;
     }
+
+    public static List<LargeDealSummaryByAccountModel> mapToLargeDealSummaryByAccountModelList(List<Map<String, Object>> inputList) {
+        List<LargeDealSummaryByAccountModel> resultList = new ArrayList<>();
+        for (Map<String, Object> map : inputList) {
+            String account = (String) map.get("ACCOUNT");
+            int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
+            String status = (String) map.get("STATUS");
+            Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue());
+            LargeDealSummaryByAccountModel model = new LargeDealSummaryByAccountModel(account, orderCount, status, completion);
+            resultList.add(model);
+        }
+
+        return resultList;
+    }
     public static int calculateOrderCountSumByProgramName(List<OrderLifecycleSummaryModel> orderSummary, String programName) {
         int sum = 0;
         for (OrderLifecycleSummaryModel order : orderSummary) {
@@ -407,10 +457,30 @@ public class DailyMonitoringService {
         }
         return sum;
     }
+
+    public static int calculateOrderCountSumByAccount(List<LargeDealSummaryByAccountModel> orderSummary, String account) {
+        int sum = 0;
+        for (LargeDealSummaryByAccountModel order : orderSummary) {
+            if (order.ACCOUNT.equals(account)) {
+                sum += order.ORDER_COUNT;
+            }
+        }
+        return sum;
+    }
     public static int getLastIndexOfProperty(List<OrderLifecycleSummaryModel> objects, String targetProperty) {
         for (int i = objects.size() - 1; i >= 0; i--) {
             OrderLifecycleSummaryModel obj = objects.get(i);
             if (obj.PROGRAM_NAME.equals(targetProperty)) {
+                return i;
+            }
+        }
+        return -1; // Property not found
+    }
+
+    public static int getLastIndexOfPropertyforAccount(List<LargeDealSummaryByAccountModel> objects, String targetProperty) {
+        for (int i = objects.size() - 1; i >= 0; i--) {
+            LargeDealSummaryByAccountModel obj = objects.get(i);
+            if (obj.ACCOUNT.equals(targetProperty)) {
                 return i;
             }
         }
@@ -434,6 +504,9 @@ public class DailyMonitoringService {
         return temp;
     }
 
+    public List<Map<String, Object>> getOrderStatusRevSummary() {
+        return jdbcManager.queryForList(orderStatusRevSummary);
+    }
 
     public List<Map<String, Object>> getWd0Regression() {
         return jdbcManager.queryForList(wd0Regression);
@@ -582,6 +655,10 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getSbpSummary() {
         return jdbcManager.queryForList(sbpSummary);
+    }
+
+    public List<Map<String, Object>> getEstimatedCompletionTime() {
+        return jdbcManager.queryForList(estimatedCompletionTime);
     }
 
 

@@ -155,6 +155,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseSelectedStatusData: any[] = [];
   mcloseSelectedMonthEndStatusTableData: any[] = [];
 
+  pcloseEstimatedCompletionTime: string;
+  mcloseEstimatedCompletionTime: string;
+
   meStatusColumns: string[] = [
     'OPERATING UNIT',
     'ELIGIBLE FOR INVOICING',
@@ -240,6 +243,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getPrecloseMeStatus();
     this.getComments();
     this.getCurrentTime();
+    this.getEstimatedCompletionTime();
   }
 
   getIsQuarterEnd(): void {
@@ -605,6 +609,20 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   replaceUnderscoreWithEmpty(column: string): string {
     return column.replace(/_/g, ' ');
+  }
+
+  getEstimatedCompletionTime() {
+    this.getEndpointData('estimated-completion-time').subscribe((data: any) => {
+      const pcloseesttime = data.find((obj) => obj['CLOSE_TYPE'] == 'PRECLOSE');
+      const mcloseesttime = data.find((obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE');
+
+      this.pcloseEstimatedCompletionTime = this.extractDatePrettify(
+        pcloseesttime['ESTIMATED_COMPLETION_TIME']
+      );
+      this.mcloseEstimatedCompletionTime = this.extractDatePrettify(
+        mcloseesttime['ESTIMATED_COMPLETION_TIME']
+      );
+    });
   }
 
   getInterfaceLoad() {

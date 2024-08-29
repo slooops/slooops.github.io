@@ -323,4 +323,13 @@ public class DailyMonitoringController {
         }
     }
 
+    @GetMapping("/estimated-completion-time")
+    public ResponseEntity<List<Map<String, Object>>> getEstimatedCompletionTime() {
+        return new ResponseEntity<>(service.getEstimatedCompletionTime(), HttpStatus.OK);
+    }
+
+    @GetMapping("/large-deal-summary-account")
+    public ResponseEntity<List<LargeDealSummaryByAccountModel>> getLargeDealSummaryByAccount() {
+        return new ResponseEntity<>(service.getLargeDealSummaryByAccount(), HttpStatus.OK);
+    }
 }

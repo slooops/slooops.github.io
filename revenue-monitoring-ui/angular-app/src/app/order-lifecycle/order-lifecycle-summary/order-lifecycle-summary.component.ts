@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ApiHttpService } from '../../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-order-lifecycle-summary',
@@ -21,10 +22,13 @@ export class OrderLifecycleSummaryComponent implements OnInit {
 
   protected http: ApiHttpService;
   summaryModel: OrderLifecycleSummaryModel[];
+  summaryModelByAccount: OrderLifecycleSummaryModelByAccount[];
 
   dataSource: any;
+  dataSourceByAccount: any;
   total: boolean = false;
 
+  selectedTabIndex: number = 0;
   closeDialog() {
     this.dialogRef.close();
   }
@@ -35,6 +39,13 @@ export class OrderLifecycleSummaryComponent implements OnInit {
 
   displayedColumns = ['PROGRAM_NAME', 'ORDER_COUNT', 'STATUS', 'COMPLETION'];
 
+  displayedColumnsByAccount = [
+    'ACCOUNT',
+    'ORDER_COUNT',
+    'STATUS',
+    'COMPLETION',
+  ];
+
   getOrderLifecycleSummary() {
     this.http.get('order-status-summary').subscribe((data: any) => {
       this.summaryModel = data;
@@ -42,6 +53,34 @@ export class OrderLifecycleSummaryComponent implements OnInit {
         this.summaryModel
       );
     });
+
+    this.http.get('large-deal-summary-account').subscribe((data: any) => {
+      this.summaryModelByAccount = data;
+      this.dataSourceByAccount =
+        new MatTableDataSource<OrderLifecycleSummaryModelByAccount>(
+          this.summaryModelByAccount
+        );
+    });
+  }
+
+  onTabChange(event: MatTabChangeEvent) {
+    this.selectedTabIndex = event.index;
+  }
+
+  exportByTab() {
+    if (this.selectedTabIndex == 0) {
+      this.exportTableToExcel(
+        this.summaryModel,
+        'Large Deal Summary By Program',
+        'large_deal_summary_by_program'
+      );
+    } else {
+      this.exportTableToExcel(
+        this.summaryModelByAccount,
+        'Large Deal Summary By Account',
+        'large_deal_summary_by_account'
+      );
+    }
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -68,6 +107,13 @@ export class OrderLifecycleSummaryComponent implements OnInit {
 
 export interface OrderLifecycleSummaryModel {
   PROGRAM_NAME: string;
+  ORDER_COUNT: number;
+  STATUS: string;
+  COMPLETION: string;
+}
+
+export interface OrderLifecycleSummaryModelByAccount {
+  ACCOUNT: string;
   ORDER_COUNT: number;
   STATUS: string;
   COMPLETION: string;
