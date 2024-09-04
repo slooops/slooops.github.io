@@ -235,7 +235,7 @@ export class CmsComponent implements OnInit {
     this.apiStatusRefresh = `Last Updated: ...`;
     this.getEndpointData('apiStatus').subscribe((data: any) => {
       this.apiStatus = data;
-      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleString()}`;
     });
   }
 
@@ -245,7 +245,7 @@ export class CmsComponent implements OnInit {
     this.getEndpointData('sftpStatus').subscribe(
       (data: any) => {
         this.sftpStatus = this.processData(data);
-        this.sftpRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+        this.sftpRefresh = `Last Updated: ${new Date().toLocaleString()}`;
       },
       (error) => {
         console.error('Error loading SFTP status:', error);

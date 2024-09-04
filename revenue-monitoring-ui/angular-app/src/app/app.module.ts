@@ -90,6 +90,7 @@ import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { RolComponent } from './rol/rol.component';
 import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 import { SbpComponent } from './sbp/sbp.component';
+import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -133,6 +134,7 @@ export function initApp(authService: AuthenticationService) {
     RolComponent,
     CmsSftpDetailsComponent,
     SbpComponent,
+    LoadingSymbolSmallComponent,
   ],
   imports: [
     BrowserModule,
