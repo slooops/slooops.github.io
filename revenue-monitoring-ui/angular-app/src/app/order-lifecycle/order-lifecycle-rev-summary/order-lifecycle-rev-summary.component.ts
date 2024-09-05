@@ -439,6 +439,10 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.dialogRef.close();
   }
 
+  onOverlayClicked(): void {
+    this.dialogRef.close(); // Close the modal when clicking the overlay
+  }
+
   displayedColumns: {
     name: string;
     sorted: boolean;

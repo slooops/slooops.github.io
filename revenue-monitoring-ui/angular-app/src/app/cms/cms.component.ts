@@ -416,7 +416,7 @@ export class CmsComponent implements OnInit {
       isMillions = true;
       const millions = amount / 1_000_000;
       if (millions < 10) {
-        value = millions.toLocaleString('en-US', { maximumFractionDigits: 3 });
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
       } else if (millions < 100) {
         value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
       } else if (millions < 1000) {
