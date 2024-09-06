@@ -6,9 +6,9 @@ import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { CmsModalComponent } from '../cms-modal/cms-modal.component';
+import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { th } from 'date-fns/locale';
-import { CmsSftpDetailsComponent } from '../cms-sftp-details/cms-sftp-details.component';
+import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 
 @Component({
   selector: 'app-cms',

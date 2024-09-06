@@ -152,7 +152,7 @@
             <span
               class="slider-circle circle-2 lower-circle"
               customToolTip
-              [contentTemplate]="highRadiusTooltip"
+              [contentTemplate]="comingSoonTooltip"
               [ngStyle]="{
                 'background-color': getColorCode(ctmStatus[0]?.COLOR)
               }"
@@ -209,8 +209,6 @@
         <div class="middle-slider-bar middle-slider-bar-end">
           <span
             class="slider-circle circle-4"
-            customToolTip
-            [contentTemplate]="highRadiusTooltip"
             [ngStyle]="{ 'background-color': getColorCode('BLUE') }"
           >
             <p class="circle-caption" style="left: -15px">High Radius</p>
@@ -360,7 +358,7 @@
   </table>
 </ng-template>
 
-<ng-template #highRadiusTooltip>Coming soon</ng-template>
+<ng-template #comingSoonTooltip>Coming soon</ng-template>
 
 <ng-template #loadingSymbol>
   <div class="small-loading-container">
