@@ -13,7 +13,7 @@ import {
   OverlayPositionBuilder,
   OverlayRef,
 } from '@angular/cdk/overlay';
-import { CustomToolTipComponent } from './custom-tool-tip/custom-tool-tip.component';
+import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.component';
 import { ComponentPortal } from '@angular/cdk/portal';
 
 @Directive({

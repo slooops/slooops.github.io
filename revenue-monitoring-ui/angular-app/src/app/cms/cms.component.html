@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div style="display: flex">
+      <div style="display: flex; width: inherit; min-width: 600px">
         <table style="width: 100%; overflow-x: auto">
           <thead>
             <tr>
@@ -152,7 +152,7 @@
             <span
               class="slider-circle circle-2 lower-circle"
               customToolTip
-              [contentTemplate]="highRadiusTooltip"
+              [contentTemplate]="comingSoonTooltip"
               [ngStyle]="{
                 'background-color': getColorCode(ctmStatus[0]?.COLOR)
               }"
@@ -209,8 +209,6 @@
         <div class="middle-slider-bar middle-slider-bar-end">
           <span
             class="slider-circle circle-4"
-            customToolTip
-            [contentTemplate]="highRadiusTooltip"
             [ngStyle]="{ 'background-color': getColorCode('BLUE') }"
           >
             <p class="circle-caption" style="left: -15px">High Radius</p>
@@ -360,7 +358,13 @@
   </table>
 </ng-template>
 
-<ng-template #highRadiusTooltip>Coming soon</ng-template>
+<ng-template #comingSoonTooltip>Coming soon</ng-template>
+
+<ng-template #loadingSymbol>
+  <div class="small-loading-container">
+    <app-loading-symbol-small> </app-loading-symbol-small>
+  </div>
+</ng-template>
 
 <!-- Month End Timings Modal -->
 <div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
@@ -558,33 +562,45 @@
     <div class="widget-tray">
       <div class="callout-box">
         <div class="box-body">
-          {{ extractCount !== undefined ? extractCount : "-" }}
+          <ng-container
+            *ngIf="
+              extractCount !== undefined && extractCount !== null;
+              else loadingSymbol
+            "
+          >
+            {{ extractCount }}
+          </ng-container>
         </div>
-
         <div class="box-header">Extract Errors in the last week</div>
       </div>
 
       <div class="callout-box">
         <div class="box-body">
-          {{
-            totalReconciliationError !== undefined
-              ? totalReconciliationError
-              : "-"
-          }}
+          <ng-container
+            *ngIf="
+              totalReconciliationError !== undefined &&
+                totalReconciliationError !== null;
+              else loadingSymbol
+            "
+          >
+            {{ totalReconciliationError }}
+          </ng-container>
         </div>
-
         <div class="box-header">Reconciliation Errors</div>
       </div>
 
       <div class="callout-box">
         <div class="box-body">
-          {{
-            appCoreMismatchErrorCount !== undefined
-              ? appCoreMismatchErrorCount
-              : "-"
-          }}
+          <ng-container
+            *ngIf="
+              appCoreMismatchErrorCount !== undefined &&
+                appCoreMismatchErrorCount !== null;
+              else loadingSymbol
+            "
+          >
+            {{ appCoreMismatchErrorCount }}
+          </ng-container>
         </div>
-
         <div class="box-header">HRC App Vs Core Mismatch</div>
       </div>
     </div>
@@ -871,15 +887,29 @@
     <div class="widget-tray">
       <div class="callout-box">
         <div class="box-body">
-          {{ interfaceErrorCount !== undefined ? interfaceErrorCount : "-" }}
+          <ng-container
+            *ngIf="
+              interfaceErrorCount !== undefined && interfaceErrorCount !== null;
+              else loadingSymbol
+            "
+          >
+            {{ interfaceErrorCount }}
+          </ng-container>
         </div>
-
-        <div class="box-header">Interface Errors in the last week</div>
+        <div class="box-header">Interface Errors in last 48 hrs</div>
       </div>
 
       <div class="callout-box">
         <div class="box-body">
-          {{ unappliedAmount !== null ? "$" + unappliedAmount.value : "-" }}
+          <ng-container
+            *ngIf="
+              unappliedAmount?.value !== undefined &&
+                unappliedAmount?.value !== null;
+              else loadingSymbol
+            "
+          >
+            ${{ unappliedAmount.value }}
+          </ng-container>
         </div>
         <div class="box-header">
           Unapplied Amount
@@ -890,7 +920,15 @@
 
       <div class="callout-box">
         <div class="box-body">
-          {{ unpostedAmount !== null ? "$" + unpostedAmount.value : "-" }}
+          <ng-container
+            *ngIf="
+              unpostedAmount?.value !== undefined &&
+                unpostedAmount?.value !== null;
+              else loadingSymbol
+            "
+          >
+            ${{ unpostedAmount.value }}
+          </ng-container>
         </div>
         <div class="box-header">
           Unposted Amount

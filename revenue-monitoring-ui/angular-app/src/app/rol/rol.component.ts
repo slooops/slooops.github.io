@@ -14,16 +14,7 @@ export class RolComponent implements OnInit {
   @ViewChild('transactionPaginator') transactionPaginator: MatPaginator;
 
   rolErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
-  rolErrorDisplayedColumns: string[] = [
-    'AMOUNT',
-    'APPLICATION_NAME',
-    'CURRENCY_CODE',
-    'ERROR_APPLICATION',
-    'ORG_ID',
-    'PERIOD_NUM',
-    'PERIOD_YEAR',
-    'SUB_APPLICATION',
-  ];
+  rolErrorDisplayedColumns: string[] = [];
 
   rolTransactionData: MatTableDataSource<any> = new MatTableDataSource([]);
   displayedColumns: string[] = [];
@@ -38,7 +29,8 @@ export class RolComponent implements OnInit {
   getRolErrorSummaryData() {
     console.log('Getting rol error summary data');
     this.http.get('rol-errors-summary').subscribe((data: any) => {
-      this.rolErrorSummaryData.data = data;
+      this.rolErrorDisplayedColumns = Object.keys(data[0]);
+      this.rolErrorSummaryData.data = this.formatData(data);
     });
   }
 
@@ -49,11 +41,11 @@ export class RolComponent implements OnInit {
         this.displayedColumns = Object.keys(data[0]);
 
         // Filter out columns you don't want to display
-        this.removeColumns(['CUSTTRXLINEID']);
+        this.removeColumns(['']);
+        this.rolTransactionData.data = this.formatData(data);
+        // this.rolTransactionData.paginator = this.transactionPaginator;
       }
 
-      this.rolTransactionData.data = data;
-      this.rolTransactionData.paginator = this.transactionPaginator;
       console.log(this.rolTransactionData);
     });
   }
@@ -62,6 +54,48 @@ export class RolComponent implements OnInit {
     this.displayedColumns = this.displayedColumns.filter(
       (column) => !columnsToRemove.includes(column)
     );
+  }
+
+  formatData(data: any[]): any[] {
+    return data.map((row) => {
+      const formattedRow = { ...row };
+
+      // If the AMOUNT column exists, format it with dollar signs and commas, and ensure two decimal places
+      if ('AMOUNT' in row) {
+        formattedRow['AMOUNT'] = `$${Number(row['AMOUNT']).toLocaleString(
+          undefined,
+          {
+            minimumFractionDigits: 2, // Always show at least two decimal places
+            maximumFractionDigits: 2, // Restrict to two decimal places
+          }
+        )}`;
+      }
+
+      return formattedRow;
+    });
+  }
+
+  // Replace underscores in column headers
+  replaceUnderscore(value: string | null | undefined): string {
+    if (!value) {
+      return ''; // Return an empty string if value is null or undefined
+    }
+
+    const specialWords = ['name', 'num', 'year', 'code', 'org', 'sub', 'unit'];
+
+    return value
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map((word) => {
+        const lowerWord = word.toLowerCase();
+        if (specialWords.includes(lowerWord)) {
+          return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+        }
+        return word.length > 4
+          ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          : word;
+      })
+      .join(' ');
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {

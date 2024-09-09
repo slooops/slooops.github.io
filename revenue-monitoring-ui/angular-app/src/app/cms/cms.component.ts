@@ -6,9 +6,9 @@ import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { CmsModalComponent } from '../cms-modal/cms-modal.component';
+import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { th } from 'date-fns/locale';
-import { CmsSftpDetailsComponent } from '../cms-sftp-details/cms-sftp-details.component';
+import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 
 @Component({
   selector: 'app-cms',
@@ -235,7 +235,7 @@ export class CmsComponent implements OnInit {
     this.apiStatusRefresh = `Last Updated: ...`;
     this.getEndpointData('apiStatus').subscribe((data: any) => {
       this.apiStatus = data;
-      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleString()}`;
     });
   }
 
@@ -245,7 +245,7 @@ export class CmsComponent implements OnInit {
     this.getEndpointData('sftpStatus').subscribe(
       (data: any) => {
         this.sftpStatus = this.processData(data);
-        this.sftpRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+        this.sftpRefresh = `Last Updated: ${new Date().toLocaleString()}`;
       },
       (error) => {
         console.error('Error loading SFTP status:', error);
@@ -416,7 +416,7 @@ export class CmsComponent implements OnInit {
       isMillions = true;
       const millions = amount / 1_000_000;
       if (millions < 10) {
-        value = millions.toLocaleString('en-US', { maximumFractionDigits: 3 });
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
       } else if (millions < 100) {
         value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
       } else if (millions < 1000) {

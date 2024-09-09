@@ -551,3 +551,20 @@ tr.mat-header-row {
   text-overflow: ellipsis;
   max-width: 8vw; /* Adjust the width as needed */
 }
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 150px;
+}
+
+.small-loading-container {
+  min-height: calc(12px + 1.9vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
