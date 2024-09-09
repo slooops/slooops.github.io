@@ -134,17 +134,8 @@ public class QueryConfigs { // TODO
     @Value(("${cms.unposted.summary.query}"))
     public String cmsUnpostedSummaryQuery;
 
-    @Value(("${cms.unposted.details.query}"))
-    public String cmsUnpostedDetailsQuery;
-
     @Value(("${cms.receipt.error.summary}"))
     public String cmsReceiptErrorSummaryQuery;
-
-    @Value(("${cms.receipt.error.details.query}"))
-    public String cmsReceiptErrorDetailsQuery;
-
-    @Value(("${cms.job.run.status.query}"))
-    public String cmsJobRunStatusQuery;
 
     @Value(("${cms.ctm.status.query}"))
     public String cmsCtmStatusQuery;
@@ -440,24 +431,9 @@ public class QueryConfigs { // TODO
         return this.cmsUnpostedSummaryQuery;
     }
 
-    @Bean(name = "cmsUnpostedDetailsQuery")
-    public String getCmsUnpostedDetailsQuery() {
-        return this.cmsUnpostedDetailsQuery;
-    }
-
     @Bean(name = "cmsReceiptErrorSummaryQuery")
     public String getCmsReceiptErrorSummaryQuery() {
         return this.cmsReceiptErrorSummaryQuery;
-    }
-
-    @Bean(name = "cmsReceiptErrorDetailsQuery")
-    public String getCmsReceiptErrorDetailsQuery() {
-        return this.cmsReceiptErrorDetailsQuery;
-    }
-
-    @Bean(name = "cmsJobRunStatusQuery")
-    public String getCmsJobRunStatusQuery() {
-        return this.cmsJobRunStatusQuery;
     }
 
     @Bean(name = "cmsCtmStatusQuery")

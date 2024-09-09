@@ -32,12 +32,11 @@ public class CMSMonitoringController {
     //Collections Table Data - Latest request status
     private static final String LATEST_REQUEST_STATUS = "latestRequestStatus";
 
-    //CashApps Table Data - Interface error in last X hours
+    //CashApps Table Data - Interface error summary
     private static final String INTERFACE_ERRORS = "interfaceErrors";
 
     //CashApps Table Data - Unposted Amount
     private static final String UNPOSTED_SUMMARY = "unpostedSummary";
-    private static final String UNPOSTED_DETAILS = "unpostedDetails";
 
     //CashApps Table Data - Unapplied errors
     private static final String UNAPPLIED_ERROR_SUMMARY = "unappliedErrorSummary";
@@ -82,8 +81,6 @@ public class CMSMonitoringController {
     //SFTP Status
     private static final String SFTP_STATUS = "sftpStatus";
 
-    //ToCheck
-    private static final String JOB_RUN_STATUS = "jobRunStatus";
 
     private Logger logger = LoggerFactory.getLogger(CMSMonitoringController.class);
 
@@ -100,14 +97,8 @@ public class CMSMonitoringController {
         switch(query){
             case UNPOSTED_SUMMARY:
                 return new ResponseEntity<>(cmsMonitoringService.getUnpostedSummaryData(), HttpStatus.OK);
-//            case UNPOSTED_DETAILS:
-//                return getUnpostedDetails();
             case UNAPPLIED_ERROR_SUMMARY:
                 return new ResponseEntity<>(cmsMonitoringService.getUnappliedErrorSummaryData(), HttpStatus.OK);
-//            case RECEIPT_ERROR_DETAILS:
-//                return getReceiptErrorDetails();
-//            case JOB_RUN_STATUS: //??
-//                return new ResponseEntity<>(cmsMonitoringService.getJobRunStatus(), HttpStatus.OK);
             case CTM_STATUS:
                 return new ResponseEntity<>(cmsMonitoringService.getCtmStatus(), HttpStatus.OK);
             case CTM_DETAILS:
