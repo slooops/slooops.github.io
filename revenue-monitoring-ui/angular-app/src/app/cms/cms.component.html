@@ -556,11 +556,11 @@
 <hr />
 
 <div style="display: flex; flex-direction: row; flex-wrap: nowrap; width: 100%">
-  <div style="display: flex; flex-direction: column">
+  <div style="display: flex; flex-direction: column; width: 50%">
     <h4 style="padding-left: 1vw; font-weight: 600">Collections</h4>
 
     <div class="widget-tray">
-      <div class="callout-box">
+      <div class="callout-box callout-box-widget">
         <div class="box-body">
           <ng-container
             *ngIf="
@@ -574,7 +574,7 @@
         <div class="box-header">Extract Errors in the last week</div>
       </div>
 
-      <div class="callout-box">
+      <div class="callout-box callout-box-widget">
         <div class="box-body">
           <ng-container
             *ngIf="
@@ -589,7 +589,7 @@
         <div class="box-header">Reconciliation Errors</div>
       </div>
 
-      <div class="callout-box">
+      <div class="callout-box callout-box-widget">
         <div class="box-body">
           <ng-container
             *ngIf="
@@ -635,12 +635,12 @@
           </button>
         </div>
       </div>
-      <div>
+      <div style="width: 100%">
         <ng-container *ngIf="collectionsErrorSummaryData?.data?.length">
           <table
             mat-table
             [dataSource]="collectionsErrorSummaryData"
-            style="width: 46vw; overflow-x: auto"
+            style="width: 100%; overflow-x: auto"
           >
             <!-- Extract Type Column -->
             <ng-container matColumnDef="EXTRACT_TYPE">
@@ -743,13 +743,13 @@
           </button>
         </div>
       </div>
-      <div>
+      <div style="width: 100%">
         <!-- Reconciliation Error Extract Table -->
         <ng-container *ngIf="reconciliationErrorExtract?.data?.length">
           <table
             mat-table
             [dataSource]="reconciliationErrorExtract"
-            style="width: 46vw; overflow-x: auto"
+            style="width: 100%; overflow-x: auto"
           >
             <!-- Extract Name Column -->
             <ng-container matColumnDef="EXTRACT_NAME">
@@ -825,13 +825,13 @@
           </button>
         </div>
       </div>
-      <div>
+      <div style="width: 100%">
         <!-- Latest Request Status Table -->
         <ng-container *ngIf="latestRequestStatus?.data?.length">
           <table
             mat-table
             [dataSource]="latestRequestStatus"
-            style="width: 46vw; overflow-x: auto"
+            style="width: 100%; overflow-x: auto"
           >
             <!-- Extract Name Column -->
             <ng-container matColumnDef="EXTRACT_NAME">
@@ -882,10 +882,10 @@
 
   <div class="vertical-divider"></div>
 
-  <div style="display: flex; flex-direction: column">
+  <div style="display: flex; flex-direction: column; width: 50%">
     <h4 style="padding-left: 1vw; font-weight: 600">Cash App</h4>
     <div class="widget-tray">
-      <div class="callout-box">
+      <div class="callout-box callout-box-widget">
         <div class="box-body">
           <ng-container
             *ngIf="
@@ -899,7 +899,7 @@
         <div class="box-header">Interface Errors in last 48 hrs</div>
       </div>
 
-      <div class="callout-box">
+      <div class="callout-box callout-box-widget">
         <div class="box-body">
           <ng-container
             *ngIf="
@@ -918,7 +918,7 @@
         </div>
       </div>
 
-      <div class="callout-box">
+      <div class="callout-box callout-box-widget">
         <div class="box-body">
           <ng-container
             *ngIf="
@@ -968,13 +968,13 @@
           </button>
         </div>
       </div>
-      <div>
+      <div style="width: 100%">
         <!-- Interface Errors Summary Table -->
         <ng-container *ngIf="interfaceErrors?.data?.length">
           <table
             mat-table
             [dataSource]="interfaceErrors"
-            style="width: 46vw; overflow-x: auto"
+            style="width: 100%; overflow-x: auto"
           >
             <!-- Operating Unit Column -->
             <ng-container matColumnDef="OPERATING_UNIT">
@@ -1043,13 +1043,13 @@
         </div>
       </div>
 
-      <div>
+      <div style="width: 100%">
         <!-- Unposted Summary Table -->
         <ng-container *ngIf="unpostedSummaryData?.data?.length">
           <table
             mat-table
             [dataSource]="unpostedSummaryData"
-            style="width: 46vw; overflow-x: auto"
+            style="width: 100%; overflow-x: auto"
           >
             <!-- Organization ID Column -->
             <ng-container matColumnDef="OPERATING_UNIT">
@@ -1128,13 +1128,13 @@
         </div>
       </div>
 
-      <div>
+      <div style="width: 100%">
         <!-- Receipt Error Summary Table -->
         <ng-container *ngIf="receiptErrorSummaryData?.data?.length">
           <table
             mat-table
             [dataSource]="receiptErrorSummaryData"
-            style="width: 46vw; overflow-x: auto"
+            style="width: 100%; overflow-x: auto"
           >
             <!-- Operating Unit Column -->
             <ng-container matColumnDef="ORG_ID">

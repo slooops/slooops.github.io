@@ -1,8 +1,8 @@
 {
   "DATABASE_NAME": "local",
-  "DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CG1PRD,cn=OracleContext,dc=cisco,dc=com",
+  "DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com",
   "DATABASE_USERNAME": "ARFINRO",
-  "DATABASE_PASSWORD": "Sp0nge8ob",
+  "DATABASE_PASSWORD": "Wf0Q9q5W",
   "RDAC_OSUSER": "",
   "ASK_QE_ME_DASH_BOARD_STATUS_Q": "SELECT period_name, close_type, comments, creation_date FROM ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS",
   "UPDATE_COMMENTS_Q": "INSERT INTO ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS (QUARTER, PERIOD_NAME, PERIOD_YEAR, PERIOD_NUM, CLOSE_TYPE, COMMENTS, CREATION_DATE) VALUES ('Q4FY2023','JUN-23',2023,10,?,?,SYSDATE)",

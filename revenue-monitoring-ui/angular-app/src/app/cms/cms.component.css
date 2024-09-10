@@ -5,7 +5,6 @@ a {
 .callout-box {
   margin: 1vw;
   display: flex;
-  width: 14vw;
   min-height: 5vw;
   flex-direction: column;
   padding: 0.5vh 1vw;
@@ -20,9 +19,12 @@ a {
 }
 
 .callout-box.callout-box-table {
-  width: 46vw;
-  /* width: fit-content; */
+  width: 96%;
   padding: 0.5vh 0vw;
+}
+
+.callout-box.callout-box-widget {
+  width: 28.4%;
 }
 
 .box-header {
@@ -444,7 +446,7 @@ tr.mat-header-row {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  /* max-height: 30vh; */
+  justify-content: space-between;
 }
 
 .modal-overlay {
