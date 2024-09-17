@@ -1,10 +1,10 @@
 .mat-header-cell {
-  font-size: 13px;
+  font-size: 12px;
   /* padding-left: 25px !important; */
 }
 
 .mat-cell {
-  font-size: 13px;
+  font-size: 11px;
   text-align: center;
 }
 
@@ -50,4 +50,34 @@ mat-dialog-content {
   max-height: 80%;
   overflow-y: auto;
   z-index: 1001; /* Above overlay */
+}
+
+.mat-column-ACCOUNT {
+  white-space: normal !important;
+  max-width: 100px !important;
+  min-width: 50px !important;
+}
+
+.mat-column-PROGRAM_NAME {
+  white-space: normal !important;
+  max-width: 120px !important;
+  min-width: 70px !important;
+}
+
+.mat-column-STATUS {
+  white-space: normal !important;
+  max-width: 20px !important;
+  min-width: 20px !important;
+}
+
+.mat-column-ORDER_COUNT {
+  white-space: normal !important;
+  max-width: 30px !important;
+  min-width: 30px !important;
+}
+
+.mat-column-COMPLETION {
+  white-space: normal !important;
+  max-width: 30px !important;
+  min-width: 30px !important;
 }

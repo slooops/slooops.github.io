@@ -73,6 +73,9 @@ public class DailyMonitoringService {
     private String sbpSummary;
     private String estimatedCompletionTime;
     private String largeDealSummaryByAccount;
+    private String cloSampleDownloadData;
+    private String rolTransactionDataCount;
+    private String caseServiceMetricsSummary;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -90,7 +93,8 @@ public class DailyMonitoringService {
                                   String orderStatusRevSummary, String personaAccessRoles,
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
                                   String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
-                                  String estimatedCompletionTime, String largeDealSummaryByAccount
+                                  String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
+                                  String caseServiceMetricsSummary
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -138,6 +142,9 @@ public class DailyMonitoringService {
         this.sbpSummary = sbpSummary;
         this.estimatedCompletionTime = estimatedCompletionTime;
         this.largeDealSummaryByAccount = largeDealSummaryByAccount;
+        this.cloSampleDownloadData = cloSampleDownloadData;
+        this.rolTransactionDataCount = rolTransactionDataCount;
+        this.caseServiceMetricsSummary = caseServiceMetricsSummary;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -645,8 +652,12 @@ public class DailyMonitoringService {
     }
 
 
-    public List<Map<String, Object>> getRolTransactionData() {
-        return jdbcManager.queryForList(rolTransactionData);
+    public List<RolTransactionData> getRolTransactionData(int page, int size) {
+        return jdbcManager.getRolTransactionData(rolTransactionData, page, size);
+    }
+
+    public int getTotalRecords() {
+        return jdbcManager.getTotalRecords(rolTransactionDataCount);
     }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
@@ -661,5 +672,12 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(estimatedCompletionTime);
     }
 
+    public List<Map<String, Object>> getCloSampleDownloadData() {
+        return jdbcManager.queryForList(cloSampleDownloadData);
+    }
+
+    public List<Map<String, Object>> getCaseServiceMetricsSummary() {
+        return jdbcManager.queryForList(caseServiceMetricsSummary);
+    }
 
 }

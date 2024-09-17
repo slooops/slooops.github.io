@@ -336,13 +336,13 @@ export class OrderLifecycleComponent implements OnInit {
 
   openDialog() {
     this.dialog.open(OrderLifecycleSummaryComponent, {
-      width: '700px',
+      width: '450px',
     });
   }
 
   openUploadDialog() {
     const dialogRef = this.dialog.open(OrderLifecycleUploadComponent, {
-      width: '600px',
+      width: '400px',
     });
 
     dialogRef.afterClosed().subscribe((data) => {
@@ -356,7 +356,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   openRevSummaryDialog() {
     this.dialog.open(OrderLifecycleRevSummaryComponent, {
-      width: '1200px',
+      width: '900px',
     });
   }
 

@@ -17,6 +17,7 @@ import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { RolComponent } from './rol/rol.component';
 import { SbpComponent } from './sbp/sbp.component';
+import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 
 const routes: Routes = [
   {
@@ -150,6 +151,14 @@ const routes: Routes = [
     data: {
       title: 'SBP Dashboard',
       header: 'SBP Dashboard',
+    },
+  },
+  {
+    path: 'case-analyzer',
+    component: EspCaseAnalyzerComponent,
+    data: {
+      title: 'ESP Case Analyzer Dashboard',
+      header: 'ESP Case Analyzer Dashboard',
     },
   },
 ];

@@ -20,6 +20,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   groupedData = [];
   flattenedData = [];
   grandTotalData = [];
+  accountCompleted = false;
 
   ngOnInit(): void {
     this.getOrderLifecycleRevSummary();
@@ -126,7 +127,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.groupedData.sort((a, b) => b.qtrRevEstimateSum - a.qtrRevEstimateSum);
 
     this.grandTotalData.push({
-      account: 'GRAND TOTAL',
+      account: 'Grand Total',
       grandTotalSalesOrderCount,
       grandTotalOrderValue,
       grandTotalQtrRevEstimate,
@@ -140,7 +141,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     this.setPage(1);
   }
 
-  pageSize = 2;
+  pageSize = 5;
   currentPage = 1;
   totalPages = 0;
   paginatedData: any[] = [];
@@ -236,6 +237,13 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
 
   isDealCompleted(deal): boolean {
     return deal.orderStatuses.every((status) => status.status === 'Completed');
+  }
+
+  isAccountCompleted(account): boolean {
+    this.accountCompleted = account.deals.every((deal) =>
+      this.isDealCompleted(deal)
+    );
+    return this.accountCompleted;
   }
 
   flattenData(groupedData) {
@@ -448,31 +456,31 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
     sorted: boolean;
     sortingOrder: 'asc' | 'desc' | '';
   }[] = [
-    { name: 'ACCOUNT/ DEAL IDs', sorted: false, sortingOrder: '' },
-    { name: 'COUNT OF SALES ORDER', sorted: false, sortingOrder: '' },
-    { name: 'SUM OF ORDER VALUE ($M)', sorted: false, sortingOrder: '' },
+    { name: 'Account/ Deal Ids', sorted: false, sortingOrder: '' },
+    { name: 'Sales order count', sorted: false, sortingOrder: '' },
+    { name: 'Order Value sum($M)', sorted: false, sortingOrder: '' },
     {
-      name: 'TOTAL QTR REVENUE ESTIMATE ($M) (A)',
+      name: 'Total Qtr Rev Estimate($M)(A)',
       sorted: false,
       sortingOrder: '',
     },
     {
-      name: 'INVOICED GL REVENUE FOR QTR ($M) (B)',
+      name: 'Invoiced GL rev for qtr($M)(B)',
       sorted: false,
       sortingOrder: '',
     },
     {
-      name: 'ACCRUED GL REVENUE FOR QTR ($M) (C)',
+      name: 'Accrued GL rev for qtr($M)(C)',
       sorted: false,
       sortingOrder: '',
     },
     {
-      name: 'TOTAL REV RECOGNIZED FOR QTR ($M) (D = B+C)',
+      name: 'Total rev recognized for qtr($M)(D = B+C)',
       sorted: false,
       sortingOrder: '',
     },
     {
-      name: 'REVENUE NOT RECOGNIZED ($M) (E = A-D)',
+      name: 'Rev not recognized($M)(E = A-D)',
       sorted: false,
       sortingOrder: '',
     },

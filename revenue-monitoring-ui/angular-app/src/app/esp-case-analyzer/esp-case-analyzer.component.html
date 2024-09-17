@@ -1,0 +1,35 @@
+<div style="margin-top: 1vh">
+  <ng-container *ngIf="dataSourceforCaseSummary?.data?.length > 0">
+    <div style="overflow-x: auto">
+      <table
+        mat-table
+        [dataSource]="dataSourceforCaseSummary"
+        style="width: 100%"
+      >
+        <ng-container *ngFor="let column of displayedColumnsForCaseSummary">
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ removeUnderscores(column) }}
+            </th>
+            <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+          </ng-container>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumnsForCaseSummary"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumnsForCaseSummary"
+        ></tr>
+      </table>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!dataSourceforCaseSummary?.data?.length">
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+    </div>
+  </ng-container>
+</div>
+<br />

@@ -1,5 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.RolTransactionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
@@ -9,7 +10,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -79,9 +79,6 @@ public class JdbcManager {
     }
 
     public int updateCLoData(String sql, String progName, String account, int dealId, String salesOrder, Timestamp invoiceDate, String cloComments, String updatedBy){
-        System.out.println("here4");
-        System.out.println(sql);
-        System.out.println(salesOrder);
         return jdbcTemplate.update(sql, cloComments, updatedBy, invoiceDate, dealId, salesOrder, salesOrder, progName, account);
     }
 
@@ -91,5 +88,17 @@ public class JdbcManager {
 
     public int updateInvoiceDate(String sql, String progName, String account, int dealId, String salesOrder, Timestamp invoiceDate, String updatedBy){
         return jdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, salesOrder, progName, account);
+    }
+
+    public int getTotalRecords(String sql) {
+        return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+
+    public List<RolTransactionData> getRolTransactionData(String sql, int page, int size) {
+        int startRow = (page * size) + 1;
+        int endRow = (page + 1) * size;
+
+        return jdbcTemplate.query(sql, new Object[]{startRow, endRow}, new RecordRowMapper());
     }
 }

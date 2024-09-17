@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DataService } from 'src/app/providers/data.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-clo-updates',
@@ -13,6 +14,7 @@ export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;
   currentDate: Date;
   username: any;
+  cloSampleDownloadData: CLOSampleDownloadData[];
 
   constructor(
     public dialogRef: MatDialogRef<CloUpdatesComponent>,
@@ -23,6 +25,7 @@ export class CloUpdatesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.getCSVSampleDownloadData();
     this.currentDate = new Date();
     this.updateForm = this.formBuilder.group({
       programName: [
@@ -62,6 +65,38 @@ export class CloUpdatesComponent implements OnInit {
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     this.handleFiles(input.files[0]);
+  }
+
+  getCSVSampleDownloadData() {
+    this.http.get('clo-sample-download-data').subscribe((data: any) => {
+      this.cloSampleDownloadData = data;
+      console.log(data);
+    });
+  }
+
+  export(sheetName: string, filename: string) {
+    this.exportTableToExcel(this.cloSampleDownloadData, sheetName, filename);
+  }
+
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+    let excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'csv',
+      type: 'array',
+    });
+    this.saveAsExcelFile(excelBuffer, filename);
+  }
+
+  saveAsExcelFile(buffer: any, filename: string) {
+    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
+    let url = window.URL.createObjectURL(data);
+    let link = document.createElement('a');
+    link.href = url;
+    link.download = filename + '.csv';
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
 
   uploadCLODataFile(dialogTemplate: TemplateRef<any>) {
@@ -157,12 +192,12 @@ export class CloUpdatesComponent implements OnInit {
   async validateCsvFile(file: File): Promise<boolean> {
     const fileContent = await this.readFileContent(file);
     const expectedHeaders = [
-      'PROGRAM NAME',
+      'PROGRAM_NAME',
       'ACCOUNT',
-      'DEAL ID',
-      'ORDER/SUBSCRIPTION NUMBER',
-      'INVOICE ELIGIBLE DATE',
-      'CLO COMMENTS',
+      'DEAL_ID',
+      'SALES_ORDER',
+      'INVOICE_ELIGIBLE_DATE',
+      'CLO_COMMENTS',
     ].toString();
     const firstRow = fileContent[0].replace(/\r/g, '');
 
@@ -207,4 +242,13 @@ interface UpdateCLOData {
   invoiceDate: string;
   cloComments: string;
   username: string;
+}
+
+interface CLOSampleDownloadData {
+  programName: string;
+  account: string;
+  dealIds: string;
+  orderNum: string;
+  invoiceDate: string;
+  cloComments: string;
 }

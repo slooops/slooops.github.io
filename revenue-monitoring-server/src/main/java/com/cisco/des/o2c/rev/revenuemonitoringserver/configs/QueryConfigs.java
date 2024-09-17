@@ -224,6 +224,15 @@ public class QueryConfigs { // TODO
     @Value(("${large.deal.summary.by.account.query}"))
     public String largeDealSummaryByAccount;
 
+    @Value(("${clo.sample.download.data.query}"))
+    public String cloSampleDownloadData;
+
+    @Value(("${rol.transaction.data.count.query}"))
+    public String rolTransactionDataCount;
+
+    @Value(("${case.service.metrics.summary}"))
+    public String caseServiceMetricsSummary;
+
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {
         return this.stdArExcQuery;
@@ -587,5 +596,15 @@ public class QueryConfigs { // TODO
         return this.largeDealSummaryByAccount;
     }
 
+    @Bean(name = "cloSampleDownloadData")
+    public String getCloSampleDownloadData(){
+        return this.cloSampleDownloadData;
+    }
+
+    @Bean(name = "rolTransactionDataCount")
+    public String getRolTransactionDataCount() { return this.rolTransactionDataCount; }
+
+    @Bean(name = "caseServiceMetricsSummary")
+    public String getCaseServiceMetricsSummary() { return this.caseServiceMetricsSummary; }
 
 }

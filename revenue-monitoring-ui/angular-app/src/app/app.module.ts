@@ -91,6 +91,7 @@ import { RolComponent } from './rol/rol.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
+import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -135,6 +136,7 @@ export function initApp(authService: AuthenticationService) {
     CmsSftpDetailsComponent,
     SbpComponent,
     LoadingSymbolSmallComponent,
+    EspCaseAnalyzerComponent,
   ],
   imports: [
     BrowserModule,

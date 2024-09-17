@@ -13,7 +13,10 @@
     <mat-tab label="File Upload" style="text-align: center">
       <br />
       <div style="display: flex; justify-content: end; align-items: center">
-        <a href="../../assets/CLO Upload Sample.csv" download
+        <a
+          (click)="
+            export('CLO Upload Sample Template', 'clo_upload_sample_template')
+          "
           ><i class="fa fa-download" aria-hidden="true">
             &nbsp;Download Sample Template</i
           ></a

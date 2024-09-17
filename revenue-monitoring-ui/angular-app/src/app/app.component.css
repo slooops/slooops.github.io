@@ -7,5 +7,10 @@
 }
 
 .mat-sidenav {
-  width: 15%;
+  width: 11%;
+}
+
+.mat-toolbar-row,
+.mat-toolbar-single-row {
+  height: 50px !important;
 }

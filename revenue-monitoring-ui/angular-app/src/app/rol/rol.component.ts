@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
@@ -10,20 +10,37 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./rol.component.css'],
 })
 export class RolComponent implements OnInit {
-  // Only the paginator for the second table (ROL Transaction Data)
-  @ViewChild('transactionPaginator') transactionPaginator: MatPaginator;
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   rolErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
   rolErrorDisplayedColumns: string[] = [];
 
-  rolTransactionData: MatTableDataSource<any> = new MatTableDataSource([]);
+  dataSource: any;
+  rolTransactionData: RolTransactionData[];
   displayedColumns: string[] = [];
 
-  constructor(private http: ApiHttpService) {}
+  totalRecords: number = 0;
+  pageSize: number = 20;
+  isLoading: boolean = false; // Track loading state
+
+  constructor(private http: ApiHttpService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.getRolTransactionData();
+    this.getRolTransactionData(0, this.pageSize);
     this.getRolErrorSummaryData();
+  }
+
+  ngAfterViewInit(): void {
+    this.paginator.page.subscribe((event: PageEvent) => {
+      this.getRolTransactionData(event.pageIndex, event.pageSize);
+    });
+
+    // setTimeout(() => {
+    //   if (this.paginator) {
+    //     this.dataSource.paginator = this.paginator;
+    //     this.cdr.detectChanges(); // Ensure change detection
+    //   }
+    // });
   }
 
   getRolErrorSummaryData() {
@@ -34,19 +51,48 @@ export class RolComponent implements OnInit {
     });
   }
 
-  getRolTransactionData() {
-    this.http.get('rol-transaction-data').subscribe((data: any) => {
-      if (data.length > 0) {
-        // Dynamically set displayedColumns based on keys of the first object
-        this.displayedColumns = Object.keys(data[0]);
+  getRolTransactionData(pageIndex: number, pageSize: number) {
+    this.isLoading = true;
+    const pageRequest = {
+      page: pageIndex.toString(),
+      size: pageSize.toString(),
+    };
 
-        // Filter out columns you don't want to display
-        this.removeColumns(['']);
-        this.rolTransactionData.data = this.formatData(data);
-        // this.rolTransactionData.paginator = this.transactionPaginator;
-      }
+    this.http.get('rol-transaction-data', { params: pageRequest }).subscribe({
+      next: (data: any) => {
+        this.rolTransactionData = data.rolTransactionData;
+        this.totalRecords = data.totalRecords;
 
-      console.log(this.rolTransactionData);
+        if (this.rolTransactionData.length > 0) {
+          this.displayedColumns = Object.keys(this.rolTransactionData[0]);
+          this.removeColumns(['']);
+        }
+
+        this.rolTransactionData = this.formatData(this.rolTransactionData);
+
+        this.dataSource = new MatTableDataSource<RolTransactionData>(
+          this.rolTransactionData
+        );
+        if (this.paginator) {
+          if (this.dataSource.paginator !== this.paginator) {
+            this.dataSource.paginator = this.paginator;
+          }
+
+          setTimeout(() => {
+            this.paginator.length = this.totalRecords;
+            this.paginator.pageIndex = pageIndex;
+            this.paginator.pageSize = pageSize;
+            this.cdr.detectChanges();
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching data', err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
     });
   }
 
@@ -63,6 +109,14 @@ export class RolComponent implements OnInit {
       // If the AMOUNT column exists, format it with dollar signs and commas, and ensure two decimal places
       if ('AMOUNT' in row) {
         formattedRow['AMOUNT'] = `$${Number(row['AMOUNT']).toLocaleString(
+          undefined,
+          {
+            minimumFractionDigits: 2, // Always show at least two decimal places
+            maximumFractionDigits: 2, // Restrict to two decimal places
+          }
+        )}`;
+      } else if ('amount' in row) {
+        formattedRow['amount'] = `$${Number(row['amount']).toLocaleString(
           undefined,
           {
             minimumFractionDigits: 2, // Always show at least two decimal places
@@ -104,4 +158,22 @@ export class RolComponent implements OnInit {
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     XLSX.writeFile(wb, `${filename}.xlsx`);
   }
+}
+
+interface RolTransactionData {
+  PERIOD_YEAR: string;
+  PERIOD_NUM: string;
+  ORG_ID: string;
+  APPLICATION_NAME: string;
+  ERROR_APPLICATION: string;
+  SUB_APPLICATION: string;
+  SOURCE: string;
+  AMOUNT: string;
+  CURRENCY_CODE: string;
+  INTID_TRXNID_CUSTTRXLINE_GROUPID: string;
+  ORDERNUMBER_CUSTTRXID: string;
+  CUSTTRXLINEID: string;
+  ORDERLINEID: string;
+  ERROR_MESSAGE: string;
+  PROCESS_STATUS: string;
 }

@@ -1,99 +1,168 @@
-<div class="modal-overlay" (click)="closeDialog()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
-    <h4 mat-dialog-title>
-      Large Deal Summary
-      <a
-        style="
-          float: right !important;
-          text-decoration: none;
-          margin-top: 8px !important;
-        "
-        ><i
-          class="fa fa-download"
-          style="font-size: 20px; color: gray"
-          aria-hidden="true"
-          (click)="exportByTab()"
-        ></i
-        >&nbsp;&nbsp;
-        <i
-          class="fa fa-close"
-          style="font-size: 20px; color: gray"
-          (click)="closeDialog()"
-        ></i
-      ></a>
-    </h4>
-    <mat-tab-group (selectedTabChange)="onTabChange($event)">
-      <mat-tab label="Summary by Program" style="text-align: center">
-        <mat-dialog-content>
-          <div
-            class="periodclosetbale sortArrow"
-            style="max-width: 100%; overflow-x: hidden"
-          >
-            <table
-              style="width: -webkit-fill-available"
-              mat-table
-              [dataSource]="dataSource"
-              class="table table-responsive orderTable"
-            >
-              <!-- PROGRAM_NAME Column -->
-              <ng-container matColumnDef="PROGRAM_NAME">
-                <th mat-header-cell *matHeaderCellDef>PROGRAM NAME</th>
-                <td mat-cell *matCellDef="let record">
-                  {{ record.PROGRAM_NAME }}
-                </td>
-              </ng-container>
+<!-- <div class="modal-overlay" (click)="closeDialog()">
+  <div class="modal-box" (click)="$event.stopPropagation()"> -->
+<h5 mat-dialog-title>
+  Large Deal Summary
+  <a
+    style="
+      float: right !important;
+      text-decoration: none;
+      margin-top: 8px !important;
+    "
+    ><i
+      class="fa fa-download"
+      style="font-size: 16px; color: gray"
+      aria-hidden="true"
+      (click)="exportByTab()"
+    ></i
+    >&nbsp;&nbsp;
+    <i
+      class="fa fa-close"
+      style="font-size: 16px; color: gray"
+      (click)="closeDialog()"
+    ></i
+  ></a>
+</h5>
+<mat-tab-group (selectedTabChange)="onTabChange($event)">
+  <mat-tab label="Summary by Program" style="text-align: center">
+    <mat-dialog-content>
+      <div
+        class="periodclosetbale sortArrow"
+        style="max-width: 100%; overflow-x: hidden"
+      >
+        <table
+          style="width: -webkit-fill-available"
+          mat-table
+          [dataSource]="dataSource"
+          class="table table-responsive orderTable"
+        >
+          <!-- PROGRAM_NAME Column -->
+          <ng-container matColumnDef="PROGRAM_NAME">
+            <th mat-header-cell *matHeaderCellDef>Program Name</th>
+            <td mat-cell *matCellDef="let record">
+              {{ record.PROGRAM_NAME }}
+            </td>
+          </ng-container>
 
-              <!-- STATUS Column -->
-              <ng-container matColumnDef="STATUS">
-                <th mat-header-cell *matHeaderCellDef>STATUS</th>
-                <td mat-cell *matCellDef="let record">{{ record.STATUS }}</td>
-              </ng-container>
+          <!-- STATUS Column -->
+          <ng-container matColumnDef="STATUS">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let record">{{ record.STATUS }}</td>
+          </ng-container>
 
-              <!-- ORDER_COUNT Column -->
-              <ng-container matColumnDef="ORDER_COUNT">
-                <th mat-header-cell *matHeaderCellDef>ORDER COUNT</th>
-                <td mat-cell *matCellDef="let record">
-                  {{ record.ORDER_COUNT }}
-                </td>
-              </ng-container>
+          <!-- ORDER_COUNT Column -->
+          <ng-container matColumnDef="ORDER_COUNT">
+            <th mat-header-cell *matHeaderCellDef>Order count</th>
+            <td mat-cell *matCellDef="let record">
+              {{ record.ORDER_COUNT }}
+            </td>
+          </ng-container>
 
-              <!-- COMPLETION Column -->
-              <ng-container matColumnDef="COMPLETION">
-                <th mat-header-cell *matHeaderCellDef>COMPLETION</th>
-                <td mat-cell *matCellDef="let record">
-                  {{
-                    record.COMPLETION !== null ? record.COMPLETION + "%" : ""
-                  }}
-                </td>
-              </ng-container>
+          <!-- COMPLETION Column -->
+          <ng-container matColumnDef="COMPLETION">
+            <th mat-header-cell *matHeaderCellDef>Completion</th>
+            <td mat-cell *matCellDef="let record">
+              {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
+            </td>
+          </ng-container>
 
-              <!-- Table header -->
-              <tr
-                mat-header-row
-                *matHeaderRowDef="displayedColumns; sticky: true"
-              ></tr>
+          <!-- Table header -->
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns; sticky: true"
+          ></tr>
 
-              <!-- Table rows -->
-              <tr
-                mat-row
-                *matRowDef="let record; columns: displayedColumns; let entry"
-                [ngClass]="{ bold: entry.PROGRAM_NAME.includes('Total') }"
-              ></tr>
-            </table>
-          </div>
+          <!-- Table rows -->
+          <tr
+            mat-row
+            *matRowDef="let record; columns: displayedColumns; let entry"
+            [ngClass]="{ bold: entry.PROGRAM_NAME.includes('Total') }"
+          ></tr>
+        </table>
+      </div>
 
-          <div style="display: flex; justify-content: center">
-            <ng-container *ngIf="!dataSource?.data?.length">
-              <tr>
-                <td colspan="100%" style="text-align: center">
-                  <app-loading-symbol></app-loading-symbol>
-                </td>
-              </tr>
-            </ng-container>
-          </div>
-        </mat-dialog-content>
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!dataSource?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
+    </mat-dialog-content>
+    <br />
+  </mat-tab>
+  <mat-tab label="Summary by Account" style="text-align: center">
+    <mat-dialog-content>
+      <div
+        class="periodclosetbale sortArrow"
+        style="max-width: 100%; overflow-x: hidden"
+      >
+        <table
+          style="width: -webkit-fill-available"
+          mat-table
+          [dataSource]="dataSourceByAccount"
+          class="table table-responsive orderTable"
+        >
+          <!-- PROGRAM_NAME Column -->
+          <ng-container matColumnDef="ACCOUNT">
+            <th mat-header-cell *matHeaderCellDef>Account</th>
+            <td mat-cell *matCellDef="let record">{{ record.ACCOUNT }}</td>
+          </ng-container>
 
-        <br /> </mat-tab
-    ></mat-tab-group>
-  </div>
-</div>
+          <!-- STATUS Column -->
+          <ng-container matColumnDef="STATUS">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let record">{{ record.STATUS }}</td>
+          </ng-container>
+
+          <!-- ORDER_COUNT Column -->
+          <ng-container matColumnDef="ORDER_COUNT">
+            <th mat-header-cell *matHeaderCellDef>Order count</th>
+            <td mat-cell *matCellDef="let record">
+              {{ record.ORDER_COUNT }}
+            </td>
+          </ng-container>
+
+          <!-- COMPLETION Column -->
+          <ng-container matColumnDef="COMPLETION">
+            <th mat-header-cell *matHeaderCellDef>Completion</th>
+            <td mat-cell *matCellDef="let record">
+              {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
+            </td>
+          </ng-container>
+
+          <!-- Table header -->
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumnsByAccount; sticky: true"
+          ></tr>
+
+          <!-- Table rows -->
+          <tr
+            mat-row
+            *matRowDef="
+              let record;
+              columns: displayedColumnsByAccount;
+              let entry
+            "
+            [ngClass]="{ bold: entry.ACCOUNT.includes('Total') }"
+          ></tr>
+        </table>
+      </div>
+
+      <div style="display: flex; justify-content: center">
+        <ng-container *ngIf="!dataSourceByAccount?.data?.length">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </div>
+    </mat-dialog-content>
+    <br />
+  </mat-tab>
+</mat-tab-group>
+<!-- </div>
+</div> -->

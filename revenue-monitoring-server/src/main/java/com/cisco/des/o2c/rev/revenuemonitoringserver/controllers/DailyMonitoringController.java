@@ -170,8 +170,15 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/rol-transaction-data")
-    public ResponseEntity<List<Map<String, Object>>> getRolTransactionData() {
-        return new ResponseEntity<>(service.getRolTransactionData(), HttpStatus.OK);
+    public ResponseEntity<Map<String, Object>> getRolTransactionData(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "100") int size) {
+        List<RolTransactionData> rolTransactionData = service.getRolTransactionData(page, size);
+        System.out.println(page);
+        int totalRecords = service.getTotalRecords();
+        Map<String, Object> response = new HashMap<>();
+        response.put("rolTransactionData", rolTransactionData);
+        response.put("totalRecords", totalRecords);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/rol-errors-summary")
@@ -331,5 +338,20 @@ public class DailyMonitoringController {
     @GetMapping("/large-deal-summary-account")
     public ResponseEntity<List<LargeDealSummaryByAccountModel>> getLargeDealSummaryByAccount() {
         return new ResponseEntity<>(service.getLargeDealSummaryByAccount(), HttpStatus.OK);
+    }
+
+    @GetMapping("/clo-sample-download-data")
+    public ResponseEntity<List<Map<String, Object>>> getCloSampleDownloadData(){
+        return new ResponseEntity<>(service.getCloSampleDownloadData(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rol-transaction-data-count")
+    public ResponseEntity<Integer> getRolTransactionDataCount() {
+        return new ResponseEntity<>(service.getTotalRecords(), HttpStatus.OK);
+    }
+
+    @GetMapping("/case-service-metrics-summary")
+    public ResponseEntity<List<Map<String, Object>>> getCaseServiceMetricsSummary() {
+        return new ResponseEntity<>(service.getCaseServiceMetricsSummary(), HttpStatus.OK);
     }
 }

@@ -18,7 +18,7 @@
         hideToggle
         *ngIf="isAdmin || checkRole('PERIOD_CLOSE')"
       >
-        <mat-expansion-panel-header style="font-size: medium; color: white">
+        <mat-expansion-panel-header style="font-size: small; color: white">
           Period Close Tracking
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -68,7 +68,7 @@
         CMS Dashboard
       </mat-list-item>
       <!-- *ngIf="isAdmin || checkRole('CMS')" -->
-      <!-- <mat-list-item
+      <mat-list-item
         [routerLink]="['/rol']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('ROL')"
@@ -81,7 +81,14 @@
         *ngIf="isAdmin || checkRole('SBP')"
       >
         SBP Dashboard
-      </mat-list-item> -->
+      </mat-list-item>
+      <mat-list-item
+        [routerLink]="['/case-analyzer']"
+        routerLinkActive="active"
+      >
+        ESP Case Analyzer Dashboard
+      </mat-list-item>
+      <!-- *ngIf="isAdmin || checkRole('CASE_ANALYZER')" -->
     </mat-nav-list>
   </div>
 </div>
