@@ -1,12 +1,81 @@
-<br />
-<br />
-<br />
-<div style="display: flex; justify-content: center">
-  <ng-container *ngIf="loading">
-    <tr>
-      <td colspan="100%" style="text-align: center">
-        <app-loading-symbol></app-loading-symbol>
-      </td>
-    </tr>
-  </ng-container>
+<div class="page-title">Home</div>
+
+<div class="grid-container">
+  <div class="grid-item">
+    <div class="card">
+      <div class="card-stack">
+        <div class="card-title-stack">
+          <p class="card-title">Period Close Tracking</p>
+          <p class="card-subtitle">Pre-Close & Mid-Close</p>
+        </div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('period-close-tracking-preclose')"
+        >
+          <p style="margin: -8px 0 -13px 0">
+            <circle-progress
+              [percent]="100"
+              [maxPercent]="6"
+              units="/6"
+              unitsFontSize="14px"
+            ></circle-progress>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-item">
+    <div class="card">
+      <div class="card-stack">
+        <div class="card-title-stack">
+          <p class="card-title">Large Deal Tracker</p>
+          <p class="card-subtitle">Contextual Info</p>
+        </div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('large-deal-tracker')"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-item">
+    <div class="card">
+      <div class="card-stack">
+        <div class="card-title-stack">
+          <p class="card-title">WD+0 Mid Close Status</p>
+          <p class="card-subtitle">Contextual Info</p>
+        </div>
+        <div class="card-placeholder" (click)="navigateTo('wd0-dash')"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-item">
+    <div class="card">
+      <div class="card-stack">
+        <div class="card-title-stack">
+          <p class="card-title">WD+0 Mid Close Volumes</p>
+          <p class="card-subtitle">Contextual Info</p>
+        </div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('mid-close-volumes')"
+        ></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-item">
+    <div class="card">
+      <div class="card-stack">
+        <div class="card-title-stack">
+          <p class="card-title">CMS Dashboard</p>
+          <p class="card-subtitle">Contextual Info</p>
+        </div>
+        <div class="card-placeholder" (click)="navigateTo('cms')"></div>
+      </div>
+    </div>
+  </div>
 </div>

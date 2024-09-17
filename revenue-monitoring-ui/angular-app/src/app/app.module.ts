@@ -52,7 +52,7 @@ import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { DetailViewComponent } from './detail-view/detail-view.component';
+import { DetailViewComponent } from './error-dash/detail-view/detail-view.component';
 import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { TruncatePipe } from './shared/truncate.pipe';
@@ -84,12 +84,13 @@ import { CloUpdatesComponent } from './order-lifecycle/clo-updates/clo-updates.c
 import { FormatNumberPipe } from './format-number.pipe';
 import { CmsComponent } from './cms/cms.component';
 import { ToolTipRendererDirective } from './tool-tip-renderer.directive';
-import { CustomToolTipComponent } from './custom-tool-tip/custom-tool-tip.component';
-import { CmsDetailsComponent } from './cms-details/cms-details.component';
-import { CmsModalComponent } from './cms-modal/cms-modal.component';
+import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.component';
+import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
+import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
 import { RolComponent } from './rol/rol.component';
-import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
+import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { SbpComponent } from './sbp/sbp.component';
+import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -133,6 +134,7 @@ export function initApp(authService: AuthenticationService) {
     RolComponent,
     CmsSftpDetailsComponent,
     SbpComponent,
+    LoadingSymbolSmallComponent,
   ],
   imports: [
     BrowserModule,

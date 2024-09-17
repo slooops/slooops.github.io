@@ -1,5 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@PropertySource("classpath:server.properties")
+//@PropertySource("classpath:server.properties")
 public class CMSMonitoringService {
 
+    private JdbcManager jdbcManager;
     private String unpostedSummaryQuery;
-    private String unpostedDetailsQuery;
     private String unappliedErrorSummaryQuery;
-    private String receiptErrorDetailsQuery;
-    private String jobRunStatusQuery;
     private String ctmStatusQuery;
     private String ctmDetailsQuery;
     private String boomiStatusQuery;
@@ -54,28 +53,27 @@ public class CMSMonitoringService {
     private String coreAppLayerErrorCountQuery;
     private String reconErrCountExtractQuery;
 
-    private String URL = "";
-    private String USER = "";
-    private String PASSWORD = "";
-    private static final String STAGE_DB = "TS1CG1";
-    private static final String PROD_DB = "CG1PRD";
-    private static final String CTM_PROD = "CTM_PROD";
+//    private String URL = "";
+//    private String USER = "";
+//    private String PASSWORD = "";
+//    private static final String STAGE_DB = "TS1CG1";
+//    private static final String PROD_DB = "CG1PRD";
+//    private static final String CTM_PROD = "CTM_PROD";
 
-    @Value("${database.url.cg1}")
-    public String databaseURLCG1;
-    @Value("${database.username.cg1}")
-    public String databaseUsernameCG1;
-    @Value("${database.password.cg1}")
-    public String databasePasswordCG1;
+//    @Value("${database.url.cg1}")
+//    public String databaseURLCG1;
+//    @Value("${database.username.cg1}")
+//    public String databaseUsernameCG1;
+//    @Value("${database.password.cg1}")
+//    public String databasePasswordCG1;
     private Logger logger = LoggerFactory.getLogger(CMSMonitoringService.class);
 
     @Autowired
     CacheManager cacheManager;
 
     @Autowired
-    public CMSMonitoringService(String cmsUnpostedSummaryQuery,
-                                String cmsUnpostedDetailsQuery, String cmsReceiptErrorSummaryQuery,
-                                String cmsReceiptErrorDetailsQuery, String cmsJobRunStatusQuery,
+    public CMSMonitoringService(JdbcManager jdbcManager, String cmsUnpostedSummaryQuery,
+                                String cmsReceiptErrorSummaryQuery,
                                 String cmsCtmStatusQuery, String cmsCtmDetailsQuery,
                                 String cmsBoomiStatusQuery, String cmsBoomiDetailsQuery,
                                 String cmsExtractCountQuery, String cmsExtractDetailsQuery,
@@ -88,11 +86,9 @@ public class CMSMonitoringService {
                                 String cmsTotalReconciliationErrorQuery, String cmsBoomiStatusHrToCg1Query,
                                 String cmsBoomiDetailsHrToCg1Query, String cmsTotalUnappliedAmountQuery,
                                 String cmsCoreAppLayerErrorCountQuery, String cmsReconErrCountExtractQuery) {
+        this.jdbcManager = jdbcManager;
         this.unpostedSummaryQuery = cmsUnpostedSummaryQuery;
-        this.unpostedDetailsQuery = cmsUnpostedDetailsQuery;
         this.unappliedErrorSummaryQuery = cmsReceiptErrorSummaryQuery;
-        this.receiptErrorDetailsQuery = cmsReceiptErrorDetailsQuery;
-        this.jobRunStatusQuery = cmsJobRunStatusQuery;
         this.ctmStatusQuery = cmsCtmStatusQuery;
         this.ctmDetailsQuery = cmsCtmDetailsQuery;
         this.boomiStatusQuery = cmsBoomiStatusQuery;
@@ -123,61 +119,31 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getUnpostedSummaryData()  {
         try {
             logger.info("In getUnpostedSummaryData():: retrieving data");
-            return executeQuery(unpostedSummaryQuery, "CG1PRD");
+            return jdbcManager.queryForList(unpostedSummaryQuery);
+//            return executeQuery(unpostedSummaryQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getUnpostedSummaryData():: " + e);
         }
         return null;
     }
 
-//    @Cacheable("unpostedDetails")
-//    public List<Map<String, Object>> getUnpostedDetailsData() {
-//        try {
-//            logger.info("In getUnpostedDetailsData():: retrieving data");
-//            return executeQuery(unpostedDetailsQuery, "TS1CG1");
-//        } catch (Exception e) {
-//            logger.error("Exception in getUnpostedDetailsData():: " + e);
-//        }
-//        return null;
-//    }
-
     @Cacheable("unappliedErrorSummary")
     public List<Map<String, Object>> getUnappliedErrorSummaryData() {
         try {
             logger.info("In getUnappliedErrorSummaryData():: retrieving data");
-            return executeQuery(unappliedErrorSummaryQuery, "CG1PRD");
+            return jdbcManager.queryForList(unappliedErrorSummaryQuery);
+//            return executeQuery(unappliedErrorSummaryQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getUnappliedErrorSummaryData():: " + e);
         }
         return null;
     }
 
-//    @Cacheable("receiptErrorDetails")
-//    public List<Map<String, Object>> getReceiptErrorDetailsData() {
-//        try {
-//            logger.info("In getReceiptErrorDetailsData():: retrieving data");
-//            return executeQuery(receiptErrorDetailsQuery, "TS1CG1");
-//        } catch (Exception e) {
-//            logger.error("Exception in getReceiptErrorDetailsData():: " + e);
-//        }
-//        return null;
-//    }
-
-//    @Cacheable("jobRunStatus")
-//    public List<Map<String, Object>> getJobRunStatus()  {
-//        try {
-//            logger.info("In getJobRunStatus():: retrieving data");
-//            return executeQuery(jobRunStatusQuery, "CTM_PROD");
-//        } catch (Exception e) {
-//            logger.error("Exception in getJobRunStatus():: " + e);
-//        }
-//        return null;
-//    }
-
     public List<Map<String, Object>> getCtmStatus()  {
         try {
             logger.info("In getCtmStatus():: retrieving data");
-            return executeQuery(ctmStatusQuery, "CG1PRD");
+            return jdbcManager.queryForList(ctmStatusQuery);
+//            return executeQuery(ctmStatusQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getCtmStatus():: " + e);
         }
@@ -187,7 +153,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getCtmDetails()  {
         try {
             logger.info("In getCtmDetails():: retrieving data");
-            return executeQuery(ctmDetailsQuery, "CG1PRD");
+            return jdbcManager.queryForList(ctmDetailsQuery);
+//            return executeQuery(ctmDetailsQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getCtmDetails():: " + e);
         }
@@ -197,7 +164,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getBoomiStatus()  {
         try {
             logger.info("In getBoomiStatus():: retrieving data");
-            return executeQuery(boomiStatusQuery, "CG1PRD");
+            return jdbcManager.queryForList(boomiStatusQuery);
+//            return executeQuery(boomiStatusQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getBoomiStatus():: " + e);
         }
@@ -207,7 +175,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getBoomiDetails()  {
         try {
             logger.info("In getBoomiDetails():: retrieving data");
-            return executeQuery(boomiDetailsQuery, "CG1PRD");
+            return jdbcManager.queryForList(boomiDetailsQuery);
+//            return executeQuery(boomiDetailsQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getBoomiDetails():: " + e);
         }
@@ -218,7 +187,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getExtractCount()  {
         try {
             logger.info("In getExtractCount():: retrieving data");
-            return executeQuery(extractCountQuery, "CG1PRD");
+            return jdbcManager.queryForList(extractCountQuery);
+//            return executeQuery(extractCountQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getExtractCount():: " + e);
         }
@@ -229,7 +199,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getExtractDetails()  {
         try {
             logger.info("In getExtractDetails():: retrieving data");
-            return executeQuery(extractDetailsQuery, "CG1PRD");
+            return jdbcManager.queryForList(extractDetailsQuery);
+//            return executeQuery(extractDetailsQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getExtractDetails():: " + e);
         }
@@ -240,7 +211,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getLatestRequestStatus() {
         try {
             logger.info("In getLatestRequestStatus():: retrieving data");
-            return executeQuery(latestRequestStatusQuery, "CG1PRD");
+            return jdbcManager.queryForList(latestRequestStatusQuery);
+//            return executeQuery(latestRequestStatusQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getLatestRequestStatus():: " + e);
         }
@@ -251,7 +223,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getCollectionsErrorSummary() {
         try {
             logger.info("In getCollectionsErrorSummary():: retrieving data");
-            return executeQuery(collectionsErrorSummaryQuery, "CG1PRD");
+            return jdbcManager.queryForList(collectionsErrorSummaryQuery);
+//            return executeQuery(collectionsErrorSummaryQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getCollectionsErrorSummary():: " + e);
         }
@@ -262,7 +235,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getAlternatePayerErr() {
         try {
             logger.info("In getAlternatePayerErr():: retrieving data");
-            return executeQuery(alternatePayerErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(alternatePayerErrQuery);
+//            return executeQuery(alternatePayerErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getAlternatePayerErr():: " + e);
         }
@@ -273,7 +247,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getSalesInvoiceHeaderExtractErr() {
         try {
             logger.info("In getSalesInvoiceHeaderExtractErr():: retrieving data");
-            return executeQuery(salesInvoiceHeaderExtractErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(salesInvoiceHeaderExtractErrQuery);
+//            return executeQuery(salesInvoiceHeaderExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getSalesInvoiceHeaderExtractErr():: " + e);
         }
@@ -284,7 +259,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getCustomerContactsErr() {
         try {
             logger.info("In getCustomerContactsErr():: retrieving data");
-            return executeQuery(customerContactsErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(customerContactsErrQuery);
+//            return executeQuery(customerContactsErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getCustomerContactsErr():: " + e);
         }
@@ -295,7 +271,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getSalesInvoiceItemExtractErr() {
         try {
             logger.info("In getSalesInvoiceItemExtractErr():: retrieving data");
-            return executeQuery(salesInvoiceItemExtractErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(salesInvoiceItemExtractErrQuery);
+//            return executeQuery(salesInvoiceItemExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getSalesInvoiceItemExtractErr():: " + e);
         }
@@ -307,7 +284,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getInvoicePdfExtractErr() {
         try {
             logger.info("In getInvoicePdfExtractErr():: retrieving data");
-            return executeQuery(invoicePdfExtractErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(invoicePdfExtractErrQuery);
+//            return executeQuery(invoicePdfExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getInvoicePdfExtractErr():: " + e);
         }
@@ -318,7 +296,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getInvoiceExtractErr() {
         try {
             logger.info("In getInvoiceExtractErr():: retrieving data");
-            return executeQuery(invoiceExtractErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(invoiceExtractErrQuery);
+//            return executeQuery(invoiceExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getInvoiceExtractErr():: " + e);
         }
@@ -329,7 +308,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getCustomerMasterErr() {
         try {
             logger.info("In getCustomerMasterErr():: retrieving data");
-            return executeQuery(customerMasterErrQuery, "CG1PRD");
+            return jdbcManager.queryForList(customerMasterErrQuery);
+//            return executeQuery(customerMasterErrQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getCustomerMasterErr():: " + e);
         }
@@ -340,7 +320,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getInterfaceErrors() {
         try {
             logger.info("In getInterfaceErrors():: retrieving data");
-            return executeQuery(interfaceErrorsQuery, "CG1PRD");
+            return jdbcManager.queryForList(interfaceErrorsQuery);
+//            return executeQuery(interfaceErrorsQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getInterfaceErrors():: " + e);
         }
@@ -350,8 +331,6 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getApiStatus() {
         HashMap<String, Object> apiResponse = new HashMap<>();
         List<Map<String, Object>> response = new ArrayList<>();
-//        HashMap<String, Object> apiResponse1 = new HashMap<>(); //temp code
-//        HashMap<String, Object> apiResponse2 = new HashMap<>(); //temp code
 
         try {
             logger.info("In getApiStatus():: retrieving data");
@@ -370,23 +349,12 @@ public class CMSMonitoringService {
             } else {
                 apiResponse.put("API Status", "YELLOW");
             }
-
-            //adding temp code, later can be replaced with actual new APIs --start
-//            apiResponse1.put("API Name", "CMS TestAPI-1");
-//            apiResponse1.put("API Status", "GREEN");
-//            apiResponse2.put("API Name", "CMS TestAPI-2");
-//            apiResponse2.put("API Status", "GREEN");
-            //adding temp code, later can be replaced with actual new APIs --end
-
         } catch (Exception e) {
             logger.error("Exception in getApiStatus():: " + e);
             apiResponse.put("API Status", "RED");
-
         }
-        response.add(apiResponse);
-//        response.add(apiResponse1); //temp code
-//        response.add(apiResponse2); //temp code
 
+        response.add(apiResponse);
         return response;
     }
 
@@ -413,7 +381,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getInterfaceErrorCountInXHrs() {
         try {
             logger.info("In getInterfaceErrorCountInXHrs():: retrieving data");
-            return executeQuery(interfaceErrorCountInXHrsQuery, "CG1PRD");
+            return jdbcManager.queryForList(interfaceErrorCountInXHrsQuery);
+//            return executeQuery(interfaceErrorCountInXHrsQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getInterfaceErrorCountInXHrs():: " + e);
         }
@@ -424,7 +393,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getUnpostedTotalAmount() {
         try {
             logger.info("In getUnpostedTotalAmount():: retrieving data");
-            return executeQuery(unpostedTotalAmountQuery, "CG1PRD");
+            return jdbcManager.queryForList(unpostedTotalAmountQuery);
+//            return executeQuery(unpostedTotalAmountQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getUnpostedTotalAmount():: " + e);
         }
@@ -435,7 +405,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getTotalUnappliedAmount() {
         try {
             logger.info("In getTotalUnappliedAmount():: retrieving data");
-            return executeQuery(totalUnappliedAmountQuery, "CG1PRD");
+            return jdbcManager.queryForList(totalUnappliedAmountQuery);
+//            return executeQuery(totalUnappliedAmountQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getTotalUnappliedAmount():: " + e);
         }
@@ -446,7 +417,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getTotalReconciliationError() {
         try {
             logger.info("In getTotalReconciliationError():: retrieving data");
-            return executeQuery(totalReconciliationErrorQuery, "CG1PRD");
+            return jdbcManager.queryForList(totalReconciliationErrorQuery);
+//            return executeQuery(totalReconciliationErrorQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getTotalReconciliationError():: " + e);
         }
@@ -457,7 +429,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getReconErrCountExtract() {
         try {
             logger.info("In getReconErrCountExtract():: retrieving data");
-            return executeQuery(reconErrCountExtractQuery, "CG1PRD");
+            return jdbcManager.queryForList(reconErrCountExtractQuery);
+//            return executeQuery(reconErrCountExtractQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getReconErrCountExtract():: " + e);
         }
@@ -467,7 +440,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getBoomiStatusHrToCg1() {
         try {
             logger.info("In getBoomiStatusHrToCG1():: retrieving data");
-            return executeQuery(boomiStatusHrToCg1Query, "CG1PRD");
+            return jdbcManager.queryForList(boomiStatusHrToCg1Query);
+//            return executeQuery(boomiStatusHrToCg1Query, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getBoomiStatusHrToCG1():: " + e);
         }
@@ -477,7 +451,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getBoomiDetailsHrToCg1() {
         try {
             logger.info("In getBoomiDetailsHrToCG1():: retrieving data");
-            return executeQuery(boomiDetailsHrToCg1Query, "CG1PRD");
+            return jdbcManager.queryForList(boomiDetailsHrToCg1Query);
+//            return executeQuery(boomiDetailsHrToCg1Query, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getBoomiDetailsHrToCG1():: " + e);
         }
@@ -488,7 +463,8 @@ public class CMSMonitoringService {
     public List<Map<String, Object>> getCoreAppLayerErrorCount() {
         try {
             logger.info("In getCoreAppLayerErrorCount():: retrieving data");
-            return executeQuery(coreAppLayerErrorCountQuery, "CG1PRD");
+            return jdbcManager.queryForList(coreAppLayerErrorCountQuery);
+//            return executeQuery(coreAppLayerErrorCountQuery, "CG1PRD");
         } catch (Exception e) {
             logger.error("Exception in getCoreAppLayerErrorCount():: " + e);
         }
@@ -510,76 +486,76 @@ public class CMSMonitoringService {
         logger.info("In evictAllCaches():: cache cleared at " + LocalDateTime.now());
     }
 
-    private List<Map<String, Object>> executeQuery(String query, String dbName){
-        Connection connection = null;
-        List<Map<String, Object>> rows = null;
-        readDBProperties(dbName);
-
-        try {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            logger.info("In executeQuery():: connection created for  " + dbName);
-        } catch(SQLException e) {
-            logger.error("Exception in executeQuery():: while creating connection:: " + e);
-        }
-
-        try {
-            if (connection != null) {
-                Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery(query);
-                logger.info("In executeQuery():: query executed successfully!");
-                rows = resultSetToList(rs);
-                connection.close();
-                logger.info("In executeQuery():: DB connection closed!");
-            }
-        } catch(SQLException e) {
-            logger.error("Exception in executeQuery():: while executing query:: " + e);
-        }
-
-        return rows;
-    }
-
-    private void readDBProperties(String dbName){
-        //TODO:: read the DB details from the property file
-        if (dbName.equalsIgnoreCase(STAGE_DB)){
-            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com";
-            USER = "ARFINRO";
-            PASSWORD = "Wf0Q9q5W";
-        }else if(dbName.equalsIgnoreCase(PROD_DB)){
-//            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CG1PRD,cn=OracleContext,dc=cisco,dc=com";
+//    private List<Map<String, Object>> executeQuery(String query, String dbName){
+//        Connection connection = null;
+//        List<Map<String, Object>> rows = null;
+//        readDBProperties(dbName);
+//
+//        try {
+//            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+//            logger.info("In executeQuery():: connection created for  " + dbName);
+//        } catch(SQLException e) {
+//            logger.error("Exception in executeQuery():: while creating connection:: " + e);
+//        }
+//
+//        try {
+//            if (connection != null) {
+//                Statement statement = connection.createStatement();
+//                ResultSet rs = statement.executeQuery(query);
+//                logger.info("In executeQuery():: query executed successfully!");
+//                rows = resultSetToList(rs);
+//                connection.close();
+//                logger.info("In executeQuery():: DB connection closed!");
+//            }
+//        } catch(SQLException e) {
+//            logger.error("Exception in executeQuery():: while executing query:: " + e);
+//        }
+//
+//        return rows;
+//    }
+//
+//    private void readDBProperties(String dbName){
+//        //TODO:: read the DB details from the property file
+//        if (dbName.equalsIgnoreCase(STAGE_DB)){
+//            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com";
 //            USER = "ARFINRO";
-//            PASSWORD = "Sp0nge8ob";
-            URL = databaseURLCG1;
-            USER = databaseUsernameCG1;
-            PASSWORD = databasePasswordCG1;
-//            logger.info("DB url " + URL);
-//            logger.info("DB user " + USER);
-//            logger.info("DB pwd " + PASSWORD);
-        }else if(dbName.equalsIgnoreCase(CTM_PROD)){
-            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CTMRPRD,cn=OracleContext,dc=cisco,dc=com";
-            USER = "CTMO2C";
-            PASSWORD = "Cisco123$";
-        }
-    }
-
-    private List<Map<String, Object>> resultSetToList(ResultSet rs)  {
-        logger.info("In resultSetToList():: converting resultset to list");
-
-        try {
-            ResultSetMetaData md = rs.getMetaData();
-            int columns = md.getColumnCount();
-            List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
-            while (rs.next()) {
-                Map<String, Object> row = new HashMap<String, Object>(columns);
-                for (int i = 1; i <= columns; ++i) {
-                    row.put(md.getColumnName(i), rs.getObject(i));
-                }
-                rows.add(row);
-            }
-            return rows;
-        } catch(SQLException e) {
-            logger.error("Exception in resultSetToList():: while converting resultset to list:: " + e);
-        }
-        return null;
-    }
+//            PASSWORD = "Wf0Q9q5W";
+//        }else if(dbName.equalsIgnoreCase(PROD_DB)){
+////            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CG1PRD,cn=OracleContext,dc=cisco,dc=com";
+////            USER = "ARFINRO";
+////            PASSWORD = "Sp0nge8ob";
+//            URL = databaseURLCG1;
+//            USER = databaseUsernameCG1;
+//            PASSWORD = databasePasswordCG1;
+////            logger.info("DB url " + URL);
+////            logger.info("DB user " + USER);
+////            logger.info("DB pwd " + PASSWORD);
+//        }else if(dbName.equalsIgnoreCase(CTM_PROD)){
+//            URL = "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CTMRPRD,cn=OracleContext,dc=cisco,dc=com";
+//            USER = "CTMO2C";
+//            PASSWORD = "Cisco123$";
+//        }
+//    }
+//
+//    private List<Map<String, Object>> resultSetToList(ResultSet rs)  {
+//        logger.info("In resultSetToList():: converting resultset to list");
+//
+//        try {
+//            ResultSetMetaData md = rs.getMetaData();
+//            int columns = md.getColumnCount();
+//            List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+//            while (rs.next()) {
+//                Map<String, Object> row = new HashMap<String, Object>(columns);
+//                for (int i = 1; i <= columns; ++i) {
+//                    row.put(md.getColumnName(i), rs.getObject(i));
+//                }
+//                rows.add(row);
+//            }
+//            return rows;
+//        } catch(SQLException e) {
+//            logger.error("Exception in resultSetToList():: while converting resultset to list:: " + e);
+//        }
+//        return null;
+//    }
 
 }

@@ -5,7 +5,6 @@ a {
 .callout-box {
   margin: 1vw;
   display: flex;
-  width: 14vw;
   min-height: 5vw;
   flex-direction: column;
   padding: 0.5vh 1vw;
@@ -13,15 +12,19 @@ a {
   word-wrap: break-word;
   background-color: #f2f2f2;
   background-clip: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.125);
+  outline: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 8px;
   align-items: center;
   height: fit-content;
 }
 
 .callout-box.callout-box-table {
-  width: fit-content;
+  width: auto;
   padding: 0.5vh 0vw;
+}
+
+.callout-box.callout-box-widget {
+  width: 28.4%;
 }
 
 .box-header {
@@ -435,15 +438,14 @@ tr.mat-header-row {
   background-color: #e0e0e0; /* Adjust the color as needed */
   min-height: fit-content; /* Adjust the height as needed */
   height: auto;
-  margin: 0.5vw;
-  /* margin-right: 0.6%; */
+  margin: 0.5%;
 }
 
 .widget-tray {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  /* max-height: 30vh; */
+  justify-content: space-between;
 }
 
 .modal-overlay {
@@ -549,4 +551,21 @@ tr.mat-header-row {
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 8vw; /* Adjust the width as needed */
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 150px;
+}
+
+.small-loading-container {
+  min-height: calc(12px + 1.9vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }

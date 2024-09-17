@@ -1,0 +1,111 @@
+:host {
+  display: block;
+  /* Create a linear gradient background */
+  background: linear-gradient(
+    to right,
+    white 0%,
+    #f7f7f7 3.5%,
+    #f7f7f7 50%,
+    #f7f7f7 97.5%,
+    white 100%
+  );
+  /* background: #f7f7f7; */
+  min-height: 100vh; /* Ensure it covers the entire height of the viewport */
+  padding: 1.2rem; /* Add padding to keep spacing from the edges */
+  font-family: "Inter", sans-serif;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #373c42;
+  margin: 0px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #373c42;
+  margin: 0px;
+}
+
+/* Grid container for 3x3 layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  grid-auto-rows: minmax(150px, auto); /* Set min height for rows */
+  gap: 1.2rem; /* Spacing between cards */
+  padding-top: 1.2rem; /* Add some padding to the grid */
+}
+
+/* Fallback for empty grid spots */
+.grid-item {
+  display: flex;
+  align-items: stretch;
+}
+
+.card {
+  position: relative;
+  display: block;
+  padding: 16px;
+  background-color: #fff;
+  border: 2px solid #e1e4e8;
+  border-radius: 8px;
+  transition: all linear 0.5s;
+  width: 100%;
+}
+
+.card:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-stack {
+  align-items: stretch;
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: column;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.card-title-stack {
+  align-items: stretch;
+  display: flex;
+  flex: 0 1 auto;
+  flex-flow: column;
+  gap: 2px;
+  justify-content: flex-start;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #373c42;
+  margin: 0px;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #596069;
+  margin: 0px;
+}
+
+.card-placeholder {
+  height: 30vh;
+  align-items: stretch;
+  display: flex;
+  flex: 0 1 auto;
+  flex-flow: row;
+  gap: 0px;
+  justify-content: flex-start;
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  /* Make the layout responsive by stacking the cards in a single column on smaller screens */
+  .grid-container {
+    grid-template-columns: 1fr; /* Single column layout */
+  }
+}

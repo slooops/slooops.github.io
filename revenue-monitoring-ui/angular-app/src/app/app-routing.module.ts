@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
-import { DetailViewComponent } from './detail-view/detail-view.component';
+import { DetailViewComponent } from './error-dash/detail-view/detail-view.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
@@ -13,8 +13,8 @@ import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.co
 import { HomeComponent } from './home/home.component';
 import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
-import { CmsDetailsComponent } from './cms-details/cms-details.component';
-import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
+import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
+import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { RolComponent } from './rol/rol.component';
 import { SbpComponent } from './sbp/sbp.component';
 
@@ -61,6 +61,7 @@ const routes: Routes = [
   {
     path: 'error-dash',
     component: ErrorDashComponent,
+    // children: [{ path: 'detail-view', component: DetailViewComponent }],
     data: {
       title: 'Operations Control Tower',
       header: 'Operations Control Tower',

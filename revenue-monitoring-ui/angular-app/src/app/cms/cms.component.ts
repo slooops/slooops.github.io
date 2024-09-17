@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { switchMap, startWith } from 'rxjs/operators';
@@ -6,9 +12,9 @@ import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { CmsModalComponent } from '../cms-modal/cms-modal.component';
+import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { th } from 'date-fns/locale';
-import { CmsSftpDetailsComponent } from '../cms-sftp-details/cms-sftp-details.component';
+import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 
 @Component({
   selector: 'app-cms',
@@ -19,8 +25,11 @@ export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
   isModalOpen = false;
+  isOverflowing = false;
   sftpRefresh: string;
   apiStatusRefresh: string;
+
+  @ViewChild('scrollableContainer') scrollableContainer!: ElementRef; // Ref to the scrollable div
 
   collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
     []
@@ -48,8 +57,16 @@ export class CmsComponent implements OnInit {
   appCoreMismatchErrorCount: number;
 
   interfaceErrorCount: number;
-  unpostedAmount: string | null = null;
-  unappliedAmount: string | null = null;
+  unpostedAmount: {
+    value: string;
+    isMillions: boolean;
+    isRounded: boolean;
+  } | null = null;
+  unappliedAmount: {
+    value: string;
+    isMillions: boolean;
+    isRounded: boolean;
+  } | null = null;
 
   colorMapping: { [key: string]: string } = {
     BLUE: '#049fd9',
@@ -101,9 +118,6 @@ export class CmsComponent implements OnInit {
     'TOTAL_ELIGIBLE_REC_COUNT',
   ];
 
-  isUnpostedAmountInMillions = false;
-  isUnappliedAmountInMillions = false;
-
   constructor(
     http: ApiHttpService,
     private router: Router,
@@ -113,6 +127,7 @@ export class CmsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkOverflow();
     this.getUnpostedSummary();
     this.getCtmStatus();
     this.getCtmDetails();
@@ -194,18 +209,14 @@ export class CmsComponent implements OnInit {
   getTotalUnappliedAmount() {
     this.getEndpointData('totalUnappliedAmount').subscribe((data: any) => {
       const amount = data[0]?.UNAPPLIED_AMOUNT;
-      const formattedAmount = amount ? this.formatAmount(amount) : null;
-      this.unappliedAmount = formattedAmount?.value;
-      this.isUnappliedAmountInMillions = formattedAmount?.isMillions;
+      this.unappliedAmount = amount ? this.formatAmount(amount) : null;
     });
   }
 
   getUnpostedAmount() {
     this.getEndpointData('unpostedTotalAmount').subscribe((data: any) => {
       const amount = data[0]?.TOTAL_UNPOSTED_AMOUNT;
-      const formattedAmount = amount ? this.formatAmount(amount) : null;
-      this.unpostedAmount = formattedAmount?.value;
-      this.isUnpostedAmountInMillions = formattedAmount?.isMillions;
+      this.unpostedAmount = amount ? this.formatAmount(amount) : null;
     });
   }
 
@@ -234,7 +245,7 @@ export class CmsComponent implements OnInit {
     this.apiStatusRefresh = `Last Updated: ...`;
     this.getEndpointData('apiStatus').subscribe((data: any) => {
       this.apiStatus = data;
-      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+      this.apiStatusRefresh = `Last Updated: ${new Date().toLocaleString()}`;
     });
   }
 
@@ -244,7 +255,7 @@ export class CmsComponent implements OnInit {
     this.getEndpointData('sftpStatus').subscribe(
       (data: any) => {
         this.sftpStatus = this.processData(data);
-        this.sftpRefresh = `Last Updated: ${new Date().toLocaleTimeString()}`;
+        this.sftpRefresh = `Last Updated: ${new Date().toLocaleString()}`;
       },
       (error) => {
         console.error('Error loading SFTP status:', error);
@@ -261,6 +272,7 @@ export class CmsComponent implements OnInit {
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
       this.ctmDetails = data;
+      console.log('ctmDetails', this.ctmDetails);
     });
   }
 
@@ -273,6 +285,7 @@ export class CmsComponent implements OnInit {
   getBoomiDetails() {
     this.getEndpointData('boomiDetails').subscribe((data: any) => {
       this.boomiDetails = data;
+      console.log('boomiDetails', this.boomiDetails);
     });
   }
 
@@ -314,6 +327,30 @@ export class CmsComponent implements OnInit {
 
   refreshApiStatus() {
     this.getApiStatus();
+  }
+
+  getLastUpdate(extractName: string): string {
+    const ctmUpdate =
+      this.ctmDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.LAST_UPDATE_DATE || 'N/A';
+    const boomiUpdate =
+      this.boomiDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.LAST_UPDATE_DATE || 'N/A';
+    // Use the more recent update
+    return new Date(ctmUpdate) > new Date(boomiUpdate)
+      ? ctmUpdate
+      : boomiUpdate;
+  }
+
+  getStatus(extractName: string): string {
+    const ctmStatus =
+      this.ctmDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.STATUS || 'N/A';
+    const boomiStatus =
+      this.boomiDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.STATUS || 'N/A';
+    // Prefer CTM status, if it exists, otherwise use Boomi status
+    return ctmStatus !== 'N/A' ? ctmStatus : boomiStatus;
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -402,18 +439,63 @@ export class CmsComponent implements OnInit {
     return data[0]?.['SFTP Status']?.CiscoSFTPUnprocessedFiles || [];
   }
 
-  formatAmount(amount: number): { value: string; isMillions: boolean } {
+  formatAmount(amount: number): {
+    value: string;
+    isMillions: boolean;
+    isRounded: boolean;
+  } {
+    let value: string;
+    let isMillions = false;
+    let isRounded = false;
+
     if (amount >= 1_000_000) {
+      isMillions = true;
       const millions = amount / 1_000_000;
-      return {
-        value: millions.toLocaleString('en-US', { maximumFractionDigits: 0 }),
-        isMillions: true,
-      };
+      if (millions < 10) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (millions < 100) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (millions < 1000) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
     } else {
-      return {
-        value: amount.toLocaleString('en-US', { maximumFractionDigits: 2 }),
-        isMillions: false,
-      };
+      // Logic for amounts less than 1 million
+      if (amount < 10_000) {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else {
+        isRounded = true;
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+    }
+
+    return { value, isMillions, isRounded };
+  }
+
+  formatToPST(timestamp: string): string {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
+
+  @HostListener('window:resize', [])
+  onResize() {
+    this.checkOverflow();
+  }
+
+  checkOverflow() {
+    if (this.scrollableContainer && this.scrollableContainer.nativeElement) {
+      const element = this.scrollableContainer.nativeElement;
+      this.isOverflowing = element.scrollWidth > element.clientWidth;
     }
   }
 
