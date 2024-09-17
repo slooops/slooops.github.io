@@ -19,7 +19,7 @@ a {
 }
 
 .callout-box.callout-box-table {
-  width: 96%;
+  width: auto;
   padding: 0.5vh 0vw;
 }
 
@@ -438,8 +438,7 @@ tr.mat-header-row {
   background-color: #e0e0e0; /* Adjust the color as needed */
   min-height: fit-content; /* Adjust the height as needed */
   height: auto;
-  margin: 0.5vw;
-  /* margin-right: 0.6%; */
+  margin: 0.5%;
 }
 
 .widget-tray {

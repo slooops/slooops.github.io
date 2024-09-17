@@ -1,16 +1,18 @@
 <div
+  #scrollableContainer
   style="
     display: flex;
     overflow-x: scroll;
     white-space: nowrap;
     width: 100%;
-    margin-top: 0.6vw;
+    margin: 0.6vw 0 0 0;
   "
+  (scroll)="checkOverflow()"
 >
   <div style="display: flex; justify-content: space-between">
     <div
       class="callout-box callout-box-table"
-      style="width: 46vw; min-width: 620px; margin-bottom: 0.3vw"
+      style="width: 46vw; min-width: 620px; margin-bottom: 22px"
     >
       <div
         style="
@@ -22,7 +24,7 @@
         "
       >
         <h4 style="font-weight: 550; text-align: left; padding: 0 0 0px 0.8vw">
-          File Status
+          Unprocessed Files Status
         </h4>
         <div style="display: flex; margin: -0.5vw 0vw 0 0">
           <p style="padding: 0.8vw 0.8vw 0 0">{{ sftpRefresh }}</p>
@@ -454,37 +456,112 @@
       </button>
     </div>
     <div class="modal-body">
-      <table style="width: 400px; table-layout: fixed">
+      <table style="width: auto; table-layout: fixed">
         <thead>
           <tr>
             <th style="word-break: break-word; white-space: normal">Job</th>
-            <th style="word-break: break-word; white-space: normal">Timing</th>
+            <th style="word-break: break-word; white-space: normal">
+              Expected Timing
+            </th>
+            <th style="word-break: break-word; white-space: normal">
+              Last Update (PST)
+            </th>
+            <th style="word-break: break-word; white-space: normal">Status</th>
           </tr>
         </thead>
         <tbody>
+          <!-- Each job has its own row -->
           <tr>
-            <td style="word-break: break-word; white-space: normal">
-              Customer Master, Customer Contacts, Customer Relationships
-            </td>
-            <td style="word-break: break-word; white-space: normal">
-              0030, 0630, 1230, 1830 PST
+            <td>Customer Master</td>
+            <td>00:30, 06:30, 12:30, 18:30 PST</td>
+            <td>{{ formatToPST(getLastUpdate("CUSTOMER_MASTER")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("CUSTOMER_MASTER")) }}</td>
+          </tr>
+          <tr>
+            <td>Customer Contacts</td>
+            <td>00:30, 06:30, 12:30, 18:30 PST</td>
+            <td>{{ formatToPST(getLastUpdate("CUSTOMER_CONTACTS")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("CUSTOMER_CONTACTS")) }}</td>
+          </tr>
+          <tr>
+            <td>Customer Relationships</td>
+            <td>00:30, 06:30, 12:30, 18:30 PST</td>
+            <td>{{ formatToPST(getLastUpdate("CUSTOMER_RELATIONSHIPS")) }}</td>
+            <td>
+              {{ replaceUnderscore(getStatus("CUSTOMER_RELATIONSHIPS")) }}
             </td>
           </tr>
           <tr>
-            <td style="word-break: break-word; white-space: normal">
-              US Open AR/ Closed AR, US / SIH/SIL/ Invoice PDF/ Payments Adj
-            </td>
-            <td style="word-break: break-word; white-space: normal">
-              20:00 PST (Except Saturday)
-            </td>
+            <td>US Open AR</td>
+            <td>20:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("OP_AR_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("OP_AR_EXTRACT")) }}</td>
           </tr>
           <tr>
-            <td style="word-break: break-word; white-space: normal">
-              ROW Open AR/ Closed AR, ROW SIH/SIL/ Invoice PDF/ Payments Adj
-            </td>
-            <td style="word-break: break-word; white-space: normal">
-              07:00 PST (Except Saturday)
-            </td>
+            <td>US Closed AR</td>
+            <td>20:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("CL_AR_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("CL_AR_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>SIH Extract (US)</td>
+            <td>20:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("SIH_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("SIH_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>SIL Extract (US)</td>
+            <td>20:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("SIL_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("SIL_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>Invoice PDF (US)</td>
+            <td>20:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("INVOICE_PDF")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("INVOICE_PDF")) }}</td>
+          </tr>
+          <tr>
+            <td>Payments Adj (US)</td>
+            <td>20:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("PAYMENTS_ADJ")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("PAYMENTS_ADJ")) }}</td>
+          </tr>
+          <tr>
+            <td>ROW Open AR</td>
+            <td>07:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("OP_AR_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("OP_AR_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>ROW Closed AR</td>
+            <td>07:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("CL_AR_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("CL_AR_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>SIH Extract (ROW)</td>
+            <td>07:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("SIH_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("SIH_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>SIL Extract (ROW)</td>
+            <td>07:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("SIL_EXTRACT")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("SIL_EXTRACT")) }}</td>
+          </tr>
+          <tr>
+            <td>Invoice PDF (ROW)</td>
+            <td>07:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("INVOICE_PDF")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("INVOICE_PDF")) }}</td>
+          </tr>
+          <tr>
+            <td>Payments Adj (ROW)</td>
+            <td>07:00 PST (Except Saturday)</td>
+            <td>{{ formatToPST(getLastUpdate("PAYMENTS_ADJ")) }}</td>
+            <td>{{ replaceUnderscore(getStatus("PAYMENTS_ADJ")) }}</td>
           </tr>
         </tbody>
       </table>
@@ -553,9 +630,17 @@
   </div>
 </div>
 
-<hr />
+<hr *ngIf="!isOverflowing" style="margin: 0px" />
 
-<div style="display: flex; flex-direction: row; flex-wrap: nowrap; width: 100%">
+<div
+  style="
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    margin-top: 16px;
+  "
+>
   <div style="display: flex; flex-direction: column; width: 50%">
     <h4 style="padding-left: 1vw; font-weight: 600">Collections</h4>
 
@@ -908,7 +993,8 @@
               else loadingSymbol
             "
           >
-            ${{ unappliedAmount.value }}
+            ${{ unappliedAmount.value
+            }}<ng-container *ngIf="unappliedAmount?.isMillions">M</ng-container>
           </ng-container>
         </div>
         <div class="box-header">
@@ -927,7 +1013,8 @@
               else loadingSymbol
             "
           >
-            ${{ unpostedAmount.value }}
+            ${{ unpostedAmount.value
+            }}<ng-container *ngIf="unpostedAmount?.isMillions">M</ng-container>
           </ng-container>
         </div>
         <div class="box-header">

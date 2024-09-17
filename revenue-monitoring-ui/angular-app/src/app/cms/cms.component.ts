@@ -1,4 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { switchMap, startWith } from 'rxjs/operators';
@@ -19,8 +25,11 @@ export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
   //refreshInterval = 300000; //ms
   isModalOpen = false;
+  isOverflowing = false;
   sftpRefresh: string;
   apiStatusRefresh: string;
+
+  @ViewChild('scrollableContainer') scrollableContainer!: ElementRef; // Ref to the scrollable div
 
   collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
     []
@@ -118,6 +127,7 @@ export class CmsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkOverflow();
     this.getUnpostedSummary();
     this.getCtmStatus();
     this.getCtmDetails();
@@ -262,6 +272,7 @@ export class CmsComponent implements OnInit {
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
       this.ctmDetails = data;
+      console.log('ctmDetails', this.ctmDetails);
     });
   }
 
@@ -274,6 +285,7 @@ export class CmsComponent implements OnInit {
   getBoomiDetails() {
     this.getEndpointData('boomiDetails').subscribe((data: any) => {
       this.boomiDetails = data;
+      console.log('boomiDetails', this.boomiDetails);
     });
   }
 
@@ -315,6 +327,30 @@ export class CmsComponent implements OnInit {
 
   refreshApiStatus() {
     this.getApiStatus();
+  }
+
+  getLastUpdate(extractName: string): string {
+    const ctmUpdate =
+      this.ctmDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.LAST_UPDATE_DATE || 'N/A';
+    const boomiUpdate =
+      this.boomiDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.LAST_UPDATE_DATE || 'N/A';
+    // Use the more recent update
+    return new Date(ctmUpdate) > new Date(boomiUpdate)
+      ? ctmUpdate
+      : boomiUpdate;
+  }
+
+  getStatus(extractName: string): string {
+    const ctmStatus =
+      this.ctmDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.STATUS || 'N/A';
+    const boomiStatus =
+      this.boomiDetails.find((item) => item.EXTRACT_NAME === extractName)
+        ?.STATUS || 'N/A';
+    // Prefer CTM status, if it exists, otherwise use Boomi status
+    return ctmStatus !== 'N/A' ? ctmStatus : boomiStatus;
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -435,6 +471,32 @@ export class CmsComponent implements OnInit {
     }
 
     return { value, isMillions, isRounded };
+  }
+
+  formatToPST(timestamp: string): string {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  }
+
+  @HostListener('window:resize', [])
+  onResize() {
+    this.checkOverflow();
+  }
+
+  checkOverflow() {
+    if (this.scrollableContainer && this.scrollableContainer.nativeElement) {
+      const element = this.scrollableContainer.nativeElement;
+      this.isOverflowing = element.scrollWidth > element.clientWidth;
+    }
   }
 
   navigateToDetails(extractType: string): void {

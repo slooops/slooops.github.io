@@ -1,7 +1,5 @@
 <div class="page-title">Home</div>
 
-<!-- <div class="section-title">Welcome back, Jack</div> -->
-
 <div class="grid-container">
   <div class="grid-item">
     <div class="card">
@@ -10,7 +8,19 @@
           <p class="card-title">Period Close Tracking</p>
           <p class="card-subtitle">Pre-Close & Mid-Close</p>
         </div>
-        <div class="card-placeholder"></div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('period-close-tracking-preclose')"
+        >
+          <p style="margin: -8px 0 -13px 0">
+            <circle-progress
+              [percent]="100"
+              [maxPercent]="6"
+              units="/6"
+              unitsFontSize="14px"
+            ></circle-progress>
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -22,7 +32,10 @@
           <p class="card-title">Large Deal Tracker</p>
           <p class="card-subtitle">Contextual Info</p>
         </div>
-        <div class="card-placeholder"></div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('large-deal-tracker')"
+        ></div>
       </div>
     </div>
   </div>
@@ -34,7 +47,7 @@
           <p class="card-title">WD+0 Mid Close Status</p>
           <p class="card-subtitle">Contextual Info</p>
         </div>
-        <div class="card-placeholder"></div>
+        <div class="card-placeholder" (click)="navigateTo('wd0-dash')"></div>
       </div>
     </div>
   </div>
@@ -46,7 +59,10 @@
           <p class="card-title">WD+0 Mid Close Volumes</p>
           <p class="card-subtitle">Contextual Info</p>
         </div>
-        <div class="card-placeholder"></div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('mid-close-volumes')"
+        ></div>
       </div>
     </div>
   </div>
@@ -58,7 +74,7 @@
           <p class="card-title">CMS Dashboard</p>
           <p class="card-subtitle">Contextual Info</p>
         </div>
-        <div class="card-placeholder"></div>
+        <div class="card-placeholder" (click)="navigateTo('cms')"></div>
       </div>
     </div>
   </div>
