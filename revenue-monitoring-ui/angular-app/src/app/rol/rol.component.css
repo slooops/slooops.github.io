@@ -1,5 +1,5 @@
 .mat-header-row {
-  background-color: #049fd9 !important;
+  background-color: #373c42 !important;
 }
 
 .mat-header-cell {
@@ -117,7 +117,7 @@ tr.mat-header-row {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #049fd9;
+  background: #373c42;
   position: absolute;
   top: 6px;
 }
@@ -135,7 +135,7 @@ tr.mat-header-row {
   color: #666;
   text-align: center;
   position: relative;
-  top: 10px;
+  top: 16px;
 }
 
 /* Specific positioning for each circle-wrapper */
@@ -221,4 +221,19 @@ tr.mat-header-row {
 
 .chevron-4 {
   left: 630px;
+}
+
+/* Prevent wrapping of header text */
+.no-wrap {
+  white-space: nowrap;
+}
+
+/* Ensure the table fits within its container and can scroll horizontally */
+.custom-table {
+  min-width: 100%; /* Adjust based on your needs */
+  table-layout: auto; /* Allows columns to resize dynamically */
+}
+
+.error-message-cell {
+  min-width: 30vw;
 }

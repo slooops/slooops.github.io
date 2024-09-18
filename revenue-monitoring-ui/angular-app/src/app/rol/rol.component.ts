@@ -44,9 +44,19 @@ export class RolComponent implements OnInit {
   }
 
   getRolErrorSummaryData() {
-    console.log('Getting rol error summary data');
     this.http.get('rol-errors-summary').subscribe((data: any) => {
-      this.rolErrorDisplayedColumns = Object.keys(data[0]);
+      console.log('Rol error summary data:', data);
+      this.rolErrorDisplayedColumns = this.rolErrorDisplayedColumns = [
+        'PERIOD_YEAR',
+        'PERIOD_NUM',
+        'APPLICATION_NAME',
+        'SUB_APPLICATION',
+        'ORG_ID',
+        'AMOUNT',
+        // 'CURRENCY_CODE',
+        // 'ERROR_APPLICATION',
+      ];
+
       this.rolErrorSummaryData.data = this.formatData(data);
     });
   }
@@ -61,11 +71,30 @@ export class RolComponent implements OnInit {
     this.http.get('rol-transaction-data', { params: pageRequest }).subscribe({
       next: (data: any) => {
         this.rolTransactionData = data.rolTransactionData;
+        console.log('Rol transaction data:', this.rolTransactionData);
         this.totalRecords = data.totalRecords;
 
         if (this.rolTransactionData.length > 0) {
-          this.displayedColumns = Object.keys(this.rolTransactionData[0]);
-          this.removeColumns(['']);
+          // Transaction Data Table Columns Order
+          this.displayedColumns = [
+            'period_YEAR',
+            'period_NUM',
+            'application_NAME',
+            'sub_APPLICATION',
+            'org_ID',
+            'amount',
+
+            // 'currency_CODE',
+            // 'custtrxlineid',
+            // 'error_APPLICATION',
+            'error_MESSAGE',
+            'intid_TRXNID_CUSTTRXLINE_GROUPID',
+            'orderlineid',
+            'ordernumber_CUSTTRXID',
+
+            'process_STATUS',
+            'source',
+          ];
         }
 
         this.rolTransactionData = this.formatData(this.rolTransactionData);
