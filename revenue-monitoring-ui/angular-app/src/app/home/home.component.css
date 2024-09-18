@@ -44,7 +44,8 @@
   align-items: stretch;
 }
 
-.card {
+.card,
+.container {
   position: relative;
   display: block;
   padding: 16px;
@@ -53,6 +54,13 @@
   border-radius: 8px;
   transition: all linear 0.5s;
   width: 100%;
+}
+
+.container {
+  padding: 24px;
+  border: 0px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px #00000014;
 }
 
 .card:hover {

@@ -85,7 +85,7 @@
     </div>
   </div>
 
-  <div class="periodclosetbale">
+  <div class="periodclosetable">
     <table class="table table-responsive equal-width">
       <thead>
         <tr>
@@ -192,7 +192,7 @@
       Download
     </button>
   </div>
-  <div class="periodclosetbale">
+  <div class="periodclosetable">
     <table class="table table-responsive table-bordered table-striped">
       <thead>
         <tr>
@@ -241,10 +241,10 @@
     *ngIf="midCloseProgramTableData.length"
     [options]="mcloseInvGenTableOptions"
     [data]="midCloseProgramTableData"
-    class="cuiAlign periodclosetbale"
+    class="cuiAlign periodclosetable"
   ></cui-table> -->
 
-  <div class="periodclosetbale">
+  <div class="periodclosetable">
     <table
       *ngIf="midCloseProgramTableData.length"
       class="table table-striped table-bordered"
@@ -286,9 +286,9 @@
     *ngIf="isQuarterEnd && qeCashCollectedData.length"
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
-    class="cuiAlign periodclosetbale"
+    class="cuiAlign periodclosetable"
   ></cui-table> -->
-  <div class="periodclosetbale" *ngIf="isQuarterEnd">
+  <div class="periodclosetable" *ngIf="isQuarterEnd">
     <table
       *ngIf="qeCashCollectedData.length"
       class="table table-striped table-bordered"
