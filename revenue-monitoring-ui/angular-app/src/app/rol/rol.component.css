@@ -1,9 +1,10 @@
 .mat-header-row {
-  background-color: #373c42 !important;
+  background-color: #ffffff !important;
+  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
 }
 
 .mat-header-cell {
-  color: rgb(255, 255, 255) !important;
+  color: rgb(46, 46, 46) !important;
   text-align: center !important;
   border-bottom: 0px !important;
   font-size: 12px !important;
@@ -117,7 +118,7 @@ tr.mat-header-row {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #373c42;
+  background: #828d9b;
   position: absolute;
   top: 6px;
 }
