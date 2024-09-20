@@ -19,6 +19,14 @@ export class RolComponent implements OnInit {
   rolTransactionData: RolTransactionData[];
   displayedColumns: string[] = [];
 
+  subApplicationMapping = {
+    XXCFIR_REV_INTERFACE_ALL: '1. Interface',
+    XXCFIR_REVENUE_EXTRACT_ALL: '2. Extraction',
+    XXCFIR_REVENUEU_DIST_ALL: '3. Distribution',
+    XXCFIR_ROL_XLA_SUMMARY: '4. Summarization',
+    XLA_AE_HEADERS: '5. SLA',
+  };
+
   totalRecords: number = 0;
   pageSize: number = 20;
   isLoading: boolean = false; // Track loading state
@@ -44,9 +52,19 @@ export class RolComponent implements OnInit {
   }
 
   getRolErrorSummaryData() {
-    console.log('Getting rol error summary data');
     this.http.get('rol-errors-summary').subscribe((data: any) => {
-      this.rolErrorDisplayedColumns = Object.keys(data[0]);
+      console.log('Rol error summary data:', data);
+      this.rolErrorDisplayedColumns = this.rolErrorDisplayedColumns = [
+        'PERIOD_YEAR',
+        'PERIOD_NUM',
+        'APPLICATION_NAME',
+        'SUB_APPLICATION',
+        'ORG_ID',
+        'AMOUNT',
+        // 'CURRENCY_CODE',
+        // 'ERROR_APPLICATION',
+      ];
+
       this.rolErrorSummaryData.data = this.formatData(data);
     });
   }
@@ -61,11 +79,29 @@ export class RolComponent implements OnInit {
     this.http.get('rol-transaction-data', { params: pageRequest }).subscribe({
       next: (data: any) => {
         this.rolTransactionData = data.rolTransactionData;
+        console.log('Rol transaction data:', this.rolTransactionData);
         this.totalRecords = data.totalRecords;
 
         if (this.rolTransactionData.length > 0) {
-          this.displayedColumns = Object.keys(this.rolTransactionData[0]);
-          this.removeColumns(['']);
+          // Transaction Data Table Columns Order
+          this.displayedColumns = [
+            'period_YEAR',
+            'period_NUM',
+            'application_NAME',
+            'sub_APPLICATION',
+            'org_ID',
+            'amount',
+            'process_STATUS',
+            'source',
+            'error_MESSAGE',
+
+            // 'currency_CODE',
+            // 'custtrxlineid',
+            // 'error_APPLICATION',
+            // 'intid_TRXNID_CUSTTRXLINE_GROUPID',
+            // 'orderlineid',
+            // 'ordernumber_CUSTTRXID',
+          ];
         }
 
         this.rolTransactionData = this.formatData(this.rolTransactionData);
@@ -102,21 +138,18 @@ export class RolComponent implements OnInit {
     );
   }
 
+  subAppMapping(key: string): string | undefined {
+    return this.subApplicationMapping[key];
+  }
+
   formatData(data: any[]): any[] {
     return data.map((row) => {
       const formattedRow = { ...row };
+      const amountKey =
+        'AMOUNT' in row ? 'AMOUNT' : 'amount' in row ? 'amount' : null;
 
-      // If the AMOUNT column exists, format it with dollar signs and commas, and ensure two decimal places
-      if ('AMOUNT' in row) {
-        formattedRow['AMOUNT'] = `$${Number(row['AMOUNT']).toLocaleString(
-          undefined,
-          {
-            minimumFractionDigits: 2, // Always show at least two decimal places
-            maximumFractionDigits: 2, // Restrict to two decimal places
-          }
-        )}`;
-      } else if ('amount' in row) {
-        formattedRow['amount'] = `$${Number(row['amount']).toLocaleString(
+      if (amountKey) {
+        formattedRow[amountKey] = `$${Number(row[amountKey]).toLocaleString(
           undefined,
           {
             minimumFractionDigits: 2, // Always show at least two decimal places

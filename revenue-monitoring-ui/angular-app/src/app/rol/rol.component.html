@@ -4,9 +4,9 @@
     <div class="slider-bar">
       <!-- Circle 1 -->
       <div class="circle-wrapper circle-wrapper-1">
-        <p class="circle-caption">Interface</p>
+        <p class="circle-caption">1. Interface</p>
         <span class="circle circle-1"></span>
-        <p class="circle-subcaption">XXCFIR_REV_INTERFACE_ALL</p>
+        <!-- <p class="circle-subcaption">XXCFIR_REV_INTERFACE_ALL</p> -->
       </div>
 
       <!-- Chevron 1 -->
@@ -15,9 +15,9 @@
 
       <!-- Circle 2 -->
       <div class="circle-wrapper circle-wrapper-2">
-        <p class="circle-caption">Extraction</p>
+        <p class="circle-caption">2. Extraction</p>
         <span class="circle circle-2"></span>
-        <p class="circle-subcaption">XXCFIR_REVENUE_EXTRACT_ALL</p>
+        <!-- <p class="circle-subcaption">XXCFIR_REVENUE_EXTRACT_ALL</p> -->
       </div>
 
       <!-- Chevron 2 -->
@@ -26,9 +26,9 @@
 
       <!-- Circle 3 -->
       <div class="circle-wrapper circle-wrapper-3">
-        <p class="circle-caption">Distribution</p>
+        <p class="circle-caption">3. Distribution</p>
         <span class="circle circle-3"></span>
-        <p class="circle-subcaption">XXCFIR_REVENUEU_DIST_ALL</p>
+        <!-- <p class="circle-subcaption">XXCFIR_REVENUEU_DIST_ALL</p> -->
       </div>
 
       <!-- Chevron 3 -->
@@ -37,9 +37,9 @@
 
       <!-- Circle 4 -->
       <div class="circle-wrapper circle-wrapper-4">
-        <p class="circle-caption">Summarization</p>
+        <p class="circle-caption">4. Summarization</p>
         <span class="circle circle-4"></span>
-        <p class="circle-subcaption">XXCFIR_ROL_XLA_SUMMARY</p>
+        <!-- <p class="circle-subcaption">XXCFIR_ROL_XLA_SUMMARY</p> -->
       </div>
 
       <!-- Chevron 4 -->
@@ -48,9 +48,9 @@
 
       <!-- Circle 5 -->
       <div class="circle-wrapper circle-wrapper-5">
-        <p class="circle-caption">SLA</p>
+        <p class="circle-caption">5. SLA</p>
         <span class="circle circle-5"></span>
-        <p class="circle-subcaption">XLA_AE_HEADERS</p>
+        <!-- <p class="circle-subcaption">XLA_AE_HEADERS</p> -->
       </div>
     </div>
   </div>
@@ -96,14 +96,14 @@
             {{ replaceUnderscore(column) }}
           </th>
           <td mat-cell *matCellDef="let element">
-            <ng-container
-              *ngIf="column === 'ERROR_APPLICATION'; else defaultCell"
-            >
-              {{ replaceUnderscore(element[column]) }}
+            <ng-container [ngSwitch]="column">
+              <ng-container *ngSwitchCase="'SUB_APPLICATION'">
+                {{ subAppMapping(element[column]) }}
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                {{ element[column] }}
+              </ng-container>
             </ng-container>
-            <ng-template #defaultCell>
-              {{ element[column] }}
-            </ng-template>
           </td>
         </ng-container>
       </ng-container>
@@ -152,26 +152,35 @@
 
 <div style="margin-top: 1vh">
   <ng-container *ngIf="!isLoading && dataSource?.data?.length > 0">
-    <div style="overflow-x: auto">
-      <table mat-table [dataSource]="dataSource" style="width: 100%">
+    <div style="overflow-x: auto; width: 100%">
+      <table mat-table [dataSource]="dataSource" class="custom-table">
         <ng-container *ngFor="let column of displayedColumns">
           <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef>
+            <!-- Header Cell (Prevent wrapping) -->
+            <th mat-header-cell *matHeaderCellDef class="no-wrap">
               {{ replaceUnderscore(column) }}
             </th>
-            <td mat-cell *matCellDef="let element">
-              <ng-container
-                *ngIf="column === 'ERROR_APPLICATION'; else defaultCell"
-              >
-                {{ replaceUnderscore(element[column]) }}
+
+            <!-- Data Cell (Apply column-specific logic) -->
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [class.error-message-cell]="column === 'error_MESSAGE'"
+              [class.no-wrap]="column === 'application_NAME'"
+            >
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchCase="'sub_APPLICATION'">
+                  {{ subAppMapping(element[column]) }}
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  {{ element[column] }}
+                </ng-container>
               </ng-container>
-              <ng-template #defaultCell>
-                {{ element[column] }}
-              </ng-template>
             </td>
           </ng-container>
         </ng-container>
 
+        <!-- Header and Row Definition -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>

@@ -1,4 +1,4 @@
-<div style="background-color: #007dab; height: 100%">
+<div style="background-color: #f7f7f7; height: 100%">
   <div>
     <mat-nav-list>
       <!-- <mat-list-item [routerLink]="['/home']" routerLinkActive="active">
@@ -13,12 +13,22 @@
     </mat-list-item> -->
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
-        style="background-color: #007dab"
+        style="background-color: #f7f7f7"
         [expanded]="true"
         hideToggle
         *ngIf="isAdmin || checkRole('PERIOD_CLOSE')"
       >
-        <mat-expansion-panel-header style="font-size: small; color: white">
+        <mat-expansion-panel-header style="font-size: small; color: #373c42">
+          <fa-icon
+            style="
+              font-size: small;
+              color: #373c42;
+              display: flex;
+              align-items: center;
+            "
+            [icon]="['fas', 'clock']"
+            class="mr-2"
+          ></fa-icon>
           Period Close Tracking
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -26,16 +36,19 @@
             [routerLink]="['/period-close-tracking-preclose']"
             routerLinkActive="active"
           >
+            <fa-icon [icon]="['fas', 'hourglass-start']" class="mr-2"></fa-icon>
             Pre-close
           </mat-list-item>
           <mat-list-item
             [routerLink]="['/period-close-tracking-midclose']"
             routerLinkActive="active"
           >
+            <fa-icon [icon]="['fas', 'hourglass-half']" class="mr-2"></fa-icon>
             Mid-close
           </mat-list-item>
         </mat-nav-list>
       </mat-expansion-panel>
+
       <!-- <mat-list-item [routerLink]="['/error-dash']" routerLinkActive="active">
       Error Dashboard
     </mat-list-item> -->
@@ -44,50 +57,63 @@
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('LARGE_DEAL')"
       >
+        <fa-icon [icon]="['fas', 'dollar-sign']" class="mr-2"></fa-icon>
         Large Deal Tracker
       </mat-list-item>
+
       <mat-list-item
         [routerLink]="['/wd0-dash']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('WD0')"
       >
+        <fa-icon [icon]="['fas', 'calendar-day']" class="mr-2"></fa-icon>
         WD+0 Mid Close Status
       </mat-list-item>
+
       <mat-list-item
         [routerLink]="['/mid-close-volumes']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')"
       >
+        <fa-icon [icon]="['fas', 'chart-line']" class="mr-2"></fa-icon>
         WD+0 Mid Close Volumes
       </mat-list-item>
+
       <mat-list-item
         [routerLink]="['/cms']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('CMS')"
       >
+        <fa-icon [icon]="['fas', 'database']" class="mr-2"></fa-icon>
         CMS Dashboard
       </mat-list-item>
-      <!-- *ngIf="isAdmin || checkRole('CMS')" -->
+
       <mat-list-item
         [routerLink]="['/rol']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('ROL')"
       >
+        <fa-icon [icon]="['fas', 'list']" class="mr-2"></fa-icon>
         ROL Dashboard
       </mat-list-item>
+
       <mat-list-item
         [routerLink]="['/sbp']"
         routerLinkActive="active"
         *ngIf="isAdmin || checkRole('SBP')"
       >
+        <fa-icon [icon]="['fas', 'receipt']" class="mr-2"></fa-icon>
         SBP Dashboard
       </mat-list-item>
+
       <mat-list-item
         [routerLink]="['/case-analyzer']"
         routerLinkActive="active"
       >
+        <fa-icon [icon]="['fas', 'tools']" class="mr-2"></fa-icon>
         ESP Case Analyzer Dashboard
       </mat-list-item>
+
       <!-- *ngIf="isAdmin || checkRole('CASE_ANALYZER')" -->
     </mat-nav-list>
   </div>

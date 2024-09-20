@@ -85,9 +85,9 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <div class="periodclosetbale" style="overflow: auto; max-width: 100%">
+  <div class="periodclosetable" style="overflow: auto; max-width: 100%">
     <table
-      style="width: -webkit-fill-available"
+      style="width: -webkit-fill-available; font-size: 12px"
       class="table table-responsive equal-width"
     >
       <thead>
@@ -196,7 +196,7 @@
       Download
     </button>
   </div>
-  <div class="periodclosetbale">
+  <div class="periodclosetable">
     <table class="table table-responsive table-bordered table-striped">
       <thead>
         <tr>
@@ -245,9 +245,9 @@
     *ngIf="preCloseProgramTableData.length"
     [options]="pcloseInvGenTableOptions"
     [data]="preCloseProgramTableData"
-    class="cuiAlign periodclosetbale"
+    class="cuiAlign periodclosetable"
   ></cui-table> -->
-  <div class="periodclosetbale">
+  <div class="periodclosetable">
     <table
       *ngIf="preCloseProgramTableData.length"
       class="table table-striped table-bordered"
@@ -292,10 +292,10 @@
     *ngIf="isQuarterEnd && qeCashCollectedData.length"
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
-    class="cuiAlign periodclosetbale"
+    class="cuiAlign periodclosetable"
   ></cui-table> -->
 
-  <div class="periodclosetbale" *ngIf="isQuarterEnd">
+  <div class="periodclosetable" *ngIf="isQuarterEnd">
     <table
       *ngIf="qeCashCollectedData.length"
       class="table table-striped table-bordered"
