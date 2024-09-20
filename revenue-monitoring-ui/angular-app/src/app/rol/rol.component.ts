@@ -12,7 +12,9 @@ import * as XLSX from 'xlsx';
 export class RolComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
-  rolErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
+  rolSummaryModel: RolErrorSummaryData[];
+
+  rolErrorSummaryData: any;
   rolErrorDisplayedColumns: string[] = [];
 
   dataSource: any;
@@ -61,11 +63,23 @@ export class RolComponent implements OnInit {
         'SUB_APPLICATION',
         'ORG_ID',
         'AMOUNT',
+        'AGING',
+        'ASSIGNED_To',
+        'COMMENTS',
         // 'CURRENCY_CODE',
         // 'ERROR_APPLICATION',
       ];
 
-      this.rolErrorSummaryData.data = this.formatData(data);
+      this.rolSummaryModel = this.formatData(data);
+      this.rolSummaryModel.forEach((row) => {
+        row.AGING = '5 days';
+        row['ASSIGNED_To'] = 'User';
+        row.COMMENTS = 'Test';
+      });
+      console.log('Rol summary model:', this.rolSummaryModel);
+      this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
+        this.rolSummaryModel
+      );
     });
   }
 
@@ -209,4 +223,16 @@ interface RolTransactionData {
   ORDERLINEID: string;
   ERROR_MESSAGE: string;
   PROCESS_STATUS: string;
+}
+
+interface RolErrorSummaryData {
+  PERIOD_YEAR: string;
+  PERIOD_NUM: string;
+  APPLICATION_NAME: string;
+  SUB_APPLICATION: string;
+  ORG_ID: string;
+  AMOUNT: string;
+  AGING: string;
+  ASSIGNED_To: string;
+  COMMENTS: string;
 }

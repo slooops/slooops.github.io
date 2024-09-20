@@ -47,7 +47,7 @@ export class MenuComponent implements OnInit {
         this.rolesReady = true;
         let redirectPath = this.redirectPath();
         this.errorPath = redirectPath === 'error' ? true : false;
-        this.redirect(redirectPath);
+        // this.redirect(redirectPath);
       } else {
         this.errorPath = true;
         this.redirect('error');
