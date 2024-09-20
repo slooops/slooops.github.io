@@ -31,8 +31,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { fas } from '@fortawesome/free-solid-svg-icons';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { MenuComponent } from './menu/menu.component';
@@ -215,8 +213,4 @@ export function initApp(authService: AuthenticationService) {
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-  constructor(library: FaIconLibrary) {
-    library.addIconPacks(fas);
-  }
-}
+export class AppModule {}
