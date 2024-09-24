@@ -142,7 +142,7 @@ const routes: Routes = [
     component: RolComponent,
     data: {
       title: 'ROL Dashboard',
-      header: 'ROL Dashboard',
+      header: 'Revenue Orchestration Layer Dashboard',
     },
   },
   {

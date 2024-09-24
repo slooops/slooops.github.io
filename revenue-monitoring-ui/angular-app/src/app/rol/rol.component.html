@@ -1,60 +1,64 @@
-<div class="flowchart-container">
-  <br />
-  <div class="slider">
-    <div class="slider-bar">
-      <!-- Circle 1 -->
-      <div class="circle-wrapper circle-wrapper-1">
-        <p class="circle-caption">1. Interface</p>
-        <span class="circle circle-1"></span>
-        <!-- <p class="circle-subcaption">XXCFIR_REV_INTERFACE_ALL</p> -->
-      </div>
+<ng-template #processToolTip>
+  <div class="flowchart-container">
+    <br />
+    <div class="slider">
+      <div class="slider-bar">
+        <!-- Circle 1 -->
+        <div class="circle-wrapper circle-wrapper-1">
+          <p class="circle-caption">1. Interface</p>
+          <span class="circle circle-1"></span>
+          <!-- <p class="circle-subcaption">XXCFIR_REV_INTERFACE_ALL</p> -->
+          <p class="circle-subcaption">Total Impact: $4,874.92</p>
+        </div>
 
-      <!-- Chevron 1 -->
-      <div class="chevron chevron-1"></div>
-      <div class="chevron-white chevron-1"></div>
+        <!-- Chevron 1 -->
+        <div class="chevron chevron-1"></div>
+        <div class="chevron-white chevron-1"></div>
 
-      <!-- Circle 2 -->
-      <div class="circle-wrapper circle-wrapper-2">
-        <p class="circle-caption">2. Extraction</p>
-        <span class="circle circle-2"></span>
-        <!-- <p class="circle-subcaption">XXCFIR_REVENUE_EXTRACT_ALL</p> -->
-      </div>
+        <!-- Circle 2 -->
+        <div class="circle-wrapper circle-wrapper-2">
+          <p class="circle-caption">2. Extraction</p>
+          <span class="circle circle-2"></span>
+          <!-- <p class="circle-subcaption">XXCFIR_REVENUE_EXTRACT_ALL</p> -->
+          <p class="circle-subcaption">Total Impact: $-9,572.55</p>
+        </div>
 
-      <!-- Chevron 2 -->
-      <div class="chevron chevron-2"></div>
-      <div class="chevron-white chevron-2"></div>
+        <!-- Chevron 2 -->
+        <div class="chevron chevron-2"></div>
+        <div class="chevron-white chevron-2"></div>
 
-      <!-- Circle 3 -->
-      <div class="circle-wrapper circle-wrapper-3">
-        <p class="circle-caption">3. Distribution</p>
-        <span class="circle circle-3"></span>
-        <!-- <p class="circle-subcaption">XXCFIR_REVENUEU_DIST_ALL</p> -->
-      </div>
+        <!-- Circle 3 -->
+        <div class="circle-wrapper circle-wrapper-3">
+          <p class="circle-caption">3. Distribution</p>
+          <span class="circle circle-3"></span>
+          <!-- <p class="circle-subcaption">XXCFIR_REVENUEU_DIST_ALL</p> -->
+        </div>
 
-      <!-- Chevron 3 -->
-      <div class="chevron chevron-3"></div>
-      <div class="chevron-white chevron-3"></div>
+        <!-- Chevron 3 -->
+        <div class="chevron chevron-3"></div>
+        <div class="chevron-white chevron-3"></div>
 
-      <!-- Circle 4 -->
-      <div class="circle-wrapper circle-wrapper-4">
-        <p class="circle-caption">4. Summarization</p>
-        <span class="circle circle-4"></span>
-        <!-- <p class="circle-subcaption">XXCFIR_ROL_XLA_SUMMARY</p> -->
-      </div>
+        <!-- Circle 4 -->
+        <div class="circle-wrapper circle-wrapper-4">
+          <p class="circle-caption">4. Summarization</p>
+          <span class="circle circle-4"></span>
+          <!-- <p class="circle-subcaption">XXCFIR_ROL_XLA_SUMMARY</p> -->
+        </div>
 
-      <!-- Chevron 4 -->
-      <div class="chevron chevron-4"></div>
-      <div class="chevron-white chevron-4"></div>
+        <!-- Chevron 4 -->
+        <div class="chevron chevron-4"></div>
+        <div class="chevron-white chevron-4"></div>
 
-      <!-- Circle 5 -->
-      <div class="circle-wrapper circle-wrapper-5">
-        <p class="circle-caption">5. SLA</p>
-        <span class="circle circle-5"></span>
-        <!-- <p class="circle-subcaption">XLA_AE_HEADERS</p> -->
+        <!-- Circle 5 -->
+        <div class="circle-wrapper circle-wrapper-5">
+          <p class="circle-caption">5. SLA</p>
+          <span class="circle circle-5"></span>
+          <!-- <p class="circle-subcaption">XLA_AE_HEADERS</p> -->
+        </div>
       </div>
     </div>
   </div>
-</div>
+</ng-template>
 
 <!-- <div class="row">
   <div class="col-sm-4"></div>
@@ -63,6 +67,13 @@
 <div class="container rol-error-summary-container">
   <div class="header-container">
     <h5 class="section-title">ROL Error Summary Data</h5>
+    <i
+      fa-code-commit
+      class="slider-circle circle-3"
+      customToolTip
+      [contentTemplate]="processToolTip"
+      >Process Flow</i
+    >
     <div class="action-buttons">
       <button
         mat-icon-button
