@@ -63,8 +63,10 @@ export class RolComponent implements OnInit {
         'SUB_APPLICATION',
         'ORG_ID',
         'AMOUNT',
+        'CREATED_Date',
         'AGING',
         'ASSIGNED_To',
+        'ASSIGNED_Date',
         'COMMENTS',
         // 'CURRENCY_CODE',
         // 'ERROR_APPLICATION',
@@ -75,6 +77,8 @@ export class RolComponent implements OnInit {
         row.AGING = '5 days';
         row['ASSIGNED_To'] = 'User';
         row.COMMENTS = 'Test';
+        row.ASSIGNED_DATE = '2024-09-01';
+        row.CREATED_DATE = '2024-09-01';
       });
       console.log('Rol summary model:', this.rolSummaryModel);
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
@@ -235,4 +239,6 @@ interface RolErrorSummaryData {
   AGING: string;
   ASSIGNED_To: string;
   COMMENTS: string;
+  CREATED_DATE: string;
+  ASSIGNED_DATE: string;
 }
