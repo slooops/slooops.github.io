@@ -2,10 +2,17 @@
   overflow: auto;
 }
 
+.mat-header-row {
+  background-color: #ffffff !important;
+  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+}
+
 .mat-header-cell {
-  font-size: 12px;
-  /* white-space: normal !important; */
-  justify-content: center !important;
+  color: rgb(46, 46, 46) !important;
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px !important;
+  padding: 1vh !important;
 }
 
 .mat-cell {

@@ -18,6 +18,7 @@ Chart.register(...registerables);
 export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   protected http: ApiHttpService;
   loading: boolean = false;
+  barChartLoading: boolean = true;
 
   constructor(
     http: ApiHttpService,
@@ -239,6 +240,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         },
       },
     });
+    this.barChartLoading = false;
   }
 
   sumQuarterlyData(historicalData: HistoricalDataModel[]): any {

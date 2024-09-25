@@ -1,3 +1,9 @@
+:host {
+  background: #f7f7f7;
+  display: block;
+  font-family: "Inter", sans-serif;
+}
+
 .color-green {
   /* color: rgb(21, 213, 21); */
   color: #78c000;
@@ -14,13 +20,16 @@ th {
 
 td {
   text-align: center !important;
+  font-size: 12px;
 }
 
 .arclosetable .table th {
-  background-color: #049fd9 !important;
-  color: white;
+  background-color: #fff;
+  border-bottom: 2px solid #373c42; /* Add a bar below the header row */
+  color: rgb(46, 46, 46);
   text-wrap: wrap;
   width: 12%;
+  font-size: 12px;
 }
 
 .reduce-space {

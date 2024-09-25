@@ -8,18 +8,51 @@
           <p class="card-title">Period Close Tracking</p>
           <p class="card-subtitle">Pre-Close & Mid-Close</p>
         </div>
-        <div
-          class="card-placeholder"
-          (click)="navigateTo('period-close-tracking-preclose')"
-        >
-          <p style="margin: -8px 0 -13px 0">
-            <circle-progress
-              [percent]="100"
-              [maxPercent]="6"
-              units="/6"
-              unitsFontSize="14px"
-            ></circle-progress>
-          </p>
+        <div class="card-placeholder">
+          <div class="progress-container">
+            <!-- Pre-Close Progress -->
+            <div
+              class="progress-item"
+              (click)="navigateTo('period-close-tracking-preclose')"
+            >
+              <circle-progress
+                [percent]="100"
+                [maxPercent]="100"
+                [radius]="40"
+                [outerStrokeWidth]="10"
+                [innerStrokeWidth]="5"
+                [showTitle]="false"
+                [units]="'6/6'"
+                unitsFontSize="18px"
+              ></circle-progress>
+              <div class="progress-caption">
+                <p class="caption-title">Pre Close Job Status</p>
+                <p class="caption-subtitle">Steps Completed</p>
+              </div>
+            </div>
+
+            <!-- Mid-Close Progress -->
+            <div
+              class="progress-item"
+              (click)="navigateTo('period-close-tracking-midclose')"
+            >
+              <circle-progress
+                [percent]="100"
+                [maxPercent]="100"
+                [radius]="40"
+                [outerStrokeWidth]="10"
+                [innerStrokeWidth]="5"
+                [showTitle]="false"
+                [showSubtitle]="false"
+                [units]="'6/6'"
+                unitsFontSize="18px"
+              ></circle-progress>
+              <div class="progress-caption">
+                <p class="caption-title">Mid Close Job Status</p>
+                <p class="caption-subtitle">Steps Completed</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -35,6 +68,11 @@
         <div
           class="card-placeholder"
           (click)="navigateTo('large-deal-tracker')"
+          style="
+            background-image: url('assets/thumbnails/large_deal.png');
+            background-size: cover;
+            background-position: center;
+          "
         ></div>
       </div>
     </div>
@@ -47,7 +85,15 @@
           <p class="card-title">WD+0 Mid Close Status</p>
           <p class="card-subtitle">Contextual Info</p>
         </div>
-        <div class="card-placeholder" (click)="navigateTo('wd0-dash')"></div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('wd0-dash')"
+          style="
+            background-image: url('assets/thumbnails/wd0mcs.png');
+            background-size: cover;
+            background-position: center;
+          "
+        ></div>
       </div>
     </div>
   </div>
@@ -62,6 +108,11 @@
         <div
           class="card-placeholder"
           (click)="navigateTo('mid-close-volumes')"
+          style="
+            background-image: url('assets/thumbnails/volumes.png');
+            background-size: cover;
+            background-position: center;
+          "
         ></div>
       </div>
     </div>
@@ -74,7 +125,15 @@
           <p class="card-title">CMS Dashboard</p>
           <p class="card-subtitle">Contextual Info</p>
         </div>
-        <div class="card-placeholder" (click)="navigateTo('cms')"></div>
+        <div
+          class="card-placeholder"
+          (click)="navigateTo('cms')"
+          style="
+            background-image: url('assets/thumbnails/ROL.png');
+            background-size: cover;
+            background-position: center;
+          "
+        ></div>
       </div>
     </div>
   </div>

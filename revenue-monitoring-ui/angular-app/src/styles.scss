@@ -2,8 +2,8 @@
 @import url("css/cui-standard.min.css");
 
 .periodclosetable .table th {
-  background-color: #049fd9;
-  color: white;
+  background-color: #f7f7f7;
+  color: rgb(46, 46, 46);
 }
 
 /* cui-table with borders is also striped */
@@ -139,9 +139,36 @@ body {
   font-weight: 600;
   color: #373c42;
   margin: 0px;
+  margin-bottom: 0px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #373c42;
+  margin: 0px;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #596069;
+  margin: 0px;
 }
 
 /* Grid container for 3x3 layout */
+.grid-1 {
+  margin: 1.2rem; /* Spacing between cards */
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: minmax(150px, auto); /* Set min height for rows */
+  gap: 1.2rem; /* Spacing between cards */
+  padding-top: 1.2rem; /* Add some padding to the grid */
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* 3 columns */
@@ -158,6 +185,7 @@ body {
 
 .card,
 .container {
+  max-width: unset;
   position: relative;
   display: block;
   padding: 16px;
@@ -165,10 +193,11 @@ body {
   border: 2px solid #e1e4e8;
   border-radius: 8px;
   transition: all linear 0.5s;
-  width: 100%;
+  width: auto;
 }
 
 .container {
+  max-width: unset;
   padding: 24px;
   border: 0px;
   border-radius: 12px;

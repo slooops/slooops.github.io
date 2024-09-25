@@ -117,3 +117,33 @@
     grid-template-columns: 1fr; /* Single column layout */
   }
 }
+
+.progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 80%;
+  align-content: center;
+}
+
+.progress-item {
+  display: flex;
+  align-items: center;
+}
+
+.progress-caption {
+  margin-left: 10px; /* Add spacing between circle and text */
+}
+
+.caption-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.caption-subtitle {
+  font-size: 12px;
+  color: gray;
+  margin: 0;
+}
