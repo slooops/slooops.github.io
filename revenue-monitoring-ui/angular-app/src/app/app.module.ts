@@ -25,7 +25,6 @@ import { AppComponent } from './app.component';
 import { HttpConfigInterceptor } from './providers/http-config.interceptor';
 import { AuthenticationService } from './providers/authentication.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -94,6 +93,7 @@ import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details
 import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
+import { AssignDialogComponent } from './rol/assign-dialog/assign-dialog.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -104,7 +104,6 @@ export function initApp(authService: AuthenticationService) {
 @NgModule({
   declarations: [
     AppComponent,
-    RevenueControlsComponent,
     PeriodCloseTrackingComponent,
     MenuComponent,
     PrecloseComponent,
@@ -139,6 +138,7 @@ export function initApp(authService: AuthenticationService) {
     SbpComponent,
     LoadingSymbolSmallComponent,
     EspCaseAnalyzerComponent,
+    AssignDialogComponent,
   ],
   imports: [
     BrowserModule,

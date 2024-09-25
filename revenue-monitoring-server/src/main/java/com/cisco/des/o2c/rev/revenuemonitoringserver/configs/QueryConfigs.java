@@ -233,6 +233,9 @@ public class QueryConfigs { // TODO
     @Value(("${case.service.metrics.summary}"))
     public String caseServiceMetricsSummary;
 
+    @Value(("${rol.errors.summary.update.query}"))
+    public String rolErrorsSummaryUpdate;
+
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {
         return this.stdArExcQuery;
@@ -606,5 +609,10 @@ public class QueryConfigs { // TODO
 
     @Bean(name = "caseServiceMetricsSummary")
     public String getCaseServiceMetricsSummary() { return this.caseServiceMetricsSummary; }
+
+    @Bean(name = "rolErrorsSummaryUpdate")
+    public String updateRolErrorSummaryUpdate() {
+        return this.rolErrorsSummaryUpdate;
+    }
 
 }

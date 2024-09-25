@@ -186,6 +186,13 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getRolErrorsSummary(), HttpStatus.OK);
     }
 
+    @PostMapping("/rol-errors-summary-update")
+    public ResponseEntity<String> updateRolErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateRolErrorSummary(updateData);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+
     @GetMapping("/sbp-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpSummary() {
         return new ResponseEntity<>(service.getSbpSummary(), HttpStatus.OK);

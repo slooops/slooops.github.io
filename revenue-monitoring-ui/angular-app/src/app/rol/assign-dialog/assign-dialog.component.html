@@ -1,0 +1,85 @@
+<h4 mat-dialog-title>Edit Row Data</h4>
+<div mat-dialog-content style="width: 100%">
+  <form [formGroup]="updateForm">
+    <!-- Disabled Fields -->
+    <mat-form-field appearance="standard">
+      <mat-label>Period Name</mat-label>
+      <input
+        matInput
+        formControlName="periodName"
+        placeholder="Enter Period Name"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Application Name</mat-label>
+      <input
+        matInput
+        formControlName="appName"
+        placeholder="Enter Application Name"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Process Flow</mat-label>
+      <input
+        matInput
+        formControlName="processFlow"
+        placeholder="Enter Process Flow"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Organization Name</mat-label>
+      <input
+        matInput
+        formControlName="orgName"
+        placeholder="Enter Organization Name"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Creation Date</mat-label>
+      <input
+        matInput
+        formControlName="creationDate"
+        placeholder="Enter Creation Date"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Aging</mat-label>
+      <input matInput formControlName="aging" placeholder="Aging (in days)" />
+    </mat-form-field>
+
+    <!-- Enabled Fields -->
+    <mat-form-field appearance="standard">
+      <mat-label>Assigned To</mat-label>
+      <input
+        matInput
+        formControlName="assignedTo"
+        placeholder="Enter username"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Assigned Date</mat-label>
+      <input
+        matInput
+        formControlName="assignedDate"
+        placeholder="Assigned Date"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="standard">
+      <mat-label>Comments</mat-label>
+      <input matInput formControlName="comments" placeholder="Enter Comments" />
+    </mat-form-field>
+  </form>
+</div>
+
+<!-- Dialog Actions -->
+<div mat-dialog-actions>
+  <button mat-button (click)="closeDialog(null)">Cancel</button>
+  <button mat-button (click)="submitData()" cdkFocusInitial>Save</button>
+</div>

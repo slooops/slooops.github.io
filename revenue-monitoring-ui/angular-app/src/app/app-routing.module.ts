@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { RevenueControlsComponent } from './revenue-controls/revenue-controls.component';
 import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { DetailViewComponent } from './error-dash/detail-view/detail-view.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
@@ -38,11 +37,7 @@ const routes: Routes = [
     component: ErrorComponent,
     data: { title: 'Error', header: '' },
   },
-  {
-    path: 'revenue-controls',
-    component: RevenueControlsComponent,
-    data: { title: 'Home', header: 'Home' },
-  },
+
   {
     path: 'period-close-tracking-preclose',
     component: PrecloseComponent,

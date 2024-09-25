@@ -77,6 +77,8 @@ public class DailyMonitoringService {
     private String rolTransactionDataCount;
     private String caseServiceMetricsSummary;
 
+    private String rolErrorsSummaryUpdate;
+
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
@@ -94,7 +96,7 @@ public class DailyMonitoringService {
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
                                   String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
                                   String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
-                                  String caseServiceMetricsSummary
+                                  String caseServiceMetricsSummary, String rolErrorsSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -145,6 +147,7 @@ public class DailyMonitoringService {
         this.cloSampleDownloadData = cloSampleDownloadData;
         this.rolTransactionDataCount = rolTransactionDataCount;
         this.caseServiceMetricsSummary = caseServiceMetricsSummary;
+        this.rolErrorsSummaryUpdate = rolErrorsSummaryUpdate;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -661,7 +664,33 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
-        return jdbcManager.queryForList(rolErrorsSummary);
+
+        List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummary);
+
+
+        result.forEach(data -> {
+            System.out.println(data.get("SUB_APPLICATION"));
+            Object obj = data.get("SUB_APPLICATION");
+            data.remove("SUB_APPLICATION");
+            System.out.println("here"+obj);
+            data.put("PROCESS_FLOW", obj.toString());
+        });
+
+
+        return result;
+    }
+
+    public int updateRolErrorSummary(Map<String, String> updateData) {
+        System.out.println(updateData);
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String appName = updateData.get("appName");
+        String subApp = updateData.get("subApp");
+        String orgName = updateData.get("orgName");
+        int test = jdbcManager.updateRolErrorsSummaryData(rolErrorsSummaryUpdate, assignedTo, comments, periodName, appName, subApp, orgName);
+        System.out.println(test);
+        return 1;
     }
 
     public List<Map<String, Object>> getSbpSummary() {

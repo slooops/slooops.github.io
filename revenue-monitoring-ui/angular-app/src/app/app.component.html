@@ -6,7 +6,7 @@
         <button
           mat-button
           style="background-color: #202428"
-          (click)="menu.toggle()"
+          [matMenuTriggerFor]="menu"
         >
           <i aria-hidden="true" style="display: flex; justify-content: center">
             <svg
@@ -98,24 +98,16 @@
 
 <!-- Side nav implementation -->
 <mat-sidenav-container class="example-container">
-  <mat-sidenav
-    #menu
-    mode="side"
-    [class.mat-elevation-z4]="true"
-    class="app-sidenav"
-  >
-    <app-menu></app-menu>
-  </mat-sidenav>
-  <mat-sidenav-content style="">
+  <mat-sidenav-content style="background-color: white">
     <div>
       <router-outlet></router-outlet>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
 
-<!-- <mat-menu #newmenu="matMenu">
+<mat-menu #menu="matMenu">
   <app-menu></app-menu>
-</mat-menu> -->
+</mat-menu>
 
 <!-- Sign out -->
 <!-- <mat-menu #logoutMenu="matMenu">

@@ -3,7 +3,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
-
+import { SelectionModel } from '@angular/cdk/collections';
+import { AssignDialogComponent } from './assign-dialog/assign-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
@@ -16,6 +18,7 @@ export class RolComponent implements OnInit {
 
   rolErrorSummaryData: any;
   rolErrorDisplayedColumns: string[] = [];
+  rolErrorColumns: string[] = [];
 
   dataSource: any;
   rolTransactionData: RolTransactionData[];
@@ -24,7 +27,7 @@ export class RolComponent implements OnInit {
   subApplicationMapping = {
     XXCFIR_REV_INTERFACE_ALL: '1. Interface',
     XXCFIR_REVENUE_EXTRACT_ALL: '2. Extraction',
-    XXCFIR_REVENUEU_DIST_ALL: '3. Distribution',
+    XXCFIR_REVENUE_DIST_ALL: '3. Distribution',
     XXCFIR_ROL_XLA_SUMMARY: '4. Summarization',
     XLA_AE_HEADERS: '5. SLA',
   };
@@ -33,7 +36,11 @@ export class RolComponent implements OnInit {
   pageSize: number = 20;
   isLoading: boolean = false; // Track loading state
 
-  constructor(private http: ApiHttpService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private http: ApiHttpService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.getRolTransactionData(0, this.pageSize);
@@ -56,31 +63,34 @@ export class RolComponent implements OnInit {
   getRolErrorSummaryData() {
     this.http.get('rol-errors-summary').subscribe((data: any) => {
       console.log('Rol error summary data:', data);
-      this.rolErrorDisplayedColumns = this.rolErrorDisplayedColumns = [
-        'PERIOD_YEAR',
-        'PERIOD_NUM',
+      this.rolErrorColumns = [
+        'PERIOD_NAME',
         'APPLICATION_NAME',
-        'SUB_APPLICATION',
-        'ORG_ID',
+        'PROCESS_FLOW',
+        'ORG_NAME',
         'AMOUNT',
-        'CREATED_Date',
+        'CREATION_DATE',
         'AGING',
-        'ASSIGNED_To',
-        'ASSIGNED_Date',
+        'ASSIGNED_TO',
+        'ASSIGNED_DATE',
         'COMMENTS',
         // 'CURRENCY_CODE',
         // 'ERROR_APPLICATION',
       ];
+      this.rolErrorDisplayedColumns = ['select', ...this.rolErrorColumns];
 
       this.rolSummaryModel = this.formatData(data);
+      console.log(this.rolSummaryModel);
       this.rolSummaryModel.forEach((row) => {
-        row.AGING = '5 days';
-        row['ASSIGNED_To'] = 'User';
-        row.COMMENTS = 'Test';
-        row.ASSIGNED_DATE = '2024-09-01';
-        row.CREATED_DATE = '2024-09-01';
+        row.AGING = this.getAging(row.CREATION_DATE) + ' days';
+        const creationDate = new Date(row.CREATION_DATE);
+        const month = ('0' + (creationDate.getMonth() + 1)).slice(-2);
+        const day = ('0' + creationDate.getDate()).slice(-2);
+        const year = creationDate.getFullYear();
+        row.CREATION_DATE = `${month}/${day}/${year}`;
+        //need to check creation date
       });
-      console.log('Rol summary model:', this.rolSummaryModel);
+
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
         this.rolSummaryModel
       );
@@ -150,6 +160,15 @@ export class RolComponent implements OnInit {
     });
   }
 
+  getAging(dateString: string): string {
+    const today = new Date();
+    const creationDate = new Date(dateString);
+    const timeDifference = today.getTime() - creationDate.getTime();
+
+    const agingInDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    return agingInDays.toString();
+  }
+
   removeColumns(columnsToRemove: string[]) {
     this.displayedColumns = this.displayedColumns.filter(
       (column) => !columnsToRemove.includes(column)
@@ -196,9 +215,7 @@ export class RolComponent implements OnInit {
         if (specialWords.includes(lowerWord)) {
           return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
         }
-        return word.length > 4
-          ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          : word;
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(' ');
   }
@@ -208,6 +225,50 @@ export class RolComponent implements OnInit {
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     XLSX.writeFile(wb, `${filename}.xlsx`);
+  }
+
+  selection = new SelectionModel<any>(true, []);
+  selectedData: any;
+
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.rolErrorSummaryData.data.length;
+    return numSelected === numRows;
+  }
+
+  masterToggle() {
+    this.isAllSelected()
+      ? this.selection.clear()
+      : this.rolErrorSummaryData.data.forEach((row) =>
+          this.selection.select(row)
+        );
+  }
+
+  onRowClicked(row: any) {
+    this.selectedData = row;
+  }
+
+  selectedSummaryData: RolErrorSummaryData[] = [];
+
+  viewDetails() {
+    this.selectedSummaryData = this.selection.selected;
+    console.log('Selected data:', this.selectedSummaryData);
+    this.openRowDialog();
+  }
+
+  openRowDialog(): void {
+    const dialogRef = this.dialog.open(AssignDialogComponent, {
+      width: '400px',
+      data: this.selectedSummaryData,
+    });
+
+    // After the dialog is closed, handle the result (optional)
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Handle the updated form data here
+        console.log('Dialog result:', result);
+      }
+    });
   }
 }
 
@@ -230,15 +291,14 @@ interface RolTransactionData {
 }
 
 interface RolErrorSummaryData {
-  PERIOD_YEAR: string;
-  PERIOD_NUM: string;
+  PERIOD_NAME: string;
   APPLICATION_NAME: string;
-  SUB_APPLICATION: string;
-  ORG_ID: string;
+  PROCESS_FLOW: string;
+  ORG_NAME: string;
   AMOUNT: string;
   AGING: string;
-  ASSIGNED_To: string;
+  ASSIGNED_TO: string;
   COMMENTS: string;
-  CREATED_DATE: string;
+  CREATION_DATE: string;
   ASSIGNED_DATE: string;
 }
