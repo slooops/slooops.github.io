@@ -1,5 +1,5 @@
 {
-  "api_url": "https://operations-control-tower-api.cisco.com/api/",
-  "authClientId": "frs-oauth-prod",
+  "api_url": "https://rol-dashboard-api-stg.cisco.com",
+  "authClientId": "frs-oauth-nprd",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }
