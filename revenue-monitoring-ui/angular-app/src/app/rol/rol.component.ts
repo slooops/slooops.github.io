@@ -34,7 +34,9 @@ export class RolComponent implements OnInit {
 
   totalRecords: number = 0;
   pageSize: number = 20;
-  isLoading: boolean = false; // Track loading state
+  isLoading: boolean = false;
+  periodName: string = '';
+  periodEnd: string = '';
 
   constructor(
     private http: ApiHttpService,
@@ -45,6 +47,7 @@ export class RolComponent implements OnInit {
   ngOnInit(): void {
     this.getRolTransactionData(0, this.pageSize);
     this.getRolErrorSummaryData();
+    this.getRolErrorSummaryPeriodStatus();
   }
 
   ngAfterViewInit(): void {
@@ -94,6 +97,14 @@ export class RolComponent implements OnInit {
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
         this.rolSummaryModel
       );
+    });
+  }
+
+  getRolErrorSummaryPeriodStatus() {
+    this.http.get('rol-errors-summary-period-status').subscribe((data: any) => {
+      this.periodName = data[0].PERIOD_NAME;
+      this.periodEnd = data[0].END_DATE;
+      console.log('Rol error summary period status:', data);
     });
   }
 
@@ -262,10 +273,8 @@ export class RolComponent implements OnInit {
       data: this.selectedSummaryData,
     });
 
-    // After the dialog is closed, handle the result (optional)
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Handle the updated form data here
         console.log('Dialog result:', result);
       }
     });

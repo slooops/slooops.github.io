@@ -236,6 +236,9 @@ public class QueryConfigs { // TODO
     @Value(("${rol.errors.summary.update.query}"))
     public String rolErrorsSummaryUpdate;
 
+    @Value(("${rol.errors.summary.period.status.query}"))
+    public String rolErrorsSummaryPeriodStatus;
+
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {
         return this.stdArExcQuery;
@@ -613,6 +616,11 @@ public class QueryConfigs { // TODO
     @Bean(name = "rolErrorsSummaryUpdate")
     public String updateRolErrorSummaryUpdate() {
         return this.rolErrorsSummaryUpdate;
+    }
+
+    @Bean(name = "rolErrorsSummaryPeriodStatus")
+    public String getRolErrorsSummaryPeriodStatus() {
+        return this.rolErrorsSummaryPeriodStatus;
     }
 
 }

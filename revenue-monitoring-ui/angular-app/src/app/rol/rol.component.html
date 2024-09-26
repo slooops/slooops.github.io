@@ -66,7 +66,7 @@
 <!-- ROL Error Summary Data Section (Right) -->
 <div class="container rol-error-summary-container">
   <div class="header-container">
-    <h5 class="section-title">ROL Error Summary Data</h5>
+    <h5 class="section-title">ROL Errors Summary</h5>
     <div *ngIf="selection.hasValue()">
       <button
         mat-stroked-button
@@ -75,6 +75,10 @@
       >
         Assign User
       </button>
+    </div>
+    <div style="font-size: small">
+      <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
+      <span><b>Period end date:</b> {{ periodEnd }}</span>
     </div>
 
     <div class="action-buttons">
@@ -105,12 +109,12 @@
           style="padding-top: 10px !important"
         >
           <th mat-header-cell *matHeaderCellDef>
-            <mat-checkbox
+            <!-- <mat-checkbox
               (change)="$event ? masterToggle() : null"
               [checked]="selection.hasValue() && isAllSelected()"
               [indeterminate]="selection.hasValue() && !isAllSelected()"
             >
-            </mat-checkbox>
+            </mat-checkbox> -->
           </th>
           <td mat-cell *matCellDef="let row">
             <mat-checkbox
@@ -174,7 +178,7 @@
 <!-- ROL Transaction Data Section -->
 <div class="container">
   <div class="header-container">
-    <h5 class="section-title">ROL Transaction Data</h5>
+    <h5 class="section-title">ROL Transaction Details</h5>
     <div class="action-buttons">
       <button
         mat-icon-button

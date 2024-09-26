@@ -93,17 +93,17 @@ body {
 
 .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
 .mat-checkbox-checked.mat-accent .mat-checkbox-background {
-  background-color: #049fd9;
+  background-color: gray;
 }
 
 .mat-primary .mat-pseudo-checkbox-checked,
 .mat-primary .mat-pseudo-checkbox-indeterminate {
-  background: #007dab;
+  background: gray;
 }
 
 .mat-primary .mat-option.mat-selected:not(.mat-option-disabled),
 .mat-form-field.mat-focused .mat-form-field-label {
-  color: #007dab;
+  color: gray;
 }
 
 .sortArrow .mat-sort-header-arrow {
@@ -112,7 +112,7 @@ body {
 
 .mat-tab-group.mat-primary .mat-ink-bar,
 .mat-tab-nav-bar.mat-primary .mat-ink-bar {
-  background-color: #049fd9 !important;
+  background-color: gray !important;
 }
 
 .mat-form-field.mat-focused .mat-form-field-ripple {
@@ -120,11 +120,11 @@ body {
 }
 
 .mat-calendar-body-selected {
-  background-color: #049fd9;
+  background-color: gray;
 }
 
 .mat-calendar-body-selected {
-  background-color: #049fd9;
+  background-color: gray;
 }
 
 .page-title {

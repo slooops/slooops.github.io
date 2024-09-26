@@ -173,7 +173,6 @@ public class DailyMonitoringController {
     public ResponseEntity<Map<String, Object>> getRolTransactionData(@RequestParam(defaultValue = "0") int page,
                                                                           @RequestParam(defaultValue = "100") int size) {
         List<RolTransactionData> rolTransactionData = service.getRolTransactionData(page, size);
-        System.out.println(page);
         int totalRecords = service.getTotalRecords();
         Map<String, Object> response = new HashMap<>();
         response.put("rolTransactionData", rolTransactionData);
@@ -189,9 +188,13 @@ public class DailyMonitoringController {
     @PostMapping("/rol-errors-summary-update")
     public ResponseEntity<String> updateRolErrorsSummary(@RequestBody Map<String, String> updateData) {
         int test = service.updateRolErrorSummary(updateData);
-        return new ResponseEntity<>("OK", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/rol-errors-summary-period-status")
+    public ResponseEntity<List<Map<String, Object>>> getRolErrorsSummaryPeriodStatus() {
+        return new ResponseEntity<>(service.getRolErrorSummaryPeriodStatus(), HttpStatus.OK);
+    }
 
     @GetMapping("/sbp-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpSummary() {
