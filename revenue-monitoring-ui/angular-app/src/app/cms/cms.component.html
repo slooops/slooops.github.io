@@ -471,105 +471,68 @@
             <th style="word-break: break-word; white-space: normal">
               Expected Timing
             </th>
-            <th style="word-break: break-word; white-space: normal">
-              Last Update (PST)
-            </th>
-            <th style="word-break: break-word; white-space: normal">Status</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Each job has its own row -->
+          <!-- Row for Customer Extracts -->
           <tr>
-            <td>Customer Master</td>
-            <td>00:30, 06:30, 12:30, 18:30 PST</td>
-            <td>{{ formatToPST(getLastUpdate("CUSTOMER_MASTER")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("CUSTOMER_MASTER")) }}</td>
-          </tr>
-          <tr>
-            <td>Customer Contacts</td>
-            <td>00:30, 06:30, 12:30, 18:30 PST</td>
-            <td>{{ formatToPST(getLastUpdate("CUSTOMER_CONTACTS")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("CUSTOMER_CONTACTS")) }}</td>
-          </tr>
-          <tr>
-            <td>Customer Relationships</td>
-            <td>00:30, 06:30, 12:30, 18:30 PST</td>
-            <td>{{ formatToPST(getLastUpdate("CUSTOMER_RELATIONSHIPS")) }}</td>
             <td>
-              {{ replaceUnderscore(getStatus("CUSTOMER_RELATIONSHIPS")) }}
+              <span
+                matTooltip="Customer Master, Customer Contacts, Customer Relationships"
+              >
+                Customer Extracts
+              </span>
             </td>
+            <td>00:30, 06:30, 12:30, 18:30 PST</td>
           </tr>
+
+          <!-- Row for Americas Invoice Extracts -->
           <tr>
-            <td>US Open AR</td>
+            <td>
+              <span
+                matTooltip="Open AR, Closed AR, SIH, SIL, Invoice PDF, Payment Adj for US, CAN, BR, and MX"
+              >
+                Americas Invoice Extracts
+              </span>
+            </td>
             <td>20:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("OP_AR_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("OP_AR_EXTRACT")) }}</td>
           </tr>
+
+          <!-- Row for ROW Invoice Extracts -->
           <tr>
-            <td>US Closed AR</td>
-            <td>20:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("CL_AR_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("CL_AR_EXTRACT")) }}</td>
-          </tr>
-          <tr>
-            <td>SIH Extract (US)</td>
-            <td>20:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("SIH_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("SIH_EXTRACT")) }}</td>
-          </tr>
-          <tr>
-            <td>SIL Extract (US)</td>
-            <td>20:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("SIL_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("SIL_EXTRACT")) }}</td>
-          </tr>
-          <tr>
-            <td>Invoice PDF (US)</td>
-            <td>20:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("INVOICE_PDF")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("INVOICE_PDF")) }}</td>
-          </tr>
-          <tr>
-            <td>Payments Adj (US)</td>
-            <td>20:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("PAYMENTS_ADJ")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("PAYMENTS_ADJ")) }}</td>
-          </tr>
-          <tr>
-            <td>ROW Open AR</td>
+            <td>
+              <span
+                matTooltip="Open AR, Closed AR, SIH, SIL, Invoice PDF, Payment Adj for NL, DE, UKH, ITL, BSFT, IN, CN HZ, CN PY, KR, JPN, AUS, and NZ"
+              >
+                ROW Invoice Extracts
+              </span>
+            </td>
             <td>07:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("OP_AR_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("OP_AR_EXTRACT")) }}</td>
           </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
           <tr>
-            <td>ROW Closed AR</td>
-            <td>07:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("CL_AR_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("CL_AR_EXTRACT")) }}</td>
+            <th>Extract Name</th>
+            <th>Status</th>
+            <th></th>
+            <th>Last Update</th>
           </tr>
-          <tr>
-            <td>SIH Extract (ROW)</td>
-            <td>07:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("SIH_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("SIH_EXTRACT")) }}</td>
-          </tr>
-          <tr>
-            <td>SIL Extract (ROW)</td>
-            <td>07:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("SIL_EXTRACT")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("SIL_EXTRACT")) }}</td>
-          </tr>
-          <tr>
-            <td>Invoice PDF (ROW)</td>
-            <td>07:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("INVOICE_PDF")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("INVOICE_PDF")) }}</td>
-          </tr>
-          <tr>
-            <td>Payments Adj (ROW)</td>
-            <td>07:00 PST (Except Saturday)</td>
-            <td>{{ formatToPST(getLastUpdate("PAYMENTS_ADJ")) }}</td>
-            <td>{{ replaceUnderscore(getStatus("PAYMENTS_ADJ")) }}</td>
+        </thead>
+        <tbody>
+          <tr *ngFor="let detail of boomiDetails">
+            <td>{{ replaceUnderscore(detail.EXTRACT_NAME) }}</td>
+            <td>{{ replaceUnderscore(detail.STATUS) }}</td>
+            <td>
+              <span
+                class="color-circle"
+                [ngStyle]="{
+                  'background-color': getColorCode(detail.COLOR_CODE)
+                }"
+              ></span>
+            </td>
+            <td>{{ detail.LAST_UPDATE_DATE | date : "short" }}</td>
           </tr>
         </tbody>
       </table>

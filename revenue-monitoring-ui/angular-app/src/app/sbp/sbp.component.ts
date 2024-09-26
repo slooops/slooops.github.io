@@ -47,7 +47,7 @@ export class SbpComponent implements OnInit {
 
       columnsToFormat.forEach((column) => {
         if (column in row) {
-          formattedRow[column] = `$${Number(row[column]).toLocaleString(
+          formattedRow[column] = `${Number(row[column]).toLocaleString(
             undefined,
             {
               minimumFractionDigits: 2,

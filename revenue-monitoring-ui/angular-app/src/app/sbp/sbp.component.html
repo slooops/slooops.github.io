@@ -30,11 +30,7 @@
           <ng-container *ngFor="let column of displayedColumns">
             <ng-container [matColumnDef]="column">
               <th mat-header-cell *matHeaderCellDef>
-                {{
-                  column === "OPERATING_UNIT"
-                    ? replaceUnderscore(column)
-                    : column
-                }}
+                {{ replaceUnderscore(column) }}
               </th>
 
               <td mat-cell *matCellDef="let element">

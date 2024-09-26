@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import { SelectionModel } from '@angular/cdk/collections';
 import { AssignDialogComponent } from './assign-dialog/assign-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
@@ -48,6 +49,7 @@ export class RolComponent implements OnInit {
     this.getRolTransactionData(0, this.pageSize);
     this.getRolErrorSummaryData();
     this.getRolErrorSummaryPeriodStatus();
+    this.createHistoricalErrorTrendChart();
   }
 
   ngAfterViewInit(): void {
@@ -277,6 +279,49 @@ export class RolComponent implements OnInit {
       if (result) {
         console.log('Dialog result:', result);
       }
+    });
+  }
+  chart: any;
+  createHistoricalErrorTrendChart() {
+    const ctx = document.getElementById(
+      'historicalErrorTrend'
+    ) as HTMLCanvasElement;
+
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['May', 'June', 'July', 'August', 'September'],
+        datasets: [
+          {
+            label: 'Number of Errors',
+            data: [120, 80, 150, 60, 90],
+            borderColor: '#007dab',
+            backgroundColor: 'rgba(0, 125, 171, 0.2)',
+            fill: true,
+            pointRadius: 5,
+            tension: 0.2, // Smooth the line
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Time (Months)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Number of Errors',
+            },
+            beginAtZero: true,
+          },
+        },
+      },
     });
   }
 }
