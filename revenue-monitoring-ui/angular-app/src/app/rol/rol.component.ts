@@ -88,12 +88,8 @@ export class RolComponent implements OnInit {
       console.log(this.rolSummaryModel);
       this.rolSummaryModel.forEach((row) => {
         row.AGING = this.getAging(row.CREATION_DATE) + ' days';
-        const creationDate = new Date(row.CREATION_DATE);
-        const month = ('0' + (creationDate.getMonth() + 1)).slice(-2);
-        const day = ('0' + creationDate.getDate()).slice(-2);
-        const year = creationDate.getFullYear();
-        row.CREATION_DATE = `${month}/${day}/${year}`;
-        //need to check creation date
+        row.CREATION_DATE = this.dateTransform(row.CREATION_DATE);
+        row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
       });
 
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
@@ -105,9 +101,17 @@ export class RolComponent implements OnInit {
   getRolErrorSummaryPeriodStatus() {
     this.http.get('rol-errors-summary-period-status').subscribe((data: any) => {
       this.periodName = data[0].PERIOD_NAME;
-      this.periodEnd = data[0].END_DATE;
+      this.periodEnd = this.dateTransform(data[0].END_DATE);
       console.log('Rol error summary period status:', data);
     });
+  }
+
+  dateTransform(dateString: string): string {
+    const date = new Date(dateString);
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
   }
 
   getRolTransactionData(pageIndex: number, pageSize: number) {
