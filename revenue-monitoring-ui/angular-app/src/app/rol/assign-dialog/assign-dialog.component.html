@@ -1,92 +1,53 @@
-<h5 mat-dialog-title>
-  Assign User
-  <a style="float: right !important; text-decoration: none"
-    ><i
-      class="fa fa-close"
-      style="font-size: 20px; color: gray"
-      (click)="closeDialog('closed')"
-    ></i
-  ></a>
-</h5>
-<div mat-dialog-content>
-  <form [formGroup]="updateForm">
-    <!-- Disabled Fields -->
-    <mat-form-field appearance="standard">
-      <mat-label>Period Name</mat-label>
-      <input
-        matInput
-        formControlName="periodName"
-        placeholder="Enter Period Name"
-      />
-    </mat-form-field>
+<!-- Modal Overlay -->
+<div class="modal-overlay" (click)="closeDialog(null)">
+  <!-- Modal Content -->
+  <div class="modal-content container" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        gap: 16px;
+      "
+    >
+      <h5 class="section-title">Edit Row Data</h5>
+      <i class="svg-icon close-icon" (click)="closeDialog(null)"></i>
+    </div>
 
-    <mat-form-field appearance="standard">
-      <mat-label>Application Name</mat-label>
-      <input
-        matInput
-        formControlName="appName"
-        placeholder="Enter Application Name"
-      />
-    </mat-form-field>
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form [formGroup]="updateForm" class="form-stack">
+        <!-- Disabled Fields -->
+        <div class="input-stack" *ngFor="let field of disabledFields">
+          <label>{{ field.label }}</label>
+          <input
+            type="text"
+            [formControlName]="field.controlName"
+            [attr.disabled]="true"
+            [placeholder]="'Enter ' + field.label"
+          />
+        </div>
 
-    <mat-form-field appearance="standard">
-      <mat-label>Process Flow</mat-label>
-      <input
-        matInput
-        formControlName="processFlow"
-        placeholder="Enter Process Flow"
-      />
-    </mat-form-field>
+        <!-- Enabled Fields -->
+        <div class="input-stack" *ngFor="let field of enabledFields">
+          <label>{{ field.label }}</label>
+          <input
+            type="text"
+            [formControlName]="field.controlName"
+            [placeholder]="'Enter ' + field.label"
+          />
+        </div>
+      </form>
+    </div>
 
-    <mat-form-field appearance="standard">
-      <mat-label>Organization Name</mat-label>
-      <input
-        matInput
-        formControlName="orgName"
-        placeholder="Enter Organization Name"
-      />
-    </mat-form-field>
-
-    <mat-form-field appearance="standard">
-      <mat-label>Creation Date</mat-label>
-      <input
-        matInput
-        formControlName="creationDate"
-        placeholder="Enter Creation Date"
-      />
-    </mat-form-field>
-
-    <mat-form-field appearance="standard">
-      <mat-label>Aging</mat-label>
-      <input matInput formControlName="aging" placeholder="Aging (in days)" />
-    </mat-form-field>
-
-    <!-- Enabled Fields -->
-    <mat-form-field appearance="standard">
-      <mat-label>Assigned To</mat-label>
-      <input
-        matInput
-        formControlName="assignedTo"
-        placeholder="Enter username"
-      />
-    </mat-form-field>
-
-    <mat-form-field appearance="standard">
-      <mat-label>Comments</mat-label>
-      <input matInput formControlName="comments" placeholder="Enter Comments" />
-    </mat-form-field>
-  </form>
-</div>
-
-<!-- Dialog Actions -->
-<div mat-dialog-actions style="justify-content: center">
-  <button mat-button (click)="closeDialog(null)">Cancel</button>
-  <button
-    mat-raised-button
-    (click)="submitData()"
-    cdkFocusInitial
-    style="background-color: gray; color: white"
-  >
-    Save
-  </button>
+    <!-- Modal Footer/Actions -->
+    <div class="modal-footer">
+      <button class="custom-button-tertiary" (click)="closeDialog(null)">
+        Cancel
+      </button>
+      <button class="custom-button-primary" (click)="submitData()">Save</button>
+    </div>
+  </div>
 </div>

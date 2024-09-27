@@ -409,6 +409,12 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       // Prep the data and run regression (this sets a model in the service)
       const regressionData = this.processRegressionData(filteredData);
 
+      if (regressionData.X.length === 0 || regressionData.y.length === 0) {
+        console.error('Regression data is empty:', regressionData);
+        this.loading = false;
+        return;
+      }
+
       this.regressionService.performMultipleLinearRegression(
         regressionData.X,
         regressionData.y
