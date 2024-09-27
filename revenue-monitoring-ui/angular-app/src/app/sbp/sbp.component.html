@@ -1,11 +1,10 @@
-<div class="grid-1 container" style="width: auto">
+<div class="grid-1 container">
   <div
     style="
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      width: auto;
-      margin-bottom: -38px;
+      margin-bottom: -32px;
     "
   >
     <p class="section-title">SBP Summary Data</p>
@@ -30,11 +29,7 @@
           <ng-container *ngFor="let column of displayedColumns">
             <ng-container [matColumnDef]="column">
               <th mat-header-cell *matHeaderCellDef>
-                {{
-                  column === "OPERATING_UNIT"
-                    ? replaceUnderscore(column)
-                    : column
-                }}
+                {{ replaceUnderscore(column) }}
               </th>
 
               <td mat-cell *matCellDef="let element">

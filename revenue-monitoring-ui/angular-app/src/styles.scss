@@ -23,7 +23,7 @@ body {
 }
 body {
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Inter", sans-serif !important;
 }
 
 :root {
@@ -127,26 +127,25 @@ body {
   background-color: #049fd9;
 }
 
+.text-bold,
+.page-title,
+.section-title,
+.card-title {
+  font-weight: 600 !important;
+  margin: 0px;
+  color: #373c42;
+}
+
 .page-title {
   font-size: 24px;
-  font-weight: 600;
-  color: #373c42;
-  margin: 0px;
 }
 
 .section-title {
   font-size: 18px;
-  font-weight: 600;
-  color: #373c42;
-  margin: 0px;
-  margin-bottom: 0px;
 }
 
 .card-title {
   font-size: 16px;
-  font-weight: 600;
-  color: #373c42;
-  margin: 0px;
 }
 
 .card-subtitle {
@@ -154,6 +153,14 @@ body {
   font-weight: 400;
   color: #596069;
   margin: 0px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #23282e;
+  margin: 0px;
+  line-height: 20px;
 }
 
 /* Grid container for 3x3 layout */
@@ -185,7 +192,6 @@ body {
 
 .card,
 .container {
-  max-width: unset;
   position: relative;
   display: block;
   padding: 16px;
@@ -194,14 +200,17 @@ body {
   border-radius: 8px;
   transition: all linear 0.5s;
   width: auto;
+  max-width: auto;
 }
 
 .container {
-  max-width: unset;
-  padding: 24px;
   border: 0px;
   border-radius: 12px;
   box-shadow: 0 3px 8px #00000014;
+}
+
+.cui .container {
+  max-width: none !important;
 }
 
 .card:hover {
@@ -250,4 +259,104 @@ body {
   justify-content: flex-start;
   background-color: #f7f7f7;
   cursor: pointer;
+}
+
+/* Generic SVG icon style */
+.svg-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Specific close-icon styling */
+.close-icon {
+  background-image: url("assets/icons/close-icon.svg");
+}
+
+.custom-button-primary {
+  font-family: "Inter", sans-serif !important;
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: #049fd9;
+  color: #fff !important;
+  border: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-button-primary:hover {
+  background-color: #005c85;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-button-primary:focus {
+  outline: none;
+  box-shadow: 0px 0px 0px 3px rgba(0, 125, 171, 0.5);
+}
+
+.custom-button-primary:active {
+  background-color: #004364;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Secondary Button (outlined) */
+.custom-button-secondary {
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #373c42;
+  border: 1px solid #373c42;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.custom-button-secondary:hover {
+  background-color: rgba(239, 239, 239, 0.1);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.custom-button-secondary:focus {
+  outline: none;
+  box-shadow: 0px 0px 0px 3px rgba(0, 125, 171, 0.5);
+}
+
+.custom-button-secondary:active {
+  background-color: rgba(0, 125, 171, 0.2);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Tertiary Button (text-only) */
+.custom-button-tertiary {
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #373c42;
+  border: none;
+  transition: color 0.3s ease;
+}
+
+.custom-button-tertiary:hover {
+  color: #005c85;
+}
+
+.custom-button-tertiary:focus {
+  outline: none;
+  text-decoration: underline;
+}
+
+.custom-button-tertiary:active {
+  color: #004364;
 }
