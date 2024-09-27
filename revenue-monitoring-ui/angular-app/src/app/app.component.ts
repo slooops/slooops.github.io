@@ -22,10 +22,10 @@ export class AppComponent {
   protected http: ApiHttpService;
 
   menuOpened = false;
-  // username: string = 'Admin';
-  userRoles: String[] = [];
 
   header: string = '';
+
+  userName: string = '';
 
   ngOnInit(): void {
     this.router.events
@@ -44,5 +44,9 @@ export class AppComponent {
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
       });
+
+    this.http.getUser('/user/data').subscribe((data) => {
+      this.userName = data['auth_user'];
+    });
   }
 }

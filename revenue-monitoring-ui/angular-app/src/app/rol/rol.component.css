@@ -431,3 +431,7 @@ tr.mat-header-row {
   justify-content: space-between;
   gap: 1.5rem;
 }
+
+.highlight {
+  background-color: rgb(237, 80, 80);
+}

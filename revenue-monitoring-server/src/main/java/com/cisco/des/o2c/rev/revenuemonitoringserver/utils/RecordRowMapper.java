@@ -11,12 +11,11 @@ public class RecordRowMapper implements RowMapper<RolTransactionData> {
     public RolTransactionData mapRow(ResultSet rs, int rowNum) throws SQLException {
         RolTransactionData transactionDetails = new RolTransactionData();
 
-        transactionDetails.setPERIOD_YEAR(rs.getString("PERIOD_YEAR"));
-        transactionDetails.setPERIOD_NUM(rs.getString("PERIOD_NUM"));
-        transactionDetails.setORG_ID(rs.getString("ORG_ID"));
+        transactionDetails.setPERIOD_NAME(rs.getString("PERIOD_NAME"));
+        transactionDetails.setORG_NAME(rs.getString("OU_NAME"));
         transactionDetails.setAPPLICATION_NAME(rs.getString("APPLICATION_NAME"));
         transactionDetails.setERROR_APPLICATION(rs.getString("ERROR_APPLICATION"));
-        transactionDetails.setSUB_APPLICATION(rs.getString("SUB_APPLICATION"));
+        transactionDetails.setPROCESS_FLOW(rs.getString("SUB_APPLICATION"));
         transactionDetails.setSOURCE(rs.getString("SOURCE"));
         transactionDetails.setAMOUNT(rs.getString("AMOUNT"));
         transactionDetails.setCURRENCY_CODE(rs.getString("CURRENCY_CODE"));

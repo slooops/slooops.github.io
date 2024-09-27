@@ -95,8 +95,7 @@
           ></path>
         </svg>
         <div style="margin: 0 18px 0 10px">
-          <div class="user-title">Welcome User</div>
-          <div class="user-subtitle">User role: Admin</div>
+          <div class="user-title">Welcome {{ userName }}</div>
         </div>
       </div>
     </div>
@@ -117,14 +116,9 @@
   </mat-toolbar>
 </div>
 
-<!-- Side nav implementation -->
-<mat-sidenav-container class="example-container">
-  <mat-sidenav-content style="">
-    <div>
-      <router-outlet></router-outlet>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+<div>
+  <router-outlet></router-outlet>
+</div>
 
 <mat-menu #menu="matMenu">
   <app-menu></app-menu>

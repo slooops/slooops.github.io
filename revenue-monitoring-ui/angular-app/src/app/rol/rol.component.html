@@ -1,3 +1,9 @@
+<app-assign-dialog
+  *ngIf="isModalOpen"
+  [data]="selectedSummaryData"
+  (close)="closeModal()"
+></app-assign-dialog>
+
 <ng-template #processToolTip>
   <div class="flowchart-container">
     <br />
@@ -169,6 +175,7 @@
           <tr
             mat-row
             *matRowDef="let row; columns: rolErrorDisplayedColumns"
+            [ngClass]="{ highlight: row.PERIOD_NAME !== periodName }"
           ></tr>
         </table>
       </div>
@@ -230,7 +237,7 @@
               [class.no-wrap]="column === 'application_NAME'"
             >
               <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchCase="'sub_APPLICATION'">
+                <ng-container *ngSwitchCase="'process_FLOW'">
                   {{ subAppMapping(element[column]) }}
                 </ng-container>
                 <ng-container *ngSwitchDefault>

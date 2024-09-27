@@ -2,12 +2,11 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.models;
 
 public class RolTransactionData {
 
-    private String PERIOD_YEAR;
-    private String PERIOD_NUM;
-    private String ORG_ID;
+    private String PERIOD_NAME;
+    private String OU_NAME;
     private String APPLICATION_NAME;
     private String ERROR_APPLICATION;
-    private String SUB_APPLICATION;
+    private String PROCESS_FLOW;
     private String SOURCE;
     private String AMOUNT;
     private String CURRENCY_CODE;
@@ -19,16 +18,12 @@ public class RolTransactionData {
     private String PROCESS_STATUS;
 
 
-    public void setPERIOD_YEAR(String PERIOD_YEAR) {
-        this.PERIOD_YEAR = PERIOD_YEAR;
+    public void setPERIOD_NAME(String PERIOD_NAME) {
+        this.PERIOD_NAME = PERIOD_NAME;
     }
 
-    public void setPERIOD_NUM(String PERIOD_NUM) {
-        this.PERIOD_NUM = PERIOD_NUM;
-    }
-
-    public void setORG_ID(String ORG_ID) {
-        this.ORG_ID = ORG_ID;
+    public void setORG_NAME(String OU_NAME) {
+        this.OU_NAME = OU_NAME;
     }
 
     public void setAPPLICATION_NAME(String APPLICATION_NAME) {
@@ -39,8 +34,8 @@ public class RolTransactionData {
         this.ERROR_APPLICATION = ERROR_APPLICATION;
     }
 
-    public void setSUB_APPLICATION(String SUB_APPLICATION) {
-        this.SUB_APPLICATION = SUB_APPLICATION;
+    public void setPROCESS_FLOW(String PROCESS_FLOW) {
+        this.PROCESS_FLOW = PROCESS_FLOW;
     }
 
     public void setSOURCE(String SOURCE) {
@@ -79,16 +74,12 @@ public class RolTransactionData {
         this.PROCESS_STATUS = PROCESS_STATUS;
     }
 
-    public String getPERIOD_YEAR() {
-        return PERIOD_YEAR;
+    public String getPERIOD_NAME() {
+        return PERIOD_NAME;
     }
 
-    public String getPERIOD_NUM() {
-        return PERIOD_NUM;
-    }
-
-    public String getORG_ID() {
-        return ORG_ID;
+    public String getORG_NAME() {
+        return OU_NAME;
     }
 
     public String getAPPLICATION_NAME() {
@@ -99,8 +90,8 @@ public class RolTransactionData {
         return ERROR_APPLICATION;
     }
 
-    public String getSUB_APPLICATION() {
-        return SUB_APPLICATION;
+    public String getPROCESS_FLOW() {
+        return PROCESS_FLOW;
     }
 
     public String getSOURCE() {

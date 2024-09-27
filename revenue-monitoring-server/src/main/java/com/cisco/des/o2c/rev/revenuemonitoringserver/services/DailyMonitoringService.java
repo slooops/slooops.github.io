@@ -660,6 +660,7 @@ public class DailyMonitoringService {
 
     public List<RolTransactionData> getRolTransactionData(int page, int size) {
         return jdbcManager.getRolTransactionData(rolTransactionData, page, size);
+
     }
 
     public int getTotalRecords() {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { ApiHttpService } from '../providers/http.service';
 import { Router } from '@angular/router';

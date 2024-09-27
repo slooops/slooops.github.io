@@ -123,6 +123,7 @@ export class RolComponent implements OnInit {
 
     this.http.get('rol-transaction-data', { params: pageRequest }).subscribe({
       next: (data: any) => {
+        console.log('Rol transaction data:', data);
         this.rolTransactionData = data.rolTransactionData;
         console.log('Rol transaction data:', this.rolTransactionData);
         this.totalRecords = data.totalRecords;
@@ -130,11 +131,10 @@ export class RolComponent implements OnInit {
         if (this.rolTransactionData.length > 0) {
           // Transaction Data Table Columns Order
           this.displayedColumns = [
-            'period_YEAR',
-            'period_NUM',
+            'period_NAME',
             'application_NAME',
-            'sub_APPLICATION',
-            'org_ID',
+            'process_FLOW',
+            'org_NAME',
             'amount',
             'process_STATUS',
             'source',
@@ -222,7 +222,16 @@ export class RolComponent implements OnInit {
       return ''; // Return an empty string if value is null or undefined
     }
 
-    const specialWords = ['name', 'num', 'year', 'code', 'org', 'sub', 'unit'];
+    const specialWords = [
+      'name',
+      'num',
+      'year',
+      'code',
+      'org',
+      'sub',
+      'unit',
+      'process',
+    ];
 
     return value
       .replace(/_/g, ' ')
@@ -270,7 +279,25 @@ export class RolComponent implements OnInit {
   viewDetails() {
     this.selectedSummaryData = this.selection.selected;
     console.log('Selected data:', this.selectedSummaryData);
-    this.openRowDialog();
+    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
+      console.error('No data selected.');
+      return;
+    }
+
+    this.openRowModal();
+  }
+  isModalOpen: boolean = false;
+  openRowModal(): void {
+    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
+      console.error('No selectedSummaryData found:', this.selectedSummaryData);
+      return;
+    }
+
+    this.isModalOpen = true;
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
   }
 
   openRowDialog(): void {
@@ -331,12 +358,12 @@ export class RolComponent implements OnInit {
 }
 
 interface RolTransactionData {
-  PERIOD_YEAR: string;
+  PERIOD_NAME: string;
   PERIOD_NUM: string;
-  ORG_ID: string;
+  ORG_NAME: string;
   APPLICATION_NAME: string;
   ERROR_APPLICATION: string;
-  SUB_APPLICATION: string;
+  PROCESS_FLOW: string;
   SOURCE: string;
   AMOUNT: string;
   CURRENCY_CODE: string;

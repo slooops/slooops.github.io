@@ -54,8 +54,8 @@ export class AssignDialogComponent implements OnInit {
         { value: this.data[0].CREATION_DATE || '', disabled: true },
       ],
       aging: [{ value: this.data[0].AGING || '', disabled: true }],
-      assignedTo: [''], // Enabled for user input
-      comments: [''], // Enabled for user input
+      assignedTo: [''],
+      comments: [''],
     });
     this.username = this.dataService.getUsername();
   }
@@ -72,7 +72,6 @@ export class AssignDialogComponent implements OnInit {
     };
 
     console.log('Form data before closing:', this.updateForm);
-    // Notify parent to close the modal
     this.close.emit(this.updateForm.value);
 
     this.http
