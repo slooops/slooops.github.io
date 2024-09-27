@@ -9,32 +9,67 @@ import * as XLSX from 'xlsx';
   styleUrls: ['./sbp.component.css'],
 })
 export class SbpComponent implements OnInit {
-  sbpData: MatTableDataSource<any> = new MatTableDataSource([]);
-  displayedColumns: string[] = [];
+  sbpSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
+  summaryColumns: string[] = [];
+
+  private originalDetailsData: any[] = [];
+  sbpDetailsData: MatTableDataSource<any> = new MatTableDataSource([]);
+  detailsColumns: string[] = [];
+
+  summaryLoading = true;
+  detailsLoading = true;
 
   constructor(private http: ApiHttpService) {}
 
   ngOnInit(): void {
-    this.getSbpData();
+    this.getSbpSummaryData();
+    this.getSbpDetailData();
   }
 
-  getSbpData() {
+  getSbpSummaryData() {
     this.http.get('sbp-summary').subscribe((data: any) => {
+      console.log('summary', data);
       if (data.length > 0) {
-        // Dynamically set displayedColumns based on keys of the first object
-        this.displayedColumns = Object.keys(data[0]);
+        // Dynamically set summaryColumns based on keys of the first object
+        this.summaryColumns = Object.keys(data[0]);
 
         // Filter out columns you don't want to display
         // this.removeColumns(['CUSTTRXLINEID']);
       }
 
-      this.sbpData.data = this.formatData(data);
-      console.log(this.sbpData);
+      this.sbpSummaryData.data = this.formatData(data);
+      this.summaryLoading = false;
     });
   }
 
+  getSbpDetailData() {
+    this.http.get('sbp-details').subscribe((data: any) => {
+      console.log('detail', data);
+      if (data.length > 0) {
+        this.detailsColumns = Object.keys(data[0]);
+      }
+
+      this.originalDetailsData = this.formatData(data); // Save original data
+      this.sbpDetailsData.data = [...this.originalDetailsData];
+
+      this.detailsLoading = false;
+    });
+  }
+
+  filterDetails(entity: string, statusColumn: string) {
+    console.log('entity', entity), console.log('statusColumn', statusColumn);
+    // Filter the details data based on ENTITY and RECON_STATUS
+
+    this.sbpDetailsData.data = [...this.originalDetailsData];
+
+    this.sbpDetailsData.data = this.sbpDetailsData.data.filter(
+      (row: any) =>
+        row['ENTITY'] === entity && row['RECON_STATUS'] === statusColumn
+    );
+  }
+
   removeColumns(columnsToRemove: string[]) {
-    this.displayedColumns = this.displayedColumns.filter(
+    this.summaryColumns = this.summaryColumns.filter(
       (column) => !columnsToRemove.includes(column)
     );
   }
@@ -67,7 +102,16 @@ export class SbpComponent implements OnInit {
       return ''; // Return an empty string if value is null or undefined
     }
 
-    const specialWords = ['bill', 'home', 'tech', 'unit'];
+    const specialWords = [
+      'bill',
+      'home',
+      'tech',
+      'unit',
+      'for',
+      'next',
+      'run',
+      'hold',
+    ];
 
     return value
       .replace(/_/g, ' ')

@@ -201,6 +201,11 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getSbpSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/sbp-details")
+    public ResponseEntity<List<Map<String, Object>>> getSbpDetails() {
+        return new ResponseEntity<>(service.getSbpDetails(), HttpStatus.OK);
+    }
+
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
         if (!file.isEmpty()) {

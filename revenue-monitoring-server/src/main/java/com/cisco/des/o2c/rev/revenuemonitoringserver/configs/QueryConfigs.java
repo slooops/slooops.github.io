@@ -215,6 +215,9 @@ public class QueryConfigs { // TODO
     @Value(("${sbp.summary.query}"))
     public String sbpSummary;
 
+    @Value(("${sbp.details.q}"))
+    public String sbpDetails;
+
     @Value(("${cms.total.unapplied.amount.query}"))
     public String cmsTotalUnappliedAmountQuery;
 
@@ -586,6 +589,9 @@ public class QueryConfigs { // TODO
     public String getSbpSummary() {
         return this.sbpSummary;
     }
+
+    @Bean( name = "sbpDetails" )
+    public String getSbpDetails() {return this.sbpDetails; }
 
     @Bean(name = "cmsTotalUnappliedAmountQuery")
     public String getCmsTotalUnappliedAmountQuery() {
