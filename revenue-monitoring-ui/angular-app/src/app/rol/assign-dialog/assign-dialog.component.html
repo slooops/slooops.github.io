@@ -1,5 +1,14 @@
-<h4 mat-dialog-title>Edit Row Data</h4>
-<div mat-dialog-content style="width: 100%">
+<h5 mat-dialog-title>
+  Assign User
+  <a style="float: right !important; text-decoration: none"
+    ><i
+      class="fa fa-close"
+      style="font-size: 20px; color: gray"
+      (click)="closeDialog('closed')"
+    ></i
+  ></a>
+</h5>
+<div mat-dialog-content>
   <form [formGroup]="updateForm">
     <!-- Disabled Fields -->
     <mat-form-field appearance="standard">
@@ -63,15 +72,6 @@
     </mat-form-field>
 
     <mat-form-field appearance="standard">
-      <mat-label>Assigned Date</mat-label>
-      <input
-        matInput
-        formControlName="assignedDate"
-        placeholder="Assigned Date"
-      />
-    </mat-form-field>
-
-    <mat-form-field appearance="standard">
       <mat-label>Comments</mat-label>
       <input matInput formControlName="comments" placeholder="Enter Comments" />
     </mat-form-field>
@@ -79,7 +79,14 @@
 </div>
 
 <!-- Dialog Actions -->
-<div mat-dialog-actions>
+<div mat-dialog-actions style="justify-content: center">
   <button mat-button (click)="closeDialog(null)">Cancel</button>
-  <button mat-button (click)="submitData()" cdkFocusInitial>Save</button>
+  <button
+    mat-raised-button
+    (click)="submitData()"
+    cdkFocusInitial
+    style="background-color: gray; color: white"
+  >
+    Save
+  </button>
 </div>

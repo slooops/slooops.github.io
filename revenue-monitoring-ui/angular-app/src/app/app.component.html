@@ -7,6 +7,7 @@
           mat-button
           style="background-color: #202428"
           [matMenuTriggerFor]="menu"
+          matTooltip="Menu"
         >
           <i aria-hidden="true" style="display: flex; justify-content: center">
             <svg
@@ -21,7 +22,15 @@
             </svg>
           </i>
         </button>
-        <div style="display: flex; align-items: center; padding: 0 20px 0 4px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            padding: 0 20px 0 4px;
+            cursor: pointer;
+          "
+          [routerLink]="['/home']"
+        >
           <svg width="38px" height="20px">
             <g transform="matrix(1,0,0,1,-503.306,-139.064)">
               <g
@@ -62,6 +71,18 @@
       </div>
 
       <div style="display: flex; align-items: center">
+        <i
+          class="fa fa-question-circle"
+          aria-hidden="true"
+          style="
+            color: white;
+            margin-right: 15px;
+            font-size: x-large;
+            cursor: pointer;
+          "
+          matTooltip="Help"
+        ></i>
+
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="25"

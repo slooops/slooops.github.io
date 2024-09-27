@@ -90,8 +90,8 @@ public class JdbcManager {
         return jdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, salesOrder, progName, account);
     }
 
-    public int updateRolErrorsSummaryData(String sql, String assignedTo, String comments, String periodName, String appName, String subApp, String orgName){
-        return jdbcTemplate.update(sql, assignedTo, comments, periodName, appName, subApp, orgName);
+    public int updateRolErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, String periodName, String appName, String subApp, String orgName){
+        return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, periodName, appName, subApp, orgName);
     }
     public int getTotalRecords(String sql) {
         return jdbcTemplate.queryForObject(sql, Integer.class);

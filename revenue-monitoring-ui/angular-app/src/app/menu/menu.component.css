@@ -1,28 +1,5 @@
-.mat-list-item {
-  color: #373c42;
-  margin-left: 7px;
-  font-size: small !important;
-}
-
-.mat-nav-list .active {
-  background-color: rgba(198, 198, 198, 0.137);
-}
-
 .mr-2 {
   margin-right: 8px;
   width: 16px;
   display: flex;
-}
-
-.mat-list-base .mat-list-item,
-.mat-list-base .mat-list-option {
-  height: 34px;
-}
-
-.mat-expansion-panel-header.mat-expanded {
-  height: 34px;
-}
-
-.mat-expansion-panel-body {
-  padding: 0px;
 }

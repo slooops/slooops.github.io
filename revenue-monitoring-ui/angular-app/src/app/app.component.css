@@ -6,10 +6,6 @@
   min-width: 100%;
 }
 
-.mat-sidenav {
-  width: auto;
-}
-
 .mat-toolbar-row,
 .mat-toolbar-single-row {
   height: 50px !important;

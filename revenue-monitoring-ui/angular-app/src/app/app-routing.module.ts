@@ -136,8 +136,8 @@ const routes: Routes = [
     path: 'rol',
     component: RolComponent,
     data: {
-      title: 'ROL Dashboard',
-      header: 'Revenue Orchestration Layer Dashboard',
+      title: 'ROL Monitoring',
+      header: 'Revenue Orchestration Layer Monitoring',
     },
   },
   {
