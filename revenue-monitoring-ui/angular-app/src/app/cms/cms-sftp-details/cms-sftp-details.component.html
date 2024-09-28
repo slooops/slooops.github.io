@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <div class="table-container">
+  <div class="table-container" *ngIf="isDataLoaded; else loading">
     <table mat-table [dataSource]="data" style="width: 100%; overflow-x: auto">
       <!-- Directory Column -->
       <ng-container matColumnDef="directory">
@@ -55,4 +55,17 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   </div>
+  <ng-template #loading>
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+      <br /><br /><br />
+    </div>
+  </ng-template>
+
+  <ng-container *ngIf="!this.data?.length && !loading">
+    <div class="loading-container">
+      <div class="card-subtitle">No Data to Display</div>
+      <br /><br /><br />
+    </div>
+  </ng-container>
 </div>

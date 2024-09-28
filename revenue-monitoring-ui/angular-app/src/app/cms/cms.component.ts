@@ -272,7 +272,6 @@ export class CmsComponent implements OnInit {
   getCtmDetails() {
     this.getEndpointData('ctmDetails').subscribe((data: any) => {
       this.ctmDetails = data;
-      console.log('ctmDetails', this.ctmDetails);
     });
   }
 
@@ -285,7 +284,6 @@ export class CmsComponent implements OnInit {
   getBoomiDetails() {
     this.getEndpointData('boomiDetails').subscribe((data: any) => {
       this.boomiDetails = data;
-      console.log('boomiDetails', this.boomiDetails);
     });
   }
 
@@ -516,12 +514,14 @@ export class CmsComponent implements OnInit {
     }));
 
     // Open the new tab
-    const newTab = window.open('/cms-sftp-details', '_blank');
+    const newTab = window.open('/cms-sftp-details');
 
     // Post the data to the new tab
     if (newTab) {
       newTab.addEventListener('load', () => {
-        newTab.postMessage({ data: dataToPass }, '*');
+        setTimeout(() => {
+          newTab.postMessage({ data: dataToPass }, '*');
+        }, 100); // Add a delay in milliseconds if needed
       });
     }
   }

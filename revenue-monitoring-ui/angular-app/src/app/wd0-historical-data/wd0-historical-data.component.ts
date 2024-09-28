@@ -17,8 +17,11 @@ Chart.register(...registerables);
 })
 export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   protected http: ApiHttpService;
-  loading: boolean = false;
+  loading: boolean = true;
   barChartLoading: boolean = true;
+
+  upperCI: number;
+  lowerCI: number;
 
   constructor(
     http: ApiHttpService,
@@ -39,8 +42,50 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
   dataSource: any;
 
+  unprocessedRegressionData: any[] = [];
+  numberOfMonths: number = 4;
+  newMonthName: string = '';
+  newMonthData = [[0, 0]];
+  fetchDataForNewMonth = true;
+  today = new Date();
+
   ngOnInit(): void {
-    this.getRegressionData();
+    const localDateString = this.today.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
+    if (monthEndDates.includes(localDateString)) {
+      this.fetchDataForNewMonth = true; // Flag to fetch new month data
+    }
+
+    console.log(this.today, 'hi', this.fetchDataForNewMonth);
+
+    if (this.fetchDataForNewMonth) {
+      this.getEndpointData('wd0-current-month')
+        .pipe(
+          tap((data: any) => {
+            // Process the current month data
+            data.forEach((item: any) => {
+              if (item.LINE_TYPE === 'PRODUCT') {
+                this.newMonthData[0][0] = item.LINE_COUNT;
+              } else if (item.LINE_TYPE === 'SERVICE') {
+                this.newMonthData[0][1] = item.LINE_COUNT;
+              }
+            });
+            this.newMonthName = data[0].PERIOD_NAME;
+          }),
+          switchMap(() => this.http.get('wd0-regression'))
+        )
+        .subscribe((data: any) => {
+          this.unprocessedRegressionData = data;
+          this.processRecentMonths(this.unprocessedRegressionData);
+          this.loading = false;
+        });
+    } else {
+      this.http.get('wd0-regression').subscribe((data: any) => {
+        this.unprocessedRegressionData = data;
+        this.processRecentMonths(this.unprocessedRegressionData);
+        this.loading = false;
+      });
+    }
+
     this.refreshExportData();
     this.getHistoricalData();
   }
@@ -346,158 +391,111 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     return polling$;
   }
 
-  upperCI: number;
-  lowerCI: number;
+  processRecentMonths = (data: any) => {
+    console.log('Recent months data:', data);
+    const filteredData = data.filter((entry: any) => {
+      return !(
+        entry.PERIOD_NAME === this.newMonthName && entry.LINE_COUNT === null
+      );
+    });
 
-  getRegressionData() {
-    this.loading = true;
+    // Get recent months names for graph
+    const productEntries = filteredData.filter(
+      (entry: any) => entry.LINE_TYPE === 'PRODUCT'
+    );
+    const recentProductEntries = productEntries.slice(-this.numberOfMonths); // Get the last few months
+    const recentMonthNames = recentProductEntries.map(
+      (entry: any) => entry.PERIOD_NAME
+    );
 
-    const numberOfMonths = 4;
-    const newMonthData = [[0, 0]];
-    let newMonthName = '';
-
-    // Check if today is a month end
-    let fetchDataForNewMonth = false;
-
-    // Get local date as YYYY-MM-DD
-    const today = new Date();
-    const localDateString = today.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
-    if (monthEndDates.includes(localDateString)) {
-      fetchDataForNewMonth = true; // Flag to fetch new month data
+    if (this.fetchDataForNewMonth) {
+      recentMonthNames.push(this.newMonthName);
     }
 
-    // Helper function to process regression data
-    const fetchRecentMonths = (data: any) => {
-      // console.log('Recent months data:', data);
-      const filteredData = data.filter((entry: any) => {
-        return !(
-          entry.PERIOD_NAME === newMonthName && entry.LINE_COUNT === null
-        );
-      });
-
-      // Get recent months names for graph
-      const productEntries = filteredData.filter(
-        (entry: any) => entry.LINE_TYPE === 'PRODUCT'
-      );
-      const recentProductEntries = productEntries.slice(-numberOfMonths); // Get the last few months
-      const recentMonthNames = recentProductEntries.map(
-        (entry: any) => entry.PERIOD_NAME
-      );
-
-      if (fetchDataForNewMonth) {
-        recentMonthNames.push(newMonthName);
+    // Ensure there are no null execution times only when fetchDataForNewMonth is true
+    filteredData.forEach((entry: any) => {
+      if (
+        entry.EXECUTION_TIME === null &&
+        entry.LINE_COUNT !== null &&
+        this.fetchDataForNewMonth
+      ) {
+        console.log('Null execution time found:', entry);
+        entry.EXECUTION_TIME = 4.0; // Replace with a default value
+      } else if (
+        entry.EXECUTION_TIME === null &&
+        entry.LINE_COUNT !== null &&
+        !this.fetchDataForNewMonth
+      ) {
+        entry.EXECUTION_TIME = 0.0; // Replace with a default value
       }
+    });
 
-      // Ensure there are no null execution times only when fetchDataForNewMonth is true
-      filteredData.forEach((entry: any) => {
-        if (
-          entry.EXECUTION_TIME === null &&
-          entry.LINE_COUNT !== null &&
-          fetchDataForNewMonth
-        ) {
-          console.log('Null execution time found:', entry);
-          entry.EXECUTION_TIME = 4.0; // Replace with a default value
-        } else if (
-          entry.EXECUTION_TIME === null &&
-          entry.LINE_COUNT !== null &&
-          !fetchDataForNewMonth
-        ) {
-          entry.EXECUTION_TIME = 0.0; // Replace with a default value
-        }
-      });
+    // Prep the data and run regression (this sets a model in the service)
+    const regressionData = this.processRegressionData(filteredData);
 
-      // Prep the data and run regression (this sets a model in the service)
-      const regressionData = this.processRegressionData(filteredData);
-
-      if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-        console.error('Regression data is empty:', regressionData);
-        this.loading = false;
-        return;
-      }
-
-      this.regressionService.performMultipleLinearRegression(
-        regressionData.X,
-        regressionData.y
-      );
-
-      // Collect recent months of data for graph
-      const recentMonthsData = regressionData.X.slice(-numberOfMonths);
-      const degreesOfFreedomBase = regressionData.X.length - 2;
-      const combineRecentMonthsWithDFData = recentMonthsData.map(
-        (monthData, index) => {
-          return {
-            X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
-            degreesOfFreedom:
-              degreesOfFreedomBase - (numberOfMonths - 1 - index), // Adjust the index for the last 12 months
-          };
-        }
-      );
-
-      if (fetchDataForNewMonth) {
-        recentMonthsData.push(newMonthData[0]);
-      }
-
-      let fastestTimes = [];
-      let slowestTimes = [];
-
-      // Get last 6 months confidence intervals
-      combineRecentMonthsWithDFData.forEach((data) => {
-        const result = this.regressionService.predictWithConfidenceIntervals(
-          data.X,
-          data.degreesOfFreedom
-        );
-        fastestTimes.push(+result.lowerCI.toFixed(2));
-        slowestTimes.push(+result.upperCI.toFixed(2));
-      });
-
-      // For next month prediction (.length - 1 is for the degrees of freedom)
-      const upcomingMonthPrediction =
-        this.regressionService.predictWithConfidenceIntervals(
-          newMonthData,
-          regressionData.X.length - 1
-        );
-      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-
-      let actualTimes = regressionData.y
-        .slice(-numberOfMonths)
-        .map((time) => time[0]);
-
-      this.createLineGraph(
-        fastestTimes,
-        slowestTimes,
-        recentMonthNames,
-        recentMonthsData,
-        actualTimes
-      );
-      this.loading = false; // Set loading to false after data is processed
-    };
-
-    if (fetchDataForNewMonth) {
-      this.getEndpointData('wd0-current-month')
-        .pipe(
-          tap((data: any) => {
-            // Process the current month data
-            data.forEach((item: any) => {
-              if (item.LINE_TYPE === 'PRODUCT') {
-                newMonthData[0][0] = item.LINE_COUNT;
-              } else if (item.LINE_TYPE === 'SERVICE') {
-                newMonthData[0][1] = item.LINE_COUNT;
-              }
-            });
-            newMonthName = data[0].PERIOD_NAME;
-          }),
-          switchMap(() => this.http.get('wd0-regression'))
-        )
-        .subscribe((data: any) => {
-          fetchRecentMonths(data);
-        });
-    } else {
-      this.http.get('wd0-regression').subscribe((data: any) => {
-        fetchRecentMonths(data);
-      });
+    if (regressionData.X.length === 0 || regressionData.y.length === 0) {
+      console.error('Regression data is empty:', regressionData);
+      this.loading = false;
+      return;
     }
-  }
+
+    this.regressionService.performMultipleLinearRegression(
+      regressionData.X,
+      regressionData.y
+    );
+
+    // Collect recent months of data for graph
+    const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
+    const degreesOfFreedomBase = regressionData.X.length - 2;
+    const combineRecentMonthsWithDFData = recentMonthsData.map(
+      (monthData, index) => {
+        return {
+          X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
+          degreesOfFreedom:
+            degreesOfFreedomBase - (this.numberOfMonths - 1 - index), // Adjust the index for the last 12 months
+        };
+      }
+    );
+
+    if (this.fetchDataForNewMonth) {
+      recentMonthsData.push(this.newMonthData[0]);
+    }
+
+    let fastestTimes = [];
+    let slowestTimes = [];
+
+    // Get last 6 months confidence intervals
+    combineRecentMonthsWithDFData.forEach((data) => {
+      const result = this.regressionService.predictWithConfidenceIntervals(
+        data.X,
+        data.degreesOfFreedom
+      );
+      fastestTimes.push(+result.lowerCI.toFixed(2));
+      slowestTimes.push(+result.upperCI.toFixed(2));
+    });
+
+    // For next month prediction (.length - 1 is for the degrees of freedom)
+    const upcomingMonthPrediction =
+      this.regressionService.predictWithConfidenceIntervals(
+        this.newMonthData,
+        regressionData.X.length - 1
+      );
+    fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+    slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+
+    let actualTimes = regressionData.y
+      .slice(-this.numberOfMonths)
+      .map((time) => time[0]);
+
+    this.createLineGraph(
+      fastestTimes,
+      slowestTimes,
+      recentMonthNames,
+      recentMonthsData,
+      actualTimes
+    );
+    this.loading = false; // Set loading to false after data is processed
+  };
 
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
     const canvas = document.getElementById(
