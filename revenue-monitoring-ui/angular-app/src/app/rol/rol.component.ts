@@ -46,6 +46,7 @@ export class RolComponent implements OnInit {
   summaryLoadTime: string;
   periodName: string = '';
   periodEnd: string = '';
+  processFlowTotals: { [key: string]: string | number };
 
   constructor(
     private http: ApiHttpService,
@@ -80,6 +81,8 @@ export class RolComponent implements OnInit {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
       console.log('Rol error summary data:', data);
+      this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
+
       this.rolErrorColumns = [
         'PERIOD_NAME',
         'APPLICATION_NAME',
@@ -198,6 +201,45 @@ export class RolComponent implements OnInit {
 
   subAppMapping(key: string): string | undefined {
     return this.subApplicationMapping[key];
+  }
+
+  calculateTotalsByProcessFlow(data: any[]): {
+    [key: string]: string | number;
+  } {
+    // Initialize an object to store totals
+    const totals: { [key: string]: number } = {
+      XXCFIR_REV_INTERFACE_ALL: 0,
+      XXCFIR_REVENUE_EXTRACT_ALL: 0,
+      XXCFIR_REVENUE_DIST_ALL: 0,
+      XXCFIR_ROL_XLA_SUMMARY: 0,
+      XLA_AE_HEADERS: 0,
+    };
+
+    // Calculate total impact for each process flow
+    data.forEach((item) => {
+      const processFlowKey = item.PROCESS_FLOW;
+
+      // Check if the process flow is in the mapping
+      if (totals.hasOwnProperty(processFlowKey)) {
+        totals[processFlowKey] += item.AMOUNT;
+      }
+    });
+
+    // Convert totals to displayable format
+    const formattedTotals: { [key: string]: string | number } = {};
+    Object.keys(totals).forEach((key) => {
+      formattedTotals[key] =
+        totals[key] === 0
+          ? '0' // If total is zero, display "0"
+          : totals[key] === undefined || totals[key] === null
+          ? 'N/A' // If no line items, display "N/A"
+          : `$${totals[key].toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`; // Format total as a dollar amount
+    });
+
+    return formattedTotals;
   }
 
   formatData(data: any[]): any[] {
