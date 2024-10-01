@@ -212,6 +212,12 @@ public class QueryConfigs { // TODO
     @Value(("${rol.errors.summary.query}"))
     public String rolErrorsSummary;
 
+    @Value(("${rol.chart.totals.q}"))
+    public String rolChartTotals;
+
+    @Value(("${rol.chart.details.q}"))
+    public String rolChartDetails;
+
     @Value(("${sbp.summary.query}"))
     public String sbpSummary;
 
@@ -584,6 +590,12 @@ public class QueryConfigs { // TODO
     public String getRolErrorsSummary() {
         return this.rolErrorsSummary;
     }
+
+    @Bean( name = "rolChartTotals" )
+    public String getRolChartTotals() {return this.rolChartTotals; }
+
+    @Bean( name = "rolChartDetails" )
+    public String getRolChartDetails() {return this.rolChartDetails; }
 
     @Bean(name = "sbpSummary")
     public String getSbpSummary() {

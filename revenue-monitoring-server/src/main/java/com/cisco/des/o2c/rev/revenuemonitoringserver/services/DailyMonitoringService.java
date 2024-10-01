@@ -79,6 +79,8 @@ public class DailyMonitoringService {
     private String caseServiceMetricsSummary;
     private String rolErrorsSummaryUpdate;
     private String rolErrorsSummaryPeriodStatus;
+    private String rolChartTotals;
+    private String rolChartDetails;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -97,7 +99,7 @@ public class DailyMonitoringService {
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
                                   String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails,
                                   String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
-                                  String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus
+                                  String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -151,6 +153,8 @@ public class DailyMonitoringService {
         this.caseServiceMetricsSummary = caseServiceMetricsSummary;
         this.rolErrorsSummaryUpdate = rolErrorsSummaryUpdate;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
+        this.rolChartTotals = rolChartTotals;
+        this.rolChartDetails = rolChartDetails;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -701,6 +705,14 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getSbpDetails() {
         return jdbcManager.queryForList(sbpDetails);
+    }
+
+    public List<Map<String, Object>> getRolChartTotals() {
+        return jdbcManager.queryForList(rolChartTotals);
+    }
+
+    public List<Map<String, Object>> getRolChartDetails() {
+        return jdbcManager.queryForList(rolChartDetails);
     }
 
     public List<Map<String, Object>> getEstimatedCompletionTime() {

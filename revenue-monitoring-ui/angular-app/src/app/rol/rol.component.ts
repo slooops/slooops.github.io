@@ -21,6 +21,11 @@ export class RolComponent implements OnInit {
   rolErrorDisplayedColumns: string[] = [];
   rolErrorColumns: string[] = [];
 
+  isModalOpen: boolean = false;
+  openChartModal: boolean = false;
+
+  chart: any;
+
   dataSource: any;
   rolTransactionData: RolTransactionData[];
   displayedColumns: string[] = [];
@@ -36,6 +41,9 @@ export class RolComponent implements OnInit {
   totalRecords: number = 0;
   pageSize: number = 20;
   isLoading: boolean = false;
+  chartLoading: boolean = true;
+  summaryLoading: boolean = true;
+  summaryLoadTime: string;
   periodName: string = '';
   periodEnd: string = '';
 
@@ -49,13 +57,16 @@ export class RolComponent implements OnInit {
     this.getRolTransactionData(0, this.pageSize);
     this.getRolErrorSummaryData();
     this.getRolErrorSummaryPeriodStatus();
-    this.createHistoricalErrorTrendChart();
   }
 
   ngAfterViewInit(): void {
     this.paginator.page.subscribe((event: PageEvent) => {
       this.getRolTransactionData(event.pageIndex, event.pageSize);
     });
+
+    if (this.openChartModal) {
+      this.getChartTotals();
+    }
 
     // setTimeout(() => {
     //   if (this.paginator) {
@@ -66,6 +77,7 @@ export class RolComponent implements OnInit {
   }
 
   getRolErrorSummaryData() {
+    this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
       console.log('Rol error summary data:', data);
       this.rolErrorColumns = [
@@ -85,7 +97,6 @@ export class RolComponent implements OnInit {
       this.rolErrorDisplayedColumns = ['select', ...this.rolErrorColumns];
 
       this.rolSummaryModel = this.formatData(data);
-      console.log(this.rolSummaryModel);
       this.rolSummaryModel.forEach((row) => {
         row.AGING = this.getAging(row.CREATION_DATE) + ' days';
         row.CREATION_DATE = this.dateTransform(row.CREATION_DATE);
@@ -95,6 +106,8 @@ export class RolComponent implements OnInit {
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
         this.rolSummaryModel
       );
+      this.summaryLoading = false;
+      this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
     });
   }
 
@@ -102,7 +115,6 @@ export class RolComponent implements OnInit {
     this.http.get('rol-errors-summary-period-status').subscribe((data: any) => {
       this.periodName = data[0].PERIOD_NAME;
       this.periodEnd = this.dateTransform(data[0].END_DATE);
-      console.log('Rol error summary period status:', data);
     });
   }
 
@@ -123,9 +135,7 @@ export class RolComponent implements OnInit {
 
     this.http.get('rol-transaction-data', { params: pageRequest }).subscribe({
       next: (data: any) => {
-        console.log('Rol transaction data:', data);
         this.rolTransactionData = data.rolTransactionData;
-        console.log('Rol transaction data:', this.rolTransactionData);
         this.totalRecords = data.totalRecords;
 
         if (this.rolTransactionData.length > 0) {
@@ -184,12 +194,6 @@ export class RolComponent implements OnInit {
 
     const agingInDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
     return agingInDays.toString();
-  }
-
-  removeColumns(columnsToRemove: string[]) {
-    this.displayedColumns = this.displayedColumns.filter(
-      (column) => !columnsToRemove.includes(column)
-    );
   }
 
   subAppMapping(key: string): string | undefined {
@@ -286,7 +290,7 @@ export class RolComponent implements OnInit {
 
     this.openRowModal();
   }
-  isModalOpen: boolean = false;
+
   openRowModal(): void {
     if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
       console.error('No selectedSummaryData found:', this.selectedSummaryData);
@@ -298,6 +302,7 @@ export class RolComponent implements OnInit {
 
   closeModal(): void {
     this.isModalOpen = false;
+    this.openChartModal = false;
   }
 
   openRowDialog(): void {
@@ -312,8 +317,49 @@ export class RolComponent implements OnInit {
       }
     });
   }
-  chart: any;
-  createHistoricalErrorTrendChart() {
+
+  getChartTotals() {
+    this.chartLoading = true;
+
+    this.http.get('rol-chart-totals').subscribe((data: any) => {
+      console.log('Rol chart totals:', data);
+
+      // Extract labels and counts from the API response
+      const labels = data.map((entry) => entry.PERIOD_NAME);
+      const counts = data.map((entry) => entry.COUNT_RECORDS);
+
+      // Fetch the details data to pass to the chart
+      this.http.get('rol-chart-details').subscribe((detailsData: any) => {
+        console.log('rolChartDetails:', detailsData);
+
+        // Group details data by PERIOD_NAME
+        const groupedData = detailsData.reduce((acc, curr) => {
+          const period = curr.PERIOD_NAME;
+
+          // Initialize an array for the period if it doesn't exist
+          if (!acc[period]) {
+            acc[period] = [];
+          }
+
+          // Push the current record into the array for its period
+          acc[period].push(curr);
+
+          return acc;
+        }, {});
+
+        // Create chart with fetched data and grouped details
+        this.createHistoricalErrorTrendChart(labels, counts, groupedData);
+        this.chartLoading = false;
+      });
+    });
+  }
+
+  // Create the chart with dynamic data
+  createHistoricalErrorTrendChart(
+    labels: string[],
+    data: number[],
+    groupedData: any
+  ) {
     const ctx = document.getElementById(
       'historicalErrorTrend'
     ) as HTMLCanvasElement;
@@ -321,11 +367,11 @@ export class RolComponent implements OnInit {
     this.chart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ['May', 'June', 'July', 'August', 'September'],
+        labels: labels, // Use dynamic labels from chart totals
         datasets: [
           {
             label: 'Number of Errors',
-            data: [120, 80, 150, 60, 90],
+            data: data, // Use dynamic data from chart totals
             borderColor: '#007dab',
             backgroundColor: 'rgba(0, 125, 171, 0.2)',
             fill: true,
@@ -352,8 +398,38 @@ export class RolComponent implements OnInit {
             beginAtZero: true,
           },
         },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              // Customize the tooltip
+              label: (tooltipItem: any) => {
+                const periodName = tooltipItem.label; // Get the month (PERIOD_NAME)
+                const details = groupedData[periodName]; // Get the grouped details for this month
+
+                // Format the tooltip content
+                if (details) {
+                  const tooltipLines = details.map(
+                    (item: any) =>
+                      `${item.APPLICATION_NAME}: ${item.COUNT_RECORDS}`
+                  );
+                  return tooltipLines; // Return the tooltip content as an array of strings
+                }
+                return 'No details available';
+              },
+            },
+          },
+        },
       },
     });
+  }
+
+  openChart() {
+    this.openChartModal = true;
+
+    setTimeout(() => {
+      // Initialize the chart after the modal is visible
+      this.getChartTotals();
+    }, 0);
   }
 }
 

@@ -196,6 +196,16 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getRolErrorSummaryPeriodStatus(), HttpStatus.OK);
     }
 
+    @GetMapping("/rol-chart-totals")
+    public ResponseEntity<List<Map<String, Object>>> getRolChartTotals() {
+        return new ResponseEntity<>(service.getRolChartTotals(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rol-chart-details")
+    public ResponseEntity<List<Map<String, Object>>> getRolChartDetails() {
+        return new ResponseEntity<>(service.getRolChartDetails(), HttpStatus.OK);
+    }
+
     @GetMapping("/sbp-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpSummary() {
         return new ResponseEntity<>(service.getSbpSummary(), HttpStatus.OK);
