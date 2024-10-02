@@ -84,6 +84,7 @@
             font-size: x-large;
             cursor: pointer;
           "
+          (click)="toggleHelpDropdown($event)"
           matTooltip="Help"
         ></i>
 
@@ -132,3 +133,11 @@
     <i class="fa fa-sign-out"></i>&nbsp;Sign out
   </button>
 </mat-menu>
+
+<div
+  class="help-dropdown"
+  *ngIf="isHelpDropdownOpen"
+  (click)="stopPropagation($event)"
+>
+  <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
+</div>

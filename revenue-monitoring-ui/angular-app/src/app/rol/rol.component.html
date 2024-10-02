@@ -111,15 +111,15 @@
       <h5 class="section-title action-buttons">
         ROL Errors Summary
 
-        <span class="action-buttons" *ngIf="selection.hasValue()">
+        <span class="action-buttons" *ngIf="selection.selected.length === 1">
           &nbsp;&nbsp;
-          <button
+          <!-- <button
             class="custom-button-primary"
             (click)="viewTransactionDetails()"
           >
             View Details
           </button>
-          &nbsp;&nbsp;
+          &nbsp;&nbsp; -->
           <button class="custom-button-primary" (click)="viewDetails()">
             Assign User
           </button>

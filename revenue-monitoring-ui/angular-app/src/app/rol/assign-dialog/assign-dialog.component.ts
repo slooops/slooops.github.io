@@ -49,7 +49,6 @@ export class AssignDialogComponent implements OnInit {
       console.error('No data received or data is malformed:', this.data);
       return;
     }
-    console.log('Data received:', this.data);
     this.updateForm = this.formBuilder.group({
       periodName: [{ value: this.data[0].PERIOD_NAME || '', disabled: true }],
       appName: [{ value: this.data[0].APPLICATION_NAME || '', disabled: true }],
@@ -65,11 +64,7 @@ export class AssignDialogComponent implements OnInit {
           disabled: !!this.data[0].ASSIGNED_TO,
         },
       ],
-      comments: [
-        {
-          value: this.data[0].COMMENTS?.text || '',
-        },
-      ],
+      comments: [this.data[0].COMMENTS || ''],
     });
     this.username = this.dataService.getUsername();
   }
@@ -82,8 +77,8 @@ export class AssignDialogComponent implements OnInit {
       appName: this.data[0].APPLICATION_NAME,
       subApp: this.data[0].PROCESS_FLOW,
       orgName: this.data[0].ORG_NAME,
-      assignedTo: this.updateForm.value.assignedTo,
-      comments: this.updateForm.value.comments,
+      assignedTo: this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo,
+      comments: this.data[0].COMMENTS || this.updateForm.value.comments,
       username: this.username,
     };
 

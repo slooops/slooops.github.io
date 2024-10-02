@@ -1,0 +1,24 @@
+.help-content {
+  padding: 10px;
+}
+
+.help-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.help-content button {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  padding: 5px;
+}
+
+.help-text {
+  padding: 5px;
+  background-color: #f9f9f9; /* Set background color for help text */
+  border-left: 2px solid #007bff; /* Add left border */
+}

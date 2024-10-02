@@ -1,0 +1,12 @@
+<div class="help-content">
+  <ul>
+    <li *ngFor="let section of helpSections">
+      <button (click)="toggleSection(section.dashboard)">
+        {{ section.dashboard | titlecase }}
+      </button>
+      <div *ngIf="expandedSection === section.dashboard" class="help-text">
+        {{ section.helpText }}
+      </div>
+    </li>
+  </ul>
+</div>

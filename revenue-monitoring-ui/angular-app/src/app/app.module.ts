@@ -94,6 +94,7 @@ import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { AssignDialogComponent } from './rol/assign-dialog/assign-dialog.component';
+import { HelpDataComponent } from './help-data/help-data.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -139,6 +140,7 @@ export function initApp(authService: AuthenticationService) {
     LoadingSymbolSmallComponent,
     EspCaseAnalyzerComponent,
     AssignDialogComponent,
+    HelpDataComponent,
   ],
   imports: [
     BrowserModule,

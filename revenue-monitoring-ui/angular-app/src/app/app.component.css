@@ -45,3 +45,14 @@
   background-color: #b1b1b144;
   cursor: pointer;
 }
+
+.help-dropdown {
+  position: absolute;
+  top: 50px; /* Adjust based on your navbar height */
+  right: 0; /* Align to the right */
+  background-color: white; /* Set background */
+  border: 1px solid #ccc; /* Add border */
+  z-index: 1000; /* Ensure it appears above other elements */
+  max-height: 300px; /* Set maximum height */
+  overflow-y: auto; /* Enable scrolling */
+}

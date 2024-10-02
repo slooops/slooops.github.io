@@ -182,10 +182,20 @@ public class DailyMonitoringController {
 
     @GetMapping("/rol-transaction-data-filter")
     public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter(@RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "100") int size, @RequestParam String periodName,
-                                                                           @RequestParam String ouName, @RequestParam String appName ) {
-        System.out.println(periodName +" "+ ouName+" "+appName);
-        List<RolTransactionData> rolTransactionDataFiltered = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName);
+                                                                     @RequestParam(defaultValue = "100") int size,         @RequestParam List<String> periodNames,
+                                                                           @RequestParam List<String> ouNames,
+                                                                           @RequestParam List<String> appNames ) {
+
+        List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
+        int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+        for (int i = 0; i < minLength; i++) {
+            String periodName = periodNames.get(i);
+            String ouName = ouNames.get(i);
+            String appName = appNames.get(i);
+
+            List<RolTransactionData> result = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName);
+            rolTransactionDataFiltered.addAll(result);  // Collect results
+        }
         Map<String, Object> response = new HashMap<>();
         response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
         return new ResponseEntity<>(response, HttpStatus.OK);

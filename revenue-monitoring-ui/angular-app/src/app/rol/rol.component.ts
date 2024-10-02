@@ -198,12 +198,17 @@ export class RolComponent implements OnInit {
   getTransactionDataFiltered(data: any) {
     this.isLoading = true;
     this.isFiltered = true;
+    const periodNames = data.map((row) => row.PERIOD_NAME);
+    const ouNames = data.map((row) => row.ORG_NAME);
+    const appNames = data.map((row) => row.APPLICATION_NAME);
+
+    // Prepare the request payload (adjust according to your API needs)
     const pageRequest = {
       page: '0',
       size: '20',
-      periodName: data[0].PERIOD_NAME,
-      ouName: data[0].ORG_NAME,
-      appName: data[0].APPLICATION_NAME,
+      periodNames: periodNames.join(','), // Send as comma-separated values
+      ouNames: ouNames.join(','), // Send as comma-separated values
+      appNames: appNames.join(','), // Send as comma-separated values
     };
 
     this.http
@@ -243,10 +248,21 @@ export class RolComponent implements OnInit {
       });
   }
 
+  selectedRows: any[] = []; // Store all selected rows
+
   onRowSelectionChange(event: MatCheckboxChange, row: any) {
     this.selection.toggle(row);
+
     if (event.checked) {
-      // this.getTransactionDataFiltered([row]);
+      this.selectedRows.push(row);
+    } else {
+      this.selectedRows = this.selectedRows.filter(
+        (selectedRow) => selectedRow !== row
+      );
+    }
+
+    if (this.selectedRows.length > 0) {
+      this.getTransactionDataFiltered(this.selectedRows);
     } else {
       this.isFiltered = false;
       this.dataSource = new MatTableDataSource<RolTransactionData>(
@@ -410,7 +426,7 @@ export class RolComponent implements OnInit {
 
   closeAssignModal(event: any): void {
     this.isModalOpen = false;
-    this.selection.clear();
+    // this.selection.clear();
     if (event === 'successful') {
       this.rolErrorSummaryData = null;
       setTimeout(() => {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
@@ -26,6 +26,7 @@ export class AppComponent {
   header: string = '';
 
   userName: string = '';
+  isHelpDropdownOpen: boolean = false;
 
   ngOnInit(): void {
     this.router.events
@@ -48,5 +49,22 @@ export class AppComponent {
     this.http.getUser('/user/data').subscribe((data) => {
       this.userName = data['auth_user_name'];
     });
+  }
+
+  toggleHelpDropdown(event: MouseEvent) {
+    this.isHelpDropdownOpen = !this.isHelpDropdownOpen; // Toggle dropdown visibility
+    event.stopPropagation(); // Prevent event bubbling
+  }
+
+  stopPropagation(event: MouseEvent) {
+    event.stopPropagation(); // Prevent clicks inside dropdown from closing it
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.help-dropdown') && !target.closest('.help-button')) {
+      this.isHelpDropdownOpen = false; // Close dropdown if click is outside
+    }
   }
 }
