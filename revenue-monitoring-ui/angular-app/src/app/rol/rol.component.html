@@ -98,8 +98,8 @@
       </button>
     </div>
     <div class="modal-body">
-      <canvas style="z-index: 20" id="historicalErrorTrend"></canvas>
       <app-loading-symbol *ngIf="chartLoading"></app-loading-symbol>
+      <canvas id="historicalErrorTrend"></canvas>
     </div>
   </div>
 </div>
@@ -272,7 +272,7 @@
         mat-icon-button
         (click)="
           exportTableToExcel(
-            dataSource.data,
+            filtereddataSource ? filtereddataSource.data : dataSource.data,
             'ROL Transaction Data',
             'ROL_Transaction_Data'
           )
@@ -352,7 +352,7 @@
 </div>
 
 <!-- <div class="widget-tray">
-  <div class="callout-box callout-box-widget">
+  <div class="callout-box">
     <div class="box-header">Applications Monitored</div>
     <div class="box-body">
       <li>
