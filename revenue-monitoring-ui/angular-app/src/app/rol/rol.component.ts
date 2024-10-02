@@ -442,21 +442,32 @@ export class RolComponent implements OnInit {
         },
         plugins: {
           tooltip: {
+            displayColors: false, // Remove color box
             callbacks: {
-              // Customize the tooltip
+              // Customize the tooltip content
               label: (tooltipItem: any) => {
                 const periodName = tooltipItem.label; // Get the month (PERIOD_NAME)
+                const totalErrors = tooltipItem.raw; // Get the total errors from the chart data
                 const details = groupedData[periodName]; // Get the grouped details for this month
 
-                // Format the tooltip content
+                // Initialize an array to store the tooltip lines
+                const tooltipLines = [
+                  `Total Errors: ${totalErrors}`, // Display the total number of errors
+                ];
+
+                // Format the grouped details
                 if (details) {
-                  const tooltipLines = details.map(
-                    (item: any) =>
-                      `${item.APPLICATION_NAME}: ${item.COUNT_RECORDS}`
+                  tooltipLines.push(
+                    ...details.map(
+                      (item: any) =>
+                        `${item.APPLICATION_NAME}: ${item.COUNT_RECORDS}`
+                    )
                   );
-                  return tooltipLines; // Return the tooltip content as an array of strings
+                } else {
+                  tooltipLines.push('No details available');
                 }
-                return 'No details available';
+
+                return tooltipLines; // Return the tooltip content as an array of strings
               },
             },
           },
