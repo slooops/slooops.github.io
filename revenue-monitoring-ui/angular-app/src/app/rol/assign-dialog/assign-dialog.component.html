@@ -1,8 +1,5 @@
-<!-- Modal Overlay -->
-<div class="modal-overlay" (click)="closeDialog(null)">
-  <!-- Modal Content -->
+<div class="modal-overlay" (click)="closeDialog('cancel')">
   <div class="modal-content container" (click)="$event.stopPropagation()">
-    <!-- Modal Header -->
     <div
       style="
         display: flex;
@@ -13,13 +10,15 @@
       "
     >
       <h5 class="section-title">Assign User</h5>
-      <i class="svg-icon close-icon" (click)="closeDialog(null)"></i>
+      <i
+        class="svg-icon close-icon"
+        (click)="closeDialog('cancel')"
+        style="cursor: pointer"
+      ></i>
     </div>
 
-    <!-- Modal Body -->
     <div class="modal-body">
       <form [formGroup]="updateForm" class="form-stack">
-        <!-- Disabled Fields -->
         <div class="input-stack" *ngFor="let field of disabledFields">
           <label>{{ field.label }}</label>
           <input
@@ -30,21 +29,32 @@
           />
         </div>
 
-        <!-- Enabled Fields -->
         <div class="input-stack" *ngFor="let field of enabledFields">
           <label>{{ field.label }}</label>
-          <input
-            type="text"
-            [formControlName]="field.controlName"
-            [placeholder]="'Enter ' + field.label"
-          />
+          <ng-container *ngIf="field.controlName === 'assignedTo'">
+            <select
+              [formControlName]="field.controlName"
+              [disabled]="assignedToDisabled"
+            >
+              <option value="" disabled selected hidden>Select User</option>
+              <option *ngFor="let name of availableNames" [value]="name">
+                {{ name }}
+              </option>
+            </select>
+          </ng-container>
+          <ng-container *ngIf="field.controlName !== 'assignedTo'">
+            <input
+              type="text"
+              [formControlName]="field.controlName"
+              [placeholder]="'Enter ' + field.label"
+            />
+          </ng-container>
         </div>
       </form>
     </div>
 
-    <!-- Modal Footer/Actions -->
     <div class="modal-footer">
-      <button class="custom-button-tertiary" (click)="closeDialog(null)">
+      <button class="custom-button-tertiary" (click)="closeDialog('cancel')">
         Cancel
       </button>
       <button class="custom-button-primary" (click)="submitData()">Save</button>

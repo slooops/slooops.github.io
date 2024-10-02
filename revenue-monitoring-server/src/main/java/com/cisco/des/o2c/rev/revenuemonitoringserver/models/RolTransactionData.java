@@ -10,10 +10,10 @@ public class RolTransactionData {
     private String SOURCE;
     private String AMOUNT;
     private String CURRENCY_CODE;
-    private String INTID_TRXNID_CUSTTRXLINE_GROUPID;
+    private String TRANSACTION_ID;
     private String ORDERNUMBER_CUSTTRXID;
     private String CUSTTRXLINEID;
-    private String ORDERLINEID;
+    private String ORDER_LINE_ID;
     private String ERROR_MESSAGE;
     private String PROCESS_STATUS;
 
@@ -50,8 +50,8 @@ public class RolTransactionData {
         this.CURRENCY_CODE = CURRENCY_CODE;
     }
 
-    public void setINTID_TRXNID_CUSTTRXLINE_GROUPID(String INTID_TRXNID_CUSTTRXLINE_GROUPID) {
-        this.INTID_TRXNID_CUSTTRXLINE_GROUPID = INTID_TRXNID_CUSTTRXLINE_GROUPID;
+    public void setTRANSACTION_ID(String TRANSACTION_ID) {
+        this.TRANSACTION_ID = TRANSACTION_ID;
     }
 
     public void setORDERNUMBER_CUSTTRXID(String ORDERNUMBER_CUSTTRXID) {
@@ -62,8 +62,8 @@ public class RolTransactionData {
         this.CUSTTRXLINEID = CUSTTRXLINEID;
     }
 
-    public void setORDERLINEID(String ORDERLINEID) {
-        this.ORDERLINEID = ORDERLINEID;
+    public void setORDER_LINE_ID(String ORDER_LINE_ID) {
+        this.ORDER_LINE_ID = ORDER_LINE_ID;
     }
 
     public void setERROR_MESSAGE(String ERROR_MESSAGE) {
@@ -106,8 +106,8 @@ public class RolTransactionData {
         return CURRENCY_CODE;
     }
 
-    public String getINTID_TRXNID_CUSTTRXLINE_GROUPID() {
-        return INTID_TRXNID_CUSTTRXLINE_GROUPID;
+    public String getTRANSACTION_ID() {
+        return TRANSACTION_ID;
     }
 
     public String getORDERNUMBER_CUSTTRXID() {
@@ -118,8 +118,8 @@ public class RolTransactionData {
         return CUSTTRXLINEID;
     }
 
-    public String getORDERLINEID() {
-        return ORDERLINEID;
+    public String getORDER_LINE_ID() {
+        return ORDER_LINE_ID;
     }
 
     public String getERROR_MESSAGE() {

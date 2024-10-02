@@ -40,14 +40,12 @@ export class MenuComponent implements OnInit {
   getUserRoles(username: any) {
     this.http.post('user-role', username).subscribe((data: any) => {
       if (data) {
-        console.log(data);
         this.userRoles = data['userRoles'];
         this.dataService.setUserRoles(this.userRoles);
         this.isAdmin = this.userRoles.includes('ADMIN');
         this.rolesReady = true;
         let redirectPath = this.redirectPath();
         this.errorPath = redirectPath === 'error' ? true : false;
-        // this.redirect(redirectPath);
       } else {
         this.errorPath = true;
         this.redirect('error');

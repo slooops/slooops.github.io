@@ -180,6 +180,17 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/rol-transaction-data-filter")
+    public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter(@RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "100") int size, @RequestParam String periodName,
+                                                                           @RequestParam String ouName, @RequestParam String appName ) {
+        System.out.println(periodName +" "+ ouName+" "+appName);
+        List<RolTransactionData> rolTransactionDataFiltered = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName);
+        Map<String, Object> response = new HashMap<>();
+        response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/rol-errors-summary")
     public ResponseEntity<List<Map<String, Object>>> getRolErrorsSummary() {
         return new ResponseEntity<>(service.getRolErrorsSummary(), HttpStatus.OK);

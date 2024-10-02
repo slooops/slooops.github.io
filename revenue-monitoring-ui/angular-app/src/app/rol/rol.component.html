@@ -1,7 +1,7 @@
 <app-assign-dialog
   *ngIf="isModalOpen"
   [data]="selectedSummaryData"
-  (close)="closeModal()"
+  (close)="closeAssignModal($event)"
 ></app-assign-dialog>
 
 <ng-template #processToolTip>
@@ -97,7 +97,6 @@
         <i class="svg-icon close-icon"></i>
       </button>
     </div>
-
     <div class="modal-body">
       <canvas style="z-index: 20" id="historicalErrorTrend"></canvas>
       <app-loading-symbol *ngIf="chartLoading"></app-loading-symbol>
@@ -105,137 +104,163 @@
   </div>
 </div>
 
-<!-- <canvas style="z-index: 20" id="historicalErrorTrend"></canvas> -->
+<!-- ROL Error Summary Data Section (Right) -->
+<div>
+  <div class="container rol-error-summary-container">
+    <div class="header-container">
+      <h5 class="section-title action-buttons">
+        ROL Errors Summary
 
-<div class="container rol-error-summary-container">
-  <div class="header-container">
-    <h5 class="section-title">ROL Errors Summary</h5>
-    <div *ngIf="selection.hasValue()">
-      <button
-        mat-stroked-button
-        (click)="viewDetails()"
-        style="display: flex !important"
-      >
-        Assign User
-      </button>
-    </div>
-    <div style="font-size: small">
-      <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
-      <span><b>Period end date:</b> {{ periodEnd }}</span>
-    </div>
+        <span class="action-buttons" *ngIf="selection.hasValue()">
+          &nbsp;&nbsp;
+          <button
+            class="custom-button-primary"
+            (click)="viewTransactionDetails()"
+          >
+            View Details
+          </button>
+          &nbsp;&nbsp;
+          <button class="custom-button-primary" (click)="viewDetails()">
+            Assign User
+          </button>
+        </span>
+      </h5>
 
-    <div class="action-buttons">
-      <div style="display: flex; margin: 0vw 0vw 0 0">
-        <p
-          class="card-subtitle"
-          style="padding: 0.9vw 0vw 0 0; font-size: 12px"
+      <div class="action-buttons">
+        <div
+          style="
+            font-size: 12px;
+            padding: 5px 0vw 0 0;
+            display: flex;
+            flex-direction: column;
+          "
         >
-          {{ summaryLoadTime }}
-        </p>
-        <button mat-icon-button (click)="getRolErrorSummaryData()">
-          <i class="svg-icon refresh-icon"></i>
+          <div style="display: flex">
+            <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
+            <span><b>Period end date:</b> {{ periodEnd }}</span>
+          </div>
+          <p
+            class="card-subtitle"
+            style="
+              margin: 0px 0px 0 0;
+              font-size: 12px;
+              display: flex;
+              justify-content: flex-end;
+            "
+          >
+            {{ summaryLoadTime }}
+          </p>
+        </div>
+        <div style="display: flex; margin: 0vw 0vw 0 0">
+          <!-- <p
+            class="card-subtitle"
+            style="padding: 0.9vw 0vw 0 0; font-size: 12px"
+          >
+            {{ summaryLoadTime }}
+          </p> -->
+          <button mat-icon-button (click)="getRolErrorSummaryData()">
+            <i class="svg-icon refresh-icon"></i>
+          </button>
+        </div>
+        <button mat-icon-button (click)="openChart()">
+          <i class="svg-icon chart-icon"></i>
+        </button>
+        <button
+          mat-icon-button
+          (click)="
+            exportTableToExcel(
+              rolErrorSummaryData.data,
+              'ROL Error Summary Data',
+              'ROL_Error_Summary_Data'
+            )
+          "
+        >
+          <i class="svg-icon download-icon"></i>
         </button>
       </div>
-      <button mat-icon-button (click)="openChart()">
-        <i class="svg-icon chart-icon"></i>
-      </button>
-      <button
-        mat-icon-button
-        (click)="
-          exportTableToExcel(
-            rolErrorSummaryData.data,
-            'ROL Error Summary Data',
-            'ROL_Error_Summary_Data'
-          )
-        "
-      >
-        <i class="svg-icon download-icon"></i>
-      </button>
     </div>
-  </div>
 
-  <ng-container *ngIf="rolErrorSummaryData?.data?.length">
-    <div class="table-container" style="overflow-y: hidden !important">
-      <table
-        mat-table
-        [dataSource]="rolErrorSummaryData"
-        class="custom-table table-responsive"
-      >
-        <ng-container
-          matColumnDef="select"
-          style="padding-top: 10px !important"
+    <ng-container *ngIf="rolErrorSummaryData?.data?.length">
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="rolErrorSummaryData"
+          class="custom-table table-responsive"
         >
-          <th mat-header-cell *matHeaderCellDef>
-            <!-- <mat-checkbox
-              (change)="$event ? masterToggle() : null"
-              [checked]="selection.hasValue() && isAllSelected()"
-              [indeterminate]="selection.hasValue() && !isAllSelected()"
-            >
-            </mat-checkbox> -->
-          </th>
-          <td mat-cell *matCellDef="let row">
-            <mat-checkbox
-              (click)="$event.stopPropagation()"
-              (change)="$event ? selection.toggle(row) : null"
-              [checked]="selection.isSelected(row)"
-            >
-            </mat-checkbox>
-          </td>
-        </ng-container>
-        <ng-container *ngFor="let column of rolErrorColumns">
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef class="no-wrap">
-              <ng-container *ngIf="column === 'PROCESS_FLOW'; else noTooltip">
-                <span
-                  [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
-                  [contentTemplate]="
-                    column === 'PROCESS_FLOW' ? processToolTip : null
-                  "
-                >
-                  {{ replaceUnderscore(column) }}
-                </span>
-              </ng-container>
-              <ng-template #noTooltip>
-                {{ replaceUnderscore(column) }}
-              </ng-template>
-            </th>
-
-            <td mat-cell *matCellDef="let element">
-              <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchCase="'PROCESS_FLOW'">
-                  {{ subAppMapping(element[column]) }}
-                </ng-container>
-                <ng-container *ngSwitchDefault>
-                  {{ element[column] }}
-                </ng-container>
-              </ng-container>
+          <ng-container
+            matColumnDef="select"
+            style="padding-top: 10px !important"
+          >
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="onRowSelectionChange($event, row)"
+                [checked]="selection.isSelected(row)"
+              >
+              </mat-checkbox>
             </td>
           </ng-container>
-        </ng-container>
+          <ng-container *ngFor="let column of rolErrorColumns">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="no-wrap">
+                <ng-container *ngIf="column === 'PROCESS_FLOW'; else noTooltip">
+                  <span
+                    [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
+                    [contentTemplate]="
+                      column === 'PROCESS_FLOW' ? processToolTip : null
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                  </span>
+                </ng-container>
+                <ng-template #noTooltip>
+                  {{ replaceUnderscore(column) }}
+                </ng-template>
+              </th>
 
-        <tr mat-header-row *matHeaderRowDef="rolErrorDisplayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: rolErrorDisplayedColumns"
-          [ngClass]="{ highlight: row.PERIOD_NAME !== periodName }"
-        ></tr>
-      </table>
-    </div>
-  </ng-container>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{ highlight: element.PERIOD_NAME !== periodName }"
+              >
+                <ng-container [ngSwitch]="column">
+                  <ng-container *ngSwitchCase="'PROCESS_FLOW'">
+                    {{ subAppMapping(element[column]) }}
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    {{ element[column] }}
+                  </ng-container>
+                </ng-container>
+              </td>
+            </ng-container>
+          </ng-container>
 
-  <ng-container *ngIf="!rolErrorSummaryData?.data?.length">
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-      <br /><br /><br />
-    </div>
-  </ng-container>
+          <tr mat-header-row *matHeaderRowDef="rolErrorDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: rolErrorDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
 
-  <ng-container *ngIf="!rolErrorSummaryData?.data?.length && !summaryLoading">
-    <div class="loading-container">
-      <div class="card-subtitle">No Data to Display</div>
-      <br /><br /><br />
-    </div>
-  </ng-container>
+    <ng-container *ngIf="!rolErrorSummaryData?.data?.length">
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-container>
+
+    <!-- <ng-container
+        *ngIf="!rolErrorSummaryData?.data?.length && !summaryLoading"
+      >
+        <div class="loading-container">
+          <div class="card-subtitle">No Data to Display</div>
+          <br /><br /><br />
+        </div>
+      </ng-container> -->
+  </div>
 </div>
 
 <!-- ROL Transaction Data Section -->
@@ -253,14 +278,25 @@
           )
         "
       >
-        <i class="fa fa-download"></i>
+        <i class="svg-icon download-icon"></i>
       </button>
     </div>
   </div>
 
-  <ng-container *ngIf="!isLoading && dataSource?.data?.length > 0">
+  <ng-container
+    *ngIf="
+      !isLoading &&
+      (isFiltered
+        ? filtereddataSource?.data?.length > 0
+        : dataSource?.data?.length > 0)
+    "
+  >
     <div class="table-container">
-      <table mat-table [dataSource]="dataSource" class="custom-table">
+      <table
+        mat-table
+        [dataSource]="isFiltered ? filtereddataSource : dataSource"
+        class="custom-table"
+      >
         <ng-container *ngFor="let column of displayedColumns">
           <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef class="no-wrap">
@@ -353,3 +389,5 @@
 </div> -->
 
 <br /><br /><br />
+<!-- </div>
+</div> -->

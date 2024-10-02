@@ -58,6 +58,18 @@ input {
   border-radius: 4px;
 }
 
+select {
+  width: 60%; /* Adjust to your preferred input width */
+  flex-grow: 1;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: inherit;
+  background-color: #fff;
+  color: #23282e;
+  border: 1px solid #889099;
+  border-radius: 4px;
+}
+
 .close-button {
   background: none;
   border: none;

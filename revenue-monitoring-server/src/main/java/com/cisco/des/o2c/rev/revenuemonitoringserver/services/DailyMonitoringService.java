@@ -81,6 +81,8 @@ public class DailyMonitoringService {
     private String rolErrorsSummaryPeriodStatus;
     private String rolChartTotals;
     private String rolChartDetails;
+    private String rolTransactionDataFilter;
+    private String rolTransactionDataFilterCount;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -99,7 +101,8 @@ public class DailyMonitoringService {
                                   String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
                                   String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails,
                                   String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
-                                  String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails
+                                  String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails,
+                                   String rolTransactionDataFilter, String rolTransactionDataFilterCount
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -155,6 +158,8 @@ public class DailyMonitoringService {
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.rolChartTotals = rolChartTotals;
         this.rolChartDetails = rolChartDetails;
+        this.rolTransactionDataFilter = rolTransactionDataFilter;
+        this.rolTransactionDataFilterCount = rolTransactionDataFilterCount;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -669,6 +674,10 @@ public class DailyMonitoringService {
 
     public int getTotalRecords() {
         return jdbcManager.getTotalRecords(rolTransactionDataCount);
+    }
+
+    public List<RolTransactionData> getRolTransactionDataFilter(int page, int size, String periodName, String ouName, String applicationName) {
+        return jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, page, size, periodName, ouName, applicationName);
     }
 
     public List<Map<String, Object>> getRolErrorsSummary() {

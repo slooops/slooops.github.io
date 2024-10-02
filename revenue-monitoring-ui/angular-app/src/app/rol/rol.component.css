@@ -251,9 +251,10 @@ tr.mat-header-row {
   table-layout: auto; /* Allows columns to resize dynamically */
 }
 
-.error-message-cell {
-  min-width: 30vw;
-}
+/* .error-message-cell {
+  min-width: 5vw;
+  max-width: 7vw;
+} */
 
 .page-title {
   font-size: 24px;
@@ -432,7 +433,7 @@ tr.mat-header-row {
 }
 
 .highlight {
-  background-color: rgb(237, 80, 80);
+  color: rgb(237, 80, 80);
 }
 
 .modal-overlay {
@@ -469,4 +470,18 @@ tr.mat-header-row {
   display: flex;
   width: 50vw;
   height: 40vh;
+}
+
+.custom-button-primary {
+  font-family: "Inter", sans-serif !important;
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: #aaa8a8;
+  color: #fff !important;
+  border: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }

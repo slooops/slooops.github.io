@@ -104,4 +104,11 @@ public class JdbcManager {
 
         return jdbcTemplate.query(sql, new Object[]{startRow, endRow}, new RecordRowMapper());
     }
+
+    public List<RolTransactionData> getRolTransactionDataFilter(String sql, int page, int size, String periodName, String ouName, String applicationName) {
+        int startRow = (page * size) + 1;
+        int endRow = (page + 1) * size;
+
+        return jdbcTemplate.query(sql, new Object[]{startRow, endRow, periodName, ouName, applicationName}, new RecordRowMapper());
+    }
 }

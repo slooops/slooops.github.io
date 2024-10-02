@@ -248,6 +248,12 @@ public class QueryConfigs { // TODO
     @Value(("${rol.errors.summary.period.status.query}"))
     public String rolErrorsSummaryPeriodStatus;
 
+    @Value(("${rol.transaction.data.filter.query}"))
+    public String rolTransactionDataFilter;
+
+    @Value(("${rol.transaction.data.filter.count.query}"))
+    public String rolTransactionDataFilterCount;
+
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {
         return this.stdArExcQuery;
@@ -640,5 +646,16 @@ public class QueryConfigs { // TODO
     public String getRolErrorsSummaryPeriodStatus() {
         return this.rolErrorsSummaryPeriodStatus;
     }
+
+    @Bean(name = "rolTransactionDataFilter")
+    public String getRolTransactionDataFilter() {
+        return this.rolTransactionDataFilter;
+    }
+
+    @Bean(name = "rolTransactionDataFilterCount")
+    public String getRolTransactionDataFilterCount(){
+        return this.rolTransactionDataFilterCount;
+    }
+
 
 }

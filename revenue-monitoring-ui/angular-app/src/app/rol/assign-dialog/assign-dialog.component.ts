@@ -9,13 +9,20 @@ import { ApiHttpService } from 'src/app/providers/http.service';
   styleUrls: ['./assign-dialog.component.css'],
 })
 export class AssignDialogComponent implements OnInit {
-  @Input() data: any; // Get the input data from parent
-  @Output() close = new EventEmitter<void>(); // Notify the parent to close the modal
+  @Input() data: any;
+  @Output() close = new EventEmitter<void>();
 
   updateForm: FormGroup;
   username: any;
 
-  // Fields separated into disabled and enabled for rendering in the form
+  availableNames = [
+    'Sai Sreepathi',
+    'Sunith Acha',
+    'Siva Prasad Thimmi Chetty',
+    'Abhijith Vuduthala',
+    'Jack Sloop',
+  ];
+
   disabledFields = [
     { controlName: 'periodName', label: 'Period Name' },
     { controlName: 'appName', label: 'Application Name' },
@@ -38,13 +45,11 @@ export class AssignDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Data received in dialog:', this.data); // Make sure this is not undefined or null
     if (!this.data || !this.data[0]) {
       console.error('No data received or data is malformed:', this.data);
       return;
     }
-
-    console.log('Data received in dialog:', this.data);
+    console.log('Data received:', this.data);
     this.updateForm = this.formBuilder.group({
       periodName: [{ value: this.data[0].PERIOD_NAME || '', disabled: true }],
       appName: [{ value: this.data[0].APPLICATION_NAME || '', disabled: true }],
@@ -54,11 +59,22 @@ export class AssignDialogComponent implements OnInit {
         { value: this.data[0].CREATION_DATE || '', disabled: true },
       ],
       aging: [{ value: this.data[0].AGING || '', disabled: true }],
-      assignedTo: [''],
-      comments: [''],
+      assignedTo: [
+        {
+          value: this.data[0].ASSIGNED_TO || '',
+          disabled: !!this.data[0].ASSIGNED_TO,
+        },
+      ],
+      comments: [
+        {
+          value: this.data[0].COMMENTS?.text || '',
+        },
+      ],
     });
     this.username = this.dataService.getUsername();
   }
+
+  assignedToDisabled = false;
 
   submitData() {
     const updateData = {
@@ -71,13 +87,20 @@ export class AssignDialogComponent implements OnInit {
       username: this.username,
     };
 
-    console.log('Form data before closing:', this.updateForm);
-    this.close.emit(this.updateForm.value);
-
     this.http
-      .post('rol-errors-summary-update', updateData)
-      .subscribe((data) => {
-        console.log('POST request response:', data);
+      .post('rol-errors-summary-update', updateData, { responseType: 'text' })
+      .subscribe({
+        next: (data) => {
+          this.assignedToDisabled = true;
+          this.close.emit(this.updateForm.value);
+        },
+        error: (err) => {
+          console.error('Error while submitting data:', err);
+          this.closeDialog('failed');
+        },
+        complete: () => {
+          this.closeDialog('successful');
+        },
       });
   }
 

@@ -7,6 +7,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { AssignDialogComponent } from './assign-dialog/assign-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
@@ -28,6 +29,7 @@ export class RolComponent implements OnInit {
 
   dataSource: any;
   rolTransactionData: RolTransactionData[];
+  rolTransactionDataFiltered: RolTransactionData[];
   displayedColumns: string[] = [];
 
   subApplicationMapping = {
@@ -64,11 +66,9 @@ export class RolComponent implements OnInit {
     this.paginator.page.subscribe((event: PageEvent) => {
       this.getRolTransactionData(event.pageIndex, event.pageSize);
     });
-
     if (this.openChartModal) {
       this.getChartTotals();
     }
-
     // setTimeout(() => {
     //   if (this.paginator) {
     //     this.dataSource.paginator = this.paginator;
@@ -80,7 +80,6 @@ export class RolComponent implements OnInit {
   getRolErrorSummaryData() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
-      console.log('Rol error summary data:', data);
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
 
       this.rolErrorColumns = [
@@ -129,8 +128,10 @@ export class RolComponent implements OnInit {
     return `${month}/${day}/${year}`;
   }
 
+  isFiltered: boolean = false;
   getRolTransactionData(pageIndex: number, pageSize: number) {
     this.isLoading = true;
+    this.isFiltered = false;
     const pageRequest = {
       page: pageIndex.toString(),
       size: pageSize.toString(),
@@ -142,7 +143,6 @@ export class RolComponent implements OnInit {
         this.totalRecords = data.totalRecords;
 
         if (this.rolTransactionData.length > 0) {
-          // Transaction Data Table Columns Order
           this.displayedColumns = [
             'period_NAME',
             'application_NAME',
@@ -151,22 +151,16 @@ export class RolComponent implements OnInit {
             'amount',
             'process_STATUS',
             'source',
+            'transaction_ID',
+            'order_LINE_ID',
             'error_MESSAGE',
-
-            // 'currency_CODE',
-            // 'custtrxlineid',
-            // 'error_APPLICATION',
-            // 'intid_TRXNID_CUSTTRXLINE_GROUPID',
-            // 'orderlineid',
-            // 'ordernumber_CUSTTRXID',
           ];
         }
-
         this.rolTransactionData = this.formatData(this.rolTransactionData);
-
         this.dataSource = new MatTableDataSource<RolTransactionData>(
           this.rolTransactionData
         );
+
         if (this.paginator) {
           if (this.dataSource.paginator !== this.paginator) {
             this.dataSource.paginator = this.paginator;
@@ -188,6 +182,79 @@ export class RolComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  viewTransactionDetails() {
+    this.selectedSummaryData = this.selection.selected;
+    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
+      console.error('No data selected.');
+      return;
+    }
+    this.getTransactionDataFiltered(this.selectedSummaryData);
+  }
+
+  filtereddataSource: any;
+
+  getTransactionDataFiltered(data: any) {
+    this.isLoading = true;
+    this.isFiltered = true;
+    const pageRequest = {
+      page: '0',
+      size: '20',
+      periodName: data[0].PERIOD_NAME,
+      ouName: data[0].ORG_NAME,
+      appName: data[0].APPLICATION_NAME,
+    };
+
+    this.http
+      .get('rol-transaction-data-filter', { params: pageRequest })
+      .subscribe({
+        next: (data: any) => {
+          this.rolTransactionDataFiltered = data.rolTransactionDataFiltered;
+          if (this.rolTransactionDataFiltered.length > 0) {
+            this.displayedColumns = [
+              'period_NAME',
+              'application_NAME',
+              'process_FLOW',
+              'org_NAME',
+              'amount',
+              'process_STATUS',
+              'source',
+              'transaction_ID',
+              'order_LINE_ID',
+              'error_MESSAGE',
+            ];
+          }
+          this.rolTransactionDataFiltered = this.formatData(
+            this.rolTransactionDataFiltered
+          );
+
+          this.filtereddataSource = new MatTableDataSource<RolTransactionData>(
+            this.rolTransactionDataFiltered
+          );
+        },
+        error: (err) => {
+          console.error('Error fetching filtered data', err);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        },
+      });
+  }
+
+  onRowSelectionChange(event: MatCheckboxChange, row: any) {
+    this.selection.toggle(row);
+    if (event.checked) {
+      // this.getTransactionDataFiltered([row]);
+    } else {
+      this.isFiltered = false;
+      this.dataSource = new MatTableDataSource<RolTransactionData>(
+        this.rolTransactionData
+      );
+      this.filtereddataSource = null;
+      this.cdr.detectChanges();
+    }
   }
 
   getAging(dateString: string): string {
@@ -324,7 +391,6 @@ export class RolComponent implements OnInit {
 
   viewDetails() {
     this.selectedSummaryData = this.selection.selected;
-    console.log('Selected data:', this.selectedSummaryData);
     if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
       console.error('No data selected.');
       return;
@@ -342,38 +408,31 @@ export class RolComponent implements OnInit {
     this.isModalOpen = true;
   }
 
-  closeModal(): void {
+  closeAssignModal(event: any): void {
     this.isModalOpen = false;
-    this.openChartModal = false;
+    this.selection.clear();
+    if (event === 'successful') {
+      this.rolErrorSummaryData = null;
+      setTimeout(() => {
+        this.getRolErrorSummaryData();
+      }, 1000);
+    }
   }
 
-  openRowDialog(): void {
-    const dialogRef = this.dialog.open(AssignDialogComponent, {
-      width: '400px',
-      data: this.selectedSummaryData,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Dialog result:', result);
-      }
-    });
+  closeModal() {
+    this.openChartModal = false;
   }
 
   getChartTotals() {
     this.chartLoading = true;
 
     this.http.get('rol-chart-totals').subscribe((data: any) => {
-      console.log('Rol chart totals:', data);
-
       // Extract labels and counts from the API response
       const labels = data.map((entry) => entry.PERIOD_NAME);
       const counts = data.map((entry) => entry.COUNT_RECORDS);
 
       // Fetch the details data to pass to the chart
       this.http.get('rol-chart-details').subscribe((detailsData: any) => {
-        console.log('rolChartDetails:', detailsData);
-
         // Group details data by PERIOD_NAME
         const groupedData = detailsData.reduce((acc, curr) => {
           const period = curr.PERIOD_NAME;
@@ -418,7 +477,7 @@ export class RolComponent implements OnInit {
             backgroundColor: 'rgba(0, 125, 171, 0.2)',
             fill: true,
             pointRadius: 5,
-            tension: 0.2, // Smooth the line
+            tension: 0.2,
           },
         ],
       },

@@ -19,10 +19,10 @@ public class RecordRowMapper implements RowMapper<RolTransactionData> {
         transactionDetails.setSOURCE(rs.getString("SOURCE"));
         transactionDetails.setAMOUNT(rs.getString("AMOUNT"));
         transactionDetails.setCURRENCY_CODE(rs.getString("CURRENCY_CODE"));
-        transactionDetails.setINTID_TRXNID_CUSTTRXLINE_GROUPID(rs.getString("INTID_TRXNID_CUSTTRXLINE_GROUPID"));
+        transactionDetails.setTRANSACTION_ID(rs.getString("INTID_TRXNID_CUSTTRXLINE_GROUPID"));
         transactionDetails.setORDERNUMBER_CUSTTRXID(rs.getString("ORDERNUMBER_CUSTTRXID"));
         transactionDetails.setCUSTTRXLINEID(rs.getString("CUSTTRXLINEID"));
-        transactionDetails.setORDERLINEID(rs.getString("ORDERLINEID"));
+        transactionDetails.setORDER_LINE_ID(rs.getString("ORDERLINEID"));
         transactionDetails.setERROR_MESSAGE(rs.getString("ERROR_MESSAGE"));
         transactionDetails.setPROCESS_STATUS(rs.getString("PROCESS_STATUS"));
 
