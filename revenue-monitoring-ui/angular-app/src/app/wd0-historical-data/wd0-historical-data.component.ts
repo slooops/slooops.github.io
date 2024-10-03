@@ -75,14 +75,19 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         )
         .subscribe((data: any) => {
           this.unprocessedRegressionData = data;
-          this.processRecentMonths(this.unprocessedRegressionData);
-          this.loading = false;
+          //set timeout
+          setTimeout(() => {
+            this.processRecentMonths(this.unprocessedRegressionData);
+            this.loading = false;
+          }, 1000);
         });
     } else {
       this.http.get('wd0-regression').subscribe((data: any) => {
         this.unprocessedRegressionData = data;
-        this.processRecentMonths(this.unprocessedRegressionData);
-        this.loading = false;
+        setTimeout(() => {
+          this.processRecentMonths(this.unprocessedRegressionData);
+          this.loading = false;
+        }, 1000);
       });
     }
 

@@ -1,10 +1,5 @@
 export const monthEndDates = [
-  // '2024-05-31', //testing for today's date
-
-  '2024-06-22',
-  '2024-07-27',
-  '2024-08-24',
-  '2024-09-21',
+  '2024-10-03', //testing for today's date
   '2024-10-26',
   '2024-11-23',
   '2024-12-21',

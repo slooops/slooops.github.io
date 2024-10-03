@@ -10,7 +10,7 @@
 >
   <div style="width: 50%" class="card">
     <ng-container *ngIf="barChartLoading">
-      <div style="text-align: center">
+      <div style="text-align: center; height: 15vh">
         <app-loading-symbol></app-loading-symbol>
       </div>
     </ng-container>
@@ -22,7 +22,7 @@
 
   <div style="width: 50%" class="card">
     <ng-container *ngIf="loading">
-      <div style="text-align: center">
+      <div style="text-align: center; height: 15vh">
         <app-loading-symbol></app-loading-symbol>
         <div class="chart-description">
           The DB queries behind this chart may take 30+ seconds to run. Thank
