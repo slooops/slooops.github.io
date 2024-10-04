@@ -18,6 +18,7 @@ Chart.register(...registerables);
 export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   protected http: ApiHttpService;
   loading: boolean = true;
+  errorMessage: boolean = false;
   barChartLoading: boolean = true;
 
   upperCI: number;
@@ -93,6 +94,8 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     this.refreshExportData();
     this.getHistoricalData();
+    this.createQ3ServiceLinePredictiveModel();
+    this.createProductLinePredictiveModel();
   }
 
   ngAfterViewInit() {
@@ -149,6 +152,115 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       );
 
       this.generateBarChart(this.historicalData);
+    });
+  }
+
+  createQ3ServiceLinePredictiveModel() {
+    // Chart data
+    const chartData = {
+      labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from Python
+      datasets: [
+        {
+          label: 'Service Low',
+          data: [2417, 3109, 4122], // 'Service Low' data
+          tension: 0.3,
+        },
+        {
+          label: 'Service High',
+          data: [16311, 13675, 7891], // 'Service High' data
+          tension: 0.3,
+        },
+        {
+          label: 'Service Actuals',
+          data: [5086, 5086, 5086], // 'Service Actuals' data
+          tension: 0.3,
+        },
+      ],
+    };
+
+    // Chart options
+    const chartOptions = {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          labels: {},
+        },
+      },
+      scales: {
+        x: {
+          // title: {
+          //   display: true,
+          //   text: 'Word Day to 0',
+          // },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Line Count',
+          },
+        },
+      },
+    };
+
+    // Create the chart
+    new Chart('q3ServiceLinePredictiveModel', {
+      type: 'line',
+      data: chartData,
+      options: chartOptions,
+    });
+  }
+
+  createProductLinePredictiveModel() {
+    // Chart data
+    const chartData = {
+      labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from Python
+      datasets: [
+        {
+          label: 'Product Low',
+          data: [5123, 6136, 7401], // 'Product Low' data
+          tension: 0.3, // Line smoothness
+        },
+        {
+          label: 'Product High',
+          data: [28948, 23792, 14103], // 'Product High' data
+          tension: 0.3,
+        },
+        {
+          label: 'Product Actuals',
+          data: [10316, 10316, 10316], // 'Product Actuals' data
+          tension: 0.3,
+        },
+      ],
+    };
+
+    // Chart options
+    const chartOptions = {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          labels: {},
+        },
+      },
+      scales: {
+        x: {
+          // Default x-axis configuration (no additional title)
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Line Count',
+          },
+        },
+      },
+    };
+
+    // Create the chart
+    new Chart('productLinePredictiveModel', {
+      type: 'line',
+      data: chartData,
+      options: chartOptions,
     });
   }
 
@@ -440,14 +552,19 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     if (regressionData.X.length === 0 || regressionData.y.length === 0) {
       console.error('Regression data is empty:', regressionData);
+      this.errorMessage = true;
       this.loading = false;
       return;
     }
 
-    this.regressionService.performMultipleLinearRegression(
-      regressionData.X,
-      regressionData.y
-    );
+    // set timeout
+
+    setTimeout(() => {
+      this.regressionService.performMultipleLinearRegression(
+        regressionData.X,
+        regressionData.y
+      );
+    }, 1000);
 
     // Collect recent months of data for graph
     const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
