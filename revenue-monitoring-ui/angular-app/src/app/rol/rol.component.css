@@ -251,10 +251,15 @@ tr.mat-header-row {
   table-layout: auto; /* Allows columns to resize dynamically */
 }
 
-/* .error-message-cell {
-  min-width: 5vw;
-  max-width: 7vw;
-} */
+.error-message-cell {
+  min-width: 40vw;
+  max-width: 40vw;
+}
+
+.comments-cell {
+  min-width: 40vw;
+  max-width: 40vw;
+}
 
 .page-title {
   font-size: 24px;

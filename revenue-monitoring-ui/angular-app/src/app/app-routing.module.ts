@@ -42,16 +42,16 @@ const routes: Routes = [
     path: 'period-close-tracking-preclose',
     component: PrecloseComponent,
     data: {
-      title: 'Operations Control Tower',
-      header: 'Operations Control Tower',
+      title: 'Period Close Tracking - Pre Close',
+      header: 'Period Close Tracking',
     },
   },
   {
     path: 'period-close-tracking-midclose',
     component: MidcloseComponent,
     data: {
-      title: 'Operations Control Tower',
-      header: 'Operations Control Tower',
+      title: 'Period Close Tracking - Mid Close',
+      header: 'Period Close Tracking',
     },
   },
   {
@@ -88,16 +88,16 @@ const routes: Routes = [
     path: 'wd0-dash',
     component: Wd0DashComponent,
     data: {
-      title: 'WD+0 Mid Close Status Dashboard',
-      header: 'WD+0 Mid Close Status Dashboard',
+      title: 'WD+0 Mid Close Status',
+      header: 'WD+0 Mid Close Status',
     },
   },
   {
     path: 'mid-close-volumes',
     component: Wd0HistoricalDataComponent,
     data: {
-      title: 'WD+0 Mid Close Volumes Dashboard',
-      header: 'WD+0 Mid Close Volumes Dashboard',
+      title: 'WD+0 Mid Close Volumes',
+      header: 'WD+0 Mid Close Volumes',
     },
   },
   {
@@ -120,16 +120,16 @@ const routes: Routes = [
     path: 'cms-details',
     component: CmsDetailsComponent,
     data: {
-      title: 'CMS Dashboard',
-      header: 'CMS Dashboard',
+      title: 'CMS Monitoring',
+      header: 'CMS Monitoring',
     },
   },
   {
     path: 'cms-sftp-details',
     component: CmsSftpDetailsComponent,
     data: {
-      title: 'CMS Dashboard SFTP Details',
-      header: 'CMS Dashboard SFTP Details',
+      title: 'CMS Monitoring SFTP Details',
+      header: 'CMS Monitoring SFTP Details',
     },
   },
   {
@@ -144,8 +144,8 @@ const routes: Routes = [
     path: 'sbp',
     component: SbpComponent,
     data: {
-      title: 'SBP Dashboard',
-      header: 'SBP Dashboard',
+      title: 'SBP Monitoring',
+      header: 'Subscription Billing Platform Monitoring',
     },
   },
   {

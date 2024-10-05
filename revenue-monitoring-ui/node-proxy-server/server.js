@@ -7,18 +7,15 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 
 app.use((req, res, next) => {
-  console.log(req);
   authUserName = req.headers["auth_user"];
+  authUserFirstName = req.headers["givenname"];
   next();
 });
 
 app.use(express.static(path.join(__dirname, "../ui/dist")));
 
-// Define API endpoint
 app.get("/user/data", (req, res) => {
-  // Handle the request and send response
-
-  res.json({ auth_user: authUserName });
+  res.json({ auth_user: authUserName, auth_user_name: authUserFirstName });
 });
 
 app.get("*", (req, res) => {

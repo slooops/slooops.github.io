@@ -8,6 +8,7 @@ import { AssignDialogComponent } from './assign-dialog/assign-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { DataService } from '../providers/data.service';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
@@ -53,7 +54,8 @@ export class RolComponent implements OnInit {
   constructor(
     private http: ApiHttpService,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dataService: DataService
   ) {}
 
   ngOnInit(): void {
@@ -81,7 +83,6 @@ export class RolComponent implements OnInit {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
-
       this.rolErrorColumns = [
         'PERIOD_NAME',
         'APPLICATION_NAME',
@@ -385,24 +386,6 @@ export class RolComponent implements OnInit {
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
 
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.rolErrorSummaryData.data.length;
-    return numSelected === numRows;
-  }
-
-  masterToggle() {
-    this.isAllSelected()
-      ? this.selection.clear()
-      : this.rolErrorSummaryData.data.forEach((row) =>
-          this.selection.select(row)
-        );
-  }
-
-  onRowClicked(row: any) {
-    this.selectedData = row;
-  }
-
   selectedSummaryData: RolErrorSummaryData[] = [];
 
   viewDetails() {
@@ -426,9 +409,13 @@ export class RolComponent implements OnInit {
 
   closeAssignModal(event: any): void {
     this.isModalOpen = false;
-    // this.selection.clear();
     if (event === 'successful') {
+      this.selection.clear();
       this.rolErrorSummaryData = null;
+      this.selectedRows = [];
+      this.isFiltered = false;
+      this.filtereddataSource = null;
+      this.cdr.detectChanges();
       setTimeout(() => {
         this.getRolErrorSummaryData();
       }, 1000);

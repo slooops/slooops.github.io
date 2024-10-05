@@ -2,7 +2,6 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +12,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -686,6 +684,9 @@ public class DailyMonitoringService {
             Object obj = data.get("SUB_APPLICATION");
             data.remove("SUB_APPLICATION");
             data.put("PROCESS_FLOW", obj.toString());
+            if(data.get("ASSIGNED_DATE").equals(null)){
+                data.put("ASSIGNED_DATE", "");
+            }
         });
         return result;
     }

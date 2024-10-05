@@ -1,0 +1,19 @@
+package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.WebexMessagingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
+@RestController
+@CrossOrigin(origins = "${CORS_URL}")
+@RequestMapping("/api")
+public class WebexMessageController {
+
+    @Autowired
+    private WebexMessagingService service;
+
+    @PostMapping("/send-message-rol")
+    public void sendMessage(@RequestBody Map<String, String> updateData) {
+        service.sendWebexMessageRol(updateData);
+    }
+}

@@ -14,13 +14,15 @@ export class AssignDialogComponent implements OnInit {
 
   updateForm: FormGroup;
   username: any;
+  isAdmin: boolean = false;
+  userRoles: String[] = [];
 
   availableNames = [
-    'Sai Sreepathi',
-    'Sunith Acha',
-    'Siva Prasad Thimmi Chetty',
-    'Abhijith Vuduthala',
-    'Jack Sloop',
+    { name: 'Sai Sreepathi', username: 'ssreepat' },
+    { name: 'Sunith Acha', username: 'suacha' },
+    { name: 'Siva Prasad Thimmi Chetty', username: 'tprasad' },
+    { name: 'Abhijith Vuduthala', username: 'avudutha' },
+    { name: 'Jack Sloop', username: 'jasloop' },
   ];
 
   disabledFields = [
@@ -39,10 +41,12 @@ export class AssignDialogComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-
     private http: ApiHttpService,
     private dataService: DataService
-  ) {}
+  ) {
+    this.username = this.dataService.getUsername();
+    this.userRoles = this.dataService.getUserRoles();
+  }
 
   ngOnInit(): void {
     if (!this.data || !this.data[0]) {
@@ -61,24 +65,36 @@ export class AssignDialogComponent implements OnInit {
       assignedTo: [
         {
           value: this.data[0].ASSIGNED_TO || '',
-          disabled: !!this.data[0].ASSIGNED_TO,
+          disabled: this.userRoles.includes('ADMIN')
+            ? false
+            : !!this.data[0].ASSIGNED_TO,
         },
       ],
       comments: [this.data[0].COMMENTS || ''],
     });
-    this.username = this.dataService.getUsername();
   }
 
-  assignedToDisabled = false;
-
   submitData() {
+    let assigneeName = '';
+    if (this.userRoles.includes('ADMIN')) {
+      assigneeName =
+        this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
+          ? this.updateForm.value.assignedTo
+          : this.data[0].ASSIGNED_TO;
+    } else {
+      assigneeName =
+        this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
+    }
     const updateData = {
       periodName: this.data[0].PERIOD_NAME,
       appName: this.data[0].APPLICATION_NAME,
       subApp: this.data[0].PROCESS_FLOW,
       orgName: this.data[0].ORG_NAME,
-      assignedTo: this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo,
-      comments: this.data[0].COMMENTS || this.updateForm.value.comments,
+      assignedTo: assigneeName,
+      comments:
+        this.updateForm.value.comments !== this.data[0].COMMENTS
+          ? this.updateForm.value.comments
+          : this.data[0].COMMENTS,
       username: this.username,
     };
 
@@ -86,7 +102,6 @@ export class AssignDialogComponent implements OnInit {
       .post('rol-errors-summary-update', updateData, { responseType: 'text' })
       .subscribe({
         next: (data) => {
-          this.assignedToDisabled = true;
           this.close.emit(this.updateForm.value);
         },
         error: (err) => {
@@ -94,7 +109,51 @@ export class AssignDialogComponent implements OnInit {
           this.closeDialog('failed');
         },
         complete: () => {
+          this.sendWebexMessage();
           this.closeDialog('successful');
+        },
+      });
+  }
+
+  sendWebexMessage() {
+    let assigneeName = '';
+    if (this.userRoles.includes('ADMIN')) {
+      assigneeName =
+        this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
+          ? this.updateForm.value.assignedTo
+          : this.data[0].ASSIGNED_TO;
+    } else {
+      assigneeName =
+        this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
+    }
+
+    const assignee = this.availableNames.find(
+      (data) => data.name === assigneeName
+    ).username;
+    const webexMessageData = {
+      assignee: assignee,
+      assigner: this.username,
+      periodName: this.data[0].PERIOD_NAME,
+      appName: this.data[0].APPLICATION_NAME,
+      subApp: this.data[0].PROCESS_FLOW,
+      orgName: this.data[0].ORG_NAME,
+      amount: this.data[0].AMOUNT,
+      comments:
+        this.updateForm.value.comments !== this.data[0].COMMENTS
+          ? this.updateForm.value.comments
+          : this.data[0].COMMENTS,
+    };
+
+    this.http
+      .post('send-message-rol', webexMessageData, { responseType: 'text' })
+      .subscribe({
+        next: (data) => {},
+        error: (err) => {
+          console.error('Error while sending message:', err);
+          this.closeDialog('webex-message-failed');
+        },
+        complete: () => {
+          this.closeDialog('webex-message-successful');
         },
       });
   }

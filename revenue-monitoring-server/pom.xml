@@ -68,7 +68,30 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>macos</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>io.netty</groupId>
+					<artifactId>netty-resolver-dns-native-macos</artifactId>
+					<version>4.1.94.Final</version>
+					<classifier>osx-aarch_64</classifier> <!-- or osx-x86_64 -->
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 
 	<build>
 		<finalName>revenue-monitoring-server</finalName>

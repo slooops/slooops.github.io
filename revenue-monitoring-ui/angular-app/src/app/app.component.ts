@@ -3,6 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { ApiHttpService } from './providers/http.service';
+import { AuthenticationService } from './providers/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +15,8 @@ export class AppComponent {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
-    http: ApiHttpService
+    http: ApiHttpService,
+    private authService: AuthenticationService
   ) {
     this.http = http;
   }
@@ -66,5 +68,9 @@ export class AppComponent {
     if (!target.closest('.help-dropdown') && !target.closest('.help-button')) {
       this.isHelpDropdownOpen = false; // Close dropdown if click is outside
     }
+  }
+
+  logout() {
+    this.authService.ssoLogout();
   }
 }

@@ -223,6 +223,8 @@
                 mat-cell
                 *matCellDef="let element"
                 [ngClass]="{ highlight: element.PERIOD_NAME !== periodName }"
+                [class.comments-cell]="column === 'COMMENTS'"
+                [class.no-wrap]="column === 'APPLICATION_NAME'"
               >
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
