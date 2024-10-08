@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
+import { ChartData, ChartDataset } from 'chart.js/auto';
 import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -51,6 +52,8 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   today = new Date();
 
   ngOnInit(): void {
+    this.createProductServiceCombinedChart();
+
     const localDateString = this.today.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
     if (monthEndDates.includes(localDateString)) {
       this.fetchDataForNewMonth = true; // Flag to fetch new month data
@@ -58,6 +61,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     console.log(this.today, 'hi', this.fetchDataForNewMonth);
 
+    // Fetch data for regression
     if (this.fetchDataForNewMonth) {
       this.getEndpointData('wd0-current-month')
         .pipe(
@@ -76,17 +80,24 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         )
         .subscribe((data: any) => {
           this.unprocessedRegressionData = data;
-          //set timeout
+
+          // Process regression data and execute regression
           setTimeout(() => {
-            this.processRecentMonths(this.unprocessedRegressionData);
+            const regressionData = this.processRecentMonths(
+              this.unprocessedRegressionData
+            );
+            this.runRegressionIfDataReady(regressionData);
             this.loading = false;
           }, 1000);
         });
     } else {
       this.http.get('wd0-regression').subscribe((data: any) => {
         this.unprocessedRegressionData = data;
+        const regressionData = this.processRecentMonths(
+          this.unprocessedRegressionData
+        );
         setTimeout(() => {
-          this.processRecentMonths(this.unprocessedRegressionData);
+          this.runRegressionIfDataReady(regressionData);
           this.loading = false;
         }, 1000);
       });
@@ -151,29 +162,30 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         this.historicalData
       );
 
-      this.generateBarChart(this.historicalData);
+      // this.generateBarChart(this.historicalData);
     });
   }
 
   createQ3ServiceLinePredictiveModel() {
-    // Chart data
-    const chartData = {
+    // Define the chart data with explicit typing
+    const chartData: ChartData<'bar' | 'line'> = {
       labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from Python
       datasets: [
         {
           label: 'Service Low',
           data: [2417, 3109, 4122], // 'Service Low' data
-          tension: 0.3,
+          type: 'bar',
         },
         {
           label: 'Service High',
           data: [16311, 13675, 7891], // 'Service High' data
-          tension: 0.3,
+          type: 'bar',
         },
         {
           label: 'Service Actuals',
           data: [5086, 5086, 5086], // 'Service Actuals' data
           tension: 0.3,
+          type: 'line',
         },
       ],
     };
@@ -181,18 +193,9 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     // Chart options
     const chartOptions = {
       responsive: true,
-      plugins: {
-        legend: {
-          display: true,
-          labels: {},
-        },
-      },
       scales: {
         x: {
-          // title: {
-          //   display: true,
-          //   text: 'Word Day to 0',
-          // },
+          // Default x-axis configuration
         },
         y: {
           title: {
@@ -205,30 +208,93 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     // Create the chart
     new Chart('q3ServiceLinePredictiveModel', {
-      type: 'line',
+      type: 'bar', // Set the base type to 'bar'
       data: chartData,
       options: chartOptions,
     });
   }
 
   createProductLinePredictiveModel() {
-    // Chart data
-    const chartData = {
+    // Define the chart data with explicit typing
+    const chartData: ChartData<'bar' | 'line'> = {
       labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from Python
       datasets: [
         {
           label: 'Product Low',
           data: [5123, 6136, 7401], // 'Product Low' data
-          tension: 0.3, // Line smoothness
+          type: 'bar',
         },
         {
           label: 'Product High',
           data: [28948, 23792, 14103], // 'Product High' data
-          tension: 0.3,
+          type: 'bar',
         },
         {
           label: 'Product Actuals',
           data: [10316, 10316, 10316], // 'Product Actuals' data
+          tension: 0.3,
+          type: 'line',
+        },
+      ],
+    };
+
+    // Chart options
+    const chartOptions = {
+      responsive: true,
+      scales: {
+        x: {
+          // Default x-axis configuration
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Line Count',
+          },
+        },
+      },
+    };
+
+    // Create the chart
+    new Chart('productLinePredictiveModel', {
+      type: 'bar', // Set the base type to 'bar'
+      data: chartData,
+      options: chartOptions,
+    });
+  }
+
+  createProductServiceCombinedChart() {
+    // Chart data
+    const chartData = {
+      labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from both datasets
+      datasets: [
+        {
+          label: 'Product Low',
+          data: [6700, 7913, 7895], // Product Low data
+          tension: 0.3,
+        },
+        {
+          label: 'Product High',
+          data: [23447, 18458, 17171], // Product High data
+          tension: 0.3,
+        },
+        {
+          label: 'Product Actuals',
+          data: [11387, 11387, 11387], // Product Actuals data
+          tension: 0.3,
+        },
+        {
+          label: 'Service Low',
+          data: [7186, 8206, 8947], // Service Low data
+          tension: 0.3,
+        },
+        {
+          label: 'Service High',
+          data: [25671, 19873, 17893], // Service High data
+          tension: 0.3,
+        },
+        {
+          label: 'Service Actuals',
+          data: [12375, 12375, 12375], // Service Actuals data
           tension: 0.3,
         },
       ],
@@ -237,12 +303,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     // Chart options
     const chartOptions = {
       responsive: true,
-      plugins: {
-        legend: {
-          display: true,
-          labels: {},
-        },
-      },
       scales: {
         x: {
           // Default x-axis configuration (no additional title)
@@ -257,7 +317,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     };
 
     // Create the chart
-    new Chart('productLinePredictiveModel', {
+    new Chart('productServiceCombinedChart', {
       type: 'line',
       data: chartData,
       options: chartOptions,
@@ -557,14 +617,10 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // set timeout
-
-    setTimeout(() => {
-      this.regressionService.performMultipleLinearRegression(
-        regressionData.X,
-        regressionData.y
-      );
-    }, 1000);
+    this.regressionService.performMultipleLinearRegression(
+      regressionData.X,
+      regressionData.y
+    );
 
     // Collect recent months of data for graph
     const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
@@ -762,6 +818,22 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     return { X, y: yFormatted };
   }
+
+  runRegressionIfDataReady = (regressionData: any) => {
+    // Check if regressionData is ready before running the regression
+    if (regressionData.X.length === 0 || regressionData.y.length === 0) {
+      console.error('Regression data is empty:', regressionData);
+      this.errorMessage = true;
+      this.loading = false;
+      return;
+    }
+
+    // Run regression
+    this.regressionService.performMultipleLinearRegression(
+      regressionData.X,
+      regressionData.y
+    );
+  };
 }
 
 export interface HistoricalDataModel {

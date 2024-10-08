@@ -8,6 +8,7 @@
   "
   class="grid-2"
 >
+  <!-- // bar chart (deprecated) -->
   <!-- <div style="width: 50%" class="card">
     <ng-container *ngIf="barChartLoading">
       <div style="text-align: center; height: 15vh">
@@ -20,22 +21,139 @@
     </p>
   </div> -->
 
-  <div style="width: 33%" class="card">
-    <!-- <ng-container *ngIf="barChartLoading">
-      <div style="text-align: center; height: 15vh">
+  <!-- <div style="width: 50%" class="card">
+    <canvas id="productServiceCombinedChart"></canvas>
+    <p class="chart-description">
+      Product and service line load predictions by workdays until to close.
+    </p>
+  </div>
+  <div style="width: 50%" class="card">
+    <ng-container *ngIf="loading">
+      <div style="text-align: center; height: 10vh">
         <app-loading-symbol></app-loading-symbol>
+        <div class="chart-description">
+          The DB queries behind this chart may take 30+ seconds to run. Thank
+          you for your patience.
+        </div>
       </div>
-    </ng-container> -->
+    </ng-container>
+    <ng-container *ngIf="errorMessage">
+      <div style="text-align: center; height: 10vh">
+        <div class="chart-description" style="margin-bottom: -40px">
+          Fatal regression data error. Chart unable to initalize.
+        </div>
+      </div>
+    </ng-container>
+    <ng-container>
+      <canvas id="lineChartCanvas"></canvas>
+    </ng-container>
+    <p class="chart-description">
+      ML-predicted upper & lower bounds execution window based for historical
+      data.
+    </p>
+  </div> -->
+
+  <!-- // 2 table option -->
+  <!-- <div style="display: table-column; width: 50%">
+    <div class="card" style="margin-bottom: 1.2rem">
+      <table class="generic-table">
+        <thead>
+          <tr>
+            <th>Workday</th>
+            <th>Product Low</th>
+            <th>Product High</th>
+            <th>Product Actuals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>WD-3</td>
+            <td>6700</td>
+            <td>23447</td>
+            <td>Projected</td>
+          </tr>
+          <tr>
+            <td>WD-2</td>
+            <td>7913</td>
+            <td>18458</td>
+            <td>Projected</td>
+          </tr>
+          <tr>
+            <td>WD-1</td>
+            <td>7895</td>
+            <td>17171</td>
+            <td>Projected</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <table class="generic-table">
+        <thead>
+          <tr>
+            <th>Workday</th>
+            <th>Service Low</th>
+            <th>Service High</th>
+            <th>Service Actuals</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>WD-3</td>
+            <td>7186</td>
+            <td>25671</td>
+            <td>Projected</td>
+          </tr>
+          <tr>
+            <td>WD-2</td>
+            <td>8206</td>
+            <td>19873</td>
+            <td>Projected</td>
+          </tr>
+          <tr>
+            <td>WD-1</td>
+            <td>8947</td>
+            <td>17893</td>
+            <td>Projected</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="width: 50%" class="card">
+    <ng-container *ngIf="loading">
+      <div style="text-align: center; height: 10vh">
+        <app-loading-symbol></app-loading-symbol>
+        <div class="chart-description">
+          The DB queries behind this chart may take 30+ seconds to run. Thank
+          you for your patience.
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="errorMessage">
+      <div style="text-align: center; height: 10vh">
+        <div class="chart-description" style="margin-bottom: -40px">
+          Fatal regression data error. Chart unable to initalize.
+        </div>
+      </div>
+    </ng-container>
+    <ng-container>
+      <canvas id="lineChartCanvas"></canvas>
+    </ng-container>
+    <p class="chart-description">
+      ML-predicted upper & lower bounds execution window based for historical
+      data.
+    </p>
+  </div> -->
+
+  <!-- //original 3 graph option -->
+  <div style="width: 33%" class="card">
     <canvas id="q3ServiceLinePredictiveModel"></canvas>
     <p class="chart-description">Service line predictive model.</p>
   </div>
 
   <div style="width: 33%" class="card">
-    <!-- <ng-container *ngIf="barChartLoading">
-      <div style="text-align: center; height: 15vh">
-        <app-loading-symbol></app-loading-symbol>
-      </div>
-    </ng-container> -->
     <canvas id="productLinePredictiveModel"></canvas>
     <p class="chart-description">Product line predictive model.</p>
   </div>
@@ -52,7 +170,7 @@
     </ng-container>
     <ng-container *ngIf="errorMessage">
       <div style="text-align: center; height: 10vh">
-        <div class="chart-description">
+        <div class="chart-description" style="margin-bottom: -40px">
           Fatal regression data error. Chart unable to initalize.
         </div>
       </div>
