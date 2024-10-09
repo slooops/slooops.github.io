@@ -103,7 +103,9 @@ export class RolComponent implements OnInit {
       this.rolSummaryModel.forEach((row) => {
         row.AGING = this.getAging(row.CREATION_DATE) + ' days';
         row.CREATION_DATE = this.dateTransform(row.CREATION_DATE);
-        row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
+        row.ASSIGNED_DATE = row.ASSIGNED_DATE
+          ? this.dateTransform(row.ASSIGNED_DATE)
+          : '';
       });
 
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(

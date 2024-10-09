@@ -28,11 +28,12 @@
         </p>
       </span>
     </div>
-    <mat-divider></mat-divider>
+  </div>
+  <div class="container">
     <div class="row">
-      <div class="col-sm-3;">
+      <div class="col-sm-3">
         <br />
-        <h2>Entity View</h2>
+        <h4>&nbsp;Entity View</h4>
       </div>
       <div class="col-sm-5" style="text-align: center; margin-top: 10px">
         <br />
@@ -83,231 +84,234 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="periodclosetable">
-    <table class="table table-responsive equal-width">
-      <thead>
-        <tr>
-          <th *ngFor="let col of meStatusColumns">{{ col }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngIf="
-            midcloseSelectedEntities && midcloseSelectedEntities.length > 0
-          "
-        >
-          <td></td>
-          <td
-            *ngFor="
-              let category of templateObject.keys(mCloseProgBarStatusMapping)
+    <div class="periodclosetable">
+      <table class="table table-responsive equal-width table-striped">
+        <thead>
+          <tr>
+            <th *ngFor="let col of meStatusColumns">{{ col }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngIf="
+              midcloseSelectedEntities && midcloseSelectedEntities.length > 0
             "
           >
-            <p>
-              <circle-progress
-                [percent]="mCloseProgBarStatusMapping[category]['value']"
-                [outerStrokeColor]="
-                  getCircleColor(
-                    category,
-                    mcloseSelectedMonthEndStatusTableData
-                  )
-                "
-              ></circle-progress>
-            </p>
-          </td>
-        </tr>
-        <tr
-          *ngIf="
-            midcloseSelectedEntities && midcloseSelectedEntities.length > 0
-          "
-        >
-          <td *ngFor="let row of mcloseExecutionWindow">{{ row }}</td>
-        </tr>
-        <tr *ngFor="let row of mcloseSelectedMonthEndStatusTableData">
-          <td *ngFor="let category of templateObject.keys(row)">
-            <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
-            <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
-            <span *ngIf="row[category].toLowerCase() === 'in progress'"
-              >⏳</span
-            >
-            <span *ngIf="row[category].toLowerCase() === 'yet to start'"
-              >⏸️</span
-            >
-            <span
-              matTooltipPosition="right"
-              matTooltip="Details included in period close communications."
-              *ngIf="row[category].toLowerCase() === 'delayed'"
-              >⚠️</span
-            >
-            <span
-              matTooltipPosition="right"
-              matTooltip="Details included in period close communications."
-              *ngIf="row[category].toLowerCase() === 'stopped'"
-              >🛑</span
-            >
-            <span
-              *ngIf="
-                [
-                  'completed',
-                  'na',
-                  'in progress',
-                  'yet to start',
-                  'delayed',
-                  'stopped'
-                ].indexOf(row[category].toLowerCase()) === -1
+            <td></td>
+            <td
+              *ngFor="
+                let category of templateObject.keys(mCloseProgBarStatusMapping)
               "
-              >{{ row[category] }}</span
             >
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <span style="display: flex; justify-content: center">
-      <ng-container *ngIf="midcloseSelectedEntities.length == 0">
-        <tr>
-          <td colspan="100%" style="text-align: center">
-            <app-loading-symbol></app-loading-symbol>
-          </td>
-        </tr>
-      </ng-container>
-    </span>
-  </div>
-
-  <mat-divider></mat-divider>
-  <br />
-  <h2>Interface Load</h2>
-  <div class="header-container">
-    <p>Legend: &nbsp;&nbsp; Number of lines</p>
-    <button
-      mat-stroked-button
-      (click)="
-        exportTableToExcel(
-          midcloseInterfaceLoadTableData,
-          'Midclose Interface Load',
-          'mcloseInterfaceLoadTableData'
-        )
-      "
-    >
-      Download
-    </button>
-  </div>
-  <div class="periodclosetable">
-    <table class="table table-responsive table-bordered table-striped">
-      <thead>
-        <tr>
-          <th *ngFor="let col of mcloseInterfaceLoadColumns">{{ col }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of midcloseInterfaceLoadTableData">
-          <ng-container
-            *ngFor="let key of templateObject.keys(row); let i = index"
+              <p>
+                <circle-progress
+                  [percent]="mCloseProgBarStatusMapping[category]['value']"
+                  [outerStrokeColor]="
+                    getCircleColor(
+                      category,
+                      mcloseSelectedMonthEndStatusTableData
+                    )
+                  "
+                ></circle-progress>
+              </p>
+            </td>
+          </tr>
+          <tr
+            *ngIf="
+              midcloseSelectedEntities && midcloseSelectedEntities.length > 0
+            "
           >
-            <td *ngIf="i < templateObject.keys(row).length - 2">
-              {{ row[key] }}
-            </td>
-            <td *ngIf="i >= templateObject.keys(row).length - 2">
-              <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
-              <span *ngIf="row[key].slice(0, -1) < 0"
-                >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
+            <td *ngFor="let row of mcloseExecutionWindow">{{ row }}</td>
+          </tr>
+          <tr *ngFor="let row of mcloseSelectedMonthEndStatusTableData">
+            <td *ngFor="let category of templateObject.keys(row)">
+              <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
+              <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
+              <span *ngIf="row[category].toLowerCase() === 'in progress'"
+                >⏳</span
               >
-              <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
+              <span *ngIf="row[category].toLowerCase() === 'yet to start'"
+                >⏸️</span
+              >
+              <span
+                matTooltipPosition="right"
+                matTooltip="Details included in period close communications."
+                *ngIf="row[category].toLowerCase() === 'delayed'"
+                >⚠️</span
+              >
+              <span
+                matTooltipPosition="right"
+                matTooltip="Details included in period close communications."
+                *ngIf="row[category].toLowerCase() === 'stopped'"
+                >🛑</span
+              >
+              <span
+                *ngIf="
+                  [
+                    'completed',
+                    'na',
+                    'in progress',
+                    'yet to start',
+                    'delayed',
+                    'stopped'
+                  ].indexOf(row[category].toLowerCase()) === -1
+                "
+                >{{ row[category] }}</span
+              >
             </td>
-          </ng-container>
-        </tr>
-      </tbody>
-    </table>
+          </tr>
+        </tbody>
+      </table>
+      <span style="display: flex; justify-content: center">
+        <ng-container *ngIf="midcloseSelectedEntities.length == 0">
+          <tr>
+            <td colspan="100%" style="text-align: center">
+              <app-loading-symbol></app-loading-symbol>
+            </td>
+          </tr>
+        </ng-container>
+      </span>
+    </div>
   </div>
-
-  <mat-divider></mat-divider>
   <br />
-  <div class="header-container">
-    <h2>Invoices Generated</h2>
-    <button
-      mat-stroked-button
-      (click)="
-        exportTableToExcel(
-          midCloseProgramTableData,
-          'Midclose Invoices Generated',
-          'mcloseInvoicesGeneratedTableData'
-        )
-      "
-    >
-      Download
-    </button>
+  <div class="container">
+    <h4>&nbsp;Interface Load</h4>
+    <div class="header-container">
+      <p>&nbsp;Legend: &nbsp;&nbsp; Number of lines</p>
+      <button
+        mat-stroked-button
+        (click)="
+          exportTableToExcel(
+            midcloseInterfaceLoadTableData,
+            'Midclose Interface Load',
+            'mcloseInterfaceLoadTableData'
+          )
+        "
+      >
+        Download
+      </button>
+    </div>
+    <div class="periodclosetable">
+      <table class="table table-responsive equal-width table-striped">
+        <thead>
+          <tr>
+            <th *ngFor="let col of mcloseInterfaceLoadColumns">{{ col }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of midcloseInterfaceLoadTableData">
+            <ng-container
+              *ngFor="let key of templateObject.keys(row); let i = index"
+            >
+              <td *ngIf="i < templateObject.keys(row).length - 2">
+                {{ row[key] }}
+              </td>
+              <td *ngIf="i >= templateObject.keys(row).length - 2">
+                <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
+                <span *ngIf="row[key].slice(0, -1) < 0"
+                  >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
+                >
+                <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
+              </td>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <!-- <cui-table
+  <br />
+  <div class="container">
+    <div class="header-container">
+      <h4>&nbsp;Invoices Generated</h4>
+      <button
+        mat-stroked-button
+        (click)="
+          exportTableToExcel(
+            midCloseProgramTableData,
+            'Midclose Invoices Generated',
+            'mcloseInvoicesGeneratedTableData'
+          )
+        "
+      >
+        Download
+      </button>
+    </div>
+    <!-- <cui-table
     *ngIf="midCloseProgramTableData.length"
     [options]="mcloseInvGenTableOptions"
     [data]="midCloseProgramTableData"
     class="cuiAlign periodclosetable"
   ></cui-table> -->
 
-  <div class="periodclosetable">
-    <table
-      *ngIf="midCloseProgramTableData.length"
-      class="table table-striped table-bordered"
-    >
-      <thead>
-        <tr>
-          <th *ngFor="let column of mcloseInvGenTableColumns">
-            {{ replaceUnderscoreWithEmpty(column) }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of midCloseProgramTableData">
-          <td *ngFor="let column of mcloseInvGenTableColumns">
-            {{ row[column] }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="periodclosetable">
+      <table
+        *ngIf="midCloseProgramTableData.length"
+        class="table table-responsive table-striped equal-width"
+      >
+        <thead>
+          <tr>
+            <th *ngFor="let column of mcloseInvGenTableColumns">
+              {{ replaceUnderscoreWithEmpty(column) }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of midCloseProgramTableData">
+            <td *ngFor="let column of mcloseInvGenTableColumns">
+              {{ row[column] }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <mat-divider></mat-divider>
   <br />
-  <div *ngIf="isQuarterEnd" class="header-container">
-    <h2 id="tableHeading" *ngIf="qeCashCollectedData.length">Cash Posted</h2>
-    <button
-      mat-stroked-button
-      (click)="
-        exportTableToExcel(
-          qeCashCollectedData,
-          'Midclose QE Cash Posted',
-          'mcloseQECashCollectedData'
-        )
-      "
-    >
-      Download
-    </button>
-  </div>
-  <!-- <cui-table
+  <div class="container">
+    <div *ngIf="isQuarterEnd" class="header-container">
+      <h4 id="tableHeading" *ngIf="qeCashCollectedData.length">
+        &nbsp;Cash Posted
+      </h4>
+      <button
+        mat-stroked-button
+        (click)="
+          exportTableToExcel(
+            qeCashCollectedData,
+            'Midclose QE Cash Posted',
+            'mcloseQECashCollectedData'
+          )
+        "
+      >
+        Download
+      </button>
+    </div>
+    <!-- <cui-table
     *ngIf="isQuarterEnd && qeCashCollectedData.length"
     [options]="qeCashCollectedTableOptions"
     [data]="qeCashCollectedData"
     class="cuiAlign periodclosetable"
   ></cui-table> -->
-  <div class="periodclosetable" *ngIf="isQuarterEnd">
-    <table
-      *ngIf="qeCashCollectedData.length"
-      class="table table-striped table-bordered"
-    >
-      <thead>
-        <tr>
-          <th *ngFor="let column of qeCashCollectedTableColumns">
-            {{ replaceUnderscoreWithDash(column) }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of qeCashCollectedData">
-          <td *ngFor="let column of qeCashCollectedTableColumns">
-            {{ row[column] }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="periodclosetable container" *ngIf="isQuarterEnd">
+      <table
+        *ngIf="qeCashCollectedData.length"
+        class="table table-striped table-responsive equal-width"
+      >
+        <thead>
+          <tr>
+            <th *ngFor="let column of qeCashCollectedTableColumns">
+              {{ replaceUnderscoreWithDash(column) }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of qeCashCollectedData">
+            <td *ngFor="let column of qeCashCollectedTableColumns">
+              {{ row[column] }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
   <mat-divider></mat-divider>
   <br />
@@ -330,7 +334,7 @@
         <button
           mat-raised-button
           (click)="updateComments()"
-          style="background-color: #049fd9; color: white"
+          style="background-color: gray; color: white"
         >
           Save</button
         >&nbsp;

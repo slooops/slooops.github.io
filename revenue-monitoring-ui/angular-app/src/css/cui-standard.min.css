@@ -364,10 +364,10 @@ html {
   --cui-modal-width-large: 992px;
 }
 .cui .pagination {
-  --cui-pagination-background-active: var(--cui-accent-color);
+  --cui-pagination-background-active: rgb(182, 182, 182);
   --cui-pagination-background-inactive: var(--cui-background-alt);
   --cui-pagination-border-hover: var(--cui-border-thickness) solid
-    var(--cui-accent-color);
+    rgb(182, 182, 182);
   --cui-pagination-border-inactive: 1px solid transparent;
   --cui-pagination-color-active: var(--cui-color-dark);
   --cui-pagination-margin: var(--cui-spacing-qtr);
@@ -477,6 +477,7 @@ html {
 }
 .cui .table {
   --cui-table-border: var(--cui-border);
+  --cui-table-border-bottom: 2px solid #373c42 !important;
   --cui-table-striping-odd: var(--cui-background-alt);
   --cui-table-striping-even: var(--cui-background-color);
   --cui-table-padding: var(--cui-spacing-half);
@@ -535,7 +536,7 @@ contains the entire set of custom CSS properties which can be overridden.
   --cui-theme-secondary-rgb: 30, 68, 113;
   --cui-theme-primary-link-decoration: none;
   /* Borders */
-  --cui-border-color: var(--cui-color-gray-700);
+  --cui-border-color: var(--cui-color-gray-300);
   --cui-border: 1px solid var(--cui-border-color);
   --cui-border-radius: 0px;
   /* Shadows */

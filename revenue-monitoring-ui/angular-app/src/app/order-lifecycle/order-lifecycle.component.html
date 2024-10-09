@@ -173,12 +173,11 @@
 </div>
 
 <div>
-  <div class="periodclosetable sortArrow" style="overflow: auto">
+  <div class="sortArrow container">
     <table
-      style="width: -webkit-fill-available"
       mat-table
       [dataSource]="dataSource"
-      class="table table-responsive orderTable"
+      class="table-responsive custom-table table-striped"
     >
       <ng-container matColumnDef="select">
         <th mat-header-cell *matHeaderCellDef>
@@ -201,9 +200,7 @@
 
       <!-- PROGRAM_NAME Column -->
       <ng-container matColumnDef="PROGRAM_NAME">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          PROGRAM NAME
-        </th>
+        <th mat-header-cell *matHeaderCellDef>Program Name</th>
         <td
           mat-cell
           *matCellDef="let record"
@@ -215,9 +212,8 @@
 
       <!-- ACCOUNT Column -->
       <ng-container matColumnDef="ACCOUNT">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>ACCOUNT</th>
+        <th mat-header-cell *matHeaderCellDef>Account</th>
         <td
-          class="custom-cell"
           mat-cell
           *matCellDef="let record"
           [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
@@ -227,13 +223,8 @@
       </ng-container>
 
       <ng-container matColumnDef="BOOK_DATE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>BOOK DATE</th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Book Date</th>
+        <td mat-cell *matCellDef="let record">
           {{
             record.BOOK_DATE == "TBD"
               ? "TBD"
@@ -243,9 +234,8 @@
       </ng-container>
 
       <ng-container matColumnDef="SALES_ORDER">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>ORDER (#)</th>
+        <th mat-header-cell *matHeaderCellDef>Order (#)</th>
         <td
-          class="custom-cell"
           mat-cell
           *matCellDef="let record"
           [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
@@ -256,148 +246,90 @@
 
       <!-- ORDER_VALUE Column -->
       <ng-container matColumnDef="ORDER_VALUE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          ORDER VALUE ($M)
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Order Value ($M)</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.ORDER_VALUE }}
         </td>
       </ng-container>
 
       <!-- ORDER_STATUS Column -->
       <ng-container matColumnDef="ORDER_STATUS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          <b style="font-weight: bolder; color: #0d3b4c">1.BOOKING STATUS</b>
+        <th mat-header-cell *matHeaderCellDef>
+          <b style="font-weight: bolder; color: #000000">1.Booking Status</b>
         </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <td mat-cell *matCellDef="let record">
           {{ record.ORDER_STATUS }}
         </td>
       </ng-container>
 
       <!-- CONTRACT CREATED Column -->
       <ng-container matColumnDef="CONTRACT_NUMBER">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          <b style="font-weight: bolder; color: #0d3b4c">2.ORDER STATUS</b>
+        <th mat-header-cell *matHeaderCellDef>
+          <b style="font-weight: bolder; color: #000000">2.Order Status</b>
         </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <td mat-cell *matCellDef="let record">
           {{ record.CONTRACT_NUMBER }}
         </td>
       </ng-container>
 
       <!-- DEAL UPLOAD DATE Column -->
       <ng-container matColumnDef="DEAL_UPLOAD_DATE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          UPLOAD DATE
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Upload Date</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.DEAL_UPLOAD_DATE | date : "M/d/yyyy" }}
         </td>
       </ng-container>
 
       <!-- INVOICING_STATUS Column -->
       <ng-container matColumnDef="INVOICING_STATUS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          <b style="font-weight: bolder; color: #0d3b4c">3.INVOICING</b>
+        <th mat-header-cell *matHeaderCellDef>
+          <b style="font-weight: bolder; color: #000000">3.Invoicing</b>
         </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <td mat-cell *matCellDef="let record">
           {{ record.INVOICING_STATUS }}
         </td>
       </ng-container>
 
       <!-- REV_ACCR_STATUS Column -->
       <ng-container matColumnDef="REV_ACCR_STATUS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          <b style="font-weight: bolder; color: #0d3b4c"> 4.REVENUE ACCRUALS</b>
+        <th mat-header-cell *matHeaderCellDef>
+          <b style="font-weight: bolder; color: #000000"> 4.Revenue Accruals</b>
         </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <td mat-cell *matCellDef="let record">
           {{ record.REV_ACCR_STATUS }}
         </td>
       </ng-container>
 
       <!-- GL_POSTING_STATUS Column -->
       <ng-container matColumnDef="GL_POSTING_STATUS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          <b style="font-weight: bolder; color: #0d3b4c"> 5.GL POSTING</b>
+        <th mat-header-cell *matHeaderCellDef>
+          <b style="font-weight: bolder; color: #000000"> 5.Gl Posting</b>
         </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <td mat-cell *matCellDef="let record">
           {{ record.GL_POSTING_STATUS }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="ACCRUALS_EXECUTION_TIME">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          ACCRUALS EXECUTION TIME (IN MINS)
+        <th mat-header-cell *matHeaderCellDef>
+          Accruals Execution Time (In Mins)
         </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <td mat-cell *matCellDef="let record">
           {{ record.ACCRUALS_EXECUTION_TIME }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="SUBSCRIPTION_ID">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          SUBSCRIPTION ID
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Subscription Id</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.SUBSCRIPTION_ID }}
         </td>
       </ng-container>
 
       <!-- INVOICE_DATE Column -->
       <ng-container matColumnDef="INVOICE_DATE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          INVOICE DATE
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
+        <td mat-cell *matCellDef="let record">
           {{
             record.INVOICE_DATE == "TBD"
               ? "TBD"
@@ -407,28 +339,18 @@
       </ng-container>
 
       <ng-container matColumnDef="FLEXIBLE_INVOICE_ELIGIBLE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          FLEXIBLE INVOICE ELIGIBLE
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Flexible Invoice Eligible</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.FLEXIBLE_INVOICE_ELIGIBLE }}
         </td>
       </ng-container>
 
       <ng-container matColumnDef="INVOICE_ELIGIBLE_DATE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          INVOICE ELIGIBLE DATE (CLO)
-        </th>
+        <th mat-header-cell *matHeaderCellDef>Invoice Eligible Date (Clo)</th>
         <td
-          class="custom-cell dateInputCell"
+          class="dateInputCell"
           mat-cell
           *matCellDef="let record; let i = index"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
         >
           <span *ngIf="!updateClo">
             {{
@@ -472,37 +394,24 @@
 
       <!-- INVOICE_AMOUNT Column -->
       <ng-container matColumnDef="INVOICE_AMOUNT">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          INVOICE AMOUNT ($M)
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Invoice Amount ($M)</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.INVOICE_AMOUNT }}
         </td>
       </ng-container>
 
       <!-- Term Column -->
       <ng-container matColumnDef="TERM_IN_YEARS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>TERM</th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Term</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.TERM_IN_YEARS }} Yrs
         </td>
       </ng-container>
 
       <!-- DEAL_ID Column -->
       <ng-container matColumnDef="DEAL_ID">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>DEAL ID</th>
+        <th mat-header-cell *matHeaderCellDef>Deal Id</th>
         <td
-          class="custom-cell"
           mat-cell
           *matCellDef="let record"
           [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
@@ -512,60 +421,32 @@
       </ng-container>
 
       <ng-container matColumnDef="TOTAL_LINE_COUNT">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          LINE COUNT
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Line Count</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.TOTAL_LINE_COUNT }}
         </td>
       </ng-container>
 
       <!-- ORDER_TOTAL_USD Column -->
       <ng-container matColumnDef="LINES_ON_HOLD">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          LINES ON HOLD
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Lines on Hold</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.LINES_ON_HOLD }}
         </td>
       </ng-container>
 
       <!-- INVOICE_LINES Column -->
       <ng-container matColumnDef="INVOICE_LINES">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          INVOICE LINES
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Invoice Lines</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.INVOICE_LINES }}
         </td>
       </ng-container>
 
       <!-- INVOICE RELEASE DATE Column -->
       <ng-container matColumnDef="FUTURE_INVOICE_RELEASE_DATE">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          FUTURE INVOICE RELEASE DATE
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Future Invoice Release Date</th>
+        <td mat-cell *matCellDef="let record">
           {{
             record.FUTURE_INVOICE_RELEASE_DATE == "TBD"
               ? "NA"
@@ -575,15 +456,8 @@
       </ng-container>
 
       <ng-container matColumnDef="CLO_COMMENTS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>
-          CLO UPDATES
-        </th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record; let i = index"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Clo Updates</th>
+        <td mat-cell *matCellDef="let record; let i = index">
           <div *ngIf="!isEditingCloUpdates(record); else editMode">
             {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
             <span
@@ -654,13 +528,8 @@
 
       <!-- COMMENTS Column -->
       <ng-container matColumnDef="COMMENTS">
-        <th class="custom-cell" mat-header-cell *matHeaderCellDef>COMMENTS</th>
-        <td
-          class="custom-cell"
-          mat-cell
-          *matCellDef="let record"
-          [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-        >
+        <th mat-header-cell *matHeaderCellDef>Comments</th>
+        <td mat-cell *matCellDef="let record">
           {{ record.COMMENTS }}
         </td>
       </ng-container>
@@ -681,16 +550,16 @@
         </td>
       </tr>
     </table>
-  </div>
 
-  <div style="display: flex; justify-content: center">
-    <ng-container *ngIf="!dataSource?.data?.length || updatedData">
-      <tr>
-        <td colspan="100%" style="text-align: center">
-          <app-loading-symbol></app-loading-symbol>
-        </td>
-      </tr>
-    </ng-container>
+    <div style="display: flex; justify-content: center">
+      <ng-container *ngIf="!dataSource?.data?.length || updatedData">
+        <tr>
+          <td colspan="100%" style="text-align: center">
+            <app-loading-symbol></app-loading-symbol>
+          </td>
+        </tr>
+      </ng-container>
+    </div>
   </div>
 
   <mat-paginator
