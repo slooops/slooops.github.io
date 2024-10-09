@@ -27,7 +27,7 @@
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
               "src/styles.scss"
             ],
-            "scripts": ["node_modules/chart.js/dist/chart.min.js"],
+            "scripts": [],
             "allowedCommonJsDependencies": ["chart.js"]
           },
           "configurations": {
