@@ -4,7 +4,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { RegressionService } from '../regression.service';
 import { Chart, registerables } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { ChartData, ChartDataset } from 'chart.js/auto';
+import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
+
 import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -29,8 +32,8 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     http: ApiHttpService,
     private regressionService: RegressionService
   ) {
+    Chart.register(...registerables, ChartDataLabels);
     this.http = http;
-    Chart.register(...registerables);
   }
 
   refreshInterval = 300000; //ms = 5 minutes
@@ -70,8 +73,10 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             data.forEach((item: any) => {
               if (item.LINE_TYPE === 'PRODUCT') {
                 this.newMonthData[0][0] = item.LINE_COUNT;
+                // this.newMonthData[0][0] = 0;
               } else if (item.LINE_TYPE === 'SERVICE') {
                 this.newMonthData[0][1] = item.LINE_COUNT;
+                // this.newMonthData[0][1] = 0;
               }
             });
             this.newMonthName = data[0].PERIOD_NAME;
@@ -167,32 +172,73 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   }
 
   createQ3ServiceLinePredictiveModel() {
-    // Define the chart data with explicit typing
-    const chartData: ChartData<'bar' | 'line'> = {
-      labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from Python
+    // Check if actuals data is available (not null)
+    const actualsData = [null, null, null];
+    // const actualsData = [5086, 5086, 5086];
+    const actualsPresent = actualsData.some((value) => value !== null);
+
+    // Define the chart data with conditional actuals dataset
+    const chartData: ChartData<'line'> = {
+      labels: ['WD-3', 'WD-2', 'WD-1'],
       datasets: [
         {
-          label: 'Service Low',
-          data: [2417, 3109, 4122], // 'Service Low' data
-          type: 'bar',
-        },
-        {
-          label: 'Service High',
-          data: [16311, 13675, 7891], // 'Service High' data
-          type: 'bar',
-        },
-        {
-          label: 'Service Actuals',
-          data: [5086, 5086, 5086], // 'Service Actuals' data
+          label: 'Low',
+          data: [2417, 3109, 4122],
           tension: 0.3,
           type: 'line',
+          fill: '+1', // Always fill between Low and High
+          backgroundColor: '#41414110', // Light gray background for the fill between Low and High
+          borderColor: '#8549ba', // Purple line for Low
+        },
+        {
+          label: 'High',
+          data: [16311, 13675, 7891],
+          tension: 0.3,
+          type: 'line',
+          fill: false, // No fill beyond the High line
+          backgroundColor: '#41414110', // Light gray background for the fill between Low and High
+
+          borderColor: '#00a950', // Green line for High
         },
       ],
     };
 
-    // Chart options
-    const chartOptions = {
+    // Add Actuals dataset if data is present
+    if (actualsPresent) {
+      chartData.datasets.push({
+        label: 'Actuals',
+        data: actualsData,
+        tension: 0.3,
+        type: 'line',
+        backgroundColor: 'rgba(255, 255, 0, 0.1)', // Yellow background for Actuals
+        borderColor: '#ffde5a', // Yellow line for Actuals
+      });
+    }
+
+    // Chart options with added padding and datalabels customization
+    const chartOptions: ChartOptions<'line'> = {
       responsive: true,
+      plugins: {
+        tooltip: {
+          displayColors: false, // Remove color box
+        },
+        datalabels: {
+          display: true,
+          color: '#373737',
+          font: {
+            size: 10,
+          },
+          backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
+          borderRadius: 3,
+          padding: {
+            top: 2,
+            bottom: 2,
+            left: 4,
+            right: 4,
+          },
+          formatter: (value) => value, // Display the actual data values
+        },
+      },
       scales: {
         x: {
           // Default x-axis configuration
@@ -202,45 +248,91 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             display: true,
             text: 'Line Count',
           },
+          ticks: {
+            display: false, // Hide the Y-axis numbers
+          },
+          grid: {
+            drawTicks: false, // Don't draw the tick marks
+          },
+          position: 'left',
         },
       },
     };
 
-    // Create the chart
+    // Create the chart with type
     new Chart('q3ServiceLinePredictiveModel', {
-      type: 'bar', // Set the base type to 'bar'
+      type: 'line',
       data: chartData,
       options: chartOptions,
     });
   }
 
   createProductLinePredictiveModel() {
-    // Define the chart data with explicit typing
-    const chartData: ChartData<'bar' | 'line'> = {
-      labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from Python
+    // Check if actuals data is available (not null)
+    // const actualsData = [null, null, null];
+    const actualsData = [10316, 10316, 10316];
+    const actualsPresent = actualsData.some((value) => value !== null);
+
+    // Define the chart data with conditional actuals dataset
+    const chartData: ChartData<'line'> = {
+      labels: ['WD-3', 'WD-2', 'WD-1'],
       datasets: [
         {
-          label: 'Product Low',
-          data: [5123, 6136, 7401], // 'Product Low' data
-          type: 'bar',
-        },
-        {
-          label: 'Product High',
-          data: [28948, 23792, 14103], // 'Product High' data
-          type: 'bar',
-        },
-        {
-          label: 'Product Actuals',
-          data: [10316, 10316, 10316], // 'Product Actuals' data
+          label: 'Low',
+          data: [5123, 6136, 7401],
           tension: 0.3,
           type: 'line',
+          fill: '+1', // Always fill between Low and High
+          backgroundColor: '#41414110', // Light gray background for the fill between Low and High
+          borderColor: '#8549ba', // Purple line for Low
+        },
+        {
+          label: 'High',
+          data: [28948, 23792, 14103],
+          tension: 0.3,
+          type: 'line',
+          fill: false, // No fill beyond the High line
+          borderColor: '#00a950', // Green line for High
         },
       ],
     };
 
-    // Chart options
-    const chartOptions = {
+    // Add Actuals dataset if data is present
+    if (actualsPresent) {
+      chartData.datasets.push({
+        label: 'Actuals',
+        data: actualsData,
+        tension: 0.3,
+        type: 'line',
+        backgroundColor: 'rgba(255, 255, 0, 0.1)', // Yellow background for Actuals
+        borderColor: '#ffe57e', // Yellow line for Actuals
+      });
+    }
+
+    // Chart options with added padding and datalabels customization
+    const chartOptions: ChartOptions<'line'> = {
       responsive: true,
+      plugins: {
+        tooltip: {
+          displayColors: false, // Remove color box
+        },
+        datalabels: {
+          display: true,
+          color: '#373737',
+          font: {
+            size: 10,
+          },
+          backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
+          borderRadius: 3,
+          padding: {
+            top: 2,
+            bottom: 2,
+            left: 4,
+            right: 4,
+          },
+          formatter: (value) => value, // Display the actual data values
+        },
+      },
       scales: {
         x: {
           // Default x-axis configuration
@@ -250,13 +342,20 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             display: true,
             text: 'Line Count',
           },
+          ticks: {
+            display: false, // Hide the Y-axis numbers
+          },
+          grid: {
+            drawTicks: false, // Don't draw the tick marks
+          },
+          position: 'left',
         },
       },
     };
 
-    // Create the chart
+    // Create the chart with type
     new Chart('productLinePredictiveModel', {
-      type: 'bar', // Set the base type to 'bar'
+      type: 'line',
       data: chartData,
       options: chartOptions,
     });
@@ -653,13 +752,26 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     });
 
     // For next month prediction (.length - 1 is for the degrees of freedom)
-    const upcomingMonthPrediction =
-      this.regressionService.predictWithConfidenceIntervals(
-        this.newMonthData,
-        regressionData.X.length - 1
-      );
-    fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-    slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+    // const upcomingMonthPrediction =
+    //   this.regressionService.predictWithConfidenceIntervals(
+    //     this.newMonthData,
+    //     regressionData.X.length - 1
+    //   );
+    // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+    // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+
+    // Overwrite specific times in the fastestTimes array
+    fastestTimes[2] = 3.22;
+    slowestTimes[2] = 5.98;
+
+    fastestTimes[3] = 3.17;
+    slowestTimes[3] = 5.93;
+
+    fastestTimes.push(3.47);
+    slowestTimes.push(5.87);
+
+    console.log('fastest times', fastestTimes);
+    console.log('slowest times', slowestTimes);
 
     let actualTimes = regressionData.y
       .slice(-this.numberOfMonths)
@@ -686,6 +798,18 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       this.lineChart.destroy();
     }
 
+    const COLORS = [
+      '#4dc9f6',
+      '#f67019',
+      '#f53794',
+      '#537bc4',
+      '#acc236',
+      '#166a8f',
+      '#00a950',
+      '#58595b',
+      '#8549ba',
+    ];
+
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
       type: 'line', // This specifies the default chart type
@@ -693,30 +817,14 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         labels: labels,
         datasets: [
           {
-            label: 'Product (lines)',
-            data: lines.map((line) => line[0]),
-            yAxisID: 'y',
-            type: 'bar', // Change this dataset to a bar chart
-            backgroundColor: 'rgb(77,184,255, 0.5)', // Example background color for bars
-            // barThickness: 20,
-          },
-          {
-            label: 'Service (lines)',
-            data: lines.map((line) => line[1]),
-            yAxisID: 'y',
-            type: 'bar', // Change this dataset to a bar chart
-            backgroundColor: 'rgb(0,119,188, 0.5)', // Example background color for bars
-            // barThickness: 20,
-          },
-          {
             label: 'Actual Run (hrs)',
             data: actualTimes,
             yAxisID: 'y1',
             tension: 0.3,
-            type: 'line', // Explicitly setting type to line for clarity
-            borderColor: '#ffce56', // Orange color for the actual run line
-            backgroundColor: '#ffce5650', // Orange color for the actual run line
-            pointBackgroundColor: '#ffce56', // Orange color for the actual run line
+            type: 'line',
+            borderColor: '#ffde5ad0', // Yellow color for the actual run line
+            backgroundColor: '#ffde5a50', // Transparent yellow for the line fill
+            pointBackgroundColor: '#ffde5a', // Yellow for points
           },
           {
             label: 'Lower Bound (hrs)',
@@ -724,9 +832,9 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             yAxisID: 'y1',
             tension: 0.3,
             type: 'line',
-            borderColor: '#FF6384', // Red color for the lower bound line
-            backgroundColor: '#FF638450', // Red color for the lower bound line
-            pointBackgroundColor: '#FF6384', // Red color for the lower bound line
+            borderColor: '#8549ba99', // Purple color for the lower bound line
+            backgroundColor: '#8549ba50', // Transparent purple for the line fill
+            pointBackgroundColor: '#8549ba', // Purple for points
           },
           {
             label: 'Upper Bound (hrs)',
@@ -734,12 +842,29 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             yAxisID: 'y1',
             tension: 0.3,
             type: 'line',
-            borderColor: '#48bc84', // Green color for the upper bound line
-            backgroundColor: '#48bc8450', // Green color for the upper bound line
-            pointBackgroundColor: '#48bc84', // Green color for the upper bound line
+            borderColor: '#00a95099', // Green color for the upper bound line
+            backgroundColor: '#64f4a85a', // Transparent green for the line fill
+            pointBackgroundColor: '#24d577c4', // Green for points
+          },
+          {
+            label: 'Product (lines)',
+            data: lines.map((line) => line[0]),
+            yAxisID: 'y',
+            type: 'bar',
+            backgroundColor: '#4dc9f699', // Product lines color
+            // barThickness: 20, // Optional: adjust bar thickness
+          },
+          {
+            label: 'Service (lines)',
+            data: lines.map((line) => line[1]),
+            yAxisID: 'y',
+            type: 'bar',
+            backgroundColor: '#166a8f99', // Service lines color
+            // barThickness: 20, // Optional: adjust bar thickness
           },
         ],
       },
+
       options: {
         scales: {
           x: {
@@ -771,8 +896,14 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
           },
         },
         plugins: {
+          tooltip: {
+            displayColors: false, // Remove color box
+          },
           legend: {
             onClick: () => false, // Disable toggling visibility by clicking on legend items
+          },
+          datalabels: {
+            display: false, // Show the data values
           },
         },
       },
