@@ -684,13 +684,21 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getRolErrorsSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummary);
+        String[] dateColumns = {"CREATION_DATE", "ASSIGNED_DATE"};
         result.forEach(data -> {
             Object obj = data.get("SUB_APPLICATION");
             data.remove("SUB_APPLICATION");
             data.put("PROCESS_FLOW", obj != null ? obj.toString() : "");
 
-            if (data.get("ASSIGNED_DATE") == null) {
-                data.put("ASSIGNED_DATE", "");
+            for(String str: dateColumns){
+                if(data.get(str) != null){
+                    String date = data.get(str).toString();
+                    String[] dateArr = date.split(" ");
+                    data.put(str, dateArr[0]);
+                } else {
+                        data.put(str, "");
+
+                }
             }
         });
         return result;
