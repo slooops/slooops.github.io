@@ -1,27 +1,33 @@
-<!-- <div class="modal-overlay" (click)="closeDialog()">
-  <div class="modal-box" (click)="$event.stopPropagation()"> -->
-<h4 mat-dialog-title>
-  Revenue Summary
-  <a
-    style="
-      float: right !important;
-      text-decoration: none;
-      margin-top: 5px !important;
-    "
-    ><i
-      class="fa fa-download"
-      style="font-size: 20px; color: gray"
+<div
+  style="
+    margin: -24px -24px 0 -24px; /* Removes default padding */
+    background-color: #202428;
+    padding: 10px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  "
+>
+  <!-- Title on the left -->
+  <h5 style="margin: 0; font-weight: 450">Revenue Summary</h5>
+
+  <!-- Icons on the right (Download and Close) -->
+  <a style="text-decoration: none; cursor: pointer; color: white">
+    <i
+      class="svg-icon download-icon-white"
+      style="font-size: 16px"
       aria-hidden="true"
       (click)="export('Large Order Revenue Summary', 'large_order_rev_summary')"
-    ></i
-    >&nbsp;&nbsp;
+    ></i>
+    &nbsp;&nbsp;&nbsp;
     <i
       class="fa fa-close"
-      style="font-size: 20px; color: gray"
+      style="font-size: 16px; color: white"
       (click)="closeDialog()"
-    ></i
-  ></a>
-</h4>
+    ></i>
+  </a>
+</div>
 
 <mat-dialog-content>
   <div class="arclosetable" style="max-width: 100%">
@@ -92,18 +98,13 @@
           >
             <td class="firstColumn">
               <span *ngIf="account.account !== 'GRAND TOTAL'">
-                <span *ngIf="accountCompleted"
-                  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
-                >
-                <span *ngIf="!accountCompleted">
-                  <span *ngIf="account.expanded && !accountCompleted"
-                    ><i class="fa fa-chevron-up" style="font-size: 12px"></i
-                  ></span>
-                  <span *ngIf="!account.expanded && !accountCompleted"
-                    ><i class="fa fa-chevron-down" style="font-size: 12px"></i
-                  ></span>
-                  &nbsp;
-                </span>
+                <span *ngIf="account.expanded"
+                  ><i class="fa fa-chevron-up" style="font-size: 12px"></i
+                ></span>
+                <span *ngIf="!account.expanded"
+                  ><i class="fa fa-chevron-down" style="font-size: 12px"></i
+                ></span>
+                &nbsp;
               </span>
               {{ account.account }}
             </td>
@@ -248,7 +249,7 @@
 
     <span style="float: left !important">
       <i class="fa fa-info-circle" style="color: rgb(103, 102, 102)"
-        >&nbsp;Completed Deals under each account are marked in green.</i
+        >&nbsp;Completed Accounts and Deals are marked in green.</i
       >
     </span>
 
@@ -277,5 +278,3 @@
     </nav>
   </div>
 </mat-dialog-content>
-<!-- </div>
-</div> -->

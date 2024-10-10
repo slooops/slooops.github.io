@@ -325,6 +325,10 @@ public class DailyMonitoringService {
                 }
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
+                    System.out.println(parts[0]);
+                    System.out.println(parts[1]);
+                    System.out.println(parts[2]);
+                    System.out.println(username);
                     UpdateOrderModel orderModel = new UpdateOrderModel();
                     orderModel.setProgramName(parts[0]);
                     orderModel.setAccount(parts[1]);
@@ -680,12 +684,21 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getRolErrorsSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummary);
+        String[] dateColumns = {"CREATION_DATE", "ASSIGNED_DATE"};
         result.forEach(data -> {
             Object obj = data.get("SUB_APPLICATION");
             data.remove("SUB_APPLICATION");
-            data.put("PROCESS_FLOW", obj.toString());
-            if(data.get("ASSIGNED_DATE").equals(null)){
-                data.put("ASSIGNED_DATE", "");
+            data.put("PROCESS_FLOW", obj != null ? obj.toString() : "");
+
+            for(String str: dateColumns){
+                if(data.get(str) != null){
+                    String date = data.get(str).toString();
+                    String[] dateArr = date.split(" ");
+                    data.put(str, dateArr[0]);
+                } else {
+                        data.put(str, "");
+
+                }
             }
         });
         return result;
@@ -704,9 +717,23 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getRolErrorSummaryPeriodStatus() {
-        return jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
-    }
+        String[] dateColumns = {"END_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
 
+        result.forEach(data -> {
+            for(String str: dateColumns){
+                if(data.get(str) != null){
+                    String date = data.get(str).toString();
+                    String[] dateArr = date.split(" ");
+                    data.put(str, dateArr[0]);
+                } else {
+                    data.put(str, "");
+
+                }
+            }
+        });
+        return result;
+    }
 
 
     public List<Map<String, Object>> getSbpSummary() {

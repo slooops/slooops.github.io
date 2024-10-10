@@ -2,18 +2,25 @@
   <div class="modal-content container" (click)="$event.stopPropagation()">
     <div
       style="
+        margin: -24px -24px 0 -24px; /* Removes default padding */
+        background-color: black;
+        padding: 10px;
+        color: white;
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        width: 100%;
-        gap: 16px;
+        align-items: center;
       "
     >
-      <h5 class="section-title">Assign User</h5>
+      <h5
+        class="section-title"
+        style="margin: 0; color: white; font-weight: 450"
+      >
+        Assign User
+      </h5>
       <i
-        class="svg-icon close-icon"
+        class="fa fa-close"
         (click)="closeDialog('cancel')"
-        style="cursor: pointer"
+        style="cursor: pointer; color: white; font-size: 16px"
       ></i>
     </div>
 

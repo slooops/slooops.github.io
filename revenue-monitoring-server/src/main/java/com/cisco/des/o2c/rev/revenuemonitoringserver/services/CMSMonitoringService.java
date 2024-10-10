@@ -118,7 +118,6 @@ public class CMSMonitoringService {
     @Cacheable("unpostedSummary")
     public List<Map<String, Object>> getUnpostedSummaryData()  {
         try {
-            logger.info("In getUnpostedSummaryData():: retrieving data");
             return jdbcManager.queryForList(unpostedSummaryQuery);
 //            return executeQuery(unpostedSummaryQuery, "CG1PRD");
         } catch (Exception e) {
@@ -130,7 +129,6 @@ public class CMSMonitoringService {
     @Cacheable("unappliedErrorSummary")
     public List<Map<String, Object>> getUnappliedErrorSummaryData() {
         try {
-            logger.info("In getUnappliedErrorSummaryData():: retrieving data");
             return jdbcManager.queryForList(unappliedErrorSummaryQuery);
 //            return executeQuery(unappliedErrorSummaryQuery, "CG1PRD");
         } catch (Exception e) {
@@ -141,7 +139,6 @@ public class CMSMonitoringService {
 
     public List<Map<String, Object>> getCtmStatus()  {
         try {
-            logger.info("In getCtmStatus():: retrieving data");
             return jdbcManager.queryForList(ctmStatusQuery);
 //            return executeQuery(ctmStatusQuery, "CG1PRD");
         } catch (Exception e) {
@@ -152,7 +149,6 @@ public class CMSMonitoringService {
 
     public List<Map<String, Object>> getCtmDetails()  {
         try {
-            logger.info("In getCtmDetails():: retrieving data");
             return jdbcManager.queryForList(ctmDetailsQuery);
 //            return executeQuery(ctmDetailsQuery, "CG1PRD");
         } catch (Exception e) {
@@ -163,7 +159,6 @@ public class CMSMonitoringService {
 
     public List<Map<String, Object>> getBoomiStatus()  {
         try {
-            logger.info("In getBoomiStatus():: retrieving data");
             return jdbcManager.queryForList(boomiStatusQuery);
 //            return executeQuery(boomiStatusQuery, "CG1PRD");
         } catch (Exception e) {
@@ -174,7 +169,6 @@ public class CMSMonitoringService {
 
     public List<Map<String, Object>> getBoomiDetails()  {
         try {
-            logger.info("In getBoomiDetails():: retrieving data");
             return jdbcManager.queryForList(boomiDetailsQuery);
 //            return executeQuery(boomiDetailsQuery, "CG1PRD");
         } catch (Exception e) {
@@ -186,7 +180,6 @@ public class CMSMonitoringService {
     @Cacheable("extractCount")
     public List<Map<String, Object>> getExtractCount()  {
         try {
-            logger.info("In getExtractCount():: retrieving data");
             return jdbcManager.queryForList(extractCountQuery);
 //            return executeQuery(extractCountQuery, "CG1PRD");
         } catch (Exception e) {
@@ -198,7 +191,6 @@ public class CMSMonitoringService {
     @Cacheable("extractDetails")
     public List<Map<String, Object>> getExtractDetails()  {
         try {
-            logger.info("In getExtractDetails():: retrieving data");
             return jdbcManager.queryForList(extractDetailsQuery);
 //            return executeQuery(extractDetailsQuery, "CG1PRD");
         } catch (Exception e) {
@@ -210,7 +202,6 @@ public class CMSMonitoringService {
     @Cacheable("latestRequestStatus")
     public List<Map<String, Object>> getLatestRequestStatus() {
         try {
-            logger.info("In getLatestRequestStatus():: retrieving data");
             return jdbcManager.queryForList(latestRequestStatusQuery);
 //            return executeQuery(latestRequestStatusQuery, "CG1PRD");
         } catch (Exception e) {
@@ -222,7 +213,6 @@ public class CMSMonitoringService {
     @Cacheable("extractStatus")
     public List<Map<String, Object>> getCollectionsErrorSummary() {
         try {
-            logger.info("In getCollectionsErrorSummary():: retrieving data");
             return jdbcManager.queryForList(collectionsErrorSummaryQuery);
 //            return executeQuery(collectionsErrorSummaryQuery, "CG1PRD");
         } catch (Exception e) {
@@ -234,7 +224,6 @@ public class CMSMonitoringService {
     @Cacheable("alternatePayerErr")
     public List<Map<String, Object>> getAlternatePayerErr() {
         try {
-            logger.info("In getAlternatePayerErr():: retrieving data");
             return jdbcManager.queryForList(alternatePayerErrQuery);
 //            return executeQuery(alternatePayerErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -246,7 +235,6 @@ public class CMSMonitoringService {
     @Cacheable("salesInvoiceHeaderExtractErr")
     public List<Map<String, Object>> getSalesInvoiceHeaderExtractErr() {
         try {
-            logger.info("In getSalesInvoiceHeaderExtractErr():: retrieving data");
             return jdbcManager.queryForList(salesInvoiceHeaderExtractErrQuery);
 //            return executeQuery(salesInvoiceHeaderExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -258,7 +246,6 @@ public class CMSMonitoringService {
     @Cacheable("customerContactsErr")
     public List<Map<String, Object>> getCustomerContactsErr() {
         try {
-            logger.info("In getCustomerContactsErr():: retrieving data");
             return jdbcManager.queryForList(customerContactsErrQuery);
 //            return executeQuery(customerContactsErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -270,7 +257,6 @@ public class CMSMonitoringService {
     @Cacheable("salesInvoiceItemExtractErr")
     public List<Map<String, Object>> getSalesInvoiceItemExtractErr() {
         try {
-            logger.info("In getSalesInvoiceItemExtractErr():: retrieving data");
             return jdbcManager.queryForList(salesInvoiceItemExtractErrQuery);
 //            return executeQuery(salesInvoiceItemExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -283,7 +269,6 @@ public class CMSMonitoringService {
     @Cacheable("invoicePdfExtractErr")
     public List<Map<String, Object>> getInvoicePdfExtractErr() {
         try {
-            logger.info("In getInvoicePdfExtractErr():: retrieving data");
             return jdbcManager.queryForList(invoicePdfExtractErrQuery);
 //            return executeQuery(invoicePdfExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -295,7 +280,6 @@ public class CMSMonitoringService {
     @Cacheable("invoiceExtractErr")
     public List<Map<String, Object>> getInvoiceExtractErr() {
         try {
-            logger.info("In getInvoiceExtractErr():: retrieving data");
             return jdbcManager.queryForList(invoiceExtractErrQuery);
 //            return executeQuery(invoiceExtractErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -307,7 +291,6 @@ public class CMSMonitoringService {
     @Cacheable("customerMasterErr")
     public List<Map<String, Object>> getCustomerMasterErr() {
         try {
-            logger.info("In getCustomerMasterErr():: retrieving data");
             return jdbcManager.queryForList(customerMasterErrQuery);
 //            return executeQuery(customerMasterErrQuery, "CG1PRD");
         } catch (Exception e) {
@@ -319,7 +302,6 @@ public class CMSMonitoringService {
     @Cacheable("interfaceErrors")
     public List<Map<String, Object>> getInterfaceErrors() {
         try {
-            logger.info("In getInterfaceErrors():: retrieving data");
             return jdbcManager.queryForList(interfaceErrorsQuery);
 //            return executeQuery(interfaceErrorsQuery, "CG1PRD");
         } catch (Exception e) {
@@ -333,7 +315,6 @@ public class CMSMonitoringService {
         List<Map<String, Object>> response = new ArrayList<>();
 
         try {
-            logger.info("In getApiStatus():: retrieving data");
             //String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/public/healthCheck";
             //String uri = "https://cms-flask-dev-ext-rtp2.cisco.com/api/v1/public/healthCheck";
             String uri = "https://cms-flask-prod-ext-alln.cisco.com/api/v1/public/healthCheck";
@@ -362,7 +343,6 @@ public class CMSMonitoringService {
         HashMap<String, Object> apiResponse = new HashMap<>();
         List<Map<String, Object>> response = new ArrayList<>();
         try{
-            logger.info("In getSftpStatus():: retrieving data");
             //String uri = "https://cms-flask-stage-ext-rtp2.cisco.com/api/v1/public/CiscoSFTPMonitor";
             String uri = "https://cms-flask-prod-ext-alln.cisco.com/api/v1/public/CiscoSFTPMonitor";
 
@@ -380,7 +360,6 @@ public class CMSMonitoringService {
     @Cacheable("interfaceErrorCountInXHrs")
     public List<Map<String, Object>> getInterfaceErrorCountInXHrs() {
         try {
-            logger.info("In getInterfaceErrorCountInXHrs():: retrieving data");
             return jdbcManager.queryForList(interfaceErrorCountInXHrsQuery);
 //            return executeQuery(interfaceErrorCountInXHrsQuery, "CG1PRD");
         } catch (Exception e) {
@@ -392,7 +371,6 @@ public class CMSMonitoringService {
     @Cacheable("unpostedTotalAmount")
     public List<Map<String, Object>> getUnpostedTotalAmount() {
         try {
-            logger.info("In getUnpostedTotalAmount():: retrieving data");
             return jdbcManager.queryForList(unpostedTotalAmountQuery);
 //            return executeQuery(unpostedTotalAmountQuery, "CG1PRD");
         } catch (Exception e) {
@@ -404,7 +382,6 @@ public class CMSMonitoringService {
     @Cacheable("totalUnappliedAmount")
     public List<Map<String, Object>> getTotalUnappliedAmount() {
         try {
-            logger.info("In getTotalUnappliedAmount():: retrieving data");
             return jdbcManager.queryForList(totalUnappliedAmountQuery);
 //            return executeQuery(totalUnappliedAmountQuery, "CG1PRD");
         } catch (Exception e) {
@@ -416,7 +393,6 @@ public class CMSMonitoringService {
     @Cacheable("totalReconciliationError")
     public List<Map<String, Object>> getTotalReconciliationError() {
         try {
-            logger.info("In getTotalReconciliationError():: retrieving data");
             return jdbcManager.queryForList(totalReconciliationErrorQuery);
 //            return executeQuery(totalReconciliationErrorQuery, "CG1PRD");
         } catch (Exception e) {
@@ -428,7 +404,6 @@ public class CMSMonitoringService {
     @Cacheable("reconErrCountExtract")
     public List<Map<String, Object>> getReconErrCountExtract() {
         try {
-            logger.info("In getReconErrCountExtract():: retrieving data");
             return jdbcManager.queryForList(reconErrCountExtractQuery);
 //            return executeQuery(reconErrCountExtractQuery, "CG1PRD");
         } catch (Exception e) {
@@ -439,7 +414,6 @@ public class CMSMonitoringService {
 
     public List<Map<String, Object>> getBoomiStatusHrToCg1() {
         try {
-            logger.info("In getBoomiStatusHrToCG1():: retrieving data");
             return jdbcManager.queryForList(boomiStatusHrToCg1Query);
 //            return executeQuery(boomiStatusHrToCg1Query, "CG1PRD");
         } catch (Exception e) {
@@ -450,7 +424,6 @@ public class CMSMonitoringService {
 
     public List<Map<String, Object>> getBoomiDetailsHrToCg1() {
         try {
-            logger.info("In getBoomiDetailsHrToCG1():: retrieving data");
             return jdbcManager.queryForList(boomiDetailsHrToCg1Query);
 //            return executeQuery(boomiDetailsHrToCg1Query, "CG1PRD");
         } catch (Exception e) {
@@ -462,7 +435,6 @@ public class CMSMonitoringService {
     @Cacheable("coreAppLayerErrorCount")
     public List<Map<String, Object>> getCoreAppLayerErrorCount() {
         try {
-            logger.info("In getCoreAppLayerErrorCount():: retrieving data");
             return jdbcManager.queryForList(coreAppLayerErrorCountQuery);
 //            return executeQuery(coreAppLayerErrorCountQuery, "CG1PRD");
         } catch (Exception e) {
@@ -476,14 +448,12 @@ public class CMSMonitoringService {
      */
     @Scheduled(fixedRate = 15*60000)
     public void evictAllCachesAtIntervals() {
-        logger.info("In evictAllCachesAtIntervals():: cache clearing initiated");
         evictAllCaches();
     }
 
     private void evictAllCaches() {
         cacheManager.getCacheNames().stream()
                 .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
-        logger.info("In evictAllCaches():: cache cleared at " + LocalDateTime.now());
     }
 
 //    private List<Map<String, Object>> executeQuery(String query, String dbName){

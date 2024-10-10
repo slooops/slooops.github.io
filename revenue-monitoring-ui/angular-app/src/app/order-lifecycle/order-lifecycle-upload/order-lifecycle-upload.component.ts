@@ -124,7 +124,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
   }
 
   handleFiles(file: File | null) {
-    if (file && file.name.endsWith('.csv')) {
+    if (file && file.name && file.name.endsWith('.csv')) {
       this.validateCsvFile(file).then((res) => {
         if (res) {
           this.selectedFile = file;
@@ -136,20 +136,23 @@ export class OrderLifecycleUploadComponent implements OnInit {
             ' could not be selected due to Invalid column headers. Please check the Sample Template file for valid header definitions.';
         }
       });
-    } else {
+    } else if (file) {
       this.fileSelected = false;
-      this.validationError = '';
-      this.validationError +=
+      this.validationError =
         'Please upload a CSV file to continue. The file ' +
         file.name +
         ' is not in CSV format.';
+    } else {
+      this.fileSelected = false;
+      this.validationError =
+        'No file selected. Please upload a CSV file to continue.';
     }
   }
 
   async validateCsvFile(file: File): Promise<boolean> {
     const fileContent = await this.readFileContent(file);
-    const expectedHeaders = ['PROGRAM NAME', 'ACCOUNT', 'DEAL ID'].toString();
-    const firstRow = fileContent[0].replace(/\r/g, '');
+    const expectedHeaders = ['PROGRAM NAME', 'ACCOUNT', 'DEAL ID'];
+    const firstRow = fileContent[0].replace(/\r/g, '').split(',');
 
     if (this.areArraysEqual(firstRow, expectedHeaders)) {
       this.validationError = null;
@@ -164,8 +167,12 @@ export class OrderLifecycleUploadComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (event: any) => {
         const content = event.target.result;
-        const rows = content.split('\n');
-        resolve(rows);
+        if (content) {
+          const rows = content.split('\n');
+          resolve(rows);
+        } else {
+          reject(new Error('File content could not be read.'));
+        }
       };
       reader.onerror = (error) => {
         reject(error);
@@ -174,10 +181,10 @@ export class OrderLifecycleUploadComponent implements OnInit {
     });
   }
 
-  areArraysEqual(arr1: string, arr2: string): boolean {
-    return JSON.stringify(arr1) === JSON.stringify(arr2);
+  areArraysEqual(arr1: string[], arr2: string[]): boolean {
+    if (arr1.length !== arr2.length) return false;
+    return arr1.every((value, index) => value.trim() === arr2[index].trim());
   }
-
   removeFile() {
     this.fileSelected = false;
     this.selectedFile = null;

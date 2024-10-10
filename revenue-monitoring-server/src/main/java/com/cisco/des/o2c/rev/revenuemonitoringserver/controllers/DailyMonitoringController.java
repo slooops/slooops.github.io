@@ -244,6 +244,7 @@ public class DailyMonitoringController {
                 service.setUpdateOrderStatusFromFile(file, username);
                 return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
             } catch (Exception e) {
+                System.out.println(e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
             }
         } else {

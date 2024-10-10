@@ -469,7 +469,7 @@ export class OrderLifecycleComponent implements OnInit {
 
   logSelectedColumns() {
     const dialogRef = this.dialog.open(ColumnSelectComponent, {
-      width: '600px',
+      width: '350px',
       data: this.selectedColumnsToDisplay,
     });
 

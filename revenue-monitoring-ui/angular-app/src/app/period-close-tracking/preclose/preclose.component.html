@@ -85,10 +85,13 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <div class="periodclosetable" style="overflow: auto; max-width: 100%">
+  <div
+    class="container periodclosetable"
+    style="overflow: auto; max-width: 100%"
+  >
     <table
       style="width: -webkit-fill-available; font-size: 12px"
-      class="table table-responsive equal-width"
+      class="table table-responsive equal-width table-striped"
     >
       <thead>
         <tr>
@@ -196,8 +199,8 @@
       Download
     </button>
   </div>
-  <div class="periodclosetable">
-    <table class="table table-responsive table-bordered table-striped">
+  <div class="periodclosetable container">
+    <table class="table table-responsive equal-width table-striped">
       <thead>
         <tr>
           <th *ngFor="let col of pcloseInterfaceLoadColumns">{{ col }}</th>
@@ -247,10 +250,10 @@
     [data]="preCloseProgramTableData"
     class="cuiAlign periodclosetable"
   ></cui-table> -->
-  <div class="periodclosetable">
+  <div class="periodclosetable container">
     <table
       *ngIf="preCloseProgramTableData.length"
-      class="table table-striped table-bordered"
+      class="table table-responsive equal-width table-striped"
     >
       <thead>
         <tr>
@@ -295,10 +298,10 @@
     class="cuiAlign periodclosetable"
   ></cui-table> -->
 
-  <div class="periodclosetable" *ngIf="isQuarterEnd">
+  <div class="periodclosetable container" *ngIf="isQuarterEnd">
     <table
       *ngIf="qeCashCollectedData.length"
-      class="table table-striped table-bordered"
+      class="table table-responsive equal-width table-striped"
     >
       <thead>
         <tr>
@@ -344,7 +347,7 @@
         <button
           mat-raised-button
           (click)="showCommentSave = false"
-          style="color: #049fd9"
+          style="color: gray"
         >
           Cancel
         </button>

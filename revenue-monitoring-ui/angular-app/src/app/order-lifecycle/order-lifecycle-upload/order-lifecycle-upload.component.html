@@ -1,22 +1,35 @@
-<h4 mat-dialog-title>
-  Deal Upload
-  <a style="float: right !important; text-decoration: none"
-    ><i
+<div
+  style="
+    margin: -24px -24px 0 -24px; /* Removes default padding */
+    background-color: #202428;
+    padding: 10px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  "
+>
+  <!-- Title on the left -->
+  <h5 style="margin: 0; font-weight: 450">Deal Upload</h5>
+
+  <!-- Icons on the right (Download and Close) -->
+  <a style="text-decoration: none; cursor: pointer">
+    <i
       class="fa fa-close"
-      style="font-size: 24px; color: gray"
+      style="font-size: 16px; color: white"
       (click)="closeDialog('closed')"
-    ></i
-  ></a>
-</h4>
+    ></i>
+  </a>
+</div>
+
 <mat-tab-group>
   <mat-tab label="File Upload" style="text-align: center">
     <br />
-    <div style="display: flex; justify-content: end; align-items: center">
+    <div style="display: flex; justify-content: flex-end; align-items: center">
       <a href="../../assets/Large Order Upload Sample.csv" download
-        ><i class="fa fa-download" aria-hidden="true">
-          &nbsp;Download Sample Template</i
-        ></a
-      >
+        ><i class="svg-icon download-icon" aria-hidden="true"></i>
+        <span>&nbsp;Download Sample Template</span>
+      </a>
     </div>
     <br />
     <div
@@ -25,7 +38,7 @@
       (dragover)="onDragOver($event)"
       cdkDropList
     >
-      <i style="color: gray" class="fa fa-2x fa-upload"></i>
+      <i style="color: gray" class="fa fa-2x fa-cloud-upload"></i>
       <p>Drag and drop your file here</p>
       <p>or</p>
       <button mat-raised-button (click)="fileInput.click()">Select File</button>

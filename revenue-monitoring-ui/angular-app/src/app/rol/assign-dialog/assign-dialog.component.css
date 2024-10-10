@@ -113,7 +113,7 @@ label {
   line-height: 20px;
   cursor: pointer;
   border-radius: 6px;
-  background-color: #1c9ac8;
+  background-color: rgb(77, 76, 76);
   color: #fff !important;
   border: none;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
