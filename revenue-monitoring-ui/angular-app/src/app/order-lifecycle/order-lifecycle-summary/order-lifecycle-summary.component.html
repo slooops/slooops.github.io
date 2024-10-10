@@ -46,7 +46,11 @@
             >
               Program Name
             </th>
-            <td mat-cell *matCellDef="let record">
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
+            >
               {{ record.PROGRAM_NAME }}
             </td>
           </ng-container>
@@ -54,7 +58,13 @@
           <!-- STATUS Column -->
           <ng-container matColumnDef="STATUS">
             <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let record">{{ record.STATUS }}</td>
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
+            >
+              {{ record.STATUS }}
+            </td>
           </ng-container>
 
           <!-- ORDER_COUNT Column -->
@@ -66,7 +76,11 @@
             >
               Order count
             </th>
-            <td mat-cell *matCellDef="let record">
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
+            >
               {{ record.ORDER_COUNT }}
             </td>
           </ng-container>
@@ -74,7 +88,11 @@
           <!-- COMPLETION Column -->
           <ng-container matColumnDef="COMPLETION">
             <th mat-header-cell *matHeaderCellDef>Completion</th>
-            <td mat-cell *matCellDef="let record">
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
+            >
               {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
             </td>
           </ng-container>
@@ -89,7 +107,6 @@
           <tr
             mat-row
             *matRowDef="let record; columns: displayedColumns; let entry"
-            [ngClass]="{ bold: entry.PROGRAM_NAME.includes('Total') }"
           ></tr>
         </table>
       </div>
@@ -117,19 +134,35 @@
           <!-- PROGRAM_NAME Column -->
           <ng-container matColumnDef="ACCOUNT">
             <th mat-header-cell *matHeaderCellDef>Account</th>
-            <td mat-cell *matCellDef="let record">{{ record.ACCOUNT }}</td>
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
+            >
+              {{ record.ACCOUNT }}
+            </td>
           </ng-container>
 
           <!-- STATUS Column -->
           <ng-container matColumnDef="STATUS">
             <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let record">{{ record.STATUS }}</td>
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
+            >
+              {{ record.STATUS }}
+            </td>
           </ng-container>
 
           <!-- ORDER_COUNT Column -->
           <ng-container matColumnDef="ORDER_COUNT">
             <th mat-header-cell *matHeaderCellDef>Order count</th>
-            <td mat-cell *matCellDef="let record">
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
+            >
               {{ record.ORDER_COUNT }}
             </td>
           </ng-container>
@@ -137,7 +170,11 @@
           <!-- COMPLETION Column -->
           <ng-container matColumnDef="COMPLETION">
             <th mat-header-cell *matHeaderCellDef>Completion</th>
-            <td mat-cell *matCellDef="let record">
+            <td
+              mat-cell
+              *matCellDef="let record"
+              [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
+            >
               {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
             </td>
           </ng-container>
@@ -156,7 +193,6 @@
               columns: displayedColumnsByAccount;
               let entry
             "
-            [ngClass]="{ bold: entry.ACCOUNT.includes('Total') }"
           ></tr>
         </table>
       </div>

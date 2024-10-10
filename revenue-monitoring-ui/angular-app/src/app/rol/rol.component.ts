@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { DataService } from '../providers/data.service';
+import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
@@ -55,7 +56,8 @@ export class RolComponent implements OnInit {
     private http: ApiHttpService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private dataService: DataService
+    private dataService: DataService,
+    private datePipe: DatePipe
   ) {}
 
   ngOnInit(): void {
@@ -71,17 +73,12 @@ export class RolComponent implements OnInit {
     if (this.openChartModal) {
       this.getChartTotals();
     }
-    // setTimeout(() => {
-    //   if (this.paginator) {
-    //     this.dataSource.paginator = this.paginator;
-    //     this.cdr.detectChanges(); // Ensure change detection
-    //   }
-    // });
   }
 
   getRolErrorSummaryData() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
+      console.log(data);
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
       this.rolErrorColumns = [
         'PERIOD_NAME',
@@ -124,11 +121,7 @@ export class RolComponent implements OnInit {
   }
 
   dateTransform(dateString: string): string {
-    const date = new Date(dateString);
-    const month = ('0' + (date.getMonth() + 1)).slice(-2);
-    const day = ('0' + date.getDate()).slice(-2);
-    const year = date.getFullYear();
-    return `${month}/${day}/${year}`;
+    return this.datePipe.transform(dateString, 'MM/dd/yyyy');
   }
 
   isFiltered: boolean = false;

@@ -21,22 +21,22 @@ import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/rol',
     pathMatch: 'full',
   },
-  {
-    path: 'home',
-    component: HomeComponent,
-    data: {
-      title: 'Operations Control Tower',
-      header: 'Operations Control Tower',
-    },
-  },
-  {
-    path: 'error',
-    component: ErrorComponent,
-    data: { title: 'Error', header: '' },
-  },
+  // {
+  //   path: 'home',
+  //   component: HomeComponent,
+  //   data: {
+  //     title: 'Operations Control Tower',
+  //     header: 'Operations Control Tower',
+  //   },
+  // },
+  // {
+  //   path: 'error',
+  //   component: ErrorComponent,
+  //   data: { title: 'Error', header: '' },
+  // },
 
   {
     path: 'period-close-tracking-preclose',
@@ -54,23 +54,23 @@ const routes: Routes = [
       header: 'Period Close Tracking',
     },
   },
-  {
-    path: 'error-dash',
-    component: ErrorDashComponent,
-    // children: [{ path: 'detail-view', component: DetailViewComponent }],
-    data: {
-      title: 'Operations Control Tower',
-      header: 'Operations Control Tower',
-    },
-  },
-  {
-    path: 'detail-view',
-    component: DetailViewComponent,
-    data: {
-      title: 'Operations Control Tower',
-      header: 'Operations Control Tower',
-    },
-  },
+  // {
+  //   path: 'error-dash',
+  //   component: ErrorDashComponent,
+  //   // children: [{ path: 'detail-view', component: DetailViewComponent }],
+  //   data: {
+  //     title: 'Operations Control Tower',
+  //     header: 'Operations Control Tower',
+  //   },
+  // },
+  // {
+  //   path: 'detail-view',
+  //   component: DetailViewComponent,
+  //   data: {
+  //     title: 'Operations Control Tower',
+  //     header: 'Operations Control Tower',
+  //   },
+  // },
   {
     path: 'large-deal-tracker',
     component: OrderLifecycleComponent,
@@ -79,11 +79,11 @@ const routes: Routes = [
       header: 'Large Deal Processing Tracker',
     },
   },
-  {
-    path: 'invoice-tracker',
-    component: InvoiceTrackerComponent,
-    data: { title: 'Home', header: 'Home' },
-  },
+  // {
+  //   path: 'invoice-tracker',
+  //   component: InvoiceTrackerComponent,
+  //   data: { title: 'Home', header: 'Home' },
+  // },
   {
     path: 'wd0-dash',
     component: Wd0DashComponent,
@@ -100,14 +100,14 @@ const routes: Routes = [
       header: 'WD+0 Mid Close Volumes',
     },
   },
-  {
-    path: 'revenue-accruals',
-    component: RevenueAccrualsComponent,
-    data: {
-      title: 'Revenue Accruals Dashboard',
-      header: 'Revenue Accruals Dashboard',
-    },
-  },
+  // {
+  //   path: 'revenue-accruals',
+  //   component: RevenueAccrualsComponent,
+  //   data: {
+  //     title: 'Revenue Accruals Dashboard',
+  //     header: 'Revenue Accruals Dashboard',
+  //   },
+  // },
   {
     path: 'cms',
     component: CmsComponent,
@@ -140,22 +140,30 @@ const routes: Routes = [
       header: 'Revenue Orchestration Layer Monitoring',
     },
   },
-  {
-    path: 'sbp',
-    component: SbpComponent,
-    data: {
-      title: 'SBP Monitoring',
-      header: 'Subscription Billing Platform Monitoring',
-    },
-  },
-  {
-    path: 'case-analyzer',
-    component: EspCaseAnalyzerComponent,
-    data: {
-      title: 'ESP Case Analyzer Dashboard',
-      header: 'ESP Case Analyzer Dashboard',
-    },
-  },
+  // {
+  //   path: 'sbp',
+  //   component: SbpComponent,
+  //   data: {
+  //     title: 'SBP Monitoring',
+  //     header: 'Subscription Billing Platform Monitoring',
+  //   },
+  // },
+  // {
+  //   path: 'case-analyzer',
+  //   component: EspCaseAnalyzerComponent,
+  //   data: {
+  //     title: 'ESP Case Analyzer Dashboard',
+  //     header: 'ESP Case Analyzer Dashboard',
+  //   },
+  // },
+  // {
+  //   path: 'auto-invoicing',
+  //   component: AutoInvoicingComponent,
+  //   data: {
+  //     title: 'Auto Invoicing Dashboard',
+  //     header: 'Auto Invoicing Dashboard',
+  //   },
+  // },
 ];
 
 @NgModule({
