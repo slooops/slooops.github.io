@@ -717,9 +717,23 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getRolErrorSummaryPeriodStatus() {
-        return jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
-    }
+        String[] dateColumns = {"END_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
 
+        result.forEach(data -> {
+            for(String str: dateColumns){
+                if(data.get(str) != null){
+                    String date = data.get(str).toString();
+                    String[] dateArr = date.split(" ");
+                    data.put(str, dateArr[0]);
+                } else {
+                    data.put(str, "");
+
+                }
+            }
+        });
+        return result;
+    }
 
 
     public List<Map<String, Object>> getSbpSummary() {
