@@ -51,7 +51,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   numberOfMonths: number = 4;
   newMonthName: string = '';
   newMonthData = [[0, 0]];
-  fetchDataForNewMonth = true;
+  fetchDataForNewMonth = false;
   today = new Date();
 
   ngOnInit(): void {
