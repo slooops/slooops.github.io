@@ -254,6 +254,9 @@ public class QueryConfigs { // TODO
     @Value(("${rol.transaction.data.filter.count.query}"))
     public String rolTransactionDataFilterCount;
 
+    @Value(("${wd0.volumes.q}"))
+    public String wd0Volumes;
+
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {
         return this.stdArExcQuery;
@@ -657,5 +660,7 @@ public class QueryConfigs { // TODO
         return this.rolTransactionDataFilterCount;
     }
 
+    @Bean( name = "wd0Volumes" )
+    public String getWd0Volumes() {return this.wd0Volumes; }
 
 }
