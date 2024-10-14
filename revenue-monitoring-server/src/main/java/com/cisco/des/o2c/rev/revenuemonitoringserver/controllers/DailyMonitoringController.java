@@ -401,4 +401,9 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getCaseServiceMetricsSummary() {
         return new ResponseEntity<>(service.getCaseServiceMetricsSummary(), HttpStatus.OK);
     }
+
+    @GetMapping("/wd0-volumes")
+    public ResponseEntity<List<Map<String, Object>>> getWd0Volumes() {
+        return new ResponseEntity<>(service.getWd0Volumes(), HttpStatus.OK);
+    }
 }

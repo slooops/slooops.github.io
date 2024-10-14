@@ -81,6 +81,7 @@ public class DailyMonitoringService {
     private String rolChartDetails;
     private String rolTransactionDataFilter;
     private String rolTransactionDataFilterCount;
+    private String wd0Volumes;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -100,7 +101,7 @@ public class DailyMonitoringService {
                                   String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails,
                                   String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
                                   String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails,
-                                   String rolTransactionDataFilter, String rolTransactionDataFilterCount
+                                   String rolTransactionDataFilter, String rolTransactionDataFilterCount, String wd0Volumes
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -158,6 +159,7 @@ public class DailyMonitoringService {
         this.rolChartDetails = rolChartDetails;
         this.rolTransactionDataFilter = rolTransactionDataFilter;
         this.rolTransactionDataFilterCount = rolTransactionDataFilterCount;
+        this.wd0Volumes = wd0Volumes;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -762,6 +764,10 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getCaseServiceMetricsSummary() {
         return jdbcManager.queryForList(caseServiceMetricsSummary);
+    }
+
+    public List<Map<String, Object>> getWd0Volumes() {
+        return jdbcManager.queryForList(wd0Volumes);
     }
 
 }

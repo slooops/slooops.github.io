@@ -55,13 +55,13 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   today = new Date();
 
   ngOnInit(): void {
-    this.createProductServiceCombinedChart();
-
     const localDateString = this.today.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
     if (monthEndDates.includes(localDateString)) {
       this.fetchDataForNewMonth = true; // Flag to fetch new month data
     }
 
+    let serviceActuals = [null, null, null];
+    let productActuals = [null, null, null];
     console.log(this.today, 'hi', this.fetchDataForNewMonth);
 
     // Fetch data for regression
@@ -73,10 +73,8 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             data.forEach((item: any) => {
               if (item.LINE_TYPE === 'PRODUCT') {
                 this.newMonthData[0][0] = item.LINE_COUNT;
-                // this.newMonthData[0][0] = 0;
               } else if (item.LINE_TYPE === 'SERVICE') {
                 this.newMonthData[0][1] = item.LINE_COUNT;
-                // this.newMonthData[0][1] = 0;
               }
             });
             this.newMonthName = data[0].PERIOD_NAME;
@@ -85,6 +83,11 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         )
         .subscribe((data: any) => {
           this.unprocessedRegressionData = data;
+
+          productActuals = [null, null, null];
+          serviceActuals = [null, null, null];
+
+          this.getWd0Volumes(productActuals, serviceActuals);
 
           // Process regression data and execute regression
           setTimeout(() => {
@@ -98,9 +101,20 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     } else {
       this.http.get('wd0-regression').subscribe((data: any) => {
         this.unprocessedRegressionData = data;
+
+        productActuals = this.extractProductActuals(
+          this.unprocessedRegressionData
+        );
+        serviceActuals = this.extractServiceActuals(
+          this.unprocessedRegressionData
+        );
+
         const regressionData = this.processRecentMonths(
           this.unprocessedRegressionData
         );
+
+        this.getWd0Volumes(productActuals, serviceActuals);
+
         setTimeout(() => {
           this.runRegressionIfDataReady(regressionData);
           this.loading = false;
@@ -110,12 +124,97 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     this.refreshExportData();
     this.getHistoricalData();
-    this.createQ3ServiceLinePredictiveModel();
-    this.createProductLinePredictiveModel();
   }
 
   ngAfterViewInit() {
     // this.getRegressionData();
+  }
+
+  getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
+    console.log('productActuals', productActuals);
+    console.log('serviceActuals', serviceActuals);
+    this.http.get('wd0-volumes').subscribe((data: any) => {
+      // Step 1: Filter the most recent fiscal period
+      const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
+
+      // Step 2: Filter the data for the most recent period
+      const recentData = data.filter(
+        (entry: any) => entry.FISCAL_PERIOD === mostRecentFiscalPeriod
+      );
+
+      // Step 3: Organize by PRODUCT_TYPE and sort by WD
+      const productData = this.filterAndSortData(recentData, 'PRODUCT');
+      const serviceData = this.filterAndSortData(recentData, 'SERVICE');
+
+      // Now use `productData` and `serviceData` in your charts along with actuals
+      this.updateServiceLineChart(serviceData, serviceActuals); // for service data
+      this.updateProductLineChart(productData, productActuals); // for product data
+    });
+  }
+
+  // Step 1: Function to get the most recent fiscal period
+  getMostRecentFiscalPeriod(data: any[]): string {
+    // Extract all fiscal periods and sort them (assumes fiscal periods are sortable strings)
+    const fiscalPeriods = [
+      ...new Set(data.map((entry: any) => entry.FISCAL_PERIOD)),
+    ];
+    fiscalPeriods.sort(); // Sort in ascending order
+    return fiscalPeriods[fiscalPeriods.length - 1]; // Return the latest fiscal period
+  }
+
+  // Step 3: Function to filter and sort data by PRODUCT_TYPE and WD
+  filterAndSortData(data: any[], productType: string): any[] {
+    // Filter the data by product type
+    const filteredData = data.filter(
+      (entry: any) => entry.PRODUCT_TYPE === productType
+    );
+
+    // Sort the filtered data by WD and RUN_DATE, keeping only the latest entry for each WD
+    const sortedData = filteredData.sort((a: any, b: any) => {
+      // Sort by WD (ascending) first, then by RUN_DATE (descending)
+      const wdComparison = a.WD.localeCompare(b.WD);
+      if (wdComparison !== 0) return wdComparison; // Sort by WD first
+
+      return new Date(b.RUN_DATE).getTime() - new Date(a.RUN_DATE).getTime(); // Most recent RUN_DATE
+    });
+
+    // Step 5: Remove duplicates by WD, keeping only the most recent RUN_DATE for each WD
+    const uniqueByWD = sortedData.reduce((acc: any[], current: any) => {
+      const wdExists = acc.find((entry: any) => entry.WD === current.WD);
+      if (!wdExists) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+
+    return uniqueByWD; // Return the final filtered and sorted data
+  }
+
+  extractProductActuals(regressionData: any[]): number[] {
+    const productActuals = [null, null, null];
+    const productActual = regressionData
+      .filter((item: any) => item.LINE_TYPE === 'PRODUCT')
+      .pop();
+    if (productActual) {
+      productActuals[0] = productActual.LINE_COUNT;
+      productActuals[1] = productActual.LINE_COUNT;
+      productActuals[2] = productActual.LINE_COUNT;
+    }
+    return productActuals;
+  }
+
+  // Extract actuals for service
+  extractServiceActuals(regressionData: any[]): number[] {
+    const serviceActuals = [null, null, null];
+    const serviceActual = regressionData
+      .filter((item: any) => item.LINE_TYPE === 'SERVICE')
+      .pop();
+    if (serviceActual) {
+      serviceActuals[0] = serviceActual.LINE_COUNT;
+      serviceActuals[1] = serviceActual.LINE_COUNT;
+      serviceActuals[2] = serviceActual.LINE_COUNT;
+    }
+    return serviceActuals;
   }
 
   private getHistoricalData() {
@@ -171,146 +270,106 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     });
   }
 
-  createQ3ServiceLinePredictiveModel() {
-    // Check if actuals data is available (not null)
-    const actualsData = [null, null, null];
-    // const actualsData = [5086, 5086, 5086];
-    const actualsPresent = actualsData.some((value) => value !== null);
+  // Update the Q3 Service Line Predictive Model Chart
+  updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
+    const labels = serviceData.map((entry: any) => entry.WD);
+    const lowData = serviceData.map((entry: any) => entry.RECORD_COUNT_LOW);
+    const highData = serviceData.map((entry: any) => entry.RECORD_COUNT_HIGH);
 
-    // Define the chart data with conditional actuals dataset
+    const actualsPresent = serviceActuals.some((value) => value !== null);
+
     const chartData: ChartData<'line'> = {
-      labels: ['WD-3', 'WD-2', 'WD-1'],
+      labels: labels,
       datasets: [
         {
           label: 'Low',
-          data: [2417, 3109, 4122],
+          data: lowData,
           tension: 0.3,
           type: 'line',
-          fill: '+1', // Always fill between Low and High
-          backgroundColor: '#41414110', // Light gray background for the fill between Low and High
-          borderColor: '#8549ba', // Purple line for Low
+          fill: '+1',
+          backgroundColor: '#41414110',
+          borderColor: '#8549ba',
         },
         {
           label: 'High',
-          data: [16311, 13675, 7891],
+          data: highData,
           tension: 0.3,
           type: 'line',
-          fill: false, // No fill beyond the High line
-          backgroundColor: '#41414110', // Light gray background for the fill between Low and High
-
-          borderColor: '#00a950', // Green line for High
+          fill: false,
+          borderColor: '#00a950',
         },
       ],
     };
 
-    // Add Actuals dataset if data is present
     if (actualsPresent) {
       chartData.datasets.push({
         label: 'Actuals',
-        data: actualsData,
+        data: serviceActuals,
         tension: 0.3,
         type: 'line',
-        backgroundColor: 'rgba(255, 255, 0, 0.1)', // Yellow background for Actuals
-        borderColor: '#ffde5a', // Yellow line for Actuals
+        backgroundColor: 'rgba(255, 255, 0, 0.1)',
+        borderColor: '#ffde5a',
       });
     }
 
-    // Chart options with added padding and datalabels customization
-    const chartOptions: ChartOptions<'line'> = {
-      responsive: true,
-      plugins: {
-        tooltip: {
-          displayColors: false, // Remove color box
-        },
-        datalabels: {
-          display: true,
-          color: '#373737',
-          font: {
-            size: 10,
-          },
-          backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
-          borderRadius: 3,
-          padding: {
-            top: 2,
-            bottom: 2,
-            left: 4,
-            right: 4,
-          },
-          formatter: (value) => value, // Display the actual data values
-        },
-      },
-      scales: {
-        x: {
-          // Default x-axis configuration
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Line Count',
-          },
-          ticks: {
-            display: false, // Hide the Y-axis numbers
-          },
-          grid: {
-            drawTicks: false, // Don't draw the tick marks
-          },
-          position: 'left',
-        },
-      },
-    };
-
-    // Create the chart with type
     new Chart('q3ServiceLinePredictiveModel', {
       type: 'line',
       data: chartData,
-      options: chartOptions,
+      options: this.getChartOptions(),
     });
   }
 
-  createProductLinePredictiveModel() {
-    // Check if actuals data is available (not null)
-    // const actualsData = [null, null, null];
-    const actualsData = [10316, 10316, 10316];
-    const actualsPresent = actualsData.some((value) => value !== null);
+  updateProductLineChart(productData: any[], productActuals: number[]) {
+    const labels = productData.map((entry: any) => entry.WD);
+    const lowData = productData.map((entry: any) => entry.RECORD_COUNT_LOW);
+    const highData = productData.map((entry: any) => entry.RECORD_COUNT_HIGH);
 
-    // Define the chart data with conditional actuals dataset
+    const actualsPresent = productActuals.some((value) => value !== null);
+
     const chartData: ChartData<'line'> = {
-      labels: ['WD-3', 'WD-2', 'WD-1'],
+      labels: labels,
       datasets: [
         {
           label: 'Low',
-          data: [5123, 6136, 7401],
+          data: lowData,
           tension: 0.3,
           type: 'line',
-          fill: '+1', // Always fill between Low and High
-          backgroundColor: '#41414110', // Light gray background for the fill between Low and High
-          borderColor: '#8549ba', // Purple line for Low
+          fill: '+1',
+          backgroundColor: '#41414110',
+          borderColor: '#8549ba',
         },
         {
           label: 'High',
-          data: [28948, 23792, 14103],
+          data: highData,
           tension: 0.3,
           type: 'line',
-          fill: false, // No fill beyond the High line
-          borderColor: '#00a950', // Green line for High
+          fill: false,
+          borderColor: '#00a950',
         },
       ],
     };
 
-    // Add Actuals dataset if data is present
     if (actualsPresent) {
       chartData.datasets.push({
         label: 'Actuals',
-        data: actualsData,
+        data: productActuals,
         tension: 0.3,
         type: 'line',
-        backgroundColor: 'rgba(255, 255, 0, 0.1)', // Yellow background for Actuals
-        borderColor: '#ffe57e', // Yellow line for Actuals
+        backgroundColor: 'rgba(255, 255, 0, 0.1)',
+        borderColor: '#ffe57e',
       });
     }
 
-    // Chart options with added padding and datalabels customization
-    const chartOptions: ChartOptions<'line'> = {
+    new Chart('productLinePredictiveModel', {
+      type: 'line',
+      data: chartData,
+      options: this.getChartOptions(),
+    });
+  }
+
+  // Common Chart Options
+  getChartOptions(): ChartOptions<'line'> {
+    return {
       responsive: true,
       plugins: {
         tooltip: {
@@ -352,75 +411,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         },
       },
     };
-
-    // Create the chart with type
-    new Chart('productLinePredictiveModel', {
-      type: 'line',
-      data: chartData,
-      options: chartOptions,
-    });
-  }
-
-  createProductServiceCombinedChart() {
-    // Chart data
-    const chartData = {
-      labels: ['WD-3', 'WD-2', 'WD-1'], // Corresponding to 'WD' from both datasets
-      datasets: [
-        {
-          label: 'Product Low',
-          data: [6700, 7913, 7895], // Product Low data
-          tension: 0.3,
-        },
-        {
-          label: 'Product High',
-          data: [23447, 18458, 17171], // Product High data
-          tension: 0.3,
-        },
-        {
-          label: 'Product Actuals',
-          data: [11387, 11387, 11387], // Product Actuals data
-          tension: 0.3,
-        },
-        {
-          label: 'Service Low',
-          data: [7186, 8206, 8947], // Service Low data
-          tension: 0.3,
-        },
-        {
-          label: 'Service High',
-          data: [25671, 19873, 17893], // Service High data
-          tension: 0.3,
-        },
-        {
-          label: 'Service Actuals',
-          data: [12375, 12375, 12375], // Service Actuals data
-          tension: 0.3,
-        },
-      ],
-    };
-
-    // Chart options
-    const chartOptions = {
-      responsive: true,
-      scales: {
-        x: {
-          // Default x-axis configuration (no additional title)
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Line Count',
-          },
-        },
-      },
-    };
-
-    // Create the chart
-    new Chart('productServiceCombinedChart', {
-      type: 'line',
-      data: chartData,
-      options: chartOptions,
-    });
   }
 
   formatColumnHeader(columnName: string): string {
@@ -436,6 +426,17 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       // For any columnName that doesn't match the pattern, replace underscores with spaces
       return columnName.replace(/_/g, ' ');
     }
+  }
+
+  private getFiscalQuarter(month: string, year: string): string {
+    const fiscalMonths = {
+      OCT: 'Q1',
+      JAN: 'Q2',
+      APR: 'Q3',
+      JUL: 'Q4',
+    };
+    const fiscalQuarter = fiscalMonths[month];
+    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
   }
 
   //for the blue line on the table
@@ -503,91 +504,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       ),
       'trend',
     ].map((key) => String(key));
-  }
-
-  private getFiscalQuarter(month: string, year: string): string {
-    const fiscalMonths = {
-      OCT: 'Q1',
-      JAN: 'Q2',
-      APR: 'Q3',
-      JUL: 'Q4',
-    };
-    const fiscalQuarter = fiscalMonths[month];
-    return fiscalQuarter ? `${fiscalQuarter}_${year}` : '';
-  }
-
-  generateBarChart(
-    historicalData: HistoricalDataModel[],
-    canvasId: string = 'barChartCanvasId'
-  ) {
-    if (this.barChart) {
-      this.barChart.destroy();
-    }
-
-    const quarterlyData = this.sumQuarterlyData(historicalData);
-
-    const labels = Object.keys(quarterlyData).map((label) =>
-      label.replace(/_/g, ' ')
-    ); // Replace underscores
-
-    const datasets = [
-      {
-        label: 'Product',
-        data: labels.map(
-          (label) => quarterlyData[label.replace(/ /g, '_')].product || 0
-        ), // Replace spaces back to underscores to match keys
-        backgroundColor: 'rgb(77,184,255)',
-      },
-      {
-        label: 'Service',
-        data: labels.map(
-          (label) => quarterlyData[label.replace(/ /g, '_')].service || 0
-        ), // Replace spaces back to underscores to match keys
-        backgroundColor: 'rgb(0,119,188)',
-      },
-    ];
-
-    this.barChart = new Chart(canvasId, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: datasets,
-      },
-      options: {
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-    this.barChartLoading = false;
-  }
-
-  sumQuarterlyData(historicalData: HistoricalDataModel[]): any {
-    const quarterlySums = {};
-    historicalData.forEach((data) => {
-      Object.keys(data).forEach((key) => {
-        if (
-          key.includes('_') &&
-          !['ENTITY', 'LINE_TYPE', 'SEQUENCE_NUMBER'].includes(key)
-        ) {
-          const [month, year] = key.split('_');
-          const quarter = this.getFiscalQuarter(month, year);
-          const lineType = data.LINE_TYPE ? data.LINE_TYPE.toLowerCase() : null;
-          const valueString = data[key];
-          const value = valueString ? parseInt(valueString, 10) : 0;
-
-          if (lineType && !isNaN(value)) {
-            if (!quarterlySums[quarter]) {
-              quarterlySums[quarter] = { service: 0, product: 0 };
-            }
-            quarterlySums[quarter][lineType] += value;
-          }
-        }
-      });
-    });
-    return quarterlySums;
   }
 
   refreshExportData() {
@@ -797,18 +713,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     if (this.lineChart) {
       this.lineChart.destroy();
     }
-
-    const COLORS = [
-      '#4dc9f6',
-      '#f67019',
-      '#f53794',
-      '#537bc4',
-      '#acc236',
-      '#166a8f',
-      '#00a950',
-      '#58595b',
-      '#8549ba',
-    ];
 
     // Now, recreate the chart with the new data
     this.lineChart = new Chart(ctx, {
