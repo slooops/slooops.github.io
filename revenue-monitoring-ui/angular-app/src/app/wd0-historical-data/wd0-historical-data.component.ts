@@ -502,12 +502,17 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         allKeys.add(key);
       });
     });
+
+    // Convert the Set to an array and filter out ENTITY and LINE_TYPE
+    const columnArray = Array.from(allKeys).filter(
+      (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
+    );
+
+    // Keep only the last 15 columns along with ENTITY and LINE_TYPE
     this.displayedColumns = [
       'ENTITY',
       'LINE_TYPE',
-      ...Array.from(allKeys).filter(
-        (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
-      ),
+      ...columnArray.slice(-16), // Selects the last 15 columns
       'trend',
     ].map((key) => String(key));
   }
