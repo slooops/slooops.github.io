@@ -25,6 +25,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   errorMessage: boolean = false;
   barChartLoading: boolean = true;
   dataTimestamp: string;
+  numberOfQuartersOfHistoricalData: number = 16;
 
   upperCI: number;
   lowerCI: number;
@@ -63,7 +64,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     let serviceActuals = [null, null, null];
     let productActuals = [null, null, null];
-    console.log(this.today, 'hi', this.fetchDataForNewMonth);
+    console.log(this.today, 'Current Date: ', this.fetchDataForNewMonth);
 
     // Fetch data for regression
     if (this.fetchDataForNewMonth) {
@@ -126,8 +127,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
-    console.log('productActuals', productActuals);
-    console.log('serviceActuals', serviceActuals);
     this.http.get('wd0-volumes').subscribe((data: any) => {
       // Step 1: Filter the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
@@ -512,7 +511,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     this.displayedColumns = [
       'ENTITY',
       'LINE_TYPE',
-      ...columnArray.slice(-16), // Selects the last 15 columns
+      ...columnArray.slice(-this.numberOfQuartersOfHistoricalData), // Selects the last 16 columns
       'trend',
     ].map((key) => String(key));
   }
@@ -595,7 +594,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   }
 
   processRecentMonths = (data: any) => {
-    console.log('Recent months data:', data);
     const filteredData = data.filter((entry: any) => {
       return !(
         entry.PERIOD_NAME === this.newMonthName && entry.LINE_COUNT === null
@@ -634,84 +632,92 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     });
 
     // Prep the data and run regression (this sets a model in the service)
-    const regressionData = this.processRegressionData(filteredData);
+    const runRegression = async (): Promise<void> => {
+      try {
+        const regressionData = this.processRegressionData(filteredData);
 
-    if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-      console.log('Regression data is empty:', regressionData);
-      this.errorMessage = true;
-      this.loading = false;
-      return;
-    }
+        if (regressionData.X.length === 0 || regressionData.y.length === 0) {
+          console.log('Regression data is empty:', regressionData);
+          this.errorMessage = true;
+          this.loading = false;
+          return;
+        }
 
-    this.regressionService.performMultipleLinearRegression(
-      regressionData.X,
-      regressionData.y
-    );
+        this.regressionService.performMultipleLinearRegression(
+          regressionData.X,
+          regressionData.y
+        );
 
-    // Collect recent months of data for graph
-    const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
-    const degreesOfFreedomBase = regressionData.X.length - 2;
-    const combineRecentMonthsWithDFData = recentMonthsData.map(
-      (monthData, index) => {
-        return {
-          X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
-          degreesOfFreedom:
-            degreesOfFreedomBase - (this.numberOfMonths - 1 - index), // Adjust the index for the last 12 months
-        };
+        // Collect recent months of data for graph
+        const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
+        const degreesOfFreedomBase = regressionData.X.length - 2;
+        const combineRecentMonthsWithDFData = recentMonthsData.map(
+          (monthData, index) => {
+            return {
+              X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
+              degreesOfFreedom:
+                degreesOfFreedomBase - (this.numberOfMonths - 1 - index), // Adjust the index for the last 12 months
+            };
+          }
+        );
+
+        if (this.fetchDataForNewMonth) {
+          recentMonthsData.push(this.newMonthData[0]);
+        }
+
+        let fastestTimes = [];
+        let slowestTimes = [];
+
+        // Get last 6 months confidence intervals
+        combineRecentMonthsWithDFData.forEach((data) => {
+          const result = this.regressionService.predictWithConfidenceIntervals(
+            data.X,
+            data.degreesOfFreedom
+          );
+          fastestTimes.push(+result.lowerCI.toFixed(2));
+          slowestTimes.push(+result.upperCI.toFixed(2));
+        });
+
+        // For next month prediction (.length - 1 is for the degrees of freedom)
+        // const upcomingMonthPrediction =
+        //   this.regressionService.predictWithConfidenceIntervals(
+        //     this.newMonthData,
+        //     regressionData.X.length - 1
+        //   );
+        // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+        // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+
+        // Overwrite specific times in the fastestTimes array
+        fastestTimes[2] = 3.22;
+        slowestTimes[2] = 5.98;
+
+        fastestTimes[3] = 3.17;
+        slowestTimes[3] = 5.93;
+
+        fastestTimes.push(3.47);
+        slowestTimes.push(5.87);
+
+        let actualTimes = regressionData.y
+          .slice(-this.numberOfMonths)
+          .map((time) => time[0]);
+
+        this.createLineGraph(
+          fastestTimes,
+          slowestTimes,
+          recentMonthNames,
+          recentMonthsData,
+          actualTimes
+        );
+        this.loading = false; // Set loading to false after data is processed
+      } catch (error) {
+        console.error('Error fetching data', error);
+        this.errorMessage = true;
+
+        this.loading = false;
       }
-    );
+    };
 
-    if (this.fetchDataForNewMonth) {
-      recentMonthsData.push(this.newMonthData[0]);
-    }
-
-    let fastestTimes = [];
-    let slowestTimes = [];
-
-    // Get last 6 months confidence intervals
-    combineRecentMonthsWithDFData.forEach((data) => {
-      const result = this.regressionService.predictWithConfidenceIntervals(
-        data.X,
-        data.degreesOfFreedom
-      );
-      fastestTimes.push(+result.lowerCI.toFixed(2));
-      slowestTimes.push(+result.upperCI.toFixed(2));
-    });
-
-    // For next month prediction (.length - 1 is for the degrees of freedom)
-    // const upcomingMonthPrediction =
-    //   this.regressionService.predictWithConfidenceIntervals(
-    //     this.newMonthData,
-    //     regressionData.X.length - 1
-    //   );
-    // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-    // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-
-    // Overwrite specific times in the fastestTimes array
-    fastestTimes[2] = 3.22;
-    slowestTimes[2] = 5.98;
-
-    fastestTimes[3] = 3.17;
-    slowestTimes[3] = 5.93;
-
-    fastestTimes.push(3.47);
-    slowestTimes.push(5.87);
-
-    console.log('fastest times', fastestTimes);
-    console.log('slowest times', slowestTimes);
-
-    let actualTimes = regressionData.y
-      .slice(-this.numberOfMonths)
-      .map((time) => time[0]);
-
-    this.createLineGraph(
-      fastestTimes,
-      slowestTimes,
-      recentMonthNames,
-      recentMonthsData,
-      actualTimes
-    );
-    this.loading = false; // Set loading to false after data is processed
+    runRegression(); // Call the async function
   };
 
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
