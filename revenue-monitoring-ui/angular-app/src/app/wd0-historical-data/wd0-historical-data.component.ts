@@ -24,6 +24,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   loading: boolean = true;
   errorMessage: boolean = false;
   barChartLoading: boolean = true;
+  dataTimestamp: string;
 
   upperCI: number;
   lowerCI: number;
@@ -38,7 +39,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
   refreshInterval = 300000; //ms = 5 minutes
 
-  private barChart: Chart | null = null;
   private lineChart: Chart | null = null;
 
   displayedColumns: string[] = [];
@@ -55,6 +55,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   today = new Date();
 
   ngOnInit(): void {
+    this.dataTimestamp = `Last Updated: ...`;
     const localDateString = this.today.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
     if (monthEndDates.includes(localDateString)) {
       this.fetchDataForNewMonth = true; // Flag to fetch new month data
@@ -100,25 +101,19 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         });
     } else {
       this.http.get('wd0-regression').subscribe((data: any) => {
-        this.unprocessedRegressionData = data;
+        // this.unprocessedRegressionData = data;
 
-        productActuals = this.extractProductActuals(
-          this.unprocessedRegressionData
-        );
-        serviceActuals = this.extractServiceActuals(
-          this.unprocessedRegressionData
-        );
+        productActuals = this.extractProductActuals(data);
+        serviceActuals = this.extractServiceActuals(data);
 
-        const regressionData = this.processRecentMonths(
-          this.unprocessedRegressionData
-        );
+        data = this.processRecentMonths(data);
 
         this.getWd0Volumes(productActuals, serviceActuals);
 
-        setTimeout(() => {
-          this.runRegressionIfDataReady(regressionData);
-          this.loading = false;
-        }, 1000);
+        // this.regressionService.performMultipleLinearRegression(data.X, data.y);
+
+        this.loading = false;
+        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
       });
     }
 
@@ -272,9 +267,13 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
   // Update the Q3 Service Line Predictive Model Chart
   updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
-    const labels = serviceData.map((entry: any) => entry.WD);
-    const lowData = serviceData.map((entry: any) => entry.RECORD_COUNT_LOW);
-    const highData = serviceData.map((entry: any) => entry.RECORD_COUNT_HIGH);
+    const labels = serviceData.map((entry: any) => entry.WD).reverse();
+    const lowData = serviceData
+      .map((entry: any) => entry.RECORD_COUNT_LOW)
+      .reverse();
+    const highData = serviceData
+      .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
+      .reverse();
 
     const actualsPresent = serviceActuals.some((value) => value !== null);
 
@@ -320,9 +319,13 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
   }
 
   updateProductLineChart(productData: any[], productActuals: number[]) {
-    const labels = productData.map((entry: any) => entry.WD);
-    const lowData = productData.map((entry: any) => entry.RECORD_COUNT_LOW);
-    const highData = productData.map((entry: any) => entry.RECORD_COUNT_HIGH);
+    const labels = productData.map((entry: any) => entry.WD).reverse();
+    const lowData = productData
+      .map((entry: any) => entry.RECORD_COUNT_LOW)
+      .reverse();
+    const highData = productData
+      .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
+      .reverse();
 
     const actualsPresent = productActuals.some((value) => value !== null);
 
@@ -377,9 +380,10 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
         },
         datalabels: {
           display: true,
-          color: '#373737',
+          color: '#767676',
           font: {
             size: 10,
+            weight: 'bold',
           },
           backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
           borderRadius: 3,
@@ -389,7 +393,9 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
             left: 4,
             right: 4,
           },
-          formatter: (value) => value, // Display the actual data values
+          formatter: (value, context) => {
+            return value.toLocaleString(); // Apply commas to all values
+          },
         },
       },
       scales: {
@@ -626,7 +632,7 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     const regressionData = this.processRegressionData(filteredData);
 
     if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-      console.error('Regression data is empty:', regressionData);
+      console.log('Regression data is empty:', regressionData);
       this.errorMessage = true;
       this.loading = false;
       return;
