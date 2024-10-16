@@ -19,7 +19,7 @@ Chart.register(...registerables);
   templateUrl: './wd0-historical-data.component.html',
   styleUrls: ['./wd0-historical-data.component.scss'],
 })
-export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
+export class Wd0HistoricalDataComponent implements OnInit {
   protected http: ApiHttpService;
   loading: boolean = true;
   errorMessage: boolean = false;
@@ -84,34 +84,20 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
           switchMap(() => this.http.get('wd0-regression'))
         )
         .subscribe((data: any) => {
-          this.unprocessedRegressionData = data;
-
           productActuals = [null, null, null];
           serviceActuals = [null, null, null];
-
           this.getWd0Volumes(productActuals, serviceActuals);
 
-          // Process regression data and execute regression
-          setTimeout(() => {
-            const regressionData = this.processRecentMonths(
-              this.unprocessedRegressionData
-            );
-            this.runRegressionIfDataReady(regressionData);
-            this.loading = false;
-          }, 1000);
+          this.prepareDataForRegression(data);
+          this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
         });
     } else {
       this.http.get('wd0-regression').subscribe((data: any) => {
-        // this.unprocessedRegressionData = data;
-
         productActuals = this.extractProductActuals(data);
         serviceActuals = this.extractServiceActuals(data);
-
-        data = this.processRecentMonths(data);
-
         this.getWd0Volumes(productActuals, serviceActuals);
 
-        // this.regressionService.performMultipleLinearRegression(data.X, data.y);
+        this.prepareDataForRegression(data);
 
         this.loading = false;
         this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
@@ -120,10 +106,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
 
     this.refreshExportData();
     this.getHistoricalData();
-  }
-
-  ngAfterViewInit() {
-    // this.getRegressionData();
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
@@ -593,7 +575,8 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
     return polling$;
   }
 
-  processRecentMonths = (data: any) => {
+  // Method 1: Filters and prepares the data, then passes to processRegressionData
+  prepareDataForRegression = (data: any) => {
     const filteredData = data.filter((entry: any) => {
       return !(
         entry.PERIOD_NAME === this.newMonthName && entry.LINE_COUNT === null
@@ -613,111 +596,151 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       recentMonthNames.push(this.newMonthName);
     }
 
-    // Ensure there are no null execution times only when fetchDataForNewMonth is true
+    // Ensure there are no null execution times
     filteredData.forEach((entry: any) => {
       if (
         entry.EXECUTION_TIME === null &&
         entry.LINE_COUNT !== null &&
         this.fetchDataForNewMonth
       ) {
-        console.log('Null execution time found:', entry);
-        entry.EXECUTION_TIME = 4.0; // Replace with a default value
+        entry.EXECUTION_TIME = 4.0; // Default value
       } else if (
         entry.EXECUTION_TIME === null &&
         entry.LINE_COUNT !== null &&
         !this.fetchDataForNewMonth
       ) {
-        entry.EXECUTION_TIME = 0.0; // Replace with a default value
+        entry.EXECUTION_TIME = 0.0; // Default value
       }
     });
 
-    // Prep the data and run regression (this sets a model in the service)
-    const runRegression = async (): Promise<void> => {
-      try {
-        const regressionData = this.processRegressionData(filteredData);
+    this.processRegressionData(filteredData, recentMonthNames);
+  };
 
-        if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-          console.log('Regression data is empty:', regressionData);
-          this.errorMessage = true;
-          this.loading = false;
-          return;
-        }
+  // Method 2: Processes the regression data
+  processRegressionData(data: any[], recentMonthNames: string[]): void {
+    const excludePeriods = ['JUL-23', 'APR-23'];
+    const productLines: number[] = [];
+    const serviceLines: number[] = [];
+    const executionTimes: number[] = [];
 
-        this.regressionService.performMultipleLinearRegression(
-          regressionData.X,
-          regressionData.y
-        );
+    const filteredData = data.filter(
+      (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
+    );
 
-        // Collect recent months of data for graph
-        const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
-        const degreesOfFreedomBase = regressionData.X.length - 2;
-        const combineRecentMonthsWithDFData = recentMonthsData.map(
-          (monthData, index) => {
-            return {
-              X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
-              degreesOfFreedom:
-                degreesOfFreedomBase - (this.numberOfMonths - 1 - index), // Adjust the index for the last 12 months
-            };
-          }
-        );
+    for (let i = 0; i < filteredData.length; i += 2) {
+      const productEntry =
+        filteredData[i].LINE_TYPE === 'PRODUCT'
+          ? filteredData[i]
+          : filteredData[i + 1];
+      const serviceEntry =
+        filteredData[i].LINE_TYPE === 'SERVICE'
+          ? filteredData[i]
+          : filteredData[i + 1];
 
-        if (this.fetchDataForNewMonth) {
-          recentMonthsData.push(this.newMonthData[0]);
-        }
-
-        let fastestTimes = [];
-        let slowestTimes = [];
-
-        // Get last 6 months confidence intervals
-        combineRecentMonthsWithDFData.forEach((data) => {
-          const result = this.regressionService.predictWithConfidenceIntervals(
-            data.X,
-            data.degreesOfFreedom
-          );
-          fastestTimes.push(+result.lowerCI.toFixed(2));
-          slowestTimes.push(+result.upperCI.toFixed(2));
-        });
-
-        // For next month prediction (.length - 1 is for the degrees of freedom)
-        // const upcomingMonthPrediction =
-        //   this.regressionService.predictWithConfidenceIntervals(
-        //     this.newMonthData,
-        //     regressionData.X.length - 1
-        //   );
-        // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-        // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-
-        // Overwrite specific times in the fastestTimes array
-        fastestTimes[2] = 3.22;
-        slowestTimes[2] = 5.98;
-
-        fastestTimes[3] = 3.17;
-        slowestTimes[3] = 5.93;
-
-        fastestTimes.push(3.47);
-        slowestTimes.push(5.87);
-
-        let actualTimes = regressionData.y
-          .slice(-this.numberOfMonths)
-          .map((time) => time[0]);
-
-        this.createLineGraph(
-          fastestTimes,
-          slowestTimes,
-          recentMonthNames,
-          recentMonthsData,
-          actualTimes
-        );
-        this.loading = false; // Set loading to false after data is processed
-      } catch (error) {
-        console.error('Error fetching data', error);
-        this.errorMessage = true;
-
-        this.loading = false;
+      if (
+        productEntry.LINE_COUNT != null &&
+        serviceEntry.LINE_COUNT != null &&
+        productEntry.EXECUTION_TIME != null
+      ) {
+        productLines.push(productEntry.LINE_COUNT);
+        serviceLines.push(serviceEntry.LINE_COUNT);
+        executionTimes.push(productEntry.EXECUTION_TIME);
       }
-    };
+    }
 
-    runRegression(); // Call the async function
+    const X = productLines.map((productCount, index) => [
+      productCount,
+      serviceLines[index],
+    ]);
+    const yFormatted = executionTimes.map((time) => [time]);
+
+    // Now pass processed regression data and recentMonthNames to executeRegression
+    this.executeRegression({ X, y: yFormatted }, recentMonthNames);
+  }
+
+  executeRegression = async (
+    regressionData: { X: number[][]; y: number[][] },
+    recentMonthNames: string[]
+  ) => {
+    try {
+      if (regressionData.X.length === 0 || regressionData.y.length === 0) {
+        console.log('Regression data is empty:', regressionData);
+        this.errorMessage = true;
+        this.loading = false;
+        return;
+      }
+
+      this.regressionService.performMultipleLinearRegression(
+        regressionData.X,
+        regressionData.y
+      );
+
+      // Collect recent months of data for graph
+      const recentMonthsData = regressionData.X.slice(-this.numberOfMonths);
+      const degreesOfFreedomBase = regressionData.X.length - 2;
+      const combineRecentMonthsWithDFData = recentMonthsData.map(
+        (monthData, index) => {
+          return {
+            X: [monthData], // The predictWithConfidenceIntervals function expects X as a 2D array
+            degreesOfFreedom:
+              degreesOfFreedomBase - (this.numberOfMonths - 1 - index), // Adjust the index for the last 12 months
+          };
+        }
+      );
+
+      if (this.fetchDataForNewMonth) {
+        recentMonthsData.push(this.newMonthData[0]);
+      }
+
+      let fastestTimes = [];
+      let slowestTimes = [];
+
+      // Get last 6 months confidence intervals
+      combineRecentMonthsWithDFData.forEach((data) => {
+        const result = this.regressionService.predictWithConfidenceIntervals(
+          data.X,
+          data.degreesOfFreedom
+        );
+        fastestTimes.push(+result.lowerCI.toFixed(2));
+        slowestTimes.push(+result.upperCI.toFixed(2));
+      });
+
+      // For next month prediction (.length - 1 is for the degrees of freedom)
+      // const upcomingMonthPrediction =
+      //   this.regressionService.predictWithConfidenceIntervals(
+      //     this.newMonthData,
+      //     regressionData.X.length - 1
+      //   );
+      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+
+      // Overwrite specific times in the fastestTimes array
+      fastestTimes[2] = 3.22;
+      slowestTimes[2] = 5.98;
+
+      fastestTimes[3] = 3.17;
+      slowestTimes[3] = 5.93;
+
+      fastestTimes.push(3.47);
+      slowestTimes.push(5.87);
+
+      let actualTimes = regressionData.y
+        .slice(-this.numberOfMonths)
+        .map((time) => time[0]);
+
+      this.createLineGraph(
+        fastestTimes,
+        slowestTimes,
+        recentMonthNames,
+        recentMonthsData,
+        actualTimes
+      );
+      this.loading = false; // Set loading to false after data is processed
+    } catch (error) {
+      console.error('Error fetching data', error);
+      this.errorMessage = true;
+      this.loading = false;
+    }
   };
 
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
@@ -830,62 +853,6 @@ export class Wd0HistoricalDataComponent implements OnInit, AfterViewInit {
       },
     });
   }
-
-  processRegressionData(data: any[]): { X: number[][]; y: number[][] } {
-    const excludePeriods = ['JUL-23', 'APR-23'];
-    const productLines: number[] = [];
-    const serviceLines: number[] = [];
-    const executionTimes: number[] = [];
-
-    const filteredData = data.filter(
-      (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
-    );
-
-    for (let i = 0; i < filteredData.length; i += 2) {
-      const productEntry =
-        filteredData[i].LINE_TYPE === 'PRODUCT'
-          ? filteredData[i]
-          : filteredData[i + 1];
-      const serviceEntry =
-        filteredData[i].LINE_TYPE === 'SERVICE'
-          ? filteredData[i]
-          : filteredData[i + 1];
-
-      if (
-        productEntry.LINE_COUNT != null &&
-        serviceEntry.LINE_COUNT != null &&
-        productEntry.EXECUTION_TIME != null
-      ) {
-        productLines.push(productEntry.LINE_COUNT);
-        serviceLines.push(serviceEntry.LINE_COUNT);
-        executionTimes.push(productEntry.EXECUTION_TIME);
-      }
-    }
-
-    const X = productLines.map((productCount, index) => [
-      productCount,
-      serviceLines[index],
-    ]);
-    const yFormatted = executionTimes.map((time) => [time]);
-
-    return { X, y: yFormatted };
-  }
-
-  runRegressionIfDataReady = (regressionData: any) => {
-    // Check if regressionData is ready before running the regression
-    if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-      console.error('Regression data is empty:', regressionData);
-      this.errorMessage = true;
-      this.loading = false;
-      return;
-    }
-
-    // Run regression
-    this.regressionService.performMultipleLinearRegression(
-      regressionData.X,
-      regressionData.y
-    );
-  };
 }
 
 export interface HistoricalDataModel {
