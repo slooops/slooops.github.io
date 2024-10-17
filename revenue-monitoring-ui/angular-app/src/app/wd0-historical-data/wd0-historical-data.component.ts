@@ -101,8 +101,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       }
     });
 
-    // console.log('1:', isWd1, ' 2:', isWd2, ' 3:', isWd3);
-
     let serviceActuals = [null, null, null];
     let productActuals = [null, null, null];
 
@@ -810,8 +808,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   // Method 2: Processes the regression data
   processRegressionData(data: any[], recentMonthNames: string[]): void {
-    console.log('Step 2 starting...:', data, recentMonthNames);
-
     const excludePeriods = ['JUL-23', 'APR-23'];
     const productLines: number[] = [];
     const serviceLines: number[] = [];
@@ -822,8 +818,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
     );
 
-    console.log('Step 2 excluded jul-23, apr-23:', filteredData);
-
     // Step 2: Group data by PERIOD_NAME
     const periodGroups = filteredData.reduce((groups, entry) => {
       const periodName = entry.PERIOD_NAME;
@@ -833,8 +827,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       groups[periodName][entry.LINE_TYPE] = entry; // Set either PRODUCT or SERVICE
       return groups;
     }, {});
-
-    console.log('Grouped by period:', periodGroups);
 
     // Step 3: Iterate through the grouped data and collect product, service, and execution times
     for (const period in periodGroups) {
@@ -855,23 +847,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
       }
     }
 
-    console.log(
-      'Step 2 removed nulls and pushed data. \n',
-      '\nproduct lines',
-      productLines,
-      '\n service lines',
-      serviceLines,
-      '\n execution times',
-      executionTimes
-    );
-
     const X = productLines.map((productCount, index) => [
       productCount,
       serviceLines[index],
     ]);
     const yFormatted = executionTimes.map((time) => [time]);
-
-    console.log('Step 2:', X, yFormatted);
 
     // Now pass processed regression data and recentMonthNames to executeRegression
     this.executeRegression({ X, y: yFormatted }, recentMonthNames);
