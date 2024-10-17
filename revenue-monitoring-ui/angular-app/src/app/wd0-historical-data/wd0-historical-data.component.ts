@@ -128,8 +128,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
           switchMap(() => this.getEndpointData('wd0-regression'))
         )
         .subscribe((data: any) => {
-          productActuals = this.extractProductActuals(data);
-          serviceActuals = this.extractServiceActuals(data);
+          let serviceActuals = [null, null, null];
+          let productActuals = [null, null, null];
+
+          // Check if the new month's data is present
+          const newMonthDataExists = data.some(
+            (entry: any) => entry.PERIOD_NAME === this.newMonthName
+          );
+
+          // If the new month's data exists, extract actuals. Otherwise, keep them as null.
+          if (newMonthDataExists) {
+            productActuals = this.extractProductActuals(data);
+            serviceActuals = this.extractServiceActuals(data);
+          }
+
+          // Pass the actuals (whether null or extracted) to getWd0Volumes
           this.getWd0Volumes(productActuals, serviceActuals);
 
           this.prepareDataForRegression(data);
@@ -190,7 +203,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
-    this.getEndpointData('wd0-volumes').subscribe((data: any) => {
+    this.http.get('wd0-volumes').subscribe((data: any) => {
       // Step 1: Filter the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
 
@@ -355,7 +368,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
           type: 'line',
           fill: '+1',
           backgroundColor: '#41414110',
-          borderColor: '#8549ba',
+          borderColor: '#8549ba', // Purple for Low line
+          pointBackgroundColor: '#8549ba', // Purple for dots
+          pointBorderColor: '#8549ba', // Purple for dot borders
         },
         {
           label: 'High',
@@ -363,7 +378,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
           tension: 0.3,
           type: 'line',
           fill: false,
-          borderColor: '#00a950',
+          borderColor: '#00a950', // Green for High line
+          pointBackgroundColor: '#00a950', // Green for dots
+          pointBorderColor: '#00a950', // Green for dot borders
         },
       ],
     };
@@ -375,7 +392,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
         tension: 0.3,
         type: 'line',
         backgroundColor: 'rgba(255, 255, 0, 0.1)',
-        borderColor: '#ffde5a',
+        borderColor: '#ffde5a', // Yellow for Actuals line
+        pointBackgroundColor: '#ffde5a', // Yellow for dots
+        pointBorderColor: '#ffde5a', // Yellow for dot borders
       });
     }
 
@@ -438,7 +457,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
           type: 'line',
           fill: '+1',
           backgroundColor: '#41414110',
-          borderColor: '#8549ba',
+          borderColor: '#8549ba', // Purple for Low line
+          pointBackgroundColor: '#8549ba', // Purple for dots
+          pointBorderColor: '#8549ba', // Purple for dot borders
         },
         {
           label: 'High',
@@ -446,7 +467,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
           tension: 0.3,
           type: 'line',
           fill: false,
-          borderColor: '#00a950',
+          borderColor: '#00a950', // Green for High line
+          pointBackgroundColor: '#00a950', // Green for dots
+          pointBorderColor: '#00a950', // Green for dot borders
         },
       ],
     };
@@ -458,7 +481,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
         tension: 0.3,
         type: 'line',
         backgroundColor: 'rgba(255, 255, 0, 0.1)',
-        borderColor: '#ffe57e',
+        borderColor: '#ffe57e', // Yellow for Actuals line
+        pointBackgroundColor: '#ffe57e', // Yellow for dots
+        pointBorderColor: '#ffe57e', // Yellow for dot borders
       });
     }
 
@@ -519,6 +544,26 @@ export class Wd0HistoricalDataComponent implements OnInit {
           },
           formatter: (value, context) => {
             return value.toLocaleString(); // Apply commas to all values
+          },
+          anchor: (context) => {
+            // Set anchor above for 'High', below for 'Low', and center for other labels
+            const label = context.dataset.label;
+            if (label === 'High') {
+              return 'end'; // Label will be placed above the line
+            } else if (label === 'Low') {
+              return 'start'; // Label will be placed below the line
+            }
+            return 'center'; // Default to centered
+          },
+          align: (context) => {
+            // Set align above for 'High', below for 'Low'
+            const label = context.dataset.label;
+            if (label === 'High') {
+              return 'top';
+            } else if (label === 'Low') {
+              return 'bottom';
+            }
+            return 'center'; // Default to center
           },
         },
       },
@@ -900,7 +945,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
       if (this.fetchDataForNewMonth) {
         recentMonthsData.push(this.newMonthData[0]);
-        actualTimes.push(4.0);
+        // actualTimes.push(4.0);
       }
 
       this.createLineGraph(
