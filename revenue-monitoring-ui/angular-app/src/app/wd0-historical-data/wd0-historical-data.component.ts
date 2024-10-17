@@ -737,6 +737,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   // Method 2: Processes the regression data
   processRegressionData(data: any[], recentMonthNames: string[]): void {
+    console.log('Step 2 starting...:', data, recentMonthNames);
+
     const excludePeriods = ['JUL-23', 'APR-23'];
     const productLines: number[] = [];
     const serviceLines: number[] = [];
@@ -745,6 +747,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     const filteredData = data.filter(
       (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
     );
+
+    console.log('Step 2 excluded jul-23, apr-23:', filteredData);
 
     for (let i = 0; i < filteredData.length; i += 2) {
       const productEntry =
@@ -767,6 +771,16 @@ export class Wd0HistoricalDataComponent implements OnInit {
       }
     }
 
+    console.log(
+      'Step 2 removed nulls and pushed data. \n',
+      '\nproduct lines',
+      productLines,
+      '\n service lines',
+      serviceLines,
+      '\n execution times',
+      executionTimes
+    );
+
     const X = productLines.map((productCount, index) => [
       productCount,
       serviceLines[index],
@@ -788,6 +802,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         console.log('Regression data is empty:', regressionData);
         this.errorMessage = true;
         this.loading = false;
+        return;
       }
 
       this.regressionService.performMultipleLinearRegression(
