@@ -730,6 +730,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
       }
     });
 
+    console.log('Step 1:', filteredData);
+
     this.processRegressionData(filteredData, recentMonthNames);
   };
 
@@ -771,6 +773,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     ]);
     const yFormatted = executionTimes.map((time) => [time]);
 
+    console.log('Step 2:', X, yFormatted);
+
     // Now pass processed regression data and recentMonthNames to executeRegression
     this.executeRegression({ X, y: yFormatted }, recentMonthNames);
   }
@@ -784,7 +788,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
         console.log('Regression data is empty:', regressionData);
         this.errorMessage = true;
         this.loading = false;
-        return;
       }
 
       this.regressionService.performMultipleLinearRegression(
