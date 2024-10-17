@@ -12,6 +12,7 @@ import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { monthEndDates } from './monthEndDates';
+import { hi, is } from 'date-fns/locale';
 Chart.register(...registerables);
 
 @Component({
@@ -22,6 +23,8 @@ Chart.register(...registerables);
 export class Wd0HistoricalDataComponent implements OnInit {
   protected http: ApiHttpService;
   loading: boolean = true;
+  serviceLoading: boolean = true;
+  productLoading: boolean = true;
   errorMessage: boolean = false;
   barChartLoading: boolean = true;
   dataTimestamp: string;
@@ -41,6 +44,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
   refreshInterval = 300000; //ms = 5 minutes
 
   private lineChart: Chart | null = null;
+  private serviceLineChart: Chart | null = null;
+  private productLineChart: Chart | null = null;
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
@@ -52,47 +57,97 @@ export class Wd0HistoricalDataComponent implements OnInit {
   numberOfMonths: number = 4;
   newMonthName: string = '';
   newMonthData = [[0, 0]];
-  fetchDataForNewMonth = false;
+  fetchDataForNewMonth: boolean = false;
+  isWd1: boolean = false;
+  isWd2: boolean = false;
+  isWd3: boolean = false;
+
   today = new Date();
 
   ngOnInit(): void {
     this.dataTimestamp = `Last Updated: ...`;
-    const localDateString = this.today.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
-    if (monthEndDates.includes(localDateString)) {
-      this.fetchDataForNewMonth = true; // Flag to fetch new month data
-    }
+
+    // Ensure the current date is interpreted in Pacific Time (America/Los_Angeles)
+    const localDate = new Date().toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+    });
+    const todayPacificTime = new Date(localDate);
+    const localDateString = todayPacificTime.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
+
+    // Check if the current date is WD-3, WD-2, WD-1, or the exact month end
+    monthEndDates.forEach((monthEndDate) => {
+      const monthEnd = new Date(`${monthEndDate}T00:00:00-07:00`); // Explicit Pacific Time for month end
+      const wd1 = new Date(monthEnd);
+      const wd2 = new Date(monthEnd);
+      const wd3 = new Date(monthEnd);
+
+      // Calculate WD-1, WD-2, WD-3
+      wd1.setDate(monthEnd.getDate() - 1);
+      wd2.setDate(monthEnd.getDate() - 2);
+      wd3.setDate(monthEnd.getDate() - 3);
+
+      const wd1String = wd1.toLocaleDateString('en-CA');
+      const wd2String = wd2.toLocaleDateString('en-CA');
+      const wd3String = wd3.toLocaleDateString('en-CA');
+
+      if (localDateString === monthEndDate) {
+        this.fetchDataForNewMonth = true; // WD-0, fetch actuals data
+      } else if (localDateString === wd1String) {
+        this.isWd1 = true; // WD-1
+      } else if (localDateString === wd2String) {
+        this.isWd2 = true; // WD-2
+      } else if (localDateString === wd3String) {
+        this.isWd3 = true; // WD-3
+      }
+    });
+
+    // console.log('1:', isWd1, ' 2:', isWd2, ' 3:', isWd3);
 
     let serviceActuals = [null, null, null];
     let productActuals = [null, null, null];
+
     console.log(this.today, 'Current Date: ', this.fetchDataForNewMonth);
 
     // Fetch data for regression
-    if (this.fetchDataForNewMonth) {
+    if (this.fetchDataForNewMonth || this.isWd1) {
       this.getEndpointData('wd0-current-month')
         .pipe(
           tap((data: any) => {
             // Process the current month data
             data.forEach((item: any) => {
               if (item.LINE_TYPE === 'PRODUCT') {
-                this.newMonthData[0][0] = item.LINE_COUNT;
+                // this.newMonthData[0][0] = item.LINE_COUNT;
+                this.newMonthData[0][0] = 0;
               } else if (item.LINE_TYPE === 'SERVICE') {
-                this.newMonthData[0][1] = item.LINE_COUNT;
+                // this.newMonthData[0][1] = item.LINE_COUNT;
+                this.newMonthData[0][1] = 0;
               }
             });
             this.newMonthName = data[0].PERIOD_NAME;
           }),
-          switchMap(() => this.http.get('wd0-regression'))
+          switchMap(() => this.getEndpointData('wd0-regression'))
         )
         .subscribe((data: any) => {
-          productActuals = [null, null, null];
-          serviceActuals = [null, null, null];
+          productActuals = this.extractProductActuals(data);
+          serviceActuals = this.extractServiceActuals(data);
           this.getWd0Volumes(productActuals, serviceActuals);
 
           this.prepareDataForRegression(data);
           this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
         });
+    } else if (this.isWd2) {
+      let productActuals = [null, null, null];
+      let serviceActuals = [null, null, null];
+      this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
+
+      this.getEndpointData('wd0-regression').subscribe((data: any) => {
+        this.prepareDataForRegression(data);
+
+        this.loading = false;
+        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+      });
     } else {
-      this.http.get('wd0-regression').subscribe((data: any) => {
+      this.getEndpointData('wd0-regression').subscribe((data: any) => {
         productActuals = this.extractProductActuals(data);
         serviceActuals = this.extractServiceActuals(data);
         this.getWd0Volumes(productActuals, serviceActuals);
@@ -109,7 +164,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
-    this.http.get('wd0-volumes').subscribe((data: any) => {
+    this.getEndpointData('wd0-volumes').subscribe((data: any) => {
       // Step 1: Filter the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
 
@@ -256,6 +311,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
       .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
       .reverse();
 
+    // Overwrite with nulls if isWd2 is true
+    if (this.isWd2) {
+      lowData[lowData.length - 1] = null;
+      highData[highData.length - 1] = null;
+    }
+
     const actualsPresent = serviceActuals.some((value) => value !== null);
 
     const chartData: ChartData<'line'> = {
@@ -292,11 +353,36 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
     }
 
-    new Chart('q3ServiceLinePredictiveModel', {
-      type: 'line',
-      data: chartData,
-      options: this.getChartOptions(),
-    });
+    this.serviceLoading = false;
+    const canvas = document.getElementById(
+      'q3ServiceLinePredictiveModel'
+    ) as HTMLCanvasElement;
+
+    // Check if canvas is available
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        // Destroy existing chart if it exists
+        if (this.serviceLineChart) {
+          this.serviceLineChart.destroy();
+        }
+
+        // Create the new chart
+        this.serviceLineChart = new Chart(ctx, {
+          // new Chart('q3ServiceLinePredictiveModel', {
+          type: 'line',
+          data: chartData,
+          options: this.getChartOptions(),
+        });
+
+        this.serviceLoading = false; // Stop loading when chart is created
+      } else {
+        console.error('Failed to get 2D context for service line chart');
+      }
+    } else {
+      console.error('Canvas element "q3ServiceLinePredictiveModel" not found');
+    }
   }
 
   updateProductLineChart(productData: any[], productActuals: number[]) {
@@ -307,6 +393,12 @@ export class Wd0HistoricalDataComponent implements OnInit {
     const highData = productData
       .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
       .reverse();
+
+    // Overwrite with nulls if isWd2 is true
+    if (this.isWd2) {
+      lowData[lowData.length - 1] = null;
+      highData[highData.length - 1] = null;
+    }
 
     const actualsPresent = productActuals.some((value) => value !== null);
 
@@ -344,11 +436,36 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
     }
 
-    new Chart('productLinePredictiveModel', {
-      type: 'line',
-      data: chartData,
-      options: this.getChartOptions(),
-    });
+    this.productLoading = false;
+    const canvas = document.getElementById(
+      'productLinePredictiveModel'
+    ) as HTMLCanvasElement;
+
+    // Check if canvas is available
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        // Destroy existing chart if it exists
+        if (this.productLineChart) {
+          this.productLineChart.destroy();
+        }
+
+        // Create the new chart
+        this.productLineChart = new Chart(ctx, {
+          // new Chart('productLinePredictiveModel', {
+          type: 'line',
+          data: chartData,
+          options: this.getChartOptions(),
+        });
+
+        this.productLoading = false; // Stop loading when chart is created
+      } else {
+        console.error('Failed to get 2D context for product line chart');
+      }
+    } else {
+      console.error('Canvas element "productLinePredictiveModel" not found');
+    }
   }
 
   // Common Chart Options

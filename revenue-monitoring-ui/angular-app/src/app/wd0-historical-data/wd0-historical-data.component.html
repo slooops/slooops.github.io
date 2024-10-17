@@ -28,7 +28,14 @@
   class="grid-2"
 >
   <div style="width: 33%; flex: 1 1 20%" class="card">
-    <canvas id="q3ServiceLinePredictiveModel"></canvas>
+    <ng-container *ngIf="serviceLoading">
+      <div style="text-align: center; height: 10vh">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
+    </ng-container>
+    <ng-container>
+      <canvas id="q3ServiceLinePredictiveModel"></canvas>
+    </ng-container>
     <p class="chart-description" style="padding-left: 1.5vw">
       Service line predictive model showing mid-close volume projections,
       derived from historical data trends.
@@ -36,15 +43,22 @@
   </div>
 
   <div style="width: 33%" class="card">
-    <ng-container *ngIf="false">
+    <ng-container *ngIf="productLoading">
+      <div style="text-align: center; height: 10vh">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
+    </ng-container>
+
+    <!-- <ng-container *ngIf="isWd3">
       <div style="height: 80%; display: flex; align-items: center">
         <div class="chart-description" style="margin-bottom: -40px">
           Data available on WD-2, check back tomorrow.
         </div>
       </div>
-    </ng-container>
+    </ng-container> -->
 
     <canvas id="productLinePredictiveModel"></canvas>
+
     <p class="chart-description" style="padding-left: 1.5vw">
       Product line predictive model showing mid-close volume projections,
       derived from historical data trends.
@@ -91,6 +105,7 @@
     >
       <p>Legend: Number of Lines. Data refreshed every 5 minutes.</p>
     </div>
+
     <div
       class="col-sm-3 justify-content-end align-items-center"
       style="display: flex"
