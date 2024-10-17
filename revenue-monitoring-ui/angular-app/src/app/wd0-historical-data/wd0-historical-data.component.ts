@@ -109,7 +109,33 @@ export class Wd0HistoricalDataComponent implements OnInit {
     console.log(this.today, 'Current Date: ', this.fetchDataForNewMonth);
 
     // Fetch data for regression
-    if (this.fetchDataForNewMonth || this.isWd1) {
+    if (this.fetchDataForNewMonth) {
+      this.getEndpointData('wd0-current-month')
+        .pipe(
+          tap((data: any) => {
+            // Process the current month data
+            data.forEach((item: any) => {
+              if (item.LINE_TYPE === 'PRODUCT') {
+                // this.newMonthData[0][0] = item.LINE_COUNT;
+                // this.newMonthData[0][0] = 0;
+              } else if (item.LINE_TYPE === 'SERVICE') {
+                // this.newMonthData[0][1] = item.LINE_COUNT;
+                // this.newMonthData[0][1] = 0;
+              }
+            });
+            this.newMonthName = data[0].PERIOD_NAME;
+          }),
+          switchMap(() => this.getEndpointData('wd0-regression'))
+        )
+        .subscribe((data: any) => {
+          productActuals = this.extractProductActuals(data);
+          serviceActuals = this.extractServiceActuals(data);
+          this.getWd0Volumes(productActuals, serviceActuals);
+
+          this.prepareDataForRegression(data);
+          this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+        });
+    } else if (this.isWd1) {
       this.getEndpointData('wd0-current-month')
         .pipe(
           tap((data: any) => {
@@ -128,11 +154,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
           switchMap(() => this.getEndpointData('wd0-regression'))
         )
         .subscribe((data: any) => {
-          productActuals = this.extractProductActuals(data);
-          serviceActuals = this.extractServiceActuals(data);
+          let productActuals = [null, null, null];
+          let serviceActuals = [null, null, null];
           this.getWd0Volumes(productActuals, serviceActuals);
-
-          console.log('inital prod data recieved: \n', data);
 
           this.prepareDataForRegression(data);
           this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
@@ -711,7 +735,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
       (entry: any) => entry.PERIOD_NAME
     );
 
-    if (this.fetchDataForNewMonth || this.isWd1) {
+    // Only push newMonthName if it's not already in recentMonthNames
+    if (
+      (this.fetchDataForNewMonth || this.isWd1) &&
+      !recentMonthNames.includes(this.newMonthName)
+    ) {
       recentMonthNames.push(this.newMonthName);
     }
 
