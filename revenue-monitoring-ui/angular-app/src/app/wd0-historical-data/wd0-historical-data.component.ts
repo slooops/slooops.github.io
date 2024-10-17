@@ -744,23 +744,34 @@ export class Wd0HistoricalDataComponent implements OnInit {
     const serviceLines: number[] = [];
     const executionTimes: number[] = [];
 
+    // Step 1: Filter out excluded periods
     const filteredData = data.filter(
       (entry) => !excludePeriods.includes(entry.PERIOD_NAME)
     );
 
     console.log('Step 2 excluded jul-23, apr-23:', filteredData);
 
-    for (let i = 0; i < filteredData.length; i += 2) {
-      const productEntry =
-        filteredData[i].LINE_TYPE === 'PRODUCT'
-          ? filteredData[i]
-          : filteredData[i + 1];
-      const serviceEntry =
-        filteredData[i].LINE_TYPE === 'SERVICE'
-          ? filteredData[i]
-          : filteredData[i + 1];
+    // Step 2: Group data by PERIOD_NAME
+    const periodGroups = filteredData.reduce((groups, entry) => {
+      const periodName = entry.PERIOD_NAME;
+      if (!groups[periodName]) {
+        groups[periodName] = { PRODUCT: null, SERVICE: null };
+      }
+      groups[periodName][entry.LINE_TYPE] = entry; // Set either PRODUCT or SERVICE
+      return groups;
+    }, {});
 
+    console.log('Grouped by period:', periodGroups);
+
+    // Step 3: Iterate through the grouped data and collect product, service, and execution times
+    for (const period in periodGroups) {
+      const productEntry = periodGroups[period].PRODUCT;
+      const serviceEntry = periodGroups[period].SERVICE;
+
+      // Ensure we have both product and service data before pushing
       if (
+        productEntry &&
+        serviceEntry &&
         productEntry.LINE_COUNT != null &&
         serviceEntry.LINE_COUNT != null &&
         productEntry.EXECUTION_TIME != null
