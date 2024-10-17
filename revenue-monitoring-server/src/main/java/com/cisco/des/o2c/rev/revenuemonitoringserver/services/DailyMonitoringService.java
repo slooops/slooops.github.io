@@ -82,6 +82,8 @@ public class DailyMonitoringService {
     private String rolTransactionDataFilter;
     private String rolTransactionDataFilterCount;
     private String wd0Volumes;
+    private String autoInvoiceErrorSummaryView;
+    private String autoInvoiceErrorDetails;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -102,6 +104,7 @@ public class DailyMonitoringService {
                                   String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
                                   String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails,
                                    String rolTransactionDataFilter, String rolTransactionDataFilterCount, String wd0Volumes
+                                   , String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -160,6 +163,8 @@ public class DailyMonitoringService {
         this.rolTransactionDataFilter = rolTransactionDataFilter;
         this.rolTransactionDataFilterCount = rolTransactionDataFilterCount;
         this.wd0Volumes = wd0Volumes;
+        this.autoInvoiceErrorSummaryView = autoInvoiceErrorSummaryView;
+        this.autoInvoiceErrorDetails = autoInvoiceErrorDetails;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -656,7 +661,10 @@ public class DailyMonitoringService {
 
         Timestamp timestamp = new Timestamp(date.getTime());
 
+        System.out.println(updatedModel+ " "+ username);
+
         int test = jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, timestamp, username);
+        System.out.println(test);
     }
 
     public void setCloCommentUpdate(Map<String, String> updatedModel, String username){
@@ -680,28 +688,22 @@ public class DailyMonitoringService {
         return jdbcManager.getTotalRecords(rolTransactionDataCount);
     }
 
+    public int getTotalRecordsFiltered(String periodName, String ouName, String appName) {
+        return jdbcManager.getTotalRecordsFiltered(rolTransactionDataFilterCount, periodName, ouName, appName);
+    }
+
+
     public List<RolTransactionData> getRolTransactionDataFilter(int page, int size, String periodName, String ouName, String applicationName) {
         return jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, page, size, periodName, ouName, applicationName);
     }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummary);
-        String[] dateColumns = {"CREATION_DATE", "ASSIGNED_DATE"};
+        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
         result.forEach(data -> {
-            Object obj = data.get("SUB_APPLICATION");
-            data.remove("SUB_APPLICATION");
-            data.put("PROCESS_FLOW", obj != null ? obj.toString() : "");
-
-            for(String str: dateColumns){
-                if(data.get(str) != null){
-                    String date = data.get(str).toString();
-                    String[] dateArr = date.split(" ");
-                    data.put(str, dateArr[0]);
-                } else {
-                        data.put(str, "");
-
-                }
-            }
+            renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
+            renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            formatDateColumns(data, dateColumns);
         });
         return result;
     }
@@ -721,20 +723,45 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getRolErrorSummaryPeriodStatus() {
         String[] dateColumns = {"END_DATE"};
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
-
         result.forEach(data -> {
-            for(String str: dateColumns){
-                if(data.get(str) != null){
-                    String date = data.get(str).toString();
-                    String[] dateArr = date.split(" ");
-                    data.put(str, dateArr[0]);
-                } else {
-                    data.put(str, "");
-
-                }
-            }
+            formatDateColumns(data, dateColumns);
         });
         return result;
+    }
+
+    public List<Map<String, Object>> getAutoInvoiceErrorSummaryView() {
+        String[] dateColumns = {"CREATION_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorSummaryView);
+        result.forEach(data -> {
+//            renameKey(data, "STATUS", "PROCESS_FLOW");
+//            renameKey(data, "BATCH_SOURCE", "APPLICATION_NAME");
+            renameKey(data, "OPERATING_UNIT", "ORG_NAME");
+            renameKey(data, "AMOUNT_USD", "AMOUNT");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    private void renameKey(Map<String, Object> data, String oldKey, String newKey) {
+        Object value = data.get(oldKey);
+        data.remove(oldKey);
+        data.put(newKey, value != null ? value.toString() : "");
+    }
+
+    private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
+        for (String column : dateColumns) {
+            Object value = data.get(column);
+            if (value != null) {
+                String date = value.toString().split(" ")[0]; // Extract only the date part
+                data.put(column, date);
+            } else {
+                data.put(column, "");
+            }
+        }
+    }
+
+    public List<Map<String, Object>> getAutoInvoiceErrorDetails() {
+        return jdbcManager.queryForList(autoInvoiceErrorDetails);
     }
 
 

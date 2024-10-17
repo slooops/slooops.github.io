@@ -23,7 +23,7 @@ export class AssignDialogComponent implements OnInit {
     { name: 'Siva Prasad Thimmi Chetty', username: 'tprasad' },
     { name: 'Abhijith Vuduthala', username: 'avudutha' },
     { name: 'Jack Sloop', username: 'jasloop' },
-    { name: 'Nirmala Gopalan', username: 'ngopalan' },
+    { name: 'Chandan Rungta', username: 'crungta' },
   ];
 
   disabledFields = [

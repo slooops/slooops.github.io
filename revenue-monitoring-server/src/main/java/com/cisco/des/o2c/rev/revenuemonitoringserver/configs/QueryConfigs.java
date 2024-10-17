@@ -251,11 +251,26 @@ public class QueryConfigs { // TODO
     @Value(("${rol.transaction.data.filter.query}"))
     public String rolTransactionDataFilter;
 
+    @Value(("${auto.invoice.error.summary.view.query}"))
+    public String autoInvoiceErrorSummaryView;
+
+    @Value(("${auto.invoice.error.details.query}"))
+    public String autoInvoiceErrorDetails;
+
     @Value(("${rol.transaction.data.filter.count.query}"))
     public String rolTransactionDataFilterCount;
 
     @Value(("${wd0.volumes.q}"))
     public String wd0Volumes;
+    @Bean(name = "autoInvoiceErrorSummaryView")
+    public String getAutoInvoiceErrorSummaryView() {
+        return this.autoInvoiceErrorSummaryView;
+    }
+
+    @Bean(name = "autoInvoiceErrorDetails")
+    public String getAutoInvoiceErrorDetails() {
+        return this.autoInvoiceErrorDetails;
+    }
 
     @Bean(name = "stdArExcQuery")
     public String getStdArExcQuery() {

@@ -54,7 +54,6 @@ public class JdbcManager {
                 .declareParameters(types.toArray(new SqlParameter[types.size()]))
                 .withoutProcedureColumnMetaDataAccess();
         Map<String, Object> result = call.execute(paramSource);
-        System.out.println(result);
         return result;
     }
 
@@ -97,6 +96,9 @@ public class JdbcManager {
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
+    public int getTotalRecordsFiltered(String sql, String periodName, String ouName, String appName) {
+        return jdbcTemplate.queryForObject(sql, new Object[]{periodName, ouName, appName}, Integer.class);
+    }
 
     public List<RolTransactionData> getRolTransactionData(String sql, int page, int size) {
         int startRow = (page * size) + 1;

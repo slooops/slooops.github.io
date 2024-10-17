@@ -3,3 +3,14 @@
   width: 16px;
   display: flex;
 }
+
+.loading-container {
+  /* display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; */
+  min-width: 5vw;
+  min-height: 1vw;
+  width: 10%;
+  height: 2%;
+}

@@ -1,4 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+} from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { ApiHttpService } from '../providers/http.service';
 import { Router } from '@angular/router';
@@ -8,11 +14,12 @@ import { Router } from '@angular/router';
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.css'],
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, AfterViewInit {
   constructor(
     private dataService: DataService,
     http: ApiHttpService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.http = http;
   }
@@ -21,72 +28,49 @@ export class MenuComponent implements OnInit {
 
   userRoles: String[] = [];
   ngOnInit(): void {
-    this.getUserId();
+    // this.getUserId();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.userRoles = this.dataService.getUserRoles();
+      console.log(this.userRoles);
+      this.isAdmin = this.userRoles.includes('ADMIN');
+      this.rolesReady = true;
+      this.cdr.detectChanges();
+    }, 1500);
   }
   isAdmin: boolean = true;
   rolesReady = false;
   errorPath: boolean = true;
   loggedinUser: string;
 
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.http.getUser('/user/data').subscribe((data) => {
-      let username = data['auth_user'];
-      this.dataService.setUsername(username);
-      this.getUserRoles(username);
-    });
-  }
+  // getUserId() {
+  //   this.dataService.setLoading(true);
+  //   this.http.getUser('/user/data').subscribe((data) => {
+  //     let username = data['auth_user'];
+  //     this.dataService.setUsername(username);
+  //     this.getUserRoles(username);
+  //   });
+  // }
 
-  getUserRoles(username: any) {
-    this.http.post('user-role', username).subscribe((data: any) => {
-      if (data) {
-        this.userRoles = data['userRoles'];
-        this.dataService.setUserRoles(this.userRoles);
-        this.isAdmin = this.userRoles.includes('ADMIN');
-        this.rolesReady = true;
-        let redirectPath = this.redirectPath();
-        this.errorPath = redirectPath === 'error' ? true : false;
-      } else {
-        this.errorPath = true;
-        this.redirect('error');
-      }
-    });
-  }
+  // getUserRoles(username: any) {
+  //   this.http.post('user-role', username).subscribe((data: any) => {
+  //     if (data) {
+  //       this.userRoles = data['userRoles'];
+  //       this.dataService.setUserRoles(this.userRoles);
+  //       this.isAdmin = this.userRoles.includes('ADMIN');
+  //       this.rolesReady = true;
+  //       let redirectPath = this.redirectPath();
+  //       this.errorPath = redirectPath === 'error' ? true : false;
+  //     } else {
+  //       this.errorPath = true;
+  //       this.redirect('error');
+  //     }
+  //   });
+  // }
 
   checkRole(role: String) {
     return this.rolesReady && this.userRoles.includes(role);
-  }
-
-  redirectPath() {
-    if (
-      this.userRoles.includes('ADMIN') ||
-      this.userRoles.includes('PERIOD_CLOSE')
-    ) {
-      return 'period-close-tracking-preclose';
-    } else {
-      if (this.userRoles.includes('LARGE_DEAL')) {
-        return 'large-deal-tracker';
-      } else {
-        if (this.userRoles.includes('WD0')) {
-          return 'wd0-dash';
-        } else if (this.userRoles.includes('MIDCLOSE_VOLUMES')) {
-          return 'mid-close-volumes';
-        } else if (this.userRoles.includes('CMS')) {
-          return 'cms';
-        } else if (this.userRoles.includes('ROL')) {
-          return 'rol';
-        } else if (this.userRoles.includes('SBP')) {
-          return 'sbp';
-        } else {
-          return 'error';
-        }
-      }
-    }
-  }
-
-  redirect(navigateString) {
-    console.log('here');
-    this.dataService.setLoading(false);
-    this.router.navigateByUrl(navigateString);
   }
 }

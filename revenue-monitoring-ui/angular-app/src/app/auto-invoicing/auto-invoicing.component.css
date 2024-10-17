@@ -1,0 +1,497 @@
+:host {
+  display: block;
+  /* Create a linear gradient background */
+  background: linear-gradient(
+    to right,
+    white 0%,
+    #f7f7f7 3.5%,
+    #f7f7f7 50%,
+    #f7f7f7 97.5%,
+    white 100%
+  );
+  /* background: #f7f7f7; */
+  min-height: 100vh; /* Ensure it covers the entire height of the viewport */
+  padding: 1.2rem; /* Add padding to keep spacing from the edges */
+  font-family: "Inter", sans-serif;
+}
+
+.mat-header-row {
+  background-color: #ffffff !important;
+  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+}
+
+.mat-header-cell {
+  color: rgb(46, 46, 46) !important;
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px !important;
+  padding: 1vh !important;
+}
+
+/* Styling for table rows */
+.mat-row:nth-child(odd) {
+  background-color: #f2f2f2 !important;
+}
+
+.mat-row:nth-child(even) {
+  background-color: #ffffff !important;
+}
+
+.mat-cell {
+  text-align: center !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 0.4vh !important;
+  border: 0px !important;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
+}
+
+td {
+  font-size: 11px;
+}
+
+th {
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px;
+  padding: 0.5vh !important ;
+}
+
+td {
+  text-align: center !important;
+  font-size: 11px;
+  padding: 0.4vh !important ;
+  border: 0px !important;
+}
+
+tr.mat-header-row {
+  height: 28px;
+}
+
+::ng-deep .mat-sort-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center !important;
+}
+
+::ng-deep .mat-sort-header-arrow {
+  color: #ffffff; /* Change to your desired color */
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 28vw;
+  min-height: 14vw;
+  width: 100%;
+  height: 100%;
+}
+
+.flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: fit-content;
+  width: 100%;
+}
+
+.slider-title {
+  color: #333;
+  margin-bottom: 30px;
+  margin-top: 0px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  position: relative;
+}
+
+.slider-bar {
+  width: 780px;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+}
+
+.circle-wrapper {
+  position: absolute;
+  text-align: center;
+  top: -20px;
+}
+
+.circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: absolute;
+  top: 14px;
+}
+
+.circle-caption {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  position: relative;
+  top: -12px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #666;
+  text-align: center;
+  position: relative;
+  top: 2px;
+}
+
+/* Specific positioning for each circle-wrapper */
+.circle-wrapper-1 {
+  left: 0px;
+}
+
+.circle-wrapper-2 {
+  left: 150px;
+}
+
+.circle-wrapper-3 {
+  left: 325px;
+}
+
+.circle-wrapper-4 {
+  left: 490px;
+}
+
+.circle-wrapper-5 {
+  left: 670px;
+}
+
+.circle-1 {
+  left: 48px;
+}
+
+.circle-2 {
+  left: 56px;
+}
+
+.circle-3 {
+  left: 48px;
+}
+
+.circle-4 {
+  left: 48px;
+}
+
+.circle-5 {
+  left: 24px;
+}
+
+/* Chevron Arrows */
+.chevron {
+  position: absolute;
+  top: 0px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+}
+
+.chevron-white {
+  position: absolute;
+  top: -2px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 4px 4px 4px;
+  border-color: transparent #f7f7f7 transparent transparent;
+  transform: rotate(180deg);
+}
+
+.chevron-1 {
+  left: 130px;
+}
+
+.chevron-1a {
+  left: 130px;
+}
+
+.chevron-2 {
+  left: 300px;
+}
+
+.chevron-3 {
+  left: 480px;
+}
+
+.chevron-4 {
+  left: 630px;
+}
+
+/* Prevent wrapping of header text */
+.no-wrap {
+  white-space: nowrap;
+}
+
+/* Ensure the table fits within its container and can scroll horizontally */
+.custom-table {
+  min-width: 100%; /* Adjust based on your needs */
+  table-layout: auto; /* Allows columns to resize dynamically */
+}
+
+.error-message-cell {
+  min-width: 40vw;
+  max-width: 40vw;
+}
+
+.comments-cell {
+  min-width: 40vw;
+  max-width: 40vw;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #373c42;
+  margin: 0px;
+}
+
+.section-title {
+  color: #373c42;
+  margin: 0px;
+}
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Grid container for 3x3 layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  grid-auto-rows: minmax(150px, auto); /* Set min height for rows */
+  gap: 1.2rem; /* Spacing between cards */
+  padding-top: 1.2rem; /* Add some padding to the grid */
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr; /* 1/3 Process Flow, 2/3 Table */
+  gap: 20px; /* Space between the process flow and the table */
+  align-items: end;
+}
+
+/* Fallback for empty grid spots */
+.grid-item {
+  display: flex;
+  align-items: stretch;
+}
+
+.card,
+.container {
+  position: relative;
+  display: block;
+  padding: 16px;
+  background-color: #fff;
+  border: 2px solid #e1e4e8;
+  border-radius: 8px;
+  transition: all linear 0.5s;
+  width: 100%;
+}
+
+.container {
+  padding: 8px 0 12px 0;
+  margin-bottom: 16px;
+  border: 0px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px #00000014;
+}
+
+.flowchart-container {
+  padding-bottom: 16px;
+}
+
+.card:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card-stack {
+  align-items: stretch;
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: column;
+  gap: 12px;
+  justify-content: flex-start;
+}
+
+.card-title-stack {
+  align-items: stretch;
+  display: flex;
+  flex: 0 1 auto;
+  flex-flow: column;
+  gap: 2px;
+  justify-content: flex-start;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #373c42;
+  margin: 0px;
+}
+
+.card-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #596069;
+  margin: 0px;
+}
+
+.card-placeholder {
+  height: 30vh;
+  align-items: stretch;
+  display: flex;
+  flex: 0 1 auto;
+  flex-flow: row;
+  gap: 0px;
+  justify-content: flex-start;
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
+
+.action-buttons {
+  display: flex;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 10px 0 12px;
+}
+
+/* Table Container Styling */
+.rol-error-summary-container {
+  overflow-x: auto; /* Ensure the table scrolls horizontally if too wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: fit-content;
+  padding-top: 0px;
+  margin-top: -6px;
+}
+
+.callout-box {
+  /* margin: 1vw; */
+  display: flex;
+  /* min-height: 5vw; */
+  flex-direction: column;
+  padding: 0.5vh 1vw;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border-radius: 8px;
+  align-items: center;
+  height: fit-content;
+}
+
+.box-header {
+  color: var(--light-base-chart-subtitle, rgba(0, 0, 0, 0.6));
+  font-size: calc(7px + 0.2vw);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 142.857%;
+  letter-spacing: 0.25px;
+}
+
+.box-body {
+  color: var(--light-base-chart-title, #000);
+  font-size: calc(10px + 1vw);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+}
+
+.widget-tray {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.highlight {
+  color: rgb(237, 80, 80);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 19;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 30vw; /* Adjust as needed */
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.modal-body {
+  display: flex;
+  width: 40vw;
+  height: 30vh;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-button-primary {
+  font-family: "Inter", sans-serif !important;
+  padding: 5px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: #aaa8a8;
+  color: #fff !important;
+  border: none;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.comments-cell {
+  min-width: 35vw;
+  max-width: 35vw;
+}

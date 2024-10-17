@@ -43,6 +43,7 @@ export class RolComponent implements OnInit {
   };
 
   totalRecords: number = 0;
+  totalRecordsFiltered: number = 0;
   pageSize: number = 20;
   isLoading: boolean = false;
   chartLoading: boolean = true;
@@ -78,7 +79,6 @@ export class RolComponent implements OnInit {
   getRolErrorSummaryData() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
-      console.log(data);
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
       this.rolErrorColumns = [
         'PERIOD_NAME',
@@ -86,7 +86,7 @@ export class RolComponent implements OnInit {
         'PROCESS_FLOW',
         'ORG_NAME',
         'AMOUNT',
-        'CREATION_DATE',
+        'TRANSACTION_DATE',
         'AGING',
         'ASSIGNED_TO',
         'ASSIGNED_DATE',
@@ -98,8 +98,8 @@ export class RolComponent implements OnInit {
 
       this.rolSummaryModel = this.formatData(data);
       this.rolSummaryModel.forEach((row) => {
-        row.AGING = this.getAging(row.CREATION_DATE) + ' days';
-        row.CREATION_DATE = this.dateTransform(row.CREATION_DATE);
+        row.AGING = this.getAging(row.TRANSACTION_DATE) + ' days';
+        row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
         row.ASSIGNED_DATE = row.ASSIGNED_DATE
           ? this.dateTransform(row.ASSIGNED_DATE)
           : '';
@@ -197,6 +197,7 @@ export class RolComponent implements OnInit {
     const periodNames = data.map((row) => row.PERIOD_NAME);
     const ouNames = data.map((row) => row.ORG_NAME);
     const appNames = data.map((row) => row.APPLICATION_NAME);
+    // const amounts = data.map((row) => row.AMOUNT);
 
     // Prepare the request payload (adjust according to your API needs)
     const pageRequest = {
@@ -205,13 +206,16 @@ export class RolComponent implements OnInit {
       periodNames: periodNames.join(','), // Send as comma-separated values
       ouNames: ouNames.join(','), // Send as comma-separated values
       appNames: appNames.join(','), // Send as comma-separated values
+      // amounts: amounts.join(',')
     };
 
     this.http
       .get('rol-transaction-data-filter', { params: pageRequest })
       .subscribe({
         next: (data: any) => {
+          console.log(data);
           this.rolTransactionDataFiltered = data.rolTransactionDataFiltered;
+          this.totalRecordsFiltered = data.totalRecords;
           if (this.rolTransactionDataFiltered.length > 0) {
             this.displayedColumns = [
               'period_NAME',
@@ -233,6 +237,13 @@ export class RolComponent implements OnInit {
           this.filtereddataSource = new MatTableDataSource<RolTransactionData>(
             this.rolTransactionDataFiltered
           );
+
+          if (this.paginator) {
+            this.paginator.length = this.totalRecordsFiltered; // Update length
+            this.paginator.pageIndex = 0; // Reset to the first page
+            this.paginator.pageSize = 20; // Set page size, adjust if needed
+            this.filtereddataSource.paginator = this.paginator; // Assign paginator
+          }
         },
         error: (err) => {
           console.error('Error fetching filtered data', err);
@@ -265,6 +276,9 @@ export class RolComponent implements OnInit {
         this.rolTransactionData
       );
       this.filtereddataSource = null;
+      this.paginator.length = this.totalRecords;
+      this.paginator.pageIndex = 0;
+      this.paginator.pageSize = 20;
       this.cdr.detectChanges();
     }
   }
@@ -570,6 +584,6 @@ interface RolErrorSummaryData {
   AGING: string;
   ASSIGNED_TO: string;
   COMMENTS: string;
-  CREATION_DATE: string;
+  TRANSACTION_DATE: string;
   ASSIGNED_DATE: string;
 }

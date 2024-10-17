@@ -1,0 +1,250 @@
+<div>
+  <div class="container rol-error-summary-container">
+    <div class="header-container">
+      <h5 class="section-title action-buttons">
+        Auto Invoicing Errors Summary
+        <span class="action-buttons" *ngIf="selection.selected.length === 1">
+          &nbsp;&nbsp;
+          <!-- <button
+            class="custom-button-primary"
+            (click)="viewTransactionDetails()"
+          >
+            View Details
+          </button>
+          &nbsp;&nbsp; -->
+          <button class="custom-button-primary">Assign User</button>
+        </span>
+      </h5>
+
+      <div class="action-buttons">
+        <div
+          style="
+            font-size: 12px;
+            padding: 5px 0vw 0 0;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div style="display: flex">
+            <span><b>Period name:</b> </span> &nbsp;|&nbsp;
+            <span><b>Period end date:</b> </span>
+          </div>
+          <p
+            class="card-subtitle"
+            style="
+              margin: 0px 0px 0 0;
+              font-size: 12px;
+              display: flex;
+              justify-content: flex-end;
+            "
+          ></p>
+        </div>
+        <div style="display: flex; margin: 0vw 0vw 0 0">
+          <!-- <p
+            class="card-subtitle"
+            style="padding: 0.9vw 0vw 0 0; font-size: 12px"
+          >
+            {{ summaryLoadTime }}
+          </p> -->
+          <button mat-icon-button>
+            <i class="svg-icon refresh-icon"></i>
+          </button>
+        </div>
+        <button mat-icon-button>
+          <i class="svg-icon chart-icon"></i>
+        </button>
+        <button mat-icon-button>
+          <i class="svg-icon download-icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="summaryDatasource?.data?.length">
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="summaryDatasource"
+          class="custom-table table-responsive"
+        >
+          <ng-container
+            matColumnDef="select"
+            style="padding-top: 10px !important"
+          >
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="onRowSelectionChange($event, row)"
+                [checked]="selection.isSelected(row)"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container *ngFor="let column of summaryColumns">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="no-wrap">
+                <!-- <ng-container
+                    *ngIf="column === 'PROCESS_FLOW'; else noTooltip"
+                  >
+                    <span
+                      [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
+                      [contentTemplate]="
+                        column === 'PROCESS_FLOW' ? processToolTip : null
+                      "
+                    >
+                      {{ replaceUnderscore(column) }}
+                    </span>
+                  </ng-container> -->
+                {{ replaceUnderscore(column) }}
+              </th>
+
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [class.comments-cell]="column === 'COMMENTS'"
+              >
+                <ng-container [ngSwitch]="column">
+                  <!-- <ng-container *ngSwitchCase="'PROCESS_FLOW'">
+                      {{ subAppMapping(element[column]) }}
+                    </ng-container> -->
+                  <ng-container *ngSwitchDefault>
+                    {{ element[column] }}
+                  </ng-container>
+                </ng-container>
+              </td>
+            </ng-container>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: summaryDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!summaryDatasource?.data?.length">
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-container>
+
+    <!-- <ng-container
+        *ngIf="!rolErrorSummaryData?.data?.length && !summaryLoading"
+      >
+        <div class="loading-container">
+          <div class="card-subtitle">No Data to Display</div>
+          <br /><br /><br />
+        </div>
+      </ng-container> -->
+  </div>
+</div>
+<br />
+<!-- <h5>Auto Invoicing Error Details</h5> -->
+<!-- <div class="table-container" style="overflow-x: auto; width: 100%">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    class="table-responsive"
+    style="table-layout: auto; width: 100%"
+  >
+    <ng-container
+      *ngFor="let column of detailsDisplayedColumns"
+      [matColumnDef]="column"
+    >
+      <th
+        mat-header-cell
+        *matHeaderCellDef
+        style="white-space: nowrap; padding: 8px; text-align: left"
+      >
+        {{ column }}
+      </th>
+      <td
+        mat-cell
+        *matCellDef="let record"
+        style="white-space: nowrap; padding: 8px; text-align: left"
+      >
+        {{ record[column] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
+
+    <tr mat-row *matRowDef="let record; columns: detailsDisplayedColumns"></tr>
+  </table>
+</div> -->
+
+<div class="container">
+  <div class="header-container">
+    <h5 class="section-title">Auto Invoicing Error Details</h5>
+    <div class="action-buttons">
+      <button mat-icon-button>
+        <i class="svg-icon download-icon"></i>
+      </button>
+    </div>
+  </div>
+
+  <ng-container
+    *ngIf="
+      isFiltered
+        ? filtereddataSource?.data?.length > 0
+        : dataSource?.data?.length > 0
+    "
+  >
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="isFiltered ? filtereddataSource : dataSource"
+        class="custom-table"
+      >
+        <ng-container *ngFor="let column of detailsDisplayedColumns">
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef class="no-wrap">
+              {{ replaceUnderscore(column) }}
+            </th>
+
+            <td mat-cell *matCellDef="let element">
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchDefault>
+                  {{ element[column] }}
+                </ng-container>
+              </ng-container>
+            </td>
+          </ng-container>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: detailsDisplayedColumns"></tr>
+      </table>
+    </div>
+  </ng-container>
+
+  <!-- <ng-container *ngIf="isLoading">
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+      <div class="circle-subcaption"></div>
+      <br /><br /><br />
+    </div>
+  </ng-container> -->
+
+  <ng-container *ngIf="!dataSource?.data?.length">
+    <div class="loading-container">
+      <div class="card-subtitle">No Data to Display</div>
+      <br /><br /><br />
+    </div>
+  </ng-container>
+
+  <!-- <mat-paginator
+    [pageSize]="20"
+    length="totalRecords"
+    [pageSizeOptions]="[]"
+    showFirstLastButtons
+    aria-label="Select page"
+  ></mat-paginator> -->
+</div>
+
+<br />
+<br />
+<br />

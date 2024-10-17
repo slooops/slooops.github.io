@@ -17,21 +17,22 @@ import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details
 import { RolComponent } from './rol/rol.component';
 import { SbpComponent } from './sbp/sbp.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
+import { AutoInvoicingComponent } from './auto-invoicing/auto-invoicing.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/rol',
+    redirectTo: '/large-deal-tracker',
     pathMatch: 'full',
   },
-  // {
-  //   path: 'home',
-  //   component: HomeComponent,
-  //   data: {
-  //     title: 'Operations Control Tower',
-  //     header: 'Operations Control Tower',
-  //   },
-  // },
+  {
+    path: 'home',
+    component: HomeComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Control Tower',
+    },
+  },
   // {
   //   path: 'error',
   //   component: ErrorComponent,
@@ -156,14 +157,14 @@ const routes: Routes = [
   //     header: 'ESP Case Analyzer Dashboard',
   //   },
   // },
-  // {
-  //   path: 'auto-invoicing',
-  //   component: AutoInvoicingComponent,
-  //   data: {
-  //     title: 'Auto Invoicing Dashboard',
-  //     header: 'Auto Invoicing Dashboard',
-  //   },
-  // },
+  {
+    path: 'auto-invoicing',
+    component: AutoInvoicingComponent,
+    data: {
+      title: 'Auto Invoicing Dashboard',
+      header: 'Auto Invoicing Dashboard',
+    },
+  },
 ];
 
 @NgModule({

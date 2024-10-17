@@ -188,22 +188,42 @@ public class DailyMonitoringController {
 
         List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
         int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+        int totalRecords = 0;  // Track the total number of filtered records
+
         for (int i = 0; i < minLength; i++) {
             String periodName = periodNames.get(i);
             String ouName = ouNames.get(i);
             String appName = appNames.get(i);
 
+            // Fetch filtered data for current set of filters
             List<RolTransactionData> result = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName);
-            rolTransactionDataFiltered.addAll(result);  // Collect results
+            rolTransactionDataFiltered.addAll(result);
+
+            // Get count for the current filter set and add to total
+            totalRecords += service.getTotalRecordsFiltered(periodName, ouName, appName);
         }
+
+        // Prepare the response
         Map<String, Object> response = new HashMap<>();
         response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
+        response.put("totalRecords", totalRecords);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/rol-errors-summary")
     public ResponseEntity<List<Map<String, Object>>> getRolErrorsSummary() {
         return new ResponseEntity<>(service.getRolErrorsSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/auto-invoice-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getAutoInvoiceErrorSummary() {
+        return new ResponseEntity<>(service.getAutoInvoiceErrorSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/auto-invoice-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getAutoInvoiceErrorDetails() {
+        return new ResponseEntity<>(service.getAutoInvoiceErrorDetails(), HttpStatus.OK);
     }
 
     @PostMapping("/rol-errors-summary-update")
@@ -244,7 +264,6 @@ public class DailyMonitoringController {
                 service.setUpdateOrderStatusFromFile(file, username);
                 return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
             } catch (Exception e) {
-                System.out.println(e);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
             }
         } else {
@@ -314,7 +333,9 @@ public class DailyMonitoringController {
 
     @PostMapping(value = "/user-role")
     public ResponseEntity<UserRoleInfo> getUserRoles(@RequestBody String username) {
+            System.out.println(username);
             UserRoleInfo userRoles = service.getUserRoles(username);
+        System.out.println(userRoles.getUserRoles());
             return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
 

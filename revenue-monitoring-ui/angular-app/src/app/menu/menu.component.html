@@ -1,6 +1,10 @@
-<div>
-  <!-- <button
+<div class="loading-container" *ngIf="!rolesReady">
+  <app-loading-symbol></app-loading-symbol>
+</div>
+<div *ngIf="rolesReady">
+  <button
     [routerLink]="['/home']"
+    *ngIf="isAdmin"
     mat-menu-item
     style="display: flex; align-items: center"
     routerLinkActive="active"
@@ -26,7 +30,7 @@
       </svg>
     </i>
     <span>Home</span>
-  </button> -->
+  </button>
   <button
     *ngIf="isAdmin || checkRole('PERIOD_CLOSE')"
     [matMenuTriggerFor]="periodClose"
@@ -209,8 +213,9 @@
     <span>ROL Monitoring</span>
   </button>
 
-  <!-- <button
+  <button
     [routerLink]="['/auto-invoicing']"
+    *ngIf="isAdmin"
     mat-menu-item
     style="display: flex; align-items: center"
     routerLinkActive="active"
@@ -236,7 +241,7 @@
       </svg>
     </i>
     <span>Auto Invoicing Dashboard</span>
-  </button> -->
+  </button>
   <!--
   <button
     [routerLink]="['/sbp']"

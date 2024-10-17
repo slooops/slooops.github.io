@@ -2,23 +2,6 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgChartsModule } from 'ng2-charts';
-// import {
-//   CuiPagerModule,
-//   CuiTableModule,
-//   CuiFilterModule,
-//   CuiTabsNavModule,
-//   CuiModalModule,
-//   CuiLoaderModule,
-//   CuiInputModule,
-//   CuiProgressbarModule,
-// } from '@cisco-ngx/cui-components';
-
-// import {
-//   CngProgressbarModule,
-//   CngSortModule,
-//   CngTableModule,
-//   CngTabsModule,
-// } from '@cisco/cui-ng';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -94,11 +77,26 @@ import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symb
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { AssignDialogComponent } from './rol/assign-dialog/assign-dialog.component';
 import { HelpDataComponent } from './help-data/help-data.component';
+import { AutoInvoicingComponent } from './auto-invoicing/auto-invoicing.component';
+import { da } from 'date-fns/locale';
+import { Router } from '@angular/router';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
     return authService.getTokens();
   };
+}
+
+export function initializeApp(dataService: DataService): () => Promise<void> {
+  return () =>
+    dataService
+      .getUserId() // First, get the user ID
+      .then((username) => {
+        dataService.getRolesForUser(username);
+      })
+      .catch((error) => {
+        console.error('Error during app initialization:', error);
+      });
 }
 
 @NgModule({
@@ -140,6 +138,7 @@ export function initApp(authService: AuthenticationService) {
     EspCaseAnalyzerComponent,
     AssignDialogComponent,
     HelpDataComponent,
+    AutoInvoicingComponent,
   ],
   imports: [
     BrowserModule,
@@ -201,6 +200,12 @@ export function initApp(authService: AuthenticationService) {
       provide: APP_INITIALIZER,
       useFactory: initApp,
       deps: [AuthenticationService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeApp,
+      deps: [DataService],
       multi: true,
     },
     {
