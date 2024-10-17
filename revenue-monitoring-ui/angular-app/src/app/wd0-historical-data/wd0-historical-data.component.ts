@@ -709,7 +709,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       (entry: any) => entry.PERIOD_NAME
     );
 
-    if (this.fetchDataForNewMonth) {
+    if (this.fetchDataForNewMonth || this.isWd1) {
       recentMonthNames.push(this.newMonthName);
     }
 
@@ -805,10 +805,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
         }
       );
 
-      if (this.fetchDataForNewMonth) {
-        recentMonthsData.push(this.newMonthData[0]);
-      }
-
       let fastestTimes = [];
       let slowestTimes = [];
 
@@ -844,6 +840,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)
         .map((time) => time[0]);
+
+      if (this.fetchDataForNewMonth) {
+        recentMonthsData.push(this.newMonthData[0]);
+        actualTimes.push(4.0);
+      }
 
       this.createLineGraph(
         fastestTimes,
