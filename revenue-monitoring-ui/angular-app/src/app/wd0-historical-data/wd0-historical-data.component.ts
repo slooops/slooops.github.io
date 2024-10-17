@@ -132,6 +132,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
           serviceActuals = this.extractServiceActuals(data);
           this.getWd0Volumes(productActuals, serviceActuals);
 
+          console.log('inital prod data recieved: \n', data);
+
           this.prepareDataForRegression(data);
           this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
         });
@@ -729,8 +731,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
         entry.EXECUTION_TIME = 0.0; // Default value
       }
     });
-
-    console.log('Step 1:', filteredData);
 
     this.processRegressionData(filteredData, recentMonthNames);
   };
