@@ -158,11 +158,11 @@ const routes: Routes = [
   //   },
   // },
   {
-    path: 'auto-invoicing',
+    path: 'invoicing',
     component: AutoInvoicingComponent,
     data: {
-      title: 'Auto Invoicing Dashboard',
-      header: 'Auto Invoicing Dashboard',
+      title: 'Invoicing Dashboard',
+      header: 'Invoicing Dashboard',
     },
   },
 ];

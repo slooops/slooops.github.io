@@ -1,11 +1,4 @@
-// .custom-table {
-//   min-width: 100%; /* Adjust based on your needs */
-//   // table-layout: auto; /* Allows columns to resize dynamically */
-// }
-
 :host {
-  // display: block;
-  /* Create a linear gradient background */
   background: linear-gradient(
     to right,
     white 0%,
@@ -14,9 +7,7 @@
     #f7f7f7 97.5%,
     white 100%
   );
-  /* background: #f7f7f7; */
-  // min-height: 100vh; /* Ensure it covers the entire height of the viewport */
-  // padding: 1.2rem; /* Add padding to keep spacing from the edges */
+
   font-family: "Inter", sans-serif;
 }
 

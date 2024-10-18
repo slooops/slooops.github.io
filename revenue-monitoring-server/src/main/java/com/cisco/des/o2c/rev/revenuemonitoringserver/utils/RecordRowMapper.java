@@ -25,6 +25,7 @@ public class RecordRowMapper implements RowMapper<RolTransactionData> {
         transactionDetails.setORDER_LINE_ID(rs.getString("ORDERLINEID"));
         transactionDetails.setERROR_MESSAGE(rs.getString("ERROR_MESSAGE"));
         transactionDetails.setPROCESS_STATUS(rs.getString("PROCESS_STATUS"));
+        transactionDetails.setSEQUENCE_NUM(rs.getString("SEQUENCE_NUM"));
 
         return transactionDetails;
     }

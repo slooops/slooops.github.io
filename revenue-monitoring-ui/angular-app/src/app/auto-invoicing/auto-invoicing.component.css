@@ -495,3 +495,38 @@ tr.mat-header-row {
   min-width: 35vw;
   max-width: 35vw;
 }
+
+.icon-container {
+  display: inline-flex;
+  align-items: center; /* Aligns items vertically in the center */
+  gap: 2px; /* Optional: Adds spacing between icons */
+}
+
+.circle-icon {
+  width: 11px;
+  height: 11px;
+  background-color: rgb(221, 0, 0);
+  border-radius: 50%; /* Makes it a circle */
+  display: flex;
+  align-items: flex-start; /* Center content vertically */
+  justify-content: center; /* Center content horizontally */
+  position: relative; /* Ensures number stays within circle */
+}
+
+.circle-number {
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  margin-top: -1px !important;
+}
+
+.arrow_upward::before {
+  content: "↑";
+}
+
+.arrow_downward::before {
+  content: "↓";
+}

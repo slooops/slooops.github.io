@@ -184,7 +184,8 @@ public class DailyMonitoringController {
     public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter(@RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "100") int size,         @RequestParam List<String> periodNames,
                                                                            @RequestParam List<String> ouNames,
-                                                                           @RequestParam List<String> appNames ) {
+                                                                           @RequestParam List<String> appNames,
+                                                                           @RequestParam List<String> sequenceNums) {
 
         List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
         int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
@@ -194,9 +195,10 @@ public class DailyMonitoringController {
             String periodName = periodNames.get(i);
             String ouName = ouNames.get(i);
             String appName = appNames.get(i);
+            String sequenceNum = sequenceNums.get(i);
 
             // Fetch filtered data for current set of filters
-            List<RolTransactionData> result = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName);
+            List<RolTransactionData> result = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName, sequenceNum);
             rolTransactionDataFiltered.addAll(result);
 
             // Get count for the current filter set and add to total

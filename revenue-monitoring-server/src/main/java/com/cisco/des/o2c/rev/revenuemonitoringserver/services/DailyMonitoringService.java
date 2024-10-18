@@ -693,8 +693,8 @@ public class DailyMonitoringService {
     }
 
 
-    public List<RolTransactionData> getRolTransactionDataFilter(int page, int size, String periodName, String ouName, String applicationName) {
-        return jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, page, size, periodName, ouName, applicationName);
+    public List<RolTransactionData> getRolTransactionDataFilter(int page, int size, String periodName, String ouName, String applicationName, String sequenceNum) {
+        return jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, page, size, periodName, ouName, applicationName, Integer.parseInt(sequenceNum));
     }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
@@ -730,11 +730,12 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getAutoInvoiceErrorSummaryView() {
-        String[] dateColumns = {"CREATION_DATE"};
+        String[] dateColumns = {"TRANSACTION_DATE"};
         List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorSummaryView);
         result.forEach(data -> {
 //            renameKey(data, "STATUS", "PROCESS_FLOW");
 //            renameKey(data, "BATCH_SOURCE", "APPLICATION_NAME");
+            renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             renameKey(data, "AMOUNT_USD", "AMOUNT");
             formatDateColumns(data, dateColumns);

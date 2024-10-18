@@ -120,7 +120,6 @@
     </i>
     <span>WD+0 Mid Close Volumes</span>
   </button>
-  <mat-divider style="color: black"></mat-divider>
   <button
     [routerLink]="['/large-deal-tracker']"
     mat-menu-item
@@ -151,7 +150,35 @@
     <span>Large Deal Tracker</span>
   </button>
 
-  <mat-divider style="color: black"></mat-divider>
+  <button
+    [routerLink]="['/invoicing']"
+    *ngIf="isAdmin"
+    mat-menu-item
+    style="display: flex; align-items: center"
+    routerLinkActive="active"
+  >
+    <i
+      style="
+        font-size: small;
+        color: #373c42;
+        display: flex;
+        align-items: center;
+      "
+      class="mr-2"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        style="width: 16px; height: 16px"
+      >
+        <path
+          d="M160,116h48a20,20,0,0,0,20-20V48a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20V60H128a28,28,0,0,0-28,28v28H76v-4A20,20,0,0,0,56,92H24A20,20,0,0,0,4,112v32a20,20,0,0,0,20,20H56a20,20,0,0,0,20-20v-4h24v28a28,28,0,0,0,28,28h12v12a20,20,0,0,0,20,20h48a20,20,0,0,0,20-20V160a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20v12H128a4,4,0,0,1-4-4V88a4,4,0,0,1,4-4h12V96A20,20,0,0,0,160,116ZM52,140H28V116H52Zm112,24h40v40H164Zm0-112h40V92H164Z"
+        ></path>
+      </svg>
+    </i>
+    <span>1.Invoicing Monitoring</span>
+  </button>
 
   <button
     [routerLink]="['/cms']"
@@ -180,45 +207,15 @@
         ></path>
       </svg>
     </i>
-    <span>CMS Monitoring</span>
+    <span>2. CMS Monitoring</span>
   </button>
 
   <button
-    [routerLink]="['/rol']"
-    *ngIf="isAdmin || checkRole('ROL')"
-    mat-menu-item
-    style="display: flex; align-items: center"
-    routerLinkActive="active"
-  >
-    <i
-      style="
-        font-size: small;
-        color: #373c42;
-        display: flex;
-        align-items: center;
-      "
-      class="mr-2"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="#000000"
-        viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
-      >
-        <path
-          d="M160,116h48a20,20,0,0,0,20-20V48a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20V60H128a28,28,0,0,0-28,28v28H76v-4A20,20,0,0,0,56,92H24A20,20,0,0,0,4,112v32a20,20,0,0,0,20,20H56a20,20,0,0,0,20-20v-4h24v28a28,28,0,0,0,28,28h12v12a20,20,0,0,0,20,20h48a20,20,0,0,0,20-20V160a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20v12H128a4,4,0,0,1-4-4V88a4,4,0,0,1,4-4h12V96A20,20,0,0,0,160,116ZM52,140H28V116H52Zm112,24h40v40H164Zm0-112h40V92H164Z"
-        ></path>
-      </svg>
-    </i>
-    <span>ROL Monitoring</span>
-  </button>
-
-  <button
-    [routerLink]="['/auto-invoicing']"
     *ngIf="isAdmin"
     mat-menu-item
     style="display: flex; align-items: center"
     routerLinkActive="active"
+    [disabled]="true"
   >
     <i
       style="
@@ -240,7 +237,67 @@
         ></path>
       </svg>
     </i>
-    <span>Auto Invoicing Dashboard</span>
+    <span>3.Standard Revenue Monitoring</span>
+  </button>
+
+  <button
+    *ngIf="isAdmin || checkRole('ROL')"
+    [matMenuTriggerFor]="customRevenue"
+    mat-menu-item
+    style="display: flex; align-items: center"
+    routerLinkActive="active"
+  >
+    <i
+      style="
+        font-size: small;
+        color: #373c42;
+        display: flex;
+        align-items: center;
+      "
+      class="mr-2"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        style="width: 16px; height: 16px"
+      >
+        <path
+          d="M160,116h48a20,20,0,0,0,20-20V48a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20V60H128a28,28,0,0,0-28,28v28H76v-4A20,20,0,0,0,56,92H24A20,20,0,0,0,4,112v32a20,20,0,0,0,20,20H56a20,20,0,0,0,20-20v-4h24v28a28,28,0,0,0,28,28h12v12a20,20,0,0,0,20,20h48a20,20,0,0,0,20-20V160a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20v12H128a4,4,0,0,1-4-4V88a4,4,0,0,1,4-4h12V96A20,20,0,0,0,160,116ZM52,140H28V116H52Zm112,24h40v40H164Zm0-112h40V92H164Z"
+        ></path>
+      </svg>
+    </i>
+    <span>4. Custom Revenue Monitoring</span>
+  </button>
+
+  <button
+    *ngIf="isAdmin"
+    mat-menu-item
+    style="display: flex; align-items: center"
+    routerLinkActive="active"
+    [disabled]="true"
+  >
+    <i
+      style="
+        font-size: small;
+        color: #373c42;
+        display: flex;
+        align-items: center;
+      "
+      class="mr-2"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        style="width: 16px; height: 16px"
+      >
+        <path
+          d="M160,116h48a20,20,0,0,0,20-20V48a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20V60H128a28,28,0,0,0-28,28v28H76v-4A20,20,0,0,0,56,92H24A20,20,0,0,0,4,112v32a20,20,0,0,0,20,20H56a20,20,0,0,0,20-20v-4h24v28a28,28,0,0,0,28,28h12v12a20,20,0,0,0,20,20h48a20,20,0,0,0,20-20V160a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20v12H128a4,4,0,0,1-4-4V88a4,4,0,0,1,4-4h12V96A20,20,0,0,0,160,116ZM52,140H28V116H52Zm112,24h40v40H164Zm0-112h40V92H164Z"
+        ></path>
+      </svg>
+    </i>
+    <span>5.GL Posting Monitoring</span>
   </button>
   <!--
   <button
@@ -361,5 +418,92 @@
       </svg>
     </i>
     <span>Mid-close</span>
+  </button>
+</mat-menu>
+
+<mat-menu #customRevenue="matMenu">
+  <button
+    [routerLink]="['/rol']"
+    mat-menu-item
+    style="display: flex; align-items: center"
+    routerLinkActive="active"
+  >
+    <i
+      class="mr-2"
+      style="
+        font-size: small;
+        color: #373c42;
+        display: flex;
+        align-items: center;
+      "
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        style="width: 16px; height: 16px"
+      >
+        <path
+          d="M214,193.68,145.35,128,214,62.32l.18-.18A20,20,0,0,0,200,28H56A20,20,0,0,0,41.87,62.14l.18.18L110.65,128l-68.6,65.68-.18.18A20,20,0,0,0,56,228H200a20,20,0,0,0,14.14-34.14ZM148.25,164h-40.5L128,144.61ZM190,52l-62,59.39L66,52ZM66,204l16.71-16h90.62L190,204Z"
+        ></path>
+      </svg>
+    </i>
+    <span>ROL</span>
+  </button>
+  <button
+    mat-menu-item
+    style="display: flex; align-items: center"
+    routerLinkActive="active"
+    [disabled]="true"
+  >
+    <i
+      class="mr-2"
+      style="
+        font-size: small;
+        color: #373c42;
+        display: flex;
+        align-items: center;
+      "
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        style="width: 16px; height: 16px"
+      >
+        <path
+          d="M214,193.68,145.35,128,214,62.32l.18-.18A20,20,0,0,0,200,28H56A20,20,0,0,0,41.87,62.14l.18.18L110.65,128l-68.6,65.68-.18.18A20,20,0,0,0,56,228H200a20,20,0,0,0,14.14-34.14ZM148.25,164h-40.5L128,144.61ZM190,52l-62,59.39L66,52ZM66,204l16.71-16h90.62L190,204Z"
+        ></path>
+      </svg>
+    </i>
+    <span>Accruals</span>
+  </button>
+  <button
+    mat-menu-item
+    style="display: flex; align-items: center"
+    routerLinkActive="active"
+    [disabled]="true"
+  >
+    <i
+      class="mr-2"
+      style="
+        font-size: small;
+        color: #373c42;
+        display: flex;
+        align-items: center;
+      "
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        style="width: 16px; height: 16px"
+      >
+        <path
+          d="M214,193.68,145.35,128,214,62.32l.18-.18A20,20,0,0,0,200,28H56A20,20,0,0,0,41.87,62.14l.18.18L110.65,128l-68.6,65.68-.18.18A20,20,0,0,0,56,228H200a20,20,0,0,0,14.14-34.14ZM148.25,164h-40.5L128,144.61ZM190,52l-62,59.39L66,52ZM66,204l16.71-16h90.62L190,204Z"
+        ></path>
+      </svg>
+    </i>
+    <span>Meraki</span>
   </button>
 </mat-menu>

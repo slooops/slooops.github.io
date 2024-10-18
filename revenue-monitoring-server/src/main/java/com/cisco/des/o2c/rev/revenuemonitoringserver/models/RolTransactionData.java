@@ -16,7 +16,7 @@ public class RolTransactionData {
     private String ORDER_LINE_ID;
     private String ERROR_MESSAGE;
     private String PROCESS_STATUS;
-
+    private String SEQUENCE_NUM;
 
     public void setPERIOD_NAME(String PERIOD_NAME) {
         this.PERIOD_NAME = PERIOD_NAME;
@@ -74,6 +74,13 @@ public class RolTransactionData {
         this.PROCESS_STATUS = PROCESS_STATUS;
     }
 
+    public void setSEQUENCE_NUM(String SEQUENCE_NUM) {
+        this.SEQUENCE_NUM = SEQUENCE_NUM;
+    }
+
+    public String getSEQUENCE_NUM() {
+        return SEQUENCE_NUM;
+    }
     public String getPERIOD_NAME() {
         return PERIOD_NAME;
     }

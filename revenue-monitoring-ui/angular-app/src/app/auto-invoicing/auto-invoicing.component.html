@@ -1,8 +1,22 @@
+<ng-template #warningToolTip>
+  <span>
+    <p>This is a warning message for a transaction!</p>
+  </span>
+</ng-template>
+
+<ng-template #escalationToolTip>
+  <span>
+    <ul>
+      <li>Escalation 1</li>
+      <li>Escalation 2</li>
+    </ul>
+  </span>
+</ng-template>
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
       <h5 class="section-title action-buttons">
-        Auto Invoicing Errors Summary
+        Invoicing Errors Summary
         <span class="action-buttons" *ngIf="selection.selected.length === 1">
           &nbsp;&nbsp;
           <!-- <button
@@ -82,20 +96,32 @@
           </ng-container>
           <ng-container *ngFor="let column of summaryColumns">
             <ng-container [matColumnDef]="column">
-              <th mat-header-cell *matHeaderCellDef class="no-wrap">
-                <!-- <ng-container
-                    *ngIf="column === 'PROCESS_FLOW'; else noTooltip"
-                  >
-                    <span
-                      [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
-                      [contentTemplate]="
-                        column === 'PROCESS_FLOW' ? processToolTip : null
-                      "
-                    >
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                <ng-container [ngSwitch]="column">
+                  <ng-container *ngSwitchCase="'AGING'">
+                    <span (click)="sortData(column)">
                       {{ replaceUnderscore(column) }}
+                      <i
+                        *ngIf="isSortedColumn('AGING')"
+                        [ngClass]="getSortIcon()"
+                      ></i>
                     </span>
-                  </ng-container> -->
-                {{ replaceUnderscore(column) }}
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'AMOUNT'">
+                    <span (click)="sortData(column)">
+                      {{ replaceUnderscore(column) }}
+                      <i
+                        *ngIf="isSortedColumn('AMOUNT')"
+                        [ngClass]="getSortIcon()"
+                      ></i>
+                    </span>
+                  </ng-container>
+
+                  <ng-container *ngSwitchDefault>
+                    {{ replaceUnderscore(column) }}
+                  </ng-container>
+                </ng-container>
               </th>
 
               <td
@@ -107,6 +133,33 @@
                   <!-- <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                       {{ subAppMapping(element[column]) }}
                     </ng-container> -->
+                  <ng-container *ngSwitchCase="'PERIOD_NAME'">
+                    <div>
+                      <span class="icon-container">
+                        <span
+                          class="circle-icon"
+                          *ngIf="isEscalated(element)"
+                          [customToolTip]="'true'"
+                          [contentTemplate]="escalationToolTip"
+                        >
+                          <span class="circle-number">{{
+                            getCircleNumber(element)
+                          }}</span>
+                        </span>
+                        <span *ngIf="!isEscalated(element)">
+                          &nbsp;&nbsp;&nbsp;
+                        </span>
+                        <i
+                          class="fa fa-exclamation-triangle"
+                          aria-hidden="true"
+                          style="color: rgb(200, 200, 0); font-size: 11px"
+                          [customToolTip]="'true'"
+                          [contentTemplate]="warningToolTip"
+                        ></i>
+                      </span>
+                      {{ element[column] }}
+                    </div>
+                  </ng-container>
                   <ng-container *ngSwitchDefault>
                     {{ element[column] }}
                   </ng-container>
@@ -178,7 +231,7 @@
 
 <div class="container">
   <div class="header-container">
-    <h5 class="section-title">Auto Invoicing Error Details</h5>
+    <h5 class="section-title">Invoicing Error Details</h5>
     <div class="action-buttons">
       <button mat-icon-button>
         <i class="svg-icon download-icon"></i>

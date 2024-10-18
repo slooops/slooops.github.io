@@ -149,10 +149,11 @@ tr.mat-header-row {
 
 .circle-subcaption {
   font-size: 10px;
-  color: #666;
+  color: #000000;
   text-align: center;
   position: relative;
   top: 2px;
+  font-weight: bold;
 }
 
 /* Specific positioning for each circle-wrapper */
@@ -257,8 +258,8 @@ tr.mat-header-row {
 }
 
 .comments-cell {
-  min-width: 40vw;
-  max-width: 40vw;
+  min-width: 38vw;
+  max-width: 38vw;
 }
 
 .page-title {
@@ -489,4 +490,39 @@ tr.mat-header-row {
   color: #fff !important;
   border: none;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.arrow_upward::before {
+  content: "↑";
+}
+
+.arrow_downward::before {
+  content: "↓";
+}
+
+.icon-container {
+  display: inline-flex;
+  align-items: center; /* Aligns items vertically in the center */
+  gap: 2px; /* Optional: Adds spacing between icons */
+}
+
+.circle-icon {
+  width: 11px;
+  height: 11px;
+  background-color: rgb(221, 0, 0);
+  border-radius: 50%; /* Makes it a circle */
+  display: flex;
+  align-items: flex-start; /* Center content vertically */
+  justify-content: center; /* Center content horizontally */
+  position: relative; /* Ensures number stays within circle */
+}
+
+.circle-number {
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  margin-top: -1px !important;
 }

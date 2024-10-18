@@ -10,6 +10,7 @@ import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { DataService } from '../providers/data.service';
 import { DatePipe } from '@angular/common';
+import { MatSort } from '@angular/material/sort';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
@@ -17,6 +18,7 @@ import { DatePipe } from '@angular/common';
 })
 export class RolComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: false }) sort!: MatSort;
 
   rolSummaryModel: RolErrorSummaryData[];
 
@@ -52,6 +54,7 @@ export class RolComponent implements OnInit {
   periodName: string = '';
   periodEnd: string = '';
   processFlowTotals: { [key: string]: string | number };
+  originalData: any[] = [];
 
   constructor(
     private http: ApiHttpService,
@@ -62,9 +65,9 @@ export class RolComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getRolTransactionData(0, this.pageSize);
     this.getRolErrorSummaryData();
     this.getRolErrorSummaryPeriodStatus();
+    this.getRolTransactionData(0, this.pageSize);
   }
 
   ngAfterViewInit(): void {
@@ -97,6 +100,7 @@ export class RolComponent implements OnInit {
       this.rolErrorDisplayedColumns = ['select', ...this.rolErrorColumns];
 
       this.rolSummaryModel = this.formatData(data);
+      console.log(this.rolSummaryModel);
       this.rolSummaryModel.forEach((row) => {
         row.AGING = this.getAging(row.TRANSACTION_DATE) + ' days';
         row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
@@ -105,12 +109,78 @@ export class RolComponent implements OnInit {
           : '';
       });
 
+      this.originalData = this.rolSummaryModel;
+
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
         this.rolSummaryModel
       );
       this.summaryLoading = false;
       this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
     });
+  }
+
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | '' = '';
+  sortData(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection =
+        this.sortDirection === 'desc'
+          ? 'asc'
+          : this.sortDirection === 'asc'
+          ? ''
+          : 'desc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'desc';
+    }
+
+    if (this.sortDirection === '') {
+      this.rolErrorSummaryData.data = [...this.originalData];
+    } else {
+      this.rolErrorSummaryData.data = [...this.rolErrorSummaryData.data].sort(
+        (a, b) => this.compare(a[column], b[column], column)
+      );
+    }
+  }
+
+  compare(a: any, b: any, column: string): number {
+    let valueA = a;
+    let valueB = b;
+
+    if (column === 'AMOUNT') {
+      valueA = parseFloat(a.replace(/[$,]/g, '')) || 0;
+      valueB = parseFloat(b.replace(/[$,]/g, '')) || 0;
+    } else if (column === 'AGING') {
+      valueA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+      valueB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+    }
+
+    const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+    return this.sortDirection === 'asc' ? comparison : -comparison;
+  }
+
+  getSortIcon(): string {
+    return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  isSortedColumn(column: string): boolean {
+    return this.sortColumn === column && this.sortDirection !== '';
+  }
+
+  isEscalated(element: any): boolean {
+    return element.AGING.split(' ')[0] > 6;
+  }
+
+  getCircleNumber(element: any): any {
+    const aging = element.AGING.split(' ')[0];
+    if (aging >= 7 && aging <= 10) {
+      return 1;
+    } else if (aging >= 11 && aging <= 16) {
+      return 2;
+    } else if (aging > 16) {
+      return 3;
+    }
+    return 0;
   }
 
   getRolErrorSummaryPeriodStatus() {
@@ -137,6 +207,7 @@ export class RolComponent implements OnInit {
       next: (data: any) => {
         this.rolTransactionData = data.rolTransactionData;
         this.totalRecords = data.totalRecords;
+        console.log(this.rolTransactionData);
 
         if (this.rolTransactionData.length > 0) {
           this.displayedColumns = [
@@ -197,16 +268,15 @@ export class RolComponent implements OnInit {
     const periodNames = data.map((row) => row.PERIOD_NAME);
     const ouNames = data.map((row) => row.ORG_NAME);
     const appNames = data.map((row) => row.APPLICATION_NAME);
-    // const amounts = data.map((row) => row.AMOUNT);
+    const sequenceNums = data.map((row) => row.SEQUENCE_NUM);
 
-    // Prepare the request payload (adjust according to your API needs)
     const pageRequest = {
       page: '0',
       size: '20',
-      periodNames: periodNames.join(','), // Send as comma-separated values
-      ouNames: ouNames.join(','), // Send as comma-separated values
-      appNames: appNames.join(','), // Send as comma-separated values
-      // amounts: amounts.join(',')
+      periodNames: periodNames.join(','),
+      ouNames: ouNames.join(','),
+      appNames: appNames.join(','),
+      sequenceNums: sequenceNums.join(','),
     };
 
     this.http
@@ -573,6 +643,7 @@ interface RolTransactionData {
   ORDERLINEID: string;
   ERROR_MESSAGE: string;
   PROCESS_STATUS: string;
+  SEQUENCE_NUM: string;
 }
 
 interface RolErrorSummaryData {
@@ -586,4 +657,5 @@ interface RolErrorSummaryData {
   COMMENTS: string;
   TRANSACTION_DATE: string;
   ASSIGNED_DATE: string;
+  SEQUENCE_NUM: string;
 }

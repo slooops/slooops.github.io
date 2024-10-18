@@ -26,7 +26,7 @@ export class AutoInvoicingComponent implements OnInit {
     'PROCESS_FLOW',
     'ORG_NAME',
     'AMOUNT',
-    'CREATION_DATE',
+    'TRANSACTION_DATE',
     'AGING',
     'ASSIGNED_TO',
     'ASSIGNED_DATE',
@@ -43,13 +43,80 @@ export class AutoInvoicingComponent implements OnInit {
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
       this.autoInvoicingSummary = this.formatData(data);
       this.autoInvoicingSummary.forEach((row) => {
-        row.CREATION_DATE = this.dateTransform(row.CREATION_DATE);
+        row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
       });
+      this.originalData = this.autoInvoicingSummary;
+
       this.summaryDatasource =
         new MatTableDataSource<AutoInvoicingErrorSummary>(
           this.autoInvoicingSummary
         );
     });
+  }
+  originalData: any[] = [];
+
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | '' = '';
+  sortData(column: string) {
+    if (this.sortColumn === column) {
+      this.sortDirection =
+        this.sortDirection === 'desc'
+          ? 'asc'
+          : this.sortDirection === 'asc'
+          ? ''
+          : 'desc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'desc';
+    }
+
+    if (this.sortDirection === '') {
+      this.summaryDatasource.data = [...this.originalData];
+    } else {
+      this.summaryDatasource.data = [...this.summaryDatasource.data].sort(
+        (a, b) => this.compare(a[column], b[column], column)
+      );
+    }
+  }
+
+  compare(a: any, b: any, column: string): number {
+    let valueA = a;
+    let valueB = b;
+
+    if (column === 'AMOUNT') {
+      valueA = parseFloat(a.replace(/[$,]/g, '')) || 0;
+      valueB = parseFloat(b.replace(/[$,]/g, '')) || 0;
+    } else if (column === 'AGING') {
+      valueA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+      valueB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+    }
+
+    const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+    return this.sortDirection === 'asc' ? comparison : -comparison;
+  }
+
+  getSortIcon(): string {
+    return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  isSortedColumn(column: string): boolean {
+    return this.sortColumn === column && this.sortDirection !== '';
+  }
+
+  isEscalated(element: any): boolean {
+    return element.AGING > 6;
+  }
+
+  getCircleNumber(element: any): any {
+    const aging = element.AGING;
+    if (aging >= 7 && aging <= 10) {
+      return 1;
+    } else if (aging >= 11 && aging <= 16) {
+      return 2;
+    } else if (aging > 16) {
+      return 3;
+    }
+    return 0;
   }
 
   dateTransform(dateString: string): string {
@@ -184,7 +251,7 @@ interface AutoInvoicingErrorSummary {
   AGING: string;
   ASSIGNED_TO: string;
   COMMENTS: string;
-  CREATION_DATE: string;
+  TRANSACTION_DATE: string;
   ASSIGNED_DATE: string;
 }
 
