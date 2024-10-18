@@ -56,6 +56,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   unprocessedRegressionData: any[] = [];
   numberOfMonths: number = 4;
   newMonthName: string = '';
+  latestPeriodName: string = '';
   newMonthData = [[0, 0]];
   fetchDataForNewMonth: boolean = false;
   isWd1: boolean = false;
@@ -122,6 +123,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
               }
             });
             this.newMonthName = data[0].PERIOD_NAME;
+            this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
           }),
           switchMap(() => this.getEndpointData('wd0-regression'))
         )
@@ -161,6 +163,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
               }
             });
             this.newMonthName = data[0].PERIOD_NAME;
+            this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-1
           }),
           switchMap(() => this.getEndpointData('wd0-regression'))
         )
@@ -180,6 +183,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
       this.getEndpointData('wd0-regression').subscribe((data: any) => {
         this.prepareDataForRegression(data);
 
+        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
         this.loading = false;
         this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
       });
@@ -188,6 +193,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
         productActuals = this.extractProductActuals(data);
         serviceActuals = this.extractServiceActuals(data);
         this.getWd0Volumes(productActuals, serviceActuals);
+
+        const latestPeriodName = this.getLatestPeriodName(data);
+        console.log(`Data is from the period: ${latestPeriodName}`);
+
+        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
 
         this.prepareDataForRegression(data);
 
@@ -198,6 +208,45 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     this.refreshExportData();
     this.getHistoricalData();
+  }
+
+  getLatestPeriodName(data: any[]): string {
+    // Create a map of month names
+    const monthMap = {
+      JAN: 'FEB',
+      FEB: 'MAR',
+      MAR: 'APR',
+      APR: 'MAY',
+      MAY: 'JUN',
+      JUN: 'JUL',
+      JUL: 'AUG',
+      AUG: 'SEP',
+      SEP: 'OCT',
+      OCT: 'NOV',
+      NOV: 'DEC',
+      DEC: 'JAN', // Wrap back around to JAN
+    };
+
+    // Filter the data to ensure PERIOD_NAME exists
+    const filteredData = data.filter((entry) => entry.PERIOD_NAME);
+
+    // Get the last entry in the filtered array
+    const latestEntry = filteredData[filteredData.length - 1];
+
+    // If it's wd-2, show the next month period name
+    if (this.isWd2 && latestEntry) {
+      const currentPeriodName = latestEntry.PERIOD_NAME;
+      const currentMonth = currentPeriodName.split('-')[0].toUpperCase(); // Extract the month
+      const nextMonth = monthMap[currentMonth]; // Map to the next month
+
+      // Return the new period with the same year but next month
+      return nextMonth
+        ? `${nextMonth}-${currentPeriodName.split('-')[1]}`
+        : 'Unknown Period';
+    }
+
+    // Otherwise, return the last entry's period name or 'Unknown Period'
+    return latestEntry ? latestEntry.PERIOD_NAME : 'Unknown Period';
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {

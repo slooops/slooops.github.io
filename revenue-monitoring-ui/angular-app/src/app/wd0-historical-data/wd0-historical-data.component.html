@@ -39,14 +39,15 @@
       <canvas id="q3ServiceLinePredictiveModel"></canvas>
 
       <!-- Overlay only if isWd3 is true -->
-      <div *ngIf="isWd3 && !loading" class="wd3-overlay">
+      <!-- <div *ngIf="isWd3 && !loading" class="wd3-overlay">
         Projection data will <br />
         become available on WD-2.
-      </div>
+      </div> -->
     </div>
 
     <p class="chart-description" style="padding-left: 1.5vw">
-      Service line projection based on booked orders and promise date
+      {{ latestPeriodName }} Service line projection based on booked orders and
+      promise date
     </p>
   </div>
 
@@ -62,14 +63,15 @@
       <canvas id="productLinePredictiveModel"></canvas>
 
       <!-- Overlay only if isWd3 is true -->
-      <div *ngIf="isWd3 && !productLoading" class="wd3-overlay">
+      <!-- <div *ngIf="isWd3 && !productLoading" class="wd3-overlay">
         Projection data will <br />
         become available on WD-2.
-      </div>
+      </div> -->
     </div>
 
     <p class="chart-description" style="padding-left: 1.5vw">
-      Product line projection based on booked orders and promise date
+      {{ latestPeriodName }} Product line projection based on booked orders and
+      promise date
     </p>
   </div>
 
