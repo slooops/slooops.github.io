@@ -87,18 +87,6 @@ export function initApp(authService: AuthenticationService) {
   };
 }
 
-export function initializeApp(dataService: DataService): () => Promise<void> {
-  return () =>
-    dataService
-      .getUserId() // First, get the user ID
-      .then((username) => {
-        dataService.getRolesForUser(username);
-      })
-      .catch((error) => {
-        console.error('Error during app initialization:', error);
-      });
-}
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -200,12 +188,6 @@ export function initializeApp(dataService: DataService): () => Promise<void> {
       provide: APP_INITIALIZER,
       useFactory: initApp,
       deps: [AuthenticationService],
-      multi: true,
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeApp,
-      deps: [DataService],
       multi: true,
     },
     {
