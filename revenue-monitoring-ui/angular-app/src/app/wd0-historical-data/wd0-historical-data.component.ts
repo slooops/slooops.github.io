@@ -527,10 +527,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
         },
         datalabels: {
           display: true,
-          color: '#767676',
+          color: '#4f4f4f',
           font: {
             size: 10,
-            weight: 'bold',
+            weight: 'bolder',
           },
           backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
           borderRadius: 3,

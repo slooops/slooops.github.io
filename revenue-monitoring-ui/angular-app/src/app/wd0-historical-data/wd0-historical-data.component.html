@@ -33,12 +33,20 @@
         <app-loading-symbol></app-loading-symbol>
       </div>
     </ng-container>
-    <ng-container>
+
+    <div style="position: relative">
+      <!-- Canvas element for the graph -->
       <canvas id="q3ServiceLinePredictiveModel"></canvas>
-    </ng-container>
+
+      <!-- Overlay only if isWd3 is true -->
+      <div *ngIf="isWd3 && !loading" class="wd3-overlay">
+        Projection data will <br />
+        become available on WD-2.
+      </div>
+    </div>
+
     <p class="chart-description" style="padding-left: 1.5vw">
-      Service line predictive model showing mid-close volume projections,
-      derived from historical data trends.
+      Service line projection based on booked orders and promise date
     </p>
   </div>
 
@@ -49,19 +57,19 @@
       </div>
     </ng-container>
 
-    <!-- <ng-container *ngIf="isWd3">
-      <div style="height: 80%; display: flex; align-items: center">
-        <div class="chart-description" style="margin-bottom: -40px">
-          Data available on WD-2, check back tomorrow.
-        </div>
-      </div>
-    </ng-container> -->
+    <div style="position: relative">
+      <!-- Canvas element for the graph -->
+      <canvas id="productLinePredictiveModel"></canvas>
 
-    <canvas id="productLinePredictiveModel"></canvas>
+      <!-- Overlay only if isWd3 is true -->
+      <div *ngIf="isWd3 && !productLoading" class="wd3-overlay">
+        Projection data will <br />
+        become available on WD-2.
+      </div>
+    </div>
 
     <p class="chart-description" style="padding-left: 1.5vw">
-      Product line predictive model showing mid-close volume projections,
-      derived from historical data trends.
+      Product line projection based on booked orders and promise date
     </p>
   </div>
 
@@ -86,8 +94,7 @@
       <canvas id="lineChartCanvas"></canvas>
     </ng-container>
     <p class="chart-description">
-      Machine learning predicted upper & lower run-time execution bounds based
-      on historical data.
+      Projection of Period close completion based on predicted volume
     </p>
   </div>
 
