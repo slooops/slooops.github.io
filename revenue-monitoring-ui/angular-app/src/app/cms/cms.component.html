@@ -667,7 +667,7 @@
         <div class="table-title-container">
           <h4 class="container-title">Job Errors</h4>
           <div style="display: flex; gap: 1vh">
-            <button mat-icon-button [disabled]="true">
+            <button mat-icon-button (click)="getCollectionsErrorSummary()">
               <i class="fa fa-refresh"></i>
             </button>
             <button
@@ -766,9 +766,10 @@
         <div class="table-title-container">
           <h4 class="container-title">Reconciliation Error Extract</h4>
           <div style="display: flex; gap: 1vh">
-            <button mat-icon-button [disabled]="true">
+            <button mat-icon-button (click)="getReconciliationErrorExtract()">
               <i class="fa fa-refresh"></i>
             </button>
+
             <button
               mat-icon-button
               (click)="
@@ -836,9 +837,10 @@
         <div class="table-title-container">
           <h4 class="container-title">Latest Request Status</h4>
           <div style="display: flex; gap: 1vh">
-            <button mat-icon-button [disabled]="true">
+            <button mat-icon-button (click)="getLatestRequestStatus()">
               <i class="fa fa-refresh"></i>
             </button>
+
             <button
               mat-icon-button
               (click)="
@@ -980,9 +982,10 @@
         <div class="table-title-container">
           <h4 class="container-title">Interface Errors Summary Table</h4>
           <div style="display: flex; gap: 1vh">
-            <button mat-icon-button [disabled]="true">
+            <button mat-icon-button (click)="getInterfaceErrors()">
               <i class="fa fa-refresh"></i>
             </button>
+
             <button
               mat-icon-button
               (click)="
@@ -1045,9 +1048,10 @@
         <div class="table-title-container">
           <h4 class="container-title">Unapplied Amount (Unposted Summary)</h4>
           <div style="display: flex; gap: 1vh">
-            <button mat-icon-button [disabled]="true">
+            <button mat-icon-button (click)="getUnpostedSummary()">
               <i class="fa fa-refresh"></i>
             </button>
+
             <button
               mat-icon-button
               (click)="
@@ -1123,9 +1127,10 @@
         <div class="table-title-container">
           <h4 class="container-title">Unapplied Errors (Receipt Errors)</h4>
           <div style="display: flex; gap: 1vh">
-            <button mat-icon-button [disabled]="true">
+            <button mat-icon-button (click)="getUnappliedErrorSummary()">
               <i class="fa fa-refresh"></i>
             </button>
+
             <button
               mat-icon-button
               (click)="
