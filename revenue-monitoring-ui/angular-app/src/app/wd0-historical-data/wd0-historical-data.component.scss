@@ -31,12 +31,16 @@ td {
   font-size: 11px;
 }
 
+td.mat-cell {
+  padding: 0px;
+}
+
 table.mat-table {
   border-collapse: collapse;
 }
 
 tr.mat-row {
-  height: 30px;
+  height: 25px;
   border-bottom: 0px;
 }
 

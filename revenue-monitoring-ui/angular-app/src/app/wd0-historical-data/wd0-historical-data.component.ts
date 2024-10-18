@@ -28,7 +28,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   errorMessage: boolean = false;
   barChartLoading: boolean = true;
   dataTimestamp: string;
-  numberOfQuartersOfHistoricalData: number = 16;
+  numberOfQuartersOfHistoricalData: number = 8;
 
   upperCI: number;
   lowerCI: number;
