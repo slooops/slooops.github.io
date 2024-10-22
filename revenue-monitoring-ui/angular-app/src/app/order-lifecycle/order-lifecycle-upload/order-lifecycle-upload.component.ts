@@ -27,7 +27,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
         '',
         [Validators.required, Validators.pattern(/^[a-zA-Z]+$/)],
       ],
-      account: ['', [Validators.required, Validators.pattern(/^[a-zA-Z]+$/)]],
+      account: ['', [Validators.required, Validators.pattern(/^[a-zA-Z\s]+$/)]],
       dealIds: [
         '',
         [Validators.required, Validators.pattern(/^\s*\d+(\s*,\s*\d+)*\s*$/)],
