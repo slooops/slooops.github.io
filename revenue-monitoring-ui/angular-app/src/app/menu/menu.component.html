@@ -33,7 +33,7 @@
   </button>
   <button
     *ngIf="isAdmin || checkRole('PERIOD_CLOSE')"
-    [matMenuTriggerFor]="periodClose"
+    [routerLink]="['/period-close-tracking']"
     mat-menu-item
     style="display: flex; align-items: center"
     routerLinkActive="active"
@@ -242,7 +242,7 @@
 
   <button
     *ngIf="isAdmin || checkRole('ROL')"
-    [matMenuTriggerFor]="customRevenue"
+    [routerLink]="['/custom-revenue']"
     mat-menu-item
     style="display: flex; align-items: center"
     routerLinkActive="active"

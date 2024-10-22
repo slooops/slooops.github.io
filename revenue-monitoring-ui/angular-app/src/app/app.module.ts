@@ -70,16 +70,17 @@ import { ToolTipRendererDirective } from './tool-tip-renderer.directive';
 import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.component';
 import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
-import { RolComponent } from './rol/rol.component';
+import { RolComponent } from './custom-revenue/rol/rol.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
-import { AssignDialogComponent } from './rol/assign-dialog/assign-dialog.component';
+import { AssignDialogComponent } from './custom-revenue/rol/assign-dialog/assign-dialog.component';
 import { HelpDataComponent } from './help-data/help-data.component';
-import { AutoInvoicingComponent } from './auto-invoicing/auto-invoicing.component';
+import { InvoicingComponent } from './invoicing/invoicing.component';
 import { da } from 'date-fns/locale';
 import { Router } from '@angular/router';
+import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -126,7 +127,8 @@ export function initApp(authService: AuthenticationService) {
     EspCaseAnalyzerComponent,
     AssignDialogComponent,
     HelpDataComponent,
-    AutoInvoicingComponent,
+    InvoicingComponent,
+    CustomRevenueComponent,
   ],
   imports: [
     BrowserModule,

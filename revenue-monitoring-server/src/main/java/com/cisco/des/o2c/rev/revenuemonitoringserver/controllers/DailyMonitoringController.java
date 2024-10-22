@@ -182,35 +182,33 @@ public class DailyMonitoringController {
 
     @GetMapping("/rol-transaction-data-filter")
     public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter(@RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "100") int size,         @RequestParam List<String> periodNames,
+                                                                     @RequestParam(defaultValue = "100") int size, @RequestParam List<String> periodNames,
                                                                            @RequestParam List<String> ouNames,
                                                                            @RequestParam List<String> appNames,
                                                                            @RequestParam List<String> sequenceNums) {
+        try {
+            List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+            int totalRecords = 0;
 
-        List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
-        int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
-        int totalRecords = 0;  // Track the total number of filtered records
-
-        for (int i = 0; i < minLength; i++) {
-            String periodName = periodNames.get(i);
-            String ouName = ouNames.get(i);
-            String appName = appNames.get(i);
-            String sequenceNum = sequenceNums.get(i);
-
-            // Fetch filtered data for current set of filters
-            List<RolTransactionData> result = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName, sequenceNum);
-            rolTransactionDataFiltered.addAll(result);
-
-            // Get count for the current filter set and add to total
-            totalRecords += service.getTotalRecordsFiltered(periodName, ouName, appName);
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = ouNames.get(i);
+                String appName = appNames.get(i);
+                String sequenceNum = sequenceNums.get(i);
+                List<RolTransactionData> result = service.getRolTransactionDataFilter(page, size, periodName, ouName, appName, sequenceNum);
+                rolTransactionDataFiltered.addAll(result);
+                totalRecords += service.getTotalRecordsFiltered(periodName, ouName, appName, sequenceNum);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
+            response.put("totalRecords", totalRecords);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
         }
 
-        // Prepare the response
-        Map<String, Object> response = new HashMap<>();
-        response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
-        response.put("totalRecords", totalRecords);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/rol-errors-summary")
@@ -247,6 +245,37 @@ public class DailyMonitoringController {
     @GetMapping("/rol-chart-details")
     public ResponseEntity<List<Map<String, Object>>> getRolChartDetails() {
         return new ResponseEntity<>(service.getRolChartDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rol-transaction-data-download")
+    public ResponseEntity<List<Map<String, Object>>> getRolTransactionDataDownload() {
+        return new ResponseEntity<>(service.getRolTransactionDataDownload(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rol-transaction-filter-data-download")
+    public ResponseEntity<Map<String, Object>> getRolTransactionFilterDataDownload(@RequestParam List<String> periodNames,
+                                                                                         @RequestParam List<String> ouNames,
+                                                                                         @RequestParam List<String> appNames,
+                                                                                         @RequestParam List<String> sequenceNums) {
+        try {
+            List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = ouNames.get(i);
+                String appName = appNames.get(i);
+                String sequenceNum = sequenceNums.get(i);
+                List<RolTransactionData> result = service.getRolTransactionFilterDataDownload(periodName, ouName, appName, sequenceNum);
+                rolTransactionDataFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
     }
 
     @GetMapping("/sbp-summary")
@@ -333,8 +362,8 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getWd0CurrentMonth(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/user-role")
-    public ResponseEntity<UserRoleInfo> getUserRoles(@RequestBody String username) {
+    @GetMapping(value = "/user-role")
+    public ResponseEntity<UserRoleInfo> getUserRoles(@RequestParam String username) {
             System.out.println(username);
             UserRoleInfo userRoles = service.getUserRoles(username);
         System.out.println(userRoles.getUserRoles());

@@ -14,10 +14,12 @@ import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
 import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
-import { RolComponent } from './rol/rol.component';
+import { RolComponent } from './custom-revenue/rol/rol.component';
 import { SbpComponent } from './sbp/sbp.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
-import { AutoInvoicingComponent } from './auto-invoicing/auto-invoicing.component';
+import { InvoicingComponent } from './invoicing/invoicing.component';
+import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
+import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 
 const routes: Routes = [
   {
@@ -40,21 +42,21 @@ const routes: Routes = [
   // },
 
   {
-    path: 'period-close-tracking-preclose',
-    component: PrecloseComponent,
+    path: 'period-close-tracking',
+    component: PeriodCloseTrackingComponent,
     data: {
-      title: 'Period Close Tracking - Pre Close',
+      title: 'Period Close Tracking',
       header: 'Period Close Tracking',
     },
   },
-  {
-    path: 'period-close-tracking-midclose',
-    component: MidcloseComponent,
-    data: {
-      title: 'Period Close Tracking - Mid Close',
-      header: 'Period Close Tracking',
-    },
-  },
+  // {
+  //   path: 'period-close-tracking-midclose',
+  //   component: MidcloseComponent,
+  //   data: {
+  //     title: 'Period Close Tracking - Mid Close',
+  //     header: 'Period Close Tracking',
+  //   },
+  // },
   // {
   //   path: 'error-dash',
   //   component: ErrorDashComponent,
@@ -134,11 +136,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'rol',
-    component: RolComponent,
+    path: 'custom-revenue',
+    component: CustomRevenueComponent,
     data: {
-      title: 'ROL Monitoring',
-      header: 'Revenue Orchestration Layer Monitoring',
+      title: 'Custom Revenue Monitoring',
+      header: 'Custom Revenue Monitoring',
     },
   },
   // {
@@ -159,10 +161,10 @@ const routes: Routes = [
   // },
   {
     path: 'invoicing',
-    component: AutoInvoicingComponent,
+    component: InvoicingComponent,
     data: {
-      title: 'Invoicing Dashboard',
-      header: 'Invoicing Dashboard',
+      title: 'Invoicing Monitoring',
+      header: 'Invoicing Monitoring',
     },
   },
 ];

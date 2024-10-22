@@ -260,6 +260,12 @@ public class QueryConfigs { // TODO
     @Value(("${rol.transaction.data.filter.count.query}"))
     public String rolTransactionDataFilterCount;
 
+    @Value(("${rol.transaction.data.download.q}"))
+    public String rolTransactionDataDownload;
+
+    @Value(("${rol.transaction.filter.data.download.q}"))
+    public String rolTransactionFilterDataDownload;
+
     @Value(("${wd0.volumes.q}"))
     public String wd0Volumes;
     @Bean(name = "autoInvoiceErrorSummaryView")
@@ -668,6 +674,16 @@ public class QueryConfigs { // TODO
     @Bean(name = "rolTransactionDataFilter")
     public String getRolTransactionDataFilter() {
         return this.rolTransactionDataFilter;
+    }
+
+    @Bean(name = "rolTransactionDataDownload")
+    public String getRolTransactionDataDownload() {
+        return this.rolTransactionDataDownload;
+    }
+
+    @Bean(name = "rolTransactionFilterDataDownload")
+    public String getRolTransactionFilterDataDownload() {
+        return this.rolTransactionFilterDataDownload;
     }
 
     @Bean(name = "rolTransactionDataFilterCount")

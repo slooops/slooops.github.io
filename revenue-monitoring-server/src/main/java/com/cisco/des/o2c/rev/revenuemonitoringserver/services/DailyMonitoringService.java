@@ -84,6 +84,8 @@ public class DailyMonitoringService {
     private String wd0Volumes;
     private String autoInvoiceErrorSummaryView;
     private String autoInvoiceErrorDetails;
+    private String rolTransactionDataDownload;
+    private String rolTransactionFilterDataDownload;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -104,7 +106,7 @@ public class DailyMonitoringService {
                                   String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
                                   String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails,
                                    String rolTransactionDataFilter, String rolTransactionDataFilterCount, String wd0Volumes
-                                   , String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails
+                                   , String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload, String rolTransactionFilterDataDownload
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -165,6 +167,8 @@ public class DailyMonitoringService {
         this.wd0Volumes = wd0Volumes;
         this.autoInvoiceErrorSummaryView = autoInvoiceErrorSummaryView;
         this.autoInvoiceErrorDetails = autoInvoiceErrorDetails;
+        this.rolTransactionDataDownload = rolTransactionDataDownload;
+        this.rolTransactionFilterDataDownload = rolTransactionFilterDataDownload;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -688,8 +692,8 @@ public class DailyMonitoringService {
         return jdbcManager.getTotalRecords(rolTransactionDataCount);
     }
 
-    public int getTotalRecordsFiltered(String periodName, String ouName, String appName) {
-        return jdbcManager.getTotalRecordsFiltered(rolTransactionDataFilterCount, periodName, ouName, appName);
+    public int getTotalRecordsFiltered(String periodName, String ouName, String appName, String sequenceNum) {
+        return jdbcManager.getTotalRecordsFiltered(rolTransactionDataFilterCount, periodName, ouName, appName, sequenceNum);
     }
 
 
@@ -797,5 +801,10 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getWd0Volumes() {
         return jdbcManager.queryForList(wd0Volumes);
     }
+
+    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }
+
+    public List<RolTransactionData> getRolTransactionFilterDataDownload(String periodName, String ouName, String appName, String sequenceNum) { return jdbcManager.getRecordsFiltered(rolTransactionFilterDataDownload, periodName, ouName, appName, sequenceNum); }
+
 
 }

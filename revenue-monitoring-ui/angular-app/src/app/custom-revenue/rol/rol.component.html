@@ -334,16 +334,7 @@
   <div class="header-container">
     <h5 class="section-title">ROL Transaction Details</h5>
     <div class="action-buttons">
-      <button
-        mat-icon-button
-        (click)="
-          exportTableToExcel(
-            filtereddataSource ? filtereddataSource.data : dataSource.data,
-            'ROL Transaction Data',
-            'ROL_Transaction_Data'
-          )
-        "
-      >
+      <button mat-icon-button (click)="export()">
         <i class="svg-icon download-icon"></i>
       </button>
     </div>

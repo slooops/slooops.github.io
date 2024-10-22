@@ -38,7 +38,7 @@ export class OrderLifecycleComponent implements OnInit {
   currentDate: Date;
   ngOnInit(): void {
     this.username = this.dataService.getUsername();
-    this.getOrderLifecycle();
+    this.getUserRoles();
     this.getOrderStatusDownload();
     this.updateTime();
     this.currentDate = new Date();
@@ -101,6 +101,17 @@ export class OrderLifecycleComponent implements OnInit {
     this.ifColumnSelect != this.ifColumnSelect;
   }
 
+  getUserRoles() {
+    this.http.getUser('/user/data').subscribe((data) => {
+      const userRoles = data['auth_user_roles'];
+      this.updateClo =
+        userRoles.includes('ADMIN') || userRoles.includes('CLO_UPDATE');
+      this.dealUploadFlag =
+        userRoles.includes('ADMIN') || userRoles.includes('DEAL_UPLOAD');
+      this.getOrderLifecycle();
+    });
+  }
+
   getOrderStatusDownload() {
     this.http.get('order-status-download').subscribe((data: any) => {
       this.orderLifeCycleDownload = data;
@@ -133,13 +144,13 @@ export class OrderLifecycleComponent implements OnInit {
         this.orderLifecycleStatus
       );
       this.updatedData = false;
-      this.updateClo =
-        this.dataService.getUserRoles().includes('ADMIN') ||
-        this.dataService.getUserRoles().includes('CLO_UPDATE');
+      // this.updateClo =
+      //   this.dataService.getUserRoles().includes('ADMIN') ||
+      //   this.dataService.getUserRoles().includes('CLO_UPDATE');
 
-      this.dealUploadFlag =
-        this.dataService.getUserRoles().includes('ADMIN') ||
-        this.dataService.getUserRoles().includes('DEAL_UPLOAD');
+      // this.dealUploadFlag =
+      //   this.dataService.getUserRoles().includes('ADMIN') ||
+      //   this.dataService.getUserRoles().includes('DEAL_UPLOAD');
       this.orderLifecycleStatus.forEach((data) => {
         for (const key in data) {
           if (

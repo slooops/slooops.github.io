@@ -96,8 +96,8 @@ public class JdbcManager {
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
-    public int getTotalRecordsFiltered(String sql, String periodName, String ouName, String appName) {
-        return jdbcTemplate.queryForObject(sql, new Object[]{periodName, ouName, appName}, Integer.class);
+    public int getTotalRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
+        return jdbcTemplate.queryForObject(sql, new Object[]{periodName, ouName, appName, sequenceNum}, Integer.class);
     }
 
     public List<RolTransactionData> getRolTransactionData(String sql, int page, int size) {
@@ -111,6 +111,10 @@ public class JdbcManager {
         int startRow = (page * size) + 1;
         int endRow = (page + 1) * size;
 
-        return jdbcTemplate.query(sql, new Object[]{startRow, endRow, periodName, ouName, applicationName, sequenceNum}, new RecordRowMapper());
+        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, applicationName, sequenceNum, startRow, endRow }, new RecordRowMapper());
+    }
+
+    public List<RolTransactionData> getRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
+        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, appName, sequenceNum}, new RecordRowMapper());
     }
 }

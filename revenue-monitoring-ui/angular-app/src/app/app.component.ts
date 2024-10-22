@@ -48,7 +48,7 @@ export class AppComponent {
         this.header = data['header'];
       });
 
-    this.http.getUser('/user/data').subscribe((data) => {
+    this.http.getUser('/user/name').subscribe((data) => {
       this.userName = data['auth_user_name'];
     });
   }

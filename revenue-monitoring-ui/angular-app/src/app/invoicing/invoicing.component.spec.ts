@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AutoInvoicingComponent } from './auto-invoicing.component';
+import { AutoInvoicingComponent } from './invoicing.component';
 
 describe('AutoInvoicingComponent', () => {
   let component: AutoInvoicingComponent;
@@ -8,10 +8,9 @@ describe('AutoInvoicingComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AutoInvoicingComponent]
-    })
-    .compileComponents();
-    
+      imports: [AutoInvoicingComponent],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(AutoInvoicingComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -6,11 +6,11 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-auto-invoicing',
-  templateUrl: './auto-invoicing.component.html',
-  styleUrls: ['./auto-invoicing.component.css'],
+  selector: 'app-invoicing',
+  templateUrl: './invoicing.component.html',
+  styleUrls: ['./invoicing.component.css'],
 })
-export class AutoInvoicingComponent implements OnInit {
+export class InvoicingComponent implements OnInit {
   autoInvoicingSummary: AutoInvoicingErrorSummary[];
 
   summaryDatasource: any;
