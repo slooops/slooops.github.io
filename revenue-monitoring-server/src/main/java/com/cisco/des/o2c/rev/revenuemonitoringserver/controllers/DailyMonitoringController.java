@@ -236,6 +236,34 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getPreInvoiceErrorDetails(), HttpStatus.OK);
     }
 
+    @GetMapping("/auto-invoice-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
+                                                                                       @RequestParam List<String> ouNames,
+                                                                                       @RequestParam List<String> appNames) {
+
+
+        try {
+            List<Map<String, Object>> autoInvoiceErrorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = ouNames.get(i);
+                String appName = appNames.get(i);
+                System.out.println(periodName+" "+ouName+" "+appName);
+                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName, periodName );
+                autoInvoiceErrorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("autoInvoiceErrorDetailsFiltered", autoInvoiceErrorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
     @PostMapping("/rol-errors-summary-update")
     public ResponseEntity<String> updateRolErrorsSummary(@RequestBody Map<String, String> updateData) {
         int test = service.updateRolErrorSummary(updateData);

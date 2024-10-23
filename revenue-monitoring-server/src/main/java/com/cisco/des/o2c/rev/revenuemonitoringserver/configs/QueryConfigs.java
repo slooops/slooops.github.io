@@ -257,6 +257,8 @@ public class QueryConfigs { // TODO
     @Value(("${auto.invoice.error.details.query}"))
     public String autoInvoiceErrorDetails;
 
+    @Value(("${auto.invoice.error.details.filtered.query}"))
+    public String autoInvoiceErrorDetailsFiltered;
     @Value(("${pre.invoice.error.summary.view.query}"))
     public String preInvoiceErrorSummaryView;
 
@@ -282,6 +284,11 @@ public class QueryConfigs { // TODO
     @Bean(name = "autoInvoiceErrorDetails")
     public String getAutoInvoiceErrorDetails() {
         return this.autoInvoiceErrorDetails;
+    }
+
+    @Bean(name = "autoInvoiceErrorDetailsFiltered")
+    public String getAutoInvoiceErrorDetailsFiltered() {
+        return this.autoInvoiceErrorDetailsFiltered;
     }
 
     @Bean(name = "preInvoiceErrorSummaryView")

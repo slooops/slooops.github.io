@@ -1,6 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { DatePipe } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -17,7 +17,11 @@ export class AutoInvoicingComponent {
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
 
   summaryDatasource: any;
-  constructor(private http: ApiHttpService, private datePipe: DatePipe) {}
+  constructor(
+    private http: ApiHttpService,
+    private datePipe: DatePipe,
+    private cdr: ChangeDetectorRef
+  ) {}
   ngOnInit(): void {
     this.getAutoInvoiceErrorSummary();
     this.getAutoInvoiceErrorDetails();
@@ -162,28 +166,31 @@ export class AutoInvoicingComponent {
       return formattedRow;
     });
   }
+  selectedRows: any[] = []; // Store all selected rows
 
   onRowSelectionChange(event: MatCheckboxChange, row: any) {
     this.selection.toggle(row);
 
-    // if (event.checked) {
-    //   this.selectedRows.push(row);
-    // } else {
-    //   this.selectedRows = this.selectedRows.filter(
-    //     (selectedRow) => selectedRow !== row
-    //   );
-    // }
+    if (event.checked) {
+      this.selectedRows.push(row);
+    } else {
+      this.selectedRows = this.selectedRows.filter(
+        (selectedRow) => selectedRow !== row
+      );
+    }
 
-    // if (this.selectedRows.length > 0) {
-    //   this.getTransactionDataFiltered(this.selectedRows);
-    // } else {
-    //   this.isFiltered = false;
-    //   this.dataSource = new MatTableDataSource<RolTransactionData>(
-    //     this.rolTransactionData
-    //   );
-    //   this.filtereddataSource = null;
-    //   this.cdr.detectChanges();
-    // }
+    if (this.selectedRows.length > 0) {
+      this.getAutoInvoiceErrorDetailsFiltered(this.selectedRows);
+    } else {
+      this.isFiltered = false;
+      this.dataSource = new MatTableDataSource<AutoInvoicingErrorDetails>(
+        this.autoInvocingErrorDetails
+      );
+      this.dataSource.paginator = this.detailsPaginator;
+      this.filtereddataSource = null;
+      this.detailsPaginator.length = this.totalRecords;
+      this.cdr.detectChanges();
+    }
   }
 
   dataSource: any;
@@ -205,37 +212,106 @@ export class AutoInvoicingComponent {
   isFiltered: boolean = false;
   filtereddataSource: any;
   totalRecords: number = 0;
+  isLoading: boolean = false;
 
   getAutoInvoiceErrorDetails() {
+    this.isLoading = true;
     this.isFiltered = false;
-    this.http.get('auto-invoice-error-details').subscribe((data: any) => {
-      console.log(data);
-      this.autoInvocingErrorDetails = data;
-      this.autoInvocingErrorDetails = this.formatData(
-        this.autoInvocingErrorDetails
-      );
-      this.autoInvocingErrorDetails.forEach((row) => {
-        row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-      });
-      this.dataSource = new MatTableDataSource<AutoInvoicingErrorDetails>(
-        this.autoInvocingErrorDetails
-      );
 
-      if (this.detailsPaginator) {
-        if (this.dataSource.paginator !== this.detailsPaginator) {
-          this.dataSource.paginator = this.detailsPaginator;
+    this.http.get('auto-invoice-error-details').subscribe({
+      next: (data: any) => {
+        this.autoInvocingErrorDetails = data;
+        this.autoInvocingErrorDetails = this.formatData(
+          this.autoInvocingErrorDetails
+        );
+        this.autoInvocingErrorDetails.forEach((row) => {
+          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+        });
+        this.dataSource = new MatTableDataSource<AutoInvoicingErrorDetails>(
+          this.autoInvocingErrorDetails
+        );
+
+        if (this.detailsPaginator) {
+          if (this.dataSource.paginator !== this.detailsPaginator) {
+            this.dataSource.paginator = this.detailsPaginator;
+          }
+
+          this.totalRecords = this.autoInvocingErrorDetails.length;
+
+          // setTimeout(() => {
+          //   this.paginator.length = this.totalRecords;
+          //   this.paginator.pageIndex = pageIndex;
+          //   this.paginator.pageSize = pageSize;
+          //   this.cdr.detectChanges();
+          // });
         }
-
-        this.totalRecords = this.autoInvocingErrorDetails.length;
-
-        // setTimeout(() => {
-        //   this.paginator.length = this.totalRecords;
-        //   this.paginator.pageIndex = pageIndex;
-        //   this.paginator.pageSize = pageSize;
-        //   this.cdr.detectChanges();
-        // });
-      }
+      },
+      error: (err) => {
+        console.error('Error fetching data', err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
     });
+  }
+  totalRecordsFiltered: number = 0;
+
+  getAutoInvoiceErrorDetailsFiltered(data: any) {
+    this.isLoading = true;
+    this.isFiltered = true;
+    const periodNames = data.map((row) => row.PERIOD_NAME);
+    const ouNames = data.map((row) => row.ORG_NAME);
+    const appNames = data.map((row) => row.APPLICATION_NAME);
+    const transactionDates = data.map((row) => row.TRANSACTION_DATE);
+
+    const pageRequest = {
+      periodNames: periodNames.join(','),
+      ouNames: ouNames.join(','),
+      appNames: appNames.join(','),
+    };
+
+    console.log(pageRequest);
+
+    this.http
+      .get('auto-invoice-error-details-filtered', { params: pageRequest })
+      .subscribe({
+        next: (data: any) => {
+          this.autoInvocingErrorDetailsFiltered =
+            data.autoInvoiceErrorDetailsFiltered;
+
+          this.autoInvocingErrorDetailsFiltered = this.formatData(
+            this.autoInvocingErrorDetailsFiltered
+          );
+
+          this.autoInvocingErrorDetailsFiltered.forEach((row) => {
+            row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+          });
+
+          console.log(this.autoInvocingErrorDetailsFiltered);
+
+          this.filtereddataSource =
+            new MatTableDataSource<AutoInvoicingErrorDetails>(
+              this.autoInvocingErrorDetailsFiltered
+            );
+
+          if (this.detailsPaginator) {
+            this.filtereddataSource.paginator = this.detailsPaginator;
+            setTimeout(() => {
+              this.detailsPaginator.length =
+                this.autoInvocingErrorDetailsFiltered.length;
+              this.cdr.detectChanges();
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching filtered data', err);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        },
+      });
   }
 
   replaceUnderscore(value: string | null | undefined): string {

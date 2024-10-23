@@ -88,6 +88,7 @@ public class DailyMonitoringService {
     private String preInvoiceErrorDetails;
     private String rolTransactionDataDownload;
     private String rolTransactionFilterDataDownload;
+    private String autoInvoiceErrorDetailsFiltered;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -106,7 +107,7 @@ public class DailyMonitoringService {
                                   String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount, String caseServiceMetricsSummary,
                                   String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails, String rolTransactionDataFilter,
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
-                                  String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails
+                                  String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -169,6 +170,7 @@ public class DailyMonitoringService {
         this.autoInvoiceErrorDetails = autoInvoiceErrorDetails;
         this.preInvoiceErrorSummaryView = preInvoiceErrorSummaryView;
         this.preInvoiceErrorDetails = preInvoiceErrorDetails;
+        this.autoInvoiceErrorDetailsFiltered = autoInvoiceErrorDetailsFiltered;
         this.rolTransactionDataDownload = rolTransactionDataDownload;
         this.rolTransactionFilterDataDownload = rolTransactionFilterDataDownload;
     }
@@ -260,6 +262,11 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getErrorDetails(String appName, String batchSource, String entity, String type) {
         List<Map<String, Object>> result = jdbcManager.queryForListWithParams(errorDetails, appName, batchSource, entity, type);
+        return result;
+    }
+
+    public List<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName) {
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(autoInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName);
         return result;
     }
 
