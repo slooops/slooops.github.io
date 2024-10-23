@@ -84,6 +84,8 @@ public class DailyMonitoringService {
     private String wd0Volumes;
     private String autoInvoiceErrorSummaryView;
     private String autoInvoiceErrorDetails;
+    private String preInvoiceErrorSummaryView;
+    private String preInvoiceErrorDetails;
     private String rolTransactionDataDownload;
     private String rolTransactionFilterDataDownload;
 
@@ -93,20 +95,18 @@ public class DailyMonitoringService {
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
                                  String closeMEStatus, String closeQECashCollected, String dashboardComments,
                                   String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
-                                 String invoiceTrackerHeader, String invoiceTrackerLine,
-                                  String wd0ArMidCloseStatusQuery, String wd0ArMidCloseHeaderDataQuery,
-                                  String wd0HistoricalDataQuery,
-                                  String orderStatus, String orderStatusSummary, String orderStatusDownload,
-                                  String updateOrderStatus, String kafkaError, String kafkaInbound,
-                                  String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
+                                 String invoiceTrackerHeader, String invoiceTrackerLine, String wd0ArMidCloseStatusQuery,
+                                  String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
+                                  String orderStatusSummary, String orderStatusDownload, String updateOrderStatus, String kafkaError,
+                                  String kafkaInbound, String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
-                                  String orderStatusRevSummary, String personaAccessRoles,
-                                  String wd0Regression, String wd0CurrentMonth, String deleteSelectedDeals, String cloBulkUpdate,
-                                  String invoiceEligibleUpdate, String cloCommentUpdate, String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails,
-                                  String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
-                                  String caseServiceMetricsSummary, String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails,
-                                   String rolTransactionDataFilter, String rolTransactionDataFilterCount, String wd0Volumes
-                                   , String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload, String rolTransactionFilterDataDownload
+                                  String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
+                                  String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
+                                  String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails, String estimatedCompletionTime,
+                                  String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount, String caseServiceMetricsSummary,
+                                  String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails, String rolTransactionDataFilter,
+                                  String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
+                                  String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -167,6 +167,8 @@ public class DailyMonitoringService {
         this.wd0Volumes = wd0Volumes;
         this.autoInvoiceErrorSummaryView = autoInvoiceErrorSummaryView;
         this.autoInvoiceErrorDetails = autoInvoiceErrorDetails;
+        this.preInvoiceErrorSummaryView = preInvoiceErrorSummaryView;
+        this.preInvoiceErrorDetails = preInvoiceErrorDetails;
         this.rolTransactionDataDownload = rolTransactionDataDownload;
         this.rolTransactionFilterDataDownload = rolTransactionFilterDataDownload;
     }
@@ -747,6 +749,16 @@ public class DailyMonitoringService {
         return result;
     }
 
+    public List<Map<String, Object>> getPreInvoiceErrorSummaryView() {
+        String[] dateColumns = {"TRANSACTION_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorSummaryView);
+        result.forEach(data -> {
+            renameKey(data, "ERROR_AMOUNT", "AMOUNT");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
     private void renameKey(Map<String, Object> data, String oldKey, String newKey) {
         Object value = data.get(oldKey);
         data.remove(oldKey);
@@ -766,7 +778,24 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getAutoInvoiceErrorDetails() {
-        return jdbcManager.queryForList(autoInvoiceErrorDetails);
+        String[] dateColumns = {"TRANSACTION_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorDetails);
+        result.forEach(data -> {
+            renameKey(data, "AMOUNT_USD", "AMOUNT");
+            renameKey(data, "OPERATING_UNIT", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPreInvoiceErrorDetails() {
+        String[] dateColumns = {"TRANSACTION_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorDetails);
+        result.forEach(data -> {
+            renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
     }
 
 

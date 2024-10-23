@@ -78,9 +78,9 @@ import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.
 import { AssignDialogComponent } from './custom-revenue/rol/assign-dialog/assign-dialog.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
-import { da } from 'date-fns/locale';
-import { Router } from '@angular/router';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
+import { AutoInvoicingComponent } from './invoicing/auto-invoicing/auto-invoicing.component';
+import { PreInvoicingComponent } from './invoicing/pre-invoicing/pre-invoicing.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -129,6 +129,8 @@ export function initApp(authService: AuthenticationService) {
     HelpDataComponent,
     InvoicingComponent,
     CustomRevenueComponent,
+    AutoInvoicingComponent,
+    PreInvoicingComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,22 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ErrorDashComponent } from './error-dash/error-dash.component';
-import { DetailViewComponent } from './error-dash/detail-view/detail-view.component';
-import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
-import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
-import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
-import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
 import { HomeComponent } from './home/home.component';
-import { ErrorComponent } from './error/error.component';
 import { CmsComponent } from './cms/cms.component';
 import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
-import { RolComponent } from './custom-revenue/rol/rol.component';
-import { SbpComponent } from './sbp/sbp.component';
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
@@ -136,11 +126,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'custom-revenue',
+    path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
-      title: 'Custom Revenue Monitoring',
-      header: 'Custom Revenue Monitoring',
+      title: 'Revenue Accounting',
+      header: 'Revenue Accounting',
     },
   },
   // {
@@ -160,11 +150,11 @@ const routes: Routes = [
   //   },
   // },
   {
-    path: 'invoicing',
+    path: 'order-to-cash',
     component: InvoicingComponent,
     data: {
-      title: 'Invoicing Monitoring',
-      header: 'Invoicing Monitoring',
+      title: 'Order to Cash',
+      header: 'Order to Cash',
     },
   },
 ];

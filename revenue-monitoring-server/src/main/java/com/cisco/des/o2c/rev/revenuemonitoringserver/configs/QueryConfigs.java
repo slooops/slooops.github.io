@@ -257,6 +257,12 @@ public class QueryConfigs { // TODO
     @Value(("${auto.invoice.error.details.query}"))
     public String autoInvoiceErrorDetails;
 
+    @Value(("${pre.invoice.error.summary.view.query}"))
+    public String preInvoiceErrorSummaryView;
+
+    @Value(("${pre.invoice.error.details.query}"))
+    public String preInvoiceErrorDetails;
+
     @Value(("${rol.transaction.data.filter.count.query}"))
     public String rolTransactionDataFilterCount;
 
@@ -276,6 +282,16 @@ public class QueryConfigs { // TODO
     @Bean(name = "autoInvoiceErrorDetails")
     public String getAutoInvoiceErrorDetails() {
         return this.autoInvoiceErrorDetails;
+    }
+
+    @Bean(name = "preInvoiceErrorSummaryView")
+    public String getPreInvoiceErrorSummaryView() {
+        return this.preInvoiceErrorSummaryView;
+    }
+
+    @Bean(name = "preInvoiceErrorDetails")
+    public String getPreInvoiceErrorDetails() {
+        return this.preInvoiceErrorDetails;
     }
 
     @Bean(name = "stdArExcQuery")

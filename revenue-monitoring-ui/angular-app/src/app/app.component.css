@@ -56,3 +56,51 @@
   max-height: 300px; /* Set maximum height */
   overflow-y: auto; /* Enable scrolling */
 }
+
+/* Custom styles for mat-menu */
+.mat-menu-panel {
+  border-radius: 12px; /* Rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
+  background-color: #ffffff; /* Background color */
+}
+
+/* Menu item styles */
+.mat-menu-item {
+  border-radius: 8px; /* Rounded corners for each item */
+  padding: 10px 16px; /* Increased padding for better touch targets */
+  transition: background-color 0.3s; /* Smooth transition for hover effects */
+}
+
+/* Hover effect for menu items */
+.mat-menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* Light background on hover */
+}
+
+/* Active item styling */
+.mat-menu-item.active {
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.2
+  ); /* Different background for active item */
+  font-weight: bold; /* Bold text for active state */
+}
+
+/* Icon styling */
+.mat-menu-item i,
+.mat-menu-item svg {
+  margin-right: 8px; /* Space between icon and text */
+  color: #555; /* Icon color */
+}
+
+/* Text styling */
+.mat-menu-item span {
+  font-size: 14px; /* Font size for menu items */
+  color: #333; /* Text color */
+}
+
+/* Disable link styling */
+.mat-menu-item[disabled] {
+  color: rgba(0, 0, 0, 0.38); /* Gray color for disabled items */
+}

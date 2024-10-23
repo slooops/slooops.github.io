@@ -1,27 +1,32 @@
 const express = require("express");
 const path = require("path");
+const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const axios = require("axios");
 
 app.use(express.json());
 
 app.use(async (req, res, next) => {
-  req.authenticatedUserName = req.headers["auth_user"];
-  req.authenticatedUserFirstName = req.headers["givenname"];
-  // req.authenticatedUserName = "suacha";
-  // req.authenticatedUserFirstName = "Sunith";
-
-  const url = "https://operations-control-tower-api.cisco.com/api/user-role";
-  const params = { username: req.authenticatedUserName };
-
   try {
-    req.userRoles = await axios.get(url, { params });
+    req.authenticatedUserName = req.headers["auth_user"];
+    req.authenticatedUserFirstName = req.headers["givenname"];
+
+    // req.authenticatedUserName = "suacha";
+    // req.authenticatedUserFirstName = "Sunith";
+
+    // const url = "http://localhost:8080/api/user-role";
+    const url = "https://operations-control-tower-api.cisco.com/api/user-role";
+    const params = { username: req.authenticatedUserName };
+
+    const response = await axios.get(url, { params });
+    req.userRoles = response.data.userRoles;
+
+    next();
   } catch (error) {
+    console.error("Error fetching user roles:", error);
     res.status(500).send("Error fetching user roles.");
   }
-  next();
 });
 
 app.get("/user/name", (req, res) => {
@@ -33,7 +38,7 @@ app.get("/user/name", (req, res) => {
 
 app.get("/user/data", (req, res) => {
   res.json({
-    auth_user_roles: req.userRoles.data.userRoles,
+    auth_user_roles: req.userRoles,
   });
 });
 

@@ -6,12 +6,12 @@
     [routerLink]="['/home']"
     *ngIf="isAdmin"
     mat-menu-item
-    style="display: flex; align-items: center"
     routerLinkActive="active"
+    class="small-menu-item"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -20,13 +20,16 @@
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        fill="#000000"
-        viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        width="14px"
+        height="14px"
+        viewBox="0 0 24 24"
       >
         <path
-          d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm68-84a12,12,0,0,1-12,12H128a12,12,0,0,1-12-12V72a12,12,0,0,1,24,0v44h44A12,12,0,0,1,196,128Z"
-        ></path>
+          d="M12 2.1L1 12h3v9h7v-6h2v6h7v-9h3L12 2.1z"
+          fill="none"
+          stroke="black"
+          stroke-width="2"
+        />
       </svg>
     </i>
     <span>Home</span>
@@ -35,12 +38,12 @@
     *ngIf="isAdmin || checkRole('PERIOD_CLOSE')"
     [routerLink]="['/period-close-tracking']"
     mat-menu-item
-    style="display: flex; align-items: center"
     routerLinkActive="active"
+    class="small-menu-item"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -51,7 +54,7 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="#000000"
         viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        style="width: 14px; height: 14px"
       >
         <path
           d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm68-84a12,12,0,0,1-12,12H128a12,12,0,0,1-12-12V72a12,12,0,0,1,24,0v44h44A12,12,0,0,1,196,128Z"
@@ -65,12 +68,12 @@
     [routerLink]="['/wd0-dash']"
     *ngIf="isAdmin || checkRole('WD0')"
     mat-menu-item
-    style="display: flex; align-items: center"
+    class="small-menu-item"
     routerLinkActive="active"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -81,7 +84,7 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="#000000"
         viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        style="width: 14px; height: 14px"
       >
         <path
           d="M208,28H188V24a12,12,0,0,0-24,0v4H92V24a12,12,0,0,0-24,0v4H48A20,20,0,0,0,28,48V208a20,20,0,0,0,20,20H208a20,20,0,0,0,20-20V48A20,20,0,0,0,208,28ZM68,52a12,12,0,0,0,24,0h72a12,12,0,0,0,24,0h16V76H52V52ZM52,204V100H204V204Zm120.49-84.49a12,12,0,0,1,0,17l-48,48a12,12,0,0,1-17,0l-24-24a12,12,0,0,1,17-17L116,159l39.51-39.52A12,12,0,0,1,172.49,119.51Z"
@@ -95,12 +98,12 @@
     [routerLink]="['/mid-close-volumes']"
     *ngIf="isAdmin || checkRole('MIDCLOSE_VOLUMES')"
     mat-menu-item
-    style="display: flex; align-items: center"
+    class="small-menu-item"
     routerLinkActive="active"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -111,7 +114,7 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="#000000"
         viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        style="width: 14px; height: 14px"
       >
         <path
           d="M236,208a12,12,0,0,1-12,12H32a12,12,0,0,1-12-12V48a12,12,0,0,1,24,0v99l43.51-43.52a12,12,0,0,1,17,0L128,127l43-43H160a12,12,0,0,1,0-24h40a12,12,0,0,1,12,12v40a12,12,0,0,1-24,0V101l-51.51,51.52a12,12,0,0,1-17,0L96,129,44,181v15H224A12,12,0,0,1,236,208Z"
@@ -124,13 +127,13 @@
     [routerLink]="['/large-deal-tracker']"
     mat-menu-item
     *ngIf="isAdmin || checkRole('LARGE_DEAL')"
-    style="display: flex; align-items: center"
+    class="small-menu-item"
     routerLinkActive="active"
   >
     <i
       class="mr-2"
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -140,7 +143,7 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="#000000"
         viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        style="width: 14px; height: 14px"
       >
         <path
           d="M204,168a52.06,52.06,0,0,1-52,52H140v12a12,12,0,0,1-24,0V220H104a52.06,52.06,0,0,1-52-52,12,12,0,0,1,24,0,28,28,0,0,0,28,28h48a28,28,0,0,0,0-56H112a52,52,0,0,1,0-104h4V24a12,12,0,0,1,24,0V36h4a52.06,52.06,0,0,1,52,52,12,12,0,0,1-24,0,28,28,0,0,0-28-28H112a28,28,0,0,0,0,56h40A52.06,52.06,0,0,1,204,168Z"
@@ -151,15 +154,15 @@
   </button>
 
   <button
-    [routerLink]="['/invoicing']"
+    [routerLink]="['/order-to-cash']"
     *ngIf="isAdmin"
     mat-menu-item
-    style="display: flex; align-items: center"
+    class="small-menu-item"
     routerLinkActive="active"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -170,16 +173,16 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="#000000"
         viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        style="width: 14px; height: 14px"
       >
         <path
-          d="M160,116h48a20,20,0,0,0,20-20V48a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20V60H128a28,28,0,0,0-28,28v28H76v-4A20,20,0,0,0,56,92H24A20,20,0,0,0,4,112v32a20,20,0,0,0,20,20H56a20,20,0,0,0,20-20v-4h24v28a28,28,0,0,0,28,28h12v12a20,20,0,0,0,20,20h48a20,20,0,0,0,20-20V160a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20v12H128a4,4,0,0,1-4-4V88a4,4,0,0,1,4-4h12V96A20,20,0,0,0,160,116ZM52,140H28V116H52Zm112,24h40v40H164Zm0-112h40V92H164Z"
+          d="M204,168a52.06,52.06,0,0,1-52,52H140v12a12,12,0,0,1-24,0V220H104a52.06,52.06,0,0,1-52-52,12,12,0,0,1,24,0,28,28,0,0,0,28,28h48a28,28,0,0,0,0-56H112a52,52,0,0,1,0-104h4V24a12,12,0,0,1,24,0V36h4a52.06,52.06,0,0,1,52,52,12,12,0,0,1-24,0,28,28,0,0,0-28-28H112a28,28,0,0,0,0,56h40A52.06,52.06,0,0,1,204,168Z"
         ></path>
       </svg>
     </i>
-    <span>1.Invoicing Monitoring</span>
+    <span>Order to Cash</span>
   </button>
-
+  <!--
   <button
     [routerLink]="['/cms']"
     *ngIf="isAdmin || checkRole('CMS')"
@@ -208,9 +211,9 @@
       </svg>
     </i>
     <span>2. CMS Monitoring</span>
-  </button>
+  </button> -->
 
-  <button
+  <!-- <button
     *ngIf="isAdmin"
     mat-menu-item
     style="display: flex; align-items: center"
@@ -238,18 +241,18 @@
       </svg>
     </i>
     <span>3.Standard Revenue Monitoring</span>
-  </button>
+  </button> -->
 
   <button
     *ngIf="isAdmin || checkRole('ROL')"
-    [routerLink]="['/custom-revenue']"
+    [routerLink]="['/revenue-accounting']"
     mat-menu-item
-    style="display: flex; align-items: center"
+    class="small-menu-item"
     routerLinkActive="active"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -267,19 +270,19 @@
         ></path>
       </svg>
     </i>
-    <span>4. Custom Revenue Monitoring</span>
+    <span>Revenue Accounting</span>
   </button>
 
   <button
     *ngIf="isAdmin"
     mat-menu-item
-    style="display: flex; align-items: center"
+    class="small-menu-item"
     routerLinkActive="active"
     [disabled]="true"
   >
     <i
       style="
-        font-size: small;
+        font-size: x-small;
         color: #373c42;
         display: flex;
         align-items: center;
@@ -290,14 +293,14 @@
         xmlns="http://www.w3.org/2000/svg"
         fill="#000000"
         viewBox="0 0 256 256"
-        style="width: 16px; height: 16px"
+        style="width: 14px; height: 14px"
       >
         <path
           d="M160,116h48a20,20,0,0,0,20-20V48a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20V60H128a28,28,0,0,0-28,28v28H76v-4A20,20,0,0,0,56,92H24A20,20,0,0,0,4,112v32a20,20,0,0,0,20,20H56a20,20,0,0,0,20-20v-4h24v28a28,28,0,0,0,28,28h12v12a20,20,0,0,0,20,20h48a20,20,0,0,0,20-20V160a20,20,0,0,0-20-20H160a20,20,0,0,0-20,20v12H128a4,4,0,0,1-4-4V88a4,4,0,0,1,4-4h12V96A20,20,0,0,0,160,116ZM52,140H28V116H52Zm112,24h40v40H164Zm0-112h40V92H164Z"
         ></path>
       </svg>
     </i>
-    <span>5.GL Posting Monitoring</span>
+    <span>GL Posting</span>
   </button>
   <!--
   <button

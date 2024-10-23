@@ -226,6 +226,16 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getAutoInvoiceErrorDetails(), HttpStatus.OK);
     }
 
+    @GetMapping("/pre-invoice-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getPreoInvoiceErrorSummary() {
+        return new ResponseEntity<>(service.getPreInvoiceErrorSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/pre-invoice-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getPreInvoiceErrorDetails() {
+        return new ResponseEntity<>(service.getPreInvoiceErrorDetails(), HttpStatus.OK);
+    }
+
     @PostMapping("/rol-errors-summary-update")
     public ResponseEntity<String> updateRolErrorsSummary(@RequestBody Map<String, String> updateData) {
         int test = service.updateRolErrorSummary(updateData);
@@ -364,9 +374,7 @@ public class DailyMonitoringController {
 
     @GetMapping(value = "/user-role")
     public ResponseEntity<UserRoleInfo> getUserRoles(@RequestParam String username) {
-            System.out.println(username);
             UserRoleInfo userRoles = service.getUserRoles(username);
-        System.out.println(userRoles.getUserRoles());
             return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
 
