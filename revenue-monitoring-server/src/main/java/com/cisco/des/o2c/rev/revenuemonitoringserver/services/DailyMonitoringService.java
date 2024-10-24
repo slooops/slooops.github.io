@@ -89,6 +89,7 @@ public class DailyMonitoringService {
     private String rolTransactionDataDownload;
     private String rolTransactionFilterDataDownload;
     private String autoInvoiceErrorDetailsFiltered;
+    private String preInvoiceErrorDetailsFiltered;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -107,7 +108,8 @@ public class DailyMonitoringService {
                                   String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount, String caseServiceMetricsSummary,
                                   String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails, String rolTransactionDataFilter,
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
-                                  String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered
+                                  String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
+                                  String preInvoiceErrorDetailsFiltered
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -173,6 +175,7 @@ public class DailyMonitoringService {
         this.autoInvoiceErrorDetailsFiltered = autoInvoiceErrorDetailsFiltered;
         this.rolTransactionDataDownload = rolTransactionDataDownload;
         this.rolTransactionFilterDataDownload = rolTransactionFilterDataDownload;
+        this.preInvoiceErrorDetailsFiltered = preInvoiceErrorDetailsFiltered;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -265,11 +268,6 @@ public class DailyMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName) {
-        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(autoInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName);
-        return result;
-    }
-
     public List<Map<String, Object>> getOrderStatusDownload() {
         return jdbcManager.queryForList(orderStatusDownload);
     }
@@ -345,10 +343,6 @@ public class DailyMonitoringService {
                 }
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
-                    System.out.println(parts[0]);
-                    System.out.println(parts[1]);
-                    System.out.println(parts[2]);
-                    System.out.println(username);
                     UpdateOrderModel orderModel = new UpdateOrderModel();
                     orderModel.setProgramName(parts[0]);
                     orderModel.setAccount(parts[1]);
@@ -573,9 +567,7 @@ public class DailyMonitoringService {
         } else {
             so = salesOrder;
         }
-        System.out.println(so);
         int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, username, dealId, so, so);
-        System.out.println(test);
     }
 
     public void setCloBulkUpdateFromFile(MultipartFile file, String username) throws IOException, ParseException {
@@ -800,11 +792,33 @@ public class DailyMonitoringService {
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorDetails);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            renameKey(data, "IOL_ERROR", "AMOUNT");
             formatDateColumns(data, dateColumns);
         });
         return result;
     }
 
+    public List<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName, String transactionDate) {
+        String[] dateColumns = {"TRANSACTION_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(autoInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, transactionDate);
+        result.forEach(data -> {
+            renameKey(data, "AMOUNT_USD", "AMOUNT");
+            renameKey(data, "OPERATING_UNIT", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName, String transactionDate) {
+        String[] dateColumns = {"TRANSACTION_DATE"};
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(preInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, transactionDate);
+        result.forEach(data -> {
+            renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            renameKey(data, "IOL_ERROR", "AMOUNT");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
 
     public List<Map<String, Object>> getSbpSummary() {
         return jdbcManager.queryForList(sbpSummary);

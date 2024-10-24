@@ -269,6 +269,7 @@ export class AutoInvoicingComponent {
       periodNames: periodNames.join(','),
       ouNames: ouNames.join(','),
       appNames: appNames.join(','),
+      transactionDates: transactionDates.join(','),
     };
 
     console.log(pageRequest);
@@ -349,6 +350,42 @@ export class AutoInvoicingComponent {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(' ');
+  }
+  selectedSummaryData: AutoInvoicingErrorSummary[] = [];
+  isModalOpen: boolean = false;
+
+  viewDetails() {
+    this.selectedSummaryData = this.selection.selected;
+    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
+      console.error('No data selected.');
+      return;
+    }
+
+    this.openRowModal();
+  }
+
+  openRowModal(): void {
+    if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
+      console.error('No selectedSummaryData found:', this.selectedSummaryData);
+      return;
+    }
+
+    this.isModalOpen = true;
+  }
+
+  closeAssignModal(event: any): void {
+    this.isModalOpen = false;
+    // if (event === 'successful') {
+    //   this.selection.clear();
+    //   this.rolErrorSummaryData = null;
+    //   this.selectedRows = [];
+    //   this.isFiltered = false;
+    //   this.filtereddataSource = null;
+    //   this.cdr.detectChanges();
+    //   setTimeout(() => {
+    //     this.getRolErrorSummaryData();
+    //   }, 1000);
+    // }
   }
 }
 

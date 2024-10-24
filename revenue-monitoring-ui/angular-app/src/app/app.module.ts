@@ -81,6 +81,7 @@ import { InvoicingComponent } from './invoicing/invoicing.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 import { AutoInvoicingComponent } from './invoicing/auto-invoicing/auto-invoicing.component';
 import { PreInvoicingComponent } from './invoicing/pre-invoicing/pre-invoicing.component';
+import { AssignUserComponent } from './invoicing/assign-user/assign-user.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -131,6 +132,7 @@ export function initApp(authService: AuthenticationService) {
     CustomRevenueComponent,
     AutoInvoicingComponent,
     PreInvoicingComponent,
+    AssignUserComponent,
   ],
   imports: [
     BrowserModule,

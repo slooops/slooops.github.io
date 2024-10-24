@@ -150,11 +150,11 @@ const routes: Routes = [
   //   },
   // },
   {
-    path: 'order-to-cash',
+    path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
-      title: 'Order to Cash',
-      header: 'Order to Cash',
+      title: 'Invoice to Cash',
+      header: 'Invoice to Cash',
     },
   },
 ];

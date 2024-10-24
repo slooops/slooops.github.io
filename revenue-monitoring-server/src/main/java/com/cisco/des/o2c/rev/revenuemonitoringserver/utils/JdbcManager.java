@@ -73,8 +73,8 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
 
-    public List<Map<String, Object>> queryForListWithParamsAutoInvoice(String sql, String appName, String operatingUnit, String periodName){
-        return jdbcTemplate.queryForList(sql, appName, operatingUnit, periodName);
+    public List<Map<String, Object>> queryForListWithParamsAutoInvoice(String sql, String appName, String operatingUnit, String periodName, String transactionDate){
+        return jdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, transactionDate);
     }
 
     public int deleteSelectedDeals(String sql, String username, int dealId, String salesOrder, String salesOrder2){

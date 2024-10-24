@@ -239,23 +239,53 @@ public class DailyMonitoringController {
     @GetMapping("/auto-invoice-error-details-filtered")
     public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
                                                                                        @RequestParam List<String> ouNames,
-                                                                                       @RequestParam List<String> appNames) {
+                                                                                       @RequestParam List<String> appNames,
+                                                                                  @RequestParam List<String> transactionDates) {
 
 
         try {
             List<Map<String, Object>> autoInvoiceErrorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), transactionDates.size())));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = ouNames.get(i);
                 String appName = appNames.get(i);
-                System.out.println(periodName+" "+ouName+" "+appName);
-                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName, periodName );
+                String transactionDate = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName, periodName, transactionDate);
                 autoInvoiceErrorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
             response.put("autoInvoiceErrorDetailsFiltered", autoInvoiceErrorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    @GetMapping("/pre-invoice-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
+                                                                                  @RequestParam List<String> ouNames,
+                                                                                  @RequestParam List<String> appNames,
+                                                                                  @RequestParam List<String> transactionDates) {
+
+
+        try {
+            List<Map<String, Object>> preInvoiceErrorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), transactionDates.size())));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = ouNames.get(i);
+                String appName = appNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName, periodName, transactionDate);
+                preInvoiceErrorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("preInvoiceErrorDetailsFiltered", preInvoiceErrorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e){
             System.out.println(e);

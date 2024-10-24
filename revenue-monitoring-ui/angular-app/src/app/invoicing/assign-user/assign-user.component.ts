@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { DataService } from 'src/app/providers/data.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-assign-dialog',
-  templateUrl: './assign-dialog.component.html',
-  styleUrls: ['./assign-dialog.component.css'],
+  selector: 'app-assign-user',
+  templateUrl: './assign-user.component.html',
+  styleUrl: './assign-user.component.css',
 })
-export class AssignDialogComponent implements OnInit {
+export class AssignUserComponent implements OnInit {
   @Input() data: any;
   @Output() close = new EventEmitter<void>();
 
@@ -99,65 +99,65 @@ export class AssignDialogComponent implements OnInit {
       username: this.username,
     };
 
-    this.http
-      .post('rol-errors-summary-update', updateData, { responseType: 'text' })
-      .subscribe({
-        next: (data) => {
-          this.close.emit(this.updateForm.value);
-        },
-        error: (err) => {
-          console.error('Error while submitting data:', err);
-          this.closeDialog('failed');
-        },
-        complete: () => {
-          this.sendWebexMessage();
-          this.closeDialog('successful');
-        },
-      });
+    // this.http
+    //   .post('rol-errors-summary-update', updateData, { responseType: 'text' })
+    //   .subscribe({
+    //     next: (data) => {
+    //       this.close.emit(this.updateForm.value);
+    //     },
+    //     error: (err) => {
+    //       console.error('Error while submitting data:', err);
+    //       this.closeDialog('failed');
+    //     },
+    //     complete: () => {
+    //       this.sendWebexMessage();
+    //       this.closeDialog('successful');
+    //     },
+    //   });
   }
 
-  sendWebexMessage() {
-    let assigneeName = '';
-    if (this.userRoles.includes('ADMIN')) {
-      assigneeName =
-        this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
-          ? this.updateForm.value.assignedTo
-          : this.data[0].ASSIGNED_TO;
-    } else {
-      assigneeName =
-        this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
-    }
+  // sendWebexMessage() {
+  //   let assigneeName = '';
+  //   if (this.userRoles.includes('ADMIN')) {
+  //     assigneeName =
+  //       this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
+  //         ? this.updateForm.value.assignedTo
+  //         : this.data[0].ASSIGNED_TO;
+  //   } else {
+  //     assigneeName =
+  //       this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
+  //   }
 
-    const assignee = this.availableNames.find(
-      (data) => data.name === assigneeName
-    ).username;
-    const webexMessageData = {
-      assignee: assignee,
-      assigner: this.username,
-      periodName: this.data[0].PERIOD_NAME,
-      appName: this.data[0].APPLICATION_NAME,
-      subApp: this.data[0].PROCESS_FLOW,
-      orgName: this.data[0].ORG_NAME,
-      amount: this.data[0].AMOUNT,
-      comments:
-        this.updateForm.value.comments !== this.data[0].COMMENTS
-          ? this.updateForm.value.comments
-          : this.data[0].COMMENTS,
-    };
+  //   const assignee = this.availableNames.find(
+  //     (data) => data.name === assigneeName
+  //   ).username;
+  //   const webexMessageData = {
+  //     assignee: assignee,
+  //     assigner: this.username,
+  //     periodName: this.data[0].PERIOD_NAME,
+  //     appName: this.data[0].APPLICATION_NAME,
+  //     subApp: this.data[0].PROCESS_FLOW,
+  //     orgName: this.data[0].ORG_NAME,
+  //     amount: this.data[0].AMOUNT,
+  //     comments:
+  //       this.updateForm.value.comments !== this.data[0].COMMENTS
+  //         ? this.updateForm.value.comments
+  //         : this.data[0].COMMENTS,
+  //   };
 
-    this.http
-      .post('send-message-rol', webexMessageData, { responseType: 'text' })
-      .subscribe({
-        next: (data) => {},
-        error: (err) => {
-          console.error('Error while sending message:', err);
-          this.closeDialog('webex-message-failed');
-        },
-        complete: () => {
-          this.closeDialog('webex-message-successful');
-        },
-      });
-  }
+  //   this.http
+  //     .post('send-message-rol', webexMessageData, { responseType: 'text' })
+  //     .subscribe({
+  //       next: (data) => {},
+  //       error: (err) => {
+  //         console.error('Error while sending message:', err);
+  //         this.closeDialog('webex-message-failed');
+  //       },
+  //       complete: () => {
+  //         this.closeDialog('webex-message-successful');
+  //       },
+  //     });
+  // }
 
   closeDialog(result: any) {
     this.close.emit(result);
