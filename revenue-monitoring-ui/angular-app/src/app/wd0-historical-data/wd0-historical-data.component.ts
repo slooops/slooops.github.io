@@ -251,7 +251,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
     this.http.get('wd0-volumes').subscribe((data: any) => {
-      // Step 1: Filter the most recent fiscal period
+      console.log('wd0-volumes', data);
+
+      // Step 1: Identify the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
 
       // Step 2: Filter the data for the most recent period
@@ -259,7 +261,24 @@ export class Wd0HistoricalDataComponent implements OnInit {
         (entry: any) => entry.FISCAL_PERIOD === mostRecentFiscalPeriod
       );
 
-      // Step 3: Organize by PRODUCT_TYPE and sort by WD
+      // Step 3: Check for missing WD entries (WD-2 and WD-1) and add null placeholders if missing
+      const wdValues = recentData.map((entry: any) => entry.WD);
+      const requiredWds = ['WD-3', 'WD-2', 'WD-1'];
+
+      requiredWds.forEach((wd) => {
+        if (!wdValues.includes(wd)) {
+          // Add placeholder entry with null values for missing WD day
+          recentData.push({
+            FISCAL_PERIOD: mostRecentFiscalPeriod,
+            WD: wd,
+            PRODUCT_TYPE: null, // I will need to fix this later
+            LINE_COUNT: null,
+            RUN_DATE: null,
+          });
+        }
+      });
+
+      // Step 4: Organize by PRODUCT_TYPE and sort by WD
       const productData = this.filterAndSortData(recentData, 'PRODUCT');
       const serviceData = this.filterAndSortData(recentData, 'SERVICE');
 
@@ -269,14 +288,45 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
-  // Step 1: Function to get the most recent fiscal period
+  // Step 1: This needs to be redone to handle fiscal periods being weird,
+  // e.g. for Jan 25 being after Dec 25. Solution is selecting most recent run_date
+  // then looking at the fiscal period of that run_date
   getMostRecentFiscalPeriod(data: any[]): string {
-    // Extract all fiscal periods and sort them (assumes fiscal periods are sortable strings)
+    console.log('data', data); // Log the data
+    // Helper function to convert fiscal period to a comparable number (e.g., 'AUG-25' -> 202508)
+    const periodToComparableValue = (fiscalPeriod: string) => {
+      const [month, year] = fiscalPeriod.split('-');
+      const monthIndex = {
+        JAN: 1,
+        FEB: 2,
+        MAR: 3,
+        APR: 4,
+        MAY: 5,
+        JUN: 6,
+        JUL: 7,
+        AUG: 8,
+        SEP: 9,
+        OCT: 10,
+        NOV: 11,
+        DEC: 12,
+      }[month];
+      return parseInt(`${year}${String(monthIndex).padStart(2, '0')}`);
+    };
+
+    // Step 2: Extract all fiscal periods and convert them into comparable values
     const fiscalPeriods = [
       ...new Set(data.map((entry: any) => entry.FISCAL_PERIOD)),
     ];
-    fiscalPeriods.sort(); // Sort in ascending order
-    return fiscalPeriods[fiscalPeriods.length - 1]; // Return the latest fiscal period
+
+    // Step 3: Sort the periods chronologically using the helper function
+    fiscalPeriods.sort(
+      (a, b) => periodToComparableValue(a) - periodToComparableValue(b)
+    );
+
+    console.log('fiscalPeriods', fiscalPeriods); // Log sorted periods
+
+    // Return the most recent fiscal period (last one in the sorted array)
+    return fiscalPeriods[fiscalPeriods.length - 1];
   }
 
   // Step 3: Function to filter and sort data by PRODUCT_TYPE and WD
@@ -372,12 +422,27 @@ export class Wd0HistoricalDataComponent implements OnInit {
         ...productTotal,
       };
 
+      const sanitizedData = data.map((item) => {
+        const newItem = { ...item }; // Create a shallow copy to avoid mutating the original object
+        Object.keys(newItem).forEach((key) => {
+          if (newItem[key] === null) {
+            newItem[key] = 0;
+          }
+        });
+        return newItem;
+      });
+
       // Insert total rows at the beginning of the data array
-      data.unshift(grandTotalObject, serviceTotalObject, productTotalObject);
+      sanitizedData.unshift(
+        grandTotalObject,
+        serviceTotalObject,
+        productTotalObject
+      );
 
-      this.historicalData = data;
+      // Now remove duplicate entries
+      this.removeDuplicateEntityEntries(sanitizedData);
 
-      this.removeDuplicateEntityEntries(data);
+      this.historicalData = sanitizedData;
 
       this.dataSource = new MatTableDataSource<HistoricalDataModel>(
         this.historicalData
@@ -837,17 +902,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     // Ensure there are no null execution times
     filteredData.forEach((entry: any) => {
-      if (
-        entry.EXECUTION_TIME === null &&
-        entry.LINE_COUNT !== null &&
-        this.fetchDataForNewMonth
-      ) {
-        entry.EXECUTION_TIME = 4.0; // Default value
-      } else if (
-        entry.EXECUTION_TIME === null &&
-        entry.LINE_COUNT !== null &&
-        !this.fetchDataForNewMonth
-      ) {
+      if (entry.EXECUTION_TIME === null && entry.LINE_COUNT !== null) {
         entry.EXECUTION_TIME = 0.0; // Default value
       }
     });
