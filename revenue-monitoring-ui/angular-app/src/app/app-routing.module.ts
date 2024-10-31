@@ -10,6 +10,7 @@ import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
+import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 
 const routes: Routes = [
   {
@@ -141,14 +142,14 @@ const routes: Routes = [
   //     header: 'Subscription Billing Platform Monitoring',
   //   },
   // },
-  // {
-  //   path: 'case-analyzer',
-  //   component: EspCaseAnalyzerComponent,
-  //   data: {
-  //     title: 'ESP Case Analyzer Dashboard',
-  //     header: 'ESP Case Analyzer Dashboard',
-  //   },
-  // },
+  {
+    path: 'case-analyzer',
+    component: EspCaseAnalyzerComponent,
+    data: {
+      title: 'ESP Case Analyzer Dashboard',
+      header: 'ESP Case Analyzer Dashboard',
+    },
+  },
   {
     path: 'invoice-to-cash',
     component: InvoicingComponent,

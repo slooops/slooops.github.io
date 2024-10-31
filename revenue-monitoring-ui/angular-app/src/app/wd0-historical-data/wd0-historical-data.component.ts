@@ -105,8 +105,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
     let serviceActuals = [null, null, null];
     let productActuals = [null, null, null];
 
-    console.log(this.today, 'Current Date: ', this.fetchDataForNewMonth);
-
     // Fetch data for regression
     if (this.fetchDataForNewMonth) {
       this.getEndpointData('wd0-current-month')
@@ -288,45 +286,28 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
-  // Step 1: This needs to be redone to handle fiscal periods being weird,
-  // e.g. for Jan 25 being after Dec 25. Solution is selecting most recent run_date
-  // then looking at the fiscal period of that run_date
+  // Step 1: Identify the most recent fiscal period
   getMostRecentFiscalPeriod(data: any[]): string {
-    console.log('data', data); // Log the data
-    // Helper function to convert fiscal period to a comparable number (e.g., 'AUG-25' -> 202508)
-    const periodToComparableValue = (fiscalPeriod: string) => {
-      const [month, year] = fiscalPeriod.split('-');
-      const monthIndex = {
-        JAN: 1,
-        FEB: 2,
-        MAR: 3,
-        APR: 4,
-        MAY: 5,
-        JUN: 6,
-        JUL: 7,
-        AUG: 8,
-        SEP: 9,
-        OCT: 10,
-        NOV: 11,
-        DEC: 12,
-      }[month];
-      return parseInt(`${year}${String(monthIndex).padStart(2, '0')}`);
-    };
+    console.log('Data received:', data); // Log the data for verification
 
-    // Step 2: Extract all fiscal periods and convert them into comparable values
-    const fiscalPeriods = [
-      ...new Set(data.map((entry: any) => entry.FISCAL_PERIOD)),
-    ];
-
-    // Step 3: Sort the periods chronologically using the helper function
-    fiscalPeriods.sort(
-      (a, b) => periodToComparableValue(a) - periodToComparableValue(b)
+    // Step 1: Identify the most recent RUN_DATE
+    const mostRecentEntry = data.reduce(
+      (latest, entry) => {
+        const entryDate = new Date(entry.RUN_DATE).getTime();
+        return entryDate > latest.date
+          ? { period: entry.FISCAL_PERIOD, date: entryDate }
+          : latest;
+      },
+      { period: null, date: 0 }
     );
 
-    console.log('fiscalPeriods', fiscalPeriods); // Log sorted periods
+    console.log(
+      'Most recent fiscal period based on RUN_DATE:',
+      mostRecentEntry.period
+    );
 
-    // Return the most recent fiscal period (last one in the sorted array)
-    return fiscalPeriods[fiscalPeriods.length - 1];
+    // Return the fiscal period of the most recent RUN_DATE entry
+    return mostRecentEntry.period || 'Unknown Period'; // Fallback if no data is found
   }
 
   // Step 3: Function to filter and sort data by PRODUCT_TYPE and WD
@@ -456,7 +437,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
     const labels = serviceData.map((entry: any) => entry.WD).reverse();
     const lowData = serviceData
-      .map((entry: any) => entry.RECORD_COUNT_LOW)
+      .map((entry: any) => Number(entry.RECORD_COUNT_LOW))
       .reverse();
     const highData = serviceData
       .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
@@ -545,7 +526,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   updateProductLineChart(productData: any[], productActuals: number[]) {
     const labels = productData.map((entry: any) => entry.WD).reverse();
     const lowData = productData
-      .map((entry: any) => entry.RECORD_COUNT_LOW)
+      .map((entry: any) => Number(entry.RECORD_COUNT_LOW))
       .reverse();
     const highData = productData
       .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
@@ -1005,23 +986,13 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
 
       // For next month prediction (.length - 1 is for the degrees of freedom)
-      // const upcomingMonthPrediction =
-      //   this.regressionService.predictWithConfidenceIntervals(
-      //     this.newMonthData,
-      //     regressionData.X.length - 1
-      //   );
-      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-
-      // Overwrite specific times in the fastestTimes array
-      fastestTimes[2] = 3.22;
-      slowestTimes[2] = 5.98;
-
-      fastestTimes[3] = 3.17;
-      slowestTimes[3] = 5.93;
-
-      fastestTimes.push(3.47);
-      slowestTimes.push(5.87);
+      const upcomingMonthPrediction =
+        this.regressionService.predictWithConfidenceIntervals(
+          this.newMonthData,
+          regressionData.X.length - 1
+        );
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
 
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)

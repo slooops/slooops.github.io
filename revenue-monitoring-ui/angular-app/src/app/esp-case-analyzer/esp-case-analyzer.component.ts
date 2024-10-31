@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTab } from '@angular/material/tabs';
 import { MatTableDataSource } from '@angular/material/table';
+import * as XLSX from 'xlsx';
+import { Chart, ChartOptions, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-esp-case-analyzer',
@@ -11,20 +14,332 @@ import { MatTableDataSource } from '@angular/material/table';
 export class EspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService) {
     this.http = http;
+    Chart.register(...registerables);
   }
   protected http: ApiHttpService;
-  displayedColumnsForCaseSummary: string[] = [];
-  caseMetricsSummary: CaseMetricsSummary[] = [];
-  dataSourceforCaseSummary: any;
+
+  displayedColumnsForAgingBacklog: string[] = [
+    'SERVICE_OFFERING',
+    '<5days',
+    '5-10days',
+    '10-15days',
+    '>15days',
+  ];
+  dataSourceAgingBacklog = new MatTableDataSource<any>([
+    {
+      SERVICE_OFFERING:
+        'Billing Invoice and Revenue - Non Standard Revenue (NextGen CCRM)',
+      '<5days': '80',
+      '5-10days': '50',
+      '10-15days': '30',
+      '>15days': '10',
+    },
+    {
+      SERVICE_OFFERING: 'Billing Invoice and Revenue Revenue Attribution',
+      '<5days': '70',
+      '5-10days': '40',
+      '10-15days': '20',
+      '>15days': '5',
+    },
+    {
+      SERVICE_OFFERING:
+        'Billing, Invoice and Revenue - Billing/Invoice Processing (Bridge)',
+      '<5days': '60',
+      '5-10days': '35',
+      '10-15days': '15',
+      '>15days': '8',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Collections (ICMS)',
+      '<5days': '90',
+      '5-10days': '45',
+      '10-15days': '25',
+      '>15days': '12',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Invoicing (AR)',
+      '<5days': '85',
+      '5-10days': '55',
+      '10-15days': '35',
+      '>15days': '20',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Receipt Processing',
+      '<5days': '75',
+      '5-10days': '50',
+      '10-15days': '25',
+      '>15days': '15',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Revenue Accounting',
+      '<5days': '95',
+      '5-10days': '60',
+      '10-15days': '40',
+      '>15days': '25',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue – CMS (Highradius)',
+      '<5days': '65',
+      '5-10days': '30',
+      '10-15days': '20',
+      '>15days': '10',
+    },
+    {
+      SERVICE_OFFERING: 'Customs Administration',
+      '<5days': '50',
+      '5-10days': '25',
+      '10-15days': '10',
+      '>15days': '5',
+    },
+    {
+      SERVICE_OFFERING: 'Direct Tax Management',
+      '<5days': '55',
+      '5-10days': '35',
+      '10-15days': '15',
+      '>15days': '8',
+    },
+    {
+      SERVICE_OFFERING: 'Indirect Tax Global',
+      '<5days': '80',
+      '5-10days': '45',
+      '10-15days': '20',
+      '>15days': '10',
+    },
+    {
+      SERVICE_OFFERING: 'Intercompany Accounting',
+      '<5days': '70',
+      '5-10days': '40',
+      '10-15days': '25',
+      '>15days': '15',
+    },
+    {
+      SERVICE_OFFERING:
+        'Billing, Invoice and Revenue - Credit Processing (eCredit)',
+      '<5days': '85',
+      '5-10days': '55',
+      '10-15days': '30',
+      '>15days': '18',
+    },
+    {
+      SERVICE_OFFERING:
+        'Billing, Invoice and Revenue - Revenue Reporting (RRR)',
+      '<5days': '95',
+      '5-10days': '60',
+      '10-15days': '35',
+      '>15days': '20',
+    },
+  ]);
+
+  displayedColumnsForCurrentQuarter: string[] = [
+    'SERVICE_OFFERING',
+    'BACKLOG',
+    'RESOLVED',
+    'SERVICE_REQUEST',
+    'SERVICE_INCIDENT',
+    'CANCELLED',
+    'ESCALATED',
+    'ROUTED_OUT',
+    'MTTR',
+  ];
+
+  dataSourceCurrentQuarter = new MatTableDataSource<any>([
+    {
+      SERVICE_OFFERING:
+        'Billing Invoice and Revenue - Non Standard Revenue (NextGen CCRM)',
+      BACKLOG: '20',
+      RESOLVED: '15',
+      SERVICE_REQUEST: '10',
+      SERVICE_INCIDENT: '5',
+      CANCELLED: '2',
+      ESCALATED: '1',
+      ROUTED_OUT: '4',
+      MTTR: '5 days',
+    },
+    {
+      SERVICE_OFFERING: 'Billing Invoice and Revenue Revenue Attribution',
+      BACKLOG: '18',
+      RESOLVED: '14',
+      SERVICE_REQUEST: '8',
+      SERVICE_INCIDENT: '4',
+      CANCELLED: '1',
+      ESCALATED: '2',
+      ROUTED_OUT: '3',
+      MTTR: '6 days',
+    },
+    {
+      SERVICE_OFFERING:
+        'Billing, Invoice and Revenue - Billing/Invoice Processing (Bridge)',
+      BACKLOG: '25',
+      RESOLVED: '20',
+      SERVICE_REQUEST: '15',
+      SERVICE_INCIDENT: '10',
+      CANCELLED: '3',
+      ESCALATED: '2',
+      ROUTED_OUT: '5',
+      MTTR: '4 days',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Collections (ICMS)',
+      BACKLOG: '30',
+      RESOLVED: '25',
+      SERVICE_REQUEST: '20',
+      SERVICE_INCIDENT: '12',
+      CANCELLED: '4',
+      ESCALATED: '3',
+      ROUTED_OUT: '6',
+      MTTR: '7 days',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Invoicing (AR)',
+      BACKLOG: '22',
+      RESOLVED: '18',
+      SERVICE_REQUEST: '12',
+      SERVICE_INCIDENT: '8',
+      CANCELLED: '2',
+      ESCALATED: '1',
+      ROUTED_OUT: '4',
+      MTTR: '5 days',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Receipt Processing',
+      BACKLOG: '28',
+      RESOLVED: '23',
+      SERVICE_REQUEST: '18',
+      SERVICE_INCIDENT: '9',
+      CANCELLED: '3',
+      ESCALATED: '1',
+      ROUTED_OUT: '6',
+      MTTR: '6 days',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Revenue Accounting',
+      BACKLOG: '32',
+      RESOLVED: '29',
+      SERVICE_REQUEST: '20',
+      SERVICE_INCIDENT: '10',
+      CANCELLED: '5',
+      ESCALATED: '2',
+      ROUTED_OUT: '7',
+      MTTR: '7 days',
+    },
+    {
+      SERVICE_OFFERING: 'Billing, Invoice and Revenue – CMS (Highradius)',
+      BACKLOG: '19',
+      RESOLVED: '15',
+      SERVICE_REQUEST: '12',
+      SERVICE_INCIDENT: '6',
+      CANCELLED: '2',
+      ESCALATED: '2',
+      ROUTED_OUT: '3',
+      MTTR: '5 days',
+    },
+    {
+      SERVICE_OFFERING: 'Customs Administration',
+      BACKLOG: '14',
+      RESOLVED: '11',
+      SERVICE_REQUEST: '9',
+      SERVICE_INCIDENT: '4',
+      CANCELLED: '1',
+      ESCALATED: '1',
+      ROUTED_OUT: '2',
+      MTTR: '4 days',
+    },
+    {
+      SERVICE_OFFERING: 'Direct Tax Management',
+      BACKLOG: '24',
+      RESOLVED: '20',
+      SERVICE_REQUEST: '15',
+      SERVICE_INCIDENT: '7',
+      CANCELLED: '3',
+      ESCALATED: '2',
+      ROUTED_OUT: '5',
+      MTTR: '6 days',
+    },
+    {
+      SERVICE_OFFERING: 'Indirect Tax Global',
+      BACKLOG: '27',
+      RESOLVED: '22',
+      SERVICE_REQUEST: '18',
+      SERVICE_INCIDENT: '8',
+      CANCELLED: '4',
+      ESCALATED: '3',
+      ROUTED_OUT: '6',
+      MTTR: '7 days',
+    },
+    {
+      SERVICE_OFFERING: 'Intercompany Accounting',
+      BACKLOG: '20',
+      RESOLVED: '17',
+      SERVICE_REQUEST: '14',
+      SERVICE_INCIDENT: '6',
+      CANCELLED: '2',
+      ESCALATED: '1',
+      ROUTED_OUT: '4',
+      MTTR: '5 days',
+    },
+    {
+      SERVICE_OFFERING:
+        'Billing, Invoice and Revenue - Credit Processing (eCredit)',
+      BACKLOG: '31',
+      RESOLVED: '26',
+      SERVICE_REQUEST: '20',
+      SERVICE_INCIDENT: '9',
+      CANCELLED: '4',
+      ESCALATED: '2',
+      ROUTED_OUT: '7',
+      MTTR: '6 days',
+    },
+    {
+      SERVICE_OFFERING:
+        'Billing, Invoice and Revenue - Revenue Reporting (RRR)',
+      BACKLOG: '33',
+      RESOLVED: '28',
+      SERVICE_REQUEST: '22',
+      SERVICE_INCIDENT: '11',
+      CANCELLED: '5',
+      ESCALATED: '3',
+      ROUTED_OUT: '8',
+      MTTR: '8 days',
+    },
+  ]);
+
+  sharedChartOptions: ChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        // grid: {
+        //   drawBorder: false,
+        // },
+      },
+    },
+  };
 
   ngOnInit(): void {
-    this.getCaseMetricsSummary();
+    // this.getCaseMetricsSummary();
+    this.initializeCharts();
   }
 
   getCaseMetricsSummary() {
     this.http.get('case-service-metrics-summary').subscribe((data: any) => {
       if (data.length > 0) {
-        this.displayedColumnsForCaseSummary = Object.keys(data[0]);
+        this.displayedColumnsForAgingBacklog = Object.keys(data[0]);
         this.removeColumns([
           'IS_ACTIVE',
           'CREATED_BY',
@@ -33,22 +348,180 @@ export class EspCaseAnalyzerComponent implements OnInit {
           'LAST_UPDATED_TIME',
         ]);
       }
-      this.caseMetricsSummary = data;
-      console.log(this.caseMetricsSummary);
-      this.dataSourceforCaseSummary =
-        new MatTableDataSource<CaseMetricsSummary>(this.caseMetricsSummary);
+      this.dataSourceAgingBacklog = new MatTableDataSource<any>(data);
     });
   }
 
   removeColumns(columnsToRemove: string[]) {
-    this.displayedColumnsForCaseSummary =
-      this.displayedColumnsForCaseSummary.filter(
+    this.displayedColumnsForAgingBacklog =
+      this.displayedColumnsForAgingBacklog.filter(
         (column) => !columnsToRemove.includes(column)
       );
   }
 
   removeUnderscores(key: string): string {
     return key.replace(/_/g, ' ');
+  }
+
+  exportTableToExcel(data: any[], sheetName: string, fileName: string): void {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = {
+      Sheets: { [sheetName]: worksheet },
+      SheetNames: [sheetName],
+    };
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  }
+
+  initializeCharts(): void {
+    const backlogInflowChart = new Chart('backlogInflowChart', {
+      type: 'bar',
+      data: {
+        labels: [
+          'WEEK 01',
+          'WEEK 02',
+          'WEEK 03',
+          'WEEK 04',
+          'WEEK 05',
+          'WEEK 06',
+          'WEEK 07',
+          'WEEK 08',
+          'WEEK 09',
+          'WEEK 10',
+          'WEEK 11',
+          'WEEK 12',
+          'WEEK 13',
+        ],
+        datasets: [
+          {
+            label: 'Backlog Q1FY25',
+            data: [2, 0, 0, 0, 3, 0, 1, 1, 1, 5, 22, 8, 0],
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            type: 'bar',
+          },
+          {
+            label: 'Backlog Q4FY24',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 7, 10],
+            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+            type: 'bar',
+          },
+          {
+            label: 'Inflow Q1FY25',
+            data: [86, 52, 52, 67, 64, 48, 54, 56, 55, 64, 56, 10, 0],
+            borderColor: 'rgba(255, 159, 64, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            type: 'line',
+          },
+          {
+            label: 'Inflow Q4FY24',
+            data: [53, 69, 60, 55, 63, 62, 62, 61, 79, 65, 76, 68, 78],
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            type: 'line',
+          },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
+    const cancelledPdfChart = new Chart('cancelledPdfChart', {
+      type: 'bar',
+      data: {
+        labels: [
+          'WEEK 01',
+          'WEEK 02',
+          'WEEK 03',
+          'WEEK 04',
+          'WEEK 05',
+          'WEEK 06',
+          'WEEK 07',
+          'WEEK 08',
+          'WEEK 09',
+          'WEEK 10',
+          'WEEK 11',
+          'WEEK 12',
+          'WEEK 13',
+        ],
+        datasets: [
+          {
+            label: 'Cancelled Cases Q1FY25',
+            data: [14, 21, 12, 25, 14, 15, 17, 21, 16, 17, 2, 0, 0],
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            type: 'line',
+          },
+          {
+            label: 'Cancelled Cases Q4FY24',
+            data: [9, 5, 17, 5, 11, 9, 18, 17, 12, 14, 10, 22, 23],
+            borderColor: 'rgba(255, 206, 86, 1)',
+            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+            type: 'line',
+          },
+          {
+            label: 'PDF Cases Q1FY25',
+            data: [3, 2, 5, 2, 1, 1, 2, 2, 0, 2, 3, 0, 0],
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            type: 'bar',
+          },
+          {
+            label: 'PDF Cases Q4FY24',
+            data: [1, 0, 3, 0, 1, 2, 8, 6, 4, 6, 4, 6, 2],
+            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+            type: 'bar',
+          },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
+    const routedMisroutedChart = new Chart('routedMisroutedChart', {
+      type: 'bar',
+      data: {
+        labels: [
+          'WEEK 01',
+          'WEEK 02',
+          'WEEK 03',
+          'WEEK 04',
+          'WEEK 05',
+          'WEEK 06',
+          'WEEK 07',
+          'WEEK 08',
+          'WEEK 09',
+          'WEEK 10',
+          'WEEK 11',
+          'WEEK 12',
+          'WEEK 13',
+        ],
+        datasets: [
+          {
+            label: 'Misrouted Q1FY25',
+            data: [1, 2, 1, 1, 3, 3, 2, 1, 0, 1, 2, 0, 0],
+            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+            type: 'bar',
+          },
+          {
+            label: 'Misrouted Q4FY24',
+            data: [1, 8, 6, 2, 3, 4, 3, 4, 5, 5, 7, 0, 1],
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            type: 'bar',
+          },
+          {
+            label: 'Routed Out Q1FY25',
+            data: [30, 26, 31, 31, 26, 21, 27, 41, 32, 34, 22, 6, 0],
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            type: 'line',
+          },
+          {
+            label: 'Routed Out Q4FY24',
+            data: [22, 31, 21, 19, 29, 29, 32, 28, 26, 22, 45, 33, 43],
+            borderColor: 'rgba(153, 102, 255, 1)',
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            type: 'line',
+          },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
   }
 }
 

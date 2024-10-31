@@ -1,4 +1,4 @@
-<div style="margin-top: 1vh">
+<!-- <div style="margin-top: 1vh">
   <ng-container *ngIf="dataSourceforCaseSummary?.data?.length > 0">
     <div style="overflow-x: auto">
       <table
@@ -32,4 +32,181 @@
     </div>
   </ng-container>
 </div>
-<br />
+<br /> -->
+
+<div class="grid-1">
+  <div
+    style="
+      width: 100%;
+      display: flex;
+      flex: 0 1 auto;
+      justify-content: space-between;
+      gap: 1rem;
+    "
+  >
+    <div style="flex: 1" class="card">
+      <div style="position: relative">
+        <!-- Canvas element for the Backlog vs Inflow chart -->
+        <canvas id="backlogInflowChart"></canvas>
+      </div>
+      <p class="chart-description" style="padding-left: 1.5vw">
+        <b>Backlog vs Inflow</b> - Mixed bar and line chart displaying Backlog
+        and Inflow data.
+      </p>
+    </div>
+
+    <div style="flex: 1" class="card">
+      <div style="position: relative">
+        <!-- Canvas element for the Cancelled vs PDF chart -->
+        <canvas id="cancelledPdfChart"></canvas>
+      </div>
+      <p class="chart-description" style="padding-left: 1.5vw">
+        <b>Cancelled vs PDF</b> - Mixed bar and line chart displaying Cancelled
+        and PDF data.
+      </p>
+    </div>
+
+    <div style="flex: 1" class="card">
+      <div style="position: relative">
+        <!-- Canvas element for the Routed vs Misrouted chart -->
+        <canvas id="routedMisroutedChart"></canvas>
+      </div>
+      <p class="chart-description" style="padding-left: 1.5vw">
+        <b>Routed vs Misrouted</b> - Mixed bar and line chart displaying Routed
+        and Misrouted data.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="grid-1 container" style="width: auto">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: -32px;
+    "
+  >
+    <p class="section-title">Current Quarter Case Summary</p>
+    <p style="text-align: center; margin: 0px 0 0 0">
+      Quarter: <span style="font-weight: 600">Q2FY25</span> | Period:
+      <span style="font-weight: 600">Nov-25</span>
+    </p>
+    <div style="display: flex; gap: 1vh">
+      <i
+        (click)="
+          exportTableToExcel(
+            dataSourceCurrentQuarter.data,
+            'Current Quarter Data',
+            'Current_Quarter_Case_Summary'
+          )
+        "
+        class="fa fa-download"
+      ></i>
+    </div>
+  </div>
+  <div style="margin-top: 1vh">
+    <ng-container *ngIf="dataSourceCurrentQuarter?.data?.length > 0">
+      <div style="overflow-x: auto">
+        <table
+          mat-table
+          [dataSource]="dataSourceCurrentQuarter"
+          style="width: 100%"
+        >
+          <ng-container
+            *ngFor="let column of displayedColumnsForCurrentQuarter"
+          >
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ removeUnderscores(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+            </ng-container>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumnsForCurrentQuarter"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsForCurrentQuarter"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!dataSourceCurrentQuarter?.data?.length">
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<div class="grid-1 container" style="width: auto">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: -32px;
+    "
+  >
+    <p class="section-title">Aging Backlog</p>
+    <p style="text-align: center; margin: 0px 0 0 0">
+      Quarter: <span style="font-weight: 600">Q2FY25</span> | Period:
+      <span style="font-weight: 600">Nov-25</span>
+    </p>
+    <div style="display: flex; gap: 1vh">
+      <i
+        (click)="
+          exportTableToExcel(
+            dataSourceAgingBacklog.data,
+            'Aging Backlog Data',
+            'Q4FY24_Aging_Backlog'
+          )
+        "
+        class="fa fa-download"
+      ></i>
+    </div>
+  </div>
+  <div style="margin-top: 1vh">
+    <ng-container *ngIf="dataSourceAgingBacklog?.data?.length > 0">
+      <div style="overflow-x: auto">
+        <table
+          mat-table
+          [dataSource]="dataSourceAgingBacklog"
+          style="width: 100%"
+        >
+          <ng-container *ngFor="let column of displayedColumnsForAgingBacklog">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ removeUnderscores(column) }}
+              </th>
+              <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+            </ng-container>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumnsForAgingBacklog"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsForAgingBacklog"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!dataSourceAgingBacklog?.data?.length">
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<br /><br /><br />
