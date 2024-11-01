@@ -82,6 +82,7 @@ import { CustomRevenueComponent } from './custom-revenue/custom-revenue.componen
 import { AutoInvoicingComponent } from './invoicing/auto-invoicing/auto-invoicing.component';
 import { PreInvoicingComponent } from './invoicing/pre-invoicing/pre-invoicing.component';
 import { AssignUserComponent } from './invoicing/assign-user/assign-user.component';
+import { AutoInvoicingRealComponent } from './invoicing/auto-invoicing-real/auto-invoicing-real.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -155,6 +156,7 @@ export function initApp(authService: AuthenticationService) {
     MatProgressBarModule,
     FontAwesomeModule,
     MatTabsModule,
+    AutoInvoicingRealComponent,
     BrowserAnimationsModule,
     MatSelectModule,
     ReactiveFormsModule,
