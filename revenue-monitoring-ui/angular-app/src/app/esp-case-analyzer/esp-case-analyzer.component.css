@@ -64,3 +64,8 @@ tr.mat-header-row {
   width: 100%;
   height: 100%;
 }
+
+.dash-link {
+  color: #303030 !important;
+  margin: -3px 10px 0 0;
+}
