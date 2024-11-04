@@ -72,7 +72,7 @@
   display: flex;
   flex: 1 1 auto;
   flex-flow: column;
-  gap: 12px;
+  gap: 16px;
   justify-content: flex-start;
 }
 
@@ -146,4 +146,31 @@
   font-size: 12px;
   color: gray;
   margin: 0;
+}
+
+.card-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0; /* Light background for the status bar */
+  color: #3b7bd9; /* Example color for text */
+  padding: 8px;
+  border-top: 1px solid #e1e4e8; /* Separate the bar visually */
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 -16px -16px -16px;
+}
+
+/* Status icon styling */
+.status-icon {
+  margin: 0 -26px 0 10px; /* Space between icon and text */
+  font-size: 16px; /* Adjust icon size */
+  color: #28a745; /* Example color for a positive status icon */
+}
+
+/* Status text styling */
+.status-text {
+  text-align: center;
+  flex-grow: 1; /* Center the text within the bar */
+  color: #3b7bd9; /* Ensure it matches the desired color scheme */
 }
