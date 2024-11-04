@@ -159,6 +159,7 @@
   font-size: 14px;
   font-weight: 500;
   margin: 0 -16px -16px -16px;
+  border-radius: 0 0 6px 6px;
 }
 
 /* Status icon styling */
