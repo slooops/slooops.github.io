@@ -3,11 +3,27 @@
     <app-auto-invoicing-real></app-auto-invoicing-real>
   </mat-tab>
   <mat-tab label="Pre-Invoicing">
-    <app-pre-invoicing></app-pre-invoicing>
+    <app-monitoring-dashboard
+      [urls]="preInvoicingUrls"
+      [fieldKey]="'TRANSACTION_DATE'"
+      [processFlowKeys]="preInvoicingTotals"
+      [periodStatus]="periodStatus"
+      [detailsDisplayedColumns]="preInvoicingDetailsColumns"
+      [componentName]="'Pre-Invoicing'"
+      [specialWords]="specialWords"
+    ></app-monitoring-dashboard>
   </mat-tab>
 
   <mat-tab label="Invoicing">
-    <app-auto-invoicing></app-auto-invoicing>
+    <app-monitoring-dashboard
+      [urls]="autoInvoicingUrls"
+      [fieldKey]="'TRANSACTION_DATE'"
+      [processFlowKeys]="autoInvoicingTotals"
+      [periodStatus]="periodStatus"
+      [detailsDisplayedColumns]="autoInvoicingDetailsColumns"
+      [componentName]="'Auto-Invoicing'"
+      [specialWords]="specialWords"
+    ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Post-Invoicing" [disabled]="true"></mat-tab>
   <mat-tab label="eInvoicing" [disabled]="true"></mat-tab>

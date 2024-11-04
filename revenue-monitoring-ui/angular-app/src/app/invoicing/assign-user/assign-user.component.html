@@ -41,8 +41,11 @@
           <ng-container *ngIf="field.controlName === 'assignedTo'">
             <select [formControlName]="field.controlName">
               <option value="" disabled selected hidden>Select User</option>
-              <option *ngFor="let data of availableNames" [value]="data.name">
-                {{ data.name }}
+              <option
+                *ngFor="let data of assignmentUsers"
+                [value]="data.LOOKUP_CODE"
+              >
+                {{ data.LOOKUP_CODE }}
               </option>
             </select>
           </ng-container>

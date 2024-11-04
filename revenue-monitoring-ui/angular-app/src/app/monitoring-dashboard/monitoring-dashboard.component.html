@@ -1,80 +1,10 @@
-<app-assign-dialog
+<app-user-assignment
   *ngIf="isModalOpen"
   [data]="selectedSummaryData"
+  [updateUrl]="updateUrl"
+  [webexUrl]="webexUrl"
   (close)="closeAssignModal($event)"
-></app-assign-dialog>
-
-<ng-template #processToolTip>
-  <div class="flowchart-container">
-    <br />
-    <div class="slider">
-      <div class="slider-bar">
-        <!-- Circle 1 -->
-        <div class="circle-wrapper circle-wrapper-1">
-          <p class="circle-caption">1. Interface</p>
-          <span class="circle circle-1"></span>
-          <p class="circle-subcaption">
-            Total Impact: {{ processFlowTotals["XXCFIR_REV_INTERFACE_ALL"] }}
-          </p>
-        </div>
-
-        <!-- Chevron 1 -->
-        <div class="chevron chevron-1"></div>
-        <div class="chevron-white chevron-1"></div>
-
-        <!-- Circle 2 -->
-        <div class="circle-wrapper circle-wrapper-2">
-          <p class="circle-caption">2. Extraction</p>
-          <span class="circle circle-2"></span>
-          <p class="circle-subcaption">
-            Total Impact: {{ processFlowTotals["XXCFIR_REVENUE_EXTRACT_ALL"] }}
-          </p>
-        </div>
-
-        <!-- Chevron 2 -->
-        <div class="chevron chevron-2"></div>
-        <div class="chevron-white chevron-2"></div>
-
-        <!-- Circle 3 -->
-        <div class="circle-wrapper circle-wrapper-3">
-          <p class="circle-caption">3. Distribution</p>
-          <span class="circle circle-3"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ processFlowTotals["XXCFIR_REVENUE_DIST_ALL"] || "N/A" }}
-          </p>
-        </div>
-
-        <!-- Chevron 3 -->
-        <div class="chevron chevron-3"></div>
-        <div class="chevron-white chevron-3"></div>
-
-        <!-- Circle 4 -->
-        <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">4. Summarization</p>
-          <span class="circle circle-4"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ processFlowTotals["XXCFIR_ROL_XLA_SUMMARY"] || "N/A" }}
-          </p>
-        </div>
-
-        <!-- Chevron 4 -->
-        <div class="chevron chevron-4"></div>
-        <div class="chevron-white chevron-4"></div>
-
-        <!-- Circle 5 -->
-        <div class="circle-wrapper circle-wrapper-5">
-          <p class="circle-caption">5. SLA</p>
-          <span class="circle circle-5"></span>
-          <p class="circle-subcaption">
-            Total Impact: {{ processFlowTotals["XLA_AE_HEADERS"] || "N/A" }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
+></app-user-assignment>
 
 <ng-template #warningToolTip>
   <span>
@@ -91,41 +21,77 @@
   </span>
 </ng-template>
 
-<div class="modal-overlay" *ngIf="openChartModal" (click)="closeModal()">
-  <div
-    class="callout-box"
-    style="width: fit-content; padding: 0"
-    (click)="$event.stopPropagation()"
-  >
-    <div
-      style="
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      "
-    >
-      <h4 style="font-weight: 600; padding: 1.7vh 1.5vh 0vh 1.6vh">
-        Historical Error Trends
-      </h4>
-      <button mat-icon-button (click)="closeModal()">
-        <i class="svg-icon close-icon"></i>
-      </button>
-    </div>
-    <div class="modal-body">
-      <app-loading-symbol *ngIf="chartLoading"></app-loading-symbol>
-      <canvas id="historicalErrorTrend"></canvas>
+<ng-template #processToolTip>
+  <div class="flowchart-container">
+    <br />
+    <div class="slider">
+      <div class="slider-bar">
+        <!-- Circle 1 -->
+        <div class="circle-wrapper circle-wrapper-1">
+          <p class="circle-caption">1. SBP Staging</p>
+          <span class="circle circle-1"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ processFlowTotals["1 - SBP Staging"] || "N/A" }}
+          </p>
+        </div>
+
+        <!-- Chevron 1 -->
+        <div class="chevron chevron-1"></div>
+        <div class="chevron-white chevron-1"></div>
+
+        <!-- Circle 2 -->
+        <div class="circle-wrapper circle-wrapper-2">
+          <p class="circle-caption" style="text-wrap: wrap">
+            2. Inv Orchestration Layer
+          </p>
+          <span class="circle circle-2"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ processFlowTotals["2 - Invoice Orchestration Layer"] || "N/A" }}
+          </p>
+        </div>
+
+        <!-- Chevron 2 -->
+        <div class="chevron chevron-2"></div>
+        <div class="chevron-white chevron-2"></div>
+
+        <!-- Circle 3 -->
+        <div class="circle-wrapper circle-wrapper-3">
+          <p class="circle-caption">3. Auto-Invoice</p>
+          <span class="circle circle-3"></span>
+          <p class="circle-subcaption">
+            Total Impact:<span
+              [innerHTML]="
+                (totalImpactData$ | async)?.tab2Totals['3 - Auto Invoice']
+              "
+            ></span>
+          </p>
+        </div>
+
+        <!-- Chevron 3 -->
+        <div class="chevron chevron-3"></div>
+        <div class="chevron-white chevron-3"></div>
+
+        <!-- Circle 4 -->
+        <div class="circle-wrapper circle-wrapper-4">
+          <p class="circle-caption">4. Post-Invoice</p>
+          <span class="circle circle-4"></span>
+          <p class="circle-subcaption">Total Impact: N/A</p>
+        </div>
+
+        <!-- Chevron 4 -->
+        <div class="chevron chevron-4"></div>
+        <div class="chevron-white chevron-4"></div>
+      </div>
     </div>
   </div>
-</div>
-
-<!-- ROL Error Summary Data Section (Right) -->
+</ng-template>
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
       <h5 class="section-title action-buttons">
-        ROL Error Summary
-
+        {{ componentName }} Error Summary
         <span class="action-buttons" *ngIf="selection.selected.length === 1">
           &nbsp;&nbsp;
           <!-- <button
@@ -166,21 +132,13 @@
             {{ summaryLoadTime }}
           </p>
         </div>
-        <div style="display: flex; margin: 0vw 0vw 0 0">
-          <!-- <p
-            class="card-subtitle"
-            style="padding: 0.9vw 0vw 0 0; font-size: 12px"
-          >
-            {{ summaryLoadTime }}
-          </p> -->
-        </div>
         <button
           mat-icon-button
           (click)="
             exportTableToExcel(
-              rolErrorSummaryData.data,
-              'ROL Error Summary Data',
-              'ROL_Error_Summary_Data'
+              summaryDatasource.data,
+              'Pre Invoicing Error Summary',
+              'Pre_Invoicing_Error_Summary'
             )
           "
         >
@@ -189,11 +147,11 @@
       </div>
     </div>
 
-    <ng-container *ngIf="rolErrorSummaryData?.data?.length">
+    <ng-container *ngIf="summaryDatasource?.data?.length">
       <div class="table-container" style="overflow-y: hidden !important">
         <table
           mat-table
-          [dataSource]="rolErrorSummaryData"
+          [dataSource]="summaryDatasource"
           class="custom-table table-responsive"
         >
           <ng-container
@@ -210,7 +168,7 @@
               </mat-checkbox>
             </td>
           </ng-container>
-          <ng-container *ngFor="let column of rolErrorColumns">
+          <ng-container *ngFor="let column of summaryColumns">
             <ng-container [matColumnDef]="column">
               <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
                 <ng-container [ngSwitch]="column">
@@ -233,7 +191,6 @@
                       ></i>
                     </span>
                   </ng-container>
-
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                     <span
                       [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
@@ -253,12 +210,10 @@
                 mat-cell
                 *matCellDef="let element"
                 [class.comments-cell]="column === 'COMMENTS'"
-                [class.no-wrap]="column === 'APPLICATION_NAME'"
-                class="nowrap"
               >
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
-                    {{ subAppMapping(element[column]) }}
+                    {{ element[column] }}
                   </ng-container>
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
@@ -281,8 +236,9 @@
                         [ngClass]="{
                           highlight: element.PERIOD_NAME !== periodName
                         }"
-                        >{{ element[column] }}</span
                       >
+                        {{ element[column] }}
+                      </span>
                     </div>
                   </ng-container>
                   <ng-container *ngSwitchCase="'APPLICATION_NAME'">
@@ -301,16 +257,16 @@
             </ng-container>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="rolErrorDisplayedColumns"></tr>
+          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
           <tr
             mat-row
-            *matRowDef="let row; columns: rolErrorDisplayedColumns"
+            *matRowDef="let row; columns: summaryDisplayedColumns"
           ></tr>
         </table>
       </div>
     </ng-container>
 
-    <ng-container *ngIf="!rolErrorSummaryData?.data?.length">
+    <ng-container *ngIf="!summaryDatasource?.data?.length">
       <div class="loading-container">
         <app-loading-symbol></app-loading-symbol>
         <br /><br /><br />
@@ -319,34 +275,25 @@
 
     <mat-paginator
       #summaryPaginator
-      [pageSize]="5"
+      [pageSize]="10"
       length="totalSummaryRecords"
       [pageSizeOptions]="[]"
       showFirstLastButtons
       aria-label="Select page"
     ></mat-paginator>
-
-    <!-- <ng-container
-        *ngIf="!rolErrorSummaryData?.data?.length && !summaryLoading"
-      >
-        <div class="loading-container">
-          <div class="card-subtitle">No Data to Display</div>
-          <br /><br /><br />
-        </div>
-      </ng-container> -->
   </div>
 </div>
+<br />
 
-<!-- ROL Transaction Data Section -->
 <div class="container">
   <div class="header-container">
-    <h5 class="section-title">ROL Transaction Details</h5>
+    <h5 class="section-title">{{ componentName }} Error Details</h5>
     <div class="action-buttons">
-      <button mat-icon-button (click)="openChart()">
+      <button mat-icon-button>
         <i class="svg-icon chart-icon"></i>
       </button>
-      <button mat-icon-button (click)="export()">
-        <i class="svg-icon download-icon"></i>
+      <button mat-icon-button>
+        <i class="svg-icon download-icon" (click)="export()"></i>
       </button>
     </div>
   </div>
@@ -365,22 +312,14 @@
         [dataSource]="isFiltered ? filtereddataSource : dataSource"
         class="custom-table"
       >
-        <ng-container *ngFor="let column of displayedColumns">
+        <ng-container *ngFor="let column of detailsDisplayedColumns">
           <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef class="no-wrap">
               {{ replaceUnderscore(column) }}
             </th>
 
-            <td
-              mat-cell
-              *matCellDef="let element"
-              [class.error-message-cell]="column === 'error_MESSAGE'"
-              [class.no-wrap]="column === 'application_NAME'"
-            >
+            <td mat-cell *matCellDef="let element">
               <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchCase="'process_FLOW'">
-                  {{ subAppMapping(element[column]) }}
-                </ng-container>
                 <ng-container *ngSwitchDefault>
                   {{ element[column] }}
                 </ng-container>
@@ -389,8 +328,8 @@
           </ng-container>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: detailsDisplayedColumns"></tr>
       </table>
     </div>
   </ng-container>
@@ -420,43 +359,6 @@
   ></mat-paginator>
 </div>
 
-<!-- <div class="widget-tray">
-  <div class="callout-box">
-    <div class="box-header">Applications Monitored</div>
-    <div class="box-body">
-      <li>
-        <ul>
-          Cisco Offer Attribution
-        </ul>
-        <ul>
-          Cisco NAT Adjustments
-        </ul>
-        <ul>
-          Cisco Manual Adjustments
-        </ul>
-        <ul>
-          Revenue Attribution
-        </ul>
-        <ul>
-          Cisco Partner Rebates
-        </ul>
-        <ul>
-          Cisco Service Rebates
-        </ul>
-        <ul>
-          Cisco Open RMA
-        </ul>
-        <ul>
-          Cisco Two Tier
-        </ul>
-        <ul>
-          Cisco Residual Adjustments
-        </ul>
-      </li>
-    </div>
-  </div>
-</div> -->
-
-<br /><br /><br />
-<!-- </div>
-</div> -->
+<br />
+<br />
+<br />

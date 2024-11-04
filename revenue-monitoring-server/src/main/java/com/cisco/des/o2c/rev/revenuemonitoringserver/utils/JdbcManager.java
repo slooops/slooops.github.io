@@ -73,8 +73,8 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
     }
 
-    public List<Map<String, Object>> queryForListWithParamsAutoInvoice(String sql, String appName, String operatingUnit, String periodName, String transactionDate){
-        return jdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, transactionDate);
+    public List<Map<String, Object>> queryForListWithParamsAutoInvoice(String sql, String appName, String operatingUnit, String periodName, String uniqueId){
+        return jdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, uniqueId);
     }
 
     public int deleteSelectedDeals(String sql, String username, int dealId, String salesOrder, String salesOrder2){
@@ -96,29 +96,33 @@ public class JdbcManager {
     public int updateRolErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, String periodName, String appName, String subApp, String orgName){
         return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, periodName, appName, subApp, orgName);
     }
-    public int getTotalRecords(String sql) {
-        return jdbcTemplate.queryForObject(sql, Integer.class);
+
+    public int updateAutoInvoiceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String ouName, String processFlow, String periodName, String batchSourceName, String creationDate){
+        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
+    }
+//    public int getTotalRecords(String sql) {
+//        return jdbcTemplate.queryForObject(sql, Integer.class);
+//    }
+
+//    public int getTotalRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
+//        return jdbcTemplate.queryForObject(sql, new Object[]{periodName, ouName, appName, sequenceNum}, Integer.class);
+//    }
+
+    public List<RolTransactionData> getRolTransactionData(String sql) {
+//        int startRow = (page * size) + 1;
+//        int endRow = (page + 1) * size;
+
+        return jdbcTemplate.query(sql, new RecordRowMapper());
     }
 
-    public int getTotalRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
-        return jdbcTemplate.queryForObject(sql, new Object[]{periodName, ouName, appName, sequenceNum}, Integer.class);
+    public List<RolTransactionData> getRolTransactionDataFilter(String sql, String periodName, String ouName, String applicationName, int uniqueId) {
+//        int startRow = (page * size) + 1;
+//        int endRow = (page + 1) * size;
+
+        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, applicationName, uniqueId}, new RecordRowMapper());
     }
 
-    public List<RolTransactionData> getRolTransactionData(String sql, int page, int size) {
-        int startRow = (page * size) + 1;
-        int endRow = (page + 1) * size;
-
-        return jdbcTemplate.query(sql, new Object[]{startRow, endRow}, new RecordRowMapper());
-    }
-
-    public List<RolTransactionData> getRolTransactionDataFilter(String sql, int page, int size, String periodName, String ouName, String applicationName, int sequenceNum) {
-        int startRow = (page * size) + 1;
-        int endRow = (page + 1) * size;
-
-        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, applicationName, sequenceNum, startRow, endRow }, new RecordRowMapper());
-    }
-
-    public List<RolTransactionData> getRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
-        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, appName, sequenceNum}, new RecordRowMapper());
-    }
+//    public List<RolTransactionData> getRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
+//        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, appName, sequenceNum}, new RecordRowMapper());
+//    }
 }

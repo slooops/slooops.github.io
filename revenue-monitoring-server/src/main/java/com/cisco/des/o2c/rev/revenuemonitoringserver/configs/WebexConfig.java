@@ -16,8 +16,13 @@ public class WebexConfig {
     public String webexUrl;
     @Value("${webex.auth.token}")
     public String authToken;
-    @Value("${webex.room.id}")
-    public String roomId;
+    @Value("${webex.room.id.revenue.accounting}")
+    public String roomIdRevenueAccounting;
+
+    @Value("${webex.auth.token.invoicing}")
+    public String authTokenInvoicing;
+    @Value("${webex.room.id.invoicing}")
+    public String roomIdInvoicing;
 
     @Bean
     public WebClient.Builder webClientBuilder() {
@@ -28,6 +33,14 @@ public class WebexConfig {
         return this.webexUrl;
     }
 
+    @Bean(name = "authTokenInvoicing")
+    public String getAuthTokenInvoicing() {
+        byte[] decodedBytesAuthToken = Base64.getDecoder().decode(this.authTokenInvoicing);
+        String authTokenInvoicing = new String(decodedBytesAuthToken);
+        System.out.println(authTokenInvoicing);
+        return authTokenInvoicing;
+    }
+
     @Bean(name = "authToken")
     public String getAuthToken() {
         byte[] decodedBytesAuthToken = Base64.getDecoder().decode(this.authToken);
@@ -35,11 +48,18 @@ public class WebexConfig {
         return authToken;
     }
 
-    @Bean(name = "roomId")
-    public String getRoomId() {
-        byte[] decodedBytesRoomId = Base64.getDecoder().decode(this.roomId);
-        String roomId = new String(decodedBytesRoomId);
-        return roomId;
+    @Bean(name = "roomIdRevenueAccounting")
+    public String getRoomIdRevenueAccounting() {
+        byte[] decodedBytesRoomId = Base64.getDecoder().decode(this.roomIdRevenueAccounting);
+        String roomIdRevenueAccounting = new String(decodedBytesRoomId);
+        return roomIdRevenueAccounting;
+    }
+
+    @Bean(name = "roomIdInvoicing")
+    public String getRoomIdInvoicing() {
+        byte[] decodedBytesRoomId = Base64.getDecoder().decode(this.roomIdInvoicing);
+        String roomIdInvoicing = new String(decodedBytesRoomId);
+        return roomIdInvoicing;
     }
 
 }

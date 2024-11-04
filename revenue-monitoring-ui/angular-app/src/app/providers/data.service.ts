@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { errorDashModel } from '../error-dash/error-dash.component';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { ApiHttpService } from './http.service';
 
 @Injectable({
@@ -11,9 +11,33 @@ export class DataService {
   allErrorsSelected: boolean = true;
   userRoles: string[] = [];
   username: any;
+  assignmentUsers: any;
   private loadingSubject = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: ApiHttpService) {}
+  private tab1Totals = new BehaviorSubject<{
+    [key: string]: string | number;
+  } | null>(null);
+  private tab2Totals = new BehaviorSubject<{
+    [key: string]: string | number;
+  } | null>(null);
+  private tab3Totals = new BehaviorSubject<{
+    [key: string]: string | number;
+  } | null>(null);
+  totalImpactData$: Observable<any>;
+
+  constructor(private http: ApiHttpService) {
+    this.totalImpactData$ = combineLatest([
+      this.tab1Totals,
+      this.tab2Totals,
+      this.tab3Totals,
+    ]).pipe(
+      map(([tab1, tab2, tab3]) => ({
+        tab1Totals: tab1,
+        tab2Totals: tab2,
+        tab3Totals: tab3,
+      }))
+    );
+  }
 
   setErrorData(errorData: errorDashModel[]) {
     this.selectedErrorData = errorData;
@@ -80,5 +104,25 @@ export class DataService {
 
   getUsername() {
     return this.username;
+  }
+
+  setAssignmentUsers(assignmentUsers: any) {
+    this.assignmentUsers = assignmentUsers;
+  }
+
+  getAssignmentUsers() {
+    return this.assignmentUsers;
+  }
+
+  setTab1Data(data: { [key: string]: string | number }): void {
+    this.tab1Totals.next(data);
+  }
+
+  setTab2Data(data: { [key: string]: string | number }): void {
+    this.tab2Totals.next(data);
+  }
+
+  setTab3Data(data: { [key: string]: string | number }): void {
+    this.tab3Totals.next(data);
   }
 }

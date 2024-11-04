@@ -23,6 +23,7 @@ export class MenuComponent implements OnInit {
   ngOnInit(): void {
     this.getUserId();
     this.getUserRoles();
+    this.getAssignmentUsers();
   }
 
   isAdmin: boolean = false;
@@ -48,5 +49,15 @@ export class MenuComponent implements OnInit {
 
   checkRole(role: String) {
     return this.rolesReady && this.userRoles.includes(role);
+  }
+
+  assignmentUsers: any;
+
+  getAssignmentUsers() {
+    this.http.get('summary-assignment-users').subscribe((data) => {
+      console.log('Assignment Users:', data);
+      this.assignmentUsers = data;
+      this.dataService.setAssignmentUsers(this.assignmentUsers);
+    });
   }
 }

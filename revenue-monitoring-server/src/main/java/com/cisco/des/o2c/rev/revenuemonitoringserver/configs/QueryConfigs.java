@@ -276,8 +276,15 @@ public class QueryConfigs { // TODO
     @Value(("${rol.transaction.filter.data.download.q}"))
     public String rolTransactionFilterDataDownload;
 
+    @Value(("${auto.invoice.errors.summary.update.query}"))
+    public String autoInvoiceErrorsSummaryUpdate;
+
     @Value(("${wd0.volumes.q}"))
     public String wd0Volumes;
+
+    @Value(("${summary.assignment.users.query}"))
+    public String summaryAssignmentUsers;
+
     @Bean(name = "autoInvoiceErrorSummaryView")
     public String getAutoInvoiceErrorSummaryView() {
         return this.autoInvoiceErrorSummaryView;
@@ -723,5 +730,13 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "wd0Volumes" )
     public String getWd0Volumes() {return this.wd0Volumes; }
+
+    @Bean( name = "autoInvoiceErrorsSummaryUpdate" )
+    public String getAutoInvoiceErrorsSummaryUpdate() {return this.autoInvoiceErrorsSummaryUpdate; }
+
+    @Bean( name = "summaryAssignmentUsers" )
+    public String getSummaryAssignmentUsers() {return this.summaryAssignmentUsers; }
+
+
 
 }

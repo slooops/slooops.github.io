@@ -1,17 +1,27 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { Observable } from 'rxjs';
+import { DataService } from 'src/app/providers/data.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import * as XLSX from 'xlsx';
+import { Chart } from 'chart.js';
 
 @Component({
   selector: 'app-auto-invoicing',
   templateUrl: './auto-invoicing.component.html',
   styleUrl: './auto-invoicing.component.css',
 })
-export class AutoInvoicingComponent {
+export class AutoInvoicingComponent implements OnInit, AfterViewInit {
   autoInvoicingSummary: AutoInvoicingErrorSummary[];
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
@@ -20,11 +30,31 @@ export class AutoInvoicingComponent {
   constructor(
     private http: ApiHttpService,
     private datePipe: DatePipe,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dataService: DataService
   ) {}
   ngOnInit(): void {
+    this.getRolErrorSummaryPeriodStatus();
     this.getAutoInvoiceErrorSummary();
     this.getAutoInvoiceErrorDetails();
+    this.totalImpactData$ = this.dataService.totalImpactData$;
+  }
+
+  ngAfterViewInit(): void {
+    // this.paginator.page.subscribe((event: PageEvent) => {
+    //   if (this.isFiltered) {
+    //     this.getTransactionDataFiltered(
+    //       this.selectedRows,
+    //       event.pageIndex,
+    //       event.pageSize
+    //     );
+    //   } else {
+    //     this.getRolTransactionData(event.pageIndex, event.pageSize);
+    //   }
+    // });
+    if (this.openChartModal) {
+      this.getChartTotals();
+    }
   }
 
   summaryColumns: string[] = [
@@ -39,20 +69,51 @@ export class AutoInvoicingComponent {
     'ASSIGNED_DATE',
     'COMMENTS',
   ];
-
+  totalImpactData$: Observable<any>;
   summaryDisplayedColumns: string[] = [];
-
   selection = new SelectionModel<any>(true, []);
   selectedData: any;
   totalSummaryRecords: number = 0;
+  summaryLoadTime: string;
+  periodName: string = '';
+  periodEnd: string = '';
+  summaryLoading: boolean = true;
+  processFlowTotals: { [key: string]: string | number };
+  originalData: any[] = [];
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | '' = '';
+  selectedRows: any[] = [];
+  dataSource: any;
+  autoInvocingErrorDetails: AutoInvoicingErrorDetails[];
+  autoInvocingErrorDetailsFiltered: AutoInvoicingErrorDetails[];
+  isFiltered: boolean = false;
+  filtereddataSource: any;
+  totalRecords: number = 0;
+  isLoading: boolean = false;
+  selectedSummaryData: AutoInvoicingErrorSummary[] = [];
+  isModalOpen: boolean = false;
+  totalRecordsFiltered: number = 0;
+  openChartModal: boolean = false;
+  chart: any;
+  chartLoading: boolean = true;
+  getRolErrorSummaryPeriodStatus() {
+    this.http.get('monitoring-period-status').subscribe((data: any) => {
+      this.periodName = data[0].PERIOD_NAME;
+      this.periodEnd = this.dateTransform(data[0].END_DATE);
+    });
+  }
 
   getAutoInvoiceErrorSummary() {
+    this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('auto-invoice-error-summary').subscribe((data: any) => {
+      this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
+      this.dataService.setTab2Data(this.processFlowTotals);
       console.log(data);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
       this.autoInvoicingSummary = this.formatData(data);
       this.autoInvoicingSummary.forEach((row) => {
         row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+        row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
       });
       this.originalData = this.autoInvoicingSummary;
 
@@ -74,13 +135,12 @@ export class AutoInvoicingComponent {
         //   this.paginator.pageSize = pageSize;
         //   this.cdr.detectChanges();
         // });
+        this.summaryLoading = false;
+        this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
       }
     });
   }
-  originalData: any[] = [];
 
-  sortColumn: string | null = null;
-  sortDirection: 'asc' | 'desc' | '' = '';
   sortData(column: string) {
     if (this.sortColumn === column) {
       this.sortDirection =
@@ -157,8 +217,8 @@ export class AutoInvoicingComponent {
         formattedRow[amountKey] = `$${Number(row[amountKey]).toLocaleString(
           undefined,
           {
-            minimumFractionDigits: 2, // Always show at least two decimal places
-            maximumFractionDigits: 2, // Restrict to two decimal places
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
           }
         )}`;
       }
@@ -166,7 +226,6 @@ export class AutoInvoicingComponent {
       return formattedRow;
     });
   }
-  selectedRows: any[] = []; // Store all selected rows
 
   onRowSelectionChange(event: MatCheckboxChange, row: any) {
     this.selection.toggle(row);
@@ -193,10 +252,6 @@ export class AutoInvoicingComponent {
     }
   }
 
-  dataSource: any;
-  autoInvocingErrorDetails: AutoInvoicingErrorDetails[];
-  autoInvocingErrorDetailsFiltered: AutoInvoicingErrorDetails[];
-
   detailsDisplayedColumns: string[] = [
     'PERIOD_NAME',
     'APPLICATION_NAME',
@@ -208,11 +263,6 @@ export class AutoInvoicingComponent {
     'INTERFACE_LINE_ID',
     'ERROR_MESSAGE',
   ];
-
-  isFiltered: boolean = false;
-  filtereddataSource: any;
-  totalRecords: number = 0;
-  isLoading: boolean = false;
 
   getAutoInvoiceErrorDetails() {
     this.isLoading = true;
@@ -255,7 +305,6 @@ export class AutoInvoicingComponent {
       },
     });
   }
-  totalRecordsFiltered: number = 0;
 
   getAutoInvoiceErrorDetailsFiltered(data: any) {
     this.isLoading = true;
@@ -263,16 +312,14 @@ export class AutoInvoicingComponent {
     const periodNames = data.map((row) => row.PERIOD_NAME);
     const ouNames = data.map((row) => row.ORG_NAME);
     const appNames = data.map((row) => row.APPLICATION_NAME);
-    const transactionDates = data.map((row) => row.TRANSACTION_DATE);
+    const uniqueIds = data.map((row) => row.TRANSACTION_DATE);
 
     const pageRequest = {
       periodNames: periodNames.join(','),
       ouNames: ouNames.join(','),
       appNames: appNames.join(','),
-      transactionDates: transactionDates.join(','),
+      uniqueIds: uniqueIds.join(','),
     };
-
-    console.log(pageRequest);
 
     this.http
       .get('auto-invoice-error-details-filtered', { params: pageRequest })
@@ -317,7 +364,7 @@ export class AutoInvoicingComponent {
 
   replaceUnderscore(value: string | null | undefined): string {
     if (!value) {
-      return ''; // Return an empty string if value is null or undefined
+      return '';
     }
 
     const specialWords = [
@@ -343,16 +390,18 @@ export class AutoInvoicingComponent {
       .replace(/_/g, ' ')
       .split(' ')
       .map((word) => {
-        const lowerWord = word.toLowerCase();
-        if (specialWords.includes(lowerWord)) {
-          return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+        if (word !== 'IOL') {
+          const lowerWord = word.toLowerCase();
+          if (specialWords.includes(lowerWord)) {
+            return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+          }
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        } else {
+          return word;
         }
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join(' ');
   }
-  selectedSummaryData: AutoInvoicingErrorSummary[] = [];
-  isModalOpen: boolean = false;
 
   viewDetails() {
     this.selectedSummaryData = this.selection.selected;
@@ -375,17 +424,199 @@ export class AutoInvoicingComponent {
 
   closeAssignModal(event: any): void {
     this.isModalOpen = false;
-    // if (event === 'successful') {
-    //   this.selection.clear();
-    //   this.rolErrorSummaryData = null;
-    //   this.selectedRows = [];
-    //   this.isFiltered = false;
-    //   this.filtereddataSource = null;
-    //   this.cdr.detectChanges();
-    //   setTimeout(() => {
-    //     this.getRolErrorSummaryData();
-    //   }, 1000);
-    // }
+    if (event === 'successful') {
+      this.selection.clear();
+      this.summaryDatasource = null;
+      this.selectedRows = [];
+      this.isFiltered = false;
+      this.filtereddataSource = null;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.getAutoInvoiceErrorSummary();
+      }, 1000);
+    }
+  }
+
+  calculateTotalsByProcessFlow(data: any[]): {
+    [key: string]: string | number;
+  } {
+    const totals: { [key: string]: number } = {
+      '3 - Auto Invoice': 0,
+    };
+
+    data.forEach((item) => {
+      if (item.PROCESS_FLOW !== null) {
+        const processFlowKey = item.PROCESS_FLOW;
+
+        if (totals.hasOwnProperty(processFlowKey)) {
+          totals[processFlowKey] += Number(item.AMOUNT);
+        }
+      }
+    });
+
+    const formattedTotals: { [key: string]: string | number } = {};
+    Object.keys(totals).forEach((key) => {
+      formattedTotals[key] =
+        totals[key] === 0
+          ? '0'
+          : totals[key] === undefined || totals[key] === null
+          ? 'N/A'
+          : totals[key] >= 1_000_000
+          ? `$${(totals[key] / 1_000_000).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}M`
+          : `$${totals[key].toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`;
+    });
+
+    return formattedTotals;
+  }
+
+  export() {
+    if (this.isFiltered) {
+      this.exportTableToExcel(
+        this.autoInvocingErrorDetailsFiltered,
+        'AutoInv Details Filtered',
+        'AutoInv_Details_Filtered'
+      );
+    } else {
+      this.exportTableToExcel(
+        this.autoInvocingErrorDetails,
+        'AutoInv Error Details',
+        'AutoInv_Error_Details'
+      );
+    }
+  }
+
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, `${filename}.xlsx`);
+  }
+
+  getChartTotals() {
+    this.chartLoading = true;
+
+    this.http.get('rol-chart-totals').subscribe((data: any) => {
+      // Extract labels and counts from the API response
+      const labels = data.map((entry) => entry.PERIOD_NAME);
+      const counts = data.map((entry) => entry.COUNT_RECORDS);
+
+      // Fetch the details data to pass to the chart
+      this.http.get('rol-chart-details').subscribe((detailsData: any) => {
+        // Group details data by PERIOD_NAME
+        const groupedData = detailsData.reduce((acc, curr) => {
+          const period = curr.PERIOD_NAME;
+
+          // Initialize an array for the period if it doesn't exist
+          if (!acc[period]) {
+            acc[period] = [];
+          }
+
+          // Push the current record into the array for its period
+          acc[period].push(curr);
+
+          return acc;
+        }, {});
+
+        // Create chart with fetched data and grouped details
+        this.createHistoricalErrorTrendChart(labels, counts, groupedData);
+        this.chartLoading = false;
+      });
+    });
+  }
+
+  // Create the chart with dynamic data
+  createHistoricalErrorTrendChart(
+    labels: string[],
+    data: number[],
+    groupedData: any
+  ) {
+    const ctx = document.getElementById(
+      'historicalErrorTrend'
+    ) as HTMLCanvasElement;
+
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels, // Use dynamic labels from chart totals
+        datasets: [
+          {
+            label: 'Number of Errors',
+            data: data, // Use dynamic data from chart totals
+            borderColor: '#007dab',
+            backgroundColor: 'rgba(0, 125, 171, 0.2)',
+            fill: true,
+            pointRadius: 5,
+            tension: 0.2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Time (Months)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Number of Errors',
+            },
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          tooltip: {
+            displayColors: false, // Remove color box
+            callbacks: {
+              // Customize the tooltip content
+              label: (tooltipItem: any) => {
+                const periodName = tooltipItem.label; // Get the month (PERIOD_NAME)
+                const totalErrors = tooltipItem.raw; // Get the total errors from the chart data
+                const details = groupedData[periodName]; // Get the grouped details for this month
+
+                // Initialize an array to store the tooltip lines
+                const tooltipLines = [
+                  `Total Errors: ${totalErrors}`, // Display the total number of errors
+                ];
+
+                // Format the grouped details
+                if (details) {
+                  tooltipLines.push(
+                    ...details.map(
+                      (item: any) =>
+                        `${item.APPLICATION_NAME}: ${item.COUNT_RECORDS}`
+                    )
+                  );
+                } else {
+                  tooltipLines.push('No details available');
+                }
+
+                return tooltipLines; // Return the tooltip content as an array of strings
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  openChart() {
+    this.openChartModal = true;
+
+    setTimeout(() => {
+      // Initialize the chart after the modal is visible
+      this.getChartTotals();
+    }, 0);
   }
 }
 

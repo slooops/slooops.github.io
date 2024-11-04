@@ -1,42 +1,66 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 import { SelectionModel } from '@angular/cdk/collections';
-import { AssignDialogComponent } from './assign-dialog/assign-dialog.component';
-import { MatDialog } from '@angular/material/dialog';
-import { Chart, ChartConfiguration, ChartData, ChartOptions } from 'chart.js';
+import { Chart } from 'chart.js';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { DataService } from '../../providers/data.service';
 import { DatePipe } from '@angular/common';
-import { MatSort } from '@angular/material/sort';
 @Component({
   selector: 'app-rol',
   templateUrl: './rol.component.html',
   styleUrls: ['./rol.component.css'],
 })
 export class RolComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort, { static: false }) sort!: MatSort;
+  @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
+  @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
 
   rolSummaryModel: RolErrorSummaryData[];
 
   rolErrorSummaryData: any;
   rolErrorDisplayedColumns: string[] = [];
-  rolErrorColumns: string[] = [];
+  rolErrorColumns: string[] = [
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'ORG_NAME',
+    'AMOUNT',
+    'TRANSACTION_DATE',
+    'AGING',
+    'ASSIGNED_TO',
+    'ASSIGNED_DATE',
+    'COMMENTS',
+    // 'CURRENCY_CODE',
+    // 'ERROR_APPLICATION',
+  ];
 
   isModalOpen: boolean = false;
   openChartModal: boolean = false;
+  totalSummaryRecords: number = 0;
 
   chart: any;
 
   dataSource: any;
   rolTransactionData: RolTransactionData[];
-  rolTransactionDownloadData: RolTransactionData[];
-  rolTransactionDownloadDataFiltered: RolTransactionData[];
   rolTransactionDataFiltered: RolTransactionData[];
-  displayedColumns: string[] = [];
+  displayedColumns: string[] = [
+    'period_NAME',
+    'application_NAME',
+    'process_FLOW',
+    'org_NAME',
+    'amount',
+    'process_STATUS',
+    'source',
+    'transaction_ID',
+    'order_LINE_ID',
+    'error_MESSAGE',
+  ];
 
   subApplicationMapping = {
     XXCFIR_REV_INTERFACE_ALL: '1. Interface',
@@ -57,34 +81,42 @@ export class RolComponent implements OnInit {
   periodEnd: string = '';
   processFlowTotals: { [key: string]: string | number };
   originalData: any[] = [];
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' | '' = '';
+  isFiltered: boolean = false;
+  filtereddataSource: any;
+  selectedRows: any[] = []; // Store all selected rows
+
+  selection = new SelectionModel<any>(true, []);
+  selectedData: any;
+
+  selectedSummaryData: RolErrorSummaryData[] = [];
 
   constructor(
     private http: ApiHttpService,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog,
-    private dataService: DataService,
     private datePipe: DatePipe
   ) {}
 
   ngOnInit(): void {
-    this.getRolErrorSummaryData();
     this.getRolErrorSummaryPeriodStatus();
-    this.getRolTransactionData(0, this.pageSize);
-    this.downloadTransactionData();
+    this.getRolErrorSummaryData();
+    this.getRolTransactionData();
+    // this.downloadTransactionData();
   }
 
   ngAfterViewInit(): void {
-    this.paginator.page.subscribe((event: PageEvent) => {
-      if (this.isFiltered) {
-        this.getTransactionDataFiltered(
-          this.selectedRows,
-          event.pageIndex,
-          event.pageSize
-        );
-      } else {
-        this.getRolTransactionData(event.pageIndex, event.pageSize);
-      }
-    });
+    // this.paginator.page.subscribe((event: PageEvent) => {
+    //   if (this.isFiltered) {
+    //     this.getTransactionDataFiltered(
+    //       this.selectedRows,
+    //       event.pageIndex,
+    //       event.pageSize
+    //     );
+    //   } else {
+    //     this.getRolTransactionData(event.pageIndex, event.pageSize);
+    //   }
+    // });
     if (this.openChartModal) {
       this.getChartTotals();
     }
@@ -94,24 +126,8 @@ export class RolComponent implements OnInit {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('rol-errors-summary').subscribe((data: any) => {
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
-      this.rolErrorColumns = [
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'AMOUNT',
-        'TRANSACTION_DATE',
-        'AGING',
-        'ASSIGNED_TO',
-        'ASSIGNED_DATE',
-        'COMMENTS',
-        // 'CURRENCY_CODE',
-        // 'ERROR_APPLICATION',
-      ];
       this.rolErrorDisplayedColumns = ['select', ...this.rolErrorColumns];
-
       this.rolSummaryModel = this.formatData(data);
-      console.log(this.rolSummaryModel);
       this.rolSummaryModel.forEach((row) => {
         row.AGING = this.getAging(row.TRANSACTION_DATE) + ' days';
         row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
@@ -125,13 +141,26 @@ export class RolComponent implements OnInit {
       this.rolErrorSummaryData = new MatTableDataSource<RolErrorSummaryData>(
         this.rolSummaryModel
       );
-      this.summaryLoading = false;
-      this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
+
+      if (this.summaryPaginator) {
+        if (this.rolErrorSummaryData.paginator !== this.summaryPaginator) {
+          this.rolErrorSummaryData.paginator = this.summaryPaginator;
+        }
+
+        this.totalSummaryRecords = this.rolSummaryModel.length;
+
+        // setTimeout(() => {
+        //   this.paginator.length = this.totalRecords;
+        //   this.paginator.pageIndex = pageIndex;
+        //   this.paginator.pageSize = pageSize;
+        //   this.cdr.detectChanges();
+        // });
+        this.summaryLoading = false;
+        this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
+      }
     });
   }
 
-  sortColumn: string | null = null;
-  sortDirection: 'asc' | 'desc' | '' = '';
   sortData(column: string) {
     if (this.sortColumn === column) {
       this.sortDirection =
@@ -195,7 +224,7 @@ export class RolComponent implements OnInit {
   }
 
   getRolErrorSummaryPeriodStatus() {
-    this.http.get('rol-errors-summary-period-status').subscribe((data: any) => {
+    this.http.get('monitoring-period-status').subscribe((data: any) => {
       this.periodName = data[0].PERIOD_NAME;
       this.periodEnd = this.dateTransform(data[0].END_DATE);
     });
@@ -205,51 +234,35 @@ export class RolComponent implements OnInit {
     return this.datePipe.transform(dateString, 'MM/dd/yyyy');
   }
 
-  isFiltered: boolean = false;
-  getRolTransactionData(pageIndex: number, pageSize: number) {
+  getRolTransactionData() {
     this.isLoading = true;
     this.isFiltered = false;
-    const pageRequest = {
-      page: pageIndex.toString(),
-      size: pageSize.toString(),
-    };
+    // const pageRequest = {
+    //   page: pageIndex.toString(),
+    //   size: pageSize.toString(),
+    // };
 
-    this.http.get('rol-transaction-data', { params: pageRequest }).subscribe({
+    this.http.get('rol-transaction-data').subscribe({
       next: (data: any) => {
         this.rolTransactionData = data.rolTransactionData;
-        this.totalRecords = data.totalRecords;
-        console.log(this.rolTransactionData);
-
-        if (this.rolTransactionData.length > 0) {
-          this.displayedColumns = [
-            'period_NAME',
-            'application_NAME',
-            'process_FLOW',
-            'org_NAME',
-            'amount',
-            'process_STATUS',
-            'source',
-            'transaction_ID',
-            'order_LINE_ID',
-            'error_MESSAGE',
-          ];
-        }
         this.rolTransactionData = this.formatData(this.rolTransactionData);
         this.dataSource = new MatTableDataSource<RolTransactionData>(
           this.rolTransactionData
         );
 
-        if (this.paginator) {
-          if (this.dataSource.paginator !== this.paginator) {
-            this.dataSource.paginator = this.paginator;
+        if (this.detailsPaginator) {
+          if (this.dataSource.paginator !== this.detailsPaginator) {
+            this.dataSource.paginator = this.detailsPaginator;
           }
 
-          setTimeout(() => {
-            this.paginator.length = this.totalRecords;
-            this.paginator.pageIndex = pageIndex;
-            this.paginator.pageSize = pageSize;
-            this.cdr.detectChanges();
-          });
+          this.totalRecords = this.rolTransactionData.length;
+
+          // setTimeout(() => {
+          //   this.paginator.length = this.totalRecords;
+          //   this.paginator.pageIndex = pageIndex;
+          //   this.paginator.pageSize = pageSize;
+          //   this.cdr.detectChanges();
+          // });
         }
       },
       error: (err) => {
@@ -262,46 +275,18 @@ export class RolComponent implements OnInit {
     });
   }
 
-  downloadTransactionData() {
-    this.http.get('rol-transaction-data-download').subscribe((data: any) => {
-      this.rolTransactionDownloadData = data;
-      console.log(this.rolTransactionDownloadData);
-    });
-  }
-
-  downloadFilteredTransactionData() {
-    const periodNames = this.selectedRows.map((row) => row.PERIOD_NAME);
-    const ouNames = this.selectedRows.map((row) => row.ORG_NAME);
-    const appNames = this.selectedRows.map((row) => row.APPLICATION_NAME);
-    const sequenceNums = this.selectedRows.map((row) => row.SEQUENCE_NUM);
-
-    const pageRequest = {
-      periodNames: periodNames.join(','),
-      ouNames: ouNames.join(','),
-      appNames: appNames.join(','),
-      sequenceNums: sequenceNums.join(','),
-    };
-    this.http
-      .get('rol-transaction-filter-data-download', { params: pageRequest })
-      .subscribe((data: any) => {
-        this.rolTransactionDownloadDataFiltered =
-          data.rolTransactionDataFiltered;
-        console.log(this.rolTransactionDownloadDataFiltered);
-      });
-  }
-
   export() {
     if (this.isFiltered) {
       console.log('filtered');
       this.exportTableToExcel(
-        this.rolTransactionDownloadDataFiltered,
+        this.rolTransactionDataFiltered,
         'ROL Transaction Data Filtered',
         'ROL_Transaction_Data_Filtered'
       );
     } else {
       console.log('unfiltered');
       this.exportTableToExcel(
-        this.rolTransactionDownloadData,
+        this.rolTransactionData,
         'ROL Transaction Data',
         'ROL_Transaction_Data'
       );
@@ -315,32 +300,19 @@ export class RolComponent implements OnInit {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   }
 
-  // viewTransactionDetails() {
-  //   this.selectedSummaryData = this.selection.selected;
-  //   if (!this.selectedSummaryData || this.selectedSummaryData.length === 0) {
-  //     console.error('No data selected.');
-  //     return;
-  //   }
-  //   this.getTransactionDataFiltered(this.selectedSummaryData, 0, 20);
-  // }
-
-  filtereddataSource: any;
-
-  getTransactionDataFiltered(data: any, pageIndex: number, pageSize: number) {
+  getTransactionDataFiltered(data: any) {
     this.isLoading = true;
     this.isFiltered = true;
     const periodNames = data.map((row) => row.PERIOD_NAME);
     const ouNames = data.map((row) => row.ORG_NAME);
     const appNames = data.map((row) => row.APPLICATION_NAME);
-    const sequenceNums = data.map((row) => row.SEQUENCE_NUM);
+    const uniqueIds = data.map((row) => row.SEQUENCE_NUM);
 
     const pageRequest = {
-      page: pageIndex.toString(),
-      size: pageSize.toString(),
       periodNames: periodNames.join(','),
       ouNames: ouNames.join(','),
       appNames: appNames.join(','),
-      sequenceNums: sequenceNums.join(','),
+      uniqueIds: uniqueIds.join(','),
     };
 
     this.http
@@ -349,7 +321,7 @@ export class RolComponent implements OnInit {
         next: (data: any) => {
           console.log(data);
           this.rolTransactionDataFiltered = data.rolTransactionDataFiltered;
-          this.totalRecordsFiltered = data.totalRecords;
+          // this.totalRecordsFiltered = data.totalRecords;
           if (this.rolTransactionDataFiltered.length > 0) {
             this.displayedColumns = [
               'period_NAME',
@@ -372,12 +344,11 @@ export class RolComponent implements OnInit {
             this.rolTransactionDataFiltered
           );
 
-          if (this.paginator) {
-            this.filtereddataSource.paginator = this.paginator;
+          if (this.detailsPaginator) {
+            this.filtereddataSource.paginator = this.detailsPaginator;
             setTimeout(() => {
-              this.paginator.length = this.totalRecordsFiltered;
-              this.paginator.pageIndex = pageIndex;
-              this.paginator.pageSize = pageSize;
+              this.detailsPaginator.length =
+                this.rolTransactionDataFiltered.length;
               this.cdr.detectChanges();
             });
           }
@@ -388,12 +359,10 @@ export class RolComponent implements OnInit {
         },
         complete: () => {
           this.isLoading = false;
-          this.downloadFilteredTransactionData();
+          // this.downloadFilteredTransactionData();
         },
       });
   }
-
-  selectedRows: any[] = []; // Store all selected rows
 
   onRowSelectionChange(event: MatCheckboxChange, row: any) {
     this.selection.toggle(row);
@@ -407,16 +376,15 @@ export class RolComponent implements OnInit {
     }
 
     if (this.selectedRows.length > 0) {
-      this.getTransactionDataFiltered(this.selectedRows, 0, 20);
+      this.getTransactionDataFiltered(this.selectedRows);
     } else {
       this.isFiltered = false;
       this.dataSource = new MatTableDataSource<RolTransactionData>(
         this.rolTransactionData
       );
+      this.dataSource.paginator = this.detailsPaginator;
       this.filtereddataSource = null;
-      this.paginator.length = this.totalRecords;
-      this.paginator.pageIndex = 0;
-      this.paginator.pageSize = 20;
+      this.detailsPaginator.length = this.totalRecords;
       this.cdr.detectChanges();
     }
   }
@@ -522,11 +490,6 @@ export class RolComponent implements OnInit {
       })
       .join(' ');
   }
-
-  selection = new SelectionModel<any>(true, []);
-  selectedData: any;
-
-  selectedSummaryData: RolErrorSummaryData[] = [];
 
   viewDetails() {
     this.selectedSummaryData = this.selection.selected;

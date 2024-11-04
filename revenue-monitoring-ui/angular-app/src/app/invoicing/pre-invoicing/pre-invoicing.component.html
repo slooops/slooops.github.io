@@ -18,11 +18,78 @@
     </ul>
   </span>
 </ng-template>
+
+<ng-template #processToolTip>
+  <div class="flowchart-container">
+    <br />
+    <div class="slider">
+      <div class="slider-bar">
+        <!-- Circle 1 -->
+        <div class="circle-wrapper circle-wrapper-1">
+          <p class="circle-caption">1. SBP Staging</p>
+          <span class="circle circle-1"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ processFlowTotals["1 - SBP Staging"] || "N/A" }}
+          </p>
+        </div>
+
+        <!-- Chevron 1 -->
+        <div class="chevron chevron-1"></div>
+        <div class="chevron-white chevron-1"></div>
+
+        <!-- Circle 2 -->
+        <div class="circle-wrapper circle-wrapper-2">
+          <p class="circle-caption" style="text-wrap: wrap">
+            2. Inv Orchestration Layer
+          </p>
+          <span class="circle circle-2"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ processFlowTotals["2 - Invoice Orchestration Layer"] || "N/A" }}
+          </p>
+        </div>
+
+        <!-- Chevron 2 -->
+        <div class="chevron chevron-2"></div>
+        <div class="chevron-white chevron-2"></div>
+
+        <!-- Circle 3 -->
+        <div class="circle-wrapper circle-wrapper-3">
+          <p class="circle-caption">3. Auto-Invoice</p>
+          <span class="circle circle-3"></span>
+          <p class="circle-subcaption">
+            Total Impact:<span
+              [innerHTML]="
+                (totalImpactData$ | async)?.tab2Totals['3 - Auto Invoice']
+              "
+            ></span>
+          </p>
+        </div>
+
+        <!-- Chevron 3 -->
+        <div class="chevron chevron-3"></div>
+        <div class="chevron-white chevron-3"></div>
+
+        <!-- Circle 4 -->
+        <div class="circle-wrapper circle-wrapper-4">
+          <p class="circle-caption">4. Post-Invoice</p>
+          <span class="circle circle-4"></span>
+          <p class="circle-subcaption">Total Impact: N/A</p>
+        </div>
+
+        <!-- Chevron 4 -->
+        <div class="chevron chevron-4"></div>
+        <div class="chevron-white chevron-4"></div>
+      </div>
+    </div>
+  </div>
+</ng-template>
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
       <h5 class="section-title action-buttons">
-        Pre-Invoicing Errors Summary
+        Pre-Invoicing Error Summary
         <span class="action-buttons" *ngIf="selection.selected.length === 1">
           &nbsp;&nbsp;
           <!-- <button
@@ -47,10 +114,10 @@
             flex-direction: column;
           "
         >
-          <!-- <div style="display: flex">
-            <span><b>Period name:</b> </span> &nbsp;|&nbsp;
-            <span><b>Period end date:</b> </span>
-          </div> -->
+          <div style="display: flex">
+            <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
+            <span><b>Period end date:</b> {{ periodEnd }}</span>
+          </div>
           <p
             class="card-subtitle"
             style="
@@ -59,23 +126,20 @@
               display: flex;
               justify-content: flex-end;
             "
-          ></p>
-        </div>
-        <div style="display: flex; margin: 0vw 0vw 0 0">
-          <!-- <p
-            class="card-subtitle"
-            style="padding: 0.9vw 0vw 0 0; font-size: 12px"
           >
             {{ summaryLoadTime }}
-          </p> -->
-          <button mat-icon-button>
-            <i class="svg-icon refresh-icon"></i>
-          </button>
+          </p>
         </div>
-        <button mat-icon-button>
-          <i class="svg-icon chart-icon"></i>
-        </button>
-        <button mat-icon-button>
+        <button
+          mat-icon-button
+          (click)="
+            exportTableToExcel(
+              summaryDatasource.data,
+              'Pre Invoicing Error Summary',
+              'Pre_Invoicing_Error_Summary'
+            )
+          "
+        >
           <i class="svg-icon download-icon"></i>
         </button>
       </div>
@@ -125,6 +189,14 @@
                       ></i>
                     </span>
                   </ng-container>
+                  <ng-container *ngSwitchCase="'PROCESS_FLOW'">
+                    <span
+                      [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
+                      [contentTemplate]="processToolTip"
+                    >
+                      {{ replaceUnderscore(column) }}
+                    </span>
+                  </ng-container>
 
                   <ng-container *ngSwitchDefault>
                     {{ replaceUnderscore(column) }}
@@ -138,9 +210,9 @@
                 [class.comments-cell]="column === 'COMMENTS'"
               >
                 <ng-container [ngSwitch]="column">
-                  <!-- <ng-container *ngSwitchCase="'PROCESS_FLOW'">
-                      {{ subAppMapping(element[column]) }}
-                    </ng-container> -->
+                  <ng-container *ngSwitchCase="'PROCESS_FLOW'">
+                    {{ element[column] }}
+                  </ng-container>
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
                       <span class="icon-container">
@@ -157,16 +229,23 @@
                         <span *ngIf="!isEscalated(element)">
                           &nbsp;&nbsp;&nbsp;
                         </span>
-                        <i
-                          class="fa fa-exclamation-triangle"
-                          aria-hidden="true"
-                          style="color: rgb(200, 200, 0); font-size: 11px"
-                          [customToolTip]="'true'"
-                          [contentTemplate]="warningToolTip"
-                        ></i>
                       </span>
-                      {{ element[column] }}
+                      <span
+                        [ngClass]="{
+                          highlight: element.PERIOD_NAME !== periodName
+                        }"
+                      >
+                        {{ element[column] }}
+                      </span>
                     </div>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'APPLICATION_NAME'">
+                    <span
+                      [customToolTip]="'true'"
+                      [contentTemplate]="warningToolTip"
+                    >
+                      {{ element[column] }}
+                    </span>
                   </ng-container>
                   <ng-container *ngSwitchDefault>
                     {{ element[column] }}
@@ -200,87 +279,19 @@
       showFirstLastButtons
       aria-label="Select page"
     ></mat-paginator>
-
-    <!-- <ng-container
-        *ngIf="!rolErrorSummaryData?.data?.length && !summaryLoading"
-      >
-        <div class="loading-container">
-          <div class="card-subtitle">No Data to Display</div>
-          <br /><br /><br />
-        </div>
-      </ng-container> -->
   </div>
 </div>
 <br />
-
-<!-- <div class="container">
-  <div class="header-container">
-    <h5 class="section-title">Pre-Invoicing Error Details</h5>
-    <div class="action-buttons">
-      <button mat-icon-button>
-        <i class="svg-icon download-icon"></i>
-      </button>
-    </div>
-  </div>
-
-  <ng-container
-    *ngIf="
-      isFiltered
-        ? filtereddataSource?.data?.length > 0
-        : dataSource?.data?.length > 0
-    "
-  >
-    <div class="table-container">
-      <table
-        mat-table
-        [dataSource]="isFiltered ? filtereddataSource : dataSource"
-        class="custom-table"
-      >
-        <ng-container *ngFor="let column of detailsDisplayedColumns">
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef class="no-wrap">
-              {{ replaceUnderscore(column) }}
-            </th>
-
-            <td mat-cell *matCellDef="let element">
-              <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchDefault>
-                  {{ element[column] }}
-                </ng-container>
-              </ng-container>
-            </td>
-          </ng-container>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: detailsDisplayedColumns"></tr>
-      </table>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="!dataSource?.data?.length">
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-      <br /><br /><br />
-    </div>
-  </ng-container>
-
-  <mat-paginator
-    #detailsPaginator
-    [pageSize]="20"
-    length="totalRecords"
-    [pageSizeOptions]="[]"
-    showFirstLastButtons
-    aria-label="Select page"
-  ></mat-paginator>
-</div> -->
 
 <div class="container">
   <div class="header-container">
     <h5 class="section-title">Pre-Invoicing Error Details</h5>
     <div class="action-buttons">
+      <button mat-icon-button (click)="openChart()">
+        <i class="svg-icon chart-icon"></i>
+      </button>
       <button mat-icon-button>
-        <i class="svg-icon download-icon"></i>
+        <i class="svg-icon download-icon" (click)="export()"></i>
       </button>
     </div>
   </div>

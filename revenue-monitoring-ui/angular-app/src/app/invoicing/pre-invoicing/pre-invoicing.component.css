@@ -118,7 +118,7 @@ tr.mat-header-row {
 }
 
 .slider-bar {
-  width: 780px;
+  width: 620px;
   height: 4px;
   background: #16371e43;
   border-radius: 5px;
@@ -149,10 +149,11 @@ tr.mat-header-row {
 
 .circle-subcaption {
   font-size: 10px;
-  color: #666;
+  color: #000000;
   text-align: center;
   position: relative;
   top: 2px;
+  font-weight: bold;
 }
 
 /* Specific positioning for each circle-wrapper */

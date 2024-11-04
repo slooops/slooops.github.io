@@ -4,13 +4,14 @@ import { DataService } from 'src/app/providers/data.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-assign-user',
-  templateUrl: './assign-user.component.html',
-  styleUrl: './assign-user.component.css',
+  selector: 'app-user-assignment',
+  templateUrl: './user-assignment.component.html',
+  styleUrl: './user-assignment.component.css',
 })
-export class AssignUserComponent implements OnInit {
+export class UserAssignmentComponent implements OnInit {
   @Input() data: any;
   @Input() updateUrl: string;
+  @Input() webexUrl: string;
   @Output() close = new EventEmitter<void>();
 
   updateForm: FormGroup;
@@ -41,7 +42,6 @@ export class AssignUserComponent implements OnInit {
     this.username = this.dataService.getUsername();
     this.userRoles = this.dataService.getUserRoles();
   }
-
   ngOnInit(): void {
     this.assignmentUsers = this.dataService.getAssignmentUsers();
     if (!this.data || !this.data[0]) {
@@ -68,7 +68,6 @@ export class AssignUserComponent implements OnInit {
       comments: [this.data[0].COMMENTS || ''],
     });
   }
-
   submitData() {
     let assigneeName = '';
     if (this.userRoles.includes('ADMIN')) {
@@ -95,7 +94,7 @@ export class AssignUserComponent implements OnInit {
     };
 
     this.http
-      .post('auto-invoice-errors-summary-update', updateData, {
+      .post(this.updateUrl, updateData, {
         responseType: 'text',
       })
       .subscribe({
@@ -130,7 +129,6 @@ export class AssignUserComponent implements OnInit {
     //     },
     //   });
   }
-
   sendWebexMessage() {
     let assigneeName = '';
     if (this.userRoles.includes('ADMIN')) {
@@ -150,10 +148,11 @@ export class AssignUserComponent implements OnInit {
       assignee: assignee,
       assigner: this.username,
       periodName: this.data[0].PERIOD_NAME,
-      ouName: this.data[0].APPLICATION_NAME,
+      appName: this.data[0].APPLICATION_NAME,
       subApp: this.data[0].PROCESS_FLOW,
       orgName: this.data[0].ORG_NAME,
       date: this.data[0].TRANSACTION_DATE,
+      amount: this.data[0].AMOUNT,
       comments:
         this.updateForm.value.comments !== this.data[0].COMMENTS
           ? this.updateForm.value.comments
@@ -161,7 +160,7 @@ export class AssignUserComponent implements OnInit {
     };
 
     this.http
-      .post('send-message-invoicing', webexMessageData, {
+      .post(this.webexUrl, webexMessageData, {
         responseType: 'text',
       })
       .subscribe({

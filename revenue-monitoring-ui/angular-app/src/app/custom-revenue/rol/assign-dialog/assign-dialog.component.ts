@@ -10,6 +10,7 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 })
 export class AssignDialogComponent implements OnInit {
   @Input() data: any;
+  assignmentUsers: any;
   @Output() close = new EventEmitter<void>();
 
   updateForm: FormGroup;
@@ -50,6 +51,8 @@ export class AssignDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.assignmentUsers = this.dataService.getAssignmentUsers();
+    console.log('Assignment Users:', this.assignmentUsers);
     if (!this.data || !this.data[0]) {
       console.error('No data received or data is malformed:', this.data);
       return;
@@ -128,9 +131,9 @@ export class AssignDialogComponent implements OnInit {
         this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
     }
 
-    const assignee = this.availableNames.find(
-      (data) => data.name === assigneeName
-    ).username;
+    const assignee = this.assignmentUsers.find(
+      (data) => data.LOOKUP_CODE === assigneeName
+    ).MEANING;
     const webexMessageData = {
       assignee: assignee,
       assigner: this.username,
