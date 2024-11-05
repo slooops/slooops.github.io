@@ -39,6 +39,8 @@ export class InvoicingComponent implements OnInit {
     'AR_INTERFACE',
     'AR_INTERFACE_ERROR',
     'INVOICED',
+    'ERROR_MESSAGE',
+    'TRANSACTION_TYPE',
   ];
 
   autoInvoicingDetailsColumns: string[] = [

@@ -101,6 +101,7 @@ export class MonitoringDashboardComponent<T>
   getErrorSummary() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get(this.urls['summaryUrl']).subscribe((data: any) => {
+      console.log('Error Summary Data:', data);
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
       this.dataService.setTab1Data(this.processFlowTotals);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
@@ -331,6 +332,7 @@ export class MonitoringDashboardComponent<T>
 
     this.http.get(this.urls['detailsUrl']).subscribe({
       next: (data: any) => {
+        console.log('Error Details Data:', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
         this.errorDetails.forEach((row) => {

@@ -70,8 +70,8 @@
   "CMS_TOTAL_UNAPPLIED_AMOUNT_QUERY": "SELECT /*+ parallel(16)*/ sum(UNAPPLIED_AMOUNT) UNAPPLIED_AMOUNT FROM XXCMS_RECEIPT_ERRORS_VW XRE, APPS.GL_PERIOD_STATUSES GPS WHERE TRUNC(STG_CREATION_DATE) BETWEEN TRUNC(GPS.START_DATE) AND TRUNC(GPS.END_DATE) AND GPS.CLOSING_STATUS = 'O' AND GPS.SET_OF_BOOKS_ID = 1 AND GPS.APPLICATION_ID = 222",
   "CMS_CORE_APP_LAYER_ERROR_COUNT_QUERY": "select * from xxcms_appln_layer_cnt_v",
   "CMS_RECON_ERR_COUNT_EXTRACT_QUERY": "SELECT extract_name, SUM (TOTAL_MISMATCH_COUNT) FROM xxcms_recon_mismatch_cnt_v GROUP BY extract_name",
-  "ROL_TRANSACTION_DATA_QUERY": "SELECT * FROM ( SELECT t.*, ROW_NUMBER() OVER (ORDER BY t.PERIOD_NAME) AS rn FROM arfinro.TSP_ROL_ERRORS_DETAILS_V t ) WHERE rn BETWEEN ? AND ?",
-  "ROL_TRANSACTION_DATA_FILTER_QUERY": "SELECT * FROM (SELECT t.*, ROW_NUMBER() OVER (ORDER BY t.PERIOD_NAME) AS rn FROM arfinro.TSP_ROL_ERRORS_DETAILS_V t JOIN arfinro.TSP_ROL_ERRORS_SUMMARY_V s ON t.period_name=s.period_name AND t.ou_name=s.org_name AND t.application_name=s.application_name AND t.sequence_num=s.sequence_num WHERE s.period_name=? AND s.org_name=? AND s.application_name=? AND s.sequence_num=?) filtered_records WHERE rn BETWEEN ? AND ?",
+  "ROL_TRANSACTION_DATA_QUERY": "SELECT * FROM arfinro.TSP_ROL_ERRORS_DETAILS_V",
+  "ROL_TRANSACTION_DATA_FILTER_QUERY": "SELECT * FROM arfinro.TSP_ROL_ERRORS_DETAILS_V WHERE period_name=? AND ou_name=? AND application_name=? AND sequence_num=?",
   "ROL_TRANSACTION_DATA_COUNT_QUERY": "select COUNT(*) from arfinro.TSP_ROL_ERRORS_DETAILS_V",
   "ROL_TRANSACTION_DATA_FILTER_COUNT_QUERY": "SELECT COUNT(*) FROM arfinro.TSP_ROL_ERRORS_DETAILS_V t JOIN arfinro.TSP_ROL_ERRORS_SUMMARY_V s ON t.period_name=s.period_name AND t.ou_name=s.org_name AND t.application_name=s.application_name AND t.sequence_num=s.sequence_num WHERE s.period_name = ? AND s.org_name = ? AND s.application_name=? AND s.sequence_num=?",
   "ROL_ERRORS_SUMMARY_QUERY": "select * from arfinro.TSP_ROL_ERRORS_SUMMARY_V",
@@ -94,8 +94,12 @@
   "PRE_INVOICE_ERROR_DETAILS_QUERY_FILTERED": "select * from ARFINRO.XXCFI_DATA_RECON_SBP_INV_DTL_V where application_name=? AND org_name=? AND period_name=? and TRUNC(creation_date)=to_date(?,'MM/DD/YYYY')",
   "PRE_INVOICE_ERROR_SUMMARY_VIEW_QUERY": "select * from ARFINRO.XXCFI_DATA_RECON_SBP_INV_SUMM_V",
   "PRE_INVOICE_ERROR_DETAILS_QUERY": "select * from ARFINRO.XXCFI_DATA_RECON_SBP_INV_DTL_V",
+  "AUTO_INVOICE_ERROR_SUMMARY_UPDATE_QUERY": "update ARFINRO.XXCFI_AI_ERROR_DASHBOARD_DETAILS set assigned_to=?, assigned_by=?, assigned_date=sysdate, comments=? where name=? and process_flow=? and period_name=? and batch_source_name=? and TRUNC(creation_date)=to_date(?,'MM/DD/YYYY')",
   "CORS_URL": "http://localhost:3000",
   "WEBEX_URL": "https://webexapis.com/v1/messages",
-  "ROOM_ID": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpHWmlNelkxWlRBdE9ERmlNeTB4TVdWbUxUazFOamt0WWpVd1ltVmpZVE0yTkdGbQ==",
-  "AUTH_TOKEN": "TkdZME9Ea3hNVEV0TkdSaU5pMDBPV1kyTFdJM05EUXRZalpsTVRJek0yTm1ZemhoWVRRMk5XRTRabVV0Tm1VNF9QRjg0XzFlYjY1ZmRmLTk2NDMtNDE3Zi05OTc0LWFkNzJjYWUwZTEwZg=="
+  "ROOM_ID_REVENUE_ACCOUNTING": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpHWmlNelkxWlRBdE9ERmlNeTB4TVdWbUxUazFOamt0WWpVd1ltVmpZVE0yTkdGbQ==",
+  "ROOM_ID_INVOICING": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpqTmlNalF6WXpBdE9USmxaaTB4TVdWbUxUazFOR010T0dZNE5qVTRPVGhsT1dKbAo=",
+  "AUTH_TOKEN": "TkdZME9Ea3hNVEV0TkdSaU5pMDBPV1kyTFdJM05EUXRZalpsTVRJek0yTm1ZemhoWVRRMk5XRTRabVV0Tm1VNF9QRjg0XzFlYjY1ZmRmLTk2NDMtNDE3Zi05OTc0LWFkNzJjYWUwZTEwZg==",
+  "INVOICING_AUTH_TOKEN": "WW1FeE1tSXdNell0TlRFMk5TMDBOR014TFRrMk1XSXRORFkzTURjNU16UTFORE0yWkRjd1lUSTRORE10Wm1GbV9QRjg0XzFlYjY1ZmRmLTk2NDMtNDE3Zi05OTc0LWFkNzJjYWUwZTEwZgo=",
+  "SUMMARY_ASSIGNMENT_USERS_QUERY": "SELECT MIN(lookup_code) AS lookup_code, meaning FROM ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP WHERE lookup_type='USER_ASSIGNMENT' AND enabled_flag='Y' GROUP BY meaning ORDER BY lookup_code"
 }
