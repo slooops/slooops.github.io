@@ -108,6 +108,7 @@ export class MonitoringDashboardComponent<T>
       this.summaryData = this.formatData(data);
       this.summaryData.forEach((row) => {
         row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+        row.AGING = row.AGING + ' Days';
       });
       this.originalData = this.summaryData;
 
@@ -240,18 +241,29 @@ export class MonitoringDashboardComponent<T>
   formatData(data: any[]): any[] {
     return data.map((row) => {
       const formattedRow = { ...row };
-      const amountKey =
-        'AMOUNT' in row ? 'AMOUNT' : 'amount' in row ? 'amount' : null;
-
-      if (amountKey) {
-        formattedRow[amountKey] = `$${Number(row[amountKey]).toLocaleString(
-          undefined,
-          {
-            minimumFractionDigits: 2, // Always show at least two decimal places
-            maximumFractionDigits: 2, // Restrict to two decimal places
+      const amountKeys = [
+        'AMOUNT',
+        'BILL_TOTAL',
+        'IOL_HOLD',
+        'IOL_PENDING',
+        'IOL_ERROR',
+        'AR_INTERFACE',
+        'AR_INTERFACE_ERROR',
+        'INVOICED',
+      ];
+      let key;
+      amountKeys.forEach((amountKey) => {
+        key = amountKey in row ? amountKey : amountKey.toLowerCase();
+        if (key in row) {
+          if (formattedRow[key] == '-') {
+            return;
           }
-        )}`;
-      }
+          formattedRow[key] = `$${Number(row[key]).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}`;
+        }
+      });
 
       return formattedRow;
     });
@@ -380,7 +392,8 @@ export class MonitoringDashboardComponent<T>
       .get(this.urls['filteredDetailsUrl'], { params: pageRequest })
       .subscribe({
         next: (data: any) => {
-          this.errorDetailsFiltered = data.preInvoiceErrorDetailsFiltered;
+          console.log('Filtered Error Details Data:', data);
+          this.errorDetailsFiltered = data.errorDetailsFiltered;
           this.errorDetailsFiltered = this.formatData(
             this.errorDetailsFiltered
           );

@@ -247,7 +247,7 @@ public class DailyMonitoringController {
 
 
         try {
-            List<Map<String, Object>> autoInvoiceErrorDetailsFiltered = new ArrayList<>();
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), uniqueIds.size())));
 
             for (int i = 0; i < minLength; i++) {
@@ -256,10 +256,10 @@ public class DailyMonitoringController {
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
                 List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName, periodName, uniqueId);
-                autoInvoiceErrorDetailsFiltered.addAll(result);
+                errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
-            response.put("autoInvoiceErrorDetailsFiltered", autoInvoiceErrorDetailsFiltered);
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e){
             System.out.println(e);
@@ -275,7 +275,7 @@ public class DailyMonitoringController {
 
 
         try {
-            List<Map<String, Object>> preInvoiceErrorDetailsFiltered = new ArrayList<>();
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), uniqueIds.size())));
 
             for (int i = 0; i < minLength; i++) {
@@ -284,10 +284,10 @@ public class DailyMonitoringController {
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
                 List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName, periodName, uniqueId);
-                preInvoiceErrorDetailsFiltered.addAll(result);
+                errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
-            response.put("preInvoiceErrorDetailsFiltered", preInvoiceErrorDetailsFiltered);
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e){
             System.out.println(e);

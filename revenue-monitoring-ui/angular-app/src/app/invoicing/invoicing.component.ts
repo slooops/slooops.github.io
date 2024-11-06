@@ -29,6 +29,7 @@ export class InvoicingComponent implements OnInit {
     'PROCESS_FLOW',
     'ORG_NAME',
     'BILL_NUMBER',
+    'TRANSACTION_TYPE',
     'SUBSCRIPTION_ID',
     'BILL_TOTAL',
     'PAYLOAD_STATUS',
@@ -40,7 +41,6 @@ export class InvoicingComponent implements OnInit {
     'AR_INTERFACE_ERROR',
     'INVOICED',
     'ERROR_MESSAGE',
-    'TRANSACTION_TYPE',
   ];
 
   autoInvoicingDetailsColumns: string[] = [

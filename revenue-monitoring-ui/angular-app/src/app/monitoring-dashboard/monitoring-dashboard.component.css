@@ -539,3 +539,11 @@ tr.mat-header-row {
 .mat-column-ORG_NAME {
   text-wrap: nowrap;
 }
+
+.mat-column-PROCESS_FLOW {
+  text-wrap: nowrap;
+}
+
+.mat-column-ERROR_MESSAGE {
+  text-wrap: nowrap;
+}

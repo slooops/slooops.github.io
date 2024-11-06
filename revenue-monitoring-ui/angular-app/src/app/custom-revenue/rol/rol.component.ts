@@ -27,6 +27,7 @@ export class RolComponent implements OnInit {
   rolErrorSummaryData: any;
   rolErrorDisplayedColumns: string[] = [];
   rolErrorColumns: string[] = [
+    'PERIOD_NAME',
     'APPLICATION_NAME',
     'PROCESS_FLOW',
     'ORG_NAME',
