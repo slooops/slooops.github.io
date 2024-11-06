@@ -12,7 +12,8 @@ import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { monthEndDates } from './monthEndDates';
-import { hi, is } from 'date-fns/locale';
+import { el, hi, is } from 'date-fns/locale';
+import { set } from 'date-fns';
 Chart.register(...registerables);
 
 @Component({
@@ -491,7 +492,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
     }
 
-    this.serviceLoading = false;
     const canvas = document.getElementById(
       'q3ServiceLinePredictiveModel'
     ) as HTMLCanvasElement;
@@ -519,7 +519,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
         console.error('Failed to get 2D context for service line chart');
       }
     } else {
-      console.error('Canvas element "q3ServiceLinePredictiveModel" not found');
+      // console.error('Canvas element for Service Line chart not created');
+      setTimeout(() => {
+        this.updateServiceLineChart(serviceData, serviceActuals);
+      }, 1000);
     }
   }
 
@@ -580,7 +583,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
     }
 
-    this.productLoading = false;
     const canvas = document.getElementById(
       'productLinePredictiveModel'
     ) as HTMLCanvasElement;
@@ -597,7 +599,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
         // Create the new chart
         this.productLineChart = new Chart(ctx, {
-          // new Chart('productLinePredictiveModel', {
           type: 'line',
           data: chartData,
           options: this.getChartOptions(),
@@ -605,10 +606,14 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
         this.productLoading = false; // Stop loading when chart is created
       } else {
-        console.error('Failed to get 2D context for product line chart');
+        // this.handleChartCreationError();
       }
     } else {
-      console.error('Canvas element "productLinePredictiveModel" not found');
+      // console.error('Canvas element for Product Line chart not created');
+
+      setTimeout(() => {
+        this.updateProductLineChart(productData, productActuals);
+      }, 1000);
     }
   }
 
@@ -1010,7 +1015,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
         recentMonthsData,
         actualTimes
       );
-      this.loading = false; // Set loading to false after data is processed
     } catch (error) {
       console.error('Error fetching data', error);
       this.errorMessage = true;
@@ -1022,111 +1026,130 @@ export class Wd0HistoricalDataComponent implements OnInit {
     const canvas = document.getElementById(
       'lineChartCanvas'
     ) as HTMLCanvasElement;
-    const ctx = canvas.getContext('2d');
 
-    // Check if lineChart already exists. If so, destroy it.
-    if (this.lineChart) {
-      this.lineChart.destroy();
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        // Check if lineChart already exists. If so, destroy it.
+        if (this.lineChart) {
+          this.lineChart.destroy();
+        }
+
+        // Now, recreate the chart with the new data
+        this.lineChart = new Chart(ctx, {
+          type: 'line', // This specifies the default chart type
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Actual Run (hrs)',
+                data: actualTimes,
+                yAxisID: 'y1',
+                tension: 0.3,
+                type: 'line',
+                borderColor: '#ffde5ad0', // Yellow color for the actual run line
+                backgroundColor: '#ffde5a50', // Transparent yellow for the line fill
+                pointBackgroundColor: '#ffde5a', // Yellow for points
+              },
+              {
+                label: 'Lower Bound (hrs)',
+                data: fastestTimes,
+                yAxisID: 'y1',
+                tension: 0.3,
+                type: 'line',
+                borderColor: '#8549ba99', // Purple color for the lower bound line
+                backgroundColor: '#8549ba50', // Transparent purple for the line fill
+                pointBackgroundColor: '#8549ba', // Purple for points
+              },
+              {
+                label: 'Upper Bound (hrs)',
+                data: slowestTimes,
+                yAxisID: 'y1',
+                tension: 0.3,
+                type: 'line',
+                borderColor: '#00a95099', // Green color for the upper bound line
+                backgroundColor: '#64f4a85a', // Transparent green for the line fill
+                pointBackgroundColor: '#24d577c4', // Green for points
+              },
+              {
+                label: 'Product (lines)',
+                data: lines.map((line) => line[0]),
+                yAxisID: 'y',
+                type: 'bar',
+                backgroundColor: '#4dc9f699', // Product lines color
+                // barThickness: 20, // Optional: adjust bar thickness
+              },
+              {
+                label: 'Service (lines)',
+                data: lines.map((line) => line[1]),
+                yAxisID: 'y',
+                type: 'bar',
+                backgroundColor: '#166a8f99', // Service lines color
+                // barThickness: 20, // Optional: adjust bar thickness
+              },
+            ],
+          },
+
+          options: {
+            scales: {
+              x: {
+                grid: {
+                  offset: false,
+                },
+              },
+
+              y: {
+                type: 'linear',
+                position: 'left',
+                beginAtZero: false,
+                title: {
+                  display: true,
+                  text: 'Lines',
+                },
+              },
+              y1: {
+                type: 'linear',
+                position: 'right',
+                beginAtZero: true,
+                grid: {
+                  drawOnChartArea: false, // only want the grid lines for one axis to show up
+                },
+                title: {
+                  display: true,
+                  text: 'Hours',
+                },
+              },
+            },
+            plugins: {
+              tooltip: {
+                displayColors: false, // Remove color box
+              },
+              legend: {
+                onClick: () => false, // Disable toggling visibility by clicking on legend items
+              },
+              datalabels: {
+                display: false, // Show the data values
+              },
+            },
+          },
+        });
+        this.loading = false; // Set loading to false after data is processed
+      } else {
+        console.error('Failed to get 2D context for line chart');
+      }
+    } else {
+      // console.error('Canvas element for combined chart failed to be created');
+      setTimeout(() => {
+        this.createLineGraph(
+          fastestTimes,
+          slowestTimes,
+          labels,
+          lines,
+          actualTimes
+        );
+      }, 1000);
     }
-
-    // Now, recreate the chart with the new data
-    this.lineChart = new Chart(ctx, {
-      type: 'line', // This specifies the default chart type
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: 'Actual Run (hrs)',
-            data: actualTimes,
-            yAxisID: 'y1',
-            tension: 0.3,
-            type: 'line',
-            borderColor: '#ffde5ad0', // Yellow color for the actual run line
-            backgroundColor: '#ffde5a50', // Transparent yellow for the line fill
-            pointBackgroundColor: '#ffde5a', // Yellow for points
-          },
-          {
-            label: 'Lower Bound (hrs)',
-            data: fastestTimes,
-            yAxisID: 'y1',
-            tension: 0.3,
-            type: 'line',
-            borderColor: '#8549ba99', // Purple color for the lower bound line
-            backgroundColor: '#8549ba50', // Transparent purple for the line fill
-            pointBackgroundColor: '#8549ba', // Purple for points
-          },
-          {
-            label: 'Upper Bound (hrs)',
-            data: slowestTimes,
-            yAxisID: 'y1',
-            tension: 0.3,
-            type: 'line',
-            borderColor: '#00a95099', // Green color for the upper bound line
-            backgroundColor: '#64f4a85a', // Transparent green for the line fill
-            pointBackgroundColor: '#24d577c4', // Green for points
-          },
-          {
-            label: 'Product (lines)',
-            data: lines.map((line) => line[0]),
-            yAxisID: 'y',
-            type: 'bar',
-            backgroundColor: '#4dc9f699', // Product lines color
-            // barThickness: 20, // Optional: adjust bar thickness
-          },
-          {
-            label: 'Service (lines)',
-            data: lines.map((line) => line[1]),
-            yAxisID: 'y',
-            type: 'bar',
-            backgroundColor: '#166a8f99', // Service lines color
-            // barThickness: 20, // Optional: adjust bar thickness
-          },
-        ],
-      },
-
-      options: {
-        scales: {
-          x: {
-            grid: {
-              offset: false,
-            },
-          },
-
-          y: {
-            type: 'linear',
-            position: 'left',
-            beginAtZero: false,
-            title: {
-              display: true,
-              text: 'Lines',
-            },
-          },
-          y1: {
-            type: 'linear',
-            position: 'right',
-            beginAtZero: true,
-            grid: {
-              drawOnChartArea: false, // only want the grid lines for one axis to show up
-            },
-            title: {
-              display: true,
-              text: 'Hours',
-            },
-          },
-        },
-        plugins: {
-          tooltip: {
-            displayColors: false, // Remove color box
-          },
-          legend: {
-            onClick: () => false, // Disable toggling visibility by clicking on legend items
-          },
-          datalabels: {
-            display: false, // Show the data values
-          },
-        },
-      },
-    });
   }
 }
 
