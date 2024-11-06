@@ -15,7 +15,7 @@ import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/large-deal-tracker',
+    redirectTo: '/home',
     pathMatch: 'full',
   },
   {
