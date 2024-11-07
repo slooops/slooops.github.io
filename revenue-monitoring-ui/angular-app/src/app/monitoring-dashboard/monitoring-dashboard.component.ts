@@ -108,6 +108,7 @@ export class MonitoringDashboardComponent<T>
       this.summaryData = this.formatData(data);
       this.summaryData.forEach((row) => {
         row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+        row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
         row.AGING = row.AGING + ' Days';
       });
       this.originalData = this.summaryData;
@@ -219,11 +220,12 @@ export class MonitoringDashboardComponent<T>
   }
 
   isEscalated(element: any): boolean {
-    return element.AGING > 6;
+    const aging = element.AGING.split(' ')[0];
+    return Number(aging) > 6;
   }
 
   getCircleNumber(element: any): any {
-    const aging = element.AGING;
+    const aging = Number(element.AGING.split(' ')[0]);
     if (aging >= 7 && aging <= 10) {
       return 1;
     } else if (aging >= 11 && aging <= 16) {
@@ -317,17 +319,17 @@ export class MonitoringDashboardComponent<T>
 
   closeAssignModal(event: any): void {
     this.isModalOpen = false;
-    // if (event === 'successful') {
-    //   this.selection.clear();
-    //   this.summaryDatasource = null;
-    //   this.selectedRows = [];
-    //   this.isFiltered = false;
-    //   this.filtereddataSource = null;
-    //   this.cdr.detectChanges();
-    //   setTimeout(() => {
-    //     this.getAutoInvoiceErrorSummary();
-    //   }, 1000);
-    // }
+    if (event === 'successful') {
+      this.selection.clear();
+      this.summaryDatasource = null;
+      this.selectedRows = [];
+      this.isFiltered = false;
+      this.filtereddataSource = null;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.getErrorSummary();
+      }, 1000);
+    }
   }
 
   dataSource: any;

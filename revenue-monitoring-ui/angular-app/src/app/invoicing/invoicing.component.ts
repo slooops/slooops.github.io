@@ -79,7 +79,7 @@ export class InvoicingComponent implements OnInit {
     detailsUrl: 'pre-invoice-error-details',
     filteredDetailsUrl: 'pre-invoice-error-details-filtered',
     summaryUpdateUrl: 'pre-invoice-error-summary-update',
-    webexMessageUrl: 'send-message-pre-invoicing',
+    webexMessageUrl: 'send-message-invoicing',
   };
 
   autoInvoicingUrls: { [key: string]: string } = {

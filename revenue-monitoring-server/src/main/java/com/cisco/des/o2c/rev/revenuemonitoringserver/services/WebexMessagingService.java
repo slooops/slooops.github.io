@@ -50,7 +50,7 @@ public class WebexMessagingService {
     }
 
     public String sendWebexMessageInvoicing(Map<String, String> updateData) {
-        String message = "Hi <@personEmail:"+ updateData.get("assignee")+">, an Invoicing error has been assigned to you by <@personEmail:"+ updateData.get("assigner")+"@cisco.com>. Following are the details of the error:\n" +
+        String message = "Hi <@personEmail:"+ updateData.get("assignee")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("assigner")+"@cisco.com>. Following are the details of the error:\n" +
                 "Period Name: "+updateData.get("periodName")+"\nApplication Name: "+updateData.get("appName")+"\nSub Application: "+updateData.get("subApp")+"\nOrg Name: "+updateData.get("orgName")+"\nAmount: "+updateData.get("amount")+"\nTransaction Date: "+updateData.get("date")+"\n Comments: "+updateData.get("comments");
 
         System.out.println(roomIdInvoicing);

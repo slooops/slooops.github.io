@@ -85,6 +85,7 @@ import { AssignUserComponent } from './invoicing/assign-user/assign-user.compone
 import { AutoInvoicingRealComponent } from './invoicing/auto-invoicing-real/auto-invoicing-real.component';
 import { MonitoringDashboardComponent } from './monitoring-dashboard/monitoring-dashboard.component';
 import { UserAssignmentComponent } from './monitoring-dashboard/user-assignment/user-assignment.component';
+import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow-tooltip/process-flow-tooltip.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -138,6 +139,7 @@ export function initApp(authService: AuthenticationService) {
     AssignUserComponent,
     MonitoringDashboardComponent,
     UserAssignmentComponent,
+    ProcessFlowTooltipComponent,
   ],
   imports: [
     BrowserModule,

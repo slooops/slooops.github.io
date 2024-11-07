@@ -302,10 +302,17 @@ public class DailyMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
-    @PostMapping("/auto-invoice-errors-summary-update")
+    @PostMapping("/auto-invoice-error-summary-update")
     public ResponseEntity<String> updateAutoInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
         System.out.println(updateData);
         int test = service.updateAutoInvoiceErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
+    @PostMapping("/pre-invoice-error-summary-update")
+    public ResponseEntity<String> updatePreInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
+        System.out.println(updateData);
+        int test = service.updatePreInvoiceErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 

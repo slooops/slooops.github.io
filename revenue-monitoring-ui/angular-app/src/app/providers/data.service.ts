@@ -25,6 +25,28 @@ export class DataService {
   } | null>(null);
   totalImpactData$: Observable<any>;
 
+  private dataStore: {
+    [tabName: string]: BehaviorSubject<{ [key: string]: number }>;
+  } = {};
+
+  setTabData(tabName: string, data: { [key: string]: number }) {
+    if (!this.dataStore[tabName]) {
+      this.dataStore[tabName] = new BehaviorSubject<{ [key: string]: number }>(
+        {}
+      );
+    }
+    this.dataStore[tabName].next(data);
+  }
+
+  getTabData(tabName: string): Observable<{ [key: string]: number }> {
+    if (!this.dataStore[tabName]) {
+      this.dataStore[tabName] = new BehaviorSubject<{ [key: string]: number }>(
+        {}
+      );
+    }
+    return this.dataStore[tabName].asObservable();
+  }
+
   constructor(private http: ApiHttpService) {
     this.totalImpactData$ = combineLatest([
       this.tab1Totals,

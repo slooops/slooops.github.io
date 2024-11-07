@@ -279,6 +279,9 @@ public class QueryConfigs { // TODO
     @Value(("${auto.invoice.errors.summary.update.query}"))
     public String autoInvoiceErrorsSummaryUpdate;
 
+    @Value(("${pre.invoice.errors.summary.update.query}"))
+    public String preInvoiceErrorsSummaryUpdate;
+
     @Value(("${wd0.volumes.q}"))
     public String wd0Volumes;
 
@@ -733,6 +736,9 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "autoInvoiceErrorsSummaryUpdate" )
     public String getAutoInvoiceErrorsSummaryUpdate() {return this.autoInvoiceErrorsSummaryUpdate; }
+
+    @Bean( name = "preInvoiceErrorsSummaryUpdate" )
+    public String getPreInvoiceErrorsSummaryUpdate() {return this.preInvoiceErrorsSummaryUpdate; }
 
     @Bean( name = "summaryAssignmentUsers" )
     public String getSummaryAssignmentUsers() {return this.summaryAssignmentUsers; }

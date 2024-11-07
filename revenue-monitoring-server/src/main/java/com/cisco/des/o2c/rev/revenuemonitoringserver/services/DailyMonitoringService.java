@@ -92,6 +92,7 @@ public class DailyMonitoringService {
     private String preInvoiceErrorDetailsFiltered;
     private String autoInvoiceErrorsSummaryUpdate;
     private String summaryAssignmentUsers;
+    private String preInvoiceErrorsSummaryUpdate;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -111,7 +112,7 @@ public class DailyMonitoringService {
                                   String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails, String rolTransactionDataFilter,
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
-                                  String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers
+                                  String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -180,6 +181,7 @@ public class DailyMonitoringService {
         this.preInvoiceErrorDetailsFiltered = preInvoiceErrorDetailsFiltered;
         this.autoInvoiceErrorsSummaryUpdate = autoInvoiceErrorsSummaryUpdate;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
+        this.preInvoiceErrorsSummaryUpdate = preInvoiceErrorsSummaryUpdate;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -734,14 +736,28 @@ public class DailyMonitoringService {
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
-        String ouName = updateData.get("ouName");
+        String ouName = updateData.get("orgName");
         String processFlow = updateData.get("processFlow");
         String periodName = updateData.get("periodName");
-        String batchSourceName = updateData.get("batchSourceName");
+        String batchSourceName = updateData.get("appName");
         String creationDate = updateData.get("creationDate");
         int test = jdbcManager.updateAutoInvoiceErrorsSummaryData(autoInvoiceErrorsSummaryUpdate, assignedTo, assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
         return 1;
     }
+
+    public int updatePreInvoiceErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String ouName = updateData.get("orgName");
+        String processFlow = updateData.get("processFlow");
+        String creationDate = updateData.get("creationDate");
+        System.out.println(preInvoiceErrorsSummaryUpdate);
+        int test = jdbcManager.updatePreInvoiceErrorsSummaryData(preInvoiceErrorsSummaryUpdate, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
+        System.out.println(test);
+        return 1;
+    }
+
 
     public List<Map<String, Object>> getMonitoringPeriodStatus() {
         String[] dateColumns = {"END_DATE"};

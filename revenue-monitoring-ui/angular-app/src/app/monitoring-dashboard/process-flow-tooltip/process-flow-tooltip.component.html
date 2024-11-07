@@ -1,0 +1,22 @@
+<ng-template>
+  <div class="flowchart-container">
+    <br />
+    <div class="slider">
+      <div class="slider-bar">
+        <!-- Circle 1 -->
+        <div *ngFor="let key of objectKeys(totals)" class="circle-wrapper">
+          <p class="circle-caption">{{ key }}</p>
+          <span class="circle"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            <!-- Dynamically fetch the total value for each key -->
+            <span>{{ getTotal(key) }}</span>
+          </p>
+        </div>
+
+        <!-- Chevron -->
+        <div class="chevron"></div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -100,6 +100,11 @@ public class JdbcManager {
     public int updateAutoInvoiceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String ouName, String processFlow, String periodName, String batchSourceName, String creationDate){
         return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
     }
+
+    public int updatePreInvoiceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String ouName, String creationDate, String processFlow){
+        System.out.println(assignedTo+""+assignedBy+comments+ouName+creationDate+processFlow);
+        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
+    }
 //    public int getTotalRecords(String sql) {
 //        return jdbcTemplate.queryForObject(sql, Integer.class);
 //    }

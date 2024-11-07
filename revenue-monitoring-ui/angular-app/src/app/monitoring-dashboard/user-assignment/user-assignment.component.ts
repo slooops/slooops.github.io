@@ -12,6 +12,7 @@ export class UserAssignmentComponent implements OnInit {
   @Input() data: any;
   @Input() updateUrl: string;
   @Input() webexUrl: string;
+  @Input() componentName: string;
   @Output() close = new EventEmitter<void>();
 
   updateForm: FormGroup;
@@ -81,7 +82,7 @@ export class UserAssignmentComponent implements OnInit {
     }
     const updateData = {
       periodName: this.data[0].PERIOD_NAME,
-      batchSourceName: this.data[0].APPLICATION_NAME,
+      appName: this.data[0].APPLICATION_NAME,
       processFlow: this.data[0].PROCESS_FLOW,
       orgName: this.data[0].ORG_NAME,
       creationDate: this.data[0].TRANSACTION_DATE,
@@ -110,24 +111,6 @@ export class UserAssignmentComponent implements OnInit {
           this.closeDialog('successful');
         },
       });
-    console.log('pre-invoice-errors-summary-update');
-    // this.http
-    //   .post('pre-invoice-errors-summary-update', updateData, {
-    //     responseType: 'text',
-    //   })
-    //   .subscribe({
-    //     next: (data) => {
-    //       this.close.emit(this.updateForm.value);
-    //     },
-    //     error: (err) => {
-    //       console.error('Error while submitting data:', err);
-    //       this.closeDialog('failed');
-    //     },
-    //     complete: () => {
-    //       // this.sendWebexMessage();
-    //       this.closeDialog('successful');
-    //     },
-    //   });
   }
   sendWebexMessage() {
     let assigneeName = '';
@@ -147,6 +130,7 @@ export class UserAssignmentComponent implements OnInit {
     const webexMessageData = {
       assignee: assignee,
       assigner: this.username,
+      componentName: this.componentName,
       periodName: this.data[0].PERIOD_NAME,
       appName: this.data[0].APPLICATION_NAME,
       subApp: this.data[0].PROCESS_FLOW,
