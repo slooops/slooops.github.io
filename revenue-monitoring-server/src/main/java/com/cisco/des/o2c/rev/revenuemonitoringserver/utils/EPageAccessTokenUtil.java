@@ -12,6 +12,7 @@ import java.time.Instant;
 import org.json.JSONObject;
 
 public class EPageAccessTokenUtil {
+
     private static final RestTemplate restTemplate = new RestTemplate();
     private static Instant authExpirationTime = null;
     private static String accessToken = null;
@@ -40,7 +41,7 @@ public class EPageAccessTokenUtil {
         return tokenType;
     }
 
-    public String getAccessToken() {
+    public static String getAccessToken() {
 
         if (isTokenNeeded()) {
             HttpHeaders headers = new HttpHeaders();

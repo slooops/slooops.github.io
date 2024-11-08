@@ -14,52 +14,10 @@ export class DataService {
   assignmentUsers: any;
   private loadingSubject = new BehaviorSubject<boolean>(false);
 
-  private tab1Totals = new BehaviorSubject<{
-    [key: string]: string | number;
-  } | null>(null);
-  private tab2Totals = new BehaviorSubject<{
-    [key: string]: string | number;
-  } | null>(null);
-  private tab3Totals = new BehaviorSubject<{
-    [key: string]: string | number;
-  } | null>(null);
-  totalImpactData$: Observable<any>;
-
-  private dataStore: {
-    [tabName: string]: BehaviorSubject<{ [key: string]: number }>;
-  } = {};
-
-  setTabData(tabName: string, data: { [key: string]: number }) {
-    if (!this.dataStore[tabName]) {
-      this.dataStore[tabName] = new BehaviorSubject<{ [key: string]: number }>(
-        {}
-      );
-    }
-    this.dataStore[tabName].next(data);
-  }
-
-  getTabData(tabName: string): Observable<{ [key: string]: number }> {
-    if (!this.dataStore[tabName]) {
-      this.dataStore[tabName] = new BehaviorSubject<{ [key: string]: number }>(
-        {}
-      );
-    }
-    return this.dataStore[tabName].asObservable();
-  }
-
-  constructor(private http: ApiHttpService) {
-    this.totalImpactData$ = combineLatest([
-      this.tab1Totals,
-      this.tab2Totals,
-      this.tab3Totals,
-    ]).pipe(
-      map(([tab1, tab2, tab3]) => ({
-        tab1Totals: tab1,
-        tab2Totals: tab2,
-        tab3Totals: tab3,
-      }))
-    );
-  }
+  private tabData = new Map<
+    string,
+    BehaviorSubject<{ [key: string]: string }>
+  >();
 
   setErrorData(errorData: errorDashModel[]) {
     this.selectedErrorData = errorData;
@@ -136,15 +94,22 @@ export class DataService {
     return this.assignmentUsers;
   }
 
-  setTab1Data(data: { [key: string]: string | number }): void {
-    this.tab1Totals.next(data);
+  private ensureTabData(tabName: string) {
+    if (!this.tabData.has(tabName)) {
+      this.tabData.set(
+        tabName,
+        new BehaviorSubject<{ [key: string]: string }>({})
+      );
+    }
   }
 
-  setTab2Data(data: { [key: string]: string | number }): void {
-    this.tab2Totals.next(data);
+  setTabData(tabName: string, totals: { [key: string]: string }) {
+    this.ensureTabData(tabName);
+    this.tabData.get(tabName)?.next(totals);
   }
 
-  setTab3Data(data: { [key: string]: string | number }): void {
-    this.tab3Totals.next(data);
+  getTabData(tabName: string): Observable<{ [key: string]: string }> {
+    this.ensureTabData(tabName);
+    return this.tabData.get(tabName)!.asObservable();
   }
 }

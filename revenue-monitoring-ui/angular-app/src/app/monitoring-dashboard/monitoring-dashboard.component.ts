@@ -35,7 +35,9 @@ export class MonitoringDashboardComponent<T>
   @Input() periodStatus: any;
   @Input() detailsDisplayedColumns: string[];
   @Input() componentName: string;
+  @Input() processFlowTabsToDisplay: string[];
   @Input() specialWords: string[];
+  @Input() skippedWords: string[];
 
   periodName: string = '';
   periodEnd: string = '';
@@ -51,7 +53,7 @@ export class MonitoringDashboardComponent<T>
   ngOnInit(): void {
     this.getErrorSummary();
     this.getErrorDetails();
-    this.totalImpactData$ = this.dataService.totalImpactData$;
+    this.processFlowTotals$ = this.dataService.getTabData(this.componentName);
     this.updateUrl = this.urls['summaryUpdateUrl'];
     this.webexUrl = this.urls['webexMessageUrl'];
   }
@@ -97,13 +99,13 @@ export class MonitoringDashboardComponent<T>
   totalSummaryRecords: number = 0;
   summaryLoading: boolean = true;
   originalData: any[] = [];
-  processFlowTotals: { [key: string]: string | number };
+  processFlowTotals$: Observable<{ [key: string]: string }>;
   getErrorSummary() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get(this.urls['summaryUrl']).subscribe((data: any) => {
       console.log('Error Summary Data:', data);
-      this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
-      this.dataService.setTab1Data(this.processFlowTotals);
+      const totals = this.calculateTotalsByProcessFlow(data);
+      this.dataService.setTabData(this.componentName, totals);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
       this.summaryData = this.formatData(data);
       this.summaryData.forEach((row) => {
@@ -134,7 +136,7 @@ export class MonitoringDashboardComponent<T>
   }
 
   calculateTotalsByProcessFlow(data: any[]): {
-    [key: string]: string | number;
+    [key: string]: string;
   } {
     data.forEach((item) => {
       if (item.PROCESS_FLOW !== null) {
@@ -146,7 +148,7 @@ export class MonitoringDashboardComponent<T>
       }
     });
 
-    const formattedTotals: { [key: string]: string | number } = {};
+    const formattedTotals: { [key: string]: string } = {};
     Object.keys(this.processFlowKeys).forEach((key) => {
       formattedTotals[key] =
         this.processFlowKeys[key] === 0
@@ -432,7 +434,7 @@ export class MonitoringDashboardComponent<T>
       .replace(/_/g, ' ')
       .split(' ')
       .map((word) => {
-        if (word !== 'IOL') {
+        if (!this.skippedWords.includes(word)) {
           const lowerWord = word.toLowerCase();
           if (this.specialWords.includes(lowerWord)) {
             return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);

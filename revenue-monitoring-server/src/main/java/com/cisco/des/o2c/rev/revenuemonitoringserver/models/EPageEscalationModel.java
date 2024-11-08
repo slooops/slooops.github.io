@@ -8,17 +8,6 @@ public class EPageEscalationModel {
     private static String priority = "P3";
     private static String sender = "rev-i2c-ops-monitoring";
 
-    public String getAlias() {
-        return alias;
-    }
-
-    public String getPriority() {
-        return priority;
-    }
-
-    public String getSender() {
-        return sender;
-    }
 
     public String getSubject() {
         return subject;

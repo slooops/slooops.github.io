@@ -28,8 +28,8 @@ export class InvoicingComponent implements OnInit {
     'APPLICATION_NAME',
     'PROCESS_FLOW',
     'ORG_NAME',
-    'BILL_NUMBER',
     'TRANSACTION_TYPE',
+    'BILL_NUMBER',
     'SUBSCRIPTION_ID',
     'BILL_TOTAL',
     'PAYLOAD_STATUS',
@@ -50,8 +50,7 @@ export class InvoicingComponent implements OnInit {
     'ORG_NAME',
     'AMOUNT',
     'TRANSACTION_DATE',
-    'SALES_ORDER',
-    'INTERFACE_LINE_ID',
+    'TRANSACTION_ID',
     'ERROR_MESSAGE',
   ];
 
@@ -73,6 +72,8 @@ export class InvoicingComponent implements OnInit {
     'id',
     'line',
   ];
+
+  skippedWords: string[] = ['IOL', 'AR', 'ID'];
 
   preInvoicingUrls: { [key: string]: string } = {
     summaryUrl: 'pre-invoice-error-summary',

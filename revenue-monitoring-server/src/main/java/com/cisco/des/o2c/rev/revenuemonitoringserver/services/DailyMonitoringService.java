@@ -824,7 +824,6 @@ public class DailyMonitoringService {
         String[] dateColumns = {"TRANSACTION_DATE"};
         List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorDetails);
         result.forEach(data -> {
-            renameKey(data, "AMOUNT_USD", "AMOUNT");
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             formatDateColumns(data, dateColumns);
         });
@@ -852,7 +851,6 @@ public class DailyMonitoringService {
         String[] dateColumns = {"TRANSACTION_DATE"};
         List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(autoInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, transactionDate);
         result.forEach(data -> {
-            renameKey(data, "AMOUNT_USD", "AMOUNT");
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             formatDateColumns(data, dateColumns);
         });
@@ -861,11 +859,17 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName, String uniqueId) {
         String[] dateColumns = {"TRANSACTION_DATE"};
+        String[] emptyAmountColumns = {"IOL_HOLD",
+                "IOL_PENDING",
+                "IOL_ERROR",
+                "AR_INTERFACE",
+                "AR_INTERFACE_ERROR",
+                "INVOICED"};
         List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(preInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, uniqueId);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
-            renameKey(data, "IOL_ERROR", "AMOUNT");
             formatDateColumns(data, dateColumns);
+            formatEmptyAmounts(data, emptyAmountColumns);
         });
         return result;
     }

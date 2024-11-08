@@ -1,22 +1,47 @@
-<ng-template>
+<ng-container *ngIf="totals$ | async as allTotals">
   <div class="flowchart-container">
     <br />
     <div class="slider">
       <div class="slider-bar">
-        <!-- Circle 1 -->
-        <div *ngFor="let key of objectKeys(totals)" class="circle-wrapper">
-          <p class="circle-caption">{{ key }}</p>
-          <span class="circle"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            <!-- Dynamically fetch the total value for each key -->
-            <span>{{ getTotal(key) }}</span>
-          </p>
-        </div>
+        <ng-container
+          *ngFor="let tab of processFlowTabsToDisplay; let tabIndex = index"
+        >
+          <ng-container
+            *ngFor="let key of objectKeys(allTotals[tab]); let i = index"
+          >
+            <div
+              class="circle-wrapper"
+              [ngClass]="'circle-wrapper-' + (tabIndex * 10 + i + 1)"
+            >
+              <p class="circle-caption">{{ key }}</p>
+              <span
+                class="circle"
+                [ngClass]="'circle-' + (tabIndex * 10 + i + 1)"
+              ></span>
+              <p class="circle-subcaption">
+                Total Impact: {{ allTotals[tab][key] || "N/A" }}
+              </p>
+            </div>
 
-        <!-- Chevron -->
-        <div class="chevron"></div>
+            <!-- Chevron only if it's not the last item -->
+            <ng-container
+              *ngIf="
+                i < objectKeys(allTotals[tab]).length - 1 ||
+                tabIndex < processFlowTabsToDisplay.length - 1
+              "
+            >
+              <div
+                class="chevron"
+                [ngClass]="'chevron-' + (tabIndex * 10 + i + 1)"
+              ></div>
+              <div
+                class="chevron-white"
+                [ngClass]="'chevron-white-' + (tabIndex * 10 + i + 1)"
+              ></div>
+            </ng-container>
+          </ng-container>
+        </ng-container>
       </div>
     </div>
   </div>
-</ng-template>
+</ng-container>

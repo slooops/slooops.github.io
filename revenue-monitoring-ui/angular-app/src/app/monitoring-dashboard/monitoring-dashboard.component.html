@@ -23,70 +23,9 @@
 </ng-template>
 
 <ng-template #processToolTip>
-  <div class="flowchart-container">
-    <br />
-    <div class="slider">
-      <div class="slider-bar">
-        <!-- Circle 1 -->
-        <div class="circle-wrapper circle-wrapper-1">
-          <p class="circle-caption">1. SBP Staging</p>
-          <span class="circle circle-1"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ processFlowTotals["1 - SBP Staging"] || "N/A" }}
-          </p>
-        </div>
-
-        <!-- Chevron 1 -->
-        <div class="chevron chevron-1"></div>
-        <div class="chevron-white chevron-1"></div>
-
-        <!-- Circle 2 -->
-        <div class="circle-wrapper circle-wrapper-2">
-          <p class="circle-caption" style="text-wrap: wrap">
-            2. Inv Orchestration Layer
-          </p>
-          <span class="circle circle-2"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ processFlowTotals["2 - Invoice Orchestration Layer"] || "N/A" }}
-          </p>
-        </div>
-
-        <!-- Chevron 2 -->
-        <div class="chevron chevron-2"></div>
-        <div class="chevron-white chevron-2"></div>
-
-        <!-- Circle 3 -->
-        <div class="circle-wrapper circle-wrapper-3">
-          <p class="circle-caption">3. Auto-Invoice</p>
-          <span class="circle circle-3"></span>
-          <p class="circle-subcaption">
-            Total Impact:<span
-              [innerHTML]="
-                (totalImpactData$ | async)?.tab2Totals['3 - Auto Invoice']
-              "
-            ></span>
-          </p>
-        </div>
-
-        <!-- Chevron 3 -->
-        <div class="chevron chevron-3"></div>
-        <div class="chevron-white chevron-3"></div>
-
-        <!-- Circle 4 -->
-        <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">4. Post-Invoice</p>
-          <span class="circle circle-4"></span>
-          <p class="circle-subcaption">Total Impact: N/A</p>
-        </div>
-
-        <!-- Chevron 4 -->
-        <div class="chevron chevron-4"></div>
-        <div class="chevron-white chevron-4"></div>
-      </div>
-    </div>
-  </div>
+  <app-process-flow-tooltip
+    [processFlowTabsToDisplay]="processFlowTabsToDisplay"
+  ></app-process-flow-tooltip>
 </ng-template>
 <div>
   <div class="container rol-error-summary-container">

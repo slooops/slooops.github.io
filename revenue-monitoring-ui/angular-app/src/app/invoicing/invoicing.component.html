@@ -1,7 +1,7 @@
 <mat-tab-group [selectedIndex]="0">
-  <!-- <mat-tab label="Auto-Invoicing">
+  <mat-tab label="Auto-Invoicing">
     <app-auto-invoicing-real></app-auto-invoicing-real>
-  </mat-tab> -->
+  </mat-tab>
   <mat-tab label="Pre-Invoicing">
     <app-monitoring-dashboard
       [urls]="preInvoicingUrls"
@@ -10,7 +10,9 @@
       [periodStatus]="periodStatus"
       [detailsDisplayedColumns]="preInvoicingDetailsColumns"
       [componentName]="'Pre-Invoicing'"
+      [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
       [specialWords]="specialWords"
+      [skippedWords]="skippedWords"
     ></app-monitoring-dashboard>
   </mat-tab>
 
@@ -22,7 +24,9 @@
       [periodStatus]="periodStatus"
       [detailsDisplayedColumns]="autoInvoicingDetailsColumns"
       [componentName]="'Auto-Invoicing'"
+      [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
       [specialWords]="specialWords"
+      [skippedWords]="skippedWords"
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Post-Invoicing" [disabled]="true"></mat-tab>
