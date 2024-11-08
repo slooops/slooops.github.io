@@ -53,7 +53,7 @@ public class EPageAccessTokenUtil {
             messageBody.add("client_secret", EPageAccessTokenConfig.getClientSecret());
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(messageBody, headers);
-            String responseBody = restTemplate.postForObject(EPageAccessTokenConfig.getApiUrl(), request, String.class);
+            String responseBody = restTemplate.postForObject("https://cloudsso.cisco.com/as/token.oauth2", request, String.class);
             JSONObject responseBodyJson = new JSONObject(responseBody);
             accessToken = responseBodyJson.getString("access_token");
             tokenType = responseBodyJson.getString("token_type");
