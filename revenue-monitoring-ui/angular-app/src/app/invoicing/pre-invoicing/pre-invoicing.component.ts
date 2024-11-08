@@ -48,7 +48,6 @@ export class PreInvoicingComponent<T>
   ngOnInit(): void {
     this.getPreInvoiceErrorSummary();
     this.getPreInvoiceErrorDetails();
-    this.totalImpactData$ = this.dataService.totalImpactData$;
   }
   ngAfterViewInit(): void {
     // this.paginator.page.subscribe((event: PageEvent) => {
@@ -120,7 +119,6 @@ export class PreInvoicingComponent<T>
     this.http.get(this.summaryUrl).subscribe((data: any) => {
       console.log(data);
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
-      this.dataService.setTab1Data(this.processFlowTotals);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
       this.preInvoicingSummary = this.formatData(data);
       this.preInvoicingSummary.forEach((row) => {

@@ -37,7 +37,6 @@ export class AutoInvoicingComponent implements OnInit, AfterViewInit {
     this.getRolErrorSummaryPeriodStatus();
     this.getAutoInvoiceErrorSummary();
     this.getAutoInvoiceErrorDetails();
-    this.totalImpactData$ = this.dataService.totalImpactData$;
   }
 
   ngAfterViewInit(): void {
@@ -107,7 +106,6 @@ export class AutoInvoicingComponent implements OnInit, AfterViewInit {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get('auto-invoice-error-summary').subscribe((data: any) => {
       this.processFlowTotals = this.calculateTotalsByProcessFlow(data);
-      this.dataService.setTab2Data(this.processFlowTotals);
       console.log(data);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
       this.autoInvoicingSummary = this.formatData(data);
