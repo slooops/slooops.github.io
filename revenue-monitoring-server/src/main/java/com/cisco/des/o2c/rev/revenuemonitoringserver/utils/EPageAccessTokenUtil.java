@@ -1,5 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -41,18 +42,26 @@ public class EPageAccessTokenUtil {
         return tokenType;
     }
 
-    public static String getAccessToken() {
+public static String getAccessToken() {
 
         if (isTokenNeeded()) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-            MultiValueMap<String, String> messageBody = new LinkedMultiValueMap<String, String>();
+            // Add Authorization header with Basic Authentication
+            String clientId = "RevI2cOpsMonitoringPrd";
+            String clientSecret = "RevI2cOpsMonitoringPrd";
+            String credentials = clientId + ":" + clientSecret;
+            String base64Credentials = new String(Base64.encodeBase64(credentials.getBytes()));
+            headers.add("Authorization", "Basic " + base64Credentials);
+
+            // Set grant_type in the body
+            MultiValueMap<String, String> messageBody = new LinkedMultiValueMap<>();
             messageBody.add("grant_type", "client_credentials");
-            messageBody.add("client_id", EPageAccessTokenConfig.getClientId());
-            messageBody.add("client_secret", EPageAccessTokenConfig.getClientSecret());
 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(messageBody, headers);
+
+            // Make the request
             String responseBody = restTemplate.postForObject("https://cloudsso.cisco.com/as/token.oauth2", request, String.class);
             JSONObject responseBodyJson = new JSONObject(responseBody);
             accessToken = responseBodyJson.getString("access_token");
