@@ -12,6 +12,7 @@ export class AccrualsComponent implements OnInit {
   ngOnInit() {
     console.log('AccrualsComponent initialized');
     this.getAccrualsSummary();
+    this.getAccrualsDetails();
   }
 
   getAccrualsSummary(): void {
@@ -28,5 +29,12 @@ export class AccrualsComponent implements OnInit {
         console.log('HTTP GET request completed');
       }
     );
+  }
+
+  getAccrualsDetails(): void {
+    console.log('Making HTTP GET request to accruals-details');
+    this.http.get('accruals-details').subscribe((data: any) => {
+      console.log('accrualsDetails:', data);
+    });
   }
 }

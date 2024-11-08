@@ -94,6 +94,7 @@ public class DailyMonitoringService {
     private String summaryAssignmentUsers;
     private String preInvoiceErrorsSummaryUpdate;
     private String accrualsSummary;
+    private String accrualsDetails;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -112,7 +113,7 @@ public class DailyMonitoringService {
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
                                   String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
-                                  String accrualsSummary
+                                  String accrualsSummary, String accrualsDetails
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -183,6 +184,7 @@ public class DailyMonitoringService {
         this.summaryAssignmentUsers = summaryAssignmentUsers;
         this.preInvoiceErrorsSummaryUpdate = preInvoiceErrorsSummaryUpdate;
         this.accrualsSummary = accrualsSummary;
+        this.accrualsDetails = accrualsDetails;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -909,6 +911,10 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getAccrualsSummary() {
         return jdbcManager.queryForList(accrualsSummary);
+    }
+
+    public List<Map<String, Object>> getAccrualsDetails() {
+        return jdbcManager.queryForList(accrualsDetails);
     }
 
 //    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }

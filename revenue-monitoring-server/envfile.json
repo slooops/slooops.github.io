@@ -108,5 +108,6 @@
   "EPAGE_ACCESS_TOKEN_CLIENT_SECRET": "RevI2cOpsMonitoringPrd",
   "EPAGE_PAGE_OUT_URL": "https://entcalendarapi.cisco.com/calendar/pageout/",
   "EPAGE_PAGE_OUT_ALIAS": "rev-i2c-ops-monitoring",
-  "ACCRUALS_SUMMARY_QUERY": "select * from arfinro.TSP_ACCRUAL_SUMMARY_VIEW"
+  "ACCRUALS_SUMMARY_QUERY": "select * from arfinro.TSP_ACCRUAL_SUMMARY_VIEW",
+  "ACCRUALS_DETAILS_QUERY": "select * from arfinro.TSP_ACCRUAL_DETAIL_VIEW"
 }

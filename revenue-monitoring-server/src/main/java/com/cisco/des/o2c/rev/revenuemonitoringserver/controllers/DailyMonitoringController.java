@@ -545,4 +545,9 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getAccrualsSummary() {
         return new ResponseEntity<>(service.getAccrualsSummary(), HttpStatus.OK);
     }
+
+    @GetMapping("/accruals-details")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsDetails() {
+        return new ResponseEntity<>(service.getAccrualsDetails(), HttpStatus.OK);
+    }
 }

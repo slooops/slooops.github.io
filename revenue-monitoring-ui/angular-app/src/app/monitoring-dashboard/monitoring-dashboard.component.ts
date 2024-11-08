@@ -111,7 +111,11 @@ export class MonitoringDashboardComponent<T>
       this.summaryData.forEach((row) => {
         row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
         row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
-        row.AGING = row.AGING + ' Days';
+        if (row.AGING == null) {
+          row.AGING = this.getAging(row.TRANSACTION_DATE) + ' Days';
+        } else {
+          row.AGING = row.AGING + ' Days';
+        }
       });
       this.originalData = this.summaryData;
 
@@ -215,6 +219,15 @@ export class MonitoringDashboardComponent<T>
 
   getSortIcon(): string {
     return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
+  }
+
+  getAging(dateString: string): string {
+    const today = new Date();
+    const creationDate = new Date(dateString);
+    const timeDifference = today.getTime() - creationDate.getTime();
+
+    const agingInDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    return agingInDays.toString();
   }
 
   isSortedColumn(column: string): boolean {
