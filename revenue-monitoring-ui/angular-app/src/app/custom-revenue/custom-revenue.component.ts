@@ -62,7 +62,7 @@ export class CustomRevenueComponent implements OnInit {
 
   accrualsUrls: { [key: string]: string } = {
     summaryUrl: 'accruals-summary',
-    detailsUrl: '',
+    detailsUrl: 'accruals-details',
     filteredDetailsUrl: '',
     summaryUpdateUrl: '',
     webexMessageUrl: '',

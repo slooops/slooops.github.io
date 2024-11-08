@@ -1,4 +1,9 @@
 <mat-tab-group>
+  <mat-tab label="Standard Revenue" [disabled]="true" *ngIf="false"></mat-tab>
+  <mat-tab label="Revenue Orchestration Layer">
+    <app-rol></app-rol>
+  </mat-tab>
+
   <mat-tab label="Accruals">
     <app-monitoring-dashboard
       [urls]="accrualsUrls"
@@ -11,11 +16,6 @@
       [specialWords]="specialWords"
       [skippedWords]="skippedWords"
     ></app-monitoring-dashboard>
-  </mat-tab>
-
-  <mat-tab label="Standard Revenue" [disabled]="true" *ngIf="false"></mat-tab>
-  <mat-tab label="Revenue Orchestration Layer">
-    <app-rol></app-rol>
   </mat-tab>
 
   <mat-tab label="Meraki" [disabled]="true"> </mat-tab>
