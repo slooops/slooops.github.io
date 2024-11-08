@@ -1,8 +1,10 @@
 <mat-tab-group>
+  <mat-tab label="Accruals"> <app-accruals></app-accruals> </mat-tab>
+
   <mat-tab label="Standard Revenue" [disabled]="true" *ngIf="false"></mat-tab>
   <mat-tab label="Revenue Orchestration Layer">
     <app-rol></app-rol>
   </mat-tab>
-  <mat-tab label="Accruals" [disabled]="true"></mat-tab>
+
   <mat-tab label="Meraki" [disabled]="true"> </mat-tab>
 </mat-tab-group>

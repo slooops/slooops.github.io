@@ -93,15 +93,14 @@ public class DailyMonitoringService {
     private String autoInvoiceErrorsSummaryUpdate;
     private String summaryAssignmentUsers;
     private String preInvoiceErrorsSummaryUpdate;
+    private String accrualsSummary;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
                                  String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
                                  String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
-                                 String closeMEStatus, String closeQECashCollected, String dashboardComments,
-                                  String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
-                                 String invoiceTrackerHeader, String invoiceTrackerLine, String wd0ArMidCloseStatusQuery,
-                                  String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
+                                 String closeMEStatus, String closeQECashCollected, String dashboardComments, String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
+                                 String invoiceTrackerHeader, String invoiceTrackerLine, String wd0ArMidCloseStatusQuery, String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
                                   String orderStatusSummary, String orderStatusDownload, String updateOrderStatus, String kafkaError,
                                   String kafkaInbound, String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
                                   String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
@@ -112,7 +111,8 @@ public class DailyMonitoringService {
                                   String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails, String rolTransactionDataFilter,
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
-                                  String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate
+                                  String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
+                                  String accrualsSummary
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -182,6 +182,7 @@ public class DailyMonitoringService {
         this.autoInvoiceErrorsSummaryUpdate = autoInvoiceErrorsSummaryUpdate;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
         this.preInvoiceErrorsSummaryUpdate = preInvoiceErrorsSummaryUpdate;
+        this.accrualsSummary = accrualsSummary;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -904,6 +905,10 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getWd0Volumes() {
         return jdbcManager.queryForList(wd0Volumes);
+    }
+
+    public List<Map<String, Object>> getAccrualsSummary() {
+        return jdbcManager.queryForList(accrualsSummary);
     }
 
 //    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }

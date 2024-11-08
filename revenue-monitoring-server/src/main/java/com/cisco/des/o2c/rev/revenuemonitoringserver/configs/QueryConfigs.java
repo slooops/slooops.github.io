@@ -288,6 +288,9 @@ public class QueryConfigs { // TODO
     @Value(("${summary.assignment.users.query}"))
     public String summaryAssignmentUsers;
 
+    @Value(("${accruals.summary.q}"))
+    public String accrualsSummary;
+
     @Bean(name = "autoInvoiceErrorSummaryView")
     public String getAutoInvoiceErrorSummaryView() {
         return this.autoInvoiceErrorSummaryView;
@@ -743,6 +746,7 @@ public class QueryConfigs { // TODO
     @Bean( name = "summaryAssignmentUsers" )
     public String getSummaryAssignmentUsers() {return this.summaryAssignmentUsers; }
 
-
+    @Bean( name = "accrualsSummary" )
+    public String getAccrualsSummary() {return this.accrualsSummary; }
 
 }

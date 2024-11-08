@@ -11,6 +11,7 @@ import { InvoicingComponent } from './invoicing/invoicing.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
+import { AccrualsComponent } from './custom-revenue/accruals/accruals.component';
 
 const routes: Routes = [
   {
@@ -156,6 +157,14 @@ const routes: Routes = [
     data: {
       title: 'Invoice to Cash',
       header: 'Invoice to Cash',
+    },
+  },
+  {
+    path: 'accruals',
+    component: AccrualsComponent,
+    data: {
+      title: 'Accruals',
+      header: 'Accruals',
     },
   },
 ];

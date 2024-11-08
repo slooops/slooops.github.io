@@ -540,4 +540,9 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getWd0Volumes() {
         return new ResponseEntity<>(service.getWd0Volumes(), HttpStatus.OK);
     }
+
+    @GetMapping("/accruals-summary")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsSummary() {
+        return new ResponseEntity<>(service.getAccrualsSummary(), HttpStatus.OK);
+    }
 }
