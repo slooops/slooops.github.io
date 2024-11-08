@@ -96,7 +96,7 @@
   "PRE_INVOICE_ERROR_DETAILS_QUERY": "select * from ARFINRO.XXCFI_DATA_RECON_SBP_INV_DTL_V",
   "AUTO_INVOICE_ERROR_SUMMARY_UPDATE_QUERY": "update ARFINRO.XXCFI_AI_ERROR_DASHBOARD_DETAILS set assigned_to=?, assigned_by=?, assigned_date=sysdate, comments=? where name=? and process_flow=? and period_name=? and batch_source_name=? and TRUNC(creation_date)=to_date(?,'MM/DD/YYYY')",
   "PRE_INVOICE_ERROR_SUMMARY_UPDATE_QUERY": "UPDATE ARFINRO.XXCFI_SBP_DATA_RECON_STG_AR_INTF SET ASSIGNED_TO=?, ASSIGNED_DATE=SYSDATE, assigned_by=?, comments=? WHERE recon_flag='N' AND operating_unit=? AND TRUNC(payload_creation_date)=to_date(?,'MM/DD/YYYY') AND process_flow=?",
-  "CORS_URL": "http://localhost:4200",
+  "CORS_URL": "http://localhost:3000",
   "WEBEX_URL": "https://webexapis.com/v1/messages",
   "ROOM_ID_REVENUE_ACCOUNTING": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpHWmlNelkxWlRBdE9ERmlNeTB4TVdWbUxUazFOamt0WWpVd1ltVmpZVE0yTkdGbQ==",
   "ROOM_ID_INVOICING": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpqTmlNalF6WXpBdE9USmxaaTB4TVdWbUxUazFOR010T0dZNE5qVTRPVGhsT1dKbAo=",
