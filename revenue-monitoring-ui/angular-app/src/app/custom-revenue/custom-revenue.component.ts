@@ -18,7 +18,7 @@ export class CustomRevenueComponent implements OnInit {
   accrualsTotals: { [key: string]: number } = {
     KAFKA_INBOUND_ERROR: 0,
     KAFKA_INBOUND: 0,
-    ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV: 64.08,
+    ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV: 0,
     ACCRUAL_PROCESS: 0,
     ACCRUAL_DIST: 0,
     ACCRUAL_SUMMARY: 0,
@@ -27,9 +27,11 @@ export class CustomRevenueComponent implements OnInit {
     GL_BATCH_RECON: 0,
   };
 
+  // Define the steps array with both original keys and formatted labels
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: this.accrualsTotals[key] || 'N/A',
+    originalKey: key, // Store the original key for accessing dynamic totals
+    label: this.formatLabel(key), // Format for display
+    impact: this.accrualsTotals[key] || 'N/A', // Use dynamic data from accrualsTotals
   }));
 
   // Function to format the label
