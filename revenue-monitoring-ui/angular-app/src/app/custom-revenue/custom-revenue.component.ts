@@ -13,10 +13,12 @@ export class CustomRevenueComponent implements OnInit {
     this.getErrorSummaryPeriodStatus();
   }
 
+  skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
+
   accrualsTotals: { [key: string]: number } = {
     KAFKA_INBOUND_ERROR: 0,
     KAFKA_INBOUND: 0,
-    ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV: 0,
+    ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV: 64.08,
     ACCRUAL_PROCESS: 0,
     ACCRUAL_DIST: 0,
     ACCRUAL_SUMMARY: 0,
@@ -24,6 +26,28 @@ export class CustomRevenueComponent implements OnInit {
     KAFKA_PUBLISH: 0,
     GL_BATCH_RECON: 0,
   };
+
+  formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: this.accrualsTotals[key] || 'N/A',
+  }));
+
+  // Function to format the label
+  formatLabel(label: string): string {
+    const acronyms = this.skippedWords || [];
+
+    return label
+      .toLowerCase() // Convert to lowercase
+      .replace(/_/g, ' ') // Replace underscores with spaces
+      .split(' ') // Split into words
+      .map(
+        (word) =>
+          acronyms.includes(word.toUpperCase())
+            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
+            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+      )
+      .join(' '); // Join words back with spaces
+  }
 
   rolTotals: { [key: string]: number } = {
     XXCFIR_REV_INTERFACE_ALL: 0,
@@ -87,8 +111,6 @@ export class CustomRevenueComponent implements OnInit {
     'process',
   ];
 
-  skippedWords: string[] = ['IOL', 'AR', 'ID'];
-
   subApplicationMapping = {
     XXCFIR_REV_INTERFACE_ALL: '1. Interface',
     XXCFIR_REVENUE_EXTRACT_ALL: '2. Extraction',
@@ -125,185 +147,94 @@ export class CustomRevenueComponent implements OnInit {
 
   accrualsprocessflowCss: string = `
   .flowchart-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: fit-content;
-    width: 100%;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100px;
+  width: 1400px;
+  background: #ffffff;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 20px;
+}
 
-  .slider-title {
-    color: #333;
-    margin-bottom: 30px;
-    margin-top: 0px;
-    text-align: center;
-    font-weight: 500;
-    font-size: 16px;
-  }
+.slider-bar {
+  margin-top: 50px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
 
-  .slider {
-    display: flex;
-    align-items: center;
-    margin: 10px 0;
-    position: relative;
-  }
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
 
-  .slider-bar {
-    width: 1500px;
-    height: 4px;
-    background: #16371e43;
-    border-radius: 5px;
-  }
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2b558c;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
 
-  .circle-wrapper {
-    position: absolute;
-    text-align: center;
-    top: -20px;
-  }
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
 
-  .circle {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #828d9b;
-    position: absolute;
-    top: 14px;
-  }
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
 
-  .circle-caption {
-    font-size: 12px;
-    color: #333;
-    text-align: center;
-    position: relative;
-    top: -12px;
-  }
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
 
-  .circle-subcaption {
-    font-size: 10px;
-    color: #000000;
-    text-align: center;
-    position: relative;
-    top: 2px;
-    font-weight: bold;
-  }
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
 
-  /* Specific positioning for each circle-wrapper */
-  .circle-wrapper-1 {
-    left: 0px;
-  }
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
 
-  .circle-wrapper-2 {
-    left: 170px;
-  }
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
 
-  .circle-wrapper-3 {
-    left: 340px;
-  }
-
-  .circle-wrapper-4 {
-    left: 510px;
-  }
-
-  .circle-wrapper-5 {
-    left: 680px;
-  }
-
-  .circle-wrapper-6 {
-    left: 850px;
-  }
-  .circle-wrapper-7 {
-    left: 1020px;
-  }
-  .circle-wrapper-8 {
-    left: 1190px;
-  }
-  .circle-wrapper-9 {
-    left: 1360px;
-  }
-
-  .circle-1 {
-    left: 48px;
-  }
-
-  .circle-2 {
-    left: 56px;
-  }
-
-  .circle-3 {
-    left: 48px;
-  }
-
-  .circle-4 {
-    left: 48px;
-  }
-
-  .circle-5 {
-    left: 48px;
-  }
-
-  .circle-6 {
-    left: 48px;
-  }
-  .circle-7 {
-    left: 48px;
-  }
-  .circle-8 {
-    left: 48px;
-  }
-  .circle-9 {
-    left: 48px;
-  }
-  /* Chevron Arrows */
-  .chevron {
-    position: absolute;
-    top: 0px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 2px 2px 2px 2px;
-    border-color: transparent #16371e43 transparent transparent;
-    transform: rotate(180deg);
-    z-index: 1;
-  }
-
-  .chevron-white {
-    position: absolute;
-    top: -2px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 4px 4px 4px 4px;
-    border-color: transparent #f7f7f7 transparent transparent;
-    transform: rotate(180deg);
-  }
-
-  .chevron-1 {
-    left: 170px;
-  }
-
-  .chevron-2 {
-    left: 300px;
-  }
-
-  .chevron-3 {
-    left: 480px;
-  }
-
-  .chevron-4 {
-    left: 630px;
-  }
-  .chevron-5 {
-    left: 780px;
-  }
-  .chevron-6 {
-    left: 930px;
-  }
-  .chevron-7 {
-    left: 1080px;
-  }
-  .chevron-8 {
-    left: 1230px;
-  }
   `;
 
   rolprocessflowCss: string = `

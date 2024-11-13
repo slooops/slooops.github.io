@@ -88,6 +88,7 @@ import { UserAssignmentComponent } from './monitoring-dashboard/user-assignment/
 import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow-tooltip/process-flow-tooltip.component';
 import { AccrualsComponent } from './custom-revenue/accruals/accruals.component';
 import { MatStepperModule } from '@angular/material/stepper';
+import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -143,6 +144,7 @@ export function initApp(authService: AuthenticationService) {
     UserAssignmentComponent,
     ProcessFlowTooltipComponent,
     AccrualsComponent,
+    O2cDemoComponent,
   ],
   imports: [
     BrowserModule,

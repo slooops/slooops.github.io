@@ -12,6 +12,7 @@ import { PeriodCloseTrackingComponent } from './period-close-tracking/period-clo
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { AccrualsComponent } from './custom-revenue/accruals/accruals.component';
+import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 
 const routes: Routes = [
   {
@@ -165,6 +166,14 @@ const routes: Routes = [
     data: {
       title: 'Accruals',
       header: 'Accruals',
+    },
+  },
+  {
+    path: 'o2c-demo',
+    component: O2cDemoComponent,
+    data: {
+      title: 'O2C Demo',
+      header: 'O2C Demo',
     },
   },
 ];

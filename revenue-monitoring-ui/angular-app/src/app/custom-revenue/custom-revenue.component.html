@@ -42,132 +42,21 @@
 </mat-tab-group>
 
 <ng-template #accrualsTemplate let-allTotals="allTotals">
-  <div
-    class="flowchart-container"
-    style="padding-left: 5px; padding-right: 5px; padding-bottom: 20px"
-  >
-    <br />
-    <div class="slider">
-      <div class="slider-bar">
-        <!-- Pre-Invoicing Circle 1 -->
-        <div class="circle-wrapper circle-wrapper-1">
-          <p class="circle-caption">KAFKA_INBOUND_ERROR</p>
-          <span class="circle circle-1"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['KAFKA_INBOUND_ERROR'] || 'N/A' }}
-          </p>
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedAccrualsSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">Total Impact: {{ step.impact }}</p>
         </div>
 
-        <!-- Chevron 1 -->
-        <div class="chevron chevron-1"></div>
-        <div class="chevron-white chevron-1"></div>
-
-        <!-- Pre-Invoicing Circle 2 -->
-        <div class="circle-wrapper circle-wrapper-2">
-          <p class="circle-caption">KAFKA_INBOUND</p>
-          <span class="circle circle-2"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['KAFKA_INBOUND_ERROR'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 2 -->
-        <div class="chevron chevron-2"></div>
-        <div class="chevron-white chevron-2"></div>
-
-        <!-- Auto-Invoicing Circle 3 -->
-        <div class="circle-wrapper circle-wrapper-3">
-          <p class="circle-caption">ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV</p>
-          <span class="circle circle-3"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 3 -->
-        <div class="chevron chevron-3"></div>
-        <div class="chevron-white chevron-3"></div>
-
-        <!-- Post-Invoice Circle 4 -->
-        <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">ACCRUAL_PROCESS</p>
-          <span class="circle circle-4"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['ACCRUAL_PROCESS'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 4 -->
-        <div class="chevron chevron-4"></div>
-        <div class="chevron-white chevron-4"></div>
-
-        <!-- Post-Invoice Circle 5 -->
-        <div class="circle-wrapper circle-wrapper-5">
-          <p class="circle-caption">ACCRUAL_DIST</p>
-          <span class="circle circle-5"></span>
-          <p class="circle-subcaption">
-            Total Impact: {{ allTotals['Accruals']?.['ACCRUAL_DIST'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 5 -->
-        <div class="chevron chevron-5"></div>
-        <div class="chevron-white chevron-5"></div>
-
-        <!-- Post-Invoice Circle 6 -->
-        <div class="circle-wrapper circle-wrapper-6">
-          <p class="circle-caption">ACCRUAL_SUMMARY</p>
-          <span class="circle circle-6"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['ACCRUAL_SUMMARY'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 6 -->
-        <div class="chevron chevron-6"></div>
-        <div class="chevron-white chevron-6"></div>
-
-        <!-- Post-Invoice Circle 7 -->
-        <div class="circle-wrapper circle-wrapper-7">
-          <p class="circle-caption">ACCRUAL_SUMM_DIST</p>
-          <span class="circle circle-7"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['ACCRUAL_SUMM_DIST'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 7 -->
-        <div class="chevron chevron-7"></div>
-        <div class="chevron-white chevron-7"></div>
-
-        <!-- Post-Invoice Circle 8 -->
-        <div class="circle-wrapper circle-wrapper-8">
-          <p class="circle-caption">KAFKA_PUBLISH</p>
-          <span class="circle circle-8"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['KAFKA_PUBLISH'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 8 -->
-        <div class="chevron chevron-8"></div>
-        <div class="chevron-white chevron-8"></div>
-
-        <!-- Post-Invoice Circle 9 -->
-        <div class="circle-wrapper circle-wrapper-9">
-          <p class="circle-caption">GL_BATCH_RECON</p>
-          <span class="circle circle-9"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.['GL_BATCH_RECON'] || 'N/A' }}
-          </p>
+        <div
+          *ngIf="i < formattedAccrualsSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
         </div>
       </div>
     </div>
