@@ -1,7 +1,7 @@
 <mat-tab-group [selectedIndex]="0">
-  <mat-tab label="Auto-Invoicing">
+  <!-- <mat-tab label="Auto-Invoicing">
     <app-auto-invoicing-real></app-auto-invoicing-real>
-  </mat-tab>
+  </mat-tab> -->
   <mat-tab label="Pre-Invoicing">
     <app-monitoring-dashboard
       [urls]="preInvoicingUrls"
@@ -13,6 +13,10 @@
       [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
       [specialWords]="specialWords"
       [skippedWords]="skippedWords"
+      [dynamicTemplate]="dynamicTemplate"
+      [dynamicCss]="invoicingprocessflowCss"
+      [isSubAppMapping]="false"
+      [warningMessage]="'Invoice processing is delayed '"
     ></app-monitoring-dashboard>
   </mat-tab>
 
@@ -27,6 +31,10 @@
       [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
       [specialWords]="specialWords"
       [skippedWords]="skippedWords"
+      [dynamicTemplate]="dynamicTemplate"
+      [dynamicCss]="invoicingprocessflowCss"
+      [isSubAppMapping]="false"
+      [warningMessage]="'Invoice processing is delayed '"
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Post-Invoicing" [disabled]="true"></mat-tab>
@@ -37,3 +45,64 @@
   <mat-tab label="Fusion" [disabled]="true"></mat-tab>
   <mat-tab label="Invoicing Controls" [disabled]="true"></mat-tab>
 </mat-tab-group>
+
+<ng-template #dynamicTemplate let-allTotals="allTotals">
+  <div
+    class="flowchart-container"
+    style="padding-left: 5px; padding-right: 5px; padding-bottom: 20px"
+  >
+    <br />
+    <div class="slider">
+      <div class="slider-bar">
+        <!-- Pre-Invoicing Circle 1 -->
+        <div class="circle-wrapper circle-wrapper-1">
+          <p class="circle-caption">1. SBP Staging</p>
+          <span class="circle circle-1"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Pre-Invoicing']?.['1 - SBP Staging'] || 'N/A' }}
+          </p>
+        </div>
+
+        <!-- Chevron 1 -->
+        <div class="chevron chevron-1"></div>
+        <div class="chevron-white chevron-1"></div>
+
+        <!-- Pre-Invoicing Circle 2 -->
+        <div class="circle-wrapper circle-wrapper-2">
+          <p class="circle-caption">2. Inv Orchestration Layer</p>
+          <span class="circle circle-2"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Pre-Invoicing']?.['2 - Invoice Orchestration Layer'] || 'N/A' }}
+          </p>
+        </div>
+
+        <!-- Chevron 2 -->
+        <div class="chevron chevron-2"></div>
+        <div class="chevron-white chevron-2"></div>
+
+        <!-- Auto-Invoicing Circle 3 -->
+        <div class="circle-wrapper circle-wrapper-3">
+          <p class="circle-caption">3. Auto-Invoice</p>
+          <span class="circle circle-3"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Auto-Invoicing']?.['3 - Auto Invoice'] || 'N/A' }}
+          </p>
+        </div>
+
+        <!-- Chevron 3 -->
+        <div class="chevron chevron-3"></div>
+        <div class="chevron-white chevron-3"></div>
+
+        <!-- Post-Invoice Circle 4 -->
+        <div class="circle-wrapper circle-wrapper-4">
+          <p class="circle-caption">4. Post-Invoice</p>
+          <span class="circle circle-4"></span>
+          <p class="circle-subcaption">Total Impact: N/A</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

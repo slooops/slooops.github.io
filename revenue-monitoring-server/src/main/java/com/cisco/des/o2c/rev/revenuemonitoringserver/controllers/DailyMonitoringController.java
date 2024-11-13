@@ -169,14 +169,19 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getOrderStatusRevSummary(), HttpStatus.OK);
     }
 
+//    @GetMapping("/rol-transaction-data")
+//    public ResponseEntity<Map<String, Object>> getRolTransactionData() {
+//        List<RolTransactionData> rolTransactionData = service.getRolTransactionData();
+////        int totalRecords = service.getTotalRecords();
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("rolTransactionData", rolTransactionData);
+////        response.put("totalRecords", totalRecords);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
+
     @GetMapping("/rol-transaction-data")
-    public ResponseEntity<Map<String, Object>> getRolTransactionData() {
-        List<RolTransactionData> rolTransactionData = service.getRolTransactionData();
-//        int totalRecords = service.getTotalRecords();
-        Map<String, Object> response = new HashMap<>();
-        response.put("rolTransactionData", rolTransactionData);
-//        response.put("totalRecords", totalRecords);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> getRolTransactionDetails() {
+        return new ResponseEntity<>(service.getRolErrorDetails(), HttpStatus.OK);
     }
 
     @GetMapping("/rol-transaction-data-filter")
@@ -185,8 +190,8 @@ public class DailyMonitoringController {
                                                                            @RequestParam List<String> appNames,
                                                                            @RequestParam List<String> uniqueIds) {
         try {
-            List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), uniqueIds.size())));
 //            int totalRecords = 0;
 
             for (int i = 0; i < minLength; i++) {
@@ -194,12 +199,12 @@ public class DailyMonitoringController {
                 String ouName = ouNames.get(i);
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
-                List<RolTransactionData> result = service.getRolTransactionDataFilter(periodName, ouName, appName, uniqueId);
-                rolTransactionDataFiltered.addAll(result);
+                List<Map<String, Object>> result = service.getRolTransactionDetailsFilter(periodName, ouName, appName, uniqueId);
+                errorDetailsFiltered.addAll(result);
 //                totalRecords += service.getTotalRecordsFiltered(periodName, ouName, appName, sequenceNum);
             }
             Map<String, Object> response = new HashMap<>();
-            response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
 //            response.put("totalRecords", totalRecords);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e){
@@ -230,7 +235,7 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/pre-invoice-error-summary")
-    public ResponseEntity<List<Map<String, Object>>> getPreoInvoiceErrorSummary() {
+    public ResponseEntity<List<Map<String, Object>>> getPreInvoiceErrorSummary() {
         return new ResponseEntity<>(service.getPreInvoiceErrorSummaryView(), HttpStatus.OK);
     }
 
@@ -244,7 +249,6 @@ public class DailyMonitoringController {
                                                                                        @RequestParam List<String> ouNames,
                                                                                        @RequestParam List<String> appNames,
                                                                                   @RequestParam List<String> uniqueIds) {
-
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
@@ -304,14 +308,12 @@ public class DailyMonitoringController {
 
     @PostMapping("/auto-invoice-error-summary-update")
     public ResponseEntity<String> updateAutoInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
-        System.out.println(updateData);
         int test = service.updateAutoInvoiceErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
     @PostMapping("/pre-invoice-error-summary-update")
     public ResponseEntity<String> updatePreInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
-        System.out.println(updateData);
         int test = service.updatePreInvoiceErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }

@@ -4,7 +4,11 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ElementRef,
+  Renderer2,
+  TemplateRef,
 } from '@angular/core';
+import { SafeHtml } from '@angular/platform-browser';
 import { combineLatest, map, Observable } from 'rxjs';
 import { DataService } from 'src/app/providers/data.service';
 
@@ -13,19 +17,45 @@ import { DataService } from 'src/app/providers/data.service';
   templateUrl: './process-flow-tooltip.component.html',
   styleUrl: './process-flow-tooltip.component.css',
 })
-export class ProcessFlowTooltipComponent implements OnInit {
+export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
   @Input() processFlowTabsToDisplay: string[];
-
-  totals$: Observable<{ [tabName: string]: { [key: string]: number } }>;
-
+  @Input() dynamicTemplate: TemplateRef<any> | null = null;
+  @Input() dynamicCss: string = '';
+  totals$:
+    | Observable<{ [tabName: string]: { [key: string]: number } }>
+    | undefined;
   tabsToDisplay: string[] = [];
+  processFlowhtml: string = '';
+  processFlowcss: string = '';
+  htmlContent: string = '';
+  sanitizedHtml: SafeHtml = '';
+  htmlTemplate: TemplateRef<any> | null = null;
+  csstemplate: string = '';
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private el: ElementRef,
+    private renderer: Renderer2
+  ) {}
 
   ngOnInit() {
-    this.totals$ = this.getCombinedTotals(['Pre-Invoicing', 'Auto-Invoicing']);
-    console.log('totals$:', this.totals$);
+    console.log('here');
   }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes['processFlowTabsToDisplay'] &&
+      changes['dynamicTemplate'] &&
+      changes['dynamicCss']
+    ) {
+      this.tabsToDisplay = this.processFlowTabsToDisplay;
+      this.totals$ = this.getCombinedTotals(this.tabsToDisplay);
+      this.htmlTemplate = this.dynamicTemplate;
+      this.injectCss();
+    }
+  }
+
+  ngAfterViewInit() {}
 
   private getCombinedTotals(
     tabNames: string[]
@@ -43,5 +73,13 @@ export class ProcessFlowTooltipComponent implements OnInit {
 
   objectKeys(obj: any): string[] {
     return obj ? Object.keys(obj) : [];
+  }
+
+  injectCss() {
+    if (this.dynamicCss) {
+      const style = this.renderer.createElement('style');
+      style.innerHTML = this.dynamicCss;
+      this.renderer.appendChild(this.el.nativeElement, style);
+    }
   }
 }

@@ -1,6 +1,5 @@
 :host {
   display: block;
-  /* Create a linear gradient background */
   background: linear-gradient(
     to right,
     white 0%,
@@ -9,7 +8,6 @@
     #f7f7f7 97.5%,
     white 100%
   );
-  /* background: #f7f7f7; */
   min-height: 100vh; /* Ensure it covers the entire height of the viewport */
   padding: 1.2rem; /* Add padding to keep spacing from the edges */
   font-family: "Inter", sans-serif;
@@ -28,7 +26,6 @@
   padding: 1vh !important;
 }
 
-/* Styling for table rows */
 .mat-row:nth-child(odd) {
   background-color: #f2f2f2 !important;
 }
@@ -93,12 +90,10 @@ tr.mat-header-row {
   height: 100%;
 }
 
-/* Prevent wrapping of header text */
 .no-wrap {
   white-space: nowrap;
 }
 
-/* Ensure the table fits within its container and can scroll horizontally */
 .custom-table {
   min-width: 100%; /* Adjust based on your needs */
   table-layout: auto; /* Allows columns to resize dynamically */
@@ -131,7 +126,6 @@ tr.mat-header-row {
   width: 100%;
 }
 
-/* Grid container for 3x3 layout */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* 3 columns */
@@ -147,7 +141,6 @@ tr.mat-header-row {
   align-items: end;
 }
 
-/* Fallback for empty grid spots */
 .grid-item {
   display: flex;
   align-items: stretch;
@@ -237,7 +230,6 @@ tr.mat-header-row {
   padding: 0 10px 0 12px;
 }
 
-/* Table Container Styling */
 .rol-error-summary-container {
   overflow-x: auto; /* Ensure the table scrolls horizontally if too wide */
   display: flex;
@@ -377,11 +369,11 @@ tr.mat-header-row {
 }
 
 .arrow_upward::before {
-  content: "↑";
+  content: "↓";
 }
 
 .arrow_downward::before {
-  content: "↓";
+  content: "↑";
 }
 
 .mat-column-APPLICATION_NAME {

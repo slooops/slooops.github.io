@@ -9,15 +9,19 @@
 
 <ng-template #warningToolTip>
   <span>
-    <p>This is a warning message for a transaction!</p>
+    <p>{{ warningMessage }}</p>
   </span>
 </ng-template>
 
 <ng-template #escalationToolTip>
   <span>
     <ul>
-      <li>Escalation 1</li>
-      <li>Escalation 2</li>
+      <li *ngIf="escalationLevel >= 1">
+        Escalation 1: Sai Sreepathi (11/12/2024)
+      </li>
+      <li *ngIf="escalationLevel >= 2">
+        Escalation 2: Nirmala Gopalan (11/13/2024)
+      </li>
     </ul>
   </span>
 </ng-template>
@@ -25,7 +29,11 @@
 <ng-template #processToolTip>
   <app-process-flow-tooltip
     [processFlowTabsToDisplay]="processFlowTabsToDisplay"
-  ></app-process-flow-tooltip>
+    [dynamicTemplate]="dynamicTemplate"
+    [dynamicCss]="dynamicCss"
+  >
+    ></app-process-flow-tooltip
+  >
 </ng-template>
 <div>
   <div class="container rol-error-summary-container">
@@ -77,8 +85,8 @@
           (click)="
             exportTableToExcel(
               summaryDatasource.data,
-              'Pre Invoicing Error Summary',
-              'Pre_Invoicing_Error_Summary'
+              componentName + ' Error Summary',
+              componentName + '_Error_Summary'
             )
           "
         >
@@ -153,7 +161,12 @@
               >
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
-                    {{ element[column] }}
+                    <span *ngIf="isSubAppMapping">
+                      {{ subAppMapper(element[column]) }}
+                    </span>
+                    <span *ngIf="componentName !== 'Rol'">
+                      {{ element[column] }}
+                    </span>
                   </ng-container>
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
@@ -229,7 +242,7 @@
   <div class="header-container">
     <h5 class="section-title">{{ componentName }} Error Details</h5>
     <div class="action-buttons">
-      <button mat-icon-button>
+      <button mat-icon-button [disabled]="true">
         <i class="svg-icon chart-icon"></i>
       </button>
       <button mat-icon-button>
@@ -260,6 +273,14 @@
 
             <td mat-cell *matCellDef="let element">
               <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchCase="'PROCESS_FLOW'">
+                  <span *ngIf="isSubAppMapping">
+                    {{ subAppMapper(element[column]) }}
+                  </span>
+                  <span *ngIf="componentName !== 'Rol'">
+                    {{ element[column] }}
+                  </span>
+                </ng-container>
                 <ng-container *ngSwitchDefault>
                   {{ element[column] }}
                 </ng-container>

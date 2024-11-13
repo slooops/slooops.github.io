@@ -25,6 +25,14 @@ export class CustomRevenueComponent implements OnInit {
     GL_BATCH_RECON: 0,
   };
 
+  rolTotals: { [key: string]: number } = {
+    XXCFIR_REV_INTERFACE_ALL: 0,
+    XXCFIR_REVENUE_EXTRACT_ALL: 0,
+    XXCFIR_REVENUE_DIST_ALL: 0,
+    XXCFIR_ROL_XLA_SUMMARY: 0,
+    XLA_AE_HEADERS: 0,
+  };
+
   periodStatus: any;
 
   accrualsDetailsColumns: string[] = [
@@ -36,6 +44,19 @@ export class CustomRevenueComponent implements OnInit {
     'SOURCE',
     'SUBREF_ORDER',
     'TRXN_UNIQUE_ID',
+    'ERROR_MESSAGE',
+  ];
+
+  rolDetailsColumns: string[] = [
+    'PERIOD_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'ORG_NAME',
+    'AMOUNT',
+    'PROCESS_STATUS',
+    'SOURCE',
+    'TRANSACTION_ID',
+    'ORDER_LINE_ID',
     'ERROR_MESSAGE',
   ];
 
@@ -56,9 +77,25 @@ export class CustomRevenueComponent implements OnInit {
     'staging',
     'id',
     'line',
+    'name',
+    'num',
+    'year',
+    'code',
+    'org',
+    'sub',
+    'unit',
+    'process',
   ];
 
   skippedWords: string[] = ['IOL', 'AR', 'ID'];
+
+  subApplicationMapping = {
+    XXCFIR_REV_INTERFACE_ALL: '1. Interface',
+    XXCFIR_REVENUE_EXTRACT_ALL: '2. Extraction',
+    XXCFIR_REVENUE_DIST_ALL: '3. Distribution',
+    XXCFIR_ROL_XLA_SUMMARY: '4. Summarization',
+    XLA_AE_HEADERS: '5. SLA',
+  };
 
   accrualsUrls: { [key: string]: string } = {
     summaryUrl: 'accruals-summary',
@@ -66,6 +103,18 @@ export class CustomRevenueComponent implements OnInit {
     filteredDetailsUrl: '',
     summaryUpdateUrl: '',
     webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  rolUrls: { [key: string]: string } = {
+    summaryUrl: 'rol-errors-summary',
+    detailsUrl: 'rol-transaction-data',
+    filteredDetailsUrl: 'rol-transaction-data-filter',
+    summaryUpdateUrl: 'rol-errors-summary-update',
+    webexMessageUrl: 'send-message-rol',
+    chartTotalsUrl: 'rol-chart-totals',
+    chartDetailsUrl: 'rol-chart-details',
   };
 
   getErrorSummaryPeriodStatus() {
@@ -73,4 +122,337 @@ export class CustomRevenueComponent implements OnInit {
       this.periodStatus = data;
     });
   }
+
+  accrualsprocessflowCss: string = `
+  .flowchart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: fit-content;
+    width: 100%;
+  }
+
+  .slider-title {
+    color: #333;
+    margin-bottom: 30px;
+    margin-top: 0px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 16px;
+  }
+
+  .slider {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    position: relative;
+  }
+
+  .slider-bar {
+    width: 1500px;
+    height: 4px;
+    background: #16371e43;
+    border-radius: 5px;
+  }
+
+  .circle-wrapper {
+    position: absolute;
+    text-align: center;
+    top: -20px;
+  }
+
+  .circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #828d9b;
+    position: absolute;
+    top: 14px;
+  }
+
+  .circle-caption {
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+    position: relative;
+    top: -12px;
+  }
+
+  .circle-subcaption {
+    font-size: 10px;
+    color: #000000;
+    text-align: center;
+    position: relative;
+    top: 2px;
+    font-weight: bold;
+  }
+
+  /* Specific positioning for each circle-wrapper */
+  .circle-wrapper-1 {
+    left: 0px;
+  }
+
+  .circle-wrapper-2 {
+    left: 170px;
+  }
+
+  .circle-wrapper-3 {
+    left: 340px;
+  }
+
+  .circle-wrapper-4 {
+    left: 510px;
+  }
+
+  .circle-wrapper-5 {
+    left: 680px;
+  }
+
+  .circle-wrapper-6 {
+    left: 850px;
+  }
+  .circle-wrapper-7 {
+    left: 1020px;
+  }
+  .circle-wrapper-8 {
+    left: 1190px;
+  }
+  .circle-wrapper-9 {
+    left: 1360px;
+  }
+
+  .circle-1 {
+    left: 48px;
+  }
+
+  .circle-2 {
+    left: 56px;
+  }
+
+  .circle-3 {
+    left: 48px;
+  }
+
+  .circle-4 {
+    left: 48px;
+  }
+
+  .circle-5 {
+    left: 48px;
+  }
+
+  .circle-6 {
+    left: 48px;
+  }
+  .circle-7 {
+    left: 48px;
+  }
+  .circle-8 {
+    left: 48px;
+  }
+  .circle-9 {
+    left: 48px;
+  }
+  /* Chevron Arrows */
+  .chevron {
+    position: absolute;
+    top: 0px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 2px 2px 2px 2px;
+    border-color: transparent #16371e43 transparent transparent;
+    transform: rotate(180deg);
+    z-index: 1;
+  }
+
+  .chevron-white {
+    position: absolute;
+    top: -2px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 4px 4px 4px;
+    border-color: transparent #f7f7f7 transparent transparent;
+    transform: rotate(180deg);
+  }
+
+  .chevron-1 {
+    left: 170px;
+  }
+
+  .chevron-2 {
+    left: 300px;
+  }
+
+  .chevron-3 {
+    left: 480px;
+  }
+
+  .chevron-4 {
+    left: 630px;
+  }
+  .chevron-5 {
+    left: 780px;
+  }
+  .chevron-6 {
+    left: 930px;
+  }
+  .chevron-7 {
+    left: 1080px;
+  }
+  .chevron-8 {
+    left: 1230px;
+  }
+  `;
+
+  rolprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: fit-content;
+  width: 100%;
+}
+
+.slider-title {
+  color: #333;
+  margin-bottom: 30px;
+  margin-top: 0px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.slider {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  position: relative;
+}
+
+.slider-bar {
+  width: 780px;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+}
+
+.circle-wrapper {
+  position: absolute;
+  text-align: center;
+  top: -20px;
+}
+
+.circle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: absolute;
+  top: 14px;
+}
+
+.circle-caption {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  position: relative;
+  top: -12px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000000;
+  text-align: center;
+  position: relative;
+  top: 2px;
+  font-weight: bold;
+}
+
+/* Specific positioning for each circle-wrapper */
+.circle-wrapper-1 {
+  left: 0px;
+}
+
+.circle-wrapper-2 {
+  left: 150px;
+}
+
+.circle-wrapper-3 {
+  left: 325px;
+}
+
+.circle-wrapper-4 {
+  left: 490px;
+}
+
+.circle-wrapper-5 {
+  left: 670px;
+}
+
+.circle-1 {
+  left: 48px;
+}
+
+.circle-2 {
+  left: 56px;
+}
+
+.circle-3 {
+  left: 48px;
+}
+
+.circle-4 {
+  left: 48px;
+}
+
+.circle-5 {
+  left: 24px;
+}
+
+/* Chevron Arrows */
+.chevron {
+  position: absolute;
+  top: 0px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+}
+
+.chevron-white {
+  position: absolute;
+  top: -2px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 4px 4px 4px;
+  border-color: transparent #f7f7f7 transparent transparent;
+  transform: rotate(180deg);
+}
+
+.chevron-1 {
+  left: 130px;
+}
+
+.chevron-1a {
+  left: 130px;
+}
+
+.chevron-2 {
+  left: 300px;
+}
+
+.chevron-3 {
+  left: 480px;
+}
+
+.chevron-4 {
+  left: 630px;
+}
+  `;
 }

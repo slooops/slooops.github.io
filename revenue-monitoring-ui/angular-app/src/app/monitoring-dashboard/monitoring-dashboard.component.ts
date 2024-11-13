@@ -6,6 +6,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
@@ -38,12 +39,18 @@ export class MonitoringDashboardComponent<T>
   @Input() processFlowTabsToDisplay: string[];
   @Input() specialWords: string[];
   @Input() skippedWords: string[];
-
+  @Input() subAppMapping: { [key: string]: string };
+  @Input() dynamicTemplate: TemplateRef<any> | null = null;
+  @Input() dynamicCss: string = '';
+  @Input() isSubAppMapping: boolean = false;
+  @Input() warningMessage: string = '';
   periodName: string = '';
   periodEnd: string = '';
   totalImpactData$: Observable<any>;
   updateUrl: string;
   webexUrl: string;
+  processFlowhtml: string = '';
+  processFlowcss: string = '';
   constructor(
     private http: ApiHttpService,
     private datePipe: DatePipe,
@@ -53,7 +60,6 @@ export class MonitoringDashboardComponent<T>
   ngOnInit(): void {
     this.getErrorSummary();
     this.getErrorDetails();
-    this.processFlowTotals$ = this.dataService.getTabData(this.componentName);
     this.updateUrl = this.urls['summaryUpdateUrl'];
     this.webexUrl = this.urls['webexMessageUrl'];
   }
@@ -78,6 +84,7 @@ export class MonitoringDashboardComponent<T>
       this.periodName = this.periodStatus[0].PERIOD_NAME;
       this.periodEnd = this.dateTransform(this.periodStatus[0].END_DATE);
     }
+    this.processFlowTotals$ = this.dataService.getTabData(this.componentName);
   }
 
   summaryLoadTime: string;
@@ -103,7 +110,6 @@ export class MonitoringDashboardComponent<T>
   getErrorSummary() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get(this.urls['summaryUrl']).subscribe((data: any) => {
-      console.log('Error Summary Data:', data);
       const totals = this.calculateTotalsByProcessFlow(data);
       this.dataService.setTabData(this.componentName, totals);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
@@ -177,6 +183,10 @@ export class MonitoringDashboardComponent<T>
     return formattedTotals;
   }
 
+  subAppMapper(key: string): string | undefined {
+    return this.subAppMapping[key];
+  }
+
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | '' = '';
   sortData(column: string) {
@@ -239,16 +249,15 @@ export class MonitoringDashboardComponent<T>
     return Number(aging) > 6;
   }
 
+  escalationLevel: any = 0;
   getCircleNumber(element: any): any {
     const aging = Number(element.AGING.split(' ')[0]);
-    if (aging >= 7 && aging <= 10) {
-      return 1;
-    } else if (aging >= 11 && aging <= 16) {
-      return 2;
-    } else if (aging > 16) {
-      return 3;
+    if (aging >= 7 && aging <= 11) {
+      this.escalationLevel = 1;
+    } else if (aging > 11) {
+      this.escalationLevel = 2;
     }
-    return 0;
+    return this.escalationLevel;
   }
 
   dateTransform(dateString: string): string {
@@ -361,7 +370,6 @@ export class MonitoringDashboardComponent<T>
 
     this.http.get(this.urls['detailsUrl']).subscribe({
       next: (data: any) => {
-        console.log('Error Details Data:', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
         this.errorDetails.forEach((row) => {
@@ -409,7 +417,6 @@ export class MonitoringDashboardComponent<T>
       .get(this.urls['filteredDetailsUrl'], { params: pageRequest })
       .subscribe({
         next: (data: any) => {
-          console.log('Filtered Error Details Data:', data);
           this.errorDetailsFiltered = data.errorDetailsFiltered;
           this.errorDetailsFiltered = this.formatData(
             this.errorDetailsFiltered
@@ -461,25 +468,25 @@ export class MonitoringDashboardComponent<T>
   }
 
   export() {
-    let compname;
-    if (this.componentName === 'Pre-Invoicing') {
-      compname = 'PreInv';
-    } else {
-      compname = 'AutoInv';
-    }
     if (this.isFiltered) {
       this.exportTableToExcel(
         this.errorDetailsFiltered,
-        compname + ' Error Details Filtered',
-        compname + '_Error_Details_Filtered'
+        this.generateSheetName(this.componentName + ' Error Details Filtered'),
+        this.componentName + '_Error_Details_Filtered'
       );
     } else {
       this.exportTableToExcel(
         this.errorDetails,
-        compname + ' Error Details',
-        compname + '_Error_Details'
+        this.generateSheetName(this.componentName + ' Error Details'),
+        this.componentName + '_Error_Details'
       );
     }
+  }
+
+  generateSheetName(originalName: string): string {
+    const maxNameLength = 31;
+    let truncatedName = originalName.substring(0, maxNameLength);
+    return truncatedName;
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
@@ -493,104 +500,106 @@ export class MonitoringDashboardComponent<T>
   chart: any;
   openChartModal: boolean = false;
 
-  // getChartTotals() {
-  //   this.chartLoading = true;
-  //   this.http.get('rol-chart-totals').subscribe((data: any) => {
-  //     const labels = data.map((entry) => entry.PERIOD_NAME);
-  //     const counts = data.map((entry) => entry.COUNT_RECORDS);
-  //     this.http.get('rol-chart-details').subscribe((detailsData: any) => {
-  //       const groupedData = detailsData.reduce((acc, curr) => {
-  //         const period = curr.PERIOD_NAME;
-  //         if (!acc[period]) {
-  //           acc[period] = [];
-  //         }
-  //         acc[period].push(curr);
-  //         return acc;
-  //       }, {});
+  getChartTotals() {
+    this.chartLoading = true;
+    this.http.get(this.urls['chartTotalsUrl']).subscribe((data: any) => {
+      const labels = data.map((entry) => entry.PERIOD_NAME);
+      const counts = data.map((entry) => entry.COUNT_RECORDS);
+      this.http
+        .get(this.urls['chartDetailsUrl'])
+        .subscribe((detailsData: any) => {
+          const groupedData = detailsData.reduce((acc, curr) => {
+            const period = curr.PERIOD_NAME;
+            if (!acc[period]) {
+              acc[period] = [];
+            }
+            acc[period].push(curr);
+            return acc;
+          }, {});
 
-  //       this.createHistoricalErrorTrendChart(labels, counts, groupedData);
-  //       this.chartLoading = false;
-  //     });
-  //   });
-  // }
+          this.createHistoricalErrorTrendChart(labels, counts, groupedData);
+          this.chartLoading = false;
+        });
+    });
+  }
 
-  // createHistoricalErrorTrendChart(
-  //   labels: string[],
-  //   data: number[],
-  //   groupedData: any
-  // ) {
-  //   const ctx = document.getElementById(
-  //     'historicalErrorTrend'
-  //   ) as HTMLCanvasElement;
+  createHistoricalErrorTrendChart(
+    labels: string[],
+    data: number[],
+    groupedData: any
+  ) {
+    const ctx = document.getElementById(
+      'historicalErrorTrend'
+    ) as HTMLCanvasElement;
 
-  //   this.chart = new Chart(ctx, {
-  //     type: 'line',
-  //     data: {
-  //       labels: labels,
-  //       datasets: [
-  //         {
-  //           label: 'Number of Errors',
-  //           data: data,
-  //           borderColor: '#007dab',
-  //           backgroundColor: 'rgba(0, 125, 171, 0.2)',
-  //           fill: true,
-  //           pointRadius: 5,
-  //           tension: 0.2,
-  //         },
-  //       ],
-  //     },
-  //     options: {
-  //       responsive: true,
-  //       maintainAspectRatio: false,
-  //       scales: {
-  //         x: {
-  //           title: {
-  //             display: true,
-  //             text: 'Time (Months)',
-  //           },
-  //         },
-  //         y: {
-  //           title: {
-  //             display: true,
-  //             text: 'Number of Errors',
-  //           },
-  //           beginAtZero: true,
-  //         },
-  //       },
-  //       plugins: {
-  //         tooltip: {
-  //           displayColors: false,
-  //           callbacks: {
-  //             label: (tooltipItem: any) => {
-  //               const periodName = tooltipItem.label;
-  //               const totalErrors = tooltipItem.raw;
-  //               const details = groupedData[periodName];
-  //               const tooltipLines = [`Total Errors: ${totalErrors}`];
-  //               if (details) {
-  //                 tooltipLines.push(
-  //                   ...details.map(
-  //                     (item: any) =>
-  //                       `${item.APPLICATION_NAME}: ${item.COUNT_RECORDS}`
-  //                   )
-  //                 );
-  //               } else {
-  //                 tooltipLines.push('No details available');
-  //               }
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Number of Errors',
+            data: data,
+            borderColor: '#007dab',
+            backgroundColor: 'rgba(0, 125, 171, 0.2)',
+            fill: true,
+            pointRadius: 5,
+            tension: 0.2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Time (Months)',
+            },
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Number of Errors',
+            },
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          tooltip: {
+            displayColors: false,
+            callbacks: {
+              label: (tooltipItem: any) => {
+                const periodName = tooltipItem.label;
+                const totalErrors = tooltipItem.raw;
+                const details = groupedData[periodName];
+                const tooltipLines = [`Total Errors: ${totalErrors}`];
+                if (details) {
+                  tooltipLines.push(
+                    ...details.map(
+                      (item: any) =>
+                        `${item.APPLICATION_NAME}: ${item.COUNT_RECORDS}`
+                    )
+                  );
+                } else {
+                  tooltipLines.push('No details available');
+                }
 
-  //               return tooltipLines;
-  //             },
-  //           },
-  //         },
-  //       },
-  //     },
-  //   });
-  // }
+                return tooltipLines;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 
-  // openChart() {
-  //   this.openChartModal = true;
+  openChart() {
+    this.openChartModal = true;
 
-  //   setTimeout(() => {
-  //     this.getChartTotals();
-  //   }, 0);
-  // }
+    setTimeout(() => {
+      this.getChartTotals();
+    }, 0);
+  }
 }

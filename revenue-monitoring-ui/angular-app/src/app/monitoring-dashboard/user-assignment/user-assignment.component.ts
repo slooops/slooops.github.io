@@ -94,6 +94,7 @@ export class UserAssignmentComponent implements OnInit {
       username: this.username,
     };
 
+    console.log('updateData:', updateData);
     this.http
       .post(this.updateUrl, updateData, {
         responseType: 'text',
@@ -142,7 +143,7 @@ export class UserAssignmentComponent implements OnInit {
           ? this.updateForm.value.comments
           : this.data[0].COMMENTS,
     };
-
+    console.log('webexMessageData:', webexMessageData);
     this.http
       .post(this.webexUrl, webexMessageData, {
         responseType: 'text',

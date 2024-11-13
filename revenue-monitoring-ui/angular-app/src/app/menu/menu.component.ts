@@ -55,7 +55,6 @@ export class MenuComponent implements OnInit {
 
   getAssignmentUsers() {
     this.http.get('summary-assignment-users').subscribe((data) => {
-      console.log('Assignment Users:', data);
       this.assignmentUsers = data;
       this.dataService.setAssignmentUsers(this.assignmentUsers);
     });

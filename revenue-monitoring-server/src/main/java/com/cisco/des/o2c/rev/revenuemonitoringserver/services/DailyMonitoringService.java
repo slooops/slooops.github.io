@@ -631,7 +631,6 @@ public class DailyMonitoringService {
             timestamp = new Timestamp(date.getTime());
         }
 //        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), timestamp, cloData.getCloComments(), username);
-//        System.out.println(test);
     }
 
     private static final List<SimpleDateFormat> dateFormats = new ArrayList<>();
@@ -674,15 +673,12 @@ public class DailyMonitoringService {
 
         Timestamp timestamp = new Timestamp(date.getTime());
 
-        System.out.println(updatedModel+ " "+ username);
 
         int test = jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, timestamp, username);
-        System.out.println(test);
     }
 
     public void setCloCommentUpdate(Map<String, String> updatedModel, String username){
         String so;
-        System.out.println(updatedModel.get("orderID"));
         if(updatedModel.get("orderID").equals("TBD")){
             so = "0";
         } else {
@@ -692,8 +688,16 @@ public class DailyMonitoringService {
     }
 
 
-    public List<RolTransactionData> getRolTransactionData() {
-        return jdbcManager.getRolTransactionData(rolTransactionData);
+
+    public List<Map<String, Object>> getRolErrorDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(rolTransactionData);
+        result.forEach(data -> {
+            renameKey(data, "OU_NAME", "ORG_NAME");
+            renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
+            renameKey(data, "ORDERLINEID", "ORDER_LINE_ID");
+            renameKey(data, "ORDERNUMBER_CUSTTRXID", "TRANSACTION_ID");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getSummaryAssignmentUsers() {
@@ -708,9 +712,6 @@ public class DailyMonitoringService {
 //    }
 
 
-    public List<RolTransactionData> getRolTransactionDataFilter(String periodName, String ouName, String applicationName, String uniqueId) {
-        return jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, periodName, ouName, applicationName, Integer.parseInt(uniqueId));
-    }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummary);
@@ -728,7 +729,7 @@ public class DailyMonitoringService {
         String comments = updateData.get("comments");
         String periodName = updateData.get("periodName");
         String appName = updateData.get("appName");
-        String subApp = updateData.get("subApp");
+        String subApp = updateData.get("processFlow");
         String orgName = updateData.get("orgName");
         String assignedBy = updateData.get("username");
         int test = jdbcManager.updateRolErrorsSummaryData(rolErrorsSummaryUpdate, assignedTo, comments, assignedBy, periodName, appName, subApp, orgName);
@@ -755,9 +756,7 @@ public class DailyMonitoringService {
         String ouName = updateData.get("orgName");
         String processFlow = updateData.get("processFlow");
         String creationDate = updateData.get("creationDate");
-        System.out.println(preInvoiceErrorsSummaryUpdate);
         int test = jdbcManager.updatePreInvoiceErrorsSummaryData(preInvoiceErrorsSummaryUpdate, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
-        System.out.println(test);
         return 1;
     }
 
@@ -846,6 +845,17 @@ public class DailyMonitoringService {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
             formatDateColumns(data, dateColumns);
             formatEmptyAmounts(data, emptyAmountColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getRolTransactionDetailsFilter(String periodName, String ouName, String applicationName, String uniqueId) {
+        List<Map<String, Object>> result = jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, periodName, ouName, applicationName, Integer.parseInt(uniqueId));
+        result.forEach(data -> {
+            renameKey(data, "OU_NAME", "ORG_NAME");
+            renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
+            renameKey(data, "ORDERLINEID", "ORDER_LINE_ID");
+            renameKey(data, "ORDERNUMBER_CUSTTRXID", "TRANSACTION_ID");
         });
         return result;
     }
