@@ -369,11 +369,11 @@ tr.mat-header-row {
 }
 
 .arrow_upward::before {
-  content: "↓";
+  content: "↑";
 }
 
 .arrow_downward::before {
-  content: "↑";
+  content: "↓";
 }
 
 .mat-column-APPLICATION_NAME {
