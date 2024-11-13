@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ApiHttpService } from '../providers/http.service';
 
 // import {
 //   AccessorModule,
@@ -19,11 +20,30 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: ApiHttpService) {}
+  i2cData: any;
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.getI2CSummary();
+  }
 
   navigateTo(page: string): void {
     this.router.navigate([page]);
+  }
+
+  getI2CSummary() {
+    this.http.get('invoice-to-cash-summary').subscribe((data) => {
+      this.i2cData = data;
+    });
+  }
+
+  formatData(data): any[] {
+    let formattedAmount;
+    formattedAmount = `$${Number(data).toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })}`;
+
+    return formattedAmount;
   }
 }

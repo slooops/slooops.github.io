@@ -552,4 +552,10 @@ public class DailyMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getAccrualsDetails() {
         return new ResponseEntity<>(service.getAccrualsDetails(), HttpStatus.OK);
     }
+
+    @GetMapping("/invoice-to-cash-summary")
+    public ResponseEntity<List<Map<String, Object>>> getInvoiceTOoCashSummary() {
+        return new ResponseEntity<>(service.getInvoiceToCashSummary(), HttpStatus.OK);
+    }
+
 }

@@ -18,12 +18,12 @@
               <circle-progress
                 [percent]="100"
                 [maxPercent]="100"
-                [radius]="40"
-                [outerStrokeWidth]="10"
-                [innerStrokeWidth]="5"
+                [radius]="33"
+                [outerStrokeWidth]="8"
+                [innerStrokeWidth]="4"
                 [showTitle]="false"
                 [units]="'6/6'"
-                unitsFontSize="18px"
+                unitsFontSize="14px"
               ></circle-progress>
               <div class="progress-caption">
                 <p class="caption-title">Pre Close Job Status</p>
@@ -39,13 +39,13 @@
               <circle-progress
                 [percent]="100"
                 [maxPercent]="100"
-                [radius]="40"
-                [outerStrokeWidth]="10"
-                [innerStrokeWidth]="5"
+                [radius]="33"
+                [outerStrokeWidth]="8"
+                [innerStrokeWidth]="4"
                 [showTitle]="false"
                 [showSubtitle]="false"
                 [units]="'6/6'"
-                unitsFontSize="18px"
+                unitsFontSize="14px"
               ></circle-progress>
               <div class="progress-caption">
                 <p class="caption-title">Mid Close Job Status</p>
@@ -56,14 +56,13 @@
         </div>
         <div class="card-status">
           <span class="status-icon">&#10003;</span>
-          <!-- Example icon -->
           <span class="status-text">No Issues</span>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="grid-item">
+  <!-- <div class="grid-item">
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">
@@ -73,22 +72,16 @@
         <div
           class="card-placeholder"
           (click)="navigateTo('large-deal-tracker')"
-          style="
-            background-image: url('assets/thumbnails/large_deal.png');
-            background-size: cover;
-            background-position: center;
-          "
         ></div>
         <div class="card-status">
           <span class="status-icon">&#10003;</span>
-          <!-- Example icon -->
           <span class="status-text">No Issues</span>
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <div class="grid-item">
+  <!-- <div class="grid-item">
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">
@@ -106,14 +99,13 @@
         ></div>
         <div class="card-status">
           <span class="status-icon">&#10003;</span>
-          <!-- Example icon -->
           <span class="status-text">No Issues</span>
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <div class="grid-item">
+  <!-- <div class="grid-item">
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">
@@ -131,14 +123,13 @@
         ></div>
         <div class="card-status">
           <span class="status-icon">&#10003;</span>
-          <!-- Example icon -->
           <span class="status-text">No Issues</span>
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <div class="grid-item">
+  <!-- <div class="grid-item">
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">
@@ -156,33 +147,40 @@
         ></div>
         <div class="card-status">
           <span class="status-icon">&#10003;</span>
-          <!-- Example icon -->
           <span class="status-text">No Issues</span>
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <div class="grid-item">
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">
-          <p class="card-title">ROL Dashboard</p>
-          <p class="card-subtitle">Contextual Info</p>
+          <p class="card-title">Invoice to Cash</p>
+          <p class="card-subtitle">Pre-Invoice & Auto-Invoice</p>
         </div>
-        <div
-          class="card-placeholder"
-          (click)="navigateTo('rol')"
-          style="
-            background-image: url('assets/thumbnails/ROL.png');
-            background-size: cover;
-            background-position: center;
-          "
-        ></div>
+        <div class="card-placeholder" (click)="navigateTo('invoice-to-cash')">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Process Flow</th>
+                <th scope="col">Amount</th>
+              </tr>
+            </thead>
+            <tbody style="text-align: center; background-color: white">
+              <tr *ngFor="let data of i2cData">
+                <td>{{ data.PROCESS_FLOW }}</td>
+                <td>{{ formatData(data.AMOUNT_USD) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="card-status">
-          <span class="status-icon">&#10003;</span>
-          <!-- Example icon -->
-          <span class="status-text">No Issues</span>
+          <span class="status-icon" style="color: red">
+            <i class="fa fa-exclamation"></i>
+          </span>
+          <span class="status-text">Invoice Amount Errors</span>
         </div>
       </div>
     </div>

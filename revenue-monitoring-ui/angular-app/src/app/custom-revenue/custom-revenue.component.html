@@ -1,5 +1,5 @@
-<mat-tab-group>
-  <mat-tab label="Standard Revenue" *ngIf="false"></mat-tab>
+<mat-tab-group [selectedIndex]="1">
+  <mat-tab label="Standard Revenue" [disabled]="true"></mat-tab>
   <mat-tab label="Revenue Orchestration Layer">
     <app-monitoring-dashboard
       [urls]="rolUrls"
@@ -19,7 +19,7 @@
     ></app-monitoring-dashboard>
   </mat-tab>
 
-  <mat-tab label="Accruals">
+  <mat-tab label="Accruals" [disabled]="true">
     <app-monitoring-dashboard
       [urls]="accrualsUrls"
       [fieldKey]="'SEQUENCE_ID'"
@@ -38,6 +38,7 @@
   </mat-tab>
 
   <mat-tab label="Meraki" [disabled]="true"> </mat-tab>
+  <mat-tab label="Business Controls" [disabled]="true"></mat-tab>
 </mat-tab-group>
 
 <ng-template #accrualsTemplate let-allTotals="allTotals">

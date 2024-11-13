@@ -95,6 +95,7 @@ public class DailyMonitoringService {
     private String preInvoiceErrorsSummaryUpdate;
     private String accrualsSummary;
     private String accrualsDetails;
+    private String invoiceToCashSummary;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -113,7 +114,7 @@ public class DailyMonitoringService {
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
                                   String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
-                                  String accrualsSummary, String accrualsDetails
+                                  String accrualsSummary, String accrualsDetails, String invoiceToCashSummary
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -185,6 +186,7 @@ public class DailyMonitoringService {
         this.preInvoiceErrorsSummaryUpdate = preInvoiceErrorsSummaryUpdate;
         this.accrualsSummary = accrualsSummary;
         this.accrualsDetails = accrualsDetails;
+        this.invoiceToCashSummary = invoiceToCashSummary;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -926,6 +928,12 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getAccrualsDetails() {
         return jdbcManager.queryForList(accrualsDetails);
     }
+
+    public List<Map<String, Object>> getInvoiceToCashSummary() {
+        return jdbcManager.queryForList(invoiceToCashSummary);
+    }
+
+
 
 //    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }
 
