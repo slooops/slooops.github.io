@@ -1,17 +1,123 @@
-<div class="slider-bar">
-  <div *ngFor="let step of formattedAccrualsSteps; let i = index">
-    <div class="circle-wrapper-loop">
-      <p class="circle-caption-loop">{{ step.label }}</p>
-      <p class="circle-loop"></p>
-      <p class="circle-subcaption">Total Impact: {{ step.impact }}</p>
-    </div>
-
-    <div
-      *ngIf="i < formattedAccrualsSteps.length - 1"
-      class="chevron-wrapper-loop"
+<div class="container grid-1">
+  <table mat-table [dataSource]="data" multiTemplateDataRows matSort>
+    <ng-container
+      [matColumnDef]="column"
+      *ngFor="let column of columnsToDisplay"
     >
-      <div class="chevron"></div>
-      <div class="chevron-white"></div>
-    </div>
-  </div>
+      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail">
+      <td
+        mat-cell
+        *matCellDef="let element"
+        [attr.colspan]="columnsToDisplay.length"
+      >
+        <div
+          class="example-element-detail"
+          [@detailExpand]="element?.expanded"
+          *ngIf="element?.expanded"
+        >
+          <div style="width: 100%">
+            <table
+              mat-table
+              [dataSource]="element.addresses"
+              multiTemplateDataRows
+              matSort
+            >
+              <ng-container
+                matColumnDef="{{ innerColumn }}"
+                *ngFor="let innerColumn of innerDisplayedColumns"
+              >
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  {{ innerColumn }}
+                </th>
+                <td mat-cell *matCellDef="let address">
+                  {{ address[innerColumn] }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="expandedExpandedDetail">
+                <td
+                  mat-cell
+                  *matCellDef="let address"
+                  [attr.colspan]="innerInnerDisplayedColumns.length"
+                >
+                  <div
+                    class="example-element-detail"
+                    [@detailExpand]="address?.expanded"
+                    *ngIf="address?.expanded"
+                  >
+                    <div style="width: 100%">
+                      <table
+                        style="width: 100%"
+                        #inneTables
+                        mat-table
+                        #innrSort="matSort"
+                        [dataSource]="address?.comments"
+                        matSort
+                      >
+                        <ng-container
+                          matColumnDef="{{ col }}"
+                          *ngFor="let col of innerInnerDisplayedColumns"
+                        >
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                            {{ col }}
+                          </th>
+                          <td mat-cell *matCellDef="let comment">
+                            {{ comment[col] }}
+                          </td>
+                        </ng-container>
+
+                        <tr
+                          mat-header-row
+                          *matHeaderRowDef="innerInnerDisplayedColumns"
+                        ></tr>
+                        <tr
+                          mat-row
+                          *matRowDef="
+                            let comment;
+                            columns: innerInnerDisplayedColumns
+                          "
+                        ></tr>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
+              <tr
+                mat-row
+                *matRowDef="let address; columns: innerDisplayedColumns"
+                [class.example-element-row]="address.comments?.length"
+                [class.example-expanded-row]="address?.expanded"
+                (click)="address.expanded = !address?.expanded"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: ['expandedExpandedDetail']"
+                class="example-detail-row"
+              ></tr>
+            </table>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+    <tr
+      mat-row
+      *matRowDef="let element; columns: columnsToDisplay"
+      [class.example-element-row]="element.addresses?.length"
+      [class.example-expanded-row]="element?.expanded"
+      (click)="element.expanded = !element?.expanded"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="example-detail-row"
+    ></tr>
+  </table>
 </div>
