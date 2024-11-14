@@ -70,7 +70,7 @@
           <p class="card-subtitle">Pre-Invoice & Auto-Invoice</p>
         </div>
         <div class="card-placeholder" (click)="navigateTo('invoice-to-cash')">
-          <table class="table">
+          <table class="table" *ngIf="i2cData?.length">
             <thead>
               <tr>
                 <th scope="col">Process Flow</th>
@@ -84,6 +84,12 @@
               </tr>
             </tbody>
           </table>
+
+          <ng-container *ngIf="!i2cData?.length">
+            <div class="small-loading-container">
+              <app-loading-symbol-small> </app-loading-symbol-small>
+            </div>
+          </ng-container>
         </div>
         <div class="card-status">
           <span class="status-icon" style="color: red">

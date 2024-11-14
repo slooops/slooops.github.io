@@ -13,6 +13,45 @@ export class CustomRevenueComponent implements OnInit {
     this.getErrorSummaryPeriodStatus();
   }
 
+  rolTotals: { [key: string]: number } = {
+    XXCFIR_REV_INTERFACE_ALL: 0,
+    XXCFIR_REVENUE_EXTRACT_ALL: 0,
+    XXCFIR_REVENUE_DIST_ALL: 0,
+    XXCFIR_ROL_XLA_SUMMARY: 0,
+    XLA_AE_HEADERS: 0,
+  };
+
+  rolDetailsColumns: string[] = [
+    'PERIOD_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'ORG_NAME',
+    'AMOUNT',
+    'PROCESS_STATUS',
+    'SOURCE',
+    'TRANSACTION_ID',
+    'ORDER_LINE_ID',
+    'ERROR_MESSAGE',
+  ];
+
+  rolUrls: { [key: string]: string } = {
+    summaryUrl: 'rol-errors-summary',
+    detailsUrl: 'rol-transaction-data',
+    filteredDetailsUrl: 'rol-transaction-data-filter',
+    summaryUpdateUrl: 'rol-errors-summary-update',
+    webexMessageUrl: 'send-message-rol',
+    chartTotalsUrl: 'rol-chart-totals',
+    chartDetailsUrl: 'rol-chart-details',
+  };
+
+  subApplicationMapping = {
+    XXCFIR_REV_INTERFACE_ALL: '1. Interface',
+    XXCFIR_REVENUE_EXTRACT_ALL: '2. Extraction',
+    XXCFIR_REVENUE_DIST_ALL: '3. Distribution',
+    XXCFIR_ROL_XLA_SUMMARY: '4. Summarization',
+    XLA_AE_HEADERS: '5. SLA',
+  };
+
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
@@ -29,9 +68,8 @@ export class CustomRevenueComponent implements OnInit {
 
   // Define the steps array with both original keys and formatted labels
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
-    originalKey: key, // Store the original key for accessing dynamic totals
-    label: this.formatLabel(key), // Format for display
-    impact: this.accrualsTotals[key] || 'N/A', // Use dynamic data from accrualsTotals
+    label: this.formatLabel(key),
+    impact: key,
   }));
 
   // Function to format the label
@@ -51,14 +89,6 @@ export class CustomRevenueComponent implements OnInit {
       .join(' '); // Join words back with spaces
   }
 
-  rolTotals: { [key: string]: number } = {
-    XXCFIR_REV_INTERFACE_ALL: 0,
-    XXCFIR_REVENUE_EXTRACT_ALL: 0,
-    XXCFIR_REVENUE_DIST_ALL: 0,
-    XXCFIR_ROL_XLA_SUMMARY: 0,
-    XLA_AE_HEADERS: 0,
-  };
-
   periodStatus: any;
 
   accrualsDetailsColumns: string[] = [
@@ -70,19 +100,6 @@ export class CustomRevenueComponent implements OnInit {
     'SOURCE',
     'SUBREF_ORDER',
     'TRXN_UNIQUE_ID',
-    'ERROR_MESSAGE',
-  ];
-
-  rolDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'PROCESS_STATUS',
-    'SOURCE',
-    'TRANSACTION_ID',
-    'ORDER_LINE_ID',
     'ERROR_MESSAGE',
   ];
 
@@ -113,32 +130,14 @@ export class CustomRevenueComponent implements OnInit {
     'process',
   ];
 
-  subApplicationMapping = {
-    XXCFIR_REV_INTERFACE_ALL: '1. Interface',
-    XXCFIR_REVENUE_EXTRACT_ALL: '2. Extraction',
-    XXCFIR_REVENUE_DIST_ALL: '3. Distribution',
-    XXCFIR_ROL_XLA_SUMMARY: '4. Summarization',
-    XLA_AE_HEADERS: '5. SLA',
-  };
-
   accrualsUrls: { [key: string]: string } = {
     summaryUrl: 'accruals-summary',
     detailsUrl: 'accruals-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
+    filteredDetailsUrl: 'accruals-details-filtered',
+    summaryUpdateUrl: 'accruals-summary-update',
+    webexMessageUrl: 'send-message-rol',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
-  };
-
-  rolUrls: { [key: string]: string } = {
-    summaryUrl: 'rol-errors-summary',
-    detailsUrl: 'rol-transaction-data',
-    filteredDetailsUrl: 'rol-transaction-data-filter',
-    summaryUpdateUrl: 'rol-errors-summary-update',
-    webexMessageUrl: 'send-message-rol',
-    chartTotalsUrl: 'rol-chart-totals',
-    chartDetailsUrl: 'rol-chart-details',
   };
 
   getErrorSummaryPeriodStatus() {
@@ -146,98 +145,6 @@ export class CustomRevenueComponent implements OnInit {
       this.periodStatus = data;
     });
   }
-
-  accrualsprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100px;
-  width: 1400px;
-  background: #ffffff;
-  padding-left: 5px;
-  padding-right: 5px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 50px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #2b558c;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-
-  `;
 
   rolprocessflowCss: string = `
   .flowchart-container {
@@ -386,6 +293,96 @@ export class CustomRevenueComponent implements OnInit {
 
 .chevron-4 {
   left: 630px;
+}
+  `;
+
+  accrualsprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 1350px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
 }
   `;
 }

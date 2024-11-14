@@ -95,7 +95,9 @@ public class DailyMonitoringService {
     private String preInvoiceErrorsSummaryUpdate;
     private String accrualsSummary;
     private String accrualsDetails;
+    private String accrualsDetailsFiltered;
     private String invoiceToCashSummary;
+    private String accrualsSummaryUpdate;
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -114,7 +116,7 @@ public class DailyMonitoringService {
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
                                   String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
-                                  String accrualsSummary, String accrualsDetails, String invoiceToCashSummary
+                                  String accrualsSummary, String accrualsDetails, String invoiceToCashSummary, String accrualsDetailsFiltered, String accrualsSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -187,6 +189,8 @@ public class DailyMonitoringService {
         this.accrualsSummary = accrualsSummary;
         this.accrualsDetails = accrualsDetails;
         this.invoiceToCashSummary = invoiceToCashSummary;
+        this.accrualsDetailsFiltered = accrualsDetailsFiltered;
+        this.accrualsSummaryUpdate = accrualsSummaryUpdate;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -762,6 +766,18 @@ public class DailyMonitoringService {
         return 1;
     }
 
+    public int updateAccrualsErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String ouName = updateData.get("orgName");
+        String processFlow = updateData.get("processFlow");
+        int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy, periodName, processFlow, ouName );
+        return 1;
+    }
+
+
 
     public List<Map<String, Object>> getMonitoringPeriodStatus() {
         String[] dateColumns = {"END_DATE"};
@@ -922,12 +938,23 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getAccrualsSummary() {
-        return jdbcManager.queryForList(accrualsSummary);
+
+        List<Map<String, Object>> result = jdbcManager.queryForList(accrualsSummary);
+        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getAccrualsDetails() {
         return jdbcManager.queryForList(accrualsDetails);
     }
+
+    public List<Map<String, Object>> getAccrualsDetailsFiltered(String periodName, String ouName, String processFlow, String sequenceNum) {
+        return jdbcManager.queryForListWithParamsAccruals(accrualsDetailsFiltered, periodName, ouName, processFlow, Integer.parseInt(sequenceNum));
+    }
+
 
     public List<Map<String, Object>> getInvoiceToCashSummary() {
         return jdbcManager.queryForList(invoiceToCashSummary);

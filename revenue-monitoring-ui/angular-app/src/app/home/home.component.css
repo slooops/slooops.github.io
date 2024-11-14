@@ -177,3 +177,12 @@
   flex-grow: 1; /* Center the text within the bar */
   color: #3b7bd9; /* Ensure it matches the desired color scheme */
 }
+
+.small-loading-container {
+  min-height: calc(10px + 1.3vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}

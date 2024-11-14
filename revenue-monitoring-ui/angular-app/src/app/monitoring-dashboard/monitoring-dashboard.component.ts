@@ -404,12 +404,14 @@ export class MonitoringDashboardComponent<T>
     const periodNames = data.map((row) => row.PERIOD_NAME);
     const ouNames = data.map((row) => row.ORG_NAME);
     const appNames = data.map((row) => row.APPLICATION_NAME);
+    const processFlows = data.map((row) => row.PROCESS_FLOW);
     const uniqueIds = data.map((row) => row[this.fieldKey]);
 
     const pageRequest = {
       periodNames: periodNames.join(','),
       ouNames: ouNames.join(','),
       appNames: appNames.join(','),
+      processFlows: processFlows.join(','),
       uniqueIds: uniqueIds.join(','),
     };
 

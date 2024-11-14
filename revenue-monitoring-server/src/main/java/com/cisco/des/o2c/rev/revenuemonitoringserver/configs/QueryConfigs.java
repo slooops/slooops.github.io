@@ -294,6 +294,12 @@ public class QueryConfigs { // TODO
     @Value(("${accruals.details.q}"))
     public String accrualsDetails;
 
+    @Value(("${accruals.details.filtered}"))
+    public String accrualsDetailsFiltered;
+
+    @Value(("${accruals.summary.update.q}"))
+    public String accrualsSummaryUpdate;
+
     @Value(("${invoice.to.cash.summary.q}"))
     public String invoiceToCashSummary;
 
@@ -757,6 +763,12 @@ public class QueryConfigs { // TODO
 
     @Bean( name = "accrualsDetails" )
     public String getAccrualsDetails() {return this.accrualsDetails; }
+
+    @Bean( name = "accrualsDetailsFiltered" )
+    public String getAccrualsDetailsFiltered() {return this.accrualsDetailsFiltered; }
+
+    @Bean( name = "accrualsSummaryUpdate" )
+    public String getAccrualsSummaryUpdate() {return this.accrualsSummaryUpdate; }
 
     @Bean( name = "invoiceToCashSummary" )
     public String getInvoiceToCashSummary() {return this.invoiceToCashSummary; }

@@ -110,5 +110,7 @@
   "EPAGE_PAGE_OUT_ALIAS": "rev-i2c-ops-monitoring",
   "ACCRUALS_SUMMARY_QUERY": "select * from arfinro.TSP_ACCRUAL_SUMMARY_VIEW",
   "ACCRUALS_DETAILS_QUERY": "select * from arfinro.TSP_ACCRUAL_DETAIL_VIEW",
-  "INVOICE_TO_CASH_SUMMARY": "select * from arfinro.XXCFI_PRE_AI_BOT_SUMM_V"
+  "INVOICE_TO_CASH_SUMMARY": "select * from arfinro.XXCFI_PRE_AI_BOT_SUMM_V",
+  "ACCRUALS_DETAILS_FILTERED_QUERY": "SELECT * FROM arfinro.TSP_ACCRUAL_DETAIL_VIEW WHERE period_name=? AND org_name=? AND process_flow=? AND sequence_number=?",
+  "ACCRUALS_SUMMARY_UPDATE_QUERY": "UPDATE arfinro.ASK_INTERFACE_ERRORS_DEMO SET ASSIGNED_TO=?, ASSIGNED_DATE=SYSDATE, COMMENTS=?, ASSIGNED_BY=? WHERE 1=1 AND tag='REV_ACCRUAL' AND NVL(process_status,'X')!='P' AND period_num=? AND sub_tag=? AND ou_name=?"
 }

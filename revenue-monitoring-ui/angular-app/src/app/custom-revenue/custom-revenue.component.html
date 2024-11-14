@@ -19,10 +19,10 @@
     ></app-monitoring-dashboard>
   </mat-tab>
 
-  <mat-tab label="Accruals" [disabled]="false">
+  <mat-tab label="Accruals">
     <app-monitoring-dashboard
       [urls]="accrualsUrls"
-      [fieldKey]="'SEQUENCE_ID'"
+      [fieldKey]="'SEQUENCE_NUMBER'"
       [processFlowKeys]="accrualsTotals"
       [periodStatus]="periodStatus"
       [detailsDisplayedColumns]="accrualsDetailsColumns"
@@ -40,30 +40,6 @@
   <mat-tab label="Meraki" [disabled]="true"> </mat-tab>
   <mat-tab label="Business Controls" [disabled]="true"></mat-tab>
 </mat-tab-group>
-
-<ng-template #accrualsTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedAccrualsSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact: {{ accrualsTotals[step.originalKey] || "N/A" }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedAccrualsSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
 
 <ng-template #rolTemplate let-allTotals="allTotals">
   <div
@@ -137,6 +113,31 @@
             Total Impact:
             {{ allTotals['Rol']?.['XLA_AE_HEADERS'] || 'N/A' }}
           </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #accrualsTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedAccrualsSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ i + 1 }}. {{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Accruals']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedAccrualsSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
         </div>
       </div>
     </div>

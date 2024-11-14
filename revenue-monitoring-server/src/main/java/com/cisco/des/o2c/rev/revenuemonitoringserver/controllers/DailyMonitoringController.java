@@ -188,10 +188,11 @@ public class DailyMonitoringController {
     public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter( @RequestParam List<String> periodNames,
                                                                            @RequestParam List<String> ouNames,
                                                                            @RequestParam List<String> appNames,
+                                                                            @RequestParam List<String> processFlows,
                                                                            @RequestParam List<String> uniqueIds) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), uniqueIds.size())));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
 //            int totalRecords = 0;
 
             for (int i = 0; i < minLength; i++) {
@@ -248,11 +249,12 @@ public class DailyMonitoringController {
     public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
                                                                                        @RequestParam List<String> ouNames,
                                                                                        @RequestParam List<String> appNames,
+                                                                                  @RequestParam List<String> processFlows,
                                                                                   @RequestParam List<String> uniqueIds) {
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), uniqueIds.size())));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
@@ -275,12 +277,13 @@ public class DailyMonitoringController {
     public ResponseEntity<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
                                                                                   @RequestParam List<String> ouNames,
                                                                                   @RequestParam List<String> appNames,
-                                                                                  @RequestParam List<String> uniqueIds) {
+                                                                                 @RequestParam List<String> processFlows,
+                                                                                 @RequestParam List<String> uniqueIds) {
 
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), uniqueIds.size())));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
@@ -288,6 +291,34 @@ public class DailyMonitoringController {
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
                 List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName, periodName, uniqueId);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    @GetMapping("/accruals-details-filtered")
+    public ResponseEntity<Map<String, Object>> getAccrualsErrorDetailsFiltered(@RequestParam List<String> periodNames,
+                                                                                 @RequestParam List<String> ouNames,
+                                                                                 @RequestParam List<String> appNames,
+                                                                                 @RequestParam List<String> processFlows,
+                                                                                 @RequestParam List<String> uniqueIds) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = ouNames.get(i);
+                String processFlow = processFlows.get(i);
+                String uniqueId = uniqueIds.get(i);
+                List<Map<String, Object>> result = service.getAccrualsDetailsFiltered(periodName, ouName, processFlow, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -315,6 +346,12 @@ public class DailyMonitoringController {
     @PostMapping("/pre-invoice-error-summary-update")
     public ResponseEntity<String> updatePreInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
         int test = service.updatePreInvoiceErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
+    @PostMapping("/accruals-summary-update")
+    public ResponseEntity<String> updateAccrualsErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateAccrualsErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
