@@ -21,6 +21,19 @@ export class CustomRevenueComponent implements OnInit {
     XLA_AE_HEADERS: 0,
   };
 
+  summaryInputColumns: string[] = [
+    'PERIOD_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'ORG_NAME',
+    'AMOUNT',
+    'TRANSACTION_DATE',
+    'AGING',
+    'ASSIGNED_TO',
+    'ASSIGNED_DATE',
+    'COMMENTS',
+  ];
+
   rolDetailsColumns: string[] = [
     'PERIOD_NAME',
     'APPLICATION_NAME',

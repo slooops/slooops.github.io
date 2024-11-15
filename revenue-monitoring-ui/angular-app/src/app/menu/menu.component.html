@@ -275,10 +275,10 @@
 
   <button
     *ngIf="isAdmin"
+    [routerLink]="['/gl-posting']"
     mat-menu-item
     class="small-menu-item"
     routerLinkActive="active"
-    [disabled]="true"
   >
     <i
       style="

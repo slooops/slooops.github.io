@@ -112,5 +112,9 @@
   "ACCRUALS_DETAILS_QUERY": "select * from arfinro.TSP_ACCRUAL_DETAIL_VIEW",
   "INVOICE_TO_CASH_SUMMARY": "select * from arfinro.XXCFI_PRE_AI_BOT_SUMM_V",
   "ACCRUALS_DETAILS_FILTERED_QUERY": "SELECT * FROM arfinro.TSP_ACCRUAL_DETAIL_VIEW WHERE period_name=? AND org_name=? AND process_flow=? AND sequence_number=?",
-  "ACCRUALS_SUMMARY_UPDATE_QUERY": "UPDATE arfinro.ASK_INTERFACE_ERRORS_DEMO SET ASSIGNED_TO=?, ASSIGNED_DATE=SYSDATE, COMMENTS=?, ASSIGNED_BY=? WHERE 1=1 AND tag='REV_ACCRUAL' AND NVL(process_status,'X')!='P' AND period_num=? AND sub_tag=? AND ou_name=?"
+  "ACCRUALS_SUMMARY_UPDATE_QUERY": "UPDATE arfinro.ASK_INTERFACE_ERRORS_DEMO SET ASSIGNED_TO=?, ASSIGNED_DATE=SYSDATE, COMMENTS=?, ASSIGNED_BY=? WHERE 1=1 AND tag='REV_ACCRUAL' AND NVL(process_status,'X')!='P' AND period_num=? AND sub_tag=? AND ou_name=?",
+  "GL_ERROR_SUMMARY_QUERY": "select * from arfinro.XXCFI_GL_ERROR_DSH_SUMM_V",
+  "GL_ERROR_DETAILS_QUERY": "select * from arfinro.XXCFI_GL_ERROR_DSH_DTL_V",
+  "GL_POSTING_DETAILS_FILTERED_QUERY": "select * from arfinro.XXCFI_GL_ERROR_DSH_DTL_V where process_flow=? AND ledger_name=? AND application_name=? AND journal_source=? AND account_seg=? AND trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
+  "GL_POSTING_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFI_GL_ERROR_DASHBOARD_DETAILS set assigned_to=?, assigned_date=sysdate, assigned_by=? ,comments=? where  process_flow=? AND ledger_name=? AND application_name=? AND journal_source=? AND account_seg=? AND trunc(date_created)=to_date(?,'MM/DD/YYYY')"
 }

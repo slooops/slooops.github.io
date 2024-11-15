@@ -44,16 +44,30 @@ export class UserAssignmentComponent implements OnInit {
     this.userRoles = this.dataService.getUserRoles();
   }
   ngOnInit(): void {
+    if (this.componentName === 'General Ledger') {
+      this.disabledFields = [
+        { controlName: 'periodName', label: 'Period Name' },
+        { controlName: 'appName', label: 'Application Name' },
+        { controlName: 'processFlow', label: 'Process Flow' },
+        { controlName: 'orgName', label: 'Ledger Name' },
+        { controlName: 'creationDate', label: 'Transaction Date' },
+        { controlName: 'aging', label: 'Aging' },
+      ];
+    }
     this.assignmentUsers = this.dataService.getAssignmentUsers();
     if (!this.data || !this.data[0]) {
       console.error('No data received or data is malformed:', this.data);
       return;
     }
+    let OrgValue =
+      this.componentName !== 'General Ledger'
+        ? this.data[0].ORG_NAME
+        : this.data[0].LEDGER_NAME;
     this.updateForm = this.formBuilder.group({
       periodName: [{ value: this.data[0].PERIOD_NAME || '', disabled: true }],
       appName: [{ value: this.data[0].APPLICATION_NAME || '', disabled: true }],
       processFlow: [{ value: this.data[0].PROCESS_FLOW || '', disabled: true }],
-      orgName: [{ value: this.data[0].ORG_NAME || '', disabled: true }],
+      orgName: [{ value: OrgValue || '', disabled: true }],
       creationDate: [
         { value: this.data[0].TRANSACTION_DATE || '', disabled: true },
       ],
@@ -80,19 +94,39 @@ export class UserAssignmentComponent implements OnInit {
       assigneeName =
         this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
     }
-    const updateData = {
-      periodName: this.data[0].PERIOD_NAME,
-      appName: this.data[0].APPLICATION_NAME,
-      processFlow: this.data[0].PROCESS_FLOW,
-      orgName: this.data[0].ORG_NAME,
-      creationDate: this.data[0].TRANSACTION_DATE,
-      assignedTo: assigneeName,
-      comments:
-        this.updateForm.value.comments !== this.data[0].COMMENTS
-          ? this.updateForm.value.comments
-          : this.data[0].COMMENTS,
-      username: this.username,
-    };
+    let updateData = {};
+
+    if (this.componentName === 'General Ledger') {
+      updateData = {
+        ledgerName: this.data[0].LEDGER_NAME,
+        journalSource: this.data[0].JOURNAL_SOURCE,
+        accountSeg: this.data[0].ACCOUNT_SEG,
+        appName: this.data[0].APPLICATION_NAME,
+        processFlow: this.data[0].PROCESS_FLOW,
+        orgName: this.data[0].ORG_NAME,
+        creationDate: this.data[0].TRANSACTION_DATE,
+        assignedTo: assigneeName,
+        comments:
+          this.updateForm.value.comments !== this.data[0].COMMENTS
+            ? this.updateForm.value.comments
+            : this.data[0].COMMENTS,
+        username: this.username,
+      };
+    } else {
+      updateData = {
+        periodName: this.data[0].PERIOD_NAME,
+        appName: this.data[0].APPLICATION_NAME,
+        processFlow: this.data[0].PROCESS_FLOW,
+        orgName: this.data[0].ORG_NAME,
+        creationDate: this.data[0].TRANSACTION_DATE,
+        assignedTo: assigneeName,
+        comments:
+          this.updateForm.value.comments !== this.data[0].COMMENTS
+            ? this.updateForm.value.comments
+            : this.data[0].COMMENTS,
+        username: this.username,
+      };
+    }
 
     console.log('updateData:', updateData);
     this.http
@@ -128,21 +162,42 @@ export class UserAssignmentComponent implements OnInit {
     const assignee = this.assignmentUsers.find(
       (data) => data.LOOKUP_CODE === assigneeName
     ).MEANING;
-    const webexMessageData = {
-      assignee: assignee,
-      assigner: this.username,
-      componentName: this.componentName,
-      periodName: this.data[0].PERIOD_NAME,
-      appName: this.data[0].APPLICATION_NAME,
-      subApp: this.data[0].PROCESS_FLOW,
-      orgName: this.data[0].ORG_NAME,
-      date: this.data[0].TRANSACTION_DATE,
-      amount: this.data[0].AMOUNT,
-      comments:
-        this.updateForm.value.comments !== this.data[0].COMMENTS
-          ? this.updateForm.value.comments
-          : this.data[0].COMMENTS,
-    };
+    let webexMessageData = {};
+    if (this.componentName === 'General Ledger') {
+      webexMessageData = {
+        ledgerName: this.data[0].LEDGER_NAME,
+        journalSource: this.data[0].JOURNAL_SOURCE,
+        accountSeg: this.data[0].ACCOUNT_SEG,
+        appName: this.data[0].APPLICATION_NAME,
+        processFlow: this.data[0].PROCESS_FLOW,
+        orgName: this.data[0].ORG_NAME,
+        date: this.data[0].TRANSACTION_DATE,
+        assignee: assigneeName,
+        comments:
+          this.updateForm.value.comments !== this.data[0].COMMENTS
+            ? this.updateForm.value.comments
+            : this.data[0].COMMENTS,
+        assigner: this.username,
+        componentName: this.componentName,
+      };
+    } else {
+      webexMessageData = {
+        assignee: assignee,
+        assigner: this.username,
+        componentName: this.componentName,
+        periodName: this.data[0].PERIOD_NAME,
+        appName: this.data[0].APPLICATION_NAME,
+        subApp: this.data[0].PROCESS_FLOW,
+        orgName: this.data[0].ORG_NAME,
+        date: this.data[0].TRANSACTION_DATE,
+        amount: this.data[0].AMOUNT,
+        comments:
+          this.updateForm.value.comments !== this.data[0].COMMENTS
+            ? this.updateForm.value.comments
+            : this.data[0].COMMENTS,
+      };
+    }
+
     console.log('webexMessageData:', webexMessageData);
     this.http
       .post(this.webexUrl, webexMessageData, {

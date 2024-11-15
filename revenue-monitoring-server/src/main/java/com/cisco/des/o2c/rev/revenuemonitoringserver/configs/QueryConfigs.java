@@ -303,6 +303,30 @@ public class QueryConfigs { // TODO
     @Value(("${invoice.to.cash.summary.q}"))
     public String invoiceToCashSummary;
 
+    @Value(("${gl.error.summary.q}"))
+    public String glErrorSummary;
+
+    @Value(("${gl.error.details.q}"))
+    public String glErrorDetails;
+
+    @Value(("${gl.posting.details.filtered.q}"))
+    public String glPostingDetailsFiltered;
+
+    @Value(("${gl.posting.summary.update.q}"))
+    public String glPostingSummaryUpdate;
+
+    @Bean( name = "glErrorDetails" )
+    public String getGlErrorDetails() {return this.glErrorDetails; }
+
+    @Bean( name = "glErrorSummary" )
+    public String getGlErrorSummary() {return this.glErrorSummary; }
+
+    @Bean( name = "glPostingDetailsFiltered" )
+    public String getGlPostingDetailsFiltered() {return this.glPostingDetailsFiltered; }
+
+    @Bean( name = "glPostingSummaryUpdate" )
+    public String getGlPostingSummaryUpdate() {return this.glPostingSummaryUpdate; }
+
     @Bean(name = "autoInvoiceErrorSummaryView")
     public String getAutoInvoiceErrorSummaryView() {
         return this.autoInvoiceErrorSummaryView;

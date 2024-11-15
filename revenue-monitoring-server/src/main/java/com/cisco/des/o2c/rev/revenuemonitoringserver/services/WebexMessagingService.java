@@ -53,16 +53,33 @@ public class WebexMessagingService {
         String message = "Hi <@personEmail:"+ updateData.get("assignee")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("assigner")+"@cisco.com>. Following are the details of the error:\n" +
                 "Period Name: "+updateData.get("periodName")+"\nApplication Name: "+updateData.get("appName")+"\nSub Application: "+updateData.get("subApp")+"\nOrg Name: "+updateData.get("orgName")+"\nAmount: "+updateData.get("amount")+"\nTransaction Date: "+updateData.get("date")+"\n Comments: "+updateData.get("comments");
 
-        System.out.println(roomIdInvoicing);
         MessageRequestModel messageRequestModel = new MessageRequestModel();
         messageRequestModel.setRoomId(roomIdInvoicing);
         messageRequestModel.setMarkdown(message);
-        System.out.println(authTokenInvoicing);
 
         return webClientBuilder.build()
                 .post()
                 .uri(webexUrl)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer YmExMmIwMzYtNTE2NS00NGMxLTk2MWItNDY3MDc5MzQ1NDM2ZDcwYTI4NDMtZmFm_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(messageRequestModel)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
+
+    public String sendWebexMessageGlPosting(Map<String, String> updateData) {
+        String message = "Hi <@personEmail:"+ updateData.get("assignee")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("assigner")+"@cisco.com>. Following are the details of the error:\n" +
+                "Journal Source Name: "+updateData.get("journalSource")+"\nApplication Name: "+updateData.get("appName")+"\nSub Application: "+updateData.get("processFlow")+"\nLedger Name: "+updateData.get("ledgerName")+"\nAccount Seg: "+updateData.get("accountSeg")+"\nTransaction Date: "+updateData.get("date")+"\n Comments: "+updateData.get("comments");
+
+        MessageRequestModel messageRequestModel = new MessageRequestModel();
+        messageRequestModel.setRoomId("Y2lzY29zcGFyazovL3VzL1JPT00vZGMxNzFjNDAtYTJlNC0xMWVmLTg4YjEtZmJhODc1YmQ2ZWQ3");
+        messageRequestModel.setMarkdown(message);
+
+        return webClientBuilder.build()
+                .post()
+                .uri(webexUrl)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer ZTA3NTJiNzQtYzY4NS00NGMxLWE5MWYtMmE0MTdmODJlYTU5NTI4YzJiODctMDQz_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(messageRequestModel)
                 .retrieve()

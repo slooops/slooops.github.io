@@ -25,6 +25,19 @@ export class InvoicingComponent implements OnInit {
 
   periodStatus: any;
 
+  summaryInputColumns: string[] = [
+    'PERIOD_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'ORG_NAME',
+    'AMOUNT',
+    'TRANSACTION_DATE',
+    'AGING',
+    'ASSIGNED_TO',
+    'ASSIGNED_DATE',
+    'COMMENTS',
+  ];
+
   preInvoicingDetailsColumns: string[] = [
     'PERIOD_NAME',
     'APPLICATION_NAME',

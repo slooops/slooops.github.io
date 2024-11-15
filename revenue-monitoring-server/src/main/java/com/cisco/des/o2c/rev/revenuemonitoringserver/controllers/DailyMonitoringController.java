@@ -595,4 +595,57 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getInvoiceToCashSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/gl-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {
+        return new ResponseEntity<>(service.getGlErrorSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/gl-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getGlErrorDetails() {
+        return new ResponseEntity<>(service.getGlErrorDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/gl-details-filtered")
+    public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
+                                                                               @RequestParam List<String> ledgerNames,
+                                                                               @RequestParam List<String> appNames,
+                                                                               @RequestParam List<String> journalSources,
+                                                                               @RequestParam List<String> accountSeg,
+                                                                               @RequestParam List<String> uniqueIds) {
+        System.out.println(processFlows);
+        System.out.println(ledgerNames);
+        System.out.println(appNames);
+        System.out.println(journalSources);
+        System.out.println(accountSeg);
+        System.out.println(uniqueIds);
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(appNames.size(), Math.min(processFlows.size(), Math.min(accountSeg.size(), uniqueIds.size())))));
+
+            for (int i = 0; i < minLength; i++) {
+                String processFlow = processFlows.get(i);
+                String ledgerName = ledgerNames.get(i);
+                String appName = appNames.get(i);
+                String journalSource = journalSources.get(i);
+                String accountseg = accountSeg.get(i);
+                String uniqueId = uniqueIds.get(i);
+                List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow,ledgerName, appName,journalSource,accountseg, uniqueId);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+
+    }
+
+    @PostMapping("/gl-summary-update")
+    public ResponseEntity<String> updateGlErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateGlErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
 }

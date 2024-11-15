@@ -125,6 +125,17 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, periodName, ouName, applicationName, uniqueId);
     }
 
+    public List<Map<String, Object>> getGlDetailsFilter(String sql, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate) {
+        System.out.println(sql);
+        return jdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+    }
+
+
+    public int updateGlErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate){
+        System.out.println(comments);
+        System.out.println(sql);
+        return jdbcTemplate.update(sql, assignedTo,assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate );
+    }
 
 //    public List<RolTransactionData> getRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
 //        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, appName, sequenceNum}, new RecordRowMapper());

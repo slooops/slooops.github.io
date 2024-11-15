@@ -34,6 +34,7 @@ export class MonitoringDashboardComponent<T>
   @Input() fieldKey: string;
   @Input() processFlowKeys: { [key: string]: number };
   @Input() periodStatus: any;
+  @Input() summaryInputColumns: string[];
   @Input() detailsDisplayedColumns: string[];
   @Input() componentName: string;
   @Input() processFlowTabsToDisplay: string[];
@@ -62,6 +63,7 @@ export class MonitoringDashboardComponent<T>
     this.getErrorDetails();
     this.updateUrl = this.urls['summaryUpdateUrl'];
     this.webexUrl = this.urls['webexMessageUrl'];
+    this.summaryColumns = this.summaryInputColumns;
   }
   ngAfterViewInit(): void {
     // this.paginator.page.subscribe((event: PageEvent) => {
@@ -90,18 +92,7 @@ export class MonitoringDashboardComponent<T>
   summaryLoadTime: string;
   summaryData: any[];
   summaryDatasource: any;
-  summaryColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'TRANSACTION_DATE',
-    'AGING',
-    'ASSIGNED_TO',
-    'ASSIGNED_DATE',
-    'COMMENTS',
-  ];
+  summaryColumns: string[] = [];
   summaryDisplayedColumns: string[] = [];
   totalSummaryRecords: number = 0;
   summaryLoading: boolean = true;
@@ -153,7 +144,11 @@ export class MonitoringDashboardComponent<T>
         const processFlowKey = item.PROCESS_FLOW;
 
         if (this.processFlowKeys.hasOwnProperty(processFlowKey)) {
-          this.processFlowKeys[processFlowKey] += Number(item.AMOUNT);
+          if (!this.summaryColumns.includes('AMOUNT')) {
+            this.processFlowKeys[processFlowKey] += Number(item.BALANCE);
+          } else {
+            this.processFlowKeys[processFlowKey] += Number(item.AMOUNT);
+          }
         }
       }
     });
@@ -276,6 +271,9 @@ export class MonitoringDashboardComponent<T>
         'AR_INTERFACE',
         'AR_INTERFACE_ERROR',
         'INVOICED',
+        'BALANCE',
+        'ACCOUNTED_CR',
+        'ACCOUNTED_DR',
       ];
       let key;
       amountKeys.forEach((amountKey) => {
@@ -406,6 +404,9 @@ export class MonitoringDashboardComponent<T>
     const appNames = data.map((row) => row.APPLICATION_NAME);
     const processFlows = data.map((row) => row.PROCESS_FLOW);
     const uniqueIds = data.map((row) => row[this.fieldKey]);
+    const ledgerNames = data.map((row) => row.LEDGER_NAME);
+    const journalSources = data.map((row) => row.JOURNAL_SOURCE);
+    const accountSeg = data.map((row) => row.ACCOUNT_SEG);
 
     const pageRequest = {
       periodNames: periodNames.join(','),
@@ -413,6 +414,9 @@ export class MonitoringDashboardComponent<T>
       appNames: appNames.join(','),
       processFlows: processFlows.join(','),
       uniqueIds: uniqueIds.join(','),
+      ledgerNames: ledgerNames.join(','),
+      journalSources: journalSources.join(','),
+      accountSeg: accountSeg.join(','),
     };
 
     this.http

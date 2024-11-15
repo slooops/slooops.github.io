@@ -98,6 +98,11 @@ public class DailyMonitoringService {
     private String accrualsDetailsFiltered;
     private String invoiceToCashSummary;
     private String accrualsSummaryUpdate;
+    private String glErrorSummary;
+    private String glErrorDetails;
+    private String glPostingDetailsFiltered;
+    private String glPostingSummaryUpdate;
+
 
     @Autowired
     public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
@@ -116,7 +121,8 @@ public class DailyMonitoringService {
                                   String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
                                   String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
-                                  String accrualsSummary, String accrualsDetails, String invoiceToCashSummary, String accrualsDetailsFiltered, String accrualsSummaryUpdate
+                                  String accrualsSummary, String accrualsDetails, String invoiceToCashSummary, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
+                                  String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -191,6 +197,10 @@ public class DailyMonitoringService {
         this.invoiceToCashSummary = invoiceToCashSummary;
         this.accrualsDetailsFiltered = accrualsDetailsFiltered;
         this.accrualsSummaryUpdate = accrualsSummaryUpdate;
+        this.glErrorSummary = glErrorSummary;
+        this.glErrorDetails = glErrorDetails;
+        this.glPostingDetailsFiltered = glPostingDetailsFiltered;
+        this.glPostingSummaryUpdate = glPostingSummaryUpdate;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -960,7 +970,38 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(invoiceToCashSummary);
     }
 
+    public List<Map<String, Object>> getGlErrorSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(glErrorSummary);
+        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
 
+    public List<Map<String, Object>> getGlErrorDetails() {
+        return jdbcManager.queryForList(glErrorDetails);
+    }
+
+    public List<Map<String, Object>> getGlDetailsFilter(String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate) {
+        return jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+    }
+
+
+    public int updateGlErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String ledgerName = updateData.get("ledgerName");
+        String processFlow = updateData.get("processFlow");
+        String applicationName = updateData.get("appName");
+        String journalSource = updateData.get("journalSource");
+        String accountSeg = updateData.get("accountSeg");
+        String transactionDate = updateData.get("creationDate");
+        System.out.println(comments);
+        int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo,assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+        return 1;
+    }
 
 //    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }
 

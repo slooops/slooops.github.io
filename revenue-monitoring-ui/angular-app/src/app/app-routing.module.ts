@@ -13,6 +13,7 @@ import { CustomRevenueComponent } from './custom-revenue/custom-revenue.componen
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { AccrualsComponent } from './custom-revenue/accruals/accruals.component';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
+import { GlPostingComponent } from './gl-posting/gl-posting.component';
 
 const routes: Routes = [
   {
@@ -174,6 +175,14 @@ const routes: Routes = [
     data: {
       title: 'O2C Demo',
       header: 'O2C Demo',
+    },
+  },
+  {
+    path: 'gl-posting',
+    component: GlPostingComponent,
+    data: {
+      title: 'GL Posting',
+      header: 'GL Posting',
     },
   },
 ];
