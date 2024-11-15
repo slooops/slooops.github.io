@@ -32,6 +32,7 @@ export class ToolTipRendererDirective {
   //If this is specified then specified template will be rendered in the tooltip
   @Input() contentTemplate: TemplateRef<any>;
 
+  @Input() tooltipElement: any;
   private _overlayRef: OverlayRef;
 
   constructor(

@@ -102,6 +102,8 @@ public class DailyMonitoringService {
     private String glErrorDetails;
     private String glPostingDetailsFiltered;
     private String glPostingSummaryUpdate;
+    private String einvoicingSummary;
+    private String einvoicingDetails;
 
 
     @Autowired
@@ -122,7 +124,7 @@ public class DailyMonitoringService {
                                   String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
                                   String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
                                   String accrualsSummary, String accrualsDetails, String invoiceToCashSummary, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
-                                  String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate
+                                  String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate, String einvoicingSummary, String einvoicingDetails
     ) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
@@ -201,6 +203,8 @@ public class DailyMonitoringService {
         this.glErrorDetails = glErrorDetails;
         this.glPostingDetailsFiltered = glPostingDetailsFiltered;
         this.glPostingSummaryUpdate = glPostingSummaryUpdate;
+        this.einvoicingSummary = einvoicingSummary;
+        this.einvoicingDetails = einvoicingDetails;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -1000,6 +1004,26 @@ public class DailyMonitoringService {
         String transactionDate = updateData.get("creationDate");
         int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
         return 1;
+    }
+
+    public List<Map<String, Object>> geteInvoicingSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingSummary);
+        String[] dateColumns = {"ASSIGNED_DATE"};
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+
+        return result;
+    }
+
+    public List<Map<String, Object>> geteInvoicingDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingDetails);
+        String[] dateColumns = {"TRX_DATE"};
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+
+        return result;
     }
 
 //    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }

@@ -40,7 +40,24 @@
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Post-Invoicing" [disabled]="true"></mat-tab>
-  <mat-tab label="eInvoicing" [disabled]="true"></mat-tab>
+  <mat-tab label="eInvoicing">
+    <app-monitoring-dashboard
+      [urls]="eInvoicingUrls"
+      [fieldKey]="''"
+      [processFlowKeys]="eInvoicingTotals"
+      [periodStatus]="periodStatus"
+      [summaryInputColumns]="einvoicingSummaryInputColumns"
+      [detailsDisplayedColumns]="einvoicingDetailsColumns"
+      [componentName]="'eInvoicing'"
+      [processFlowTabsToDisplay]="['eInvoicing']"
+      [specialWords]="specialWords"
+      [skippedWords]="skippedWords"
+      [dynamicTemplate]="eInvTemplate"
+      [dynamicCss]="eInvprocessflowCss"
+      [isSubAppMapping]="false"
+      [warningMessage]="'Warning message '"
+    ></app-monitoring-dashboard>
+  </mat-tab>
   <mat-tab label="CMS">
     <app-cms></app-cms>
   </mat-tab>
@@ -103,6 +120,31 @@
           <p class="circle-caption">4. Post-Invoice</p>
           <span class="circle circle-4"></span>
           <p class="circle-subcaption">Total Impact: N/A</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #eInvTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedeInvoicingSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ i + 1 }}. {{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['eInvoicing']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedeInvoicingSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
         </div>
       </div>
     </div>

@@ -23,6 +23,13 @@ export class InvoicingComponent implements OnInit {
     '3 - Auto Invoice': 0,
   };
 
+  eInvoicingTotals: { [key: string]: number } = {
+    'ICMS-ADJ': 0,
+    XAAS: 0,
+    'SAAS-RIMG-ONL': 0,
+    'XAAS-CCE': 0,
+    'Order Management': 0,
+  };
   periodStatus: any;
 
   summaryInputColumns: string[] = [
@@ -69,6 +76,29 @@ export class InvoicingComponent implements OnInit {
     'ERROR_MESSAGE',
   ];
 
+  einvoicingSummaryInputColumns: string[] = [
+    'PERIOD_NAME',
+    'BATCH_SOURCE',
+    'ENTITY_NAME',
+    'TYPE',
+    'USD_AMOUNT',
+    'AGING',
+    'ASSIGNED_TO',
+    'ASSIGNED_DATE',
+    'COMMENTS',
+  ];
+
+  einvoicingDetailsColumns: string[] = [
+    'PERIOD_NAME',
+    'BATCH_SOURCE',
+    'ENTITY_NAME',
+    'TRX_NUMBER',
+    'TRX_DATE',
+    'TYPE',
+    'USD_AMOUNT',
+    'RESP_ERR_MSG',
+  ];
+
   specialWords: string[] = [
     'name',
     'amount',
@@ -109,6 +139,38 @@ export class InvoicingComponent implements OnInit {
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
+
+  eInvoicingUrls: { [key: string]: string } = {
+    summaryUrl: 'einvoicing-error-summary',
+    detailsUrl: 'einvoicing-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  formattedeInvoicingSteps = Object.keys(this.eInvoicingTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: key,
+  }));
+
+  // Function to format the label
+  formatLabel(label: string): string {
+    const acronyms = this.skippedWords || [];
+
+    return label
+      .toLowerCase() // Convert to lowercase
+      .replace(/_/g, ' ') // Replace underscores with spaces
+      .split(' ') // Split into words
+      .map(
+        (word) =>
+          acronyms.includes(word.toUpperCase())
+            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
+            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+      )
+      .join(' '); // Join words back with spaces
+  }
 
   getErrorSummaryPeriodStatus() {
     this.http.get('monitoring-period-status').subscribe((data: any) => {
@@ -263,6 +325,96 @@ export class InvoicingComponent implements OnInit {
 
 .chevron-4 {
   left: 630px;
+}
+`;
+
+  eInvprocessflowCss: string = `
+.flowchart-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+height: 82px;
+width: 1350px;
+background: #ffffff;
+top: 0px;
+padding-bottom: 20px;
+}
+
+.slider-bar {
+margin-top: 40px;
+position: absolute;
+width: fit-content;
+height: 4px;
+background: #16371e43;
+border-radius: 5px;
+z-index: 0;
+display: flex;
+flex-direction: row;
+}
+
+.circle-wrapper-loop {
+align-items: center;
+text-align: center;
+position: relative;
+width: 150px;
+top: -40px;
+}
+
+.circle-loop {
+width: 16px;
+height: 16px;
+border-radius: 50%;
+background: #828d9b;
+position: relative;
+margin-top: -0px;
+left: 67px;
+}
+
+.circle-caption-loop {
+font-size: 12px;
+color: #333;
+text-align: center;
+height: 20px;
+}
+
+.circle-subcaption {
+font-size: 10px;
+color: #000;
+font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 0px; /* Matches the circle wrapper width */
+position: relative;
+top: -105px;
+left: 150px;
+}
+
+.chevron,
+.chevron-white {
+width: 0;
+height: 0;
+border-style: solid;
+position: relative;
+}
+
+.chevron {
+border-width: 2px 2px 2px 2px;
+border-color: transparent #16371e43 transparent transparent;
+transform: rotate(180deg);
+z-index: 1;
+top: 0px;
+}
+
+.chevron-white {
+border-width: 8px 8px 8px 8px;
+border-color: transparent #fcfcfc transparent transparent;
+transform: rotate(180deg);
+margin-left: -4px; /* To overlay on the darker chevron */
+top: 0px;
 }
 `;
 }

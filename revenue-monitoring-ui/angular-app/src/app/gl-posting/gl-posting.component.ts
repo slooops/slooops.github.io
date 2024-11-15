@@ -33,21 +33,21 @@ export class GlPostingComponent implements OnInit {
   ];
 
   glDetailsColumns: string[] = [
-    'ACCOUNT',
-    'ACCOUNTED_CR',
-    'ACCOUNTED_DR',
-    'ACCOUNT_SEG',
+    'PERIOD_NAME',
     'APPLICATION_NAME',
-    'ENTERED_CR',
-    'ENTERED_DR',
-    'ERROR_MESSAGE',
+    'PROCESS_FLOW',
+    'LEDGER_NAME',
     'GL_BATCH_NAME',
     'JOURNAL_SOURCE',
-    'LEDGER_NAME',
-    'PERIOD_NAME',
-    'PROCESS_FLOW',
-    'TRANSACTION_DATE',
     'USER_JE_CATEGORY_NAME',
+    'ACCOUNT_SEG',
+    'ACCOUNTED_CR',
+    'ACCOUNTED_DR',
+    'ENTERED_CR',
+    'ENTERED_DR',
+    'ACCOUNT',
+    'TRANSACTION_DATE',
+    'ERROR_MESSAGE',
   ];
 
   specialWords: string[] = [

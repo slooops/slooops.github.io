@@ -274,6 +274,9 @@ export class MonitoringDashboardComponent<T>
         'BALANCE',
         'ACCOUNTED_CR',
         'ACCOUNTED_DR',
+        'ENTERED_CR',
+        'ENTERED_DR',
+        'USD_AMOUNT',
       ];
       let key;
       amountKeys.forEach((amountKey) => {

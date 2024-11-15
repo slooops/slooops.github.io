@@ -37,7 +37,6 @@ public class WebexConfig {
     public String getAuthTokenInvoicing() {
         byte[] decodedBytesAuthToken = Base64.getDecoder().decode(this.authTokenInvoicing);
         String authTokenInvoicing = new String(decodedBytesAuthToken);
-        System.out.println(authTokenInvoicing);
         return authTokenInvoicing;
     }
 

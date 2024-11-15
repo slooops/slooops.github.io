@@ -648,4 +648,15 @@ public class DailyMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/einvoicing-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {
+        return new ResponseEntity<>(service.geteInvoicingSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/einvoicing-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorDetails() {
+        return new ResponseEntity<>(service.geteInvoicingDetails(), HttpStatus.OK);
+    }
+
+
 }

@@ -176,6 +176,7 @@
                           *ngIf="isEscalated(element)"
                           [customToolTip]="'true'"
                           [contentTemplate]="escalationToolTip"
+                          [tooltipElement]="element"
                         >
                           <span class="circle-number">{{
                             getCircleNumber(element)

@@ -40,6 +40,7 @@
   font-weight: 500 !important;
   padding: 0.4vh !important;
   border: 0px !important;
+  text-wrap: nowrap;
 }
 
 tr.mat-row {

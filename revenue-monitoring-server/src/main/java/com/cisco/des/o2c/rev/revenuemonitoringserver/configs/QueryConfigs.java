@@ -315,11 +315,23 @@ public class QueryConfigs { // TODO
     @Value(("${gl.posting.summary.update.q}"))
     public String glPostingSummaryUpdate;
 
+    @Value(("${einvoicing.summary.q}"))
+    public String einvoicingSummary;
+
+    @Value(("${einvoicing.details.q}"))
+    public String einvoicingDetails;
+
     @Bean( name = "glErrorDetails" )
     public String getGlErrorDetails() {return this.glErrorDetails; }
 
     @Bean( name = "glErrorSummary" )
     public String getGlErrorSummary() {return this.glErrorSummary; }
+
+    @Bean( name = "einvoicingDetails" )
+    public String getEinvoicingDetails() {return this.einvoicingDetails; }
+
+    @Bean( name = "einvoicingSummary" )
+    public String getEinvoicingSummary() {return this.einvoicingSummary; }
 
     @Bean( name = "glPostingDetailsFiltered" )
     public String getGlPostingDetailsFiltered() {return this.glPostingDetailsFiltered; }
