@@ -998,8 +998,7 @@ public class DailyMonitoringService {
         String journalSource = updateData.get("journalSource");
         String accountSeg = updateData.get("accountSeg");
         String transactionDate = updateData.get("creationDate");
-        System.out.println(comments);
-        int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo,assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+        int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
         return 1;
     }
 

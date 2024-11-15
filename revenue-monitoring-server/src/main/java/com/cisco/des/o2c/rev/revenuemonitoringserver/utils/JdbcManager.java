@@ -131,10 +131,8 @@ public class JdbcManager {
     }
 
 
-    public int updateGlErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate){
-        System.out.println(comments);
-        System.out.println(sql);
-        return jdbcTemplate.update(sql, assignedTo,assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate );
+    public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy,String comments, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate){
+        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate );
     }
 
 //    public List<RolTransactionData> getRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
