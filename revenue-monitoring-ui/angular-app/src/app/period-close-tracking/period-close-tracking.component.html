@@ -1,4 +1,7 @@
-<mat-tab-group [selectedIndex]="0" (selectedIndexChange)="onTabChange($event)">
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
   <mat-tab
     label="Pre-close (Internal)"
     *ngIf="roles.includes('ADMIN') || roles.includes('PERIOD_CLOSE')"

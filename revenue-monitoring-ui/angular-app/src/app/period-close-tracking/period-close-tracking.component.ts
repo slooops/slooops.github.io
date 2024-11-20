@@ -254,6 +254,25 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.activeTabIndex = index;
   }
 
+  selectedIndex: number = 0;
+
+  getDefaultTabIndex(): number {
+    let value = 0;
+    if (this.roles.includes('ADMIN')) {
+      value = 0;
+    } else if (this.roles.includes('PERIOD_CLOSE')) {
+      value = 0;
+    } else if (this.roles.includes('WD0')) {
+      value = 2; // Guest tab (e.g., index 2)
+    } else if (this.roles.includes('MIDCLOSE_VOLUMES')) {
+      value = 3; // Guest tab (e.g., index 2)
+    } else if (this.roles.includes('LARGE_DEAL')) {
+      value = 4; // Guest tab (e.g., index 2)
+    }
+    this.activeTabIndex = value;
+    return value;
+  }
+
   getUserId() {
     this.dataService.setLoading(true);
     this.dataService.getUserId().subscribe((data) => {
@@ -265,6 +284,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getUserRoles(username: string) {
     this.dataService.getRoles(username).subscribe((data) => {
       this.roles = data['userRoles'];
+      this.selectedIndex = this.getDefaultTabIndex();
     });
   }
 
