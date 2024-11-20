@@ -101,6 +101,7 @@ export class MonitoringDashboardComponent<T>
   getErrorSummary() {
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get(this.urls['summaryUrl']).subscribe((data: any) => {
+      this.resetPreInvoicingTotals();
       const totals = this.calculateTotalsByProcessFlow(data);
       this.dataService.setTabData(this.componentName, totals);
       this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
@@ -136,13 +137,19 @@ export class MonitoringDashboardComponent<T>
     });
   }
 
+  private resetPreInvoicingTotals(): void {
+    // Reset all values in the preInvoicingTotals object to 0
+    Object.keys(this.processFlowKeys).forEach((key) => {
+      this.processFlowKeys[key] = 0;
+    });
+  }
+
   calculateTotalsByProcessFlow(data: any[]): {
     [key: string]: string;
   } {
     data.forEach((item) => {
       if (item.PROCESS_FLOW !== null) {
         const processFlowKey = item.PROCESS_FLOW;
-
         if (this.processFlowKeys.hasOwnProperty(processFlowKey)) {
           if (!this.summaryColumns.includes('AMOUNT')) {
             this.processFlowKeys[processFlowKey] += Number(item.BALANCE);
@@ -371,6 +378,7 @@ export class MonitoringDashboardComponent<T>
 
     this.http.get(this.urls['detailsUrl']).subscribe({
       next: (data: any) => {
+        console.log('Data fetched', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
         this.errorDetails.forEach((row) => {

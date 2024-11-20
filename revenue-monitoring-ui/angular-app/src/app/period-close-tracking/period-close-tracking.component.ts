@@ -246,6 +246,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getEstimatedCompletionTime();
   }
 
+  activeTabIndex: number = 0;
+
+  onTabChange(index: number) {
+    this.activeTabIndex = index;
+  }
+
   getIsQuarterEnd(): void {
     // this.preclosePeriod = 'JUN-23';
     let periodMonth = this.preclosePeriod.split('-')[0];

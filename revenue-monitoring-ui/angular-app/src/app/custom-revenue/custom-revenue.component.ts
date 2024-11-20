@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
 
 @Component({
@@ -8,7 +7,7 @@ import { DataService } from '../providers/data.service';
   styleUrl: './custom-revenue.component.css',
 })
 export class CustomRevenueComponent implements OnInit {
-  constructor(private http: ApiHttpService, private dataService: DataService) {}
+  constructor(private dataService: DataService) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
   }
@@ -154,9 +153,15 @@ export class CustomRevenueComponent implements OnInit {
   };
 
   getErrorSummaryPeriodStatus() {
-    this.http.get('monitoring-period-status').subscribe((data: any) => {
+    this.dataService.getMonitoringPeriodStatus().subscribe((data: any) => {
       this.periodStatus = data;
     });
+  }
+
+  activeTabIndex: number = 0;
+
+  onTabChange(index: number) {
+    this.activeTabIndex = index;
   }
 
   rolprocessflowCss: string = `

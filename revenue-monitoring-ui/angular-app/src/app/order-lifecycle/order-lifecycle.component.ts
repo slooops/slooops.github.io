@@ -38,7 +38,7 @@ export class OrderLifecycleComponent implements OnInit {
   currentDate: Date;
   ngOnInit(): void {
     this.username = this.dataService.getUsername();
-    this.getUserRoles();
+    this.getUserId();
     this.getOrderStatusDownload();
     this.updateTime();
     this.currentDate = new Date();
@@ -96,14 +96,23 @@ export class OrderLifecycleComponent implements OnInit {
   showRecord: boolean = true;
 
   username: any;
+  loggedInUser: any;
 
   columnSelect() {
     this.ifColumnSelect != this.ifColumnSelect;
   }
 
-  getUserRoles() {
-    this.http.getUser('/user/data').subscribe((data) => {
-      const userRoles = data['auth_user_roles'];
+  getUserId() {
+    this.dataService.setLoading(true);
+    this.http.getUser('/user/name').subscribe((data) => {
+      let username = data['auth_user'];
+      this.getUserRoles(username);
+    });
+  }
+
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      const userRoles = data['userRoles'];
       this.updateClo =
         userRoles.includes('ADMIN') || userRoles.includes('CLO_UPDATE');
       this.dealUploadFlag =
@@ -138,7 +147,7 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   getOrderLifecycle() {
-    this.http.get('order-status').subscribe((data: any) => {
+    this.dataService.getLargeDealData().subscribe((data: any) => {
       this.orderLifecycleStatus = data['orderLifecycleResult'];
       this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
         this.orderLifecycleStatus

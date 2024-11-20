@@ -1,4 +1,4 @@
-<mat-tab-group [selectedIndex]="1">
+<mat-tab-group [selectedIndex]="1" (selectedIndexChange)="onTabChange($event)">
   <mat-tab label="Standard Revenue" [disabled]="true"></mat-tab>
   <mat-tab label="Revenue Orchestration Layer">
     <app-monitoring-dashboard
@@ -22,6 +22,7 @@
 
   <mat-tab label="Accruals">
     <app-monitoring-dashboard
+      *ngIf="activeTabIndex === 2"
       [urls]="accrualsUrls"
       [fieldKey]="'SEQUENCE_NUMBER'"
       [processFlowKeys]="accrualsTotals"

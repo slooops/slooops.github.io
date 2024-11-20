@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiHttpService } from '../providers/http.service';
+import { Observable, shareReplay } from 'rxjs';
+import { DataService } from '../providers/data.service';
 
 @Component({
   selector: 'app-invoicing',
@@ -7,7 +8,7 @@ import { ApiHttpService } from '../providers/http.service';
   styleUrls: ['./invoicing.component.css'],
 })
 export class InvoicingComponent implements OnInit {
-  constructor(private http: ApiHttpService) {}
+  constructor(private dataService: DataService) {}
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';
   ngOnInit(): void {
@@ -173,9 +174,16 @@ export class InvoicingComponent implements OnInit {
   }
 
   getErrorSummaryPeriodStatus() {
-    this.http.get('monitoring-period-status').subscribe((data: any) => {
+    this.dataService.getMonitoringPeriodStatus().subscribe((data: any) => {
       this.periodStatus = data;
     });
+  }
+
+  activeTabIndex: number = 0;
+
+  onTabChange(index: number) {
+    this.activeTabIndex = index;
+    // You can trigger data loading here if needed based on the active tab
   }
 
   invoicingprocessflowCss: string = `

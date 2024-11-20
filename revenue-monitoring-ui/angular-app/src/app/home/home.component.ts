@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiHttpService } from '../providers/http.service';
+import { DataService } from '../providers/data.service';
 
 // import {
 //   AccessorModule,
@@ -20,7 +21,11 @@ import { ApiHttpService } from '../providers/http.service';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  constructor(private router: Router, private http: ApiHttpService) {}
+  constructor(
+    private router: Router,
+    private http: ApiHttpService,
+    private dataService: DataService
+  ) {}
   i2cData: any;
 
   ngOnInit(): void {
@@ -32,7 +37,7 @@ export class HomeComponent implements OnInit {
   }
 
   getI2CSummary() {
-    this.http.get('invoice-to-cash-summary').subscribe((data) => {
+    this.dataService.getI2CSummary().subscribe((data: any) => {
       this.i2cData = data;
     });
   }

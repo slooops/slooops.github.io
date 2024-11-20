@@ -1,4 +1,4 @@
-<mat-tab-group [selectedIndex]="0">
+<mat-tab-group [selectedIndex]="0" (selectedIndexChange)="onTabChange($event)">
   <!-- <mat-tab label="Auto-Invoicing">
     <app-auto-invoicing-real></app-auto-invoicing-real>
   </mat-tab> -->
@@ -42,6 +42,7 @@
   <mat-tab label="Post-Invoicing" [disabled]="true"></mat-tab>
   <mat-tab label="eInvoicing">
     <app-monitoring-dashboard
+      *ngIf="activeTabIndex === 3"
       [urls]="eInvoicingUrls"
       [fieldKey]="''"
       [processFlowKeys]="eInvoicingTotals"
@@ -59,7 +60,7 @@
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="CMS">
-    <app-cms></app-cms>
+    <app-cms *ngIf="activeTabIndex === 4"></app-cms>
   </mat-tab>
   <mat-tab label="Fusion" [disabled]="true"></mat-tab>
   <mat-tab label="Business Controls" [disabled]="true"></mat-tab>

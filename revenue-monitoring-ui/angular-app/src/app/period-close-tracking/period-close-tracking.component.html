@@ -1,17 +1,19 @@
-<mat-tab-group [selectedIndex]="0">
+<mat-tab-group [selectedIndex]="0" (selectedIndexChange)="onTabChange($event)">
   <mat-tab label="Pre-close (Internal)">
-    <app-preclose></app-preclose>
+    <app-preclose *ngIf="activeTabIndex === 0"></app-preclose>
   </mat-tab>
   <mat-tab label="Mid-close (Internal)">
-    <app-midclose></app-midclose>
+    <app-midclose *ngIf="activeTabIndex === 1"></app-midclose>
   </mat-tab>
   <mat-tab label="WD+0 Mid Close Status">
-    <app-wd0-dash></app-wd0-dash>
+    <app-wd0-dash *ngIf="activeTabIndex === 2"></app-wd0-dash>
   </mat-tab>
   <mat-tab label="WD+0 Mid Close Volumes">
-    <app-wd0-historical-data></app-wd0-historical-data>
+    <app-wd0-historical-data
+      *ngIf="activeTabIndex === 3"
+    ></app-wd0-historical-data>
   </mat-tab>
   <mat-tab label="Large Deal Tracker">
-    <app-invoice-status></app-invoice-status>
+    <app-invoice-status *ngIf="activeTabIndex === 4"></app-invoice-status>
   </mat-tab>
 </mat-tab-group>

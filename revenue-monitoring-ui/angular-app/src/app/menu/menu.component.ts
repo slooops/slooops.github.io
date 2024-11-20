@@ -19,10 +19,9 @@ export class MenuComponent implements OnInit {
 
   protected http: ApiHttpService;
 
-  userRoles: String[] = [];
+  userRoles: any;
   ngOnInit(): void {
     this.getUserId();
-    this.getUserRoles();
     this.getAssignmentUsers();
   }
 
@@ -35,12 +34,13 @@ export class MenuComponent implements OnInit {
     this.http.getUser('/user/name').subscribe((data) => {
       let username = data['auth_user'];
       this.dataService.setUsername(username);
+      this.getUserRoles(username);
     });
   }
 
-  getUserRoles() {
-    this.http.getUser('/user/data').subscribe((data) => {
-      this.userRoles = data['auth_user_roles'];
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      this.userRoles = data['userRoles'];
       this.dataService.setUserRoles(this.userRoles);
       this.isAdmin = this.userRoles.includes('ADMIN');
       this.rolesReady = true;
