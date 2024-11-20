@@ -35,7 +35,13 @@
     <span>Home</span>
   </button>
   <button
-    *ngIf="isAdmin || checkRole('PERIOD_CLOSE')"
+    *ngIf="
+      isAdmin ||
+      checkRole('PERIOD_CLOSE') ||
+      checkRole('WD0') ||
+      checkRole('MIDCLOSE_VOLUMES') ||
+      checkRole('LARGE_DEAL')
+    "
     [routerLink]="['/period-close-tracking']"
     mat-menu-item
     routerLinkActive="active"
@@ -155,7 +161,16 @@
 
   <button
     [routerLink]="['/invoice-to-cash']"
-    *ngIf="isAdmin"
+    *ngIf="
+      isAdmin ||
+      checkRole('PRE_INVOICING') ||
+      checkRole('AUTO_INVOICING') ||
+      checkRole('POST_INVOICING') ||
+      checkRole('EINVOICING') ||
+      checkRole('CMS') ||
+      checkRole('FUSION') ||
+      checkRole('INV_BUSINESS_CONTROLS')
+    "
     mat-menu-item
     class="small-menu-item"
     routerLinkActive="active"
@@ -244,7 +259,14 @@
   </button> -->
 
   <button
-    *ngIf="isAdmin || checkRole('ROL')"
+    *ngIf="
+      isAdmin ||
+      checkRole('ROL') ||
+      checkRole('STANDARD_REVENUE') ||
+      checkRole('ACCRUALS') ||
+      checkRole('MERAKI') ||
+      checkRole('CR_BUSINESS_CONTROLS')
+    "
     [routerLink]="['/revenue-accounting']"
     mat-menu-item
     class="small-menu-item"
@@ -274,7 +296,7 @@
   </button>
 
   <button
-    *ngIf="isAdmin"
+    *ngIf="isAdmin || checkRole('GL_POSTING')"
     [routerLink]="['/gl-posting']"
     mat-menu-item
     class="small-menu-item"

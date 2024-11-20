@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
+import { DataService } from '../providers/data.service';
 
 @Component({
   selector: 'app-gl-posting',
@@ -7,10 +8,26 @@ import { ApiHttpService } from '../providers/http.service';
   styleUrl: './gl-posting.component.css',
 })
 export class GlPostingComponent implements OnInit {
-  constructor(private http: ApiHttpService) {}
+  constructor(private dataService: DataService) {}
+  roles: string[] = [];
 
   ngOnInit() {
     this.getErrorSummaryPeriodStatus();
+    this.getUserId();
+  }
+
+  getUserId() {
+    this.dataService.setLoading(true);
+    this.dataService.getUserId().subscribe((data) => {
+      let username = data['auth_user'];
+      this.getUserRoles(username);
+    });
+  }
+
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      this.roles = data['userRoles'];
+    });
   }
 
   glTotals: { [key: string]: number } = {
@@ -107,7 +124,7 @@ export class GlPostingComponent implements OnInit {
   periodStatus: any;
 
   getErrorSummaryPeriodStatus() {
-    this.http.get('monitoring-period-status').subscribe((data: any) => {
+    this.dataService.getMonitoringPeriodStatus().subscribe((data: any) => {
       this.periodStatus = data;
     });
   }
