@@ -140,6 +140,12 @@ pipeline {
             }
         }
 
+        stage ('SAST Security Scan') {
+            steps {
+                sastSecurityScan()
+            }
+        }
+
     }
     post {
         always {
