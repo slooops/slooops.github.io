@@ -1,19 +1,46 @@
 <mat-tab-group [selectedIndex]="0" (selectedIndexChange)="onTabChange($event)">
-  <mat-tab label="Pre-close (Internal)">
+  <mat-tab
+    label="Pre-close (Internal)"
+    *ngIf="roles.includes('ADMIN') || roles.includes('PERIOD_CLOSE')"
+  >
     <app-preclose *ngIf="activeTabIndex === 0"></app-preclose>
   </mat-tab>
-  <mat-tab label="Mid-close (Internal)">
+  <mat-tab
+    label="Mid-close (Internal)"
+    *ngIf="roles.includes('ADMIN') || roles.includes('PERIOD_CLOSE')"
+  >
     <app-midclose *ngIf="activeTabIndex === 1"></app-midclose>
   </mat-tab>
-  <mat-tab label="WD+0 Mid Close Status">
+  <mat-tab
+    label="WD+0 Mid Close Status"
+    *ngIf="roles.includes('ADMIN') || roles.includes('WD0')"
+  >
     <app-wd0-dash *ngIf="activeTabIndex === 2"></app-wd0-dash>
   </mat-tab>
-  <mat-tab label="WD+0 Mid Close Volumes">
+  <mat-tab
+    label="WD+0 Mid Close Volumes"
+    *ngIf="roles.includes('ADMIN') || roles.includes('MIDCLOSE_VOLUMES')"
+  >
     <app-wd0-historical-data
       *ngIf="activeTabIndex === 3"
     ></app-wd0-historical-data>
   </mat-tab>
-  <mat-tab label="Large Deal Tracker">
+  <mat-tab
+    label="Large Deal Tracker"
+    *ngIf="roles.includes('ADMIN') || roles.includes('LARGE_DEAL')"
+  >
     <app-invoice-status *ngIf="activeTabIndex === 4"></app-invoice-status>
   </mat-tab>
 </mat-tab-group>
+
+<div
+  style="display: flex; justify-content: center; align-items: center !important"
+>
+  <ng-container *ngIf="!roles.length">
+    <tr>
+      <td colspan="100%" style="text-align: center">
+        <app-loading-symbol></app-loading-symbol>
+      </td>
+    </tr>
+  </ng-container>
+</div>

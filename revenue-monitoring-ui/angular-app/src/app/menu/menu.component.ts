@@ -31,7 +31,7 @@ export class MenuComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
-    this.http.getUser('/user/name').subscribe((data) => {
+    this.dataService.getUserId().subscribe((data) => {
       let username = data['auth_user'];
       this.dataService.setUsername(username);
       this.getUserRoles(username);

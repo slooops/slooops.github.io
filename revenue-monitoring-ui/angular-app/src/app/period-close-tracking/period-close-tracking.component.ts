@@ -23,6 +23,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   showpreStatusFilter = true;
   showmidStatusFilter = true;
   showComments: boolean = false;
+  roles: string[] = [];
 
   monthMap = {
     '01': 'January',
@@ -244,12 +245,27 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getComments();
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
+    this.getUserId();
   }
 
   activeTabIndex: number = 0;
 
   onTabChange(index: number) {
     this.activeTabIndex = index;
+  }
+
+  getUserId() {
+    this.dataService.setLoading(true);
+    this.dataService.getUserId().subscribe((data) => {
+      let username = data['auth_user'];
+      this.getUserRoles(username);
+    });
+  }
+
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      this.roles = data['userRoles'];
+    });
   }
 
   getIsQuarterEnd(): void {

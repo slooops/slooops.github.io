@@ -4,6 +4,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
 import { ApiHttpService } from './providers/http.service';
 import { AuthenticationService } from './providers/authentication.service';
+import { DataService } from './providers/data.service';
 
 @Component({
   selector: 'app-root',
@@ -15,13 +16,9 @@ export class AppComponent {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
-    http: ApiHttpService,
-    private authService: AuthenticationService
-  ) {
-    this.http = http;
-  }
-
-  protected http: ApiHttpService;
+    private authService: AuthenticationService,
+    private dataService: DataService
+  ) {}
 
   menuOpened = false;
 
@@ -48,7 +45,7 @@ export class AppComponent {
         this.header = data['header'];
       });
 
-    this.http.getUser('/user/name').subscribe((data) => {
+    this.dataService.getUserId().subscribe((data) => {
       this.userName = data['auth_user_name'];
     });
   }

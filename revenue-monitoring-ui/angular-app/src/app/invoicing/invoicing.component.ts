@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, shareReplay } from 'rxjs';
 import { DataService } from '../providers/data.service';
 
 @Component({
@@ -11,8 +10,24 @@ export class InvoicingComponent implements OnInit {
   constructor(private dataService: DataService) {}
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';
+  roles: string[] = [];
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
+    this.getUserId();
+  }
+
+  getUserId() {
+    this.dataService.setLoading(true);
+    this.dataService.getUserId().subscribe((data) => {
+      let username = data['auth_user'];
+      this.getUserRoles(username);
+    });
+  }
+
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      this.roles = data['userRoles'];
+    });
   }
 
   preInvoicingTotals: { [key: string]: number } = {

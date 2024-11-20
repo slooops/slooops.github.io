@@ -18,6 +18,7 @@ export class DataService {
   private i2csummaryCache$: Observable<any>;
   private largeDealData$: Observable<any>;
   private userRoles$: Observable<any>;
+  private userdata$: Observable<any>;
 
   constructor(private http: ApiHttpService) {}
 
@@ -25,6 +26,13 @@ export class DataService {
     string,
     BehaviorSubject<{ [key: string]: string }>
   >();
+
+  getUserId() {
+    if (!this.userdata$) {
+      this.userdata$ = this.http.getUser('/user/name').pipe(shareReplay(1));
+    }
+    return this.userdata$;
+  }
 
   getMonitoringPeriodStatus(): Observable<any> {
     if (!this.periodStatusCache$) {

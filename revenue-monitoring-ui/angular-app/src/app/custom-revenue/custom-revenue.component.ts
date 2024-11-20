@@ -7,11 +7,26 @@ import { DataService } from '../providers/data.service';
   styleUrl: './custom-revenue.component.css',
 })
 export class CustomRevenueComponent implements OnInit {
+  roles: string[] = [];
   constructor(private dataService: DataService) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
+    this.getUserId();
   }
 
+  getUserId() {
+    this.dataService.setLoading(true);
+    this.dataService.getUserId().subscribe((data) => {
+      let username = data['auth_user'];
+      this.getUserRoles(username);
+    });
+  }
+
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      this.roles = data['userRoles'];
+    });
+  }
   rolTotals: { [key: string]: number } = {
     XXCFIR_REV_INTERFACE_ALL: 0,
     XXCFIR_REVENUE_EXTRACT_ALL: 0,
