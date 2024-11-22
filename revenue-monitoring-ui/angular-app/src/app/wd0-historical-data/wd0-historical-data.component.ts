@@ -69,36 +69,44 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ngOnInit(): void {
     this.dataTimestamp = `Last Updated: ...`;
 
-    // Ensure the current date is interpreted in Pacific Time (America/Los_Angeles)
-    const localDate = new Date().toLocaleString('en-US', {
-      timeZone: 'America/Los_Angeles',
-    });
-    const todayPacificTime = new Date(localDate);
-    const localDateString = todayPacificTime.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
+    // Ensure the current date and time are interpreted in Pacific Time
+    const nowPacificTime = new Date(
+      new Date().toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+      })
+    );
+    const localDateString = nowPacificTime.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
 
-    // Check if the current date is WD-3, WD-2, WD-1, or the exact month end
+    console.log('Local Date:', localDateString);
+
+    // Check if the current date and time fall into WD-3, WD-2, WD-1, or WD-0
     monthEndDates.forEach((monthEndDate) => {
-      const monthEnd = new Date(`${monthEndDate}T00:00:00-07:00`); // Explicit Pacific Time for month end
-      const wd1 = new Date(monthEnd);
-      const wd2 = new Date(monthEnd);
+      const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Ensure explicit Pacific Time for month end
+
+      // Calculate WD-3, WD-2, and WD-1 with a 4 PM rollover
       const wd3 = new Date(monthEnd);
+      const wd2 = new Date(monthEnd);
+      const wd1 = new Date(monthEnd);
 
-      // Calculate WD-1, WD-2, WD-3
-      wd1.setDate(monthEnd.getDate() - 1);
-      wd2.setDate(monthEnd.getDate() - 2);
       wd3.setDate(monthEnd.getDate() - 3);
+      wd3.setHours(15); // Set rollover time to 4 PM (16:00)
 
-      const wd1String = wd1.toLocaleDateString('en-CA');
-      const wd2String = wd2.toLocaleDateString('en-CA');
-      const wd3String = wd3.toLocaleDateString('en-CA');
+      wd2.setDate(monthEnd.getDate() - 2);
+      wd2.setHours(15); // Set rollover time to 4 PM (16:00)
 
-      if (localDateString === monthEndDate) {
-        this.fetchDataForNewMonth = true; // WD-0, fetch actuals data
-      } else if (localDateString === wd1String) {
+      wd1.setDate(monthEnd.getDate() - 1);
+      wd1.setHours(15); // Set rollover time to 4 PM (16:00)
+
+      monthEnd.setHours(15); // WD-0 also rolls over at 4 PM
+
+      // Compare nowPacificTime to determine the WD flag
+      if (nowPacificTime >= monthEnd) {
+        this.fetchDataForNewMonth = true; // WD-0
+      } else if (nowPacificTime >= wd1) {
         this.isWd1 = true; // WD-1
-      } else if (localDateString === wd2String) {
+      } else if (nowPacificTime >= wd2) {
         this.isWd2 = true; // WD-2
-      } else if (localDateString === wd3String) {
+      } else if (nowPacificTime >= wd3) {
         this.isWd3 = true; // WD-3
       }
     });
