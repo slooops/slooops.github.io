@@ -38,11 +38,12 @@
       <!-- Canvas element for the graph -->
       <canvas id="q3ServiceLinePredictiveModel"></canvas>
 
-      <!-- Overlay only if isWd3 is true -->
-      <!-- <div *ngIf="isWd3 && !loading" class="wd3-overlay">
-        Projection data will <br />
-        become available on WD-2.
-      </div> -->
+      <div *ngIf="isOutdated" class="data-outdated-overlay">
+        <p>
+          Warning: The model data displayed is out of date. Please ask the
+          database team to update their tables.
+        </p>
+      </div>
     </div>
 
     <p class="chart-description" style="padding-left: 1.5vw">
@@ -62,11 +63,12 @@
       <!-- Canvas element for the graph -->
       <canvas id="productLinePredictiveModel"></canvas>
 
-      <!-- Overlay only if isWd3 is true -->
-      <!-- <div *ngIf="isWd3 && !productLoading" class="wd3-overlay">
-        Projection data will <br />
-        become available on WD-2.
-      </div> -->
+      <div *ngIf="isOutdated" class="data-outdated-overlay">
+        <p>
+          Warning: The model data displayed is out of date. Please ask the
+          database team to update their tables.
+        </p>
+      </div>
     </div>
 
     <p class="chart-description" style="padding-left: 1.5vw">
@@ -122,7 +124,7 @@
       style="display: flex"
     >
       <i
-        class="fa fa-download"
+        class="svg-icon download-icon"
         style="font-size: 20px; color: gray; cursor: pointer"
         aria-hidden="true"
         (click)="

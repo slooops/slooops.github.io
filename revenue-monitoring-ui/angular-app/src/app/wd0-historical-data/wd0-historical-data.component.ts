@@ -26,6 +26,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   loading: boolean = true;
   serviceLoading: boolean = true;
   productLoading: boolean = true;
+  isOutdated: boolean = false;
   errorMessage: boolean = false;
   barChartLoading: boolean = true;
   dataTimestamp: string;
@@ -258,10 +259,30 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
     this.http.get('wd0-volumes').subscribe((data: any) => {
-      console.log('wd0-volumes', data);
-
       // Step 1: Identify the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
+
+      // Get the current date in Pacific Time
+      const nowPacificTime = new Date().toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+      });
+      const todayPacificTime = new Date(nowPacificTime);
+
+      // Format current date as MMM-YY to match the fiscal period format
+      const currentMonthYear = todayPacificTime
+        .toLocaleString('en-US', {
+          timeZone: 'America/Los_Angeles',
+          month: 'short', // Short month format (e.g., 'Nov')
+          year: '2-digit', // Two-digit year format (e.g., '24')
+        })
+        .toUpperCase()
+        .replace(' ', '-'); // Replace space with dash to match fiscal period format
+
+      console.log('Current month/year:', currentMonthYear);
+      console.log('Most recent model data:', mostRecentFiscalPeriod);
+
+      // Set the flag if the most recent fiscal period is outdated
+      this.isOutdated = mostRecentFiscalPeriod !== currentMonthYear;
 
       // Step 2: Filter the data for the most recent period
       const recentData = data.filter(
@@ -297,8 +318,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   // Step 1: Identify the most recent fiscal period
   getMostRecentFiscalPeriod(data: any[]): string {
-    console.log('Data received:', data); // Log the data for verification
-
     // Step 1: Identify the most recent RUN_DATE
     const mostRecentEntry = data.reduce(
       (latest, entry) => {
@@ -308,11 +327,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
           : latest;
       },
       { period: null, date: 0 }
-    );
-
-    console.log(
-      'Most recent fiscal period based on RUN_DATE:',
-      mostRecentEntry.period
     );
 
     // Return the fiscal period of the most recent RUN_DATE entry
