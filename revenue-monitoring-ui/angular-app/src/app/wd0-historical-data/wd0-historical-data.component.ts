@@ -259,6 +259,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
     this.http.get('wd0-volumes').subscribe((data: any) => {
+      console.log('wd0-volumes', data);
+
       // Step 1: Identify the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
 
@@ -268,43 +270,55 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
       const todayPacificTime = new Date(nowPacificTime);
 
-      // Format current date as MMM-YY to match the fiscal period format
-      const currentMonthYear = todayPacificTime
+      // Extract the month as a short string (e.g., 'Nov')
+      const currentMonth = todayPacificTime
         .toLocaleString('en-US', {
           timeZone: 'America/Los_Angeles',
           month: 'short', // Short month format (e.g., 'Nov')
-          year: '2-digit', // Two-digit year format (e.g., '24')
         })
-        .toUpperCase()
-        .replace(' ', '-'); // Replace space with dash to match fiscal period format
+        .toUpperCase(); // Convert to uppercase to match fiscal period format
 
-      console.log('Current month/year:', currentMonthYear);
-      console.log('Most recent model data:', mostRecentFiscalPeriod);
+      // Extract the month from the fiscal period
+      const fiscalPeriodMonth = mostRecentFiscalPeriod.split('-')[0]; // Get the 'OCT' part of 'OCT-25'
 
-      // Set the flag if the most recent fiscal period is outdated
-      this.isOutdated = mostRecentFiscalPeriod !== currentMonthYear;
+      console.log('Most recent fiscal period (month only):', fiscalPeriodMonth);
+      console.log('Current month:', currentMonth);
 
-      // Step 2: Filter the data for the most recent period
+      // Set the flag if the most recent fiscal period's month doesn't match the current month
+      this.isOutdated = fiscalPeriodMonth !== currentMonth;
+
+      // Step 2: Check if WD-1 data exists
+      const wd1Exists = data.some(
+        (entry: any) =>
+          entry.WD === 'WD-1' && entry.FISCAL_PERIOD === mostRecentFiscalPeriod
+      );
+
+      if (!wd1Exists) {
+        // Create placeholder entries for WD-1
+        data.push(
+          {
+            FISCAL_PERIOD: mostRecentFiscalPeriod,
+            PRODUCT_TYPE: 'PRODUCT',
+            RECORD_COUNT_HIGH: null,
+            RECORD_COUNT_LOW: null,
+            RUN_DATE: null,
+            WD: 'WD-1',
+          },
+          {
+            FISCAL_PERIOD: mostRecentFiscalPeriod,
+            PRODUCT_TYPE: 'SERVICE',
+            RECORD_COUNT_HIGH: null,
+            RECORD_COUNT_LOW: null,
+            RUN_DATE: null,
+            WD: 'WD-1',
+          }
+        );
+      }
+
+      // Step 3: Filter the data for the most recent period
       const recentData = data.filter(
         (entry: any) => entry.FISCAL_PERIOD === mostRecentFiscalPeriod
       );
-
-      // Step 3: Check for missing WD entries (WD-2 and WD-1) and add null placeholders if missing
-      const wdValues = recentData.map((entry: any) => entry.WD);
-      const requiredWds = ['WD-3', 'WD-2', 'WD-1'];
-
-      requiredWds.forEach((wd) => {
-        if (!wdValues.includes(wd)) {
-          // Add placeholder entry with null values for missing WD day
-          recentData.push({
-            FISCAL_PERIOD: mostRecentFiscalPeriod,
-            WD: wd,
-            PRODUCT_TYPE: null, // I will need to fix this later
-            LINE_COUNT: null,
-            RUN_DATE: null,
-          });
-        }
-      });
 
       // Step 4: Organize by PRODUCT_TYPE and sort by WD
       const productData = this.filterAndSortData(recentData, 'PRODUCT');
