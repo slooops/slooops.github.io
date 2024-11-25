@@ -76,41 +76,68 @@ export class Wd0HistoricalDataComponent implements OnInit {
         timeZone: 'America/Los_Angeles',
       })
     );
-    const localDateString = nowPacificTime.toLocaleDateString('en-CA'); // en-CA provides the format YYYY-MM-DD
 
-    console.log('Local Date:', localDateString);
+    let effectiveWd = null;
 
-    // Check if the current date and time fall into WD-3, WD-2, WD-1, or WD-0
-    monthEndDates.forEach((monthEndDate) => {
-      const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Ensure explicit Pacific Time for month end
+    monthEndDates.forEach((monthEndDate, index) => {
+      const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Explicit Pacific Time for month end
+      monthEnd.setHours(10); // WD-0 starts at 10 AM
 
-      // Calculate WD-3, WD-2, and WD-1 with a 4 PM rollover
+      // Calculate WD-3, WD-2, and WD-1 with rollovers
       const wd3 = new Date(monthEnd);
       const wd2 = new Date(monthEnd);
       const wd1 = new Date(monthEnd);
 
       wd3.setDate(monthEnd.getDate() - 3);
-      wd3.setHours(15); // Set rollover time to 4 PM (16:00)
+      wd3.setHours(15); // 4 PM DST, 3PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
-      wd2.setHours(15); // Set rollover time to 4 PM (16:00)
+      wd2.setHours(15); // 4 PM rollover for WD-2
 
       wd1.setDate(monthEnd.getDate() - 1);
-      wd1.setHours(15); // Set rollover time to 4 PM (16:00)
+      wd1.setHours(15); // 4 PM rollover for WD-1
 
-      monthEnd.setHours(15); // WD-0 also rolls over at 4 PM
-
-      // Compare nowPacificTime to determine the WD flag
-      if (nowPacificTime >= monthEnd) {
-        this.fetchDataForNewMonth = true; // WD-0
+      // Determine the effective WD based on the current time
+      if (
+        nowPacificTime.toLocaleDateString('en-CA') ===
+          monthEnd.toLocaleDateString('en-CA') &&
+        nowPacificTime > wd1
+      ) {
+        effectiveWd = { wd: 'WD-0', index }; // WD-0
       } else if (nowPacificTime >= wd1) {
-        this.isWd1 = true; // WD-1
+        effectiveWd = { wd: 'WD-1', index }; // WD-1
       } else if (nowPacificTime >= wd2) {
-        this.isWd2 = true; // WD-2
+        effectiveWd = { wd: 'WD-2', index }; // WD-2
       } else if (nowPacificTime >= wd3) {
-        this.isWd3 = true; // WD-3
+        effectiveWd = { wd: 'WD-3', index }; // WD-3
       }
     });
+
+    this.fetchDataForNewMonth = false;
+    this.isWd1 = false;
+    this.isWd2 = false;
+    this.isWd3 = false;
+
+    // Set the flags for the effective WD
+    if (effectiveWd) {
+      switch (effectiveWd.wd) {
+        case 'WD-0':
+          this.fetchDataForNewMonth = true;
+          break;
+        case 'WD-1':
+          this.isWd1 = true;
+          break;
+        case 'WD-2':
+          this.isWd2 = true;
+          break;
+        case 'WD-3':
+        case 'WD-3 (fallback)':
+          this.isWd3 = true;
+          break;
+        default:
+          console.error('Unknown WD:', effectiveWd.wd);
+      }
+    }
 
     let serviceActuals = [null, null, null];
     let productActuals = [null, null, null];
@@ -259,7 +286,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
     this.http.get('wd0-volumes').subscribe((data: any) => {
-      console.log('wd0-volumes', data);
+      // console.log('wd0-volumes', data);
 
       // Step 1: Identify the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
@@ -281,8 +308,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
       // Extract the month from the fiscal period
       const fiscalPeriodMonth = mostRecentFiscalPeriod.split('-')[0]; // Get the 'OCT' part of 'OCT-25'
 
-      console.log('Most recent fiscal period (month only):', fiscalPeriodMonth);
-      console.log('Current month:', currentMonth);
+      // console.log('Most recent fiscal period (month only):', fiscalPeriodMonth);
+      // console.log('Current month:', currentMonth);
 
       // Set the flag if the most recent fiscal period's month doesn't match the current month
       this.isOutdated = fiscalPeriodMonth !== currentMonth;
