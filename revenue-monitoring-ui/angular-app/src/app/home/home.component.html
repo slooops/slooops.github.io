@@ -1,7 +1,14 @@
 <div class="page-title">Home</div>
 
-<div class="grid-container">
-  <div class="grid-item">
+<div class="loading-container" *ngIf="homeLoading">
+  <app-loading-symbol></app-loading-symbol>
+</div>
+
+<div class="grid-container" *ngIf="!homeLoading">
+  <div
+    class="grid-item"
+    *ngIf="userRoles.includes('ADMIN') || userRoles.includes('PERIOD_CLOSE')"
+  >
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">
@@ -13,7 +20,7 @@
             <!-- Pre-Close Progress -->
             <div
               class="progress-item"
-              (click)="navigateTo('period-close-tracking-preclose')"
+              (click)="navigateTo('period-close-tracking')"
             >
               <circle-progress
                 [percent]="100"
@@ -34,7 +41,7 @@
             <!-- Mid-Close Progress -->
             <div
               class="progress-item"
-              (click)="navigateTo('period-close-tracking-midclose')"
+              (click)="navigateTo('period-close-tracking')"
             >
               <circle-progress
                 [percent]="100"
@@ -62,7 +69,14 @@
     </div>
   </div>
 
-  <div class="grid-item">
+  <div
+    class="grid-item"
+    *ngIf="
+      userRoles.includes('ADMIN') ||
+      userRoles.includes('EXCEPTION_ADMIN') ||
+      userRoles.includes('EXCEPTION_READ_ONLY')
+    "
+  >
     <div class="card">
       <div class="card-stack">
         <div class="card-title-stack">

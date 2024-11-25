@@ -957,12 +957,22 @@ public class DailyMonitoringService {
         String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
+            data.remove("SEQUENCE_NUMBER");
+            data.remove("ASSIGNED_BY");
         });
         return result;
     }
 
     public List<Map<String, Object>> getAccrualsDetails() {
-        return jdbcManager.queryForList(accrualsDetails);
+
+        List<Map<String, Object>> result = jdbcManager.queryForList(accrualsDetails);
+
+        result.forEach(data -> {
+            data.remove("CREATION_DATE");
+            data.remove("SEQUENCE_NUMBER");
+        });
+
+        return result;
     }
 
     public List<Map<String, Object>> getAccrualsDetailsFiltered(String periodName, String ouName, String processFlow, String sequenceNum) {

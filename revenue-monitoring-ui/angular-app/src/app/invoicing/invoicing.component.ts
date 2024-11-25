@@ -15,7 +15,6 @@ export class InvoicingComponent implements OnInit {
     this.getErrorSummaryPeriodStatus();
     this.getUserId();
   }
-
   getUserId() {
     this.dataService.setLoading(true);
     this.dataService.getUserId().subscribe((data) => {
@@ -27,6 +26,7 @@ export class InvoicingComponent implements OnInit {
   getUserRoles(username: string) {
     this.dataService.getRoles(username).subscribe((data) => {
       this.roles = data['userRoles'];
+      this.getDefaultTabIndex();
     });
   }
 
@@ -194,11 +194,63 @@ export class InvoicingComponent implements OnInit {
     });
   }
 
-  activeTabIndex: number = 0;
+  visibleTabs: {
+    label: string;
+    component: string;
+    role: string[];
+    disabled?: boolean;
+  }[] = [
+    {
+      label: 'Pre-Invoicing',
+      component: 'app-pre-invoicing',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Invoicing',
+      component: 'app-auto-invoicing',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Post-Invoicing',
+      component: 'app-post-invoicing',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      disabled: true,
+    },
+    {
+      label: 'eInvoicing',
+      component: 'app-eInvoicing',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'CMS',
+      component: 'app-cms',
+      role: ['ADMIN', 'CMS'],
+    },
+    {
+      label: 'Fusion',
+      component: 'app-fusion',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      disabled: true,
+    },
+    {
+      label: 'Business Controls',
+      component: 'app-inv-business-controls',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      disabled: true,
+    },
+  ];
+
+  selectedIndex: number = 0;
+  filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
+
+  getDefaultTabIndex() {
+    this.filteredTabs = this.visibleTabs.filter((tab) =>
+      tab.role.some((role) => this.roles.includes(role))
+    );
+  }
 
   onTabChange(index: number) {
-    this.activeTabIndex = index;
-    // You can trigger data loading here if needed based on the active tab
+    this.selectedIndex = index;
   }
 
   invoicingprocessflowCss: string = `

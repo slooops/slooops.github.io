@@ -1,90 +1,68 @@
-<mat-tab-group [selectedIndex]="0" (selectedIndexChange)="onTabChange($event)">
-  <!-- <mat-tab label="Auto-Invoicing">
-    <app-auto-invoicing-real></app-auto-invoicing-real>
-  </mat-tab> -->
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
   <mat-tab
-    label="Pre-Invoicing"
-    *ngIf="roles.includes('ADMIN') || roles.includes('PRE_INVOICING')"
+    *ngFor="let tab of filteredTabs; let i = index"
+    [label]="tab.label"
+    [disabled]="tab.disabled"
   >
-    <app-monitoring-dashboard
-      [urls]="preInvoicingUrls"
-      [fieldKey]="'TRANSACTION_DATE'"
-      [processFlowKeys]="preInvoicingTotals"
-      [periodStatus]="periodStatus"
-      [summaryInputColumns]="summaryInputColumns"
-      [detailsDisplayedColumns]="preInvoicingDetailsColumns"
-      [componentName]="'Pre-Invoicing'"
-      [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
-      [specialWords]="specialWords"
-      [skippedWords]="skippedWords"
-      [dynamicTemplate]="dynamicTemplate"
-      [dynamicCss]="invoicingprocessflowCss"
-      [isSubAppMapping]="false"
-      [warningMessage]="'Invoice processing is delayed '"
-    ></app-monitoring-dashboard>
+    <ng-container [ngSwitch]="tab.component">
+      <ng-container *ngSwitchCase="'app-pre-invoicing'">
+        <app-monitoring-dashboard
+          [urls]="preInvoicingUrls"
+          [fieldKey]="'TRANSACTION_DATE'"
+          [processFlowKeys]="preInvoicingTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'Pre-Invoicing'"
+          [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]="dynamicTemplate"
+          [dynamicCss]="invoicingprocessflowCss"
+          [isSubAppMapping]="false"
+          [warningMessage]="'Invoice processing is delayed '"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-auto-invoicing'">
+        <app-monitoring-dashboard
+          [urls]="autoInvoicingUrls"
+          [fieldKey]="'TRANSACTION_DATE'"
+          [processFlowKeys]="autoInvoicingTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'Auto-Invoicing'"
+          [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]="dynamicTemplate"
+          [dynamicCss]="invoicingprocessflowCss"
+          [isSubAppMapping]="false"
+          [warningMessage]="'Invoice processing is delayed '"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-eInvoicing'">
+        <app-monitoring-dashboard
+          [urls]="eInvoicingUrls"
+          [fieldKey]="''"
+          [processFlowKeys]="eInvoicingTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'eInvoicing'"
+          [processFlowTabsToDisplay]="['eInvoicing']"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]="eInvTemplate"
+          [dynamicCss]="eInvprocessflowCss"
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-cms'">
+        <app-cms *ngIf="selectedIndex === i"></app-cms>
+      </ng-container>
+    </ng-container>
   </mat-tab>
-
-  <mat-tab
-    label="Invoicing"
-    *ngIf="roles.includes('ADMIN') || roles.includes('AUTO_INVOICING')"
-  >
-    <app-monitoring-dashboard
-      [urls]="autoInvoicingUrls"
-      [fieldKey]="'TRANSACTION_DATE'"
-      [processFlowKeys]="autoInvoicingTotals"
-      [periodStatus]="periodStatus"
-      [summaryInputColumns]="summaryInputColumns"
-      [detailsDisplayedColumns]="autoInvoicingDetailsColumns"
-      [componentName]="'Auto-Invoicing'"
-      [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
-      [specialWords]="specialWords"
-      [skippedWords]="skippedWords"
-      [dynamicTemplate]="dynamicTemplate"
-      [dynamicCss]="invoicingprocessflowCss"
-      [isSubAppMapping]="false"
-      [warningMessage]="'Invoice processing is delayed '"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab
-    label="Post-Invoicing"
-    [disabled]="true"
-    *ngIf="roles.includes('ADMIN') || roles.includes('POST_INVOICING')"
-  ></mat-tab>
-  <mat-tab
-    label="eInvoicing"
-    *ngIf="roles.includes('ADMIN') || roles.includes('EINVOICING')"
-  >
-    <app-monitoring-dashboard
-      *ngIf="activeTabIndex === 3"
-      [urls]="eInvoicingUrls"
-      [fieldKey]="''"
-      [processFlowKeys]="eInvoicingTotals"
-      [periodStatus]="periodStatus"
-      [summaryInputColumns]="einvoicingSummaryInputColumns"
-      [detailsDisplayedColumns]="einvoicingDetailsColumns"
-      [componentName]="'eInvoicing'"
-      [processFlowTabsToDisplay]="['eInvoicing']"
-      [specialWords]="specialWords"
-      [skippedWords]="skippedWords"
-      [dynamicTemplate]="eInvTemplate"
-      [dynamicCss]="eInvprocessflowCss"
-      [isSubAppMapping]="false"
-      [warningMessage]="'Warning message '"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="CMS" *ngIf="roles.includes('ADMIN') || roles.includes('CMS')">
-    <app-cms *ngIf="activeTabIndex === 4"></app-cms>
-  </mat-tab>
-  <mat-tab
-    label="Fusion"
-    [disabled]="true"
-    *ngIf="roles.includes('ADMIN') || roles.includes('FUSION')"
-  ></mat-tab>
-  <mat-tab
-    label="Business Controls"
-    [disabled]="true"
-    *ngIf="roles.includes('ADMIN') || roles.includes('INV_BUSINESS_CONTROLS')"
-  ></mat-tab>
 </mat-tab-group>
 
 <ng-template #dynamicTemplate let-allTotals="allTotals">

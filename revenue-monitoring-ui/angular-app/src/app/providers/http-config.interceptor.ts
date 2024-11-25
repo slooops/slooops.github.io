@@ -19,28 +19,29 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     return from(this.auth.getValidToken()).pipe(
       switchMap((inf) => {
         const token: string = sessionStorage.getItem('accessToken') || '';
-        if (!req.headers.has('Authorization')) {
+        let newReq = req.clone();
+        if (!newReq.headers.has('Authorization')) {
           if (token) {
-            req = req.clone({
-              headers: req.headers.set('Authorization', 'Bearer ' + token),
+            newReq = newReq.clone({
+              headers: newReq.headers.set('Authorization', 'Bearer ' + token),
             });
           }
           if (
-            !req.headers.has('Content-Type') &&
-            req.url.indexOf('Attachment') === -1 &&
-            !(req.body instanceof FormData)
+            !newReq.headers.has('Content-Type') &&
+            newReq.url.indexOf('Attachment') === -1 &&
+            !(newReq.body instanceof FormData)
           ) {
-            req = req.clone({
-              headers: req.headers.set('Content-Type', 'application/json'),
+            newReq = newReq.clone({
+              headers: newReq.headers.set('Content-Type', 'application/json'),
             });
           }
 
-          req = req.clone({
-            headers: req.headers.set('Accept', 'application/json'),
+          newReq = newReq.clone({
+            headers: newReq.headers.set('Accept', 'application/json'),
           });
         }
 
-        return next.handle(req);
+        return next.handle(newReq);
       })
     );
   }

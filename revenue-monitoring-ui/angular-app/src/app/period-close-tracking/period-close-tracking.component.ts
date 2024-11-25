@@ -248,30 +248,33 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getUserId();
   }
 
-  activeTabIndex: number = 0;
-
-  onTabChange(index: number) {
-    this.activeTabIndex = index;
-  }
-
-  selectedIndex: number = 0;
-
-  getDefaultTabIndex(): number {
-    let value = 0;
-    if (this.roles.includes('ADMIN')) {
-      value = 0;
-    } else if (this.roles.includes('PERIOD_CLOSE')) {
-      value = 0;
-    } else if (this.roles.includes('WD0')) {
-      value = 2; // Guest tab (e.g., index 2)
-    } else if (this.roles.includes('MIDCLOSE_VOLUMES')) {
-      value = 3; // Guest tab (e.g., index 2)
-    } else if (this.roles.includes('LARGE_DEAL')) {
-      value = 4; // Guest tab (e.g., index 2)
-    }
-    this.activeTabIndex = value;
-    return value;
-  }
+  visibleTabs: { label: string; component: string; role: string[] }[] = [
+    {
+      label: 'Pre-close (Internal)',
+      component: 'app-preclose',
+      role: ['ADMIN', 'PERIOD_CLOSE'],
+    },
+    {
+      label: 'Mid-close (Internal)',
+      component: 'app-midclose',
+      role: ['ADMIN', 'PERIOD_CLOSE'],
+    },
+    {
+      label: 'WD+0 Mid Close Status',
+      component: 'app-wd0-dash',
+      role: ['ADMIN', 'WD0'],
+    },
+    {
+      label: 'WD+0 Mid Close Volumes',
+      component: 'app-wd0-historical-data',
+      role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+    },
+    {
+      label: 'Large Deal Tracker',
+      component: 'app-invoice-status',
+      role: ['ADMIN', 'LARGE_DEAL'],
+    },
+  ];
 
   getUserId() {
     this.dataService.setLoading(true);
@@ -284,8 +287,21 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getUserRoles(username: string) {
     this.dataService.getRoles(username).subscribe((data) => {
       this.roles = data['userRoles'];
-      this.selectedIndex = this.getDefaultTabIndex();
+      this.getDefaultTabIndex();
     });
+  }
+
+  selectedIndex: number = 0;
+  filteredTabs: { label: string; component: string }[] = [];
+
+  getDefaultTabIndex() {
+    this.filteredTabs = this.visibleTabs.filter((tab) =>
+      tab.role.some((role) => this.roles.includes(role))
+    );
+  }
+
+  onTabChange(index: number) {
+    this.selectedIndex = index;
   }
 
   getIsQuarterEnd(): void {

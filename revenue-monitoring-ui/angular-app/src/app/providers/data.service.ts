@@ -10,7 +10,7 @@ import { shareReplay } from 'rxjs/operators';
 export class DataService {
   selectedErrorData: errorDashModel[] = [];
   allErrorsSelected: boolean = true;
-  userRoles: string[] = [];
+  userRoles: any;
   username: any;
   assignmentUsers: any;
   private loadingSubject = new BehaviorSubject<boolean>(false);

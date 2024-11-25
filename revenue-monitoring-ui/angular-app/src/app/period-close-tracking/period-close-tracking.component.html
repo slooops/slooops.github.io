@@ -2,37 +2,26 @@
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
 >
-  <mat-tab
-    label="Pre-close (Internal)"
-    *ngIf="roles.includes('ADMIN') || roles.includes('PERIOD_CLOSE')"
-  >
-    <app-preclose *ngIf="activeTabIndex === 0"></app-preclose>
-  </mat-tab>
-  <mat-tab
-    label="Mid-close (Internal)"
-    *ngIf="roles.includes('ADMIN') || roles.includes('PERIOD_CLOSE')"
-  >
-    <app-midclose *ngIf="activeTabIndex === 1"></app-midclose>
-  </mat-tab>
-  <mat-tab
-    label="WD+0 Mid Close Status"
-    *ngIf="roles.includes('ADMIN') || roles.includes('WD0')"
-  >
-    <app-wd0-dash *ngIf="activeTabIndex === 2"></app-wd0-dash>
-  </mat-tab>
-  <mat-tab
-    label="WD+0 Mid Close Volumes"
-    *ngIf="roles.includes('ADMIN') || roles.includes('MIDCLOSE_VOLUMES')"
-  >
-    <app-wd0-historical-data
-      *ngIf="activeTabIndex === 3"
-    ></app-wd0-historical-data>
-  </mat-tab>
-  <mat-tab
-    label="Large Deal Tracker"
-    *ngIf="roles.includes('ADMIN') || roles.includes('LARGE_DEAL')"
-  >
-    <app-invoice-status *ngIf="activeTabIndex === 4"></app-invoice-status>
+  <mat-tab *ngFor="let tab of filteredTabs; let i = index" [label]="tab.label">
+    <ng-container [ngSwitch]="tab.component">
+      <ng-container *ngSwitchCase="'app-preclose'">
+        <app-preclose *ngIf="selectedIndex === i"></app-preclose>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-midclose'">
+        <app-midclose *ngIf="selectedIndex === i"></app-midclose>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-wd0-dash'">
+        <app-wd0-dash *ngIf="selectedIndex === i"></app-wd0-dash>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-wd0-historical-data'">
+        <app-wd0-historical-data
+          *ngIf="selectedIndex === i"
+        ></app-wd0-historical-data>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-invoice-status'">
+        <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>
+      </ng-container>
+    </ng-container>
   </mat-tab>
 </mat-tab-group>
 

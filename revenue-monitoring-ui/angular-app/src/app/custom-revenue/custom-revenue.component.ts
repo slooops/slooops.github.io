@@ -25,6 +25,7 @@ export class CustomRevenueComponent implements OnInit {
   getUserRoles(username: string) {
     this.dataService.getRoles(username).subscribe((data) => {
       this.roles = data['userRoles'];
+      this.getDefaultTabIndex();
     });
   }
   rolTotals: { [key: string]: number } = {
@@ -82,20 +83,17 @@ export class CustomRevenueComponent implements OnInit {
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
-    KAFKA_INBOUND_ERROR: 0,
-    KAFKA_INBOUND: 0,
-    ACCRUAL_LINEEXTN_BILLS_AHEAD_OF_TSV: 0,
-    ACCRUAL_PROCESS: 0,
-    ACCRUAL_DIST: 0,
-    ACCRUAL_SUMMARY: 0,
-    ACCRUAL_SUMM_DIST: 0,
-    KAFKA_PUBLISH: 0,
-    GL_BATCH_RECON: 0,
+    '1.Payload Inbound Error': 0,
+    '2.Bill Ahead Of TSV': 0,
+    '3.Accrual Process': 0,
+    '4.Account Distributions': 0,
+    '5.Account Summarization': 0,
+    '6.Downstream Publish': 0,
   };
 
   // Define the steps array with both original keys and formatted labels
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
-    label: this.formatLabel(key),
+    label: key,
     impact: key,
   }));
 
@@ -173,10 +171,57 @@ export class CustomRevenueComponent implements OnInit {
     });
   }
 
-  activeTabIndex: number = 0;
+  visibleTabs: {
+    label: string;
+    component: string;
+    role: string[];
+    disabled?: boolean;
+  }[] = [
+    {
+      label: 'Standard Revenue',
+      component: 'app-standard-revenue',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      disabled: true,
+    },
+    {
+      label: 'Revenue Orchestration Layer',
+      component: 'app-rol',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Accruals',
+      component: 'app-accruals',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Meraki',
+      component: 'app-eInvoicing',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      disabled: true,
+    },
+    {
+      label: 'Business Controls',
+      component: 'app-cr-business-controls',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      disabled: true,
+    },
+  ];
+
+  selectedIndex: number = 1;
+  filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
+
+  getDefaultTabIndex() {
+    this.filteredTabs = this.visibleTabs.filter((tab) =>
+      tab.role.some((role) => this.roles.includes(role))
+    );
+
+    if (this.filteredTabs.length <= 1) {
+      this.selectedIndex = 0;
+    }
+  }
 
   onTabChange(index: number) {
-    this.activeTabIndex = index;
+    this.selectedIndex = index;
   }
 
   rolprocessflowCss: string = `
@@ -335,7 +380,7 @@ export class CustomRevenueComponent implements OnInit {
   flex-direction: column;
   align-items: center;
   height: 82px;
-  width: 1350px;
+  width: 910px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;

@@ -30,6 +30,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.getI2CSummary();
+    this.getUserId();
   }
 
   navigateTo(page: string): void {
@@ -50,5 +51,25 @@ export class HomeComponent implements OnInit {
     })}`;
 
     return formattedAmount;
+  }
+
+  getUserId() {
+    this.dataService.setLoading(true);
+    this.homeLoading = true;
+    this.dataService.getUserId().subscribe((data) => {
+      let username = data['auth_user'];
+      this.dataService.setUsername(username);
+      this.getUserRoles(username);
+    });
+  }
+
+  userRoles: any;
+  homeLoading: boolean = false;
+  getUserRoles(username: string) {
+    this.dataService.getRoles(username).subscribe((data) => {
+      this.userRoles = data['userRoles'];
+      this.dataService.setUserRoles(this.userRoles);
+      this.homeLoading = false;
+    });
   }
 }

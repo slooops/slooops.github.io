@@ -1,66 +1,54 @@
-<mat-tab-group [selectedIndex]="1" (selectedIndexChange)="onTabChange($event)">
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
   <mat-tab
-    label="Standard Revenue"
-    [disabled]="true"
-    *ngIf="roles.includes('ADMIN') || roles.includes('STANDARD_REVENUE')"
-  ></mat-tab>
-  <mat-tab
-    label="Revenue Orchestration Layer"
-    *ngIf="roles.includes('ADMIN') || roles.includes('ROL')"
+    *ngFor="let tab of filteredTabs; let i = index"
+    [label]="tab.label"
+    [disabled]="tab.disabled"
   >
-    <app-monitoring-dashboard
-      [urls]="rolUrls"
-      [fieldKey]="'SEQUENCE_NUM'"
-      [processFlowKeys]="rolTotals"
-      [periodStatus]="periodStatus"
-      [summaryInputColumns]="summaryInputColumns"
-      [detailsDisplayedColumns]="rolDetailsColumns"
-      [componentName]="'Rol'"
-      [processFlowTabsToDisplay]="['Rol']"
-      [specialWords]="specialWords"
-      [skippedWords]="skippedWords"
-      [subAppMapping]="subApplicationMapping"
-      [dynamicTemplate]="rolTemplate"
-      [dynamicCss]="rolprocessflowCss"
-      [isSubAppMapping]="true"
-      [warningMessage]="'Displays message with impacted accounting information'"
-    ></app-monitoring-dashboard>
+    <ng-container [ngSwitch]="tab.component">
+      <ng-container *ngSwitchCase="'app-rol'">
+        <app-monitoring-dashboard
+          [urls]="rolUrls"
+          [fieldKey]="'SEQUENCE_NUM'"
+          [processFlowKeys]="rolTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'Rol'"
+          [processFlowTabsToDisplay]="['Rol']"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [subAppMapping]="subApplicationMapping"
+          [dynamicTemplate]="rolTemplate"
+          [dynamicCss]="rolprocessflowCss"
+          [isSubAppMapping]="true"
+          [warningMessage]="
+            'Displays message with impacted accounting information'
+          "
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-accruals'">
+        <app-monitoring-dashboard
+          [urls]="accrualsUrls"
+          [fieldKey]="'SEQUENCE_NUMBER'"
+          [processFlowKeys]="accrualsTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'Accruals'"
+          [processFlowTabsToDisplay]="['Accruals']"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]="accrualsTemplate"
+          [dynamicCss]="accrualsprocessflowCss"
+          [isSubAppMapping]="false"
+          [warningMessage]="
+            'Displays message with impacted accounting information'
+          "
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+    </ng-container>
   </mat-tab>
-
-  <mat-tab
-    label="Accruals"
-    *ngIf="roles.includes('ADMIN') || roles.includes('ACCRUALS')"
-  >
-    <app-monitoring-dashboard
-      *ngIf="activeTabIndex === 2"
-      [urls]="accrualsUrls"
-      [fieldKey]="'SEQUENCE_NUMBER'"
-      [processFlowKeys]="accrualsTotals"
-      [periodStatus]="periodStatus"
-      [summaryInputColumns]="summaryInputColumns"
-      [detailsDisplayedColumns]="accrualsDetailsColumns"
-      [componentName]="'Accruals'"
-      [processFlowTabsToDisplay]="['Accruals']"
-      [specialWords]="specialWords"
-      [skippedWords]="skippedWords"
-      [dynamicTemplate]="accrualsTemplate"
-      [dynamicCss]="accrualsprocessflowCss"
-      [isSubAppMapping]="false"
-      [warningMessage]="'Displays message with impacted accounting information'"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-
-  <mat-tab
-    label="Meraki"
-    [disabled]="true"
-    *ngIf="roles.includes('ADMIN') || roles.includes('MERAKI')"
-  >
-  </mat-tab>
-  <mat-tab
-    label="Business Controls"
-    [disabled]="true"
-    *ngIf="roles.includes('ADMIN') || roles.includes('CR_BUSINESS_CONTROLS')"
-  ></mat-tab>
 </mat-tab-group>
 
 <ng-template #rolTemplate let-allTotals="allTotals">
@@ -146,7 +134,7 @@
     <div class="slider-bar">
       <div *ngFor="let step of formattedAccrualsSteps; let i = index">
         <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ i + 1 }}. {{ step.label }}</p>
+          <p class="circle-caption-loop">{{ step.label }}</p>
           <p class="circle-loop"></p>
           <p class="circle-subcaption">
             Total Impact:

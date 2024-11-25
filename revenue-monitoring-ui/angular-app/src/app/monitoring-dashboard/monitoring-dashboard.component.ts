@@ -34,8 +34,6 @@ export class MonitoringDashboardComponent<T>
   @Input() fieldKey: string;
   @Input() processFlowKeys: { [key: string]: number };
   @Input() periodStatus: any;
-  @Input() summaryInputColumns: string[];
-  @Input() detailsDisplayedColumns: string[];
   @Input() componentName: string;
   @Input() processFlowTabsToDisplay: string[];
   @Input() specialWords: string[];
@@ -63,7 +61,6 @@ export class MonitoringDashboardComponent<T>
     this.getErrorDetails();
     this.updateUrl = this.urls['summaryUpdateUrl'];
     this.webexUrl = this.urls['webexMessageUrl'];
-    this.summaryColumns = this.summaryInputColumns;
   }
   ngAfterViewInit(): void {
     // this.paginator.page.subscribe((event: PageEvent) => {
@@ -95,50 +92,62 @@ export class MonitoringDashboardComponent<T>
   summaryColumns: string[] = [];
   summaryDisplayedColumns: string[] = [];
   totalSummaryRecords: number = 0;
-  summaryLoading: boolean = true;
+  summaryLoading: boolean = false;
   originalData: any[] = [];
   processFlowTotals$: Observable<{ [key: string]: string }>;
   getErrorSummary() {
+    this.summaryLoading = true;
     this.summaryLoadTime = `Last Updated: ...`;
-    this.http.get(this.urls['summaryUrl']).subscribe((data: any) => {
-      this.resetPreInvoicingTotals();
-      const totals = this.calculateTotalsByProcessFlow(data);
-      this.dataService.setTabData(this.componentName, totals);
-      this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
-      this.summaryData = this.formatData(data);
-      this.summaryData.forEach((row) => {
-        row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-        row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
-        if (row.AGING == null) {
-          row.AGING = this.getAging(row.TRANSACTION_DATE) + ' Days';
-        } else {
-          row.AGING = row.AGING + ' Days';
+    this.http.get(this.urls['summaryUrl']).subscribe({
+      next: (data: any) => {
+        this.resetPreInvoicingTotals();
+        this.summaryData = this.formatData(data);
+        if (this.summaryData.length > 0) {
+          this.summaryColumns = Object.keys(this.summaryData[0]);
         }
-      });
-      this.originalData = this.summaryData;
+        this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
+        const totals = this.calculateTotalsByProcessFlow(data);
+        this.dataService.setTabData(this.componentName, totals);
+        console.log('totals', totals);
+        this.summaryData.forEach((row) => {
+          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+          row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
+          if (row.AGING == null) {
+            row.AGING = this.getAging(row.TRANSACTION_DATE) + ' Days';
+          } else {
+            row.AGING = row.AGING + ' Days';
+          }
+        });
+        this.originalData = this.summaryData;
 
-      this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
-      if (this.summaryPaginator) {
-        if (this.summaryDatasource.paginator !== this.summaryPaginator) {
-          this.summaryDatasource.paginator = this.summaryPaginator;
+        this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
+        if (this.summaryPaginator) {
+          if (this.summaryDatasource.paginator !== this.summaryPaginator) {
+            this.summaryDatasource.paginator = this.summaryPaginator;
+          }
+
+          this.totalSummaryRecords = this.summaryData.length;
+
+          // setTimeout(() => {
+          //   this.paginator.length = this.totalRecords;
+          //   this.paginator.pageIndex = pageIndex;
+          //   this.paginator.pageSize = pageSize;
+          //   this.cdr.detectChanges();
+          // });
         }
-
-        this.totalSummaryRecords = this.summaryData.length;
-
-        // setTimeout(() => {
-        //   this.paginator.length = this.totalRecords;
-        //   this.paginator.pageIndex = pageIndex;
-        //   this.paginator.pageSize = pageSize;
-        //   this.cdr.detectChanges();
-        // });
-      }
-      this.summaryLoading = false;
-      this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
+        this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
+      },
+      error: (err) => {
+        console.error('Error fetching data', err);
+        this.summaryLoading = false;
+      },
+      complete: () => {
+        this.summaryLoading = false;
+      },
     });
   }
 
   private resetPreInvoicingTotals(): void {
-    // Reset all values in the preInvoicingTotals object to 0
     Object.keys(this.processFlowKeys).forEach((key) => {
       this.processFlowKeys[key] = 0;
     });
@@ -372,15 +381,18 @@ export class MonitoringDashboardComponent<T>
   totalRecords: number = 0;
   isLoading: boolean = false;
   totalRecordsFiltered: number = 0;
+  detailsDisplayedColumns: string[] = [];
   getErrorDetails() {
     this.isLoading = true;
     this.isFiltered = false;
 
     this.http.get(this.urls['detailsUrl']).subscribe({
       next: (data: any) => {
-        console.log('Data fetched', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
+        if (this.errorDetails.length > 0) {
+          this.detailsDisplayedColumns = Object.keys(this.errorDetails[0]);
+        }
         this.errorDetails.forEach((row) => {
           row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
           this.detailsDisplayedColumns.forEach((column) => {

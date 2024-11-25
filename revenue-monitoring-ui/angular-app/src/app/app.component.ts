@@ -2,7 +2,6 @@ import { Component, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
-import { ApiHttpService } from './providers/http.service';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
 

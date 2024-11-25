@@ -163,13 +163,9 @@
     [routerLink]="['/invoice-to-cash']"
     *ngIf="
       isAdmin ||
-      checkRole('PRE_INVOICING') ||
-      checkRole('AUTO_INVOICING') ||
-      checkRole('POST_INVOICING') ||
-      checkRole('EINVOICING') ||
-      checkRole('CMS') ||
-      checkRole('FUSION') ||
-      checkRole('INV_BUSINESS_CONTROLS')
+      checkRole('EXCEPTION_ADMIN') ||
+      checkRole('EXCEPTION_READ_ONLY') ||
+      checkRole('CMS')
     "
     mat-menu-item
     class="small-menu-item"
@@ -261,11 +257,8 @@
   <button
     *ngIf="
       isAdmin ||
-      checkRole('ROL') ||
-      checkRole('STANDARD_REVENUE') ||
-      checkRole('ACCRUALS') ||
-      checkRole('MERAKI') ||
-      checkRole('CR_BUSINESS_CONTROLS')
+      checkRole('EXCEPTION_ADMIN') ||
+      checkRole('EXCEPTION_READ_ONLY')
     "
     [routerLink]="['/revenue-accounting']"
     mat-menu-item

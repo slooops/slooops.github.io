@@ -8,7 +8,6 @@ import {
   Renderer2,
   TemplateRef,
 } from '@angular/core';
-import { SafeHtml } from '@angular/platform-browser';
 import { combineLatest, map, Observable } from 'rxjs';
 import { DataService } from 'src/app/providers/data.service';
 
@@ -28,7 +27,6 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
   processFlowhtml: string = '';
   processFlowcss: string = '';
   htmlContent: string = '';
-  sanitizedHtml: SafeHtml = '';
   htmlTemplate: TemplateRef<any> | null = null;
   csstemplate: string = '';
 
