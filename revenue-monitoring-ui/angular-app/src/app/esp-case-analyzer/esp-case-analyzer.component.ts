@@ -332,23 +332,27 @@ export class EspCaseAnalyzerComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    // this.getCaseMetricsSummary();
     this.initializeCharts();
+    this.getEspAgingCaseSummary();
+    this.getEspCaseServiceMetricSummary();
+    this.getEspWeeklyComparisonSummary();
   }
 
-  getCaseMetricsSummary() {
-    this.http.get('case-service-metrics-summary').subscribe((data: any) => {
-      if (data.length > 0) {
-        this.displayedColumnsForAgingBacklog = Object.keys(data[0]);
-        this.removeColumns([
-          'IS_ACTIVE',
-          'CREATED_BY',
-          'LAST_UPDATED_BY',
-          'CREATED_TIME',
-          'LAST_UPDATED_TIME',
-        ]);
-      }
-      this.dataSourceAgingBacklog = new MatTableDataSource<any>(data);
+  getEspAgingCaseSummary() {
+    this.http.get('esp-aging-case-summary').subscribe((data: any) => {
+      console.log('espAgingCaseSummary:', data);
+    });
+  }
+
+  getEspCaseServiceMetricSummary() {
+    this.http.get('esp-case-service-metric-summary').subscribe((data: any) => {
+      console.log('espCaseServiceMetricSummary:', data);
+    });
+  }
+
+  getEspWeeklyComparisonSummary() {
+    this.http.get('esp-weekly-comparison-summary').subscribe((data: any) => {
+      console.log('espWeeklyComparisonSummary:', data);
     });
   }
 
@@ -523,21 +527,4 @@ export class EspCaseAnalyzerComponent implements OnInit {
       options: this.sharedChartOptions,
     });
   }
-}
-
-interface CaseMetricsSummary {
-  BACKLOG: string;
-  CANCELLED: string;
-  CREATED_BY: string;
-  CREATED_TIME: string;
-  ESCALATED: string;
-  IS_ACTIVE: string;
-  LAST_UPDATED_BY: string;
-  LAST_UPDATED_TIME: string;
-  MTTR: string;
-  RESOLVED: string;
-  ROUTED_OUT: string;
-  SERVICE_INCIDENT: string;
-  SERVICE_OFFERING: string;
-  SERVICE_REQUEST: string;
 }

@@ -321,23 +321,44 @@ public class QueryConfigs { // TODO
     @Value(("${einvoicing.details.q}"))
     public String einvoicingDetails;
 
-    @Bean( name = "glErrorDetails" )
-    public String getGlErrorDetails() {return this.glErrorDetails; }
+    @Bean(name = "glErrorDetails")
+    public String getGlErrorDetails() {
+        return this.glErrorDetails;
+    }
 
-    @Bean( name = "glErrorSummary" )
-    public String getGlErrorSummary() {return this.glErrorSummary; }
+    @Bean(name = "glErrorSummary")
+    public String getGlErrorSummary() {
+        return this.glErrorSummary;
+    }
 
-    @Bean( name = "einvoicingDetails" )
-    public String getEinvoicingDetails() {return this.einvoicingDetails; }
+    @Bean(name = "einvoicingDetails")
+    public String getEinvoicingDetails() {
+        return this.einvoicingDetails;
+    }
 
-    @Bean( name = "einvoicingSummary" )
-    public String getEinvoicingSummary() {return this.einvoicingSummary; }
+    @Bean(name = "einvoicingSummary")
+    public String getEinvoicingSummary() {
+        return this.einvoicingSummary;
+    }
 
-    @Bean( name = "glPostingDetailsFiltered" )
-    public String getGlPostingDetailsFiltered() {return this.glPostingDetailsFiltered; }
+    @Bean(name = "glPostingDetailsFiltered")
+    public String getGlPostingDetailsFiltered() {
+        return this.glPostingDetailsFiltered;
+    }
 
-    @Bean( name = "glPostingSummaryUpdate" )
-    public String getGlPostingSummaryUpdate() {return this.glPostingSummaryUpdate; }
+    @Bean(name = "glPostingSummaryUpdate")
+    public String getGlPostingSummaryUpdate() {
+        return this.glPostingSummaryUpdate;
+    }
+
+    @Value(("${esp.aging.case.summary.q}"))
+    public String espAgingCaseSummary;
+
+    @Value(("${esp.case.service.metric.summary.q}"))
+    public String espCaseServiceMetricSummary;
+
+    @Value(("${esp.weekly.comparison.summary.q}"))
+    public String espWeeklyComparisonSummary;
 
     @Bean(name = "autoInvoiceErrorSummaryView")
     public String getAutoInvoiceErrorSummaryView() {
@@ -712,19 +733,25 @@ public class QueryConfigs { // TODO
         return this.rolErrorsSummary;
     }
 
-    @Bean( name = "rolChartTotals" )
-    public String getRolChartTotals() {return this.rolChartTotals; }
+    @Bean(name = "rolChartTotals")
+    public String getRolChartTotals() {
+        return this.rolChartTotals;
+    }
 
-    @Bean( name = "rolChartDetails" )
-    public String getRolChartDetails() {return this.rolChartDetails; }
+    @Bean(name = "rolChartDetails")
+    public String getRolChartDetails() {
+        return this.rolChartDetails;
+    }
 
     @Bean(name = "sbpSummary")
     public String getSbpSummary() {
         return this.sbpSummary;
     }
 
-    @Bean( name = "sbpDetails" )
-    public String getSbpDetails() {return this.sbpDetails; }
+    @Bean(name = "sbpDetails")
+    public String getSbpDetails() {
+        return this.sbpDetails;
+    }
 
     @Bean(name = "cmsTotalUnappliedAmountQuery")
     public String getCmsTotalUnappliedAmountQuery() {
@@ -742,15 +769,19 @@ public class QueryConfigs { // TODO
     }
 
     @Bean(name = "cloSampleDownloadData")
-    public String getCloSampleDownloadData(){
+    public String getCloSampleDownloadData() {
         return this.cloSampleDownloadData;
     }
 
     @Bean(name = "rolTransactionDataCount")
-    public String getRolTransactionDataCount() { return this.rolTransactionDataCount; }
+    public String getRolTransactionDataCount() {
+        return this.rolTransactionDataCount;
+    }
 
     @Bean(name = "caseServiceMetricsSummary")
-    public String getCaseServiceMetricsSummary() { return this.caseServiceMetricsSummary; }
+    public String getCaseServiceMetricsSummary() {
+        return this.caseServiceMetricsSummary;
+    }
 
     @Bean(name = "rolErrorsSummaryUpdate")
     public String updateRolErrorSummaryUpdate() {
@@ -778,34 +809,67 @@ public class QueryConfigs { // TODO
     }
 
     @Bean(name = "rolTransactionDataFilterCount")
-    public String getRolTransactionDataFilterCount(){
+    public String getRolTransactionDataFilterCount() {
         return this.rolTransactionDataFilterCount;
     }
 
-    @Bean( name = "wd0Volumes" )
-    public String getWd0Volumes() {return this.wd0Volumes; }
+    @Bean(name = "wd0Volumes")
+    public String getWd0Volumes() {
+        return this.wd0Volumes;
+    }
 
-    @Bean( name = "autoInvoiceErrorsSummaryUpdate" )
-    public String getAutoInvoiceErrorsSummaryUpdate() {return this.autoInvoiceErrorsSummaryUpdate; }
+    @Bean(name = "autoInvoiceErrorsSummaryUpdate")
+    public String getAutoInvoiceErrorsSummaryUpdate() {
+        return this.autoInvoiceErrorsSummaryUpdate;
+    }
 
-    @Bean( name = "preInvoiceErrorsSummaryUpdate" )
-    public String getPreInvoiceErrorsSummaryUpdate() {return this.preInvoiceErrorsSummaryUpdate; }
+    @Bean(name = "preInvoiceErrorsSummaryUpdate")
+    public String getPreInvoiceErrorsSummaryUpdate() {
+        return this.preInvoiceErrorsSummaryUpdate;
+    }
 
-    @Bean( name = "summaryAssignmentUsers" )
-    public String getSummaryAssignmentUsers() {return this.summaryAssignmentUsers; }
+    @Bean(name = "summaryAssignmentUsers")
+    public String getSummaryAssignmentUsers() {
+        return this.summaryAssignmentUsers;
+    }
 
-    @Bean( name = "accrualsSummary" )
-    public String getAccrualsSummary() {return this.accrualsSummary; }
+    @Bean(name = "accrualsSummary")
+    public String getAccrualsSummary() {
+        return this.accrualsSummary;
+    }
 
-    @Bean( name = "accrualsDetails" )
-    public String getAccrualsDetails() {return this.accrualsDetails; }
+    @Bean(name = "accrualsDetails")
+    public String getAccrualsDetails() {
+        return this.accrualsDetails;
+    }
 
-    @Bean( name = "accrualsDetailsFiltered" )
-    public String getAccrualsDetailsFiltered() {return this.accrualsDetailsFiltered; }
+    @Bean(name = "accrualsDetailsFiltered")
+    public String getAccrualsDetailsFiltered() {
+        return this.accrualsDetailsFiltered;
+    }
 
-    @Bean( name = "accrualsSummaryUpdate" )
-    public String getAccrualsSummaryUpdate() {return this.accrualsSummaryUpdate; }
+    @Bean(name = "accrualsSummaryUpdate")
+    public String getAccrualsSummaryUpdate() {
+        return this.accrualsSummaryUpdate;
+    }
 
-    @Bean( name = "invoiceToCashSummary" )
-    public String getInvoiceToCashSummary() {return this.invoiceToCashSummary; }
+    @Bean(name = "invoiceToCashSummary")
+    public String getInvoiceToCashSummary() {
+        return this.invoiceToCashSummary;
+    }
+
+    @Bean(name = "espAgingCaseSummary")
+    public String getEspAgingCaseSummary() {
+        return this.espAgingCaseSummary;
+    }
+
+    @Bean(name = "espCaseServiceMetricSummary")
+    public String getEspCaseServiceMetricSummary() {
+        return this.espCaseServiceMetricSummary;
+    }
+
+    @Bean(name = "espWeeklyComparisonSummary")
+    public String getEspWeeklyComparisonSummary() {
+        return this.espWeeklyComparisonSummary;
+    }
 }

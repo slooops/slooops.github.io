@@ -86,10 +86,12 @@ public class DailyMonitoringController {
     }
 
     @PostMapping("/selected-error-details")
-    public ResponseEntity<List<Map<String, Object>>> getErrorDetails(@RequestBody List<ErrorSummaryModel> errorSummaryModel) {
+    public ResponseEntity<List<Map<String, Object>>> getErrorDetails(
+            @RequestBody List<ErrorSummaryModel> errorSummaryModel) {
         List<Map<String, Object>> errorDetails = new ArrayList<>();
         for (ErrorSummaryModel summary : errorSummaryModel) {
-            List<Map<String, Object>> result = service.getErrorDetails(summary.getAPPLICATION_NAME(), summary.getBATCH_SOURCE(), summary.getENTITY(), summary.getTRANSACTION_TYPE());
+            List<Map<String, Object>> result = service.getErrorDetails(summary.getAPPLICATION_NAME(),
+                    summary.getBATCH_SOURCE(), summary.getENTITY(), summary.getTRANSACTION_TYPE());
             errorDetails.addAll(result);
         }
         return new ResponseEntity<>(errorDetails, HttpStatus.OK);
@@ -124,7 +126,6 @@ public class DailyMonitoringController {
     public ResponseEntity<OrderLifecycleModel> getOrderStatus() {
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
     }
-
 
     @GetMapping("/invoice-tracker-header")
     public ResponseEntity<List<Map<String, Object>>> getInvoiceTrackerHeader() {
@@ -169,15 +170,16 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getOrderStatusRevSummary(), HttpStatus.OK);
     }
 
-//    @GetMapping("/rol-transaction-data")
-//    public ResponseEntity<Map<String, Object>> getRolTransactionData() {
-//        List<RolTransactionData> rolTransactionData = service.getRolTransactionData();
-////        int totalRecords = service.getTotalRecords();
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("rolTransactionData", rolTransactionData);
-////        response.put("totalRecords", totalRecords);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
+    // @GetMapping("/rol-transaction-data")
+    // public ResponseEntity<Map<String, Object>> getRolTransactionData() {
+    // List<RolTransactionData> rolTransactionData =
+    // service.getRolTransactionData();
+    //// int totalRecords = service.getTotalRecords();
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("rolTransactionData", rolTransactionData);
+    //// response.put("totalRecords", totalRecords);
+    // return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
 
     @GetMapping("/rol-transaction-data")
     public ResponseEntity<List<Map<String, Object>>> getRolTransactionDetails() {
@@ -185,30 +187,33 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/rol-transaction-data-filter")
-    public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter( @RequestParam List<String> periodNames,
-                                                                           @RequestParam List<String> ouNames,
-                                                                           @RequestParam List<String> appNames,
-                                                                            @RequestParam List<String> processFlows,
-                                                                           @RequestParam List<String> uniqueIds) {
+    public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter(@RequestParam List<String> periodNames,
+            @RequestParam List<String> ouNames,
+            @RequestParam List<String> appNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> uniqueIds) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
-//            int totalRecords = 0;
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
+                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            // int totalRecords = 0;
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = ouNames.get(i);
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
-                List<Map<String, Object>> result = service.getRolTransactionDetailsFilter(periodName, ouName, appName, uniqueId);
+                List<Map<String, Object>> result = service.getRolTransactionDetailsFilter(periodName, ouName, appName,
+                        uniqueId);
                 errorDetailsFiltered.addAll(result);
-//                totalRecords += service.getTotalRecordsFiltered(periodName, ouName, appName, sequenceNum);
+                // totalRecords += service.getTotalRecordsFiltered(periodName, ouName, appName,
+                // sequenceNum);
             }
             Map<String, Object> response = new HashMap<>();
             response.put("errorDetailsFiltered", errorDetailsFiltered);
-//            response.put("totalRecords", totalRecords);
+            // response.put("totalRecords", totalRecords);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
@@ -246,28 +251,31 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/auto-invoice-error-details-filtered")
-    public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
-                                                                                       @RequestParam List<String> ouNames,
-                                                                                       @RequestParam List<String> appNames,
-                                                                                  @RequestParam List<String> processFlows,
-                                                                                  @RequestParam List<String> uniqueIds) {
+    public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> ouNames,
+            @RequestParam List<String> appNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> uniqueIds) {
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
+                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = ouNames.get(i);
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
-                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName, periodName, uniqueId);
+                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName,
+                        periodName, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
             response.put("errorDetailsFiltered", errorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
@@ -275,28 +283,29 @@ public class DailyMonitoringController {
 
     @GetMapping("/pre-invoice-error-details-filtered")
     public ResponseEntity<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
-                                                                                  @RequestParam List<String> ouNames,
-                                                                                  @RequestParam List<String> appNames,
-                                                                                 @RequestParam List<String> processFlows,
-                                                                                 @RequestParam List<String> uniqueIds) {
-
+            @RequestParam List<String> ouNames,
+            @RequestParam List<String> appNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> uniqueIds) {
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
+                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = ouNames.get(i);
                 String appName = appNames.get(i);
                 String uniqueId = uniqueIds.get(i);
-                List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName, periodName, uniqueId);
+                List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName,
+                        periodName, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
             response.put("errorDetailsFiltered", errorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
@@ -305,26 +314,28 @@ public class DailyMonitoringController {
 
     @GetMapping("/accruals-details-filtered")
     public ResponseEntity<Map<String, Object>> getAccrualsErrorDetailsFiltered(@RequestParam List<String> periodNames,
-                                                                                 @RequestParam List<String> ouNames,
-                                                                                 @RequestParam List<String> appNames,
-                                                                                 @RequestParam List<String> processFlows,
-                                                                                 @RequestParam List<String> uniqueIds) {
+            @RequestParam List<String> ouNames,
+            @RequestParam List<String> appNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> uniqueIds) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
+                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = ouNames.get(i);
                 String processFlow = processFlows.get(i);
                 String uniqueId = uniqueIds.get(i);
-                List<Map<String, Object>> result = service.getAccrualsDetailsFiltered(periodName, ouName, processFlow, uniqueId);
+                List<Map<String, Object>> result = service.getAccrualsDetailsFiltered(periodName, ouName, processFlow,
+                        uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
             response.put("errorDetailsFiltered", errorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
@@ -370,36 +381,42 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.getRolChartDetails(), HttpStatus.OK);
     }
 
-//    @GetMapping("/rol-transaction-data-download")
-//    public ResponseEntity<List<Map<String, Object>>> getRolTransactionDataDownload() {
-//        return new ResponseEntity<>(service.getRolTransactionDataDownload(), HttpStatus.OK);
-//    }
+    // @GetMapping("/rol-transaction-data-download")
+    // public ResponseEntity<List<Map<String, Object>>>
+    // getRolTransactionDataDownload() {
+    // return new ResponseEntity<>(service.getRolTransactionDataDownload(),
+    // HttpStatus.OK);
+    // }
 
-//    @GetMapping("/rol-transaction-filter-data-download")
-//    public ResponseEntity<Map<String, Object>> getRolTransactionFilterDataDownload(@RequestParam List<String> periodNames,
-//                                                                                         @RequestParam List<String> ouNames,
-//                                                                                         @RequestParam List<String> appNames,
-//                                                                                         @RequestParam List<String> sequenceNums) {
-//        try {
-//            List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
-//            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(), appNames.size()));
-//
-//            for (int i = 0; i < minLength; i++) {
-//                String periodName = periodNames.get(i);
-//                String ouName = ouNames.get(i);
-//                String appName = appNames.get(i);
-//                String sequenceNum = sequenceNums.get(i);
-//                List<RolTransactionData> result = service.getRolTransactionFilterDataDownload(periodName, ouName, appName, sequenceNum);
-//                rolTransactionDataFiltered.addAll(result);
-//            }
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
-//            return new ResponseEntity<>(response, HttpStatus.OK);
-//        } catch (Exception e){
-//            System.out.println(e);
-//            return null;
-//        }
-//    }
+    // @GetMapping("/rol-transaction-filter-data-download")
+    // public ResponseEntity<Map<String, Object>>
+    // getRolTransactionFilterDataDownload(@RequestParam List<String> periodNames,
+    // @RequestParam List<String> ouNames,
+    // @RequestParam List<String> appNames,
+    // @RequestParam List<String> sequenceNums) {
+    // try {
+    // List<RolTransactionData> rolTransactionDataFiltered = new ArrayList<>();
+    // int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
+    // appNames.size()));
+    //
+    // for (int i = 0; i < minLength; i++) {
+    // String periodName = periodNames.get(i);
+    // String ouName = ouNames.get(i);
+    // String appName = appNames.get(i);
+    // String sequenceNum = sequenceNums.get(i);
+    // List<RolTransactionData> result =
+    // service.getRolTransactionFilterDataDownload(periodName, ouName, appName,
+    // sequenceNum);
+    // rolTransactionDataFiltered.addAll(result);
+    // }
+    // Map<String, Object> response = new HashMap<>();
+    // response.put("rolTransactionDataFiltered", rolTransactionDataFiltered);
+    // return new ResponseEntity<>(response, HttpStatus.OK);
+    // } catch (Exception e){
+    // System.out.println(e);
+    // return null;
+    // }
+    // }
 
     @GetMapping("/sbp-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpSummary() {
@@ -412,7 +429,8 @@ public class DailyMonitoringController {
     }
 
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
+    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
+            @RequestParam("username") String username) {
         if (!file.isEmpty()) {
             try {
                 service.setUpdateOrderStatusFromFile(file, username);
@@ -487,10 +505,9 @@ public class DailyMonitoringController {
 
     @GetMapping(value = "/user-role")
     public ResponseEntity<UserRoleInfo> getUserRoles(@RequestParam String username) {
-            UserRoleInfo userRoles = service.getUserRoles(username);
-            return ResponseEntity.status(HttpStatus.OK).body(userRoles);
+        UserRoleInfo userRoles = service.getUserRoles(username);
+        return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
-
 
     @PostMapping(value = "/delete-selected-deals")
     public ResponseEntity<String> deleteSelectedDeals(@RequestBody Map<String, Object> requestData) {
@@ -515,7 +532,8 @@ public class DailyMonitoringController {
     }
 
     @PostMapping(value = "/clo-bulk-upload-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) {
+    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file,
+            @RequestParam("username") String username) {
         if (!file.isEmpty()) {
             try {
                 service.setCloBulkUpdateFromFile(file, username);
@@ -561,14 +579,14 @@ public class DailyMonitoringController {
     }
 
     @GetMapping("/clo-sample-download-data")
-    public ResponseEntity<List<Map<String, Object>>> getCloSampleDownloadData(){
+    public ResponseEntity<List<Map<String, Object>>> getCloSampleDownloadData() {
         return new ResponseEntity<>(service.getCloSampleDownloadData(), HttpStatus.OK);
     }
 
-//    @GetMapping("/rol-transaction-data-count")
-//    public ResponseEntity<Integer> getRolTransactionDataCount() {
-//        return new ResponseEntity<>(service.getTotalRecords(), HttpStatus.OK);
-//    }
+    // @GetMapping("/rol-transaction-data-count")
+    // public ResponseEntity<Integer> getRolTransactionDataCount() {
+    // return new ResponseEntity<>(service.getTotalRecords(), HttpStatus.OK);
+    // }
 
     @GetMapping("/case-service-metrics-summary")
     public ResponseEntity<List<Map<String, Object>>> getCaseServiceMetricsSummary() {
@@ -607,11 +625,11 @@ public class DailyMonitoringController {
 
     @GetMapping("/gl-details-filtered")
     public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
-                                                                               @RequestParam List<String> ledgerNames,
-                                                                               @RequestParam List<String> appNames,
-                                                                               @RequestParam List<String> journalSources,
-                                                                               @RequestParam List<String> accountSeg,
-                                                                               @RequestParam List<String> uniqueIds) {
+            @RequestParam List<String> ledgerNames,
+            @RequestParam List<String> appNames,
+            @RequestParam List<String> journalSources,
+            @RequestParam List<String> accountSeg,
+            @RequestParam List<String> uniqueIds) {
         System.out.println(processFlows);
         System.out.println(ledgerNames);
         System.out.println(appNames);
@@ -620,7 +638,8 @@ public class DailyMonitoringController {
         System.out.println(uniqueIds);
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(appNames.size(), Math.min(processFlows.size(), Math.min(accountSeg.size(), uniqueIds.size())))));
+            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(appNames.size(),
+                    Math.min(processFlows.size(), Math.min(accountSeg.size(), uniqueIds.size())))));
 
             for (int i = 0; i < minLength; i++) {
                 String processFlow = processFlows.get(i);
@@ -629,13 +648,14 @@ public class DailyMonitoringController {
                 String journalSource = journalSources.get(i);
                 String accountseg = accountSeg.get(i);
                 String uniqueId = uniqueIds.get(i);
-                List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow,ledgerName, appName,journalSource,accountseg, uniqueId);
+                List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow, ledgerName, appName,
+                        journalSource, accountseg, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
             response.put("errorDetailsFiltered", errorDetailsFiltered);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
             return null;
         }
@@ -658,5 +678,18 @@ public class DailyMonitoringController {
         return new ResponseEntity<>(service.geteInvoicingDetails(), HttpStatus.OK);
     }
 
+    @GetMapping("/esp-aging-case-summary")
+    public ResponseEntity<List<Map<String, Object>>> getEspAgingCaseSummary() {
+        return new ResponseEntity<>(service.getEspAgingCaseSummary(), HttpStatus.OK);
+    }
 
+    @GetMapping("/esp-case-service-metric-summary")
+    public ResponseEntity<List<Map<String, Object>>> getEspCaseServiceMetricSummary() {
+        return new ResponseEntity<>(service.getEspCaseServiceMetricSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/esp-weekly-comparison-summary")
+    public ResponseEntity<List<Map<String, Object>>> getEspWeeklyComparisonSummary() {
+        return new ResponseEntity<>(service.getEspWeeklyComparisonSummary(), HttpStatus.OK);
+    }
 }

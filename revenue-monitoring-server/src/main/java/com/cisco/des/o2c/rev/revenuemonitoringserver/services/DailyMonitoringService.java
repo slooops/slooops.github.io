@@ -1,4 +1,5 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
+
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,17 +41,11 @@ public class DailyMonitoringService {
     private String updateOrderStatus;
     private String orderStatusRevSummary;
     private String updateInvoiceEligibleDate;
-
     private String invoiceTrackerHeader;
-
     private String invoiceTrackerLine;
-
     private String wd0ArMidCloseStatusQuery;
-
     private String wd0ArMidCloseHeaderDataQuery;
-
     private String wd0HistoricalDataQuery;
-
     private String kafkaError;
     private String kafkaInbound;
     private String arTrxnMissing;
@@ -105,27 +100,41 @@ public class DailyMonitoringService {
     private String einvoicingSummary;
     private String einvoicingDetails;
 
+    private String espAgingCaseSummary;
+    private String espCaseServiceMetricSummary;
+    private String espWeeklyComparisonSummary;
 
     @Autowired
-    public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery, 
-                                 String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats, 
-                                 String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
-                                 String closeMEStatus, String closeQECashCollected, String dashboardComments, String errorSummary, String allErrorDetails, String errorDetails, String updateComments,
-                                 String invoiceTrackerHeader, String invoiceTrackerLine, String wd0ArMidCloseStatusQuery, String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
-                                  String orderStatusSummary, String orderStatusDownload, String updateOrderStatus, String kafkaError,
-                                  String kafkaInbound, String arTrxnMissing, String accrualsProcessingErrors, String accrualsDistributionErrors,
-                                  String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
-                                  String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
-                                  String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
-                                  String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails, String estimatedCompletionTime,
-                                  String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount, String caseServiceMetricsSummary,
-                                  String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals, String rolChartDetails, String rolTransactionDataFilter,
-                                  String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView, String autoInvoiceErrorDetails, String rolTransactionDataDownload,
-                                  String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails, String autoInvoiceErrorDetailsFiltered,
-                                  String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate,
-                                  String accrualsSummary, String accrualsDetails, String invoiceToCashSummary, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
-                                  String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate, String einvoicingSummary, String einvoicingDetails
-    ) {
+    public DailyMonitoringService(JdbcManager jdbcManager, String stdArExcQuery, String tsvTopSkuExcQuery,
+            String tsvSubSkuExcQuery, String revenueControlsQuery, String closeInvStats,
+            String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
+            String closeMEStatus, String closeQECashCollected, String dashboardComments, String errorSummary,
+            String allErrorDetails, String errorDetails, String updateComments,
+            String invoiceTrackerHeader, String invoiceTrackerLine, String wd0ArMidCloseStatusQuery,
+            String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
+            String orderStatusSummary, String orderStatusDownload, String updateOrderStatus, String kafkaError,
+            String kafkaInbound, String arTrxnMissing, String accrualsProcessingErrors,
+            String accrualsDistributionErrors,
+            String accrualsSummarizationErrors, String kafkaPublishToDownstream, String errorDistributionSummarization,
+            String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
+            String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
+            String rolTransactionData, String rolErrorsSummary, String sbpSummary, String sbpDetails,
+            String estimatedCompletionTime,
+            String largeDealSummaryByAccount, String cloSampleDownloadData, String rolTransactionDataCount,
+            String caseServiceMetricsSummary,
+            String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals,
+            String rolChartDetails, String rolTransactionDataFilter,
+            String rolTransactionDataFilterCount, String wd0Volumes, String autoInvoiceErrorSummaryView,
+            String autoInvoiceErrorDetails, String rolTransactionDataDownload,
+            String rolTransactionFilterDataDownload, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails,
+            String autoInvoiceErrorDetailsFiltered,
+            String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate, String summaryAssignmentUsers,
+            String preInvoiceErrorsSummaryUpdate,
+            String accrualsSummary, String accrualsDetails, String invoiceToCashSummary, String espAgingCaseSummary,
+            String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
+            String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
+            String einvoicingSummary, String einvoicingDetails,
+            String espCaseServiceMetricSummary, String espWeeklyComparisonSummary) {
         this.jdbcManager = jdbcManager;
         this.stdArExcQuery = stdArExcQuery;
         this.tsvTopSkuExcQuery = tsvTopSkuExcQuery;
@@ -205,6 +214,9 @@ public class DailyMonitoringService {
         this.glPostingSummaryUpdate = glPostingSummaryUpdate;
         this.einvoicingSummary = einvoicingSummary;
         this.einvoicingDetails = einvoicingDetails;
+        this.espAgingCaseSummary = espAgingCaseSummary;
+        this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
+        this.espWeeklyComparisonSummary = espWeeklyComparisonSummary;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -241,44 +253,52 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(tsvSubSkuExcQuery);
     }
 
-    public List<Map<String,Object>> getRevenueControls() { return jdbcManager.queryForList(revenueControlsQuery); }
+    public List<Map<String, Object>> getRevenueControls() {
+        return jdbcManager.queryForList(revenueControlsQuery);
+    }
 
-    public List<Map<String,Object>> getCloseInvStats() { return jdbcManager.queryForList(closeInvStats); }
+    public List<Map<String, Object>> getCloseInvStats() {
+        return jdbcManager.queryForList(closeInvStats);
+    }
 
-    public List<Map<String,Object>> getPeriodCloseInterfaceLoad() {
-        List<Map<String,Object>> product = new ArrayList<>();
-        List<Map<String,Object>> service = new ArrayList<>();
-        for(Map<String,Object> row: jdbcManager.queryForList(closeInterfaceLoad)){
-            if(row.get("LINE_TYPE").equals("PRODUCT")){
+    public List<Map<String, Object>> getPeriodCloseInterfaceLoad() {
+        List<Map<String, Object>> product = new ArrayList<>();
+        List<Map<String, Object>> service = new ArrayList<>();
+        for (Map<String, Object> row : jdbcManager.queryForList(closeInterfaceLoad)) {
+            if (row.get("LINE_TYPE").equals("PRODUCT")) {
                 product.add(row);
             } else {
                 service.add(row);
             }
         }
-        product = product.subList(product.size()-10,product.size());
-        service = service.subList(service.size()-10,service.size());
+        product = product.subList(product.size() - 10, product.size());
+        service = service.subList(service.size() - 10, service.size());
 
-        List<Map<String,Object>> interfaceLoad = new ArrayList<>();
+        List<Map<String, Object>> interfaceLoad = new ArrayList<>();
         Stream.of(product, service).forEach(interfaceLoad::addAll);
 
         return interfaceLoad;
     }
 
-    public List<Map<String,Object>> getCloseStartEndTime() { 
-        return jdbcManager.queryForList(closeStartEndTime); 
+    public List<Map<String, Object>> getCloseStartEndTime() {
+        return jdbcManager.queryForList(closeStartEndTime);
     }
 
-    public List<Map<String,Object>> getCloseVolume() { 
-        return jdbcManager.queryForList(closeVolume); 
+    public List<Map<String, Object>> getCloseVolume() {
+        return jdbcManager.queryForList(closeVolume);
     }
 
-    public List<Map<String,Object>> getCloseMEStatus() { 
-        return jdbcManager.queryForList(closeMEStatus); 
+    public List<Map<String, Object>> getCloseMEStatus() {
+        return jdbcManager.queryForList(closeMEStatus);
     }
 
-    public List<Map<String,Object>> getCloseQECashCollected() { return jdbcManager.queryForList(closeQECashCollected); }
+    public List<Map<String, Object>> getCloseQECashCollected() {
+        return jdbcManager.queryForList(closeQECashCollected);
+    }
 
-    public List<Map<String,Object>> getDashboardComments() { return jdbcManager.queryForList(dashboardComments); }
+    public List<Map<String, Object>> getDashboardComments() {
+        return jdbcManager.queryForList(dashboardComments);
+    }
 
     public int updateDashboardComments(String comments, String closeType) {
         return jdbcManager.updateComments(updateComments, closeType, comments);
@@ -293,7 +313,8 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getErrorDetails(String appName, String batchSource, String entity, String type) {
-        List<Map<String, Object>> result = jdbcManager.queryForListWithParams(errorDetails, appName, batchSource, entity, type);
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParams(errorDetails, appName, batchSource,
+                entity, type);
         return result;
     }
 
@@ -313,32 +334,34 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(wd0ArMidCloseStatusQuery);
     }
 
-    public List<Map<String, Object>> getWd0ArMidCloseHeaderData(){
+    public List<Map<String, Object>> getWd0ArMidCloseHeaderData() {
         return jdbcManager.queryForList(wd0ArMidCloseHeaderDataQuery);
     }
 
-    public List<Map<String, Object>> getWd0HistoricalData(){
+    public List<Map<String, Object>> getWd0HistoricalData() {
         return jdbcManager.queryForList(wd0HistoricalDataQuery);
     }
-
 
     public OrderLifecycleModel getOrderStatus() {
         OrderLifecycleModel orderLifecycleModel = new OrderLifecycleModel();
         List<Map<String, Object>> result = jdbcManager.queryForList(orderStatus);
-        String[] columnsToRemove = {"AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE", "HOLD_RELEASE_TARGET_DATE",
-       "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE", "SUBSCRIPTION_ID" };
-        String[] dateColumns = {"STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE", "DEAL_UPLOAD_DATE"};
+        String[] columnsToRemove = { "AGING_BOOKING", "AGING_HOLD_RELEASE", "EXPECTED_BOOK_DATE",
+                "HOLD_RELEASE_TARGET_DATE",
+                "LINE_TYPE", "ORDER_TOTAL", "SFDC_STATUS", "TOTAL_CONTRACT_VALUE", "STATUS_AS_OF_DATE",
+                "SUBSCRIPTION_ID" };
+        String[] dateColumns = { "STATUS_AS_OF_DATE", "ACTUAL_BOOK_DATE", "FUTURE_INVOICE_RELEASE_DATE", "INVOICE_DATE",
+                "DEAL_UPLOAD_DATE" };
         result.forEach(data -> {
-            for(String str: columnsToRemove){
+            for (String str : columnsToRemove) {
                 data.remove(str);
             }
-            for(String str: dateColumns){
-                if(data.get(str) != null){
+            for (String str : dateColumns) {
+                if (data.get(str) != null) {
                     String date = data.get(str).toString();
                     String[] dateArr = date.split(" ");
                     data.put(str, dateArr[0]);
                 } else {
-                    if(!str.equals("DEAL_UPLOAD_DATE")){
+                    if (!str.equals("DEAL_UPLOAD_DATE")) {
                         data.put(str, "TBD");
                     }
                 }
@@ -353,7 +376,7 @@ public class DailyMonitoringService {
         List<String> keys = result.stream().map(Map::keySet).flatMap(Set::stream).collect(Collectors.toList());
         keys = new ArrayList<>(new HashSet<String>(keys));
         List<String> columns = new ArrayList<>();
-        for(String key: keys){
+        for (String key : keys) {
             columns.add(key.replaceAll("_", " "));
         }
         orderLifecycleModel.setColumns(columns);
@@ -382,15 +405,15 @@ public class DailyMonitoringService {
         }
     }
 
-    public void setUpdateOrderStatusFromData(UpdateOrderModel input){
+    public void setUpdateOrderStatusFromData(UpdateOrderModel input) {
         UpdateOrderModel orderModel = new UpdateOrderModel();
         orderModel.setProgramName(input.getProgramName());
         orderModel.setAccount(input.getAccount());
         String inputDealIds = input.getDealIds();
         String username = input.getUsername();
-        if(inputDealIds.contains(",")){
+        if (inputDealIds.contains(",")) {
             String[] updateDealIds = inputDealIds.replaceAll("\\s", "").split(",");
-            for(String id: updateDealIds){
+            for (String id : updateDealIds) {
                 orderModel.setDealIds(id);
                 saveToDatabase(orderModel, username);
             }
@@ -399,24 +422,42 @@ public class DailyMonitoringService {
             saveToDatabase(orderModel, username);
         }
     }
-    public List<Map<String, Object>> getKafkaError() { return jdbcManager.queryForList(kafkaError); }
 
-    public List<Map<String, Object>> getKafkaInbound() { return jdbcManager.queryForList(kafkaInbound); }
+    public List<Map<String, Object>> getKafkaError() {
+        return jdbcManager.queryForList(kafkaError);
+    }
 
-    public List<Map<String, Object>> getArTrxnMissing() { return jdbcManager.queryForList(arTrxnMissing); }
+    public List<Map<String, Object>> getKafkaInbound() {
+        return jdbcManager.queryForList(kafkaInbound);
+    }
 
-    public List<Map<String, Object>> getAccrualsProcessingErrors() { return jdbcManager.queryForList(accrualsProcessingErrors); }
+    public List<Map<String, Object>> getArTrxnMissing() {
+        return jdbcManager.queryForList(arTrxnMissing);
+    }
 
-    public List<Map<String, Object>> getAccrualsDistributionErrors() { return jdbcManager.queryForList(accrualsDistributionErrors); }
+    public List<Map<String, Object>> getAccrualsProcessingErrors() {
+        return jdbcManager.queryForList(accrualsProcessingErrors);
+    }
 
-    public List<Map<String, Object>> getAccrualsSummarizationErrors() { return jdbcManager.queryForList(accrualsSummarizationErrors); }
+    public List<Map<String, Object>> getAccrualsDistributionErrors() {
+        return jdbcManager.queryForList(accrualsDistributionErrors);
+    }
 
-    public List<Map<String, Object>> getKafkaPublishToDownstream() { return jdbcManager.queryForList(kafkaPublishToDownstream); }
+    public List<Map<String, Object>> getAccrualsSummarizationErrors() {
+        return jdbcManager.queryForList(accrualsSummarizationErrors);
+    }
 
-    public List<Map<String, Object>> getErrorDistributionSummarization() { return jdbcManager.queryForList(errorDistributionSummarization); }
+    public List<Map<String, Object>> getKafkaPublishToDownstream() {
+        return jdbcManager.queryForList(kafkaPublishToDownstream);
+    }
+
+    public List<Map<String, Object>> getErrorDistributionSummarization() {
+        return jdbcManager.queryForList(errorDistributionSummarization);
+    }
 
     private void saveToDatabase(UpdateOrderModel csvData, String username) {
-        jdbcManager.updateOrderStatus(this.updateOrderStatus, csvData.getProgramName(), csvData.getAccount(), Integer.parseInt(csvData.getDealIds()), username);
+        jdbcManager.updateOrderStatus(this.updateOrderStatus, csvData.getProgramName(), csvData.getAccount(),
+                Integer.parseInt(csvData.getDealIds()), username);
     }
 
     public List<OrderLifecycleSummaryModel> getOrderStatusSummary() {
@@ -427,21 +468,21 @@ public class DailyMonitoringService {
         List<String> programNames = new ArrayList<>(new HashSet<String>(newList));
 
         Map<String, Integer> lastIndex = new HashMap<>();
-        for(String prog: programNames){
+        for (String prog : programNames) {
             lastIndex.put(prog, getLastIndexOfProperty(resultList, prog));
         }
         Map<String, Integer> lastIndexSorted = sortByValue(lastIndex);
 
         int index = 1;
-        for(Map.Entry<String, Integer> ele: lastIndexSorted.entrySet()){
-            resultList.add(ele.getValue()+index,orderLifecycleSummary(resultList, ele.getKey()) );
+        for (Map.Entry<String, Integer> ele : lastIndexSorted.entrySet()) {
+            resultList.add(ele.getValue() + index, orderLifecycleSummary(resultList, ele.getKey()));
             index++;
         }
 
         int progNameLength = resultList.size();
-        int totalCount =  0 ;
+        int totalCount = 0;
 
-        for(String prog: programNames){
+        for (String prog : programNames) {
             totalCount += calculateOrderCountSumByProgramName(resultList, prog);
         }
         resultList.add(progNameLength, new OrderLifecycleSummaryModel("Total", totalCount, null, null));
@@ -456,21 +497,21 @@ public class DailyMonitoringService {
         List<String> accounts = new ArrayList<>(new HashSet<String>(newList));
 
         Map<String, Integer> lastIndex = new HashMap<>();
-        for(String acc: accounts){
+        for (String acc : accounts) {
             lastIndex.put(acc, getLastIndexOfPropertyforAccount(resultList, acc));
         }
         Map<String, Integer> lastIndexSorted = sortByValue(lastIndex);
 
         int index = 1;
-        for(Map.Entry<String, Integer> ele: lastIndexSorted.entrySet()){
-            resultList.add(ele.getValue()+index,largeDealSummaryByAccount(resultList, ele.getKey()) );
+        for (Map.Entry<String, Integer> ele : lastIndexSorted.entrySet()) {
+            resultList.add(ele.getValue() + index, largeDealSummaryByAccount(resultList, ele.getKey()));
             index++;
         }
 
         int accLength = resultList.size();
-        int totalCount =  0 ;
+        int totalCount = 0;
 
-        for(String acc: accounts){
+        for (String acc : accounts) {
             totalCount += calculateOrderCountSumByAccount(resultList, acc);
         }
 
@@ -479,42 +520,53 @@ public class DailyMonitoringService {
         return resultList;
     }
 
-    public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,String programName){
-        OrderLifecycleSummaryModel obj = new OrderLifecycleSummaryModel("Sub Total ("+programName+")", calculateOrderCountSumByProgramName(resultList, programName), null, null);
+    public static OrderLifecycleSummaryModel orderLifecycleSummary(List<OrderLifecycleSummaryModel> resultList,
+            String programName) {
+        OrderLifecycleSummaryModel obj = new OrderLifecycleSummaryModel("Sub Total (" + programName + ")",
+                calculateOrderCountSumByProgramName(resultList, programName), null, null);
         return obj;
     }
 
-    public static LargeDealSummaryByAccountModel largeDealSummaryByAccount(List<LargeDealSummaryByAccountModel> resultList,String account){
-        LargeDealSummaryByAccountModel obj = new LargeDealSummaryByAccountModel("Sub Total ("+account+")", calculateOrderCountSumByAccount(resultList, account), null, null);
+    public static LargeDealSummaryByAccountModel largeDealSummaryByAccount(
+            List<LargeDealSummaryByAccountModel> resultList, String account) {
+        LargeDealSummaryByAccountModel obj = new LargeDealSummaryByAccountModel("Sub Total (" + account + ")",
+                calculateOrderCountSumByAccount(resultList, account), null, null);
         return obj;
     }
-    public static List<OrderLifecycleSummaryModel> mapToOrderLifecycleSummaryModelList(List<Map<String, Object>> inputList) {
+
+    public static List<OrderLifecycleSummaryModel> mapToOrderLifecycleSummaryModelList(
+            List<Map<String, Object>> inputList) {
         List<OrderLifecycleSummaryModel> resultList = new ArrayList<>();
         for (Map<String, Object> map : inputList) {
             String programName = (String) map.get("PROGRAM_NAME");
             int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
             String status = (String) map.get("STATUS");
             Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue());
-            OrderLifecycleSummaryModel model = new OrderLifecycleSummaryModel(programName, orderCount, status, completion);
+            OrderLifecycleSummaryModel model = new OrderLifecycleSummaryModel(programName, orderCount, status,
+                    completion);
             resultList.add(model);
         }
         return resultList;
     }
 
-    public static List<LargeDealSummaryByAccountModel> mapToLargeDealSummaryByAccountModelList(List<Map<String, Object>> inputList) {
+    public static List<LargeDealSummaryByAccountModel> mapToLargeDealSummaryByAccountModelList(
+            List<Map<String, Object>> inputList) {
         List<LargeDealSummaryByAccountModel> resultList = new ArrayList<>();
         for (Map<String, Object> map : inputList) {
             String account = (String) map.get("ACCOUNT");
             int orderCount = ((BigDecimal) map.get("ORDER_COUNT")).intValue();
             String status = (String) map.get("STATUS");
             Optional<Integer> completion = Optional.ofNullable(((BigDecimal) map.get("COMPLETION")).intValue());
-            LargeDealSummaryByAccountModel model = new LargeDealSummaryByAccountModel(account, orderCount, status, completion);
+            LargeDealSummaryByAccountModel model = new LargeDealSummaryByAccountModel(account, orderCount, status,
+                    completion);
             resultList.add(model);
         }
 
         return resultList;
     }
-    public static int calculateOrderCountSumByProgramName(List<OrderLifecycleSummaryModel> orderSummary, String programName) {
+
+    public static int calculateOrderCountSumByProgramName(List<OrderLifecycleSummaryModel> orderSummary,
+            String programName) {
         int sum = 0;
         for (OrderLifecycleSummaryModel order : orderSummary) {
             if (order.PROGRAM_NAME.equals(programName)) {
@@ -524,7 +576,8 @@ public class DailyMonitoringService {
         return sum;
     }
 
-    public static int calculateOrderCountSumByAccount(List<LargeDealSummaryByAccountModel> orderSummary, String account) {
+    public static int calculateOrderCountSumByAccount(List<LargeDealSummaryByAccountModel> orderSummary,
+            String account) {
         int sum = 0;
         for (LargeDealSummaryByAccountModel order : orderSummary) {
             if (order.ACCOUNT.equals(account)) {
@@ -533,6 +586,7 @@ public class DailyMonitoringService {
         }
         return sum;
     }
+
     public static int getLastIndexOfProperty(List<OrderLifecycleSummaryModel> objects, String targetProperty) {
         for (int i = objects.size() - 1; i >= 0; i--) {
             OrderLifecycleSummaryModel obj = objects.get(i);
@@ -543,7 +597,8 @@ public class DailyMonitoringService {
         return -1; // Property not found
     }
 
-    public static int getLastIndexOfPropertyforAccount(List<LargeDealSummaryByAccountModel> objects, String targetProperty) {
+    public static int getLastIndexOfPropertyforAccount(List<LargeDealSummaryByAccountModel> objects,
+            String targetProperty) {
         for (int i = objects.size() - 1; i >= 0; i--) {
             LargeDealSummaryByAccountModel obj = objects.get(i);
             if (obj.ACCOUNT.equals(targetProperty)) {
@@ -552,14 +607,12 @@ public class DailyMonitoringService {
         }
         return -1; // Property not found
     }
-    public static HashMap<String, Integer> sortByValue(Map<String, Integer> hm)
-    {
-        List<Map.Entry<String, Integer> > list =
-                new LinkedList<Map.Entry<String, Integer> >(hm.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer> >() {
+
+    public static HashMap<String, Integer> sortByValue(Map<String, Integer> hm) {
+        List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(hm.entrySet());
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
             public int compare(Map.Entry<String, Integer> o1,
-                               Map.Entry<String, Integer> o2)
-            {
+                    Map.Entry<String, Integer> o2) {
                 return (o1.getValue()).compareTo(o2.getValue());
             }
         });
@@ -582,20 +635,20 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(wd0CurrentMonth);
     }
 
-    public void deleteSelectedDeals(List<Map<String,Object>> selectedDeals, String username){
-        for(Map<String,Object> deal:selectedDeals){
-            deleteDeals(username, (int)deal.get("DEAL_ID"), (String)deal.get("SALES_ORDER"));
+    public void deleteSelectedDeals(List<Map<String, Object>> selectedDeals, String username) {
+        for (Map<String, Object> deal : selectedDeals) {
+            deleteDeals(username, (int) deal.get("DEAL_ID"), (String) deal.get("SALES_ORDER"));
         }
     }
 
-    public void deleteDeals(String username, int dealId, String salesOrder){
+    public void deleteDeals(String username, int dealId, String salesOrder) {
         String so;
-        if(salesOrder.equals("TBD")){
+        if (salesOrder.equals("TBD")) {
             so = "0";
         } else {
             so = salesOrder;
         }
-        int test =  jdbcManager.deleteSelectedDeals(deleteSelectedDeals, username, dealId, so, so);
+        int test = jdbcManager.deleteSelectedDeals(deleteSelectedDeals, username, dealId, so, so);
     }
 
     public void setCloBulkUpdateFromFile(MultipartFile file, String username) throws IOException, ParseException {
@@ -609,7 +662,7 @@ public class DailyMonitoringService {
                 }
                 String[] parts = line.split(",", -1);
 
-                if(parts.length == 6) {
+                if (parts.length == 6) {
                     UpdateCLOData cloData = new UpdateCLOData();
                     cloData.setProgramName(parts[0]);
                     cloData.setAccount(parts[1]);
@@ -632,7 +685,7 @@ public class DailyMonitoringService {
         cloData.setProgramName(input.getProgramName());
         cloData.setAccount(input.getAccount());
         cloData.setDealIds(input.getDealIds());
-        if(input.getOrderNum().equals("")){
+        if (input.getOrderNum().equals("")) {
             cloData.setOrderNum("0");
         } else {
             cloData.setOrderNum(input.getOrderNum());
@@ -642,15 +695,17 @@ public class DailyMonitoringService {
         saveToDatabaseCLOUpdate(cloData, username);
     }
 
-    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username)  {
+    private void saveToDatabaseCLOUpdate(UpdateCLOData cloData, String username) {
         Timestamp timestamp;
-        if(cloData.getInvoiceDate().isEmpty()){
+        if (cloData.getInvoiceDate().isEmpty()) {
             timestamp = null;
         } else {
             java.util.Date date = timeStampGenerator(cloData.getInvoiceDate());
             timestamp = new Timestamp(date.getTime());
         }
-//        int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(), cloData.getAccount(), Integer.parseInt(cloData.getDealIds()), cloData.getOrderNum(), timestamp, cloData.getCloComments(), username);
+        // int test = jdbcManager.updateCLoData(cloBulkUpdate, cloData.getProgramName(),
+        // cloData.getAccount(), Integer.parseInt(cloData.getDealIds()),
+        // cloData.getOrderNum(), timestamp, cloData.getCloComments(), username);
     }
 
     private static final List<SimpleDateFormat> dateFormats = new ArrayList<>();
@@ -670,7 +725,7 @@ public class DailyMonitoringService {
         dateFormats.add(new SimpleDateFormat("dd-mm-yyyy"));
     }
 
-    private static Date timeStampGenerator(String invoiceDate){
+    private static Date timeStampGenerator(String invoiceDate) {
 
         for (SimpleDateFormat dateFormat : dateFormats) {
             try {
@@ -683,7 +738,7 @@ public class DailyMonitoringService {
 
     public void setUpdateInvoiceEligibleDate(Map<String, String> updatedModel, String username) throws ParseException {
         String so;
-        if(updatedModel.get("orderID").equals("TBD")){
+        if (updatedModel.get("orderID").equals("TBD")) {
             so = "0";
         } else {
             so = updatedModel.get("orderID");
@@ -693,21 +748,21 @@ public class DailyMonitoringService {
 
         Timestamp timestamp = new Timestamp(date.getTime());
 
-
-        int test = jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, timestamp, username);
+        int test = jdbcManager.updateInvoiceDate(invoiceEligibleUpdate, updatedModel.get("programName"),
+                updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, timestamp, username);
     }
 
-    public void setCloCommentUpdate(Map<String, String> updatedModel, String username){
+    public void setCloCommentUpdate(Map<String, String> updatedModel, String username) {
         String so;
-        if(updatedModel.get("orderID").equals("TBD")){
+        if (updatedModel.get("orderID").equals("TBD")) {
             so = "0";
         } else {
             so = updatedModel.get("orderID");
         }
-        int test = jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"), updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so, updatedModel.get("cloComments"), username);
+        int test = jdbcManager.updateCloComments(cloCommentUpdate, updatedModel.get("programName"),
+                updatedModel.get("account"), Integer.parseInt(updatedModel.get("dealId")), so,
+                updatedModel.get("cloComments"), username);
     }
-
-
 
     public List<Map<String, Object>> getRolErrorDetails() {
         List<Map<String, Object>> result = jdbcManager.queryForList(rolTransactionData);
@@ -723,19 +778,19 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getSummaryAssignmentUsers() {
         return jdbcManager.queryForList(summaryAssignmentUsers);
     }
-//    public int getTotalRecords() {
-//        return jdbcManager.getTotalRecords(rolTransactionDataCount);
-//    }
+    // public int getTotalRecords() {
+    // return jdbcManager.getTotalRecords(rolTransactionDataCount);
+    // }
 
-//    public int getTotalRecordsFiltered(String periodName, String ouName, String appName, String sequenceNum) {
-//        return jdbcManager.getTotalRecordsFiltered(rolTransactionDataFilterCount, periodName, ouName, appName, sequenceNum);
-//    }
-
-
+    // public int getTotalRecordsFiltered(String periodName, String ouName, String
+    // appName, String sequenceNum) {
+    // return jdbcManager.getTotalRecordsFiltered(rolTransactionDataFilterCount,
+    // periodName, ouName, appName, sequenceNum);
+    // }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummary);
-        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
@@ -752,7 +807,8 @@ public class DailyMonitoringService {
         String subApp = updateData.get("processFlow");
         String orgName = updateData.get("orgName");
         String assignedBy = updateData.get("username");
-        int test = jdbcManager.updateRolErrorsSummaryData(rolErrorsSummaryUpdate, assignedTo, comments, assignedBy, periodName, appName, subApp, orgName);
+        int test = jdbcManager.updateRolErrorsSummaryData(rolErrorsSummaryUpdate, assignedTo, comments, assignedBy,
+                periodName, appName, subApp, orgName);
         return test;
     }
 
@@ -765,7 +821,8 @@ public class DailyMonitoringService {
         String periodName = updateData.get("periodName");
         String batchSourceName = updateData.get("appName");
         String creationDate = updateData.get("creationDate");
-        int test = jdbcManager.updateAutoInvoiceErrorsSummaryData(autoInvoiceErrorsSummaryUpdate, assignedTo, assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
+        int test = jdbcManager.updateAutoInvoiceErrorsSummaryData(autoInvoiceErrorsSummaryUpdate, assignedTo,
+                assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
         return 1;
     }
 
@@ -776,7 +833,8 @@ public class DailyMonitoringService {
         String ouName = updateData.get("orgName");
         String processFlow = updateData.get("processFlow");
         String creationDate = updateData.get("creationDate");
-        int test = jdbcManager.updatePreInvoiceErrorsSummaryData(preInvoiceErrorsSummaryUpdate, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
+        int test = jdbcManager.updatePreInvoiceErrorsSummaryData(preInvoiceErrorsSummaryUpdate, assignedTo, assignedBy,
+                comments, ouName, creationDate, processFlow);
         return 1;
     }
 
@@ -787,14 +845,13 @@ public class DailyMonitoringService {
         String periodName = updateData.get("periodName");
         String ouName = updateData.get("orgName");
         String processFlow = updateData.get("processFlow");
-        int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy, periodName, processFlow, ouName );
+        int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy,
+                periodName, processFlow, ouName);
         return 1;
     }
 
-
-
     public List<Map<String, Object>> getMonitoringPeriodStatus() {
-        String[] dateColumns = {"END_DATE"};
+        String[] dateColumns = { "END_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
@@ -803,11 +860,11 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getAutoInvoiceErrorSummaryView() {
-        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorSummaryView);
         result.forEach(data -> {
-//            renameKey(data, "STATUS", "PROCESS_FLOW");
-//            renameKey(data, "BATCH_SOURCE", "APPLICATION_NAME");
+            // renameKey(data, "STATUS", "PROCESS_FLOW");
+            // renameKey(data, "BATCH_SOURCE", "APPLICATION_NAME");
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             renameKey(data, "AMOUNT_USD", "AMOUNT");
             formatDateColumns(data, dateColumns);
@@ -816,7 +873,7 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getPreInvoiceErrorSummaryView() {
-        String[] dateColumns = {"TRANSACTION_DATE"};
+        String[] dateColumns = { "TRANSACTION_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorSummaryView);
         result.forEach(data -> {
             renameKey(data, "ERROR_AMOUNT", "AMOUNT");
@@ -843,7 +900,7 @@ public class DailyMonitoringService {
         }
     }
 
-    private void formatEmptyAmounts(Map<String, Object> data, String[] emptyAmountColumns){
+    private void formatEmptyAmounts(Map<String, Object> data, String[] emptyAmountColumns) {
         for (String column : emptyAmountColumns) {
             Object value = data.get(column);
             if (value == null) {
@@ -855,7 +912,7 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getAutoInvoiceErrorDetails() {
-        String[] dateColumns = {"TRANSACTION_DATE"};
+        String[] dateColumns = { "TRANSACTION_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorDetails);
         result.forEach(data -> {
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
@@ -865,13 +922,13 @@ public class DailyMonitoringService {
     }
 
     public List<Map<String, Object>> getPreInvoiceErrorDetails() {
-        String[] dateColumns = {"TRANSACTION_DATE"};
-        String[] emptyAmountColumns = {"IOL_HOLD",
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        String[] emptyAmountColumns = { "IOL_HOLD",
                 "IOL_PENDING",
                 "IOL_ERROR",
                 "AR_INTERFACE",
                 "AR_INTERFACE_ERROR",
-                "INVOICED"};
+                "INVOICED" };
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorDetails);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
@@ -881,8 +938,10 @@ public class DailyMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getRolTransactionDetailsFilter(String periodName, String ouName, String applicationName, String uniqueId) {
-        List<Map<String, Object>> result = jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, periodName, ouName, applicationName, Integer.parseInt(uniqueId));
+    public List<Map<String, Object>> getRolTransactionDetailsFilter(String periodName, String ouName,
+            String applicationName, String uniqueId) {
+        List<Map<String, Object>> result = jdbcManager.getRolTransactionDataFilter(rolTransactionDataFilter, periodName,
+                ouName, applicationName, Integer.parseInt(uniqueId));
         result.forEach(data -> {
             renameKey(data, "OU_NAME", "ORG_NAME");
             renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
@@ -892,9 +951,11 @@ public class DailyMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName, String transactionDate) {
-        String[] dateColumns = {"TRANSACTION_DATE"};
-        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(autoInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, transactionDate);
+    public List<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(String appName, String operatingUnit,
+            String periodName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(
+                autoInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, transactionDate);
         result.forEach(data -> {
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             formatDateColumns(data, dateColumns);
@@ -902,15 +963,17 @@ public class DailyMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(String appName, String operatingUnit, String periodName, String uniqueId) {
-        String[] dateColumns = {"TRANSACTION_DATE"};
-        String[] emptyAmountColumns = {"IOL_HOLD",
+    public List<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(String appName, String operatingUnit,
+            String periodName, String uniqueId) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        String[] emptyAmountColumns = { "IOL_HOLD",
                 "IOL_PENDING",
                 "IOL_ERROR",
                 "AR_INTERFACE",
                 "AR_INTERFACE_ERROR",
-                "INVOICED"};
-        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(preInvoiceErrorDetailsFiltered, appName, operatingUnit, periodName, uniqueId);
+                "INVOICED" };
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(preInvoiceErrorDetailsFiltered,
+                appName, operatingUnit, periodName, uniqueId);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
             formatDateColumns(data, dateColumns);
@@ -954,7 +1017,7 @@ public class DailyMonitoringService {
     public List<Map<String, Object>> getAccrualsSummary() {
 
         List<Map<String, Object>> result = jdbcManager.queryForList(accrualsSummary);
-        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
             data.remove("SEQUENCE_NUMBER");
@@ -975,10 +1038,11 @@ public class DailyMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getAccrualsDetailsFiltered(String periodName, String ouName, String processFlow, String sequenceNum) {
-        return jdbcManager.queryForListWithParamsAccruals(accrualsDetailsFiltered, periodName, ouName, processFlow, Integer.parseInt(sequenceNum));
+    public List<Map<String, Object>> getAccrualsDetailsFiltered(String periodName, String ouName, String processFlow,
+            String sequenceNum) {
+        return jdbcManager.queryForListWithParamsAccruals(accrualsDetailsFiltered, periodName, ouName, processFlow,
+                Integer.parseInt(sequenceNum));
     }
-
 
     public List<Map<String, Object>> getInvoiceToCashSummary() {
         return jdbcManager.queryForList(invoiceToCashSummary);
@@ -986,7 +1050,7 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> getGlErrorSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(glErrorSummary);
-        String[] dateColumns = {"TRANSACTION_DATE", "ASSIGNED_DATE"};
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
@@ -997,10 +1061,11 @@ public class DailyMonitoringService {
         return jdbcManager.queryForList(glErrorDetails);
     }
 
-    public List<Map<String, Object>> getGlDetailsFilter(String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate) {
-        return jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+    public List<Map<String, Object>> getGlDetailsFilter(String processFlow, String ledgerName, String applicationName,
+            String journalSource, String accountSeg, String transactionDate) {
+        return jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName,
+                journalSource, accountSeg, transactionDate);
     }
-
 
     public int updateGlErrorSummary(Map<String, String> updateData) {
         String assignedTo = updateData.get("assignedTo");
@@ -1012,13 +1077,14 @@ public class DailyMonitoringService {
         String journalSource = updateData.get("journalSource");
         String accountSeg = updateData.get("accountSeg");
         String transactionDate = updateData.get("creationDate");
-        int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+        int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments,
+                processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
         return 1;
     }
 
     public List<Map<String, Object>> geteInvoicingSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingSummary);
-        String[] dateColumns = {"ASSIGNED_DATE"};
+        String[] dateColumns = { "ASSIGNED_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
@@ -1028,7 +1094,7 @@ public class DailyMonitoringService {
 
     public List<Map<String, Object>> geteInvoicingDetails() {
         List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingDetails);
-        String[] dateColumns = {"TRX_DATE"};
+        String[] dateColumns = { "TRX_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
@@ -1036,9 +1102,23 @@ public class DailyMonitoringService {
         return result;
     }
 
-//    public List<Map<String, Object>> getRolTransactionDataDownload() { return jdbcManager.queryForList(rolTransactionDataDownload); }
+    public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
+        return jdbcManager.queryForList(espCaseServiceMetricSummary);
+    }
 
-//    public List<RolTransactionData> getRolTransactionFilterDataDownload(String periodName, String ouName, String appName, String sequenceNum) { return jdbcManager.getRecordsFiltered(rolTransactionFilterDataDownload, periodName, ouName, appName, sequenceNum); }
+    public List<Map<String, Object>> getEspWeeklyComparisonSummary() {
+        return jdbcManager.queryForList(espWeeklyComparisonSummary);
+    }
 
+    public List<Map<String, Object>> getEspAgingCaseSummary() {
+        return jdbcManager.queryForList(espAgingCaseSummary);
+    }
+    // public List<Map<String, Object>> getRolTransactionDataDownload() { return
+    // jdbcManager.queryForList(rolTransactionDataDownload); }
+
+    // public List<RolTransactionData> getRolTransactionFilterDataDownload(String
+    // periodName, String ouName, String appName, String sequenceNum) { return
+    // jdbcManager.getRecordsFiltered(rolTransactionFilterDataDownload, periodName,
+    // ouName, appName, sequenceNum); }
 
 }

@@ -74,6 +74,7 @@ const routes: Routes = [
     data: {
       title: 'O2C Demo',
       header: 'O2C Demo',
+      hideNavbar: true,
     },
   },
   {

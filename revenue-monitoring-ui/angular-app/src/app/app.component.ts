@@ -11,6 +11,8 @@ import { DataService } from './providers/data.service';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
+  showNavbar = true;
+
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -40,6 +42,7 @@ export class AppComponent {
         mergeMap((route) => route.data)
       )
       .subscribe((data) => {
+        this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
       });
