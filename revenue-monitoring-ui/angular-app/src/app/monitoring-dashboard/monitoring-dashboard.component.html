@@ -40,7 +40,7 @@
     <div class="header-container">
       <h5 class="section-title action-buttons">
         {{ componentName }} Error Summary
-        <span class="action-buttons" *ngIf="selection.selected.length === 1">
+        <span class="action-buttons">
           &nbsp;&nbsp;
           <!-- <button
             class="custom-button-primary"
@@ -49,8 +49,23 @@
             View Details
           </button>
           &nbsp;&nbsp; -->
-          <button class="custom-button-primary" (click)="viewDetails()">
+          <button
+            class="custom-button-primary"
+            style="background-color: #aaa8a8"
+            (click)="viewDetails()"
+            *ngIf="selection.selected.length === 1"
+          >
             Assign User
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="resetSelection()"
+            style="font-size: 12px; padding: 3px"
+            class="mat-small"
+            *ngIf="selection.selected.length > 0"
+          >
+            Reset
           </button>
         </span>
       </h5>
@@ -121,7 +136,7 @@
               <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'AGING'">
-                    <span (click)="sortData(column)">
+                    <span (click)="sortData(column, 'summary')">
                       {{ replaceUnderscore(column) }}
                       <i
                         *ngIf="isSortedColumn('AGING')"
@@ -131,7 +146,7 @@
                   </ng-container>
 
                   <ng-container *ngSwitchCase="'AMOUNT'">
-                    <span (click)="sortData(column)">
+                    <span (click)="sortData(column, 'summary')">
                       {{ replaceUnderscore(column) }}
                       <i
                         *ngIf="isSortedColumn('AMOUNT')"
@@ -263,6 +278,89 @@
 <div class="container">
   <div class="header-container">
     <h5 class="section-title">{{ componentName }} Error Details</h5>
+    <form [formGroup]="searchForm" class="form-container">
+      <div class="filter-container">
+        <div class="filter-item">
+          <span>
+            <mat-form-field
+              appearance="standard"
+              [style.width.px]="125"
+              style="font-size: smaller"
+            >
+              <mat-label>Select Process Flow</mat-label>
+              <mat-select
+                id="processFlow"
+                name="processFlow"
+                formControlName="processFlow"
+                multiple
+              >
+                <mat-option
+                  *ngFor="let processFlow of processFlowOptions"
+                  [value]="processFlow"
+                  (onSelectionChange)="filter()"
+                >
+                  {{ processFlow }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            &nbsp;
+            <mat-form-field
+              appearance="standard"
+              [style.width.px]="125"
+              style="font-size: smaller"
+            >
+              <mat-label>Select Org Name</mat-label>
+              <mat-select
+                id="orgname"
+                name="orgname"
+                formControlName="orgName"
+                multiple
+              >
+                <mat-option
+                  *ngFor="let orgName of orgNameOptions"
+                  [value]="orgName"
+                  (onSelectionChange)="filter()"
+                >
+                  {{ orgName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </span>
+          <span *ngFor="let column of columnsToFilter">
+            <mat-form-field
+              class="filter"
+              floatLabel="never"
+              [style.width.px]="125"
+              style="font-size: smaller; margin-top: 9px !important"
+            >
+              <mat-label
+                >Search {{ replaceUnderscore(column.columnName) }}</mat-label
+              >
+              <input
+                matInput
+                (keyup)="filter()"
+                [formControlName]="column.formControlName"
+              />
+              <i
+                matSuffix
+                class="fa fa-search hoverIcon"
+                style="color: gray"
+                (click)="applyFilter()"
+              ></i>
+            </mat-form-field>
+          </span>
+        </div>
+      </div>
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="clearFilters()"
+        style="font-size: 12px; padding: 3px"
+        class="mat-small"
+      >
+        Reset
+      </button>
+    </form>
     <div class="action-buttons">
       <button mat-icon-button [disabled]="true">
         <i class="svg-icon chart-icon"></i>
@@ -290,7 +388,91 @@
         <ng-container *ngFor="let column of detailsDisplayedColumns">
           <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef class="no-wrap">
-              {{ replaceUnderscore(column) }}
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchCase="'AGING'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('AGING')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'AMOUNT'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('AMOUNT')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'PROCESS_FLOW'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('PROCESS_FLOW')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'ORG_NAME'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('ORG_NAME')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'ERROR_MESSAGE'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('ERROR_MESSAGE')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchDefault>
+                  {{ replaceUnderscore(column) }}
+                </ng-container>
+              </ng-container>
             </th>
 
             <td mat-cell *matCellDef="let element">

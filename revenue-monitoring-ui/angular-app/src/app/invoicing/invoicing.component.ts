@@ -35,6 +35,15 @@ export class InvoicingComponent implements OnInit {
     '2 - Invoice Orchestration Layer': 0,
   };
 
+  preInvoicingFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'billNumber', columnName: 'BILL_NUMBER' },
+    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  ];
+
+  autoInvoicingFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  ];
+
   autoInvoicingTotals: { [key: string]: number } = {
     '3 - Auto Invoice': 0,
   };

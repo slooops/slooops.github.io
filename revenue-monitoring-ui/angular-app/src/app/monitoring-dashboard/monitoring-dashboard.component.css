@@ -219,16 +219,38 @@ tr.mat-header-row {
   cursor: pointer;
 }
 
-.action-buttons {
-  display: flex;
-}
-
 .header-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: space-between; /* Space between title/form on left and action buttons on right */
+  align-items: center; /* Vertically align items in the center */
   width: 100%;
   padding: 0 10px 0 12px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: flex-start; /* Align form fields to the left */
+  align-items: center; /* Align form fields vertically */
+  flex-wrap: wrap; /* Allow wrapping if needed */
+  margin-left: 0; /* No left margin */
+  gap: 10px; /* Space between form fields */
+}
+
+.filter-container {
+  display: flex;
+  gap: 10px; /* Space between form fields */
+  flex-wrap: wrap; /* Fields will wrap to the next line if they exceed the container's width */
+}
+
+.filter-item {
+  display: flex;
+  gap: 10px; /* Space between form items */
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end; /* Align action buttons to the right */
+  gap: 10px; /* Optional space between action buttons */
 }
 
 .rol-error-summary-container {
@@ -331,7 +353,6 @@ tr.mat-header-row {
   line-height: 20px;
   cursor: pointer;
   border-radius: 6px;
-  background-color: #aaa8a8;
   color: #fff !important;
   border: none;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;

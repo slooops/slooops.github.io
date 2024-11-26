@@ -883,9 +883,22 @@ public class DailyMonitoringService {
     }
 
     private void renameKey(Map<String, Object> data, String oldKey, String newKey) {
-        Object value = data.get(oldKey);
-        data.remove(oldKey);
-        data.put(newKey, value != null ? value.toString() : "");
+        // Temporarily hold the entries
+        List<Map.Entry<String, Object>> entries = new ArrayList<>(data.entrySet());
+
+        // Clear the original map
+        data.clear();
+
+        // Iterate over the entries and modify as needed
+        for (Map.Entry<String, Object> entry : entries) {
+            if (entry.getKey().equals(oldKey)) {
+                // Replace with new key
+                data.put(newKey, entry.getValue() != null ? entry.getValue().toString() : "");
+            } else {
+                // Keep the existing key-value pair
+                data.put(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
@@ -932,6 +945,7 @@ public class DailyMonitoringService {
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorDetails);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
             formatDateColumns(data, dateColumns);
             formatEmptyAmounts(data, emptyAmountColumns);
         });

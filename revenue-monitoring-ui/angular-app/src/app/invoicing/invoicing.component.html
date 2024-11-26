@@ -22,6 +22,7 @@
           [dynamicCss]="invoicingprocessflowCss"
           [isSubAppMapping]="false"
           [warningMessage]="'Invoice processing is delayed '"
+          [columnsToFilter]="preInvoicingFilters"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
@@ -39,6 +40,7 @@
           [dynamicCss]="invoicingprocessflowCss"
           [isSubAppMapping]="false"
           [warningMessage]="'Invoice processing is delayed '"
+          [columnsToFilter]="autoInvoicingFilters"
         ></app-monitoring-dashboard>
       </ng-container>
       <ng-container *ngSwitchCase="'app-eInvoicing'">

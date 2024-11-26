@@ -25,6 +25,7 @@
           [warningMessage]="
             'Displays message with impacted accounting information'
           "
+          [columnsToFilter]="rolFilters"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
@@ -44,6 +45,7 @@
           [warningMessage]="
             'Displays message with impacted accounting information'
           "
+          [columnsToFilter]="accrualsFilters"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>

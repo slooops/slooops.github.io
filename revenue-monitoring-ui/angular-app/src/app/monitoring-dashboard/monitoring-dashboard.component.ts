@@ -19,6 +19,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { DataService } from '../providers/data.service';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-monitoring-dashboard',
@@ -43,6 +44,7 @@ export class MonitoringDashboardComponent<T>
   @Input() dynamicCss: string = '';
   @Input() isSubAppMapping: boolean = false;
   @Input() warningMessage: string = '';
+  @Input() columnsToFilter: { formControlName: string; columnName: string }[];
   periodName: string = '';
   periodEnd: string = '';
   totalImpactData$: Observable<any>;
@@ -50,17 +52,24 @@ export class MonitoringDashboardComponent<T>
   webexUrl: string;
   processFlowhtml: string = '';
   processFlowcss: string = '';
+  searchForm: FormGroup = new FormGroup({
+    processFlow: new FormControl(''),
+    orgName: new FormControl(''),
+  });
+
   constructor(
     private http: ApiHttpService,
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef,
-    private dataService: DataService
+    private dataService: DataService,
+    private fb: FormBuilder
   ) {}
   ngOnInit(): void {
     this.getErrorSummary();
     this.getErrorDetails();
     this.updateUrl = this.urls['summaryUpdateUrl'];
     this.webexUrl = this.urls['webexMessageUrl'];
+    this.initializeForm();
   }
   ngAfterViewInit(): void {
     // this.paginator.page.subscribe((event: PageEvent) => {
@@ -79,11 +88,15 @@ export class MonitoringDashboardComponent<T>
     }
   }
   ngOnChanges(changes: SimpleChanges) {
-    if (this.periodStatus) {
+    if (
+      this.periodStatus &&
+      changes['columnsToFilter'] &&
+      this.columnsToFilter
+    ) {
       this.periodName = this.periodStatus[0].PERIOD_NAME;
       this.periodEnd = this.dateTransform(this.periodStatus[0].END_DATE);
+      this.initializeForm();
     }
-    this.processFlowTotals$ = this.dataService.getTabData(this.componentName);
   }
 
   summaryLoadTime: string;
@@ -94,7 +107,8 @@ export class MonitoringDashboardComponent<T>
   totalSummaryRecords: number = 0;
   summaryLoading: boolean = false;
   originalData: any[] = [];
-  processFlowTotals$: Observable<{ [key: string]: string }>;
+  originalDetailsData: any[] = [];
+  originalFilteredData: any[] = [];
   getErrorSummary() {
     this.summaryLoading = true;
     this.summaryLoadTime = `Last Updated: ...`;
@@ -200,7 +214,7 @@ export class MonitoringDashboardComponent<T>
 
   sortColumn: string | null = null;
   sortDirection: 'asc' | 'desc' | '' = '';
-  sortData(column: string) {
+  sortData(column: string, sortOn: string) {
     if (this.sortColumn === column) {
       this.sortDirection =
         this.sortDirection === 'desc'
@@ -214,11 +228,27 @@ export class MonitoringDashboardComponent<T>
     }
 
     if (this.sortDirection === '') {
-      this.summaryDatasource.data = [...this.originalData];
+      if (sortOn === 'summary') {
+        this.summaryDatasource.data = [...this.originalData];
+      } else if (sortOn === 'filteredDetails') {
+        this.filtereddataSource.data = [...this.originalFilteredData];
+      } else {
+        this.dataSource.data = [...this.originalDetailsData];
+      }
     } else {
-      this.summaryDatasource.data = [...this.summaryDatasource.data].sort(
-        (a, b) => this.compare(a[column], b[column], column)
-      );
+      if (sortOn === 'summary') {
+        this.summaryDatasource.data = [...this.summaryDatasource.data].sort(
+          (a, b) => this.compare(a[column], b[column], column)
+        );
+      } else if (sortOn === 'filteredDetails') {
+        this.filtereddataSource.data = [...this.filtereddataSource.data].sort(
+          (a, b) => this.compare(a[column], b[column], column)
+        );
+      } else {
+        this.dataSource.data = [...this.dataSource.data].sort((a, b) =>
+          this.compare(a[column], b[column], column)
+        );
+      }
     }
   }
 
@@ -232,6 +262,17 @@ export class MonitoringDashboardComponent<T>
     } else if (column === 'AGING') {
       valueA = parseInt(a.replace(/\D/g, ''), 10) || 0;
       valueB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+    } else if (column === 'PROCESS_FLOW') {
+      const processFlowNumberA = parseInt(a.split(' - ')[0], 10) || 0;
+      const processFlowNumberB = parseInt(b.split(' - ')[0], 10) || 0;
+      valueA = processFlowNumberA;
+      valueB = processFlowNumberB;
+    } else if (column === 'ORG_NAME') {
+      valueA = a.toUpperCase();
+      valueB = b.toUpperCase();
+    } else if (column === 'ERROR_MESSAGE') {
+      valueA = a.toUpperCase();
+      valueB = b.toUpperCase();
     }
 
     const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
@@ -361,16 +402,21 @@ export class MonitoringDashboardComponent<T>
   closeAssignModal(event: any): void {
     this.isModalOpen = false;
     if (event === 'successful') {
-      this.selection.clear();
+      this.resetSelection();
       this.summaryDatasource = null;
-      this.selectedRows = [];
-      this.isFiltered = false;
-      this.filtereddataSource = null;
       this.cdr.detectChanges();
       setTimeout(() => {
         this.getErrorSummary();
       }, 1000);
     }
+  }
+
+  resetSelection() {
+    this.selection.clear();
+    this.selectedRows = [];
+    this.isFiltered = false;
+    this.filtereddataSource = null;
+    this.cdr.detectChanges();
   }
 
   dataSource: any;
@@ -401,6 +447,7 @@ export class MonitoringDashboardComponent<T>
             }
           });
         });
+        this.originalDetailsData = this.errorDetails;
         this.dataSource = new MatTableDataSource<T>(this.errorDetails);
         if (this.detailsPaginator) {
           if (this.dataSource.paginator !== this.detailsPaginator) {
@@ -408,6 +455,8 @@ export class MonitoringDashboardComponent<T>
           }
           this.totalRecords = this.errorDetails.length;
         }
+        this.filterData();
+        this.dataSource.filterPredicate = this.filterPredicate;
       },
       error: (err) => {
         console.error('Error fetching data', err);
@@ -453,6 +502,7 @@ export class MonitoringDashboardComponent<T>
           this.errorDetailsFiltered.forEach((row) => {
             row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
           });
+          this.originalFilteredData = this.errorDetailsFiltered;
           this.filtereddataSource = new MatTableDataSource<T>(
             this.errorDetailsFiltered
           );
@@ -462,6 +512,8 @@ export class MonitoringDashboardComponent<T>
               this.detailsPaginator.length = this.errorDetailsFiltered.length;
               this.cdr.detectChanges();
             });
+            this.filterData();
+            this.filtereddataSource.filterPredicate = this.filterPredicate;
           }
         },
         error: (err) => {
@@ -472,6 +524,95 @@ export class MonitoringDashboardComponent<T>
           this.isLoading = false;
         },
       });
+  }
+
+  processFlowOptions: string[] = [];
+  orgNameOptions: string[] = [];
+  filterData() {
+    this.processFlowOptions = [];
+    this.orgNameOptions = [];
+    let processFlowTemp: string[] = [];
+    let orgNameTemp: string[] = [];
+    if (this.isFiltered) {
+      this.errorDetailsFiltered.forEach((data) => {
+        processFlowTemp.push(data.PROCESS_FLOW);
+        orgNameTemp.push(data.ORG_NAME);
+      });
+    } else {
+      this.errorDetails.forEach((data) => {
+        processFlowTemp.push(data.PROCESS_FLOW);
+        orgNameTemp.push(data.ORG_NAME);
+      });
+    }
+    this.processFlowOptions = [...new Set(processFlowTemp)];
+    this.orgNameOptions = [...new Set(orgNameTemp)];
+  }
+
+  private initializeForm() {
+    this.columnsToFilter.forEach((column) => {
+      if (!this.searchForm.contains(column.formControlName)) {
+        this.searchForm.addControl(column.formControlName, new FormControl(''));
+      }
+    });
+  }
+
+  filter() {
+    this.searchForm.valueChanges.subscribe(() => this.applyFilter());
+  }
+
+  applyFilter() {
+    const filters = {};
+
+    this.columnsToFilter.forEach((column) => {
+      filters[column.formControlName + 'Filter'] = this.searchForm.get(
+        column.formControlName
+      ).value;
+    });
+
+    filters['processFlowFilter'] =
+      this.searchForm.get('processFlow').value || '';
+    filters['orgNameFilter'] = this.searchForm.get('orgName').value || '';
+
+    const filterString = JSON.stringify(filters);
+
+    if (this.dataSource) {
+      this.dataSource.filter = filterString;
+    }
+    if (this.filtereddataSource) {
+      this.filtereddataSource.filter = filterString;
+    }
+  }
+
+  filterPredicate = (data: any, filter: string): boolean => {
+    const filters = JSON.parse(filter);
+    const matchesProcessFlow =
+      !filters['processFlowFilter'] || filters['processFlowFilter'].length === 0
+        ? true
+        : filters['processFlowFilter'].includes(data['PROCESS_FLOW']);
+
+    const matchesOrgName =
+      !filters['orgNameFilter'] || filters['orgNameFilter'].length === 0
+        ? true
+        : filters['orgNameFilter'].includes(data['ORG_NAME']);
+    const matchesTextFilters = this.columnsToFilter.every((column) => {
+      const filterValue = filters[column.formControlName + 'Filter'] || '';
+      return (
+        data[column.columnName]
+          ?.toString()
+          .toLowerCase()
+          .indexOf(filterValue.toLowerCase()) !== -1
+      );
+    });
+    return matchesProcessFlow && matchesOrgName && matchesTextFilters;
+  };
+
+  clearFilters() {
+    if (this.isFiltered) {
+      this.filtereddataSource.filter = '';
+    } else {
+      this.dataSource.filter = '';
+    }
+    this.searchForm.reset();
   }
 
   replaceUnderscore(value: string | null | undefined): string {

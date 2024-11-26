@@ -80,6 +80,16 @@ export class CustomRevenueComponent implements OnInit {
     XLA_AE_HEADERS: '5. SLA',
   };
 
+  rolFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'orderLineId', columnName: 'ORDER_LINE_ID' },
+    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  ];
+
+  accrualsFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'subref/orderNum', columnName: 'SUBREF/ORDER NUMBER' },
+    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  ];
+
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
