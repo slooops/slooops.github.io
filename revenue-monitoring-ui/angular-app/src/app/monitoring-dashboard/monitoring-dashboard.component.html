@@ -277,90 +277,94 @@
 
 <div class="container">
   <div class="header-container">
-    <h5 class="section-title">{{ componentName }} Error Details</h5>
-    <form [formGroup]="searchForm" class="form-container">
-      <div class="filter-container">
-        <div class="filter-item">
-          <span>
-            <mat-form-field
-              appearance="standard"
-              [style.width.px]="125"
-              style="font-size: smaller"
-            >
-              <mat-label>Select Process Flow</mat-label>
-              <mat-select
-                id="processFlow"
-                name="processFlow"
-                formControlName="processFlow"
-                multiple
+    <div class="details-header">
+      <h5 class="section-title">{{ componentName }} Error Details</h5>
+
+      <form [formGroup]="searchForm" class="form-container">
+        <div class="filter-container">
+          <div class="filter-item">
+            <span>
+              <mat-form-field
+                appearance="standard"
+                [style.width.px]="125"
+                style="font-size: smaller"
               >
-                <mat-option
-                  *ngFor="let processFlow of processFlowOptions"
-                  [value]="processFlow"
-                  (onSelectionChange)="filter()"
+                <mat-label>Select Process Flow</mat-label>
+                <mat-select
+                  id="processFlow"
+                  name="processFlow"
+                  formControlName="processFlow"
+                  multiple
                 >
-                  {{ processFlow }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            &nbsp;
-            <mat-form-field
-              appearance="standard"
-              [style.width.px]="125"
-              style="font-size: smaller"
-            >
-              <mat-label>Select Org Name</mat-label>
-              <mat-select
-                id="orgname"
-                name="orgname"
-                formControlName="orgName"
-                multiple
+                  <mat-option
+                    *ngFor="let processFlow of processFlowOptions"
+                    [value]="processFlow"
+                    (onSelectionChange)="filter()"
+                  >
+                    {{ processFlow }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              &nbsp;
+              <mat-form-field
+                appearance="standard"
+                [style.width.px]="125"
+                style="font-size: smaller"
               >
-                <mat-option
-                  *ngFor="let orgName of orgNameOptions"
-                  [value]="orgName"
-                  (onSelectionChange)="filter()"
+                <mat-label>Select Org Name</mat-label>
+                <mat-select
+                  id="orgname"
+                  name="orgname"
+                  formControlName="orgName"
+                  multiple
                 >
-                  {{ orgName }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </span>
-          <span *ngFor="let column of columnsToFilter">
-            <mat-form-field
-              class="filter"
-              floatLabel="never"
-              [style.width.px]="125"
-              style="font-size: smaller; margin-top: 9px !important"
-            >
-              <mat-label
-                >Search {{ replaceUnderscore(column.columnName) }}</mat-label
+                  <mat-option
+                    *ngFor="let orgName of orgNameOptions"
+                    [value]="orgName"
+                    (onSelectionChange)="filter()"
+                  >
+                    {{ orgName }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </span>
+            <span *ngFor="let column of columnsToFilter">
+              <mat-form-field
+                class="filter"
+                floatLabel="never"
+                [style.width.px]="125"
+                style="font-size: smaller; margin-top: 9px !important"
               >
-              <input
-                matInput
-                (keyup)="filter()"
-                [formControlName]="column.formControlName"
-              />
-              <i
-                matSuffix
-                class="fa fa-search hoverIcon"
-                style="color: gray"
-                (click)="applyFilter()"
-              ></i>
-            </mat-form-field>
-          </span>
+                <mat-label
+                  >Search {{ replaceUnderscore(column.columnName) }}</mat-label
+                >
+                <input
+                  matInput
+                  (keyup)="filter()"
+                  [formControlName]="column.formControlName"
+                />
+                <i
+                  matSuffix
+                  class="fa fa-search hoverIcon"
+                  style="color: gray"
+                  (click)="applyFilter()"
+                ></i>
+              </mat-form-field>
+            </span>
+          </div>
         </div>
-      </div>
-      <button
-        mat-stroked-button
-        type="button"
-        (click)="clearFilters()"
-        style="font-size: 12px; padding: 3px"
-        class="mat-small"
-      >
-        Reset
-      </button>
-    </form>
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="clearFilters()"
+          style="font-size: 12px; padding: 3px"
+          class="mat-small"
+        >
+          Reset
+        </button>
+      </form>
+    </div>
+
     <div class="action-buttons">
       <button mat-icon-button [disabled]="true">
         <i class="svg-icon chart-icon"></i>

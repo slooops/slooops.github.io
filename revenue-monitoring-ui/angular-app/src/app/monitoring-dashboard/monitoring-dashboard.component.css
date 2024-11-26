@@ -227,13 +227,20 @@ tr.mat-header-row {
   padding: 0 10px 0 12px;
 }
 
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .form-container {
   display: flex;
   justify-content: flex-start; /* Align form fields to the left */
   align-items: center; /* Align form fields vertically */
   flex-wrap: wrap; /* Allow wrapping if needed */
   margin-left: 0; /* No left margin */
-  gap: 10px; /* Space between form fields */
+  gap: 12px; /* Space between form fields */
+  padding: 0 0 0 12px;
 }
 
 .filter-container {
