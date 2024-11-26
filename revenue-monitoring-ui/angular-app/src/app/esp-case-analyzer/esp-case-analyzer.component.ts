@@ -130,179 +130,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
     },
   ]);
 
-  displayedColumnsForCurrentQuarter: string[] = [
-    'SERVICE_OFFERING',
-    'BACKLOG',
-    'RESOLVED',
-    'SERVICE_REQUEST',
-    'SERVICE_INCIDENT',
-    'CANCELLED',
-    'ESCALATED',
-    'ROUTED_OUT',
-    'MTTR',
-  ];
+  displayedColumnsForCurrentQuarter: string[] = [];
 
-  dataSourceCurrentQuarter = new MatTableDataSource<any>([
-    {
-      SERVICE_OFFERING:
-        'Billing Invoice and Revenue - Non Standard Revenue (NextGen CCRM)',
-      BACKLOG: '20',
-      RESOLVED: '15',
-      SERVICE_REQUEST: '10',
-      SERVICE_INCIDENT: '5',
-      CANCELLED: '2',
-      ESCALATED: '1',
-      ROUTED_OUT: '4',
-      MTTR: '5 days',
-    },
-    {
-      SERVICE_OFFERING: 'Billing Invoice and Revenue Revenue Attribution',
-      BACKLOG: '18',
-      RESOLVED: '14',
-      SERVICE_REQUEST: '8',
-      SERVICE_INCIDENT: '4',
-      CANCELLED: '1',
-      ESCALATED: '2',
-      ROUTED_OUT: '3',
-      MTTR: '6 days',
-    },
-    {
-      SERVICE_OFFERING:
-        'Billing, Invoice and Revenue - Billing/Invoice Processing (Bridge)',
-      BACKLOG: '25',
-      RESOLVED: '20',
-      SERVICE_REQUEST: '15',
-      SERVICE_INCIDENT: '10',
-      CANCELLED: '3',
-      ESCALATED: '2',
-      ROUTED_OUT: '5',
-      MTTR: '4 days',
-    },
-    {
-      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Collections (ICMS)',
-      BACKLOG: '30',
-      RESOLVED: '25',
-      SERVICE_REQUEST: '20',
-      SERVICE_INCIDENT: '12',
-      CANCELLED: '4',
-      ESCALATED: '3',
-      ROUTED_OUT: '6',
-      MTTR: '7 days',
-    },
-    {
-      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Invoicing (AR)',
-      BACKLOG: '22',
-      RESOLVED: '18',
-      SERVICE_REQUEST: '12',
-      SERVICE_INCIDENT: '8',
-      CANCELLED: '2',
-      ESCALATED: '1',
-      ROUTED_OUT: '4',
-      MTTR: '5 days',
-    },
-    {
-      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Receipt Processing',
-      BACKLOG: '28',
-      RESOLVED: '23',
-      SERVICE_REQUEST: '18',
-      SERVICE_INCIDENT: '9',
-      CANCELLED: '3',
-      ESCALATED: '1',
-      ROUTED_OUT: '6',
-      MTTR: '6 days',
-    },
-    {
-      SERVICE_OFFERING: 'Billing, Invoice and Revenue - Revenue Accounting',
-      BACKLOG: '32',
-      RESOLVED: '29',
-      SERVICE_REQUEST: '20',
-      SERVICE_INCIDENT: '10',
-      CANCELLED: '5',
-      ESCALATED: '2',
-      ROUTED_OUT: '7',
-      MTTR: '7 days',
-    },
-    {
-      SERVICE_OFFERING: 'Billing, Invoice and Revenue – CMS (Highradius)',
-      BACKLOG: '19',
-      RESOLVED: '15',
-      SERVICE_REQUEST: '12',
-      SERVICE_INCIDENT: '6',
-      CANCELLED: '2',
-      ESCALATED: '2',
-      ROUTED_OUT: '3',
-      MTTR: '5 days',
-    },
-    {
-      SERVICE_OFFERING: 'Customs Administration',
-      BACKLOG: '14',
-      RESOLVED: '11',
-      SERVICE_REQUEST: '9',
-      SERVICE_INCIDENT: '4',
-      CANCELLED: '1',
-      ESCALATED: '1',
-      ROUTED_OUT: '2',
-      MTTR: '4 days',
-    },
-    {
-      SERVICE_OFFERING: 'Direct Tax Management',
-      BACKLOG: '24',
-      RESOLVED: '20',
-      SERVICE_REQUEST: '15',
-      SERVICE_INCIDENT: '7',
-      CANCELLED: '3',
-      ESCALATED: '2',
-      ROUTED_OUT: '5',
-      MTTR: '6 days',
-    },
-    {
-      SERVICE_OFFERING: 'Indirect Tax Global',
-      BACKLOG: '27',
-      RESOLVED: '22',
-      SERVICE_REQUEST: '18',
-      SERVICE_INCIDENT: '8',
-      CANCELLED: '4',
-      ESCALATED: '3',
-      ROUTED_OUT: '6',
-      MTTR: '7 days',
-    },
-    {
-      SERVICE_OFFERING: 'Intercompany Accounting',
-      BACKLOG: '20',
-      RESOLVED: '17',
-      SERVICE_REQUEST: '14',
-      SERVICE_INCIDENT: '6',
-      CANCELLED: '2',
-      ESCALATED: '1',
-      ROUTED_OUT: '4',
-      MTTR: '5 days',
-    },
-    {
-      SERVICE_OFFERING:
-        'Billing, Invoice and Revenue - Credit Processing (eCredit)',
-      BACKLOG: '31',
-      RESOLVED: '26',
-      SERVICE_REQUEST: '20',
-      SERVICE_INCIDENT: '9',
-      CANCELLED: '4',
-      ESCALATED: '2',
-      ROUTED_OUT: '7',
-      MTTR: '6 days',
-    },
-    {
-      SERVICE_OFFERING:
-        'Billing, Invoice and Revenue - Revenue Reporting (RRR)',
-      BACKLOG: '33',
-      RESOLVED: '28',
-      SERVICE_REQUEST: '22',
-      SERVICE_INCIDENT: '11',
-      CANCELLED: '5',
-      ESCALATED: '3',
-      ROUTED_OUT: '8',
-      MTTR: '8 days',
-    },
-  ]);
-
+  dataSourceCurrentQuarter = new MatTableDataSource<any>([]);
   sharedChartOptions: ChartOptions = {
     responsive: true,
     plugins: {
@@ -338,15 +168,23 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.getEspWeeklyComparisonSummary();
   }
 
-  getEspAgingCaseSummary() {
-    this.http.get('esp-aging-case-summary').subscribe((data: any) => {
-      console.log('espAgingCaseSummary:', data);
-    });
-  }
-
   getEspCaseServiceMetricSummary() {
     this.http.get('esp-case-service-metric-summary').subscribe((data: any) => {
       console.log('espCaseServiceMetricSummary:', data);
+      if (data && data.length > 0) {
+        this.displayedColumnsForCurrentQuarter = Object.keys(data[0]);
+        this.dataSourceCurrentQuarter = new MatTableDataSource(data);
+      }
+    });
+  }
+
+  getEspAgingCaseSummary() {
+    this.http.get('esp-aging-case-summary').subscribe((data: any) => {
+      console.log('espAgingCaseSummary:', data);
+      if (data && data.length > 0) {
+        this.displayedColumnsForAgingBacklog = Object.keys(data[0]);
+        this.dataSourceAgingBacklog = new MatTableDataSource(data);
+      }
     });
   }
 
