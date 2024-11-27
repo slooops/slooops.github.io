@@ -44,6 +44,10 @@ export class InvoicingComponent implements OnInit {
     { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
   ];
 
+  eInvoicingFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  ];
+
   autoInvoicingTotals: { [key: string]: number } = {
     '3 - Auto Invoice': 0,
   };

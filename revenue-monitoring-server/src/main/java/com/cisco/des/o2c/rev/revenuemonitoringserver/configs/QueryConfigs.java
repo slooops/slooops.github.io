@@ -7,34 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @PropertySource("classpath:queries.properties")
-public class QueryConfigs { // TODO
-
-    @Value("${standard.ar.exc.query}")
-    public String stdArExcQuery;
-
-    @Value("${tsv.topsku.exc.query}")
-    public String tsvTopSkuExcQuery;
-
-    @Value("${tsv.subsku.exc.query}")
-    public String tsvSubSkuExcQuery;
-
-    @Value("${revenue.controls.q}")
-    public String revenueControlsQuery;
-
-    @Value("${error.summary.q}")
-    public String errorSummary;
-
-    @Value("${error.details.all.q}")
-    public String allErrorDetails;
-
-    @Value("${error.details.q}")
-    public String errorDetails;
-
-    // @Value("${period.close.invoice.stats}")
-    // public String periodCloseInvoiceStats;
-
-    // @Value("${period.close.interface.load.preclose}")
-    // public String periodCloseInterfaceLoadPreclose;
+public class QueryConfigs {
 
     @Value("${start-end.time.q}")
     public String closeStartEndTime;
@@ -63,12 +36,6 @@ public class QueryConfigs { // TODO
     @Value("${order.status.q}")
     public String orderStatus;
 
-    @Value("${invoice.tracker.header.q}")
-    public String invoiceTrackerHeader;
-
-    @Value("${invoice.tracker.line.q}")
-    public String invoiceTrackerLine;
-
     @Value("${wd0.ar.midclose.status.query}")
     public String wd0ArMidCloseStatusQuery;
 
@@ -85,30 +52,6 @@ public class QueryConfigs { // TODO
 
     @Value("${order.status.download.q}")
     public String orderStatusDownload;
-
-    @Value("${kafka.error.q}")
-    public String kafkaError;
-
-    @Value("${kafka.inbound.q}")
-    public String kafkaInbound;
-
-    @Value("${ar.trxn.missing.q}")
-    public String arTrxnMissing;
-
-    @Value("${accruals.processing.errors.q}")
-    public String accrualsProcessingErrors;
-
-    @Value("${accruals.distribution.errors.q}")
-    public String accrualsDistributionErrors;
-
-    @Value("${accruals.summarization.errors.q}")
-    public String accrualsSummarizationErrors;
-
-    @Value("${kafka.publish.to.downstream.q}")
-    public String kafkaPublishToDownstream;
-
-    @Value("${error.distribution.summarization.q}")
-    public String errorDistributionSummarization;
 
     @Value(("${order.status.rev.summary.q}"))
     public String orderStatusRevSummary;
@@ -239,9 +182,6 @@ public class QueryConfigs { // TODO
     @Value(("${rol.transaction.data.count.query}"))
     public String rolTransactionDataCount;
 
-    @Value(("${case.service.metrics.summary}"))
-    public String caseServiceMetricsSummary;
-
     @Value(("${rol.errors.summary.update.query}"))
     public String rolErrorsSummaryUpdate;
 
@@ -321,6 +261,15 @@ public class QueryConfigs { // TODO
     @Value(("${einvoicing.details.q}"))
     public String einvoicingDetails;
 
+    @Value(("${esp.aging.case.summary.q}"))
+    public String espAgingCaseSummary;
+
+    @Value(("${esp.case.service.metric.summary.q}"))
+    public String espCaseServiceMetricSummary;
+
+    @Value(("${esp.weekly.comparison.summary.q}"))
+    public String espWeeklyComparisonSummary;
+
     @Bean(name = "glErrorDetails")
     public String getGlErrorDetails() {
         return this.glErrorDetails;
@@ -351,14 +300,6 @@ public class QueryConfigs { // TODO
         return this.glPostingSummaryUpdate;
     }
 
-    @Value(("${esp.aging.case.summary.q}"))
-    public String espAgingCaseSummary;
-
-    @Value(("${esp.case.service.metric.summary.q}"))
-    public String espCaseServiceMetricSummary;
-
-    @Value(("${esp.weekly.comparison.summary.q}"))
-    public String espWeeklyComparisonSummary;
 
     @Bean(name = "autoInvoiceErrorSummaryView")
     public String getAutoInvoiceErrorSummaryView() {
@@ -389,34 +330,6 @@ public class QueryConfigs { // TODO
     public String getPreInvoiceErrorDetailsFiltered() {
         return this.preInvoiceErrorDetailsFiltered;
     }
-
-    @Bean(name = "stdArExcQuery")
-    public String getStdArExcQuery() {
-        return this.stdArExcQuery;
-    }
-
-    @Bean(name = "tsvTopSkuExcQuery")
-    public String getTsvTopSkuExcQuery() {
-        return this.tsvTopSkuExcQuery;
-    }
-
-    @Bean(name = "tsvSubSkuExcQuery")
-    public String getTsvSubSkuExcQuery() {
-        return this.tsvSubSkuExcQuery;
-    }
-
-    @Bean(name = "revenueControlsQuery")
-    public String getRevenueControls() {
-        return this.revenueControlsQuery;
-    }
-
-    // @Bean( name = "periodCloseInvoiceStats")
-    // public String getPeriodCloseInvoiceStats() { return
-    // this.periodCloseInvoiceStats; }
-
-    // @Bean( name = "periodCloseInterfaceLoadPreclose")
-    // public String getPeriodCloseInterfaceLoad() { return
-    // this.periodCloseInterfaceLoadPreclose; }
 
     @Bean(name = "closeStartEndTime")
     public String getCloseStartEndTime() {
@@ -458,34 +371,9 @@ public class QueryConfigs { // TODO
         return this.updateComments;
     }
 
-    @Bean(name = "errorSummary")
-    public String getErrorSummary() {
-        return this.errorSummary;
-    }
-
-    @Bean(name = "allErrorDetails")
-    public String getAllErrorDetails() {
-        return this.allErrorDetails;
-    }
-
-    @Bean(name = "errorDetails")
-    public String getErrorDetails() {
-        return this.errorDetails;
-    }
-
     @Bean(name = "orderStatus")
     public String getOrderStatus() {
         return this.orderStatus;
-    }
-
-    @Bean(name = "invoiceTrackerHeader")
-    public String getInvoiceTrackerHeader() {
-        return this.invoiceTrackerHeader;
-    }
-
-    @Bean(name = "invoiceTrackerLine")
-    public String getInvoiceTrackerline() {
-        return this.invoiceTrackerLine;
     }
 
     @Bean(name = "wd0ArMidCloseStatusQuery")
@@ -516,46 +404,6 @@ public class QueryConfigs { // TODO
     @Bean(name = "updateOrderStatus")
     public String getUpdateOrderStatus() {
         return this.updateOrderStatus;
-    }
-
-    @Bean(name = "kafkaError")
-    public String getKafkaError() {
-        return this.kafkaError;
-    }
-
-    @Bean(name = "kafkaInbound")
-    public String getKafkaInbound() {
-        return this.kafkaInbound;
-    }
-
-    @Bean(name = "arTrxnMissing")
-    public String getArTrxnMissing() {
-        return this.arTrxnMissing;
-    }
-
-    @Bean(name = "accrualsProcessingErrors")
-    public String getAccrualsProcessingErrors() {
-        return this.accrualsProcessingErrors;
-    }
-
-    @Bean(name = "accrualsDistributionErrors")
-    public String getAccrualsDistributionErrors() {
-        return this.accrualsDistributionErrors;
-    }
-
-    @Bean(name = "accrualsSummarizationErrors")
-    public String getAccrualsSummarizationErrors() {
-        return this.accrualsSummarizationErrors;
-    }
-
-    @Bean(name = "kafkaPublishToDownstream")
-    public String getKafkaPublishToDownstream() {
-        return this.kafkaPublishToDownstream;
-    }
-
-    @Bean(name = "errorDistributionSummarization")
-    public String getErrorDistributionSummarization() {
-        return this.errorDistributionSummarization;
     }
 
     @Bean(name = "orderStatusRevSummary")
@@ -778,10 +626,6 @@ public class QueryConfigs { // TODO
         return this.rolTransactionDataCount;
     }
 
-    @Bean(name = "caseServiceMetricsSummary")
-    public String getCaseServiceMetricsSummary() {
-        return this.caseServiceMetricsSummary;
-    }
 
     @Bean(name = "rolErrorsSummaryUpdate")
     public String updateRolErrorSummaryUpdate() {

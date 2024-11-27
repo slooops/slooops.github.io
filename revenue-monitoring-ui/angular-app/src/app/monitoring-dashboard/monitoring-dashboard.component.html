@@ -280,7 +280,15 @@
     <div class="details-header">
       <h5 class="section-title">{{ componentName }} Error Details</h5>
 
-      <form [formGroup]="searchForm" class="form-container">
+      <form
+        [formGroup]="searchForm"
+        class="form-container"
+        *ngIf="
+          isFiltered
+            ? filtereddataSource?.data?.length > 0
+            : dataSource?.data?.length > 0
+        "
+      >
         <div class="filter-container">
           <div class="filter-item">
             <span>

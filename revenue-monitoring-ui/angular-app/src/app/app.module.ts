@@ -2,7 +2,6 @@ import { NgModule, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgChartsModule } from 'ng2-charts';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpConfigInterceptor } from './providers/http-config.interceptor';
@@ -30,15 +29,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { ErrorDashComponent } from './error-dash/error-dash.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { DetailViewComponent } from './error-dash/detail-view/detail-view.component';
 import { LoadingSymbolComponent } from './loading-symbol/loading-symbol.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { TruncatePipe } from './shared/truncate.pipe';
-import { InvoiceTrackerComponent } from './invoice-tracker/invoice-tracker.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { TitleCaseWithExceptionsPipe } from './title-case-with-exceptions.pipe';
@@ -52,9 +48,6 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { RevenueAccrualsComponent } from './revenue-accruals/revenue-accruals.component';
-import { ChartDialogComponent } from './revenue-accruals/chart-dialog/chart-dialog.component';
-import { TableDialogComponent } from './revenue-accruals/table-dialog/table-dialog.component';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle/order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from './order-lifecycle/order-lifecycle-upload/order-lifecycle-upload.component';
 import { OrderLifecycleRevSummaryComponent } from './order-lifecycle/order-lifecycle-rev-summary/order-lifecycle-rev-summary.component';
@@ -103,20 +96,14 @@ export function initApp(authService: AuthenticationService) {
     MenuComponent,
     PrecloseComponent,
     MidcloseComponent,
-    ErrorDashComponent,
-    DetailViewComponent,
     LoadingSymbolComponent,
     OrderLifecycleComponent,
     TruncatePipe,
-    InvoiceTrackerComponent,
     Wd0DashComponent,
     Wd0HistoricalDataComponent,
     TitleCaseWithExceptionsPipe,
     OrderLifecycleSummaryComponent,
     OrderLifecycleUploadComponent,
-    RevenueAccrualsComponent,
-    ChartDialogComponent,
-    TableDialogComponent,
     OrderLifecycleRevSummaryComponent,
     HomeComponent,
     ErrorComponent,

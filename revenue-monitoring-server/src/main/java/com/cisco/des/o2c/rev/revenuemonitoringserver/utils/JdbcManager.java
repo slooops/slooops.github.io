@@ -34,10 +34,6 @@ public class JdbcManager {
         return jdbcTemplate.update(sql, invoiceElgibileDate, dealId, salesOrder);
     }
 
-    public List<Map<String, Object>> queryForListWithParams(String sql, String appName, String batchSource, String entity, String type){
-        return jdbcTemplate.queryForList(sql, appName, batchSource, entity, type);
-    }
-
     public List<Map<String, Object>> queryForListWithParamsAutoInvoice(String sql, String appName, String operatingUnit, String periodName, String uniqueId){
         return jdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, uniqueId);
     }
@@ -77,14 +73,6 @@ public class JdbcManager {
     public int updateAccrualsErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, String periodName, String processFlow, String ouName){
         return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, periodName, processFlow, ouName);
     }
-//    public int getTotalRecords(String sql) {
-//        return jdbcTemplate.queryForObject(sql, Integer.class);
-//    }
-
-//    public int getTotalRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
-//        return jdbcTemplate.queryForObject(sql, new Object[]{periodName, ouName, appName, sequenceNum}, Integer.class);
-//    }
-
 
     public List<Map<String, Object>> getRolTransactionDataFilter(String sql, String periodName, String ouName, String applicationName, int uniqueId) {
         return jdbcTemplate.queryForList(sql, periodName, ouName, applicationName, uniqueId);
@@ -95,12 +83,8 @@ public class JdbcManager {
         return jdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
     }
 
-
     public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy,String comments, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate){
         return jdbcTemplate.update(sql, assignedTo, assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate );
     }
 
-//    public List<RolTransactionData> getRecordsFiltered(String sql, String periodName, String ouName, String appName, String sequenceNum) {
-//        return jdbcTemplate.query(sql, new Object[]{periodName, ouName, appName, sequenceNum}, new RecordRowMapper());
-//    }
 }

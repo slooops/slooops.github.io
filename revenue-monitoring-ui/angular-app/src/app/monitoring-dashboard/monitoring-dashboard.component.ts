@@ -88,13 +88,12 @@ export class MonitoringDashboardComponent<T>
     }
   }
   ngOnChanges(changes: SimpleChanges) {
-    if (
-      this.periodStatus &&
-      changes['columnsToFilter'] &&
-      this.columnsToFilter
-    ) {
+    if (this.periodStatus) {
       this.periodName = this.periodStatus[0].PERIOD_NAME;
       this.periodEnd = this.dateTransform(this.periodStatus[0].END_DATE);
+    }
+
+    if (changes['columnsToFilter'] && this.columnsToFilter) {
       this.initializeForm();
     }
   }
@@ -122,7 +121,6 @@ export class MonitoringDashboardComponent<T>
         this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
         const totals = this.calculateTotalsByProcessFlow(data);
         this.dataService.setTabData(this.componentName, totals);
-        console.log('totals', totals);
         this.summaryData.forEach((row) => {
           row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
           row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);

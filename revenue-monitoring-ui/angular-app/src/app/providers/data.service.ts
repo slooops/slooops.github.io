@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { errorDashModel } from '../error-dash/error-dash.component';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { ApiHttpService } from './http.service';
 import { shareReplay } from 'rxjs/operators';
@@ -8,7 +7,6 @@ import { shareReplay } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DataService {
-  selectedErrorData: errorDashModel[] = [];
   allErrorsSelected: boolean = true;
   userRoles: any;
   username: any;
@@ -66,22 +64,6 @@ export class DataService {
         .pipe(shareReplay(1));
     }
     return this.userRoles$;
-  }
-
-  setErrorData(errorData: errorDashModel[]) {
-    this.selectedErrorData = errorData;
-  }
-
-  getErrorData() {
-    return this.selectedErrorData;
-  }
-
-  setAllErrorsSelected(allErrorsSelected: boolean) {
-    this.allErrorsSelected = allErrorsSelected;
-  }
-
-  getAllErrorsSelected() {
-    return this.allErrorsSelected;
   }
 
   getUserRoles() {
