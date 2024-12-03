@@ -11,7 +11,7 @@
       <ng-container *ngSwitchCase="'app-pre-invoicing'">
         <app-monitoring-dashboard
           [urls]="preInvoicingUrls"
-          [fieldKey]="'TRANSACTION_DATE'"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
           [processFlowKeys]="preInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Pre-Invoicing'"
@@ -29,7 +29,7 @@
       <ng-container *ngSwitchCase="'app-auto-invoicing'">
         <app-monitoring-dashboard
           [urls]="autoInvoicingUrls"
-          [fieldKey]="'TRANSACTION_DATE'"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
           [processFlowKeys]="autoInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Auto-Invoicing'"
@@ -46,7 +46,6 @@
       <ng-container *ngSwitchCase="'app-eInvoicing'">
         <app-monitoring-dashboard
           [urls]="eInvoicingUrls"
-          [fieldKey]="''"
           [processFlowKeys]="eInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'eInvoicing'"

@@ -91,7 +91,12 @@ public class ExceptionMonitoringService {
             renameKey(data, "OU_NAME", "ORG_NAME");
             renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
             renameKey(data, "ORDERLINEID", "ORDER_LINE_ID");
-            renameKey(data, "ORDERNUMBER_CUSTTRXID", "TRANSACTION_ID");
+            renameKey(data, "INTID_TRXNID_CUSTTRXLINE_GROUPID", "TRANSACTION_ID");
+            data.remove("ERROR_APPLICATION");
+            data.remove("SOURCE");
+            data.remove("CURRENCY_CODE");
+            data.remove("CUSTTRXLINEID");
+            data.remove("ORDERNUMBER_CUSTTRXID");
         });
         return result;
     }
@@ -106,6 +111,9 @@ public class ExceptionMonitoringService {
         result.forEach(data -> {
             renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            data.remove("ASSIGNED_BY");
+            data.remove("CURRENCY_CODE");
+            data.remove("ERROR_APPLICATION");
             formatDateColumns(data, dateColumns);
         });
         return result;
@@ -238,6 +246,7 @@ public class ExceptionMonitoringService {
         result.forEach(data -> {
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             formatDateColumns(data, dateColumns);
+            data.remove("TRANSACTION_DATE");
         });
         return result;
     }
@@ -256,6 +265,7 @@ public class ExceptionMonitoringService {
             renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
             formatDateColumns(data, dateColumns);
             formatEmptyAmounts(data, emptyAmountColumns);
+            data.remove("TRANSACTION_DATE");
         });
         return result;
     }
@@ -326,7 +336,7 @@ public class ExceptionMonitoringService {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
-            data.remove("SEQUENCE_NUMBER");
+            renameKey(data, "SEQUENCE_NUMBER", "SEQUENCE_NUM");
             data.remove("ASSIGNED_BY");
         });
         return result;

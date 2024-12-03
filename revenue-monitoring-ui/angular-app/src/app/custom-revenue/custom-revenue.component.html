@@ -11,7 +11,7 @@
       <ng-container *ngSwitchCase="'app-rol'">
         <app-monitoring-dashboard
           [urls]="rolUrls"
-          [fieldKey]="'SEQUENCE_NUM'"
+          [keysToMap]="rolAndAccrualsKeysToMap"
           [processFlowKeys]="rolTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Rol'"
@@ -26,13 +26,15 @@
             'Displays message with impacted accounting information'
           "
           [columnsToFilter]="rolFilters"
+          [summaryColumnsToHide]="rolSummaryFieldstoRemove"
+          [detailsColumnsToHide]="rolDetailsFieldstoRemove"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
       <ng-container *ngSwitchCase="'app-accruals'">
         <app-monitoring-dashboard
           [urls]="accrualsUrls"
-          [fieldKey]="'SEQUENCE_NUMBER'"
+          [keysToMap]="rolAndAccrualsKeysToMap"
           [processFlowKeys]="accrualsTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Accruals'"
@@ -46,6 +48,7 @@
             'Displays message with impacted accounting information'
           "
           [columnsToFilter]="accrualsFilters"
+          [summaryColumnsToHide]="rolSummaryFieldstoRemove"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>

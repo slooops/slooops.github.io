@@ -2,7 +2,6 @@
   <mat-tab label="General Ledger" *ngIf="roles.includes('ADMIN')">
     <app-monitoring-dashboard
       [urls]="glUrls"
-      [fieldKey]="'TRANSACTION_DATE'"
       [processFlowKeys]="glTotals"
       [periodStatus]="periodStatus"
       [componentName]="'General Ledger'"

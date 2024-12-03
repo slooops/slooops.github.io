@@ -124,19 +124,18 @@ export class CustomRevenueComponent implements OnInit {
       .join(' '); // Join words back with spaces
   }
 
+  rolAndAccrualsKeysToMap: string[] = [
+    'PERIOD_NAME',
+    'ORG_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'SEQUENCE_NUM',
+  ];
+
   periodStatus: any;
 
-  accrualsDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'PROCESS_STATUS',
-    'SOURCE',
-    'SUBREF_ORDER',
-    'TRXN_UNIQUE_ID',
-    'ERROR_MESSAGE',
-  ];
+  rolSummaryFieldstoRemove: string[] = ['SEQUENCE_NUM'];
+  rolDetailsFieldstoRemove: string[] = ['SEQUENCE_NUM'];
 
   specialWords: string[] = [
     'name',

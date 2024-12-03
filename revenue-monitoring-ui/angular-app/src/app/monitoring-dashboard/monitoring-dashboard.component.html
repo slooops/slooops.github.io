@@ -179,7 +179,7 @@
                     <span *ngIf="isSubAppMapping">
                       {{ subAppMapper(element[column]) }}
                     </span>
-                    <span *ngIf="componentName !== 'Rol'">
+                    <span *ngIf="!isSubAppMapping">
                       {{ element[column] }}
                     </span>
                   </ng-container>
@@ -309,7 +309,12 @@
                     [value]="processFlow"
                     (onSelectionChange)="filter()"
                   >
-                    {{ processFlow }}
+                    <span *ngIf="isSubAppMapping">
+                      {{ subAppMapper(processFlow) }}
+                    </span>
+                    <span *ngIf="!isSubAppMapping">
+                      {{ processFlow }}
+                    </span>
                   </mat-option>
                 </mat-select>
               </mat-form-field>
@@ -493,7 +498,7 @@
                   <span *ngIf="isSubAppMapping">
                     {{ subAppMapper(element[column]) }}
                   </span>
-                  <span *ngIf="componentName !== 'Rol'">
+                  <span *ngIf="!isSubAppMapping">
                     {{ element[column] }}
                   </span>
                 </ng-container>

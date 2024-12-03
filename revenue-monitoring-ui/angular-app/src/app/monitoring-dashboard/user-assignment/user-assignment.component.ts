@@ -128,7 +128,6 @@ export class UserAssignmentComponent implements OnInit {
       };
     }
 
-    console.log('updateData:', updateData);
     this.http
       .post(this.updateUrl, updateData, {
         responseType: 'text',
