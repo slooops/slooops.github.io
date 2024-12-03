@@ -89,7 +89,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       const wd1 = new Date(monthEnd);
 
       wd3.setDate(monthEnd.getDate() - 3);
-      wd3.setHours(15); // 4 PM DST, 3PM summer time rollover for WD-3
+      wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
       wd2.setHours(15); // 4 PM rollover for WD-2
@@ -104,14 +104,17 @@ export class Wd0HistoricalDataComponent implements OnInit {
         nowPacificTime > wd1
       ) {
         effectiveWd = { wd: 'WD-0', index }; // WD-0
-      } else if (nowPacificTime >= wd1) {
+      } else if (nowPacificTime >= wd1 && nowPacificTime < monthEnd) {
         effectiveWd = { wd: 'WD-1', index }; // WD-1
-      } else if (nowPacificTime >= wd2) {
+      } else if (nowPacificTime >= wd2 && nowPacificTime < wd1) {
         effectiveWd = { wd: 'WD-2', index }; // WD-2
-      } else if (nowPacificTime >= wd3) {
+      } else if (nowPacificTime >= wd3 && nowPacificTime < wd2) {
         effectiveWd = { wd: 'WD-3', index }; // WD-3
+      } else {
       }
     });
+
+    console.log('Effective WD:', effectiveWd);
 
     this.fetchDataForNewMonth = false;
     this.isWd1 = false;

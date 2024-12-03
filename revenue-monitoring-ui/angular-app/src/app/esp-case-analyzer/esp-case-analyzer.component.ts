@@ -135,10 +135,11 @@ export class EspCaseAnalyzerComponent implements OnInit {
             item.FISC_QTR === quarter &&
             item.CATEGORY === category
         );
+        console.log('entry:', entry);
         return entry ? entry.COUNT : 0;
       });
 
-    console.log('transformData:', transformData);
+    // console.log('backlog:', transformData('Q2FY25', 'BACKLOG CASES'));
 
     this.backlogInflowChart = new Chart('backlogInflowChart', {
       type: 'bar',
