@@ -487,14 +487,11 @@ export class MonitoringDashboardComponent<T>
   getErrorDetailsFiltered(data: any) {
     this.isLoading = true;
     this.isFiltered = true;
-    console.log(this.keysToMap);
     const pageRequest = this.keysToMap.reduce((acc, key) => {
       const keyName = this.camelCase(key);
       acc[keyName] = data.map((row) => row[key]).join(',');
       return acc;
     }, {});
-
-    console.log('pageRequest', pageRequest);
 
     this.http
       .get(this.urls['filteredDetailsUrl'], { params: pageRequest })
@@ -541,12 +538,20 @@ export class MonitoringDashboardComponent<T>
     if (this.isFiltered) {
       this.errorDetailsFiltered.forEach((data) => {
         processFlowTemp.push(data.PROCESS_FLOW);
-        orgNameTemp.push(data.ORG_NAME);
+        if (this.componentName === 'General Ledger') {
+          orgNameTemp.push(data.LEDGER_NAME);
+        } else {
+          orgNameTemp.push(data.ORG_NAME);
+        }
       });
     } else {
       this.errorDetails.forEach((data) => {
         processFlowTemp.push(data.PROCESS_FLOW);
-        orgNameTemp.push(data.ORG_NAME);
+        if (this.componentName === 'General Ledger') {
+          orgNameTemp.push(data.LEDGER_NAME);
+        } else {
+          orgNameTemp.push(data.ORG_NAME);
+        }
       });
     }
     this.processFlowOptions = [...new Set(processFlowTemp)];
@@ -598,6 +603,8 @@ export class MonitoringDashboardComponent<T>
     const matchesOrgName =
       !filters['orgNameFilter'] || filters['orgNameFilter'].length === 0
         ? true
+        : this.componentName === 'General Ledger'
+        ? filters['orgNameFilter'].includes(data['LEDGER_NAME'])
         : filters['orgNameFilter'].includes(data['ORG_NAME']);
     const matchesTextFilters = this.columnsToFilter.every((column) => {
       const filterValue = filters[column.formControlName + 'Filter'] || '';

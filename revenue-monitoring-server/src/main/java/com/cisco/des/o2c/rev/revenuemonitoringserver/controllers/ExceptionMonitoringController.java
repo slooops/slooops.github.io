@@ -250,22 +250,22 @@ public class ExceptionMonitoringController {
     @GetMapping("/gl-details-filtered")
     public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
                                                                     @RequestParam List<String> ledgerNames,
-                                                                    @RequestParam List<String> appNames,
+                                                                    @RequestParam List<String> applicationNames,
                                                                     @RequestParam List<String> journalSources,
-                                                                    @RequestParam List<String> accountSeg,
-                                                                    @RequestParam List<String> uniqueIds) {
+                                                                    @RequestParam List<String> accountSegs,
+                                                                    @RequestParam List<String> transactionDates) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(appNames.size(),
-                    Math.min(processFlows.size(), Math.min(accountSeg.size(), uniqueIds.size())))));
+            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(applicationNames.size(),
+                    Math.min(processFlows.size(), Math.min(accountSegs.size(), transactionDates.size())))));
 
             for (int i = 0; i < minLength; i++) {
                 String processFlow = processFlows.get(i);
                 String ledgerName = ledgerNames.get(i);
-                String appName = appNames.get(i);
+                String appName = applicationNames.get(i);
                 String journalSource = journalSources.get(i);
-                String accountseg = accountSeg.get(i);
-                String uniqueId = uniqueIds.get(i);
+                String accountseg = accountSegs.get(i);
+                String uniqueId = transactionDates.get(i);
                 List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow, ledgerName, appName,
                         journalSource, accountseg, uniqueId);
                 errorDetailsFiltered.addAll(result);

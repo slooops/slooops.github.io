@@ -34,7 +34,19 @@ export class GlPostingComponent implements OnInit {
     '2 - GL Interface': 0,
   };
 
-  glFilters: { formControlName: string; columnName: string }[] = [];
+  glFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'glBatchName', columnName: 'GL_BATCH_NAME' },
+    { formControlName: 'accountSeg', columnName: 'ACCOUNT_SEG' },
+  ];
+
+  glKeysToMap: string[] = [
+    'LEDGER_NAME',
+    'JOURNAL_SOURCE',
+    'ACCOUNT_SEG',
+    'APPLICATION_NAME',
+    'TRANSACTION_DATE',
+    'PROCESS_FLOW',
+  ];
 
   specialWords: string[] = [
     'name',
@@ -104,7 +116,7 @@ export class GlPostingComponent implements OnInit {
   flex-direction: column;
   align-items: center;
   height: 82px;
-  width: 250px;
+  width: 170px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;

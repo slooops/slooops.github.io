@@ -203,19 +203,12 @@ public class ExceptionMonitoringService {
     }
 
     private void renameKey(Map<String, Object> data, String oldKey, String newKey) {
-        // Temporarily hold the entries
         List<Map.Entry<String, Object>> entries = new ArrayList<>(data.entrySet());
-
-        // Clear the original map
         data.clear();
-
-        // Iterate over the entries and modify as needed
         for (Map.Entry<String, Object> entry : entries) {
             if (entry.getKey().equals(oldKey)) {
-                // Replace with new key
                 data.put(newKey, entry.getValue() != null ? entry.getValue().toString() : "");
             } else {
-                // Keep the existing key-value pair
                 data.put(entry.getKey(), entry.getValue());
             }
         }
@@ -373,13 +366,21 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getGlErrorDetails() {
-        return jdbcManager.queryForList(glErrorDetails);
+        List<Map<String, Object>> result = jdbcManager.queryForList(glErrorDetails);
+        result.forEach(data -> {
+            data.remove("TRANSACTION_DATE");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String processFlow, String ledgerName, String applicationName,
                                                         String journalSource, String accountSeg, String transactionDate) {
-        return jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName,
+        List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName,
                 journalSource, accountSeg, transactionDate);
+        result.forEach(data -> {
+            data.remove("TRANSACTION_DATE");
+        });
+        return result;
     }
 
     public int updateGlErrorSummary(Map<String, String> updateData) {
@@ -388,10 +389,10 @@ public class ExceptionMonitoringService {
         String comments = updateData.get("comments");
         String ledgerName = updateData.get("ledgerName");
         String processFlow = updateData.get("processFlow");
-        String applicationName = updateData.get("appName");
+        String applicationName = updateData.get("applicationName");
         String journalSource = updateData.get("journalSource");
         String accountSeg = updateData.get("accountSeg");
-        String transactionDate = updateData.get("creationDate");
+        String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments,
                 processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
         return 1;
@@ -404,7 +405,6 @@ public class ExceptionMonitoringService {
             formatDateColumns(data, dateColumns);
             data.remove("ASSIGNED_BY");
         });
-
         return result;
     }
 
@@ -414,7 +414,6 @@ public class ExceptionMonitoringService {
             renameKey(data,"TRX_NUMBER", "TRANSACTION_ID");
             data.remove("TRANSACTION_DATE");
         });
-
         return result;
     }
 
@@ -424,7 +423,6 @@ public class ExceptionMonitoringService {
             renameKey(data,"TRX_NUMBER", "TRANSACTION_ID");
             data.remove("TRANSACTION_DATE");
         });
-
         return result;
     }
 

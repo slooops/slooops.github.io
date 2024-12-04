@@ -79,7 +79,6 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String sql, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate) {
-        System.out.println(sql);
         return jdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
     }
 

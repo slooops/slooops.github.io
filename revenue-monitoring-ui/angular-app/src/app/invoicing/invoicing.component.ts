@@ -56,7 +56,7 @@ export class InvoicingComponent implements OnInit {
     BOLTON: 0,
     SYNCHRO: 0,
     Esker: 0,
-    'Smart Bill': 0,
+    SmartBill: 0,
     SOVOS: 0,
   };
 
@@ -364,7 +364,7 @@ display: flex;
 flex-direction: column;
 align-items: center;
 height: 82px;
-width: 1350px;
+width: 760px;
 background: #ffffff;
 top: 0px;
 padding-bottom: 20px;
