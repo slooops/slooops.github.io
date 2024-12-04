@@ -487,12 +487,14 @@ export class MonitoringDashboardComponent<T>
   getErrorDetailsFiltered(data: any) {
     this.isLoading = true;
     this.isFiltered = true;
-
+    console.log(this.keysToMap);
     const pageRequest = this.keysToMap.reduce((acc, key) => {
       const keyName = this.camelCase(key);
       acc[keyName] = data.map((row) => row[key]).join(',');
       return acc;
     }, {});
+
+    console.log('pageRequest', pageRequest);
 
     this.http
       .get(this.urls['filteredDetailsUrl'], { params: pageRequest })

@@ -88,6 +88,11 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName, String appName, String processFlow, String transactionDate) {
+        System.out.println(sql);
+        System.out.println(ouName);
+        System.out.println(processFlow);
+        System.out.println(periodName);
+        System.out.println(transactionDate);
         return jdbcTemplate.queryForList(sql, ouName, periodName, appName, processFlow, transactionDate);
     }
 
