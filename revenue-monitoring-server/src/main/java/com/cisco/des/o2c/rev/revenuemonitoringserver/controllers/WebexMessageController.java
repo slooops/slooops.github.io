@@ -24,7 +24,7 @@ public class WebexMessageController {
     @PostMapping("/send-message-invoicing")
     public void sendMessageInvoicing(@RequestBody Map<String, String> updateData) {
         service.sendWebexMessageInvoicing(updateData);
-        ePageEscalationService.sendEpageEscalation();
+//        ePageEscalationService.sendEpageEscalation();
     }
     @PostMapping("/send-message-gl")
     public void sendMessageGl(@RequestBody Map<String, String> updateData) {

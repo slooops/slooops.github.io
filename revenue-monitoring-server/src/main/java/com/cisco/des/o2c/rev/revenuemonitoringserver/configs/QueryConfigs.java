@@ -270,6 +270,15 @@ public class QueryConfigs {
     @Value(("${esp.weekly.comparison.summary.q}"))
     public String espWeeklyComparisonSummary;
 
+    @Value(("${einvoicing.details.filtered.q}"))
+    public String einvoicingDetailsFiltered;
+
+    @Value(("${einvoicing.summary.update.q}"))
+    public String eInvoicingSummaryUpdate;
+    @Bean(name="eInvoicingSummaryUpdate")
+    public String geteInvoicingSummaryUpdate() { return this.eInvoicingSummaryUpdate; }
+    @Bean(name="einvoicingDetailsFiltered")
+    public String getEinvoicingDetailsFiltered() { return this.einvoicingDetailsFiltered; }
     @Bean(name = "glErrorDetails")
     public String getGlErrorDetails() {
         return this.glErrorDetails;

@@ -47,6 +47,8 @@ export class MonitoringDashboardComponent<T>
   @Input() columnsToFilter: { formControlName: string; columnName: string }[];
   @Input() summaryColumnsToHide: string[] = [];
   @Input() detailsColumnsToHide: string[] = [];
+  @Input() submitKeysToMap: string[] = [];
+  @Input() webexKeysToMap: string[] = [];
   periodName: string = '';
   periodEnd: string = '';
   totalImpactData$: Observable<any>;
@@ -411,7 +413,7 @@ export class MonitoringDashboardComponent<T>
       this.cdr.detectChanges();
       setTimeout(() => {
         this.getErrorSummary();
-      }, 1000);
+      }, 0);
     }
   }
 
@@ -491,27 +493,6 @@ export class MonitoringDashboardComponent<T>
       acc[keyName] = data.map((row) => row[key]).join(',');
       return acc;
     }, {});
-    // const periodNames = data.map((row) => row.PERIOD_NAME);
-    // const ouNames = data.map((row) => row.ORG_NAME);
-    // const appNames = data.map((row) => row.APPLICATION_NAME);
-    // const processFlows = data.map((row) => row.PROCESS_FLOW);
-    // const transactionDates = data.map((row) => row.TRANSACTION_DATE);
-    // const ledgerNames = data.map((row) => row.LEDGER_NAME);
-    // const journalSources = data.map((row) => row.JOURNAL_SOURCE);
-    // const accountSeg = data.map((row) => row.ACCOUNT_SEG);
-
-    // const pageRequest = {
-    //   periodNames: periodNames.join(','),
-    //   ouNames: ouNames.join(','),
-    //   appNames: appNames.join(','),
-    //   processFlows: processFlows.join(','),
-    //   transactionDates: transactionDates.join(','),
-    //   ledgerNames: ledgerNames.join(','),
-    //   journalSources: journalSources.join(','),
-    //   accountSeg: accountSeg.join(','),
-    // };
-
-    console.log('pageRequest:', pageRequest);
 
     this.http
       .get(this.urls['filteredDetailsUrl'], { params: pageRequest })

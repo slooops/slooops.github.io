@@ -28,6 +28,21 @@
           [columnsToFilter]="rolFilters"
           [summaryColumnsToHide]="rolSummaryFieldstoRemove"
           [detailsColumnsToHide]="rolDetailsFieldstoRemove"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE'
+          ]"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
+          ]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
@@ -49,6 +64,15 @@
           "
           [columnsToFilter]="accrualsFilters"
           [summaryColumnsToHide]="rolSummaryFieldstoRemove"
+          [submitKeysToMap]="['SEQUENCE_NUM']"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
+          ]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>

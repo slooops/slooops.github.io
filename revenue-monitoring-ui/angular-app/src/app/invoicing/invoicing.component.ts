@@ -114,8 +114,8 @@ export class InvoicingComponent implements OnInit {
   eInvoicingUrls: { [key: string]: string } = {
     summaryUrl: 'einvoicing-error-summary',
     detailsUrl: 'einvoicing-error-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'einvoicing-error-details-filtered',
+    summaryUpdateUrl: 'einvoicing-error-summary-update',
     webexMessageUrl: 'send-message-invoicing',
     chartTotalsUrl: '',
     chartDetailsUrl: '',

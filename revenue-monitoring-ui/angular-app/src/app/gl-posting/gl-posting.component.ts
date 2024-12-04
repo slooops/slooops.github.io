@@ -34,38 +34,7 @@ export class GlPostingComponent implements OnInit {
     '2 - GL Interface': 0,
   };
 
-  summaryColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'LEDGER_NAME',
-    'JOURNAL_SOURCE',
-    'ACCOUNT_SEG',
-    'BALANCE',
-    'TRANSACTION_DATE',
-    'AGING',
-    'ASSIGNED_TO',
-    'ASSIGNED_DATE',
-    'COMMENTS',
-  ];
-
-  glDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'LEDGER_NAME',
-    'GL_BATCH_NAME',
-    'JOURNAL_SOURCE',
-    'USER_JE_CATEGORY_NAME',
-    'ACCOUNT_SEG',
-    'ACCOUNTED_CR',
-    'ACCOUNTED_DR',
-    'ENTERED_CR',
-    'ENTERED_DR',
-    'ACCOUNT',
-    'TRANSACTION_DATE',
-    'ERROR_MESSAGE',
-  ];
+  glFilters: { formControlName: string; columnName: string }[] = [];
 
   specialWords: string[] = [
     'name',

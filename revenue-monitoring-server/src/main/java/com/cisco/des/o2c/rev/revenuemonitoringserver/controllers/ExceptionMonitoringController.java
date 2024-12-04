@@ -125,7 +125,6 @@ public class ExceptionMonitoringController {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
                     Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
-            System.out.println(orgNames);
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
@@ -288,15 +287,15 @@ public class ExceptionMonitoringController {
 
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {
-        return new ResponseEntity<>(service.geteInvoicingSummary(), HttpStatus.OK);
+        return new ResponseEntity<>(service.getEInvoicingSummary(), HttpStatus.OK);
     }
 
     @GetMapping("/einvoicing-error-details")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorDetails() {
-        return new ResponseEntity<>(service.geteInvoicingDetails(), HttpStatus.OK);
+        return new ResponseEntity<>(service.getEInvoicingDetails(), HttpStatus.OK);
     }
 
-    @GetMapping("/e-invoice-error-details-filtered")
+    @GetMapping("/einvoicing-error-details-filtered")
     public ResponseEntity<Map<String, Object>> getEInvoiceErrorDetailsFiltered(
             @RequestParam List<String> periodNames,
             @RequestParam List<String> orgNames,
@@ -313,9 +312,10 @@ public class ExceptionMonitoringController {
                 String periodName = periodNames.get(i);
                 String ouName = orgNames.get(i);
                 String appName = applicationNames.get(i);
+                String processFlow = processFlows.get(i);
                 String transactionDate = transactionDates.get(i);
-                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName,
-                        periodName, transactionDate);
+                List<Map<String, Object>> result = service.getEInvoicingDetailsFiltered(ouName, periodName, appName,
+                        processFlow, transactionDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -324,5 +324,11 @@ public class ExceptionMonitoringController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @PostMapping("/einvoicing-error-summary-update")
+    public ResponseEntity<String> updateEInvoicingErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateEInvoicingErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 }
