@@ -399,7 +399,7 @@ public class ExceptionMonitoringService {
 
     public List<Map<String, Object>> getEInvoicingSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingSummary);
-        String[] dateColumns = { "ASSIGNED_DATE" };
+        String[] dateColumns = { "ASSIGNED_DATE", "TRANSACTION_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
             data.remove("ASSIGNED_BY");

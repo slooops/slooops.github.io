@@ -493,7 +493,11 @@
               </ng-container>
             </th>
 
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [class.error-message-cell]="column === 'ERROR_MESSAGE'"
+            >
               <ng-container [ngSwitch]="column">
                 <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                   <span *ngIf="isSubAppMapping">
