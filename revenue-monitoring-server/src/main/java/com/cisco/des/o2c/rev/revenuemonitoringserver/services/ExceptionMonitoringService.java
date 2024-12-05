@@ -303,6 +303,7 @@ public class ExceptionMonitoringService {
                 appName, operatingUnit, periodName, uniqueId);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
             formatDateColumns(data, dateColumns);
             formatEmptyAmounts(data, emptyAmountColumns);
         });
@@ -379,6 +380,7 @@ public class ExceptionMonitoringService {
                 journalSource, accountSeg, transactionDate);
         result.forEach(data -> {
             data.remove("TRANSACTION_DATE");
+            data.remove("ACCOUNT");
         });
         return result;
     }

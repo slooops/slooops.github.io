@@ -156,6 +156,15 @@
                       ></i>
                     </span>
                   </ng-container>
+                  <ng-container *ngSwitchCase="'BALANCE'">
+                    <span (click)="sortData(column, 'summary')">
+                      {{ replaceUnderscore(column) }}
+                      <i
+                        *ngIf="isSortedColumn('BALANCE')"
+                        [ngClass]="getSortIcon()"
+                      ></i>
+                    </span>
+                  </ng-container>
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                     <span
                       [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
@@ -412,22 +421,6 @@
           <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef class="no-wrap">
               <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchCase="'AGING'">
-                  <span
-                    (click)="
-                      sortData(
-                        column,
-                        isFiltered ? 'filteredDetails' : 'details'
-                      )
-                    "
-                  >
-                    {{ replaceUnderscore(column) }}
-                    <i
-                      *ngIf="isSortedColumn('AGING')"
-                      [ngClass]="getSortIcon()"
-                    ></i>
-                  </span>
-                </ng-container>
                 <ng-container *ngSwitchCase="'AMOUNT'">
                   <span
                     (click)="
@@ -440,6 +433,22 @@
                     {{ replaceUnderscore(column) }}
                     <i
                       *ngIf="isSortedColumn('AMOUNT')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'BILL_TOTAL'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('BILL_TOTAL')"
                       [ngClass]="getSortIcon()"
                     ></i>
                   </span>
@@ -472,6 +481,22 @@
                     {{ replaceUnderscore(column) }}
                     <i
                       *ngIf="isSortedColumn('ORG_NAME')"
+                      [ngClass]="getSortIcon()"
+                    ></i>
+                  </span>
+                </ng-container>
+                <ng-container *ngSwitchCase="'LEDGER_NAME'">
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    <i
+                      *ngIf="isSortedColumn('LEDGER_NAME')"
                       [ngClass]="getSortIcon()"
                     ></i>
                   </span>
