@@ -337,8 +337,8 @@ public class ExceptionMonitoringController {
         return new ResponseEntity<>(service.getTspAccountSummaryView(), HttpStatus.OK);
     }
 
-    @GetMapping("/tsp-account-detail-view")
-    public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
-        return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
-    }
+//    @GetMapping("/tsp-account-detail-view")
+//    public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
+//        return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
+//    }
 }

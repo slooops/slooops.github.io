@@ -733,9 +733,9 @@ public class QueryConfigs {
         return this.espWeeklyComparisonSummary;
     }
 
-    @Bean( name = "tspAccountSummaryView" )
-    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
-
-    @Bean( name = "tspAccountDetailView" )
-    public String getTspAccountDetailView() {return this.tspAccountDetailView; }
+//    @Bean( name = "tspAccountSummaryView" )
+//    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
+//
+//    @Bean( name = "tspAccountDetailView" )
+//    public String getTspAccountDetailView() {return this.tspAccountDetailView; }
 }
