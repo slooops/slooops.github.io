@@ -29,36 +29,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
   cancelledPdfChart: Chart | null = null;
   routedMisroutedChart: Chart | null = null;
 
-  sharedChartOptions: ChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'top',
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-      },
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: {
-          display: false,
-        },
-      },
-      y: {
-        beginAtZero: true,
-        // grid: {
-        //   drawBorder: false,
-        // },
-      },
-    },
-  };
-
   ngOnInit(): void {
-    this.initializeCharts();
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
     this.getEspWeeklyComparisonSummary();
@@ -89,7 +60,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
       .get('esp-weekly-comparison-summary', { responseType: 'json' })
       .subscribe((data: any) => {
         this.espWeeklyComparisonSummary = data;
-        console.log(data);
+        console.log('raw graph data', data);
         this.initializeCharts();
       });
   }
@@ -114,6 +85,32 @@ export class EspCaseAnalyzerComponent implements OnInit {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
 
+  sharedChartOptions: ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        // mode: 'index',
+        // intersect: false,
+      },
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   initializeCharts(): void {
     // Destroy existing charts to prevent the canvas reuse error
     this.destroyCharts();
@@ -122,24 +119,91 @@ export class EspCaseAnalyzerComponent implements OnInit {
       new Set(
         this.espWeeklyComparisonSummary.map((item) => `WEEK ${item.WEEK_NUM}`)
       )
-    ).sort();
+    ).sort((a, b) => {
+      const numA = parseInt(a.split(' ')[1], 10);
+      const numB = parseInt(b.split(' ')[1], 10);
+      return numA - numB;
+    });
 
     console.log('labels:', labels);
 
-    const transformData = (quarter: string, category: string) =>
+    const transformData = (relativeQuarter: string, category: string) =>
       labels.map((label) => {
         const weekNum = parseInt(label.split(' ')[1], 10);
         const entry = this.espWeeklyComparisonSummary.find(
           (item) =>
             item.WEEK_NUM === weekNum &&
-            item.FISC_QTR === quarter &&
+            item.RELATIVE_QTR === relativeQuarter &&
             item.CATEGORY === category
         );
-        console.log('entry:', entry);
         return entry ? entry.COUNT : 0;
       });
 
-    // console.log('backlog:', transformData('Q2FY25', 'BACKLOG CASES'));
+    const backlogCurrentQuarter = transformData('CURRENT QUARTER', 'BACKLOG');
+    const backlogPreviousQuarter = transformData('PREVIOUS QUARTER', 'BACKLOG');
+    console.log(
+      'Backlog Current & Previous:',
+      backlogCurrentQuarter,
+      backlogPreviousQuarter
+    );
+
+    const inflowCurrentQuarter = transformData('CURRENT QUARTER', 'INFLOW');
+    const inflowPreviousQuarter = transformData('PREVIOUS QUARTER', 'INFLOW');
+    console.log(
+      'Inflow Current & Previous:',
+      inflowCurrentQuarter,
+      inflowPreviousQuarter
+    );
+
+    const cancelledCurrentQuarter = transformData(
+      'CURRENT QUARTER',
+      'CANCELLED'
+    );
+    const cancelledPreviousQuarter = transformData(
+      'PREVIOUS QUARTER',
+      'CANCELLED'
+    );
+    console.log(
+      'Cancelled Current & Previous:',
+      cancelledCurrentQuarter,
+      cancelledPreviousQuarter
+    );
+
+    const pdfCurrentQuarter = transformData('CURRENT QUARTER', 'PDF');
+    const pdfPreviousQuarter = transformData('PREVIOUS QUARTER', 'PDF');
+    console.log(
+      'PDF Current & Previous:',
+      pdfCurrentQuarter,
+      pdfPreviousQuarter
+    );
+
+    const misroutedCurrentQuarter = transformData(
+      'CURRENT QUARTER',
+      'MISROUTED'
+    );
+    const misroutedPreviousQuarter = transformData(
+      'PREVIOUS QUARTER',
+      'MISROUTED'
+    );
+    console.log(
+      'Misrouted Current & Previous:',
+      misroutedCurrentQuarter,
+      misroutedPreviousQuarter
+    );
+
+    const routedOutCurrentQuarter = transformData(
+      'CURRENT QUARTER',
+      'ROUTED OUT'
+    );
+    const routedOutPreviousQuarter = transformData(
+      'PREVIOUS QUARTER',
+      'ROUTED OUT'
+    );
+    console.log(
+      'Routed Out Current & Previous:',
+      routedOutCurrentQuarter,
+      routedOutPreviousQuarter
+    );
 
     this.backlogInflowChart = new Chart('backlogInflowChart', {
       type: 'bar',
@@ -147,23 +211,56 @@ export class EspCaseAnalyzerComponent implements OnInit {
         labels,
         datasets: [
           {
-            label: 'Backlog Q2FY25',
-            data: transformData('Q2FY25', 'BACKLOG CASES'),
+            label: 'Backlog (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'BACKLOG'),
             backgroundColor: 'rgba(75, 192, 192, 0.6)',
           },
           {
-            label: 'Inflow Q2FY25',
-            data: transformData('Q2FY25', 'INFLOW'),
-            borderColor: 'rgba(255, 159, 64, 1)',
-            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            label: 'Backlog (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'BACKLOG'),
+            backgroundColor: 'rgba(75, 192, 192, 0.3)',
+          },
+          {
+            label: 'Inflow (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'INFLOW'),
+            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+            type: 'line',
+          },
+          {
+            label: 'Inflow (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'INFLOW'),
+            backgroundColor: 'rgba(255, 159, 64, 0.3)',
+            type: 'line',
+          },
+          {
+            label: 'Routed Out (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            type: 'line',
+          },
+          {
+            label: 'Routed Out (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
+            borderColor: 'rgba(54, 162, 235, 0.5)',
+            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'MISROUTED'),
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
+            backgroundColor: 'rgba(255, 99, 132, 0.3)',
             type: 'line',
           },
         ],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
+      options: this.sharedChartOptions,
     });
 
     this.cancelledPdfChart = new Chart('cancelledPdfChart', {
@@ -172,48 +269,30 @@ export class EspCaseAnalyzerComponent implements OnInit {
         labels,
         datasets: [
           {
-            label: 'Cancelled Cases Q2FY25',
-            data: transformData('Q2FY25', 'CANCELLED CASES'),
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            label: 'PDF (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'PDF'),
+            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+          },
+          {
+            label: 'PDF (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'PDF'),
+            backgroundColor: 'rgba(153, 102, 255, 0.3)',
+          },
+          {
+            label: 'Cancelled (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'CANCELLED'),
+            backgroundColor: 'rgba(201, 203, 207, 0.6)',
             type: 'line',
           },
           {
-            label: 'PDF Cases Q2FY25',
-            data: transformData('Q2FY25', 'PDF'),
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
-    });
-
-    this.routedMisroutedChart = new Chart('routedMisroutedChart', {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Misrouted Q2FY25',
-            data: transformData('Q2FY25', 'MISROUTED'),
-            backgroundColor: 'rgba(255, 159, 64, 0.6)',
-          },
-          {
-            label: 'Routed Out Q2FY25',
-            data: transformData('Q2FY25', 'ROUTED OUT'),
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            label: 'Cancelled (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'CANCELLED'),
+            backgroundColor: 'rgba(201, 203, 207, 0.3)',
             type: 'line',
           },
         ],
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      },
+      options: this.sharedChartOptions,
     });
   }
 

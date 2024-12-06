@@ -1,11 +1,18 @@
 <!-- Top navbar  -->
 <div class="row" *ngIf="showNavbar">
-  <mat-toolbar style="background-color: #202428; width: 100%">
-    <div style="width: 100%; display: flex; justify-content: space-between">
+  <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
+    <div
+      style="
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+      "
+    >
       <div style="display: flex; align-items: center; padding: 0px 0 0px">
         <button
           mat-button
-          style="background-color: #202428"
+          style="background-color: #08ace4"
           [matMenuTriggerFor]="menu"
           matTooltip="Menu"
         >
@@ -72,6 +79,14 @@
           {{ header }}
         </h5>
       </div>
+      <div class="custom-search-bar">
+        <input
+          type="text"
+          placeholder="Search Coming Soon..."
+          class="custom-search-input"
+        />
+        <i class="svg-icon search-icon"></i>
+      </div>
 
       <div style="display: flex; align-items: center">
         <i
@@ -105,6 +120,99 @@
           ></i>
         </div>
       </div>
+    </div>
+    <div class="navbar">
+      <ul class="menu">
+        <!-- Home -->
+        <li class="menu-item">
+          <a [routerLink]="'/home'" class="top-link">
+            <i class="svg-icon home-icon"></i>
+          </a>
+        </li>
+
+        <!-- Period Close Tracking -->
+        <li class="menu-item">
+          <a [routerLink]="'/period-close-tracking'" class="top-link">
+            Period Close Tracking
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/period-close-tracking/pre-close'">Pre-Close</a>
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/mid-close'">Mid-Close</a>
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/wd-0-dash'">WD-0 Dash</a>
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/mid-close-volumes'"
+                >Mid-Close Volumes</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/large-deal'"
+                >Large Deal</a
+              >
+            </li>
+          </ul>
+        </li>
+
+        <!-- Invoice to Cash -->
+        <li class="menu-item">
+          <a [routerLink]="'/invoice-to-cash'" class="top-link">
+            Invoice to Cash
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/invoice-to-cash/pre-invoicing'"
+                >Pre-Invoicing</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="'/invoice-to-cash/invoicing'">Invoicing</a>
+            </li>
+            <li>
+              <a [routerLink]="'/invoice-to-cash/e-invoicing'">E-Invoicing</a>
+            </li>
+            <li><a [routerLink]="'/invoice-to-cash/cms'">CMS</a></li>
+            <li><a [routerLink]="'/invoice-to-cash/fusion'">Fusion</a></li>
+          </ul>
+        </li>
+
+        <!-- Revenue Accounting -->
+        <li class="menu-item">
+          <a [routerLink]="'/revenue-accounting'" class="top-link">
+            Revenue Accounting
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/revenue-accounting/standard-revenue'"
+                >Standard Revenue</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="'/revenue-accounting/accruals'">Accruals</a>
+            </li>
+            <li><a [routerLink]="'/revenue-accounting/meraki'">Meraki</a></li>
+            <li>
+              <a [routerLink]="'/revenue-accounting/business-controls'"
+                >Business Controls</a
+              >
+            </li>
+          </ul>
+        </li>
+
+        <!-- GL Posting -->
+        <li class="menu-item">
+          <a [routerLink]="'/gl-posting'" class="top-link"> GL Posting </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/gl-posting/general-ledger'">General Ledger</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
   </mat-toolbar>
 </div>
