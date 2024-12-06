@@ -106,5 +106,7 @@
   "EINVOICING_DETAILS_QUERY": "select * from arfinro.XXCFIR_EINV_ERROR_DTL_DASHBOARD_V",
   "EINVOICING_DETAILS_FILTERED_QUERY": "select * from arfinro.XXCFIR_EINV_ERROR_DTL_DASHBOARD_V WHERE ORG_NAME=? AND PERIOD_NAME=? AND APPLICATION_NAME=? AND PROCESS_FLOW=? AND trunc(TRANSACTION_DATE)=to_date(?,'MM/DD/YYYY')",
   "EINVOICING_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFIR_EINV_ERROR_DASHBOARD set assigned_to=?, assigned_date=sysdate, assigned_by=? ,comments=? where period_name=? AND  batch_source=? AND EINVOICE_PARTNER=? AND entity_name=? AND trx_date=to_date(?,'MM/DD/YYYY')",
+  "TSP_ACCOUNT_SUMMARY_VIEW": "select * from arfinro.TSP_ACCOUNT_SUMMARY_VIEW",
+  "TSP_ACCOUNT_DETAIL_VIEW": "select * * from arfinro.TSP_ACCOUNT_DETAIL_VIEW",
   "CORS_URL": "http://localhost:3000"
 }

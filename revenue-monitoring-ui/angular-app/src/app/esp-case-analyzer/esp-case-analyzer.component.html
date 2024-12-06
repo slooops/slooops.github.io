@@ -1,81 +1,23 @@
-<!-- <div style="margin-top: 1vh">
-  <ng-container *ngIf="dataSourceforCaseSummary?.data?.length > 0">
-    <div style="overflow-x: auto">
-      <table
-        mat-table
-        [dataSource]="dataSourceforCaseSummary"
-        style="width: 100%"
-      >
-        <ng-container *ngFor="let column of displayedColumnsForCaseSummary">
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef>
-              {{ removeUnderscores(column) }}
-            </th>
-            <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-          </ng-container>
-        </ng-container>
+<div class="grid-2" style="margin: 0 12px">
+  <div class="card">
+    <div class="chart-canvas">
+      <!-- Canvas for Backlog, Inflow, Routed Out, Misrouted -->
+      <canvas id="backlogInflowChart"></canvas>
+    </div>
+    <p class="chart-description">
+      <b>Backlog, Inflow, Routed Out, and Misrouted</b> - Displays current and
+      previous quarter data.
+    </p>
+  </div>
 
-        <tr
-          mat-header-row
-          *matHeaderRowDef="displayedColumnsForCaseSummary"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumnsForCaseSummary"
-        ></tr>
-      </table>
+  <div class="card">
+    <div class="chart-canvas">
+      <!-- Canvas for PDF and Cancelled -->
+      <canvas id="cancelledPdfChart"></canvas>
     </div>
-  </ng-container>
-  <ng-container *ngIf="!dataSourceforCaseSummary?.data?.length">
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-    </div>
-  </ng-container>
-</div>
-<br /> -->
-
-<div class="grid-1">
-  <div
-    style="
-      width: 100%;
-      display: flex;
-      flex: 0 1 auto;
-      justify-content: space-between;
-      gap: 1rem;
-    "
-  >
-    <div style="flex: 1" class="card">
-      <div style="position: relative">
-        <!-- Canvas element for the Backlog vs Inflow chart -->
-        <canvas id="backlogInflowChart"></canvas>
-      </div>
-      <p class="chart-description" style="padding-left: 1.5vw">
-        <b>Backlog vs Inflow</b> - Mixed bar and line chart displaying Backlog
-        and Inflow data.
-      </p>
-    </div>
-
-    <div style="flex: 1" class="card">
-      <div style="position: relative">
-        <!-- Canvas element for the Cancelled vs PDF chart -->
-        <canvas id="cancelledPdfChart"></canvas>
-      </div>
-      <p class="chart-description" style="padding-left: 1.5vw">
-        <b>Cancelled vs PDF</b> - Mixed bar and line chart displaying Cancelled
-        and PDF data.
-      </p>
-    </div>
-
-    <div style="flex: 1" class="card">
-      <div style="position: relative">
-        <!-- Canvas element for the Routed vs Misrouted chart -->
-        <canvas id="routedMisroutedChart"></canvas>
-      </div>
-      <p class="chart-description" style="padding-left: 1.5vw">
-        <b>Routed vs Misrouted</b> - Mixed bar and line chart displaying Routed
-        and Misrouted data.
-      </p>
-    </div>
+    <p class="chart-description">
+      <b>PDF and Cancelled</b> - Displays current and previous quarter data.
+    </p>
   </div>
 </div>
 
@@ -130,10 +72,27 @@
             *ngFor="let column of displayedColumnsForCurrentQuarter"
           >
             <ng-container [matColumnDef]="column">
-              <th mat-header-cell *matHeaderCellDef>
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [ngClass]="{
+                  'wide-column':
+                    column === 'SERVICE_OFFERING' ||
+                    column === 'CREATED_TIME' ||
+                    column === 'LAST_UPDATED_TIME'
+                }"
+              >
                 {{ removeUnderscores(column) }}
               </th>
-              <td mat-cell *matCellDef="let element">
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{
+                  'wide-column':
+                    column === 'CREATED_TIME' || column === 'LAST_UPDATED_TIME',
+                  'extra-wide-column': column === 'SERVICE_OFFERING'
+                }"
+              >
                 <ng-container
                   *ngIf="
                     column === 'CREATED_TIME' || column === 'LAST_UPDATED_TIME';
@@ -210,12 +169,13 @@
               <td mat-cell *matCellDef="let element">
                 <ng-container
                   *ngIf="
-                    column === 'CREATED_TIME' || column === 'LAST_UPDATED_TIME';
+                    column === 'CREATED_AT' || column === 'LAST_UPDATED_AT';
                     else defaultCell
                   "
                 >
                   {{ element[column] | date : "medium" }}
                 </ng-container>
+
                 <ng-template #defaultCell>{{ element[column] }}</ng-template>
               </td>
             </ng-container>

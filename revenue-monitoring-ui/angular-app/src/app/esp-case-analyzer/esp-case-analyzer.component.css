@@ -69,3 +69,25 @@ tr.mat-header-row {
   color: #303030 !important;
   margin: -3px 10px 0 0;
 }
+
+table.mat-table .mat-header-cell.wide-column,
+table.mat-table .mat-cell.wide-column {
+  min-width: 18rem;
+}
+table.mat-table .mat-header-cell.wide-column,
+table.mat-table .mat-cell.extra-wide-column {
+  /* min-width: 25rem; */
+}
+
+/* Container for the charts */
+.chart-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+/* Canvas wrapper for positioning */
+.chart-canvas {
+  position: relative;
+  height: 300px; /* Adjust height as needed */
+}

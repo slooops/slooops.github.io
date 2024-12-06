@@ -43,6 +43,8 @@ public class ExceptionMonitoringService {
     private String einvoicingDetails;
     private String einvoicingDetailsFiltered;
     private String eInvoicingSummaryUpdate;
+    private String tspAccountSummaryView;
+    private String tspAccountDetailView;
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
@@ -53,7 +55,7 @@ public class ExceptionMonitoringService {
                                       String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate, String accrualsSummary, String accrualsDetails,
                                       String invoiceToCashSummary,  String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals,
                                       String rolChartDetails, String rolTransactionDataFilter, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
-                                      String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate){
+                                      String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
         this.rolErrorsSummary = rolErrorsSummary;
@@ -86,6 +88,8 @@ public class ExceptionMonitoringService {
         this.einvoicingDetails = einvoicingDetails;
         this.einvoicingDetailsFiltered = einvoicingDetailsFiltered;
         this.eInvoicingSummaryUpdate = eInvoicingSummaryUpdate;
+        this.tspAccountSummaryView = tspAccountSummaryView;
+        this.tspAccountDetailView = tspAccountDetailView;
     }
 
     public List<Map<String, Object>> getRolErrorDetails() {
@@ -442,5 +446,11 @@ public class ExceptionMonitoringService {
         return 1;
     }
 
+    public List<Map<String, Object>> getTspAccountSummaryView() {
+        return jdbcManager.queryForList(tspAccountSummaryView);
+    }
 
+    public List<Map<String, Object>> getTspAccountDetailView() {
+        return jdbcManager.queryForList(tspAccountDetailView);
+    }
 }

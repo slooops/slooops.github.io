@@ -331,4 +331,14 @@ public class ExceptionMonitoringController {
         int test = service.updateEInvoicingErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
+
+    @GetMapping("/tsp-account-summary-view")
+    public ResponseEntity<List<Map<String, Object>>> getTspAccountSummaryView() {
+        return new ResponseEntity<>(service.getTspAccountSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/tsp-account-detail-view")
+    public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
+        return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
+    }
 }
