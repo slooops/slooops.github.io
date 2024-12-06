@@ -33,8 +33,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
     this.getEspWeeklyComparisonSummary();
-    this.getTspAccountSummaryView();
-    this.getTspAccountDetailView();
+    // this.getTspAccountSummaryView();
+    // this.getTspAccountDetailView();
   }
 
   getTspAccountSummaryView() {
