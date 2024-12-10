@@ -64,6 +64,14 @@ export class CustomRevenueComponent implements OnInit {
     { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
   ];
 
+  accountsFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'periodName', columnName: 'PERIOD_NAME' },
+    { formControlName: 'applicationName', columnName: 'APPLICATION_NAME' },
+    // { formControlName: 'orgName', columnName: 'ORG_NAME' },
+    // { formControlName: 'amount', columnName: 'AMOUNT' },
+    // { formControlName: 'transactionDate', columnName: 'TRANSACTION_DATE' },
+  ];
+
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
@@ -75,11 +83,24 @@ export class CustomRevenueComponent implements OnInit {
     '6.Downstream Publish': 0,
   };
 
-  // Define the steps array with both original keys and formatted labels
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
     label: key,
     impact: key,
   }));
+
+  accountsUrls: { [key: string]: string } = {
+    summaryUrl: 'tsp-account-summary-view',
+    detailsUrl: 'tsp-account-detail-view',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  // Define the columns to remove for Accounts (if any specific exclusions are required)
+  accountsSummaryFieldstoRemove: string[] = [];
+  accountsDetailsFieldstoRemove: string[] = [];
 
   // Function to format the label
   formatLabel(label: string): string {
@@ -174,6 +195,11 @@ export class CustomRevenueComponent implements OnInit {
     {
       label: 'Accruals',
       component: 'app-accruals',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Accounts',
+      component: 'app-accounts',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     {

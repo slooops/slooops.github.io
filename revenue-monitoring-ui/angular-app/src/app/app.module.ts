@@ -62,12 +62,10 @@ import { ToolTipRendererDirective } from './tool-tip-renderer.directive';
 import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.component';
 import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
-import { RolComponent } from './custom-revenue/rol/rol.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
-import { AssignDialogComponent } from './custom-revenue/rol/assign-dialog/assign-dialog.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
@@ -78,7 +76,6 @@ import { AutoInvoicingRealComponent } from './invoicing/auto-invoicing-real/auto
 import { MonitoringDashboardComponent } from './monitoring-dashboard/monitoring-dashboard.component';
 import { UserAssignmentComponent } from './monitoring-dashboard/user-assignment/user-assignment.component';
 import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow-tooltip/process-flow-tooltip.component';
-import { AccrualsComponent } from './custom-revenue/accruals/accruals.component';
 import { MatStepperModule } from '@angular/material/stepper';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
@@ -115,12 +112,10 @@ export function initApp(authService: AuthenticationService) {
     CustomToolTipComponent,
     CmsDetailsComponent,
     CmsModalComponent,
-    RolComponent,
     CmsSftpDetailsComponent,
     SbpComponent,
     LoadingSymbolSmallComponent,
     EspCaseAnalyzerComponent,
-    AssignDialogComponent,
     HelpDataComponent,
     InvoicingComponent,
     CustomRevenueComponent,
@@ -130,7 +125,6 @@ export function initApp(authService: AuthenticationService) {
     MonitoringDashboardComponent,
     UserAssignmentComponent,
     ProcessFlowTooltipComponent,
-    AccrualsComponent,
     O2cDemoComponent,
     GlPostingComponent,
   ],

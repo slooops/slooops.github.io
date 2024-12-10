@@ -33,8 +33,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
     this.getEspWeeklyComparisonSummary();
-    // this.getTspAccountSummaryView();
-    // this.getTspAccountDetailView();
+    this.getTspAccountSummaryView();
+    this.getTspAccountDetailView();
   }
 
   getTspAccountSummaryView() {
@@ -74,7 +74,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
       .get('esp-weekly-comparison-summary', { responseType: 'json' })
       .subscribe((data: any) => {
         this.espWeeklyComparisonSummary = data;
-        console.log('raw graph data', data);
+        // console.log('raw graph data', data);
         this.initializeCharts();
       });
   }
@@ -211,7 +211,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
       return numA - numB;
     });
 
-    console.log('labels:', labels);
+    // console.log('labels:', labels);
 
     const transformData = (relativeQuarter: string, category: string) =>
       labels.map((label) => {

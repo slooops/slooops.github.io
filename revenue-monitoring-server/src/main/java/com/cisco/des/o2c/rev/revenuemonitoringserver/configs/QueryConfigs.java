@@ -276,11 +276,11 @@ public class QueryConfigs {
     @Value(("${einvoicing.summary.update.q}"))
     public String eInvoicingSummaryUpdate;
 
-//    @Value(("${tsp.account.summary.view.q}"))
-//    public String tspAccountSummaryView;
-//
-//    @Value(("${tsp.account.detail.view.q}"))
-//    public String tspAccountDetailView;
+    @Value(("${tsp.account.summary.view.q}"))
+    public String tspAccountSummaryView;
+
+    @Value(("${tsp.account.detail.view.q}"))
+    public String tspAccountDetailView;
 
     @Bean(name="eInvoicingSummaryUpdate")
     public String geteInvoicingSummaryUpdate() { return this.eInvoicingSummaryUpdate; }
@@ -733,9 +733,9 @@ public class QueryConfigs {
         return this.espWeeklyComparisonSummary;
     }
 
-//    @Bean( name = "tspAccountSummaryView" )
-//    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
-//
-//    @Bean( name = "tspAccountDetailView" )
-//    public String getTspAccountDetailView() {return this.tspAccountDetailView; }
+    @Bean( name = "tspAccountSummaryView" )
+    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
+
+    @Bean( name = "tspAccountDetailView" )
+    public String getTspAccountDetailView() {return this.tspAccountDetailView; }
 }
