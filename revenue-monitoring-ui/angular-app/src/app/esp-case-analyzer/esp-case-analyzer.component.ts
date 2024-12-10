@@ -37,10 +37,37 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   getEspCaseServiceMetricSummary() {
     this.http.get('esp-case-service-metric-summary').subscribe((data: any) => {
-      // console.log('espCaseServiceMetricSummary:', data);
+      console.log('espCaseServiceMetricSummary:', data);
       if (data && data.length > 0) {
-        this.displayedColumnsForCurrentQuarter = Object.keys(data[0]);
-        this.dataSourceCurrentQuarter = new MatTableDataSource(data);
+        // Filter out rows where RELATIVE_QTR is "PREVIOUS QUARTER"
+        const filteredData = data.filter(
+          (item: any) => item.RELATIVE_QTR !== 'PREVIOUS QUARTER'
+        );
+
+        // Columns to remove
+        const columnsToRemove = [
+          'CREATED_BY',
+          'CREATED_TIME',
+          'LAST_UPDATED_BY',
+          'LAST_UPDATED_TIME',
+          'IS_ACTIVE',
+          'FISC_QTR',
+          'RELATIVE_QTR',
+        ];
+
+        // Remove the specified columns from the filtered data
+        const cleanedData = filteredData.map((item: any) => {
+          columnsToRemove.forEach((column) => {
+            delete item[column];
+          });
+          return item;
+        });
+
+        // Update the table with the cleaned data
+        this.displayedColumnsForCurrentQuarter = Object.keys(
+          cleanedData[0] || {}
+        ); // Handle empty data after filtering
+        this.dataSourceCurrentQuarter = new MatTableDataSource(cleanedData);
       }
     });
   }
@@ -49,8 +76,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.http.get('esp-aging-case-summary').subscribe((data: any) => {
       // console.log('espAgingCaseSummary:', data);
       if (data && data.length > 0) {
-        this.displayedColumnsForAgingBacklog = Object.keys(data[0]);
-        this.dataSourceAgingBacklog = new MatTableDataSource(data);
+        // Columns to remove
+        const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
+
+        // Remove the specified columns from the filtered data
+        const cleanedData = data.map((item: any) => {
+          columnsToRemove.forEach((column) => {
+            delete item[column];
+          });
+          return item;
+        });
+        this.displayedColumnsForAgingBacklog = Object.keys(cleanedData[0]);
+        this.dataSourceAgingBacklog = new MatTableDataSource(cleanedData);
       }
     });
   }
@@ -60,7 +97,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
       .get('esp-weekly-comparison-summary', { responseType: 'json' })
       .subscribe((data: any) => {
         this.espWeeklyComparisonSummary = data;
-        console.log('raw graph data', data);
+        // console.log('raw graph data', data);
         this.initializeCharts();
       });
   }
@@ -112,8 +149,92 @@ export class EspCaseAnalyzerComponent implements OnInit {
   };
 
   initializeCharts(): void {
-    // Destroy existing charts to prevent the canvas reuse error
-    this.destroyCharts();
+    const COLORS = {
+      backlogCurrent: {
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointBorderColor: 'rgba(75, 192, 192, 1)',
+      },
+      backlogPrevious: {
+        backgroundColor: 'rgba(75, 192, 192, 0.3)',
+        borderColor: 'rgba(75, 192, 192, 0.5)',
+        pointBackgroundColor: 'rgba(75, 192, 192, 0.5)',
+        pointBorderColor: 'rgba(75, 192, 192, 0.5)',
+      },
+      inflowCurrent: {
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+        borderColor: 'rgba(255, 159, 64, 1)',
+        pointBackgroundColor: 'rgba(255, 159, 64, 1)',
+        pointBorderColor: 'rgba(255, 159, 64, 1)',
+      },
+      inflowPrevious: {
+        backgroundColor: 'rgba(255, 159, 64, 0.3)',
+        borderColor: 'rgba(255, 159, 64, 0.5)',
+        pointBackgroundColor: 'rgba(255, 159, 64, 0.5)',
+        pointBorderColor: 'rgba(255, 159, 64, 0.5)',
+      },
+      routedOutCurrent: {
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+        pointBorderColor: 'rgba(54, 162, 235, 1)',
+      },
+      routedOutPrevious: {
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        borderColor: 'rgba(54, 162, 235, 0.5)',
+        pointBackgroundColor: 'rgba(54, 162, 235, 0.5)',
+        pointBorderColor: 'rgba(54, 162, 235, 0.5)',
+      },
+      misroutedCurrent: {
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+        pointBorderColor: 'rgba(255, 99, 132, 1)',
+      },
+      misroutedPrevious: {
+        backgroundColor: 'rgba(255, 99, 132, 0.3)',
+        borderColor: 'rgba(255, 99, 132, 0.5)',
+        pointBackgroundColor: 'rgba(255, 99, 132, 0.5)',
+        pointBorderColor: 'rgba(255, 99, 132, 0.5)',
+      },
+      pdfCurrent: {
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        borderColor: 'rgba(153, 102, 255, 1)',
+        pointBackgroundColor: 'rgba(153, 102, 255, 1)',
+        pointBorderColor: 'rgba(153, 102, 255, 1)',
+      },
+      pdfPrevious: {
+        backgroundColor: 'rgba(153, 102, 255, 0.3)',
+        borderColor: 'rgba(153, 102, 255, 0.5)',
+        pointBackgroundColor: 'rgba(153, 102, 255, 0.5)',
+        pointBorderColor: 'rgba(153, 102, 255, 0.5)',
+      },
+      cancelledCurrent: {
+        backgroundColor: 'rgba(201, 203, 207, 0.6)',
+        borderColor: 'rgba(201, 203, 207, 1)',
+        pointBackgroundColor: 'rgba(201, 203, 207, 1)',
+        pointBorderColor: 'rgba(201, 203, 207, 1)',
+      },
+      cancelledPrevious: {
+        backgroundColor: 'rgba(201, 203, 207, 0.3)',
+        borderColor: 'rgba(201, 203, 207, 0.5)',
+        pointBackgroundColor: 'rgba(201, 203, 207, 0.5)',
+        pointBorderColor: 'rgba(201, 203, 207, 0.5)',
+      },
+      totalCurrent: {
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointBorderColor: 'rgba(75, 192, 192, 1)',
+      },
+      totalPrevious: {
+        backgroundColor: 'rgba(75, 192, 192, 0.3)',
+        borderColor: 'rgba(75, 192, 192, 0.5)',
+        pointBackgroundColor: 'rgba(75, 192, 192, 0.5)',
+        pointBorderColor: 'rgba(75, 192, 192, 0.5)',
+      },
+    };
 
     const labels = Array.from(
       new Set(
@@ -125,7 +246,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
       return numA - numB;
     });
 
-    console.log('labels:', labels);
+    // console.log('labels:', labels);
 
     const transformData = (relativeQuarter: string, category: string) =>
       labels.map((label) => {
@@ -139,125 +260,69 @@ export class EspCaseAnalyzerComponent implements OnInit {
         return entry ? entry.COUNT : 0;
       });
 
-    const backlogCurrentQuarter = transformData('CURRENT QUARTER', 'BACKLOG');
-    const backlogPreviousQuarter = transformData('PREVIOUS QUARTER', 'BACKLOG');
-    console.log(
-      'Backlog Current & Previous:',
-      backlogCurrentQuarter,
-      backlogPreviousQuarter
-    );
-
-    const inflowCurrentQuarter = transformData('CURRENT QUARTER', 'INFLOW');
-    const inflowPreviousQuarter = transformData('PREVIOUS QUARTER', 'INFLOW');
-    console.log(
-      'Inflow Current & Previous:',
-      inflowCurrentQuarter,
-      inflowPreviousQuarter
-    );
-
-    const cancelledCurrentQuarter = transformData(
-      'CURRENT QUARTER',
-      'CANCELLED'
-    );
-    const cancelledPreviousQuarter = transformData(
-      'PREVIOUS QUARTER',
-      'CANCELLED'
-    );
-    console.log(
-      'Cancelled Current & Previous:',
-      cancelledCurrentQuarter,
-      cancelledPreviousQuarter
-    );
-
-    const pdfCurrentQuarter = transformData('CURRENT QUARTER', 'PDF');
-    const pdfPreviousQuarter = transformData('PREVIOUS QUARTER', 'PDF');
-    console.log(
-      'PDF Current & Previous:',
-      pdfCurrentQuarter,
-      pdfPreviousQuarter
-    );
-
-    const misroutedCurrentQuarter = transformData(
-      'CURRENT QUARTER',
-      'MISROUTED'
-    );
-    const misroutedPreviousQuarter = transformData(
-      'PREVIOUS QUARTER',
-      'MISROUTED'
-    );
-    console.log(
-      'Misrouted Current & Previous:',
-      misroutedCurrentQuarter,
-      misroutedPreviousQuarter
-    );
-
-    const routedOutCurrentQuarter = transformData(
-      'CURRENT QUARTER',
-      'ROUTED OUT'
-    );
-    const routedOutPreviousQuarter = transformData(
-      'PREVIOUS QUARTER',
-      'ROUTED OUT'
-    );
-    console.log(
-      'Routed Out Current & Previous:',
-      routedOutCurrentQuarter,
-      routedOutPreviousQuarter
-    );
-
     this.backlogInflowChart = new Chart('backlogInflowChart', {
       type: 'bar',
       data: {
         labels,
         datasets: [
           {
-            label: 'Backlog (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'BACKLOG'),
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          },
-          {
             label: 'Backlog (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'BACKLOG'),
-            backgroundColor: 'rgba(75, 192, 192, 0.3)',
+            ...COLORS.backlogPrevious,
+          },
+          {
+            label: 'Backlog (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'BACKLOG'),
+            ...COLORS.backlogCurrent,
           },
           {
             label: 'Inflow (Current Quarter)',
             data: transformData('CURRENT QUARTER', 'INFLOW'),
-            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+            ...COLORS.inflowCurrent,
             type: 'line',
           },
           {
             label: 'Inflow (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'INFLOW'),
-            backgroundColor: 'rgba(255, 159, 64, 0.3)',
+            ...COLORS.inflowPrevious,
             type: 'line',
           },
-          {
-            label: 'Routed Out (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
-            borderColor: 'rgba(54, 162, 235, 1)',
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            type: 'line',
-          },
-          {
-            label: 'Routed Out (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
-            borderColor: 'rgba(54, 162, 235, 0.5)',
-            backgroundColor: 'rgba(54, 162, 235, 0.1)',
-            type: 'line',
-          },
-          {
-            label: 'Misrouted (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'MISROUTED'),
-            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-            type: 'line',
-          },
-          {
-            label: 'Misrouted (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
-            backgroundColor: 'rgba(255, 99, 132, 0.3)',
-            type: 'line',
-          },
+          // {
+          //   label: 'Routed Out (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
+          //   ...COLORS.routedOutCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Routed Out (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
+          //   ...COLORS.routedOutPrevious,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Misrouted (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'MISROUTED'),
+          //   ...COLORS.misroutedCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Misrouted (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
+          //   ...COLORS.misroutedPrevious,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Total (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'TOTAL'),
+          //   ...COLORS.totalCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Total (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'TOTAL'),
+          //   ...COLORS.totalPrevious,
+          //   type: 'line',
+          // },
         ],
       },
       options: this.sharedChartOptions,
@@ -269,25 +334,49 @@ export class EspCaseAnalyzerComponent implements OnInit {
         labels,
         datasets: [
           {
-            label: 'PDF (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'PDF'),
-            backgroundColor: 'rgba(153, 102, 255, 0.6)',
-          },
-          {
             label: 'PDF (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'PDF'),
-            backgroundColor: 'rgba(153, 102, 255, 0.3)',
+            ...COLORS.pdfPrevious,
+          },
+          {
+            label: 'PDF (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'PDF'),
+            ...COLORS.pdfCurrent,
+          },
+          {
+            label: 'Routed Out (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
+            ...COLORS.routedOutCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Routed Out (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
+            ...COLORS.routedOutPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'MISROUTED'),
+            ...COLORS.misroutedCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
+            ...COLORS.misroutedPrevious,
+            type: 'line',
           },
           {
             label: 'Cancelled (Current Quarter)',
             data: transformData('CURRENT QUARTER', 'CANCELLED'),
-            backgroundColor: 'rgba(201, 203, 207, 0.6)',
+            ...COLORS.cancelledCurrent,
             type: 'line',
           },
           {
             label: 'Cancelled (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'CANCELLED'),
-            backgroundColor: 'rgba(201, 203, 207, 0.3)',
+            ...COLORS.cancelledPrevious,
             type: 'line',
           },
         ],

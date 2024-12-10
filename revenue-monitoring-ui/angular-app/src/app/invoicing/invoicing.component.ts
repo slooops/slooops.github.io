@@ -53,80 +53,22 @@ export class InvoicingComponent implements OnInit {
   };
 
   eInvoicingTotals: { [key: string]: number } = {
-    'ICMS-ADJ': 0,
-    XAAS: 0,
-    'SAAS-RIMG-ONL': 0,
-    'XAAS-CCE': 0,
-    'Order Management': 0,
+    BOLTON: 0,
+    SYNCHRO: 0,
+    Esker: 0,
+    SmartBill: 0,
+    SOVOS: 0,
   };
+
+  preAndAutoInvoiceKeysToMap: string[] = [
+    'PERIOD_NAME',
+    'ORG_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'TRANSACTION_DATE',
+  ];
+
   periodStatus: any;
-
-  summaryInputColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'TRANSACTION_DATE',
-    'AGING',
-    'ASSIGNED_TO',
-    'ASSIGNED_DATE',
-    'COMMENTS',
-  ];
-
-  preInvoicingDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_TYPE',
-    'BILL_NUMBER',
-    'SUBSCRIPTION_ID',
-    'BILL_TOTAL',
-    'PAYLOAD_STATUS',
-    'SBP_STAGING_STATUS',
-    'IOL_HOLD',
-    'IOL_PENDING',
-    'IOL_ERROR',
-    'AR_INTERFACE',
-    'AR_INTERFACE_ERROR',
-    'INVOICED',
-    'ERROR_MESSAGE',
-  ];
-
-  autoInvoicingDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'TRANSACTION_DATE',
-    'TRANSACTION_ID',
-    'ERROR_MESSAGE',
-  ];
-
-  einvoicingSummaryInputColumns: string[] = [
-    'PERIOD_NAME',
-    'BATCH_SOURCE',
-    'ENTITY_NAME',
-    'TYPE',
-    'USD_AMOUNT',
-    'AGING',
-    'ASSIGNED_TO',
-    'ASSIGNED_DATE',
-    'COMMENTS',
-  ];
-
-  einvoicingDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'BATCH_SOURCE',
-    'ENTITY_NAME',
-    'TRX_NUMBER',
-    'TRX_DATE',
-    'TYPE',
-    'USD_AMOUNT',
-    'RESP_ERR_MSG',
-  ];
 
   specialWords: string[] = [
     'name',
@@ -172,8 +114,8 @@ export class InvoicingComponent implements OnInit {
   eInvoicingUrls: { [key: string]: string } = {
     summaryUrl: 'einvoicing-error-summary',
     detailsUrl: 'einvoicing-error-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'einvoicing-error-details-filtered',
+    summaryUpdateUrl: 'einvoicing-error-summary-update',
     webexMessageUrl: 'send-message-invoicing',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -422,7 +364,7 @@ display: flex;
 flex-direction: column;
 align-items: center;
 height: 82px;
-width: 1350px;
+width: 760px;
 background: #ffffff;
 top: 0px;
 padding-bottom: 20px;

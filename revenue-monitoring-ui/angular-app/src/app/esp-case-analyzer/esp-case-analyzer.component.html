@@ -76,10 +76,7 @@
                 mat-header-cell
                 *matHeaderCellDef
                 [ngClass]="{
-                  'wide-column':
-                    column === 'SERVICE_OFFERING' ||
-                    column === 'CREATED_TIME' ||
-                    column === 'LAST_UPDATED_TIME'
+                  'extra-wide-column': column === 'SERVICE_OFFERING'
                 }"
               >
                 {{ removeUnderscores(column) }}
@@ -88,8 +85,6 @@
                 mat-cell
                 *matCellDef="let element"
                 [ngClass]="{
-                  'wide-column':
-                    column === 'CREATED_TIME' || column === 'LAST_UPDATED_TIME',
                   'extra-wide-column': column === 'SERVICE_OFFERING'
                 }"
               >
@@ -99,7 +94,7 @@
                     else defaultCell
                   "
                 >
-                  {{ element[column] | date : "medium" }}
+                  {{ element[column] | date : "MM/dd/yy" }}
                 </ng-container>
                 <ng-template #defaultCell>{{ element[column] }}</ng-template>
               </td>
@@ -173,7 +168,7 @@
                     else defaultCell
                   "
                 >
-                  {{ element[column] | date : "medium" }}
+                  {{ element[column] | date : "MM/dd/yy" }}
                 </ng-container>
 
                 <ng-template #defaultCell>{{ element[column] }}</ng-template>

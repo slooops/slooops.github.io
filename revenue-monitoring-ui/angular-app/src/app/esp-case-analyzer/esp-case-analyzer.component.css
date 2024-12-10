@@ -72,11 +72,11 @@ tr.mat-header-row {
 
 table.mat-table .mat-header-cell.wide-column,
 table.mat-table .mat-cell.wide-column {
-  min-width: 18rem;
+  /* min-width: 18rem; */
 }
 table.mat-table .mat-header-cell.wide-column,
 table.mat-table .mat-cell.extra-wide-column {
-  /* min-width: 25rem; */
+  min-width: 25rem;
 }
 
 /* Container for the charts */

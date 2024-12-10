@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { DataService } from 'src/app/providers/data.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -8,7 +16,9 @@ import { ApiHttpService } from 'src/app/providers/http.service';
   templateUrl: './user-assignment.component.html',
   styleUrl: './user-assignment.component.css',
 })
-export class UserAssignmentComponent implements OnInit {
+export class UserAssignmentComponent implements OnInit, OnChanges {
+  @Input() submitKeysToMap: string[] = []; // Keys for submitData
+  @Input() webexKeysToMap: string[] = [];
   @Input() data: any;
   @Input() updateUrl: string;
   @Input() webexUrl: string;
@@ -20,6 +30,8 @@ export class UserAssignmentComponent implements OnInit {
   isAdmin: boolean = false;
   userRoles: String[] = [];
   assignmentUsers: any;
+  submitKeys: string[] = [];
+  webeKeys: string[] = [];
 
   disabledFields = [
     { controlName: 'periodName', label: 'Period Name' },
@@ -83,51 +95,52 @@ export class UserAssignmentComponent implements OnInit {
       comments: [this.data[0].COMMENTS || ''],
     });
   }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['submitKeysToMap'] && changes['webexKeysToMap']) {
+      this.submitKeys = this.submitKeysToMap;
+      this.webeKeys = this.webexKeysToMap;
+    }
+  }
   submitData() {
-    let assigneeName = '';
-    if (this.userRoles.includes('ADMIN')) {
-      assigneeName =
-        this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
-          ? this.updateForm.value.assignedTo
-          : this.data[0].ASSIGNED_TO;
-    } else {
-      assigneeName =
-        this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
-    }
-    let updateData = {};
+    const assigneeName = this.getAssigneeName();
+    const updateData = this.createDynamicObject(
+      assigneeName,
+      this.submitKeys,
+      true
+    );
 
-    if (this.componentName === 'General Ledger') {
-      updateData = {
-        ledgerName: this.data[0].LEDGER_NAME,
-        journalSource: this.data[0].JOURNAL_SOURCE,
-        accountSeg: this.data[0].ACCOUNT_SEG,
-        appName: this.data[0].APPLICATION_NAME,
-        processFlow: this.data[0].PROCESS_FLOW,
-        orgName: this.data[0].ORG_NAME,
-        creationDate: this.data[0].TRANSACTION_DATE,
-        assignedTo: assigneeName,
-        comments:
-          this.updateForm.value.comments !== this.data[0].COMMENTS
-            ? this.updateForm.value.comments
-            : this.data[0].COMMENTS,
-        username: this.username,
-      };
-    } else {
-      updateData = {
-        periodName: this.data[0].PERIOD_NAME,
-        appName: this.data[0].APPLICATION_NAME,
-        processFlow: this.data[0].PROCESS_FLOW,
-        orgName: this.data[0].ORG_NAME,
-        creationDate: this.data[0].TRANSACTION_DATE,
-        assignedTo: assigneeName,
-        comments:
-          this.updateForm.value.comments !== this.data[0].COMMENTS
-            ? this.updateForm.value.comments
-            : this.data[0].COMMENTS,
-        username: this.username,
-      };
-    }
-
+    // if (this.componentName === 'General Ledger') {
+    //   updateData = {
+    //     ledgerName: this.data[0].LEDGER_NAME,
+    //     journalSource: this.data[0].JOURNAL_SOURCE,
+    //     accountSeg: this.data[0].ACCOUNT_SEG,
+    //     appName: this.data[0].APPLICATION_NAME,
+    //     processFlow: this.data[0].PROCESS_FLOW,
+    //     orgName: this.data[0].ORG_NAME,
+    //     creationDate: this.data[0].TRANSACTION_DATE,
+    //     assignedTo: assigneeName,
+    //     comments:
+    //       this.updateForm.value.comments !== this.data[0].COMMENTS
+    //         ? this.updateForm.value.comments
+    //         : this.data[0].COMMENTS,
+    //     username: this.username,
+    //   };
+    // } else {
+    //   updateData = {
+    //     periodName: this.data[0].PERIOD_NAME,
+    //     appName: this.data[0].APPLICATION_NAME,
+    //     processFlow: this.data[0].PROCESS_FLOW,
+    //     orgName: this.data[0].ORG_NAME,
+    //     creationDate: this.data[0].TRANSACTION_DATE,
+    //     assignedTo: assigneeName,
+    //     comments:
+    //       this.updateForm.value.comments !== this.data[0].COMMENTS
+    //         ? this.updateForm.value.comments
+    //         : this.data[0].COMMENTS,
+    //     username: this.username,
+    //   };
+    // }
     console.log('updateData:', updateData);
     this.http
       .post(this.updateUrl, updateData, {
@@ -148,57 +161,19 @@ export class UserAssignmentComponent implements OnInit {
       });
   }
   sendWebexMessage() {
-    let assigneeName = '';
-    if (this.userRoles.includes('ADMIN')) {
-      assigneeName =
-        this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
-          ? this.updateForm.value.assignedTo
-          : this.data[0].ASSIGNED_TO;
-    } else {
-      assigneeName =
-        this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
-    }
+    const assigneeName = this.getAssigneeName();
+    const assignee =
+      this.assignmentUsers.find((data) => data.LOOKUP_CODE === assigneeName)
+        ?.MEANING || assigneeName;
 
-    const assignee = this.assignmentUsers.find(
-      (data) => data.LOOKUP_CODE === assigneeName
-    ).MEANING;
-    let webexMessageData = {};
-    if (this.componentName === 'General Ledger') {
-      webexMessageData = {
-        ledgerName: this.data[0].LEDGER_NAME,
-        journalSource: this.data[0].JOURNAL_SOURCE,
-        accountSeg: this.data[0].ACCOUNT_SEG,
-        appName: this.data[0].APPLICATION_NAME,
-        processFlow: this.data[0].PROCESS_FLOW,
-        orgName: this.data[0].ORG_NAME,
-        date: this.data[0].TRANSACTION_DATE,
-        assignee: assigneeName,
-        comments:
-          this.updateForm.value.comments !== this.data[0].COMMENTS
-            ? this.updateForm.value.comments
-            : this.data[0].COMMENTS,
-        assigner: this.username,
-        componentName: this.componentName,
-      };
-    } else {
-      webexMessageData = {
-        assignee: assignee,
-        assigner: this.username,
-        componentName: this.componentName,
-        periodName: this.data[0].PERIOD_NAME,
-        appName: this.data[0].APPLICATION_NAME,
-        subApp: this.data[0].PROCESS_FLOW,
-        orgName: this.data[0].ORG_NAME,
-        date: this.data[0].TRANSACTION_DATE,
-        amount: this.data[0].AMOUNT,
-        comments:
-          this.updateForm.value.comments !== this.data[0].COMMENTS
-            ? this.updateForm.value.comments
-            : this.data[0].COMMENTS,
-      };
-    }
+    const webexMessageData = this.createDynamicObject(
+      assignee,
+      this.webeKeys,
+      false
+    );
 
     console.log('webexMessageData:', webexMessageData);
+
     this.http
       .post(this.webexUrl, webexMessageData, {
         responseType: 'text',
@@ -217,5 +192,47 @@ export class UserAssignmentComponent implements OnInit {
 
   closeDialog(result: any) {
     this.close.emit(result);
+  }
+
+  private getAssigneeName(): string {
+    return this.userRoles.includes('ADMIN')
+      ? this.updateForm.value.assignedTo !== this.data[0].ASSIGNED_TO
+        ? this.updateForm.value.assignedTo
+        : this.data[0].ASSIGNED_TO
+      : this.data[0].ASSIGNED_TO || this.updateForm.value.assignedTo;
+  }
+
+  private createDynamicObject(
+    assigneeName: string,
+    keysToMap: string[],
+    update: boolean
+  ): any {
+    const result = {
+      assignedTo: assigneeName,
+      comments: this.getUpdatedComments(),
+      username: this.username,
+    };
+
+    if (!update) {
+      result['componentName'] = this.componentName;
+    }
+
+    keysToMap.forEach((key) => {
+      result[this.toCamelCase(key)] = this.data[0][key];
+    });
+
+    return result;
+  }
+
+  private getUpdatedComments(): string {
+    return this.updateForm.value.comments !== this.data[0].COMMENTS
+      ? this.updateForm.value.comments
+      : this.data[0].COMMENTS;
+  }
+
+  private toCamelCase(str: string): string {
+    return str
+      .toLowerCase()
+      .replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
   }
 }

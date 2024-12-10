@@ -41,7 +41,10 @@ public class ExceptionMonitoringService {
     private String glPostingSummaryUpdate;
     private String einvoicingSummary;
     private String einvoicingDetails;
-
+    private String einvoicingDetailsFiltered;
+    private String eInvoicingSummaryUpdate;
+    private String tspAccountSummaryView;
+    private String tspAccountDetailView;
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
@@ -52,7 +55,8 @@ public class ExceptionMonitoringService {
                                       String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate, String accrualsSummary, String accrualsDetails,
                                       String invoiceToCashSummary,  String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals,
                                       String rolChartDetails, String rolTransactionDataFilter, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
-                                      String sbpDetails){
+                                      String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView
+    ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
         this.rolErrorsSummary = rolErrorsSummary;
@@ -83,6 +87,10 @@ public class ExceptionMonitoringService {
         this.glPostingSummaryUpdate = glPostingSummaryUpdate;
         this.einvoicingSummary = einvoicingSummary;
         this.einvoicingDetails = einvoicingDetails;
+        this.einvoicingDetailsFiltered = einvoicingDetailsFiltered;
+        this.eInvoicingSummaryUpdate = eInvoicingSummaryUpdate;
+        this.tspAccountSummaryView = tspAccountSummaryView;
+        this.tspAccountDetailView = tspAccountDetailView;
     }
 
     public List<Map<String, Object>> getRolErrorDetails() {
@@ -91,7 +99,12 @@ public class ExceptionMonitoringService {
             renameKey(data, "OU_NAME", "ORG_NAME");
             renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
             renameKey(data, "ORDERLINEID", "ORDER_LINE_ID");
-            renameKey(data, "ORDERNUMBER_CUSTTRXID", "TRANSACTION_ID");
+            renameKey(data, "INTID_TRXNID_CUSTTRXLINE_GROUPID", "TRANSACTION_ID");
+            data.remove("ERROR_APPLICATION");
+            data.remove("SOURCE");
+            data.remove("CURRENCY_CODE");
+            data.remove("CUSTTRXLINEID");
+            data.remove("ORDERNUMBER_CUSTTRXID");
         });
         return result;
     }
@@ -106,6 +119,9 @@ public class ExceptionMonitoringService {
         result.forEach(data -> {
             renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            data.remove("ASSIGNED_BY");
+            data.remove("CURRENCY_CODE");
+            data.remove("ERROR_APPLICATION");
             formatDateColumns(data, dateColumns);
         });
         return result;
@@ -115,7 +131,7 @@ public class ExceptionMonitoringService {
         String assignedTo = updateData.get("assignedTo");
         String comments = updateData.get("comments");
         String periodName = updateData.get("periodName");
-        String appName = updateData.get("appName");
+        String appName = updateData.get("applicationName");
         String subApp = updateData.get("processFlow");
         String orgName = updateData.get("orgName");
         String assignedBy = updateData.get("username");
@@ -128,11 +144,11 @@ public class ExceptionMonitoringService {
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
-        String ouName = updateData.get("orgName");
-        String processFlow = updateData.get("processFlow");
         String periodName = updateData.get("periodName");
-        String batchSourceName = updateData.get("appName");
-        String creationDate = updateData.get("creationDate");
+        String processFlow = updateData.get("processFlow");
+        String batchSourceName = updateData.get("applicationName");
+        String ouName = updateData.get("orgName");
+        String creationDate = updateData.get("transactionDate");
         int test = jdbcManager.updateAutoInvoiceErrorsSummaryData(autoInvoiceErrorsSummaryUpdate, assignedTo,
                 assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
         return 1;
@@ -142,11 +158,11 @@ public class ExceptionMonitoringService {
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
-        String ouName = updateData.get("orgName");
         String processFlow = updateData.get("processFlow");
-        String creationDate = updateData.get("creationDate");
+        String ouName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updatePreInvoiceErrorsSummaryData(preInvoiceErrorsSummaryUpdate, assignedTo, assignedBy,
-                comments, ouName, creationDate, processFlow);
+                comments, ouName, transactionDate, processFlow);
         return 1;
     }
 
@@ -154,11 +170,10 @@ public class ExceptionMonitoringService {
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
-        String periodName = updateData.get("periodName");
-        String ouName = updateData.get("orgName");
-        String processFlow = updateData.get("processFlow");
+        int sequenceNum = Integer.parseInt(updateData.get("sequenceNum"));
+        System.out.println(updateData);
         int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy,
-                periodName, processFlow, ouName);
+                sequenceNum);
         return 1;
     }
 
@@ -193,19 +208,12 @@ public class ExceptionMonitoringService {
     }
 
     private void renameKey(Map<String, Object> data, String oldKey, String newKey) {
-        // Temporarily hold the entries
         List<Map.Entry<String, Object>> entries = new ArrayList<>(data.entrySet());
-
-        // Clear the original map
         data.clear();
-
-        // Iterate over the entries and modify as needed
         for (Map.Entry<String, Object> entry : entries) {
             if (entry.getKey().equals(oldKey)) {
-                // Replace with new key
                 data.put(newKey, entry.getValue() != null ? entry.getValue().toString() : "");
             } else {
-                // Keep the existing key-value pair
                 data.put(entry.getKey(), entry.getValue());
             }
         }
@@ -238,6 +246,7 @@ public class ExceptionMonitoringService {
         result.forEach(data -> {
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             formatDateColumns(data, dateColumns);
+            data.remove("TRANSACTION_DATE");
         });
         return result;
     }
@@ -256,6 +265,7 @@ public class ExceptionMonitoringService {
             renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
             formatDateColumns(data, dateColumns);
             formatEmptyAmounts(data, emptyAmountColumns);
+            data.remove("TRANSACTION_DATE");
         });
         return result;
     }
@@ -298,6 +308,7 @@ public class ExceptionMonitoringService {
                 appName, operatingUnit, periodName, uniqueId);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
+            renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
             formatDateColumns(data, dateColumns);
             formatEmptyAmounts(data, emptyAmountColumns);
         });
@@ -326,7 +337,7 @@ public class ExceptionMonitoringService {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
-            data.remove("SEQUENCE_NUMBER");
+            renameKey(data, "SEQUENCE_NUMBER", "SEQUENCE_NUM");
             data.remove("ASSIGNED_BY");
         });
         return result;
@@ -361,13 +372,22 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getGlErrorDetails() {
-        return jdbcManager.queryForList(glErrorDetails);
+        List<Map<String, Object>> result = jdbcManager.queryForList(glErrorDetails);
+        result.forEach(data -> {
+            data.remove("TRANSACTION_DATE");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String processFlow, String ledgerName, String applicationName,
                                                         String journalSource, String accountSeg, String transactionDate) {
-        return jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName,
+        List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName,
                 journalSource, accountSeg, transactionDate);
+        result.forEach(data -> {
+            data.remove("TRANSACTION_DATE");
+            data.remove("ACCOUNT");
+        });
+        return result;
     }
 
     public int updateGlErrorSummary(Map<String, String> updateData) {
@@ -376,37 +396,62 @@ public class ExceptionMonitoringService {
         String comments = updateData.get("comments");
         String ledgerName = updateData.get("ledgerName");
         String processFlow = updateData.get("processFlow");
-        String applicationName = updateData.get("appName");
+        String applicationName = updateData.get("applicationName");
         String journalSource = updateData.get("journalSource");
         String accountSeg = updateData.get("accountSeg");
-        String transactionDate = updateData.get("creationDate");
+        String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments,
                 processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
         return 1;
     }
 
-    public List<Map<String, Object>> geteInvoicingSummary() {
+    public List<Map<String, Object>> getEInvoicingSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingSummary);
-        String[] dateColumns = { "ASSIGNED_DATE" };
+        String[] dateColumns = { "ASSIGNED_DATE", "TRANSACTION_DATE" };
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
             data.remove("ASSIGNED_BY");
         });
-
         return result;
     }
 
-    public List<Map<String, Object>> geteInvoicingDetails() {
+    public List<Map<String, Object>> getEInvoicingDetails() {
         List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingDetails);
         result.forEach(data -> {
             renameKey(data,"TRX_NUMBER", "TRANSACTION_ID");
-            data.remove("TRX_DATE");
+            data.remove("TRANSACTION_DATE");
         });
-
         return result;
     }
 
+    public List<Map<String, Object>> getEInvoicingDetailsFiltered(String ouName, String periodName, String appName, String processFlow, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.getEInvoicingDetailsFilter(einvoicingDetailsFiltered, ouName, periodName, appName, processFlow, transactionDate);
+        result.forEach(data -> {
+            renameKey(data,"TRX_NUMBER", "TRANSACTION_ID");
+            data.remove("TRANSACTION_DATE");
+        });
+        return result;
+    }
 
+    public int updateEInvoicingErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String appName = updateData.get("applicationName");
+        String ouName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        int test = jdbcManager.updateEInvoicingSummary(eInvoicingSummaryUpdate, assignedTo, assignedBy, comments, periodName, appName,
+                processFlow, ouName, transactionDate);
+        return 1;
+    }
 
+    public List<Map<String, Object>> getTspAccountSummaryView() {
+        return jdbcManager.queryForList(tspAccountSummaryView);
+    }
 
+    public List<Map<String, Object>> getTspAccountDetailView() {
+        return jdbcManager.queryForList(tspAccountDetailView);
+    }
 }

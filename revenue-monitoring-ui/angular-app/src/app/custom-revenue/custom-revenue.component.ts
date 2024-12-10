@@ -36,32 +36,6 @@ export class CustomRevenueComponent implements OnInit {
     XLA_AE_HEADERS: 0,
   };
 
-  summaryInputColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'TRANSACTION_DATE',
-    'AGING',
-    'ASSIGNED_TO',
-    'ASSIGNED_DATE',
-    'COMMENTS',
-  ];
-
-  rolDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'PROCESS_STATUS',
-    'SOURCE',
-    'TRANSACTION_ID',
-    'ORDER_LINE_ID',
-    'ERROR_MESSAGE',
-  ];
-
   rolUrls: { [key: string]: string } = {
     summaryUrl: 'rol-errors-summary',
     detailsUrl: 'rol-transaction-data',
@@ -90,6 +64,14 @@ export class CustomRevenueComponent implements OnInit {
     { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
   ];
 
+  accountsFilters: { formControlName: string; columnName: string }[] = [
+    { formControlName: 'periodName', columnName: 'PERIOD_NAME' },
+    { formControlName: 'applicationName', columnName: 'APPLICATION_NAME' },
+    // { formControlName: 'orgName', columnName: 'ORG_NAME' },
+    // { formControlName: 'amount', columnName: 'AMOUNT' },
+    // { formControlName: 'transactionDate', columnName: 'TRANSACTION_DATE' },
+  ];
+
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
@@ -101,11 +83,20 @@ export class CustomRevenueComponent implements OnInit {
     '6.Downstream Publish': 0,
   };
 
-  // Define the steps array with both original keys and formatted labels
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
     label: key,
     impact: key,
   }));
+
+  accountsUrls: { [key: string]: string } = {
+    summaryUrl: 'tsp-account-summary-view',
+    detailsUrl: 'tsp-account-detail-view',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
 
   // Function to format the label
   formatLabel(label: string): string {
@@ -124,19 +115,18 @@ export class CustomRevenueComponent implements OnInit {
       .join(' '); // Join words back with spaces
   }
 
+  rolAndAccrualsKeysToMap: string[] = [
+    'PERIOD_NAME',
+    'ORG_NAME',
+    'APPLICATION_NAME',
+    'PROCESS_FLOW',
+    'SEQUENCE_NUM',
+  ];
+
   periodStatus: any;
 
-  accrualsDetailsColumns: string[] = [
-    'PERIOD_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'AMOUNT',
-    'PROCESS_STATUS',
-    'SOURCE',
-    'SUBREF_ORDER',
-    'TRXN_UNIQUE_ID',
-    'ERROR_MESSAGE',
-  ];
+  rolSummaryFieldstoRemove: string[] = ['SEQUENCE_NUM'];
+  rolDetailsFieldstoRemove: string[] = ['SEQUENCE_NUM'];
 
   specialWords: string[] = [
     'name',
@@ -201,6 +191,11 @@ export class CustomRevenueComponent implements OnInit {
     {
       label: 'Accruals',
       component: 'app-accruals',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Account Recon',
+      component: 'app-accounts',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     {

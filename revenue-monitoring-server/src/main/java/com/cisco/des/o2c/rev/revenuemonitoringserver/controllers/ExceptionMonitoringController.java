@@ -27,20 +27,20 @@ public class ExceptionMonitoringController {
 
     @GetMapping("/rol-transaction-data-filter")
     public ResponseEntity<Map<String, Object>> getRolTransactionDataFilter(@RequestParam List<String> periodNames,
-                                                                           @RequestParam List<String> ouNames,
-                                                                           @RequestParam List<String> appNames,
+                                                                           @RequestParam List<String> orgNames,
+                                                                           @RequestParam List<String> applicationNames,
                                                                            @RequestParam List<String> processFlows,
-                                                                           @RequestParam List<String> uniqueIds) {
+                                                                           @RequestParam List<String> sequenceNums) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
-                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), sequenceNums.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
-                String ouName = ouNames.get(i);
-                String appName = appNames.get(i);
-                String uniqueId = uniqueIds.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String uniqueId = sequenceNums.get(i);
                 List<Map<String, Object>> result = service.getRolTransactionDetailsFilter(periodName, ouName, appName,
                         uniqueId);
                 errorDetailsFiltered.addAll(result);
@@ -87,23 +87,23 @@ public class ExceptionMonitoringController {
     @GetMapping("/auto-invoice-error-details-filtered")
     public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(
             @RequestParam List<String> periodNames,
-            @RequestParam List<String> ouNames,
-            @RequestParam List<String> appNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
             @RequestParam List<String> processFlows,
-            @RequestParam List<String> uniqueIds) {
+            @RequestParam List<String> transactionDates) {
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
-                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
-                String ouName = ouNames.get(i);
-                String appName = appNames.get(i);
-                String uniqueId = uniqueIds.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
                 List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName,
-                        periodName, uniqueId);
+                        periodName, transactionDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -116,23 +116,23 @@ public class ExceptionMonitoringController {
 
     @GetMapping("/pre-invoice-error-details-filtered")
     public ResponseEntity<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(@RequestParam List<String> periodNames,
-                                                                                 @RequestParam List<String> ouNames,
-                                                                                 @RequestParam List<String> appNames,
+                                                                                 @RequestParam List<String> orgNames,
+                                                                                 @RequestParam List<String> applicationNames,
                                                                                  @RequestParam List<String> processFlows,
-                                                                                 @RequestParam List<String> uniqueIds) {
+                                                                                 @RequestParam List<String> transactionDates) {
 
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
-                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
-                String ouName = ouNames.get(i);
-                String appName = appNames.get(i);
-                String uniqueId = uniqueIds.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
                 List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName,
-                        periodName, uniqueId);
+                        periodName, transactionDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -146,20 +146,20 @@ public class ExceptionMonitoringController {
 
     @GetMapping("/accruals-details-filtered")
     public ResponseEntity<Map<String, Object>> getAccrualsErrorDetailsFiltered(@RequestParam List<String> periodNames,
-                                                                               @RequestParam List<String> ouNames,
-                                                                               @RequestParam List<String> appNames,
+                                                                               @RequestParam List<String> orgNames,
+                                                                               @RequestParam List<String> applicationNames,
                                                                                @RequestParam List<String> processFlows,
-                                                                               @RequestParam List<String> uniqueIds) {
+                                                                               @RequestParam List<String> sequenceNums) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(ouNames.size(),
-                    Math.min(appNames.size(), Math.min(processFlows.size(), uniqueIds.size()))));
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), sequenceNums.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
-                String ouName = ouNames.get(i);
+                String ouName = orgNames.get(i);
                 String processFlow = processFlows.get(i);
-                String uniqueId = uniqueIds.get(i);
+                String uniqueId = sequenceNums.get(i);
                 List<Map<String, Object>> result = service.getAccrualsDetailsFiltered(periodName, ouName, processFlow,
                         uniqueId);
                 errorDetailsFiltered.addAll(result);
@@ -250,22 +250,22 @@ public class ExceptionMonitoringController {
     @GetMapping("/gl-details-filtered")
     public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
                                                                     @RequestParam List<String> ledgerNames,
-                                                                    @RequestParam List<String> appNames,
+                                                                    @RequestParam List<String> applicationNames,
                                                                     @RequestParam List<String> journalSources,
-                                                                    @RequestParam List<String> accountSeg,
-                                                                    @RequestParam List<String> uniqueIds) {
+                                                                    @RequestParam List<String> accountSegs,
+                                                                    @RequestParam List<String> transactionDates) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(appNames.size(),
-                    Math.min(processFlows.size(), Math.min(accountSeg.size(), uniqueIds.size())))));
+            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(applicationNames.size(),
+                    Math.min(processFlows.size(), Math.min(accountSegs.size(), transactionDates.size())))));
 
             for (int i = 0; i < minLength; i++) {
                 String processFlow = processFlows.get(i);
                 String ledgerName = ledgerNames.get(i);
-                String appName = appNames.get(i);
+                String appName = applicationNames.get(i);
                 String journalSource = journalSources.get(i);
-                String accountseg = accountSeg.get(i);
-                String uniqueId = uniqueIds.get(i);
+                String accountseg = accountSegs.get(i);
+                String uniqueId = transactionDates.get(i);
                 List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow, ledgerName, appName,
                         journalSource, accountseg, uniqueId);
                 errorDetailsFiltered.addAll(result);
@@ -287,11 +287,58 @@ public class ExceptionMonitoringController {
 
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {
-        return new ResponseEntity<>(service.geteInvoicingSummary(), HttpStatus.OK);
+        return new ResponseEntity<>(service.getEInvoicingSummary(), HttpStatus.OK);
     }
 
     @GetMapping("/einvoicing-error-details")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorDetails() {
-        return new ResponseEntity<>(service.geteInvoicingDetails(), HttpStatus.OK);
+        return new ResponseEntity<>(service.getEInvoicingDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/einvoicing-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getEInvoiceErrorDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> transactionDates) {
+
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String processFlow = processFlows.get(i);
+                String transactionDate = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getEInvoicingDetailsFiltered(ouName, periodName, appName,
+                        processFlow, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/einvoicing-error-summary-update")
+    public ResponseEntity<String> updateEInvoicingErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateEInvoicingErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
+    @GetMapping("/tsp-account-summary-view")
+    public ResponseEntity<List<Map<String, Object>>> getTspAccountSummaryView() {
+        return new ResponseEntity<>(service.getTspAccountSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/tsp-account-detail-view")
+    public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
+        return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
     }
 }

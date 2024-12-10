@@ -70,8 +70,8 @@ public class JdbcManager {
         return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
     }
 
-    public int updateAccrualsErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, String periodName, String processFlow, String ouName){
-        return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, periodName, processFlow, ouName);
+    public int updateAccrualsErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy, int sequenceNum){
+        return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, sequenceNum);
     }
 
     public List<Map<String, Object>> getRolTransactionDataFilter(String sql, String periodName, String ouName, String applicationName, int uniqueId) {
@@ -79,12 +79,19 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String sql, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate) {
-        System.out.println(sql);
         return jdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
     }
 
     public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy,String comments, String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg, String transactionDate){
         return jdbcTemplate.update(sql, assignedTo, assignedBy, comments , processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate );
+    }
+
+    public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName, String appName, String processFlow, String transactionDate) { 
+        return jdbcTemplate.queryForList(sql, ouName, periodName, appName, processFlow, transactionDate);
+    }
+
+    public int updateEInvoicingSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName, String appName, String processFlow, String ouName, String transactionDate) {
+        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, appName, processFlow, ouName, transactionDate );
     }
 
 }

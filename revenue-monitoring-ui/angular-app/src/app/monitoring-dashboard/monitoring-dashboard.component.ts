@@ -32,7 +32,7 @@ export class MonitoringDashboardComponent<T>
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
   @Input() urls: { [key: string]: string };
-  @Input() fieldKey: string;
+  @Input() keysToMap: string[];
   @Input() processFlowKeys: { [key: string]: number };
   @Input() periodStatus: any;
   @Input() componentName: string;
@@ -45,6 +45,10 @@ export class MonitoringDashboardComponent<T>
   @Input() isSubAppMapping: boolean = false;
   @Input() warningMessage: string = '';
   @Input() columnsToFilter: { formControlName: string; columnName: string }[];
+  @Input() summaryColumnsToHide: string[] = [];
+  @Input() detailsColumnsToHide: string[] = [];
+  @Input() submitKeysToMap: string[] = [];
+  @Input() webexKeysToMap: string[] = [];
   periodName: string = '';
   periodEnd: string = '';
   totalImpactData$: Observable<any>;
@@ -118,6 +122,9 @@ export class MonitoringDashboardComponent<T>
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
         }
+        this.summaryColumns = this.summaryColumns.filter(
+          (data) => !this.summaryColumnsToHide.includes(data)
+        );
         this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
         const totals = this.calculateTotalsByProcessFlow(data);
         this.dataService.setTabData(this.componentName, totals);
@@ -374,6 +381,7 @@ export class MonitoringDashboardComponent<T>
       this.dataSource.paginator = this.detailsPaginator;
       this.filtereddataSource = null;
       this.detailsPaginator.length = this.totalRecords;
+      this.filterData();
       this.cdr.detectChanges();
     }
   }
@@ -405,7 +413,7 @@ export class MonitoringDashboardComponent<T>
       this.cdr.detectChanges();
       setTimeout(() => {
         this.getErrorSummary();
-      }, 1000);
+      }, 0);
     }
   }
 
@@ -437,6 +445,9 @@ export class MonitoringDashboardComponent<T>
         if (this.errorDetails.length > 0) {
           this.detailsDisplayedColumns = Object.keys(this.errorDetails[0]);
         }
+        this.detailsDisplayedColumns = this.detailsDisplayedColumns.filter(
+          (data) => !this.detailsColumnsToHide.includes(data)
+        );
         this.errorDetails.forEach((row) => {
           row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
           this.detailsDisplayedColumns.forEach((column) => {
@@ -466,28 +477,21 @@ export class MonitoringDashboardComponent<T>
     });
   }
 
+  camelCase(str) {
+    const camelKey = str
+      .toLowerCase()
+      .replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
+    return `${camelKey}s`;
+  }
+
   getErrorDetailsFiltered(data: any) {
     this.isLoading = true;
     this.isFiltered = true;
-    const periodNames = data.map((row) => row.PERIOD_NAME);
-    const ouNames = data.map((row) => row.ORG_NAME);
-    const appNames = data.map((row) => row.APPLICATION_NAME);
-    const processFlows = data.map((row) => row.PROCESS_FLOW);
-    const uniqueIds = data.map((row) => row[this.fieldKey]);
-    const ledgerNames = data.map((row) => row.LEDGER_NAME);
-    const journalSources = data.map((row) => row.JOURNAL_SOURCE);
-    const accountSeg = data.map((row) => row.ACCOUNT_SEG);
-
-    const pageRequest = {
-      periodNames: periodNames.join(','),
-      ouNames: ouNames.join(','),
-      appNames: appNames.join(','),
-      processFlows: processFlows.join(','),
-      uniqueIds: uniqueIds.join(','),
-      ledgerNames: ledgerNames.join(','),
-      journalSources: journalSources.join(','),
-      accountSeg: accountSeg.join(','),
-    };
+    const pageRequest = this.keysToMap.reduce((acc, key) => {
+      const keyName = this.camelCase(key);
+      acc[keyName] = data.map((row) => row[key]).join(',');
+      return acc;
+    }, {});
 
     this.http
       .get(this.urls['filteredDetailsUrl'], { params: pageRequest })
@@ -534,12 +538,20 @@ export class MonitoringDashboardComponent<T>
     if (this.isFiltered) {
       this.errorDetailsFiltered.forEach((data) => {
         processFlowTemp.push(data.PROCESS_FLOW);
-        orgNameTemp.push(data.ORG_NAME);
+        if (this.componentName === 'General Ledger') {
+          orgNameTemp.push(data.LEDGER_NAME);
+        } else {
+          orgNameTemp.push(data.ORG_NAME);
+        }
       });
     } else {
       this.errorDetails.forEach((data) => {
         processFlowTemp.push(data.PROCESS_FLOW);
-        orgNameTemp.push(data.ORG_NAME);
+        if (this.componentName === 'General Ledger') {
+          orgNameTemp.push(data.LEDGER_NAME);
+        } else {
+          orgNameTemp.push(data.ORG_NAME);
+        }
       });
     }
     this.processFlowOptions = [...new Set(processFlowTemp)];
@@ -591,6 +603,8 @@ export class MonitoringDashboardComponent<T>
     const matchesOrgName =
       !filters['orgNameFilter'] || filters['orgNameFilter'].length === 0
         ? true
+        : this.componentName === 'General Ledger'
+        ? filters['orgNameFilter'].includes(data['LEDGER_NAME'])
         : filters['orgNameFilter'].includes(data['ORG_NAME']);
     const matchesTextFilters = this.columnsToFilter.every((column) => {
       const filterValue = filters[column.formControlName + 'Filter'] || '';

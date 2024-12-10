@@ -270,6 +270,22 @@ public class QueryConfigs {
     @Value(("${esp.weekly.comparison.summary.q}"))
     public String espWeeklyComparisonSummary;
 
+    @Value(("${einvoicing.details.filtered.q}"))
+    public String einvoicingDetailsFiltered;
+
+    @Value(("${einvoicing.summary.update.q}"))
+    public String eInvoicingSummaryUpdate;
+
+    @Value(("${tsp.account.summary.view.q}"))
+    public String tspAccountSummaryView;
+
+    @Value(("${tsp.account.detail.view.q}"))
+    public String tspAccountDetailView;
+
+    @Bean(name="eInvoicingSummaryUpdate")
+    public String geteInvoicingSummaryUpdate() { return this.eInvoicingSummaryUpdate; }
+    @Bean(name="einvoicingDetailsFiltered")
+    public String getEinvoicingDetailsFiltered() { return this.einvoicingDetailsFiltered; }
     @Bean(name = "glErrorDetails")
     public String getGlErrorDetails() {
         return this.glErrorDetails;
@@ -716,4 +732,10 @@ public class QueryConfigs {
     public String getEspWeeklyComparisonSummary() {
         return this.espWeeklyComparisonSummary;
     }
+
+    @Bean( name = "tspAccountSummaryView" )
+    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
+
+    @Bean( name = "tspAccountDetailView" )
+    public String getTspAccountDetailView() {return this.tspAccountDetailView; }
 }

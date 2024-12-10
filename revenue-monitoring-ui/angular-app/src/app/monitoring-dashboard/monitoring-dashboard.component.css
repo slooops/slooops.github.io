@@ -103,6 +103,7 @@ tr.mat-header-row {
 .error-message-cell {
   min-width: 40vw;
   max-width: 40vw;
+  text-wrap: wrap;
 }
 
 .comments-cell {
@@ -414,9 +415,5 @@ tr.mat-header-row {
 }
 
 .mat-column-PROCESS_FLOW {
-  text-wrap: nowrap;
-}
-
-.mat-column-ERROR_MESSAGE {
   text-wrap: nowrap;
 }
