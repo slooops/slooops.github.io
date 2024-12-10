@@ -37,11 +37,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   getEspCaseServiceMetricSummary() {
     this.http.get('esp-case-service-metric-summary').subscribe((data: any) => {
-      console.log('espCaseServiceMetricSummary:', data);
       if (data && data.length > 0) {
         // Filter out rows where RELATIVE_QTR is "PREVIOUS QUARTER"
         const filteredData = data.filter(
-          (item: any) => item.RELATIVE_QTR !== 'PREVIOUS QUARTER'
+          (item: any) =>
+            item.RELATIVE_QTR !== 'PREVIOUS QUARTER' &&
+            item.RELATIVE_QTR !== 'OTHER'
         );
 
         // Columns to remove
@@ -74,18 +75,31 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   getEspAgingCaseSummary() {
     this.http.get('esp-aging-case-summary').subscribe((data: any) => {
-      // console.log('espAgingCaseSummary:', data);
+      console.log('espAgingCaseSummary:', data);
       if (data && data.length > 0) {
         // Columns to remove
         const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
 
-        // Remove the specified columns from the filtered data
-        const cleanedData = data.map((item: any) => {
-          columnsToRemove.forEach((column) => {
-            delete item[column];
+        // Columns to check for non-zero values
+        const columnsToCheck = [
+          'LESS_THAN_5',
+          'BETWEEN_5_10',
+          'BETWEEN_10_15',
+          'GREATER_THAN_15',
+        ];
+
+        // Remove the specified columns and filter out rows with all zero values in the specified columns
+        const cleanedData = data
+          .map((item: any) => {
+            columnsToRemove.forEach((column) => {
+              delete item[column];
+            });
+            return item;
+          })
+          .filter((item: any) => {
+            return columnsToCheck.some((column) => item[column] !== 0);
           });
-          return item;
-        });
+
         this.displayedColumnsForAgingBacklog = Object.keys(cleanedData[0]);
         this.dataSourceAgingBacklog = new MatTableDataSource(cleanedData);
       }
@@ -276,17 +290,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
             ...COLORS.backlogCurrent,
           },
           {
-            label: 'Inflow (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'INFLOW'),
-            ...COLORS.inflowCurrent,
-            type: 'line',
-          },
-          {
             label: 'Inflow (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'INFLOW'),
             ...COLORS.inflowPrevious,
             type: 'line',
           },
+          {
+            label: 'Inflow (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'INFLOW'),
+            ...COLORS.inflowCurrent,
+            type: 'line',
+          },
+
           // {
           //   label: 'Routed Out (Current Quarter)',
           //   data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
@@ -344,21 +359,15 @@ export class EspCaseAnalyzerComponent implements OnInit {
             ...COLORS.pdfCurrent,
           },
           {
-            label: 'Routed Out (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
-            ...COLORS.routedOutCurrent,
-            type: 'line',
-          },
-          {
             label: 'Routed Out (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
             ...COLORS.routedOutPrevious,
             type: 'line',
           },
           {
-            label: 'Misrouted (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'MISROUTED'),
-            ...COLORS.misroutedCurrent,
+            label: 'Routed Out (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
+            ...COLORS.routedOutCurrent,
             type: 'line',
           },
           {
@@ -368,15 +377,21 @@ export class EspCaseAnalyzerComponent implements OnInit {
             type: 'line',
           },
           {
-            label: 'Cancelled (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'CANCELLED'),
-            ...COLORS.cancelledCurrent,
+            label: 'Misrouted (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'MISROUTED'),
+            ...COLORS.misroutedCurrent,
             type: 'line',
           },
           {
             label: 'Cancelled (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'CANCELLED'),
             ...COLORS.cancelledPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Cancelled (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'CANCELLED'),
+            ...COLORS.cancelledCurrent,
             type: 'line',
           },
         ],

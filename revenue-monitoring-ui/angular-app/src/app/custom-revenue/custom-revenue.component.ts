@@ -193,16 +193,17 @@ export class CustomRevenueComponent implements OnInit {
       component: 'app-accruals',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
-    {
-      label: 'Account Recon',
-      component: 'app-accounts',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    },
+
     {
       label: 'Meraki',
       component: 'app-eInvoicing',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
+    },
+    {
+      label: 'Account Recon',
+      component: 'app-accounts',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     {
       label: 'Business Controls',
