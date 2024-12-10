@@ -9,11 +9,11 @@
   (close)="closeAssignModal($event)"
 ></app-user-assignment>
 
-<ng-template #warningToolTip>
+<!-- <ng-template #warningToolTip>
   <span>
     <p>{{ warningMessage }}</p>
   </span>
-</ng-template>
+</ng-template> -->
 
 <ng-template #escalationToolTip>
   <span>
@@ -222,12 +222,14 @@
                     </div>
                   </ng-container>
                   <ng-container *ngSwitchCase="'APPLICATION_NAME'">
-                    <span
+                    <!-- <span
                       [customToolTip]="'true'"
                       [contentTemplate]="warningToolTip"
                     >
                       {{ element[column] }}
-                    </span>
+                    </span> -->
+
+                    {{ element[column] }}
                   </ng-container>
                   <ng-container *ngSwitchDefault>
                     {{ element[column] }}

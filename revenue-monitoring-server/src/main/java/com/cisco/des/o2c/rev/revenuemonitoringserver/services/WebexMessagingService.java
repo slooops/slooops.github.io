@@ -51,7 +51,7 @@ public class WebexMessagingService {
 
     public String sendWebexMessageInvoicing(Map<String, String> updateData) {
         String message = "Hi <@personEmail:"+ updateData.get("assignedTo")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("username")+"@cisco.com>. Following are the details of the error:\n" +
-                "Period Name: "+updateData.get("periodName")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nOrg Name: "+updateData.get("orgName")+"\nAmount: "+updateData.get("amount")+"\nTransaction Date: "+updateData.get("date")+"\n Comments: "+updateData.get("comments");
+                "Period Name: "+updateData.get("periodName")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nOrg Name: "+updateData.get("orgName")+"\nAmount: "+updateData.get("amount")+"\nTransaction Date: "+updateData.get("transactionDate")+"\n Comments: "+updateData.get("comments");
 
         MessageRequestModel messageRequestModel = new MessageRequestModel();
         messageRequestModel.setRoomId(roomIdInvoicing);
@@ -70,7 +70,7 @@ public class WebexMessagingService {
 
     public String sendWebexMessageGlPosting(Map<String, String> updateData) {
         String message = "Hi <@personEmail:"+ updateData.get("assignedTo")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("username")+"@cisco.com>. Following are the details of the error:\n" +
-                "Journal Source Name: "+updateData.get("journalSource")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nLedger Name: "+updateData.get("ledgerName")+"\nAccount Seg: "+updateData.get("accountSeg")+"\nTransaction Date: "+updateData.get("date")+"\n Comments: "+updateData.get("comments");
+                "Journal Source Name: "+updateData.get("journalSource")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nLedger Name: "+updateData.get("ledgerName")+"\nAccount Seg: "+updateData.get("accountSeg")+"\nTransaction Date: "+updateData.get("transactionDate")+"\n Comments: "+updateData.get("comments");
 
         MessageRequestModel messageRequestModel = new MessageRequestModel();
         messageRequestModel.setRoomId("Y2lzY29zcGFyazovL3VzL1JPT00vZGMxNzFjNDAtYTJlNC0xMWVmLTg4YjEtZmJhODc1YmQ2ZWQ3");
