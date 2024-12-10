@@ -33,28 +33,41 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
     this.getEspWeeklyComparisonSummary();
-    this.getTspAccountSummaryView();
-    this.getTspAccountDetailView();
-  }
-
-  getTspAccountSummaryView() {
-    this.http.get('tsp-account-summary-view').subscribe((data: any) => {
-      console.log('tspAccountSummaryView:', data);
-    });
-  }
-
-  getTspAccountDetailView() {
-    this.http.get('tsp-account-detail-view').subscribe((data: any) => {
-      console.log('tspAccountDetailView:', data);
-    });
   }
 
   getEspCaseServiceMetricSummary() {
     this.http.get('esp-case-service-metric-summary').subscribe((data: any) => {
-      // console.log('espCaseServiceMetricSummary:', data);
+      console.log('espCaseServiceMetricSummary:', data);
       if (data && data.length > 0) {
-        this.displayedColumnsForCurrentQuarter = Object.keys(data[0]);
-        this.dataSourceCurrentQuarter = new MatTableDataSource(data);
+        // Filter out rows where RELATIVE_QTR is "PREVIOUS QUARTER"
+        const filteredData = data.filter(
+          (item: any) => item.RELATIVE_QTR !== 'PREVIOUS QUARTER'
+        );
+
+        // Columns to remove
+        const columnsToRemove = [
+          'CREATED_BY',
+          'CREATED_TIME',
+          'LAST_UPDATED_BY',
+          'LAST_UPDATED_TIME',
+          'IS_ACTIVE',
+          'FISC_QTR',
+          'RELATIVE_QTR',
+        ];
+
+        // Remove the specified columns from the filtered data
+        const cleanedData = filteredData.map((item: any) => {
+          columnsToRemove.forEach((column) => {
+            delete item[column];
+          });
+          return item;
+        });
+
+        // Update the table with the cleaned data
+        this.displayedColumnsForCurrentQuarter = Object.keys(
+          cleanedData[0] || {}
+        ); // Handle empty data after filtering
+        this.dataSourceCurrentQuarter = new MatTableDataSource(cleanedData);
       }
     });
   }
@@ -63,8 +76,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.http.get('esp-aging-case-summary').subscribe((data: any) => {
       // console.log('espAgingCaseSummary:', data);
       if (data && data.length > 0) {
-        this.displayedColumnsForAgingBacklog = Object.keys(data[0]);
-        this.dataSourceAgingBacklog = new MatTableDataSource(data);
+        // Columns to remove
+        const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
+
+        // Remove the specified columns from the filtered data
+        const cleanedData = data.map((item: any) => {
+          columnsToRemove.forEach((column) => {
+            delete item[column];
+          });
+          return item;
+        });
+        this.displayedColumnsForAgingBacklog = Object.keys(cleanedData[0]);
+        this.dataSourceAgingBacklog = new MatTableDataSource(cleanedData);
       }
     });
   }
@@ -199,6 +222,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
         pointBackgroundColor: 'rgba(201, 203, 207, 0.5)',
         pointBorderColor: 'rgba(201, 203, 207, 0.5)',
       },
+      totalCurrent: {
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+        pointBorderColor: 'rgba(75, 192, 192, 1)',
+      },
+      totalPrevious: {
+        backgroundColor: 'rgba(75, 192, 192, 0.3)',
+        borderColor: 'rgba(75, 192, 192, 0.5)',
+        pointBackgroundColor: 'rgba(75, 192, 192, 0.5)',
+        pointBorderColor: 'rgba(75, 192, 192, 0.5)',
+      },
     };
 
     const labels = Array.from(
@@ -231,14 +266,14 @@ export class EspCaseAnalyzerComponent implements OnInit {
         labels,
         datasets: [
           {
-            label: 'Backlog (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'BACKLOG'),
-            ...COLORS.backlogCurrent,
-          },
-          {
             label: 'Backlog (Previous Quarter)',
             data: transformData('PREVIOUS QUARTER', 'BACKLOG'),
             ...COLORS.backlogPrevious,
+          },
+          {
+            label: 'Backlog (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'BACKLOG'),
+            ...COLORS.backlogCurrent,
           },
           {
             label: 'Inflow (Current Quarter)',
@@ -251,6 +286,62 @@ export class EspCaseAnalyzerComponent implements OnInit {
             data: transformData('PREVIOUS QUARTER', 'INFLOW'),
             ...COLORS.inflowPrevious,
             type: 'line',
+          },
+          // {
+          //   label: 'Routed Out (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
+          //   ...COLORS.routedOutCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Routed Out (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
+          //   ...COLORS.routedOutPrevious,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Misrouted (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'MISROUTED'),
+          //   ...COLORS.misroutedCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Misrouted (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
+          //   ...COLORS.misroutedPrevious,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Total (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'TOTAL'),
+          //   ...COLORS.totalCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Total (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'TOTAL'),
+          //   ...COLORS.totalPrevious,
+          //   type: 'line',
+          // },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
+    this.cancelledPdfChart = new Chart('cancelledPdfChart', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'PDF (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'PDF'),
+            ...COLORS.pdfPrevious,
+          },
+          {
+            label: 'PDF (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'PDF'),
+            ...COLORS.pdfCurrent,
           },
           {
             label: 'Routed Out (Current Quarter)',
@@ -275,26 +366,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
             data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
             ...COLORS.misroutedPrevious,
             type: 'line',
-          },
-        ],
-      },
-      options: this.sharedChartOptions,
-    });
-
-    this.cancelledPdfChart = new Chart('cancelledPdfChart', {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'PDF (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'PDF'),
-            ...COLORS.pdfCurrent,
-          },
-          {
-            label: 'PDF (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'PDF'),
-            ...COLORS.pdfPrevious,
           },
           {
             label: 'Cancelled (Current Quarter)',

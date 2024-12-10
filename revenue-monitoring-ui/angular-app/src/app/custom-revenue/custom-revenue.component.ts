@@ -98,10 +98,6 @@ export class CustomRevenueComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  // Define the columns to remove for Accounts (if any specific exclusions are required)
-  accountsSummaryFieldstoRemove: string[] = [];
-  accountsDetailsFieldstoRemove: string[] = [];
-
   // Function to format the label
   formatLabel(label: string): string {
     const acronyms = this.skippedWords || [];
@@ -198,7 +194,7 @@ export class CustomRevenueComponent implements OnInit {
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     {
-      label: 'Accounts',
+      label: 'Account Recon',
       component: 'app-accounts',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },

@@ -80,7 +80,7 @@
         <app-monitoring-dashboard
           [urls]="accountsUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
-          [processFlowKeys]=""
+          [processFlowKeys]="accrualsTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Accounts'"
           [processFlowTabsToDisplay]="['Accounts']"
@@ -93,8 +93,8 @@
             'Displays message with impacted accounting information'
           "
           [columnsToFilter]="accountsFilters"
-          [summaryColumnsToHide]="accountsSummaryFieldstoRemove"
-          [detailsColumnsToHide]="accountsDetailsFieldstoRemove"
+          [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
+          [detailsColumnsToHide]="['SEQUENCE_NUMBER']"
           [submitKeysToMap]="['SEQUENCE_NUMBER']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
