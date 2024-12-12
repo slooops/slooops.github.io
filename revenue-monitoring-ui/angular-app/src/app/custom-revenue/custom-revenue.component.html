@@ -79,8 +79,8 @@
       <ng-container *ngSwitchCase="'app-accounts'">
         <app-monitoring-dashboard
           [urls]="accountsUrls"
-          [keysToMap]="rolAndAccrualsKeysToMap"
-          [processFlowKeys]="accrualsTotals"
+          [keysToMap]="['SEQUENCE_NUMBER']"
+          [processFlowKeys]="accountsTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Accounts'"
           [processFlowTabsToDisplay]="['Accounts']"
@@ -94,11 +94,12 @@
           "
           [columnsToFilter]="accountsFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
-          [detailsColumnsToHide]="['SEQUENCE_NUMBER']"
+          [detailsColumnsToHide]="[]"
           [submitKeysToMap]="['SEQUENCE_NUMBER']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
+            'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE',
             'AMOUNT'

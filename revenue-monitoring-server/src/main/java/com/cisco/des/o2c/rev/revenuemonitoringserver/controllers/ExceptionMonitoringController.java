@@ -173,6 +173,25 @@ public class ExceptionMonitoringController {
 
     }
 
+    @GetMapping("/accounts-details-filtered")
+    public ResponseEntity<Map<String, Object>> getTspAccountDetailViewFiltered(@RequestParam List<String> sequenceNumbers) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = sequenceNumbers.size();
+
+            for (int i = 0; i < minLength; i++) {
+                String sequenceNumber = sequenceNumbers.get(i);
+                List<Map<String, Object>> result = service.getTspAccountDetailViewFiltered(sequenceNumber);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     @PostMapping("/rol-errors-summary-update")
     public ResponseEntity<String> updateRolErrorsSummary(@RequestBody Map<String, String> updateData) {
         int test = service.updateRolErrorSummary(updateData);
@@ -341,4 +360,11 @@ public class ExceptionMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
         return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
     }
+
+    @PostMapping("/tsp-account-summary-update")
+    public ResponseEntity<String> updateTspAccountSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateTspAccountSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
 }

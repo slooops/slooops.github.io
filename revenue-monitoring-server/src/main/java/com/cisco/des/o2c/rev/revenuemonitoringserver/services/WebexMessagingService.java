@@ -12,78 +12,103 @@ import java.util.Map;
 @Service
 public class WebexMessagingService {
 
-    @Autowired
-    private WebClient.Builder webClientBuilder;
+        @Autowired
+        private WebClient.Builder webClientBuilder;
 
-    private String webexUrl;
-    private String authToken;
-    private String roomIdRevenueAccounting;
-    private String roomIdInvoicing;
-    private String authTokenInvoicing;
+        private String webexUrl;
+        private String authToken;
+        private String roomIdRevenueAccounting;
+        private String roomIdInvoicing;
+        private String authTokenInvoicing;
 
-    @Autowired
-    public WebexMessagingService(String webexUrl, String authToken, String roomIdRevenueAccounting, String authTokenInvoicing, String roomIdInvoicing){
-        this.webexUrl = webexUrl;
-        this.authToken = authToken;
-        this.roomIdRevenueAccounting = roomIdRevenueAccounting;
-        this.roomIdInvoicing = roomIdInvoicing;
-        this.authTokenInvoicing = authTokenInvoicing;
-    }
+        @Autowired
+        public WebexMessagingService(String webexUrl, String authToken, String roomIdRevenueAccounting,
+                        String authTokenInvoicing, String roomIdInvoicing) {
+                this.webexUrl = webexUrl;
+                this.authToken = authToken;
+                this.roomIdRevenueAccounting = roomIdRevenueAccounting;
+                this.roomIdInvoicing = roomIdInvoicing;
+                this.authTokenInvoicing = authTokenInvoicing;
+        }
 
-    public String sendWebexMessageRol(Map<String, String> updateData) {
-        String message = "Hi <@personEmail:"+ updateData.get("assignedTo")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("username")+"@cisco.com>. Following are the details of the error:\n" +
-                "Period Name: "+updateData.get("periodName")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nOrg Name: "+updateData.get("orgName")+"\nAmount: "+updateData.get("amount")+"\n Comments: "+updateData.get("comments");
+        public String sendWebexMessageRol(Map<String, String> updateData) {
+                String message = "Hi <@personEmail:" + updateData.get("assignedTo") + ">, "
+                                + updateData.get("componentName") + " error has been assigned to you by <@personEmail:"
+                                + updateData.get("username") + "@cisco.com>. Following are the details of the error:\n"
+                                +
+                                "Period Name: " + updateData.get("periodName") + "\nApplication Name: "
+                                + updateData.get("applicationName") + "\nSub Application: "
+                                + updateData.get("processFlow") + "\nOrg Name: " + updateData.get("orgName")
+                                + "\nAmount: " + updateData.get("amount") + "\nTransaction Date: "
+                                + updateData.get("transactionDate") + "\n Comments: " + updateData.get("comments");
 
-        MessageRequestModel messageRequestModel = new MessageRequestModel();
-        messageRequestModel.setRoomId(roomIdRevenueAccounting);
-        messageRequestModel.setMarkdown(message);
+                MessageRequestModel messageRequestModel = new MessageRequestModel();
+                messageRequestModel.setRoomId(roomIdRevenueAccounting);
+                messageRequestModel.setMarkdown(message);
 
-        return webClientBuilder.build()
-                .post()
-                .uri(webexUrl)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + authToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(messageRequestModel)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
+                return webClientBuilder.build()
+                                .post()
+                                .uri(webexUrl)
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + authToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(messageRequestModel)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block();
+        }
 
-    public String sendWebexMessageInvoicing(Map<String, String> updateData) {
-        String message = "Hi <@personEmail:"+ updateData.get("assignedTo")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("username")+"@cisco.com>. Following are the details of the error:\n" +
-                "Period Name: "+updateData.get("periodName")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nOrg Name: "+updateData.get("orgName")+"\nAmount: "+updateData.get("amount")+"\nTransaction Date: "+updateData.get("transactionDate")+"\n Comments: "+updateData.get("comments");
+        public String sendWebexMessageInvoicing(Map<String, String> updateData) {
+                String message = "Hi <@personEmail:" + updateData.get("assignedTo") + ">, "
+                                + updateData.get("componentName") + " error has been assigned to you by <@personEmail:"
+                                + updateData.get("username") + "@cisco.com>. Following are the details of the error:\n"
+                                +
+                                "Period Name: " + updateData.get("periodName") + "\nApplication Name: "
+                                + updateData.get("applicationName") + "\nSub Application: "
+                                + updateData.get("processFlow") + "\nOrg Name: " + updateData.get("orgName")
+                                + "\nAmount: " + updateData.get("amount") + "\nTransaction Date: "
+                                + updateData.get("transactionDate") + "\n Comments: " + updateData.get("comments");
 
-        MessageRequestModel messageRequestModel = new MessageRequestModel();
-        messageRequestModel.setRoomId(roomIdInvoicing);
-        messageRequestModel.setMarkdown(message);
+                MessageRequestModel messageRequestModel = new MessageRequestModel();
+                messageRequestModel.setRoomId(roomIdInvoicing);
+                messageRequestModel.setMarkdown(message);
 
-        return webClientBuilder.build()
-                .post()
-                .uri(webexUrl)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer YmExMmIwMzYtNTE2NS00NGMxLTk2MWItNDY3MDc5MzQ1NDM2ZDcwYTI4NDMtZmFm_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(messageRequestModel)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
+                return webClientBuilder.build()
+                                .post()
+                                .uri(webexUrl)
+                                .header(HttpHeaders.AUTHORIZATION,
+                                                "Bearer YmExMmIwMzYtNTE2NS00NGMxLTk2MWItNDY3MDc5MzQ1NDM2ZDcwYTI4NDMtZmFm_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(messageRequestModel)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block();
+        }
 
-    public String sendWebexMessageGlPosting(Map<String, String> updateData) {
-        String message = "Hi <@personEmail:"+ updateData.get("assignedTo")+">, "+updateData.get("componentName")+" error has been assigned to you by <@personEmail:"+ updateData.get("username")+"@cisco.com>. Following are the details of the error:\n" +
-                "Journal Source Name: "+updateData.get("journalSource")+"\nApplication Name: "+updateData.get("applicationName")+"\nSub Application: "+updateData.get("processFlow")+"\nLedger Name: "+updateData.get("ledgerName")+"\nAccount Seg: "+updateData.get("accountSeg")+"\nTransaction Date: "+updateData.get("transactionDate")+"\n Comments: "+updateData.get("comments");
+        public String sendWebexMessageGlPosting(Map<String, String> updateData) {
+                String message = "Hi <@personEmail:" + updateData.get("assignedTo") + ">, "
+                                + updateData.get("componentName") + " error has been assigned to you by <@personEmail:"
+                                + updateData.get("username") + "@cisco.com>. Following are the details of the error:\n"
+                                +
+                                "Journal Source Name: " + updateData.get("journalSource") + "\nApplication Name: "
+                                + updateData.get("applicationName") + "\nSub Application: "
+                                + updateData.get("processFlow") + "\nLedger Name: " + updateData.get("ledgerName")
+                                + "\nAccount Seg: " + updateData.get("accountSeg") + "\nTransaction Date: "
+                                + updateData.get("transactionDate") + "\n Comments: " + updateData.get("comments");
 
-        MessageRequestModel messageRequestModel = new MessageRequestModel();
-        messageRequestModel.setRoomId("Y2lzY29zcGFyazovL3VzL1JPT00vZGMxNzFjNDAtYTJlNC0xMWVmLTg4YjEtZmJhODc1YmQ2ZWQ3");
-        messageRequestModel.setMarkdown(message);
+                MessageRequestModel messageRequestModel = new MessageRequestModel();
+                messageRequestModel.setRoomId(
+                                "Y2lzY29zcGFyazovL3VzL1JPT00vZGMxNzFjNDAtYTJlNC0xMWVmLTg4YjEtZmJhODc1YmQ2ZWQ3");
+                messageRequestModel.setMarkdown(message);
 
-        return webClientBuilder.build()
-                .post()
-                .uri(webexUrl)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer ZTA3NTJiNzQtYzY4NS00NGMxLWE5MWYtMmE0MTdmODJlYTU5NTI4YzJiODctMDQz_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(messageRequestModel)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-    }
+                return webClientBuilder.build()
+                                .post()
+                                .uri(webexUrl)
+                                .header(HttpHeaders.AUTHORIZATION,
+                                                "Bearer ZTA3NTJiNzQtYzY4NS00NGMxLWE5MWYtMmE0MTdmODJlYTU5NTI4YzJiODctMDQz_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(messageRequestModel)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block();
+        }
 }

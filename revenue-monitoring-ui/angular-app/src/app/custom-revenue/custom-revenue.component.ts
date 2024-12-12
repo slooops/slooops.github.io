@@ -65,11 +65,8 @@ export class CustomRevenueComponent implements OnInit {
   ];
 
   accountsFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'periodName', columnName: 'PERIOD_NAME' },
-    { formControlName: 'applicationName', columnName: 'APPLICATION_NAME' },
-    // { formControlName: 'orgName', columnName: 'ORG_NAME' },
-    // { formControlName: 'amount', columnName: 'AMOUNT' },
-    // { formControlName: 'transactionDate', columnName: 'TRANSACTION_DATE' },
+    { formControlName: 'subref/orderNum', columnName: 'SUBREF/ORDER NUMBER' },
+    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
   ];
 
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
@@ -83,6 +80,10 @@ export class CustomRevenueComponent implements OnInit {
     '6.Downstream Publish': 0,
   };
 
+  accountsTotals: { [key: string]: number } = {
+    '27041': 0,
+  };
+
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
     label: key,
     impact: key,
@@ -91,9 +92,9 @@ export class CustomRevenueComponent implements OnInit {
   accountsUrls: { [key: string]: string } = {
     summaryUrl: 'tsp-account-summary-view',
     detailsUrl: 'tsp-account-detail-view',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
+    filteredDetailsUrl: 'accounts-details-filtered',
+    summaryUpdateUrl: 'tsp-account-summary-update',
+    webexMessageUrl: 'send-message-rol',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };

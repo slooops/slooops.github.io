@@ -45,6 +45,8 @@ public class ExceptionMonitoringService {
     private String eInvoicingSummaryUpdate;
     private String tspAccountSummaryView;
     private String tspAccountDetailView;
+    private String tspAccountDetailViewFiltered;
+    private String tspAccountSummaryUpdate;
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
@@ -55,7 +57,8 @@ public class ExceptionMonitoringService {
                                       String summaryAssignmentUsers, String preInvoiceErrorsSummaryUpdate, String accrualsSummary, String accrualsDetails,
                                       String invoiceToCashSummary,  String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals,
                                       String rolChartDetails, String rolTransactionDataFilter, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
-                                      String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView
+                                      String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView,
+                                      String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
@@ -91,6 +94,8 @@ public class ExceptionMonitoringService {
         this.eInvoicingSummaryUpdate = eInvoicingSummaryUpdate;
         this.tspAccountSummaryView = tspAccountSummaryView;
         this.tspAccountDetailView = tspAccountDetailView;
+        this.tspAccountDetailViewFiltered = tspAccountDetailViewFiltered;
+        this.tspAccountSummaryUpdate = tspAccountSummaryUpdate;
     }
 
     public List<Map<String, Object>> getRolErrorDetails() {
@@ -433,6 +438,16 @@ public class ExceptionMonitoringService {
         return result;
     }
 
+    public List<Map<String, Object>> getTspAccountDetailViewFiltered(String sequenceNumber){
+        List<Map<String, Object>> result = jdbcManager.getTspAccountDetailViewFiltered( tspAccountDetailViewFiltered, sequenceNumber);
+        result.forEach(data -> {
+            data.remove("CREATION_DATE");
+            data.remove("SEQUENCE_NUMBER");
+
+        });
+        return result;
+    }
+
     public int updateEInvoicingErrorSummary(Map<String, String> updateData) {
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
@@ -448,10 +463,39 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getTspAccountSummaryView() {
-        return jdbcManager.queryForList(tspAccountSummaryView);
+        List<Map<String, Object>> result = jdbcManager.queryForList(tspAccountSummaryView);
+        result.forEach(data -> {
+            data.remove("ASSIGNED_BY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getTspAccountDetailView() {
-        return jdbcManager.queryForList(tspAccountDetailView);
+        List<Map<String, Object>> result = jdbcManager.queryForList(tspAccountDetailView);;
+        result.forEach(data -> {
+            data.remove("CREATION_DATE");
+            data.remove("SEQUENCE_NUMBER");
+
+        });
+        return result;
     }
+
+    public int updateTspAccountSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String sequenceNumber = updateData.get("sequenceNumber");
+
+        int test = jdbcManager.updateTspAccountSummary(tspAccountSummaryUpdate, assignedTo, assignedBy, comments, sequenceNumber);
+        return 1;
+    }
+
+
+//    UPDATE arfinro.XXCFIR_ACCOUNT_EXCEPTION_TRXN
+//    SET ASSIGNED_TO=?,
+//    ASSIGNED_DATE=SYSDATE,
+//    COMMENTS=?,
+//    ASSIGNED_BY=?
+//    WHERE 1=1
+//    AND SEQUENCE_NUM=?
 }
