@@ -19,6 +19,7 @@ public class ExceptionMonitoringController {
     @Autowired
     private ExceptionMonitoringService service;
 
+    //ROL
     @GetMapping("/rol-errors-summary")
     public ResponseEntity<List<Map<String, Object>>> getRolErrorsSummary() {
         return new ResponseEntity<>(service.getRolErrorsSummary(), HttpStatus.OK);
@@ -73,36 +74,72 @@ public class ExceptionMonitoringController {
         return new ResponseEntity<>(service.getRolChartDetails(), HttpStatus.OK);
     }
 
-    @GetMapping("/auto-invoice-error-summary")
-    public ResponseEntity<List<Map<String, Object>>> getAutoInvoiceErrorSummary() {
-        return new ResponseEntity<>(service.getAutoInvoiceErrorSummaryView(), HttpStatus.OK);
+    //Accruals
+    @GetMapping("/accruals-summary")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsSummary() {
+        return new ResponseEntity<>(service.getAccrualsSummary(), HttpStatus.OK);
     }
 
-    @GetMapping("/auto-invoice-error-details")
-    public ResponseEntity<List<Map<String, Object>>> getAutoInvoiceErrorDetails() {
-        return new ResponseEntity<>(service.getAutoInvoiceErrorDetails(), HttpStatus.OK);
+    @GetMapping("/accruals-details")
+    public ResponseEntity<List<Map<String, Object>>> getAccrualsDetails() {
+        return new ResponseEntity<>(service.getAccrualsDetails(), HttpStatus.OK);
     }
 
-    @GetMapping("/auto-invoice-error-details-filtered")
-    public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(
-            @RequestParam List<String> periodNames,
-            @RequestParam List<String> orgNames,
-            @RequestParam List<String> applicationNames,
-            @RequestParam List<String> processFlows,
-            @RequestParam List<String> transactionDates) {
-
+    @GetMapping("/accruals-details-filtered")
+    public ResponseEntity<Map<String, Object>> getAccrualsErrorDetailsFiltered(@RequestParam List<String> periodNames,
+                                                                               @RequestParam List<String> orgNames,
+                                                                               @RequestParam List<String> applicationNames,
+                                                                               @RequestParam List<String> processFlows,
+                                                                               @RequestParam List<String> sequenceNums) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
-                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), sequenceNums.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = orgNames.get(i);
-                String appName = applicationNames.get(i);
-                String transactionDate = transactionDates.get(i);
-                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName,
-                        periodName, transactionDate);
+                String processFlow = processFlows.get(i);
+                String uniqueId = sequenceNums.get(i);
+                List<Map<String, Object>> result = service.getAccrualsDetailsFiltered(periodName, ouName, processFlow,
+                        uniqueId);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+    @PostMapping("/accruals-summary-update")
+    public ResponseEntity<String> updateAccrualsErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateAccrualsErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
+    //Accounts
+    @GetMapping("/tsp-account-summary-view")
+    public ResponseEntity<List<Map<String, Object>>> getTspAccountSummaryView() {
+        return new ResponseEntity<>(service.getTspAccountSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/tsp-account-detail-view")
+    public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
+        return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/accounts-details-filtered")
+    public ResponseEntity<Map<String, Object>> getTspAccountDetailViewFiltered(@RequestParam List<String> sequenceNumbers) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = sequenceNumbers.size();
+
+            for (int i = 0; i < minLength; i++) {
+                String sequenceNumber = sequenceNumbers.get(i);
+                List<Map<String, Object>> result = service.getTspAccountDetailViewFiltered(sequenceNumber);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -113,12 +150,13 @@ public class ExceptionMonitoringController {
         }
     }
 
-    @PostMapping("/auto-invoice-error-summary-update")
-    public ResponseEntity<String> updateAutoInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
-        int test = service.updateAutoInvoiceErrorSummary(updateData);
+    @PostMapping("/tsp-account-summary-update")
+    public ResponseEntity<String> updateTspAccountSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateTspAccountSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    //Pre-Invoice
     @GetMapping("/pre-invoice-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getPreInvoiceErrorSummary() {
         return new ResponseEntity<>(service.getPreInvoiceErrorSummaryView(), HttpStatus.OK);
@@ -165,82 +203,37 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
-    @GetMapping("/accruals-summary")
-    public ResponseEntity<List<Map<String, Object>>> getAccrualsSummary() {
-        return new ResponseEntity<>(service.getAccrualsSummary(), HttpStatus.OK);
+    //Auto-Invoice
+    @GetMapping("/auto-invoice-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getAutoInvoiceErrorSummary() {
+        return new ResponseEntity<>(service.getAutoInvoiceErrorSummaryView(), HttpStatus.OK);
     }
 
-    @GetMapping("/accruals-details")
-    public ResponseEntity<List<Map<String, Object>>> getAccrualsDetails() {
-        return new ResponseEntity<>(service.getAccrualsDetails(), HttpStatus.OK);
+    @GetMapping("/auto-invoice-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getAutoInvoiceErrorDetails() {
+        return new ResponseEntity<>(service.getAutoInvoiceErrorDetails(), HttpStatus.OK);
     }
 
-    @GetMapping("/accruals-details-filtered")
-    public ResponseEntity<Map<String, Object>> getAccrualsErrorDetailsFiltered(@RequestParam List<String> periodNames,
-                                                                               @RequestParam List<String> orgNames,
-                                                                               @RequestParam List<String> applicationNames,
-                                                                               @RequestParam List<String> processFlows,
-                                                                               @RequestParam List<String> sequenceNums) {
+    @GetMapping("/auto-invoice-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getAutoInvoiceErrorDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> transactionDates) {
+
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
-                    Math.min(applicationNames.size(), Math.min(processFlows.size(), sequenceNums.size()))));
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = orgNames.get(i);
-                String processFlow = processFlows.get(i);
-                String uniqueId = sequenceNums.get(i);
-                List<Map<String, Object>> result = service.getAccrualsDetailsFiltered(periodName, ouName, processFlow,
-                        uniqueId);
-                errorDetailsFiltered.addAll(result);
-            }
-            Map<String, Object> response = new HashMap<>();
-            response.put("errorDetailsFiltered", errorDetailsFiltered);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            return null;
-        }
-
-    }
-
-    @PostMapping("/accruals-summary-update")
-    public ResponseEntity<String> updateAccrualsErrorsSummary(@RequestBody Map<String, String> updateData) {
-        int test = service.updateAccrualsErrorSummary(updateData);
-        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
-    }
-
-    @GetMapping("/gl-error-summary")
-    public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {
-        return new ResponseEntity<>(service.getGlErrorSummary(), HttpStatus.OK);
-    }
-
-    @GetMapping("/gl-error-details")
-    public ResponseEntity<List<Map<String, Object>>> getGlErrorDetails() {
-        return new ResponseEntity<>(service.getGlErrorDetails(), HttpStatus.OK);
-    }
-
-    @GetMapping("/gl-details-filtered")
-    public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
-                                                                    @RequestParam List<String> ledgerNames,
-                                                                    @RequestParam List<String> applicationNames,
-                                                                    @RequestParam List<String> journalSources,
-                                                                    @RequestParam List<String> accountSegs,
-                                                                    @RequestParam List<String> transactionDates) {
-        try {
-            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(applicationNames.size(),
-                    Math.min(processFlows.size(), Math.min(accountSegs.size(), transactionDates.size())))));
-
-            for (int i = 0; i < minLength; i++) {
-                String processFlow = processFlows.get(i);
-                String ledgerName = ledgerNames.get(i);
                 String appName = applicationNames.get(i);
-                String journalSource = journalSources.get(i);
-                String accountseg = accountSegs.get(i);
-                String uniqueId = transactionDates.get(i);
-                List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow, ledgerName, appName,
-                        journalSource, accountseg, uniqueId);
+                String transactionDate = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getAutoInvoiceErrorDetailsFiltered(appName, ouName,
+                        periodName, transactionDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -251,12 +244,13 @@ public class ExceptionMonitoringController {
         }
     }
 
-    @PostMapping("/gl-summary-update")
-    public ResponseEntity<String> updateGlErrorsSummary(@RequestBody Map<String, String> updateData) {
-        int test = service.updateGlErrorSummary(updateData);
+    @PostMapping("/auto-invoice-error-summary-update")
+    public ResponseEntity<String> updateAutoInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateAutoInvoiceErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    //eInvoicing
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {
         return new ResponseEntity<>(service.getEInvoicingSummary(), HttpStatus.OK);
@@ -304,25 +298,38 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
-    @GetMapping("/tsp-account-summary-view")
-    public ResponseEntity<List<Map<String, Object>>> getTspAccountSummaryView() {
-        return new ResponseEntity<>(service.getTspAccountSummaryView(), HttpStatus.OK);
+    //General Ledger
+    @GetMapping("/gl-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {
+        return new ResponseEntity<>(service.getGlErrorSummary(), HttpStatus.OK);
     }
 
-    @GetMapping("/tsp-account-detail-view")
-    public ResponseEntity<List<Map<String, Object>>> getTspAccountDetailView() {
-        return new ResponseEntity<>(service.getTspAccountDetailView(), HttpStatus.OK);
+    @GetMapping("/gl-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getGlErrorDetails() {
+        return new ResponseEntity<>(service.getGlErrorDetails(), HttpStatus.OK);
     }
 
-    @GetMapping("/accounts-details-filtered")
-    public ResponseEntity<Map<String, Object>> getTspAccountDetailViewFiltered(@RequestParam List<String> sequenceNumbers) {
+    @GetMapping("/gl-details-filtered")
+    public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
+                                                                    @RequestParam List<String> ledgerNames,
+                                                                    @RequestParam List<String> applicationNames,
+                                                                    @RequestParam List<String> journalSources,
+                                                                    @RequestParam List<String> accountSegs,
+                                                                    @RequestParam List<String> transactionDates) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = sequenceNumbers.size();
+            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(applicationNames.size(),
+                    Math.min(processFlows.size(), Math.min(accountSegs.size(), transactionDates.size())))));
 
             for (int i = 0; i < minLength; i++) {
-                String sequenceNumber = sequenceNumbers.get(i);
-                List<Map<String, Object>> result = service.getTspAccountDetailViewFiltered(sequenceNumber);
+                String processFlow = processFlows.get(i);
+                String ledgerName = ledgerNames.get(i);
+                String appName = applicationNames.get(i);
+                String journalSource = journalSources.get(i);
+                String accountseg = accountSegs.get(i);
+                String uniqueId = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow, ledgerName, appName,
+                        journalSource, accountseg, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -333,12 +340,13 @@ public class ExceptionMonitoringController {
         }
     }
 
-    @PostMapping("/tsp-account-summary-update")
-    public ResponseEntity<String> updateTspAccountSummary(@RequestBody Map<String, String> updateData) {
-        int test = service.updateTspAccountSummary(updateData);
+    @PostMapping("/gl-summary-update")
+    public ResponseEntity<String> updateGlErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateGlErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    //SBP
     @GetMapping("/sbp-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpSummary() {
         return new ResponseEntity<>(service.getSbpSummary(), HttpStatus.OK);
@@ -349,6 +357,13 @@ public class ExceptionMonitoringController {
         return new ResponseEntity<>(service.getSbpDetails(), HttpStatus.OK);
     }
 
+    //Summaries
+    @GetMapping("/invoice-to-cash-summary")
+    public ResponseEntity<List<Map<String, Object>>> getInvoiceTOoCashSummary() {
+        return new ResponseEntity<>(service.getInvoiceToCashSummary(), HttpStatus.OK);
+    }
+
+    //Common Methods
     @GetMapping("/summary-assignment-users")
     public ResponseEntity<List<Map<String, Object>>> getSummaryAssignmentUsers() {
         return new ResponseEntity<>(service.getSummaryAssignmentUsers(), HttpStatus.OK);
@@ -358,10 +373,4 @@ public class ExceptionMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getMonitoringPeriodStatus() {
         return new ResponseEntity<>(service.getMonitoringPeriodStatus(), HttpStatus.OK);
     }
-
-    @GetMapping("/invoice-to-cash-summary")
-    public ResponseEntity<List<Map<String, Object>>> getInvoiceTOoCashSummary() {
-        return new ResponseEntity<>(service.getInvoiceToCashSummary(), HttpStatus.OK);
-    }
-
 }

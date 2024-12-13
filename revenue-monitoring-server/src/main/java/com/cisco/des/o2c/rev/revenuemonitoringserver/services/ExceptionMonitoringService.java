@@ -396,10 +396,8 @@ public class ExceptionMonitoringService {
         String appName = updateData.get("applicationName");
         String ouName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
-        System.out.println(updateData);
         int test = jdbcManager.updateEInvoicingSummary(eInvoicingSummaryUpdate, assignedTo, assignedBy, comments, periodName, appName,
                 processFlow, ouName, transactionDate);
-        System.out.println(test);
         return 1;
     }
 
@@ -450,11 +448,12 @@ public class ExceptionMonitoringService {
         return jdbcManager.queryForList(sbpDetails);
     }
 
-    // Common methods
+    //Summaries
     public List<Map<String, Object>> getInvoiceToCashSummary() {
         return jdbcManager.queryForList(invoiceToCashSummary);
     }
 
+    // Common methods
     public List<Map<String, Object>> getMonitoringPeriodStatus() {
         String[] dateColumns = { "END_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
