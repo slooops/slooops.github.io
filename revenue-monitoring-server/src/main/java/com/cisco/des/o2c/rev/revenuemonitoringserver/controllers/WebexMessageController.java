@@ -14,9 +14,9 @@ public class WebexMessageController {
     private WebexMessagingService service;
 
 
-    @PostMapping("/send-message-rol")
-    public void sendMessage(@RequestBody Map<String, String> updateData) {
-        service.sendWebexMessageRol(updateData);
+    @PostMapping("/send-message-revenue-accounting")
+    public void sendWebexMessageRevenueAccounting(@RequestBody Map<String, String> updateData) {
+        service.sendWebexMessageRevenueAccounting(updateData);
     }
 
     @PostMapping("/send-message-invoicing")

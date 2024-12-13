@@ -31,7 +31,7 @@ public class WebexMessagingService {
                 this.authTokenInvoicing = authTokenInvoicing;
         }
 
-        public String sendWebexMessageRol(Map<String, String> updateData) {
+        public String sendWebexMessageRevenueAccounting(Map<String, String> updateData) {
                 String message = "Hi <@personEmail:" + updateData.get("assignedTo") + ">, "
                                 + updateData.get("componentName") + " error has been assigned to you by <@personEmail:"
                                 + updateData.get("username") + "@cisco.com>. Following are the details of the error:\n"

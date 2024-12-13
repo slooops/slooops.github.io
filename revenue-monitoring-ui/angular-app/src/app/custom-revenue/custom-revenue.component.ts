@@ -41,7 +41,7 @@ export class CustomRevenueComponent implements OnInit {
     detailsUrl: 'rol-transaction-data',
     filteredDetailsUrl: 'rol-transaction-data-filter',
     summaryUpdateUrl: 'rol-errors-summary-update',
-    webexMessageUrl: 'send-message-rol',
+    webexMessageUrl: 'send-message-revenue-accounting',
     chartTotalsUrl: 'rol-chart-totals',
     chartDetailsUrl: 'rol-chart-details',
   };
@@ -89,12 +89,17 @@ export class CustomRevenueComponent implements OnInit {
     impact: key,
   }));
 
+  formattedAccountsSteps = Object.keys(this.accountsTotals).map((key) => ({
+    label: key,
+    impact: key,
+  }));
+
   accountsUrls: { [key: string]: string } = {
     summaryUrl: 'tsp-account-summary-view',
     detailsUrl: 'tsp-account-detail-view',
     filteredDetailsUrl: 'accounts-details-filtered',
     summaryUpdateUrl: 'tsp-account-summary-update',
-    webexMessageUrl: 'send-message-rol',
+    webexMessageUrl: 'send-message-revenue-accounting',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
@@ -141,17 +146,12 @@ export class CustomRevenueComponent implements OnInit {
     'status',
     'num',
     'year',
-    'status',
     'sub',
     'staging',
     'id',
     'line',
-    'name',
-    'num',
-    'year',
     'code',
     'org',
-    'sub',
     'unit',
     'process',
   ];
@@ -161,7 +161,7 @@ export class CustomRevenueComponent implements OnInit {
     detailsUrl: 'accruals-details',
     filteredDetailsUrl: 'accruals-details-filtered',
     summaryUpdateUrl: 'accruals-summary-update',
-    webexMessageUrl: 'send-message-rol',
+    webexMessageUrl: 'send-message-revenue-accounting',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
@@ -388,6 +388,96 @@ export class CustomRevenueComponent implements OnInit {
   align-items: center;
   height: 82px;
   width: 910px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  accountsprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 170px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;

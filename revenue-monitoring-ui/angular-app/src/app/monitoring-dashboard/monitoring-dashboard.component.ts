@@ -440,6 +440,7 @@ export class MonitoringDashboardComponent<T>
 
     this.http.get(this.urls['detailsUrl']).subscribe({
       next: (data: any) => {
+        console.log('Error details:', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
         if (this.errorDetails.length > 0) {
