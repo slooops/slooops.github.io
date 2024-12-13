@@ -3,6 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { Chart, ChartOptions, registerables } from 'chart.js';
+// import { resolve } from 'path';
 Chart.register(...registerables);
 
 @Component({
@@ -188,6 +189,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
         pointBackgroundColor: 'rgba(255, 159, 64, 0.5)',
         pointBorderColor: 'rgba(255, 159, 64, 0.5)',
       },
+      resolvedCurrent: {
+        backgroundColor: 'rgba(235, 154, 229, 0.6)', // Muted pink-purple with 60% opacity
+        borderColor: 'rgba(212, 114, 205, 1)', // Muted pink-purple with 100% opacity
+        pointBackgroundColor: 'rgba(235, 154, 229, 1)', // Muted pink-purple with 100% opacity
+        pointBorderColor: 'rgba(230, 109, 221, 1)', // Muted pink-purple with 100% opacity
+      },
+      resolvedPrevious: {
+        backgroundColor: 'rgba(235, 154, 229, 0.3)', // Muted pink-purple with 30% opacity
+        borderColor: 'rgba(213, 103, 206, 0.5)', // Muted pink-purple with 50% opacity
+        pointBackgroundColor: 'rgba(235, 154, 229, 0.5)', // Muted pink-purple with 50% opacity
+        pointBorderColor: 'rgba(232, 87, 223, 0.5)', // Muted pink-purple with 50% opacity
+      },
       routedOutCurrent: {
         backgroundColor: 'rgba(54, 162, 235, 0.2)',
         borderColor: 'rgba(54, 162, 235, 1)',
@@ -299,6 +312,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
             label: 'Inflow (Current Quarter)',
             data: transformData('CURRENT QUARTER', 'INFLOW'),
             ...COLORS.inflowCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Resolved (Previous Quarter)',
+            data: transformData('PREVIOUS QUARTER', 'RESOLVED'),
+            ...COLORS.resolvedPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Resolved (Current Quarter)',
+            data: transformData('CURRENT QUARTER', 'RESOLVED'),
+            ...COLORS.resolvedCurrent,
             type: 'line',
           },
 
