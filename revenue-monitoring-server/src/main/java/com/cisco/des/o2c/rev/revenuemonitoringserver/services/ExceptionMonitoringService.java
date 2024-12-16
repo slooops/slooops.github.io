@@ -4,9 +4,9 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class ExceptionMonitoringService {
@@ -109,6 +109,20 @@ public class ExceptionMonitoringService {
             data.remove("CURRENCY_CODE");
             data.remove("ERROR_APPLICATION");
             formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }
@@ -176,6 +190,20 @@ public class ExceptionMonitoringService {
             formatDateColumns(data, dateColumns);
             renameKey(data, "SEQUENCE_NUMBER", "SEQUENCE_NUM");
             data.remove("ASSIGNED_BY");
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }
@@ -215,9 +243,25 @@ public class ExceptionMonitoringService {
 
     // Accounts
     public List<Map<String, Object>> getTspAccountSummaryView() {
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(tspAccountSummaryView);
         result.forEach(data -> {
             data.remove("ASSIGNED_BY");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }
@@ -500,4 +544,22 @@ public class ExceptionMonitoringService {
             }
         }
     }
+
+    private String calculateAging(Object transactionDate) {
+        if (transactionDate == null || !(transactionDate instanceof String)) {
+            return "0";
+        }
+        try {
+            String dateString = (String) transactionDate;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date creationDate = dateFormat.parse(dateString);
+            Date today = new Date();
+            long timeDifference = today.getTime() - creationDate.getTime();
+            long agingInDays = timeDifference / (1000 * 60 * 60 * 24);
+            return Long.toString(agingInDays);
+        } catch (Exception e) {
+            return "0";
+        }
+    }
+
 }
