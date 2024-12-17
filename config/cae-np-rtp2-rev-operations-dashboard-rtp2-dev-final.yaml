@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.order.lifecycle.url
+                  key: cors.final.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -324,5 +324,435 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: clo.comment.update.q
+            - name: CMS_UNPOSTED_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.summary.query
+            - name: CMS_UNPOSTED_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.details.query
+            - name: CMS_RECEIPT_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.receipt.error.summary
+            - name: CMS_RECEIPT_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.receipt.error.details.query
+            - name: CMS_JOB_RUN_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.job.run.status.query
+            - name: CMS_CTM_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.ctm.status.query
+            - name: CMS_CTM_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.ctm.details.query
+            - name: CMS_BOOMI_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.status.query
+            - name: CMS_BOOMI_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.details.query
+            - name: CMS_EXTRACT_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.extract.count.query
+            - name: CMS_EXTRACT_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.extract.details.query
+            - name: CMS_LATEST_REQUEST_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.latest.request.status.query
+            - name: CMS_COLLECTIONS_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.collections.error.summary.query
+            - name: CMS_INVOICE_PDF_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.invoice.pdf.extract.error.query
+            - name: CMS_INVOICE_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.invoice.extract.error.query
+            - name: CMS_CUSTOMER_MASTER_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.customer.master.error.query
+            - name: CMS_ALTERNATE_PAYER_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.alternate.payer.error.query
+            - name: CMS_SALES_INVOICE_HEADER_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.sales.invoice.header.extract.error.query
+            - name: CMS_CUSTOMER_CONTACTS_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.customer.contacts.error.query
+            - name: CMS_SALES_INVOICE_ITEM_EXTRACT_ERR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.sales.invoice.item.extract.query
+            - name: CMS_INTERFACE_ERRORS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.interface.errors.query
+            - name: CMS_INTERFACE_ERROR_COUNT_IN_XHRS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.interface.error.count.in.xhrs.query
+            - name: CMS_UNPOSTED_TOTAL_AMOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.unposted.total.amount.query
+            - name: CMS_TOTAL_RECONCILIATION_ERROR_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.total.reconciliation.error.query
+            - name: CMS_BOOMI_STATUS_HR_TO_CG1_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.status.hr.to.cg1.query
+            - name: CMS_BOOMI_DETAILS_HR_TO_CG1_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.boomi.details.hr.to.cg1.query
+            - name: ROL_TRANSACTION_DATA_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.query
+            - name: ROL_ERRORS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.query
+            - name: SBP_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: sbp.summary.query
+            - name: CMS_TOTAL_UNAPPLIED_AMOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.total.unapplied.amount.query
+            - name: CMS_CORE_APP_LAYER_ERROR_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.core.app.layer.error.count.query
+            - name: CMS_RECON_ERR_COUNT_EXTRACT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cms.recon.err.count.extract.query
+            - name: ESTIMATED_COMPLETION_TIME_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: estimated.completion.time.query
+            - name: LARGE_DEAL_SUMMARY_BY_ACCOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: large.deal.summary.by.account.query
+            - name: CLO_SAMPLE_DOWNLOAD_DATA_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.sample.download.data.query
+            - name: CASE_SERVICE_METRICS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: case.service.metrics.summary
+            - name: ROL_TRANSACTION_DATA_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.count.query
+            - name: ROL_ERRORS_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.update.query
+            - name: ROL_ERRORS_SUMMARY_PERIOD_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.period.status.query
+            - name: SBP_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: sbp.details.q
+            - name: ROL_CHART_TOTALS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.chart.totals.q
+            - name: ROL_CHART_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.chart.details.q
+            - name: ROL_TRANSACTION_DATA_FILTER_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.filter.query
+            - name: ROL_TRANSACTION_DATA_FILTER_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.filter.count.query
+            - name: ROOM_ID_REVENUE_ACCOUNTING
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.room.id.revenue.accounting
+            - name: WEBEX_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.url
+            - name: AUTH_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.auth.token
+            - name: AUTO_INVOICE_ERROR_SUMMARY_VIEW_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.error.summary.view.query
+            - name: AUTO_INVOICE_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.error.details.query
+            - name: WD0_VOLUMES_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.volumes.q
+            - name: ROL_TRANSACTION_DATA_DOWNLOAD_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.download.q
+            - name: ROL_TRANSACTION_FILTER_DATA_DOWNLOAD_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.filter.data.download.q
+            - name: PRE_INVOICE_ERROR_SUMMARY_VIEW_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.error.summary.view.query
+            - name: PRE_INVOICE_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.error.details.query
+            - name: AUTO_INVOICE_ERROR_DETAILS_QUERY_FILTERED
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.error.details.filtered.query
+            - name: PRE_INVOICE_ERROR_DETAILS_QUERY_FILTERED
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.error.details.filtered.query
+            - name: ROOM_ID_INVOICING
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.room.id.invoicing
+            - name: INVOICING_AUTH_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.auth.token.invoicing
+            - name: SUMMARY_ASSIGNMENT_USERS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: summary.assignment.users.query
+            - name: AUTO_INVOICE_ERROR_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.errors.summary.update.query
+            - name: PRE_INVOICE_ERROR_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.errors.summary.update.query
+            - name: EPAGE_ACCESS_TOKEN_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.access.token.url
+            - name: EPAGE_ACCESS_TOKEN_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.access.token.client.id
+            - name: EPAGE_ACCESS_TOKEN_CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.access.token.client.secret
+            - name: EPAGE_PAGE_OUT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.pageout.api.url
+            - name: EPAGE_PAGE_OUT_ALIAS
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.pageout.alias
+            - name: ACCRUALS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.summary.q
+            - name: ACCRUALS_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.details.q
+            - name: INVOICE_TO_CASH_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.to.cash.summary.q
+            - name: ACCRUALS_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.details.filtered
+            - name: ACCRUALS_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.summary.update.q
+            - name: GL_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.error.summary.q
+            - name: GL_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.error.details.q
+            - name: GL_POSTING_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.posting.details.filtered.q
+            - name: GL_POSTING_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.posting.summary.update.q
+            - name: EINVOICING_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.summary.q
+            - name: EINVOICING_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.details.q
+            - name: ESP_AGING_CASE_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: esp.aging.case.summary.q
+            - name: ESP_CASE_SERVICE_METRIC_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: esp.case.service.metric.summary.q
+            - name: ESP_WEEKLY_COMPARISON_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: esp.weekly.comparison.summary.q
+            - name: EINVOICING_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.details.filtered.q
+            - name: EINVOICING_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.summary.update.q
+            - name: TSP_ACCOUNT_SUMMARY_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.summary.view.q
+            - name: TSP_ACCOUNT_DETAIL_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.detail.view.q
+            - name: TSP_ACCOUNT_DETAIL_FILTERED_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.detail.view.filtered.q
+            - name: TSP_ACCOUNT_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.summary.update.q
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
