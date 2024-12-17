@@ -87,7 +87,7 @@
   "SUMMARY_ASSIGNMENT_USERS_QUERY": "SELECT MIN(lookup_code) AS lookup_code, meaning FROM ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP WHERE lookup_type='USER_ASSIGNMENT' AND enabled_flag='Y' GROUP BY meaning ORDER BY lookup_code",
   "EPAGE_ACCESS_TOKEN_URI": "https://cloudsso.cisco.com/as/token.oauth2",
   "EPAGE_ACCESS_TOKEN_CLIENT_ID": "RevI2cOpsMonitoringPrd",
-  "EPAGE_ACCESS_TOKEN_CLIENT_SECRET": "RevI2cOpsMonitoringPrd",
+  "EPAGE_ACCESS_TOKEN_CLIENT_SECRET": "RevI2cOpsMonitoringPrd@",
   "EPAGE_PAGE_OUT_URL": "https://entcalendarapi.cisco.com/calendar/pageout/",
   "EPAGE_PAGE_OUT_ALIAS": "rev-i2c-ops-monitoring",
   "ACCRUALS_SUMMARY_QUERY": "select * from arfinro.TSP_ACCRUAL_SUMMARY_VIEW",
