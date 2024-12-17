@@ -87,9 +87,6 @@ export class MonitoringDashboardComponent<T>
     //     this.getRolTransactionData(event.pageIndex, event.pageSize);
     //   }
     // });
-    if (this.openChartModal) {
-      // this.getChartTotals();
-    }
   }
   ngOnChanges(changes: SimpleChanges) {
     if (this.periodStatus) {
