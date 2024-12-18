@@ -26,8 +26,8 @@
             'Displays message with impacted accounting information'
           "
           [columnsToFilter]="rolFilters"
-          [summaryColumnsToHide]="rolSummaryFieldstoRemove"
-          [detailsColumnsToHide]="rolDetailsFieldstoRemove"
+          [summaryColumnsToHide]="['SEQUENCE_NUM']"
+          [detailsColumnsToHide]="['SEQUENCE_NUM']"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -63,7 +63,8 @@
             'Displays message with impacted accounting information'
           "
           [columnsToFilter]="accrualsFilters"
-          [summaryColumnsToHide]="rolSummaryFieldstoRemove"
+          [summaryColumnsToHide]="['SEQUENCE_NUM']"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [submitKeysToMap]="['SEQUENCE_NUM']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -79,26 +80,27 @@
       <ng-container *ngSwitchCase="'app-accounts'">
         <app-monitoring-dashboard
           [urls]="accountsUrls"
-          [keysToMap]="rolAndAccrualsKeysToMap"
-          [processFlowKeys]="accrualsTotals"
+          [keysToMap]="['SEQUENCE_NUMBER']"
+          [processFlowKeys]="accountsTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Accounts'"
           [processFlowTabsToDisplay]="['Accounts']"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
+          [dynamicTemplate]="accountsTemplate"
+          [dynamicCss]="accountsprocessflowCss"
           [isSubAppMapping]="false"
           [warningMessage]="
             'Displays message with impacted accounting information'
           "
           [columnsToFilter]="accountsFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
-          [detailsColumnsToHide]="['SEQUENCE_NUMBER']"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [submitKeysToMap]="['SEQUENCE_NUMBER']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
+            'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE',
             'AMOUNT'
@@ -203,6 +205,31 @@
 
         <div
           *ngIf="i < formattedAccrualsSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #accountsTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedAccountsSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Accounts']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedAccountsSteps.length - 1"
           class="chevron-wrapper-loop"
         >
           <div class="chevron"></div>

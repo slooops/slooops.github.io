@@ -109,38 +109,6 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.submitKeys,
       true
     );
-
-    // if (this.componentName === 'General Ledger') {
-    //   updateData = {
-    //     ledgerName: this.data[0].LEDGER_NAME,
-    //     journalSource: this.data[0].JOURNAL_SOURCE,
-    //     accountSeg: this.data[0].ACCOUNT_SEG,
-    //     appName: this.data[0].APPLICATION_NAME,
-    //     processFlow: this.data[0].PROCESS_FLOW,
-    //     orgName: this.data[0].ORG_NAME,
-    //     creationDate: this.data[0].TRANSACTION_DATE,
-    //     assignedTo: assigneeName,
-    //     comments:
-    //       this.updateForm.value.comments !== this.data[0].COMMENTS
-    //         ? this.updateForm.value.comments
-    //         : this.data[0].COMMENTS,
-    //     username: this.username,
-    //   };
-    // } else {
-    //   updateData = {
-    //     periodName: this.data[0].PERIOD_NAME,
-    //     appName: this.data[0].APPLICATION_NAME,
-    //     processFlow: this.data[0].PROCESS_FLOW,
-    //     orgName: this.data[0].ORG_NAME,
-    //     creationDate: this.data[0].TRANSACTION_DATE,
-    //     assignedTo: assigneeName,
-    //     comments:
-    //       this.updateForm.value.comments !== this.data[0].COMMENTS
-    //         ? this.updateForm.value.comments
-    //         : this.data[0].COMMENTS,
-    //     username: this.username,
-    //   };
-    // }
     console.log('updateData:', updateData);
     this.http
       .post(this.updateUrl, updateData, {

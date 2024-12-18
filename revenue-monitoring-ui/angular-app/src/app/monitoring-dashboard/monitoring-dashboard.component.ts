@@ -87,9 +87,6 @@ export class MonitoringDashboardComponent<T>
     //     this.getRolTransactionData(event.pageIndex, event.pageSize);
     //   }
     // });
-    if (this.openChartModal) {
-      // this.getChartTotals();
-    }
   }
   ngOnChanges(changes: SimpleChanges) {
     if (this.periodStatus) {
@@ -119,6 +116,14 @@ export class MonitoringDashboardComponent<T>
       next: (data: any) => {
         this.resetPreInvoicingTotals();
         this.summaryData = this.formatData(data);
+        const totals = this.calculateTotalsByProcessFlow(data);
+        this.dataService.setTabData(this.componentName, totals);
+        this.summaryData.forEach((row) => {
+          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+          row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
+          row.AGING = row.AGING + ' Days';
+        });
+        this.originalData = this.summaryData;
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
         }
@@ -126,33 +131,12 @@ export class MonitoringDashboardComponent<T>
           (data) => !this.summaryColumnsToHide.includes(data)
         );
         this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
-        const totals = this.calculateTotalsByProcessFlow(data);
-        this.dataService.setTabData(this.componentName, totals);
-        this.summaryData.forEach((row) => {
-          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-          row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
-          if (row.AGING == null) {
-            row.AGING = this.getAging(row.TRANSACTION_DATE) + ' Days';
-          } else {
-            row.AGING = row.AGING + ' Days';
-          }
-        });
-        this.originalData = this.summaryData;
-
         this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
         if (this.summaryPaginator) {
           if (this.summaryDatasource.paginator !== this.summaryPaginator) {
             this.summaryDatasource.paginator = this.summaryPaginator;
           }
-
           this.totalSummaryRecords = this.summaryData.length;
-
-          // setTimeout(() => {
-          //   this.paginator.length = this.totalRecords;
-          //   this.paginator.pageIndex = pageIndex;
-          //   this.paginator.pageSize = pageSize;
-          //   this.cdr.detectChanges();
-          // });
         }
         this.summaryLoadTime = `Last Updated: ${new Date().toLocaleString()}`;
       },
@@ -286,15 +270,6 @@ export class MonitoringDashboardComponent<T>
 
   getSortIcon(): string {
     return this.sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward';
-  }
-
-  getAging(dateString: string): string {
-    const today = new Date();
-    const creationDate = new Date(dateString);
-    const timeDifference = today.getTime() - creationDate.getTime();
-
-    const agingInDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    return agingInDays.toString();
   }
 
   isSortedColumn(column: string): boolean {
@@ -440,6 +415,7 @@ export class MonitoringDashboardComponent<T>
 
     this.http.get(this.urls['detailsUrl']).subscribe({
       next: (data: any) => {
+        console.log('Error details:', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
         if (this.errorDetails.length > 0) {

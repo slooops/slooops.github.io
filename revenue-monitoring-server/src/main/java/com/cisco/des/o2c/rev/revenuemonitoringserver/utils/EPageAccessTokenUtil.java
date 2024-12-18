@@ -50,7 +50,7 @@ public static String getAccessToken() {
 
             // Add Authorization header with Basic Authentication
             String clientId = "RevI2cOpsMonitoringPrd";
-            String clientSecret = "RevI2cOpsMonitoringPrd";
+            String clientSecret = "RevI2cOpsMonitoringPrd@";
             String credentials = clientId + ":" + clientSecret;
             String base64Credentials = new String(Base64.encodeBase64(credentials.getBytes()));
             headers.add("Authorization", "Basic " + base64Credentials);

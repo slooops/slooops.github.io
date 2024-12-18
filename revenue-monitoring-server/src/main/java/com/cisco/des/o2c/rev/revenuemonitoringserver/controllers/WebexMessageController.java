@@ -13,10 +13,13 @@ public class WebexMessageController {
     @Autowired
     private WebexMessagingService service;
 
+    @Autowired
+    private EPageEscalationService ePageEscalationService;
 
-    @PostMapping("/send-message-rol")
-    public void sendMessage(@RequestBody Map<String, String> updateData) {
-        service.sendWebexMessageRol(updateData);
+    @PostMapping("/send-message-revenue-accounting")
+    public void sendWebexMessageRevenueAccounting(@RequestBody Map<String, String> updateData) {
+        ePageEscalationService.sendEpageEscalation();
+        service.sendWebexMessageRevenueAccounting(updateData);
     }
 
     @PostMapping("/send-message-invoicing")

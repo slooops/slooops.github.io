@@ -42,7 +42,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import {
   MAT_DIALOG_DEFAULT_OPTIONS,
   MatDialogModule,
@@ -133,19 +132,7 @@ export function initApp(authService: AuthenticationService) {
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    // CuiTableModule,
-    // CuiPagerModule,
-    // CuiFilterModule,
-    // CuiTabsNavModule,
-    // CuiModalModule,
-    // CuiLoaderModule,
-    // CuiInputModule,
     NgChartsModule,
-    // CuiProgressbarModule,
-    // CngSortModule,
-    // CngTableModule,
-    // CngTabsModule,
-    // CngProgressbarModule,
     MatProgressBarModule,
     FontAwesomeModule,
     MatTabsModule,
@@ -206,8 +193,4 @@ export function initApp(authService: AuthenticationService) {
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {
-  constructor(library: FaIconLibrary) {
-    // library.addIconPacks("fas");
-  }
-}
+export class AppModule {}

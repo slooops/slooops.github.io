@@ -23,6 +23,7 @@
           [isSubAppMapping]="false"
           [warningMessage]="'Invoice processing is delayed '"
           [columnsToFilter]="preInvoicingFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -56,6 +57,7 @@
           [isSubAppMapping]="false"
           [warningMessage]="'Invoice processing is delayed '"
           [columnsToFilter]="autoInvoicingFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -88,6 +90,7 @@
           [isSubAppMapping]="false"
           [warningMessage]="'Warning message '"
           [columnsToFilter]="eInvoicingFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
