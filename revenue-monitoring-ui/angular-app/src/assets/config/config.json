@@ -1,5 +1,5 @@
 {
   "api_url": "https://operations-control-tower-dev-api.cisco.com",
-  "authClientId": "frs-oauth-prod",
+  "authClientId": "frs-oauth-nprd",
   "authClientSecret": "J@NcRfUjXn2r5u7x"
 }
