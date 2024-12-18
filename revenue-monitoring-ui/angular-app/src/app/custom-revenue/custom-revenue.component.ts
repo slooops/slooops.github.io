@@ -72,12 +72,12 @@ export class CustomRevenueComponent implements OnInit {
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
-    '1.Payload Inbound Error': 0,
-    '2.Bill Ahead Of TSV': 0,
-    '3.Accrual Process': 0,
-    '4.Account Distributions': 0,
-    '5.Account Summarization': 0,
-    '6.Downstream Publish': 0,
+    '1. Payload Inbound Error': 0,
+    '2. Bill Ahead Of TSV': 0,
+    '3. Accrual Process': 0,
+    '4. Account Distributions': 0,
+    '5. Account Summarization': 0,
+    '6. Downstream Publish': 0,
   };
 
   accountsTotals: { [key: string]: number } = {
