@@ -54,7 +54,7 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: order-lifecycle-dashboard-stg.cisco.com
+  name: operations-control-tower-stg.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
 spec:
   contexts:
@@ -93,7 +93,7 @@ spec:
           when:
             - kind: clientId
               values:
-                - "frs-oauth-prod"
+                - "frs-oauth-nprd"
     web:
       allow:
         - paths:
