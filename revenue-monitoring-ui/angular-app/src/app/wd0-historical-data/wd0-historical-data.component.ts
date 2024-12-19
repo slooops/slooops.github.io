@@ -89,7 +89,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       const wd1 = new Date(monthEnd);
 
       wd3.setDate(monthEnd.getDate() - 3);
-      wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
+      wd3.setHours(6); // 4 PM DST, 3 PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
       wd2.setHours(15); // 4 PM rollover for WD-2
