@@ -116,6 +116,13 @@ export class MonitoringDashboardComponent<T>
       next: (data: any) => {
         this.resetPreInvoicingTotals();
         this.summaryData = this.formatData(data);
+        if (this.summaryData.length > 0) {
+          this.summaryColumns = Object.keys(this.summaryData[0]);
+        }
+        this.summaryColumns = this.summaryColumns.filter(
+          (data) => !this.summaryColumnsToHide.includes(data)
+        );
+        this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
         const totals = this.calculateTotalsByProcessFlow(data);
         this.dataService.setTabData(this.componentName, totals);
         this.summaryData.forEach((row) => {
@@ -124,13 +131,6 @@ export class MonitoringDashboardComponent<T>
           row.AGING = row.AGING + ' Days';
         });
         this.originalData = this.summaryData;
-        if (this.summaryData.length > 0) {
-          this.summaryColumns = Object.keys(this.summaryData[0]);
-        }
-        this.summaryColumns = this.summaryColumns.filter(
-          (data) => !this.summaryColumnsToHide.includes(data)
-        );
-        this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
         this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
         if (this.summaryPaginator) {
           if (this.summaryDatasource.paginator !== this.summaryPaginator) {
