@@ -299,8 +299,23 @@ public class ExceptionMonitoringService {
         String[] dateColumns = { "TRANSACTION_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorSummaryView);
         result.forEach(data -> {
+            data.remove("AGING");
             renameKey(data, "ERROR_AMOUNT", "AMOUNT");
             formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }
@@ -360,9 +375,24 @@ public class ExceptionMonitoringService {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(autoInvoiceErrorSummaryView);
         result.forEach(data -> {
+            data.remove("AGING");
             renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             renameKey(data, "AMOUNT_USD", "AMOUNT");
             formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }
@@ -410,6 +440,21 @@ public class ExceptionMonitoringService {
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
             data.remove("ASSIGNED_BY");
+            data.remove("AGING");
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }
@@ -450,7 +495,22 @@ public class ExceptionMonitoringService {
         List<Map<String, Object>> result = jdbcManager.queryForList(glErrorSummary);
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
+            data.remove("AGING");
             formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
         });
         return result;
     }

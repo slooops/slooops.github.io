@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-wd0-dash',
   templateUrl: './wd0-dash.component.html',
   styleUrls: ['./wd0-dash.component.css'],
+  providers: [DestroyManager],
 })
 export class Wd0DashComponent implements OnInit {
   protected http: ApiHttpService;
@@ -53,7 +55,7 @@ export class Wd0DashComponent implements OnInit {
     'Loaded into FCC',
   ];
 
-  constructor(http: ApiHttpService) {
+  constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
     this.http = http;
   }
 
@@ -183,7 +185,7 @@ export class Wd0DashComponent implements OnInit {
 
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl))
+      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
     );
     return polling$;
   }

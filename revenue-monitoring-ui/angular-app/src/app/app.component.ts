@@ -1,16 +1,20 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map, mergeMap } from 'rxjs/operators';
+import { filter, map, mergeMap, takeUntil } from 'rxjs/operators';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
+import { Subject } from 'rxjs/internal/Subject';
+import { DestroyManager } from './providers/destroy-manager.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  providers: [DestroyManager],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   showNavbar = true;
 
   constructor(
@@ -18,7 +22,8 @@ export class AppComponent {
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
     private authService: AuthenticationService,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {}
 
   menuOpened = false;
@@ -39,7 +44,8 @@ export class AppComponent {
           }
           return route;
         }),
-        mergeMap((route) => route.data)
+        mergeMap((route) => route.data),
+        takeUntil(this.destroy$)
       )
       .subscribe((data) => {
         this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
@@ -47,9 +53,12 @@ export class AppComponent {
         this.header = data['header'];
       });
 
-    this.dataService.getUserId().subscribe((data) => {
-      this.userName = data['auth_user_name'];
-    });
+    this.dataService
+      .getUserId(this.destroyManager)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        this.userName = data['auth_user_name'];
+      });
   }
 
   toggleHelpDropdown(event: MouseEvent) {
@@ -71,5 +80,10 @@ export class AppComponent {
 
   logout() {
     this.authService.ssoLogout();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,13 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-invoicing',
   templateUrl: './invoicing.component.html',
   styleUrls: ['./invoicing.component.css'],
+  providers: [DestroyManager],
 })
 export class InvoicingComponent implements OnInit {
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private destroyManager: DestroyManager
+  ) {}
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';
   roles: string[] = [];
@@ -17,17 +22,19 @@ export class InvoicingComponent implements OnInit {
   }
   getUserId() {
     this.dataService.setLoading(true);
-    this.dataService.getUserId().subscribe((data) => {
+    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
       let username = data['auth_user'];
       this.getUserRoles(username);
     });
   }
 
   getUserRoles(username: string) {
-    this.dataService.getRoles(username).subscribe((data) => {
-      this.roles = data['userRoles'];
-      this.getDefaultTabIndex();
-    });
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .subscribe((data) => {
+        this.roles = data['userRoles'];
+        this.getDefaultTabIndex();
+      });
   }
 
   preInvoicingTotals: { [key: string]: number } = {
@@ -53,11 +60,11 @@ export class InvoicingComponent implements OnInit {
   };
 
   eInvoicingTotals: { [key: string]: number } = {
-    BOLTON: 0,
-    SYNCHRO: 0,
+    Bolton: 0,
+    Synchro: 0,
     Esker: 0,
     SmartBill: 0,
-    SOVOS: 0,
+    Sovos: 0,
   };
 
   preAndAutoInvoiceKeysToMap: string[] = [
@@ -144,9 +151,11 @@ export class InvoicingComponent implements OnInit {
   }
 
   getErrorSummaryPeriodStatus() {
-    this.dataService.getMonitoringPeriodStatus().subscribe((data: any) => {
-      this.periodStatus = data;
-    });
+    this.dataService
+      .getMonitoringPeriodStatus(this.destroyManager)
+      .subscribe((data: any) => {
+        this.periodStatus = data;
+      });
   }
 
   visibleTabs: {

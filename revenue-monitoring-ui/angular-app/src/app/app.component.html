@@ -76,7 +76,8 @@
             font-weight: 450;
           "
         >
-          {{ header }}
+          <div style="font-size: small">Operations Control Tower</div>
+          <div>{{ header }}</div>
         </h5>
       </div>
       <div class="custom-search-bar">
@@ -115,7 +116,7 @@
         <div style="margin: 0 10px 0 5px" class="onHover">
           <span class="user-title">Welcome, {{ userName }}</span>
           <i
-            class="fa fa-caret-down"
+            class="fa fa-angle-down"
             style="color: white; font-size: medium; margin-left: 5px"
           ></i>
         </div>
@@ -126,13 +127,17 @@
         <!-- Home -->
         <li class="menu-item">
           <a [routerLink]="'/home'" class="top-link">
-            <i class="svg-icon home-icon"></i>
+            <i class="svg-icon home-icon" style="font-weight: 900"></i>
           </a>
         </li>
 
         <!-- Period Close Tracking -->
         <li class="menu-item">
-          <a [routerLink]="'/period-close-tracking'" class="top-link">
+          <a
+            [routerLink]="'/period-close-tracking'"
+            class="top-link"
+            style="font-weight: 500"
+          >
             Period Close Tracking
           </a>
           <ul class="dropdown">
@@ -160,7 +165,11 @@
 
         <!-- Invoice to Cash -->
         <li class="menu-item">
-          <a [routerLink]="'/invoice-to-cash'" class="top-link">
+          <a
+            [routerLink]="'/invoice-to-cash'"
+            class="top-link"
+            style="font-weight: 500"
+          >
             Invoice to Cash
           </a>
           <ul class="dropdown">
@@ -182,7 +191,11 @@
 
         <!-- Revenue Accounting -->
         <li class="menu-item">
-          <a [routerLink]="'/revenue-accounting'" class="top-link">
+          <a
+            [routerLink]="'/revenue-accounting'"
+            class="top-link"
+            style="font-weight: 500"
+          >
             Revenue Accounting
           </a>
           <ul class="dropdown">
@@ -205,7 +218,13 @@
 
         <!-- GL Posting -->
         <li class="menu-item">
-          <a [routerLink]="'/gl-posting'" class="top-link"> GL Posting </a>
+          <a
+            [routerLink]="'/gl-posting'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            GL Posting
+          </a>
           <ul class="dropdown">
             <li>
               <a [routerLink]="'/gl-posting/general-ledger'">General Ledger</a>

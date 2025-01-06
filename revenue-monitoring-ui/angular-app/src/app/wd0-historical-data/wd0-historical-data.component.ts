@@ -14,12 +14,14 @@ import { tap } from 'rxjs/operators';
 import { monthEndDates } from './monthEndDates';
 import { el, hi, is } from 'date-fns/locale';
 import { set } from 'date-fns';
+import { DestroyManager } from '../providers/destroy-manager.service';
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-wd0-historical-data',
   templateUrl: './wd0-historical-data.component.html',
   styleUrls: ['./wd0-historical-data.component.scss'],
+  providers: [DestroyManager],
 })
 export class Wd0HistoricalDataComponent implements OnInit {
   protected http: ApiHttpService;
@@ -37,7 +39,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   constructor(
     http: ApiHttpService,
-    private regressionService: RegressionService
+    private regressionService: RegressionService,
+    private destroyManager: DestroyManager
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -92,7 +95,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
-      wd2.setHours(15); // 4 PM rollover for WD-2
+      wd2.setHours(5); // 4 PM rollover for WD-2
 
       wd1.setDate(monthEnd.getDate() - 1);
       wd1.setHours(15); // 4 PM rollover for WD-1
@@ -288,7 +291,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
-    this.http.get('wd0-volumes').subscribe((data: any) => {
+    this.http.get('wd0-volumes', this.destroyManager).subscribe((data: any) => {
       // console.log('wd0-volumes', data);
 
       // Step 1: Identify the most recent fiscal period
@@ -922,7 +925,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl))
+      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
     );
     return polling$;
   }

@@ -3,6 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { Chart, ChartOptions, registerables } from 'chart.js';
+import { DestroyManager } from '../providers/destroy-manager.service';
 // import { resolve } from 'path';
 Chart.register(...registerables);
 
@@ -10,9 +11,10 @@ Chart.register(...registerables);
   selector: 'app-esp-case-analyzer',
   templateUrl: './esp-case-analyzer.component.html',
   styleUrl: './esp-case-analyzer.component.css',
+  providers: [DestroyManager],
 })
 export class EspCaseAnalyzerComponent implements OnInit {
-  constructor(http: ApiHttpService) {
+  constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
     this.http = http;
     Chart.register(...registerables);
   }
@@ -37,79 +39,85 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
 
   getEspCaseServiceMetricSummary() {
-    this.http.get('esp-case-service-metric-summary').subscribe((data: any) => {
-      if (data && data.length > 0) {
-        // Filter out rows where RELATIVE_QTR is "PREVIOUS QUARTER"
-        const filteredData = data.filter(
-          (item: any) =>
-            item.RELATIVE_QTR !== 'PREVIOUS QUARTER' &&
-            item.RELATIVE_QTR !== 'OTHER'
-        );
+    this.http
+      .get('esp-case-service-metric-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        if (data && data.length > 0) {
+          // Filter out rows where RELATIVE_QTR is "PREVIOUS QUARTER"
+          const filteredData = data.filter(
+            (item: any) =>
+              item.RELATIVE_QTR !== 'PREVIOUS QUARTER' &&
+              item.RELATIVE_QTR !== 'OTHER'
+          );
 
-        // Columns to remove
-        const columnsToRemove = [
-          'CREATED_BY',
-          'CREATED_TIME',
-          'LAST_UPDATED_BY',
-          'LAST_UPDATED_TIME',
-          'IS_ACTIVE',
-          'FISC_QTR',
-          'RELATIVE_QTR',
-        ];
+          // Columns to remove
+          const columnsToRemove = [
+            'CREATED_BY',
+            'CREATED_TIME',
+            'LAST_UPDATED_BY',
+            'LAST_UPDATED_TIME',
+            'IS_ACTIVE',
+            'FISC_QTR',
+            'RELATIVE_QTR',
+          ];
 
-        // Remove the specified columns from the filtered data
-        const cleanedData = filteredData.map((item: any) => {
-          columnsToRemove.forEach((column) => {
-            delete item[column];
-          });
-          return item;
-        });
-
-        // Update the table with the cleaned data
-        this.displayedColumnsForCurrentQuarter = Object.keys(
-          cleanedData[0] || {}
-        ); // Handle empty data after filtering
-        this.dataSourceCurrentQuarter = new MatTableDataSource(cleanedData);
-      }
-    });
-  }
-
-  getEspAgingCaseSummary() {
-    this.http.get('esp-aging-case-summary').subscribe((data: any) => {
-      console.log('espAgingCaseSummary:', data);
-      if (data && data.length > 0) {
-        // Columns to remove
-        const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
-
-        // Columns to check for non-zero values
-        const columnsToCheck = [
-          'LESS_THAN_5',
-          'BETWEEN_5_10',
-          'BETWEEN_10_15',
-          'GREATER_THAN_15',
-        ];
-
-        // Remove the specified columns and filter out rows with all zero values in the specified columns
-        const cleanedData = data
-          .map((item: any) => {
+          // Remove the specified columns from the filtered data
+          const cleanedData = filteredData.map((item: any) => {
             columnsToRemove.forEach((column) => {
               delete item[column];
             });
             return item;
-          })
-          .filter((item: any) => {
-            return columnsToCheck.some((column) => item[column] !== 0);
           });
 
-        this.displayedColumnsForAgingBacklog = Object.keys(cleanedData[0]);
-        this.dataSourceAgingBacklog = new MatTableDataSource(cleanedData);
-      }
-    });
+          // Update the table with the cleaned data
+          this.displayedColumnsForCurrentQuarter = Object.keys(
+            cleanedData[0] || {}
+          ); // Handle empty data after filtering
+          this.dataSourceCurrentQuarter = new MatTableDataSource(cleanedData);
+        }
+      });
+  }
+
+  getEspAgingCaseSummary() {
+    this.http
+      .get('esp-aging-case-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('espAgingCaseSummary:', data);
+        if (data && data.length > 0) {
+          // Columns to remove
+          const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
+
+          // Columns to check for non-zero values
+          const columnsToCheck = [
+            'LESS_THAN_5',
+            'BETWEEN_5_10',
+            'BETWEEN_10_15',
+            'GREATER_THAN_15',
+          ];
+
+          // Remove the specified columns and filter out rows with all zero values in the specified columns
+          const cleanedData = data
+            .map((item: any) => {
+              columnsToRemove.forEach((column) => {
+                delete item[column];
+              });
+              return item;
+            })
+            .filter((item: any) => {
+              return columnsToCheck.some((column) => item[column] !== 0);
+            });
+
+          this.displayedColumnsForAgingBacklog = Object.keys(cleanedData[0]);
+          this.dataSourceAgingBacklog = new MatTableDataSource(cleanedData);
+        }
+      });
   }
 
   getEspWeeklyComparisonSummary(): void {
     this.http
-      .get('esp-weekly-comparison-summary', { responseType: 'json' })
+      .get('esp-weekly-comparison-summary', this.destroyManager, {
+        responseType: 'json',
+      })
       .subscribe((data: any) => {
         this.espWeeklyComparisonSummary = data;
         // console.log('raw graph data', data);

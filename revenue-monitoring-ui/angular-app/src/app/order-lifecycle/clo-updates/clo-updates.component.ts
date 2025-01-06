@@ -2,6 +2,7 @@ import { Component, OnInit, TemplateRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DataService } from 'src/app/providers/data.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
@@ -9,6 +10,7 @@ import * as XLSX from 'xlsx';
   selector: 'app-clo-updates',
   templateUrl: './clo-updates.component.html',
   styleUrls: ['./clo-updates.component.css'],
+  providers: [DestroyManager],
 })
 export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;
@@ -21,7 +23,8 @@ export class CloUpdatesComponent implements OnInit {
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {}
 
   ngOnInit(): void {
@@ -68,10 +71,12 @@ export class CloUpdatesComponent implements OnInit {
   }
 
   getCSVSampleDownloadData() {
-    this.http.get('clo-sample-download-data').subscribe((data: any) => {
-      this.cloSampleDownloadData = data;
-      console.log(data);
-    });
+    this.http
+      .get('clo-sample-download-data', this.destroyManager)
+      .subscribe((data: any) => {
+        this.cloSampleDownloadData = data;
+        console.log(data);
+      });
   }
 
   export(sheetName: string, filename: string) {
@@ -108,7 +113,7 @@ export class CloUpdatesComponent implements OnInit {
 
       this.isLoading = true;
       this.http
-        .post('clo-bulk-upload-file', formData, {
+        .post('clo-bulk-upload-file', formData, this.destroyManager, {
           responseType: 'text',
         })
         .subscribe(
@@ -142,7 +147,7 @@ export class CloUpdatesComponent implements OnInit {
       };
       console.log(this.updateCloData);
       this.http
-        .post('clo-bulk-upload', this.updateCloData, {
+        .post('clo-bulk-upload', this.updateCloData, this.destroyManager, {
           responseType: 'text',
         })
         .subscribe(

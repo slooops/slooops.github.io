@@ -20,11 +20,13 @@ import { DatePipe } from '@angular/common';
 import { Observable } from 'rxjs';
 import { DataService } from '../providers/data.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-monitoring-dashboard',
   templateUrl: './monitoring-dashboard.component.html',
   styleUrl: './monitoring-dashboard.component.css',
+  providers: [DestroyManager],
 })
 export class MonitoringDashboardComponent<T>
   implements OnInit, OnChanges, AfterViewInit
@@ -66,7 +68,8 @@ export class MonitoringDashboardComponent<T>
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef,
     private dataService: DataService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private destroyManager: DestroyManager
   ) {}
   ngOnInit(): void {
     this.getErrorSummary();
@@ -112,10 +115,17 @@ export class MonitoringDashboardComponent<T>
   getErrorSummary() {
     this.summaryLoading = true;
     this.summaryLoadTime = `Last Updated: ...`;
-    this.http.get(this.urls['summaryUrl']).subscribe({
+    this.http.get(this.urls['summaryUrl'], this.destroyManager).subscribe({
       next: (data: any) => {
         this.resetPreInvoicingTotals();
         this.summaryData = this.formatData(data);
+        if (this.summaryData.length > 0) {
+          this.summaryColumns = Object.keys(this.summaryData[0]);
+        }
+        this.summaryColumns = this.summaryColumns.filter(
+          (data) => !this.summaryColumnsToHide.includes(data)
+        );
+        this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
         const totals = this.calculateTotalsByProcessFlow(data);
         this.dataService.setTabData(this.componentName, totals);
         this.summaryData.forEach((row) => {
@@ -124,13 +134,6 @@ export class MonitoringDashboardComponent<T>
           row.AGING = row.AGING + ' Days';
         });
         this.originalData = this.summaryData;
-        if (this.summaryData.length > 0) {
-          this.summaryColumns = Object.keys(this.summaryData[0]);
-        }
-        this.summaryColumns = this.summaryColumns.filter(
-          (data) => !this.summaryColumnsToHide.includes(data)
-        );
-        this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
         this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
         if (this.summaryPaginator) {
           if (this.summaryDatasource.paginator !== this.summaryPaginator) {
@@ -413,7 +416,7 @@ export class MonitoringDashboardComponent<T>
     this.isLoading = true;
     this.isFiltered = false;
 
-    this.http.get(this.urls['detailsUrl']).subscribe({
+    this.http.get(this.urls['detailsUrl'], this.destroyManager).subscribe({
       next: (data: any) => {
         console.log('Error details:', data);
         this.errorDetails = data;
@@ -470,7 +473,9 @@ export class MonitoringDashboardComponent<T>
     }, {});
 
     this.http
-      .get(this.urls['filteredDetailsUrl'], { params: pageRequest })
+      .get(this.urls['filteredDetailsUrl'], this.destroyManager, {
+        params: pageRequest,
+      })
       .subscribe({
         next: (data: any) => {
           this.errorDetailsFiltered = data.errorDetailsFiltered;
@@ -660,25 +665,27 @@ export class MonitoringDashboardComponent<T>
 
   getChartTotals() {
     this.chartLoading = true;
-    this.http.get(this.urls['chartTotalsUrl']).subscribe((data: any) => {
-      const labels = data.map((entry) => entry.PERIOD_NAME);
-      const counts = data.map((entry) => entry.COUNT_RECORDS);
-      this.http
-        .get(this.urls['chartDetailsUrl'])
-        .subscribe((detailsData: any) => {
-          const groupedData = detailsData.reduce((acc, curr) => {
-            const period = curr.PERIOD_NAME;
-            if (!acc[period]) {
-              acc[period] = [];
-            }
-            acc[period].push(curr);
-            return acc;
-          }, {});
+    this.http
+      .get(this.urls['chartTotalsUrl'], this.destroyManager)
+      .subscribe((data: any) => {
+        const labels = data.map((entry) => entry.PERIOD_NAME);
+        const counts = data.map((entry) => entry.COUNT_RECORDS);
+        this.http
+          .get(this.urls['chartDetailsUrl'], this.destroyManager)
+          .subscribe((detailsData: any) => {
+            const groupedData = detailsData.reduce((acc, curr) => {
+              const period = curr.PERIOD_NAME;
+              if (!acc[period]) {
+                acc[period] = [];
+              }
+              acc[period].push(curr);
+              return acc;
+            }, {});
 
-          this.createHistoricalErrorTrendChart(labels, counts, groupedData);
-          this.chartLoading = false;
-        });
-    });
+            this.createHistoricalErrorTrendChart(labels, counts, groupedData);
+            this.chartLoading = false;
+          });
+      });
   }
 
   createHistoricalErrorTrendChart(

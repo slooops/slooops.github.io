@@ -19,11 +19,13 @@ import { OrderLifecycleRevSummaryComponent } from './order-lifecycle-rev-summary
 import { DataService } from '../providers/data.service';
 import { ColumnSelectComponent } from './column-select/column-select.component';
 import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-invoice-status',
   templateUrl: './order-lifecycle.component.html',
   styleUrls: ['./order-lifecycle.component.scss'],
+  providers: [DestroyManager],
 })
 export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;
@@ -31,7 +33,8 @@ export class OrderLifecycleComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     private dialog: MatDialog,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {
     this.http = http;
   }
@@ -104,103 +107,109 @@ export class OrderLifecycleComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
-    this.dataService.getUserId().subscribe((data) => {
+    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
       let username = data['auth_user'];
       this.getUserRoles(username);
     });
   }
 
   getUserRoles(username: string) {
-    this.dataService.getRoles(username).subscribe((data) => {
-      const userRoles = data['userRoles'];
-      this.updateClo =
-        userRoles.includes('ADMIN') || userRoles.includes('CLO_UPDATE');
-      this.dealUploadFlag =
-        userRoles.includes('ADMIN') || userRoles.includes('DEAL_UPLOAD');
-      this.getOrderLifecycle();
-    });
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .subscribe((data) => {
+        const userRoles = data['userRoles'];
+        this.updateClo =
+          userRoles.includes('ADMIN') || userRoles.includes('CLO_UPDATE');
+        this.dealUploadFlag =
+          userRoles.includes('ADMIN') || userRoles.includes('DEAL_UPLOAD');
+        this.getOrderLifecycle();
+      });
   }
 
   getOrderStatusDownload() {
-    this.http.get('order-status-download').subscribe((data: any) => {
-      this.orderLifeCycleDownload = data;
-      this.orderLifeCycleDownload.forEach((ele) => {
-        for (const key in ele) {
-          if (
-            key == 'BOOK_DATE' ||
-            key == 'INVOICE_DATE' ||
-            key == 'FUTURE_INVOICE_RELEASE_DATE' ||
-            key == 'COMMENTS'
-          ) {
-            continue;
-          }
-          if (ele[key] === null) {
-            if (key == 'INVOICE_LINES') {
-              ele[key] = '0';
-            } else {
-              ele[key] = 'TBD';
+    this.http
+      .get('order-status-download', this.destroyManager)
+      .subscribe((data: any) => {
+        this.orderLifeCycleDownload = data;
+        this.orderLifeCycleDownload.forEach((ele) => {
+          for (const key in ele) {
+            if (
+              key == 'BOOK_DATE' ||
+              key == 'INVOICE_DATE' ||
+              key == 'FUTURE_INVOICE_RELEASE_DATE' ||
+              key == 'COMMENTS'
+            ) {
+              continue;
+            }
+            if (ele[key] === null) {
+              if (key == 'INVOICE_LINES') {
+                ele[key] = '0';
+              } else {
+                ele[key] = 'TBD';
+              }
             }
           }
-        }
+        });
       });
-    });
   }
 
   getOrderLifecycle() {
-    this.dataService.getLargeDealData().subscribe((data: any) => {
-      this.orderLifecycleStatus = data['orderLifecycleResult'];
-      this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
-        this.orderLifecycleStatus
-      );
-      this.updatedData = false;
-      // this.updateClo =
-      //   this.dataService.getUserRoles().includes('ADMIN') ||
-      //   this.dataService.getUserRoles().includes('CLO_UPDATE');
+    this.dataService
+      .getLargeDealData(this.destroyManager)
+      .subscribe((data: any) => {
+        this.orderLifecycleStatus = data['orderLifecycleResult'];
+        this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
+          this.orderLifecycleStatus
+        );
+        this.updatedData = false;
+        // this.updateClo =
+        //   this.dataService.getUserRoles().includes('ADMIN') ||
+        //   this.dataService.getUserRoles().includes('CLO_UPDATE');
 
-      // this.dealUploadFlag =
-      //   this.dataService.getUserRoles().includes('ADMIN') ||
-      //   this.dataService.getUserRoles().includes('DEAL_UPLOAD');
-      this.orderLifecycleStatus.forEach((data) => {
-        for (const key in data) {
-          if (
-            key == 'STATUS_AS_OF_DATE' ||
-            key == 'ACTUAL_BOOK_DATE' ||
-            key == 'INVOICE_DATE' ||
-            key == 'FUTURE_INVOICE_RELEASE_DATE' ||
-            key == 'COMMENTS'
-          ) {
-            continue;
-          }
-          if (data[key] === null && key != 'DEAL_UPLOAD_DATE') {
-            if (key == 'INVOICE_LINES') {
-              data[key] = '0';
-            } else {
-              data[key] = 'TBD';
+        // this.dealUploadFlag =
+        //   this.dataService.getUserRoles().includes('ADMIN') ||
+        //   this.dataService.getUserRoles().includes('DEAL_UPLOAD');
+        this.orderLifecycleStatus.forEach((data) => {
+          for (const key in data) {
+            if (
+              key == 'STATUS_AS_OF_DATE' ||
+              key == 'ACTUAL_BOOK_DATE' ||
+              key == 'INVOICE_DATE' ||
+              key == 'FUTURE_INVOICE_RELEASE_DATE' ||
+              key == 'COMMENTS'
+            ) {
+              continue;
+            }
+            if (data[key] === null && key != 'DEAL_UPLOAD_DATE') {
+              if (key == 'INVOICE_LINES') {
+                data[key] = '0';
+              } else {
+                data[key] = 'TBD';
+              }
             }
           }
-        }
+        });
+
+        this.orderLifecycleStatus.sort((a, b) => {
+          const isEmptyA = a.DEAL_UPLOAD_DATE === '';
+          const isEmptyB = b.DEAL_UPLOAD_DATE === '';
+
+          if (isEmptyA && isEmptyB) {
+            return 0;
+          } else if (isEmptyA) {
+            return 1;
+          } else if (isEmptyB) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+
+        this.filterData();
+        this.length = this.orderLifecycleStatus.length;
+        this.setSortAndPaginator();
+        this.dataSource.filterPredicate = this.filterPredicate;
       });
-
-      this.orderLifecycleStatus.sort((a, b) => {
-        const isEmptyA = a.DEAL_UPLOAD_DATE === '';
-        const isEmptyB = b.DEAL_UPLOAD_DATE === '';
-
-        if (isEmptyA && isEmptyB) {
-          return 0;
-        } else if (isEmptyA) {
-          return 1;
-        } else if (isEmptyB) {
-          return -1;
-        } else {
-          return 0;
-        }
-      });
-
-      this.filterData();
-      this.length = this.orderLifecycleStatus.length;
-      this.setSortAndPaginator();
-      this.dataSource.filterPredicate = this.filterPredicate;
-    });
   }
 
   uploadText: string;
@@ -220,7 +229,7 @@ export class OrderLifecycleComponent implements OnInit {
       username: this.username,
     };
     this.http
-      .post('delete-selected-deals', body, {
+      .post('delete-selected-deals', body, this.destroyManager, {
         responseType: 'text',
       })
       .subscribe(
@@ -418,7 +427,7 @@ export class OrderLifecycleComponent implements OnInit {
       username: this.username,
     };
     this.http
-      .post('update-clo-comments', cloMap, {
+      .post('update-clo-comments', cloMap, this.destroyManager, {
         responseType: 'text',
       })
       .subscribe((data) => {
@@ -445,7 +454,7 @@ export class OrderLifecycleComponent implements OnInit {
       username: this.username,
     };
     this.http
-      .post('update-invoice-eligible-date', dateMap, {
+      .post('update-invoice-eligible-date', dateMap, this.destroyManager, {
         responseType: 'text',
       })
       .subscribe((data) => {
