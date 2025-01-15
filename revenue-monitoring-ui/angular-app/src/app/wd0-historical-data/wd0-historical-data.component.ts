@@ -92,7 +92,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
-      wd2.setHours(5); // 4 PM rollover for WD-2
+      wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
 
       wd1.setDate(monthEnd.getDate() - 1);
       wd1.setHours(15); // 4 PM rollover for WD-1
@@ -150,16 +150,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       this.getEndpointData('wd0-current-month')
         .pipe(
           tap((data: any) => {
-            // Process the current month data
-            data.forEach((item: any) => {
-              if (item.LINE_TYPE === 'PRODUCT') {
-                // this.newMonthData[0][0] = item.LINE_COUNT;
-                // this.newMonthData[0][0] = 0;
-              } else if (item.LINE_TYPE === 'SERVICE') {
-                // this.newMonthData[0][1] = item.LINE_COUNT;
-                // this.newMonthData[0][1] = 0;
-              }
-            });
             this.newMonthName = data[0].PERIOD_NAME;
             this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
           }),
@@ -226,6 +216,23 @@ export class Wd0HistoricalDataComponent implements OnInit {
         this.loading = false;
         this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
       });
+    } else if (this.isWd3) {
+      console.log('WD-3 case');
+      this.getEndpointData('wd0-regression').subscribe((data: any) => {
+        productActuals = this.extractProductActuals(data);
+        serviceActuals = this.extractServiceActuals(data);
+        this.getWd0Volumes(productActuals, serviceActuals);
+
+        const latestPeriodName = this.getLatestPeriodName(data);
+        console.log(`Data is from the period: ${latestPeriodName}`);
+
+        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+        this.prepareDataForRegression(data);
+
+        this.loading = false;
+        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+      });
     } else {
       this.getEndpointData('wd0-regression').subscribe((data: any) => {
         productActuals = this.extractProductActuals(data);
@@ -248,6 +255,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     this.getHistoricalData();
   }
 
+  //this method is necessary for predicting the next month in the absence of
+  //actual data for the current month from Surya
   getLatestPeriodName(data: any[]): string {
     // Create a map of month names
     const monthMap = {
@@ -345,6 +354,34 @@ export class Wd0HistoricalDataComponent implements OnInit {
         );
       }
 
+      // Step 3: Check if WD-2 data exists
+      const wd2Exists = data.some(
+        (entry: any) =>
+          entry.WD === 'WD-2' && entry.FISCAL_PERIOD === mostRecentFiscalPeriod
+      );
+
+      if (!wd2Exists) {
+        // Create placeholder entries for WD-2
+        data.push(
+          {
+            FISCAL_PERIOD: mostRecentFiscalPeriod,
+            PRODUCT_TYPE: 'PRODUCT',
+            RECORD_COUNT_HIGH: null,
+            RECORD_COUNT_LOW: null,
+            RUN_DATE: null,
+            WD: 'WD-2',
+          },
+          {
+            FISCAL_PERIOD: mostRecentFiscalPeriod,
+            PRODUCT_TYPE: 'SERVICE',
+            RECORD_COUNT_HIGH: null,
+            RECORD_COUNT_LOW: null,
+            RUN_DATE: null,
+            WD: 'WD-2',
+          }
+        );
+      }
+
       // Step 3: Filter the data for the most recent period
       const recentData = data.filter(
         (entry: any) => entry.FISCAL_PERIOD === mostRecentFiscalPeriod
@@ -362,6 +399,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   // Step 1: Identify the most recent fiscal period
   getMostRecentFiscalPeriod(data: any[]): string {
+    if (this.isWd3) {
+      // If isWd3 is true, return the period from the item at the 2nd index (prev month)
+      return data[2] ? data[2].FISCAL_PERIOD : 'Unknown Period';
+    }
     // Step 1: Identify the most recent RUN_DATE
     const mostRecentEntry = data.reduce(
       (latest, entry) => {
@@ -841,11 +882,11 @@ export class Wd0HistoricalDataComponent implements OnInit {
       (key) => key !== 'ENTITY' && key !== 'LINE_TYPE'
     );
 
-    // Keep only the last 15 columns along with ENTITY and LINE_TYPE
+    // Keep only the last 8 columns along with ENTITY and LINE_TYPE
     this.displayedColumns = [
       'ENTITY',
       'LINE_TYPE',
-      ...columnArray.slice(-this.numberOfQuartersOfHistoricalData), // Selects the last 16 columns
+      ...columnArray.slice(-this.numberOfQuartersOfHistoricalData), // Selects the last 8 columns
       'trend',
     ].map((key) => String(key));
   }
@@ -896,6 +937,32 @@ export class Wd0HistoricalDataComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    const columnsToExclude = ['ENTITY', 'LINE_TYPE'];
+    const startRow = 4;
+    const endRow = 33;
+
+    for (let rowIndex = startRow - 1; rowIndex < endRow; rowIndex++) {
+      const row = data[rowIndex];
+      if (row) {
+        Object.keys(row).forEach((col) => {
+          if (!columnsToExclude.includes(col)) {
+            if (
+              row[col] !== undefined &&
+              row[col] !== 'NA' &&
+              row[col] !== null
+            ) {
+              row[col] = parseInt(row[col], 10);
+              if (isNaN(row[col])) {
+                row[col] = 0;
+              }
+            } else if (row[col] === 'NA' || row[col] === null) {
+              row[col] = 0;
+            }
+          }
+        });
+      }
+    }
+
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
