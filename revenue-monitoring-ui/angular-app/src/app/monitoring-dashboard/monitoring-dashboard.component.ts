@@ -117,7 +117,6 @@ export class MonitoringDashboardComponent<T>
     this.summaryLoadTime = `Last Updated: ...`;
     this.http.get(this.urls['summaryUrl'], this.destroyManager).subscribe({
       next: (data: any) => {
-        this.resetPreInvoicingTotals();
         this.summaryData = this.formatData(data);
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
@@ -126,8 +125,11 @@ export class MonitoringDashboardComponent<T>
           (data) => !this.summaryColumnsToHide.includes(data)
         );
         this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
-        const totals = this.calculateTotalsByProcessFlow(data);
-        this.dataService.setTabData(this.componentName, totals);
+        if (this.summaryColumns.includes('PROCESS_FLOW')) {
+          this.resetPreInvoicingTotals();
+          const totals = this.calculateTotalsByProcessFlow(data);
+          this.dataService.setTabData(this.componentName, totals);
+        }
         this.summaryData.forEach((row) => {
           row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
           row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
@@ -400,6 +402,7 @@ export class MonitoringDashboardComponent<T>
     this.selectedRows = [];
     this.isFiltered = false;
     this.filtereddataSource = null;
+    this.filterData();
     this.cdr.detectChanges();
   }
 
@@ -418,7 +421,6 @@ export class MonitoringDashboardComponent<T>
 
     this.http.get(this.urls['detailsUrl'], this.destroyManager).subscribe({
       next: (data: any) => {
-        console.log('Error details:', data);
         this.errorDetails = data;
         this.errorDetails = this.formatData(this.errorDetails);
         if (this.errorDetails.length > 0) {

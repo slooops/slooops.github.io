@@ -73,7 +73,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
       this.isLoading = true;
 
       this.http
-        .post('order-lifecycle-upload', formData, this.destroyManager, {
+        .post('order-lifecycle-upload', formData, {
           responseType: 'text',
         })
         .subscribe(
@@ -103,14 +103,9 @@ export class OrderLifecycleUploadComponent implements OnInit {
         username: this.username,
       };
       this.http
-        .post(
-          'order-lifecycle-upload-manual',
-          this.updateModel,
-          this.destroyManager,
-          {
-            responseType: 'text',
-          }
-        )
+        .post('order-lifecycle-upload-manual', this.updateModel, {
+          responseType: 'text',
+        })
         .subscribe(
           (data) => {
             this.uploadText = 'Deals upload successful!';

@@ -112,9 +112,8 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.submitKeys,
       true
     );
-    console.log('updateData:', updateData);
     this.http
-      .post(this.updateUrl, updateData, this.destroyManager, {
+      .post(this.updateUrl, updateData, {
         responseType: 'text',
       })
       .subscribe({
@@ -143,14 +142,14 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       false
     );
 
-    console.log('webexMessageData:', webexMessageData);
-
     this.http
-      .post(this.webexUrl, webexMessageData, this.destroyManager, {
+      .post(this.webexUrl, webexMessageData, {
         responseType: 'text',
       })
       .subscribe({
-        next: (data) => {},
+        next: (data) => {
+          console.log('Message sent successfully:', data);
+        },
         error: (err) => {
           console.error('Error while sending message:', err);
           this.closeDialog('webex-message-failed');

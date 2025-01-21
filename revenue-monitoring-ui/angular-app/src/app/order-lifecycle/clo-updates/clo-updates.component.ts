@@ -75,7 +75,6 @@ export class CloUpdatesComponent implements OnInit {
       .get('clo-sample-download-data', this.destroyManager)
       .subscribe((data: any) => {
         this.cloSampleDownloadData = data;
-        console.log(data);
       });
   }
 
@@ -113,7 +112,7 @@ export class CloUpdatesComponent implements OnInit {
 
       this.isLoading = true;
       this.http
-        .post('clo-bulk-upload-file', formData, this.destroyManager, {
+        .post('clo-bulk-upload-file', formData, {
           responseType: 'text',
         })
         .subscribe(
@@ -145,9 +144,8 @@ export class CloUpdatesComponent implements OnInit {
         cloComments: formData.cloComments,
         username: this.username,
       };
-      console.log(this.updateCloData);
       this.http
-        .post('clo-bulk-upload', this.updateCloData, this.destroyManager, {
+        .post('clo-bulk-upload', this.updateCloData, {
           responseType: 'text',
         })
         .subscribe(

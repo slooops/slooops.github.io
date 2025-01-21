@@ -153,10 +153,11 @@ export class OrderLifecycleComponent implements OnInit {
       });
   }
 
+  isLoading: boolean = false;
   getOrderLifecycle() {
-    this.dataService
-      .getLargeDealData(this.destroyManager)
-      .subscribe((data: any) => {
+    this.isLoading = true;
+    this.dataService.getLargeDealData(this.destroyManager).subscribe({
+      next: (data: any) => {
         this.orderLifecycleStatus = data['orderLifecycleResult'];
         this.dataSource = new MatTableDataSource<OrderLifecycleModel>(
           this.orderLifecycleStatus
@@ -209,7 +210,15 @@ export class OrderLifecycleComponent implements OnInit {
         this.length = this.orderLifecycleStatus.length;
         this.setSortAndPaginator();
         this.dataSource.filterPredicate = this.filterPredicate;
-      });
+      },
+      error: (err) => {
+        console.error('Error fetching data', err);
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
   }
 
   uploadText: string;
@@ -229,7 +238,7 @@ export class OrderLifecycleComponent implements OnInit {
       username: this.username,
     };
     this.http
-      .post('delete-selected-deals', body, this.destroyManager, {
+      .post('delete-selected-deals', body, {
         responseType: 'text',
       })
       .subscribe(
@@ -427,7 +436,7 @@ export class OrderLifecycleComponent implements OnInit {
       username: this.username,
     };
     this.http
-      .post('update-clo-comments', cloMap, this.destroyManager, {
+      .post('update-clo-comments', cloMap, {
         responseType: 'text',
       })
       .subscribe((data) => {
@@ -454,7 +463,7 @@ export class OrderLifecycleComponent implements OnInit {
       username: this.username,
     };
     this.http
-      .post('update-invoice-eligible-date', dateMap, this.destroyManager, {
+      .post('update-invoice-eligible-date', dateMap, {
         responseType: 'text',
       })
       .subscribe((data) => {

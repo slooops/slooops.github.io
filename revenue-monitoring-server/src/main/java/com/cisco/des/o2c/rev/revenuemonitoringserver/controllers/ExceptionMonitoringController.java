@@ -298,6 +298,45 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/fusion-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getFusionErrorSummary() {
+        return new ResponseEntity<>(service.getFusionErrorSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/fusion-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getFusionErrorDetails() {
+        return new ResponseEntity<>(service.getFusionDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions-processed-summary")
+    public ResponseEntity<List<Map<String, Object>>> getTransactionsProcessedSummary() {
+        return new ResponseEntity<>(service.getTransactionsProcessedSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions-processed-details")
+    public ResponseEntity<List<Map<String, Object>>> getTransactionsProcessedDetails() {
+        return new ResponseEntity<>(service.getTransactionsProcessedDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/transactions-processed-details-filtered")
+    public ResponseEntity<Map<String, Object>> getTransactionsProcessedDetailsFiltered(@RequestParam List<String> orgNames) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = orgNames.size();
+
+            for (int i = 0; i < minLength; i++) {
+                String orgName = orgNames.get(i);
+                List<Map<String, Object>> result = service.getTransactionsProcessedDetailsFiltered(orgName);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     //General Ledger
     @GetMapping("/gl-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {

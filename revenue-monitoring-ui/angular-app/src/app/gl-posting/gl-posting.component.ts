@@ -12,7 +12,8 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 export class GlPostingComponent implements OnInit {
   constructor(
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
   ) {}
   roles: string[] = [];
 
@@ -116,6 +117,17 @@ export class GlPostingComponent implements OnInit {
       .getMonitoringPeriodStatus(this.destroyManager)
       .subscribe((data: any) => {
         this.periodStatus = data;
+      });
+  }
+
+  assignmentUsers: any;
+
+  getAssignmentUsers() {
+    this.http
+      .get('summary-assignment-users', this.destroyManager)
+      .subscribe((data) => {
+        this.assignmentUsers = data;
+        this.dataService.setAssignmentUsers(this.assignmentUsers);
       });
   }
 

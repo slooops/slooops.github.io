@@ -243,3 +243,9 @@
 .menu-item:hover .dropdown {
   display: none !important; /* Ensures dropdowns don't show on hover */
 }
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}

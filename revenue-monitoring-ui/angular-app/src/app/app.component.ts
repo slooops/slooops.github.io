@@ -1,11 +1,13 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map, mergeMap, takeUntil } from 'rxjs/operators';
+import { filter, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { ApiHttpService } from './providers/http.service';
 
 @Component({
   selector: 'app-root',
@@ -58,6 +60,8 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         this.userName = data['auth_user_name'];
+        this.dataService.setUsername(data['auth_user']);
+        this.getUserRoles(data['auth_user']);
       });
   }
 
@@ -80,6 +84,31 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.ssoLogout();
+  }
+
+  userRoles$ = new BehaviorSubject<string[]>([]);
+  isAdmin$: Observable<boolean> = this.userRoles$.pipe(
+    map((roles) => roles.includes('ADMIN'))
+  );
+  loading$ = this.userRoles$.pipe(
+    map((roles) => roles.length === 0) // Loading if no roles are loaded yet
+  );
+  getUserRoles(username: string) {
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .pipe(
+        tap(() => (this.loading$ = of(false))),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((data) => {
+        this.userRoles$.next(data['userRoles']);
+        this.dataService.setUserRoles(data['userRoles']);
+      });
+  }
+  hasRole$(roles: string[]): Observable<boolean> {
+    return this.userRoles$.pipe(
+      map((userRoles) => roles.some((role) => userRoles.includes(role)))
+    );
   }
 
   ngOnDestroy(): void {

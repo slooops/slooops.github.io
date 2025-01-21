@@ -18,7 +18,7 @@ public class WebexMessageController {
 
     @PostMapping("/send-message-revenue-accounting")
     public void sendWebexMessageRevenueAccounting(@RequestBody Map<String, String> updateData) {
-        ePageEscalationService.sendEpageEscalation();
+        System.out.println(updateData);
         service.sendWebexMessageRevenueAccounting(updateData);
     }
 

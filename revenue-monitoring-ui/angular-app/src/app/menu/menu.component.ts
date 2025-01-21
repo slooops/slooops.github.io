@@ -46,7 +46,6 @@ export class MenuComponent implements OnInit {
       .getRoles(username, this.destroyManager)
       .subscribe((data) => {
         this.userRoles = data['userRoles'];
-        console.log(this.userRoles.includes('EXCEPTION_READ_ONLY'));
         this.dataService.setUserRoles(this.userRoles);
         this.isAdmin = this.userRoles.includes('ADMIN');
         this.rolesReady = true;

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { ApiHttpService } from '../providers/http.service';
 
 @Component({
   selector: 'app-custom-revenue',
@@ -12,7 +13,8 @@ export class CustomRevenueComponent implements OnInit {
   roles: string[] = [];
   constructor(
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
   ) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
@@ -79,12 +81,12 @@ export class CustomRevenueComponent implements OnInit {
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
-    '1. Payload Inbound Error': 0,
-    '2. Bill Ahead Of TSV': 0,
-    '3. Accrual Process': 0,
-    '4. Account Distributions': 0,
-    '5. Account Summarization': 0,
-    '6. Downstream Publish': 0,
+    '1.Payload Inbound Error': 0,
+    '2.Bill Ahead Of TSV': 0,
+    '3.Accrual Process': 0,
+    '4.Account Distributions': 0,
+    '5.Account Summarization': 0,
+    '6.Downstream Publish': 0,
   };
 
   accountsTotals: { [key: string]: number } = {
@@ -181,6 +183,17 @@ export class CustomRevenueComponent implements OnInit {
       });
   }
 
+  assignmentUsers: any;
+
+  getAssignmentUsers() {
+    this.http
+      .get('summary-assignment-users', this.destroyManager)
+      .subscribe((data) => {
+        this.assignmentUsers = data;
+        this.dataService.setAssignmentUsers(this.assignmentUsers);
+      });
+  }
+
   visibleTabs: {
     label: string;
     component: string;
@@ -216,8 +229,8 @@ export class CustomRevenueComponent implements OnInit {
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     {
-      label: 'Business Controls',
-      component: 'app-cr-business-controls',
+      label: 'Operations Controls',
+      component: 'app-cr-operations-controls',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
     },

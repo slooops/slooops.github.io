@@ -22,15 +22,8 @@ export class ApiHttpService {
       .pipe(takeUntil(destroyManager.destroyObservable));
   }
 
-  public post(
-    url: string,
-    data: any,
-    destroyManager: DestroyManager,
-    options?: any
-  ) {
-    return this.http
-      .post(this.hostUrl + url, data, options)
-      .pipe(takeUntil(destroyManager.destroyObservable));
+  public post(url: string, data: any, options?: any) {
+    return this.http.post(this.hostUrl + url, data, options);
   }
 
   public put(

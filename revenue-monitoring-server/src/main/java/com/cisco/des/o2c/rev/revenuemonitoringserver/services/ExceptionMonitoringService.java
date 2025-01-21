@@ -47,6 +47,12 @@ public class ExceptionMonitoringService {
     private String tspAccountDetailView;
     private String tspAccountDetailViewFiltered;
     private String tspAccountSummaryUpdate;
+    private String fusionErrorSummary;
+    private String fusionErrorDetails;
+    private String transactionsProcessedSummary;
+    private String transactionsProcessedDetails;
+    private String transactionsProcessedDetailsFiltered;
+
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
@@ -58,7 +64,8 @@ public class ExceptionMonitoringService {
                                       String invoiceToCashSummary,  String rolErrorsSummaryUpdate, String rolErrorsSummaryPeriodStatus, String rolChartTotals,
                                       String rolChartDetails, String rolTransactionDataFilter, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
                                       String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView,
-                                      String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate
+                                      String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate, String fusionErrorSummary, String fusionErrorDetails,
+                                      String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered
     ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
@@ -96,6 +103,12 @@ public class ExceptionMonitoringService {
         this.tspAccountDetailView = tspAccountDetailView;
         this.tspAccountDetailViewFiltered = tspAccountDetailViewFiltered;
         this.tspAccountSummaryUpdate = tspAccountSummaryUpdate;
+        this.fusionErrorSummary = fusionErrorSummary;
+        this.fusionErrorDetails = fusionErrorDetails;
+        this.transactionsProcessedSummary = transactionsProcessedSummary;
+        this.transactionsProcessedDetails = transactionsProcessedDetails;
+        this.transactionsProcessedDetailsFiltered = transactionsProcessedDetailsFiltered;
+
     }
 
     // ROL
@@ -488,6 +501,63 @@ public class ExceptionMonitoringService {
         int test = jdbcManager.updateEInvoicingSummary(eInvoicingSummaryUpdate, assignedTo, assignedBy, comments, periodName, appName,
                 processFlow, ouName, transactionDate);
         return 1;
+    }
+
+    public List<Map<String, Object>> getFusionErrorSummary() {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(fusionErrorSummary);
+        result.forEach(data -> {
+            data.remove("AGING");
+            renameKey(data,"ENTITY_NAME", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getFusionDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(fusionErrorDetails);
+        result.forEach(data -> {
+            renameKey(data,"ENTITY_NAME", "ORG_NAME");
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getTransactionsProcessedSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(transactionsProcessedSummary);
+        result.forEach(data -> {
+            renameKey(data,"OPERATING_UNIT", "ORG_NAME");
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getTransactionsProcessedDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(transactionsProcessedDetails);
+        result.forEach(data -> {
+            renameKey(data,"OPERATING_UNIT", "ORG_NAME");
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getTransactionsProcessedDetailsFiltered(String ouName) {
+        List<Map<String, Object>> result = jdbcManager.getTransactionsProcessedFiltered(transactionsProcessedDetailsFiltered, ouName);
+        result.forEach(data -> {
+            renameKey(data,"OPERATING_UNIT", "ORG_NAME");
+        });
+        return result;
     }
 
     // General Ledger

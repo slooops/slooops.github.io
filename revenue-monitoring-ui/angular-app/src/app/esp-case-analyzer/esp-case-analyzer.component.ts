@@ -82,7 +82,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.http
       .get('esp-aging-case-summary', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('espAgingCaseSummary:', data);
         if (data && data.length > 0) {
           // Columns to remove
           const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
