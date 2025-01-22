@@ -9,6 +9,7 @@ metadata:
   name: "rev-ops-monitoring-backend-final-service"
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
+    # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
 spec:
@@ -26,6 +27,7 @@ metadata:
   name: "rev-ops-monitoring-server-final"
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
+    # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
 spec:
@@ -39,6 +41,7 @@ spec:
       labels:
         app: "rev-ops-monitoring-server-final"
         environment: "prod"
+        # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
         softwareName: "rev-ops-monitoring-server-final"
     spec:
