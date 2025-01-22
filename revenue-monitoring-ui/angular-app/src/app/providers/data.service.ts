@@ -74,28 +74,19 @@ export class DataService implements OnDestroy {
     return this.fetchWithCache('monitoring-period-status', destroyManager);
   }
 
-  private i2cSummary$: Observable<any>;
   getI2CSummary(destroyManager: DestroyManager): Observable<any> {
-    if (!this.i2cSummary$) {
-      this.i2cSummary$ = this.http
-        .get('invoice-to-cash-summary', destroyManager)
-        .pipe(shareReplay(1), takeUntil(this.destroy$));
-    }
-    return this.i2cSummary$;
+    return this.fetchWithCache('invoice-to-cash-summary', destroyManager);
   }
 
   getLargeDealData(destroyManager: DestroyManager): Observable<any> {
     return this.fetchWithCache('order-status', destroyManager);
   }
 
-  private userRoles$: Observable<any>;
   getRoles(username: string, destroyManager: DestroyManager): Observable<any> {
-    if (!this.userRoles$) {
-      this.userRoles$ = this.http
-        .get(`user-role?username=${username}`, destroyManager)
-        .pipe(shareReplay(1), takeUntil(this.destroy$));
-    }
-    return this.userRoles$;
+    return this.fetchWithCache(
+      `user-role?username=${username}`,
+      destroyManager
+    );
   }
 
   getUserRoles() {
