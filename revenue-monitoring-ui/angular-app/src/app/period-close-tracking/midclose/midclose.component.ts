@@ -8,6 +8,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
 import { DataService } from 'src/app/providers/data.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 
 export interface PeriodClose {
   operatingUnit: string;
@@ -23,10 +24,15 @@ export interface PeriodClose {
   selector: 'app-midclose',
   templateUrl: './midclose.component.html',
   styleUrls: ['./midclose.component.css'],
+  providers: [DestroyManager],
 })
 export class MidcloseComponent extends PeriodCloseTrackingComponent {
-  constructor(http: ApiHttpService, dataService: DataService) {
-    super(http, dataService);
+  constructor(
+    http: ApiHttpService,
+    dataService: DataService,
+    destroyManager: DestroyManager
+  ) {
+    super(http, dataService, destroyManager);
   }
 
   username: string = 'Admin';
@@ -37,7 +43,7 @@ export class MidcloseComponent extends PeriodCloseTrackingComponent {
   updateComments() {
     let comments = this.updatedComments + ',MIDCLOSE';
     this.http
-      .post('pclose-update-dashboard-comments', comments)
+      .post('pclose-update-dashboard-comments', comments, this.destroyManager)
       .subscribe((data: any) => {
         this.updatedComments = '';
         this.showCommentSave = false;

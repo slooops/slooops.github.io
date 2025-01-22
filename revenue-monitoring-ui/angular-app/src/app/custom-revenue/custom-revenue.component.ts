@@ -1,14 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
+import { DestroyManager } from '../providers/destroy-manager.service';
+import { ApiHttpService } from '../providers/http.service';
 
 @Component({
   selector: 'app-custom-revenue',
   templateUrl: './custom-revenue.component.html',
   styleUrl: './custom-revenue.component.css',
+  providers: [DestroyManager],
 })
 export class CustomRevenueComponent implements OnInit {
   roles: string[] = [];
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
+  ) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
     this.getUserId();
@@ -16,17 +23,19 @@ export class CustomRevenueComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
-    this.dataService.getUserId().subscribe((data) => {
+    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
       let username = data['auth_user'];
       this.getUserRoles(username);
     });
   }
 
   getUserRoles(username: string) {
-    this.dataService.getRoles(username).subscribe((data) => {
-      this.roles = data['userRoles'];
-      this.getDefaultTabIndex();
-    });
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .subscribe((data) => {
+        this.roles = data['userRoles'];
+        this.getDefaultTabIndex();
+      });
   }
   rolTotals: { [key: string]: number } = {
     XXCFIR_REV_INTERFACE_ALL: 0,
@@ -167,9 +176,22 @@ export class CustomRevenueComponent implements OnInit {
   };
 
   getErrorSummaryPeriodStatus() {
-    this.dataService.getMonitoringPeriodStatus().subscribe((data: any) => {
-      this.periodStatus = data;
-    });
+    this.dataService
+      .getMonitoringPeriodStatus(this.destroyManager)
+      .subscribe((data: any) => {
+        this.periodStatus = data;
+      });
+  }
+
+  assignmentUsers: any;
+
+  getAssignmentUsers() {
+    this.http
+      .get('summary-assignment-users', this.destroyManager)
+      .subscribe((data) => {
+        this.assignmentUsers = data;
+        this.dataService.setAssignmentUsers(this.assignmentUsers);
+      });
   }
 
   visibleTabs: {
@@ -207,8 +229,8 @@ export class CustomRevenueComponent implements OnInit {
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     {
-      label: 'Business Controls',
-      component: 'app-cr-business-controls',
+      label: 'Operations Controls',
+      component: 'app-cr-operations-controls',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
     },

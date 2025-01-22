@@ -8,7 +8,7 @@
 
 .mat-toolbar-row,
 .mat-toolbar-single-row {
-  height: 50px !important;
+  height: 100px !important;
 }
 
 .user-title {
@@ -29,7 +29,7 @@
 }
 
 .onHover:hover {
-  background-color: #54535338;
+  background-color: #08ace4;
   cursor: pointer;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .onHoverMenu:hover {
-  background-color: #b1b1b144;
+  background-color: #08ace4;
   cursor: pointer;
 }
 
@@ -103,4 +103,149 @@
 /* Disable link styling */
 .mat-menu-item[disabled] {
   color: rgba(0, 0, 0, 0.38); /* Gray color for disabled items */
+}
+
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+}
+
+.custom-search-bar {
+  display: flex;
+  align-items: center;
+  /* border: 1px solid #c4c4c4; */
+  border-radius: 24px; /* Rounded ends */
+  padding: 4px 8px; /* Inner padding */
+  height: 32px;
+  background-color: #ffffff; /* Light background */
+  width: 432px; /* Optional: Adjust max width */
+  margin: 0 auto; /* Optional: Center the search bar */
+  /* box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);  */
+}
+
+.custom-search-bar:hover {
+  border-color: #e8e8e8; /* Accent color when focused */
+}
+
+.custom-search-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 24px; /* Match container's rounded ends */
+  background: transparent;
+}
+
+.custom-search-input:focus-within {
+  color: #ba0f0f;
+}
+
+.custom-search-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px; /* Adjust icon size */
+  color: #6b6b6b; /* Icon color */
+}
+
+.custom-search-bar:focus-within {
+  border-color: #6200ea; /* Accent color when focused */
+}
+
+.custom-search-bar:hover {
+  background-color: #eeeeee; /* Slight hover effect */
+}
+
+/* Navbar container */
+.navbar {
+  background-color: #08ace4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* padding: 10px 20px; */
+  margin-bottom: 0px;
+  min-height: unset;
+}
+
+/* Top-level menu */
+.menu {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  position: relative;
+  margin: 0 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.top-link {
+  color: rgb(255, 255, 255) !important;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  /* padding: 10px 15px; */
+  display: block;
+}
+
+.top-link:hover {
+  background-color: rgba(255, 255, 255, 0);
+  border-radius: 5px;
+  text-decoration: none !important;
+}
+
+/* Dropdown menu */
+.dropdown {
+  list-style: none;
+  position: absolute;
+  background-color: white;
+  display: none;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  margin: 0;
+  padding: 5px 0;
+  top: 100%; /* Position below the top menu */
+  left: 0;
+  z-index: 1000;
+}
+
+.dropdown li {
+  padding: 8px 20px;
+}
+
+.dropdown a {
+  color: #373c42;
+  text-decoration: none;
+  font-size: 13px;
+  display: block;
+}
+
+.dropdown a:hover {
+  background-color: #f0f0f0;
+}
+
+/* Show dropdown on hover */
+.menu-item:hover .dropdown {
+  display: block;
+}
+
+/* Temporarily hide dropdowns */
+.dropdown {
+  display: none; /* Hides the dropdown menu */
+}
+
+/* Prevent hover behavior */
+.menu-item:hover .dropdown {
+  display: none !important; /* Ensures dropdowns don't show on hover */
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
 }

@@ -36,9 +36,7 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
     private renderer: Renderer2
   ) {}
 
-  ngOnInit() {
-    console.log('here');
-  }
+  ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (

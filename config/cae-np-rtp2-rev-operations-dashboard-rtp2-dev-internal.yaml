@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-backend-rol-service"
+  name: "rev-ops-monitoring-backend-internal-service"
   namespace: "rev-operations-dashboard-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -17,13 +17,13 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-    app: "rev-ops-monitoring-server-rol"
+    app: "rev-ops-monitoring-server-internal"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-server-rol"
+  name: "rev-ops-monitoring-server-internal"
   namespace: "rev-operations-dashboard-rtp2"
   labels:
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -31,21 +31,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-server-rol"
+      app: "rev-ops-monitoring-server-internal"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-rtp2"
       labels:
-        app: "rev-ops-monitoring-server-rol"
+        app: "rev-ops-monitoring-server-internal"
         environment: "dev"
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-server-rol"
+        softwareName: "rev-ops-monitoring-server-internal"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-server-rol"
+          name: "rev-ops-monitoring-server-internal"
           ports:
             - containerPort: 8080
           env:
@@ -88,7 +88,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.rol.url
+                  key: cors.final.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:

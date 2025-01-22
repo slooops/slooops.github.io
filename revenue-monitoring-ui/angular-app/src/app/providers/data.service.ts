@@ -1,69 +1,92 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { ApiHttpService } from './http.service';
-import { shareReplay } from 'rxjs/operators';
+import { catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { DestroyManager } from './destroy-manager.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataService {
+export class DataService implements OnDestroy {
+  private destroy$ = new Subject<void>();
+  private cacheExpiryTime = 10 * 60 * 1000;
+
   allErrorsSelected: boolean = true;
   userRoles: any;
   username: any;
   assignmentUsers: any;
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  private periodStatusCache$: Observable<any>;
-  private i2csummaryCache$: Observable<any>;
-  private largeDealData$: Observable<any>;
-  private userRoles$: Observable<any>;
-  private userdata$: Observable<any>;
 
   constructor(private http: ApiHttpService) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.loadingSubject.complete();
+  }
+
+  private cacheStore = new Map<
+    string,
+    { data$: Observable<any>; expiry: number }
+  >();
+  private loadingSubject = new BehaviorSubject<boolean>(false);
   private tabData = new Map<
     string,
     BehaviorSubject<{ [key: string]: string }>
   >();
 
-  getUserId() {
+  private fetchWithCache(
+    url: string,
+    destroyManager: DestroyManager
+  ): Observable<any> {
+    const currentTime = Date.now();
+    const cachedData = this.cacheStore.get(url);
+    if (cachedData && cachedData.expiry > currentTime) {
+      return cachedData.data$;
+    }
+    const data$ = this.http.get(url, destroyManager).pipe(
+      shareReplay(1),
+      tap(() => {
+        this.cacheStore.set(url, {
+          data$: data$,
+          expiry: currentTime + this.cacheExpiryTime,
+        });
+      }),
+      catchError((error) => {
+        console.error(`Error fetching data from ${url}:`, error);
+        return of(null);
+      }),
+      takeUntil(this.destroy$)
+    );
+    return data$;
+  }
+
+  private userdata$: Observable<any>;
+  getUserId(destroyManager: DestroyManager) {
     if (!this.userdata$) {
-      this.userdata$ = this.http.getUser('/user/name').pipe(shareReplay(1));
+      this.userdata$ = this.http
+        .getUser('/user/name', destroyManager)
+        .pipe(shareReplay(1), takeUntil(this.destroy$));
     }
     return this.userdata$;
   }
 
-  getMonitoringPeriodStatus(): Observable<any> {
-    if (!this.periodStatusCache$) {
-      this.periodStatusCache$ = this.http
-        .get('monitoring-period-status')
-        .pipe(shareReplay(1));
-    }
-    return this.periodStatusCache$;
+  getMonitoringPeriodStatus(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('monitoring-period-status', destroyManager);
   }
 
-  getI2CSummary(): Observable<any> {
-    if (!this.i2csummaryCache$) {
-      this.i2csummaryCache$ = this.http
-        .get('invoice-to-cash-summary')
-        .pipe(shareReplay(1));
-    }
-    return this.i2csummaryCache$;
+  getI2CSummary(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('invoice-to-cash-summary', destroyManager);
   }
 
-  getLargeDealData(): Observable<any> {
-    if (!this.largeDealData$) {
-      this.largeDealData$ = this.http.get('order-status').pipe(shareReplay(1));
-    }
-    return this.largeDealData$;
+  getLargeDealData(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('order-status', destroyManager);
   }
 
-  getRoles(username: string): Observable<any> {
-    if (!this.userRoles$) {
-      this.userRoles$ = this.http
-        .get(`user-role?username=${username}`)
-        .pipe(shareReplay(1));
-    }
-    return this.userRoles$;
+  getRoles(username: string, destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache(
+      `user-role?username=${username}`,
+      destroyManager
+    );
   }
 
   getUserRoles() {

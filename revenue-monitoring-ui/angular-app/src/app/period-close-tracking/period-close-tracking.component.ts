@@ -7,11 +7,13 @@ import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { DataService } from '../providers/data.service';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-period-close-tracking',
   templateUrl: './period-close-tracking.component.html',
   styleUrls: ['./period-close-tracking.component.css'],
+  providers: [DestroyManager],
 })
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 30000; //ms
@@ -225,10 +227,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   protected http: ApiHttpService;
   protected dataService: DataService;
+  protected destroyManager: DestroyManager;
 
-  constructor(http: ApiHttpService, dataService: DataService) {
+  constructor(
+    http: ApiHttpService,
+    dataService: DataService,
+    destroyManager: DestroyManager
+  ) {
     this.http = http;
     this.dataService = dataService;
+    this.destroyManager = destroyManager;
 
     window.onbeforeunload = function () {
       localStorage.clear();
@@ -278,17 +286,19 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
-    this.dataService.getUserId().subscribe((data) => {
+    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
       let username = data['auth_user'];
       this.getUserRoles(username);
     });
   }
 
   getUserRoles(username: string) {
-    this.dataService.getRoles(username).subscribe((data) => {
-      this.roles = data['userRoles'];
-      this.getDefaultTabIndex();
-    });
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .subscribe((data) => {
+        this.roles = data['userRoles'];
+        this.getDefaultTabIndex();
+      });
   }
 
   selectedIndex: number = 0;
@@ -1192,7 +1202,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl))
+      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
     );
     return polling$;
   }

@@ -25,7 +25,6 @@ export class CmsSftpDetailsComponent implements OnInit {
     window.addEventListener('message', (event) => {
       if (event.data && event.data.data) {
         this.data = event.data.data;
-        console.log('Received from CMS:', this.data);
         this.isDataLoaded = true; // Set the flag to true once data is received
       } else {
         console.error('No data received for CMS SFTP Details page.');
