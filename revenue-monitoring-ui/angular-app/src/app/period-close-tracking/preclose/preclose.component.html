@@ -42,7 +42,7 @@
       <div class="col-sm-4">
         <div style="float: right">
           <span *ngIf="showpreStatusFilter">
-            <mat-form-field appearance="standard">
+            <mat-form-field appearance="standard" data-cy="preclose-statuses">
               <mat-label>Select Statuses</mat-label>
               <mat-select
                 [formControl]="precloseStatuses"
@@ -68,6 +68,7 @@
                 [formControl]="precloseEntities"
                 id="entity"
                 name="entity"
+                data-cy="preclose-entites"
                 multiple
               >
                 <mat-option
