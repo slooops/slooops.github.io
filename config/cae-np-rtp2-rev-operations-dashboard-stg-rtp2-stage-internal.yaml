@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-backend-final-service"
+  name: "rev-ops-monitoring-backend-internal-service-stg"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
@@ -18,13 +18,13 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-    app: "rev-ops-monitoring-server-final"
+    app: "rev-ops-monitoring-server-internal"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-server-final"
+  name: "rev-ops-monitoring-server-internal"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
@@ -33,22 +33,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-server-final"
+      app: "rev-ops-monitoring-server-internal"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-stg-rtp2"
       labels:
-        app: "rev-ops-monitoring-server-final"
+        app: "rev-ops-monitoring-server-internal"
         environment: "stage"
         # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-server-final"
+        softwareName: "rev-ops-monitoring-server-internal"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-final"
+          name: "rev-ops-monitoring-server-internal"
           ports:
             - containerPort: 8080
           env:
@@ -763,7 +763,7 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: order-lifecycle-dashboard-api-stg.cisco.com
+  name: ops-control-tower-api-stg.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
   annotations:
     ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping

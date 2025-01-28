@@ -9,13 +9,14 @@ metadata:
   name: "rev-ops-monitoring-ui-final-service-stg"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
+    # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
 spec:
   ports:
     - name: "ui"
       protocol: "TCP"
-      port: 4200
+      port: 3000
   selector:
     app: "rev-ops-monitoring-ui-final"
   type: ClusterIP
@@ -26,6 +27,7 @@ metadata:
   name: "rev-ops-monitoring-ui-final"
   namespace: "rev-operations-dashboard-stg-rtp2"
   labels:
+    # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring-ui"
 spec:
@@ -39,6 +41,7 @@ spec:
       labels:
         app: "rev-ops-monitoring-ui-final"
         environment: "stage-ui"
+        # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
         softwareName: "rev-ops-monitoring-ui-final"
     spec:
@@ -47,14 +50,14 @@ spec:
           imagePullPolicy: IfNotPresent
           name: "rev-ops-monitoring-ui-final"
           ports:
-            - containerPort: 4200
+            - containerPort: 3000
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: order-lifecycle-dashboard-stg.cisco.com
+  name: operations-control-tower-stg.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
 spec:
   contexts:
@@ -93,7 +96,7 @@ spec:
           when:
             - kind: clientId
               values:
-                - "frs-oauth-prod"
+                - "frs-oauth-nprd"
     web:
       allow:
         - paths:

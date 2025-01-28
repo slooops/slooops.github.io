@@ -68,10 +68,6 @@ import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.
 import { HelpDataComponent } from './help-data/help-data.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
-import { AutoInvoicingComponent } from './invoicing/auto-invoicing/auto-invoicing.component';
-import { PreInvoicingComponent } from './invoicing/pre-invoicing/pre-invoicing.component';
-import { AssignUserComponent } from './invoicing/assign-user/assign-user.component';
-import { AutoInvoicingRealComponent } from './invoicing/auto-invoicing-real/auto-invoicing-real.component';
 import { MonitoringDashboardComponent } from './monitoring-dashboard/monitoring-dashboard.component';
 import { UserAssignmentComponent } from './monitoring-dashboard/user-assignment/user-assignment.component';
 import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow-tooltip/process-flow-tooltip.component';
@@ -118,9 +114,6 @@ export function initApp(authService: AuthenticationService) {
     HelpDataComponent,
     InvoicingComponent,
     CustomRevenueComponent,
-    AutoInvoicingComponent,
-    PreInvoicingComponent,
-    AssignUserComponent,
     MonitoringDashboardComponent,
     UserAssignmentComponent,
     ProcessFlowTooltipComponent,
@@ -136,7 +129,6 @@ export function initApp(authService: AuthenticationService) {
     MatProgressBarModule,
     FontAwesomeModule,
     MatTabsModule,
-    AutoInvoicingRealComponent,
     BrowserAnimationsModule,
     MatSelectModule,
     ReactiveFormsModule,

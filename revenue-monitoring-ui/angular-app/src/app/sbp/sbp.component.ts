@@ -2,11 +2,13 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-sbp',
   templateUrl: './sbp.component.html',
   styleUrls: ['./sbp.component.css'],
+  providers: [DestroyManager],
 })
 export class SbpComponent implements OnInit {
   sbpSummaryData: MatTableDataSource<any> = new MatTableDataSource([]);
@@ -19,7 +21,10 @@ export class SbpComponent implements OnInit {
   summaryLoading = true;
   detailsLoading = true;
 
-  constructor(private http: ApiHttpService) {}
+  constructor(
+    private http: ApiHttpService,
+    private destroyManager: DestroyManager
+  ) {}
 
   ngOnInit(): void {
     this.getSbpSummaryData();
@@ -27,7 +32,7 @@ export class SbpComponent implements OnInit {
   }
 
   getSbpSummaryData() {
-    this.http.get('sbp-summary').subscribe((data: any) => {
+    this.http.get('sbp-summary', this.destroyManager).subscribe((data: any) => {
       console.log('summary', data);
       if (data.length > 0) {
         // Dynamically set summaryColumns based on keys of the first object
@@ -43,7 +48,7 @@ export class SbpComponent implements OnInit {
   }
 
   getSbpDetailData() {
-    this.http.get('sbp-details').subscribe((data: any) => {
+    this.http.get('sbp-details', this.destroyManager).subscribe((data: any) => {
       console.log('detail', data);
       if (data.length > 0) {
         this.detailsColumns = Object.keys(data[0]);

@@ -3,6 +3,7 @@ import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { ApiHttpService } from '../../providers/http.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from 'src/app/providers/data.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 
 @Component({
   selector: 'app-order-lifecycle-upload',
@@ -18,7 +19,8 @@ export class OrderLifecycleUploadComponent implements OnInit {
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {}
 
   ngOnInit(): void {
@@ -71,7 +73,9 @@ export class OrderLifecycleUploadComponent implements OnInit {
       this.isLoading = true;
 
       this.http
-        .post('order-lifecycle-upload', formData, { responseType: 'text' })
+        .post('order-lifecycle-upload', formData, {
+          responseType: 'text',
+        })
         .subscribe(
           (response) => {
             this.uploadText = 'Deals upload successful!';

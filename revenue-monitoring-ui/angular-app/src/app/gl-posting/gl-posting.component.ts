@@ -1,14 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-gl-posting',
   templateUrl: './gl-posting.component.html',
   styleUrl: './gl-posting.component.css',
+  providers: [DestroyManager],
 })
 export class GlPostingComponent implements OnInit {
-  constructor(private dataService: DataService) {}
+  constructor(
+    private dataService: DataService,
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
+  ) {}
   roles: string[] = [];
 
   ngOnInit() {
@@ -18,16 +24,18 @@ export class GlPostingComponent implements OnInit {
 
   getUserId() {
     this.dataService.setLoading(true);
-    this.dataService.getUserId().subscribe((data) => {
+    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
       let username = data['auth_user'];
       this.getUserRoles(username);
     });
   }
 
   getUserRoles(username: string) {
-    this.dataService.getRoles(username).subscribe((data) => {
-      this.roles = data['userRoles'];
-    });
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .subscribe((data) => {
+        this.roles = data['userRoles'];
+      });
   }
 
   glTotals: { [key: string]: number } = {
@@ -105,9 +113,22 @@ export class GlPostingComponent implements OnInit {
   periodStatus: any;
 
   getErrorSummaryPeriodStatus() {
-    this.dataService.getMonitoringPeriodStatus().subscribe((data: any) => {
-      this.periodStatus = data;
-    });
+    this.dataService
+      .getMonitoringPeriodStatus(this.destroyManager)
+      .subscribe((data: any) => {
+        this.periodStatus = data;
+      });
+  }
+
+  assignmentUsers: any;
+
+  getAssignmentUsers() {
+    this.http
+      .get('summary-assignment-users', this.destroyManager)
+      .subscribe((data) => {
+        this.assignmentUsers = data;
+        this.dataService.setAssignmentUsers(this.assignmentUsers);
+      });
   }
 
   glflowCss: string = `

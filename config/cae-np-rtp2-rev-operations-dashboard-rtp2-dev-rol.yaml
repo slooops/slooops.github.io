@@ -9,6 +9,7 @@ metadata:
   name: "rev-ops-monitoring-backend-rol-service"
   namespace: "rev-operations-dashboard-rtp2"
   labels:
+    # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
 spec:
@@ -26,6 +27,7 @@ metadata:
   name: "rev-ops-monitoring-server-rol"
   namespace: "rev-operations-dashboard-rtp2"
   labels:
+    # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
     softwareName: "rev-ops-monitoring"
 spec:
@@ -39,6 +41,7 @@ spec:
       labels:
         app: "rev-ops-monitoring-server-rol"
         environment: "dev"
+        # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
         softwareName: "rev-ops-monitoring-server-rol"
     spec:
@@ -484,5 +487,275 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: cms.recon.err.count.extract.query
+            - name: ESTIMATED_COMPLETION_TIME_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: estimated.completion.time.query
+            - name: LARGE_DEAL_SUMMARY_BY_ACCOUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: large.deal.summary.by.account.query
+            - name: CLO_SAMPLE_DOWNLOAD_DATA_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: clo.sample.download.data.query
+            - name: CASE_SERVICE_METRICS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: case.service.metrics.summary
+            - name: ROL_TRANSACTION_DATA_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.count.query
+            - name: ROL_ERRORS_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.update.query
+            - name: ROL_ERRORS_SUMMARY_PERIOD_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.errors.summary.period.status.query
+            - name: SBP_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: sbp.details.q
+            - name: ROL_CHART_TOTALS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.chart.totals.q
+            - name: ROL_CHART_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.chart.details.q
+            - name: ROL_TRANSACTION_DATA_FILTER_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.filter.query
+            - name: ROL_TRANSACTION_DATA_FILTER_COUNT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.filter.count.query
+            - name: ROOM_ID_REVENUE_ACCOUNTING
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.room.id.revenue.accounting
+            - name: WEBEX_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.url
+            - name: AUTH_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.auth.token
+            - name: AUTO_INVOICE_ERROR_SUMMARY_VIEW_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.error.summary.view.query
+            - name: AUTO_INVOICE_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.error.details.query
+            - name: WD0_VOLUMES_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.volumes.q
+            - name: ROL_TRANSACTION_DATA_DOWNLOAD_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.data.download.q
+            - name: ROL_TRANSACTION_FILTER_DATA_DOWNLOAD_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rol.transaction.filter.data.download.q
+            - name: PRE_INVOICE_ERROR_SUMMARY_VIEW_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.error.summary.view.query
+            - name: PRE_INVOICE_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.error.details.query
+            - name: AUTO_INVOICE_ERROR_DETAILS_QUERY_FILTERED
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.error.details.filtered.query
+            - name: PRE_INVOICE_ERROR_DETAILS_QUERY_FILTERED
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.error.details.filtered.query
+            - name: ROOM_ID_INVOICING
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.room.id.invoicing
+            - name: INVOICING_AUTH_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: webex.auth.token.invoicing
+            - name: SUMMARY_ASSIGNMENT_USERS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: summary.assignment.users.query
+            - name: AUTO_INVOICE_ERROR_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: auto.invoice.errors.summary.update.query
+            - name: PRE_INVOICE_ERROR_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: pre.invoice.errors.summary.update.query
+            - name: EPAGE_ACCESS_TOKEN_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.access.token.url
+            - name: EPAGE_ACCESS_TOKEN_CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.access.token.client.id
+            - name: EPAGE_ACCESS_TOKEN_CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.access.token.client.secret
+            - name: EPAGE_PAGE_OUT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.pageout.api.url
+            - name: EPAGE_PAGE_OUT_ALIAS
+              valueFrom:
+                configMapKeyRef:
+                  name: server-properties
+                  key: epage.pageout.alias
+            - name: ACCRUALS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.summary.q
+            - name: ACCRUALS_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.details.q
+            - name: INVOICE_TO_CASH_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: invoice.to.cash.summary.q
+            - name: ACCRUALS_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.details.filtered
+            - name: ACCRUALS_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: accruals.summary.update.q
+            - name: GL_ERROR_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.error.summary.q
+            - name: GL_ERROR_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.error.details.q
+            - name: GL_POSTING_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.posting.details.filtered.q
+            - name: GL_POSTING_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: gl.posting.summary.update.q
+            - name: EINVOICING_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.summary.q
+            - name: EINVOICING_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.details.q
+            - name: ESP_AGING_CASE_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: esp.aging.case.summary.q
+            - name: ESP_CASE_SERVICE_METRIC_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: esp.case.service.metric.summary.q
+            - name: ESP_WEEKLY_COMPARISON_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: esp.weekly.comparison.summary.q
+            - name: EINVOICING_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.details.filtered.q
+            - name: EINVOICING_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: einvoicing.summary.update.q
+            - name: TSP_ACCOUNT_SUMMARY_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.summary.view.q
+            - name: TSP_ACCOUNT_DETAIL_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.detail.view.q
+            - name: TSP_ACCOUNT_DETAIL_FILTERED_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.detail.view.filtered.q
+            - name: TSP_ACCOUNT_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: tsp.account.summary.update.q
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret

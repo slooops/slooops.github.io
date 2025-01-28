@@ -15,11 +15,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { th } from 'date-fns/locale';
 import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-cms',
   templateUrl: './cms.component.html',
   styleUrls: ['./cms.component.css'],
+  providers: [DestroyManager],
 })
 export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
@@ -121,7 +123,8 @@ export class CmsComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     private router: Router,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private destroyManager: DestroyManager
   ) {
     this.http = http;
   }
@@ -310,7 +313,7 @@ export class CmsComponent implements OnInit {
     let url = `${endpoint}?query=${queryParam}`;
     //let url = `${endpoint}`;
 
-    return this.http.get(url);
+    return this.http.get(url, this.destroyManager);
 
     // const polling$ = interval(this.refreshInterval).pipe(
     //   startWith(0), // Emit initial value immediately
