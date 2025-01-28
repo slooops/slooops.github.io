@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
@@ -7,11 +8,13 @@ import * as XLSX from 'xlsx';
   selector: 'app-order-lifecycle-rev-summary',
   templateUrl: './order-lifecycle-rev-summary.component.html',
   styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
+  providers: [DestroyManager],
 })
 export class OrderLifecycleRevSummaryComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleRevSummaryComponent>,
-    http: ApiHttpService
+    http: ApiHttpService,
+    private destroyManager: DestroyManager
   ) {
     this.http = http;
   }
@@ -27,9 +30,11 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   }
 
   getOrderLifecycleRevSummary() {
-    this.http.get('order-status-rev-summary').subscribe((data: any) => {
-      this.pivotData(data);
-    });
+    this.http
+      .get('order-status-rev-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        this.pivotData(data);
+      });
   }
 
   pivotData(originalData) {

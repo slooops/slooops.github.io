@@ -9,12 +9,14 @@ import {
 } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { DataService } from 'src/app/providers/data.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
   selector: 'app-user-assignment',
   templateUrl: './user-assignment.component.html',
   styleUrl: './user-assignment.component.css',
+  providers: [DestroyManager],
 })
 export class UserAssignmentComponent implements OnInit, OnChanges {
   @Input() submitKeysToMap: string[] = []; // Keys for submitData
@@ -50,7 +52,8 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
   constructor(
     private formBuilder: FormBuilder,
     private http: ApiHttpService,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {
     this.username = this.dataService.getUsername();
     this.userRoles = this.dataService.getUserRoles();
@@ -109,7 +112,6 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.submitKeys,
       true
     );
-    console.log('updateData:', updateData);
     this.http
       .post(this.updateUrl, updateData, {
         responseType: 'text',
@@ -140,14 +142,14 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       false
     );
 
-    console.log('webexMessageData:', webexMessageData);
-
     this.http
       .post(this.webexUrl, webexMessageData, {
         responseType: 'text',
       })
       .subscribe({
-        next: (data) => {},
+        next: (data) => {
+          console.log('Message sent successfully:', data);
+        },
         error: (err) => {
           console.error('Error while sending message:', err);
           this.closeDialog('webex-message-failed');

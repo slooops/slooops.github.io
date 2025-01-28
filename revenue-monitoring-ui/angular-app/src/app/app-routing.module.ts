@@ -19,7 +19,7 @@ const routes: Routes = [
     component: HomeComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Operations Control Tower',
+      header: 'Home',
     },
   },
   // {
@@ -32,7 +32,7 @@ const routes: Routes = [
     path: 'period-close-tracking',
     component: PeriodCloseTrackingComponent,
     data: {
-      title: 'Period Close Tracking',
+      title: 'Operations Control Tower',
       header: 'Period Close Tracking',
     },
   },
@@ -40,7 +40,7 @@ const routes: Routes = [
     path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
-      title: 'Revenue Accounting',
+      title: 'Operations Control Tower',
       header: 'Revenue Accounting',
     },
   },
@@ -56,7 +56,7 @@ const routes: Routes = [
     path: 'case-analyzer',
     component: EspCaseAnalyzerComponent,
     data: {
-      title: 'ESP Case Analyzer Dashboard',
+      title: 'Operations Control Tower',
       header: 'ESP Case Analyzer Dashboard',
     },
   },
@@ -64,7 +64,7 @@ const routes: Routes = [
     path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
-      title: 'Invoice to Cash',
+      title: 'Operations Control Tower',
       header: 'Invoice to Cash',
     },
   },
@@ -81,7 +81,7 @@ const routes: Routes = [
     path: 'gl-posting',
     component: GlPostingComponent,
     data: {
-      title: 'GL Posting',
+      title: 'Operations Control Tower',
       header: 'GL Posting',
     },
   },

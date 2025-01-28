@@ -5,18 +5,21 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { MatPaginator } from '@angular/material/paginator';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 
 @Component({
   selector: 'app-order-lifecycle-summary',
   templateUrl: './order-lifecycle-summary.component.html',
   styleUrls: ['./order-lifecycle-summary.component.css'],
+  providers: [DestroyManager],
 })
 export class OrderLifecycleSummaryComponent implements OnInit {
   selectedArr: OrderLifecycleSummaryModel[];
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleSummaryComponent>,
     @Inject(MAT_DIALOG_DATA) public injectData: any,
-    http: ApiHttpService
+    http: ApiHttpService,
+    private destroyManager: DestroyManager
   ) {
     this.http = http;
   }
@@ -48,20 +51,24 @@ export class OrderLifecycleSummaryComponent implements OnInit {
   ];
 
   getOrderLifecycleSummary() {
-    this.http.get('order-status-summary').subscribe((data: any) => {
-      this.summaryModel = data;
-      this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
-        this.summaryModel
-      );
-    });
-
-    this.http.get('large-deal-summary-account').subscribe((data: any) => {
-      this.summaryModelByAccount = data;
-      this.dataSourceByAccount =
-        new MatTableDataSource<OrderLifecycleSummaryModelByAccount>(
-          this.summaryModelByAccount
+    this.http
+      .get('order-status-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        this.summaryModel = data;
+        this.dataSource = new MatTableDataSource<OrderLifecycleSummaryModel>(
+          this.summaryModel
         );
-    });
+      });
+
+    this.http
+      .get('large-deal-summary-account', this.destroyManager)
+      .subscribe((data: any) => {
+        this.summaryModelByAccount = data;
+        this.dataSourceByAccount =
+          new MatTableDataSource<OrderLifecycleSummaryModelByAccount>(
+            this.summaryModelByAccount
+          );
+      });
   }
 
   onTabChange(event: MatTabChangeEvent) {

@@ -114,6 +114,10 @@ public class JdbcManager {
                 transactionDate);
     }
 
+    public List<Map<String, Object>> getTransactionsProcessedFiltered(String sql, String ouName) {
+        return jdbcTemplate.queryForList(sql, ouName);
+    }
+
     public List<Map<String, Object>> getTspAccountDetailViewFiltered(String sql, String sequenceNumber) {
         return jdbcTemplate.queryForList(sql, sequenceNumber);
     }

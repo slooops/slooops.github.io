@@ -1,16 +1,22 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map, mergeMap } from 'rxjs/operators';
+import { filter, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
+import { Subject } from 'rxjs/internal/Subject';
+import { DestroyManager } from './providers/destroy-manager.service';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { ApiHttpService } from './providers/http.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
+  providers: [DestroyManager],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   showNavbar = true;
 
   constructor(
@@ -18,7 +24,8 @@ export class AppComponent {
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
     private authService: AuthenticationService,
-    private dataService: DataService
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {}
 
   menuOpened = false;
@@ -39,7 +46,8 @@ export class AppComponent {
           }
           return route;
         }),
-        mergeMap((route) => route.data)
+        mergeMap((route) => route.data),
+        takeUntil(this.destroy$)
       )
       .subscribe((data) => {
         this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
@@ -47,9 +55,14 @@ export class AppComponent {
         this.header = data['header'];
       });
 
-    this.dataService.getUserId().subscribe((data) => {
-      this.userName = data['auth_user_name'];
-    });
+    this.dataService
+      .getUserId(this.destroyManager)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        this.userName = data['auth_user_name'];
+        this.dataService.setUsername(data['auth_user']);
+        this.getUserRoles(data['auth_user']);
+      });
   }
 
   toggleHelpDropdown(event: MouseEvent) {
@@ -71,5 +84,35 @@ export class AppComponent {
 
   logout() {
     this.authService.ssoLogout();
+  }
+
+  userRoles$ = new BehaviorSubject<string[]>([]);
+  isAdmin$: Observable<boolean> = this.userRoles$.pipe(
+    map((roles) => roles.includes('ADMIN'))
+  );
+  loading$ = this.userRoles$.pipe(
+    map((roles) => roles.length === 0) // Loading if no roles are loaded yet
+  );
+  getUserRoles(username: string) {
+    this.dataService
+      .getRoles(username, this.destroyManager)
+      .pipe(
+        tap(() => (this.loading$ = of(false))),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((data) => {
+        this.userRoles$.next(data['userRoles']);
+        this.dataService.setUserRoles(data['userRoles']);
+      });
+  }
+  hasRole$(roles: string[]): Observable<boolean> {
+    return this.userRoles$.pipe(
+      map((userRoles) => roles.some((role) => userRoles.includes(role)))
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
