@@ -263,6 +263,23 @@
             </li>
           </ul>
         </li>
+
+        <!-- ESP Case Analyzer Dashboard -->
+        <!-- [class.disabled]="!((hasRole$(['ESP_ANALYZER']) | async) || (isAdmin$ | async))" -->
+        <li class="menu-item">
+          <a
+            [routerLink]="'/case-analyzer'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            ESP Case Analyzer Dashboard
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/case-analyzer'">Operations Control Tower</a>
+            </li>
+          </ul>
+        </li>
       </ul>
     </div>
   </mat-toolbar>
