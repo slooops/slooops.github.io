@@ -4,11 +4,13 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import * as XLSX from 'xlsx';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 
 @Component({
   selector: 'app-cms-details',
   templateUrl: './cms-details.component.html',
   styleUrls: ['./cms-details.component.css'],
+  providers: [DestroyManager],
 })
 export class CmsDetailsComponent implements OnInit {
   protected http: ApiHttpService;
@@ -17,7 +19,11 @@ export class CmsDetailsComponent implements OnInit {
   currentData: MatTableDataSource<any> = new MatTableDataSource([]);
   currentDisplayedColumns: string[] = [];
 
-  constructor(http: ApiHttpService, private route: ActivatedRoute) {
+  constructor(
+    http: ApiHttpService,
+    private route: ActivatedRoute,
+    private destroyManager: DestroyManager
+  ) {
     this.http = http;
   }
 
@@ -108,7 +114,7 @@ export class CmsDetailsComponent implements OnInit {
     let url = `${endpoint}?query=${queryParam}`;
     //let url = `${endpoint}`;
 
-    return this.http.get(url);
+    return this.http.get(url, this.destroyManager);
   }
 
   getDisplayedColumns(data: any[]): string[] {
@@ -148,7 +154,6 @@ export class CmsDetailsComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    console.log(data);
     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);

@@ -1,15 +1,7 @@
 :host {
   display: block;
   /* Create a linear gradient background */
-  background: linear-gradient(
-    to right,
-    white 0%,
-    #f7f7f7 3.5%,
-    #f7f7f7 50%,
-    #f7f7f7 97.5%,
-    white 100%
-  );
-
+  background: white;
   font-family: "Inter", sans-serif;
 }
 

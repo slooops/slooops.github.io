@@ -288,6 +288,33 @@ public class QueryConfigs {
     @Value(("${tsp.account.summary.update.q}"))
     public String tspAccountSummaryUpdate;
 
+    @Value(("${fusion.error.summary}"))
+    public String fusionErrorSummary;
+
+    @Value(("${fusion.error.details}"))
+    public String fusionErrorDetails;
+    @Value(("${transactions.processed.summary}"))
+    public String transactionsProcessedSummary;
+
+    @Value(("${transactions.processed.details}"))
+    public String transactionsProcessedDetails;
+
+    @Value(("${transactions.processed.details.filtered}"))
+    public String transactionsProcessedDetailsFiltered;
+
+
+    @Bean(name="transactionsProcessedSummary")
+    public String getTransactionsProcessedSummary() { return this.transactionsProcessedSummary; }
+    @Bean(name="transactionsProcessedDetails")
+    public String getTransactionsProcessedDetails() { return this.transactionsProcessedDetails; }
+    @Bean(name="transactionsProcessedDetailsFiltered")
+    public String getTransactionsProcessedDetailsFiltered() { return this.transactionsProcessedDetailsFiltered; }
+
+    @Bean(name="fusionErrorSummary")
+    public String getFusionErrorSummary() { return this.fusionErrorSummary; }
+    @Bean(name="fusionErrorDetails")
+    public String getFusionErrorDetails() { return this.fusionErrorDetails; }
+
     @Bean(name="eInvoicingSummaryUpdate")
     public String geteInvoicingSummaryUpdate() { return this.eInvoicingSummaryUpdate; }
     @Bean(name="einvoicingDetailsFiltered")
