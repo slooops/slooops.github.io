@@ -265,14 +265,18 @@
         </li>
 
         <!-- ESP Case Analyzer Dashboard -->
-        <!-- [class.disabled]="!((hasRole$(['ESP_ANALYZER']) | async) || (isAdmin$ | async))" -->
-        <li class="menu-item">
+        <li
+          class="menu-item"
+          [class.disabled]="
+            !((hasRole$(['ESP']) | async) || (isAdmin$ | async))
+          "
+        >
           <a
             [routerLink]="'/case-analyzer'"
             class="top-link"
             style="font-weight: 500"
           >
-            ESP Case Analyzer Dashboard
+            ESP Case Analyzer
           </a>
           <ul class="dropdown">
             <li>
