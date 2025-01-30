@@ -1,6 +1,7 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
@@ -11,119 +12,119 @@ import java.util.Map;
 @Component
 public class JdbcManager {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate primaryJdbcTemplate;
 
     @Autowired
-    public JdbcManager(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate) {
+        this.primaryJdbcTemplate = primaryJdbcTemplate;
     }
 
     public List<Map<String, Object>> queryForList(String sql) {
-        return jdbcTemplate.queryForList(sql);
+        return primaryJdbcTemplate.queryForList(sql);
     }
 
     public int updateComments(String sql, String closeType, String comments) {
-        return jdbcTemplate.update(sql, closeType, comments);
+        return primaryJdbcTemplate.update(sql, closeType, comments);
     }
 
     public int updateOrderStatus(String sql, String progName, String account, int dealId, String username) {
-        return jdbcTemplate.update(sql, progName, account, dealId, username);
+        return primaryJdbcTemplate.update(sql, progName, account, dealId, username);
     }
 
     public int updateInvoiceEligibleDate(String sql, Date invoiceElgibileDate, int dealId, String salesOrder) {
-        return jdbcTemplate.update(sql, invoiceElgibileDate, dealId, salesOrder);
+        return primaryJdbcTemplate.update(sql, invoiceElgibileDate, dealId, salesOrder);
     }
 
     public List<Map<String, Object>> queryForListWithParamsAutoInvoice(String sql, String appName, String operatingUnit,
             String periodName, String uniqueId) {
-        return jdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, uniqueId);
+        return primaryJdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, uniqueId);
     }
 
     public List<Map<String, Object>> queryForListWithParamsAccruals(String sql, String periodName, String ouName,
             String processFlow, int sequenceNum) {
-        return jdbcTemplate.queryForList(sql, periodName, ouName, processFlow, sequenceNum);
+        return primaryJdbcTemplate.queryForList(sql, periodName, ouName, processFlow, sequenceNum);
     }
 
     public int deleteSelectedDeals(String sql, String username, int dealId, String salesOrder, String salesOrder2) {
-        return jdbcTemplate.update(sql, username, dealId, salesOrder, salesOrder2);
+        return primaryJdbcTemplate.update(sql, username, dealId, salesOrder, salesOrder2);
     }
 
     public int updateCLoData(String sql, String progName, String account, int dealId, String salesOrder,
             Timestamp invoiceDate, String cloComments, String updatedBy) {
-        return jdbcTemplate.update(sql, cloComments, updatedBy, invoiceDate, dealId, salesOrder, salesOrder, progName,
+        return primaryJdbcTemplate.update(sql, cloComments, updatedBy, invoiceDate, dealId, salesOrder, salesOrder, progName,
                 account);
     }
 
     public int updateCloComments(String sql, String progName, String account, int dealId, String salesOrder,
             String cloComments, String updatedBy) {
-        return jdbcTemplate.update(sql, cloComments, updatedBy, dealId, salesOrder, salesOrder, progName, account);
+        return primaryJdbcTemplate.update(sql, cloComments, updatedBy, dealId, salesOrder, salesOrder, progName, account);
     }
 
     public int updateInvoiceDate(String sql, String progName, String account, int dealId, String salesOrder,
             Timestamp invoiceDate, String updatedBy) {
-        return jdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, salesOrder, progName, account);
+        return primaryJdbcTemplate.update(sql, invoiceDate, updatedBy, dealId, salesOrder, salesOrder, progName, account);
     }
 
     public int updateRolErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy,
             String periodName, String appName, String subApp, String orgName) {
-        return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, periodName, appName, subApp, orgName);
+        return primaryJdbcTemplate.update(sql, assignedTo, comments, assignedBy, periodName, appName, subApp, orgName);
     }
 
     public int updateAutoInvoiceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
             String ouName, String processFlow, String periodName, String batchSourceName, String creationDate) {
-        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, processFlow, periodName,
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, processFlow, periodName,
                 batchSourceName, creationDate);
     }
 
     public int updatePreInvoiceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
             String ouName, String creationDate, String processFlow) {
-        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, ouName, creationDate, processFlow);
     }
 
     public int updateAccrualsErrorsSummaryData(String sql, String assignedTo, String comments, String assignedBy,
             int sequenceNum) {
-        return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, sequenceNum);
+        return primaryJdbcTemplate.update(sql, assignedTo, comments, assignedBy, sequenceNum);
     }
 
     public List<Map<String, Object>> getRolTransactionDataFilter(String sql, String periodName, String ouName,
             String applicationName, int uniqueId) {
-        return jdbcTemplate.queryForList(sql, periodName, ouName, applicationName, uniqueId);
+        return primaryJdbcTemplate.queryForList(sql, periodName, ouName, applicationName, uniqueId);
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String sql, String processFlow, String ledgerName,
             String applicationName, String journalSource, String accountSeg, String transactionDate) {
-        return jdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg,
+        return primaryJdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg,
                 transactionDate);
     }
 
     public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
             String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg,
             String transactionDate) {
-        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName,
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName,
                 journalSource, accountSeg, transactionDate);
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName,
             String appName, String processFlow, String transactionDate) {
-        return jdbcTemplate.queryForList(sql, ouName, periodName, appName, processFlow, transactionDate);
+        return primaryJdbcTemplate.queryForList(sql, ouName, periodName, appName, processFlow, transactionDate);
     }
 
     public int updateEInvoicingSummary(String sql, String assignedTo, String assignedBy, String comments,
             String periodName, String appName, String processFlow, String ouName, String transactionDate) {
-        return jdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, appName, processFlow, ouName,
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, appName, processFlow, ouName,
                 transactionDate);
     }
 
     public List<Map<String, Object>> getTransactionsProcessedFiltered(String sql, String ouName) {
-        return jdbcTemplate.queryForList(sql, ouName);
+        return primaryJdbcTemplate.queryForList(sql, ouName);
     }
 
     public List<Map<String, Object>> getTspAccountDetailViewFiltered(String sql, String sequenceNumber) {
-        return jdbcTemplate.queryForList(sql, sequenceNumber);
+        return primaryJdbcTemplate.queryForList(sql, sequenceNumber);
     }
 
     public int updateTspAccountSummary(String sql, String assignedTo, String assignedBy, String comments,
             String sequenceNumber) {
-        return jdbcTemplate.update(sql, assignedTo, comments, assignedBy, sequenceNumber);
+        return primaryJdbcTemplate.update(sql, assignedTo, comments, assignedBy, sequenceNumber);
     }
 }
