@@ -19,8 +19,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
-    private dataService: DataService,
-    private destroyManager: DestroyManager
+    private dataService: DataService
   ) {}
 
   ngOnInit(): void {
