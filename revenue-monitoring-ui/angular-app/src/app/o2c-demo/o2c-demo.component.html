@@ -190,7 +190,11 @@
                         <th mat-header-cell *matHeaderCellDef>
                           {{ removeUnderscores(column) }}
                         </th>
-                        <td mat-cell *matCellDef="let element">
+                        <td
+                          mat-cell
+                          *matCellDef="let element"
+                          (click)="goToO2cDetails(element)"
+                        >
                           {{ element[column] }}
                         </td>
                       </ng-container>

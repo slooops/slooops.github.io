@@ -78,6 +78,8 @@ import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow
 import { MatStepperModule } from '@angular/material/stepper';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
+import { CommonModule } from '@angular/common';
+import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -126,6 +128,7 @@ export function initApp(authService: AuthenticationService) {
     ProcessFlowTooltipComponent,
     O2cDemoComponent,
     GlPostingComponent,
+    O2cDetailsComponent,
   ],
   imports: [
     BrowserModule,
@@ -170,6 +173,7 @@ export function initApp(authService: AuthenticationService) {
     MatNativeDateModule,
     FontAwesomeModule,
     MatStepperModule,
+    CommonModule,
   ],
   providers: [
     DatePipe,

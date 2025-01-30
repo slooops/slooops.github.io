@@ -6,6 +6,7 @@ import { PeriodCloseTrackingComponent } from './period-close-tracking/period-clo
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
+import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 
 const routes: Routes = [
@@ -77,6 +78,12 @@ const routes: Routes = [
       hideNavbar: true,
     },
   },
+  {
+    path: 'o2c-details',
+    component: O2cDetailsComponent,
+    data: { title: 'O2C Details', header: 'O2C Details', hideNavbar: true },
+  },
+
   {
     path: 'gl-posting',
     component: GlPostingComponent,

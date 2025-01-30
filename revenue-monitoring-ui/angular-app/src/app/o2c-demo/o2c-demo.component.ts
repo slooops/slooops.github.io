@@ -16,6 +16,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { MatTabGroup } from '@angular/material/tabs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-demo',
@@ -48,7 +49,7 @@ export class O2cDemoComponent {
   expandedElement: User | null;
   expandedElements: any[] = [];
 
-  constructor(private cd: ChangeDetectorRef) {}
+  constructor(private cd: ChangeDetectorRef, private router: Router) {}
 
   displayedColumnsOld: string[] = [
     'Web_Order_ID',
@@ -279,6 +280,13 @@ export class O2cDemoComponent {
 
   goToOrdersTab() {
     this.tabGroup.selectedIndex = 1; // 1 is the index of the Orders tab
+  }
+
+  goToO2cDetails(row: any) {
+    this.router.navigate(['/o2c-details'], {
+      queryParams: { orderId: row.WebOrder_ID },
+    });
+    console.log('Navigating to O2C details for order ID:', row.WebOrder_ID);
   }
 
   applyFilter(filterValue: string) {
