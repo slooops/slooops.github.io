@@ -1,11 +1,17 @@
-<!-- Top navbar  -->
 <div class="row" *ngIf="showNavbar">
-  <mat-toolbar style="background-color: #202428; width: 100%">
-    <div style="width: 100%; display: flex; justify-content: space-between">
+  <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
+    <div
+      style="
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+      "
+    >
       <div style="display: flex; align-items: center; padding: 0px 0 0px">
-        <button
+        <!-- <button
           mat-button
-          style="background-color: #202428"
+          style="background-color: #08ace4"
           [matMenuTriggerFor]="menu"
           matTooltip="Menu"
         >
@@ -25,7 +31,7 @@
               ></path>
             </svg>
           </i>
-        </button>
+        </button> -->
         <div
           style="
             display: flex;
@@ -69,8 +75,17 @@
             font-weight: 450;
           "
         >
-          {{ header }}
+          <div style="font-size: small">Operations Control Tower</div>
+          <div>{{ header }}</div>
         </h5>
+      </div>
+      <div class="custom-search-bar">
+        <input
+          type="text"
+          placeholder="Search Coming Soon..."
+          class="custom-search-input"
+        />
+        <i class="svg-icon search-icon"></i>
       </div>
 
       <div style="display: flex; align-items: center">
@@ -100,11 +115,176 @@
         <div style="margin: 0 10px 0 5px" class="onHover">
           <span class="user-title">Welcome, {{ userName }}</span>
           <i
-            class="fa fa-caret-down"
+            class="fa fa-angle-down"
             style="color: white; font-size: medium; margin-left: 5px"
           ></i>
         </div>
       </div>
+    </div>
+    <div class="navbar">
+      <ul class="menu">
+        <!-- Home -->
+        <li class="menu-item" [class.disabled]="!(isAdmin$ | async)">
+          <a [routerLink]="'/home'" class="top-link">
+            <i class="svg-icon home-icon" style="font-weight: 900"></i>
+          </a>
+        </li>
+
+        <!-- Period Close Tracking -->
+        <li
+          class="menu-item"
+          [class.disabled]="
+            !(
+              (hasRole$([
+                'PERIOD_CLOSE',
+                'WD0',
+                'MIDCLOSE_VOLUMES',
+                'LARGE_DEAL'
+              ]) | async) || (isAdmin$ | async)
+            )
+          "
+        >
+          <a
+            [routerLink]="'/period-close-tracking'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            Period Close Tracking
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/period-close-tracking/pre-close'">Pre-Close</a>
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/mid-close'">Mid-Close</a>
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/wd-0-dash'">WD-0 Dash</a>
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/mid-close-volumes'"
+                >Mid-Close Volumes</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="'/period-close-tracking/large-deal'"
+                >Large Deal</a
+              >
+            </li>
+          </ul>
+        </li>
+
+        <!-- Invoice to Cash -->
+        <li
+          class="menu-item"
+          [class.disabled]="
+            !(
+              (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) | async) ||
+              (isAdmin$ | async)
+            )
+          "
+        >
+          <a
+            [routerLink]="'/invoice-to-cash'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            Invoice to Cash
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/invoice-to-cash/pre-invoicing'"
+                >Pre-Invoicing</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="'/invoice-to-cash/invoicing'">Invoicing</a>
+            </li>
+            <li>
+              <a [routerLink]="'/invoice-to-cash/e-invoicing'">E-Invoicing</a>
+            </li>
+            <li><a [routerLink]="'/invoice-to-cash/cms'">CMS</a></li>
+            <li><a [routerLink]="'/invoice-to-cash/fusion'">Fusion</a></li>
+          </ul>
+        </li>
+
+        <!-- Revenue Accounting -->
+        <li
+          class="menu-item"
+          [class.disabled]="
+            !(
+              (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) | async) ||
+              (isAdmin$ | async)
+            )
+          "
+        >
+          <a
+            [routerLink]="'/revenue-accounting'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            Revenue Accounting
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/revenue-accounting/standard-revenue'"
+                >Standard Revenue</a
+              >
+            </li>
+            <li>
+              <a [routerLink]="'/revenue-accounting/accruals'">Accruals</a>
+            </li>
+            <li><a [routerLink]="'/revenue-accounting/meraki'">Meraki</a></li>
+            <li>
+              <a [routerLink]="'/revenue-accounting/business-controls'"
+                >Business Controls</a
+              >
+            </li>
+          </ul>
+        </li>
+
+        <!-- GL Posting -->
+        <li
+          class="menu-item"
+          [class.disabled]="
+            !((hasRole$(['GL_POSTING']) | async) || (isAdmin$ | async))
+          "
+        >
+          <a
+            [routerLink]="'/gl-posting'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            GL Posting
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/gl-posting/general-ledger'">General Ledger</a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ESP Case Analyzer Dashboard -->
+        <li
+          class="menu-item"
+          [class.disabled]="
+            !((hasRole$(['ESP']) | async) || (isAdmin$ | async))
+          "
+        >
+          <a
+            [routerLink]="'/case-analyzer'"
+            class="top-link"
+            style="font-weight: 500"
+          >
+            ESP Case Analyzer
+          </a>
+          <ul class="dropdown">
+            <li>
+              <a [routerLink]="'/case-analyzer'">Operations Control Tower</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
   </mat-toolbar>
 </div>
@@ -113,13 +293,15 @@
   <mat-sidenav-content>
     <div>
       <router-outlet></router-outlet>
+      <br />
+      <br />
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
 
-<mat-menu #menu="matMenu" class="custom-menu">
+<!-- <mat-menu #menu="matMenu" class="custom-menu">
   <app-menu></app-menu>
-</mat-menu>
+</mat-menu> -->
 
 <!-- [matMenuTriggerFor]="logoutMenu" -->
 

@@ -112,7 +112,7 @@ body {
 
 .mat-tab-group.mat-primary .mat-ink-bar,
 .mat-tab-nav-bar.mat-primary .mat-ink-bar {
-  background-color: rgb(0, 0, 0) !important;
+  background-color: #373c42 !important;
 }
 
 .mat-form-field.mat-focused .mat-form-field-ripple {
@@ -317,6 +317,10 @@ body {
   background-image: url("assets/icons/escalation-two-icon.svg");
 }
 
+.home-icon {
+  background-image: url("assets/icons/home-icon.svg");
+}
+
 .custom-button-primary {
   font-family: "Inter", sans-serif !important;
   padding: 5px 10px;
@@ -404,4 +408,12 @@ body {
 
 .cui .container {
   max-width: none !important;
+}
+
+.mat-drawer-container {
+  background-color: white;
+}
+
+.mat-tab-label {
+  color: black;
 }

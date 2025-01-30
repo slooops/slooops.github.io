@@ -286,108 +286,110 @@
   <div class="header-container">
     <div class="details-header">
       <h5 class="section-title">Error Details</h5>
-
-      <form
-        [formGroup]="searchForm"
-        class="form-container"
-        *ngIf="
-          isFiltered
-            ? filtereddataSource?.data?.length > 0
-            : dataSource?.data?.length > 0
-        "
-      >
-        <div class="filter-container">
-          <div class="filter-item">
-            <span>
-              <mat-form-field
-                appearance="standard"
-                [style.width.px]="125"
-                style="font-size: smaller"
-              >
-                <mat-label>Select Process Flow</mat-label>
-                <mat-select
-                  id="processFlow"
-                  name="processFlow"
-                  formControlName="processFlow"
-                  multiple
-                >
-                  <mat-option
-                    *ngFor="let processFlow of processFlowOptions"
-                    [value]="processFlow"
-                    (onSelectionChange)="filter()"
-                  >
-                    <span *ngIf="isSubAppMapping">
-                      {{ subAppMapper(processFlow) }}
-                    </span>
-                    <span *ngIf="!isSubAppMapping">
-                      {{ processFlow }}
-                    </span>
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-              &nbsp;
-              <mat-form-field
-                appearance="standard"
-                [style.width.px]="125"
-                style="font-size: smaller"
-              >
-                <mat-label *ngIf="componentName !== 'General Ledger'"
-                  >Select Org Name</mat-label
-                >
-                <mat-label *ngIf="componentName === 'General Ledger'"
-                  >Select Ledger Name</mat-label
-                >
-                <mat-select
-                  id="orgname"
-                  name="orgname"
-                  formControlName="orgName"
-                  multiple
-                >
-                  <mat-option
-                    *ngFor="let orgName of orgNameOptions"
-                    [value]="orgName"
-                    (onSelectionChange)="filter()"
-                  >
-                    {{ orgName }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-            </span>
-            <span *ngFor="let column of columnsToFilter">
-              <mat-form-field
-                class="filter"
-                floatLabel="never"
-                [style.width.px]="125"
-                style="font-size: smaller; margin-top: 9px !important"
-              >
-                <mat-label
-                  >Search {{ replaceUnderscore(column.columnName) }}</mat-label
-                >
-                <input
-                  matInput
-                  (keyup)="filter()"
-                  [formControlName]="column.formControlName"
-                />
-                <i
-                  matSuffix
-                  class="fa fa-search hoverIcon"
-                  style="color: gray"
-                  (click)="applyFilter()"
-                ></i>
-              </mat-form-field>
-            </span>
-          </div>
-        </div>
-        <button
-          mat-stroked-button
-          type="button"
-          (click)="clearFilters()"
-          style="font-size: 12px; padding: 3px"
-          class="mat-small"
+      <span *ngIf="componentName !== 'Transactions Processed'">
+        <form
+          [formGroup]="searchForm"
+          class="form-container"
+          *ngIf="
+            isFiltered
+              ? filtereddataSource?.data?.length > 0
+              : dataSource?.data?.length > 0
+          "
         >
-          Reset
-        </button>
-      </form>
+          <div class="filter-container">
+            <div class="filter-item">
+              <span>
+                <mat-form-field
+                  appearance="standard"
+                  [style.width.px]="125"
+                  style="font-size: smaller"
+                >
+                  <mat-label>Select Process Flow</mat-label>
+                  <mat-select
+                    id="processFlow"
+                    name="processFlow"
+                    formControlName="processFlow"
+                    multiple
+                  >
+                    <mat-option
+                      *ngFor="let processFlow of processFlowOptions"
+                      [value]="processFlow"
+                      (onSelectionChange)="filter()"
+                    >
+                      <span *ngIf="isSubAppMapping">
+                        {{ subAppMapper(processFlow) }}
+                      </span>
+                      <span *ngIf="!isSubAppMapping">
+                        {{ processFlow }}
+                      </span>
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                &nbsp;
+                <mat-form-field
+                  appearance="standard"
+                  [style.width.px]="125"
+                  style="font-size: smaller"
+                >
+                  <mat-label *ngIf="componentName !== 'General Ledger'"
+                    >Select Org Name</mat-label
+                  >
+                  <mat-label *ngIf="componentName === 'General Ledger'"
+                    >Select Ledger Name</mat-label
+                  >
+                  <mat-select
+                    id="orgname"
+                    name="orgname"
+                    formControlName="orgName"
+                    multiple
+                  >
+                    <mat-option
+                      *ngFor="let orgName of orgNameOptions"
+                      [value]="orgName"
+                      (onSelectionChange)="filter()"
+                    >
+                      {{ orgName }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </span>
+              <span *ngFor="let column of columnsToFilter">
+                <mat-form-field
+                  class="filter"
+                  floatLabel="never"
+                  [style.width.px]="125"
+                  style="font-size: smaller; margin-top: 9px !important"
+                >
+                  <mat-label
+                    >Search
+                    {{ replaceUnderscore(column.columnName) }}</mat-label
+                  >
+                  <input
+                    matInput
+                    (keyup)="filter()"
+                    [formControlName]="column.formControlName"
+                  />
+                  <i
+                    matSuffix
+                    class="fa fa-search hoverIcon"
+                    style="color: gray"
+                    (click)="applyFilter()"
+                  ></i>
+                </mat-form-field>
+              </span>
+            </div>
+          </div>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="clearFilters()"
+            style="font-size: 12px; padding: 3px"
+            class="mat-small"
+          >
+            Reset
+          </button>
+        </form>
+      </span>
     </div>
 
     <div class="action-buttons">
