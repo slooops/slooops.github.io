@@ -500,18 +500,18 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
 
       const grandTotalObject = {
-        ENTITY: 'Grand Total',
-        LINE_TYPE: '—',
+        ENTITY: ' —',
+        LINE_TYPE: 'Grand Total',
         ...grandTotal,
       };
       const serviceTotalObject = {
-        ENTITY: 'Service Lines',
-        LINE_TYPE: '—',
+        ENTITY: '   —',
+        LINE_TYPE: 'Service Lines',
         ...serviceTotal,
       };
       const productTotalObject = {
-        ENTITY: 'Product Lines',
-        LINE_TYPE: '—',
+        ENTITY: '  —',
+        LINE_TYPE: 'Product Lines',
         ...productTotal,
       };
 
@@ -751,28 +751,97 @@ export class Wd0HistoricalDataComponent implements OnInit {
             left: 4,
             right: 4,
           },
+
           formatter: (value, context) => {
             return value.toLocaleString(); // Apply commas to all values
           },
           anchor: (context) => {
-            // Set anchor above for 'High', below for 'Low', and center for other labels
-            const label = context.dataset.label;
-            if (label === 'High') {
-              return 'end'; // Label will be placed above the line
-            } else if (label === 'Low') {
-              return 'start'; // Label will be placed below the line
+            const datasets = context.chart.data.datasets;
+            const dataIndex = context.dataIndex;
+
+            // Get values for High, Low, and Actuals
+            const highValue = datasets.find((d) => d.label === 'High')?.data[
+              dataIndex
+            ];
+            const lowValue = datasets.find((d) => d.label === 'Low')?.data[
+              dataIndex
+            ];
+            const actualValue = datasets.find((d) => d.label === 'Actuals')
+              ?.data[dataIndex];
+
+            // Validate that all required values are present
+            if (
+              highValue === undefined ||
+              lowValue === undefined ||
+              actualValue === undefined
+            ) {
+              // console.warn('Missing data for anchor positioning', {
+              //   highValue,
+              //   lowValue,
+              //   actualValue,
+              // });
+              return 'center'; // Fallback
             }
-            return 'center'; // Default to centered
+
+            // Create an array of the values and sort them to determine rank
+            const sortedValues = [
+              { label: 'High', value: Number(highValue) },
+              { label: 'Low', value: Number(lowValue) },
+              { label: 'Actuals', value: Number(actualValue) },
+            ].sort((a, b) => b.value - a.value); // Descending order
+
+            // Assign positions based on rank
+            const currentLabel = context.dataset.label;
+            if (currentLabel === sortedValues[0].label) {
+              return 'end'; // Highest value gets positioned above
+            } else if (currentLabel === sortedValues[2].label) {
+              return 'start'; // Lowest value gets positioned below
+            }
+            return 'center'; // Middle value stays centered
           },
           align: (context) => {
-            // Set align above for 'High', below for 'Low'
-            const label = context.dataset.label;
-            if (label === 'High') {
-              return 'top';
-            } else if (label === 'Low') {
-              return 'bottom';
+            const datasets = context.chart.data.datasets;
+            const dataIndex = context.dataIndex;
+
+            // Get values for High, Low, and Actuals
+            const highValue = datasets.find((d) => d.label === 'High')?.data[
+              dataIndex
+            ];
+            const lowValue = datasets.find((d) => d.label === 'Low')?.data[
+              dataIndex
+            ];
+            const actualValue = datasets.find((d) => d.label === 'Actuals')
+              ?.data[dataIndex];
+
+            // Validate that all required values are present
+            if (
+              highValue === undefined ||
+              lowValue === undefined ||
+              actualValue === undefined
+            ) {
+              // console.warn('Missing data for alignment', {
+              //   highValue,
+              //   lowValue,
+              //   actualValue,
+              // });
+              return 'center'; // Fallback
             }
-            return 'center'; // Default to center
+
+            // Create an array of the values and sort them to determine rank
+            const sortedValues = [
+              { label: 'High', value: Number(highValue) },
+              { label: 'Low', value: Number(lowValue) },
+              { label: 'Actuals', value: Number(actualValue) },
+            ].sort((a, b) => b.value - a.value); // Descending order
+
+            // Assign alignment based on rank
+            const currentLabel = context.dataset.label;
+            if (currentLabel === sortedValues[0].label) {
+              return 'top'; // Highest value aligns at the top
+            } else if (currentLabel === sortedValues[2].label) {
+              return 'bottom'; // Lowest value aligns at the bottom
+            }
+            return 'center'; // Middle value aligns at the center
           },
         },
       },
@@ -918,18 +987,18 @@ export class Wd0HistoricalDataComponent implements OnInit {
       });
 
       const grandTotalObject = {
-        ENTITY: 'Grand Total',
-        LINE_TYPE: '—',
+        ENTITY: '—',
+        LINE_TYPE: 'Grand Total',
         ...grandTotal,
       };
       const serviceTotalObject = {
-        ENTITY: 'Service Lines',
-        LINE_TYPE: '—',
+        ENTITY: '—',
+        LINE_TYPE: 'Service Lines',
         ...serviceTotal,
       };
       const productTotalObject = {
-        ENTITY: 'Product Lines',
-        LINE_TYPE: '—',
+        ENTITY: '—',
+        LINE_TYPE: 'Product Lines',
         ...productTotal,
       };
 
@@ -943,7 +1012,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
     const columnsToExclude = ['ENTITY', 'LINE_TYPE'];
     const startRow = 4;
-    const endRow = 33;
+    const endRow = 37;
 
     for (let rowIndex = startRow - 1; rowIndex < endRow; rowIndex++) {
       const row = data[rowIndex];
