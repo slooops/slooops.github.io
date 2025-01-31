@@ -145,9 +145,9 @@ export class InvoicingComponent implements OnInit {
   fusionUrls: { [key: string]: string } = {
     summaryUrl: 'fusion-error-summary',
     detailsUrl: 'fusion-error-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
+    filteredDetailsUrl: 'fusion-error-details-filtered',
+    summaryUpdateUrl: 'fusion-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };

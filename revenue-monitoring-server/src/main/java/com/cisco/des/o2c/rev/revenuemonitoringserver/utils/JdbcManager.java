@@ -115,6 +115,16 @@ public class JdbcManager {
                 transactionDate);
     }
 
+    public List<Map<String, Object>> getFusionDetailsFilter(String sql, String ouName, String periodName,
+                                                                String appName, String processFlow, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
+    }
+
+    public int updateFusionErrorSummary(String sql,String assignedTo, String assignedBy, String comments,
+                                        String periodName, String processFlow, String ouName, String transactionDate ){
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, processFlow, ouName, transactionDate);
+    }
+
     public List<Map<String, Object>> getTransactionsProcessedFiltered(String sql, String ouName) {
         return primaryJdbcTemplate.queryForList(sql, ouName);
     }

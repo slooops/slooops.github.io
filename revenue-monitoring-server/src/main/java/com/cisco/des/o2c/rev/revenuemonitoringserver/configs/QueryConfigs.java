@@ -302,6 +302,16 @@ public class QueryConfigs {
     @Value(("${transactions.processed.details.filtered}"))
     public String transactionsProcessedDetailsFiltered;
 
+    @Value(("${fusion.error.details.filtered}"))
+    public String fusionErrorDetailsFiltered;
+
+    @Value(("${fusion.error.summary.update.q}"))
+    public String fusionErrorSummaryUpdate;
+
+    @Bean(name = "fusionErrorSummaryUpdate")
+    public String getFusionErrorSummaryUpdate() { return this.fusionErrorSummaryUpdate; }
+    @Bean(name="fusionErrorDetailsFiltered")
+    public String getFusionErrorDetailsFiltered() { return this.fusionErrorDetailsFiltered; }
 
     @Bean(name="transactionsProcessedSummary")
     public String getTransactionsProcessedSummary() { return this.transactionsProcessedSummary; }

@@ -112,7 +112,7 @@
       <ng-container *ngSwitchCase="'app-fusion'">
         <app-monitoring-dashboard
           [urls]="fusionUrls"
-          [keysToMap]=""
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
           [processFlowKeys]="fusionTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Fusion'"
@@ -125,8 +125,20 @@
           [warningMessage]="'Warning message '"
           [columnsToFilter]="fusionFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
-          [submitKeysToMap]="[]"
-          [webexKeysToMap]="[]"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE'
+          ]"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
+          ]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
