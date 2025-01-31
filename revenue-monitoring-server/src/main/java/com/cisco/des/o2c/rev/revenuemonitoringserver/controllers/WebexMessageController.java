@@ -18,7 +18,6 @@ public class WebexMessageController {
 
     @PostMapping("/send-message-revenue-accounting")
     public void sendWebexMessageRevenueAccounting(@RequestBody Map<String, String> updateData) {
-        System.out.println(updateData);
         service.sendWebexMessageRevenueAccounting(updateData);
     }
 
