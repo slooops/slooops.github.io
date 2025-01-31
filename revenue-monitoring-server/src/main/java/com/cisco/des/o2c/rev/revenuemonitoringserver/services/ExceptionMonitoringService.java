@@ -52,6 +52,8 @@ public class ExceptionMonitoringService {
     private String transactionsProcessedSummary;
     private String transactionsProcessedDetails;
     private String transactionsProcessedDetailsFiltered;
+    private String fusionErrorDetailsFiltered;
+    private String fusionErrorSummaryUpdate;
 
 
     @Autowired
@@ -65,7 +67,8 @@ public class ExceptionMonitoringService {
                                       String rolChartDetails, String rolTransactionDataFilter, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
                                       String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView,
                                       String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate, String fusionErrorSummary, String fusionErrorDetails,
-                                      String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered
+                                      String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered,
+                                      String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
@@ -108,7 +111,8 @@ public class ExceptionMonitoringService {
         this.transactionsProcessedSummary = transactionsProcessedSummary;
         this.transactionsProcessedDetails = transactionsProcessedDetails;
         this.transactionsProcessedDetailsFiltered = transactionsProcessedDetailsFiltered;
-
+        this.fusionErrorDetailsFiltered = fusionErrorDetailsFiltered;
+        this.fusionErrorSummaryUpdate = fusionErrorSummaryUpdate;
     }
 
     // ROL
@@ -534,6 +538,27 @@ public class ExceptionMonitoringService {
             renameKey(data,"ENTITY_NAME", "ORG_NAME");
         });
         return result;
+    }
+
+    public List<Map<String, Object>> getFusionDetailsFiltered(String ouName, String periodName, String appName, String processFlow, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.getFusionDetailsFilter(fusionErrorDetailsFiltered, ouName, periodName, appName, processFlow,  transactionDate );
+        result.forEach(data -> {
+            renameKey(data,"ENTITY_NAME", "ORG_NAME");
+        });
+        return result;
+    }
+
+    public int updateFusionErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String ouName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        int test = jdbcManager.updateFusionErrorSummary(fusionErrorSummaryUpdate, assignedTo, assignedBy, comments, periodName,
+                processFlow, ouName, transactionDate);
+        return 1;
     }
 
     public List<Map<String, Object>> getTransactionsProcessedSummary() {
