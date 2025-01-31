@@ -6,3 +6,131 @@
 h1 {
   color: #08ace4;
 }
+
+h1,
+p,
+.td {
+  font-family: Inter;
+}
+
+.table {
+  font-size: 12px;
+  /* border: 1px solid lightgray; */
+}
+
+.table,
+.td {
+  text-align: left;
+}
+
+.table-header {
+  font-weight: bold;
+}
+
+.table-header.table-row {
+  border-bottom: 2px solid gray;
+}
+
+.table-row {
+  display: block;
+  white-space: nowrap;
+  border-bottom: 1px solid lightgray;
+  overflow: hidden;
+}
+.table-row:last-child {
+  border: none;
+}
+.td {
+  display: inline-block;
+  padding: 8px;
+}
+
+.td:nth-child(0) {
+  width: calc(10vw);
+}
+
+.td:nth-child(1) {
+  width: calc(10vw);
+}
+.td:nth-child(2) {
+  width: calc(20vw);
+}
+.td:nth-child(3) {
+  width: calc(20vw);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: #f3f3f3;
+}
+
+.child-row {
+  background-color: #f0f0f0;
+}
+
+/* bullshit from here on */
+
+.search-bar-container {
+  display: flex;
+  justify-content: center;
+}
+
+.custom-search-bar {
+  display: flex;
+  align-items: center;
+  /* border: 1px solid #c4c4c4; */
+  border-radius: 24px; /* Rounded ends */
+  padding: 4px 8px; /* Inner padding */
+  height: 32px;
+  background-color: #ffffff; /* Light background */
+  width: 432px; /* Optional: Adjust max width */
+  margin: 0 auto; /* Optional: Center the search bar */
+  /* box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);  */
+}
+
+.custom-search-bar:hover {
+  border-color: #e8e8e8; /* Accent color when focused */
+}
+
+.custom-search-input {
+  flex-grow: 1;
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 24px; /* Match container's rounded ends */
+  background: transparent;
+}
+
+.custom-search-input:focus-within {
+  color: #ba0f0f;
+}
+
+.custom-search-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px; /* Adjust icon size */
+  color: #6b6b6b; /* Icon color */
+}
+
+.custom-search-bar:focus-within {
+  border-color: #6200ea; /* Accent color when focused */
+}
+
+.custom-search-bar:hover {
+  background-color: #eeeeee; /* Slight hover effect */
+}
+
+.user-title {
+  font-family: "inter", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+  padding-top: 2px;
+  cursor: pointer;
+}
