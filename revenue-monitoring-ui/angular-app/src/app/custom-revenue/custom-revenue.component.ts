@@ -354,7 +354,7 @@ export class CustomRevenueComponent implements OnInit {
     {
       label: 'Account Recon',
       component: 'app-accounts',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: ['ADMIN', 'ACCOUNT_RECON'],
     },
     {
       label: 'Operations Controls',
