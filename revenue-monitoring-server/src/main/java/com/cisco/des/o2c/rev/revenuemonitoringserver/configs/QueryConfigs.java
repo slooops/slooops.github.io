@@ -308,6 +308,50 @@ public class QueryConfigs {
     @Value(("${fusion.error.summary.update.q}"))
     public String fusionErrorSummaryUpdate;
 
+    @Value(("${standard.revenue.summary.query}"))
+    public String standardRevenueSummary;
+
+    @Value(("${standard.revenue.details.query}"))
+    public String standardRevenueDetails;
+
+    @Value(("${post.invoice.summary.query}"))
+    public String postInvoiceSummary;
+
+    @Value(("${post.invoice.details.query}"))
+    public String postInvoiceDetails;
+
+    @Value(("${post.invoice.details.filtered.query}"))
+    public String postInvoiceDetailsFiltered;
+
+    @Value(("${post.invoice.summary.update.query}"))
+    public String postInvoiceSummaryUpdate;
+
+    @Value(("${standard.revenue.details.filtered.query}"))
+    public String standardRevenueDetailsFiltered;
+
+    @Value(("${standard.revenue.summary.update.query}"))
+    public String standardRevenueSummaryUpdate;
+
+    @Bean(name = "standardRevenueSummary")
+    public String getStandardRevenueSummary() { return this.standardRevenueSummary; }
+
+    @Bean(name = "standardRevenueDetails")
+    public String getStandardRevenueDetails() { return this.standardRevenueDetails; }
+
+    @Bean(name = "postInvoiceSummary")
+    public String getPostInvoiceSummary() { return this.postInvoiceSummary; }
+    @Bean(name = "postInvoiceDetails")
+    public String getPostInvoiceDetails() { return this.postInvoiceDetails; }
+    @Bean(name = "standardRevenueDetailsFiltered")
+    public String getStandardRevenueDetailsFiltered() { return this.standardRevenueDetailsFiltered; }
+    @Bean(name = "standardRevenueSummaryUpdate")
+    public String getStandardRevenueSummaryUpdate() { return this.standardRevenueSummaryUpdate; }
+
+    @Bean(name = "postInvoiceDetailsFiltered")
+    public String getPostInvoiceDetailsFiltered() { return this.postInvoiceDetailsFiltered; }
+    @Bean(name = "postInvoiceSummaryUpdate")
+    public String getPostInvoiceSummaryUpdate() { return this.postInvoiceSummaryUpdate; }
+
     @Bean(name = "fusionErrorSummaryUpdate")
     public String getFusionErrorSummaryUpdate() { return this.fusionErrorSummaryUpdate; }
     @Bean(name="fusionErrorDetailsFiltered")

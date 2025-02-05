@@ -15,7 +15,11 @@
           [processFlowKeys]="preInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Pre-Invoicing'"
-          [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
+          [processFlowTabsToDisplay]="[
+            'Pre-Invoicing',
+            'Auto-Invoicing',
+            'Post-Invoicing'
+          ]"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
           [dynamicTemplate]="dynamicTemplate"
@@ -49,7 +53,11 @@
           [processFlowKeys]="autoInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Auto-Invoicing'"
-          [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
+          [processFlowTabsToDisplay]="[
+            'Pre-Invoicing',
+            'Auto-Invoicing',
+            'Post-Invoicing'
+          ]"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
           [dynamicTemplate]="dynamicTemplate"
@@ -64,6 +72,44 @@
             'PROCESS_FLOW',
             'ORG_NAME',
             'TRANSACTION_DATE'
+          ]"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
+          ]"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-post-invoicing'">
+        <app-monitoring-dashboard
+          [urls]="postInvoicingUrls"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
+          [processFlowKeys]="postInvoicingTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'Post-Invoicing'"
+          [processFlowTabsToDisplay]="[
+            'Pre-Invoicing',
+            'Auto-Invoicing',
+            'Post-Invoicing'
+          ]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]="dynamicTemplate"
+          [dynamicCss]="invoicingprocessflowCss"
+          [isSubAppMapping]="false"
+          [warningMessage]="'Invoice processing is delayed '"
+          [columnsToFilter]="postInvoicingFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
           ]"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -217,9 +263,12 @@
 
         <!-- Post-Invoice Circle 4 -->
         <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">4. Post-Invoice</p>
+          <p class="circle-caption">4. CM Amortization</p>
           <span class="circle circle-4"></span>
-          <p class="circle-subcaption">Total Impact: N/A</p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Post-Invoicing']?.['4-CM Amortization'] || 'N/A' }}
+          </p>
         </div>
       </div>
     </div>
