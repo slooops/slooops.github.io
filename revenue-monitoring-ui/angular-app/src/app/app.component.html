@@ -213,8 +213,11 @@
           class="menu-item"
           [class.disabled]="
             !(
-              (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) | async) ||
-              (isAdmin$ | async)
+              (hasRole$([
+                'EXCEPTION_ADMIN',
+                'EXCEPTION_READ_ONLY',
+                'ACCOUNT_RECON'
+              ]) | async) || (isAdmin$ | async)
             )
           "
         >
