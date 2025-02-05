@@ -117,5 +117,13 @@
   "TRANSACTIONS_PROCESSED_SUMMARY_QUERY": "select * from arfinro.XXCFI_SBP_INVOICED_SUM_V",
   "TRANSACTIONS_PROCESSED_DETAILS_QUERY": "select * from arfinro.XXCFI_SBP_INVOICED_DTL_V",
   "TRANSACTIONS_PROCESSED_DETAILS_FILTERED_QUERY": "select * from arfinro.XXCFI_SBP_INVOICED_DTL_V where operating_unit=?",
+  "STANDARD_REVENUE_SUMMARY_QUERY": "SELECT * FROM arfinro.XXCFIR_STD_REV_SUMM_DASHBOARD_V",
+  "STANDARD_REVENUE_DETAILS_QUERY": "SELECT * from arfinro.XXCFIR_STD_REV_DTL_DASHBOARD_V",
+  "STANDARD_REVENUE_DETAILS_FILTERED_QUERY": "SELECT * from arfinro.XXCFIR_STD_REV_DTL_DASHBOARD_V where period_name=? and application_name=? and process_flow=? and org_name=? and trunc(TRANSACTION_DATE)=to_date(?,'MM/DD/YYYY')",
+  "STANDARD_REVENUE_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFIR_STD_REV_MON_DASHBOARD set assigned_to=?, assigned_date=sysdate, assigned_by=? ,comments=? where period_name=? AND process_flow=? and entity_name=? AND transaction_date=to_date(?,'MM/DD/YYYY')",
+  "POST_INVOICE_SUMMARY_QUERY": "select * from arfinro.XXCFI_POST_AI_DASH_SUM_V",
+  "POST_INVOICE_DETAILS_QUERY": "select * from arfinro.XXCFI_POST_AI_DASH_DTL_V",
+  "POST_INVOICE_DETAILS_FILTERED_QUERY": "select * from arfinro.XXCFI_POST_AI_DASH_DTL_V where period_name=? and application_name=? and process_flow=? and org_name=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
+  "POST_INVOICE_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFI_POST_AI_DASH_DTL set assigned_to=?, assigned_date=sysdate, assigned_by=?, comments=? where period_name=? and application_name=? and process_flow=? and org_name=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY') and amount=?",
   "CORS_URL": "http://localhost:3000"
 }

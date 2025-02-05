@@ -54,8 +54,14 @@ public class ExceptionMonitoringService {
     private String transactionsProcessedDetailsFiltered;
     private String fusionErrorDetailsFiltered;
     private String fusionErrorSummaryUpdate;
-
-
+    private String standardRevenueSummary;
+    private String standardRevenueDetails;
+    private String postInvoiceSummary;
+    private String postInvoiceDetails;
+    private String postInvoiceDetailsFiltered;
+    private String postInvoiceSummaryUpdate;
+    private String standardRevenueDetailsFiltered;
+    private String standardRevenueSummaryUpdate;
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
                                       String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
@@ -68,7 +74,9 @@ public class ExceptionMonitoringService {
                                       String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView,
                                       String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate, String fusionErrorSummary, String fusionErrorDetails,
                                       String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered,
-                                      String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate
+                                      String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
+                                      String postInvoiceSummary, String postInvoiceDetails, String postInvoiceSummaryUpdate, String postInvoiceDetailsFiltered,
+                                      String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered
     ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
@@ -113,6 +121,68 @@ public class ExceptionMonitoringService {
         this.transactionsProcessedDetailsFiltered = transactionsProcessedDetailsFiltered;
         this.fusionErrorDetailsFiltered = fusionErrorDetailsFiltered;
         this.fusionErrorSummaryUpdate = fusionErrorSummaryUpdate;
+        this.standardRevenueSummary = standardRevenueSummary;
+        this.standardRevenueDetails = standardRevenueDetails;
+        this.postInvoiceSummary = postInvoiceSummary;
+        this.postInvoiceDetails = postInvoiceDetails;
+        this.postInvoiceDetailsFiltered = postInvoiceDetailsFiltered;
+        this.postInvoiceSummaryUpdate = postInvoiceSummaryUpdate;
+        this.standardRevenueDetailsFiltered = standardRevenueDetailsFiltered;
+        this.standardRevenueSummaryUpdate = standardRevenueSummaryUpdate;
+    }
+
+    // Standard Revenue
+    public List<Map<String, Object>> getStandardRevenueSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(standardRevenueSummary);
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        result.forEach(data -> {
+            data.remove("AGING");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getStandardRevenueDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(standardRevenueDetails);
+        result.forEach(data -> {
+
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getStandardRevenueDetailsFiltered(String periodName,
+                                                                       String appName, String processFlow, String ouName, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.getStandardRevenueDetailsFiltered(standardRevenueDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
+        });
+        return result;
+    }
+
+    public int updateStandardRevenueSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String orgName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        String assignedBy = updateData.get("username");
+        int test = jdbcManager.updateStandardRevenueSummary(standardRevenueSummaryUpdate, assignedTo, assignedBy, comments,
+                periodName, processFlow, orgName, transactionDate);
+        return test;
     }
 
     // ROL
@@ -447,6 +517,67 @@ public class ExceptionMonitoringService {
         String creationDate = updateData.get("transactionDate");
         int test = jdbcManager.updateAutoInvoiceErrorsSummaryData(autoInvoiceErrorsSummaryUpdate, assignedTo,
                 assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
+        return 1;
+    }
+
+    //Post-Invoice
+    public List<Map<String, Object>> getPostInvoiceErrorSummaryView() {
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(postInvoiceSummary);
+        result.forEach(data -> {
+            data.remove("AGING");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPostInvoiceErrorDetails() {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(postInvoiceDetails);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPostInvoiceErrorDetailsFiltered(String periodName,
+                                                                        String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getPostInvoiceDetailsFiltered(
+                postInvoiceDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updatePostInvoicingErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String appName = updateData.get("applicationName");
+        String orgName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        String amount = updateData.get("amount");
+        double numericValue = Double.parseDouble(amount.replaceAll("[$,]", ""));
+        int intValue = (int) numericValue;
+        int test = jdbcManager.updatePostInvoiceSummary(postInvoiceSummaryUpdate, assignedTo, assignedBy, comments,  periodName, appName, processFlow, orgName, transactionDate, intValue);
         return 1;
     }
 

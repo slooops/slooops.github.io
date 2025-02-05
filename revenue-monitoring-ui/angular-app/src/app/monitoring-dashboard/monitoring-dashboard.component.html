@@ -298,7 +298,7 @@
         >
           <div class="filter-container">
             <div class="filter-item">
-              <span>
+              <!-- <span>
                 <mat-form-field
                   appearance="standard"
                   [style.width.px]="125"
@@ -352,8 +352,39 @@
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
+              </span> -->
+              <span *ngFor="let column of selectFilters">
+                <mat-form-field
+                  appearance="standard"
+                  [style.width.px]="125"
+                  style="font-size: smaller"
+                >
+                  <mat-label
+                    >Select
+                    {{ replaceUnderscore(column.columnName) }}</mat-label
+                  >
+                  <mat-select
+                    [formControlName]="column.formControlName"
+                    multiple
+                  >
+                    <mat-option
+                      *ngFor="
+                        let option of filterOptions[column.formControlName]
+                      "
+                      [value]="option"
+                      (onSelectionChange)="filter()"
+                    >
+                      <span *ngIf="column.subAppMapping">
+                        {{ subAppMapper(option) }}
+                      </span>
+                      <span *ngIf="!column.subAppMapping">
+                        {{ option }}
+                      </span>
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
               </span>
-              <span *ngFor="let column of columnsToFilter">
+              <span *ngFor="let column of textFilters">
                 <mat-form-field
                   class="filter"
                   floatLabel="never"
@@ -377,6 +408,30 @@
                   ></i>
                 </mat-form-field>
               </span>
+              <!-- <span *ngFor="let column of columnsToFilter">
+                <mat-form-field
+                  class="filter"
+                  floatLabel="never"
+                  [style.width.px]="125"
+                  style="font-size: smaller; margin-top: 9px !important"
+                >
+                  <mat-label
+                    >Search
+                    {{ replaceUnderscore(column.columnName) }}</mat-label
+                  >
+                  <input
+                    matInput
+                    (keyup)="filter()"
+                    [formControlName]="column.formControlName"
+                  />
+                  <i
+                    matSuffix
+                    class="fa fa-search hoverIcon"
+                    style="color: gray"
+                    (click)="applyFilter()"
+                  ></i>
+                </mat-form-field>
+              </span> -->
             </div>
           </div>
           <button

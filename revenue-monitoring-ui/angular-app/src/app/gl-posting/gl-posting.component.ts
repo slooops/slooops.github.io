@@ -42,9 +42,36 @@ export class GlPostingComponent implements OnInit {
     '2 - GL Interface': 0,
   };
 
-  glFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'glBatchName', columnName: 'GL_BATCH_NAME' },
-    { formControlName: 'accountSeg', columnName: 'ACCOUNT_SEG' },
+  glFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'LEDGER_NAME',
+      formControlName: 'ledgerName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'glBatchName',
+      columnName: 'GL_BATCH_NAME',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'accountSeg',
+      columnName: 'ACCOUNT_SEG',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
   glKeysToMap: string[] = [
