@@ -115,6 +115,76 @@ export class O2cDetailsComponent implements OnInit {
     });
   }
 
+  data: {
+    DealerID: number;
+    Dealer: string;
+    Address: string;
+    City: string;
+    State: string;
+    BillingFrequency: string;
+    BillingAmount: string;
+    ProvisionDetails: string;
+    SubscriptionID: string;
+    EstimatedSubscriptionStartDate: string;
+    Brands: {
+      Brand: string;
+      Product1: string;
+      Product2: string;
+    }[];
+    isExpanded?: boolean;
+  }[] = [
+    {
+      DealerID: 1,
+      Dealer: '12 mon: 15-Mar-2024 to 14-Mar-2025',
+      Address: '15-Mar-2024',
+      City: '14-Mar-2025',
+      State: 'No auto renewal',
+      BillingFrequency: 'Prepaid Term',
+      BillingAmount: '1,839.73 Prepaid',
+      ProvisionDetails: 'Complete',
+      SubscriptionID: 'Sub1797786',
+      EstimatedSubscriptionStartDate: '15-Mar-2024',
+      Brands: [
+        {
+          Brand: '1.0.1',
+          Product1:
+            'ETD-ESS-LIC Cisco Email Threat Defense Essential License Magic Key Q12085423390-000',
+          Product2: '3,245.00',
+        },
+        {
+          Brand: 'Scenario: Create New',
+          Product1: 'Additional Item Info: XAAS',
+          Product2: 'Subscription ID: 1797787',
+        },
+      ],
+    },
+    {
+      DealerID: 1,
+      Dealer: '12 mon: 15-Mar-2024 to 14-Mar-2025',
+      Address: '15-Mar-2024',
+      City: '14-Mar-2025',
+      State: 'No auto renewal',
+      BillingFrequency: 'Prepaid Term',
+      BillingAmount: '1,839.73 Prepaid',
+      ProvisionDetails: 'Complete',
+      SubscriptionID: 'Sub1797786',
+      EstimatedSubscriptionStartDate: '15-Mar-2024',
+      Brands: [
+        {
+          Brand: '1.0.1',
+          Product1:
+            'ETD-ESS-LIC Cisco Email Threat Defense Essential License Magic Key Q12085423390-000',
+          Product2: '3,245.00',
+        },
+        {
+          Brand: 'Scenario: Create New',
+          Product1: 'Additional Item Info: XAAS',
+          Product2: 'Subscription ID: 1797787',
+        },
+      ],
+    },
+  ];
+
   loadOrderDetails(orderId: string) {
     const orderData = this.orderSummaryLines.find(
       (order) => order.order.web_order_id === orderId
@@ -170,5 +240,57 @@ export class O2cDetailsComponent implements OnInit {
     return (
       this.rows[rowIndex].children && this.rows[rowIndex].children.length > 0
     );
+  }
+
+  accrualsTotals: { [key: string]: number } = {
+    Order: 1, // Completed, 1 is current, 0 is uncompleted
+    Subscription: 0,
+    Accruals: 0,
+    Invoicing: 0,
+    AR_Accounting: 0,
+  };
+
+  skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
+
+  // Define the steps array with both original keys and formatted labels
+  formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
+    originalKey: key, // Store the original key for accessing dynamic totals
+    label: this.formatLabel(key), // Format for display
+    impact: this.accrualsTotals[key] || 'N/A', // Use dynamic data from accrualsTotals
+  }));
+
+  formatLabel(label: string): string {
+    const acronyms = this.skippedWords || [];
+
+    return label
+      .toLowerCase() // Convert to lowercase
+      .replace(/_/g, ' ') // Replace underscores with spaces
+      .split(' ') // Split into words
+      .map(
+        (word) =>
+          acronyms.includes(word.toUpperCase())
+            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
+            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+      )
+      .join(' '); // Join words back with spaces
+  }
+
+  getCircleClass(step: any): string {
+    const value = this.accrualsTotals[step.originalKey];
+    if (value === 2) return 'completed-circle'; // Completed step
+    if (value === 1) return 'current-circle'; // Current step
+    return 'uncompleted-circle'; // Default for uncompleted steps
+  }
+
+  getSliderBarStyle(index: number): { [key: string]: string } {
+    const step = this.formattedAccrualsSteps[index];
+    const value = this.accrualsTotals[step.originalKey];
+    if (value === 1) {
+      // Current step
+      return {
+        background: 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)',
+      };
+    }
+    return { background: '#16371e43' };
   }
 }

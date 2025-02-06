@@ -99,22 +99,224 @@
   </div>
 </mat-toolbar>
 
+<div class="flowchart-container">
+  <div class="slider-bar">
+    <div
+      *ngFor="let step of formattedAccrualsSteps; let i = index"
+      [ngStyle]="getSliderBarStyle(i)"
+    >
+      <!-- Circle Wrapper -->
+      <div class="circle-wrapper-loop">
+        <p class="circle-caption-loop">{{ step.label }}</p>
+        <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
+      </div>
+
+      <div
+        *ngIf="i < formattedAccrualsSteps.length - 1"
+        class="chevron-wrapper-loop"
+      >
+        <div class="chevron"></div>
+        <div class="chevron-white"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div
   class="grid-1"
   style="display: grid; gap: 1.2rem; padding-top: 1.2rem; margin: 1rem 5rem"
 >
-  <div class="section-title">O2C: Details for Order {{ orderId }}</div>
+  <div class="header-table">
+    <table class="header-card table table-condensed gridded-table">
+      <thead>
+        <tr>
+          <th class="no-border-left">Web Order ID</th>
+          <th>Purchase Order #</th>
+          <th>Deal ID</th>
+          <th>Account Manager</th>
+          <th>Order Status</th>
+          <th>Price List</th>
+          <th>US Federal Order</th>
+          <th class="no-border-right">State Local and Education (SLED)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>96635062</td>
+          <td>2598271</td>
+          <td>75947116</td>
+          <td>View Info</td>
+          <td>Closed</td>
+          <td>Global Price List US Availability USD</td>
+          <td>No</td>
+          <td class="no-border-right">No</td>
+        </tr>
+      </tbody>
+    </table>
 
+    <table
+      class="header-card table table-condensed gridded-table"
+      style="margin: -0px 0 -0px 0"
+    >
+      <thead>
+        <tr>
+          <th class="no-border-left">TAA</th>
+          <th>DPA</th>
+          <th>Billing ID</th>
+          <th>Submitted By</th>
+          <th>Created By</th>
+          <th class="no-border-right">Order Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>No</td>
+          <td>--</td>
+          <td>1234567</td>
+          <td>John Doe on 14-Mar-2024</td>
+          <td>Richard Niven on 15-Mar-2024</td>
+          <td class="no-border-right">USD 1,234.16</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="card-title">Bridge Order Details</div>
+  <div class="card-og">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="no-border-left">Bridge Order Details</th>
+          <th>Customer Acceptance</th>
+          <th>Customer Acceptance Date</th>
+          <th>Bridge Entity</th>
+          <th>Exchange Rate</th>
+          <th class="no-border-right"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>--</td>
+          <td>--</td>
+          <td>--</td>
+          <td>--</td>
+          <td>--</td>
+          <td class="no-border-right">--</td>
+        </tr>
+      </tbody>
+    </table>
+  </div> -->
+
+  <div class="section-title">Line Summary</div>
   <div class="card">
+    <!-- <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Effective For</th>
+          <th>Requested Start Date</th>
+          <th>End Date</th>
+          <th>Automatically Renews For</th>
+          <th>Billing Frequency</th>
+          <th>Billing Amount</th>
+          <th>Provision Details</th>
+          <th>Subscription ID</th>
+          <th>Estimated Subscription Start Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>12 mon: 15-Mar-2024 to 14-Mar-2025</td>
+          <td>15-Mar-2024</td>
+          <td>14-Mar-2025</td>
+          <td>No auto renewal</td>
+          <td>Prepaid Term</td>
+          <td>1,839.73 Prepaid</td>
+          <td>Complete</td>
+          <td>Sub1797786</td>
+          <td>15-Mar-2024</td>
+        </tr>
+      </tbody>
+    </table> -->
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Effective For</th>
+          <th>Requested Start Date</th>
+          <th>End Date</th>
+          <th>Automatically Renews For</th>
+          <th>Billing Frequency</th>
+          <th>Billing Amount</th>
+          <th>Provision Details</th>
+          <th>Subscription ID</th>
+          <th>Estimated Subscription Start Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let dealer of data">
+          <tr>
+            <td>
+              <a (click)="dealer.isExpanded = !dealer.isExpanded">
+                {{ dealer.isExpanded ? "-" : "+" }}
+              </a>
+            </td>
+            <td>{{ dealer.Dealer }}</td>
+            <td>{{ dealer.Address }}</td>
+            <td>{{ dealer.City }}</td>
+            <td>{{ dealer.State }}</td>
+            <td>{{ dealer.BillingFrequency }}</td>
+            <td>{{ dealer.BillingAmount }}</td>
+            <td>{{ dealer.ProvisionDetails }}</td>
+            <td>{{ dealer.SubscriptionID }}</td>
+            <td>{{ dealer.EstimatedSubscriptionStartDate }}</td>
+          </tr>
+          <tr *ngIf="dealer?.isExpanded">
+            <td colspan="9">
+              <table class="table table-condensed table-background">
+                <thead>
+                  <tr>
+                    <th>Subscription Set 1</th>
+                    <th></th>
+                    <th>Additional Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let brand of dealer.Brands">
+                    <td>{{ brand.Brand }}</td>
+                    <td>{{ brand.Product1 }}</td>
+                    <td>{{ brand.Product2 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <p
+    style="
+      display: inline-flex;
+      justify-content: flex-end;
+      font-size: 11px;
+      margin-top: -10px;
+    "
+  >
+    O2C: Details for Order {{ orderId }}
+  </p>
+
+  <!-- <div class="card">
     <div class="card-title">Summary</div>
 
     <div class="table" style="margin-bottom: 0px">
-      <!-- <div class="table-header table-row">
+      <div class="table-header table-row">
       <div class="td"></div>
       <div class="td">Order ID</div>
       <div class="td">Status</div>
       <div class="td">Total Amount</div>
-    </div> -->
+    </div>
 
       <div class="table-row" *ngFor="let row of rows; let rowIndex = index">
         <div
@@ -142,81 +344,5 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Line Items</div>
-
-    <div class="table" style="margin-bottom: 0px">
-      <!-- <div class="table-header table-row">
-      <div class="td"></div>
-      <div class="td">Order ID</div>
-      <div class="td">Status</div>
-      <div class="td">Total Amount</div>
-    </div> -->
-
-      <div class="table-row" *ngFor="let row of rows; let rowIndex = index">
-        <div
-          [class.clickable]="isRowClickable(rowIndex)"
-          (click)="toggleRow(row)"
-        >
-          <div class="td">
-            <span *ngIf="isRowClickable(rowIndex)">
-              <span *ngIf="expanded[row.id]">-</span>
-              <span *ngIf="!expanded[row.id]">+</span>
-            </span>
-          </div>
-          <div class="td">{{ row.id }}</div>
-          <div class="td">{{ row.text1 }}</div>
-          <div class="td">{{ row.text2 }}</div>
-
-          <div [@detailExpand]="expanded[row.id] ? 'expanded' : 'collapsed'">
-            <div class="child-row" *ngFor="let child of row.children">
-              <div class="td"></div>
-              <div class="td">{{ child.id }}</div>
-              <div class="td">{{ child.text1 }}</div>
-              <div class="td">{{ child.text2 }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Holds</div>
-
-    <div class="table" style="margin-bottom: 0px">
-      <!-- <div class="table-header table-row">
-      <div class="td"></div>
-      <div class="td">Order ID</div>
-      <div class="td">Status</div>
-      <div class="td">Total Amount</div>
-    </div> -->
-
-      <div class="table-row" *ngFor="let row of rows; let rowIndex = index">
-        <div
-          [class.clickable]="isRowClickable(rowIndex)"
-          (click)="toggleRow(row)"
-        >
-          <div class="td">
-            <span *ngIf="isRowClickable(rowIndex)">
-              <span *ngIf="expanded[row.id]">-</span>
-              <span *ngIf="!expanded[row.id]">+</span>
-            </span>
-          </div>
-          <div class="td">{{ row.id }}</div>
-          <div class="td">{{ row.text1 }}</div>
-          <div class="td">{{ row.text2 }}</div>
-
-          <div [@detailExpand]="expanded[row.id] ? 'expanded' : 'collapsed'">
-            <div class="child-row" *ngFor="let child of row.children">
-              <div class="td"></div>
-              <div class="td">{{ child.id }}</div>
-              <div class="td">{{ child.text1 }}</div>
-              <div class="td">{{ child.text2 }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </div> -->
 </div>

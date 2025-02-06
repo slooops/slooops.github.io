@@ -113,10 +113,11 @@
 
             <div style="margin-top: 1vh">
               <ng-container *ngIf="dataSourceBusinessRules?.data?.length > 0">
-                <div style="overflow-x: auto">
+                <div class="header-table">
                   <table
                     mat-table
                     [dataSource]="dataSourceBusinessRules"
+                    class="gridded-table"
                     style="width: 100%"
                   >
                     <ng-container
@@ -161,6 +162,28 @@
       <mat-tab label="Orders">
         <ng-template matTabContent>
           <div class="grid-1 container" style="width: auto">
+            <div class="flowchart-container">
+              <div class="slider-bar">
+                <div
+                  *ngFor="let step of formattedAccrualsSteps; let i = index"
+                  [ngStyle]="getSliderBarStyle(i)"
+                >
+                  <!-- Circle Wrapper -->
+                  <div class="circle-wrapper-loop">
+                    <p class="circle-caption-loop">{{ step.label }}</p>
+                    <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
+                  </div>
+
+                  <div
+                    *ngIf="i < formattedAccrualsSteps.length - 1"
+                    class="chevron-wrapper-loop"
+                  >
+                    <div class="chevron"></div>
+                    <div class="chevron-white"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="table-top">
               <p class="section-title">Order</p>
 
@@ -222,6 +245,7 @@
         </ng-template>
       </mat-tab>
 
+      <!-- Old UI Code -->
       <mat-tab label="Old UI Code">
         <ng-template matTabContent>
           <div class="flowchart-container">

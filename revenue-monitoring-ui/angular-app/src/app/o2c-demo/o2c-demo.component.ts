@@ -52,10 +52,10 @@ export class O2cDemoComponent {
   constructor(private cd: ChangeDetectorRef, private router: Router) {}
 
   displayedColumnsOld: string[] = [
+    'Deal_ID',
     'Web_Order_ID',
     'Purchase_Order_Number',
     'Order_Status',
-    'Deal_ID',
     'Order_Total',
     'Created_By',
     'Creation_Date',
@@ -142,15 +142,17 @@ export class O2cDemoComponent {
   ]);
 
   displayedColumnsOrders: string[] = [
+    'Deal_ID',
+    'Purchase_Order_Num',
+
     'Operating_Unit',
     'WebOrder_ID',
-    'Sales_Order',
     'Order_Creation_Date',
+
+    // 'Sales_Order',
     'Order_Status',
-    'Purchase_Order_Num',
-    'Deal_ID',
     'Order_Total',
-    'Price_list',
+    // 'Price_list',
     'Billing_ID',
     'Partner_Name',
     'Order_Origin',
@@ -338,11 +340,11 @@ export class O2cDemoComponent {
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   accrualsTotals: { [key: string]: number } = {
-    Order: 2, // Completed
-    Revenue_Accruals: 2,
-    Invoice: 2, // Current step
-    Revenue_Accounting: 1,
-    GL_Transfer_and_Posting: 0,
+    Order: 1, // Completed, 1 is current, 0 is uncompleted
+    Subscription: 0,
+    Acrruals: 0,
+    Invoicing: 0,
+    AR_Accounting: 0,
   };
 
   // Define the steps array with both original keys and formatted labels

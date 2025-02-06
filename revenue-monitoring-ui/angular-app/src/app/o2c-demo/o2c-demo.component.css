@@ -304,7 +304,7 @@ th {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: -32px;
+  margin-bottom: -12px;
 }
 
 .row {
@@ -314,4 +314,19 @@ th {
 
 .container {
   margin: 1rem 5rem;
+}
+
+.gridded-table td {
+  border: 1px solid #ddd; /* Add border to table cells */
+}
+
+.gridded-table {
+  /* border-collapse: collapse; */
+}
+
+.header-table {
+  overflow-x: auto;
+  background-color: rgb(241, 241, 241);
+  margin: 0 calc(-5rem - 16px);
+  padding: 0 calc(5rem + 16px);
 }
