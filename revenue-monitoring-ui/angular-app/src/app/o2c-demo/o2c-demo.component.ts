@@ -1,18 +1,4 @@
-import {
-  Component,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-} from '@angular/core';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-import { MatSort } from '@angular/material/sort';
+import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { MatTabGroup } from '@angular/material/tabs';
@@ -22,60 +8,13 @@ import { Router } from '@angular/router';
   selector: 'app-o2c-demo',
   templateUrl: './o2c-demo.component.html',
   styleUrl: './o2c-demo.component.css',
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export class O2cDemoComponent {
-  @ViewChild('outerSort', { static: true }) sort: MatSort;
-  @ViewChildren('innerSort') innerSort: QueryList<MatSort>;
-  @ViewChildren('innerTables') innerTables: QueryList<MatTable<Address>>;
+  selectedTable: 'order' | 'sub' | null = null; // Track which table is visible
+
   @ViewChild('tabGroup') tabGroup: MatTabGroup;
 
-  data: User[] = USERS;
-
-  dataSource: MatTableDataSource<User>;
-  usersData: User[] = [];
-  columnsToDisplay = ['Step', 'Account', 'Subscription_Line'];
-  innerDisplayedColumns = ['Order_Summary', 'Order_ID', 'Order_Status'];
-  innerInnerDisplayedColumns = ['comment', 'commentStatus'];
-  expandedElement: User | null;
-  expandedElements: any[] = [];
-
-  constructor(private cd: ChangeDetectorRef, private router: Router) {}
-
-  displayedColumnsOld: string[] = [
-    'Deal_ID',
-    'Web_Order_ID',
-    'Purchase_Order_Number',
-    'Order_Status',
-    'Order_Total',
-    'Created_By',
-    'Creation_Date',
-    'Partner_Name',
-    'End_Customer_Name',
-  ];
-
-  dataSourceOld = new MatTableDataSource<any>([
-    {
-      Web_Order_ID: '92389536',
-      Order_Status: 'CLOSED',
-      Purchase_Order_Number: 'RR1063098',
-      Deal_ID: '54621189',
-      Order_Total: '$9,731.92',
-      Created_By: 'Isabel Rosen',
-      Creation_Date: '27-May-22',
-      Partner_Name: 'INGRAM MICRO',
-      End_Customer_Name: 'PELTIER AUTOMOTIVE',
-    },
-  ]);
+  constructor(private router: Router) {}
 
   displayedColumnsBusinessRules: string[] = [
     '1',
@@ -261,27 +200,118 @@ export class O2cDemoComponent {
     },
   ]);
 
-  ngOnInit() {
-    USERS.forEach((user) => {
-      if (
-        user.addresses &&
-        Array.isArray(user.addresses) &&
-        user.addresses.length
-      ) {
-        this.usersData = [
-          ...this.usersData,
-          { ...user, addresses: new MatTableDataSource(user.addresses) },
-        ];
-      } else {
-        this.usersData = [...this.usersData, user];
-      }
-    });
-    this.dataSource = new MatTableDataSource(this.usersData);
-    this.dataSource.sort = this.sort;
-  }
+  displayedColumnsSub: string[] = [
+    'Operating_Unit',
+    'WebOrder_ID',
+    'SubRefId',
+    '"Subscription_Creation_Date"',
+    'Subscription_Status',
+    '"BDOM/SSD"',
+    '"Subscription_St_Date_-_End_Date"',
+    'TCV',
+    'Billing_Model',
+    'AutoRenewal',
+    'Billing_Info',
+    'Order_Origin',
+    'Hybrid_Order',
+    'Route_to_Market',
+  ];
+
+  dataSourceSub = new MatTableDataSource<any>([
+    {
+      Operating_Unit: 'CISCO US OPERATING UNIT',
+      WebOrder_ID: '96635062',
+      SubRefId: 'Sub7890',
+      Subscription_Creation_Date: '15-Mar-2024',
+      Subscription_Status: 'Activation Complete',
+      'BDOM/SSD': '2598271',
+      'Subscription_St_Date_-_End_Date': '01-Jan-2025 - 31-Dec-2025',
+      TCV: 'USD 6,592.16',
+      Billing_Model: 'Global Price List USD',
+      AutoRenewal: 'N',
+      Billing_Info: 'IngramMicro',
+      Order_Origin: 'CCW-Q2O',
+      Hybrid_Order: 'N',
+      Route_to_Market: '1-Tier',
+    },
+    {
+      Operating_Unit: 'CISCO US OPERATING UNIT',
+      WebOrder_ID: '96635062',
+      SubRefId: 'Sub66889',
+      Subscription_Creation_Date: '15-Mar-2024',
+      Subscription_Status: 'Activation Complete',
+      'BDOM/SSD': '2598271',
+      'Subscription_St_Date_-_End_Date': '75947116',
+      TCV: 'USD 6,592.16',
+      Billing_Model: 'Global Price List USD',
+      AutoRenewal: 'N',
+      Billing_Info: 'CompuNet',
+      Order_Origin: 'CCW-Q2O',
+      Hybrid_Order: 'N',
+      Route_to_Market: '1-Tier',
+    },
+    {
+      Operating_Unit: 'CISCO US OPERATING UNIT',
+      WebOrder_ID: '96635062',
+      SubRefId: 'Sub99886',
+      Subscription_Creation_Date: '15-Mar-2024',
+      Subscription_Status: 'Activation Complete',
+      'BDOM/SSD': '2598271',
+      'Subscription_St_Date_-_End_Date': '75947116',
+      TCV: 'USD 6,592.16',
+      Billing_Model: 'Global Price List USD',
+      AutoRenewal: 'N',
+      Billing_Info: 'British Telecom',
+      Order_Origin: 'CCW-Q2O',
+      Hybrid_Order: 'N',
+      Route_to_Market: 'Disti',
+    },
+    {
+      Operating_Unit: 'CISCO US OPERATING UNIT',
+      WebOrder_ID: '96635062',
+      SubRefId: 'Sub66668',
+      Subscription_Creation_Date: '15-Mar-2024',
+      Subscription_Status: 'Activation Complete',
+      'BDOM/SSD': '2598271',
+      'Subscription_St_Date_-_End_Date': '75947116',
+      TCV: 'USD 6,592.16',
+      Billing_Model: 'Global Price List USD',
+      AutoRenewal: 'Y',
+      Billing_Info: 'AT&T',
+      Order_Origin: 'CCW-Q2O',
+      Hybrid_Order: 'N',
+      Route_to_Market: 'Direct',
+    },
+    {
+      Operating_Unit: 'CISCO US OPERATING UNIT',
+      WebOrder_ID: '96635062',
+      SubRefId: 'Sub99887',
+      Subscription_Creation_Date: '15-Mar-2024',
+      Subscription_Status: 'Activation Complete',
+      'BDOM/SSD': '2598271',
+      'Subscription_St_Date_-_End_Date': '75947116',
+      TCV: 'USD 6,592.16',
+      Billing_Model: 'Global Price List USD',
+      AutoRenewal: 'N',
+      Billing_Info: 'Zuora',
+      Order_Origin: 'CCW-Q2O',
+      Hybrid_Order: 'N',
+      Route_to_Market: 'CCE-Direct',
+    },
+  ]);
+
+  ngOnInit() {}
 
   goToOrdersTab() {
     this.tabGroup.selectedIndex = 1; // 1 is the index of the Orders tab
+  }
+
+  toggleTable(rowType: string) {
+    if (rowType === 'Order') {
+      this.selectedTable = 'order';
+    } else if (rowType === 'Sub') {
+      this.selectedTable = 'sub';
+    }
   }
 
   goToO2cDetails(row: any) {
@@ -289,47 +319,6 @@ export class O2cDemoComponent {
       queryParams: { orderId: row.WebOrder_ID },
     });
     console.log('Navigating to O2C details for order ID:', row.WebOrder_ID);
-  }
-
-  applyFilter(filterValue: string) {
-    this.innerTables.forEach(
-      (table, index) =>
-        ((table.dataSource as MatTableDataSource<Address>).filter = filterValue
-          .trim()
-          .toLowerCase())
-    );
-  }
-
-  toggleRow(element: User) {
-    element.addresses &&
-    (element.addresses as MatTableDataSource<Address>).data.length
-      ? this.toggleElement(element)
-      : null;
-    this.cd.detectChanges();
-    this.innerTables.forEach(
-      (table, index) =>
-        ((table.dataSource as MatTableDataSource<Address>).sort =
-          this.innerSort.toArray()[index])
-    );
-  }
-
-  isExpanded(row: User): string {
-    const index = this.expandedElements.findIndex((x) => x.Step == row.Step);
-    if (index !== -1) {
-      return 'expanded';
-    }
-    return 'collapsed';
-  }
-
-  toggleElement(row: User) {
-    const index = this.expandedElements.findIndex((x) => x.Step == row.Step);
-    if (index === -1) {
-      this.expandedElements.push(row);
-    } else {
-      this.expandedElements.splice(index, 1);
-    }
-
-    //console.log(this.expandedElements);
   }
 
   onSearch(searchValue: string): void {
@@ -404,230 +393,3 @@ export class O2cDemoComponent {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
 }
-
-export interface User {
-  Step: string;
-  Account: string;
-  Subscription_Line: string;
-  addresses?: Address[] | MatTableDataSource<Address>;
-}
-
-export interface Comment {
-  commenID: number;
-  comment: string;
-  commentStatus: string;
-}
-
-export interface Address {
-  Order_Summary: string;
-  Order_ID: string;
-  Order_Status: string;
-  comments?: Comment[] | MatTableDataSource<Comment>;
-}
-
-const USERS: User[] = [
-  {
-    Step: 'Order',
-    Account: 'cisco@test.com',
-    Subscription_Line: '9864785214',
-    addresses: [
-      {
-        Order_Summary: 'Order Summary 1',
-        Order_ID: '78542',
-        Order_Status: 'Lost',
-        comments: [
-          {
-            commenID: 1,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 2,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 3,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order Summary 2',
-        Order_ID: '78554',
-        Order_Status: 'Pending',
-        comments: [
-          {
-            commenID: 4,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 5,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 6,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    Step: 'Subscription',
-    Account: 'deloitte@test.com',
-    Subscription_Line: '8786541234',
-    addresses: [
-      {
-        Order_Summary: 'Order_Summary 5',
-        Order_ID: '23547',
-        Order_Status: 'Utah',
-        comments: [
-          {
-            commenID: 7,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 8,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 9,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order_Summary 5',
-        Order_ID: '23547',
-        Order_Status: 'Ohio',
-        comments: [
-          {
-            commenID: 19,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 11,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 12,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    Step: 'Accruals',
-    Account: 'asdf@cisco.com',
-    Subscription_Line: '7856452187',
-    addresses: [
-      {
-        Order_Summary: 'Order_Summary 1425',
-        Order_ID: '23547',
-        Order_Status: 'Blocked',
-        comments: [
-          {
-            commenID: 13,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 14,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 15,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order_Summary 5935',
-        Order_ID: '23547',
-        Order_Status: 'Unknown',
-        comments: [
-          {
-            commenID: 16,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 17,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 18,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    Step: 'Invoicing & Payments',
-    Account: 'happyHolidays@test.com',
-    Subscription_Line: '7856452187',
-    addresses: [
-      {
-        Order_Summary: 'Order_Summary 52971',
-        Order_ID: '23547',
-        Order_Status: 'In Progress',
-        comments: [
-          {
-            commenID: 13,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 14,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 15,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order_Summary 2054',
-        Order_ID: '23547',
-        Order_Status: 'Unknown',
-        comments: [
-          {
-            commenID: 16,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 17,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 18,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-];

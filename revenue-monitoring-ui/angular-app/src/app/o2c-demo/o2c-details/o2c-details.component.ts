@@ -1,106 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-
-interface Row {
-  id: string;
-  text1: string;
-  text2: string;
-  children?: Row[];
-}
-
-interface OrderSummaryLine {
-  order: {
-    operating_unit: string;
-    web_order_id: string;
-    sales_order: string;
-    order_creation_date: string;
-    order_status: string;
-    purchase_order_number: string;
-    deal_id: string;
-    order_total: string;
-    ordered_currency: string;
-    price_list: string;
-    offer_name: string;
-    child_1: {
-      submitted_by: string;
-      created_by: string;
-      billing_id: string;
-      partner_name: string;
-      end_customer_name: string;
-      reseller: string;
-      address_details_bill_to: string;
-      address_details_end_customer: string;
-    };
-    child_2: {
-      order_origin: string;
-      order_booked_date: string;
-      hybrid_order: string;
-      route_to_market: string;
-      order_holds: string;
-      cloud_sub_order_holds: string;
-    };
-  };
-}
 
 @Component({
   selector: 'app-o2c-details',
   templateUrl: './o2c-details.component.html',
   styleUrls: ['./o2c-details.component.css'],
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms ease-in-out')),
-    ]),
-  ],
 })
 export class O2cDetailsComponent implements OnInit {
   orderId: string | null = null;
-  expanded: { [key: string]: boolean } = {};
-  rows: Row[] = [];
-
-  orderSummaryLines: OrderSummaryLine[] = [
-    {
-      order: {
-        operating_unit: 'GLOBAL OPERATING UNIT',
-        web_order_id: '96635062',
-        sales_order: 'SO-987654',
-        order_creation_date: '01-Jan-2025',
-        order_status: 'Pending Activation',
-        purchase_order_number: '9876543',
-        deal_id: '12345678',
-        order_total: 'USD 12,345.67',
-        ordered_currency: 'USD',
-        price_list: 'Global Price List EU Availability EUR',
-        offer_name: 'NETWORK_ADVANTAGE SECURE_CONNECT',
-        child_1: {
-          submitted_by: 'Alex Johnson on 01-Jan-2025',
-          created_by: 'Alex Johnson on 01-Jan-2025',
-          billing_id: '789012345',
-          partner_name: 'Tech Solutions Ltd.',
-          end_customer_name: 'Innovative Corp.',
-          reseller: 'Reseller Group Inc.',
-          address_details_bill_to: '1234 Elm Street, Springfield, IL',
-          address_details_end_customer: '5678 Oak Avenue, Metropolis, NY',
-        },
-        child_2: {
-          order_origin: 'E-COMMERCE',
-          order_booked_date: '02-Jan-2025',
-          hybrid_order: 'Y',
-          route_to_market: 'DIRECT',
-          order_holds: 'None',
-          cloud_sub_order_holds: 'None',
-        },
-      },
-    },
-  ];
 
   constructor(private route: ActivatedRoute) {}
 
@@ -108,139 +16,106 @@ export class O2cDetailsComponent implements OnInit {
     this.route.queryParamMap.subscribe((params) => {
       this.orderId = params.get('orderId');
       console.log('Received order ID:', this.orderId);
-
-      if (this.orderId) {
-        this.loadOrderDetails(this.orderId);
-      }
     });
   }
 
-  data: {
-    DealerID: number;
-    Dealer: string;
-    Address: string;
-    City: string;
-    State: string;
-    BillingFrequency: string;
-    BillingAmount: string;
-    ProvisionDetails: string;
-    SubscriptionID: string;
-    EstimatedSubscriptionStartDate: string;
-    Brands: {
-      Brand: string;
-      Product1: string;
-      Product2: string;
-    }[];
-    isExpanded?: boolean;
-  }[] = [
-    {
-      DealerID: 1,
-      Dealer: '12 mon: 15-Mar-2024 to 14-Mar-2025',
-      Address: '15-Mar-2024',
-      City: '14-Mar-2025',
-      State: 'No auto renewal',
-      BillingFrequency: 'Prepaid Term',
-      BillingAmount: '1,839.73 Prepaid',
-      ProvisionDetails: 'Complete',
-      SubscriptionID: 'Sub1797786',
-      EstimatedSubscriptionStartDate: '15-Mar-2024',
-      Brands: [
-        {
-          Brand: '1.0.1',
-          Product1:
-            'ETD-ESS-LIC Cisco Email Threat Defense Essential License Magic Key Q12085423390-000',
-          Product2: '3,245.00',
-        },
-        {
-          Brand: 'Scenario: Create New',
-          Product1: 'Additional Item Info: XAAS',
-          Product2: 'Subscription ID: 1797787',
-        },
-      ],
-    },
-    {
-      DealerID: 1,
-      Dealer: '12 mon: 15-Mar-2024 to 14-Mar-2025',
-      Address: '15-Mar-2024',
-      City: '14-Mar-2025',
-      State: 'No auto renewal',
-      BillingFrequency: 'Prepaid Term',
-      BillingAmount: '1,839.73 Prepaid',
-      ProvisionDetails: 'Complete',
-      SubscriptionID: 'Sub1797786',
-      EstimatedSubscriptionStartDate: '15-Mar-2024',
-      Brands: [
-        {
-          Brand: '1.0.1',
-          Product1:
-            'ETD-ESS-LIC Cisco Email Threat Defense Essential License Magic Key Q12085423390-000',
-          Product2: '3,245.00',
-        },
-        {
-          Brand: 'Scenario: Create New',
-          Product1: 'Additional Item Info: XAAS',
-          Product2: 'Subscription ID: 1797787',
-        },
-      ],
-    },
+  displayedColumnsSummary: string[] = [
+    'Deal_ID',
+    'WebOrder_ID',
+    'Order_Creation_Date',
+    'Order_Status',
+    'Purchase_Order_Num',
+    'Order_Total',
+    'Price_list',
+    'Offer_Name',
+    'Created_By',
+    'Partner_Name',
+    'Billing_ID',
   ];
 
-  loadOrderDetails(orderId: string) {
-    const orderData = this.orderSummaryLines.find(
-      (order) => order.order.web_order_id === orderId
-    );
+  dataSourceSummary = new MatTableDataSource<any>([
+    {
+      Deal_ID: '75947116',
+      WebOrder_ID: '96635062',
+      Order_Creation_Date: '15-Mar-2024',
+      Order_Status: 'Activation Complete',
+      Purchase_Order_Num: '2598271',
+      Order_Total: 'USD 6,592.16',
+      Price_list: 'Global Price List US Availability USD',
+      Offer_Name: 'CMD_SECURITY , UMBRELLA',
+      Created_By: 'Richard Niven on 15-Mar-2024',
+      Partner_Name: 'IngramMicro',
+      Billing_ID: '413587662',
+    },
+  ]);
 
-    if (!orderData) {
-      console.warn('No order found for ID:', orderId);
-      return;
-    }
+  displayedColumnsSummary2: string[] = [
+    'End_Customer_Name',
+    'Reseller',
+    'Address_Details_Bill-To',
+    'Address_Details_End_Customer',
+    'Order_Origin',
+    'Order_Booked_Date',
+    'Hybrid_Order',
+    'Route_to_Market',
+    'Order_Holds',
+    'Cloud_Sub_Order__Holds',
+  ];
 
-    // Convert to Row structure
-    this.rows = [
-      {
-        id: orderData.order.web_order_id,
-        text1: orderData.order.order_status,
-        text2: orderData.order.order_total,
-        children: [
-          {
-            id: '1',
-            text1: 'Submitted By',
-            text2: orderData.order.child_1.submitted_by,
-          },
-          {
-            id: '2',
-            text1: 'Billing ID',
-            text2: orderData.order.child_1.billing_id,
-          },
-          {
-            id: '3',
-            text1: 'Partner Name',
-            text2: orderData.order.child_1.partner_name,
-          },
-          {
-            id: '4',
-            text1: 'Order Origin',
-            text2: orderData.order.child_2.order_origin,
-          },
-          {
-            id: '5',
-            text1: 'Order Holds',
-            text2: orderData.order.child_2.order_holds,
-          },
-        ],
-      },
-    ];
-  }
+  dataSourceSummary2 = new MatTableDataSource<any>([
+    {
+      End_Customer_Name: 'NA',
+      Reseller: 'NA',
+      'Address_Details_Bill-To': 'NA',
+      Address_Details_End_Customer: 'NA',
+      Order_Origin: 'CCW-Q2O',
+      Order_Booked_Date: 'N',
+      Hybrid_Order: 'PARTNER',
+      Route_to_Market: null,
+      Order_Holds: null,
+      Cloud_Sub_Order_Holds: null,
+    },
+  ]);
 
-  toggleRow(row: Row) {
-    this.expanded[row.id] = !this.expanded[row.id];
-  }
+  displayedColumnsLineSummary: string[] = [
+    'ATO_NAME',
+    'Line_Ref_Number',
+    'Prev_Ln_Ref_Number',
+    'OPL_LineId',
+    'Ordered_Item',
+    'Quantity',
+    'Unit_Net_Price',
+    'MRR',
+    'Item_Type_Code',
+    'Flow_Status_Code',
+  ];
 
-  isRowClickable(rowIndex: number): boolean {
-    return (
-      this.rows[rowIndex].children && this.rows[rowIndex].children.length > 0
-    );
-  }
+  dataSourceLineSummary = new MatTableDataSource<any>([
+    {
+      ATO_NAME: 'ETD-SEC-SUB',
+      Line_Ref_Number: '328252622',
+      Prev_Ln_Ref_Number: '2114407481',
+      OPL_LineId: 'ETD-SEC-SUB',
+      Ordered_Item: '153.31',
+      Quantity: 'MAJOR',
+      Unit_Net_Price: 'CLOSED',
+      MRR: null,
+      Item_Type_Code: null,
+      Flow_Status_Code: null,
+    },
+    {
+      ATO_NAME: 'UMB-SEC-SUB',
+      Line_Ref_Number: '328252625',
+      Prev_Ln_Ref_Number: '2114407481',
+      OPL_LineId: 'UMB-SEC-SUB',
+      Ordered_Item: '396.03',
+      Quantity: 'MAJOR',
+      Unit_Net_Price: 'CLOSED',
+      MRR: null,
+      Item_Type_Code: null,
+      Flow_Status_Code: null,
+    },
+  ]);
 
   accrualsTotals: { [key: string]: number } = {
     Order: 1, // Completed, 1 is current, 0 is uncompleted
@@ -292,5 +167,9 @@ export class O2cDetailsComponent implements OnInit {
       };
     }
     return { background: '#16371e43' };
+  }
+
+  removeUnderscores(key: string): string {
+    return key.replace(/_/g, ' ');
   }
 }

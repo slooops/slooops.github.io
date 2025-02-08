@@ -3,75 +3,7 @@
   font-family: "Inter", sans-serif;
 }
 
-h1 {
-  color: #08ace4;
-}
-
-h1,
-p,
-.td {
-  font-family: Inter;
-}
-
-.table {
-  font-size: 12px;
-  /* border: 1px solid lightgray; */
-}
-
-.table,
-.td {
-  text-align: left;
-}
-
-.table-header {
-  font-weight: bold;
-}
-
-.table-header.table-row {
-  border-bottom: 2px solid gray;
-}
-
-.table-row {
-  display: block;
-  white-space: nowrap;
-  border-bottom: 1px solid lightgray;
-  overflow: hidden;
-}
-.table-row:last-child {
-  border: none;
-}
-.td {
-  display: inline-block;
-  padding: 8px;
-}
-
-.td:nth-child(0) {
-  width: calc(10vw);
-}
-
-.td:nth-child(1) {
-  width: calc(10vw);
-}
-.td:nth-child(2) {
-  width: calc(20vw);
-}
-.td:nth-child(3) {
-  width: calc(20vw);
-}
-
-.clickable {
-  cursor: pointer;
-}
-
-.clickable:hover {
-  background-color: #f3f3f3;
-}
-
-.child-row {
-  background-color: #f0f0f0;
-}
-
-/* bullshit from here on */
+/* header bar stuff */
 
 .search-bar-container {
   display: flex;
@@ -243,28 +175,60 @@ p,
   padding: 0;
 }
 
-.gridded-table td,
-.gridded-table th {
-  border: 1px solid #ddd; /* Add border to table cells and headers */
+.gridded-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  table-layout: fixed; /* Ensure fixed table layout */
+}
+
+.gridded-table th,
+.gridded-table td {
+  font-size: 12px;
+  width: 10vw; /* Set equal width for all columns */
+  padding: 5px;
+  background-color: #f1f1f1; /* Light gray background */
+  font-weight: bold;
+  text-align: left;
+  border: none;
+  color: #333;
+  overflow-x: auto;
+  border-right: 1px solid #ddd; /* Border between columns */
+  word-wrap: break-word; /* Ensure words wrap */
+  white-space: normal; /* Allow wrapping */
+  vertical-align: top;
 }
 
 .gridded-table th {
-  background-color: #f1f1f1; /* Add background color to headers */
+  font-weight: bold;
 }
 
-.gridded-table th.no-border-left {
-  border-left: none; /* Remove left border from the first header */
+.gridded-table td {
+  font-weight: normal;
+}
+
+.gridded-table .no-border-left {
+  border-left: none;
 }
 
 .gridded-table .no-border-right {
-  border-right: none; /* Remove right border from the last header */
+  border-right: none;
+}
+
+.gridded-table th:last-child,
+.gridded-table td:last-child {
+  border-right: none; /* Remove right border from the last column */
+}
+
+tr.mat-header-row {
+  height: unset;
 }
 
 .header-table {
   overflow-x: auto;
   background-color: rgb(241, 241, 241);
-  margin: 0 calc(-5rem);
-  padding: 0 calc(5rem);
+  margin: 0 -5rem;
+  padding: 0 5rem;
 }
 
 .header-card {
