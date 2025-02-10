@@ -314,17 +314,17 @@ public class QueryConfigs {
     @Value(("${standard.revenue.details.query}"))
     public String standardRevenueDetails;
 
-    @Value(("${post.invoice.summary.query}"))
-    public String postInvoiceSummary;
+    @Value(("${cm.amort.summary.query}"))
+    public String cmAmortSummary;
 
-    @Value(("${post.invoice.details.query}"))
-    public String postInvoiceDetails;
+    @Value(("${cm.amort.details.query}"))
+    public String cmAmortDetails;
 
-    @Value(("${post.invoice.details.filtered.query}"))
-    public String postInvoiceDetailsFiltered;
+    @Value(("${cm.amort.details.filtered.query}"))
+    public String cmAmortDetailsFiltered;
 
-    @Value(("${post.invoice.summary.update.query}"))
-    public String postInvoiceSummaryUpdate;
+    @Value(("${cm.amort.summary.update.query}"))
+    public String cmAmortSummaryUpdate;
 
     @Value(("${standard.revenue.details.filtered.query}"))
     public String standardRevenueDetailsFiltered;
@@ -338,19 +338,19 @@ public class QueryConfigs {
     @Bean(name = "standardRevenueDetails")
     public String getStandardRevenueDetails() { return this.standardRevenueDetails; }
 
-    @Bean(name = "postInvoiceSummary")
-    public String getPostInvoiceSummary() { return this.postInvoiceSummary; }
-    @Bean(name = "postInvoiceDetails")
-    public String getPostInvoiceDetails() { return this.postInvoiceDetails; }
+    @Bean(name = "cmAmortSummary")
+    public String getcmAmortSummary() { return this.cmAmortSummary; }
+    @Bean(name = "cmAmortDetails")
+    public String getcmAmortDetails() { return this.cmAmortDetails; }
     @Bean(name = "standardRevenueDetailsFiltered")
     public String getStandardRevenueDetailsFiltered() { return this.standardRevenueDetailsFiltered; }
     @Bean(name = "standardRevenueSummaryUpdate")
     public String getStandardRevenueSummaryUpdate() { return this.standardRevenueSummaryUpdate; }
 
-    @Bean(name = "postInvoiceDetailsFiltered")
-    public String getPostInvoiceDetailsFiltered() { return this.postInvoiceDetailsFiltered; }
-    @Bean(name = "postInvoiceSummaryUpdate")
-    public String getPostInvoiceSummaryUpdate() { return this.postInvoiceSummaryUpdate; }
+    @Bean(name = "cmAmortDetailsFiltered")
+    public String getCmAmortDetailsFiltered() { return this.cmAmortDetailsFiltered; }
+    @Bean(name = "cmAmortSummaryUpdate")
+    public String getCmAmortSummaryUpdate() { return this.cmAmortSummaryUpdate; }
 
     @Bean(name = "fusionErrorSummaryUpdate")
     public String getFusionErrorSummaryUpdate() { return this.fusionErrorSummaryUpdate; }

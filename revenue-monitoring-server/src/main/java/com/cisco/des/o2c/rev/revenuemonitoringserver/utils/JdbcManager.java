@@ -138,14 +138,14 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, assignedTo, comments, assignedBy, sequenceNumber);
     }
 
-    public List<Map<String, Object>> getPostInvoiceDetailsFiltered(String sql, String periodName,
+    public List<Map<String, Object>> getCMAmortDetailsFiltered(String sql, String periodName,
                                                                    String appName, String processFlow, String ouName, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
     }
 
-    public int updatePostInvoiceSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName, String appName,
-                                         String processFlow, String orgName, String transactionDate, int amount) {
-        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  periodName, appName, processFlow, orgName, transactionDate, amount);
+    public int updateCMAmortSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,
+                                         String processFlow, String orgName, String transactionDate) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
     }
 
     public List<Map<String, Object>> getStandardRevenueDetailsFiltered(String sql, String periodName,

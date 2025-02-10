@@ -133,12 +133,6 @@ export class InvoicingComponent implements OnInit {
       subAppMapping: false,
     },
     {
-      formControlName: 'eventId',
-      columnName: 'EVENT_ID',
-      type: 'text',
-      subAppMapping: false,
-    },
-    {
       formControlName: 'transactionId',
       columnName: 'TRANSACTION_ID',
       type: 'text',
@@ -173,7 +167,7 @@ export class InvoicingComponent implements OnInit {
   ];
 
   postInvoicingTotals: { [key: string]: number } = {
-    '4-CM Amortization': 0,
+    'CM Amortization': 0,
   };
 
   autoInvoicingTotals: { [key: string]: number } = {

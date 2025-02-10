@@ -298,17 +298,17 @@ public class ExceptionMonitoringController {
 
     //Post Invoice
     @GetMapping("/post-invoice-error-summary")
-    public ResponseEntity<List<Map<String, Object>>> getPostInvoiceErrorSummary() {
-        return new ResponseEntity<>(service.getPostInvoiceErrorSummaryView(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> getCMAmortErrorSummary() {
+        return new ResponseEntity<>(service.getCMAmortErrorSummaryView(), HttpStatus.OK);
     }
 
     @GetMapping("/post-invoice-error-details")
-    public ResponseEntity<List<Map<String, Object>>> getPostInvoiceErrorDetails() {
-        return new ResponseEntity<>(service.getPostInvoiceErrorDetails(), HttpStatus.OK);
+    public ResponseEntity<List<Map<String, Object>>> getCMAmortErrorDetails() {
+        return new ResponseEntity<>(service.getCMAmortErrorDetails(), HttpStatus.OK);
     }
 
     @GetMapping("/post-invoice-error-details-filtered")
-    public ResponseEntity<Map<String, Object>> getPostInvoiceErrorDetailsFiltered(
+    public ResponseEntity<Map<String, Object>> getCMAmortErrorDetailsFiltered(
             @RequestParam List<String> periodNames,
             @RequestParam List<String> orgNames,
             @RequestParam List<String> applicationNames,
@@ -326,7 +326,7 @@ public class ExceptionMonitoringController {
                 String appName = applicationNames.get(i);
                 String transactionDate = transactionDates.get(i);
                 String processFlow = processFlows.get(i);
-                List<Map<String, Object>> result = service.getPostInvoiceErrorDetailsFiltered(periodName, appName, processFlow, ouName, transactionDate);
+                List<Map<String, Object>> result = service.getCMAmortErrorDetailsFiltered(periodName, appName, processFlow, ouName, transactionDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -338,8 +338,8 @@ public class ExceptionMonitoringController {
     }
 
     @PostMapping("/post-invoice-error-summary-update")
-    public ResponseEntity<String> updatePostInvoiceErrorsSummary(@RequestBody Map<String, String> updateData) {
-        int test = service.updatePostInvoicingErrorSummary(updateData);
+    public ResponseEntity<String> updateCMAmortErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateCMAmortErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 

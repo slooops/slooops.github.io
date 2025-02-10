@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -56,10 +61,10 @@ public class ExceptionMonitoringService {
     private String fusionErrorSummaryUpdate;
     private String standardRevenueSummary;
     private String standardRevenueDetails;
-    private String postInvoiceSummary;
-    private String postInvoiceDetails;
-    private String postInvoiceDetailsFiltered;
-    private String postInvoiceSummaryUpdate;
+    private String cmAmortSummary;
+    private String cmAmortDetails;
+    private String cmAmortDetailsFiltered;
+    private String cmAmortSummaryUpdate;
     private String standardRevenueDetailsFiltered;
     private String standardRevenueSummaryUpdate;
     @Autowired
@@ -75,7 +80,7 @@ public class ExceptionMonitoringService {
                                       String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate, String fusionErrorSummary, String fusionErrorDetails,
                                       String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered,
                                       String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
-                                      String postInvoiceSummary, String postInvoiceDetails, String postInvoiceSummaryUpdate, String postInvoiceDetailsFiltered,
+                                      String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
                                       String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered
     ) {
         this.jdbcManager = jdbcManager;
@@ -123,10 +128,10 @@ public class ExceptionMonitoringService {
         this.fusionErrorSummaryUpdate = fusionErrorSummaryUpdate;
         this.standardRevenueSummary = standardRevenueSummary;
         this.standardRevenueDetails = standardRevenueDetails;
-        this.postInvoiceSummary = postInvoiceSummary;
-        this.postInvoiceDetails = postInvoiceDetails;
-        this.postInvoiceDetailsFiltered = postInvoiceDetailsFiltered;
-        this.postInvoiceSummaryUpdate = postInvoiceSummaryUpdate;
+        this.cmAmortSummary = cmAmortSummary;
+        this.cmAmortDetails = cmAmortDetails;
+        this.cmAmortDetailsFiltered = cmAmortDetailsFiltered;
+        this.cmAmortSummaryUpdate = cmAmortSummaryUpdate;
         this.standardRevenueDetailsFiltered = standardRevenueDetailsFiltered;
         this.standardRevenueSummaryUpdate = standardRevenueSummaryUpdate;
     }
@@ -521,9 +526,9 @@ public class ExceptionMonitoringService {
     }
 
     //Post-Invoice
-    public List<Map<String, Object>> getPostInvoiceErrorSummaryView() {
+    public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(postInvoiceSummary);
+        List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortSummary);
         result.forEach(data -> {
             data.remove("AGING");
             formatDateColumns(data, dateColumns);
@@ -545,39 +550,35 @@ public class ExceptionMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getPostInvoiceErrorDetails() {
-        String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(postInvoiceDetails);
+    public List<Map<String, Object>> getCMAmortErrorDetails() {
+        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortDetails);
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
         return result;
     }
 
-    public List<Map<String, Object>> getPostInvoiceErrorDetailsFiltered(String periodName,
+    public List<Map<String, Object>> getCMAmortErrorDetailsFiltered(String periodName,
                                                                         String appName, String processFlow, String ouName, String transactionDate) {
-        String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = jdbcManager.getPostInvoiceDetailsFiltered(
-                postInvoiceDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE"  };
+        List<Map<String, Object>> result = jdbcManager.getCMAmortDetailsFiltered(
+                cmAmortDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
         return result;
     }
 
-    public int updatePostInvoicingErrorSummary(Map<String, String> updateData) {
+    public int updateCMAmortErrorSummary(Map<String, String> updateData) {
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
         String periodName = updateData.get("periodName");
         String processFlow = updateData.get("processFlow");
-        String appName = updateData.get("applicationName");
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
-        String amount = updateData.get("amount");
-        double numericValue = Double.parseDouble(amount.replaceAll("[$,]", ""));
-        int intValue = (int) numericValue;
-        int test = jdbcManager.updatePostInvoiceSummary(postInvoiceSummaryUpdate, assignedTo, assignedBy, comments,  periodName, appName, processFlow, orgName, transactionDate, intValue);
+        int test = jdbcManager.updateCMAmortSummary(cmAmortSummaryUpdate, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
         return 1;
     }
 
@@ -837,11 +838,10 @@ public class ExceptionMonitoringService {
         }
         try {
             String dateString = (String) transactionDate;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date creationDate = dateFormat.parse(dateString);
-            Date today = new Date();
-            long timeDifference = today.getTime() - creationDate.getTime();
-            long agingInDays = timeDifference / (1000 * 60 * 60 * 24);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate creationDate = LocalDate.parse(dateString, formatter);
+            ZonedDateTime today = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+            long agingInDays = ChronoUnit.DAYS.between(creationDate, today.toLocalDate());
             return Long.toString(agingInDays);
         } catch (Exception e) {
             return "0";
