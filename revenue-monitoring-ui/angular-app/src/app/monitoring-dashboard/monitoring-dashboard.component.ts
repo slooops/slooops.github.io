@@ -61,8 +61,6 @@ export class MonitoringDashboardComponent<T>
   totalImpactData$: Observable<any>;
   updateUrl: string;
   webexUrl: string;
-  processFlowhtml: string = '';
-  processFlowcss: string = '';
   searchForm: FormGroup = new FormGroup({});
   textFilters: any[] = [];
   selectFilters: any[] = [];
@@ -435,6 +433,10 @@ export class MonitoringDashboardComponent<T>
         );
         this.errorDetails.forEach((row) => {
           row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+          if (row.RULE_START_DATE || row.RULE_END_DATE) {
+            row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
+            row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
+          }
           this.detailsDisplayedColumns.forEach((column) => {
             if (row[column] === '-') {
               row[column] = '--';
@@ -490,6 +492,10 @@ export class MonitoringDashboardComponent<T>
           );
           this.errorDetailsFiltered.forEach((row) => {
             row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+            if (row.RULE_START_DATE || row.RULE_END_DATE) {
+              row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
+              row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
+            }
           });
           this.originalFilteredData = this.errorDetailsFiltered;
           this.filtereddataSource = new MatTableDataSource<T>(
