@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class O2cDemoComponent {
   selectedTable: 'order' | 'sub' | null = null; // Track which table is visible
+  circleSteps: string[] = [];
 
   @ViewChild('tabGroup') tabGroup: MatTabGroup;
 
@@ -103,25 +104,25 @@ export class O2cDemoComponent {
   ];
 
   dataSourceOrders = new MatTableDataSource<any>([
-    {
-      Operating_Unit: 'CISCO US OPERATING UNIT',
-      WebOrder_ID: '96635062',
-      Sales_Order: '2598271',
-      Order_Creation_Date: '15-Mar-2024',
-      Order_Status: 'Activation Complete',
-      Purchase_Order_Num: '2598271',
-      Deal_ID: '75947116',
-      Order_Total: 'USD 6,592.16',
-      Price_list: 'Global Price List USD',
-      Billing_ID: '413587662',
-      Partner_Name: 'IngramMicro',
-      Order_Origin: 'CCW-Q2O',
-      Order_Booked_Date: '18-Mar-2024',
-      Hybrid_Order: 'N',
-      Route_to_Market: 'PARTNER',
-      Order_Holds: 'None',
-      Cloud_Sub_Order__Holds: 'Hold Reason1',
-    },
+    // {
+    //   Operating_Unit: 'CISCO US OPERATING UNIT',
+    //   WebOrder_ID: '96635062',
+    //   Sales_Order: '2598271',
+    //   Order_Creation_Date: '15-Mar-2024',
+    //   Order_Status: 'Activation Complete',
+    //   Purchase_Order_Num: '2598271',
+    //   Deal_ID: '75947116',
+    //   Order_Total: 'USD 6,592.16',
+    //   Price_list: 'Global Price List USD',
+    //   Billing_ID: '413587662',
+    //   Partner_Name: 'IngramMicro',
+    //   Order_Origin: 'CCW-Q2O',
+    //   Order_Booked_Date: '18-Mar-2024',
+    //   Hybrid_Order: 'N',
+    //   Route_to_Market: 'PARTNER',
+    //   Order_Holds: 'None',
+    //   Cloud_Sub_Order__Holds: 'Hold Reason1',
+    // },
     {
       Operating_Unit: 'CISCO US OPERATING UNIT',
       WebOrder_ID: '96635063',
@@ -300,17 +301,41 @@ export class O2cDemoComponent {
     },
   ]);
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.circleSteps = Object.keys(this.circleStatus);
+  }
 
   goToOrdersTab() {
     this.tabGroup.selectedIndex = 1; // 1 is the index of the Orders tab
   }
 
   toggleTable(rowType: string) {
-    if (rowType === 'Order') {
-      this.selectedTable = 'order';
-    } else if (rowType === 'Sub') {
+    if (rowType === 'Sub') {
       this.selectedTable = 'sub';
+      this.circleStatus = {
+        Order: 2, // Mark Order as completed
+        Subscription: 1, // Subscription becomes the current step
+        Accruals: 0,
+        Invoicing: 0,
+        AR_Accounting: 0,
+      };
+    } else if (rowType === 'Order') {
+      this.selectedTable = 'order';
+      this.circleStatus = {
+        Order: 1, // Order becomes the current step
+        Subscription: 0,
+        Accruals: 0,
+        Invoicing: 0,
+        AR_Accounting: 0,
+      };
+    } else {
+      this.circleStatus = {
+        Order: 1, // Order becomes the current step
+        Subscription: 0,
+        Accruals: 0,
+        Invoicing: 0,
+        AR_Accounting: 0,
+      };
     }
   }
 
@@ -328,19 +353,19 @@ export class O2cDemoComponent {
 
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
-  accrualsTotals: { [key: string]: number } = {
-    Order: 1, // Completed, 1 is current, 0 is uncompleted
+  circleStatus: { [key: string]: number } = {
+    Order: 1, // Initial state: Order is current
     Subscription: 0,
-    Acrruals: 0,
+    Accruals: 0,
     Invoicing: 0,
     AR_Accounting: 0,
   };
 
   // Define the steps array with both original keys and formatted labels
-  formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
+  formattedAccrualsSteps = Object.keys(this.circleStatus).map((key) => ({
     originalKey: key, // Store the original key for accessing dynamic totals
     label: this.formatLabel(key), // Format for display
-    impact: this.accrualsTotals[key] || 'N/A', // Use dynamic data from accrualsTotals
+    impact: this.circleStatus[key] || 'N/A', // Use dynamic data from circleStatus
   }));
 
   // Function to format the label
@@ -360,24 +385,23 @@ export class O2cDemoComponent {
       .join(' '); // Join words back with spaces
   }
 
-  // Helper to determine the class for a circle based on the accrualsTotals value
-  getCircleClass(step: any): string {
-    const value = this.accrualsTotals[step.originalKey];
+  // Helper to determine the class for a circle based on the circleStatus value
+  getCircleClass(step: string): string {
+    const value = this.circleStatus[step];
     if (value === 2) return 'completed-circle'; // Completed step
     if (value === 1) return 'current-circle'; // Current step
     return 'uncompleted-circle'; // Default for uncompleted steps
   }
 
   getSliderBarStyle(index: number): { [key: string]: string } {
-    const step = this.formattedAccrualsSteps[index];
-    const value = this.accrualsTotals[step.originalKey];
-    if (value === 1) {
-      // Current step
-      return {
-        background: 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)',
-      };
-    }
-    return { background: '#16371e43' };
+    const step = this.circleSteps[index];
+    const value = this.circleStatus[step];
+    return {
+      background:
+        value === 1
+          ? 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)'
+          : '#16371e43',
+    };
   }
 
   removeUnderscores(key: string): string {

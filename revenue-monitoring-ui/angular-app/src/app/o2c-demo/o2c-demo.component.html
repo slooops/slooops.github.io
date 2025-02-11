@@ -102,19 +102,15 @@
 <div class="flowchart-container">
   <div class="slider-bar">
     <div
-      *ngFor="let step of formattedAccrualsSteps; let i = index"
+      *ngFor="let step of circleSteps; let i = index"
       [ngStyle]="getSliderBarStyle(i)"
     >
-      <!-- Circle Wrapper -->
       <div class="circle-wrapper-loop">
-        <p class="circle-caption-loop">{{ step.label }}</p>
+        <p class="circle-caption-loop">{{ step }}</p>
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
       </div>
 
-      <div
-        *ngIf="i < formattedAccrualsSteps.length - 1"
-        class="chevron-wrapper-loop"
-      >
+      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
         <div class="chevron"></div>
         <div class="chevron-white"></div>
       </div>
