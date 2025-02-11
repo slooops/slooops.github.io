@@ -102,15 +102,19 @@
 <div class="flowchart-container">
   <div class="slider-bar">
     <div
-      *ngFor="let step of circleSteps; let i = index"
+      *ngFor="let step of formattedAccrualsSteps; let i = index"
       [ngStyle]="getSliderBarStyle(i)"
     >
+      <!-- Circle Wrapper -->
       <div class="circle-wrapper-loop">
-        <p class="circle-caption-loop">{{ step }}</p>
+        <p class="circle-caption-loop">{{ step.label }}</p>
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
       </div>
 
-      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
+      <div
+        *ngIf="i < formattedAccrualsSteps.length - 1"
+        class="chevron-wrapper-loop"
+      >
         <div class="chevron"></div>
         <div class="chevron-white"></div>
       </div>
@@ -118,128 +122,104 @@
   </div>
 </div>
 
-<!-- Business Rules Tab -->
 <div
   class="grid-1"
   style="display: grid; gap: 1.2rem; padding-top: 1.2rem; margin: 1rem 5rem"
 >
-  <!-- <p class="section-title">O2C Summary Dashboard</p> -->
-  <ng-container *ngIf="dataSourceBusinessRules?.data?.length > 0">
-    <div class="header-table" style="border-top: solid 1px #e0e0e0">
-      <table
-        mat-table
-        [dataSource]="dataSourceBusinessRules"
-        class="gridded-table"
-        style="border-bottom: 1px solid #e0e0e0"
-      >
-        <ng-container *ngFor="let column of displayedColumnsBusinessRules">
-          <ng-container [matColumnDef]="column">
-            <td
-              style="border-bottom: 1px solid #e0e0e0; cursor: pointer"
-              mat-cell
-              *matCellDef="let element"
-              (click)="toggleTable(element['1'])"
-            >
-              {{ element[column] }}
-            </td>
-          </ng-container>
-        </ng-container>
+  <div class="header-table" style="border-top: solid 1px #e0e0e0">
+    <table
+      mat-table
+      [dataSource]="dataSourceSummary"
+      class="gridded-table"
+      style="border-bottom: 1px solid #e0e0e0"
+    >
+      <ng-container *ngFor="let column of displayedColumnsSummary">
+        <ng-container [matColumnDef]="column">
+          <!-- Header Row -->
+          <th mat-header-cell *matHeaderCellDef>
+            {{ removeUnderscores(column) }}
+          </th>
 
-        <!-- Remove the header row -->
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumnsBusinessRules"
-        ></tr>
-      </table>
-    </div>
-  </ng-container>
-  <ng-container *ngIf="!dataSourceBusinessRules?.data?.length">
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-      <br /><br /><br />
-    </div>
-  </ng-container>
+          <!-- Data Row -->
+          <td mat-cell *matCellDef="let element">
+            {{ element[column] }}
+          </td>
+        </ng-container>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsSummary"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumnsSummary"></tr>
+    </table>
+
+    <table
+      mat-table
+      [dataSource]="dataSourceSummary2"
+      class="gridded-table"
+      style="border-bottom: 1px solid #e0e0e0"
+    >
+      <ng-container *ngFor="let column of displayedColumnsSummary2">
+        <ng-container [matColumnDef]="column">
+          <!-- Header Row -->
+          <th mat-header-cell *matHeaderCellDef>
+            {{ removeUnderscores(column) }}
+          </th>
+
+          <!-- Data Row -->
+          <td mat-cell *matCellDef="let element">
+            {{ element[column] }}
+          </td>
+        </ng-container>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsSummary2"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumnsSummary2"></tr>
+    </table>
+  </div>
+
+  <div class="section-title">Line Summary</div>
+  <div class="card">
+    <table
+      mat-table
+      [dataSource]="dataSourceLineSummary"
+      class="header-card table table-condensed gridded-table"
+    >
+      <ng-container *ngFor="let column of displayedColumnsLineSummary">
+        <ng-container [matColumnDef]="column">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            [ngClass]="{
+              'no-border-left': column === displayedColumnsLineSummary[0],
+              'no-border-right':
+                column ===
+                displayedColumnsLineSummary[
+                  displayedColumnsLineSummary.length - 1
+                ]
+            }"
+          >
+            {{ removeUnderscores(column) }}
+          </th>
+          <td mat-cell *matCellDef="let element">
+            {{ element[column] }}
+          </td>
+        </ng-container>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsLineSummary"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnsLineSummary"
+      ></tr>
+    </table>
+  </div>
+  <p
+    style="
+      display: inline-flex;
+      justify-content: flex-end;
+      font-size: 11px;
+      margin-top: -10px;
+    "
+  >
+    O2C: Details for Order {{ orderId }}
+  </p>
 </div>
-
-<br /><br /><br />
-
-<ng-container *ngIf="selectedTable === 'order'">
-  <p class="section-title" style="margin: 1rem 5rem">Order</p>
-  <div class="grid-1 card" style="width: auto; margin: 1rem 5rem">
-    <div class="card">
-      <table
-        mat-table
-        [dataSource]="dataSourceOrders"
-        class="header-card table table-condensed gridded-table"
-      >
-        <ng-container *ngFor="let column of displayedColumnsOrders">
-          <ng-container [matColumnDef]="column">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              [ngClass]="{
-                'no-border-left': column === displayedColumnsOrders[0],
-                'no-border-right':
-                  column ===
-                  displayedColumnsOrders[displayedColumnsOrders.length - 1]
-              }"
-            >
-              {{ removeUnderscores(column) }}
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              (click)="goToO2cDetails(element)"
-              style="cursor: pointer; border-bottom: 1px solid #ddd"
-            >
-              {{ element[column] }}
-            </td>
-          </ng-container>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsOrders"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumnsOrders"></tr>
-      </table>
-    </div>
-  </div>
-</ng-container>
-
-<ng-container *ngIf="selectedTable === 'sub'">
-  <p class="section-title" style="margin: 1rem 5rem">Subscriptions</p>
-  <div class="grid-1 card" style="width: auto; margin: 1rem 5rem">
-    <div class="card">
-      <table
-        mat-table
-        [dataSource]="dataSourceSub"
-        class="header-card table table-condensed gridded-table"
-      >
-        <ng-container *ngFor="let column of displayedColumnsSub">
-          <ng-container [matColumnDef]="column">
-            <th
-              mat-header-cell
-              *matHeaderCellDef
-              [ngClass]="{
-                'no-border-left': column === displayedColumnsSub[0],
-                'no-border-right':
-                  column === displayedColumnsSub[displayedColumnsSub.length - 1]
-              }"
-            >
-              {{ removeUnderscores(column) }}
-            </th>
-            <td
-              mat-cell
-              *matCellDef="let element"
-              (click)="goToO2cDetails(element)"
-              style="cursor: pointer; border-bottom: 1px solid #ddd"
-            >
-              {{ element[column] }}
-            </td>
-          </ng-container>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsSub"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumnsSub"></tr>
-      </table>
-    </div>
-  </div>
-</ng-container>
