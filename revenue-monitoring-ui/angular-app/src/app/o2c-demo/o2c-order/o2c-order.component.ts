@@ -3,15 +3,15 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-o2c-details',
-  templateUrl: './o2c-details.component.html',
-  styleUrls: ['./o2c-details.component.css'],
+  selector: 'app-o2c-order',
+  templateUrl: './o2c-order.component.html',
+  styleUrl: './o2c-order.component.css',
 })
-export class O2cDetailsComponent implements OnInit {
+export class O2cOrderComponent {
   circleStatus: { [key: string]: number } = {
-    Order: 2,
-    Subscription: 2,
-    Accruals: 1,
+    Order: 1,
+    Subscription: 0,
+    Accruals: 0,
     Invoicing: 0,
     AR_Accounting: 0,
   };
@@ -27,7 +27,6 @@ export class O2cDetailsComponent implements OnInit {
       this.orderId = params.get('orderId');
       console.log('Received order ID:', this.orderId);
     });
-
     this.circleSteps = Object.keys(this.circleStatus);
   }
 
@@ -148,6 +147,10 @@ export class O2cDetailsComponent implements OnInit {
     };
   }
 
+  removeUnderscores(key: string): string {
+    return key.replace(/_/g, ' ');
+  }
+
   navigateToStep(step: string) {
     switch (step) {
       case 'Order':
@@ -173,9 +176,5 @@ export class O2cDetailsComponent implements OnInit {
       default:
         console.log('No matching route found for:', step);
     }
-  }
-
-  removeUnderscores(key: string): string {
-    return key.replace(/_/g, ' ');
   }
 }

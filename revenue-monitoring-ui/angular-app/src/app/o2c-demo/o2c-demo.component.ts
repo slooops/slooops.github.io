@@ -1,7 +1,6 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import * as XLSX from 'xlsx';
-import { MatTabGroup } from '@angular/material/tabs';
 import { Router } from '@angular/router';
 
 @Component({
@@ -10,10 +9,8 @@ import { Router } from '@angular/router';
   styleUrl: './o2c-demo.component.css',
 })
 export class O2cDemoComponent {
-  selectedTable: 'order' | 'sub' | null = null; // Track which table is visible
+  selectedTable: 'order' | 'sub' | 'accrual' | 'invoice' | null = null; // Track which table is visible
   circleSteps: string[] = [];
-
-  @ViewChild('tabGroup') tabGroup: MatTabGroup;
 
   constructor(private router: Router) {}
 
@@ -301,20 +298,129 @@ export class O2cDemoComponent {
     },
   ]);
 
+  displayedColumnsAccruals: string[] = [
+    'Line_Ref_Number',
+    'Ordered_Item',
+    'SUBSKU_ITEM_NAME',
+    'Billing_Model',
+    'Charge_Type',
+    'OA_Flag',
+    'LT_Flag',
+    'Time_Bound_Cr_Flag',
+    'Term_St_Date',
+    'Term_End_Date',
+    'Currency',
+    'Amount',
+    'Percentage',
+    'Sub_SKU_Amount',
+    'Accrual_Status',
+    'GL_Posting',
+  ];
+
+  dataSourceAccruals = new MatTableDataSource<any>([
+    {
+      Line_Ref_Number: 'L12234',
+      Ordered_Item: 'ETD-SEC-SUB',
+      SUBSKU_ITEM_NAME: 'Active',
+      Billing_Model: 'PrePaid',
+      Charge_Type: 'Recurring',
+      OA_Flag: 'N',
+      LT_Flag: 'ETD-SEC-SUB',
+      Time_Bound_Cr_Flag: '153.31',
+      Term_St_Date: '3/15/2024',
+      Term_End_Date: '3/14/2027',
+      Currency: 'USD',
+      Amount: 'I',
+      Percentage: 'In Process',
+      Sub_SKU_Amount: null,
+      Accrual_Status: null,
+      GL_Posting: null,
+    },
+    {
+      Line_Ref_Number: 'l255667',
+      Ordered_Item: 'UMB-SEC-SUB',
+      SUBSKU_ITEM_NAME: 'Filfillment Eligible',
+      Billing_Model: 'PrePaid',
+      Charge_Type: 'Recurring',
+      OA_Flag: 'N',
+      LT_Flag: 'UMB-SEC-SUB',
+      Time_Bound_Cr_Flag: '396.03',
+      Term_St_Date: '3/14/2027',
+      Term_End_Date: '3/14/2027',
+      Currency: 'USD',
+      Amount: 'I',
+      Percentage: 'In Process',
+      Sub_SKU_Amount: null,
+      Accrual_Status: null,
+      GL_Posting: null,
+    },
+    {
+      Line_Ref_Number: 'l255669',
+      Ordered_Item: 'APPD-SEC-SUB',
+      SUBSKU_ITEM_NAME: 'Filfillment Eligible',
+      Billing_Model: 'PrePaid',
+      Charge_Type: 'Recurring',
+      OA_Flag: 'N',
+      LT_Flag: 'UMB-SEC-SUB',
+      Time_Bound_Cr_Flag: '396.03',
+      Term_St_Date: '3/14/2027',
+      Term_End_Date: '3/14/2027',
+      Currency: 'USD',
+      Amount: 'P',
+      Percentage: 'Processed',
+      Sub_SKU_Amount: null,
+      Accrual_Status: null,
+      GL_Posting: null,
+    },
+  ]);
+
+  displayedColumnsInvoice: string[] = [
+    'WebOrder_ID',
+    'Sub_Ref_Id',
+    'Creation_Date',
+    'Trxn_Number',
+    'Trxn_Date',
+    'Trxn_Amount',
+    'Print_Status',
+    'E-Inv_Status',
+    'Exception',
+  ];
+
+  dataSourceInvoice = new MatTableDataSource<any>([
+    {
+      WebOrder_ID: '96635062, 8877990',
+      Sub_Ref_Id: 'Sub123, sub879',
+      Creation_Date: '15-Mar-2024',
+      Trxn_Number: '67889',
+      Trxn_Date: '15-Mar-2024',
+      Trxn_Amount: '10000',
+      Print_Status: 'Pending',
+      'E-Inv_Status': 'Failed',
+      Exception: '500 - Exception IRP error',
+    },
+    {
+      WebOrder_ID: '96635063',
+      Sub_Ref_Id: 'Sub345',
+      Creation_Date: '15-Mar-2024',
+      Trxn_Number: '99887',
+      Trxn_Date: '15-Mar-2024',
+      Trxn_Amount: '10000',
+      Print_Status: 'E-Del Exception',
+      'E-Inv_Status': 'Completed',
+      Exception: 'E-Del email setup missing',
+    },
+  ]);
+
   ngOnInit() {
     this.circleSteps = Object.keys(this.circleStatus);
-  }
-
-  goToOrdersTab() {
-    this.tabGroup.selectedIndex = 1; // 1 is the index of the Orders tab
   }
 
   toggleTable(rowType: string) {
     if (rowType === 'Sub') {
       this.selectedTable = 'sub';
       this.circleStatus = {
-        Order: 2, // Mark Order as completed
-        Subscription: 1, // Subscription becomes the current step
+        Order: 2, // Completed
+        Subscription: 1, // Current step
         Accruals: 0,
         Invoicing: 0,
         AR_Accounting: 0,
@@ -322,18 +428,28 @@ export class O2cDemoComponent {
     } else if (rowType === 'Order') {
       this.selectedTable = 'order';
       this.circleStatus = {
-        Order: 1, // Order becomes the current step
+        Order: 1, // Current step
         Subscription: 0,
         Accruals: 0,
         Invoicing: 0,
         AR_Accounting: 0,
       };
-    } else {
+    } else if (rowType === 'Accrual') {
+      this.selectedTable = 'accrual';
       this.circleStatus = {
-        Order: 1, // Order becomes the current step
-        Subscription: 0,
-        Accruals: 0,
+        Order: 2, // Completed
+        Subscription: 2, // Completed
+        Accruals: 1, // Current step
         Invoicing: 0,
+        AR_Accounting: 0,
+      };
+    } else if (rowType === 'Invoicing') {
+      this.selectedTable = 'invoice';
+      this.circleStatus = {
+        Order: 2, // Completed
+        Subscription: 2, // Completed
+        Accruals: 2, // Completed
+        Invoicing: 1, // Current step
         AR_Accounting: 0,
       };
     }
@@ -346,12 +462,82 @@ export class O2cDemoComponent {
     console.log('Navigating to O2C details for order ID:', row.WebOrder_ID);
   }
 
+  goToO2cOrder(row: any) {
+    this.router.navigate(['/o2c-order'], {
+      queryParams: {
+        orderId: row.WebOrder_ID,
+        purchaseOrderNum: row.Purchase_Order_Num,
+      },
+    });
+    console.log(
+      'Navigating to O2C Order Details for Order ID:',
+      row.WebOrder_ID,
+      'Purchase Order:',
+      row.Purchase_Order_Num
+    );
+  }
+
+  goToO2cSub(row: any) {
+    this.router.navigate(['/o2c-sub'], {
+      queryParams: { subId: row.SubRefId, startDate: row.Start_Date },
+    });
+    console.log(
+      'Navigating to O2C Subscription Details for Sub ID:',
+      row.Subscription_ID
+    );
+  }
+
+  goToO2cAccrual(row: any) {
+    this.router.navigate(['/o2c-accrual'], {
+      queryParams: { accrualId: row.Accrual_ID, posted: row.Posted_YN },
+    });
+    console.log(
+      'Navigating to O2C Accrual Details for Accrual ID:',
+      row.Accrual_ID
+    );
+  }
+
+  goToO2cInvoicing(row: any) {
+    this.router.navigate(['/o2c-invoicing'], {
+      queryParams: { invoiceId: row.Invoice_ID, totalAmount: row.Total_Amount },
+    });
+    console.log(
+      'Navigating to O2C Invoicing Details for Invoice ID:',
+      row.Invoice_ID
+    );
+  }
+
+  navigateToStep(step: string) {
+    switch (step) {
+      case 'Order':
+        this.router.navigate(['/o2c-order']);
+        console.log('Navigating to O2C Order Page');
+        break;
+
+      case 'Subscription':
+        this.router.navigate(['/o2c-sub']);
+        console.log('Navigating to O2C Subscription Page');
+        break;
+
+      case 'Accruals':
+        this.router.navigate(['/o2c-accrual']);
+        console.log('Navigating to O2C Accruals Page');
+        break;
+
+      case 'Invoicing':
+        this.router.navigate(['/o2c-invoicing']);
+        console.log('Navigating to O2C Invoicing Page');
+        break;
+
+      default:
+        console.log('No matching route found for:', step);
+    }
+  }
+
   onSearch(searchValue: string): void {
     console.log('Search value:', searchValue);
     // Implement your search logic here
   }
-
-  skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
 
   circleStatus: { [key: string]: number } = {
     Order: 1, // Initial state: Order is current
@@ -360,30 +546,6 @@ export class O2cDemoComponent {
     Invoicing: 0,
     AR_Accounting: 0,
   };
-
-  // Define the steps array with both original keys and formatted labels
-  formattedAccrualsSteps = Object.keys(this.circleStatus).map((key) => ({
-    originalKey: key, // Store the original key for accessing dynamic totals
-    label: this.formatLabel(key), // Format for display
-    impact: this.circleStatus[key] || 'N/A', // Use dynamic data from circleStatus
-  }));
-
-  // Function to format the label
-  formatLabel(label: string): string {
-    const acronyms = this.skippedWords || [];
-
-    return label
-      .toLowerCase() // Convert to lowercase
-      .replace(/_/g, ' ') // Replace underscores with spaces
-      .split(' ') // Split into words
-      .map(
-        (word) =>
-          acronyms.includes(word.toUpperCase())
-            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
-      )
-      .join(' '); // Join words back with spaces
-  }
 
   // Helper to determine the class for a circle based on the circleStatus value
   getCircleClass(step: string): string {

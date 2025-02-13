@@ -76,6 +76,11 @@ import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { CommonModule } from '@angular/common';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
+import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
+import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
+import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
+import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
+import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -122,6 +127,11 @@ export function initApp(authService: AuthenticationService) {
     O2cDemoComponent,
     GlPostingComponent,
     O2cDetailsComponent,
+    O2cOrderComponent,
+    O2cSubComponent,
+    O2cAccrualComponent,
+    O2cInvoicingComponent,
+    O2cNavComponent,
   ],
   imports: [
     BrowserModule,

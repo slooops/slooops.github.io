@@ -1,18 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-o2c-details',
-  templateUrl: './o2c-details.component.html',
-  styleUrls: ['./o2c-details.component.css'],
+  selector: 'app-o2c-invoicing',
+
+  templateUrl: './o2c-invoicing.component.html',
+  styleUrl: './o2c-invoicing.component.css',
 })
-export class O2cDetailsComponent implements OnInit {
+export class O2cInvoicingComponent {
   circleStatus: { [key: string]: number } = {
     Order: 2,
     Subscription: 2,
-    Accruals: 1,
-    Invoicing: 0,
+    Accruals: 2,
+    Invoicing: 1,
     AR_Accounting: 0,
   };
 
@@ -27,105 +28,105 @@ export class O2cDetailsComponent implements OnInit {
       this.orderId = params.get('orderId');
       console.log('Received order ID:', this.orderId);
     });
-
     this.circleSteps = Object.keys(this.circleStatus);
   }
 
   displayedColumnsSummary: string[] = [
-    'Deal_ID',
-    'WebOrder_ID',
-    'Order_Creation_Date',
-    'Order_Status',
-    'Purchase_Order_Num',
-    'Order_Total',
-    'Price_list',
-    'Offer_Name',
-    'Created_By',
-    'Partner_Name',
-    'Billing_ID',
+    'Invoice_Type',
+    'Web_Order_ID',
+    'Purchase_Order_Number',
+    'Bill_To_Id',
+    'Bill_Number',
+    'Bill_Status',
+    'TRX_Number',
+    'Currency',
+    'TRX_Class',
   ];
 
   dataSourceSummary = new MatTableDataSource<any>([
     {
-      Deal_ID: '75947116',
-      WebOrder_ID: '96635062',
-      Order_Creation_Date: '15-Mar-2024',
-      Order_Status: 'Activation Complete',
-      Purchase_Order_Num: '2598271',
-      Order_Total: 'USD 6,592.16',
-      Price_list: 'Global Price List US Availability USD',
-      Offer_Name: 'CMD_SECURITY , UMBRELLA',
-      Created_By: 'Richard Niven on 15-Mar-2024',
-      Partner_Name: 'IngramMicro',
-      Billing_ID: '413587662',
+      Invoice_Type: 'Subscription',
+      Web_Order_ID: '96635062',
+      Purchase_Order_Number: '2598271',
+      Bill_To_Id: '413587662',
+      Bill_Number: '1000728386177 , 1000728386062',
+      Bill_Status: 'Invoiced',
+      TRX_Number: '6102098772',
+      Currency: 'USD',
+      TRX_Class: 'INV',
     },
   ]);
 
   displayedColumnsSummary2: string[] = [
-    'End_Customer_Name',
-    'Reseller',
-    'Address_Details_Bill-To',
-    'Address_Details_End_Customer',
-    'Order_Origin',
-    'Order_Booked_Date',
-    'Hybrid_Order',
-    'Route_to_Market',
-    'Order_Holds',
-    'Cloud_Sub_Order__Holds',
+    'TRX_Date',
+    'Due_Date',
+    'TRX_Status',
+    'Amount_Due_Orginal',
+    'Amount_Due_Remaining',
+    'Receipt_Applied',
+    'CM_Applied',
+    'Write_Off_/_Adjustments',
   ];
 
   dataSourceSummary2 = new MatTableDataSource<any>([
     {
-      End_Customer_Name: 'NA',
-      Reseller: 'NA',
-      'Address_Details_Bill-To': 'NA',
-      Address_Details_End_Customer: 'NA',
-      Order_Origin: 'CCW-Q2O',
-      Order_Booked_Date: 'N',
-      Hybrid_Order: 'PARTNER',
-      Route_to_Market: null,
-      Order_Holds: null,
-      Cloud_Sub_Order_Holds: null,
+      TRX_Date: '15/Mar/24',
+      Due_Date: '14/Apr/24',
+      TRX_Status: 'Closed',
+      Amount_Due_Orginal: '6592.15',
+      Amount_Due_Remaining: '0',
+      Receipt_Applied: 'WIRE1234',
+      CM_Applied: 'CM123',
+      'Write_Off_/_Adjustments': 'Adjustment Id 123',
     },
   ]);
 
   displayedColumnsLineSummary: string[] = [
-    'ATO_NAME',
-    'Line_Ref_Number',
-    'Prev_Ln_Ref_Number',
-    'OPL_LineId',
-    'Ordered_Item',
-    'Quantity',
-    'Unit_Net_Price',
-    'MRR',
-    'Item_Type_Code',
-    'Flow_Status_Code',
+    'Trx_Line_Number',
+    'SKU',
+    'SKU_Description',
+    'QTY',
+    'Unit_selling_Price',
+    'Line_Amount',
+    'Tax_Amount',
   ];
 
   dataSourceLineSummary = new MatTableDataSource<any>([
     {
-      ATO_NAME: 'ETD-SEC-SUB',
-      Line_Ref_Number: '328252622',
-      Prev_Ln_Ref_Number: '2114407481',
-      OPL_LineId: 'ETD-SEC-SUB',
-      Ordered_Item: '153.31',
-      Quantity: 'MAJOR',
-      Unit_Net_Price: 'CLOSED',
-      MRR: null,
-      Item_Type_Code: null,
-      Flow_Status_Code: null,
+      Trx_Line_Number: '1',
+      SKU: 'ETD-ESS-LIC',
+      SKU_Description: 'Cisco Email Threat Defense Essential License',
+      QTY: '125',
+      Unit_selling_Price: '12.45992',
+      Line_Amount: '1557.49',
+      Tax_Amount: '0',
     },
     {
-      ATO_NAME: 'UMB-SEC-SUB',
-      Line_Ref_Number: '328252625',
-      Prev_Ln_Ref_Number: '2114407481',
-      OPL_LineId: 'UMB-SEC-SUB',
-      Ordered_Item: '396.03',
-      Quantity: 'MAJOR',
-      Unit_Net_Price: 'CLOSED',
-      MRR: null,
-      Item_Type_Code: null,
-      Flow_Status_Code: null,
+      Trx_Line_Number: '2',
+      SKU: 'SVS-ETD-SUP-E',
+      SKU_Description: 'Enhanced Support for Email Threat Defense',
+      QTY: '1',
+      Unit_selling_Price: '282.24',
+      Line_Amount: '282.24',
+      Tax_Amount: '0',
+    },
+    {
+      Trx_Line_Number: '3',
+      SKU: 'SVS-UMB-SUP-E',
+      SKU_Description: 'Enhanced Support for Umbrella',
+      QTY: '1',
+      Unit_selling_Price: '619.92',
+      Line_Amount: '619.92',
+      Tax_Amount: '0',
+    },
+    {
+      Trx_Line_Number: '4',
+      SKU: 'UMB-DNS-ADV-K9',
+      SKU_Description: 'Cisco Umbrella DNS Security Advantage',
+      QTY: '125',
+      Unit_selling_Price: '33.06',
+      Line_Amount: '4132.5',
+      Tax_Amount: '0',
     },
   ]);
 
