@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-custom-revenue',
@@ -14,29 +15,18 @@ export class CustomRevenueComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
+    private authService: AuthenticationService
   ) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    this.getUserId();
+    // this.getUserId();
+    this.roles = this.authService.getRoles();
+    console.log(this.roles);
+    this.getDefaultTabIndex();
+    this.getAssignmentUsers();
   }
 
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
-
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-        this.getDefaultTabIndex();
-      });
-  }
   rolTotals: { [key: string]: number } = {
     XXCFIR_REV_INTERFACE_ALL: 0,
     XXCFIR_REVENUE_EXTRACT_ALL: 0,

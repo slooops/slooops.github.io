@@ -3,6 +3,7 @@ import { DataService } from '../providers/data.service';
 import { ApiHttpService } from '../providers/http.service';
 import { Router } from '@angular/router';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-menu',
@@ -15,7 +16,8 @@ export class MenuComponent implements OnInit {
     private dataService: DataService,
     http: ApiHttpService,
     private router: Router,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private authService: AuthenticationService
   ) {
     this.http = http;
   }
@@ -24,7 +26,12 @@ export class MenuComponent implements OnInit {
 
   userRoles: any;
   ngOnInit(): void {
-    this.getUserId();
+    this.userRoles = this.authService.getRoles();
+    console.log(this.userRoles);
+    this.dataService.setUserRoles(this.userRoles);
+    this.isAdmin = this.userRoles.includes('ADMIN');
+    this.rolesReady = true;
+    // this.getUserId();
     this.getAssignmentUsers();
   }
 
@@ -32,25 +39,25 @@ export class MenuComponent implements OnInit {
   rolesReady = false;
   loggedinUser: string;
 
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.dataService.setUsername(username);
-      this.getUserRoles(username);
-    });
-  }
+  // getUserId() {
+  //   this.dataService.setLoading(true);
+  //   this.dataService.getUserId(this.destroyManager).subscribe((data) => {
+  //     let username = data['auth_user'];
+  //     this.dataService.setUsername(username);
+  //     this.getUserRoles(username);
+  //   });
+  // }
 
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.userRoles = data['userRoles'];
-        this.dataService.setUserRoles(this.userRoles);
-        this.isAdmin = this.userRoles.includes('ADMIN');
-        this.rolesReady = true;
-      });
-  }
+  // getUserRoles(username: string) {
+  //   this.dataService
+  //     .getRoles(username, this.destroyManager)
+  //     .subscribe((data) => {
+  //       this.userRoles = data['userRoles'];
+  //       this.dataService.setUserRoles(this.userRoles);
+  //       this.isAdmin = this.userRoles.includes('ADMIN');
+  //       this.rolesReady = true;
+  //     });
+  // }
 
   checkRole(role: String) {
     return this.rolesReady && this.userRoles.includes(role);

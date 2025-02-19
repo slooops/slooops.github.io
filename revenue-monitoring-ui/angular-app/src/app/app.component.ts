@@ -23,18 +23,15 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
-    private authService: AuthenticationService,
-    private dataService: DataService,
-    private destroyManager: DestroyManager
+    private authService: AuthenticationService
   ) {}
 
   menuOpened = false;
-
   header: string = '';
-
-  userName: string = '';
+  userName: string = this.authService.getUserName();
   isHelpDropdownOpen: boolean = false;
-
+  userRoles: string[] = this.authService.getRoles();
+  isAdmin$: boolean = this.userRoles.includes('ADMIN');
   ngOnInit(): void {
     this.router.events
       .pipe(
@@ -55,14 +52,14 @@ export class AppComponent implements OnInit, OnDestroy {
         this.header = data['header'];
       });
 
-    this.dataService
-      .getUserId(this.destroyManager)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((data) => {
-        this.userName = data['auth_user_name'];
-        this.dataService.setUsername(data['auth_user']);
-        this.getUserRoles(data['auth_user']);
-      });
+    // this.dataService
+    //   .getUserId(this.destroyManager)
+    //   .pipe(takeUntil(this.destroy$))
+    //   .subscribe((data) => {
+    //     this.userName = data['auth_user_name'];
+    //     this.dataService.setUsername(data['auth_user']);
+    //     // this.getUserRoles(data['auth_user']);
+    //   });
   }
 
   toggleHelpDropdown(event: MouseEvent) {
@@ -86,29 +83,22 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authService.ssoLogout();
   }
 
-  userRoles$ = new BehaviorSubject<string[]>([]);
-  isAdmin$: Observable<boolean> = this.userRoles$.pipe(
-    map((roles) => roles.includes('ADMIN'))
-  );
-  loading$ = this.userRoles$.pipe(
-    map((roles) => roles.length === 0) // Loading if no roles are loaded yet
-  );
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .pipe(
-        tap(() => (this.loading$ = of(false))),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((data) => {
-        this.userRoles$.next(data['userRoles']);
-        this.dataService.setUserRoles(data['userRoles']);
-      });
-  }
-  hasRole$(roles: string[]): Observable<boolean> {
-    return this.userRoles$.pipe(
-      map((userRoles) => roles.some((role) => userRoles.includes(role)))
-    );
+  // Loading if no roles are loaded yet
+
+  // getUserRoles(username: string) {
+  //   this.dataService
+  //     .getRoles(username, this.destroyManager)
+  //     .pipe(
+  //       tap(() => (this.loading$ = of(false))),
+  //       takeUntil(this.destroy$)
+  //     )
+  //     .subscribe((data) => {
+  //       this.userRoles$.next(data['userRoles']);
+  //       this.dataService.setUserRoles(data['userRoles']);
+  //     });
+  // }
+  hasRole$(roles: string[]) {
+    return roles.some((role) => this.userRoles.includes(role));
   }
 
   ngOnDestroy(): void {

@@ -8,6 +8,7 @@ import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
+import { ErrorComponent } from './error/error.component';
 
 const routes: Routes = [
   {
@@ -23,11 +24,11 @@ const routes: Routes = [
       header: 'Home',
     },
   },
-  // {
-  //   path: 'error',
-  //   component: ErrorComponent,
-  //   data: { title: 'Error', header: '' },
-  // },
+  {
+    path: 'error',
+    component: ErrorComponent,
+    data: { title: 'Operations Control Tower', header: '' },
+  },
 
   {
     path: 'period-close-tracking',

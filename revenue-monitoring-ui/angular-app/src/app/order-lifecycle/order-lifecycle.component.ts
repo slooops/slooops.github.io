@@ -20,6 +20,7 @@ import { DataService } from '../providers/data.service';
 import { ColumnSelectComponent } from './column-select/column-select.component';
 import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-invoice-status',
@@ -34,14 +35,22 @@ export class OrderLifecycleComponent implements OnInit {
     http: ApiHttpService,
     private dialog: MatDialog,
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private authService: AuthenticationService
   ) {
     this.http = http;
   }
   currentDate: Date;
+  roles: string[] = [];
   ngOnInit(): void {
     this.username = this.dataService.getUsername();
-    this.getUserId();
+    // this.getUserId();
+    this.roles = this.authService.getRoles();
+    this.updateClo =
+      this.roles.includes('ADMIN') || this.roles.includes('CLO_UPDATE');
+    this.dealUploadFlag =
+      this.roles.includes('ADMIN') || this.roles.includes('DEAL_UPLOAD');
+    this.getOrderLifecycle();
     this.getOrderStatusDownload();
     this.updateTime();
     this.currentDate = new Date();
@@ -105,26 +114,19 @@ export class OrderLifecycleComponent implements OnInit {
     this.ifColumnSelect != this.ifColumnSelect;
   }
 
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
+  // getUserId() {
+  //   this.dataService.setLoading(true);
+  //   this.dataService.getUserId(this.destroyManager).subscribe((data) => {
+  //     let username = data['auth_user'];
+  //     this.getUserRoles(username);
+  //   });
+  // }
 
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        const userRoles = data['userRoles'];
-        this.updateClo =
-          userRoles.includes('ADMIN') || userRoles.includes('CLO_UPDATE');
-        this.dealUploadFlag =
-          userRoles.includes('ADMIN') || userRoles.includes('DEAL_UPLOAD');
-        this.getOrderLifecycle();
-      });
-  }
+  // getUserRoles(username: string) {
+  //   this.dataService
+  //     .getRoles(username, this.destroyManager)
+  //     .subscribe((data) => {});
+  // }
 
   getOrderStatusDownload() {
     this.http

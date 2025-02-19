@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-invoicing',
@@ -13,32 +14,36 @@ export class InvoicingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
+    private authService: AuthenticationService
   ) {}
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';
   roles: string[] = [];
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    this.getUserId();
+    this.roles = this.authService.getRoles();
+    console.log(this.roles);
+    this.getDefaultTabIndex();
+    // this.getUserId();
     this.getAssignmentUsers();
   }
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
+  // getUserId() {
+  //   this.dataService.setLoading(true);
+  //   this.dataService.getUserId(this.destroyManager).subscribe((data) => {
+  //     let username = data['auth_user'];
+  //     this.getUserRoles(username);
+  //   });
+  // }
 
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-        this.getDefaultTabIndex();
-      });
-  }
+  // getUserRoles(username: string) {
+  //   this.dataService
+  //     .getRoles(username, this.destroyManager)
+  //     .subscribe((data) => {
+  //       this.roles = data['userRoles'];
+  //       this.getDefaultTabIndex();
+  //     });
+  // }
 
   assignmentUsers: any;
 
