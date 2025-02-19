@@ -79,7 +79,9 @@ import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.componen
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
-    return authService.getTokens();
+    return authService.getTokens().then(() => {
+      return authService.getUserId();
+    });
   };
 }
 

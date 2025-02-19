@@ -6,8 +6,8 @@ import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
-import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -226,16 +226,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseInterfaceLoadColumns: string[] = [];
 
   protected http: ApiHttpService;
-  protected dataService: DataService;
   protected destroyManager: DestroyManager;
 
   constructor(
     http: ApiHttpService,
-    dataService: DataService,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
+    private authService: AuthenticationService
   ) {
     this.http = http;
-    this.dataService = dataService;
     this.destroyManager = destroyManager;
 
     window.onbeforeunload = function () {
@@ -253,7 +251,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getComments();
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
-    this.getUserId();
+    this.roles = this.authService.getRoles();
+    console.log(this.roles);
+    this.getDefaultTabIndex();
   }
 
   visibleTabs: { label: string; component: string; role: string[] }[] = [
@@ -283,23 +283,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
       role: ['ADMIN', 'LARGE_DEAL'],
     },
   ];
-
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
-
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-        this.getDefaultTabIndex();
-      });
-  }
 
   selectedIndex: number = 0;
   filteredTabs: { label: string; component: string }[] = [];
@@ -613,7 +596,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const data = JSON.parse(localStorage.getItem('midclosestatus'));
         this.selectedStatus(data, 'MIDCLOSE');
       }
-      this.showComments = this.dataService.getUserRoles().includes('ADMIN');
+      this.showComments = this.roles.includes('ADMIN');
     });
   }
 

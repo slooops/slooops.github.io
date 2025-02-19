@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-gl-posting',
@@ -13,30 +14,32 @@ export class GlPostingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
+    private authService: AuthenticationService
   ) {}
   roles: string[] = [];
 
   ngOnInit() {
     this.getErrorSummaryPeriodStatus();
-    this.getUserId();
+    this.roles = this.authService.getRoles();
+    // this.getUserId();
   }
 
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
+  // getUserId() {
+  //   this.dataService.setLoading(true);
+  //   this.dataService.getUserId(this.destroyManager).subscribe((data) => {
+  //     let username = data['auth_user'];
+  //     this.getUserRoles(username);
+  //   });
+  // }
 
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-      });
-  }
+  // getUserRoles(username: string) {
+  //   this.dataService
+  //     .getRoles(username, this.destroyManager)
+  //     .subscribe((data) => {
+  //       this.roles = data['userRoles'];
+  //     });
+  // }
 
   glTotals: { [key: string]: number } = {
     '2 - GL Interface': 0,

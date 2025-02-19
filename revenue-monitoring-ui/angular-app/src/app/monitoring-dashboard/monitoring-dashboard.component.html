@@ -15,7 +15,7 @@
   </span>
 </ng-template> -->
 
-<ng-template #escalationToolTip>
+<!-- <ng-template #escalationToolTip>
   <span>
     <ul>
       <li *ngIf="escalationLevel >= 1">
@@ -26,7 +26,7 @@
       </li>
     </ul>
   </span>
-</ng-template>
+</ng-template> -->
 
 <ng-template #processToolTip>
   <app-process-flow-tooltip
@@ -197,7 +197,7 @@
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
                       <span class="icon-container">
-                        <span
+                        <!-- <span
                           class="circle-icon"
                           *ngIf="isEscalated(element)"
                           [customToolTip]="'true'"
@@ -207,7 +207,7 @@
                           <span class="circle-number">{{
                             getCircleNumber(element)
                           }}</span>
-                        </span>
+                        </span> -->
                         <span *ngIf="!isEscalated(element)">
                           &nbsp;&nbsp;&nbsp;
                         </span>
