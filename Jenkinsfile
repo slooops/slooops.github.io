@@ -16,6 +16,7 @@ pipeline {
                         sh 'printenv'
                     } else {
                         echo "Skipping build since the branch is not 'develop'"
+                        sh 'printenv'
                     }
                 }
             }
