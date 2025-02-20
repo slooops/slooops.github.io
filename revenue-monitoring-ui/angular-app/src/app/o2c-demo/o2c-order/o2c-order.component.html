@@ -70,7 +70,15 @@
       <ng-container *ngFor="let column of displayedColumnsSummary2">
         <ng-container [matColumnDef]="column">
           <!-- Header Row -->
-          <th mat-header-cell *matHeaderCellDef>
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            [ngClass]="{
+              'double-width':
+                column === 'Address_Details_Bill-To' ||
+                column === 'Address_Details_End_Customer'
+            }"
+          >
             {{ removeUnderscores(column) }}
           </th>
 
