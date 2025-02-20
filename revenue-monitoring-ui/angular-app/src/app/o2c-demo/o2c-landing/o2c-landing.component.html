@@ -1,0 +1,36 @@
+<app-o2c-nav></app-o2c-nav>
+
+<div class="flowchart-container">
+  <div class="slider-bar">
+    <div
+      *ngFor="let step of circleSteps; let i = index"
+      [ngStyle]="getSliderBarStyle(i)"
+    >
+      <div class="circle-wrapper-loop" (click)="navigateToRoute(step, null)">
+        <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
+        <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
+      </div>
+
+      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
+        <div class="chevron"></div>
+        <div class="chevron-white"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="landing-container">
+  <h2>Order to Cash Insights Platform</h2>
+  <p>Search for orders, subscriptions, accruals, and invoices.</p>
+
+  <div class="custom-search-bar">
+    <input
+      type="text"
+      placeholder="Search All..."
+      class="custom-search-input"
+      [(ngModel)]="searchValue"
+      (keyup.enter)="onSearch()"
+    />
+    <i class="svg-icon search-icon" (click)="onSearch()"></i>
+  </div>
+</div>

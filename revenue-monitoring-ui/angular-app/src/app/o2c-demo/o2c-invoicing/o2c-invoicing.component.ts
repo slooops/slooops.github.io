@@ -149,31 +149,33 @@ export class O2cInvoicingComponent {
     };
   }
 
-  navigateToStep(step: string) {
-    switch (step) {
-      case 'Order':
-        this.router.navigate(['/o2c-order']);
-        console.log('Navigating to O2C Order Page');
-        break;
+  navigationMap: { [key: string]: string } = {
+    // Column-based navigation
+    SubRefId: '/o2c-sub',
+    Trxn_Number: '/o2c-invoicing',
+    Accrual_ID: '/o2c-accrual',
+    WebOrder_ID: '/o2c-order',
+    Subscription_Id: '/o2c-sub',
 
-      case 'Subscription':
-        this.router.navigate(['/o2c-sub']);
-        console.log('Navigating to O2C Subscription Page');
-        break;
+    // Step-based navigation
+    Order: '/o2c-order',
+    Subscription: '/o2c-sub',
+    Accruals: '/o2c-accrual',
+    Invoicing: '/o2c-invoicing',
+  };
 
-      case 'Accruals':
-        this.router.navigate(['/o2c-accrual']);
-        console.log('Navigating to O2C Accruals Page');
-        break;
-
-      case 'Invoicing':
-        this.router.navigate(['/o2c-invoicing']);
-        console.log('Navigating to O2C Invoicing Page');
-        break;
-
-      default:
-        console.log('No matching route found for:', step);
+  navigateToRoute(identifier: string, value: string | number) {
+    if (this.navigationMap[identifier].startsWith('http')) {
+      window.open(this.navigationMap[identifier], '_blank');
+    } else {
+      this.router.navigate([this.navigationMap[identifier]], {
+        queryParams: { subRefId: value },
+      });
     }
+  }
+
+  isNavigableColumn(column: string): boolean {
+    return this.navigationMap.hasOwnProperty(column);
   }
 
   removeUnderscores(key: string): string {

@@ -6,7 +6,7 @@
       *ngFor="let step of circleSteps; let i = index"
       [ngStyle]="getSliderBarStyle(i)"
     >
-      <div class="circle-wrapper-loop" (click)="navigateToStep(step)">
+      <div class="circle-wrapper-loop" (click)="navigateToRoute(step, null)">
         <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
       </div>

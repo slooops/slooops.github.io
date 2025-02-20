@@ -55,7 +55,7 @@ export class O2cOrderComponent {
       Price_list: 'Global Price List US Availability USD',
       Offer_Name: 'CMD_SECURITY , UMBRELLA',
       Created_By: 'Richard Niven on 15-Mar-2024',
-      Partner_Name: 'IngramMicro',
+      Partner_Name: 'PC CONNECTION INC',
       Billing_ID: '413587662',
     },
   ]);
@@ -75,56 +75,61 @@ export class O2cOrderComponent {
 
   dataSourceSummary2 = new MatTableDataSource<any>([
     {
-      End_Customer_Name: 'NA',
+      End_Customer_Name: 'GENEVA SUPPLY INC',
       Reseller: 'NA',
-      'Address_Details_Bill-To': 'NA',
-      Address_Details_End_Customer: 'NA',
+      'Address_Details_Bill-To':
+        'DBA CONNECTION, 730 MILFORD ROAD, MS 333, HILLSBOROUGH, MERRIMACK, NH, 03054, United States',
+      Address_Details_End_Customer:
+        '1501 E WISCONSIN ST, UNIT 1, WALWORTH, DELAVAN, WI, 53115, United States',
       Order_Origin: 'CCW-Q2O',
-      Order_Booked_Date: 'N',
-      Hybrid_Order: 'PARTNER',
-      Route_to_Market: null,
+      Order_Booked_Date: null,
+      Hybrid_Order: 'N',
+      Route_to_Market: 'PARTNER',
       Order_Holds: null,
-      Cloud_Sub_Order_Holds: null,
+      Cloud_Sub_Order__Holds: null,
     },
   ]);
 
   displayedColumnsLineSummary: string[] = [
     'ATO_NAME',
+    'SubRefId',
+    'Subscription_Status',
     'Line_Ref_Number',
     'Prev_Ln_Ref_Number',
     'OPL_LineId',
     'Ordered_Item',
-    'Quantity',
-    'Unit_Net_Price',
-    'MRR',
+    'Subscription_TCV',
     'Item_Type_Code',
     'Flow_Status_Code',
+    'Order_Additional_Info',
   ];
 
   dataSourceLineSummary = new MatTableDataSource<any>([
     {
       ATO_NAME: 'ETD-SEC-SUB',
+      SubRefId: 'Sub1797786',
+      Subscription_Status: 'Active',
       Line_Ref_Number: '328252622',
-      Prev_Ln_Ref_Number: '2114407481',
-      OPL_LineId: 'ETD-SEC-SUB',
-      Ordered_Item: '153.31',
-      Quantity: 'MAJOR',
-      Unit_Net_Price: 'CLOSED',
-      MRR: null,
-      Item_Type_Code: null,
-      Flow_Status_Code: null,
+      Prev_Ln_Ref_Number: null,
+      OPL_LineId: '2114407481',
+      Ordered_Item: 'ETD-SEC-SUB',
+      Subscription_TCV: '153.31',
+      Item_Type_Code: 'MAJOR',
+      Flow_Status_Code: 'CLOSED',
+      Order_Additional_Info: 'Link to commerce for order line',
     },
     {
       ATO_NAME: 'UMB-SEC-SUB',
+      SubRefId: 'Sub1797787',
+      Subscription_Status: 'Active',
       Line_Ref_Number: '328252625',
-      Prev_Ln_Ref_Number: '2114407481',
-      OPL_LineId: 'UMB-SEC-SUB',
-      Ordered_Item: '396.03',
-      Quantity: 'MAJOR',
-      Unit_Net_Price: 'CLOSED',
-      MRR: null,
-      Item_Type_Code: null,
-      Flow_Status_Code: null,
+      Prev_Ln_Ref_Number: null,
+      OPL_LineId: '2114407481',
+      Ordered_Item: 'UMB-SEC-SUB',
+      Subscription_TCV: '396.03',
+      Item_Type_Code: 'MAJOR',
+      Flow_Status_Code: 'CLOSED',
+      Order_Additional_Info: 'Link to commerce for order line',
     },
   ]);
 
@@ -151,30 +156,32 @@ export class O2cOrderComponent {
     return key.replace(/_/g, ' ');
   }
 
-  navigateToStep(step: string) {
-    switch (step) {
-      case 'Order':
-        this.router.navigate(['/o2c-order']);
-        console.log('Navigating to O2C Order Page');
-        break;
+  navigationMap: { [key: string]: string } = {
+    // Column-based navigation
+    SubRefId: 'o2c-sub',
+    Deal_ID:
+      'https://apps.cisco.com/ICW/PDR/ControllerNoAuth/rest/quoting/open?NDc1MTkwMjU1Mg==@NDczOTc3OTkxOA==',
+    Order_Additional_Info:
+      'https://apps.cisco.com/qtc/viewstat/open.order?flow=nextgen&orderId=&coId=27025774',
 
-      case 'Subscription':
-        this.router.navigate(['/o2c-sub']);
-        console.log('Navigating to O2C Subscription Page');
-        break;
+    // for cricle nav
+    Order: '/o2c-order',
+    Subscription: '/o2c-sub',
+    Accruals: '/o2c-accrual',
+    Invoicing: '/o2c-invoicing',
+  };
 
-      case 'Accruals':
-        this.router.navigate(['/o2c-accrual']);
-        console.log('Navigating to O2C Accruals Page');
-        break;
-
-      case 'Invoicing':
-        this.router.navigate(['/o2c-invoicing']);
-        console.log('Navigating to O2C Invoicing Page');
-        break;
-
-      default:
-        console.log('No matching route found for:', step);
+  navigateToRoute(identifier: string, value: string | number) {
+    if (this.navigationMap[identifier].startsWith('http')) {
+      window.open(this.navigationMap[identifier], '_blank');
+    } else {
+      this.router.navigate([this.navigationMap[identifier]], {
+        queryParams: { subRefId: value },
+      });
     }
+  }
+
+  isNavigableColumn(column: string): boolean {
+    return this.navigationMap.hasOwnProperty(column);
   }
 }

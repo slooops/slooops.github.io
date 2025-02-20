@@ -6,7 +6,7 @@
       *ngFor="let step of circleSteps; let i = index"
       [ngStyle]="getSliderBarStyle(i)"
     >
-      <div class="circle-wrapper-loop" (click)="navigateToStep(step)">
+      <div class="circle-wrapper-loop" (click)="navigateToRoute(step, null)">
         <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
       </div>
@@ -19,113 +19,67 @@
   </div>
 </div>
 
-<div
-  class="grid-1"
-  style="display: grid; gap: 1.2rem; padding-top: 1.2rem; margin: 1rem 5rem"
->
+<div *ngIf="!accrualId || accrualId === '4910695'" class="o2c-rows">
   <div class="section-title">Accrual Summary</div>
-  <div class="header-table" style="border-top: solid 1px #e0e0e0">
-    <table
-      mat-table
-      [dataSource]="dataSourceSummary"
-      class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
-    >
-      <ng-container *ngFor="let column of displayedColumnsSummary">
-        <ng-container [matColumnDef]="column">
-          <!-- Header Row -->
-          <th mat-header-cell *matHeaderCellDef>
-            {{ removeUnderscores(column) }}
-          </th>
-
-          <!-- Data Row -->
-          <td mat-cell *matCellDef="let element">
-            {{ element[column] }}
-          </td>
-        </ng-container>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumnsSummary"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumnsSummary"></tr>
-    </table>
-  </div>
-
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsSummary"
+    [dataSource]="dataSourceSummary2"
+    [wideColumns]="['Subscription_Start_Date']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    style="overflow-x: auto"
+    class="header-table"
+  ></app-o2c-table>
   <div class="section-title">Accrual - On Subscription Activation</div>
-  <div class="card">
-    <table
-      mat-table
-      [dataSource]="dataSourceLineSummary"
-      class="header-card table table-condensed gridded-table"
-    >
-      <ng-container *ngFor="let column of displayedColumnsLineSummary">
-        <ng-container [matColumnDef]="column">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            [ngClass]="{
-              'no-border-left': column === displayedColumnsLineSummary[0],
-              'no-border-right':
-                column ===
-                displayedColumnsLineSummary[
-                  displayedColumnsLineSummary.length - 1
-                ]
-            }"
-          >
-            {{ removeUnderscores(column) }}
-          </th>
-          <td mat-cell *matCellDef="let element">
-            {{ element[column] }}
-          </td>
-        </ng-container>
-      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumnsLineSummary"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumnsLineSummary"
-      ></tr>
-    </table>
-  </div>
-
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsLineSummary"
+    [dataSource]="dataSourceLineSummary2"
+    [wideColumns]="['']"
+    [navigationMap]="navigationMap"
+    tableType="body"
+    style="overflow-x: auto"
+  ></app-o2c-table>
   <div class="section-title">TSV Reversal, On Invoice Generation</div>
-  <div class="card">
-    <table
-      mat-table
-      [dataSource]="dataSourceGen"
-      class="header-card table table-condensed gridded-table"
-    >
-      <ng-container *ngFor="let column of displayedColumnsGen">
-        <ng-container [matColumnDef]="column">
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            [ngClass]="{
-              'no-border-left': column === displayedColumnsGen[0],
-              'no-border-right':
-                column === displayedColumnsGen[displayedColumnsGen.length - 1]
-            }"
-          >
-            {{ removeUnderscores(column) }}
-          </th>
-          <td mat-cell *matCellDef="let element">
-            {{ element[column] }}
-          </td>
-        </ng-container>
-      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumnsGen"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumnsGen"></tr>
-    </table>
-  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsGen"
+    [dataSource]="dataSourceGen2"
+    [wideColumns]="['']"
+    [navigationMap]="navigationMap"
+    tableType="body"
+    style="overflow-x: auto"
+  ></app-o2c-table>
+</div>
 
-  <p
-    style="
-      display: inline-flex;
-      justify-content: flex-end;
-      font-size: 11px;
-      margin-top: -10px;
-    "
-  >
-    O2C: Details for Order {{ orderId }}
-  </p>
+<div *ngIf="!accrualId || accrualId === '4910686'" class="o2c-rows">
+  <div class="section-title">Accrual Summary</div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsSummary"
+    [dataSource]="dataSourceSummary"
+    [wideColumns]=""
+    [navigationMap]="navigationMap"
+    tableType="header"
+    style="overflow-x: auto"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div class="section-title">Accruals - On Subscription Activation</div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsLineSummary"
+    [dataSource]="dataSourceLineSummary"
+    [wideColumns]="['']"
+    [navigationMap]="navigationMap"
+    tableType="body"
+    style="overflow-x: auto"
+  ></app-o2c-table>
+  <div class="section-title">TSV Reversal, On Invoice Generation</div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsGen"
+    [dataSource]="dataSourceGen"
+    [wideColumns]="['']"
+    [navigationMap]="navigationMap"
+    tableType="body"
+    style="overflow-x: auto"
+  ></app-o2c-table>
 </div>

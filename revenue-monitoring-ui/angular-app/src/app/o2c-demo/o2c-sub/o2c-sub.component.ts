@@ -19,14 +19,20 @@ export class O2cSubComponent {
   circleSteps: string[] = [];
 
   orderId: string | null = null;
+  subRefId: string | null = null;
 
   constructor(private route: ActivatedRoute, private router: Router) {} // ✅ Inject Router properly
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
-      this.orderId = params.get('orderId');
-      console.log('Received order ID:', this.orderId);
+      this.subRefId = params.get('id');
+      console.log('Received order ID:', this.subRefId);
     });
+    this.route.queryParamMap.subscribe((params) => {
+      this.subRefId = params.get('subRefId');
+      console.log('Received SubRefId:', this.subRefId);
+    });
+
     this.circleSteps = Object.keys(this.circleStatus);
   }
 
@@ -73,7 +79,7 @@ export class O2cSubComponent {
       Accrual_Eligibility: 'Y',
       SubCode: 'Subcode123',
       TSV_Published: 'Y',
-      Accrual_ID: '779988',
+      Accrual_ID: '4910695',
       Billing_Schedule: '1/1',
     },
   ]);
@@ -121,7 +127,7 @@ export class O2cSubComponent {
       Accrual_Eligibility: 'Y',
       SubCode: 'Subcode789',
       TSV_Published: 'Y',
-      Accrual_ID: '779988',
+      Accrual_ID: '4910686',
       Billing_Schedule: '1/1',
     },
   ]);
@@ -166,7 +172,7 @@ export class O2cSubComponent {
       Charge_Cycle_Start_Date: '3/15/2024',
       Charge_Cycle_End_Date: '3/14/2025',
       Subscription_Number: 'SubC2106419',
-      Trxn_Number: 'Inv 123',
+      Trxn_Number: '6102098772',
     },
     {
       WebOrder: '96635062',
@@ -186,7 +192,7 @@ export class O2cSubComponent {
       Charge_Cycle_Start_Date: '3/15/2024',
       Charge_Cycle_End_Date: '3/14/2025',
       Subscription_Number: 'SubC2106419',
-      Trxn_Number: 'Inv 123',
+      Trxn_Number: '6102098772',
     },
   ]);
 
@@ -230,7 +236,7 @@ export class O2cSubComponent {
       Charge_Cycle_Start_Date: '3/15/2024',
       Charge_Cycle_End_Date: '3/14/2025',
       Subscription_Number: 'SubC2106420',
-      Trxn_Number: 'Inv 123',
+      Trxn_Number: '6102098772',
     },
     {
       WebOrder: '96635062',
@@ -250,7 +256,7 @@ export class O2cSubComponent {
       Charge_Cycle_Start_Date: '3/15/2024',
       Charge_Cycle_End_Date: '3/14/2025',
       Subscription_Number: 'SubC2106420',
-      Trxn_Number: 'Inv 123',
+      Trxn_Number: '6102098772',
     },
   ]);
 
@@ -273,31 +279,32 @@ export class O2cSubComponent {
     };
   }
 
-  navigateToStep(step: string) {
-    switch (step) {
-      case 'Order':
-        this.router.navigate(['/o2c-order']);
-        console.log('Navigating to O2C Order Page');
-        break;
+  navigationMap: { [key: string]: string } = {
+    // Table Column-based navigation
+    Subscription_ID: 'https://ccrc.cisco.com/subscriptions/detail/Sub1797786',
+    Trxn_Number: '/o2c-invoicing',
+    Accrual_ID: '/o2c-accrual',
+    WO_Number: '/o2c-order',
 
-      case 'Subscription':
-        this.router.navigate(['/o2c-sub']);
-        console.log('Navigating to O2C Subscription Page');
-        break;
+    // for cricle nav
+    Order: '/o2c-order',
+    Subscription: '/o2c-sub',
+    Accruals: '/o2c-accrual',
+    Invoicing: '/o2c-invoicing',
+  };
 
-      case 'Accruals':
-        this.router.navigate(['/o2c-accrual']);
-        console.log('Navigating to O2C Accruals Page');
-        break;
-
-      case 'Invoicing':
-        this.router.navigate(['/o2c-invoicing']);
-        console.log('Navigating to O2C Invoicing Page');
-        break;
-
-      default:
-        console.log('No matching route found for:', step);
+  navigateToRoute(identifier: string, value: string | number) {
+    if (this.navigationMap[identifier].startsWith('http')) {
+      window.open(this.navigationMap[identifier], '_blank');
+    } else {
+      this.router.navigate([this.navigationMap[identifier]], {
+        queryParams: { id: value },
+      });
     }
+  }
+
+  isNavigableColumn(column: string): boolean {
+    return this.navigationMap.hasOwnProperty(column);
   }
 
   removeUnderscores(key: string): string {

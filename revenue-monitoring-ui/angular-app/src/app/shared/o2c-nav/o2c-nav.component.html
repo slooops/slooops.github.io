@@ -37,8 +37,10 @@
         type="text"
         placeholder="Search All..."
         class="custom-search-input"
+        [(ngModel)]="searchValue"
+        (keyup.enter)="onSearch()"
       />
-      <i class="svg-icon search-icon"></i>
+      <i class="svg-icon search-icon" (click)="onSearch()"></i>
     </div>
 
     <div class="o2c-nav-right">
