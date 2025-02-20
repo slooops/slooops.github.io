@@ -15,16 +15,12 @@ export class CustomRevenueComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService,
     private authService: AuthenticationService
   ) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    // this.getUserId();
     this.roles = this.authService.getRoles();
-    console.log(this.roles);
     this.getDefaultTabIndex();
-    this.getAssignmentUsers();
   }
 
   rolTotals: { [key: string]: number } = {
@@ -299,17 +295,6 @@ export class CustomRevenueComponent implements OnInit {
       .getMonitoringPeriodStatus(this.destroyManager)
       .subscribe((data: any) => {
         this.periodStatus = data;
-      });
-  }
-
-  assignmentUsers: any;
-
-  getAssignmentUsers() {
-    this.http
-      .get('summary-assignment-users', this.destroyManager)
-      .subscribe((data) => {
-        this.assignmentUsers = data;
-        this.dataService.setAssignmentUsers(this.assignmentUsers);
       });
   }
 

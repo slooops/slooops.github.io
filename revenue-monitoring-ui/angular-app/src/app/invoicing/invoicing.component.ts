@@ -23,37 +23,7 @@ export class InvoicingComponent implements OnInit {
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
     this.roles = this.authService.getRoles();
-    console.log(this.roles);
     this.getDefaultTabIndex();
-    // this.getUserId();
-    this.getAssignmentUsers();
-  }
-  // getUserId() {
-  //   this.dataService.setLoading(true);
-  //   this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-  //     let username = data['auth_user'];
-  //     this.getUserRoles(username);
-  //   });
-  // }
-
-  // getUserRoles(username: string) {
-  //   this.dataService
-  //     .getRoles(username, this.destroyManager)
-  //     .subscribe((data) => {
-  //       this.roles = data['userRoles'];
-  //       this.getDefaultTabIndex();
-  //     });
-  // }
-
-  assignmentUsers: any;
-
-  getAssignmentUsers() {
-    this.http
-      .get('summary-assignment-users', this.destroyManager)
-      .subscribe((data) => {
-        this.assignmentUsers = data;
-        this.dataService.setAssignmentUsers(this.assignmentUsers);
-      });
   }
 
   preInvoicingTotals: { [key: string]: number } = {

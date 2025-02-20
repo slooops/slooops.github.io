@@ -44,7 +44,6 @@ export class OrderLifecycleComponent implements OnInit {
   roles: string[] = [];
   ngOnInit(): void {
     this.username = this.dataService.getUsername();
-    // this.getUserId();
     this.roles = this.authService.getRoles();
     this.updateClo =
       this.roles.includes('ADMIN') || this.roles.includes('CLO_UPDATE');
@@ -113,20 +112,6 @@ export class OrderLifecycleComponent implements OnInit {
   columnSelect() {
     this.ifColumnSelect != this.ifColumnSelect;
   }
-
-  // getUserId() {
-  //   this.dataService.setLoading(true);
-  //   this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-  //     let username = data['auth_user'];
-  //     this.getUserRoles(username);
-  //   });
-  // }
-
-  // getUserRoles(username: string) {
-  //   this.dataService
-  //     .getRoles(username, this.destroyManager)
-  //     .subscribe((data) => {});
-  // }
 
   getOrderStatusDownload() {
     this.http
