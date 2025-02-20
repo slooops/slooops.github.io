@@ -72,6 +72,10 @@ export class DataService implements OnDestroy {
     return this.fetchWithCache('order-status', destroyManager);
   }
 
+  getExceptionAssignmentUsers(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('summary-assignment-users', destroyManager);
+  }
+
   getUserRoles() {
     return this.userRoles;
   }

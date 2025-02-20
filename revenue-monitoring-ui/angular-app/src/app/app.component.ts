@@ -23,7 +23,9 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private dataService: DataService,
+    private destroyManager: DestroyManager
   ) {}
 
   menuOpened = false;
@@ -52,14 +54,11 @@ export class AppComponent implements OnInit, OnDestroy {
         this.header = data['header'];
       });
 
-    // this.dataService
-    //   .getUserId(this.destroyManager)
-    //   .pipe(takeUntil(this.destroy$))
-    //   .subscribe((data) => {
-    //     this.userName = data['auth_user_name'];
-    //     this.dataService.setUsername(data['auth_user']);
-    //     // this.getUserRoles(data['auth_user']);
-    //   });
+    this.dataService
+      .getExceptionAssignmentUsers(this.destroyManager)
+      .subscribe((data) => {
+        this.dataService.setAssignmentUsers(data);
+      });
   }
 
   toggleHelpDropdown(event: MouseEvent) {
@@ -83,20 +82,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authService.ssoLogout();
   }
 
-  // Loading if no roles are loaded yet
-
-  // getUserRoles(username: string) {
-  //   this.dataService
-  //     .getRoles(username, this.destroyManager)
-  //     .pipe(
-  //       tap(() => (this.loading$ = of(false))),
-  //       takeUntil(this.destroy$)
-  //     )
-  //     .subscribe((data) => {
-  //       this.userRoles$.next(data['userRoles']);
-  //       this.dataService.setUserRoles(data['userRoles']);
-  //     });
-  // }
   hasRole$(roles: string[]) {
     return roles.some((role) => this.userRoles.includes(role));
   }
