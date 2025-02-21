@@ -29,6 +29,7 @@
 .o2c-nav-left {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .o2c-logo {

@@ -16,6 +16,15 @@ export class O2cAccrualComponent {
     AR_Accounting: 0,
   };
 
+  expandedSections: { [key: string]: boolean } = {
+    section1: false,
+    section2: false,
+  };
+
+  toggleSection(section: string) {
+    this.expandedSections[section] = !this.expandedSections[section];
+  }
+
   circleSteps: string[] = [];
 
   accrualId: string | null = null;
@@ -253,25 +262,6 @@ export class O2cAccrualComponent {
       TSV_Reversal: 'Y',
     },
   ]);
-
-  getCircleClass(step: string): string {
-    const value = this.circleStatus[step];
-    if (value === 2) return 'completed-circle';
-    if (value === 1) return 'current-circle';
-    return 'uncompleted-circle';
-  }
-
-  getSliderBarStyle(index: number): { [key: string]: string } {
-    const step = this.circleSteps[index];
-    const value = this.circleStatus[step];
-
-    return {
-      background:
-        value === 1
-          ? 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)'
-          : '#16371e43',
-    };
-  }
 
   navigationMap: { [key: string]: string } = {
     // Column-based navigation

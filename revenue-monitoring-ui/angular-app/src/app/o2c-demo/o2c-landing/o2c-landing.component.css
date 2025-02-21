@@ -30,3 +30,15 @@
   margin-bottom: 1rem;
   color: #227bb1;
 }
+
+th {
+  font-size: 13px;
+  font-weight: bold;
+  /* color: #227bb1; */
+  text-align: left !important;
+}
+
+td {
+  font-size: 12px;
+  font-weight: 300;
+}

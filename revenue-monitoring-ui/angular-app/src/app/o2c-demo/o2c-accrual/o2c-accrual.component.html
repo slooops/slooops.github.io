@@ -1,85 +1,90 @@
 <app-o2c-nav></app-o2c-nav>
 
-<div class="flowchart-container">
-  <div class="slider-bar">
-    <div
-      *ngFor="let step of circleSteps; let i = index"
-      [ngStyle]="getSliderBarStyle(i)"
-    >
-      <div class="circle-wrapper-loop" (click)="navigateToRoute(step, null)">
-        <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
-        <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
-      </div>
+<app-o2c-process-flow
+  [circleStatus]="circleStatus"
+  [navigationMap]="navigationMap"
+></app-o2c-process-flow>
 
-      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
-        <div class="chevron"></div>
-        <div class="chevron-white"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- Accrual Section 1 -->
 <div *ngIf="!accrualId || accrualId === '4910695'" class="o2c-rows">
-  <div class="section-title">Accrual Summary</div>
+  <div class="section-title">
+    Accrual Summary
+    <button class="toggle-button" (click)="toggleSection('section1')">
+      {{ expandedSections["section1"] ? "-" : "+" }}
+    </button>
+  </div>
+
   <app-o2c-table
     [displayedColumns]="displayedColumnsSummary"
     [dataSource]="dataSourceSummary2"
     [wideColumns]="['Subscription_Start_Date']"
     [navigationMap]="navigationMap"
     tableType="header"
-    style="overflow-x: auto"
     class="header-table"
-  ></app-o2c-table>
-  <div class="section-title">Accrual - On Subscription Activation</div>
-
-  <app-o2c-table
-    [displayedColumns]="displayedColumnsLineSummary"
-    [dataSource]="dataSourceLineSummary2"
-    [wideColumns]="['']"
-    [navigationMap]="navigationMap"
-    tableType="body"
     style="overflow-x: auto"
   ></app-o2c-table>
-  <div class="section-title">TSV Reversal, On Invoice Generation</div>
 
-  <app-o2c-table
-    [displayedColumns]="displayedColumnsGen"
-    [dataSource]="dataSourceGen2"
-    [wideColumns]="['']"
-    [navigationMap]="navigationMap"
-    tableType="body"
-    style="overflow-x: auto"
-  ></app-o2c-table>
+  <div *ngIf="expandedSections['section1']" style="overflow-x: auto">
+    <div class="section-title">Accrual - On Subscription Activation</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsLineSummary"
+      [dataSource]="dataSourceLineSummary2"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+      style="overflow-x: auto"
+    ></app-o2c-table>
+
+    <div class="section-title">TSV Reversal, On Invoice Generation</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsGen"
+      [dataSource]="dataSourceGen2"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+      style="overflow-x: auto"
+    ></app-o2c-table>
+  </div>
 </div>
 
+<!-- Accrual Section 2 -->
 <div *ngIf="!accrualId || accrualId === '4910686'" class="o2c-rows">
-  <div class="section-title">Accrual Summary</div>
+  <div class="section-title">
+    Accrual Summary
+    <button class="toggle-button" (click)="toggleSection('section2')">
+      {{ expandedSections["section2"] ? "-" : "+" }}
+    </button>
+  </div>
+
   <app-o2c-table
     [displayedColumns]="displayedColumnsSummary"
     [dataSource]="dataSourceSummary"
-    [wideColumns]=""
+    [wideColumns]="[]"
     [navigationMap]="navigationMap"
     tableType="header"
-    style="overflow-x: auto"
     class="header-table"
+    style="overflow-x: auto"
   ></app-o2c-table>
 
-  <div class="section-title">Accruals - On Subscription Activation</div>
-  <app-o2c-table
-    [displayedColumns]="displayedColumnsLineSummary"
-    [dataSource]="dataSourceLineSummary"
-    [wideColumns]="['']"
-    [navigationMap]="navigationMap"
-    tableType="body"
-    style="overflow-x: auto"
-  ></app-o2c-table>
-  <div class="section-title">TSV Reversal, On Invoice Generation</div>
-  <app-o2c-table
-    [displayedColumns]="displayedColumnsGen"
-    [dataSource]="dataSourceGen"
-    [wideColumns]="['']"
-    [navigationMap]="navigationMap"
-    tableType="body"
-    style="overflow-x: auto"
-  ></app-o2c-table>
+  <div *ngIf="expandedSections['section2']" style="overflow-x: auto">
+    <div class="section-title">Accruals - On Subscription Activation</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsLineSummary"
+      [dataSource]="dataSourceLineSummary"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+      style="overflow-x: auto"
+    ></app-o2c-table>
+
+    <div class="section-title">TSV Reversal, On Invoice Generation</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsGen"
+      [dataSource]="dataSourceGen"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+      style="overflow-x: auto"
+    ></app-o2c-table>
+  </div>
 </div>

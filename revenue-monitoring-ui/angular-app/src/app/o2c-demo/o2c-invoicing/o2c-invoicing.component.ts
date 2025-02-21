@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-invoicing',
-
   templateUrl: './o2c-invoicing.component.html',
   styleUrl: './o2c-invoicing.component.css',
 })
@@ -130,46 +129,26 @@ export class O2cInvoicingComponent {
     },
   ]);
 
-  getCircleClass(step: string): string {
-    const value = this.circleStatus[step];
-    if (value === 2) return 'completed-circle';
-    if (value === 1) return 'current-circle';
-    return 'uncompleted-circle';
-  }
+  navigationMap: { [key: string]: string } = {
+    // Column-based navigation
+    SubRefId: '/o2c-sub',
+    Trxn_Number: '/o2c-invoicing',
+    Accrual_ID: '/o2c-accrual',
+    WebOrder_ID: '/o2c-order',
+    Subscription_Id: '/o2c-sub',
 
-  getSliderBarStyle(index: number): { [key: string]: string } {
-    const step = this.circleSteps[index];
-    const value = this.circleStatus[step];
-
-    return {
-      background:
-        value === 1
-          ? 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)'
-          : '#16371e43',
-    };
-  }
+    // Step-based navigation
+    Order: '/o2c-order',
+    Subscription: '/o2c-sub',
+    Accruals: '/o2c-accrual',
+    Invoicing: '/o2c-invoicing',
+  };
 
   navigateToRoute(identifier: string, value: string | number) {
-    const navigationMap: { [key: string]: string } = {
-      // Column-based navigation
-      SubRefId: '/o2c-sub',
-      Trxn_Number: '/o2c-invoicing',
-      Accrual_ID: '/o2c-accrual',
-      WebOrder_ID: '/o2c-order',
-      Subscription_Id: '/o2c-sub',
-
-      // Step-based navigation
-      Order: '/o2c-order',
-      Subscription: '/o2c-sub',
-      Accruals: '/o2c-accrual',
-      Invoicing: '/o2c-invoicing',
-    };
-
-    if (navigationMap[identifier]) {
-      this.router.navigate([navigationMap[identifier]], {
+    if (this.navigationMap[identifier]) {
+      this.router.navigate([this.navigationMap[identifier]], {
         queryParams: { id: value },
       });
-      console.log(`Navigating to ${navigationMap[identifier]} with ID:`, value);
     } else {
       console.warn('No navigation path found for:', identifier);
     }
