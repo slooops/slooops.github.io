@@ -99,7 +99,7 @@
 .card {
   overflow-x: auto;
   border: none;
-  background-color: #f8f8f8;
+  background-color: #f4f6f8;
   border-radius: 0px;
   padding: 0;
 }
@@ -116,7 +116,7 @@
   font-size: 12px;
   width: 10vw; /* Set equal width for all columns */
   padding: 0 5px;
-  background-color: #f8f8f8; /* Light gray background */
+  background-color: #f4f6f8; /* Light gray background */
   font-weight: bold;
   text-align: left;
   border: none;
@@ -155,7 +155,7 @@ tr.mat-header-row {
 
 .header-table {
   overflow-x: auto;
-  background-color: #f8f8f8;
+  background-color: #f4f6f8;
   margin: 0 -5rem;
   padding: 0 5rem;
 }

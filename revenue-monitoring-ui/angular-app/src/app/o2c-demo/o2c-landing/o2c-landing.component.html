@@ -20,17 +20,36 @@
 </div>
 
 <div class="landing-container">
-  <h2>Order to Cash Insights Platform</h2>
-  <p>Search for orders, subscriptions, accruals, and invoices.</p>
+  <h2 class="welcome-text">Hi Jack!</h2>
+  <p class="welcome-body">
+    Welcome to the Order to Cash Lifecycle Tracker - Search for orders,
+    subscriptions, accruals, and invoices across Order to Cash at Cisco.
+  </p>
+</div>
 
-  <div class="custom-search-bar">
-    <input
-      type="text"
-      placeholder="Search All..."
-      class="custom-search-input"
-      [(ngModel)]="searchValue"
-      (keyup.enter)="onSearch()"
-    />
-    <i class="svg-icon search-icon" (click)="onSearch()"></i>
-  </div>
+<!-- Pick Up Where You Left Off Table -->
+<div class="o2c-rows">
+  <h3 class="table-title">Pick Up Where You Left Off</h3>
+  <table class="gridded-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Step</th>
+        <th>Route</th>
+        <th>Parameter Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let entry of searchEntries.data"
+        (click)="onSearchEntryClick(entry)"
+        (keydown)="onSearchEntryKeyDown($event, entry)"
+      >
+        <td>{{ entry.id }}</td>
+        <td>{{ entry.step }}</td>
+        <td>{{ entry.route }}</td>
+        <td>{{ entry.paramName }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>

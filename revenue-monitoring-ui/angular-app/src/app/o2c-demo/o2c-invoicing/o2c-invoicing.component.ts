@@ -149,33 +149,30 @@ export class O2cInvoicingComponent {
     };
   }
 
-  navigationMap: { [key: string]: string } = {
-    // Column-based navigation
-    SubRefId: '/o2c-sub',
-    Trxn_Number: '/o2c-invoicing',
-    Accrual_ID: '/o2c-accrual',
-    WebOrder_ID: '/o2c-order',
-    Subscription_Id: '/o2c-sub',
-
-    // Step-based navigation
-    Order: '/o2c-order',
-    Subscription: '/o2c-sub',
-    Accruals: '/o2c-accrual',
-    Invoicing: '/o2c-invoicing',
-  };
-
   navigateToRoute(identifier: string, value: string | number) {
-    if (this.navigationMap[identifier].startsWith('http')) {
-      window.open(this.navigationMap[identifier], '_blank');
-    } else {
-      this.router.navigate([this.navigationMap[identifier]], {
-        queryParams: { subRefId: value },
-      });
-    }
-  }
+    const navigationMap: { [key: string]: string } = {
+      // Column-based navigation
+      SubRefId: '/o2c-sub',
+      Trxn_Number: '/o2c-invoicing',
+      Accrual_ID: '/o2c-accrual',
+      WebOrder_ID: '/o2c-order',
+      Subscription_Id: '/o2c-sub',
 
-  isNavigableColumn(column: string): boolean {
-    return this.navigationMap.hasOwnProperty(column);
+      // Step-based navigation
+      Order: '/o2c-order',
+      Subscription: '/o2c-sub',
+      Accruals: '/o2c-accrual',
+      Invoicing: '/o2c-invoicing',
+    };
+
+    if (navigationMap[identifier]) {
+      this.router.navigate([navigationMap[identifier]], {
+        queryParams: { id: value },
+      });
+      console.log(`Navigating to ${navigationMap[identifier]} with ID:`, value);
+    } else {
+      console.warn('No navigation path found for:', identifier);
+    }
   }
 
   removeUnderscores(key: string): string {

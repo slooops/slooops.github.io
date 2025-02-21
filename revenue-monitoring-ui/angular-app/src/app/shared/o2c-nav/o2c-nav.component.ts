@@ -10,7 +10,7 @@ export class O2cNavComponent {
   constructor(private router: Router) {}
 
   goToO2cHome() {
-    this.router.navigate(['/o2c-landing'], {});
+    this.router.navigate(['/o2c-demo'], {});
   }
 
   searchValue: string = ''; // Store input value
@@ -25,6 +25,14 @@ export class O2cNavComponent {
 
   onSearch(): void {
     const searchKey = this.searchValue.trim();
+
+    if (!searchKey) {
+      // If search is empty, navigate to the landing page
+      this.router.navigate(['/o2c-landing']);
+      console.log('Navigating to O2C Landing Page');
+      return;
+    }
+
     if (this.searchMap[searchKey]) {
       const { route, paramName } = this.searchMap[searchKey];
       this.router.navigate([route], {
@@ -32,6 +40,10 @@ export class O2cNavComponent {
       });
       console.log(`Navigating to ${route} with ${paramName}: ${searchKey}`);
     } else {
+      // No match found → Navigate to O2C Landing & Show "No Results"
+      this.router.navigate(['/o2c-landing'], {
+        queryParams: { noResults: 'true' },
+      });
       console.warn('No matching route found for search:', searchKey);
     }
   }
