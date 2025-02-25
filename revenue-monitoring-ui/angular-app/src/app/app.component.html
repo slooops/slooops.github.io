@@ -75,8 +75,13 @@
             font-weight: 450;
           "
         >
-          <div style="font-size: small">Operations Control Tower</div>
-          <div>{{ header }}</div>
+          <div *ngIf="header.length > 0">
+            <div style="font-size: small">Operations Control Tower</div>
+            <div>{{ header }}</div>
+          </div>
+          <div *ngIf="header.length === 0">
+            <div>Operations Control Tower</div>
+          </div>
         </h5>
       </div>
       <div class="custom-search-bar">
@@ -124,7 +129,7 @@
     <div class="navbar">
       <ul class="menu">
         <!-- Home -->
-        <li class="menu-item" [class.disabled]="!(isAdmin$ | async)">
+        <li class="menu-item" [class.disabled]="!isAdmin$">
           <a [routerLink]="'/home'" class="top-link">
             <i class="svg-icon home-icon" style="font-weight: 900"></i>
           </a>
@@ -135,12 +140,12 @@
           class="menu-item"
           [class.disabled]="
             !(
-              (hasRole$([
+              hasRole$([
                 'PERIOD_CLOSE',
                 'WD0',
                 'MIDCLOSE_VOLUMES',
                 'LARGE_DEAL'
-              ]) | async) || (isAdmin$ | async)
+              ]) || isAdmin$
             )
           "
         >
@@ -178,10 +183,7 @@
         <li
           class="menu-item"
           [class.disabled]="
-            !(
-              (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) | async) ||
-              (isAdmin$ | async)
-            )
+            !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
           "
         >
           <a
@@ -213,8 +215,11 @@
           class="menu-item"
           [class.disabled]="
             !(
-              (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) | async) ||
-              (isAdmin$ | async)
+              hasRole$([
+                'EXCEPTION_ADMIN',
+                'EXCEPTION_READ_ONLY',
+                'ACCOUNT_RECON'
+              ]) || isAdmin$
             )
           "
         >
@@ -246,9 +251,7 @@
         <!-- GL Posting -->
         <li
           class="menu-item"
-          [class.disabled]="
-            !((hasRole$(['GL_POSTING']) | async) || (isAdmin$ | async))
-          "
+          [class.disabled]="!(hasRole$(['GL_POSTING']) || isAdmin$)"
         >
           <a
             [routerLink]="'/gl-posting'"
@@ -267,9 +270,7 @@
         <!-- ESP Case Analyzer Dashboard -->
         <li
           class="menu-item"
-          [class.disabled]="
-            !((hasRole$(['ESP']) | async) || (isAdmin$ | async))
-          "
+          [class.disabled]="!(hasRole$(['ESP']) || isAdmin$)"
         >
           <a
             [routerLink]="'/case-analyzer'"

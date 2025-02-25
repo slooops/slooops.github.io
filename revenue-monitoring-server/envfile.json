@@ -112,8 +112,18 @@
   "TSP_ACCOUNT_SUMMARY_UPDATE_QUERY": "UPDATE arfinro.XXCFIR_ACCOUNT_EXCEPTION_TRXN\nSET ASSIGNED_TO=?,\nASSIGNED_DATE=SYSDATE,\nCOMMENTS=?,\nASSIGNED_BY=?\nWHERE 1=1\nAND SEQUENCE_NUM=?",
   "FUSION_SUMMARY_QUERY": "select * from arfinro.XXCFIR_FUS_ERROR_SUMM_DASHBOARD_V",
   "FUSION_DETAILS_QUERY": "SELECT * FROM arfinro.XXCFIR_FUS_ERROR_DTL_DASHBOARD_V",
+  "FUSION_DETAILS_FILTERED_QUERY": "SELECT * FROM arfinro.XXCFIR_FUS_ERROR_DTL_DASHBOARD_V WHERE PERIOD_NAME=? AND APPLICATION_NAME=? AND PROCESS_FLOW=? AND ENTITY_NAME=? AND trunc(TRANSACTION_DATE)=to_date(?,'MM/DD/YYYY')",
+  "FUSION_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFIR_FUS_MON_DASHBOARD set assigned_to=?, assigned_date=sysdate, assigned_by=?, comments=? where period_name=? AND process_flow=? and business_unit_name=? AND trunc(creation_date)=to_date(?,'MM/DD/YYYY')",
   "TRANSACTIONS_PROCESSED_SUMMARY_QUERY": "select * from arfinro.XXCFI_SBP_INVOICED_SUM_V",
   "TRANSACTIONS_PROCESSED_DETAILS_QUERY": "select * from arfinro.XXCFI_SBP_INVOICED_DTL_V",
   "TRANSACTIONS_PROCESSED_DETAILS_FILTERED_QUERY": "select * from arfinro.XXCFI_SBP_INVOICED_DTL_V where operating_unit=?",
+  "STANDARD_REVENUE_SUMMARY_QUERY": "SELECT * FROM arfinro.XXCFIR_STD_REV_SUMM_DASHBOARD_V",
+  "STANDARD_REVENUE_DETAILS_QUERY": "SELECT * from arfinro.XXCFIR_STD_REV_DTL_DASHBOARD_V",
+  "STANDARD_REVENUE_DETAILS_FILTERED_QUERY": "SELECT * from arfinro.XXCFIR_STD_REV_DTL_DASHBOARD_V where period_name=? and application_name=? and process_flow=? and org_name=? and trunc(TRANSACTION_DATE)=to_date(?,'MM/DD/YYYY')",
+  "STANDARD_REVENUE_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFIR_STD_REV_MON_DASHBOARD set assigned_to=?, assigned_date=sysdate, assigned_by=? ,comments=? where period_name=? AND process_flow=? and entity_name=? AND transaction_date=to_date(?,'MM/DD/YYYY')",
+  "CM_AMORT_SUMMARY_QUERY": "select * from arfinro.XXCFIR_CM_AMORT_DASH_SUMM_V",
+  "CM_AMORT_DETAILS_QUERY": "select * from arfinro.XXCFIR_CM_AMORT_DASH_DTL_V",
+  "CM_AMORT_DETAILS_FILTERED_QUERY": "select * from arfinro.XXCFIR_CM_AMORT_DASH_DTL_V where period_name=? and application_name=? and process_flow=? and org_name=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
+  "CM_AMORT_SUMMARY_UPDATE_QUERY": "update arfinro.XXCFIR_CM_AMORTIZATION_DASH_DTL set assigned_to=?, assigned_date=sysdate, assigned_by=? ,comments=? where period_name=? AND process_flow=? and entity_name=? AND trunc(trx_date)=to_date(?,'MM/DD/YYYY')",
   "CORS_URL": "http://localhost:3000"
 }

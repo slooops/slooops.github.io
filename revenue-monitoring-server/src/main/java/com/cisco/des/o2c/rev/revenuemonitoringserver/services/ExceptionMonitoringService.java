@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -52,8 +57,16 @@ public class ExceptionMonitoringService {
     private String transactionsProcessedSummary;
     private String transactionsProcessedDetails;
     private String transactionsProcessedDetailsFiltered;
-
-
+    private String fusionErrorDetailsFiltered;
+    private String fusionErrorSummaryUpdate;
+    private String standardRevenueSummary;
+    private String standardRevenueDetails;
+    private String cmAmortSummary;
+    private String cmAmortDetails;
+    private String cmAmortDetailsFiltered;
+    private String cmAmortSummaryUpdate;
+    private String standardRevenueDetailsFiltered;
+    private String standardRevenueSummaryUpdate;
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
                                       String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
@@ -65,7 +78,10 @@ public class ExceptionMonitoringService {
                                       String rolChartDetails, String rolTransactionDataFilter, String rolTransactionData, String rolErrorsSummary, String sbpSummary,
                                       String sbpDetails, String einvoicingDetailsFiltered, String eInvoicingSummaryUpdate, String tspAccountSummaryView, String tspAccountDetailView,
                                       String tspAccountDetailViewFiltered, String tspAccountSummaryUpdate, String fusionErrorSummary, String fusionErrorDetails,
-                                      String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered
+                                      String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered,
+                                      String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
+                                      String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
+                                      String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered
     ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
@@ -108,7 +124,70 @@ public class ExceptionMonitoringService {
         this.transactionsProcessedSummary = transactionsProcessedSummary;
         this.transactionsProcessedDetails = transactionsProcessedDetails;
         this.transactionsProcessedDetailsFiltered = transactionsProcessedDetailsFiltered;
+        this.fusionErrorDetailsFiltered = fusionErrorDetailsFiltered;
+        this.fusionErrorSummaryUpdate = fusionErrorSummaryUpdate;
+        this.standardRevenueSummary = standardRevenueSummary;
+        this.standardRevenueDetails = standardRevenueDetails;
+        this.cmAmortSummary = cmAmortSummary;
+        this.cmAmortDetails = cmAmortDetails;
+        this.cmAmortDetailsFiltered = cmAmortDetailsFiltered;
+        this.cmAmortSummaryUpdate = cmAmortSummaryUpdate;
+        this.standardRevenueDetailsFiltered = standardRevenueDetailsFiltered;
+        this.standardRevenueSummaryUpdate = standardRevenueSummaryUpdate;
+    }
 
+    // Standard Revenue
+    public List<Map<String, Object>> getStandardRevenueSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(standardRevenueSummary);
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        result.forEach(data -> {
+            data.remove("AGING");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getStandardRevenueDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(standardRevenueDetails);
+        result.forEach(data -> {
+
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getStandardRevenueDetailsFiltered(String periodName,
+                                                                       String appName, String processFlow, String ouName, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.getStandardRevenueDetailsFiltered(standardRevenueDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
+        });
+        return result;
+    }
+
+    public int updateStandardRevenueSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String orgName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        String assignedBy = updateData.get("username");
+        int test = jdbcManager.updateStandardRevenueSummary(standardRevenueSummaryUpdate, assignedTo, assignedBy, comments,
+                periodName, processFlow, orgName, transactionDate);
+        return test;
     }
 
     // ROL
@@ -446,6 +525,63 @@ public class ExceptionMonitoringService {
         return 1;
     }
 
+    //Post-Invoice
+    public List<Map<String, Object>> getCMAmortErrorSummaryView() {
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortSummary);
+        result.forEach(data -> {
+            data.remove("AGING");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCMAmortErrorDetails() {
+        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortDetails);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCMAmortErrorDetailsFiltered(String periodName,
+                                                                        String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE"  };
+        List<Map<String, Object>> result = jdbcManager.getCMAmortDetailsFiltered(
+                cmAmortDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updateCMAmortErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String orgName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        int test = jdbcManager.updateCMAmortSummary(cmAmortSummaryUpdate, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
+        return 1;
+    }
+
     // eInvoicing
     public List<Map<String, Object>> getEInvoicingSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(einvoicingSummary);
@@ -534,6 +670,27 @@ public class ExceptionMonitoringService {
             renameKey(data,"ENTITY_NAME", "ORG_NAME");
         });
         return result;
+    }
+
+    public List<Map<String, Object>> getFusionDetailsFiltered(String ouName, String periodName, String appName, String processFlow, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.getFusionDetailsFilter(fusionErrorDetailsFiltered, ouName, periodName, appName, processFlow,  transactionDate );
+        result.forEach(data -> {
+            renameKey(data,"ENTITY_NAME", "ORG_NAME");
+        });
+        return result;
+    }
+
+    public int updateFusionErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String ouName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        int test = jdbcManager.updateFusionErrorSummary(fusionErrorSummaryUpdate, assignedTo, assignedBy, comments, periodName,
+                processFlow, ouName, transactionDate);
+        return 1;
     }
 
     public List<Map<String, Object>> getTransactionsProcessedSummary() {
@@ -681,11 +838,10 @@ public class ExceptionMonitoringService {
         }
         try {
             String dateString = (String) transactionDate;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date creationDate = dateFormat.parse(dateString);
-            Date today = new Date();
-            long timeDifference = today.getTime() - creationDate.getTime();
-            long agingInDays = timeDifference / (1000 * 60 * 60 * 24);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate creationDate = LocalDate.parse(dateString, formatter);
+            ZonedDateTime today = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+            long agingInDays = ChronoUnit.DAYS.between(creationDate, today.toLocalDate());
             return Long.toString(agingInDays);
         } catch (Exception e) {
             return "0";

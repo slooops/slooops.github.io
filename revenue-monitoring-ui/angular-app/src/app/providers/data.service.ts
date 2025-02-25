@@ -60,16 +60,6 @@ export class DataService implements OnDestroy {
     return data$;
   }
 
-  private userdata$: Observable<any>;
-  getUserId(destroyManager: DestroyManager) {
-    if (!this.userdata$) {
-      this.userdata$ = this.http
-        .getUser('/user/name', destroyManager)
-        .pipe(shareReplay(1), takeUntil(this.destroy$));
-    }
-    return this.userdata$;
-  }
-
   getMonitoringPeriodStatus(destroyManager: DestroyManager): Observable<any> {
     return this.fetchWithCache('monitoring-period-status', destroyManager);
   }
@@ -82,11 +72,8 @@ export class DataService implements OnDestroy {
     return this.fetchWithCache('order-status', destroyManager);
   }
 
-  getRoles(username: string, destroyManager: DestroyManager): Observable<any> {
-    return this.fetchWithCache(
-      `user-role?username=${username}`,
-      destroyManager
-    );
+  getExceptionAssignmentUsers(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('summary-assignment-users', destroyManager);
   }
 
   getUserRoles() {

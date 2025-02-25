@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-gl-posting',
@@ -13,38 +14,49 @@ export class GlPostingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private authService: AuthenticationService
   ) {}
   roles: string[] = [];
 
   ngOnInit() {
     this.getErrorSummaryPeriodStatus();
-    this.getUserId();
-  }
-
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
-
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-      });
+    this.roles = this.authService.getRoles();
   }
 
   glTotals: { [key: string]: number } = {
     '2 - GL Interface': 0,
   };
 
-  glFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'glBatchName', columnName: 'GL_BATCH_NAME' },
-    { formControlName: 'accountSeg', columnName: 'ACCOUNT_SEG' },
+  glFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'LEDGER_NAME',
+      formControlName: 'ledgerName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'glBatchName',
+      columnName: 'GL_BATCH_NAME',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'accountSeg',
+      columnName: 'ACCOUNT_SEG',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
   glKeysToMap: string[] = [
@@ -87,13 +99,11 @@ export class GlPostingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  // Define the steps array with both original keys and formatted labels
   formattedglSteps = Object.keys(this.glTotals).map((key) => ({
     label: this.formatLabel(key),
     impact: key,
   }));
 
-  // Function to format the label
   formatLabel(label: string): string {
     const acronyms = this.skippedWords || [];
 
@@ -117,17 +127,6 @@ export class GlPostingComponent implements OnInit {
       .getMonitoringPeriodStatus(this.destroyManager)
       .subscribe((data: any) => {
         this.periodStatus = data;
-      });
-  }
-
-  assignmentUsers: any;
-
-  getAssignmentUsers() {
-    this.http
-      .get('summary-assignment-users', this.destroyManager)
-      .subscribe((data) => {
-        this.assignmentUsers = data;
-        this.dataService.setAssignmentUsers(this.assignmentUsers);
       });
   }
 

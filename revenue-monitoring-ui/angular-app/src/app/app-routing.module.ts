@@ -14,6 +14,7 @@ import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.componen
 import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
+import { ErrorComponent } from './error/error.component';
 
 const routes: Routes = [
   {
@@ -29,11 +30,11 @@ const routes: Routes = [
       header: 'Home',
     },
   },
-  // {
-  //   path: 'error',
-  //   component: ErrorComponent,
-  //   data: { title: 'Error', header: '' },
-  // },
+  {
+    path: 'error',
+    component: ErrorComponent,
+    data: { title: 'Operations Control Tower', header: '' },
+  },
 
   {
     path: 'period-close-tracking',

@@ -42,10 +42,4 @@ export class ApiHttpService {
       .delete(this.hostUrl + url, options)
       .pipe(takeUntil(destroyManager.destroyObservable));
   }
-
-  public getUser(url: string, destroyManager: DestroyManager, options?: any) {
-    return this.http
-      .get(url, options)
-      .pipe(takeUntil(destroyManager.destroyObservable));
-  }
 }

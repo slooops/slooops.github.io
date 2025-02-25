@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-custom-revenue',
@@ -14,35 +15,35 @@ export class CustomRevenueComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private authService: AuthenticationService
   ) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    this.getUserId();
+    this.roles = this.authService.getRoles();
+    this.getDefaultTabIndex();
   }
 
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
-
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-        this.getDefaultTabIndex();
-      });
-  }
   rolTotals: { [key: string]: number } = {
     XXCFIR_REV_INTERFACE_ALL: 0,
     XXCFIR_REVENUE_EXTRACT_ALL: 0,
     XXCFIR_REVENUE_DIST_ALL: 0,
     XXCFIR_ROL_XLA_SUMMARY: 0,
     XLA_AE_HEADERS: 0,
+  };
+
+  standardRevenueUrl: { [key: string]: string } = {
+    summaryUrl: 'standard-revenue-errors-summary',
+    detailsUrl: 'standard-revenue-error-details',
+    filteredDetailsUrl: 'standard-revenue-error-details-filtered',
+    summaryUpdateUrl: 'standard-revenue-summary-update',
+    webexMessageUrl: 'send-message-revenue-accounting',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  standardRevenueTotals: { [key: string]: number } = {
+    Adjustments: 0,
+    Transactions: 0,
   };
 
   rolUrls: { [key: string]: string } = {
@@ -63,19 +64,126 @@ export class CustomRevenueComponent implements OnInit {
     XLA_AE_HEADERS: '5. SLA',
   };
 
-  rolFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'orderLineId', columnName: 'ORDER_LINE_ID' },
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  standardRevenueFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
-  accrualsFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'subref/orderNum', columnName: 'SUBREF/ORDER NUMBER' },
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  rolFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: true,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderLineId',
+      columnName: 'ORDER_LINE_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
-  accountsFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'subref/orderNum', columnName: 'SUBREF/ORDER NUMBER' },
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  accrualsFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subref/orderNum',
+      columnName: 'SUBREF/ORDER NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  accountsFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subref/orderNum',
+      columnName: 'SUBREF/ORDER NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
   skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
@@ -92,6 +200,13 @@ export class CustomRevenueComponent implements OnInit {
   accountsTotals: { [key: string]: number } = {
     '27041': 0,
   };
+
+  formatStandardRevenueSteps = Object.keys(this.standardRevenueTotals).map(
+    (key) => ({
+      label: key,
+      impact: key,
+    })
+  );
 
   formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
     label: key,
@@ -183,17 +298,6 @@ export class CustomRevenueComponent implements OnInit {
       });
   }
 
-  assignmentUsers: any;
-
-  getAssignmentUsers() {
-    this.http
-      .get('summary-assignment-users', this.destroyManager)
-      .subscribe((data) => {
-        this.assignmentUsers = data;
-        this.dataService.setAssignmentUsers(this.assignmentUsers);
-      });
-  }
-
   visibleTabs: {
     label: string;
     component: string;
@@ -204,7 +308,6 @@ export class CustomRevenueComponent implements OnInit {
       label: 'Standard Revenue',
       component: 'app-standard-revenue',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      disabled: true,
     },
     {
       label: 'Revenue Orchestration Layer',
@@ -226,7 +329,7 @@ export class CustomRevenueComponent implements OnInit {
     {
       label: 'Account Recon',
       component: 'app-accounts',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      role: ['ADMIN', 'ACCOUNT_RECON'],
     },
     {
       label: 'Operations Controls',
@@ -236,7 +339,7 @@ export class CustomRevenueComponent implements OnInit {
     },
   ];
 
-  selectedIndex: number = 1;
+  selectedIndex: number = 0;
   filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
   getDefaultTabIndex() {
@@ -500,6 +603,96 @@ export class CustomRevenueComponent implements OnInit {
   align-items: center;
   height: 82px;
   width: 170px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  standardRevenueprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 330px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;
