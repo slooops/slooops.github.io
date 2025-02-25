@@ -1,0 +1,15 @@
+@import "src/assets/o2c-common-styles.css";
+
+.toggle-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  color: #08ace4;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.toggle-button:hover {
+  color: #0056b3;
+}

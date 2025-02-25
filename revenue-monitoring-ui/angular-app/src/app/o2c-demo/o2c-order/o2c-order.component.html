@@ -1,31 +1,29 @@
 <app-o2c-nav></app-o2c-nav>
 
-<!-- <div class="flowchart-container">
+<div class="flowchart-container">
   <div class="slider-bar">
     <div
-      *ngFor="let step of formattedAccrualsSteps; let i = index"
+      *ngFor="let step of circleSteps; let i = index"
       [ngStyle]="getSliderBarStyle(i)"
     >
-      <div class="circle-wrapper-loop" (click)="navigateToStep(step)">
-        <p class="circle-caption-loop">{{ step.label }}</p>
+      <div class="circle-wrapper-loop" (click)="navigateToRoute(step, null)">
+        <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
       </div>
 
-      <div
-        *ngIf="i < formattedAccrualsSteps.length - 1"
-        class="chevron-wrapper-loop"
-      >
+      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
         <div class="chevron"></div>
         <div class="chevron-white"></div>
       </div>
     </div>
   </div>
-</div> -->
+</div>
 
 <div
   class="grid-1"
   style="display: grid; gap: 1.2rem; padding-top: 1.2rem; margin: 1rem 5rem"
 >
+  <div class="section-title">Order Summary</div>
   <div class="header-table" style="border-top: solid 1px #e0e0e0">
     <table
       mat-table
@@ -41,7 +39,19 @@
           </th>
 
           <!-- Data Row -->
-          <td mat-cell *matCellDef="let element">
+
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [ngClass]="{
+              'clickable-cell': column === 'Deal_ID'
+            }"
+            (click)="
+              column === 'Deal_ID'
+                ? navigateToRoute(column, element[column])
+                : null
+            "
+          >
             {{ element[column] }}
           </td>
         </ng-container>
@@ -60,7 +70,15 @@
       <ng-container *ngFor="let column of displayedColumnsSummary2">
         <ng-container [matColumnDef]="column">
           <!-- Header Row -->
-          <th mat-header-cell *matHeaderCellDef>
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            [ngClass]="{
+              'double-width':
+                column === 'Address_Details_Bill-To' ||
+                column === 'Address_Details_End_Customer'
+            }"
+          >
             {{ removeUnderscores(column) }}
           </th>
 
@@ -99,7 +117,19 @@
           >
             {{ removeUnderscores(column) }}
           </th>
-          <td mat-cell *matCellDef="let element">
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [ngClass]="{
+              'clickable-cell':
+                column === 'SubRefId' || column === 'Order_Additional_Info'
+            }"
+            (click)="
+              column === 'SubRefId' || column === 'Order_Additional_Info'
+                ? navigateToRoute(column, element[column])
+                : null
+            "
+          >
             {{ element[column] }}
           </td>
         </ng-container>

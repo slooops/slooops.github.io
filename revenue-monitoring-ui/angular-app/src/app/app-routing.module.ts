@@ -7,6 +7,12 @@ import { CustomRevenueComponent } from './custom-revenue/custom-revenue.componen
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
+import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
+import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
+import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
+import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
+import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
+import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
 
@@ -83,6 +89,44 @@ const routes: Routes = [
     path: 'o2c-details',
     component: O2cDetailsComponent,
     data: { title: 'O2C Details', header: 'O2C Details', hideNavbar: true },
+  },
+  {
+    path: 'o2c-order',
+    component: O2cOrderComponent,
+    data: { title: 'O2C Orders', header: 'O2C Orders', hideNavbar: true },
+  },
+  {
+    path: 'o2c-sub',
+    component: O2cSubComponent,
+    data: {
+      title: 'O2C Subscriptions',
+      header: 'O2C Subscriptions',
+      hideNavbar: true,
+    },
+  },
+  {
+    path: 'o2c-accrual',
+    component: O2cAccrualComponent,
+    data: { title: 'O2C Accrual', header: 'O2C Accruals', hideNavbar: true },
+  },
+  {
+    path: 'o2c-invoicing',
+    component: O2cInvoicingComponent,
+    data: { title: 'O2C Invoicing', header: 'O2C Invoicing', hideNavbar: true },
+  },
+  {
+    path: 'o2c-landing',
+    component: O2cLandingComponent,
+    data: { title: 'O2C Home', header: 'O2C Home', hideNavbar: true },
+  },
+  {
+    path: 'o2c-overview',
+    component: O2cOverviewComponent,
+    data: {
+      title: 'O2C Overview',
+      header: 'O2C Overview',
+      hideNavbar: true,
+    },
   },
 
   {
