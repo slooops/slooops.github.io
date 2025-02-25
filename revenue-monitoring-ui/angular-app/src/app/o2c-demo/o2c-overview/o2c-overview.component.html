@@ -1,0 +1,159 @@
+<app-o2c-nav></app-o2c-nav>
+
+<app-o2c-process-flow
+  [circleStatus]="circleStatus"
+  [navigationMap]="navigationMap"
+></app-o2c-process-flow>
+
+<div class="o2c-rows">
+  <!-- Order Section -->
+  <div class="section-title expander-margin">
+    <button class="toggle-button" (click)="toggleSection('order')">
+      {{ expandedSections["order"] ? "-" : "+" }}
+    </button>
+    Order Summary
+  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsOrder"
+    [dataSource]="dataSourceOrder"
+    [wideColumns]="['Address_Details_Bill-To', 'Address_Details_End_Customer']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div
+    [@expandCollapse]="expandedSections['order'] ? 'expanded' : 'collapsed'"
+    style="overflow-x: auto"
+  >
+    <div class="section-title">Order Processing Details</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsOrderDetails"
+      [dataSource]="dataSourceOrderDetails"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+  </div>
+
+  <!-- SUBSCRIPTION SECTION -->
+  <div class="section-title expander-margin">
+    <button class="toggle-button" (click)="toggleSection('subscription')">
+      {{ expandedSections["subscription"] ? "-" : "+" }}
+    </button>
+    Subscription Summary
+  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsSubscription"
+    [dataSource]="dataSourceSubscription"
+    [wideColumns]="['SubRefId']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div
+    [@expandCollapse]="
+      expandedSections['subscription'] ? 'expanded' : 'collapsed'
+    "
+    style="overflow-x: auto"
+  >
+    <div class="section-title">Subscription Activation Details</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsSubscriptionDetails"
+      [dataSource]="dataSourceSubscriptionDetails"
+      [wideColumns]="['SKU_Description', 'Bill_LineReference']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+  </div>
+
+  <!-- ACCRUAL SECTION -->
+  <div class="section-title expander-margin">
+    <button class="toggle-button" (click)="toggleSection('accrual')">
+      {{ expandedSections["accrual"] ? "-" : "+" }}
+    </button>
+    Accrual Summary #4910686
+  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsAccrual"
+    [dataSource]="dataSourceAccrual"
+    [wideColumns]="['']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div
+    [@expandCollapse]="expandedSections['accrual'] ? 'expanded' : 'collapsed'"
+    style="overflow-x: auto"
+  >
+    <div class="section-title">Accrual Processing</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsAccrualDetails"
+      [dataSource]="dataSourceAccrualDetails"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+  </div>
+
+  <!-- ACCRUAL SECTION2 -->
+  <div class="section-title expander-margin">
+    <button class="toggle-button" (click)="toggleSection('accrual2')">
+      {{ expandedSections["accrual2"] ? "-" : "+" }}
+    </button>
+    Accrual Summary #4910695
+  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsAccrual"
+    [dataSource]="dataSourceAccrual2"
+    [wideColumns]="['']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div
+    [@expandCollapse]="expandedSections['accrual2'] ? 'expanded' : 'collapsed'"
+    style="overflow-x: auto"
+  >
+    <div class="section-title">Accrual Processing</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsAccrualDetails"
+      [dataSource]="dataSourceAccrualDetails2"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+  </div>
+
+  <!-- Invoicing Section -->
+  <div class="section-title, expander-margin">
+    <button class="toggle-button" (click)="toggleSection('invoicing')">
+      {{ expandedSections["invoicing"] ? "-" : "+" }}</button
+    >Invoicing Summary
+  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsInvoicing"
+    [dataSource]="dataSourceInvoicing"
+    [wideColumns]="['Invoice_ID']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div
+    [@expandCollapse]="expandedSections['invoicing'] ? 'expanded' : 'collapsed'"
+    style="overflow-x: auto"
+  >
+    <div class="section-title">Invoice Breakdown</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsInvoicingDetails"
+      [dataSource]="dataSourceInvoicingDetails"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+  </div>
+</div>

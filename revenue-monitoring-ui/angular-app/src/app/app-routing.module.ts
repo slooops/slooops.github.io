@@ -12,6 +12,7 @@ import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
 import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
+import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 
 const routes: Routes = [
@@ -116,6 +117,15 @@ const routes: Routes = [
     path: 'o2c-landing',
     component: O2cLandingComponent,
     data: { title: 'O2C Home', header: 'O2C Home', hideNavbar: true },
+  },
+  {
+    path: 'o2c-overview',
+    component: O2cOverviewComponent,
+    data: {
+      title: 'O2C Overview',
+      header: 'O2C Overview',
+      hideNavbar: true,
+    },
   },
 
   {

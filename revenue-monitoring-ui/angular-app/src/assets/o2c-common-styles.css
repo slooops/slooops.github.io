@@ -115,12 +115,12 @@
 .gridded-table td {
   font-size: 12px;
   width: 10vw; /* Set equal width for all columns */
-  padding: 0 5px;
+  padding: 2px 5px;
   background-color: #f4f6f8; /* Light gray background */
   font-weight: bold;
   text-align: left;
   border: none;
-  color: #333;
+  /* color: #333; */
   overflow-x: auto;
   border-right: 1px solid #ddd; /* Border between columns */
   word-wrap: break-word; /* Ensure words wrap */
@@ -182,7 +182,8 @@ tr.mat-header-row {
 .clickable-cell {
   /* color: #0f5065;  */
   cursor: pointer;
-  text-decoration: underline;
+  /* text-decoration: underline; */
+  color: #227bb1;
 }
 
 .double-width {
@@ -196,4 +197,19 @@ tr.mat-header-row {
   gap: 1.2rem;
   padding-top: 1.2rem;
   margin: 1rem 5rem;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+}
+
+.expander-margin {
+  margin: 0 0 -10px -33px;
+  font-weight: 700;
+}
+
+.header-margins {
+  margin: 0 0 -10px 0;
 }
