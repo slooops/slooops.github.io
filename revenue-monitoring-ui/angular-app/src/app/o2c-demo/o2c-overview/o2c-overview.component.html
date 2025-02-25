@@ -129,11 +129,15 @@
   </div>
 
   <!-- Invoicing Section -->
-  <div class="section-title, expander-margin">
+  <!-- Invoicing Summary Section -->
+  <div class="section-title expander-margin">
     <button class="toggle-button" (click)="toggleSection('invoicing')">
-      {{ expandedSections["invoicing"] ? "-" : "+" }}</button
-    >Invoicing Summary
+      {{ expandedSections["invoicing"] ? "-" : "+" }}
+    </button>
+    Invoicing Summary
   </div>
+
+  <!-- Main Invoicing Summary Table -->
   <app-o2c-table
     [displayedColumns]="displayedColumnsInvoicing"
     [dataSource]="dataSourceInvoicing"
@@ -143,11 +147,40 @@
     class="header-table"
   ></app-o2c-table>
 
+  <!-- Show More Summary Lines Button -->
+  <div class="show-more-container">
+    <button class="show-more-button" (click)="toggleShowMoreSummary()">
+      {{ showMoreSummary ? "Show Less" : "Show More Summary Lines" }}
+    </button>
+  </div>
+
+  <!-- Additional Summary Tables (Rendered when "Show More" is clicked) -->
+  <div *ngIf="showMoreSummary">
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsInvoicing2"
+      [dataSource]="dataSourceInvoicing2"
+      [wideColumns]="['Invoice_ID']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+    ></app-o2c-table>
+
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsInvoicing3"
+      [dataSource]="dataSourceInvoicing3"
+      [wideColumns]="['Invoice_ID']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+    ></app-o2c-table>
+  </div>
+
+  <!-- Invoice Breakdown Section -->
   <div
     [@expandCollapse]="expandedSections['invoicing'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
   >
     <div class="section-title">Invoice Breakdown</div>
+
+    <!-- Main Detail Table -->
     <app-o2c-table
       [displayedColumns]="displayedColumnsInvoicingDetails"
       [dataSource]="dataSourceInvoicingDetails"
@@ -155,5 +188,23 @@
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
+
+    <!-- Show More Detail Lines Button -->
+    <div class="show-more-container">
+      <button class="show-more-button" (click)="toggleShowMoreDetails()">
+        {{ showMoreDetails ? "Show Less" : "Show More Detail Lines" }}
+      </button>
+    </div>
+
+    <!-- Additional Breakdown Detail Tables (Rendered when "Show More" is clicked) -->
+    <div *ngIf="showMoreDetails">
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails2"
+        [dataSource]="dataSourceInvoicingDetails2"
+        [wideColumns]="['']"
+        [navigationMap]="navigationMap"
+        tableType="body"
+      ></app-o2c-table>
+    </div>
   </div>
 </div>

@@ -50,6 +50,18 @@ export class O2cOverviewComponent {
     Invoicing: 0,
   };
 
+  showMoreSummary = false;
+  showMoreDetails = false;
+
+  toggleShowMoreSummary(): void {
+    this.showMoreSummary = !this.showMoreSummary;
+  }
+
+  // Toggle additional detail tables
+  toggleShowMoreDetails(): void {
+    this.showMoreDetails = !this.showMoreDetails;
+  }
+
   toggleSection(section: string): void {
     this.expandedSections[section] = !this.expandedSections[section];
     // Update the corresponding circle status based on the section
