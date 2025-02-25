@@ -332,6 +332,18 @@ public class QueryConfigs {
     @Value(("${standard.revenue.summary.update.query}"))
     public String standardRevenueSummaryUpdate;
 
+    @Value(("${period.name.query}"))
+    public String periodName;
+    @Value(("${print.summary.view}"))
+    public String printSummary;
+    @Value(("${print.detail.view}"))
+    public String printDetail;
+    @Bean(name = "printSummary")
+    public String getPrintSummary() { return this.printSummary; }
+    @Bean(name = "printDetail")
+    public String getPrintDetail() { return this.printDetail; }
+    @Bean(name = "periodName")
+    public String getPeriodName() { return this.periodName; }
     @Bean(name = "standardRevenueSummary")
     public String getStandardRevenueSummary() { return this.standardRevenueSummary; }
 

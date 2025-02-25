@@ -67,6 +67,8 @@ public class ExceptionMonitoringService {
     private String cmAmortSummaryUpdate;
     private String standardRevenueDetailsFiltered;
     private String standardRevenueSummaryUpdate;
+    private String printSummary;
+    private String printDetail;
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
                                       String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
@@ -81,7 +83,7 @@ public class ExceptionMonitoringService {
                                       String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered,
                                       String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
                                       String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
-                                      String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered
+                                      String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail
     ) {
         this.jdbcManager = jdbcManager;
         this.rolTransactionData = rolTransactionData;
@@ -134,6 +136,8 @@ public class ExceptionMonitoringService {
         this.cmAmortSummaryUpdate = cmAmortSummaryUpdate;
         this.standardRevenueDetailsFiltered = standardRevenueDetailsFiltered;
         this.standardRevenueSummaryUpdate = standardRevenueSummaryUpdate;
+        this.printSummary = printSummary;
+        this.printDetail = printDetail;
     }
 
     // Standard Revenue
@@ -580,6 +584,39 @@ public class ExceptionMonitoringService {
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateCMAmortSummary(cmAmortSummaryUpdate, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
         return 1;
+    }
+
+    public List<Map<String, Object>> getPrintErrorSummaryView() {
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(printSummary);
+//        result.forEach(data -> {
+//            data.remove("AGING");
+//            formatDateColumns(data, dateColumns);
+//            Map<String, Object> reorderedData = new LinkedHashMap<>();
+//            int index = 0;
+//            for (Map.Entry<String, Object> entry : data.entrySet()) {
+//                if (index == 6) {
+//                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+//                }
+//                reorderedData.put(entry.getKey(), entry.getValue());
+//                index++;
+//            }
+//            if (!reorderedData.containsKey("AGING")) {
+//                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+//            }
+//            data.clear();
+//            data.putAll(reorderedData);
+//        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPrintErrorDetails() {
+        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(printDetail);
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//        });
+        return result;
     }
 
     // eInvoicing

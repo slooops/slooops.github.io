@@ -56,7 +56,8 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
     private dataService: DataService,
     private authService: AuthenticationService
   ) {
-    this.username = this.authService.getUserName();
+    this.username = this.authService.getUserID();
+    console.log('User Name:', this.username);
     this.userRoles = this.authService.getRoles();
   }
   ngOnInit(): void {

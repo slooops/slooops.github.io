@@ -115,11 +115,13 @@ export class AuthenticationService {
   }
 
   username: string;
+  userId: string;
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
       .then(async (info) => {
         this.username = info['auth_user_name'];
+        this.userId = info['auth_user'];
         await this.getUserRoles(info['auth_user']);
         // Check if userRoles is empty and navigate to the error page
         if (this.userRoles.length === 0) {
@@ -130,6 +132,10 @@ export class AuthenticationService {
         console.error('Error fetching user info:', error);
         this.router.navigate(['/error']);
       });
+  }
+
+  getUserID() {
+    return this.userId;
   }
 
   getUserName() {

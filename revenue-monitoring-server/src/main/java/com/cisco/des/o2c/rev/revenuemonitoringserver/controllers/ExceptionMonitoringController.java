@@ -343,6 +343,16 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/print-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getPrintErrorSummary() {
+        return new ResponseEntity<>(service.getPrintErrorSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/print-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getPrintErrorDetails() {
+        return new ResponseEntity<>(service.getPrintErrorDetails(), HttpStatus.OK);
+    }
+
     //eInvoicing
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {

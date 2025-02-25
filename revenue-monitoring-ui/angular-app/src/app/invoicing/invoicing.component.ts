@@ -141,8 +141,12 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
-  postInvoicingTotals: { [key: string]: number } = {
+  cmAmortTotals: { [key: string]: number } = {
     'CM Amortization': 0,
+  };
+
+  printTotals: { [key: string]: number } = {
+    Print: 0,
   };
 
   autoInvoicingTotals: { [key: string]: number } = {
@@ -208,11 +212,21 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  postInvoicingUrls: { [key: string]: string } = {
+  cmAmortUrls: { [key: string]: string } = {
     summaryUrl: 'post-invoice-error-summary',
     detailsUrl: 'post-invoice-error-details',
     filteredDetailsUrl: 'post-invoice-error-details-filtered',
     summaryUpdateUrl: 'post-invoice-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  printUrls: { [key: string]: string } = {
+    summaryUrl: 'print-error-summary',
+    detailsUrl: 'print-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
     webexMessageUrl: 'send-message-invoicing',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
