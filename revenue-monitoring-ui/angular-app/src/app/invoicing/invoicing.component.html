@@ -18,7 +18,8 @@
           [processFlowTabsToDisplay]="[
             'Pre-Invoicing',
             'Auto-Invoicing',
-            'Post-Invoicing'
+            'CM-Amortization',
+            'Print'
           ]"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
@@ -56,7 +57,8 @@
           [processFlowTabsToDisplay]="[
             'Pre-Invoicing',
             'Auto-Invoicing',
-            'Post-Invoicing'
+            'CM-Amortization',
+            'Print'
           ]"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
@@ -87,15 +89,16 @@
         <mat-tab-group [selectedIndex]="0">
           <mat-tab label="CM Amortization">
             <app-monitoring-dashboard
-              [urls]="postInvoicingUrls"
+              [urls]="cmAmortUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
-              [processFlowKeys]="postInvoicingTotals"
+              [processFlowKeys]="cmAmortTotals"
               [periodStatus]="periodStatus"
-              [componentName]="'Post-Invoicing'"
+              [componentName]="'CM Amortization'"
               [processFlowTabsToDisplay]="[
                 'Pre-Invoicing',
                 'Auto-Invoicing',
-                'Post-Invoicing'
+                'CM Amortization',
+                'Print'
               ]"
               [specialWords]="specialWords"
               [skippedWords]="skippedWords"
@@ -121,6 +124,31 @@
                 'TRANSACTION_DATE',
                 'AMOUNT'
               ]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="Print">
+            <app-monitoring-dashboard
+              [urls]="printUrls"
+              [keysToMap]=""
+              [processFlowKeys]="printTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'Print'"
+              [processFlowTabsToDisplay]="[
+                'Pre-Invoicing',
+                'Auto-Invoicing',
+                'CM Amortization',
+                'Print'
+              ]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]="dynamicTemplate"
+              [dynamicCss]="invoicingprocessflowCss"
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="['TRANSACTION_DATE']"
+              [submitKeysToMap]="[]"
+              [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
           </mat-tab>
         </mat-tab-group>
@@ -271,9 +299,23 @@
           <span class="circle circle-4"></span>
           <p class="circle-subcaption">
             Total Impact:
-            {{ allTotals['Post-Invoicing']?.['CM Amortization'] || 'N/A' }}
+            {{ allTotals['CM Amortization']?.['CM Amortization'] || 'N/A' }}
           </p>
         </div>
+
+        <!-- Chevron 3 -->
+        <!-- <div class="chevron chevron-4"></div>
+        <div class="chevron-white chevron-4"></div> -->
+
+        <!-- Post-Invoice Circle 4 -->
+        <!-- <div class="circle-wrapper circle-wrapper-5">
+          <p class="circle-caption">5. Print</p>
+          <span class="circle circle-5"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Print']?.['Print'] || 'N/A' }}
+          </p>
+        </div> -->
       </div>
     </div>
   </div>

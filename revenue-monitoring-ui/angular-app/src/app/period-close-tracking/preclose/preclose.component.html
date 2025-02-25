@@ -183,95 +183,131 @@
   <mat-divider></mat-divider>
   <br />
 
-  <h2>Interface Load</h2>
-  <div class="header-container">
-    <p>Legend: Number of lines</p>
-    <button
-      mat-stroked-button
-      (click)="
-        exportTableToExcel(
-          precloseInterfaceLoadTableData,
-          'Preclose Interface Load',
-          'pcloseInterfaceLoadTableData'
-        )
-      "
-    >
-      Download
-    </button>
-  </div>
-  <div class="periodclosetable container">
-    <table class="table table-responsive equal-width table-striped">
-      <thead>
-        <tr>
-          <th *ngFor="let col of pcloseInterfaceLoadColumns">{{ col }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of precloseInterfaceLoadTableData">
-          <ng-container
-            *ngFor="let key of templateObject.keys(row); let i = index"
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="header-container">
+        <h5 class="section-title action-buttons">Interface Load</h5>
+        <span style="margin-top: 15px">
+          <p>Legend: Number of lines</p>
+        </span>
+        <div class="action-buttons">
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                precloseInterfaceLoadData,
+                'Preclose Interface Load',
+                'pcloseInterfaceLoadTableData'
+              )
+            "
           >
-            <td *ngIf="i < templateObject.keys(row).length - 2">
-              {{ row[key] }}
-            </td>
-            <td *ngIf="i >= templateObject.keys(row).length - 2">
-              <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
-              <span *ngIf="row[key].slice(0, -1) < 0"
-                >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
-              >
-              <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
-            </td>
-          </ng-container>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <mat-divider></mat-divider>
+            <i class="svg-icon download-icon"></i>
+          </button>
+        </div>
+      </div>
 
+      <ng-container *ngIf="precloseInterfaceLoadDatasource?.data?.length">
+        <div class="table-container" style="overflow-y: hidden !important">
+          <table
+            mat-table
+            [dataSource]="precloseInterfaceLoadDatasource"
+            class="custom-table table-responsive"
+          >
+            <ng-container *ngFor="let column of pcloseInterfaceLoadColumns">
+              <ng-container [matColumnDef]="column">
+                <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                  <ng-container [ngSwitch]="column">
+                    <ng-container *ngSwitchDefault>
+                      {{ replaceUnderscoreWithEmpty(column) }}
+                    </ng-container>
+                  </ng-container>
+                </th>
+
+                <td mat-cell *matCellDef="let element">
+                  <ng-container [ngSwitch]="column">
+                    <ng-container *ngSwitchDefault>
+                      <span *ngIf="isPercentageColumn(column)">
+                        <span *ngIf="element[column] > 0">⬆</span>
+                        <span *ngIf="element[column] < 0">⬇</span>
+                        {{ element[column] }}%
+                      </span>
+                      <span *ngIf="!isPercentageColumn(column)">
+                        {{ element[column] }}
+                      </span>
+                    </ng-container>
+                  </ng-container>
+                </td>
+              </ng-container>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="pcloseInterfaceLoadColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: pcloseInterfaceLoadColumns"
+            ></tr>
+          </table>
+        </div>
+      </ng-container>
+    </div>
+    <div class="col-lg-7">
+      <div class="header-container">
+        <h5 class="section-title action-buttons">Invoices Generated</h5>
+        <div class="action-buttons">
+          <button
+            mat-icon-button
+            (click)="
+              exportTableToExcel(
+                preCloseProgramTableData,
+                'Preclose Invoices Generated',
+                'pcloseInvoicesGeneratedTableData'
+              )
+            "
+          >
+            <i class="svg-icon download-icon"></i>
+          </button>
+        </div>
+      </div>
+      <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
+        <div class="table-container" style="overflow-y: hidden !important">
+          <table
+            mat-table
+            [dataSource]="precloseInvGenDatasource"
+            class="custom-table table-responsive"
+          >
+            <ng-container *ngFor="let column of pcloseInvGenTableColumns">
+              <ng-container [matColumnDef]="column">
+                <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                  <ng-container [ngSwitch]="column">
+                    <ng-container *ngSwitchDefault>
+                      {{ replaceUnderscoreWithEmpty(column) }}
+                    </ng-container>
+                  </ng-container>
+                </th>
+
+                <td mat-cell *matCellDef="let element">
+                  <ng-container [ngSwitch]="column">
+                    <ng-container *ngSwitchDefault>
+                      {{ element[column] }}
+                    </ng-container>
+                  </ng-container>
+                </td>
+              </ng-container>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="pcloseInvGenTableColumns"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: pcloseInvGenTableColumns"
+            ></tr>
+          </table>
+        </div>
+      </ng-container>
+    </div>
+  </div>
   <br />
-  <div class="header-container">
-    <h2>Invoices Generated</h2>
-    <button
-      mat-stroked-button
-      (click)="
-        exportTableToExcel(
-          preCloseProgramTableData,
-          'Preclose Invoices Generated',
-          'pcloseInvoicesGeneratedTableData'
-        )
-      "
-    >
-      Download
-    </button>
-  </div>
-  <!-- <cui-table
-    *ngIf="preCloseProgramTableData.length"
-    [options]="pcloseInvGenTableOptions"
-    [data]="preCloseProgramTableData"
-    class="cuiAlign periodclosetable"
-  ></cui-table> -->
-  <div class="periodclosetable container">
-    <table
-      *ngIf="preCloseProgramTableData.length"
-      class="table table-responsive equal-width table-striped"
-    >
-      <thead>
-        <tr>
-          <th *ngFor="let column of pcloseInvGenTableColumns">
-            {{ replaceUnderscoreWithEmpty(column) }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let row of preCloseProgramTableData">
-          <td *ngFor="let column of pcloseInvGenTableColumns">
-            {{ row[column] }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
   <mat-divider></mat-divider>
 
   <mat-divider></mat-divider>

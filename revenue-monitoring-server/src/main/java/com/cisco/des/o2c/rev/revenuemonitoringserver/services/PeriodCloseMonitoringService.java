@@ -51,6 +51,8 @@ public class PeriodCloseMonitoringService {
     private String espAgingCaseSummary;
     private String espCaseServiceMetricSummary;
     private String espWeeklyComparisonSummary;
+    private Boolean isQuarterEnd;
+    private String periodName;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -62,7 +64,8 @@ public class PeriodCloseMonitoringService {
             String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
             String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
-             String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary, String espWeeklyComparisonSummary) {
+             String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
+                                        String espWeeklyComparisonSummary, String periodName) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -94,6 +97,7 @@ public class PeriodCloseMonitoringService {
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
         this.espWeeklyComparisonSummary = espWeeklyComparisonSummary;
+        this.periodName = periodName;
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -122,8 +126,54 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.queryForList(closeInvStats);
     }
 
-    public List<Map<String, Object>> getPeriodCloseInterfaceLoad() {
-        return jdbcManager.queryForList(closeInterfaceLoad);
+    public Map<String, List<Map<String, Object>>> getPeriodCloseInterfaceLoad() {
+        List<Map<String, Object>> pName = jdbcManager.queryForList(periodName);
+        String[] period = pName.get(0).get("PERIOD_NAME").toString().split("-");
+        boolean isQuarterEnd = period[0].equals("JAN") || period[0].equals("APR") || period[0].equals("JUL") || period[0].equals("OCT");
+
+        List<Map<String, Object>> data = jdbcManager.queryForList(closeInterfaceLoad);
+
+        Map<String, List<Map<String, Object>>> finalResult = new HashMap<>();
+        finalResult.put("PRECLOSE", new ArrayList<>());
+        finalResult.put("MIDCLOSE", new ArrayList<>());
+
+        Map<String, Map<String, Object>> preCloseResults = new HashMap<>();
+        Map<String, Map<String, Object>> midCloseResults = new HashMap<>();
+
+        for (Map<String, Object> row : data) {
+            String lineType = row.get("LINE_TYPE").toString();
+            String closeType = row.get("CLOSE_TYPE").toString(); // "PRECLOSE" or "MIDCLOSE"
+            String uniqueKey = lineType + "-" + closeType; // Ensures unique objects for each type
+
+            Map<String, Object> resultMap = closeType.equals("PRECLOSE")
+                    ? preCloseResults.computeIfAbsent(uniqueKey, k -> new LinkedHashMap<>())
+                    : midCloseResults.computeIfAbsent(uniqueKey, k -> new LinkedHashMap<>());
+
+            resultMap.put("LINE_TYPE", lineType);
+
+            String periodKey = isQuarterEnd ? row.get("QUARTER").toString() : row.get("PERIOD_NAME").toString();
+            resultMap.put(periodKey, row.get("LINE_COUNT"));
+
+            if (isQuarterEnd) {
+                if (row.get("QOQ_PERCENTAGE") != null) {
+                    resultMap.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
+                }
+                if (row.get("YOY_PERCENTAGE") != null) {
+                    resultMap.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
+                }
+            } else {
+                if (row.get("MOM_PERCENTAGE") != null) {
+                    resultMap.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
+                }
+                if (row.get("PQM_PERCENTAGE") != null) {
+                    resultMap.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+                }
+            }
+        }
+        finalResult.get("PRECLOSE").addAll(preCloseResults.values());
+        finalResult.get("MIDCLOSE").addAll(midCloseResults.values());
+
+        return finalResult;
     }
 
     public List<Map<String, Object>> getCloseStartEndTime() {
