@@ -1,0 +1,69 @@
+<div class="grid-1 container" style="width: auto">
+  <div class="table-header">
+    <p class="section-title">{{ title }}</p>
+    <div class="table-links">
+      <a
+        *ngIf="reportLink"
+        [href]="reportLink"
+        target="_blank"
+        class="dash-link"
+        >All Reports</a
+      >
+      <a
+        *ngIf="serviceNowLink"
+        [href]="serviceNowLink"
+        target="_blank"
+        class="dash-link"
+        >ServiceNow</a
+      >
+      <i (click)="exportTableToExcel()" class="svg-icon download-icon"></i>
+    </div>
+  </div>
+
+  <div style="margin-top: 1vh">
+    <ng-container *ngIf="dataSource?.data?.length > 0">
+      <div style="overflow-x: auto">
+        <table mat-table [dataSource]="dataSource" style="width: 100%">
+          <ng-container *ngFor="let column of displayedColumns">
+            <ng-container [matColumnDef]="column">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                [ngClass]="{
+                  'extra-wide-column': extraWideColumns.includes(column)
+                }"
+              >
+                {{ removeUnderscores(column) }}
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [ngClass]="{
+                  'extra-wide-column': extraWideColumns.includes(column)
+                }"
+              >
+                <ng-container
+                  *ngIf="
+                    column.includes('TIME') || column.includes('DATE');
+                    else defaultCell
+                  "
+                >
+                  {{ element[column] | date : "MM/dd/yy" }}
+                </ng-container>
+                <ng-template #defaultCell>{{ element[column] }}</ng-template>
+              </td>
+            </ng-container>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!dataSource?.data?.length">
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
+    </ng-container>
+  </div>
+</div>

@@ -32,6 +32,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
   cancelledPdfChart: Chart | null = null;
   routedMisroutedChart: Chart | null = null;
 
+  backlogInflowChartPrior: Chart | null = null;
+  cancelledPdfChartPrior: Chart | null = null;
+
   ngOnInit(): void {
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
@@ -119,29 +122,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
       })
       .subscribe((data: any) => {
         this.espWeeklyComparisonSummary = data;
-        // console.log('raw graph data', data);
+        this.destroyCharts();
         this.initializeCharts();
       });
-  }
-
-  removeColumns(columnsToRemove: string[]) {
-    this.displayedColumnsForAgingBacklog =
-      this.displayedColumnsForAgingBacklog.filter(
-        (column) => !columnsToRemove.includes(column)
-      );
-  }
-
-  removeUnderscores(key: string): string {
-    return key.replace(/_/g, ' ');
-  }
-
-  exportTableToExcel(data: any[], sheetName: string, fileName: string): void {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = {
-      Sheets: { [sheetName]: worksheet },
-      SheetNames: [sheetName],
-    };
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
 
   sharedChartOptions: ChartOptions = {
@@ -282,13 +265,13 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
     // console.log('labels:', labels);
 
-    const transformData = (relativeQuarter: string, category: string) =>
+    const transformData = (relativePosition: string, category: string) =>
       labels.map((label) => {
         const weekNum = parseInt(label.split(' ')[1], 10);
         const entry = this.espWeeklyComparisonSummary.find(
           (item) =>
             item.WEEK_NUM === weekNum &&
-            item.RELATIVE_QTR === relativeQuarter &&
+            item.QTR_RELATIVE_POSITION.toString() === relativePosition &&
             item.CATEGORY === category
         );
         return entry ? entry.COUNT : 0;
@@ -301,35 +284,35 @@ export class EspCaseAnalyzerComponent implements OnInit {
         datasets: [
           {
             label: 'Backlog (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'BACKLOG'),
+            data: transformData('1', 'BACKLOG'),
             ...COLORS.backlogPrevious,
           },
           {
             label: 'Backlog (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'BACKLOG'),
+            data: transformData('0', 'BACKLOG'),
             ...COLORS.backlogCurrent,
           },
           {
             label: 'Inflow (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'INFLOW'),
+            data: transformData('1', 'INFLOW'),
             ...COLORS.inflowPrevious,
             type: 'line',
           },
           {
             label: 'Inflow (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'INFLOW'),
+            data: transformData('0', 'INFLOW'),
             ...COLORS.inflowCurrent,
             type: 'line',
           },
           {
             label: 'Resolved (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'RESOLVED'),
+            data: transformData('1', 'RESOLVED'),
             ...COLORS.resolvedPrevious,
             type: 'line',
           },
           {
             label: 'Resolved (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'RESOLVED'),
+            data: transformData('0', 'RESOLVED'),
             ...COLORS.resolvedCurrent,
             type: 'line',
           },
@@ -375,54 +358,154 @@ export class EspCaseAnalyzerComponent implements OnInit {
       options: this.sharedChartOptions,
     });
 
+    this.backlogInflowChartPrior = new Chart('backlogInflowChartPrior', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Backlog (Prior Quarter)',
+            data: transformData('2', 'BACKLOG'),
+            ...COLORS.backlogPrevious,
+          },
+          {
+            label: 'Backlog (Last Quarter)',
+            data: transformData('1', 'BACKLOG'),
+            ...COLORS.backlogCurrent,
+          },
+          {
+            label: 'Inflow (Prior Quarter)',
+            data: transformData('2', 'INFLOW'),
+            ...COLORS.inflowPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Inflow (Last Quarter)',
+            data: transformData('1', 'INFLOW'),
+            ...COLORS.inflowCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Resolved (Prior Quarter)',
+            data: transformData('2', 'RESOLVED'),
+            ...COLORS.resolvedPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Resolved (Last Quarter)',
+            data: transformData('1', 'RESOLVED'),
+            ...COLORS.resolvedCurrent,
+            type: 'line',
+          },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
     this.cancelledPdfChart = new Chart('cancelledPdfChart', {
       type: 'bar',
       data: {
         labels,
         datasets: [
           {
-            label: 'PDF (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'PDF'),
+            label: 'PDF (Last Quarter)',
+            data: transformData('1', 'PDF'),
             ...COLORS.pdfPrevious,
           },
           {
-            label: 'PDF (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'PDF'),
+            label: 'PDF (This Quarter)',
+            data: transformData('0', 'PDF'),
             ...COLORS.pdfCurrent,
           },
           {
-            label: 'Routed Out (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
+            label: 'Routed Out (Last Quarter)',
+            data: transformData('1', 'ROUTED OUT'),
             ...COLORS.routedOutPrevious,
             type: 'line',
           },
           {
-            label: 'Routed Out (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
+            label: 'Routed Out (This Quarter)',
+            data: transformData('0', 'ROUTED OUT'),
             ...COLORS.routedOutCurrent,
             type: 'line',
           },
           {
-            label: 'Misrouted (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
+            label: 'Misrouted (Last Quarter)',
+            data: transformData('1', 'MISROUTED'),
             ...COLORS.misroutedPrevious,
             type: 'line',
           },
           {
-            label: 'Misrouted (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'MISROUTED'),
+            label: 'Misrouted (This Quarter)',
+            data: transformData('0', 'MISROUTED'),
             ...COLORS.misroutedCurrent,
             type: 'line',
           },
           {
-            label: 'Cancelled (Previous Quarter)',
-            data: transformData('PREVIOUS QUARTER', 'CANCELLED'),
+            label: 'Cancelled (Last Quarter)',
+            data: transformData('1', 'CANCELLED'),
             ...COLORS.cancelledPrevious,
             type: 'line',
           },
           {
-            label: 'Cancelled (Current Quarter)',
-            data: transformData('CURRENT QUARTER', 'CANCELLED'),
+            label: 'Cancelled (This Quarter)',
+            data: transformData('0', 'CANCELLED'),
+            ...COLORS.cancelledCurrent,
+            type: 'line',
+          },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
+    this.cancelledPdfChartPrior = new Chart('cancelledPdfChartPrior', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'PDF (Prior Quarter)',
+            data: transformData('2', 'PDF'),
+            ...COLORS.pdfPrevious,
+          },
+          {
+            label: 'PDF (Last Quarter)',
+            data: transformData('1', 'PDF'),
+            ...COLORS.pdfCurrent,
+          },
+          {
+            label: 'Routed Out (Prior Quarter)',
+            data: transformData('2', 'ROUTED OUT'),
+            ...COLORS.routedOutPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Routed Out (Last Quarter)',
+            data: transformData('1', 'ROUTED OUT'),
+            ...COLORS.routedOutCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Prior Quarter)',
+            data: transformData('2', 'MISROUTED'),
+            ...COLORS.misroutedPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Last Quarter)',
+            data: transformData('1', 'MISROUTED'),
+            ...COLORS.misroutedCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Cancelled (Prior Quarter)',
+            data: transformData('2', 'CANCELLED'),
+            ...COLORS.cancelledPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Cancelled (Last Quarter)',
+            data: transformData('1', 'CANCELLED'),
             ...COLORS.cancelledCurrent,
             type: 'line',
           },
@@ -433,6 +516,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
 
   destroyCharts(): void {
+    console.log('Destroying charts');
     // Destroy charts if they exist
     if (this.backlogInflowChart) {
       this.backlogInflowChart.destroy();
@@ -442,9 +526,24 @@ export class EspCaseAnalyzerComponent implements OnInit {
       this.cancelledPdfChart.destroy();
       this.cancelledPdfChart = null;
     }
-    if (this.routedMisroutedChart) {
-      this.routedMisroutedChart.destroy();
-      this.routedMisroutedChart = null;
+
+    if (this.backlogInflowChartPrior) {
+      this.backlogInflowChartPrior.destroy();
+      this.backlogInflowChartPrior = null;
+    }
+    if (this.cancelledPdfChartPrior) {
+      this.cancelledPdfChartPrior.destroy();
+      this.cancelledPdfChartPrior = null;
+    }
+  }
+
+  onTabClick(event: any): void {
+    if (event.index === 1) {
+      // Destroy and reinitialize charts when switching to "Last Quarter vs. Prior Quarter"
+      setTimeout(() => {
+        this.destroyCharts();
+        this.initializeCharts();
+      }, 200);
     }
   }
 }

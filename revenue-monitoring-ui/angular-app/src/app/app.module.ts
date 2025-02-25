@@ -85,6 +85,7 @@ import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
 import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
 import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-process-flow.component';
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
+import { TableComponent } from './components/table/table.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -142,6 +143,7 @@ export function initApp(authService: AuthenticationService) {
     O2cLandingComponent,
     O2cProcessFlowComponent,
     O2cOverviewComponent,
+    TableComponent,
   ],
   imports: [
     BrowserModule,
