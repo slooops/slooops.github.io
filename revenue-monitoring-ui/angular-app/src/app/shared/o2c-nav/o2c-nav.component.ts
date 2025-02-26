@@ -13,6 +13,10 @@ export class O2cNavComponent {
     this.router.navigate(['/o2c-demo'], {});
   }
 
+  goToO2cOverview() {
+    this.router.navigate(['/o2c-overview'], {});
+  }
+
   searchValue: string = ''; // Store input value
 
   // Mapping search values to their respective pages

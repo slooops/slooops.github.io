@@ -5,7 +5,7 @@
   border: none;
   font-size: 18px;
   font-weight: bold;
-  color: #3d3d3d;
+  /* color: #3d3d3d; */
   cursor: pointer;
   margin-left: 10px;
 }
@@ -13,4 +13,22 @@
 .toggle-button:hover {
   color: #3f3f3f;
   text-decoration: none;
+}
+
+.show-more-container {
+  text-align: left;
+}
+
+.show-more-button {
+  color: #227bb1;
+  /* padding: 6px 12px; */
+  margin-top: -6px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  background-color: #fff;
+}
+
+.show-more-button:hover {
+  /* background-color: #efefef; */
 }

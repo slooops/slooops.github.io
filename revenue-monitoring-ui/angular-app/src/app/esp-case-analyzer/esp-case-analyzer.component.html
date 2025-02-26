@@ -1,200 +1,102 @@
-<div class="grid-2" style="margin: 0 12px">
-  <div class="card">
-    <div class="chart-canvas">
-      <!-- Canvas for Backlog, Inflow, Routed Out, Misrouted -->
-      <canvas id="backlogInflowChart"></canvas>
-    </div>
-    <p class="chart-description">
-      <b>Backlog, Inflow, Routed Out, and Resolved</b> - Displays current and
-      previous quarter data.
-    </p>
-  </div>
-
-  <div class="card">
-    <div class="chart-canvas">
-      <!-- Canvas for PDF and Cancelled -->
-      <canvas id="cancelledPdfChart"></canvas>
-    </div>
-    <p class="chart-description">
-      <b>PDF, Routed Out, Misrouted, and Cancelled</b> - Displays current and
-      previous quarter data.
-    </p>
-  </div>
-</div>
-
-<div class="grid-1 container" style="width: auto">
-  <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: -32px;
-    "
+<mat-tab-group (selectedTabChange)="onTabClick($event)">
+  <mat-tab
+    *ngIf="q1 && q2"
+    [label]="q1.slice(0, -4) + ' vs. ' + q2.slice(0, -4)"
   >
-    <p class="section-title">Current Quarter Case Summary</p>
-    <p style="text-align: center; margin: 0px 0 0 0">
-      <!-- Quarter: <span style="font-weight: 600">Q2FY25</span> | Period:
-      <span style="font-weight: 600">Nov-25</span> -->
-    </p>
-    <div style="display: flex; gap: 1vh">
-      <a
-        href="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c"
-        target="_blank"
-        class="dash-link"
-        >All Reports</a
-      >
-      <a
-        href="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-        target="_blank"
-        class="dash-link"
-        >ServiceNow</a
-      >
-      <i
-        (click)="
-          exportTableToExcel(
-            dataSourceCurrentQuarter.data,
-            'Current Quarter Data',
-            'Current_Quarter_Case_Summary'
-          )
-        "
-        class="svg-icon download-icon"
-      ></i>
+    <div class="grid-2" style="margin: 0 12px">
+      <div class="card">
+        <div class="chart-canvas">
+          <!-- Canvas for Backlog, Inflow, Routed Out, Resolved -->
+          <canvas id="backlogInflowChartPrior"></canvas>
+        </div>
+        <p class="chart-description">
+          <b>Backlog, Inflow, and Resolved</b> - Displays last quarter and the
+          prior quarter data.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="chart-canvas">
+          <!-- Canvas for PDF, Routed Out, Misrouted, and Cancelled -->
+          <canvas id="cancelledPdfChartPrior"></canvas>
+        </div>
+        <p class="chart-description">
+          <b>PDF, Routed Out, Misrouted, and Cancelled</b> - Displays last
+          quarter and the prior quarter data.
+        </p>
+      </div>
     </div>
-  </div>
-  <div style="margin-top: 1vh">
-    <ng-container *ngIf="dataSourceCurrentQuarter?.data?.length > 0">
-      <div style="overflow-x: auto">
-        <table
-          mat-table
-          [dataSource]="dataSourceCurrentQuarter"
-          style="width: 100%"
-        >
-          <ng-container
-            *ngFor="let column of displayedColumnsForCurrentQuarter"
-          >
-            <ng-container [matColumnDef]="column">
-              <th
-                mat-header-cell
-                *matHeaderCellDef
-                [ngClass]="{
-                  'extra-wide-column': column === 'SERVICE_OFFERING'
-                }"
-              >
-                {{ removeUnderscores(column) }}
-              </th>
-              <td
-                mat-cell
-                *matCellDef="let element"
-                [ngClass]="{
-                  'extra-wide-column': column === 'SERVICE_OFFERING'
-                }"
-              >
-                <ng-container
-                  *ngIf="
-                    column === 'CREATED_TIME' || column === 'LAST_UPDATED_TIME';
-                    else defaultCell
-                  "
-                >
-                  {{ element[column] | date : "MM/dd/yy" }}
-                </ng-container>
-                <ng-template #defaultCell>{{ element[column] }}</ng-template>
-              </td>
-            </ng-container>
-          </ng-container>
 
-          <tr
-            mat-header-row
-            *matHeaderRowDef="displayedColumnsForCurrentQuarter"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumnsForCurrentQuarter"
-          ></tr>
-        </table>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="!dataSourceCurrentQuarter?.data?.length">
-      <div class="loading-container">
-        <app-loading-symbol></app-loading-symbol>
-        <br /><br /><br />
-      </div>
-    </ng-container>
-  </div>
-</div>
+    <!-- Previous Quarter Table -->
+    <app-table
+      title="Case Summary for {{ q1 }}"
+      [dataSource]="dataSourcePreviousQuarter"
+      [displayedColumns]="displayedColumnsForPreviousQuarter"
+      exportFileName="Previous_Quarter_Case_Summary"
+      reportLink="big url"
+      serviceNowLink="big url"
+      [extraWideColumns]="['SERVICE_OFFERING']"
+    ></app-table>
 
-<div class="grid-1 container" style="width: auto">
-  <div
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: -32px;
-    "
+    <app-table
+      title=" Aging Backlog for {{ q1 }}"
+      [dataSource]="dataSourceAgingBacklogPrevious"
+      [displayedColumns]="displayedColumnsForAgingBacklogPrevious"
+      exportFileName="Previous_Quarter_Aging_Backlog"
+      [extraWideColumns]="['SERVICE_OFFERING']"
+    ></app-table>
+
+    <br /><br /><br />
+  </mat-tab>
+  <!-- Tab 1: This Quarter vs. Last Quarter -->
+  <mat-tab
+    *ngIf="q0 && q1"
+    [label]="q0.slice(0, -4) + ' vs. ' + q1.slice(0, -4)"
   >
-    <p class="section-title">Aging Backlog</p>
-    <p style="text-align: center; margin: 0px 0 0 0">
-      <!-- Quarter: <span style="font-weight: 600">Q2FY25</span> | Period:
-      <span style="font-weight: 600">Nov-25</span> -->
-    </p>
-    <div style="display: flex; gap: 1vh">
-      <i
-        (click)="
-          exportTableToExcel(
-            dataSourceAgingBacklog.data,
-            'Aging Backlog Data',
-            'Q4FY24_Aging_Backlog'
-          )
-        "
-        class="svg-icon download-icon"
-      ></i>
-    </div>
-  </div>
-  <div style="margin-top: 1vh">
-    <ng-container *ngIf="dataSourceAgingBacklog?.data?.length > 0">
-      <div style="overflow-x: auto">
-        <table
-          mat-table
-          [dataSource]="dataSourceAgingBacklog"
-          style="width: 100%"
-        >
-          <ng-container *ngFor="let column of displayedColumnsForAgingBacklog">
-            <ng-container [matColumnDef]="column">
-              <th mat-header-cell *matHeaderCellDef>
-                {{ removeUnderscores(column) }}
-              </th>
-              <td mat-cell *matCellDef="let element">
-                <ng-container
-                  *ngIf="
-                    column === 'CREATED_AT' || column === 'LAST_UPDATED_AT';
-                    else defaultCell
-                  "
-                >
-                  {{ element[column] | date : "MM/dd/yy" }}
-                </ng-container>
-
-                <ng-template #defaultCell>{{ element[column] }}</ng-template>
-              </td>
-            </ng-container>
+    <div class="grid-2" style="margin: 0 12px">
+      <div class="card">
+        <div class="chart-canvas">
+          <ng-container>
+            <canvas id="backlogInflowChart"></canvas>
           </ng-container>
-
-          <tr
-            mat-header-row
-            *matHeaderRowDef="displayedColumnsForAgingBacklog"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumnsForAgingBacklog"
-          ></tr>
-        </table>
+        </div>
+        <p class="chart-description">
+          <b>Backlog, Inflow, and Resolved</b> - Displays current and previous
+          quarter data.
+        </p>
       </div>
-    </ng-container>
-    <ng-container *ngIf="!dataSourceAgingBacklog?.data?.length">
-      <div class="loading-container">
-        <app-loading-symbol></app-loading-symbol>
-        <br /><br /><br />
-      </div>
-    </ng-container>
-  </div>
-</div>
 
-<br /><br /><br />
+      <div class="card">
+        <div class="chart-canvas">
+          <!-- Canvas for PDF and Cancelled -->
+          <canvas id="cancelledPdfChart"></canvas>
+        </div>
+        <p class="chart-description">
+          <b>PDF, Routed Out, Misrouted, and Cancelled</b> - Displays current
+          and previous quarter data.
+        </p>
+      </div>
+    </div>
+
+    <app-table
+      title="Case Summary for {{ q0 }}"
+      [dataSource]="dataSourceCurrentQuarter"
+      [displayedColumns]="displayedColumnsForCurrentQuarter"
+      exportFileName="Current_Quarter_Case_Summary"
+      reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
+    "
+      serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+      [extraWideColumns]="['SERVICE_OFFERING']"
+    ></app-table>
+
+    <app-table
+      title="Aging Backlog for {{ q0 }}"
+      [dataSource]="dataSourceAgingBacklogCurrent"
+      [displayedColumns]="displayedColumnsForAgingBacklogCurrent"
+      exportFileName="Current_Quarter_Aging_Backlog"
+      [extraWideColumns]="['SERVICE_OFFERING']"
+    ></app-table>
+
+    <br /><br /><br />
+  </mat-tab>
+</mat-tab-group>

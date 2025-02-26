@@ -38,6 +38,7 @@ export class O2cOverviewComponent {
   expandedSections: { [key: string]: boolean } = {
     order: false,
     subscription: false,
+    subscription2: false,
     accrual: false,
     accrual2: false,
     invoicing: false,
@@ -63,23 +64,27 @@ export class O2cOverviewComponent {
   }
 
   toggleSection(section: string): void {
+    // Toggle section visibility
     this.expandedSections[section] = !this.expandedSections[section];
+
     // Update the corresponding circle status based on the section
-    switch (section) {
-      case 'order':
-        this.circleStatus['Order'] = this.expandedSections[section] ? 1 : 0;
-        break;
-      case 'subscription':
-        this.circleStatus['Subscription'] = this.expandedSections[section]
-          ? 1
-          : 0;
-        break;
-      case 'accrual':
-        this.circleStatus['Accruals'] = this.expandedSections[section] ? 1 : 0;
-        break;
-      case 'invoicing':
-        this.circleStatus['Invoicing'] = this.expandedSections[section] ? 1 : 0;
-        break;
+    if (section.startsWith('subscription')) {
+      this.circleStatus['Subscription'] = this.expandedSections[section]
+        ? 1
+        : 0;
+    } else if (section.startsWith('accrual')) {
+      this.circleStatus['Accruals'] = this.expandedSections[section] ? 1 : 0;
+    } else if (section === 'order') {
+      this.circleStatus['Order'] = this.expandedSections[section] ? 1 : 0;
+    } else if (section === 'invoicing') {
+      this.circleStatus['Invoicing'] = this.expandedSections[section] ? 1 : 0;
+    }
+
+    // Handle special cases for summary/details expansion
+    if (section === 'summary') {
+      this.showMoreSummary = !this.showMoreSummary;
+    } else if (section === 'details') {
+      this.showMoreDetails = !this.showMoreDetails;
     }
   }
 
@@ -95,6 +100,30 @@ export class O2cOverviewComponent {
     'Created_By',
     'Partner_Name',
     'Billing_ID',
+    // 'End_Customer_Name',
+    // 'Reseller',
+    // 'Address_Details_Bill-To',
+    // 'Address_Details_End_Customer',
+    // 'Order_Origin',
+    // 'Order_Booked_Date',
+    // 'Hybrid_Order',
+    // 'Route_to_Market',
+    // 'Order_Holds',
+    // 'Cloud_Sub_Order__Holds',
+    // 'Order_Additional_Info',
+  ];
+  displayedColumnsOrder2: string[] = [
+    // 'Deal_ID',
+    // 'WebOrder_ID',
+    // 'Order_Creation_Date',
+    // 'Order_Status',
+    // 'Purchase_Order_Num',
+    // 'Order_Total',
+    // 'Price_list',
+    // 'Offer_Name',
+    // 'Created_By',
+    // 'Partner_Name',
+    // 'Billing_ID',
     'End_Customer_Name',
     'Reseller',
     'Address_Details_Bill-To',
@@ -105,19 +134,20 @@ export class O2cOverviewComponent {
     'Route_to_Market',
     'Order_Holds',
     'Cloud_Sub_Order__Holds',
+    // 'Order_Additional_Info',
   ];
   displayedColumnsOrderDetails: string[] = [
-    'ATO_NAME',
+    // 'ATO_NAME',
     'SubRefId',
     'Subscription_Status',
     'Line_Ref_Number',
     'Prev_Ln_Ref_Number',
     'OPL_LineId',
-    'Ordered_Item',
+    // 'Ordered_Item',
     'Subscription_TCV',
-    'Item_Type_Code',
+    // 'Item_Type_Code',
     'Flow_Status_Code',
-    'Order_Additional_Info',
+    // 'Order_Additional_Info',
   ];
 
   displayedColumnsSubscription: string[] = [
@@ -125,42 +155,36 @@ export class O2cOverviewComponent {
     'Subscription_Status',
     'WO_Number',
     'Billing_Preference',
-    'Sub_Source',
-    'Currency_Code',
     'Subscription_Start_Date',
     'Subscription_End_Date',
     'Billing_Model',
-    'AutoRenewal',
-    'Billing_Info',
+    'Charge_Duration',
+    // 'Billing_Info',
     'Bill_Total',
-    'Early_Renewal',
-    'Trial',
     'Invoice_Status',
-    'Accrual_Eligibility',
     'SubCode',
-    'TSV_Published',
     'Accrual_ID',
     'Billing_Schedule',
+    'Bill_Number',
   ];
   displayedColumnsSubscriptionDetails: string[] = [
-    'WebOrder',
+    // 'Subscription_ID',
+    // 'WebOrder',
     'WebOrderLineId',
     'SKU',
     'SKU_Description',
-    'Bill_Number',
-    'Bill_LineReference',
-    'Charge_Type',
-    'Subscription_ID',
+    // 'Charge_Type',
     'QTY',
     'Duration',
-    'Rate_Price',
+    'Charge_Duration',
+    'Unit_Selling_Price_(USD)',
     'Pricing_Term',
-    'PA_Discount',
     'Line_Amount',
     'Charge_Cycle_Start_Date',
     'Charge_Cycle_End_Date',
-    'Subscription_Number',
-    'Trxn_Number',
+    // 'Bill_Number',
+    'Bill_LineReference',
+    'AR_Trxn_Number',
   ];
 
   displayedColumnsAccrual: string[] = [
@@ -202,6 +226,25 @@ export class O2cOverviewComponent {
     'TRX_Number',
     'Currency',
     'TRX_Class',
+    // 'TRX_Date',
+    // 'Due_Date',
+    // 'TRX_Status',
+    // 'Amount_Due_Orginal',
+    // 'Amount_Due_Remaining',
+    // 'Receipt_Applied',
+    // 'CM_Applied',
+    // 'Write_Off_/_Adjustments',
+  ];
+  displayedColumnsInvoicing22: string[] = [
+    // 'Invoice_Type',
+    // 'Web_Order_ID',
+    // 'Purchase_Order_Number',
+    // 'Bill_To_Id',
+    // 'Bill_Number',
+    // 'Bill_Status',
+    // 'TRX_Number',
+    // 'Currency',
+    // 'TRX_Class',
     'TRX_Date',
     'Due_Date',
     'TRX_Status',
@@ -260,6 +303,8 @@ export class O2cOverviewComponent {
     'Accrued_Revenue',
   ];
 
+  // Data for the tables
+
   dataSourceOrder = new MatTableDataSource<any>([
     {
       Deal_ID: '75947116',
@@ -285,6 +330,7 @@ export class O2cOverviewComponent {
       Route_to_Market: 'PARTNER',
       Order_Holds: null,
       Cloud_Sub_Order__Holds: null,
+      Order_Additional_Info: 'Link to commerce for order line',
     },
   ]);
   dataSourceOrderDetails = new MatTableDataSource<any>([
@@ -322,64 +368,116 @@ export class O2cOverviewComponent {
       Subscription_Status: 'Active',
       WO_Number: '96635062',
       Billing_Preference: 'BDOM -1',
-      Sub_Source: 'BRIM',
-      Currency_Code: 'USD',
+      Subscription_Start_Date: '3/15/2024',
+      Subscription_End_Date: '3/14/2025',
+      Billing_Model: 'Recurring',
+      Billing_Info: '"2/3"',
+      Bill_Total: '1893.73',
+      Invoice_Status: 'In Progress/Invoiced',
+      SubCode: 'SubC2106419',
+      Accrual_ID: '4910695',
+      Billing_Schedule: '1/1',
+      Bill_Number: '1000728386177',
+      Charge_Duration: 'Monthly',
+    },
+  ]);
+  dataSourceSubscription2 = new MatTableDataSource<any>([
+    {
+      Subscription_ID: 'Sub1797787',
+      Subscription_Status: 'Active',
+      WO_Number: '96635062',
+      Billing_Preference: 'BDOM -15',
       Subscription_Start_Date: '3/15/2024',
       Subscription_End_Date: '3/14/2025',
       Billing_Model: 'Prepaid Term',
-      AutoRenewal: 'No',
-      Billing_Info: '24-Jun',
-      Bill_Total: '1893.73',
-      Early_Renewal: 'No',
-      Trial: 'No',
+      Billing_Info: '"2/3"',
+      Bill_Total: '4752.42',
       Invoice_Status: 'Staged/Invoiced/Error',
-      Accrual_Eligibility: 'Y',
-      SubCode: 'Subcode123',
-      TSV_Published: 'Y',
-      Accrual_ID: '4910695',
+      SubCode: 'SubC2106420',
+      Accrual_ID: '4910686',
       Billing_Schedule: '1/1',
+      Bill_Number: '1000728386062',
+      Charge_Duration: 'Monthly',
     },
   ]);
   dataSourceSubscriptionDetails = new MatTableDataSource<any>([
     {
+      Subscription_ID: 'Sub1797786',
       WebOrder: '96635062',
       WebOrderLineId: '328252623',
       SKU: 'ETD-ESS-LIC',
       SKU_Description: 'Cisco Email Threat Defense Essential License',
-      Bill_Number: '1000728386177',
-      Bill_LineReference: '1000728386177-3-348272651709527498',
       Charge_Type: 'Recurring',
-      Subscription_ID: 'Sub1797786',
       QTY: '125',
       Duration: '12',
-      Rate_Price: '12.46',
+      Charge_Duration: '12',
+      'Unit_Selling_Price_(USD)': '12.46',
       Pricing_Term: '12',
-      PA_Discount: '0',
       Line_Amount: '1557.49',
       Charge_Cycle_Start_Date: '3/15/2024',
       Charge_Cycle_End_Date: '3/14/2025',
-      Subscription_Number: 'SubC2106419',
-      Trxn_Number: '6102098772',
+      Bill_Number: '1000728386177',
+      Bill_LineReference: '1000728386177-3-348272651709527498',
+      AR_Trxn_Number: '6102098772',
     },
     {
+      Subscription_ID: 'Sub1797786',
       WebOrder: '96635062',
       WebOrderLineId: '328252624',
       SKU: 'SVS-ETD-SUP-E',
       SKU_Description: 'Enhanced Support for Email Threat Defense',
-      Bill_Number: '1000728386177',
-      Bill_LineReference: '1000728386177-3-348272651709528010',
       Charge_Type: 'Recurring',
-      Subscription_ID: 'Sub1797786',
       QTY: '1',
       Duration: '12',
-      Rate_Price: '23.52',
+      Charge_Duration: '12',
+      'Unit_Selling_Price_(USD)': '23.52',
       Pricing_Term: '1',
-      PA_Discount: '0',
       Line_Amount: '282.24',
       Charge_Cycle_Start_Date: '3/15/2024',
       Charge_Cycle_End_Date: '3/14/2025',
-      Subscription_Number: 'SubC2106419',
-      Trxn_Number: '6102098772',
+      Bill_Number: '1000728386177',
+      Bill_LineReference: '1000728386177-3-348272651709528010',
+      AR_Trxn_Number: '6102098772',
+    },
+  ]);
+  dataSourceSubscriptionDetails2 = new MatTableDataSource<any>([
+    {
+      Subscription_ID: 'Sub1797787',
+      WebOrder: '96635062',
+      WebOrderLineId: '328252626',
+      SKU: 'UMB-DNS-ADV-K9',
+      SKU_Description: 'Cisco Umbrella DNS Security Advantage',
+      Charge_Type: 'Recurring',
+      QTY: '125',
+      Duration: '12',
+      Charge_Duration: '12',
+      'Unit_Selling_Price_(USD)': '33.06',
+      Pricing_Term: '12',
+      Line_Amount: '4132.5',
+      Charge_Cycle_Start_Date: '3/15/2024',
+      Charge_Cycle_End_Date: '3/14/2025',
+      Bill_Number: '1000728386062',
+      Bill_LineReference: '1000728386062-2-348272651709556380',
+      AR_Trxn_Number: '6102098772',
+    },
+    {
+      Subscription_ID: 'Sub1797787',
+      WebOrder: '96635062',
+      WebOrderLineId: '328252627',
+      SKU: 'SVS-UMB-SUP-E',
+      SKU_Description: 'Enhanced Support for Umbrella',
+      Charge_Type: 'Recurring',
+      QTY: '1',
+      Duration: '12',
+      Charge_Duration: '12',
+      'Unit_Selling_Price_(USD)': '51.66',
+      Pricing_Term: '1',
+      Line_Amount: '619.92',
+      Charge_Cycle_Start_Date: '3/15/2024',
+      Charge_Cycle_End_Date: '3/14/2025',
+      Bill_Number: '1000728386062',
+      Bill_LineReference: '1000728386062-2-348272651709556124',
+      AR_Trxn_Number: '6102098772',
     },
   ]);
 

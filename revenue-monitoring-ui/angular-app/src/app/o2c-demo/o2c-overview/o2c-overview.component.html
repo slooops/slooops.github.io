@@ -21,6 +21,15 @@
     tableType="header"
     class="header-table"
   ></app-o2c-table>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsOrder2"
+    [dataSource]="dataSourceOrder"
+    [wideColumns]="['Address_Details_Bill-To', 'Address_Details_End_Customer']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+    style="margin-top: -14px"
+  ></app-o2c-table>
 
   <div
     [@expandCollapse]="expandedSections['order'] ? 'expanded' : 'collapsed'"
@@ -36,12 +45,12 @@
     ></app-o2c-table>
   </div>
 
-  <!-- SUBSCRIPTION SECTION -->
+  <!-- SUBSCRIPTION SECTION1 -->
   <div class="section-title expander-margin">
     <button class="toggle-button" (click)="toggleSection('subscription')">
       {{ expandedSections["subscription"] ? "-" : "+" }}
     </button>
-    Subscription Summary
+    Subscription Summary #1797786
   </div>
   <app-o2c-table
     [displayedColumns]="displayedColumnsSubscription"
@@ -62,6 +71,38 @@
     <app-o2c-table
       [displayedColumns]="displayedColumnsSubscriptionDetails"
       [dataSource]="dataSourceSubscriptionDetails"
+      [wideColumns]="['SKU_Description', 'Bill_LineReference']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+  </div>
+
+  <!-- SUBSCRIPTION SECTION 2 -->
+  <div class="section-title expander-margin">
+    <button class="toggle-button" (click)="toggleSection('subscription2')">
+      {{ expandedSections["subscription2"] ? "-" : "+" }}
+    </button>
+    Subscription Summary #1797787
+  </div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsSubscription"
+    [dataSource]="dataSourceSubscription2"
+    [wideColumns]="['SubRefId']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div
+    [@expandCollapse]="
+      expandedSections['subscription2'] ? 'expanded' : 'collapsed'
+    "
+    style="overflow-x: auto"
+  >
+    <div class="section-title">Subscription Activation Details</div>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsSubscriptionDetails"
+      [dataSource]="dataSourceSubscriptionDetails2"
       [wideColumns]="['SKU_Description', 'Bill_LineReference']"
       [navigationMap]="navigationMap"
       tableType="body"
@@ -129,12 +170,11 @@
   </div>
 
   <!-- Invoicing Section -->
-  <!-- Invoicing Summary Section -->
   <div class="section-title expander-margin">
     <button class="toggle-button" (click)="toggleSection('invoicing')">
       {{ expandedSections["invoicing"] ? "-" : "+" }}
     </button>
-    Invoicing Summary
+    Invoice Summary
   </div>
 
   <!-- Main Invoicing Summary Table -->
@@ -146,16 +186,28 @@
     tableType="header"
     class="header-table"
   ></app-o2c-table>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsInvoicing22"
+    [dataSource]="dataSourceInvoicing"
+    [wideColumns]="['Invoice_ID']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+    style="margin-top: -14px"
+  ></app-o2c-table>
 
   <!-- Show More Summary Lines Button -->
   <div class="show-more-container">
-    <button class="show-more-button" (click)="toggleShowMoreSummary()">
-      {{ showMoreSummary ? "Show Less" : "Show More Summary Lines" }}
+    <button class="show-more-button" (click)="toggleSection('summary')">
+      {{ showMoreSummary ? "Show Less" : "Invoice Summary Additional Info" }}
     </button>
   </div>
 
-  <!-- Additional Summary Tables (Rendered when "Show More" is clicked) -->
-  <div *ngIf="showMoreSummary">
+  <!-- Additional Summary Tables (Animated) -->
+  <div
+    [@expandCollapse]="showMoreSummary ? 'expanded' : 'collapsed'"
+    style="overflow-x: auto"
+  >
     <app-o2c-table
       [displayedColumns]="displayedColumnsInvoicing2"
       [dataSource]="dataSourceInvoicing2"
@@ -173,7 +225,7 @@
     ></app-o2c-table>
   </div>
 
-  <!-- Invoice Breakdown Section -->
+  <!-- Invoice Breakdown Section (Animated) -->
   <div
     [@expandCollapse]="expandedSections['invoicing'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
@@ -184,24 +236,24 @@
     <app-o2c-table
       [displayedColumns]="displayedColumnsInvoicingDetails"
       [dataSource]="dataSourceInvoicingDetails"
-      [wideColumns]="['']"
+      [wideColumns]="['SKU_Description']"
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
 
     <!-- Show More Detail Lines Button -->
     <div class="show-more-container">
-      <button class="show-more-button" (click)="toggleShowMoreDetails()">
+      <button class="show-more-button" (click)="toggleSection('details')">
         {{ showMoreDetails ? "Show Less" : "Show More Detail Lines" }}
       </button>
     </div>
 
-    <!-- Additional Breakdown Detail Tables (Rendered when "Show More" is clicked) -->
-    <div *ngIf="showMoreDetails">
+    <!-- Additional Breakdown Detail Tables (Animated) -->
+    <div [@expandCollapse]="showMoreDetails ? 'expanded' : 'collapsed'">
       <app-o2c-table
         [displayedColumns]="displayedColumnsInvoicingDetails2"
         [dataSource]="dataSourceInvoicingDetails2"
-        [wideColumns]="['']"
+        [wideColumns]="['Bill_Line_Number']"
         [navigationMap]="navigationMap"
         tableType="body"
       ></app-o2c-table>
