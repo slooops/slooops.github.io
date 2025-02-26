@@ -1,15 +1,68 @@
 <mat-tab-group (selectedTabChange)="onTabClick($event)">
-  <!-- Tab 1: This Quarter vs. Last Quarter -->
-  <mat-tab label="This Quarter vs. Last Quarter">
+  <mat-tab
+    *ngIf="q1 && q2"
+    [label]="q1.slice(0, -4) + ' vs. ' + q2.slice(0, -4)"
+  >
     <div class="grid-2" style="margin: 0 12px">
       <div class="card">
         <div class="chart-canvas">
-          <!-- Canvas for Backlog, Inflow, Routed Out, Misrouted -->
-          <canvas id="backlogInflowChart"></canvas>
+          <!-- Canvas for Backlog, Inflow, Routed Out, Resolved -->
+          <canvas id="backlogInflowChartPrior"></canvas>
         </div>
         <p class="chart-description">
-          <b>Backlog, Inflow, Routed Out, and Resolved</b> - Displays current
-          and previous quarter data.
+          <b>Backlog, Inflow, and Resolved</b> - Displays last quarter and the
+          prior quarter data.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="chart-canvas">
+          <!-- Canvas for PDF, Routed Out, Misrouted, and Cancelled -->
+          <canvas id="cancelledPdfChartPrior"></canvas>
+        </div>
+        <p class="chart-description">
+          <b>PDF, Routed Out, Misrouted, and Cancelled</b> - Displays last
+          quarter and the prior quarter data.
+        </p>
+      </div>
+    </div>
+
+    <!-- Previous Quarter Table -->
+    <app-table
+      title="Case Summary for {{ q1 }}"
+      [dataSource]="dataSourcePreviousQuarter"
+      [displayedColumns]="displayedColumnsForPreviousQuarter"
+      exportFileName="Previous_Quarter_Case_Summary"
+      reportLink="big url"
+      serviceNowLink="big url"
+      [extraWideColumns]="['SERVICE_OFFERING']"
+    ></app-table>
+
+    <app-table
+      title=" Aging Backlog for {{ q1 }}"
+      [dataSource]="dataSourceAgingBacklogPrevious"
+      [displayedColumns]="displayedColumnsForAgingBacklogPrevious"
+      exportFileName="Previous_Quarter_Aging_Backlog"
+      [extraWideColumns]="['SERVICE_OFFERING']"
+    ></app-table>
+
+    <br /><br /><br />
+  </mat-tab>
+  <!-- Tab 1: This Quarter vs. Last Quarter -->
+  <mat-tab
+    *ngIf="q0 && q1"
+    [label]="q0.slice(0, -4) + ' vs. ' + q1.slice(0, -4)"
+  >
+    <div class="grid-2" style="margin: 0 12px">
+      <div class="card">
+        <div class="chart-canvas">
+          <ng-container>
+            <canvas id="backlogInflowChart"></canvas>
+          </ng-container>
+        </div>
+        <p class="chart-description">
+          <b>Backlog, Inflow, and Resolved</b> - Displays current and previous
+          quarter data.
         </p>
       </div>
 
@@ -26,7 +79,7 @@
     </div>
 
     <app-table
-      title="Current Quarter Case Summary"
+      title="Case Summary for {{ q0 }}"
       [dataSource]="dataSourceCurrentQuarter"
       [displayedColumns]="displayedColumnsForCurrentQuarter"
       exportFileName="Current_Quarter_Case_Summary"
@@ -37,39 +90,13 @@
     ></app-table>
 
     <app-table
-      title="Aging Backlog"
-      [dataSource]="dataSourceAgingBacklog"
-      [displayedColumns]="displayedColumnsForAgingBacklog"
-      exportFileName="Q4FY24_Aging_Backlog"
+      title="Aging Backlog for {{ q0 }}"
+      [dataSource]="dataSourceAgingBacklogCurrent"
+      [displayedColumns]="displayedColumnsForAgingBacklogCurrent"
+      exportFileName="Current_Quarter_Aging_Backlog"
       [extraWideColumns]="['SERVICE_OFFERING']"
     ></app-table>
 
     <br /><br /><br />
-  </mat-tab>
-
-  <mat-tab label="Last Quarter vs. Prior Quarter">
-    <div class="grid-2" style="margin: 0 12px">
-      <div class="card">
-        <div class="chart-canvas">
-          <!-- Canvas for Backlog, Inflow, Routed Out, Resolved -->
-          <canvas id="backlogInflowChartPrior"></canvas>
-        </div>
-        <p class="chart-description">
-          <b>Backlog, Inflow, Routed Out, and Resolved</b> - Displays last
-          quarter and the prior quarter data.
-        </p>
-      </div>
-
-      <div class="card">
-        <div class="chart-canvas">
-          <!-- Canvas for PDF, Routed Out, Misrouted, and Cancelled -->
-          <canvas id="cancelledPdfChartPrior"></canvas>
-        </div>
-        <p class="chart-description">
-          <b>PDF, Routed Out, Misrouted, and Cancelled</b> - Displays last
-          quarter and the prior quarter data.
-        </p>
-      </div>
-    </div>
   </mat-tab>
 </mat-tab-group>

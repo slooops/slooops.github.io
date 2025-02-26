@@ -20,12 +20,20 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
   protected http: ApiHttpService;
 
-  displayedColumnsForAgingBacklog: string[] = [];
-  dataSourceAgingBacklog = new MatTableDataSource<any>([]);
+  isChartLoading = true;
+  isPriorChartLoading = true;
+
+  displayedColumnsForAgingBacklogCurrent: string[] = [];
+  dataSourceAgingBacklogCurrent = new MatTableDataSource<any>([]);
+
+  displayedColumnsForAgingBacklogPrevious: string[] = [];
+  dataSourceAgingBacklogPrevious = new MatTableDataSource<any>([]);
 
   displayedColumnsForCurrentQuarter: string[] = [];
-
   dataSourceCurrentQuarter = new MatTableDataSource<any>([]);
+
+  displayedColumnsForPreviousQuarter: string[] = [];
+  dataSourcePreviousQuarter = new MatTableDataSource<any>([]);
 
   espWeeklyComparisonSummary: any[] = [];
   backlogInflowChart: Chart | null = null;
@@ -34,6 +42,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   backlogInflowChartPrior: Chart | null = null;
   cancelledPdfChartPrior: Chart | null = null;
+
+  q0: string | null = null;
+  q1: string | null = null;
+  q2: string | null = null;
+  q3: string | null = null;
+  q4: string | null = null;
 
   ngOnInit(): void {
     this.getEspAgingCaseSummary();
@@ -46,11 +60,28 @@ export class EspCaseAnalyzerComponent implements OnInit {
       .get('esp-case-service-metric-summary', this.destroyManager)
       .subscribe((data: any) => {
         if (data && data.length > 0) {
-          // Filter out rows where RELATIVE_QTR is "PREVIOUS QUARTER"
-          const filteredData = data.filter(
-            (item: any) =>
-              item.RELATIVE_QTR !== 'PREVIOUS QUARTER' &&
-              item.RELATIVE_QTR !== 'OTHER'
+          // Extract quarter names from the first occurrence of each QTR_RELATIVE_POSITION
+          const quarters: { [key: number]: string } = {};
+          data.forEach((item: any) => {
+            const position = item.QTR_RELATIVE_POSITION;
+            if (position >= 0 && position <= 4 && !quarters[position]) {
+              quarters[position] = item.FISC_QTR;
+            }
+          });
+
+          // Assign quarter names, defaulting to null if missing
+          this.q0 = quarters[0] || null;
+          this.q1 = quarters[1] || null;
+          this.q2 = quarters[2] || null;
+          this.q3 = quarters[3] || null;
+          this.q4 = quarters[4] || null;
+
+          // Separate current and previous quarter data
+          const currentQuarterData = data.filter(
+            (item: any) => item.QTR_RELATIVE_POSITION === 0
+          );
+          const previousQuarterData = data.filter(
+            (item: any) => item.QTR_RELATIVE_POSITION === 1
           );
 
           // Columns to remove
@@ -60,23 +91,39 @@ export class EspCaseAnalyzerComponent implements OnInit {
             'LAST_UPDATED_BY',
             'LAST_UPDATED_TIME',
             'IS_ACTIVE',
-            'FISC_QTR',
-            'RELATIVE_QTR',
+            'FISC_QTR', // Removed from table but stored in q0–q4
+            'QTR_RELATIVE_POSITION',
           ];
 
-          // Remove the specified columns from the filtered data
-          const cleanedData = filteredData.map((item: any) => {
-            columnsToRemove.forEach((column) => {
-              delete item[column];
-            });
-            return item;
-          });
+          // Remove unwanted columns from both datasets
+          const cleanedCurrentQuarterData = currentQuarterData.map(
+            (item: any) => {
+              columnsToRemove.forEach((column) => delete item[column]);
+              return item;
+            }
+          );
 
-          // Update the table with the cleaned data
+          const cleanedPreviousQuarterData = previousQuarterData.map(
+            (item: any) => {
+              columnsToRemove.forEach((column) => delete item[column]);
+              return item;
+            }
+          );
+
+          // Update the tables with cleaned data
           this.displayedColumnsForCurrentQuarter = Object.keys(
-            cleanedData[0] || {}
-          ); // Handle empty data after filtering
-          this.dataSourceCurrentQuarter = new MatTableDataSource(cleanedData);
+            cleanedCurrentQuarterData[0] || {}
+          );
+          this.dataSourceCurrentQuarter = new MatTableDataSource(
+            cleanedCurrentQuarterData
+          );
+
+          this.displayedColumnsForPreviousQuarter = Object.keys(
+            cleanedPreviousQuarterData[0] || {}
+          );
+          this.dataSourcePreviousQuarter = new MatTableDataSource(
+            cleanedPreviousQuarterData
+          );
         }
       });
   }
@@ -86,8 +133,21 @@ export class EspCaseAnalyzerComponent implements OnInit {
       .get('esp-aging-case-summary', this.destroyManager)
       .subscribe((data: any) => {
         if (data && data.length > 0) {
+          // Separate current quarter (0) and last quarter (1)
+          const currentQuarterData = data.filter(
+            (item: any) => item.QTR_RELATIVE_POSITION === 0
+          );
+          const previousQuarterData = data.filter(
+            (item: any) => item.QTR_RELATIVE_POSITION === 1
+          );
+
           // Columns to remove
-          const columnsToRemove = ['FISC_QTR', 'CREATED_AT', 'LAST_UPDATED_AT'];
+          const columnsToRemove = [
+            'FISC_QTR',
+            'CREATED_AT',
+            'LAST_UPDATED_AT',
+            'QTR_RELATIVE_POSITION',
+          ];
 
           // Columns to check for non-zero values
           const columnsToCheck = [
@@ -97,20 +157,39 @@ export class EspCaseAnalyzerComponent implements OnInit {
             'GREATER_THAN_15',
           ];
 
-          // Remove the specified columns and filter out rows with all zero values in the specified columns
-          const cleanedData = data
+          // Remove unwanted columns and filter out rows with all zero values
+          const cleanedCurrentQuarterData = currentQuarterData
             .map((item: any) => {
-              columnsToRemove.forEach((column) => {
-                delete item[column];
-              });
+              columnsToRemove.forEach((column) => delete item[column]);
               return item;
             })
-            .filter((item: any) => {
-              return columnsToCheck.some((column) => item[column] !== 0);
-            });
+            .filter((item: any) =>
+              columnsToCheck.some((column) => item[column] !== 0)
+            );
 
-          this.displayedColumnsForAgingBacklog = Object.keys(cleanedData[0]);
-          this.dataSourceAgingBacklog = new MatTableDataSource(cleanedData);
+          const cleanedPreviousQuarterData = previousQuarterData
+            .map((item: any) => {
+              columnsToRemove.forEach((column) => delete item[column]);
+              return item;
+            })
+            .filter((item: any) =>
+              columnsToCheck.some((column) => item[column] !== 0)
+            );
+
+          // Update tables with cleaned data
+          this.displayedColumnsForAgingBacklogCurrent = Object.keys(
+            cleanedCurrentQuarterData[0] || {}
+          );
+          this.dataSourceAgingBacklogCurrent = new MatTableDataSource(
+            cleanedCurrentQuarterData
+          );
+
+          this.displayedColumnsForAgingBacklogPrevious = Object.keys(
+            cleanedPreviousQuarterData[0] || {}
+          );
+          this.dataSourceAgingBacklogPrevious = new MatTableDataSource(
+            cleanedPreviousQuarterData
+          );
         }
       });
   }
@@ -277,87 +356,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
         return entry ? entry.COUNT : 0;
       });
 
-    this.backlogInflowChart = new Chart('backlogInflowChart', {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Backlog (Previous Quarter)',
-            data: transformData('1', 'BACKLOG'),
-            ...COLORS.backlogPrevious,
-          },
-          {
-            label: 'Backlog (Current Quarter)',
-            data: transformData('0', 'BACKLOG'),
-            ...COLORS.backlogCurrent,
-          },
-          {
-            label: 'Inflow (Previous Quarter)',
-            data: transformData('1', 'INFLOW'),
-            ...COLORS.inflowPrevious,
-            type: 'line',
-          },
-          {
-            label: 'Inflow (Current Quarter)',
-            data: transformData('0', 'INFLOW'),
-            ...COLORS.inflowCurrent,
-            type: 'line',
-          },
-          {
-            label: 'Resolved (Previous Quarter)',
-            data: transformData('1', 'RESOLVED'),
-            ...COLORS.resolvedPrevious,
-            type: 'line',
-          },
-          {
-            label: 'Resolved (Current Quarter)',
-            data: transformData('0', 'RESOLVED'),
-            ...COLORS.resolvedCurrent,
-            type: 'line',
-          },
-
-          // {
-          //   label: 'Routed Out (Current Quarter)',
-          //   data: transformData('CURRENT QUARTER', 'ROUTED OUT'),
-          //   ...COLORS.routedOutCurrent,
-          //   type: 'line',
-          // },
-          // {
-          //   label: 'Routed Out (Previous Quarter)',
-          //   data: transformData('PREVIOUS QUARTER', 'ROUTED OUT'),
-          //   ...COLORS.routedOutPrevious,
-          //   type: 'line',
-          // },
-          // {
-          //   label: 'Misrouted (Current Quarter)',
-          //   data: transformData('CURRENT QUARTER', 'MISROUTED'),
-          //   ...COLORS.misroutedCurrent,
-          //   type: 'line',
-          // },
-          // {
-          //   label: 'Misrouted (Previous Quarter)',
-          //   data: transformData('PREVIOUS QUARTER', 'MISROUTED'),
-          //   ...COLORS.misroutedPrevious,
-          //   type: 'line',
-          // },
-          // {
-          //   label: 'Total (Current Quarter)',
-          //   data: transformData('CURRENT QUARTER', 'TOTAL'),
-          //   ...COLORS.totalCurrent,
-          //   type: 'line',
-          // },
-          // {
-          //   label: 'Total (Previous Quarter)',
-          //   data: transformData('PREVIOUS QUARTER', 'TOTAL'),
-          //   ...COLORS.totalPrevious,
-          //   type: 'line',
-          // },
-        ],
-      },
-      options: this.sharedChartOptions,
-    });
-
     this.backlogInflowChartPrior = new Chart('backlogInflowChartPrior', {
       type: 'bar',
       data: {
@@ -395,62 +393,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
             label: 'Resolved (Last Quarter)',
             data: transformData('1', 'RESOLVED'),
             ...COLORS.resolvedCurrent,
-            type: 'line',
-          },
-        ],
-      },
-      options: this.sharedChartOptions,
-    });
-
-    this.cancelledPdfChart = new Chart('cancelledPdfChart', {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'PDF (Last Quarter)',
-            data: transformData('1', 'PDF'),
-            ...COLORS.pdfPrevious,
-          },
-          {
-            label: 'PDF (This Quarter)',
-            data: transformData('0', 'PDF'),
-            ...COLORS.pdfCurrent,
-          },
-          {
-            label: 'Routed Out (Last Quarter)',
-            data: transformData('1', 'ROUTED OUT'),
-            ...COLORS.routedOutPrevious,
-            type: 'line',
-          },
-          {
-            label: 'Routed Out (This Quarter)',
-            data: transformData('0', 'ROUTED OUT'),
-            ...COLORS.routedOutCurrent,
-            type: 'line',
-          },
-          {
-            label: 'Misrouted (Last Quarter)',
-            data: transformData('1', 'MISROUTED'),
-            ...COLORS.misroutedPrevious,
-            type: 'line',
-          },
-          {
-            label: 'Misrouted (This Quarter)',
-            data: transformData('0', 'MISROUTED'),
-            ...COLORS.misroutedCurrent,
-            type: 'line',
-          },
-          {
-            label: 'Cancelled (Last Quarter)',
-            data: transformData('1', 'CANCELLED'),
-            ...COLORS.cancelledPrevious,
-            type: 'line',
-          },
-          {
-            label: 'Cancelled (This Quarter)',
-            data: transformData('0', 'CANCELLED'),
-            ...COLORS.cancelledCurrent,
             type: 'line',
           },
         ],
@@ -506,6 +448,119 @@ export class EspCaseAnalyzerComponent implements OnInit {
           {
             label: 'Cancelled (Last Quarter)',
             data: transformData('1', 'CANCELLED'),
+            ...COLORS.cancelledCurrent,
+            type: 'line',
+          },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
+    this.backlogInflowChart = new Chart('backlogInflowChart', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Backlog (Previous Quarter)',
+            data: transformData('1', 'BACKLOG'),
+            ...COLORS.backlogPrevious,
+          },
+          {
+            label: 'Backlog (Current Quarter)',
+            data: transformData('0', 'BACKLOG'),
+            ...COLORS.backlogCurrent,
+          },
+          {
+            label: 'Inflow (Previous Quarter)',
+            data: transformData('1', 'INFLOW'),
+            ...COLORS.inflowPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Inflow (Current Quarter)',
+            data: transformData('0', 'INFLOW'),
+            ...COLORS.inflowCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Resolved (Previous Quarter)',
+            data: transformData('1', 'RESOLVED'),
+            ...COLORS.resolvedPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Resolved (Current Quarter)',
+            data: transformData('0', 'RESOLVED'),
+            ...COLORS.resolvedCurrent,
+            type: 'line',
+          },
+
+          // {
+          //   label: 'Total (Current Quarter)',
+          //   data: transformData('CURRENT QUARTER', 'TOTAL'),
+          //   ...COLORS.totalCurrent,
+          //   type: 'line',
+          // },
+          // {
+          //   label: 'Total (Previous Quarter)',
+          //   data: transformData('PREVIOUS QUARTER', 'TOTAL'),
+          //   ...COLORS.totalPrevious,
+          //   type: 'line',
+          // },
+        ],
+      },
+      options: this.sharedChartOptions,
+    });
+
+    this.cancelledPdfChart = new Chart('cancelledPdfChart', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'PDF (Last Quarter)',
+            data: transformData('1', 'PDF'),
+            ...COLORS.pdfPrevious,
+          },
+          {
+            label: 'PDF (This Quarter)',
+            data: transformData('0', 'PDF'),
+            ...COLORS.pdfCurrent,
+          },
+          {
+            label: 'Routed Out (Last Quarter)',
+            data: transformData('1', 'ROUTED OUT'),
+            ...COLORS.routedOutPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Routed Out (This Quarter)',
+            data: transformData('0', 'ROUTED OUT'),
+            ...COLORS.routedOutCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (Last Quarter)',
+            data: transformData('1', 'MISROUTED'),
+            ...COLORS.misroutedPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Misrouted (This Quarter)',
+            data: transformData('0', 'MISROUTED'),
+            ...COLORS.misroutedCurrent,
+            type: 'line',
+          },
+          {
+            label: 'Cancelled (Last Quarter)',
+            data: transformData('1', 'CANCELLED'),
+            ...COLORS.cancelledPrevious,
+            type: 'line',
+          },
+          {
+            label: 'Cancelled (This Quarter)',
+            data: transformData('0', 'CANCELLED'),
             ...COLORS.cancelledCurrent,
             type: 'line',
           },

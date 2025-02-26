@@ -114,7 +114,7 @@
 .gridded-table th,
 .gridded-table td {
   font-size: 12px;
-  width: 10vw; /* Set equal width for all columns */
+  width: 10vw;
   padding: 2px 5px;
   background-color: #f4f6f8; /* Light gray background */
   font-weight: bold;
@@ -123,8 +123,8 @@
   /* color: #333; */
   overflow-x: auto;
   border-right: 1px solid #ddd; /* Border between columns */
-  word-wrap: break-word; /* Ensure words wrap */
-  white-space: normal; /* Allow wrapping */
+  word-wrap: break-word;
+  white-space: normal;
   vertical-align: top;
 }
 
@@ -187,9 +187,7 @@ tr.mat-header-row {
 }
 
 .double-width {
-  width: 200px !important; /* Adjust as needed */
-  min-width: 200px;
-  max-width: 300px;
+  width: 30vw !important; /* Adjust as needed */
 }
 
 .o2c-rows {

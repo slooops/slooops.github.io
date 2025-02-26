@@ -100,6 +100,30 @@ export class O2cOverviewComponent {
     'Created_By',
     'Partner_Name',
     'Billing_ID',
+    // 'End_Customer_Name',
+    // 'Reseller',
+    // 'Address_Details_Bill-To',
+    // 'Address_Details_End_Customer',
+    // 'Order_Origin',
+    // 'Order_Booked_Date',
+    // 'Hybrid_Order',
+    // 'Route_to_Market',
+    // 'Order_Holds',
+    // 'Cloud_Sub_Order__Holds',
+    // 'Order_Additional_Info',
+  ];
+  displayedColumnsOrder2: string[] = [
+    // 'Deal_ID',
+    // 'WebOrder_ID',
+    // 'Order_Creation_Date',
+    // 'Order_Status',
+    // 'Purchase_Order_Num',
+    // 'Order_Total',
+    // 'Price_list',
+    // 'Offer_Name',
+    // 'Created_By',
+    // 'Partner_Name',
+    // 'Billing_ID',
     'End_Customer_Name',
     'Reseller',
     'Address_Details_Bill-To',
@@ -110,19 +134,20 @@ export class O2cOverviewComponent {
     'Route_to_Market',
     'Order_Holds',
     'Cloud_Sub_Order__Holds',
+    // 'Order_Additional_Info',
   ];
   displayedColumnsOrderDetails: string[] = [
-    'ATO_NAME',
+    // 'ATO_NAME',
     'SubRefId',
     'Subscription_Status',
     'Line_Ref_Number',
     'Prev_Ln_Ref_Number',
     'OPL_LineId',
-    'Ordered_Item',
+    // 'Ordered_Item',
     'Subscription_TCV',
-    'Item_Type_Code',
+    // 'Item_Type_Code',
     'Flow_Status_Code',
-    'Order_Additional_Info',
+    // 'Order_Additional_Info',
   ];
 
   displayedColumnsSubscription: string[] = [
@@ -133,20 +158,22 @@ export class O2cOverviewComponent {
     'Subscription_Start_Date',
     'Subscription_End_Date',
     'Billing_Model',
-    'Billing_Info',
+    'Charge_Duration',
+    // 'Billing_Info',
     'Bill_Total',
     'Invoice_Status',
     'SubCode',
     'Accrual_ID',
     'Billing_Schedule',
+    'Bill_Number',
   ];
   displayedColumnsSubscriptionDetails: string[] = [
-    'Subscription_ID',
-    'WebOrder',
+    // 'Subscription_ID',
+    // 'WebOrder',
     'WebOrderLineId',
     'SKU',
     'SKU_Description',
-    'Charge_Type',
+    // 'Charge_Type',
     'QTY',
     'Duration',
     'Charge_Duration',
@@ -155,7 +182,7 @@ export class O2cOverviewComponent {
     'Line_Amount',
     'Charge_Cycle_Start_Date',
     'Charge_Cycle_End_Date',
-    'Bill_Number',
+    // 'Bill_Number',
     'Bill_LineReference',
     'AR_Trxn_Number',
   ];
@@ -199,6 +226,25 @@ export class O2cOverviewComponent {
     'TRX_Number',
     'Currency',
     'TRX_Class',
+    // 'TRX_Date',
+    // 'Due_Date',
+    // 'TRX_Status',
+    // 'Amount_Due_Orginal',
+    // 'Amount_Due_Remaining',
+    // 'Receipt_Applied',
+    // 'CM_Applied',
+    // 'Write_Off_/_Adjustments',
+  ];
+  displayedColumnsInvoicing22: string[] = [
+    // 'Invoice_Type',
+    // 'Web_Order_ID',
+    // 'Purchase_Order_Number',
+    // 'Bill_To_Id',
+    // 'Bill_Number',
+    // 'Bill_Status',
+    // 'TRX_Number',
+    // 'Currency',
+    // 'TRX_Class',
     'TRX_Date',
     'Due_Date',
     'TRX_Status',
@@ -257,6 +303,8 @@ export class O2cOverviewComponent {
     'Accrued_Revenue',
   ];
 
+  // Data for the tables
+
   dataSourceOrder = new MatTableDataSource<any>([
     {
       Deal_ID: '75947116',
@@ -282,6 +330,7 @@ export class O2cOverviewComponent {
       Route_to_Market: 'PARTNER',
       Order_Holds: null,
       Cloud_Sub_Order__Holds: null,
+      Order_Additional_Info: 'Link to commerce for order line',
     },
   ]);
   dataSourceOrderDetails = new MatTableDataSource<any>([
@@ -328,6 +377,8 @@ export class O2cOverviewComponent {
       SubCode: 'SubC2106419',
       Accrual_ID: '4910695',
       Billing_Schedule: '1/1',
+      Bill_Number: '1000728386177',
+      Charge_Duration: 'Monthly',
     },
   ]);
   dataSourceSubscription2 = new MatTableDataSource<any>([
@@ -345,6 +396,8 @@ export class O2cOverviewComponent {
       SubCode: 'SubC2106420',
       Accrual_ID: '4910686',
       Billing_Schedule: '1/1',
+      Bill_Number: '1000728386062',
+      Charge_Duration: 'Monthly',
     },
   ]);
   dataSourceSubscriptionDetails = new MatTableDataSource<any>([

@@ -5,7 +5,7 @@
   border: none;
   font-size: 18px;
   font-weight: bold;
-  color: #3d3d3d;
+  /* color: #3d3d3d; */
   cursor: pointer;
   margin-left: 10px;
 }
@@ -16,19 +16,19 @@
 }
 
 .show-more-container {
-  text-align: right;
-  margin-top: 10px;
+  text-align: left;
 }
 
 .show-more-button {
-  color: rgb(60, 60, 60);
-  padding: 6px 12px;
+  color: #227bb1;
+  /* padding: 6px 12px; */
+  margin-top: -6px;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
+  background-color: #fff;
 }
 
 .show-more-button:hover {
-  background-color: #efefef;
+  /* background-color: #efefef; */
 }

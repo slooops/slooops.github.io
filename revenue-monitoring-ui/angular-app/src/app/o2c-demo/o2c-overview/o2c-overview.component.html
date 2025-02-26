@@ -21,6 +21,15 @@
     tableType="header"
     class="header-table"
   ></app-o2c-table>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsOrder2"
+    [dataSource]="dataSourceOrder"
+    [wideColumns]="['Address_Details_Bill-To', 'Address_Details_End_Customer']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+    style="margin-top: -14px"
+  ></app-o2c-table>
 
   <div
     [@expandCollapse]="expandedSections['order'] ? 'expanded' : 'collapsed'"
@@ -165,7 +174,7 @@
     <button class="toggle-button" (click)="toggleSection('invoicing')">
       {{ expandedSections["invoicing"] ? "-" : "+" }}
     </button>
-    Invoicing Summary
+    Invoice Summary
   </div>
 
   <!-- Main Invoicing Summary Table -->
@@ -177,11 +186,20 @@
     tableType="header"
     class="header-table"
   ></app-o2c-table>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsInvoicing22"
+    [dataSource]="dataSourceInvoicing"
+    [wideColumns]="['Invoice_ID']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    class="header-table"
+    style="margin-top: -14px"
+  ></app-o2c-table>
 
   <!-- Show More Summary Lines Button -->
   <div class="show-more-container">
     <button class="show-more-button" (click)="toggleSection('summary')">
-      {{ showMoreSummary ? "Show Less" : "Show More Summary Lines" }}
+      {{ showMoreSummary ? "Show Less" : "Invoice Summary Additional Info" }}
     </button>
   </div>
 
@@ -218,7 +236,7 @@
     <app-o2c-table
       [displayedColumns]="displayedColumnsInvoicingDetails"
       [dataSource]="dataSourceInvoicingDetails"
-      [wideColumns]="['']"
+      [wideColumns]="['SKU_Description']"
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
@@ -235,7 +253,7 @@
       <app-o2c-table
         [displayedColumns]="displayedColumnsInvoicingDetails2"
         [dataSource]="dataSourceInvoicingDetails2"
-        [wideColumns]="['']"
+        [wideColumns]="['Bill_Line_Number']"
         [navigationMap]="navigationMap"
         tableType="body"
       ></app-o2c-table>
