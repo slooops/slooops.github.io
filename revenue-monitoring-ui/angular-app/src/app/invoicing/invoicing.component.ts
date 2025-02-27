@@ -225,8 +225,8 @@ export class InvoicingComponent implements OnInit {
   printUrls: { [key: string]: string } = {
     summaryUrl: 'print-error-summary',
     detailsUrl: 'print-error-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'print-error-details-filtered',
+    summaryUpdateUrl: 'print-error-summary-update',
     webexMessageUrl: 'send-message-invoicing',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -401,14 +401,15 @@ export class InvoicingComponent implements OnInit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: fit-content;
   width: 100%;
+  height: 82px;
+
 }
 
 .slider-title {
   color: #333;
   margin-bottom: 30px;
-  margin-top: 0px;
+  margin-top: 0;
   text-align: center;
   font-weight: 500;
   font-size: 16px;
@@ -422,7 +423,7 @@ export class InvoicingComponent implements OnInit {
 }
 
 .slider-bar {
-  width: 620px;
+  width: 460px;
   height: 4px;
   background: #16371e43;
   border-radius: 5px;

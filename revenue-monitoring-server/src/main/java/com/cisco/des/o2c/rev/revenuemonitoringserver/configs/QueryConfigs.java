@@ -338,10 +338,18 @@ public class QueryConfigs {
     public String printSummary;
     @Value(("${print.detail.view}"))
     public String printDetail;
+    @Value(("${print.detail.view.filtered}"))
+    public String printDetailFiltered;
+    @Value(("${print.summary.update}"))
+    public String printSummaryUpdate;
     @Bean(name = "printSummary")
     public String getPrintSummary() { return this.printSummary; }
     @Bean(name = "printDetail")
     public String getPrintDetail() { return this.printDetail; }
+    @Bean(name = "printDetailFiltered")
+    public String getPrintDetailFiltered() { return this.printDetailFiltered; }
+    @Bean(name = "printSummaryUpdate")
+    public String getPrintSummaryUpdate() { return this.printSummaryUpdate; }
     @Bean(name = "periodName")
     public String getPeriodName() { return this.periodName; }
     @Bean(name = "standardRevenueSummary")

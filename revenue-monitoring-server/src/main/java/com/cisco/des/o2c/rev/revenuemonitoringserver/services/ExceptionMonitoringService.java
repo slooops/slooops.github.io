@@ -1,6 +1,7 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
+//import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.*;
 public class ExceptionMonitoringService {
 
     private JdbcManager jdbcManager;
+//    private MongoDBManager mongoDBManager;
     private String rolTransactionData;
     private String rolErrorsSummary;
     private String sbpSummary;
@@ -69,9 +71,11 @@ public class ExceptionMonitoringService {
     private String standardRevenueSummaryUpdate;
     private String printSummary;
     private String printDetail;
+    private String printDetailFiltered;
+    private String printSummaryUpdate;
     @Autowired
-    public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate, String glErrorSummary,
-                                      String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
+    public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate,
+                                      String glErrorSummary, String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
                                       String einvoicingSummary, String einvoicingDetails, String autoInvoiceErrorSummaryView,
                                       String autoInvoiceErrorDetails, String preInvoiceErrorSummaryView, String preInvoiceErrorDetails,
                                       String autoInvoiceErrorDetailsFiltered, String preInvoiceErrorDetailsFiltered, String autoInvoiceErrorsSummaryUpdate,
@@ -83,9 +87,12 @@ public class ExceptionMonitoringService {
                                       String transactionsProcessedSummary, String transactionsProcessedDetails, String transactionsProcessedDetailsFiltered,
                                       String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
                                       String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
-                                      String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail
+                                      String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail,
+                                      String printDetailFiltered, String printSummaryUpdate
+
     ) {
         this.jdbcManager = jdbcManager;
+//        this.mongoDBManager = mongoDBManager;
         this.rolTransactionData = rolTransactionData;
         this.rolErrorsSummary = rolErrorsSummary;
         this.sbpSummary = sbpSummary;
@@ -138,6 +145,8 @@ public class ExceptionMonitoringService {
         this.standardRevenueSummaryUpdate = standardRevenueSummaryUpdate;
         this.printSummary = printSummary;
         this.printDetail = printDetail;
+        this.printDetailFiltered = printDetailFiltered;
+        this.printSummaryUpdate = printSummaryUpdate;
     }
 
     // Standard Revenue
@@ -532,6 +541,7 @@ public class ExceptionMonitoringService {
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+//        System.out.println(mongoDBManager.getAllData());
         List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortSummary);
         result.forEach(data -> {
             data.remove("AGING");
@@ -589,24 +599,23 @@ public class ExceptionMonitoringService {
     public List<Map<String, Object>> getPrintErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(printSummary);
-//        result.forEach(data -> {
-//            data.remove("AGING");
-//            formatDateColumns(data, dateColumns);
-//            Map<String, Object> reorderedData = new LinkedHashMap<>();
-//            int index = 0;
-//            for (Map.Entry<String, Object> entry : data.entrySet()) {
-//                if (index == 6) {
-//                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
-//                }
-//                reorderedData.put(entry.getKey(), entry.getValue());
-//                index++;
-//            }
-//            if (!reorderedData.containsKey("AGING")) {
-//                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
-//            }
-//            data.clear();
-//            data.putAll(reorderedData);
-//        });
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
         return result;
     }
 
@@ -617,6 +626,29 @@ public class ExceptionMonitoringService {
 //            formatDateColumns(data, dateColumns);
 //        });
         return result;
+    }
+
+    public List<Map<String, Object>> getPrintErrorDetailsFiltered(String periodName,
+                                                                    String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE"  };
+        List<Map<String, Object>> result = jdbcManager.getPrintDetailsFiltered(
+                printDetailFiltered, periodName, appName, processFlow, ouName, transactionDate);
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//        });
+        return result;
+    }
+
+    public int updatePrintErrorSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String processFlow = updateData.get("processFlow");
+        String orgName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        int test = jdbcManager.updatePrintSummary(printSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        return 1;
     }
 
     // eInvoicing

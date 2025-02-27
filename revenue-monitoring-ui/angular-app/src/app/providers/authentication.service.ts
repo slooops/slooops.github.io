@@ -116,6 +116,16 @@ export class AuthenticationService {
 
   username: string;
   userId: string;
+  bypassRoutes = [
+    '/o2c-demo',
+    '/o2c-details',
+    '/o2c-order',
+    '/o2c-sub',
+    '/o2c-accrual',
+    '/o2c-invoicing',
+    '/o2c-landing',
+    '/o2c-overview',
+  ];
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
@@ -124,7 +134,13 @@ export class AuthenticationService {
         this.userId = info['auth_user'];
         await this.getUserRoles(info['auth_user']);
         // Check if userRoles is empty and navigate to the error page
-        if (this.userRoles.length === 0) {
+        console.log(this.router);
+        console.log(this.userRoles);
+        console.log(this.router.url);
+        if (
+          this.userRoles.length === 0 &&
+          !this.bypassRoutes.includes(this.router.url)
+        ) {
           this.router.navigate(['/error']); // Change this to your actual error page route
         }
       })
