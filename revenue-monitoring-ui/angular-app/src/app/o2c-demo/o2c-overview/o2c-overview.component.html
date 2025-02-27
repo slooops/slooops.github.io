@@ -5,7 +5,7 @@
   [navigationMap]="navigationMap"
 ></app-o2c-process-flow>
 
-<div class="o2c-rows">
+<div class="o2c-rows" style="margin-top: -24px">
   <!-- Order Section -->
   <div class="section-title expander-margin">
     <button class="toggle-button" (click)="toggleSection('order')">
@@ -16,7 +16,7 @@
   <app-o2c-table
     [displayedColumns]="displayedColumnsOrder"
     [dataSource]="dataSourceOrder"
-    [wideColumns]="['Address_Details_Bill-To', 'Address_Details_End_Customer']"
+    [wideColumns]="['Offer_Name']"
     [navigationMap]="navigationMap"
     tableType="header"
     class="header-table"
@@ -24,7 +24,7 @@
   <app-o2c-table
     [displayedColumns]="displayedColumnsOrder2"
     [dataSource]="dataSourceOrder"
-    [wideColumns]="['Address_Details_Bill-To', 'Address_Details_End_Customer']"
+    [wideColumns]="['Bill-To', 'End_Customer']"
     [navigationMap]="navigationMap"
     tableType="header"
     class="header-table"
@@ -35,7 +35,7 @@
     [@expandCollapse]="expandedSections['order'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
   >
-    <div class="section-title">Order Processing Details</div>
+    <div class="section-title">Order Details</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsOrderDetails"
       [dataSource]="dataSourceOrderDetails"
@@ -50,12 +50,16 @@
     <button class="toggle-button" (click)="toggleSection('subscription')">
       {{ expandedSections["subscription"] ? "-" : "+" }}
     </button>
-    Subscription Summary #1797786
+    Subscription Summary
+
+    <a href="https://ccrc.cisco.com/subscriptions/detail/Sub1797786"
+      >Sub1797786</a
+    >
   </div>
   <app-o2c-table
     [displayedColumns]="displayedColumnsSubscription"
     [dataSource]="dataSourceSubscription"
-    [wideColumns]="['SubRefId']"
+    [wideColumns]="['']"
     [navigationMap]="navigationMap"
     tableType="header"
     class="header-table"
@@ -67,14 +71,39 @@
     "
     style="overflow-x: auto"
   >
-    <div class="section-title">Subscription Activation Details</div>
+    <div class="section-title">Subscription Details</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsSubscriptionDetails"
       [dataSource]="dataSourceSubscriptionDetails"
-      [wideColumns]="['SKU_Description', 'Bill_LineReference']"
+      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+      style="margin-top: -14px"
+    ></app-o2c-table>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsAccrualDetails"
+      [dataSource]="dataSourceAccrualDetails"
+      [wideColumns]="['']"
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
+
+    <div style="margin-top: 16px">
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsSubscriptionDetails"
+        [dataSource]="dataSourceSubscriptionDetails1"
+        [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsAccrualDetails"
+        [dataSource]="dataSourceAccrualDetails1"
+        [wideColumns]="['']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+    </div>
   </div>
 
   <!-- SUBSCRIPTION SECTION 2 -->
@@ -82,12 +111,15 @@
     <button class="toggle-button" (click)="toggleSection('subscription2')">
       {{ expandedSections["subscription2"] ? "-" : "+" }}
     </button>
-    Subscription Summary #1797787
+    Subscription Summary
+    <a href="https://ccrc.cisco.com/subscriptions/detail/Sub1797787"
+      >Sub1797787</a
+    >
   </div>
   <app-o2c-table
     [displayedColumns]="displayedColumnsSubscription"
     [dataSource]="dataSourceSubscription2"
-    [wideColumns]="['SubRefId']"
+    [wideColumns]="['']"
     [navigationMap]="navigationMap"
     tableType="header"
     class="header-table"
@@ -99,22 +131,48 @@
     "
     style="overflow-x: auto"
   >
-    <div class="section-title">Subscription Activation Details</div>
+    <div class="section-title">Subscription Details</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsSubscriptionDetails"
       [dataSource]="dataSourceSubscriptionDetails2"
-      [wideColumns]="['SKU_Description', 'Bill_LineReference']"
+      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+      style="margin-top: -14px"
+    ></app-o2c-table>
+
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsAccrualDetails"
+      [dataSource]="dataSourceAccrualDetails2"
+      [wideColumns]="['']"
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
+
+    <div style="margin-top: 16px">
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsSubscriptionDetails"
+        [dataSource]="dataSourceSubscriptionDetails3"
+        [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsAccrualDetails"
+        [dataSource]="dataSourceAccrualDetails3"
+        [wideColumns]="['']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+    </div>
   </div>
 
   <!-- ACCRUAL SECTION -->
-  <div class="section-title expander-margin">
+  <!-- <div class="section-title expander-margin">
     <button class="toggle-button" (click)="toggleSection('accrual')">
       {{ expandedSections["accrual"] ? "-" : "+" }}
     </button>
-    Accrual Summary #4910686
+    Accrual Summary 4910686
   </div>
   <app-o2c-table
     [displayedColumns]="displayedColumnsAccrual"
@@ -129,7 +187,7 @@
     [@expandCollapse]="expandedSections['accrual'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
   >
-    <div class="section-title">Accrual Processing</div>
+    <div class="section-title">Accrual Details</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsAccrualDetails"
       [dataSource]="dataSourceAccrualDetails"
@@ -137,14 +195,14 @@
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
-  </div>
+  </div> -->
 
   <!-- ACCRUAL SECTION2 -->
-  <div class="section-title expander-margin">
+  <!-- <div class="section-title expander-margin">
     <button class="toggle-button" (click)="toggleSection('accrual2')">
       {{ expandedSections["accrual2"] ? "-" : "+" }}
     </button>
-    Accrual Summary #4910695
+    Accrual Summary 4910695
   </div>
   <app-o2c-table
     [displayedColumns]="displayedColumnsAccrual"
@@ -159,7 +217,7 @@
     [@expandCollapse]="expandedSections['accrual2'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
   >
-    <div class="section-title">Accrual Processing</div>
+    <div class="section-title">Accrual Details</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsAccrualDetails"
       [dataSource]="dataSourceAccrualDetails2"
@@ -167,7 +225,7 @@
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
-  </div>
+  </div> -->
 
   <!-- Invoicing Section -->
   <div class="section-title expander-margin">
@@ -186,15 +244,6 @@
     tableType="header"
     class="header-table"
   ></app-o2c-table>
-  <app-o2c-table
-    [displayedColumns]="displayedColumnsInvoicing22"
-    [dataSource]="dataSourceInvoicing"
-    [wideColumns]="['Invoice_ID']"
-    [navigationMap]="navigationMap"
-    tableType="header"
-    class="header-table"
-    style="margin-top: -14px"
-  ></app-o2c-table>
 
   <!-- Show More Summary Lines Button -->
   <div class="show-more-container">
@@ -208,6 +257,7 @@
     [@expandCollapse]="showMoreSummary ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
   >
+    <div class="section-title">Print & Deliver</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsInvoicing2"
       [dataSource]="dataSourceInvoicing2"
@@ -216,9 +266,20 @@
       tableType="header"
     ></app-o2c-table>
 
+    <div class="section-title">E-Invoice Status</div>
     <app-o2c-table
       [displayedColumns]="displayedColumnsInvoicing3"
       [dataSource]="dataSourceInvoicing3"
+      [wideColumns]="['Invoice_ID']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+    ></app-o2c-table>
+
+    <div class="section-title">Cash Apps</div>
+
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsInvoicing1"
+      [dataSource]="dataSourceInvoicing"
       [wideColumns]="['Invoice_ID']"
       [navigationMap]="navigationMap"
       tableType="header"
@@ -230,7 +291,7 @@
     [@expandCollapse]="expandedSections['invoicing'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
   >
-    <div class="section-title">Invoice Breakdown</div>
+    <div class="section-title">Invoice Details</div>
 
     <!-- Main Detail Table -->
     <app-o2c-table
@@ -240,16 +301,74 @@
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsInvoicingDetails2"
+      [dataSource]="dataSourceInvoicingDetails00"
+      [wideColumns]="['Bill_Line_Number']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
+
+    <div style="margin-top: 16px">
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails"
+        [dataSource]="dataSourceInvoicingDetails1"
+        [wideColumns]="['SKU_Description']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails2"
+        [dataSource]="dataSourceInvoicingDetails11"
+        [wideColumns]="['Bill_Line_Number']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+    </div>
+
+    <div style="margin-top: 16px">
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails"
+        [dataSource]="dataSourceInvoicingDetails2"
+        [wideColumns]="['SKU_Description']"
+        [navigationMap]="navigationMap"
+        tableType="body"
+      ></app-o2c-table>
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails2"
+        [dataSource]="dataSourceInvoicingDetails22"
+        [wideColumns]="['Bill_Line_Number']"
+        [navigationMap]="navigationMap"
+        tableType="body"
+      ></app-o2c-table>
+    </div>
+
+    <div style="margin-top: 16px">
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails"
+        [dataSource]="dataSourceInvoicingDetails3"
+        [wideColumns]="['SKU_Description']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+      <app-o2c-table
+        [displayedColumns]="displayedColumnsInvoicingDetails2"
+        [dataSource]="dataSourceInvoicingDetails33"
+        [wideColumns]="['Bill_Line_Number']"
+        [navigationMap]="navigationMap"
+        tableType="header"
+      ></app-o2c-table>
+    </div>
 
     <!-- Show More Detail Lines Button -->
-    <div class="show-more-container">
+    <!-- <div class="show-more-container">
       <button class="show-more-button" (click)="toggleSection('details')">
         {{ showMoreDetails ? "Show Less" : "Show More Detail Lines" }}
       </button>
-    </div>
+    </div> -->
 
     <!-- Additional Breakdown Detail Tables (Animated) -->
-    <div [@expandCollapse]="showMoreDetails ? 'expanded' : 'collapsed'">
+    <!-- <div [@expandCollapse]="showMoreDetails ? 'expanded' : 'collapsed'">
       <app-o2c-table
         [displayedColumns]="displayedColumnsInvoicingDetails2"
         [dataSource]="dataSourceInvoicingDetails2"
@@ -257,6 +376,6 @@
         [navigationMap]="navigationMap"
         tableType="body"
       ></app-o2c-table>
-    </div>
+    </div> -->
   </div>
 </div>

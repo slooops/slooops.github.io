@@ -92,14 +92,9 @@
   top: 0px;
 }
 
-.table-background {
-  background-color: #ffffff;
-}
-
 .card {
   overflow-x: auto;
   border: none;
-  background-color: #f4f6f8;
   border-radius: 0px;
   padding: 0;
 }
@@ -114,18 +109,29 @@
 .gridded-table th,
 .gridded-table td {
   font-size: 12px;
-  width: 10vw;
+  width: 11.1%;
   padding: 2px 5px;
-  background-color: #f4f6f8; /* Light gray background */
   font-weight: bold;
   text-align: left;
   border: none;
-  /* color: #333; */
+  color: #333;
   overflow-x: auto;
   border-right: 1px solid #ddd; /* Border between columns */
   word-wrap: break-word;
   white-space: normal;
   vertical-align: top;
+}
+
+/* .gridded-table td {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #333;
+  border: none;
+  border-right: 1px solid #ddd;
+} */
+
+.header-table {
+  background-color: #f2f2f2 !important;
 }
 
 .gridded-table th {
@@ -146,7 +152,7 @@
 
 .gridded-table th:last-child,
 .gridded-table td:last-child {
-  border-right: none; /* Remove right border from the last column */
+  border-right: none;
 }
 
 tr.mat-header-row {
@@ -183,11 +189,15 @@ tr.mat-header-row {
   /* color: #0f5065;  */
   cursor: pointer;
   /* text-decoration: underline; */
-  color: #227bb1;
+  color: #227bb1 !important;
 }
 
 .double-width {
-  width: 30vw !important; /* Adjust as needed */
+  width: 22.2% !important; /* Adjust as needed */
+}
+
+.extra-wide {
+  width: 33.3% !important;
 }
 
 .o2c-rows {
@@ -210,4 +220,25 @@ tr.mat-header-row {
 
 .header-margins {
   margin: 0 0 -10px 0;
+}
+
+tr.mat-row,
+tr.mat-footer-row {
+  height: fit-content;
+}
+
+/* Ensure table headers use ellipsis instead of wrapping */
+th.mat-header-cell {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+}
+
+.mat-row:not(:first-child) {
+  /* border: 12px solid #991010 !important; */
+}
+
+.green-text {
+  color: #43a047 !important; /* Green color for "CLOSED" status */
+  font-weight: bold;
 }

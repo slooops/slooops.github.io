@@ -11,6 +11,7 @@ export class O2cTableComponent {
   @Input() displayedColumns: string[] = [];
   @Input() dataSource: MatTableDataSource<any> = new MatTableDataSource<any>(); // Accepts MatTableDataSource
   @Input() wideColumns: string[] = [];
+  @Input() extraWideColumns: string[] = []; // New extra-wide column support
   @Input() navigationMap: { [key: string]: string } = {};
   @Input() tableType: 'header' | 'body' = 'body'; // Differentiating table types
 
@@ -18,6 +19,10 @@ export class O2cTableComponent {
 
   isWideColumn(column: string): boolean {
     return this.wideColumns.includes(column);
+  }
+
+  isExtraWideColumn(column: string): boolean {
+    return this.extraWideColumns.includes(column);
   }
 
   isNavigableColumn(column: string): boolean {
