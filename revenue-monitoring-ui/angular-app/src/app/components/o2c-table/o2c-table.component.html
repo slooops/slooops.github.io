@@ -1,18 +1,24 @@
 <div
-  [class.header-table]="tableType === 'header'"
   [class.card]="tableType === 'body'"
-  style="border-top: solid 1px #e0e0e0"
+  [class.header-table]="tableType === 'header'"
+  style="border-top: solid 1px #e4e4e4; border-bottom: solid 1px #e4e4e4"
 >
-  <table mat-table [dataSource]="dataSource" class="gridded-table">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    class="gridded-table"
+    [class.header-table]="tableType === 'header'"
+  >
     <ng-container *ngFor="let column of displayedColumns">
       <ng-container [matColumnDef]="column">
         <!-- Header Row -->
         <th
           mat-header-cell
-          [ngClass]="{
-            'double-width': isWideColumn(column)
-          }"
           *matHeaderCellDef
+          [ngClass]="{
+            'double-width': isWideColumn(column),
+            'extra-wide': isExtraWideColumn(column)
+          }"
         >
           {{ removeUnderscores(column) }}
         </th>
@@ -23,7 +29,11 @@
           *matCellDef="let element"
           [ngClass]="{
             'clickable-cell': isNavigableColumn(column),
-            'double-width': isWideColumn(column)
+            'double-width': isWideColumn(column),
+            'extra-wide': isExtraWideColumn(column),
+            'green-text':
+              (column === 'Order_Status' && element[column] === 'CLOSED') ||
+              (column === 'Subscription_Status' && element[column] === 'ACTIVE')
           }"
           (click)="
             isNavigableColumn(column)
