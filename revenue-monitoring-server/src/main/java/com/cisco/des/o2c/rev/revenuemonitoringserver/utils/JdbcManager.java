@@ -143,9 +143,30 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
     }
 
+    public List<Map<String, Object>> getPrintDetailsFiltered(String sql, String periodName,
+                                                               String appName, String processFlow, String ouName, String transactionDate) {
+        System.out.println(periodName);
+        System.out.println(appName);
+        System.out.println(processFlow);
+        System.out.println(ouName);
+        System.out.println(transactionDate);
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
+    }
+
     public int updateCMAmortSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,
                                          String processFlow, String orgName, String transactionDate) {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
+    }
+
+    public int updatePrintSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,
+                                     String orgName, String transactionDate) {
+        System.out.println(assignedTo);
+        System.out.println(assignedBy);
+        System.out.println(comments);
+        System.out.println(periodName);
+        System.out.println(orgName);
+        System.out.println(transactionDate);
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  periodName, orgName, transactionDate);
     }
 
     public List<Map<String, Object>> getStandardRevenueDetailsFiltered(String sql, String periodName,

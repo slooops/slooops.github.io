@@ -129,7 +129,7 @@
           <mat-tab label="Print">
             <app-monitoring-dashboard
               [urls]="printUrls"
-              [keysToMap]=""
+              [keysToMap]="preAndAutoInvoiceKeysToMap"
               [processFlowKeys]="printTotals"
               [periodStatus]="periodStatus"
               [componentName]="'Print'"
@@ -147,8 +147,22 @@
               [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
               [detailsColumnsToHide]="['TRANSACTION_DATE']"
-              [submitKeysToMap]="[]"
-              [webexKeysToMap]="[]"
+              [submitKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
+              [webexKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
             ></app-monitoring-dashboard>
           </mat-tab>
         </mat-tab-group>
@@ -286,20 +300,6 @@
           <p class="circle-subcaption">
             Total Impact:
             {{ allTotals['Auto-Invoicing']?.['3 - Auto Invoice'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 3 -->
-        <div class="chevron chevron-3"></div>
-        <div class="chevron-white chevron-3"></div>
-
-        <!-- Post-Invoice Circle 4 -->
-        <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">4. CM Amortization</p>
-          <span class="circle circle-4"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['CM Amortization']?.['CM Amortization'] || 'N/A' }}
           </p>
         </div>
 
