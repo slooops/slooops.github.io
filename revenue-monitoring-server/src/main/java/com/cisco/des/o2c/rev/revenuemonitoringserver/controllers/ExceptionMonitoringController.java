@@ -389,6 +389,12 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    //opl
+    @GetMapping("/opl-data")
+    public ResponseEntity<List<Map<String, Object>>> getOplData() {
+        return new ResponseEntity<>(service.getOplData(), HttpStatus.OK);
+    }
+
     //eInvoicing
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {

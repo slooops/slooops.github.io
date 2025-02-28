@@ -15,6 +15,7 @@ import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.componen
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
+import { OplComponent } from './opl/opl.component';
 
 const routes: Routes = [
   {
@@ -128,13 +129,20 @@ const routes: Routes = [
       hideNavbar: true,
     },
   },
-
   {
     path: 'gl-posting',
     component: GlPostingComponent,
     data: {
       title: 'Operations Control Tower',
       header: 'GL Posting',
+    },
+  },
+  {
+    path: 'opl',
+    component: OplComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'OPL',
     },
   },
 ];
