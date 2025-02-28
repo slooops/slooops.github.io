@@ -8,6 +8,7 @@
     [dataSource]="dataSource"
     class="gridded-table"
     [class.header-table]="tableType === 'header'"
+    [class.secondary-table]="tableType === 'secondary'"
   >
     <ng-container *ngFor="let column of displayedColumns">
       <ng-container [matColumnDef]="column">

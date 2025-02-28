@@ -29,7 +29,7 @@
       mat-table
       [dataSource]="dataSourceSummary"
       class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
+      style="border-bottom: 1px solid #e0e0e0; background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsSummary">
         <ng-container [matColumnDef]="column">
@@ -65,7 +65,7 @@
       mat-table
       [dataSource]="dataSourceSummary2"
       class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
+      style="border-bottom: 1px solid #e0e0e0; background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsSummary2">
         <ng-container [matColumnDef]="column">
@@ -100,6 +100,7 @@
       mat-table
       [dataSource]="dataSourceLineSummary"
       class="header-card table table-condensed gridded-table"
+      style="background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsLineSummary">
         <ng-container [matColumnDef]="column">

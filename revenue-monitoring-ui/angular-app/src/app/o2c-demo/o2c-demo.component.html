@@ -82,6 +82,7 @@
               *matCellDef="let element"
               (click)="goToO2cOrder(element)"
               style="cursor: pointer; border-bottom: 1px solid #ddd"
+              [ngClass]="{ 'clickable-cell': column === 'WebOrder_ID' }"
             >
               {{ element[column] }}
             </td>
@@ -122,6 +123,7 @@
               *matCellDef="let element"
               (click)="goToO2cSub(element)"
               style="cursor: pointer; border-bottom: 1px solid #ddd"
+              [ngClass]="{ 'clickable-cell': column === 'Sub_Ref_Id' }"
             >
               {{ element[column] }}
             </td>
