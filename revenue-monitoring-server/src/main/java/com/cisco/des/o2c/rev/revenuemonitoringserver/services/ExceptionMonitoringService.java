@@ -2,6 +2,7 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 //import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import java.util.*;
 public class ExceptionMonitoringService {
 
     private JdbcManager jdbcManager;
-//    private MongoDBManager mongoDBManager;
+    private MongoDBManager mongoDBManager;
     private String rolTransactionData;
     private String rolErrorsSummary;
     private String sbpSummary;
@@ -88,11 +89,11 @@ public class ExceptionMonitoringService {
                                       String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
                                       String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
                                       String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail,
-                                      String printDetailFiltered, String printSummaryUpdate
+                                      String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager
 
     ) {
         this.jdbcManager = jdbcManager;
-//        this.mongoDBManager = mongoDBManager;
+        this.mongoDBManager = mongoDBManager;
         this.rolTransactionData = rolTransactionData;
         this.rolErrorsSummary = rolErrorsSummary;
         this.sbpSummary = sbpSummary;
@@ -538,10 +539,22 @@ public class ExceptionMonitoringService {
         return 1;
     }
 
+    //OPL
+
+    public List<Map<String, Object>> getOplData() {
+        String[] dateColumns = { "crDt", "eventTm", "processCrDt", "processUpdDt", "updDt" };
+        List<Map<String, Object>> result = mongoDBManager.getAllData(2,7);
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//        });
+        System.out.println(result);
+        return result;
+    }
+
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-//        System.out.println(mongoDBManager.getAllData());
+        System.out.println(mongoDBManager.getAllData(0,10));
         List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortSummary);
         result.forEach(data -> {
             data.remove("AGING");
