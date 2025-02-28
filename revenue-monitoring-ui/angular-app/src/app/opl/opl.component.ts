@@ -6,7 +6,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 @Component({
   selector: 'app-opl',
   templateUrl: './opl.component.html',
-  styleUrl: './opl.component.css',
+  styleUrls: ['./opl.component.css'],
   providers: [DestroyManager],
 })
 export class OplComponent implements OnInit {
