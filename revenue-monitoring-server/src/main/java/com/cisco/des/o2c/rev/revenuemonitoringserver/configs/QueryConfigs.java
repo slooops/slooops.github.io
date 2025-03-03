@@ -342,6 +342,22 @@ public class QueryConfigs {
     public String printDetailFiltered;
     @Value(("${print.summary.update}"))
     public String printSummaryUpdate;
+    @Value(("${credit.card.summary}"))
+    public String creditCardSummary;
+    @Value(("${credit.card.details}"))
+    public String creditCardDetails;
+    @Value(("${debit.card.summary}"))
+    public String debitCardSummary;
+    @Value(("${debit.card.details}"))
+    public String debitCardDetails;
+    @Bean(name = "creditCardSummary")
+    public String getCreditCardSummary() { return this.creditCardSummary; }
+    @Bean(name = "creditCardDetails")
+    public String getCreditCardDetails() { return this.creditCardDetails; }
+    @Bean(name = "debitCardSummary")
+    public String getDebitCardSummary() { return this.debitCardSummary; }
+    @Bean(name = "debitCardDetails")
+    public String getDebitCardDetails() { return this.debitCardDetails; }
     @Bean(name = "printSummary")
     public String getPrintSummary() { return this.printSummary; }
     @Bean(name = "printDetail")

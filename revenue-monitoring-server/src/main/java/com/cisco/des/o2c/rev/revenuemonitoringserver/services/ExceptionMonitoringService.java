@@ -74,6 +74,10 @@ public class ExceptionMonitoringService {
     private String printDetail;
     private String printDetailFiltered;
     private String printSummaryUpdate;
+    private String creditCardSummary;
+    private String creditCardDetails;
+    private String debitCardSummary;
+    private String debitCardDetails;
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate,
                                       String glErrorSummary, String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
@@ -89,7 +93,8 @@ public class ExceptionMonitoringService {
                                       String fusionErrorDetailsFiltered, String fusionErrorSummaryUpdate, String standardRevenueSummary, String standardRevenueDetails,
                                       String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
                                       String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail,
-                                      String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager
+                                      String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager, String creditCardSummary,
+                                      String creditCardDetails, String debitCardSummary, String debitCardDetails
 
     ) {
         this.jdbcManager = jdbcManager;
@@ -148,6 +153,10 @@ public class ExceptionMonitoringService {
         this.printDetail = printDetail;
         this.printDetailFiltered = printDetailFiltered;
         this.printSummaryUpdate = printSummaryUpdate;
+        this.creditCardSummary = creditCardSummary;
+        this.creditCardDetails = creditCardDetails;
+        this.debitCardSummary = debitCardSummary;
+        this.debitCardDetails = debitCardDetails;
     }
 
     // Standard Revenue
@@ -638,6 +647,71 @@ public class ExceptionMonitoringService {
 //        result.forEach(data -> {
 //            formatDateColumns(data, dateColumns);
 //        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardSummary() {
+//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(creditCardSummary);
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//            Map<String, Object> reorderedData = new LinkedHashMap<>();
+//            int index = 0;
+//            for (Map.Entry<String, Object> entry : data.entrySet()) {
+//                if (index == 6) {
+//                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+//                }
+//                reorderedData.put(entry.getKey(), entry.getValue());
+//                index++;
+//            }
+//            if (!reorderedData.containsKey("AGING")) {
+//                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+//            }
+//            data.clear();
+//            data.putAll(reorderedData);
+//        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardDetails() {
+//        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(creditCardDetails);
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getDebitCardSummary() {
+//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(debitCardSummary);
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//            Map<String, Object> reorderedData = new LinkedHashMap<>();
+//            int index = 0;
+//            for (Map.Entry<String, Object> entry : data.entrySet()) {
+//                if (index == 6) {
+//                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+//                }
+//                reorderedData.put(entry.getKey(), entry.getValue());
+//                index++;
+//            }
+//            if (!reorderedData.containsKey("AGING")) {
+//                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+//            }
+//            data.clear();
+//            data.putAll(reorderedData);
+//        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getDebitCardDetails() {
+        String[] dateColumns = { "PAYMENT_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(debitCardDetails);
+        result.forEach(data -> {
+            renameKey(data, "TRX_NUMBER", "TRANSACTION_ID");
+            formatDateColumns(data, dateColumns);
+        });
         return result;
     }
 

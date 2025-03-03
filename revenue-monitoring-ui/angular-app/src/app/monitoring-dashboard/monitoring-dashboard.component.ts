@@ -436,6 +436,8 @@ export class MonitoringDashboardComponent<T>
           if (row.RULE_START_DATE || row.RULE_END_DATE) {
             row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
             row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
+          } else if (row.PAYMENT_DATE) {
+            row.PAYMENT_DATE = this.dateTransform(row.PAYMENT_DATE);
           }
           this.detailsDisplayedColumns.forEach((column) => {
             if (row[column] === '-') {
