@@ -389,6 +389,26 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/credit-card-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getCreditCardErrorSummary() {
+        return new ResponseEntity<>(service.getCreditCardSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/credit-card-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getCreditCardErrorDetails() {
+        return new ResponseEntity<>(service.getCreditCardDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/debit-card-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getDebitCardErrorSummary() {
+        return new ResponseEntity<>(service.getDebitCardSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/debit-card-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getDebitCardErrorDetails() {
+        return new ResponseEntity<>(service.getDebitCardDetails(), HttpStatus.OK);
+    }
+
     //opl
     @GetMapping("/opl-data")
     public ResponseEntity<List<Map<String, Object>>> getOplData() {

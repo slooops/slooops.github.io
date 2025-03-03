@@ -165,6 +165,46 @@
               ]"
             ></app-monitoring-dashboard>
           </mat-tab>
+          <mat-tab label="Credit Card Payments">
+            <app-monitoring-dashboard
+              [urls]="creditCardUrls"
+              [keysToMap]=""
+              [processFlowKeys]="creditCardTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'Credit Card'"
+              [processFlowTabsToDisplay]="[]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]=""
+              [dynamicCss]=""
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="[]"
+              [submitKeysToMap]="[]"
+              [webexKeysToMap]="[]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="Debit Card">
+            <app-monitoring-dashboard
+              [urls]="debitCardUrls"
+              [keysToMap]=""
+              [processFlowKeys]="debitCardTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'Debit Card'"
+              [processFlowTabsToDisplay]="[]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]="dynamicTemplate"
+              [dynamicCss]="invoicingprocessflowCss"
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="['']"
+              [submitKeysToMap]="[]"
+              [webexKeysToMap]="[]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
         </mat-tab-group>
       </ng-container>
       <ng-container *ngSwitchCase="'app-eInvoicing'">
@@ -235,7 +275,7 @@
         ></app-monitoring-dashboard>
       </ng-container>
 
-      <ng-container *ngSwitchCase="'app-transactions-processed'">
+      <!-- <ng-container *ngSwitchCase="'app-transactions-processed'">
         <app-monitoring-dashboard
           [urls]="transactionsProcessedUrls"
           [keysToMap]="['ORG_NAME']"
@@ -248,7 +288,7 @@
           [columnsToFilter]="[]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container>
+      </ng-container> -->
 
       <ng-container *ngSwitchCase="'app-cms'">
         <app-cms *ngIf="selectedIndex === i"></app-cms>

@@ -149,6 +149,15 @@ export class InvoicingComponent implements OnInit {
     Print: 0,
   };
 
+  creditCardTotals: { [key: string]: number } = {
+    'Credit Card Recurring': 0,
+    'Credit Card One Time': 0,
+  };
+
+  debitCardTotals: { [key: string]: number } = {
+    'Debit Card': 0,
+  };
+
   autoInvoicingTotals: { [key: string]: number } = {
     '3 - Auto Invoice': 0,
   };
@@ -228,6 +237,26 @@ export class InvoicingComponent implements OnInit {
     filteredDetailsUrl: 'print-error-details-filtered',
     summaryUpdateUrl: 'print-error-summary-update',
     webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  creditCardUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-error-summary',
+    detailsUrl: 'credit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  debitCardUrls: { [key: string]: string } = {
+    summaryUrl: 'debit-card-error-summary',
+    detailsUrl: 'debit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
@@ -376,11 +405,11 @@ export class InvoicingComponent implements OnInit {
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
     },
-    {
-      label: 'Transactions Processed',
-      component: 'app-transactions-processed',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    },
+    // {
+    //   label: 'Transactions Processed',
+    //   component: 'app-transactions-processed',
+    //   role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    // },
   ];
 
   selectedIndex: number = 0;
