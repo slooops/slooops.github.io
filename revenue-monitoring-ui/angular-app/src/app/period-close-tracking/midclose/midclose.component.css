@@ -1,23 +1,16 @@
 :host {
   display: block;
-  /* Create a linear gradient background */
   background: white;
-  font-family: "Inter", sans-serif;
-}
 
-.container {
-  padding: 0px 0 0px 0;
-  margin-bottom: 0px !important;
-  border: 0px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px #00000014;
+  min-height: 100vh; /* Ensure it covers the entire height of the viewport */
+  padding: 1.2rem; /* Add padding to keep spacing from the edges */
+  font-family: "Inter", sans-serif;
 }
 
 th {
   text-align: center !important;
   border-bottom: 2px solid #373c42 !important;
   background-color: #ffffff !important;
-  font-weight: 600;
 }
 
 #editCloseTime:hover {
@@ -29,16 +22,34 @@ td {
   font-weight: 500;
 }
 
+::ng-deep .mat-select-panel {
+  max-height: 500px !important;
+}
+
+li.ng-star-inserted {
+  text-align: left !important;
+}
+
+.equal-width {
+  width: 100%;
+  /* table-layout: fixed; */
+}
+
+.equal-width td tr th {
+  width: 14.2857%;
+  /* border: 1px solid black; */
+}
+
+#tableHeading {
+  text-align: left !important;
+}
+
 .legendIcon {
   color: darkgrey;
 }
 
 .legendIcon:hover .tooltiptext {
   visibility: visible;
-}
-
-#tableHeading {
-  text-align: left !important;
 }
 
 .tooltiptext {
@@ -59,10 +70,6 @@ td {
   background-color: #049fd9 !important;
 }
 
-::ng-deep .mat-select-panel {
-  max-height: 500px !important;
-}
-
 .header-container {
   display: flex;
   justify-content: space-between;
@@ -72,4 +79,86 @@ td {
 
 .cuiAlign {
   text-align: center !important;
+}
+
+ul {
+  list-style-type: none;
+}
+
+/* .card,
+.container {
+  position: relative;
+  display: block;
+  padding: 16px;
+  background-color: #fff;
+  border: 2px solid #e1e4e8;
+  border-radius: 8px;
+  transition: all linear 0.5s;
+  width: 100%;
+} */
+
+/* .container {
+  padding: 8px 0 12px 0;
+  margin-bottom: 16px;
+  border: 0px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px #00000014;
+} */
+
+.table-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.rol-error-summary-container {
+  overflow-x: auto; /* Ensure the table scrolls horizontally if too wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: fit-content;
+  padding-top: 0px;
+  margin-top: -6px;
+}
+
+.custom-table {
+  min-width: 100%; /* Adjust based on your needs */
+  table-layout: auto; /* Allows columns to resize dynamically */
+}
+
+.mat-header-row {
+  background-color: #ffffff !important;
+  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+}
+
+.section-title {
+  color: #373c42;
+  margin: 0px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between; /* Space between title/form on left and action buttons on right */
+  align-items: center; /* Vertically align items in the center */
+  width: 100%;
+  padding: 0 10px 0 12px;
+}
+.action-buttons {
+  display: flex;
+  justify-content: flex-end; /* Align action buttons to the right */
+  gap: 10px; /* Optional space between action buttons */
+}
+
+.mat-header-cell {
+  color: black;
+  font-size: 15px;
+}
+
+.mat-cell {
+  font-size: 15px;
+}
+
+th.mat-header-cell:first-of-type,
+td.mat-cell:first-of-type,
+td.mat-footer-cell:first-of-type {
+  padding-left: 0px;
 }
