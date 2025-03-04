@@ -177,57 +177,76 @@
     </div>
   </div>
   <br />
-  <div class="container">
-    <h4>&nbsp;Interface Load</h4>
-    <div class="header-container">
-      <p>&nbsp;Legend: &nbsp;&nbsp; Number of lines</p>
+
+  <div class="header-container">
+    <h5 class="section-title action-buttons">Interface Load</h5>
+    <span style="margin-top: 15px">
+      <p>Legend: Number of lines</p>
+    </span>
+    <div class="action-buttons">
       <button
-        mat-stroked-button
+        mat-icon-button
         (click)="
           exportTableToExcel(
-            midcloseInterfaceLoadTableData,
+            midcloseInterfaceLoadData,
             'Midclose Interface Load',
             'mcloseInterfaceLoadTableData'
           )
         "
       >
-        Download
+        <i class="svg-icon download-icon"></i>
       </button>
     </div>
-    <div class="periodclosetable">
-      <table class="table table-responsive equal-width table-striped">
-        <thead>
-          <tr>
-            <th *ngFor="let col of mcloseInterfaceLoadColumns">{{ col }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of midcloseInterfaceLoadTableData">
-            <ng-container
-              *ngFor="let key of templateObject.keys(row); let i = index"
-            >
-              <td *ngIf="i < templateObject.keys(row).length - 2">
-                {{ row[key] }}
-              </td>
-              <td *ngIf="i >= templateObject.keys(row).length - 2">
-                <span *ngIf="row[key].slice(0, -1) > 0">⬆ {{ row[key] }}</span>
-                <span *ngIf="row[key].slice(0, -1) < 0"
-                  >⬇ {{ getAbsoluteValue(row[key].slice(0, -1)) }}%</span
-                >
-                <span *ngIf="row[key].slice(0, -1) == 0">0%</span>
-              </td>
-            </ng-container>
-          </tr>
-        </tbody>
+  </div>
+
+  <ng-container *ngIf="midcloseInterfaceLoadDatasource?.data?.length">
+    <div class="table-container" style="overflow-y: hidden !important">
+      <table
+        mat-table
+        [dataSource]="midcloseInterfaceLoadDatasource"
+        class="custom-table table-responsive"
+      >
+        <ng-container *ngFor="let column of mcloseInterfaceLoadColumns">
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchDefault>
+                  {{ replaceUnderscoreWithEmpty(column) }}
+                </ng-container>
+              </ng-container>
+            </th>
+
+            <td mat-cell *matCellDef="let element">
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchDefault>
+                  <span *ngIf="isPercentageColumn(column)">
+                    <span *ngIf="element[column] > 0">⬆</span>
+                    <span *ngIf="element[column] < 0">⬇</span>
+                    {{ element[column] }}%
+                  </span>
+                  <span *ngIf="!isPercentageColumn(column)">
+                    {{ element[column] }}
+                  </span>
+                </ng-container>
+              </ng-container>
+            </td>
+          </ng-container>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="mcloseInterfaceLoadColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: mcloseInterfaceLoadColumns"
+        ></tr>
       </table>
     </div>
-  </div>
+  </ng-container>
   <br />
-  <div class="container">
-    <div class="header-container">
-      <h4>&nbsp;Invoices Generated</h4>
+  <div class="header-container">
+    <h5 class="section-title action-buttons">Invoices Generated</h5>
+    <div class="action-buttons">
       <button
-        mat-stroked-button
+        mat-icon-button
         (click)="
           exportTableToExcel(
             midCloseProgramTableData,
@@ -236,85 +255,109 @@
           )
         "
       >
-        Download
+        <i class="svg-icon download-icon"></i>
       </button>
     </div>
-    <!-- <cui-table
-    *ngIf="midCloseProgramTableData.length"
-    [options]="mcloseInvGenTableOptions"
-    [data]="midCloseProgramTableData"
-    class="cuiAlign periodclosetable"
-  ></cui-table> -->
+  </div>
+  <ng-container *ngIf="midcloseInvGenDatasource?.data?.length">
+    <div class="table-container" style="overflow-y: hidden !important">
+      <table
+        mat-table
+        [dataSource]="midcloseInvGenDatasource"
+        class="custom-table table-responsive"
+      >
+        <ng-container *ngFor="let column of mcloseInvGenTableColumns">
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchDefault>
+                  {{ replaceUnderscoreWithEmpty(column) }}
+                </ng-container>
+              </ng-container>
+            </th>
 
-    <div class="periodclosetable">
-      <table
-        *ngIf="midCloseProgramTableData.length"
-        class="table table-responsive table-striped equal-width"
-      >
-        <thead>
-          <tr>
-            <th *ngFor="let column of mcloseInvGenTableColumns">
-              {{ replaceUnderscoreWithEmpty(column) }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of midCloseProgramTableData">
-            <td *ngFor="let column of mcloseInvGenTableColumns">
-              {{ row[column] }}
+            <td mat-cell *matCellDef="let element">
+              <ng-container [ngSwitch]="column">
+                <ng-container *ngSwitchDefault>
+                  {{ element[column] }}
+                </ng-container>
+              </ng-container>
             </td>
-          </tr>
-        </tbody>
+          </ng-container>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="mcloseInvGenTableColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: mcloseInvGenTableColumns"
+        ></tr>
       </table>
     </div>
-  </div>
+  </ng-container>
   <br />
-  <div class="container">
-    <div *ngIf="isQuarterEnd" class="header-container">
-      <h4 id="tableHeading" *ngIf="qeCashCollectedData.length">
-        &nbsp;Cash Posted
-      </h4>
-      <button
-        mat-stroked-button
-        (click)="
-          exportTableToExcel(
-            qeCashCollectedData,
-            'Midclose QE Cash Posted',
-            'mcloseQECashCollectedData'
-          )
-        "
-      >
-        Download
-      </button>
+
+  <div>
+    <div class="header-container">
+      <h5 class="section-title action-buttons">Cash Posted</h5>
+      <div class="action-buttons">
+        <button
+          mat-icon-button
+          (click)="
+            exportTableToExcel(
+              qeCashCollectedData,
+              'Midclose QE Cash Posted',
+              'mcloseQECashCollectedData'
+            )
+          "
+        >
+          <i class="svg-icon download-icon"></i>
+        </button>
+      </div>
     </div>
-    <!-- <cui-table
-    *ngIf="isQuarterEnd && qeCashCollectedData.length"
-    [options]="qeCashCollectedTableOptions"
-    [data]="qeCashCollectedData"
-    class="cuiAlign periodclosetable"
-  ></cui-table> -->
-    <div class="periodclosetable container" *ngIf="isQuarterEnd">
-      <table
-        *ngIf="qeCashCollectedData.length"
-        class="table table-striped table-responsive equal-width"
-      >
-        <thead>
-          <tr>
-            <th *ngFor="let column of qeCashCollectedTableColumns">
-              {{ replaceUnderscoreWithDash(column) }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of qeCashCollectedData">
-            <td *ngFor="let column of qeCashCollectedTableColumns">
-              {{ row[column] }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="qeCashCollectedDatasource"
+          class="custom-table table-responsive"
+        >
+          <ng-container *ngFor="let column of qeCashCollectedTableColumns">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                <ng-container [ngSwitch]="column">
+                  <ng-container **ngSwitchCase="PERIOD_NAME">
+                    {{ replaceUnderscoreWithEmpty(column) }}
+                  </ng-container>
+
+                  <ng-container *ngSwitchDefault>
+                    {{ replaceUnderscoreWithDash(column) }}
+                  </ng-container>
+                </ng-container>
+              </th>
+
+              <td mat-cell *matCellDef="let element">
+                <ng-container [ngSwitch]="column">
+                  <ng-container *ngSwitchDefault>
+                    {{ element[column] }}
+                  </ng-container>
+                </ng-container>
+              </td>
+            </ng-container>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="qeCashCollectedTableColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: qeCashCollectedTableColumns"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
   </div>
+
   <mat-divider></mat-divider>
   <br />
   <div>

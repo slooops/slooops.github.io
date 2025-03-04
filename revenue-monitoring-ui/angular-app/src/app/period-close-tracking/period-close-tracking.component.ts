@@ -379,10 +379,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   qeCashCollectedTableColumns: any[] = [];
-
+  qeCashCollectedDatasource: any;
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
-      // Rows
+      console.log(data);
       data.map((cashData) => {
         cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
         cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
@@ -395,35 +395,25 @@ export class PeriodCloseTrackingComponent implements OnInit {
       });
       this.qeCashCollectedData = data;
 
-      // Columns
       let tableColumns: any[] = [];
 
       for (let column_name of Object.keys(data[0])) {
         tableColumns.push(column_name);
-
-        // tableColumns.push(
-        //   new CuiTableColumnOption({
-        //     name: column_name.replace(/_/g, '-'),
-        //     sortable: false,
-        //     key: column_name,
-        //   })
-        // );
       }
 
       this.qeCashCollectedTableColumns = tableColumns;
-
-      // this.qeCashCollectedTableOptions = new CuiTableOptions({
-      //   bordered: true,
-      //   // striped: true,
-      //   // fixed: true,
-      //   columns: tableColumns,
-      //   dynamicData: true,
-      // });
+      this.qeCashCollectedDatasource = new MatTableDataSource<any>(
+        this.qeCashCollectedData
+      );
     });
   }
 
   replaceUnderscoreWithDash(column: string): string {
-    return column.replace(/_/g, '-');
+    return column
+      .replace(/_/g, '-')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 
   getPrecloseMeStatus() {
