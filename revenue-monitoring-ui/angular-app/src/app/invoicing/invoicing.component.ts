@@ -141,8 +141,21 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
-  postInvoicingTotals: { [key: string]: number } = {
+  cmAmortTotals: { [key: string]: number } = {
     'CM Amortization': 0,
+  };
+
+  printTotals: { [key: string]: number } = {
+    Print: 0,
+  };
+
+  creditCardTotals: { [key: string]: number } = {
+    'Credit Card Recurring': 0,
+    'Credit Card One Time': 0,
+  };
+
+  debitCardTotals: { [key: string]: number } = {
+    'Debit Card': 0,
   };
 
   autoInvoicingTotals: { [key: string]: number } = {
@@ -208,12 +221,42 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  postInvoicingUrls: { [key: string]: string } = {
+  cmAmortUrls: { [key: string]: string } = {
     summaryUrl: 'post-invoice-error-summary',
     detailsUrl: 'post-invoice-error-details',
     filteredDetailsUrl: 'post-invoice-error-details-filtered',
     summaryUpdateUrl: 'post-invoice-error-summary-update',
     webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  printUrls: { [key: string]: string } = {
+    summaryUrl: 'print-error-summary',
+    detailsUrl: 'print-error-details',
+    filteredDetailsUrl: 'print-error-details-filtered',
+    summaryUpdateUrl: 'print-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  creditCardUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-error-summary',
+    detailsUrl: 'credit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  debitCardUrls: { [key: string]: string } = {
+    summaryUrl: 'debit-card-error-summary',
+    detailsUrl: 'debit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
@@ -362,11 +405,11 @@ export class InvoicingComponent implements OnInit {
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
     },
-    {
-      label: 'Transactions Processed',
-      component: 'app-transactions-processed',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    },
+    // {
+    //   label: 'Transactions Processed',
+    //   component: 'app-transactions-processed',
+    //   role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    // },
   ];
 
   selectedIndex: number = 0;
@@ -387,14 +430,15 @@ export class InvoicingComponent implements OnInit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: fit-content;
   width: 100%;
+  height: 82px;
+
 }
 
 .slider-title {
   color: #333;
   margin-bottom: 30px;
-  margin-top: 0px;
+  margin-top: 0;
   text-align: center;
   font-weight: 500;
   font-size: 16px;
@@ -408,7 +452,7 @@ export class InvoicingComponent implements OnInit {
 }
 
 .slider-bar {
-  width: 620px;
+  width: 460px;
   height: 4px;
   background: #16371e43;
   border-radius: 5px;

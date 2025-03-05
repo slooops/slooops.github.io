@@ -343,6 +343,78 @@ public class ExceptionMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/print-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getPrintErrorSummary() {
+        return new ResponseEntity<>(service.getPrintErrorSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/print-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getPrintErrorDetails() {
+        return new ResponseEntity<>(service.getPrintErrorDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/print-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getPrintDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> transactionDates) {
+
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                String processFlow = processFlows.get(i);
+                List<Map<String, Object>> result = service.getPrintErrorDetailsFiltered(periodName, appName, processFlow, ouName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/print-error-summary-update")
+    public ResponseEntity<String> updatePrintErrorsSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updatePrintErrorSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
+    @GetMapping("/credit-card-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getCreditCardErrorSummary() {
+        return new ResponseEntity<>(service.getCreditCardSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/credit-card-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getCreditCardErrorDetails() {
+        return new ResponseEntity<>(service.getCreditCardDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/debit-card-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getDebitCardErrorSummary() {
+        return new ResponseEntity<>(service.getDebitCardSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/debit-card-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getDebitCardErrorDetails() {
+        return new ResponseEntity<>(service.getDebitCardDetails(), HttpStatus.OK);
+    }
+
+    //opl
+    @GetMapping("/opl-data")
+    public ResponseEntity<List<Map<String, Object>>> getOplData() {
+        return new ResponseEntity<>(service.getOplData(), HttpStatus.OK);
+    }
+
     //eInvoicing
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {

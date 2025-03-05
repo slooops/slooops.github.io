@@ -332,6 +332,42 @@ public class QueryConfigs {
     @Value(("${standard.revenue.summary.update.query}"))
     public String standardRevenueSummaryUpdate;
 
+    @Value(("${period.name.query}"))
+    public String periodName;
+    @Value(("${print.summary.view}"))
+    public String printSummary;
+    @Value(("${print.detail.view}"))
+    public String printDetail;
+    @Value(("${print.detail.view.filtered}"))
+    public String printDetailFiltered;
+    @Value(("${print.summary.update}"))
+    public String printSummaryUpdate;
+    @Value(("${credit.card.summary}"))
+    public String creditCardSummary;
+    @Value(("${credit.card.details}"))
+    public String creditCardDetails;
+    @Value(("${debit.card.summary}"))
+    public String debitCardSummary;
+    @Value(("${debit.card.details}"))
+    public String debitCardDetails;
+    @Bean(name = "creditCardSummary")
+    public String getCreditCardSummary() { return this.creditCardSummary; }
+    @Bean(name = "creditCardDetails")
+    public String getCreditCardDetails() { return this.creditCardDetails; }
+    @Bean(name = "debitCardSummary")
+    public String getDebitCardSummary() { return this.debitCardSummary; }
+    @Bean(name = "debitCardDetails")
+    public String getDebitCardDetails() { return this.debitCardDetails; }
+    @Bean(name = "printSummary")
+    public String getPrintSummary() { return this.printSummary; }
+    @Bean(name = "printDetail")
+    public String getPrintDetail() { return this.printDetail; }
+    @Bean(name = "printDetailFiltered")
+    public String getPrintDetailFiltered() { return this.printDetailFiltered; }
+    @Bean(name = "printSummaryUpdate")
+    public String getPrintSummaryUpdate() { return this.printSummaryUpdate; }
+    @Bean(name = "periodName")
+    public String getPeriodName() { return this.periodName; }
     @Bean(name = "standardRevenueSummary")
     public String getStandardRevenueSummary() { return this.standardRevenueSummary; }
 
