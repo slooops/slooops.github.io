@@ -302,6 +302,96 @@ public class QueryConfigs {
     @Value(("${transactions.processed.details.filtered}"))
     public String transactionsProcessedDetailsFiltered;
 
+    @Value(("${fusion.error.details.filtered}"))
+    public String fusionErrorDetailsFiltered;
+
+    @Value(("${fusion.error.summary.update.q}"))
+    public String fusionErrorSummaryUpdate;
+
+    @Value(("${standard.revenue.summary.query}"))
+    public String standardRevenueSummary;
+
+    @Value(("${standard.revenue.details.query}"))
+    public String standardRevenueDetails;
+
+    @Value(("${cm.amort.summary.query}"))
+    public String cmAmortSummary;
+
+    @Value(("${cm.amort.details.query}"))
+    public String cmAmortDetails;
+
+    @Value(("${cm.amort.details.filtered.query}"))
+    public String cmAmortDetailsFiltered;
+
+    @Value(("${cm.amort.summary.update.query}"))
+    public String cmAmortSummaryUpdate;
+
+    @Value(("${standard.revenue.details.filtered.query}"))
+    public String standardRevenueDetailsFiltered;
+
+    @Value(("${standard.revenue.summary.update.query}"))
+    public String standardRevenueSummaryUpdate;
+
+    @Value(("${period.name.query}"))
+    public String periodName;
+    @Value(("${print.summary.view}"))
+    public String printSummary;
+    @Value(("${print.detail.view}"))
+    public String printDetail;
+    @Value(("${print.detail.view.filtered}"))
+    public String printDetailFiltered;
+    @Value(("${print.summary.update}"))
+    public String printSummaryUpdate;
+    @Value(("${credit.card.summary}"))
+    public String creditCardSummary;
+    @Value(("${credit.card.details}"))
+    public String creditCardDetails;
+    @Value(("${debit.card.summary}"))
+    public String debitCardSummary;
+    @Value(("${debit.card.details}"))
+    public String debitCardDetails;
+    @Bean(name = "creditCardSummary")
+    public String getCreditCardSummary() { return this.creditCardSummary; }
+    @Bean(name = "creditCardDetails")
+    public String getCreditCardDetails() { return this.creditCardDetails; }
+    @Bean(name = "debitCardSummary")
+    public String getDebitCardSummary() { return this.debitCardSummary; }
+    @Bean(name = "debitCardDetails")
+    public String getDebitCardDetails() { return this.debitCardDetails; }
+    @Bean(name = "printSummary")
+    public String getPrintSummary() { return this.printSummary; }
+    @Bean(name = "printDetail")
+    public String getPrintDetail() { return this.printDetail; }
+    @Bean(name = "printDetailFiltered")
+    public String getPrintDetailFiltered() { return this.printDetailFiltered; }
+    @Bean(name = "printSummaryUpdate")
+    public String getPrintSummaryUpdate() { return this.printSummaryUpdate; }
+    @Bean(name = "periodName")
+    public String getPeriodName() { return this.periodName; }
+    @Bean(name = "standardRevenueSummary")
+    public String getStandardRevenueSummary() { return this.standardRevenueSummary; }
+
+    @Bean(name = "standardRevenueDetails")
+    public String getStandardRevenueDetails() { return this.standardRevenueDetails; }
+
+    @Bean(name = "cmAmortSummary")
+    public String getcmAmortSummary() { return this.cmAmortSummary; }
+    @Bean(name = "cmAmortDetails")
+    public String getcmAmortDetails() { return this.cmAmortDetails; }
+    @Bean(name = "standardRevenueDetailsFiltered")
+    public String getStandardRevenueDetailsFiltered() { return this.standardRevenueDetailsFiltered; }
+    @Bean(name = "standardRevenueSummaryUpdate")
+    public String getStandardRevenueSummaryUpdate() { return this.standardRevenueSummaryUpdate; }
+
+    @Bean(name = "cmAmortDetailsFiltered")
+    public String getCmAmortDetailsFiltered() { return this.cmAmortDetailsFiltered; }
+    @Bean(name = "cmAmortSummaryUpdate")
+    public String getCmAmortSummaryUpdate() { return this.cmAmortSummaryUpdate; }
+
+    @Bean(name = "fusionErrorSummaryUpdate")
+    public String getFusionErrorSummaryUpdate() { return this.fusionErrorSummaryUpdate; }
+    @Bean(name="fusionErrorDetailsFiltered")
+    public String getFusionErrorDetailsFiltered() { return this.fusionErrorDetailsFiltered; }
 
     @Bean(name="transactionsProcessedSummary")
     public String getTransactionsProcessedSummary() { return this.transactionsProcessedSummary; }

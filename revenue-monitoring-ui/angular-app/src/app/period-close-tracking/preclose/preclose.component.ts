@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 @Component({
   selector: 'app-preclose',
@@ -14,14 +15,15 @@ export class PrecloseComponent extends PeriodCloseTrackingComponent {
   username: string = 'Admin';
   constructor(
     http: ApiHttpService,
-    dataService: DataService,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
+    authService: AuthenticationService
   ) {
-    super(http, dataService, destroyManager);
+    super(http, destroyManager, authService);
   }
 
   showCommentSave: boolean = false;
   updatedComments: string;
+  dataSource: any;
 
   updateComments() {
     let comments = this.updatedComments + ',PRECLOSE';

@@ -1,0 +1,88 @@
+@import "src/assets/o2c-common-styles.css";
+
+.table-background {
+  background-color: #ffffff;
+}
+
+.card {
+  overflow-x: auto;
+  border: none;
+  background-color: rgb(241, 241, 241);
+  border-radius: 0px;
+  padding: 0;
+}
+
+.gridded-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  table-layout: fixed; /* Ensure fixed table layout */
+}
+
+.gridded-table th,
+.gridded-table td {
+  font-size: 12px;
+  width: 10vw; /* Set equal width for all columns */
+  padding: 5px;
+  background-color: #f1f1f1; /* Light gray background */
+  font-weight: bold;
+  text-align: left;
+  border: none;
+  color: #333;
+  overflow-x: auto;
+  border-right: 1px solid #ddd; /* Border between columns */
+  word-wrap: break-word; /* Ensure words wrap */
+  white-space: normal; /* Allow wrapping */
+  vertical-align: top;
+}
+
+.gridded-table th {
+  font-weight: bold;
+}
+
+.gridded-table td {
+  font-weight: normal;
+}
+
+.gridded-table .no-border-left {
+  border-left: none;
+}
+
+.gridded-table .no-border-right {
+  border-right: none;
+}
+
+.gridded-table th:last-child,
+.gridded-table td:last-child {
+  border-right: none; /* Remove right border from the last column */
+}
+
+tr.mat-header-row {
+  height: unset;
+}
+
+.header-table {
+  overflow-x: auto;
+  background-color: rgb(241, 241, 241);
+  margin: 0 -5rem;
+  padding: 0 5rem;
+}
+
+.header-card {
+  margin: 0px;
+  position: relative;
+  transition: all linear 0.5s;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.card-og {
+  position: relative;
+  display: block;
+  padding: 16px;
+  background-color: #fff;
+  outline: 2px solid #e1e4e8;
+  border-radius: 8px;
+  transition: all linear 0.5s;
+  width: auto;
+}

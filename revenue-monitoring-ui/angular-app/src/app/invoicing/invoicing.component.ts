@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-invoicing',
@@ -13,42 +14,16 @@ export class InvoicingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
+    private authService: AuthenticationService
   ) {}
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';
   roles: string[] = [];
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    this.getUserId();
-    this.getAssignmentUsers();
-  }
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
-
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-        this.getDefaultTabIndex();
-      });
-  }
-
-  assignmentUsers: any;
-
-  getAssignmentUsers() {
-    this.http
-      .get('summary-assignment-users', this.destroyManager)
-      .subscribe((data) => {
-        this.assignmentUsers = data;
-        this.dataService.setAssignmentUsers(this.assignmentUsers);
-      });
+    this.roles = this.authService.getRoles();
+    this.getDefaultTabIndex();
   }
 
   preInvoicingTotals: { [key: string]: number } = {
@@ -56,18 +31,132 @@ export class InvoicingComponent implements OnInit {
     '2 - Invoice Orchestration Layer': 0,
   };
 
-  preInvoicingFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'billNumber', columnName: 'BILL_NUMBER' },
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  preInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'billNumber',
+      columnName: 'BILL_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
-  autoInvoicingFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  autoInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
-  eInvoicingFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  postInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
+
+  eInvoicingFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  cmAmortTotals: { [key: string]: number } = {
+    'CM Amortization': 0,
+  };
+
+  printTotals: { [key: string]: number } = {
+    Print: 0,
+  };
+
+  creditCardTotals: { [key: string]: number } = {
+    'Credit Card Recurring': 0,
+    'Credit Card One Time': 0,
+  };
+
+  debitCardTotals: { [key: string]: number } = {
+    'Debit Card': 0,
+  };
 
   autoInvoicingTotals: { [key: string]: number } = {
     '3 - Auto Invoice': 0,
@@ -132,6 +221,46 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
+  cmAmortUrls: { [key: string]: string } = {
+    summaryUrl: 'post-invoice-error-summary',
+    detailsUrl: 'post-invoice-error-details',
+    filteredDetailsUrl: 'post-invoice-error-details-filtered',
+    summaryUpdateUrl: 'post-invoice-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  printUrls: { [key: string]: string } = {
+    summaryUrl: 'print-error-summary',
+    detailsUrl: 'print-error-details',
+    filteredDetailsUrl: 'print-error-details-filtered',
+    summaryUpdateUrl: 'print-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  creditCardUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-error-summary',
+    detailsUrl: 'credit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  debitCardUrls: { [key: string]: string } = {
+    summaryUrl: 'debit-card-error-summary',
+    detailsUrl: 'debit-card-error-details',
+    filteredDetailsUrl: '',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
   eInvoicingUrls: { [key: string]: string } = {
     summaryUrl: 'einvoicing-error-summary',
     detailsUrl: 'einvoicing-error-details',
@@ -145,9 +274,9 @@ export class InvoicingComponent implements OnInit {
   fusionUrls: { [key: string]: string } = {
     summaryUrl: 'fusion-error-summary',
     detailsUrl: 'fusion-error-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
+    filteredDetailsUrl: 'fusion-error-details-filtered',
+    summaryUpdateUrl: 'fusion-error-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
@@ -162,9 +291,36 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  fusionFilters: { formControlName: string; columnName: string }[] = [
-    { formControlName: 'orderNumber', columnName: 'ORDER_NUMBER' },
-    { formControlName: 'transactionId', columnName: 'TRANSACTION_ID' },
+  fusionFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderNumber',
+      columnName: 'ORDER_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
   ];
 
   fusionTotals: { [key: string]: number } = {
@@ -226,7 +382,6 @@ export class InvoicingComponent implements OnInit {
       label: 'Post-Invoicing',
       component: 'app-post-invoicing',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      disabled: true,
     },
     {
       label: 'eInvoicing',
@@ -250,11 +405,11 @@ export class InvoicingComponent implements OnInit {
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
     },
-    {
-      label: 'Transactions Processed',
-      component: 'app-transactions-processed',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    },
+    // {
+    //   label: 'Transactions Processed',
+    //   component: 'app-transactions-processed',
+    //   role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    // },
   ];
 
   selectedIndex: number = 0;
@@ -275,14 +430,15 @@ export class InvoicingComponent implements OnInit {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: fit-content;
   width: 100%;
+  height: 82px;
+
 }
 
 .slider-title {
   color: #333;
   margin-bottom: 30px;
-  margin-top: 0px;
+  margin-top: 0;
   text-align: center;
   font-weight: 500;
   font-size: 16px;
@@ -296,7 +452,7 @@ export class InvoicingComponent implements OnInit {
 }
 
 .slider-bar {
-  width: 620px;
+  width: 460px;
   height: 4px;
   background: #16371e43;
   border-radius: 5px;

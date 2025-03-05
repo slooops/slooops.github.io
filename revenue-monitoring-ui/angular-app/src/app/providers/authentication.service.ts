@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AppConfigService } from './app-config.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthenticationService {
-  constructor(private appConfig: AppConfigService) {}
+  constructor(private appConfig: AppConfigService, private router: Router) {}
 
   async getValidToken() {
     const date = new Date();
@@ -111,6 +112,68 @@ export class AuthenticationService {
           timeStampCurr + expires_in - 300; /* time 5 min before token expire */
         sessionStorage.setItem('accessTokenExpireTime', '' + expireTime);
       });
+  }
+
+  username: string;
+  userId: string;
+  bypassRoutes = [
+    '/o2c-demo',
+    '/o2c-details',
+    '/o2c-order',
+    '/o2c-sub',
+    '/o2c-accrual',
+    '/o2c-invoicing',
+    '/o2c-landing',
+    '/o2c-overview',
+  ];
+  async getUserId() {
+    return fetch('/user/name')
+      .then((response) => response.json())
+      .then(async (info) => {
+        this.username = info['auth_user_name'];
+        this.userId = info['auth_user'];
+        await this.getUserRoles(info['auth_user']);
+        // Check if userRoles is empty and navigate to the error page
+        console.log(this.router);
+        console.log(this.userRoles);
+        console.log(this.router.url);
+        if (
+          this.userRoles.length === 0 &&
+          !this.bypassRoutes.includes(this.router.url)
+        ) {
+          this.router.navigate(['/error']); // Change this to your actual error page route
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching user info:', error);
+        this.router.navigate(['/error']);
+      });
+  }
+
+  getUserID() {
+    return this.userId;
+  }
+
+  getUserName() {
+    return this.username;
+  }
+
+  userRoles: string[] = [];
+  getUserRoles(username: string) {
+    let rolesUrl =
+      this.appConfig.getApiUrl() + `user-role?username=${username}`;
+    return fetch(rolesUrl)
+      .then((response) => response.json())
+      .then((info) => {
+        this.userRoles = info['userRoles'];
+      })
+      .catch((error) => {
+        console.error('Error fetching user roles:', error);
+      });
+  }
+
+  getRoles() {
+    return this.userRoles;
   }
 
   ssoLogout() {

@@ -46,7 +46,12 @@ export class MonitoringDashboardComponent<T>
   @Input() dynamicCss: string = '';
   @Input() isSubAppMapping: boolean = false;
   @Input() warningMessage: string = '';
-  @Input() columnsToFilter: { formControlName: string; columnName: string }[];
+  @Input() columnsToFilter: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[];
   @Input() summaryColumnsToHide: string[] = [];
   @Input() detailsColumnsToHide: string[] = [];
   @Input() submitKeysToMap: string[] = [];
@@ -56,12 +61,9 @@ export class MonitoringDashboardComponent<T>
   totalImpactData$: Observable<any>;
   updateUrl: string;
   webexUrl: string;
-  processFlowhtml: string = '';
-  processFlowcss: string = '';
-  searchForm: FormGroup = new FormGroup({
-    processFlow: new FormControl(''),
-    orgName: new FormControl(''),
-  });
+  searchForm: FormGroup = new FormGroup({});
+  textFilters: any[] = [];
+  selectFilters: any[] = [];
 
   constructor(
     private http: ApiHttpService,
@@ -431,6 +433,12 @@ export class MonitoringDashboardComponent<T>
         );
         this.errorDetails.forEach((row) => {
           row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+          if (row.RULE_START_DATE || row.RULE_END_DATE) {
+            row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
+            row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
+          } else if (row.PAYMENT_DATE) {
+            row.PAYMENT_DATE = this.dateTransform(row.PAYMENT_DATE);
+          }
           this.detailsDisplayedColumns.forEach((column) => {
             if (row[column] === '-') {
               row[column] = '--';
@@ -486,6 +494,10 @@ export class MonitoringDashboardComponent<T>
           );
           this.errorDetailsFiltered.forEach((row) => {
             row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
+            if (row.RULE_START_DATE || row.RULE_END_DATE) {
+              row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
+              row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
+            }
           });
           this.originalFilteredData = this.errorDetailsFiltered;
           this.filtereddataSource = new MatTableDataSource<T>(
@@ -511,42 +523,101 @@ export class MonitoringDashboardComponent<T>
       });
   }
 
-  processFlowOptions: string[] = [];
-  orgNameOptions: string[] = [];
+  // processFlowOptions: string[] = [];
+  // orgNameOptions: string[] = [];
+  // filterData() {
+  //   this.processFlowOptions = [];
+  //   this.orgNameOptions = [];
+  //   let processFlowTemp: string[] = [];
+  //   let orgNameTemp: string[] = [];
+  //   if (this.isFiltered) {
+  //     this.errorDetailsFiltered.forEach((data) => {
+  //       processFlowTemp.push(data.PROCESS_FLOW);
+  //       if (this.componentName === 'General Ledger') {
+  //         orgNameTemp.push(data.LEDGER_NAME);
+  //       } else {
+  //         orgNameTemp.push(data.ORG_NAME);
+  //       }
+  //     });
+  //   } else {
+  //     this.errorDetails.forEach((data) => {
+  //       processFlowTemp.push(data.PROCESS_FLOW);
+  //       if (this.componentName === 'General Ledger') {
+  //         orgNameTemp.push(data.LEDGER_NAME);
+  //       } else {
+  //         orgNameTemp.push(data.ORG_NAME);
+  //       }
+  //     });
+  //   }
+  //   this.processFlowOptions = [...new Set(processFlowTemp)];
+  //   this.orgNameOptions = [...new Set(orgNameTemp)];
+  // }
+
+  filterOptions: { [key: string]: string[] } = {}; // Store dynamic filter options
+
   filterData() {
-    this.processFlowOptions = [];
-    this.orgNameOptions = [];
-    let processFlowTemp: string[] = [];
-    let orgNameTemp: string[] = [];
-    if (this.isFiltered) {
-      this.errorDetailsFiltered.forEach((data) => {
-        processFlowTemp.push(data.PROCESS_FLOW);
-        if (this.componentName === 'General Ledger') {
-          orgNameTemp.push(data.LEDGER_NAME);
-        } else {
-          orgNameTemp.push(data.ORG_NAME);
+    // Reset the filter options object
+    this.filterOptions = {};
+
+    // Temporary storage for unique values
+    let tempOptions: { [key: string]: string[] } = {};
+
+    // Initialize temporary storage for each select filter
+    this.selectFilters.forEach((column) => {
+      tempOptions[column.formControlName] = [];
+    });
+
+    // Determine the data source based on filter status
+    const dataSource = this.isFiltered
+      ? this.errorDetailsFiltered
+      : this.errorDetails;
+
+    // Populate filter options dynamically
+    dataSource.forEach((data) => {
+      this.selectFilters.forEach((column) => {
+        let value;
+
+        value = data[column.columnName];
+
+        if (value) {
+          tempOptions[column.formControlName].push(value);
         }
       });
-    } else {
-      this.errorDetails.forEach((data) => {
-        processFlowTemp.push(data.PROCESS_FLOW);
-        if (this.componentName === 'General Ledger') {
-          orgNameTemp.push(data.LEDGER_NAME);
-        } else {
-          orgNameTemp.push(data.ORG_NAME);
-        }
-      });
-    }
-    this.processFlowOptions = [...new Set(processFlowTemp)];
-    this.orgNameOptions = [...new Set(orgNameTemp)];
+    });
+
+    // Remove duplicates and store in `filterOptions`
+    Object.keys(tempOptions).forEach((key) => {
+      this.filterOptions[key] = [...new Set(tempOptions[key])];
+    });
   }
 
   private initializeForm() {
-    this.columnsToFilter.forEach((column) => {
+    this.textFilters = this.columnsToFilter.filter(
+      (col) => col.type === 'text'
+    );
+    this.selectFilters = this.columnsToFilter.filter(
+      (col) => col.type === 'select'
+    );
+
+    // Add text-based filters
+    this.textFilters.forEach((column) => {
       if (!this.searchForm.contains(column.formControlName)) {
         this.searchForm.addControl(column.formControlName, new FormControl(''));
       }
     });
+
+    // Add select filters
+    this.selectFilters.forEach((column) => {
+      if (!this.searchForm.contains(column.formControlName)) {
+        this.searchForm.addControl(column.formControlName, new FormControl([])); // Multiple select needs an array
+      }
+    });
+
+    // this.columnsToFilter.forEach((column) => {
+    //   if (!this.searchForm.contains(column.formControlName)) {
+    //     this.searchForm.addControl(column.formControlName, new FormControl(''));
+    //   }
+    // });
   }
 
   filter() {
@@ -556,15 +627,20 @@ export class MonitoringDashboardComponent<T>
   applyFilter() {
     const filters = {};
 
-    this.columnsToFilter.forEach((column) => {
+    this.textFilters.forEach((column) => {
       filters[column.formControlName + 'Filter'] = this.searchForm.get(
         column.formControlName
       ).value;
     });
 
-    filters['processFlowFilter'] =
-      this.searchForm.get('processFlow').value || '';
-    filters['orgNameFilter'] = this.searchForm.get('orgName').value || '';
+    this.selectFilters.forEach((column) => {
+      filters[column.formControlName + 'Filter'] =
+        this.searchForm.get(column.formControlName).value || '';
+    });
+
+    // filters['processFlowFilter'] =
+    //   this.searchForm.get('processFlow').value || '';
+    // filters['orgNameFilter'] = this.searchForm.get('orgName').value || '';
 
     const filterString = JSON.stringify(filters);
 
@@ -578,18 +654,29 @@ export class MonitoringDashboardComponent<T>
 
   filterPredicate = (data: any, filter: string): boolean => {
     const filters = JSON.parse(filter);
-    const matchesProcessFlow =
-      !filters['processFlowFilter'] || filters['processFlowFilter'].length === 0
-        ? true
-        : filters['processFlowFilter'].includes(data['PROCESS_FLOW']);
+    // const matchesProcessFlow =
+    //   !filters['processFlowFilter'] || filters['processFlowFilter'].length === 0
+    //     ? true
+    //     : filters['processFlowFilter'].includes(data['PROCESS_FLOW']);
 
-    const matchesOrgName =
-      !filters['orgNameFilter'] || filters['orgNameFilter'].length === 0
-        ? true
-        : this.componentName === 'General Ledger'
-        ? filters['orgNameFilter'].includes(data['LEDGER_NAME'])
-        : filters['orgNameFilter'].includes(data['ORG_NAME']);
-    const matchesTextFilters = this.columnsToFilter.every((column) => {
+    // const matchesOrgName =
+    //   !filters['orgNameFilter'] || filters['orgNameFilter'].length === 0
+    //     ? true
+    //     : this.componentName === 'General Ledger'
+    //     ? filters['orgNameFilter'].includes(data['LEDGER_NAME'])
+    //     : filters['orgNameFilter'].includes(data['ORG_NAME']);
+
+    const matchesSelectFilters = this.selectFilters.every((column) => {
+      const filterValue =
+        !filters[column.formControlName + 'Filter'] ||
+        filters[column.formControlName + 'Filter'].length === 0
+          ? true
+          : filters[column.formControlName + 'Filter'].includes(
+              data[column.columnName]
+            );
+      return filterValue;
+    });
+    const matchesTextFilters = this.textFilters.every((column) => {
       const filterValue = filters[column.formControlName + 'Filter'] || '';
       return (
         data[column.columnName]
@@ -598,7 +685,7 @@ export class MonitoringDashboardComponent<T>
           .indexOf(filterValue.toLowerCase()) !== -1
       );
     });
-    return matchesProcessFlow && matchesOrgName && matchesTextFilters;
+    return matchesSelectFilters && matchesTextFilters;
   };
 
   clearFilters() {

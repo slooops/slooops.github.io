@@ -9,6 +9,7 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { PeriodCloseTrackingComponent } from '../period-close-tracking.component';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 export interface PeriodClose {
   operatingUnit: string;
@@ -29,10 +30,10 @@ export interface PeriodClose {
 export class MidcloseComponent extends PeriodCloseTrackingComponent {
   constructor(
     http: ApiHttpService,
-    dataService: DataService,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
+    authService: AuthenticationService
   ) {
-    super(http, dataService, destroyManager);
+    super(http, destroyManager, authService);
   }
 
   username: string = 'Admin';

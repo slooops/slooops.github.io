@@ -23,7 +23,7 @@ public class PeriodCloseMonitoringController {
     }
 
     @GetMapping("/period-close-interface-load")
-    public ResponseEntity<List<Map<String, Object>>> getPeriodCloseInterfaceLoad() {
+    public ResponseEntity<Map<String, List<Map<String, Object>>>> getPeriodCloseInterfaceLoad() {
         return new ResponseEntity<>(service.getPeriodCloseInterfaceLoad(), HttpStatus.OK);
     }
 

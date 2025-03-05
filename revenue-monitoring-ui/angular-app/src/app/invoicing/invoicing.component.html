@@ -15,7 +15,12 @@
           [processFlowKeys]="preInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Pre-Invoicing'"
-          [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
+          [processFlowTabsToDisplay]="[
+            'Pre-Invoicing',
+            'Auto-Invoicing',
+            'CM-Amortization',
+            'Print'
+          ]"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
           [dynamicTemplate]="dynamicTemplate"
@@ -49,7 +54,12 @@
           [processFlowKeys]="autoInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Auto-Invoicing'"
-          [processFlowTabsToDisplay]="['Pre-Invoicing', 'Auto-Invoicing']"
+          [processFlowTabsToDisplay]="[
+            'Pre-Invoicing',
+            'Auto-Invoicing',
+            'CM-Amortization',
+            'Print'
+          ]"
           [specialWords]="specialWords"
           [skippedWords]="skippedWords"
           [dynamicTemplate]="dynamicTemplate"
@@ -74,6 +84,128 @@
             'AMOUNT'
           ]"
         ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-post-invoicing'">
+        <mat-tab-group [selectedIndex]="0">
+          <mat-tab label="CM Amortization">
+            <app-monitoring-dashboard
+              [urls]="cmAmortUrls"
+              [keysToMap]="preAndAutoInvoiceKeysToMap"
+              [processFlowKeys]="cmAmortTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'CM Amortization'"
+              [processFlowTabsToDisplay]="[
+                'Pre-Invoicing',
+                'Auto-Invoicing',
+                'CM Amortization',
+                'Print'
+              ]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]="dynamicTemplate"
+              [dynamicCss]="invoicingprocessflowCss"
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="['TRANSACTION_DATE']"
+              [submitKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
+              [webexKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="Invoice Delivery">
+            <app-monitoring-dashboard
+              [urls]="printUrls"
+              [keysToMap]="preAndAutoInvoiceKeysToMap"
+              [processFlowKeys]="printTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'Print'"
+              [processFlowTabsToDisplay]="[
+                'Pre-Invoicing',
+                'Auto-Invoicing',
+                'CM Amortization',
+                'Print'
+              ]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]="dynamicTemplate"
+              [dynamicCss]="invoicingprocessflowCss"
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="['TRANSACTION_DATE']"
+              [submitKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
+              [webexKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="Credit Card Payments">
+            <app-monitoring-dashboard
+              [urls]="creditCardUrls"
+              [keysToMap]=""
+              [processFlowKeys]="creditCardTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'Credit Card'"
+              [processFlowTabsToDisplay]="[]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]=""
+              [dynamicCss]=""
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="[]"
+              [submitKeysToMap]="[]"
+              [webexKeysToMap]="[]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="Debit Card Payments">
+            <app-monitoring-dashboard
+              [urls]="debitCardUrls"
+              [keysToMap]=""
+              [processFlowKeys]="debitCardTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'Debit Card'"
+              [processFlowTabsToDisplay]="[]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]="dynamicTemplate"
+              [dynamicCss]="invoicingprocessflowCss"
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="postInvoicingFilters"
+              [detailsColumnsToHide]="['']"
+              [submitKeysToMap]="[]"
+              [webexKeysToMap]="[]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+        </mat-tab-group>
       </ng-container>
       <ng-container *ngSwitchCase="'app-eInvoicing'">
         <app-monitoring-dashboard
@@ -112,7 +244,7 @@
       <ng-container *ngSwitchCase="'app-fusion'">
         <app-monitoring-dashboard
           [urls]="fusionUrls"
-          [keysToMap]=""
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
           [processFlowKeys]="fusionTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Fusion'"
@@ -125,13 +257,25 @@
           [warningMessage]="'Warning message '"
           [columnsToFilter]="fusionFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
-          [submitKeysToMap]="[]"
-          [webexKeysToMap]="[]"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE'
+          ]"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
+          ]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
 
-      <ng-container *ngSwitchCase="'app-transactions-processed'">
+      <!-- <ng-container *ngSwitchCase="'app-transactions-processed'">
         <app-monitoring-dashboard
           [urls]="transactionsProcessedUrls"
           [keysToMap]="['ORG_NAME']"
@@ -144,7 +288,7 @@
           [columnsToFilter]="[]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container>
+      </ng-container> -->
 
       <ng-container *ngSwitchCase="'app-cms'">
         <app-cms *ngIf="selectedIndex === i"></app-cms>
@@ -200,15 +344,18 @@
         </div>
 
         <!-- Chevron 3 -->
-        <div class="chevron chevron-3"></div>
-        <div class="chevron-white chevron-3"></div>
+        <!-- <div class="chevron chevron-4"></div>
+        <div class="chevron-white chevron-4"></div> -->
 
         <!-- Post-Invoice Circle 4 -->
-        <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">4. Post-Invoice</p>
-          <span class="circle circle-4"></span>
-          <p class="circle-subcaption">Total Impact: N/A</p>
-        </div>
+        <!-- <div class="circle-wrapper circle-wrapper-5">
+          <p class="circle-caption">5. Print</p>
+          <span class="circle circle-5"></span>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Print']?.['Print'] || 'N/A' }}
+          </p>
+        </div> -->
       </div>
     </div>
   </div>

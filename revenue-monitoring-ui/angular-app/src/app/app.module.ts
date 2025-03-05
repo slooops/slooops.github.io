@@ -74,10 +74,25 @@ import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow
 import { MatStepperModule } from '@angular/material/stepper';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
+import { CommonModule } from '@angular/common';
+import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
+import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
+import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
+import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
+import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
+import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
+import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
+import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
+import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-process-flow.component';
+import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
+import { TableComponent } from './components/table/table.component';
+import { OplComponent } from './opl/opl.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
-    return authService.getTokens();
+    return authService.getTokens().then(() => {
+      return authService.getUserId();
+    });
   };
 }
 
@@ -119,6 +134,18 @@ export function initApp(authService: AuthenticationService) {
     ProcessFlowTooltipComponent,
     O2cDemoComponent,
     GlPostingComponent,
+    O2cDetailsComponent,
+    O2cOrderComponent,
+    O2cSubComponent,
+    O2cAccrualComponent,
+    O2cInvoicingComponent,
+    O2cNavComponent,
+    O2cTableComponent,
+    O2cLandingComponent,
+    O2cProcessFlowComponent,
+    O2cOverviewComponent,
+    TableComponent,
+    OplComponent,
   ],
   imports: [
     BrowserModule,
@@ -162,6 +189,7 @@ export function initApp(authService: AuthenticationService) {
     MatNativeDateModule,
     FontAwesomeModule,
     MatStepperModule,
+    CommonModule,
   ],
   providers: [
     DatePipe,

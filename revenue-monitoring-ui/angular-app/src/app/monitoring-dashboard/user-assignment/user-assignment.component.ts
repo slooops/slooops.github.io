@@ -8,6 +8,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -53,10 +54,11 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
     private formBuilder: FormBuilder,
     private http: ApiHttpService,
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private authService: AuthenticationService
   ) {
-    this.username = this.dataService.getUsername();
-    this.userRoles = this.dataService.getUserRoles();
+    this.username = this.authService.getUserID();
+    console.log('User Name:', this.username);
+    this.userRoles = this.authService.getRoles();
   }
   ngOnInit(): void {
     if (this.componentName === 'General Ledger') {

@@ -6,8 +6,9 @@ import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import * as XLSX from 'xlsx';
-import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -226,16 +227,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseInterfaceLoadColumns: string[] = [];
 
   protected http: ApiHttpService;
-  protected dataService: DataService;
   protected destroyManager: DestroyManager;
 
   constructor(
     http: ApiHttpService,
-    dataService: DataService,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
+    private authService: AuthenticationService
   ) {
     this.http = http;
-    this.dataService = dataService;
     this.destroyManager = destroyManager;
 
     window.onbeforeunload = function () {
@@ -253,7 +252,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getComments();
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
-    this.getUserId();
+    this.roles = this.authService.getRoles();
+    this.getDefaultTabIndex();
   }
 
   visibleTabs: { label: string; component: string; role: string[] }[] = [
@@ -283,23 +283,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
       role: ['ADMIN', 'LARGE_DEAL'],
     },
   ];
-
-  getUserId() {
-    this.dataService.setLoading(true);
-    this.dataService.getUserId(this.destroyManager).subscribe((data) => {
-      let username = data['auth_user'];
-      this.getUserRoles(username);
-    });
-  }
-
-  getUserRoles(username: string) {
-    this.dataService
-      .getRoles(username, this.destroyManager)
-      .subscribe((data) => {
-        this.roles = data['userRoles'];
-        this.getDefaultTabIndex();
-      });
-  }
 
   selectedIndex: number = 0;
   filteredTabs: { label: string; component: string }[] = [];
@@ -396,10 +379,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   qeCashCollectedTableColumns: any[] = [];
-
+  qeCashCollectedDatasource: any;
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
-      // Rows
+      console.log(data);
       data.map((cashData) => {
         cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
         cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
@@ -412,35 +395,25 @@ export class PeriodCloseTrackingComponent implements OnInit {
       });
       this.qeCashCollectedData = data;
 
-      // Columns
       let tableColumns: any[] = [];
 
       for (let column_name of Object.keys(data[0])) {
         tableColumns.push(column_name);
-
-        // tableColumns.push(
-        //   new CuiTableColumnOption({
-        //     name: column_name.replace(/_/g, '-'),
-        //     sortable: false,
-        //     key: column_name,
-        //   })
-        // );
       }
 
       this.qeCashCollectedTableColumns = tableColumns;
-
-      // this.qeCashCollectedTableOptions = new CuiTableOptions({
-      //   bordered: true,
-      //   // striped: true,
-      //   // fixed: true,
-      //   columns: tableColumns,
-      //   dynamicData: true,
-      // });
+      this.qeCashCollectedDatasource = new MatTableDataSource<any>(
+        this.qeCashCollectedData
+      );
     });
   }
 
   replaceUnderscoreWithDash(column: string): string {
-    return column.replace(/_/g, '-');
+    return column
+      .replace(/_/g, '-')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 
   getPrecloseMeStatus() {
@@ -613,12 +586,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const data = JSON.parse(localStorage.getItem('midclosestatus'));
         this.selectedStatus(data, 'MIDCLOSE');
       }
-      this.showComments = this.dataService.getUserRoles().includes('ADMIN');
+      this.showComments = this.roles.includes('ADMIN');
     });
   }
 
   pcloseInvGenTableColumns: any[] = [];
   mcloseInvGenTableColumns: any[] = [];
+  precloseInvGenDatasource: any;
+  midcloseInvGenDatasource: any;
   getPeriodCloseInvoice() {
     this.getEndpointData('period-close-invoice-stats').subscribe(
       (data: any) => {
@@ -633,7 +608,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
           }
           return invData;
         });
-        // array.filter(obj => obj.category === category);
         this.preCloseProgramTableData = data.filter(
           (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
         );
@@ -656,27 +630,22 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
         this.pcloseInvGenTableColumns = programColumns;
         this.mcloseInvGenTableColumns = programColumns;
-
-        // if (!this.isQuarterEnd) {
-        //   console.log('here');
-        //   this.pcloseInvGenTableColumns = this.pcloseInvGenTableColumns.filter(
-        //     (ele) => ele.name !== 'QUARTER'
-        //   );
-        //   this.mcloseInvGeTableColumns = this.mcloseInvGenTableColumns.filter(
-        //     (ele) => ele.name !== 'QUARTER'
-        //   );
-        // }
-
-        // console.log(this.pcloseInvGenTableColumns);
-        // // console.log(this.mcloseInvGenTableColumns);
-
-        // console.log(this.preCloseProgramTableData);
+        this.precloseInvGenDatasource = new MatTableDataSource<any>(
+          this.preCloseProgramTableData
+        );
+        this.midcloseInvGenDatasource = new MatTableDataSource<any>(
+          this.midCloseProgramTableData
+        );
       }
     );
   }
 
   replaceUnderscoreWithEmpty(column: string): string {
-    return column.replace(/_/g, ' ');
+    return column
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 
   getEstimatedCompletionTime() {
@@ -693,170 +662,45 @@ export class PeriodCloseTrackingComponent implements OnInit {
     });
   }
 
+  precloseInterfaceLoadDatasource: any;
+  midcloseInterfaceLoadDatasource: any;
+  percentageColumn: boolean = false;
   getInterfaceLoad() {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
-        this.precloseInterfaceLoadData = data.filter(
-          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
-        );
-        this.midcloseInterfaceLoadData = data.filter(
-          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
-        );
-
-        this.precloseInterfaceLoadTableData = [];
-        this.midcloseInterfaceLoadTableData = [];
-
+        this.precloseInterfaceLoadData = data['PRECLOSE'];
+        this.midcloseInterfaceLoadData = data['MIDCLOSE'];
         this.pcloseInterfaceLoadColumns = [];
-        this.pcloseInterfaceLoadColumns.push('LINE TYPE');
-
         this.mcloseInterfaceLoadColumns = [];
-        this.mcloseInterfaceLoadColumns.push('LINE TYPE');
 
-        const emptyArray: number[] = [];
-
-        let preclose_prod_row = {};
-        let preclose_service_row = {};
-        let midclose_prod_row = {};
-        let midclose_service_row = {};
-
-        preclose_prod_row['LINE_TYPE'] = 'PRODUCT';
-        preclose_service_row['LINE_TYPE'] = 'SERVICE';
-        midclose_prod_row['LINE_TYPE'] = 'PRODUCT';
-        midclose_service_row['LINE_TYPE'] = 'SERVICE';
-
-        // let preclose_prod_array: any[] = ['PROD'];
-        // let preclose_service_array: any[] = ['SERVICE'];
-        // let midclose_prod_array: any[] = ['PROD'];
-        // let midclose_service_array: any[] = ['SERVICE'];
-
-        let fiscalType = '';
-        if (this.isQuarterEnd) {
-          fiscalType = 'QUARTER';
-        } else {
-          fiscalType = 'PERIOD_NAME';
+        if (this.precloseInterfaceLoadData.length > 0) {
+          this.pcloseInterfaceLoadColumns = Object.keys(
+            this.precloseInterfaceLoadData[0]
+          );
         }
 
-        // preclose
-        this.precloseInterfaceLoadData.forEach((row) => {
-          if (
-            !this.pcloseInterfaceLoadColumns.includes(row[fiscalType]) &&
-            row[fiscalType] !== undefined
-          ) {
-            this.pcloseInterfaceLoadColumns.push(row[fiscalType]);
-          }
-          if (row['LINE_TYPE'] === 'PRODUCT') {
-            preclose_prod_row[row[fiscalType]] =
-              row['LINE_COUNT'].toLocaleString('en-US');
-            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              this.pcloseInterfaceLoadColumns.push('MONTH OVER MONTH');
-              preclose_prod_row['MONTH OVER MONTH'] =
-                row['MOM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              this.pcloseInterfaceLoadColumns.push('PRIOR QUARTER MONTH');
-              preclose_prod_row['PRIOR QUARTER MONTH'] =
-                row['PQM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
-              this.pcloseInterfaceLoadColumns.push('QUARTER OVER QUARTER');
-              preclose_prod_row['QUARTER OVER QUARTER'] =
-                row['QOQ_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
-              this.pcloseInterfaceLoadColumns.push('YEAR OVER YEAR');
-              preclose_prod_row['YEAR OVER YEAR'] =
-                row['YOY_PERCENTAGE'].toFixed(0) + '%';
-            }
-          } else if (row['LINE_TYPE'] === 'SERVICE') {
-            preclose_service_row[row[fiscalType]] =
-              row['LINE_COUNT'].toLocaleString('en-US');
-            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              preclose_service_row['MONTH OVER MONTH'] =
-                row['MOM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              preclose_service_row['PRIOR QUARTER MONTH'] =
-                row['PQM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
-              preclose_service_row['QUARTER OVER QUARTER'] =
-                row['QOQ_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
-              preclose_service_row['YEAR OVER YEAR'] =
-                row['YOY_PERCENTAGE'].toFixed(0) + '%';
-            }
-          }
-        });
-        this.precloseInterfaceLoadTableData.push(preclose_prod_row);
-        this.precloseInterfaceLoadTableData.push(preclose_service_row);
-
-        // midclose
-        this.midcloseInterfaceLoadData.forEach((row) => {
-          if (
-            !this.mcloseInterfaceLoadColumns.includes(row[fiscalType]) &&
-            row[fiscalType] !== undefined
-          ) {
-            this.mcloseInterfaceLoadColumns.push(row[fiscalType]);
-          }
-          if (row['LINE_TYPE'] === 'PRODUCT') {
-            midclose_prod_row[row[fiscalType]] =
-              row['LINE_COUNT'].toLocaleString('en-US');
-            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              this.mcloseInterfaceLoadColumns.push('MONTH OVER MONTH');
-              midclose_prod_row['MONTH OVER MONTH'] =
-                row['MOM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              this.mcloseInterfaceLoadColumns.push('PRIOR QUARTER MONTH');
-              midclose_prod_row['PRIOR QUARTER MONTH'] =
-                row['PQM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
-              this.mcloseInterfaceLoadColumns.push('QUARTER OVER QUARTER');
-              midclose_prod_row['QUARTER OVER QUARTER'] =
-                row['QOQ_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
-              this.mcloseInterfaceLoadColumns.push('YEAR OVER YEAR');
-              midclose_prod_row['YEAR OVER YEAR'] =
-                row['YOY_PERCENTAGE'].toFixed(0) + '%';
-            }
-          } else if (row['LINE_TYPE'] === 'SERVICE') {
-            midclose_service_row[row[fiscalType]] =
-              row['LINE_COUNT'].toLocaleString('en-US');
-            if (row['MOM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              midclose_service_row['MONTH OVER MONTH'] =
-                row['MOM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['PQM_PERCENTAGE'] != null && !this.isQuarterEnd) {
-              midclose_service_row['PRIOR QUARTER MONTH'] =
-                row['PQM_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['QOQ_PERCENTAGE'] != null && this.isQuarterEnd) {
-              midclose_service_row['QUARTER OVER QUARTER'] =
-                row['QOQ_PERCENTAGE'].toFixed(0) + '%';
-            }
-            if (row['YOY_PERCENTAGE'] != null && this.isQuarterEnd) {
-              midclose_service_row['YEAR OVER YEAR'] =
-                row['YOY_PERCENTAGE'].toFixed(0) + '%';
-            }
-          }
-        });
-        this.midcloseInterfaceLoadTableData.push(midclose_prod_row);
-        this.midcloseInterfaceLoadTableData.push(midclose_service_row);
-
-        let interfaceSet = new Set<string>();
-        for (let value of data.values()) {
-          Object.keys(value).forEach((key) => {
-            if (key === 'QUARTER') {
-              interfaceSet.add(value[key]);
-            }
-          });
+        if (this.midcloseInterfaceLoadData.length > 0) {
+          this.mcloseInterfaceLoadColumns = Object.keys(
+            this.midcloseInterfaceLoadData[0]
+          );
         }
-        this.dynamicInterfaceLoadColumns.push(...interfaceSet.values());
-        // this.setInterfaceLoadColumns();
+
+        this.precloseInterfaceLoadDatasource = new MatTableDataSource<any>(
+          this.precloseInterfaceLoadData
+        );
+        this.midcloseInterfaceLoadDatasource = new MatTableDataSource<any>(
+          this.midcloseInterfaceLoadData
+        );
       }
+    );
+  }
+
+  isPercentageColumn(column: string): boolean {
+    return (
+      column === 'QUARTER OVER QUARTER' ||
+      column === 'MONTH OVER MONTH' ||
+      column === 'YEAR OVER YEAR' ||
+      column === 'PRIOR QUARTER MONTH'
     );
   }
 

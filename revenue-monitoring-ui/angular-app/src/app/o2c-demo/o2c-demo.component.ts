@@ -1,295 +1,421 @@
-import {
-  Component,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-} from '@angular/core';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
-import { MatSort } from '@angular/material/sort';
+import { Component } from '@angular/core';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-demo',
   templateUrl: './o2c-demo.component.html',
   styleUrl: './o2c-demo.component.css',
-  animations: [
-    trigger('detailExpand', [
-      state('collapsed', style({ height: '0px', minHeight: '0' })),
-      state('expanded', style({ height: '*' })),
-      transition(
-        'expanded <=> collapsed',
-        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')
-      ),
-    ]),
-  ],
 })
 export class O2cDemoComponent {
-  @ViewChild('outerSort', { static: true }) sort: MatSort;
-  @ViewChildren('innerSort') innerSort: QueryList<MatSort>;
-  @ViewChildren('innerTables') innerTables: QueryList<MatTable<Address>>;
+  selectedTable: 'order' | 'sub' | 'accrual' | 'invoice' | null = null; // Track which table is visible
+  circleSteps: string[] = [];
 
-  data: User[] = USERS;
+  constructor(private router: Router) {}
 
-  dataSource: MatTableDataSource<User>;
-  usersData: User[] = [];
-  columnsToDisplay = ['Step', 'Account', 'Subscription_Line'];
-  innerDisplayedColumns = ['Order_Summary', 'Order_ID', 'Order_Status'];
-  innerInnerDisplayedColumns = ['comment', 'commentStatus'];
-  expandedElement: User | null;
-  expandedElements: any[] = [];
+  displayedColumnsBusinessRules: string[] = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+  ];
 
-  constructor(private cd: ChangeDetectorRef) {}
+  dataSourceBusinessRules = new MatTableDataSource<any>([
+    {
+      1: 'Order',
+      2: 'Credit Holds Released, Order Not Booked',
+      3: 'RSD passed, Order Not Booked',
+      4: 'Order Booked, RSD passed, Fullfilment Incomplete',
+      5: 'Contract creation past due',
+      6: 'Fullfillment Complete , Pending Sub. Activation',
+      7: 'TCV != Booked Amount',
+      8: 'Activation Complete, Pending Final Order Fullfilment',
+    },
+    {
+      1: 'Sub',
+      2: 'Requested  Start Date and End Date Not Matching Sub. Term St and Term End Date',
+      3: 'Billing Model Vs Billing Schedues',
+      4: 'Bill(s) Not Generated on BDOM/SSD',
+      5: 'End Of Term Cancellation DeProvisoining InComplete',
+      6: 'Contacts Update not in Sync with CG1',
+      7: null,
+      8: null,
+    },
+    {
+      1: 'Accrual',
+      2: 'Subsciption Activated TSV Payload Not Generated',
+      3: 'Accrual Eligible Vs Accrual lines created',
+      4: 'Posted Y/N',
+      5: 'TSV Eligible Vs TSV Accounted',
+      6: 'Post Invoice Generation, TSV Reversal',
+      7: null,
+      8: null,
+    },
+    {
+      1: 'Invoicing',
+      2: 'Bill line Amount Vs Inv Line Amount',
+      3: 'Total Billing Amount Vs  Invoice Amount',
+      4: 'Bill Line Amount Vs Installat line amount',
+      5: 'eService Eligibility Vs  eService Invoice',
+      6: 'BillTo and Country compliance  Validation',
+      7: 'Print Validation (eInvoie, B2B, SFTP, CCW, Remittance)',
+      8: null,
+    },
+    {
+      1: 'AR Accounting',
+      2: 'Forward Invoice Vs ReBill Invoice Accounting  Not Matching',
+      3: 'GL Transfer Exceptions',
+      4: null,
+      5: null,
+      6: null,
+      7: null,
+      8: null,
+    },
+  ]);
 
-  displayedColumnsHome: string[] = [
-    'Web_Order_ID',
+  displayedColumnsOrders: string[] = [
     'Deal_ID',
-
-    'Purchase_Order_Number',
-
-    'Sales_Order',
-    'Order_Status',
-    'Currency',
-
-    'Order_Total',
-    'Created_By',
-    'Creation_date',
-  ];
-
-  dataSourceHome = new MatTableDataSource<any>([
-    {
-      Web_Order_ID: '92389536',
-      Sales_Order: '92389536',
-      Currency: 'USD',
-      Order_Status: 'CLOSED',
-      Purchase_Order_Number: 'RR1063098',
-      Deal_ID: '54621189',
-      Order_Total: '9,731.92',
-      Created_By: 'Isabel Rosen',
-      Creation_date: '27-May-22',
-    },
-  ]);
-
-  displayedColumnsHome2: string[] = [
-    'Partner_Name',
-    'End_Customer_Name',
-    'SubrefId',
-    'Subscription_ID',
-    'Subscription_Status',
-    'Subscription_St_Date',
-    'Subscription_End_Date',
-    'Billing_Model',
-    'AutoRenewal',
-  ];
-
-  dataSourceHome2 = new MatTableDataSource<any>([
-    {
-      Partner_Name: 'INGRAM MICRO',
-      End_Customer_Name: 'PELTIER AUTOMOTIVE',
-      SubrefId: 'Sub942735',
-      Subscription_ID: 'SubC1009908',
-      Subscription_Status: 'INACTIVE',
-      Subscription_St_Date: '13-Aug-21',
-      Subscription_End_Date: '13-Aug-24',
-      Billing_Model: 'Annual Billing',
-      AutoRenewal: 'N',
-    },
-  ]);
-
-  displayedColumnsOrder: string[] = [
-    'Web_Order_ID',
-    'Purchase_Order_Number',
-
-    'Order_Status',
-    'Deal_ID',
-    'Order_Total',
-    'Created_By',
-    'Creation_Date',
-    'Partner_Name',
-    'End_Customer_Name',
-  ];
-
-  dataSourceOrder = new MatTableDataSource<any>([
-    {
-      Web_Order_ID: '92389536',
-      Order_Status: 'CLOSED',
-      Purchase_Order_Number: 'RR1063098',
-      Deal_ID: '54621189',
-      Order_Total: '$9,731.92',
-      Created_By: 'Isabel Rosen',
-      Creation_Date: '27-May-22',
-      Partner_Name: 'INGRAM MICRO',
-      End_Customer_Name: 'PELTIER AUTOMOTIVE',
-    },
-  ]);
-
-  displayedColumnsRAL: string[] = [
     'WebOrder_ID',
-    'Sales_Order',
-    'SubRefId',
-    'Offer_Type',
-    'Accrual_Eligible',
-    'DealId',
-    'Creation_Date',
-    'Opeating_Unit',
-    'Processed',
-    'Revenue_Accrual_Total',
-    'Currency',
-  ];
-
-  dataSourceRAL = new MatTableDataSource<any>([
-    {
-      WebOrder_ID: '96686180',
-      Sales_Order: '7890012',
-      SubRefId: 'SR789012',
-      Offer_Type: 'EA 3.0, ELA 2, Wifi7',
-      Accrual_Eligible: 'Y/N',
-      DealId: '97997',
-      Creation_Date: '11/22/24',
-      Opeating_Unit: 'CISCO US OPERATING UNIT',
-      Processed: 'Yes',
-      Revenue_Accrual_Total: null,
-      Currency: 'USD',
-    },
-  ]);
-
-  displayedColumnsInvoicing: string[] = [
-    'Web_Order_ID',
-    'Purchase_Order_Number',
-
-    'Invoice_Type',
-    'TRX_Number',
-    'TRX_Date',
-    'Due_Date',
-    'Currency',
-    'TRX_Class',
-    'TRX_Status',
-    'Amount_Due_Orginal',
-    'Amount_Due_Remaining',
-    'Invoice_Delivery_Method',
-  ];
-
-  dataSourceInvoicing = new MatTableDataSource<any>([
-    {
-      Web_Order_ID: '90198022',
-      Purchase_Order_Number: 'RR1063098',
-
-      Invoice_Type: 'INV',
-      TRX_Number: '6101077254',
-      TRX_Date: '13-Jan-22',
-      Due_Date: '12-Feb-22',
-      Currency: 'USD',
-      TRX_Class: 'INV',
-      TRX_Status: 'CL',
-      Amount_Due_Orginal: '$113',
-      Amount_Due_Remaining: '$0',
-      Invoice_Delivery_Method: 'eDelivery',
-    },
-  ]);
-
-  displayedColumnsInvoicing2: string[] = [
-    'TRX_Number',
-    'Print_Date',
-    'Previous_Trx_Number',
-    'Print_Status',
-    'eInvoicing',
-    'Collector',
+    'Order_Creation_Date',
+    'Sub_Ref_Id',
+    'Order_Status',
+    'Purchase_Order_Num',
+    'Order_Total',
+    'Price_list',
     'Partner_Name',
-    'Class',
-    'Type',
-    'Number',
-    'Apply_Date',
-    'Amount_Applied',
-    'Activity_Date',
-    'Created_by',
-    'BDOM_SSD',
+    'Billing_ID',
+    'Order_Origin',
+    'Order_Booked_Date',
+    'Hybrid_Order',
+    'Route_to_Market',
+    'Order_Holds',
+    'Cloud_Sub_Order__Holds',
   ];
 
-  dataSourceInvoicing2 = new MatTableDataSource<any>([
+  dataSourceOrders = new MatTableDataSource<any>([
     {
-      TRX_Number: '6101077254',
-      Print_Date: '13-Jan-22',
-      Previous_Trx_Number: '0',
-      Print_Status: 'Completed',
-      eInvoicing: 'Approved',
-      Collector: 'HIGH_VOLUME_ING1',
-      Partner_Name: 'INGRAM MICRO',
-      Class: 'Payment',
-      Type: 'CHECK',
-      Number: '9194615',
-      Apply_Date: '26-Aug-22',
-      Amount_Applied: '113',
-      Activity_Date: '26-Aug-22',
-      Created_by: null,
-      BDOM_SSD: null,
+      Deal_ID: '413587662',
+      WebOrder_ID: '96635062',
+      Order_Creation_Date: '15-Mar-2024',
+      Sub_Ref_Id: 'Sub1797786',
+      Order_Status: 'Activation Complete',
+      Purchase_Order_Num: '2598271',
+      Order_Total: 'USD 6,592.16',
+      Price_list: 'Global Price List USD',
+      Partner_Name: 'IngramMicro',
+      Billing_ID: '413587662',
+      Order_Origin: 'CCW-Q2O',
+      Order_Booked_Date: '15-Mar-2024',
+      Hybrid_Order: 'N',
+      Route_to_Market: 'PARTNER',
+      Order_Holds: 'Hold1',
+      Cloud_Sub_Order__Holds: 'Hold Reason1',
+    },
+    {
+      Deal_ID: '413587662',
+      WebOrder_ID: '96635063',
+      Order_Creation_Date: '15-Mar-2024',
+      Sub_Ref_Id: 'Sub1797787',
+      Order_Status: 'Activation Complete',
+      Purchase_Order_Num: '2598271',
+      Order_Total: 'USD 6,592.16',
+      Price_list: 'Global Price List USD',
+      Partner_Name: 'IngramMicro',
+      Billing_ID: '413587662',
+      Order_Origin: 'CCW-Q2O',
+      Order_Booked_Date: '15-Mar-2024',
+      Hybrid_Order: 'N',
+      Route_to_Market: 'PARTNER',
+      Order_Holds: 'Hold2',
+      Cloud_Sub_Order__Holds: 'Hold Reason2',
+    },
+  ]);
+
+  displayedColumnsSub: string[] = [
+    'WebOrder_ID',
+    'Sub_Ref_Id',
+    'Activation_Date',
+    'Billing_Prefence',
+    'Bill_Day',
+    'BID_(Bill_To_Id)',
+    'Sub_Start_Date',
+    'Sub_End__Date',
+    'Sub_Status',
+    'Billing_Source',
+    'Billing_Model',
+    'Billing_Scheduled_Not_billed',
+  ];
+
+  dataSourceSub = new MatTableDataSource<any>([
+    {
+      WebOrder_ID: '96635062',
+      Sub_Ref_Id: 'Sub1797786',
+      Activation_Date: '15-Mar-2024',
+      Billing_Prefence: 'BDOM',
+      Bill_Day: '3',
+      'BID_(Bill_To_Id)': '413587662',
+      Sub_Start_Date: '15-Mar-24',
+      Sub_End__Date: '14-Mar-24',
+      Sub_Status: 'Acive',
+      Billing_Source: 'BRM',
+      Billing_Model: 'Monthly',
+      Billing_Scheduled_Not_billed: 'Schedule #',
+    },
+    {
+      WebOrder_ID: '96635063',
+      Sub_Ref_Id: 'Sub1797787',
+      Activation_Date: '15-Mar-2024',
+      Billing_Prefence: 'SSD',
+      Bill_Day: '15',
+      'BID_(Bill_To_Id)': '413587662',
+      Sub_Start_Date: '15-Mar-24',
+      Sub_End__Date: '14-Mar-27',
+      Sub_Status: 'Acive',
+      Billing_Source: 'BRIM',
+      Billing_Model: 'Annual',
+      Billing_Scheduled_Not_billed: 'Schedule #',
+    },
+  ]);
+
+  displayedColumnsAccruals: string[] = [
+    'Line_Ref_Number',
+    'Ordered_Item',
+    'SUBSKU_ITEM_NAME',
+    'Billing_Model',
+    'Charge_Type',
+    'OA_Flag',
+    'LT_Flag',
+    'Time_Bound_Cr_Flag',
+    'Term_St_Date',
+    'Term_End_Date',
+    'Currency',
+    'Amount',
+    'Percentage',
+    'Sub_SKU_Amount',
+    'Accrual_Status',
+    'GL_Posting',
+  ];
+
+  dataSourceAccruals = new MatTableDataSource<any>([
+    {
+      Line_Ref_Number: 'L12234',
+      Ordered_Item: 'ETD-SEC-SUB',
+      SUBSKU_ITEM_NAME: 'Active',
+      Billing_Model: 'PrePaid',
+      Charge_Type: 'Recurring',
+      OA_Flag: 'N',
+      LT_Flag: 'ETD-SEC-SUB',
+      Time_Bound_Cr_Flag: '153.31',
+      Term_St_Date: '3/15/2024',
+      Term_End_Date: '3/14/2027',
+      Currency: 'USD',
+      Amount: 'I',
+      Percentage: 'In Process',
+      Sub_SKU_Amount: null,
+      Accrual_Status: null,
+      GL_Posting: null,
+    },
+    {
+      Line_Ref_Number: 'l255667',
+      Ordered_Item: 'UMB-SEC-SUB',
+      SUBSKU_ITEM_NAME: 'Filfillment Eligible',
+      Billing_Model: 'PrePaid',
+      Charge_Type: 'Recurring',
+      OA_Flag: 'N',
+      LT_Flag: 'UMB-SEC-SUB',
+      Time_Bound_Cr_Flag: '396.03',
+      Term_St_Date: '3/14/2027',
+      Term_End_Date: '3/14/2027',
+      Currency: 'USD',
+      Amount: 'I',
+      Percentage: 'In Process',
+      Sub_SKU_Amount: null,
+      Accrual_Status: null,
+      GL_Posting: null,
+    },
+    {
+      Line_Ref_Number: 'l255669',
+      Ordered_Item: 'APPD-SEC-SUB',
+      SUBSKU_ITEM_NAME: 'Filfillment Eligible',
+      Billing_Model: 'PrePaid',
+      Charge_Type: 'Recurring',
+      OA_Flag: 'N',
+      LT_Flag: 'UMB-SEC-SUB',
+      Time_Bound_Cr_Flag: '396.03',
+      Term_St_Date: '3/14/2027',
+      Term_End_Date: '3/14/2027',
+      Currency: 'USD',
+      Amount: 'P',
+      Percentage: 'Processed',
+      Sub_SKU_Amount: null,
+      Accrual_Status: null,
+      GL_Posting: null,
+    },
+  ]);
+
+  displayedColumnsInvoice: string[] = [
+    'WebOrder_ID',
+    'Sub_Ref_Id',
+    'Creation_Date',
+    'Trxn_Number',
+    'Trxn_Date',
+    'Trxn_Amount',
+    'Print_Status',
+    'E-Inv_Status',
+    'Exception',
+  ];
+
+  dataSourceInvoice = new MatTableDataSource<any>([
+    {
+      WebOrder_ID: '96635062, 8877990',
+      Sub_Ref_Id: 'Sub123, sub879',
+      Creation_Date: '15-Mar-2024',
+      Trxn_Number: '67889',
+      Trxn_Date: '15-Mar-2024',
+      Trxn_Amount: '10000',
+      Print_Status: 'Pending',
+      'E-Inv_Status': 'Failed',
+      Exception: '500 - Exception IRP error',
+    },
+    {
+      WebOrder_ID: '96635063',
+      Sub_Ref_Id: 'Sub345',
+      Creation_Date: '15-Mar-2024',
+      Trxn_Number: '99887',
+      Trxn_Date: '15-Mar-2024',
+      Trxn_Amount: '10000',
+      Print_Status: 'E-Del Exception',
+      'E-Inv_Status': 'Completed',
+      Exception: 'E-Del email setup missing',
     },
   ]);
 
   ngOnInit() {
-    USERS.forEach((user) => {
-      if (
-        user.addresses &&
-        Array.isArray(user.addresses) &&
-        user.addresses.length
-      ) {
-        this.usersData = [
-          ...this.usersData,
-          { ...user, addresses: new MatTableDataSource(user.addresses) },
-        ];
-      } else {
-        this.usersData = [...this.usersData, user];
-      }
+    this.circleSteps = Object.keys(this.circleStatus);
+  }
+
+  toggleTable(rowType: string) {
+    if (rowType === 'Sub') {
+      this.selectedTable = 'sub';
+      this.circleStatus = {
+        Order: 2, // Completed
+        Subscription: 1, // Current step
+        Accruals: 0,
+        Invoicing: 0,
+        AR_Accounting: 0,
+      };
+    } else if (rowType === 'Order') {
+      this.selectedTable = 'order';
+      this.circleStatus = {
+        Order: 1, // Current step
+        Subscription: 0,
+        Accruals: 0,
+        Invoicing: 0,
+        AR_Accounting: 0,
+      };
+    } else if (rowType === 'Accrual') {
+      this.selectedTable = 'accrual';
+      this.circleStatus = {
+        Order: 2, // Completed
+        Subscription: 2, // Completed
+        Accruals: 1, // Current step
+        Invoicing: 0,
+        AR_Accounting: 0,
+      };
+    } else if (rowType === 'Invoicing') {
+      this.selectedTable = 'invoice';
+      this.circleStatus = {
+        Order: 2, // Completed
+        Subscription: 2, // Completed
+        Accruals: 2, // Completed
+        Invoicing: 1, // Current step
+        AR_Accounting: 0,
+      };
+    }
+  }
+
+  goToO2cDetails(row: any) {
+    this.router.navigate(['/o2c-details'], {
+      queryParams: { orderId: row.WebOrder_ID },
     });
-    this.dataSource = new MatTableDataSource(this.usersData);
-    this.dataSource.sort = this.sort;
+    console.log('Navigating to O2C details for order ID:', row.WebOrder_ID);
   }
 
-  applyFilter(filterValue: string) {
-    this.innerTables.forEach(
-      (table, index) =>
-        ((table.dataSource as MatTableDataSource<Address>).filter = filterValue
-          .trim()
-          .toLowerCase())
+  goToO2cOrder(row: any) {
+    this.router.navigate(['/o2c-order'], {
+      queryParams: {
+        orderId: row.WebOrder_ID,
+        purchaseOrderNum: row.Purchase_Order_Num,
+      },
+    });
+    console.log(
+      'Navigating to O2C Order Details for Order ID:',
+      row.WebOrder_ID,
+      'Purchase Order:',
+      row.Purchase_Order_Num
     );
   }
 
-  toggleRow(element: User) {
-    element.addresses &&
-    (element.addresses as MatTableDataSource<Address>).data.length
-      ? this.toggleElement(element)
-      : null;
-    this.cd.detectChanges();
-    this.innerTables.forEach(
-      (table, index) =>
-        ((table.dataSource as MatTableDataSource<Address>).sort =
-          this.innerSort.toArray()[index])
+  goToO2cSub(row: any) {
+    this.router.navigate(['/o2c-sub'], {
+      queryParams: { subId: row.SubRefId, startDate: row.Start_Date },
+    });
+    console.log(
+      'Navigating to O2C Subscription Details for Sub ID:',
+      row.Subscription_ID
     );
   }
 
-  isExpanded(row: User): string {
-    const index = this.expandedElements.findIndex((x) => x.Step == row.Step);
-    if (index !== -1) {
-      return 'expanded';
-    }
-    return 'collapsed';
+  goToO2cAccrual(row: any) {
+    this.router.navigate(['/o2c-accrual'], {
+      queryParams: { accrualId: row.Accrual_ID, posted: row.Posted_YN },
+    });
+    console.log(
+      'Navigating to O2C Accrual Details for Accrual ID:',
+      row.Accrual_ID
+    );
   }
 
-  toggleElement(row: User) {
-    const index = this.expandedElements.findIndex((x) => x.Step == row.Step);
-    if (index === -1) {
-      this.expandedElements.push(row);
-    } else {
-      this.expandedElements.splice(index, 1);
-    }
+  goToO2cInvoicing(row: any) {
+    this.router.navigate(['/o2c-invoicing'], {
+      queryParams: { invoiceId: row.Invoice_ID, totalAmount: row.Total_Amount },
+    });
+    console.log(
+      'Navigating to O2C Invoicing Details for Invoice ID:',
+      row.Invoice_ID
+    );
+  }
 
-    //console.log(this.expandedElements);
+  navigateToStep(step: string) {
+    switch (step) {
+      case 'Order':
+        this.router.navigate(['/o2c-order']);
+        console.log('Navigating to O2C Order Page');
+        break;
+
+      case 'Subscription':
+        this.router.navigate(['/o2c-sub']);
+        console.log('Navigating to O2C Subscription Page');
+        break;
+
+      case 'Accruals':
+        this.router.navigate(['/o2c-accrual']);
+        console.log('Navigating to O2C Accruals Page');
+        break;
+
+      case 'Invoicing':
+        this.router.navigate(['/o2c-invoicing']);
+        console.log('Navigating to O2C Invoicing Page');
+        break;
+
+      default:
+        console.log('No matching route found for:', step);
+    }
   }
 
   onSearch(searchValue: string): void {
@@ -297,58 +423,31 @@ export class O2cDemoComponent {
     // Implement your search logic here
   }
 
-  skippedWords: string[] = ['IOL', 'AR', 'ID', 'GL', 'TSV'];
-
-  accrualsTotals: { [key: string]: number } = {
-    Order: 2, // Completed
-    Revenue_Accruals: 2,
-    Invoice: 2, // Current step
-    Revenue_Accounting: 1,
-    GL_Transfer_and_Posting: 0,
+  circleStatus: { [key: string]: number } = {
+    Order: 1, // Initial state: Order is current
+    Subscription: 0,
+    Accruals: 0,
+    Invoicing: 0,
+    AR_Accounting: 0,
   };
 
-  // Define the steps array with both original keys and formatted labels
-  formattedAccrualsSteps = Object.keys(this.accrualsTotals).map((key) => ({
-    originalKey: key, // Store the original key for accessing dynamic totals
-    label: this.formatLabel(key), // Format for display
-    impact: this.accrualsTotals[key] || 'N/A', // Use dynamic data from accrualsTotals
-  }));
-
-  // Function to format the label
-  formatLabel(label: string): string {
-    const acronyms = this.skippedWords || [];
-
-    return label
-      .toLowerCase() // Convert to lowercase
-      .replace(/_/g, ' ') // Replace underscores with spaces
-      .split(' ') // Split into words
-      .map(
-        (word) =>
-          acronyms.includes(word.toUpperCase())
-            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
-      )
-      .join(' '); // Join words back with spaces
-  }
-
-  // Helper to determine the class for a circle based on the accrualsTotals value
-  getCircleClass(step: any): string {
-    const value = this.accrualsTotals[step.originalKey];
+  // Helper to determine the class for a circle based on the circleStatus value
+  getCircleClass(step: string): string {
+    const value = this.circleStatus[step];
     if (value === 2) return 'completed-circle'; // Completed step
     if (value === 1) return 'current-circle'; // Current step
     return 'uncompleted-circle'; // Default for uncompleted steps
   }
 
   getSliderBarStyle(index: number): { [key: string]: string } {
-    const step = this.formattedAccrualsSteps[index];
-    const value = this.accrualsTotals[step.originalKey];
-    if (value === 1) {
-      // Current step
-      return {
-        background: 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)',
-      };
-    }
-    return { background: '#16371e43' };
+    const step = this.circleSteps[index];
+    const value = this.circleStatus[step];
+    return {
+      background:
+        value === 1
+          ? 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)'
+          : '#16371e43',
+    };
   }
 
   removeUnderscores(key: string): string {
@@ -364,230 +463,3 @@ export class O2cDemoComponent {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
 }
-
-export interface User {
-  Step: string;
-  Account: string;
-  Subscription_Line: string;
-  addresses?: Address[] | MatTableDataSource<Address>;
-}
-
-export interface Comment {
-  commenID: number;
-  comment: string;
-  commentStatus: string;
-}
-
-export interface Address {
-  Order_Summary: string;
-  Order_ID: string;
-  Order_Status: string;
-  comments?: Comment[] | MatTableDataSource<Comment>;
-}
-
-const USERS: User[] = [
-  {
-    Step: 'Order',
-    Account: 'cisco@test.com',
-    Subscription_Line: '9864785214',
-    addresses: [
-      {
-        Order_Summary: 'Order Summary 1',
-        Order_ID: '78542',
-        Order_Status: 'Lost',
-        comments: [
-          {
-            commenID: 1,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 2,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 3,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order Summary 2',
-        Order_ID: '78554',
-        Order_Status: 'Pending',
-        comments: [
-          {
-            commenID: 4,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 5,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 6,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    Step: 'Subscription',
-    Account: 'deloitte@test.com',
-    Subscription_Line: '8786541234',
-    addresses: [
-      {
-        Order_Summary: 'Order_Summary 5',
-        Order_ID: '23547',
-        Order_Status: 'Utah',
-        comments: [
-          {
-            commenID: 7,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 8,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 9,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order_Summary 5',
-        Order_ID: '23547',
-        Order_Status: 'Ohio',
-        comments: [
-          {
-            commenID: 19,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 11,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 12,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    Step: 'Accruals',
-    Account: 'asdf@cisco.com',
-    Subscription_Line: '7856452187',
-    addresses: [
-      {
-        Order_Summary: 'Order_Summary 1425',
-        Order_ID: '23547',
-        Order_Status: 'Blocked',
-        comments: [
-          {
-            commenID: 13,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 14,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 15,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order_Summary 5935',
-        Order_ID: '23547',
-        Order_Status: 'Unknown',
-        comments: [
-          {
-            commenID: 16,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 17,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 18,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    Step: 'Invoicing & Payments',
-    Account: 'happyHolidays@test.com',
-    Subscription_Line: '7856452187',
-    addresses: [
-      {
-        Order_Summary: 'Order_Summary 52971',
-        Order_ID: '23547',
-        Order_Status: 'In Progress',
-        comments: [
-          {
-            commenID: 13,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 14,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 15,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-      {
-        Order_Summary: 'Order_Summary 2054',
-        Order_ID: '23547',
-        Order_Status: 'Unknown',
-        comments: [
-          {
-            commenID: 16,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 17,
-            comment: 'Test',
-            commentStatus: 'Open',
-          },
-          {
-            commenID: 18,
-            comment: 'Test',
-            commentStatus: 'Closed',
-          },
-        ],
-      },
-    ],
-  },
-];

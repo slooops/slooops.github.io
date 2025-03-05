@@ -1,0 +1,38 @@
+<app-o2c-nav></app-o2c-nav>
+
+<app-o2c-process-flow
+  [circleStatus]="circleStatus"
+  [navigationMap]="navigationMap"
+></app-o2c-process-flow>
+
+<div class="o2c-rows">
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsSummary"
+    [dataSource]="dataSourceSummary"
+    [wideColumns]="['Ordered_Item']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    style="overflow-x: auto; margin-bottom: -20px"
+    class="header-table"
+  ></app-o2c-table>
+
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsSummary2"
+    [dataSource]="dataSourceSummary2"
+    [wideColumns]="['Ordered_Item']"
+    [navigationMap]="navigationMap"
+    tableType="header"
+    style="overflow-x: auto"
+    class="header-table"
+  ></app-o2c-table>
+
+  <div class="section-title">Line Summary</div>
+  <app-o2c-table
+    [displayedColumns]="displayedColumnsLineSummary"
+    [dataSource]="dataSourceLineSummary"
+    [wideColumns]="['SubCode']"
+    [navigationMap]="navigationMap"
+    tableType="body"
+    style="overflow-x: auto"
+  ></app-o2c-table>
+</div>
