@@ -24,8 +24,7 @@ describe('Test the filters', () => {
 
     cy.get('.cdk-overlay-backdrop').click();
   });
-});
-describe('Test the filters', () => {
+
   it('clicks entites', () => {
     cy.get('[data-cy=preclose-statuses]').click();
     // cy.get('#mat-select-value-25').click();
@@ -35,5 +34,15 @@ describe('Test the filters', () => {
     cy.get('.cdk-overlay-backdrop').click();
   });
 });
+// describe('Test the filters', () => {
+//   it('clicks entites', () => {
+//     cy.get('[data-cy=preclose-statuses]').click();
+//     // cy.get('#mat-select-value-25').click();
+//     // cy.get('#mat-option-59 > .mat-option-text').click();
+//     // cy.get('#mat-option-60 > .mat-option-text').click();
+//     // cy.get('#mat-option-65 > .mat-option-text').click();
+//     cy.get('.cdk-overlay-backdrop').click();
+//   });
+// });
 
 // cy.visit('http://localhost:4200/period-close-tracking');
