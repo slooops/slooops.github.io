@@ -1,5 +1,5 @@
 ---
-# Source: templates/prod.yaml
+# Source: templates/stage.yaml
 
 # codectl version : 1.5.6
 
