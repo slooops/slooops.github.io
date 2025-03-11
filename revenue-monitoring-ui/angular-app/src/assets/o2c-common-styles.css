@@ -255,10 +255,10 @@ th.mat-header-cell {
   padding: 8px 10px;
   font-weight: 500;
   text-align: left;
-  border-bottom: 1px solid #ddd; 
+  border-bottom: 1px solid #ddd;
   color: #333;
-  background-color: #ffffff; 
-  white-space: nowrap; 
+  background-color: #ffffff;
+  white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
 }
@@ -269,7 +269,7 @@ th.mat-header-cell {
 }
 
 .gridded-table tr:hover {
-  background-color: #f9f9f9; 
+  background-color: #f9f9f9;
   transition: background 0.3s ease-in-out;
 }
 
