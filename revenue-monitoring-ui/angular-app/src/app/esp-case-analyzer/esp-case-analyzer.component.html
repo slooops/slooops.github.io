@@ -3,6 +3,19 @@
     *ngIf="q1 && q2"
     [label]="q1.slice(0, -4) + ' vs. ' + q2.slice(0, -4)"
   >
+    <p
+      class="card-subtitle"
+      style="
+        display: flex;
+        justify-content: flex-end;
+        font-size: 10px;
+        margin: 2px 1.5rem -1rem 0px;
+        font-weight: 600;
+        font-size: 12px;
+      "
+    >
+      Data for {{ q1 }} and {{ q2 }}
+    </p>
     <div class="grid-2" style="margin: 0 12px">
       <div class="card">
         <div class="chart-canvas">
@@ -21,7 +34,7 @@
 
     <!-- Previous Quarter Table -->
     <app-table
-      title="Case Summary for {{ q2 }}"
+      title="Case Summary for {{ q2.slice(0, -4) }}"
       [dataSource]="dataSourceCaseSummaryQuarter[2]"
       [displayedColumns]="displayedColumnsForCaseSummaryQuarter[2]"
       exportFileName="Previous_Quarter_Case_Summary"
@@ -32,7 +45,7 @@
     ></app-table>
 
     <app-table
-      title=" Aging Backlog for {{ q2 }}"
+      title=" Aging Backlog for {{ q2.slice(0, -4) }}"
       [dataSource]="dataSourceAgingBacklog[2]"
       [displayedColumns]="displayedColumnsForAgingBacklog[2]"
       exportFileName="Previous_Quarter_Aging_Backlog"
@@ -46,6 +59,19 @@
     *ngIf="q2 && q3"
     [label]="q2.slice(0, -4) + ' vs. ' + q3.slice(0, -4)"
   >
+    <p
+      class="card-subtitle"
+      style="
+        display: flex;
+        justify-content: flex-end;
+        font-size: 10px;
+        margin: 2px 1.5rem -1rem 0px;
+        font-weight: 600;
+        font-size: 12px;
+      "
+    >
+      Data for {{ q1 }} and {{ q2 }}
+    </p>
     <div class="grid-2" style="margin: 0 12px">
       <div class="card">
         <div class="chart-canvas">
@@ -63,7 +89,7 @@
     </div>
 
     <app-table
-      title="Case Summary for {{ q3 }}"
+      title="Case Summary for {{ q3.slice(0, -4) }}"
       [dataSource]="dataSourceCaseSummaryQuarter[3]"
       [displayedColumns]="displayedColumnsForCaseSummaryQuarter[3]"
       exportFileName="Current_Quarter_Case_Summary"
@@ -73,7 +99,7 @@
       [extraWideColumns]="['SERVICE_OFFERING']"
     ></app-table>
     <app-table
-      title=" Aging Backlog for {{ q3 }}"
+      title=" Aging Backlog for {{ q3.slice(0, -4) }}"
       [dataSource]="dataSourceAgingBacklog[3]"
       [displayedColumns]="displayedColumnsForAgingBacklog[3]"
       exportFileName="Previous_Quarter_Aging_Backlog"
