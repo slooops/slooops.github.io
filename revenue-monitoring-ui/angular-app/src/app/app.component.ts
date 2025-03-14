@@ -34,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   isHelpDropdownOpen: boolean = false;
   userRoles: string[] = this.authService.getRoles();
   isAdmin$: boolean = this.userRoles.includes('ADMIN');
+  showMenu: boolean = true;
   ngOnInit(): void {
     this.router.events
       .pipe(
@@ -52,6 +53,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
+        const hiddenRoutes = ['/home', '/error']; // Define routes where menu should be hidden
+        this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 
     this.dataService

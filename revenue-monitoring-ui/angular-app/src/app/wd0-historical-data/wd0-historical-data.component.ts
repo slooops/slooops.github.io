@@ -15,6 +15,7 @@ import { monthEndDates } from './monthEndDates';
 import { el, hi, is } from 'date-fns/locale';
 import { set } from 'date-fns';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { MenuService } from '../providers/menu.service';
 Chart.register(...registerables);
 
 @Component({
@@ -40,7 +41,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     private regressionService: RegressionService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private menuService: MenuService
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -257,6 +259,19 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     this.refreshExportData();
     this.getHistoricalData();
+
+    this.menuService.updateMenuItems([
+      {
+        label: 'Mid Close Volumes',
+        route: '/midclose-volumes',
+        role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+      },
+      {
+        label: 'ESP Case Analyzer',
+        route: '/case-analyzer',
+        role: ['ADMIN'],
+      },
+    ]);
   }
 
   //this method is necessary for predicting the next month in the absence of

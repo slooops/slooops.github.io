@@ -24,17 +24,17 @@ public class DataSourceConfig {
     @Value("${spring.datasource.primary.driver-class-name}")
     private String primaryDriverClassName;
 
-//    @Value("${spring.datasource.secondary.url}")
-//    private String secondaryUrl;
-//
-//    @Value("${spring.datasource.secondary.username}")
-//    private String secondaryUsername;
-//
-//    @Value("${spring.datasource.secondary.password}")
-//    private String secondaryPassword;
-//
-//    @Value("${spring.datasource.secondary.driver-class-name}")
-//    private String secondaryDriverClassName;
+    @Value("${spring.datasource.secondary.url}")
+    private String secondaryUrl;
+
+    @Value("${spring.datasource.secondary.username}")
+    private String secondaryUsername;
+
+    @Value("${spring.datasource.secondary.password}")
+    private String secondaryPassword;
+
+    @Value("${spring.datasource.secondary.driver-class-name}")
+    private String secondaryDriverClassName;
 
     @Bean(name = "primaryDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.primary")
@@ -48,24 +48,24 @@ public class DataSourceConfig {
 
     }
 
-//    @Bean(name = "secondaryDataSource")
-//    @ConfigurationProperties(prefix = "spring.datasource.secondary")
-//    public DataSource secondaryDataSource() {
-//                HikariDataSource dataSource = new HikariDataSource();
-//        dataSource.setJdbcUrl(secondaryUrl);
-//        dataSource.setUsername(secondaryUsername);
-//        dataSource.setPassword(secondaryPassword);
-//        dataSource.setDriverClassName(secondaryDriverClassName);
-//        return dataSource;
-//    }
+    @Bean(name = "secondaryDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.secondary")
+    public DataSource secondaryDataSource() {
+                HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(secondaryUrl);
+        dataSource.setUsername(secondaryUsername);
+        dataSource.setPassword(secondaryPassword);
+        dataSource.setDriverClassName(secondaryDriverClassName);
+        return dataSource;
+    }
 
     @Bean(name = "primaryJdbcTemplate")
     public JdbcTemplate primaryJdbcTemplate(DataSource primaryDataSource) {
         return new JdbcTemplate(primaryDataSource);
     }
 
-//    @Bean(name = "secondaryJdbcTemplate")
-//    public JdbcTemplate secondaryJdbcTemplate(DataSource secondaryDataSource) {
-//        return new JdbcTemplate(secondaryDataSource);
-//    }
+    @Bean(name = "secondaryJdbcTemplate")
+    public JdbcTemplate secondaryJdbcTemplate(DataSource secondaryDataSource) {
+        return new JdbcTemplate(secondaryDataSource);
+    }
 }
