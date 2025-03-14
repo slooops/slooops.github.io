@@ -14,9 +14,12 @@ public class JdbcManager {
 
     private final JdbcTemplate primaryJdbcTemplate;
 
+    private final JdbcTemplate secondaryJdbcTemplate;
+
     @Autowired
-    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate) {
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate, @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
+        this.secondaryJdbcTemplate = secondaryJdbcTemplate;
     }
 
     public List<Map<String, Object>> queryForList(String sql) {
@@ -145,11 +148,6 @@ public class JdbcManager {
 
     public List<Map<String, Object>> getPrintDetailsFiltered(String sql, String periodName,
                                                                String appName, String processFlow, String ouName, String transactionDate) {
-        System.out.println(periodName);
-        System.out.println(appName);
-        System.out.println(processFlow);
-        System.out.println(ouName);
-        System.out.println(transactionDate);
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
     }
 
@@ -160,12 +158,6 @@ public class JdbcManager {
 
     public int updatePrintSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,
                                      String orgName, String transactionDate) {
-        System.out.println(assignedTo);
-        System.out.println(assignedBy);
-        System.out.println(comments);
-        System.out.println(periodName);
-        System.out.println(orgName);
-        System.out.println(transactionDate);
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  periodName, orgName, transactionDate);
     }
 

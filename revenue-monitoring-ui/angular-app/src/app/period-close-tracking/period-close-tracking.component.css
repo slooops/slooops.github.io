@@ -6,7 +6,7 @@ th {
   cursor: pointer;
 }
 
-td{
+td {
   text-align: center;
 }
 
@@ -14,7 +14,7 @@ td{
   color: darkgrey;
 }
 
-.legendIcon:hover .tooltiptext{
+.legendIcon:hover .tooltiptext {
   visibility: visible;
 }
 
@@ -33,4 +33,5 @@ td{
 }
 
 ::ng-deep .mat-ink-bar {
-  background-color: #049fd9 !important;}
+  background-color: #049fd9 !important;
+}
