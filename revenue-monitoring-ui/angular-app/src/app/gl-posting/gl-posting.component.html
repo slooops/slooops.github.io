@@ -1,38 +1,38 @@
-<mat-tab-group>
-  <mat-tab label="General Ledger" *ngIf="roles.includes('ADMIN')">
-    <app-monitoring-dashboard
-      [urls]="glUrls"
-      [keysToMap]="glKeysToMap"
-      [processFlowKeys]="glTotals"
-      [periodStatus]="periodStatus"
-      [componentName]="'General Ledger'"
-      [processFlowTabsToDisplay]="['General Ledger']"
-      [specialWords]="specialWords"
-      [skippedWords]="skippedWords"
-      [dynamicTemplate]="glTemplate"
-      [dynamicCss]="glflowCss"
-      [isSubAppMapping]="false"
-      [warningMessage]="'Warning message '"
-      [columnsToFilter]="glFilters"
-      [submitKeysToMap]="[
-        'LEDGER_NAME',
-        'JOURNAL_SOURCE',
-        'ACCOUNT_SEG',
-        'APPLICATION_NAME',
-        'TRANSACTION_DATE',
-        'PROCESS_FLOW'
-      ]"
-      [webexKeysToMap]="[
-        'LEDGER_NAME',
-        'JOURNAL_SOURCE',
-        'ACCOUNT_SEG',
-        'APPLICATION_NAME',
-        'TRANSACTION_DATE',
-        'PROCESS_FLOW'
-      ]"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-</mat-tab-group>
+<!-- <mat-tab-group>
+  <mat-tab label="General Ledger" *ngIf="roles.includes('ADMIN')"> -->
+<app-monitoring-dashboard
+  [urls]="glUrls"
+  [keysToMap]="glKeysToMap"
+  [processFlowKeys]="glTotals"
+  [periodStatus]="periodStatus"
+  [componentName]="'General Ledger'"
+  [processFlowTabsToDisplay]="['General Ledger']"
+  [specialWords]="specialWords"
+  [skippedWords]="skippedWords"
+  [dynamicTemplate]="glTemplate"
+  [dynamicCss]="glflowCss"
+  [isSubAppMapping]="false"
+  [warningMessage]="'Warning message '"
+  [columnsToFilter]="glFilters"
+  [submitKeysToMap]="[
+    'LEDGER_NAME',
+    'JOURNAL_SOURCE',
+    'ACCOUNT_SEG',
+    'APPLICATION_NAME',
+    'TRANSACTION_DATE',
+    'PROCESS_FLOW'
+  ]"
+  [webexKeysToMap]="[
+    'LEDGER_NAME',
+    'JOURNAL_SOURCE',
+    'ACCOUNT_SEG',
+    'APPLICATION_NAME',
+    'TRANSACTION_DATE',
+    'PROCESS_FLOW'
+  ]"
+></app-monitoring-dashboard>
+<!-- </mat-tab>
+</mat-tab-group> -->
 <ng-template #glTemplate let-allTotals="allTotals">
   <div class="flowchart-container">
     <div class="slider-bar">

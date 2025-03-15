@@ -259,64 +259,89 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     this.menuService.updateMenuItems([
       {
-        label: 'Pre close',
-        route: '/period-close-tracking-preclose',
-        role: ['ADMIN', 'PERIOD_CLOSE'],
+        category: 'Period Close Tracking',
+        items: [
+          {
+            label: 'Pre close',
+            route: '/period-close-tracking-preclose',
+            role: ['ADMIN', 'PERIOD_CLOSE'],
+          },
+          {
+            label: 'Mid close',
+            route: '/period-close-tracking-midclose',
+            role: ['ADMIN', 'PERIOD_CLOSE'],
+          },
+          {
+            label: 'WD0',
+            route: '/wd0',
+            role: ['ADMIN', 'WD0'],
+          },
+        ],
       },
       {
-        label: 'Mid close',
-        route: '/period-close-tracking-midclose',
-        role: ['ADMIN', 'PERIOD_CLOSE'],
+        category: 'Invoice to Cash',
+        items: [
+          {
+            label: 'Pre Invoicing',
+            route: '/pre-invoicing',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'Invoicing',
+            route: '/invoicing',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'Post Invoicing',
+            route: '/post-invoicing',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'eInvoicing',
+            route: '/einvoicing',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'Fusion',
+            route: '/fusion',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+        ],
       },
       {
-        label: 'Pre Invoicing',
-        route: '/pre-invoicing',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        category: 'Revenue Accounting',
+        items: [
+          {
+            label: 'Standard Revenue',
+            route: '/standard-revenue',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'Rol',
+            route: '/rol',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'Accruals',
+            route: '/accruals',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+          {
+            label: 'Accounts',
+            route: '/accounts',
+            role: ['ADMIN', 'ACCOUNT_RECON'],
+          },
+        ],
       },
       {
-        label: 'Invoicing',
-        route: '/invoicing',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Post Invoicing',
-        route: '/post-invoicing',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'EInvoicing',
-        route: '/einvoicing',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Fusion',
-        route: '/fusion',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Standard Revenue',
-        route: '/standard-revenue',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Rol',
-        route: '/rol',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Accruals',
-        route: '/accruals',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Accounts',
-        route: '/accounts',
-        role: ['ADMIN', 'ACCOUNT_RECON'],
-      },
-      {
-        label: 'WD0',
-        route: '/wd0',
-        role: ['ADMIN', 'WD0'],
+        category: 'GL Posting',
+        items: [
+          {
+            label: 'General Ledger',
+            route: '/general-ledger',
+            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+        ],
       },
     ]);
   }

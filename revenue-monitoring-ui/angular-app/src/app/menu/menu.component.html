@@ -1,13 +1,37 @@
 <div class="menu-container">
   <button class="burger-menu" (click)="toggleMenu()">☰</button>
   <div *ngIf="menuOpen" class="menu-items">
-    <a
-      *ngFor="let item of menuItems"
-      [routerLink]="item.route"
-      (click)="selectMenu(item.route)"
-      [class.active]="activeRoute === item.route"
-    >
-      {{ item.label }}
-    </a>
+    <ng-container *ngFor="let item of menuItems">
+      <!-- Render category if it exists -->
+      <div *ngIf="item.category; else standaloneItem">
+        <div class="menu-category" (click)="toggleCategory(item.category!)">
+          {{ item.category }}
+          <span [class.expanded]="expandedCategories[item.category!]"
+            ><i class="fa fa-angle-down"></i
+          ></span>
+        </div>
+        <div *ngIf="expandedCategories[item.category!]" class="submenu">
+          <a
+            *ngFor="let subItem of item.items"
+            [routerLink]="subItem.route"
+            (click)="selectMenu(subItem.route)"
+            [class.active]="activeRoute === subItem.route"
+          >
+            {{ subItem.label }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Standalone menu item -->
+      <ng-template #standaloneItem>
+        <a
+          [routerLink]="item.route"
+          (click)="selectMenu(item.route)"
+          [class.active]="activeRoute === item.route"
+        >
+          {{ item.label }}
+        </a>
+      </ng-template>
+    </ng-container>
   </div>
 </div>

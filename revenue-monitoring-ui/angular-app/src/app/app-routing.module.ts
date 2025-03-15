@@ -105,6 +105,14 @@ const routes: Routes = [
       header: 'Revenue Accounting',
     },
   },
+  {
+    path: 'general-ledger',
+    component: GlPostingComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'General Ledger',
+    },
+  },
   // {
   //   path: 'sbp',
   //   component: SbpComponent,
