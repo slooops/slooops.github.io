@@ -1,23 +1,9 @@
 <app-o2c-nav></app-o2c-nav>
 
-<div class="flowchart-container">
-  <div class="slider-bar">
-    <div
-      *ngFor="let step of circleSteps; let i = index"
-      [ngStyle]="getSliderBarStyle(i)"
-    >
-      <div class="circle-wrapper-loop" (click)="navigateToRoute(step, null)">
-        <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
-        <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
-      </div>
-
-      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
-        <div class="chevron"></div>
-        <div class="chevron-white"></div>
-      </div>
-    </div>
-  </div>
-</div>
+<app-o2c-process-flow
+  [circleStatus]="circleStatus"
+  [navigationMap]="navigationMap"
+></app-o2c-process-flow>
 
 <div
   class="grid-1"
@@ -29,7 +15,7 @@
       mat-table
       [dataSource]="dataSourceSummary"
       class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
+      style="border-bottom: 1px solid #e0e0e0; background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsSummary">
         <ng-container [matColumnDef]="column">
@@ -65,7 +51,7 @@
       mat-table
       [dataSource]="dataSourceSummary2"
       class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
+      style="border-bottom: 1px solid #e0e0e0; background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsSummary2">
         <ng-container [matColumnDef]="column">
@@ -100,6 +86,7 @@
       mat-table
       [dataSource]="dataSourceLineSummary"
       class="header-card table table-condensed gridded-table"
+      style="background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsLineSummary">
         <ng-container [matColumnDef]="column">

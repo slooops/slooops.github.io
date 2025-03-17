@@ -1,17 +1,8 @@
-<div
-  [class.card]="tableType === 'body'"
-  [class.header-table]="tableType === 'header'"
-  style="border-top: solid 1px #e4e4e4; border-bottom: solid 1px #e4e4e4"
->
-  <table
-    mat-table
-    [dataSource]="dataSource"
-    class="gridded-table"
-    [class.header-table]="tableType === 'header'"
-  >
+<div style="padding-bottom: 0px">
+  <table mat-table [dataSource]="dataSource" class="gridded-table">
     <ng-container *ngFor="let column of displayedColumns">
       <ng-container [matColumnDef]="column">
-        <!-- Header Row -->
+        <!-- Header Row (conditionally rendered inside tr, but column defs always exist) -->
         <th
           mat-header-cell
           *matHeaderCellDef
@@ -46,7 +37,12 @@
       </ng-container>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <!-- Conditionally render the header row -->
+    <ng-container *ngIf="showHeaderRow">
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    </ng-container>
+
+    <!-- Always render the data rows -->
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 </div>

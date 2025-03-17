@@ -19,7 +19,6 @@
     [wideColumns]="['Offer_Name']"
     [navigationMap]="navigationMap"
     tableType="header"
-    class="header-table"
   ></app-o2c-table>
   <app-o2c-table
     [displayedColumns]="displayedColumnsOrder2"
@@ -27,13 +26,13 @@
     [wideColumns]="['Bill-To', 'End_Customer']"
     [navigationMap]="navigationMap"
     tableType="header"
-    class="header-table"
     style="margin-top: -14px"
   ></app-o2c-table>
 
   <div
     [@expandCollapse]="expandedSections['order'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
+    class="card-og"
   >
     <div class="section-title">Order Details</div>
     <app-o2c-table
@@ -46,11 +45,8 @@
   </div>
 
   <!-- SUBSCRIPTION SECTION1 -->
-  <div class="section-title expander-margin">
-    <button class="toggle-button" (click)="toggleSection('subscription')">
-      {{ expandedSections["subscription"] ? "-" : "+" }}
-    </button>
-    Subscription Summary
+  <div class="section-title">
+    Subscription
 
     <a href="https://ccrc.cisco.com/subscriptions/detail/Sub1797786"
       >Sub1797786</a
@@ -62,8 +58,22 @@
     [wideColumns]="['']"
     [navigationMap]="navigationMap"
     tableType="header"
-    class="header-table"
+    style="margin-bottom: -14px"
   ></app-o2c-table>
+
+  <div class="expander-container">
+    <button class="toggle-button" (click)="toggleSection('subscription')">
+      {{ expandedSections["subscription"] ? "-" : "+" }}
+    </button>
+
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsSubscriptionDetails"
+      [dataSource]="dataSourceSubscriptionDetails"
+      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+    ></app-o2c-table>
+  </div>
 
   <div
     [@expandCollapse]="
@@ -71,15 +81,6 @@
     "
     style="overflow-x: auto"
   >
-    <div class="section-title">Subscription Details</div>
-    <app-o2c-table
-      [displayedColumns]="displayedColumnsSubscriptionDetails"
-      [dataSource]="dataSourceSubscriptionDetails"
-      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
-      [navigationMap]="navigationMap"
-      tableType="body"
-      style="margin-top: -14px"
-    ></app-o2c-table>
     <app-o2c-table
       [displayedColumns]="displayedColumnsAccrualDetails"
       [dataSource]="dataSourceAccrualDetails"
@@ -87,35 +88,54 @@
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
+  </div>
 
-    <div style="margin-top: 16px">
-      <app-o2c-table
-        [displayedColumns]="displayedColumnsSubscriptionDetails"
-        [dataSource]="dataSourceSubscriptionDetails1"
-        [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
-        [navigationMap]="navigationMap"
-        tableType="header"
-      ></app-o2c-table>
-      <app-o2c-table
-        [displayedColumns]="displayedColumnsAccrualDetails"
-        [dataSource]="dataSourceAccrualDetails1"
-        [wideColumns]="['']"
-        [navigationMap]="navigationMap"
-        tableType="header"
-      ></app-o2c-table>
-    </div>
+  <div class="expander-container">
+    <button
+      class="toggle-button"
+      (click)="toggleSection('subscription1')"
+      [ngStyle]="{
+        'margin-top': expandedSections['subscription'] ? '0px' : '-24px'
+      }"
+    >
+      {{ expandedSections["subscription1"] ? "-" : "+" }}
+    </button>
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsSubscriptionDetails"
+      [dataSource]="dataSourceSubscriptionDetails1"
+      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+      [showHeaderRow]="false"
+      [ngStyle]="{
+        'margin-top': expandedSections['subscription'] ? '0px' : '-24px'
+      }"
+    ></app-o2c-table>
+  </div>
+  <div
+    [@expandCollapse]="
+      expandedSections['subscription1'] ? 'expanded' : 'collapsed'
+    "
+    style="overflow-x: auto"
+  >
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsAccrualDetails"
+      [dataSource]="dataSourceAccrualDetails1"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
   </div>
 
   <!-- SUBSCRIPTION SECTION 2 -->
-  <div class="section-title expander-margin">
-    <button class="toggle-button" (click)="toggleSection('subscription2')">
-      {{ expandedSections["subscription2"] ? "-" : "+" }}
-    </button>
-    Subscription Summary
+  <div class="section-title">
+    Subscription
+
     <a href="https://ccrc.cisco.com/subscriptions/detail/Sub1797787"
       >Sub1797787</a
     >
   </div>
+
   <app-o2c-table
     [displayedColumns]="displayedColumnsSubscription"
     [dataSource]="dataSourceSubscription2"
@@ -123,7 +143,22 @@
     [navigationMap]="navigationMap"
     tableType="header"
     class="header-table"
+    style="margin-bottom: -14px"
   ></app-o2c-table>
+
+  <div class="expander-container">
+    <button class="toggle-button" (click)="toggleSection('subscription2')">
+      {{ expandedSections["subscription2"] ? "-" : "+" }}
+    </button>
+
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsSubscriptionDetails"
+      [dataSource]="dataSourceSubscriptionDetails2"
+      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+    ></app-o2c-table>
+  </div>
 
   <div
     [@expandCollapse]="
@@ -131,16 +166,6 @@
     "
     style="overflow-x: auto"
   >
-    <div class="section-title">Subscription Details</div>
-    <app-o2c-table
-      [displayedColumns]="displayedColumnsSubscriptionDetails"
-      [dataSource]="dataSourceSubscriptionDetails2"
-      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
-      [navigationMap]="navigationMap"
-      tableType="body"
-      style="margin-top: -14px"
-    ></app-o2c-table>
-
     <app-o2c-table
       [displayedColumns]="displayedColumnsAccrualDetails"
       [dataSource]="dataSourceAccrualDetails2"
@@ -148,23 +173,45 @@
       [navigationMap]="navigationMap"
       tableType="body"
     ></app-o2c-table>
+  </div>
 
-    <div style="margin-top: 16px">
-      <app-o2c-table
-        [displayedColumns]="displayedColumnsSubscriptionDetails"
-        [dataSource]="dataSourceSubscriptionDetails3"
-        [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
-        [navigationMap]="navigationMap"
-        tableType="header"
-      ></app-o2c-table>
-      <app-o2c-table
-        [displayedColumns]="displayedColumnsAccrualDetails"
-        [dataSource]="dataSourceAccrualDetails3"
-        [wideColumns]="['']"
-        [navigationMap]="navigationMap"
-        tableType="header"
-      ></app-o2c-table>
-    </div>
+  <div class="expander-container">
+    <button
+      class="toggle-button"
+      (click)="toggleSection('subscription3')"
+      [ngStyle]="{
+        'margin-top': expandedSections['subscription2'] ? '0px' : '-24px'
+      }"
+    >
+      {{ expandedSections["subscription3"] ? "-" : "+" }}
+    </button>
+
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsSubscriptionDetails"
+      [dataSource]="dataSourceSubscriptionDetails3"
+      [wideColumns]="['SKU_Description', 'Bill_Line_Reference']"
+      [navigationMap]="navigationMap"
+      tableType="header"
+      [showHeaderRow]="false"
+      [ngStyle]="{
+        'margin-top': expandedSections['subscription2'] ? '0px' : '-24px'
+      }"
+    ></app-o2c-table>
+  </div>
+
+  <div
+    [@expandCollapse]="
+      expandedSections['subscription3'] ? 'expanded' : 'collapsed'
+    "
+    style="overflow-x: auto"
+  >
+    <app-o2c-table
+      [displayedColumns]="displayedColumnsAccrualDetails"
+      [dataSource]="dataSourceAccrualDetails3"
+      [wideColumns]="['']"
+      [navigationMap]="navigationMap"
+      tableType="body"
+    ></app-o2c-table>
   </div>
 
   <!-- ACCRUAL SECTION -->
@@ -256,6 +303,7 @@
   <div
     [@expandCollapse]="showMoreSummary ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
+    class="card-og"
   >
     <div class="section-title">Print & Deliver</div>
     <app-o2c-table
@@ -290,6 +338,7 @@
   <div
     [@expandCollapse]="expandedSections['invoicing'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
+    class="card-og"
   >
     <div class="section-title">Invoice Details</div>
 
@@ -315,14 +364,14 @@
         [dataSource]="dataSourceInvoicingDetails1"
         [wideColumns]="['SKU_Description']"
         [navigationMap]="navigationMap"
-        tableType="header"
+        tableType="secondary"
       ></app-o2c-table>
       <app-o2c-table
         [displayedColumns]="displayedColumnsInvoicingDetails2"
         [dataSource]="dataSourceInvoicingDetails11"
         [wideColumns]="['Bill_Line_Number']"
         [navigationMap]="navigationMap"
-        tableType="header"
+        tableType="secondary"
       ></app-o2c-table>
     </div>
 
@@ -349,14 +398,14 @@
         [dataSource]="dataSourceInvoicingDetails3"
         [wideColumns]="['SKU_Description']"
         [navigationMap]="navigationMap"
-        tableType="header"
+        tableType="secondary"
       ></app-o2c-table>
       <app-o2c-table
         [displayedColumns]="displayedColumnsInvoicingDetails2"
         [dataSource]="dataSourceInvoicingDetails33"
         [wideColumns]="['Bill_Line_Number']"
         [navigationMap]="navigationMap"
-        tableType="header"
+        tableType="secondary"
       ></app-o2c-table>
     </div>
 
