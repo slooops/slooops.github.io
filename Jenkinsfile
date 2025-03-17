@@ -51,7 +51,7 @@ pipeline {
                 triggerSpinnakerDevDeployment(
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:server-$GIT_COMMIT",
                     environments: [
-                        "dev-final",
+                        "dev-final-new",
                     ]
                 )
             }
@@ -90,7 +90,7 @@ pipeline {
                 triggerSpinnakerDevDeployment(
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:ui-$GIT_COMMIT",
                     environments: [
-                        "dev-final-ui",
+                        "dev-final-ui-new",
                     ]
                 )
             }
