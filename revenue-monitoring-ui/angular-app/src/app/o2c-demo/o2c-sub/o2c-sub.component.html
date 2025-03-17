@@ -27,7 +27,7 @@
       mat-table
       [dataSource]="dataSourceSummary"
       class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
+      style="border-bottom: 1px solid #e0e0e0; background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsSummary">
         <ng-container [matColumnDef]="column">
@@ -62,6 +62,7 @@
       mat-table
       [dataSource]="dataSourceLineSummary"
       class="header-card table table-condensed gridded-table"
+      style="background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsLineSummary">
         <ng-container [matColumnDef]="column">
@@ -105,12 +106,15 @@
 
 <div *ngIf="!subRefId || subRefId === 'Sub1797787'" class="o2c-rows">
   <div class="section-title">Subscription Details</div>
-  <div class="header-table" style="border-top: solid 1px #e0e0e0">
+  <div
+    class="header-table"
+    style="border-top: solid 1px #e0e0e0; background-color: #f2f2f2"
+  >
     <table
       mat-table
       [dataSource]="dataSourceSummary2"
       class="gridded-table"
-      style="border-bottom: 1px solid #e0e0e0"
+      style="border-bottom: 1px solid #e0e0e0; background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsSummary2">
         <ng-container [matColumnDef]="column">
@@ -145,6 +149,7 @@
       mat-table
       [dataSource]="dataSourceLine2"
       class="header-card table table-condensed gridded-table"
+      style="background-color: #f2f2f2"
     >
       <ng-container *ngFor="let column of displayedColumnsLine2">
         <ng-container [matColumnDef]="column">

@@ -37,22 +37,26 @@ import {
 export class O2cOverviewComponent {
   expandedSections: { [key: string]: boolean } = {
     order: false,
+
     subscription: false,
+    subscription1: false,
     subscription2: false,
+    subscription3: false,
+
     accrual: false,
     accrual2: false,
-    invoicing: true,
+    invoicing: false,
   };
 
   circleStatus: { [key: string]: number } = {
     Order: 0,
     Subscription: 0,
-    Accruals: 0,
+    // Accruals: 0,
     Invoicing: 0,
   };
 
   showMoreSummary = false;
-  showMoreDetails = true;
+  showMoreDetails = false;
 
   toggleShowMoreSummary(): void {
     this.showMoreSummary = !this.showMoreSummary;
