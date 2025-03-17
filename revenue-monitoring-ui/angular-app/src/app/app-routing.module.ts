@@ -28,7 +28,6 @@ import { EinvoicingComponent } from './einvoicing/einvoicing.component';
 import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
-import { OperationsControlsI2cComponent } from './operations-controls-i2c/operations-controls-i2c.component';
 
 const routes: Routes = [
   {
