@@ -39,7 +39,7 @@ spec:
     metadata:
       namespace: "rev-operations-dashboard-rtp2"
       labels:
-        app: "rev-ops-monitoring-ui-final"
+        app: "rev-ops-monitoring-ui-final-new"
         environment: "dev-ui"
         # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
