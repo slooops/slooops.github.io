@@ -1,8 +1,7 @@
 <mat-tab-group (selectedTabChange)="onTabClick($event)">
-  <mat-tab
-    *ngIf="q1 && q2"
-    [label]="q1.slice(0, -4) + ' vs. ' + q2.slice(0, -4)"
-  >
+  <mat-tab *ngIf="q1 && q2" [label]="'Q1 - Q2'" [disabled]="!(q1 && q2)">
+    <!-- [label]="q1.slice(0, -4) + ' vs. ' + q2.slice(0, -4)" -->
+
     <p
       class="card-subtitle"
       style="
@@ -55,10 +54,7 @@
     <br /><br /><br />
   </mat-tab>
 
-  <mat-tab
-    *ngIf="q2 && q3"
-    [label]="q2.slice(0, -4) + ' vs. ' + q3.slice(0, -4)"
-  >
+  <mat-tab *ngIf="q2 && q3" [label]="'Q2 - Q3'" [disabled]="!(q2 && q3)">
     <p
       class="card-subtitle"
       style="
@@ -108,4 +104,22 @@
 
     <br /><br /><br />
   </mat-tab>
+
+  <!-- <mat-tab
+    *ngIf="q3 && q4"
+    [label]="q3 && q4 ? q3.slice(0, -4) + ' - ' + q4.slice(0, -4) : 'Q3 - Q4'"
+    [disabled]="!(q3 && q4)"
+  >
+  </mat-tab>
+  <mat-tab
+    *ngIf="q4 && q1"
+    [label]="q4 && q1 ? q4.slice(0, -4) + ' - ' + q1.slice(0, -4) : 'Q4 - Q1'"
+    [disabled]="!(q4 && q1)"
+  >
+  </mat-tab> -->
+
+  <mat-tab *ngIf="!q1 || !q1" [label]="'Q1 - Q2'" [disabled]="true"> </mat-tab>
+  <mat-tab *ngIf="!q2 || !q3" [label]="'Q2 - Q3'" [disabled]="true"> </mat-tab>
+  <mat-tab *ngIf="!q3 || !q4" [label]="'Q3 - Q4'" [disabled]="true"> </mat-tab>
+  <mat-tab *ngIf="!q4 || !q1" [label]="'Q4 - Q1'" [disabled]="true"> </mat-tab>
 </mat-tab-group>

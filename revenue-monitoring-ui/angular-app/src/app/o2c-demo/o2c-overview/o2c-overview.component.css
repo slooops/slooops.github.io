@@ -1,13 +1,21 @@
 @import "src/assets/o2c-common-styles.css";
 
+.expander-container {
+  display: flex;
+  align-items: center; /* Align the +/- button with the table */
+  gap: 8px; /* Space between button and table */
+  margin-left: -31px;
+}
+
 .toggle-button {
   background: none;
   border: none;
   font-size: 18px;
   font-weight: bold;
-  /* color: #3d3d3d; */
   cursor: pointer;
-  margin-left: 10px;
+  height: 22px;
+  line-height: 22px;
+  z-index: 1;
 }
 
 .toggle-button:hover {

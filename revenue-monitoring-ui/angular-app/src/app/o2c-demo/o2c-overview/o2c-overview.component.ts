@@ -37,8 +37,12 @@ import {
 export class O2cOverviewComponent {
   expandedSections: { [key: string]: boolean } = {
     order: false,
+
     subscription: false,
+    subscription1: false,
     subscription2: false,
+    subscription3: false,
+
     accrual: false,
     accrual2: false,
     invoicing: false,

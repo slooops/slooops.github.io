@@ -14,6 +14,7 @@ export class O2cTableComponent {
   @Input() extraWideColumns: string[] = []; // New extra-wide column support
   @Input() navigationMap: { [key: string]: string } = {};
   @Input() tableType: 'header' | 'body' | 'secondary' = 'body'; // Differentiating table types
+  @Input() showHeaderRow: boolean = true;
 
   constructor(private router: Router) {}
 
