@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { MenuService } from '../providers/menu.service';
 // import { resolve } from 'path';
 Chart.register(...registerables);
 
@@ -14,7 +15,11 @@ Chart.register(...registerables);
   providers: [DestroyManager],
 })
 export class EspCaseAnalyzerComponent implements OnInit {
-  constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
+  constructor(
+    http: ApiHttpService,
+    private destroyManager: DestroyManager,
+    private menuService: MenuService
+  ) {
     this.http = http;
     Chart.register(...registerables);
   }
@@ -53,6 +58,13 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
     this.getEspWeeklyComparisonSummary();
+    this.menuService.updateMenuItems([
+      {
+        label: 'ESP Case Analyzer',
+        route: '/case-analyzer',
+        role: ['ADMIN'],
+      },
+    ]);
   }
 
   getEspCaseServiceMetricSummary() {

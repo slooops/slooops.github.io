@@ -1,13 +1,10 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
-//import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -78,6 +75,7 @@ public class ExceptionMonitoringService {
     private String creditCardDetails;
     private String debitCardSummary;
     private String debitCardDetails;
+
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate,
                                       String glErrorSummary, String glErrorDetails, String glPostingDetailsFiltered, String glPostingSummaryUpdate,
@@ -157,7 +155,9 @@ public class ExceptionMonitoringService {
         this.creditCardDetails = creditCardDetails;
         this.debitCardSummary = debitCardSummary;
         this.debitCardDetails = debitCardDetails;
+
     }
+
 
     // Standard Revenue
     public List<Map<String, Object>> getStandardRevenueSummary() {
@@ -186,9 +186,6 @@ public class ExceptionMonitoringService {
 
     public List<Map<String, Object>> getStandardRevenueDetails() {
         List<Map<String, Object>> result = jdbcManager.queryForList(standardRevenueDetails);
-        result.forEach(data -> {
-
-        });
         return result;
     }
 

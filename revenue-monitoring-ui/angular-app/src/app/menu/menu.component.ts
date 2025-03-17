@@ -8,6 +8,7 @@ import {
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { filter, map, mergeMap } from 'rxjs';
 
 @Component({
   selector: 'app-menu',
@@ -20,21 +21,47 @@ export class MenuComponent implements OnInit {
   menuItems: any[] = [];
   activeRoute = ''; // Track the active menu item
   expandedCategories: { [key: string]: boolean } = {}; // Track expanded categories
+  header: string = '';
 
-  constructor(private menuService: MenuService) {}
+  constructor(
+    private menuService: MenuService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private activatedRoute: ActivatedRoute
+  ) {}
 
   ngOnInit() {
     this.menuService.menuItems$.subscribe((items) => {
       this.menuItems = items;
+      this.cdr.detectChanges();
     });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        map(() => this.activatedRoute),
+        map((route) => {
+          while (route.firstChild) {
+            route = route.firstChild;
+          }
+          return route;
+        }),
+        mergeMap((route) => route.data)
+      )
+      .subscribe((data) => {
+        this.header = data['header'];
+      });
   }
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
 
-  toggleCategory(category: string) {
-    this.expandedCategories[category] = !this.expandedCategories[category];
+  toggleCategory(category: string | null) {
+    if (!category) {
+      this.expandedCategories = {};
+    } else {
+      this.expandedCategories = { [category]: true };
+    }
   }
 
   selectMenu(route: string) {

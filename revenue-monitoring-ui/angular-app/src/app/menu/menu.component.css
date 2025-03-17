@@ -45,16 +45,28 @@
 }
 
 .menu-category {
+  position: relative;
   padding: 10px;
   background: white;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
+  white-space: nowrap;
 }
 
 .submenu {
-  padding-left: 15px;
+  /* padding-left: 15px;
+  background: white; */
+  position: absolute;
+  top: 0;
+  left: 100%; /* Moves submenu to the right */
   background: white;
+  border: 1px solid #ddd;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
 }
 
 a {

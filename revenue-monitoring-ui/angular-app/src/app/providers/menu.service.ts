@@ -20,12 +20,11 @@ export class MenuService {
   constructor(private authService: AuthenticationService) {}
 
   updateMenuItems(menuData: MenuCategory[]) {
-    const userRoles = this.authService.getRoles(); // Get user roles
+    const userRoles = this.authService.getRoles();
 
     const filteredMenu = menuData
       .map((menu) => {
         if (menu.category && menu.items) {
-          // Filter nested menu items by role
           const filteredItems = menu.items.filter((item) =>
             item.role.some((role) => userRoles.includes(role))
           );
@@ -33,13 +32,12 @@ export class MenuService {
             ? { ...menu, items: filteredItems }
             : null;
         } else {
-          // Filter standalone menu items by role
           return menu.role?.some((role) => userRoles.includes(role))
             ? menu
             : null;
         }
       })
-      .filter((menu) => menu !== null); // Remove empty categories
+      .filter((menu) => menu !== null);
 
     this.menuItems.next(filteredMenu as MenuCategory[]);
   }

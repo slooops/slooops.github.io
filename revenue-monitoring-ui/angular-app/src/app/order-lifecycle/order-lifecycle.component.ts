@@ -62,6 +62,16 @@ export class OrderLifecycleComponent implements OnInit {
         route: '/large-deal-tracker',
         role: ['ADMIN', 'LARGE_DEAL'],
       },
+      {
+        label: 'WD0',
+        route: '/wd0',
+        role: ['ADMIN', 'WD0'],
+      },
+      {
+        label: 'Mid Close Volumes',
+        route: '/midclose-volumes',
+        role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+      },
     ]);
   }
 

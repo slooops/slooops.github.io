@@ -14,13 +14,12 @@ public class JdbcManager {
 
     private final JdbcTemplate primaryJdbcTemplate;
 
-    private final JdbcTemplate secondaryJdbcTemplate;
 
     @Autowired
-    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate, @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
-        this.secondaryJdbcTemplate = secondaryJdbcTemplate;
     }
+
 
     public List<Map<String, Object>> queryForList(String sql) {
         return primaryJdbcTemplate.queryForList(sql);

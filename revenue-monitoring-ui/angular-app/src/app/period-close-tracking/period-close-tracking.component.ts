@@ -271,11 +271,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
             route: '/period-close-tracking-midclose',
             role: ['ADMIN', 'PERIOD_CLOSE'],
           },
-          {
-            label: 'WD0',
-            route: '/wd0',
-            role: ['ADMIN', 'WD0'],
-          },
         ],
       },
       {
@@ -340,6 +335,21 @@ export class PeriodCloseTrackingComponent implements OnInit {
             label: 'General Ledger',
             route: '/general-ledger',
             role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          },
+        ],
+      },
+      {
+        category: 'Operations Controls',
+        items: [
+          {
+            label: 'Invoice to Cash',
+            route: '',
+            role: ['ADMIN'],
+          },
+          {
+            label: 'Revenue',
+            route: '',
+            role: ['ADMIN'],
           },
         ],
       },

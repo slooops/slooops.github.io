@@ -1,13 +1,11 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, mergeMap, takeUntil } from 'rxjs/operators';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { ApiHttpService } from './providers/http.service';
 
 @Component({
   selector: 'app-root',
@@ -53,6 +51,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
+        this.dataService.setHeader(data['header']);
         const hiddenRoutes = ['/home', '/error']; // Define routes where menu should be hidden
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });

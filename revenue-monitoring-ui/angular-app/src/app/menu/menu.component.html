@@ -1,37 +1,47 @@
-<div class="menu-container">
-  <button class="burger-menu" (click)="toggleMenu()">☰</button>
-  <div *ngIf="menuOpen" class="menu-items">
-    <ng-container *ngFor="let item of menuItems">
-      <!-- Render category if it exists -->
-      <div *ngIf="item.category; else standaloneItem">
-        <div class="menu-category" (click)="toggleCategory(item.category!)">
-          {{ item.category }}
-          <span [class.expanded]="expandedCategories[item.category!]"
-            ><i class="fa fa-angle-down"></i
-          ></span>
-        </div>
-        <div *ngIf="expandedCategories[item.category!]" class="submenu">
-          <a
-            *ngFor="let subItem of item.items"
-            [routerLink]="subItem.route"
-            (click)="selectMenu(subItem.route)"
-            [class.active]="activeRoute === subItem.route"
-          >
-            {{ subItem.label }}
-          </a>
-        </div>
-      </div>
-
-      <!-- Standalone menu item -->
-      <ng-template #standaloneItem>
-        <a
-          [routerLink]="item.route"
-          (click)="selectMenu(item.route)"
-          [class.active]="activeRoute === item.route"
+<span class="menu-container" style="display: flex; align-items: center">
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="menu"
+    style="font-size: large; margin-right: 10px; font-weight: 700"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+  <h5 style="margin: 0; font-weight: 600">{{ header }}</h5>
+</span>
+<mat-menu #menu="matMenu">
+  <ng-container *ngFor="let item of menuItems">
+    <!-- Render category if it exists -->
+    <ng-container *ngIf="item.category; else standaloneItem">
+      <button
+        mat-menu-item
+        [matMenuTriggerFor]="subMenu"
+        (click)="toggleCategory(item.category)"
+      >
+        {{ item.category }}
+      </button>
+      <mat-menu #subMenu="matMenu">
+        <button
+          mat-menu-item
+          *ngFor="let subItem of item.items"
+          [routerLink]="subItem.route"
+          (click)="selectMenu(subItem.route)"
+          [class.active]="activeRoute === subItem.route"
         >
-          {{ item.label }}
-        </a>
-      </ng-template>
+          {{ subItem.label }}
+        </button>
+      </mat-menu>
     </ng-container>
-  </div>
-</div>
+
+    <!-- Standalone menu item -->
+    <ng-template #standaloneItem>
+      <button
+        mat-menu-item
+        [routerLink]="item.route"
+        (click)="selectMenu(item.route)"
+        [class.active]="activeRoute === item.route"
+      >
+        {{ item.label }}
+      </button>
+    </ng-template>
+  </ng-container>
+</mat-menu>

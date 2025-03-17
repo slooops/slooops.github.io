@@ -15,6 +15,7 @@ export class DataService implements OnDestroy {
   userRoles: any;
   username: any;
   assignmentUsers: any;
+  header: string = '';
 
   constructor(private http: ApiHttpService) {}
 
@@ -125,5 +126,13 @@ export class DataService implements OnDestroy {
   getTabData(tabName: string): Observable<{ [key: string]: string }> {
     this.ensureTabData(tabName);
     return this.tabData.get(tabName)!.asObservable();
+  }
+
+  getHeader() {
+    return this.header;
+  }
+
+  setHeader(header: string) {
+    this.header = header;
   }
 }
