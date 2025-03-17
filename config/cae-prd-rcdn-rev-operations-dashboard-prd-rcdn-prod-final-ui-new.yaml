@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-ui-final-service"
+  name: "rev-ops-monitoring-ui-final-service-new"
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
@@ -18,13 +18,13 @@ spec:
       protocol: "TCP"
       port: 3000
   selector:
-    app: "rev-ops-monitoring-ui-final"
+    app: "rev-ops-monitoring-ui-final-new"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-ui-final"
+  name: "rev-ops-monitoring-ui-final-new"
   namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
@@ -33,22 +33,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-ui-final"
+      app: "rev-ops-monitoring-ui-final-new"
   replicas: 1
   template:
     metadata:
       namespace: "rev-operations-dashboard-prd-rcdn"
       labels:
-        app: "rev-ops-monitoring-ui-final"
+        app: "rev-ops-monitoring-ui-final-new"
         environment: "prod-ui"
         # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-ui-final"
+        softwareName: "rev-ops-monitoring-ui-final-new"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-ui-final"
+          name: "rev-ops-monitoring-ui-final-new"
           ports:
             - containerPort: 3000
       imagePullSecrets:
