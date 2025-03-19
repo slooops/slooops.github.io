@@ -54,13 +54,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
     this.getEspAgingCaseSummary();
     this.getEspCaseServiceMetricSummary();
     // this.getEspWeeklyComparisonSummary();
-    this.menuService.updateMenuItems([
-      {
-        label: 'ESP Case Analyzer',
-        route: '/case-analyzer',
-        role: ['ADMIN'],
-      },
-    ]);
+
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
         responseType: 'json',

@@ -249,3 +249,8 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.mat-menu-item {
+  align-items: center;
+  justify-content: center;
+}

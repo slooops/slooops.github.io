@@ -2,7 +2,10 @@ import {
   ChangeDetectorRef,
   Component,
   HostListener,
+  Input,
+  OnChanges,
   OnInit,
+  SimpleChanges,
 } from '@angular/core';
 
 import { DestroyManager } from '../providers/destroy-manager.service';
@@ -16,12 +19,13 @@ import { filter, map, mergeMap } from 'rxjs';
   styleUrls: ['./menu.component.css'],
   providers: [DestroyManager],
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnChanges {
   menuOpen = false;
-  menuItems: any[] = [];
+  // menuItems: any[] = [];
   activeRoute = ''; // Track the active menu item
   expandedCategories: { [key: string]: boolean } = {}; // Track expanded categories
   header: string = '';
+  @Input() menuItems: any[] = [];
 
   constructor(
     private menuService: MenuService,
@@ -31,10 +35,12 @@ export class MenuComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.menuService.menuItems$.subscribe((items) => {
-      this.menuItems = items;
-      this.cdr.detectChanges();
-    });
+    console.log('Menu items:', this.menuItems);
+    // this.menuService.menuItems$.subscribe((items) => {
+    //   this.menuItems = items;
+    //   this.cdr.detectChanges();
+    //   console.log('Menu items:', this.menuItems);
+    // });
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -50,6 +56,12 @@ export class MenuComponent implements OnInit {
       .subscribe((data) => {
         this.header = data['header'];
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['menuItems']) {
+      console.log('Menu items changed:', changes['menuItems']);
+    }
   }
 
   toggleMenu() {

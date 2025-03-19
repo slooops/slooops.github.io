@@ -87,7 +87,7 @@ const routes: Routes = [
     component: CustomRevenueComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Revenue Orchestration Layer',
+      header: 'Revenue Accounting',
     },
   },
   {
@@ -127,7 +127,7 @@ const routes: Routes = [
     component: EspCaseAnalyzerComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'ESP Case Analyzer Dashboard',
+      header: 'ESP Case Manager',
     },
   },
   {
@@ -143,7 +143,7 @@ const routes: Routes = [
     component: InvoicingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoicing',
+      header: 'Invoice to Cash',
     },
   },
   {

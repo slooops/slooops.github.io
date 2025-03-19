@@ -44,6 +44,11 @@ export class GlPostingComponent implements OnInit {
         route: '/gl-posting',
         role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
+      {
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
+      },
 
       // {
       //   category: 'Invoice to Cash',

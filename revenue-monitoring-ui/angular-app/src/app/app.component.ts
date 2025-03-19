@@ -6,6 +6,7 @@ import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
+import { MenuService } from './providers/menu.service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +24,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private titleService: Title,
     private authService: AuthenticationService,
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private menuService: MenuService
   ) {}
 
   menuOpened = false;
@@ -33,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   userRoles: string[] = this.authService.getRoles();
   isAdmin$: boolean = this.userRoles.includes('ADMIN');
   showMenu: boolean = true;
+  menuItems: any[] = [];
   ngOnInit(): void {
     this.router.events
       .pipe(
@@ -61,6 +64,115 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         this.dataService.setAssignmentUsers(data);
       });
+
+    this.menuItems = [
+      {
+        label: 'Period Close Tracking',
+        route: '/period-close-tracking',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
+      },
+      {
+        label: 'Invoice to Cash',
+        route: '/invoice-to-cash',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Revenue Accounting',
+        route: '/revenue-accounting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'GL Posting',
+        route: '/gl-posting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
+      },
+
+      // {
+      //   category: 'Invoice to Cash',
+      //   items: [
+      //     {
+      //       label: 'Pre Invoicing',
+      //       route: '/pre-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Invoicing',
+      //       route: '/invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Post Invoicing',
+      //       route: '/post-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'eInvoicing',
+      //       route: '/einvoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Fusion',
+      //       route: '/fusion',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Revenue Accounting',
+      //   items: [
+      //     {
+      //       label: 'Standard Revenue',
+      //       route: '/standard-revenue',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Rol',
+      //       route: '/rol',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accruals',
+      //       route: '/accruals',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accounts',
+      //       route: '/accounts',
+      //       role: ['ADMIN', 'ACCOUNT_RECON'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'GL Posting',
+      //   items: [
+      //     {
+      //       label: 'General Ledger',
+      //       route: '/general-ledger',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Operations Controls',
+      //   items: [
+      //     {
+      //       label: 'Invoice to Cash',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //     {
+      //       label: 'Revenue',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //   ],
+      // },
+    ];
   }
 
   toggleHelpDropdown(event: MouseEvent) {
@@ -92,4 +204,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  // selectMenu(route: string) {
+  //   this.activeRoute = route; // Track selected menu
+  //   this.menuOpen = false; // Close menu after selecting
+  // }
+
+  // @HostListener('document:click', ['$event'])
+  // onClickOutside(event: Event) {
+  //   const targetElement = event.target as HTMLElement;
+  //   if (!targetElement.closest('.menu-container')) {
+  //     this.menuOpen = false;
+  //   }
+  // }
 }

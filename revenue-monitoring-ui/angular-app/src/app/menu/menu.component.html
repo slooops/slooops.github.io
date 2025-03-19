@@ -1,39 +1,9 @@
-<span class="menu-container" style="display: flex; align-items: center">
-  <button
-    mat-icon-button
-    [matMenuTriggerFor]="menu"
-    style="font-size: large; margin-right: 10px; font-weight: 700"
-  >
-    <mat-icon>menu</mat-icon>
-  </button>
-  <!-- <h5 style="margin: 0; font-weight: 600">{{ header }}</h5> -->
-</span>
-<mat-menu #menu="matMenu">
+<mat-menu>
   <ng-container *ngFor="let item of menuItems">
     <!-- Render category if it exists -->
-    <ng-container *ngIf="item.category; else standaloneItem">
-      <button
-        mat-menu-item
-        [matMenuTriggerFor]="subMenu"
-        (click)="toggleCategory(item.category)"
-      >
-        {{ item.category }}
-      </button>
-      <mat-menu #subMenu="matMenu">
-        <button
-          mat-menu-item
-          *ngFor="let subItem of item.items"
-          [routerLink]="subItem.route"
-          (click)="selectMenu(subItem.route)"
-          [class.active]="activeRoute === subItem.route"
-        >
-          {{ subItem.label }}
-        </button>
-      </mat-menu>
-    </ng-container>
-
+    {{ item }}
     <!-- Standalone menu item -->
-    <ng-template #standaloneItem>
+    <ng-container>
       <button
         mat-menu-item
         [routerLink]="item.route"
@@ -42,6 +12,6 @@
       >
         {{ item.label }}
       </button>
-    </ng-template>
+    </ng-container>
   </ng-container>
 </mat-menu>

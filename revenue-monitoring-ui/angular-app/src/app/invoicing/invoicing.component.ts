@@ -47,6 +47,11 @@ export class InvoicingComponent implements OnInit {
         route: '/gl-posting',
         role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
+      {
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
+      },
 
       // {
       //   category: 'Invoice to Cash',
@@ -503,12 +508,6 @@ export class InvoicingComponent implements OnInit {
       label: 'Fusion',
       component: 'app-fusion',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    },
-    {
-      label: 'Operations Controls',
-      component: 'app-inv-operations-controls',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      disabled: true,
     },
     // {
     //   label: 'Transactions Processed',

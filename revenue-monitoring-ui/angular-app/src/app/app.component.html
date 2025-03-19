@@ -52,7 +52,13 @@
             font-weight: 450;
           "
         >
-          <div>Operations Control Tower</div>
+          <div *ngIf="header.length > 0">
+            <div style="font-size: small">Operations Control Tower</div>
+            <div>{{ header }}</div>
+          </div>
+          <div *ngIf="header.length === 0">
+            <div>Operations Control Tower</div>
+          </div>
         </h5>
       </div>
       <div class="custom-search-bar">
@@ -121,7 +127,7 @@
           "
         >
           <a
-            [routerLink]="'/period-close-tracking'"
+            [matMenuTriggerFor]="menu"
             class="top-link"
             style="font-weight: 500"
           >
@@ -172,7 +178,7 @@
 <mat-sidenav-container class="example-container">
   <mat-sidenav-content>
     <div>
-      <app-menu *ngIf="showMenu"></app-menu>
+      <!-- <app-menu *ngIf="showMenu"></app-menu> -->
       <router-outlet></router-outlet>
       <br />
       <br />
@@ -200,3 +206,19 @@
 >
   <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
 </div>
+
+<mat-menu #menu="matMenu" style="border-radius: 12px; padding: 0">
+  <button mat-menu-item [routerLink]="'/period-close-tracking'">
+    Period Close Tracking
+  </button>
+  <button mat-menu-item [routerLink]="'/invoice-to-cash'">
+    Invoice to Cash
+  </button>
+  <button mat-menu-item [routerLink]="'/revenue-accounting'">
+    Revenue Accounting
+  </button>
+  <button mat-menu-item [routerLink]="'/gl-posting'">GL Posting</button>
+  <button mat-menu-item [routerLink]="''" [disabled]="true">
+    Operations Controls
+  </button>
+</mat-menu>
