@@ -94,6 +94,8 @@ import { PreInvoicingComponent } from './pre-invoicing/pre-invoicing.component';
 import { PostInvoicingComponent } from './post-invoicing/post-invoicing.component';
 import { EinvoicingComponent } from './einvoicing/einvoicing.component';
 import { FusionComponent } from './fusion/fusion.component';
+import { BusinessInsightsComponent } from './business-insights/business-insights.component';
+import { ContinuousMonitoringComponent } from './continuous-monitoring/continuous-monitoring.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -160,6 +162,8 @@ export function initApp(authService: AuthenticationService) {
     PostInvoicingComponent,
     EinvoicingComponent,
     FusionComponent,
+    BusinessInsightsComponent,
+    ContinuousMonitoringComponent,
   ],
   imports: [
     BrowserModule,

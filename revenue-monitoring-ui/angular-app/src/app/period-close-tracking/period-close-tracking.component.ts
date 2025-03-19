@@ -259,100 +259,106 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     this.menuService.updateMenuItems([
       {
-        category: 'Period Close Tracking',
-        items: [
-          {
-            label: 'Pre close',
-            route: '/period-close-tracking-preclose',
-            role: ['ADMIN', 'PERIOD_CLOSE'],
-          },
-          {
-            label: 'Mid close',
-            route: '/period-close-tracking-midclose',
-            role: ['ADMIN', 'PERIOD_CLOSE'],
-          },
-        ],
+        label: 'Period Close Tracking',
+        route: '/period-close-tracking',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
       },
       {
-        category: 'Invoice to Cash',
-        items: [
-          {
-            label: 'Pre Invoicing',
-            route: '/pre-invoicing',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'Invoicing',
-            route: '/invoicing',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'Post Invoicing',
-            route: '/post-invoicing',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'eInvoicing',
-            route: '/einvoicing',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'Fusion',
-            route: '/fusion',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-        ],
+        label: 'Invoice to Cash',
+        route: '/invoice-to-cash',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
       {
-        category: 'Revenue Accounting',
-        items: [
-          {
-            label: 'Standard Revenue',
-            route: '/standard-revenue',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'Rol',
-            route: '/rol',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'Accruals',
-            route: '/accruals',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-          {
-            label: 'Accounts',
-            route: '/accounts',
-            role: ['ADMIN', 'ACCOUNT_RECON'],
-          },
-        ],
+        label: 'Revenue Accounting',
+        route: '/revenue-accounting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
       {
-        category: 'GL Posting',
-        items: [
-          {
-            label: 'General Ledger',
-            route: '/general-ledger',
-            role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-          },
-        ],
+        label: 'GL Posting',
+        route: '/gl-posting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
-      {
-        category: 'Operations Controls',
-        items: [
-          {
-            label: 'Invoice to Cash',
-            route: '',
-            role: ['ADMIN'],
-          },
-          {
-            label: 'Revenue',
-            route: '',
-            role: ['ADMIN'],
-          },
-        ],
-      },
+
+      // {
+      //   category: 'Invoice to Cash',
+      //   items: [
+      //     {
+      //       label: 'Pre Invoicing',
+      //       route: '/pre-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Invoicing',
+      //       route: '/invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Post Invoicing',
+      //       route: '/post-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'eInvoicing',
+      //       route: '/einvoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Fusion',
+      //       route: '/fusion',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Revenue Accounting',
+      //   items: [
+      //     {
+      //       label: 'Standard Revenue',
+      //       route: '/standard-revenue',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Rol',
+      //       route: '/rol',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accruals',
+      //       route: '/accruals',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accounts',
+      //       route: '/accounts',
+      //       role: ['ADMIN', 'ACCOUNT_RECON'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'GL Posting',
+      //   items: [
+      //     {
+      //       label: 'General Ledger',
+      //       route: '/general-ledger',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Operations Controls',
+      //   items: [
+      //     {
+      //       label: 'Invoice to Cash',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //     {
+      //       label: 'Revenue',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //   ],
+      // },
     ]);
   }
 
@@ -371,26 +377,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
       label: 'Mid-close (Internal)',
       component: 'app-midclose',
       role: ['ADMIN', 'PERIOD_CLOSE'],
-    },
-    {
-      label: 'WD+0 Mid Close Status',
-      component: 'app-wd0-dash',
-      role: ['ADMIN', 'WD0'],
-    },
-    {
-      label: 'WD+0 Mid Close Volumes',
-      component: 'app-wd0-historical-data',
-      role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-    },
-    {
-      label: 'Large Deal Tracker',
-      component: 'app-invoice-status',
-      role: ['ADMIN', 'LARGE_DEAL'],
-    },
-    {
-      label: 'WD0',
-      component: 'wd0',
-      role: ['ADMIN', 'WD0'],
     },
   ];
 

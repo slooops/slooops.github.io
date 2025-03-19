@@ -69,23 +69,23 @@ export class Wd0DashComponent implements OnInit {
     this.getPeriodQuarterStartEndTime();
     this.getCurrentTime();
     this.getWd0ArCloseStatus();
-    this.menuService.updateMenuItems([
-      {
-        label: 'Large Deal Tracker',
-        route: '/large-deal-tracker',
-        role: ['ADMIN', 'LARGE_DEAL'],
-      },
-      {
-        label: 'WD0',
-        route: '/wd0',
-        role: ['ADMIN', 'WD0'],
-      },
-      {
-        label: 'Mid Close Volumes',
-        route: '/midclose-volumes',
-        role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-      },
-    ]);
+    // this.menuService.updateMenuItems([
+    //   {
+    //     label: 'Large Deal Tracker',
+    //     route: '/large-deal-tracker',
+    //     role: ['ADMIN', 'LARGE_DEAL'],
+    //   },
+    //   {
+    //     label: 'WD0',
+    //     route: '/wd0',
+    //     role: ['ADMIN', 'WD0'],
+    //   },
+    //   {
+    //     label: 'Mid Close Volumes',
+    //     route: '/midclose-volumes',
+    //     role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+    //   },
+    // ]);
   }
 
   //for read more/less section

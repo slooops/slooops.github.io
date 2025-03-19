@@ -28,6 +28,7 @@ import { EinvoicingComponent } from './einvoicing/einvoicing.component';
 import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
+import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 
 const routes: Routes = [
   {
@@ -50,8 +51,8 @@ const routes: Routes = [
   },
 
   {
-    path: 'period-close-tracking-preclose',
-    component: PrecloseComponent,
+    path: 'period-close-tracking',
+    component: PeriodCloseTrackingComponent,
     data: {
       title: 'Operations Control Tower',
       header: 'Period Close Tracking',
@@ -82,7 +83,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'rol',
+    path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
       title: 'Operations Control Tower',
@@ -106,7 +107,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'general-ledger',
+    path: 'gl-posting',
     component: GlPostingComponent,
     data: {
       title: 'Operations Control Tower',
@@ -138,7 +139,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'invoicing',
+    path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
       title: 'Operations Control Tower',
@@ -259,6 +260,14 @@ const routes: Routes = [
     data: {
       title: 'Operations Control Tower',
       header: 'Midclose Volumes',
+    },
+  },
+  {
+    path: 'business-insights',
+    component: BusinessInsightsComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Business Insights',
     },
   },
 ];

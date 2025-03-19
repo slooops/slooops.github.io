@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
         this.dataService.setHeader(data['header']);
-        const hiddenRoutes = ['/home', '/error']; // Define routes where menu should be hidden
+        const hiddenRoutes = ['/home', '/error', '/business-insights']; // Define routes where menu should be hidden
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 

@@ -56,23 +56,23 @@ export class OrderLifecycleComponent implements OnInit {
     this.updateTime();
     this.currentDate = new Date();
 
-    this.menuService.updateMenuItems([
-      {
-        label: 'Large Deal Tracker',
-        route: '/large-deal-tracker',
-        role: ['ADMIN', 'LARGE_DEAL'],
-      },
-      {
-        label: 'WD0',
-        route: '/wd0',
-        role: ['ADMIN', 'WD0'],
-      },
-      {
-        label: 'Mid Close Volumes',
-        route: '/midclose-volumes',
-        role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-      },
-    ]);
+    // this.menuService.updateMenuItems([
+    //   {
+    //     label: 'Large Deal Tracker',
+    //     route: '/large-deal-tracker',
+    //     role: ['ADMIN', 'LARGE_DEAL'],
+    //   },
+    //   {
+    //     label: 'WD0',
+    //     route: '/wd0',
+    //     role: ['ADMIN', 'WD0'],
+    //   },
+    //   {
+    //     label: 'Mid Close Volumes',
+    //     route: '/midclose-volumes',
+    //     role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+    //   },
+    // ]);
   }
 
   searchForm: FormGroup = new FormGroup({

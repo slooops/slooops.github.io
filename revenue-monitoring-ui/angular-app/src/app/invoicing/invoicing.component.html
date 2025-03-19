@@ -1,4 +1,4 @@
-<!-- <mat-tab-group
+<mat-tab-group
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
 >
@@ -165,7 +165,7 @@
               ]"
             ></app-monitoring-dashboard>
           </mat-tab>
-          <mat-tab label="Credit Card Payments">
+          <mat-tab label="Digital Payments">
             <app-monitoring-dashboard
               [urls]="creditCardUrls"
               [keysToMap]=""
@@ -185,7 +185,7 @@
               [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
           </mat-tab>
-          <mat-tab label="Debit Card Payments">
+          <!-- <mat-tab label="Debit Card Payments">
             <app-monitoring-dashboard
               [urls]="debitCardUrls"
               [keysToMap]=""
@@ -204,7 +204,7 @@
               [submitKeysToMap]="[]"
               [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
-          </mat-tab>
+          </mat-tab> -->
         </mat-tab-group>
       </ng-container>
       <ng-container *ngSwitchCase="'app-eInvoicing'">
@@ -273,9 +273,9 @@
           ]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container> -->
+      </ng-container>
 
-<!-- <ng-container *ngSwitchCase="'app-transactions-processed'">
+      <ng-container *ngSwitchCase="'app-transactions-processed'">
         <app-monitoring-dashboard
           [urls]="transactionsProcessedUrls"
           [keysToMap]="['ORG_NAME']"
@@ -288,16 +288,16 @@
           [columnsToFilter]="[]"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
-      </ng-container> -->
+      </ng-container>
 
-<!-- <ng-container *ngSwitchCase="'app-cms'">
+      <ng-container *ngSwitchCase="'app-cms'">
         <app-cms *ngIf="selectedIndex === i"></app-cms>
       </ng-container>
     </ng-container>
   </mat-tab>
-</mat-tab-group> -->
+</mat-tab-group>
 
-<app-monitoring-dashboard
+<!-- <app-monitoring-dashboard
   [urls]="autoInvoicingUrls"
   [keysToMap]="preAndAutoInvoiceKeysToMap"
   [processFlowKeys]="autoInvoicingTotals"
@@ -332,7 +332,7 @@
     'TRANSACTION_DATE',
     'AMOUNT'
   ]"
-></app-monitoring-dashboard>
+></app-monitoring-dashboard> -->
 
 <ng-template #dynamicTemplate let-allTotals="allTotals">
   <div
