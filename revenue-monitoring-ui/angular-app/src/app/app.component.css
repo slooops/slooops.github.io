@@ -8,7 +8,7 @@
 
 .mat-toolbar-row,
 .mat-toolbar-single-row {
-  height: 100px !important;
+  height: 50px !important;
 }
 
 .user-title {
@@ -118,9 +118,8 @@
   padding: 4px 8px; /* Inner padding */
   height: 32px;
   background-color: #ffffff; /* Light background */
-  width: 432px; /* Optional: Adjust max width */
-  margin: 0 auto; /* Optional: Center the search bar */
-  /* box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);  */
+  width: 200px; /* Optional: Adjust max width */
+  margin: 0 10px; /* Optional: Center the search bar */
 }
 
 .custom-search-bar:hover {
