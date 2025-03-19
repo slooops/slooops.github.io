@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
@@ -11,6 +11,8 @@ import { Router } from '@angular/router';
   providers: [DestroyManager],
 })
 export class MenuComponent implements OnInit {
+  @Input() showMenu: boolean = true; // Receive menu visibility state from parent
+
   menuOpen = false;
   menuItems: { label: string; route: string }[] = [];
   activeRoute = ''; // Track the active submenu

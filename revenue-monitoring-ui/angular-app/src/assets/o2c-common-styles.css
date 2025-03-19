@@ -110,7 +110,7 @@
 .gridded-table td {
   font-size: 12px;
   width: 11.1%;
-  padding: 2px 5px;
+  padding: 5px 8px;
   font-weight: bold;
   text-align: left;
   border: none;
@@ -122,13 +122,13 @@
   vertical-align: top;
 }
 
-/* .gridded-table td {
-  background-color: #f2f2f2;
+.gridded-table td {
+  background-color: #f9fbfa;
   font-weight: bold;
   color: #333;
   border: none;
   border-right: 1px solid #ddd;
-} */
+}
 
 .gridded-table th {
   font-weight: bold;

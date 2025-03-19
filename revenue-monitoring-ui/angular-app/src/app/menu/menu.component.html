@@ -1,4 +1,4 @@
-<div class="menu-container">
+<div class="menu-container" *ngIf="showMenu">
   <button class="burger-menu" (click)="toggleMenu()">☰</button>
   <div *ngIf="menuOpen" class="menu-items">
     <a
