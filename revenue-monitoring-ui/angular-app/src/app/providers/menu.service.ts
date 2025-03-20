@@ -41,4 +41,12 @@ export class MenuService {
 
     this.menuItems.next(filteredMenu as MenuCategory[]);
   }
+
+  private headerSubject = new BehaviorSubject<string>('Continuous Monitoring'); // Default value
+  header$ = this.headerSubject.asObservable();
+
+  updateHeader(newHeader: string) {
+    console.log('Updating header to:', newHeader);
+    this.headerSubject.next(newHeader);
+  }
 }

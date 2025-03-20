@@ -1,4 +1,4 @@
-<mat-tab-group>
+<!-- <mat-tab-group>
   <mat-tab label="Large Deal Tracker">
     <app-invoice-status></app-invoice-status>
   </mat-tab>
@@ -8,5 +8,34 @@
   <mat-tab label="Midclose Volumes">
     <app-wd0-historical-data></app-wd0-historical-data>
   </mat-tab>
-  <mat-tab label="Operations Controls" [disabled]="true"> </mat-tab>
+</mat-tab-group> -->
+
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
+  <mat-tab *ngFor="let tab of filteredTabs; let i = index">
+    <ng-template mat-tab-label>
+      <span>{{ tab.label }}</span>
+      <i
+        class="fa fa-bars"
+        *ngIf="tab.label === 'Business Insights'"
+        style="margin-left: 8px; cursor: pointer"
+        (click)="toggleMenu()"
+      ></i>
+    </ng-template>
+    <ng-container [ngSwitch]="tab.component">
+      <ng-container *ngSwitchCase="'app-large-deal'">
+        <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-wd0-status'">
+        <app-wd0-dash *ngIf="selectedIndex === i"></app-wd0-dash>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-wd0-historical-data'">
+        <app-wd0-historical-data
+          *ngIf="selectedIndex === i"
+        ></app-wd0-historical-data>
+      </ng-container>
+    </ng-container>
+  </mat-tab>
 </mat-tab-group>

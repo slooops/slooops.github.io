@@ -2,7 +2,16 @@
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
 >
-  <mat-tab *ngFor="let tab of filteredTabs; let i = index" [label]="tab.label">
+  <mat-tab *ngFor="let tab of filteredTabs; let i = index">
+    <ng-template mat-tab-label>
+      <span>{{ tab.label }}</span>
+      <i
+        class="fa fa-bars"
+        *ngIf="tab.label === 'Continuous Monitoring'"
+        style="margin-left: 8px; cursor: pointer"
+        (click)="toggleMenu()"
+      ></i>
+    </ng-template>
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-preclose'">
         <app-preclose *ngIf="selectedIndex === i"></app-preclose>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnChanges, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
 
@@ -10,6 +10,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -234,7 +235,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
     http: ApiHttpService,
     destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
@@ -365,12 +369,36 @@ export class PeriodCloseTrackingComponent implements OnInit {
       //   ],
       // },
     ]);
+    // this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationEnd) {
+    //     console.log('🔹 Navigated to:', event.url);
+
+    //     if (event.url.includes('/period-close-tracking')) {
+    //       console.log('✅ First load detected for Period Close Tracking');
+    //       this.updateHeaderToPreclose();
+    //     }
+    //   }
+    // });
+  }
+
+  onTabChange(index: number) {
+    this.selectedIndex = index;
+    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
+    console.log('🔹 Tab changed, updating header:', newHeader);
+    this.menuService.updateHeader(newHeader);
+  }
+
+  updateHeaderToPreclose() {
+    const newHeader = 'Continuous Monitoring > Preclose';
+    console.log('🔹 Setting initial header:', newHeader);
+    this.menuService.updateHeader(newHeader);
   }
 
   menuOpen = false;
 
   toggleMenu() {
-    this.menuOpen = !this.menuOpen;
+    console.log('Burger menu clicked!');
+    // Implement menu toggle logic here
   }
   visibleTabs: { label: string; component: string; role: string[] }[] = [
     {
@@ -392,10 +420,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
       tab.role.some((role) => this.roles.includes(role))
     );
-  }
-
-  onTabChange(index: number) {
-    this.selectedIndex = index;
   }
 
   getIsQuarterEnd(): void {

@@ -59,6 +59,32 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        if (event.url.includes('/period-close-tracking')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Pre-Close (Internal)'
+          );
+        } else if (event.url.includes('/invoice-to-cash')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Pre-Invoicing'
+          );
+        } else if (event.url.includes('/revenue-accounting')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Standard Revenue'
+          );
+        } else if (event.url.includes('/gl-posting')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > General Ledger'
+          );
+        } else if (event.url.includes('/business-insights')) {
+          this.menuService.updateHeader(
+            'Business Insights > Large Deal Tracker'
+          );
+        }
+      }
+    });
+
     this.dataService
       .getExceptionAssignmentUsers(this.destroyManager)
       .subscribe((data) => {
@@ -173,6 +199,11 @@ export class AppComponent implements OnInit, OnDestroy {
       //   ],
       // },
     ];
+
+    this.menuService.header$.subscribe((newHeader) => {
+      console.log('Header updated in AppComponent:', newHeader);
+      this.header = newHeader;
+    });
   }
 
   toggleHelpDropdown(event: MouseEvent) {

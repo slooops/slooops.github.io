@@ -55,7 +55,7 @@ const routes: Routes = [
     component: PeriodCloseTrackingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Period Close Tracking',
+      header: 'Continuous Monitoring',
     },
   },
   {
@@ -87,7 +87,7 @@ const routes: Routes = [
     component: CustomRevenueComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Revenue Accounting',
+      header: 'Continuous Monitoring',
     },
   },
   {
@@ -111,7 +111,7 @@ const routes: Routes = [
     component: GlPostingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'General Ledger',
+      header: 'Continuous Monitoring',
     },
   },
   // {
@@ -143,7 +143,7 @@ const routes: Routes = [
     component: InvoicingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoice to Cash',
+      header: 'Continuous Monitoring',
     },
   },
   {
