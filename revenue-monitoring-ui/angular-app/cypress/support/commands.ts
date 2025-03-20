@@ -42,6 +42,7 @@ Cypress.Commands.add('testProcessFlowAndAssignment', () => {
   cy.get(
     'app-monitoring-dashboard > div:nth-of-type(1) th.cdk-column-PROCESS_FLOW > span'
   ).click();
+  cy.get('app-monitoring-dashboard > div:nth-of-type(1) h5').click();
   cy.get('tr:nth-of-type(1) span.mat-checkbox-inner-container').click();
   cy.get('button.custom-button-primary').click();
   cy.get('button.custom-button-tertiary').click();
