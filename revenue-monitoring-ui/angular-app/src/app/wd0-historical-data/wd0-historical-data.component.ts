@@ -1220,8 +1220,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
           this.newMonthData,
           regressionData.X.length - 1
         );
-      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      fastestTimes.push(null);
+      slowestTimes.push(null);
 
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)
