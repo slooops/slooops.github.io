@@ -97,10 +97,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
       wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
-
       wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
 
-      wd1.setDate(monthEnd.getDate() - 1);
+      wd1.setDate(monthEnd.getDate() - 2);
       wd1.setHours(15); // 4 PM rollover for WD-1
 
       // Determine the effective WD based on the current time
