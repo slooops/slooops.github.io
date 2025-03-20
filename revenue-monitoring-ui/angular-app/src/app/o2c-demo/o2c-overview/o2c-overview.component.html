@@ -33,6 +33,9 @@
     [@expandCollapse]="expandedSections['order'] ? 'expanded' : 'collapsed'"
     style="overflow-x: auto"
     class="card-og"
+    [ngStyle]="{
+      'margin-top': expandedSections['order'] ? '0px' : '-32px'
+    }"
   >
     <div class="section-title">Order Details</div>
     <app-o2c-table
