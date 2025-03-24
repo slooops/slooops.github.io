@@ -43,6 +43,23 @@ describe('Invoice to Cash', () => {
 
     // Click "Operations Controls" tab
     // cy.contains('.mat-tab-label', 'Operations Controls').should('be.visible').click();
+
+    cy.visit('http://localhost:4200/revenue-accounting');
+    cy.testProcessFlowAndAssignment();
+
+    cy.contains('.mat-tab-label', 'Revenue Orchestration Layer')
+      .should('be.visible')
+      .click();
+    cy.testProcessFlowAndAssignment();
+
+    cy.contains('.mat-tab-label', 'Accruals').should('be.visible').click();
+    cy.testProcessFlowAndAssignment();
+
+    cy.contains('.mat-tab-label', 'Account Recon').should('be.visible').click();
+    cy.testProcessFlowAndAssignment();
+
+    cy.contains('.mat-tab-label', 'Meraki').should('be.visible').click();
+    cy.testProcessFlowAndAssignment();
   });
 });
 
