@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jack Sloop • Portfolio</title>
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter-display.css" />
+
+    <!-- Styles -->
+    <style>
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: #fff;
+        color: #1a1a1a;
+        line-height: 1.6;
+        padding: 2rem;
+        max-width: 800px;
+        margin-inline: auto;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: "InterDisplay", sans-serif;
+        font-weight: 600;
+        line-height: 1.2;
+        margin-top: 2rem;
+      }
+
+      .portrait {
+        max-width: 160px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+      }
+
+      .bio {
+        margin-bottom: 3rem;
+      }
+
+      .callouts {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .callout {
+        padding: 1rem;
+        background: #fff;
+        transition: box-shadow 0.2s;
+      }
+
+      .callout:hover {
+        /* box-shadow: 0 0 0 2px #a6e8aa; */
+      }
+
+      a {
+        color: #3d3f3d;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: none;
+        color: #1a281b;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Hi, I’m Jack!</h1>
+      <img src="assets/img/jacksloop.png" alt="Jack Sloop" class="portrait" />
+    </header>
+
+    <section class="bio">
+      <p>
+        I’m a frontend developer, designer, and storyteller based in San
+        Francisco. I specialize in building beautiful, reusable UI component
+        systems in Angular and React, and I’m currently working on a new
+        Storybook library.
+      </p>
+
+      <p>
+        This is my personal portfolio, built with clean HTML and hosted via
+        GitHub Pages. I care deeply about performance, accessibility, and
+        expressive typography.
+      </p>
+    </section>
+
+    <section class="callouts">
+      <div class="callout">
+        <h2>Storybook Library</h2>
+        <p>
+          A polished component library with 20+ accessible components built
+          using Angular standalone, custom SCSS, and Inter font.
+        </p>
+        <p>
+          <a
+            href="https://slooops.github.io/asdf/storybook-static/"
+            target="_blank"
+            >View Storybook →</a
+          >
+        </p>
+      </div>
+
+      <div class="callout">
+        <h2>Work Samples</h2>
+        <p>
+          A curated list of projects I’ve contributed to, including enterprise
+          dashboards, data visualizations, and UI transformations.
+        </p>
+        <p><a href="#">Coming Soon</a></p>
+      </div>
+
+      <div class="callout">
+        <h2>Writing</h2>
+        <p>
+          I write about front-end architecture, Storybook best practices, and
+          UI/UX design philosophy.
+        </p>
+        <p><a href="#">Coming Soon</a></p>
+      </div>
+    </section>
+  </body>
+</html>
