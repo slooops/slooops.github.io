@@ -189,9 +189,12 @@ export class O2cOverviewComponent {
     // 'SKU_Description',
     // 'Charge_Type',
     'Quantity',
-    'Duration',
     // 'Billing_Frequency',
-    'USP_(USD)',
+
+    //these were removed for Sai demo, please note if they need to be reinstated
+    // 'Duration',
+    // 'USP_(USD)',   // this was added to the lower sub table (nee accruals)
+
     'Pricing_Term',
     'Line_Amount',
     // 'Charge_Cycle',
@@ -214,6 +217,8 @@ export class O2cOverviewComponent {
   ];
   displayedColumnsAccrualDetails: string[] = [
     'Charge_Cycle',
+    'Duration',
+
     // 'Charge_Cycle_End_Date',
     // 'Order_Line_Number',
     // 'Ordered_Item',
@@ -223,8 +228,11 @@ export class O2cOverviewComponent {
     // 'Currency',
     // 'Amount',
     // 'Status',
+
     'TSV_Created',
     'TSV_Reversal',
+    'USP_(USD)',
+
     'Total_Revenue',
     'Recognized_Revenue',
     'Deferred Revenue',
@@ -555,6 +563,9 @@ export class O2cOverviewComponent {
       Currency: 'USD',
       Amount: '4132.5',
       Status: 'P',
+      'USP_(USD)': '12.46',
+      Duration: '12',
+
       TSV_Created: 'Y',
       TSV_Reversal: 'Y',
       Amount_Posted_to_GL: null,
@@ -576,6 +587,9 @@ export class O2cOverviewComponent {
       Currency: 'USD',
       Amount: '619.92',
       Status: 'P',
+      'USP_(USD)': '23.52',
+      Duration: '12',
+
       TSV_Created: 'Y',
       TSV_Reversal: 'Y',
       Amount_Posted_to_GL: null,
@@ -598,6 +612,9 @@ export class O2cOverviewComponent {
       Currency: 'USD',
       Amount: '1557.49',
       Status: 'P',
+      'USP_(USD)': '33.06',
+      Duration: '12',
+
       TSV_Created: 'Y',
       TSV_Reversal: 'Y',
       Amount_Posted_to_GL: null,
@@ -619,6 +636,9 @@ export class O2cOverviewComponent {
       Currency: 'USD',
       Amount: '282.24',
       Status: 'P',
+      'USP_(USD)': '51.66',
+      Duration: '12',
+
       TSV_Created: 'Y',
       TSV_Reversal: 'Y',
       Amount_Posted_to_GL: null,

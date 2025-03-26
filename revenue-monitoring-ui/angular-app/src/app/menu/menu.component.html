@@ -1,5 +1,5 @@
 <!-- <mat-menu>
-  <ng-container *ngFor="let item of menuItems">
+  <ng-container" *ngIf="showMenu *ngFor="let item of menuItems">
     {{ item }}
     <ng-container>
       <button
@@ -14,7 +14,7 @@
   </ng-container>
 </mat-menu> -->
 
-<div class="tab-container">
+<div class="tab-container" *ngIf="showMenu">
   <!-- Burger Menu Icon (Above Tabs) -->
   <mat-icon class="menu-icon" (click)="toggleMenu()">menu</mat-icon>
 

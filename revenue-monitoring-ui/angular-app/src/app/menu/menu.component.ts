@@ -20,6 +20,8 @@ import { filter, map, mergeMap } from 'rxjs';
   providers: [DestroyManager],
 })
 export class MenuComponent implements OnInit, OnChanges {
+  @Input() showMenu: boolean = true; // Receive menu visibility state from parent
+
   menuOpen = false;
   // menuItems: any[] = [];
   activeRoute = ''; // Track the active menu item

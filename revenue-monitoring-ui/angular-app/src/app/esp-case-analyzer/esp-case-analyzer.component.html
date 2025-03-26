@@ -1,4 +1,7 @@
-<mat-tab-group (selectedTabChange)="onTabClick($event)">
+<mat-tab-group
+  (selectedTabChange)="onTabClick($event)"
+  [selectedIndex]="selectedTabIndex"
+>
   <mat-tab *ngIf="q1 && q2" [label]="'Q1 - Q2'" [disabled]="!(q1 && q2)">
     <!-- [label]="q1.slice(0, -4) + ' vs. ' + q2.slice(0, -4)" -->
 
