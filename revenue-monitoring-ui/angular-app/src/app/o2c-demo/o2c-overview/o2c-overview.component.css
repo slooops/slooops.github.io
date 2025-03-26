@@ -2,7 +2,7 @@
 
 .expander-container {
   display: flex;
-  align-items: center; /* Align the +/- button with the table */
+  align-items: flex-end; /* Align the +/- button with the table */
   gap: 8px; /* Space between button and table */
   margin-left: -31px;
 }

@@ -110,25 +110,36 @@
 .gridded-table td {
   font-size: 12px;
   width: 11.1%;
-  padding: 2px 5px;
+  padding: 5px 8px;
   font-weight: bold;
   text-align: left;
   border: none;
   color: #333;
   overflow-x: auto;
-  border-right: 1px solid #ddd; /* Border between columns */
+  /* border-right: 1px solid #ddd;  */
   word-wrap: break-word;
   white-space: normal;
   vertical-align: top;
 }
 
-/* .gridded-table td {
-  background-color: #f2f2f2;
+.gridded-table td {
+  background-color: #f9fbfa;
   font-weight: bold;
   color: #333;
   border: none;
-  border-right: 1px solid #ddd;
-} */
+  /* border-right: 1px solid #ddd; */
+  position: relative; /* Needed for pseudo-elements */
+}
+
+.gridded-table td::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 2px; /* Adjust gap start */
+  bottom: 2px; /* Adjust gap end */
+  width: 1px; /* Border width */
+  background: #ddd;
+}
 
 .gridded-table th {
   font-weight: bold;

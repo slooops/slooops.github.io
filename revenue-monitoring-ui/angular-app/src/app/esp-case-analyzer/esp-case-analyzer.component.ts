@@ -19,6 +19,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
   protected http: ApiHttpService;
 
+  selectedTabIndex = 0;
+
   isChartLoading = true;
   isPriorChartLoading = true;
 
@@ -68,6 +70,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
         this.q5 =
           recentQuarters.find((q) => q.quarterIndex === 5)?.fiscalQuarter ||
           null;
+
+        this.selectedTabIndex = Math.max(0, recentQuarters.length - 2); // last valid pair is at length - 2
 
         // this.espWeeklyComparisonSummary = data;
         this.getEspWeeklyComparisonSummary(data);
