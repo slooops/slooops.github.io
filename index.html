@@ -8,93 +8,36 @@
     <!-- Fonts -->
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
     <link rel="stylesheet" href="https://rsms.me/inter/inter-display.css" />
-
-    <!-- Styles -->
-    <style>
-      body {
-        margin: 0;
-        font-family: "Inter", sans-serif;
-        background: #fff;
-        color: #1a1a1a;
-        line-height: 1.6;
-        padding: 2rem;
-        max-width: 800px;
-        margin-inline: auto;
-      }
-
-      h1,
-      h2,
-      h3 {
-        font-family: "InterDisplay", sans-serif;
-        font-weight: 600;
-        line-height: 1.2;
-        margin-top: 2rem;
-      }
-
-      .portrait {
-        max-width: 160px;
-        border-radius: 50%;
-        margin-bottom: 1rem;
-      }
-
-      .bio {
-        margin-bottom: 3rem;
-      }
-
-      .callouts {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .callout {
-        padding: 1rem;
-        background: #fff;
-        transition: box-shadow 0.2s;
-      }
-
-      .callout:hover {
-        /* box-shadow: 0 0 0 2px #a6e8aa; */
-      }
-
-      a {
-        color: #3d3f3d;
-        text-decoration: none;
-      }
-
-      a:hover {
-        text-decoration: none;
-        color: #1a281b;
-      }
-    </style>
+    <link rel="stylesheet" href="assets/css/styles.css" />
   </head>
   <body>
-    <header>
-      <h1>Hi, I’m Jack!</h1>
+    <header class="responsive-header">
+      <div class="header-text">
+        <h1>Hi, I’m Jack!</h1>
+      </div>
       <img src="assets/img/jacksloop.png" alt="Jack Sloop" class="portrait" />
     </header>
 
     <section class="bio">
       <p>
-        I’m a frontend developer, designer, and storyteller based in San
-        Francisco. I specialize in building beautiful, reusable UI component
-        systems in Angular and React, and I’m currently working on a new
-        Storybook library.
+        I’m a front-end engineer and designer based in San Francisco. I
+        specialize in building beautiful, reusable UI component systems in
+        Angular and React. After dark, I build out a Storybook component
+        library, and during the day I work at Cisco, making big dashboards full
+        of cool data visualizations.
       </p>
-
       <p>
-        This is my personal portfolio, built with clean HTML and hosted via
-        GitHub Pages. I care deeply about performance, accessibility, and
-        expressive typography.
+        This site is hand-coded, hosted via GitHub Pages, and refreshingly free
+        of div soup.
       </p>
     </section>
 
-    <section class="callouts">
+    <section class="callouts-grid">
       <div class="callout">
         <h2>Storybook Library</h2>
         <p>
-          A polished component library with 20+ accessible components built
-          using Angular standalone, custom SCSS, and Inter font.
+          A component library with 20+ polished, accessible components—built
+          with Angular standalone, custom SCSS, and a deep love for typography.
         </p>
         <p>
           <a
@@ -106,21 +49,56 @@
       </div>
 
       <div class="callout">
-        <h2>Work Samples</h2>
+        <h2>Our Hours (WIP)</h2>
         <p>
-          A curated list of projects I’ve contributed to, including enterprise
-          dashboards, data visualizations, and UI transformations.
+          A timekeeping app for my mom’s small business. Because saving her from
+          paper timesheets was more appealing than buying an HR SaaS product—and
+          I wanted to learn AWS Lambda and Next.js. <br />
+          <a href="https://github.com/slooops/ourhours" target="_blank"
+            >Latest abandoned commits →</a
+          >
         </p>
-        <p><a href="#">Coming Soon</a></p>
       </div>
 
       <div class="callout">
-        <h2>Writing</h2>
+        <h2>Wordle Clone</h2>
         <p>
-          I write about front-end architecture, Storybook best practices, and
-          UI/UX design philosophy.
+          A just-for-fun take on the classic word game, made in 2022 because I,
+          too, needed a JavaScript side quest. Still works! Still fun! Still
+          five letters!
         </p>
-        <p><a href="#">Coming Soon</a></p>
+        <p>
+          <a href="https://wordle.jaxks.co" target="_blank">Play Wordle →</a>
+        </p>
+      </div>
+
+      <div class="callout">
+        <h2>Print Archive</h2>
+        <p>
+          Thousands of pages of editorial design from my time at St
+          Andrews—spreads, covers, and layouts from <em>The Gay Saint</em> and
+          <em>Hearing Aid</em>. All lovingly typeset.
+        </p>
+        <p><a href="archive.html">Into Print! →</a></p>
+      </div>
+
+      <div class="callout">
+        <h2>Design Work</h2>
+        <p>
+          My pre-engineering life: branding, layouts, typography, and magazine
+          design. Includes work for student orgs, clients, and queer community
+          groups.
+        </p>
+        <p><a href="https://jaxks.co" target="_blank">Design Archive →</a></p>
+      </div>
+
+      <div class="callout">
+        <h2>Work @ Cisco</h2>
+        <p>
+          Building Angular dashboards for internal use. It involves predictive
+          models, secure Oracle DBs, and confidential financial data—so no, you
+          can’t see it. But trust me, it's neat.
+        </p>
       </div>
     </section>
   </body>
