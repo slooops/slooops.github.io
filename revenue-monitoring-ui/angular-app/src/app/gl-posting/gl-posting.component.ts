@@ -170,12 +170,12 @@ export class GlPostingComponent implements OnInit {
   ];
 
   glKeysToMap: string[] = [
-    'LEDGER_NAME',
-    'JOURNAL_SOURCE',
-    'ACCOUNT_SEG',
+    'PERIOD_NAME',
     'APPLICATION_NAME',
-    'TRANSACTION_DATE',
     'PROCESS_FLOW',
+    'LEDGER_NAME',
+    'ACCOUNT_SEG',
+    'TRANSACTION_DATE',
   ];
 
   specialWords: string[] = [

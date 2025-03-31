@@ -20,7 +20,6 @@ public class JdbcManager {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
     }
 
-
     public List<Map<String, Object>> queryForList(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }
@@ -93,9 +92,9 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, periodName, ouName, applicationName, uniqueId);
     }
 
-    public List<Map<String, Object>> getGlDetailsFilter(String sql, String processFlow, String ledgerName,
-            String applicationName, String journalSource, String accountSeg, String transactionDate) {
-        return primaryJdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg,
+    public List<Map<String, Object>> getGlDetailsFilter(String sql, String periodName, String applicationName, String processFlow, String ledgerName,
+            String accountSeg, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, applicationName, processFlow, ledgerName,  accountSeg,
                 transactionDate);
     }
 

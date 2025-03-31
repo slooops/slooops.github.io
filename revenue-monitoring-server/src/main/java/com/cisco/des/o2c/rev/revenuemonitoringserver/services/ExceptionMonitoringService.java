@@ -900,10 +900,10 @@ public class ExceptionMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getGlDetailsFilter(String processFlow, String ledgerName, String applicationName,
-                                                        String journalSource, String accountSeg, String transactionDate) {
-        List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, processFlow, ledgerName, applicationName,
-                journalSource, accountSeg, transactionDate);
+    public List<Map<String, Object>> getGlDetailsFilter(String periodName, String applicationName, String processFlow, String ledgerName,
+                                                         String accountSeg, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, periodName, applicationName, processFlow, ledgerName,
+                 accountSeg, transactionDate);
         return result;
     }
 
