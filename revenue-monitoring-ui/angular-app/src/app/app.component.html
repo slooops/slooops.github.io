@@ -1,7 +1,15 @@
 <div class="row" *ngIf="showNavbar">
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
     <div style="width: 100%; display: flex; justify-content: space-between">
-      <span style="display: flex; align-items: center; padding: 0px 0 0px">
+      <span
+        style="
+          display: flex;
+          align-items: center;
+          padding: 0px 0 0px;
+          min-width: 500px;
+          max-width: 500px;
+        "
+      >
         <span
           style="
             display: flex;
@@ -47,7 +55,7 @@
         >
           <span *ngIf="header.length > 0">
             <div style="font-size: 12px">Operations Control Tower</div>
-            <div style="font-size: 18px">{{ header }}</div>
+            <div style="font-size: 14px">{{ header }}</div>
           </span>
           <span *ngIf="header.length === 0">
             <span>Operations Control Tower</span>
@@ -101,7 +109,7 @@
           </li>
 
           <!-- Revenue Accounting -->
-          <!-- <li
+          <li
             class="menu-item"
             [class.disabled]="
               !(
@@ -120,7 +128,7 @@
             >
               ESP Case Manager
             </a>
-          </li> -->
+          </li>
         </ul>
       </span>
 
@@ -201,7 +209,7 @@
   <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
 </div>
 
-<mat-menu #menu="matMenu" style="border-radius: 12px; padding: 0">
+<mat-menu #menu="matMenu">
   <button mat-menu-item [routerLink]="'/period-close-tracking'">
     Period Close Tracking
   </button>
