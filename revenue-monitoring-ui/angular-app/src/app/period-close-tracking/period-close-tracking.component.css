@@ -35,3 +35,14 @@ td {
 ::ng-deep .mat-ink-bar {
   background-color: #049fd9 !important;
 }
+
+.tab-container {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon {
+  cursor: pointer;
+  font-size: 28px; /* Adjust size */
+  margin-right: 10px; /* Space between icon and tabs */
+}

@@ -1,13 +1,27 @@
-<div class="menu-container" *ngIf="showMenu">
-  <button class="burger-menu" (click)="toggleMenu()">☰</button>
-  <div *ngIf="menuOpen" class="menu-items">
-    <a
-      *ngFor="let item of menuItems"
-      [routerLink]="item.route"
-      (click)="selectMenu(item.route)"
-      [class.active]="activeRoute === item.route"
-    >
-      {{ item.label }}
-    </a>
-  </div>
+<!-- <mat-menu>
+  <ng-container" *ngIf="showMenu *ngFor="let item of menuItems">
+    {{ item }}
+    <ng-container>
+      <button
+        mat-menu-item
+        [routerLink]="item.route"
+        (click)="selectMenu(item.route)"
+        [class.active]="activeRoute === item.route"
+      >
+        {{ item.label }}
+      </button>
+    </ng-container>
+  </ng-container>
+</mat-menu> -->
+
+<div class="tab-container">
+  <!-- Burger Menu Icon (Above Tabs) -->
+  <mat-icon class="menu-icon" (click)="toggleMenu()">menu</mat-icon>
+
+  <!-- Tab Group -->
+  <mat-tab-group class="custom-tab-group">
+    <mat-tab label="Tab 1"> Content 1 </mat-tab>
+    <mat-tab label="Tab 2"> Content 2 </mat-tab>
+    <mat-tab label="Tab 3"> Content 3 </mat-tab>
+  </mat-tab-group>
 </div>

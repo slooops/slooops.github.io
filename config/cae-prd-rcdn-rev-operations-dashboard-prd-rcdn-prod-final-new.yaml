@@ -1,13 +1,13 @@
 ---
-# Source: templates/dev.yaml
+# Source: templates/prod.yaml
 
 # codectl version : 1.5.6
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: "rev-ops-monitoring-backend-rol-service"
-  namespace: "rev-operations-dashboard-rtp2"
+  name: "rev-ops-monitoring-backend-final-service-new"
+  namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -18,14 +18,14 @@ spec:
       protocol: "TCP"
       port: 8080
   selector:
-    app: "rev-ops-monitoring-server-rol"
+    app: "rev-ops-monitoring-server-final-new"
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "rev-ops-monitoring-server-rol"
-  namespace: "rev-operations-dashboard-rtp2"
+  name: "rev-ops-monitoring-server-final-new"
+  namespace: "rev-operations-dashboard-prd-rcdn"
   labels:
     # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
@@ -33,22 +33,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: "rev-ops-monitoring-server-rol"
+      app: "rev-ops-monitoring-server-final-new"
   replicas: 1
   template:
     metadata:
-      namespace: "rev-operations-dashboard-rtp2"
+      namespace: "rev-operations-dashboard-prd-rcdn"
       labels:
-        app: "rev-ops-monitoring-server-rol"
-        environment: "dev"
+        app: "rev-ops-monitoring-server-final-new"
+        environment: "prod"
         # softwareId is a non-sensitive unique identifier for the software
         softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-        softwareName: "rev-ops-monitoring-server-rol"
+        softwareName: "rev-ops-monitoring-server-final-new"
     spec:
       containers:
         - image: 'containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:${trigger["parameters"]["imageTag"]}'
           imagePullPolicy: IfNotPresent
-          name: "rev-ops-monitoring-server-rol"
+          name: "rev-ops-monitoring-server-final-new"
           ports:
             - containerPort: 8080
           env:
@@ -72,26 +72,11 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: password
-            - name: TSV_TOP_SKU_EXC_QUERY
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: tsv.topsku.exc.query
-            - name: TSV_SUB_SKU_EXC_QUERY
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: tsv.subsku.exc.query
-            - name: STANDARD_AR_EXC_QUERY
-              valueFrom:
-                configMapKeyRef:
-                  name: db-properties
-                  key: std.ar.exc.query
             - name: CORS_URL
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.rol.url
+                  key: cors.final.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -757,5 +742,184 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: tsp.account.summary.update.q
+            - name: FUSION_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: fusion.error.summary
+            - name: FUSION_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: fusion.error.details
+            - name: TRANSACTIONS_PROCESSED_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: transactions.processed.summary
+            - name: TRANSACTIONS_PROCESSED_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: transactions.processed.details
+            - name: TRANSACTIONS_PROCESSED_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: transactions.processed.details.filtered
+            - name: FUSION_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: fusion.error.details.filtered
+            - name: FUSION_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: fusion.error.summary.update.q
+            - name: STANDARD_REVENUE_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: standard.revenue.summary.query
+            - name: STANDARD_REVENUE_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: standard.revenue.details.query
+            - name: STANDARD_REVENUE_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: standard.revenue.details.filtered.query
+            - name: STANDARD_REVENUE_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: standard.revenue.summary.update.query
+            - name: CM_AMORT_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cm.amort.summary.query
+            - name: CM_AMORT_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cm.amort.details.query
+            - name: CM_AMORT_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cm.amort.details.filtered.query
+            - name: CM_AMORT_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: cm.amort.summary.update.query
+            - name: PRINT_SUMMARY_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: print.summary.view
+            - name: PRINT_DETAIL_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: print.detail.view
+            - name: PERIOD_NAME_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: period.name.query
+            - name: PRINT_DETAIL_FILTERED_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: print.detail.view.filtered
+            - name: PRINT_SUMMARY_UPDATE
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: print.summary.update
+            - name: CREDIT_CARD_PAYMENTS_SUMMARY_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: credit.card.summary
+            - name: CREDIT_CARD_PAYMENTS_DETAIL_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: credit.card.details
+            - name: DEBIT_CARD_PAYMENTS_SUMMARY_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: debit.card.summary
+            - name: DEBIT_CARD_PAYMENTS_DETAIL_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: debit.card.details
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
+---
+apiVersion: cae.cisco.com/v1
+kind: SSOAuthConfig
+metadata:
+  name: ops-control-tower-api.cisco.com
+  namespace: rev-operations-dashboard-prd-rcdn
+  annotations:
+    ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
+spec:
+  contexts:
+    - context: /api/
+      contextMatch: prefix
+      policyType: public
+      methods:
+        - "*"
+    - context: /snoop.jsp
+      contextMatch: exact
+      policyType: public
+    - context: /pingpong.html
+      contextMatch: exact
+      policyType: public
+    - context: /favicon.ico
+      contextMatch: exact
+      policyType: public
+    - context: /.emantest.html
+      contextMatch: exact
+      policyType: public
+    - context: /pub/
+      contextMatch: prefix
+      policyType: public
+    - context: ^/.*/pingpong\.html$
+      contextMatch: regex
+      policyType: public
+    - context: /
+      contextMatch: prefix
+      policyType: web
+  policy:
+    api:
+      allow:
+        - paths:
+            - path: /api/
+              pathMatch: prefix
+          when:
+            - kind: tokenIssuer
+              values:
+                - ping
+    web:
+      allow:
+        - paths:
+            - path: /
+              pathMatch: prefix
+          when:
+            - kind: userId
+              values:
+                - "*"
+  provider:
+    cors: platform
+    idp: duo
+    sso: platform

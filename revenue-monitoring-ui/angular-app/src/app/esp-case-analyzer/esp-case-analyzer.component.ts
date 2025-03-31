@@ -3,6 +3,8 @@ import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { MenuService } from '../providers/menu.service';
+// import { resolve } from 'path';
 import { el } from 'date-fns/locale';
 Chart.register(...registerables);
 
@@ -13,7 +15,11 @@ Chart.register(...registerables);
   providers: [DestroyManager],
 })
 export class EspCaseAnalyzerComponent implements OnInit {
-  constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
+  constructor(
+    http: ApiHttpService,
+    private destroyManager: DestroyManager,
+    private menuService: MenuService
+  ) {
     this.http = http;
     Chart.register(...registerables);
   }
@@ -47,6 +53,10 @@ export class EspCaseAnalyzerComponent implements OnInit {
   q5: string | null = null;
 
   ngOnInit(): void {
+    this.getEspAgingCaseSummary();
+    this.getEspCaseServiceMetricSummary();
+    // this.getEspWeeklyComparisonSummary();
+
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
         responseType: 'json',

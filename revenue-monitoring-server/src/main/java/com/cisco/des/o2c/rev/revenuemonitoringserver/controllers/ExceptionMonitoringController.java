@@ -542,35 +542,39 @@ public class ExceptionMonitoringController {
     //General Ledger
     @GetMapping("/gl-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {
+        System.out.println("here");
         return new ResponseEntity<>(service.getGlErrorSummary(), HttpStatus.OK);
     }
 
     @GetMapping("/gl-error-details")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorDetails() {
+        System.out.println("here");
         return new ResponseEntity<>(service.getGlErrorDetails(), HttpStatus.OK);
     }
 
     @GetMapping("/gl-details-filtered")
-    public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> processFlows,
-                                                                    @RequestParam List<String> ledgerNames,
+    public ResponseEntity<Map<String, Object>> getGlDetailsFiltered(@RequestParam List<String> periodNames,
                                                                     @RequestParam List<String> applicationNames,
-                                                                    @RequestParam List<String> journalSources,
+                                                                    @RequestParam List<String> processFlows,
+                                                                    @RequestParam List<String> ledgerNames,
                                                                     @RequestParam List<String> accountSegs,
                                                                     @RequestParam List<String> transactionDates) {
+        System.out.println("here");
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(ledgerNames.size(), Math.min(journalSources.size(), Math.min(applicationNames.size(),
-                    Math.min(processFlows.size(), Math.min(accountSegs.size(), transactionDates.size())))));
-
+            int minLength = Math.min(periodNames.size(), Math.min(applicationNames.size(), Math.min(processFlows.size(), Math.min(ledgerNames.size(), Math.min(accountSegs.size(), transactionDates.size())))));
+            System.out.println(minLength);
             for (int i = 0; i < minLength; i++) {
                 String processFlow = processFlows.get(i);
                 String ledgerName = ledgerNames.get(i);
                 String appName = applicationNames.get(i);
-                String journalSource = journalSources.get(i);
+                String periodName = periodNames.get(i);
                 String accountseg = accountSegs.get(i);
                 String uniqueId = transactionDates.get(i);
-                List<Map<String, Object>> result = service.getGlDetailsFilter(processFlow, ledgerName, appName,
-                        journalSource, accountseg, uniqueId);
+                System.out.println(periodName);
+                System.out.println(processFlow);
+                List<Map<String, Object>> result = service.getGlDetailsFilter(periodName, appName, processFlow, ledgerName,
+                        accountseg, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();

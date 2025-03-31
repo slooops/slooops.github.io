@@ -14,12 +14,10 @@ public class JdbcManager {
 
     private final JdbcTemplate primaryJdbcTemplate;
 
-    private final JdbcTemplate secondaryJdbcTemplate;
 
     @Autowired
-    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate, @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
-        this.secondaryJdbcTemplate = secondaryJdbcTemplate;
     }
 
     public List<Map<String, Object>> queryForList(String sql) {
@@ -94,9 +92,9 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, periodName, ouName, applicationName, uniqueId);
     }
 
-    public List<Map<String, Object>> getGlDetailsFilter(String sql, String processFlow, String ledgerName,
-            String applicationName, String journalSource, String accountSeg, String transactionDate) {
-        return primaryJdbcTemplate.queryForList(sql, processFlow, ledgerName, applicationName, journalSource, accountSeg,
+    public List<Map<String, Object>> getGlDetailsFilter(String sql, String periodName, String applicationName, String processFlow, String ledgerName,
+            String accountSeg, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, applicationName, processFlow, ledgerName,  accountSeg,
                 transactionDate);
     }
 

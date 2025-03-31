@@ -3,7 +3,6 @@
   background: white;
 
   min-height: 100vh; /* Ensure it covers the entire height of the viewport */
-  padding: 1.2rem; /* Add padding to keep spacing from the edges */
   font-family: "Inter", sans-serif;
 }
 

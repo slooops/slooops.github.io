@@ -28,6 +28,7 @@ import { EinvoicingComponent } from './einvoicing/einvoicing.component';
 import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
+import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 
 const routes: Routes = [
   {
@@ -50,11 +51,11 @@ const routes: Routes = [
   },
 
   {
-    path: 'period-close-tracking-preclose',
-    component: PrecloseComponent,
+    path: 'period-close-tracking',
+    component: PeriodCloseTrackingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Period Close Tracking',
+      header: 'Continuous Monitoring',
     },
   },
   {
@@ -70,7 +71,7 @@ const routes: Routes = [
     component: OrderLifecycleComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Large Deal Tower',
+      header: 'Large Deal Tracker',
     },
   },
   {
@@ -78,15 +79,15 @@ const routes: Routes = [
     component: StandardRevenueComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Revenue Accounting',
+      header: 'Standard Revenue',
     },
   },
   {
-    path: 'rol',
+    path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Revenue Accounting',
+      header: 'Continuous Monitoring',
     },
   },
   {
@@ -94,7 +95,7 @@ const routes: Routes = [
     component: AccrualsComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Revenue Accounting',
+      header: 'Accruals',
     },
   },
   {
@@ -102,7 +103,15 @@ const routes: Routes = [
     component: AccountReconComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Revenue Accounting',
+      header: 'Accounts',
+    },
+  },
+  {
+    path: 'gl-posting',
+    component: GlPostingComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Continuous Monitoring',
     },
   },
   // {
@@ -118,7 +127,7 @@ const routes: Routes = [
     component: EspCaseAnalyzerComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'ESP Case Analyzer Dashboard',
+      header: 'ESP Case Manager',
     },
   },
   {
@@ -126,15 +135,15 @@ const routes: Routes = [
     component: PreInvoicingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoice to Cash',
+      header: 'Pre-Invoicing',
     },
   },
   {
-    path: 'invoicing',
+    path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoice to Cash',
+      header: 'Continuous Monitoring',
     },
   },
   {
@@ -142,7 +151,7 @@ const routes: Routes = [
     component: PostInvoicingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoice to Cash',
+      header: 'Post-Invoicing',
     },
   },
   {
@@ -150,7 +159,7 @@ const routes: Routes = [
     component: EinvoicingComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoice to Cash',
+      header: 'EInvoicing',
     },
   },
   {
@@ -158,7 +167,7 @@ const routes: Routes = [
     component: FusionComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'Invoice to Cash',
+      header: 'Fusion',
     },
   },
   {
@@ -213,14 +222,14 @@ const routes: Routes = [
       hideNavbar: true,
     },
   },
-  {
-    path: 'gl-posting',
-    component: GlPostingComponent,
-    data: {
-      title: 'Operations Control Tower',
-      header: 'GL Posting',
-    },
-  },
+  // {
+  //   path: 'gl-posting',
+  //   component: GlPostingComponent,
+  //   data: {
+  //     title: 'Operations Control Tower',
+  //     header: 'GL Posting',
+  //   },
+  // },
   {
     path: 'opl',
     component: OplComponent,
@@ -242,7 +251,7 @@ const routes: Routes = [
     component: Wd0DashComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'WD0',
+      header: 'Miclose Status',
     },
   },
   {
@@ -250,7 +259,15 @@ const routes: Routes = [
     component: Wd0HistoricalDataComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'WD0',
+      header: 'Midclose Volumes',
+    },
+  },
+  {
+    path: 'business-insights',
+    component: BusinessInsightsComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Business Insights',
     },
   },
 ];

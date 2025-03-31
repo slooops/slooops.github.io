@@ -350,6 +350,7 @@ public class QueryConfigs {
     public String debitCardSummary;
     @Value(("${debit.card.details}"))
     public String debitCardDetails;
+
     @Bean(name = "creditCardSummary")
     public String getCreditCardSummary() { return this.creditCardSummary; }
     @Bean(name = "creditCardDetails")

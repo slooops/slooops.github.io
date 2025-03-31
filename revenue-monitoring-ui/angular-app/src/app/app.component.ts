@@ -1,13 +1,12 @@
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter, map, mergeMap, takeUntil, tap } from 'rxjs/operators';
+import { filter, map, mergeMap, takeUntil } from 'rxjs/operators';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { ApiHttpService } from './providers/http.service';
+import { MenuService } from './providers/menu.service';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +24,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private titleService: Title,
     private authService: AuthenticationService,
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private menuService: MenuService
   ) {}
 
   menuOpened = false;
@@ -35,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   userRoles: string[] = this.authService.getRoles();
   isAdmin$: boolean = this.userRoles.includes('ADMIN');
   showMenu: boolean = true;
+  menuItems: any[] = [];
   ngOnInit(): void {
     this.router.events
       .pipe(
@@ -53,15 +54,156 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
-        const hiddenRoutes = ['/home', '/error']; // Define routes where menu should be hidden
+        this.dataService.setHeader(data['header']);
+        const hiddenRoutes = ['/home', '/error', '/business-insights']; // Define routes where menu should be hidden
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        if (event.url.includes('/period-close-tracking')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Pre-Close (Internal)'
+          );
+        } else if (event.url.includes('/invoice-to-cash')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Pre-Invoicing'
+          );
+        } else if (event.url.includes('/revenue-accounting')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Standard Revenue'
+          );
+        } else if (event.url.includes('/gl-posting')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > General Ledger'
+          );
+        } else if (event.url.includes('/business-insights')) {
+          this.menuService.updateHeader(
+            'Business Insights > Large Deal Tracker'
+          );
+        }
+      }
+    });
 
     this.dataService
       .getExceptionAssignmentUsers(this.destroyManager)
       .subscribe((data) => {
         this.dataService.setAssignmentUsers(data);
       });
+
+    this.menuItems = [
+      {
+        label: 'Period Close Tracking',
+        route: '/period-close-tracking',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
+      },
+      {
+        label: 'Invoice to Cash',
+        route: '/invoice-to-cash',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Revenue Accounting',
+        route: '/revenue-accounting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'GL Posting',
+        route: '/gl-posting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
+      },
+
+      // {
+      //   category: 'Invoice to Cash',
+      //   items: [
+      //     {
+      //       label: 'Pre Invoicing',
+      //       route: '/pre-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Invoicing',
+      //       route: '/invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Post Invoicing',
+      //       route: '/post-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'eInvoicing',
+      //       route: '/einvoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Fusion',
+      //       route: '/fusion',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Revenue Accounting',
+      //   items: [
+      //     {
+      //       label: 'Standard Revenue',
+      //       route: '/standard-revenue',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Rol',
+      //       route: '/rol',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accruals',
+      //       route: '/accruals',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accounts',
+      //       route: '/accounts',
+      //       role: ['ADMIN', 'ACCOUNT_RECON'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'GL Posting',
+      //   items: [
+      //     {
+      //       label: 'General Ledger',
+      //       route: '/general-ledger',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Operations Controls',
+      //   items: [
+      //     {
+      //       label: 'Invoice to Cash',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //     {
+      //       label: 'Revenue',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //   ],
+      // },
+    ];
+
+    this.menuService.header$.subscribe((newHeader) => {
+      console.log('Header updated in AppComponent:', newHeader);
+      this.header = newHeader;
+    });
   }
 
   toggleHelpDropdown(event: MouseEvent) {
@@ -93,4 +235,17 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  // selectMenu(route: string) {
+  //   this.activeRoute = route; // Track selected menu
+  //   this.menuOpen = false; // Close menu after selecting
+  // }
+
+  // @HostListener('document:click', ['$event'])
+  // onClickOutside(event: Event) {
+  //   const targetElement = event.target as HTMLElement;
+  //   if (!targetElement.closest('.menu-container')) {
+  //     this.menuOpen = false;
+  //   }
+  // }
 }
