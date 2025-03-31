@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnChanges, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ApiHttpService } from '../providers/http.service';
 
@@ -10,6 +10,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -234,7 +235,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
     http: ApiHttpService,
     destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
@@ -259,72 +263,142 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     this.menuService.updateMenuItems([
       {
-        label: 'Pre close',
-        route: '/period-close-tracking-preclose',
+        label: 'Period Close Tracking',
+        route: '/period-close-tracking',
         role: ['ADMIN', 'PERIOD_CLOSE'],
       },
       {
-        label: 'Mid close',
-        route: '/period-close-tracking-midclose',
-        role: ['ADMIN', 'PERIOD_CLOSE'],
-      },
-      {
-        label: 'Pre Invoicing',
-        route: '/pre-invoicing',
+        label: 'Invoice to Cash',
+        route: '/invoice-to-cash',
         role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
       {
-        label: 'Invoicing',
-        route: '/invoicing',
+        label: 'Revenue Accounting',
+        route: '/revenue-accounting',
         role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
       {
-        label: 'Post Invoicing',
-        route: '/post-invoicing',
+        label: 'GL Posting',
+        route: '/gl-posting',
         role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       },
       {
-        label: 'EInvoicing',
-        route: '/einvoicing',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
       },
-      {
-        label: 'Fusion',
-        route: '/fusion',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Standard Revenue',
-        route: '/standard-revenue',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Rol',
-        route: '/rol',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Accruals',
-        route: '/accruals',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Accounts',
-        route: '/accounts',
-        role: ['ADMIN', 'ACCOUNT_RECON'],
-      },
-      {
-        label: 'WD0',
-        route: '/wd0',
-        role: ['ADMIN', 'WD0'],
-      },
+
+      // {
+      //   category: 'Invoice to Cash',
+      //   items: [
+      //     {
+      //       label: 'Pre Invoicing',
+      //       route: '/pre-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Invoicing',
+      //       route: '/invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Post Invoicing',
+      //       route: '/post-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'eInvoicing',
+      //       route: '/einvoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Fusion',
+      //       route: '/fusion',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Revenue Accounting',
+      //   items: [
+      //     {
+      //       label: 'Standard Revenue',
+      //       route: '/standard-revenue',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Rol',
+      //       route: '/rol',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accruals',
+      //       route: '/accruals',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accounts',
+      //       route: '/accounts',
+      //       role: ['ADMIN', 'ACCOUNT_RECON'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'GL Posting',
+      //   items: [
+      //     {
+      //       label: 'General Ledger',
+      //       route: '/general-ledger',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Operations Controls',
+      //   items: [
+      //     {
+      //       label: 'Invoice to Cash',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //     {
+      //       label: 'Revenue',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //   ],
+      // },
     ]);
+    // this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationEnd) {
+    //     console.log('🔹 Navigated to:', event.url);
+
+    //     if (event.url.includes('/period-close-tracking')) {
+    //       console.log('✅ First load detected for Period Close Tracking');
+    //       this.updateHeaderToPreclose();
+    //     }
+    //   }
+    // });
+  }
+
+  onTabChange(index: number) {
+    this.selectedIndex = index;
+    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
+    console.log('🔹 Tab changed, updating header:', newHeader);
+    this.menuService.updateHeader(newHeader);
+  }
+
+  updateHeaderToPreclose() {
+    const newHeader = 'Continuous Monitoring > Preclose';
+    console.log('🔹 Setting initial header:', newHeader);
+    this.menuService.updateHeader(newHeader);
   }
 
   menuOpen = false;
 
   toggleMenu() {
-    this.menuOpen = !this.menuOpen;
+    console.log('Burger menu clicked!');
+    // Implement menu toggle logic here
   }
   visibleTabs: { label: string; component: string; role: string[] }[] = [
     {
@@ -337,26 +411,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
       component: 'app-midclose',
       role: ['ADMIN', 'PERIOD_CLOSE'],
     },
-    {
-      label: 'WD+0 Mid Close Status',
-      component: 'app-wd0-dash',
-      role: ['ADMIN', 'WD0'],
-    },
-    {
-      label: 'WD+0 Mid Close Volumes',
-      component: 'app-wd0-historical-data',
-      role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-    },
-    {
-      label: 'Large Deal Tracker',
-      component: 'app-invoice-status',
-      role: ['ADMIN', 'LARGE_DEAL'],
-    },
-    {
-      label: 'WD0',
-      component: 'wd0',
-      role: ['ADMIN', 'WD0'],
-    },
   ];
 
   selectedIndex: number = 0;
@@ -366,10 +420,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
       tab.role.some((role) => this.roles.includes(role))
     );
-  }
-
-  onTabChange(index: number) {
-    this.selectedIndex = index;
   }
 
   getIsQuarterEnd(): void {

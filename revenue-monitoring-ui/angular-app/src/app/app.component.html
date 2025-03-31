@@ -1,38 +1,16 @@
 <div class="row" *ngIf="showNavbar">
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
-    <div
-      style="
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        padding: 4px 0;
-      "
-    >
-      <div style="display: flex; align-items: center; padding: 0px 0 0px">
-        <!-- <button
-          mat-button
-          style="background-color: #08ace4"
-          [matMenuTriggerFor]="menu"
-          matTooltip="Menu"
-        >
-          <i
-            aria-hidden="true"
-            style="display: flex; justify-content: center"
-            class="onHover"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="25"
-              height="25"
-              fill="#ffffff"
-            >
-              <path
-                d="M4.625 7.125a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm7.375 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm7.375 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM4.625 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm7.375 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm7.375 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm-14.75 7.375a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm7.375 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Zm7.375 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
-              ></path>
-            </svg>
-          </i>
-        </button> -->
-        <div
+    <div style="width: 100%; display: flex; justify-content: space-between">
+      <span
+        style="
+          display: flex;
+          align-items: center;
+          padding: 0px 0 0px;
+          min-width: 500px;
+          max-width: 500px;
+        "
+      >
+        <span
           style="
             display: flex;
             align-items: center;
@@ -40,7 +18,7 @@
             cursor: pointer;
           "
         >
-          <svg width="38px" height="20px">
+          <svg width="40px" height="21px">
             <g transform="matrix(1,0,0,1,-503.306,-139.064)">
               <g
                 transform="matrix(2.53893e-17,0.414639,-0.777449,4.7605e-17,626.97,1.08905)"
@@ -65,7 +43,7 @@
               </g>
             </g>
           </svg>
-        </div>
+        </span>
 
         <h5
           style="
@@ -75,19 +53,95 @@
             font-weight: 450;
           "
         >
-          <div>Operations Control Tower</div>
+          <span *ngIf="header.length > 0">
+            <div style="font-size: 12px">Operations Control Tower</div>
+            <div style="font-size: 14px">{{ header }}</div>
+          </span>
+          <span *ngIf="header.length === 0">
+            <span>Operations Control Tower</span>
+          </span>
         </h5>
-      </div>
-      <div class="custom-search-bar">
-        <input
-          type="text"
-          placeholder="Search Coming Soon..."
-          class="custom-search-input"
-        />
-        <i class="svg-icon search-icon"></i>
-      </div>
+      </span>
+      <span class="navbar">
+        <ul class="menu">
+          <!-- Home -->
+          <li class="menu-item" [class.disabled]="!isAdmin$">
+            <a [routerLink]="'/home'" class="top-link">
+              <i class="svg-icon home-icon" style="font-weight: 900"></i>
+            </a>
+          </li>
 
-      <div style="display: flex; align-items: center">
+          <!-- Period Close Tracking -->
+          <li
+            class="menu-item"
+            [class.disabled]="
+              !(
+                hasRole$([
+                  'PERIOD_CLOSE',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'LARGE_DEAL'
+                ]) || isAdmin$
+              )
+            "
+          >
+            <a
+              [matMenuTriggerFor]="menu"
+              class="top-link"
+              style="font-weight: 500"
+            >
+              Continuous Monitoring
+            </a>
+          </li>
+
+          <!-- Invoice to Cash -->
+          <li
+            class="menu-item"
+            [class.disabled]="!(hasRole$(['LARGE_DEAL']) || isAdmin$)"
+          >
+            <a
+              [routerLink]="'/business-insights'"
+              class="top-link"
+              style="font-weight: 500"
+            >
+              Business Insights
+            </a>
+          </li>
+
+          <!-- Revenue Accounting -->
+          <li
+            class="menu-item"
+            [class.disabled]="
+              !(
+                hasRole$([
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON'
+                ]) || isAdmin$
+              )
+            "
+          >
+            <a
+              [routerLink]="'/case-analyzer'"
+              class="top-link"
+              style="font-weight: 500"
+            >
+              ESP Case Manager
+            </a>
+          </li>
+        </ul>
+      </span>
+
+      <span style="display: flex; align-items: center">
+        <div class="custom-search-bar">
+          <input
+            type="text"
+            placeholder="Search"
+            class="custom-search-input"
+            [disabled]="true"
+          />
+          <i class="svg-icon search-icon"></i>
+        </div>
         <i
           class="fa fa-question-circle"
           aria-hidden="true"
@@ -111,83 +165,14 @@
             d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"
           ></path>
         </svg>
-        <div style="margin: 0 10px 0 5px" class="onHover">
+        <span style="margin: 0 10px 0 5px" class="onHover">
           <span class="user-title">Welcome, {{ userName }}</span>
           <i
             class="fa fa-angle-down"
             style="color: white; font-size: medium; margin-left: 5px"
           ></i>
-        </div>
-      </div>
-    </div>
-    <div class="navbar">
-      <ul class="menu">
-        <!-- Home -->
-        <li class="menu-item" [class.disabled]="!isAdmin$">
-          <a [routerLink]="'/home'" class="top-link">
-            <i class="svg-icon home-icon" style="font-weight: 900"></i>
-          </a>
-        </li>
-
-        <!-- Period Close Tracking -->
-        <li
-          class="menu-item"
-          [class.disabled]="
-            !(
-              hasRole$([
-                'PERIOD_CLOSE',
-                'WD0',
-                'MIDCLOSE_VOLUMES',
-                'LARGE_DEAL'
-              ]) || isAdmin$
-            )
-          "
-        >
-          <a
-            [routerLink]="'/period-close-tracking-preclose'"
-            class="top-link"
-            style="font-weight: 500"
-          >
-            Continuous Monitoring
-          </a>
-        </li>
-
-        <!-- Invoice to Cash -->
-        <li
-          class="menu-item"
-          [class.disabled]="!(hasRole$(['LARGE_DEAL']) || isAdmin$)"
-        >
-          <a
-            [routerLink]="'/large-deal-tracker'"
-            class="top-link"
-            style="font-weight: 500"
-          >
-            Business Insights
-          </a>
-        </li>
-
-        <!-- Revenue Accounting -->
-        <li
-          class="menu-item"
-          [class.disabled]="
-            !(
-              hasRole$([
-                'EXCEPTION_ADMIN',
-                'EXCEPTION_READ_ONLY',
-                'ACCOUNT_RECON'
-              ]) || isAdmin$
-            )
-          "
-        >
-          <a
-            [routerLink]="'/midclose-volumes'"
-            class="top-link"
-            style="font-weight: 500"
-          >
-            Operations Efficiency
-          </a>
-        </li>
-      </ul>
+        </span>
+      </span>
     </div>
   </mat-toolbar>
 </div>
@@ -223,3 +208,19 @@
 >
   <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
 </div>
+
+<mat-menu #menu="matMenu">
+  <button mat-menu-item [routerLink]="'/period-close-tracking'">
+    Period Close Tracking
+  </button>
+  <button mat-menu-item [routerLink]="'/invoice-to-cash'">
+    Invoice to Cash
+  </button>
+  <button mat-menu-item [routerLink]="'/revenue-accounting'">
+    Revenue Accounting
+  </button>
+  <button mat-menu-item [routerLink]="'/gl-posting'">GL Posting</button>
+  <button mat-menu-item [routerLink]="''" [disabled]="true">
+    Operations Controls
+  </button>
+</mat-menu>

@@ -3,6 +3,7 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { MenuService } from '../providers/menu.service';
 
 @Component({
   selector: 'app-wd0-dash',
@@ -55,7 +56,11 @@ export class Wd0DashComponent implements OnInit {
     'Loaded into FCC',
   ];
 
-  constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
+  constructor(
+    http: ApiHttpService,
+    private destroyManager: DestroyManager,
+    private menuService: MenuService
+  ) {
     this.http = http;
   }
 
@@ -64,6 +69,23 @@ export class Wd0DashComponent implements OnInit {
     this.getPeriodQuarterStartEndTime();
     this.getCurrentTime();
     this.getWd0ArCloseStatus();
+    // this.menuService.updateMenuItems([
+    //   {
+    //     label: 'Large Deal Tracker',
+    //     route: '/large-deal-tracker',
+    //     role: ['ADMIN', 'LARGE_DEAL'],
+    //   },
+    //   {
+    //     label: 'WD0',
+    //     route: '/wd0',
+    //     role: ['ADMIN', 'WD0'],
+    //   },
+    //   {
+    //     label: 'Mid Close Volumes',
+    //     route: '/midclose-volumes',
+    //     role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+    //   },
+    // ]);
   }
 
   //for read more/less section

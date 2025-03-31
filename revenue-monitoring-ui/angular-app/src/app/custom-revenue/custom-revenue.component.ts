@@ -3,6 +3,7 @@ import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { AuthenticationService } from '../providers/authentication.service';
+import { MenuService } from '../providers/menu.service';
 
 @Component({
   selector: 'app-custom-revenue',
@@ -15,12 +16,121 @@ export class CustomRevenueComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private menuService: MenuService
   ) {}
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
     this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
+    this.menuService.updateMenuItems([
+      {
+        label: 'Period Close Tracking',
+        route: '/period-close-tracking',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
+      },
+      {
+        label: 'Invoice to Cash',
+        route: '/invoice-to-cash',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Revenue Accounting',
+        route: '/revenue-accounting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'GL Posting',
+        route: '/gl-posting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
+      },
+
+      // {
+      //   category: 'Invoice to Cash',
+      //   items: [
+      //     {
+      //       label: 'Pre Invoicing',
+      //       route: '/pre-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Invoicing',
+      //       route: '/invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Post Invoicing',
+      //       route: '/post-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'eInvoicing',
+      //       route: '/einvoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Fusion',
+      //       route: '/fusion',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Revenue Accounting',
+      //   items: [
+      //     {
+      //       label: 'Standard Revenue',
+      //       route: '/standard-revenue',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Rol',
+      //       route: '/rol',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accruals',
+      //       route: '/accruals',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accounts',
+      //       route: '/accounts',
+      //       role: ['ADMIN', 'ACCOUNT_RECON'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'GL Posting',
+      //   items: [
+      //     {
+      //       label: 'General Ledger',
+      //       route: '/general-ledger',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Operations Controls',
+      //   items: [
+      //     {
+      //       label: 'Invoice to Cash',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //     {
+      //       label: 'Revenue',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //   ],
+      // },
+    ]);
   }
 
   rolTotals: { [key: string]: number } = {
@@ -327,15 +437,9 @@ export class CustomRevenueComponent implements OnInit {
       disabled: true,
     },
     {
-      label: 'Account Recon',
+      label: 'Clearing Account Balance',
       component: 'app-accounts',
       role: ['ADMIN', 'ACCOUNT_RECON'],
-    },
-    {
-      label: 'Operations Controls',
-      component: 'app-cr-operations-controls',
-      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      disabled: true,
     },
   ];
 
@@ -354,6 +458,9 @@ export class CustomRevenueComponent implements OnInit {
 
   onTabChange(index: number) {
     this.selectedIndex = index;
+    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
+    console.log('🔹 Tab changed, updating header:', newHeader);
+    this.menuService.updateHeader(newHeader);
   }
 
   rolprocessflowCss: string = `

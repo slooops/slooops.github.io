@@ -133,15 +133,11 @@ export class AuthenticationService {
         this.username = info['auth_user_name'];
         this.userId = info['auth_user'];
         await this.getUserRoles(info['auth_user']);
-        // Check if userRoles is empty and navigate to the error page
-        console.log(this.router);
-        console.log(this.userRoles);
-        console.log(this.router.url);
         if (
           this.userRoles.length === 0 &&
           !this.bypassRoutes.includes(this.router.url)
         ) {
-          this.router.navigate(['/error']); // Change this to your actual error page route
+          this.router.navigate(['/error']);
         }
       })
       .catch((error) => {

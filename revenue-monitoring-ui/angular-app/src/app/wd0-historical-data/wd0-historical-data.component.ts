@@ -97,10 +97,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
       wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
 
       wd2.setDate(monthEnd.getDate() - 2);
-
       wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
 
-      wd1.setDate(monthEnd.getDate() - 1);
+      wd1.setDate(monthEnd.getDate() - 2);
       wd1.setHours(15); // 4 PM rollover for WD-1
 
       // Determine the effective WD based on the current time
@@ -146,6 +145,23 @@ export class Wd0HistoricalDataComponent implements OnInit {
         default:
           console.error('Unknown WD:', effectiveWd.wd);
       }
+      // this.menuService.updateMenuItems([
+      //   {
+      //     label: 'Large Deal Tracker',
+      //     route: '/large-deal-tracker',
+      //     role: ['ADMIN', 'LARGE_DEAL'],
+      //   },
+      //   {
+      //     label: 'WD0',
+      //     route: '/wd0',
+      //     role: ['ADMIN', 'WD0'],
+      //   },
+      //   {
+      //     label: 'Mid Close Volumes',
+      //     route: '/midclose-volumes',
+      //     role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+      //   },
+      // ]);
     }
 
     let serviceActuals = [null, null, null];
@@ -259,19 +275,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     this.refreshExportData();
     this.getHistoricalData();
-
-    this.menuService.updateMenuItems([
-      {
-        label: 'Mid Close Volumes',
-        route: '/midclose-volumes',
-        role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-      },
-      {
-        label: 'ESP Case Analyzer',
-        route: '/case-analyzer',
-        role: ['ADMIN'],
-      },
-    ]);
   }
 
   //this method is necessary for predicting the next month in the absence of
@@ -1217,8 +1220,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
           this.newMonthData,
           regressionData.X.length - 1
         );
-      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      fastestTimes.push(null);
+      slowestTimes.push(null);
 
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)

@@ -3,6 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
+import { MenuService } from '../providers/menu.service';
 
 @Component({
   selector: 'app-gl-posting',
@@ -14,13 +15,122 @@ export class GlPostingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private menuService: MenuService
   ) {}
   roles: string[] = [];
 
   ngOnInit() {
     this.getErrorSummaryPeriodStatus();
     this.roles = this.authService.getRoles();
+    this.menuService.updateMenuItems([
+      {
+        label: 'Period Close Tracking',
+        route: '/period-close-tracking',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
+      },
+      {
+        label: 'Invoice to Cash',
+        route: '/invoice-to-cash',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Revenue Accounting',
+        route: '/revenue-accounting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'GL Posting',
+        route: '/gl-posting',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Operations Controls',
+        route: '',
+        role: [''],
+      },
+
+      // {
+      //   category: 'Invoice to Cash',
+      //   items: [
+      //     {
+      //       label: 'Pre Invoicing',
+      //       route: '/pre-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Invoicing',
+      //       route: '/invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Post Invoicing',
+      //       route: '/post-invoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'eInvoicing',
+      //       route: '/einvoicing',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Fusion',
+      //       route: '/fusion',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Revenue Accounting',
+      //   items: [
+      //     {
+      //       label: 'Standard Revenue',
+      //       route: '/standard-revenue',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Rol',
+      //       route: '/rol',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accruals',
+      //       route: '/accruals',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //     {
+      //       label: 'Accounts',
+      //       route: '/accounts',
+      //       role: ['ADMIN', 'ACCOUNT_RECON'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'GL Posting',
+      //   items: [
+      //     {
+      //       label: 'General Ledger',
+      //       route: '/general-ledger',
+      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      //     },
+      //   ],
+      // },
+      // {
+      //   category: 'Operations Controls',
+      //   items: [
+      //     {
+      //       label: 'Invoice to Cash',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //     {
+      //       label: 'Revenue',
+      //       route: '',
+      //       role: ['ADMIN'],
+      //     },
+      //   ],
+      // },
+    ]);
   }
 
   glTotals: { [key: string]: number } = {
@@ -60,12 +170,12 @@ export class GlPostingComponent implements OnInit {
   ];
 
   glKeysToMap: string[] = [
-    'LEDGER_NAME',
-    'JOURNAL_SOURCE',
-    'ACCOUNT_SEG',
+    'PERIOD_NAME',
     'APPLICATION_NAME',
-    'TRANSACTION_DATE',
     'PROCESS_FLOW',
+    'LEDGER_NAME',
+    'ACCOUNT_SEG',
+    'TRANSACTION_DATE',
   ];
 
   specialWords: string[] = [

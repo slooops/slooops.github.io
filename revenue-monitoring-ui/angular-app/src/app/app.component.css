@@ -8,7 +8,7 @@
 
 .mat-toolbar-row,
 .mat-toolbar-single-row {
-  height: 100px !important;
+  height: 50px !important;
 }
 
 .user-title {
@@ -57,54 +57,6 @@
   overflow-y: auto; /* Enable scrolling */
 }
 
-/* Custom styles for mat-menu */
-.mat-menu-panel {
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Subtle shadow for depth */
-  background-color: #ffffff; /* Background color */
-}
-
-/* Menu item styles */
-.mat-menu-item {
-  border-radius: 8px; /* Rounded corners for each item */
-  padding: 10px 16px; /* Increased padding for better touch targets */
-  transition: background-color 0.3s; /* Smooth transition for hover effects */
-}
-
-/* Hover effect for menu items */
-.mat-menu-item:hover {
-  background-color: rgba(0, 0, 0, 0.1); /* Light background on hover */
-}
-
-/* Active item styling */
-.mat-menu-item.active {
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.2
-  ); /* Different background for active item */
-  font-weight: bold; /* Bold text for active state */
-}
-
-/* Icon styling */
-.mat-menu-item i,
-.mat-menu-item svg {
-  margin-right: 8px; /* Space between icon and text */
-  color: #555; /* Icon color */
-}
-
-/* Text styling */
-.mat-menu-item span {
-  font-size: 14px; /* Font size for menu items */
-  color: #333; /* Text color */
-}
-
-/* Disable link styling */
-.mat-menu-item[disabled] {
-  color: rgba(0, 0, 0, 0.38); /* Gray color for disabled items */
-}
-
 .search-bar-container {
   display: flex;
   justify-content: center;
@@ -118,9 +70,8 @@
   padding: 4px 8px; /* Inner padding */
   height: 32px;
   background-color: #ffffff; /* Light background */
-  width: 432px; /* Optional: Adjust max width */
-  margin: 0 auto; /* Optional: Center the search bar */
-  /* box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);  */
+  width: 200px; /* Optional: Adjust max width */
+  margin: 0 10px; /* Optional: Center the search bar */
 }
 
 .custom-search-bar:hover {
@@ -158,15 +109,30 @@
   background-color: #eeeeee; /* Slight hover effect */
 }
 
-/* Navbar container */
 .navbar {
   background-color: #08ace4;
   display: flex;
   align-items: center;
-  justify-content: center;
-  /* padding: 10px 20px; */
-  margin-bottom: 0px;
-  min-height: unset;
+  justify-content: flex-start; /* Ensure it spreads correctly */
+  width: 100%; /* Make sure it takes full width */
+  box-sizing: border-box; /* Ensures padding doesn’t cause overflow */
+  margin: 0; /* Reset margin */
+  flex-grow: 1;
+}
+
+h5 {
+  min-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-container {
+  max-width: 300px;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* Top-level menu */
@@ -248,4 +214,12 @@
   pointer-events: none;
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.mat-menu-item {
+  font-size: small;
+  height: 37px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
 }

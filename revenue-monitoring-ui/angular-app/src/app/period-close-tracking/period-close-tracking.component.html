@@ -1,8 +1,17 @@
-<!-- <mat-tab-group
+<mat-tab-group
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
 >
-  <mat-tab *ngFor="let tab of filteredTabs; let i = index" [label]="tab.label">
+  <mat-tab *ngFor="let tab of filteredTabs; let i = index">
+    <ng-template mat-tab-label>
+      <span>{{ tab.label }}</span>
+      <i
+        class="fa fa-bars"
+        *ngIf="tab.label === 'Continuous Monitoring'"
+        style="margin-left: 8px; cursor: pointer"
+        (click)="toggleMenu()"
+      ></i>
+    </ng-template>
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-preclose'">
         <app-preclose *ngIf="selectedIndex === i"></app-preclose>
@@ -10,20 +19,9 @@
       <ng-container *ngSwitchCase="'app-midclose'">
         <app-midclose *ngIf="selectedIndex === i"></app-midclose>
       </ng-container>
-      <ng-container *ngSwitchCase="'app-wd0-dash'">
-        <app-wd0-dash *ngIf="selectedIndex === i"></app-wd0-dash>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-wd0-historical-data'">
-        <app-wd0-historical-data
-          *ngIf="selectedIndex === i"
-        ></app-wd0-historical-data>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-invoice-status'">
-        <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>
-      </ng-container>
     </ng-container>
   </mat-tab>
-</mat-tab-group> -->
+</mat-tab-group>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"
