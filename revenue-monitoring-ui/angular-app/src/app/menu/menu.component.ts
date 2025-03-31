@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { DataService } from '../providers/data.service';
-import { ApiHttpService } from '../providers/http.service';
-import { Router } from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
+
 import { DestroyManager } from '../providers/destroy-manager.service';
-import { AuthenticationService } from '../providers/authentication.service';
+import { MenuService } from '../providers/menu.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-menu',
@@ -12,29 +11,32 @@ import { AuthenticationService } from '../providers/authentication.service';
   providers: [DestroyManager],
 })
 export class MenuComponent implements OnInit {
-  constructor(
-    private dataService: DataService,
-    http: ApiHttpService,
-    private authService: AuthenticationService
-  ) {
-    this.http = http;
+  @Input() showMenu: boolean = true; // Receive menu visibility state from parent
+
+  menuOpen = false;
+  menuItems: { label: string; route: string }[] = [];
+  activeRoute = ''; // Track the active submenu
+
+  constructor(private menuService: MenuService, private router: Router) {}
+
+  ngOnInit() {
+    this.menuService.menuItems$.subscribe((items) => {
+      this.menuItems = items;
+
+      // Set first submenu as the default when menu opens
+      if (items.length > 0 && !this.activeRoute) {
+        this.activeRoute = items[0].route;
+        this.router.navigateByUrl(this.activeRoute); // Navigate to first item
+      }
+    });
   }
 
-  protected http: ApiHttpService;
-
-  userRoles: any;
-  ngOnInit(): void {
-    this.userRoles = this.authService.getRoles();
-    this.dataService.setUserRoles(this.userRoles);
-    this.isAdmin = this.userRoles.includes('ADMIN');
-    this.rolesReady = true;
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
 
-  isAdmin: boolean = false;
-  rolesReady = false;
-  loggedinUser: string;
-
-  checkRole(role: String) {
-    return this.rolesReady && this.userRoles.includes(role);
+  selectMenu(route: string) {
+    this.activeRoute = route; // Track selected menu
+    this.menuOpen = false; // Close menu after selecting
   }
 }

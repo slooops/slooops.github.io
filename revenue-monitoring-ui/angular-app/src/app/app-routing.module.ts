@@ -16,6 +16,18 @@ import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.compo
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
 import { OplComponent } from './opl/opl.component';
+import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
+import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
+import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
+import { StandardRevenueComponent } from './standard-revenue/standard-revenue.component';
+import { AccrualsComponent } from './accruals/accruals.component';
+import { AccountReconComponent } from './account-recon/account-recon.component';
+import { PreInvoicingComponent } from './pre-invoicing/pre-invoicing.component';
+import { PostInvoicingComponent } from './post-invoicing/post-invoicing.component';
+import { EinvoicingComponent } from './einvoicing/einvoicing.component';
+import { FusionComponent } from './fusion/fusion.component';
+import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
+import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 
 const routes: Routes = [
   {
@@ -38,16 +50,56 @@ const routes: Routes = [
   },
 
   {
-    path: 'period-close-tracking',
-    component: PeriodCloseTrackingComponent,
+    path: 'period-close-tracking-preclose',
+    component: PrecloseComponent,
     data: {
       title: 'Operations Control Tower',
       header: 'Period Close Tracking',
     },
   },
   {
-    path: 'revenue-accounting',
+    path: 'period-close-tracking-midclose',
+    component: MidcloseComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Period Close Tracking',
+    },
+  },
+  {
+    path: 'large-deal-tracker',
+    component: OrderLifecycleComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Large Deal Tower',
+    },
+  },
+  {
+    path: 'standard-revenue',
+    component: StandardRevenueComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Revenue Accounting',
+    },
+  },
+  {
+    path: 'rol',
     component: CustomRevenueComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Revenue Accounting',
+    },
+  },
+  {
+    path: 'accruals',
+    component: AccrualsComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Revenue Accounting',
+    },
+  },
+  {
+    path: 'accounts',
+    component: AccountReconComponent,
     data: {
       title: 'Operations Control Tower',
       header: 'Revenue Accounting',
@@ -70,8 +122,40 @@ const routes: Routes = [
     },
   },
   {
-    path: 'invoice-to-cash',
+    path: 'pre-invoicing',
+    component: PreInvoicingComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Invoice to Cash',
+    },
+  },
+  {
+    path: 'invoicing',
     component: InvoicingComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Invoice to Cash',
+    },
+  },
+  {
+    path: 'post-invoicing',
+    component: PostInvoicingComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Invoice to Cash',
+    },
+  },
+  {
+    path: 'einvoicing',
+    component: EinvoicingComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Invoice to Cash',
+    },
+  },
+  {
+    path: 'fusion',
+    component: FusionComponent,
     data: {
       title: 'Operations Control Tower',
       header: 'Invoice to Cash',
@@ -143,6 +227,30 @@ const routes: Routes = [
     data: {
       title: 'Operations Control Tower',
       header: 'OPL',
+    },
+  },
+  {
+    path: 'opl',
+    component: OplComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'OPL',
+    },
+  },
+  {
+    path: 'wd0',
+    component: Wd0DashComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'WD0',
+    },
+  },
+  {
+    path: 'midclose-volumes',
+    component: Wd0HistoricalDataComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'WD0',
     },
   },
 ];

@@ -21,6 +21,7 @@ import { ColumnSelectComponent } from './column-select/column-select.component';
 import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
+import { MenuService } from '../providers/menu.service';
 
 @Component({
   selector: 'app-invoice-status',
@@ -36,7 +37,8 @@ export class OrderLifecycleComponent implements OnInit {
     private dialog: MatDialog,
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private menuService: MenuService
   ) {
     this.http = http;
   }
@@ -53,6 +55,14 @@ export class OrderLifecycleComponent implements OnInit {
     this.getOrderStatusDownload();
     this.updateTime();
     this.currentDate = new Date();
+
+    this.menuService.updateMenuItems([
+      {
+        label: 'Large Deal Tracker',
+        route: '/large-deal-tracker',
+        role: ['ADMIN', 'LARGE_DEAL'],
+      },
+    ]);
   }
 
   searchForm: FormGroup = new FormGroup({

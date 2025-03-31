@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
+import { MenuService } from '../providers/menu.service';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -232,7 +233,8 @@ export class PeriodCloseTrackingComponent implements OnInit {
   constructor(
     http: ApiHttpService,
     destroyManager: DestroyManager,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private menuService: MenuService
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
@@ -254,8 +256,76 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getEstimatedCompletionTime();
     this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
+
+    this.menuService.updateMenuItems([
+      {
+        label: 'Pre close',
+        route: '/period-close-tracking-preclose',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
+      },
+      {
+        label: 'Mid close',
+        route: '/period-close-tracking-midclose',
+        role: ['ADMIN', 'PERIOD_CLOSE'],
+      },
+      {
+        label: 'Pre Invoicing',
+        route: '/pre-invoicing',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Invoicing',
+        route: '/invoicing',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Post Invoicing',
+        route: '/post-invoicing',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'EInvoicing',
+        route: '/einvoicing',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Fusion',
+        route: '/fusion',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Standard Revenue',
+        route: '/standard-revenue',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Rol',
+        route: '/rol',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Accruals',
+        route: '/accruals',
+        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+      },
+      {
+        label: 'Accounts',
+        route: '/accounts',
+        role: ['ADMIN', 'ACCOUNT_RECON'],
+      },
+      {
+        label: 'WD0',
+        route: '/wd0',
+        role: ['ADMIN', 'WD0'],
+      },
+    ]);
   }
 
+  menuOpen = false;
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
   visibleTabs: { label: string; component: string; role: string[] }[] = [
     {
       label: 'Pre-close (Internal)',
@@ -281,6 +351,11 @@ export class PeriodCloseTrackingComponent implements OnInit {
       label: 'Large Deal Tracker',
       component: 'app-invoice-status',
       role: ['ADMIN', 'LARGE_DEAL'],
+    },
+    {
+      label: 'WD0',
+      component: 'wd0',
+      role: ['ADMIN', 'WD0'],
     },
   ];
 

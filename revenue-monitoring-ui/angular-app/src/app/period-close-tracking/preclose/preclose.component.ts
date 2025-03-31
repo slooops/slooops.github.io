@@ -4,6 +4,7 @@ import { PeriodCloseTrackingComponent } from '../period-close-tracking.component
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
+import { MenuService } from 'src/app/providers/menu.service';
 
 @Component({
   selector: 'app-preclose',
@@ -16,9 +17,10 @@ export class PrecloseComponent extends PeriodCloseTrackingComponent {
   constructor(
     http: ApiHttpService,
     destroyManager: DestroyManager,
-    authService: AuthenticationService
+    authService: AuthenticationService,
+    menuService: MenuService
   ) {
-    super(http, destroyManager, authService);
+    super(http, destroyManager, authService, menuService);
   }
 
   showCommentSave: boolean = false;

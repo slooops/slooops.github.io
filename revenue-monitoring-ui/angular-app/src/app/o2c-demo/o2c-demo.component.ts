@@ -347,28 +347,30 @@ export class O2cDemoComponent {
   }
 
   goToO2cOrder(row: any) {
-    this.router.navigate(['/o2c-order'], {
-      queryParams: {
-        orderId: row.WebOrder_ID,
-        purchaseOrderNum: row.Purchase_Order_Num,
-      },
-    });
-    console.log(
-      'Navigating to O2C Order Details for Order ID:',
-      row.WebOrder_ID,
-      'Purchase Order:',
-      row.Purchase_Order_Num
-    );
+    // this.router.navigate(['/o2c-order'], {
+    //   queryParams: {
+    //     orderId: row.WebOrder_ID,
+    //     purchaseOrderNum: row.Purchase_Order_Num,
+    //   },
+    // });
+    // console.log(
+    //   'Navigating to O2C Order Details for Order ID:',
+    //   row.WebOrder_ID,
+    //   'Purchase Order:',
+    //   row.Purchase_Order_Num
+    // );
+    this.router.navigate(['/o2c-overview']);
   }
 
   goToO2cSub(row: any) {
-    this.router.navigate(['/o2c-sub'], {
-      queryParams: { subId: row.SubRefId, startDate: row.Start_Date },
-    });
-    console.log(
-      'Navigating to O2C Subscription Details for Sub ID:',
-      row.Subscription_ID
-    );
+    // this.router.navigate(['/o2c-sub'], {
+    //   queryParams: { subId: row.SubRefId, startDate: row.Start_Date },
+    // });
+    // console.log(
+    //   'Navigating to O2C Subscription Details for Sub ID:',
+    //   row.Subscription_ID
+    // );
+    this.router.navigate(['/o2c-overview']);
   }
 
   goToO2cAccrual(row: any) {
@@ -389,6 +391,10 @@ export class O2cDemoComponent {
       'Navigating to O2C Invoicing Details for Invoice ID:',
       row.Invoice_ID
     );
+  }
+
+  goToO2cOverview() {
+    this.router.navigate(['/o2c-overview']);
   }
 
   navigateToStep(step: string) {

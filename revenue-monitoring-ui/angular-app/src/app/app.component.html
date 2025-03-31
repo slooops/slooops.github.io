@@ -75,13 +75,7 @@
             font-weight: 450;
           "
         >
-          <div *ngIf="header.length > 0">
-            <div style="font-size: small">Operations Control Tower</div>
-            <div>{{ header }}</div>
-          </div>
-          <div *ngIf="header.length === 0">
-            <div>Operations Control Tower</div>
-          </div>
+          <div>Operations Control Tower</div>
         </h5>
       </div>
       <div class="custom-search-bar">
@@ -150,64 +144,26 @@
           "
         >
           <a
-            [routerLink]="'/period-close-tracking'"
+            [routerLink]="'/period-close-tracking-preclose'"
             class="top-link"
             style="font-weight: 500"
           >
-            Period Close Tracking
+            Continuous Monitoring
           </a>
-          <ul class="dropdown">
-            <li>
-              <a [routerLink]="'/period-close-tracking/pre-close'">Pre-Close</a>
-            </li>
-            <li>
-              <a [routerLink]="'/period-close-tracking/mid-close'">Mid-Close</a>
-            </li>
-            <li>
-              <a [routerLink]="'/period-close-tracking/wd-0-dash'">WD-0 Dash</a>
-            </li>
-            <li>
-              <a [routerLink]="'/period-close-tracking/mid-close-volumes'"
-                >Mid-Close Volumes</a
-              >
-            </li>
-            <li>
-              <a [routerLink]="'/period-close-tracking/large-deal'"
-                >Large Deal</a
-              >
-            </li>
-          </ul>
         </li>
 
         <!-- Invoice to Cash -->
         <li
           class="menu-item"
-          [class.disabled]="
-            !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
-          "
+          [class.disabled]="!(hasRole$(['LARGE_DEAL']) || isAdmin$)"
         >
           <a
-            [routerLink]="'/invoice-to-cash'"
+            [routerLink]="'/large-deal-tracker'"
             class="top-link"
             style="font-weight: 500"
           >
-            Invoice to Cash
+            Business Insights
           </a>
-          <ul class="dropdown">
-            <li>
-              <a [routerLink]="'/invoice-to-cash/pre-invoicing'"
-                >Pre-Invoicing</a
-              >
-            </li>
-            <li>
-              <a [routerLink]="'/invoice-to-cash/invoicing'">Invoicing</a>
-            </li>
-            <li>
-              <a [routerLink]="'/invoice-to-cash/e-invoicing'">E-Invoicing</a>
-            </li>
-            <li><a [routerLink]="'/invoice-to-cash/cms'">CMS</a></li>
-            <li><a [routerLink]="'/invoice-to-cash/fusion'">Fusion</a></li>
-          </ul>
         </li>
 
         <!-- Revenue Accounting -->
@@ -224,66 +180,12 @@
           "
         >
           <a
-            [routerLink]="'/revenue-accounting'"
+            [routerLink]="'/midclose-volumes'"
             class="top-link"
             style="font-weight: 500"
           >
-            Revenue Accounting
+            Operations Efficiency
           </a>
-          <ul class="dropdown">
-            <li>
-              <a [routerLink]="'/revenue-accounting/standard-revenue'"
-                >Standard Revenue</a
-              >
-            </li>
-            <li>
-              <a [routerLink]="'/revenue-accounting/accruals'">Accruals</a>
-            </li>
-            <li><a [routerLink]="'/revenue-accounting/meraki'">Meraki</a></li>
-            <li>
-              <a [routerLink]="'/revenue-accounting/business-controls'"
-                >Business Controls</a
-              >
-            </li>
-          </ul>
-        </li>
-
-        <!-- GL Posting -->
-        <li
-          class="menu-item"
-          [class.disabled]="!(hasRole$(['GL_POSTING']) || isAdmin$)"
-        >
-          <a
-            [routerLink]="'/gl-posting'"
-            class="top-link"
-            style="font-weight: 500"
-          >
-            GL Posting
-          </a>
-          <ul class="dropdown">
-            <li>
-              <a [routerLink]="'/gl-posting/general-ledger'">General Ledger</a>
-            </li>
-          </ul>
-        </li>
-
-        <!-- ESP Case Analyzer Dashboard -->
-        <li
-          class="menu-item"
-          [class.disabled]="!(hasRole$(['ESP']) || isAdmin$)"
-        >
-          <a
-            [routerLink]="'/case-analyzer'"
-            class="top-link"
-            style="font-weight: 500"
-          >
-            ESP Case Analyzer
-          </a>
-          <ul class="dropdown">
-            <li>
-              <a [routerLink]="'/case-analyzer'">Operations Control Tower</a>
-            </li>
-          </ul>
         </li>
       </ul>
     </div>
@@ -293,6 +195,7 @@
 <mat-sidenav-container class="example-container">
   <mat-sidenav-content>
     <div>
+      <!-- <app-menu *ngIf="showMenu" [showMenu]="showNavbar"></app-menu> -->
       <router-outlet></router-outlet>
       <br />
       <br />

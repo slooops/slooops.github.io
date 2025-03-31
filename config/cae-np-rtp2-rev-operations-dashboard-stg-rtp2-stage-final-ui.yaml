@@ -29,7 +29,7 @@ metadata:
   labels:
     # softwareId is a non-sensitive unique identifier for the software
     softwareId: "d7c7615e6575481186019c284daa67946d68f871"
-    softwareName: "rev-ops-monitoring-ui"
+    softwareName: "rev-ops-monitoring"
 spec:
   selector:
     matchLabels:
