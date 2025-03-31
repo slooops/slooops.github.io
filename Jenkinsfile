@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Pre-Build') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop' }
             }
             steps {
                 notifyBuildStart()
@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build Server') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop'  }
             }
             steps {
                 dir("revenue-monitoring-server") {
@@ -32,7 +32,7 @@ pipeline {
 
         stage('Push Server') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop' }
             }
             steps {
                 sh "pwd"
@@ -45,13 +45,13 @@ pipeline {
 
         stage('Deploy Server') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop'  }
             }
             steps {
                 triggerSpinnakerDevDeployment(
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:server-$GIT_COMMIT",
                     environments: [
-                        "dev-final-new",
+                        "dev-final",
                     ]
                 )
             }
@@ -59,7 +59,7 @@ pipeline {
 
         stage('Build UI') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop'  }
             }
             steps {
                 dir("revenue-monitoring-ui") {
@@ -71,7 +71,7 @@ pipeline {
 
         stage('Push UI') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop'  }
             }
             steps {
                 sh "pwd"
@@ -84,13 +84,13 @@ pipeline {
 
         stage('Deploy UI') {
             when {
-                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
+                expression { env.BRANCH_NAME == 'develop' }
             }
             steps {
                 triggerSpinnakerDevDeployment(
                     image: "containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:ui-$GIT_COMMIT",
                     environments: [
-                        "dev-final-ui-new",
+                        "dev-final-ui",
                     ]
                 )
             }
