@@ -78,9 +78,9 @@
               !(
                 hasRole$([
                   'PERIOD_CLOSE',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'LARGE_DEAL'
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON'
                 ]) || isAdmin$
               )
             "
@@ -97,7 +97,9 @@
           <!-- Invoice to Cash -->
           <li
             class="menu-item"
-            [class.disabled]="!(hasRole$(['LARGE_DEAL']) || isAdmin$)"
+            [class.disabled]="
+              !(hasRole$(['LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES']) || isAdmin$)
+            "
           >
             <a
               [routerLink]="'/business-insights'"
@@ -111,15 +113,7 @@
           <!-- Revenue Accounting -->
           <li
             class="menu-item"
-            [class.disabled]="
-              !(
-                hasRole$([
-                  'EXCEPTION_ADMIN',
-                  'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
-                ]) || isAdmin$
-              )
-            "
+            [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
           >
             <a
               [routerLink]="'/case-analyzer'"
@@ -210,16 +204,43 @@
 </div>
 
 <mat-menu #menu="matMenu">
-  <button mat-menu-item [routerLink]="'/period-close-tracking'">
+  <button
+    mat-menu-item
+    [routerLink]="'/period-close-tracking'"
+    [disabled]="!(hasRole$(['PERIOD_CLOSE']) || isAdmin$)"
+  >
     Period Close Tracking
   </button>
-  <button mat-menu-item [routerLink]="'/invoice-to-cash'">
+  <button
+    mat-menu-item
+    [routerLink]="'/invoice-to-cash'"
+    [disabled]="
+      !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
+    "
+  >
     Invoice to Cash
   </button>
-  <button mat-menu-item [routerLink]="'/revenue-accounting'">
+  <button
+    mat-menu-item
+    [routerLink]="'/revenue-accounting'"
+    [disabled]="
+      !(
+        hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON']) ||
+        isAdmin$
+      )
+    "
+  >
     Revenue Accounting
   </button>
-  <button mat-menu-item [routerLink]="'/gl-posting'">GL Posting</button>
+  <button
+    mat-menu-item
+    [routerLink]="'/gl-posting'"
+    [disabled]="
+      !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
+    "
+  >
+    GL Posting
+  </button>
   <button mat-menu-item [routerLink]="''" [disabled]="true">
     Operations Controls
   </button>
