@@ -96,6 +96,11 @@ import { EinvoicingComponent } from './einvoicing/einvoicing.component';
 import { FusionComponent } from './fusion/fusion.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 import { ContinuousMonitoringComponent } from './continuous-monitoring/continuous-monitoring.component';
+import {
+  DialogBox,
+  IssueReportingComponent,
+} from './issue-reporting/issue-reporting.component';
+import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -164,6 +169,9 @@ export function initApp(authService: AuthenticationService) {
     FusionComponent,
     BusinessInsightsComponent,
     ContinuousMonitoringComponent,
+    IssueReportingComponent,
+    DialogBox,
+    IssueUploadComponent,
   ],
   imports: [
     BrowserModule,

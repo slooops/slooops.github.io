@@ -168,4 +168,36 @@ public class JdbcManager {
                                         String processFlow, String orgName, String transactionDate) {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
     }
+
+    public int approveRejectIssueReport(String sql, String approval, String approvedBy, String incidentNum) {
+        return primaryJdbcTemplate.update(sql, approval, approvedBy, incidentNum);
+    }
+
+    public int insertIssueReport(String sql, String track,
+                                 String issueDescription,
+                                 String rootCause,
+                                 String businessImpact,
+                                 String fixDetails,
+                                 String incidentNumber,
+                                 String issueStarted,
+                                 String issueReportedOn,
+                                 String issueReportedBy,
+                                 String quarter,
+                                 String periodName,
+                                 String priority,
+                                 String codeFix,
+                                 String pdfRequired,
+                                 String businessApproval,
+                                 String itApproval,
+                                 String approvalComments,
+                                 String periodCloseImpacting,
+                                 String issueStatus,
+                                 String eocIncident) {
+        return primaryJdbcTemplate.update(sql, track, issueDescription, rootCause, businessImpact, fixDetails,
+                incidentNumber, issueStarted, issueReportedOn, issueReportedBy,
+                quarter, periodName, priority, codeFix, pdfRequired,
+                businessApproval, itApproval, approvalComments,
+                periodCloseImpacting, issueStatus, eocIncident);
+
+    }
 }

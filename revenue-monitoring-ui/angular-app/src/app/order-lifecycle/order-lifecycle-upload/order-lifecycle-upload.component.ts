@@ -4,6 +4,7 @@ import { ApiHttpService } from '../../providers/http.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 @Component({
   selector: 'app-order-lifecycle-upload',
@@ -19,7 +20,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
     public http: ApiHttpService,
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
-    private dataService: DataService
+    private authService: AuthenticationService
   ) {}
 
   ngOnInit(): void {
@@ -34,7 +35,7 @@ export class OrderLifecycleUploadComponent implements OnInit {
         [Validators.required, Validators.pattern(/^\s*\d+(\s*,\s*\d+)*\s*$/)],
       ],
     });
-    this.username = this.dataService.getUsername();
+    this.username = this.authService.getUserName();
   }
 
   closeDialog(result) {
