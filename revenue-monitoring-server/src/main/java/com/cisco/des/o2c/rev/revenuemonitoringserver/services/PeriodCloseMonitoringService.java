@@ -138,6 +138,14 @@ public class PeriodCloseMonitoringService {
         int test = jdbcManager.approveRejectIssueReport(issueReportingDashApprove, approval, approvedBy, incidentNum);
         return test;
     }
+
+    public void bulkApproveRejectIssueReporting(List<Map<String, Object>> approveData){
+        System.out.println(approveData);
+        for(Map<String, Object> data: approveData) {
+            approveRejectIssueReporting((String)data.get("status"), (String)data.get("approvedBy"), (String)data.get("incidentNumber"));
+        }
+    }
+
     public UserRoleInfo getUserRoles(String username) {
         String upperUsername = username.toUpperCase();
         List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
