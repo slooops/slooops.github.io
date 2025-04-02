@@ -171,6 +171,7 @@
               <td
                 mat-cell
                 *matCellDef="let element"
+                [class.comments-cell]="column === 'COMMENTS'"
                 [class.issue-description-cell]="column === 'ISSUE_DESCRIPTION'"
               >
                 <ng-container [ngSwitch]="column">
