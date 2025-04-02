@@ -1,6 +1,7 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.ExcelReader;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,9 @@ public class PeriodCloseMonitoringService {
     private String espWeeklyComparisonSummary;
     private Boolean isQuarterEnd;
     private String periodName;
+    private String issueReportingDash;
+    private String issueReportingDashInsert;
+    private String issueReportingDashApprove;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -65,7 +69,8 @@ public class PeriodCloseMonitoringService {
             String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
              String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
-                                        String espWeeklyComparisonSummary, String periodName) {
+                                        String espWeeklyComparisonSummary, String periodName, String issueReportingDash,
+                                        String issueReportingDashInsert, String issueReportingDashApprove) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -98,8 +103,41 @@ public class PeriodCloseMonitoringService {
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
         this.espWeeklyComparisonSummary = espWeeklyComparisonSummary;
         this.periodName = periodName;
+        this.issueReportingDash = issueReportingDash;
+        this.issueReportingDashInsert = issueReportingDashInsert;
+        this.issueReportingDashApprove = issueReportingDashApprove;
     }
 
+    public List<Map<String, Object>> getIssueReportingData() {
+        String[] dateColumns = { "START_DATE", "REPORTED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(issueReportingDash);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public void insertIssueReportingData(MultipartFile file, String username) throws IOException {
+        try {
+            List<Map<String, String>> data = ExcelReader.readExcel(file.getInputStream());
+
+            // Print extracted data
+            System.out.println("Extracted Excel Data:");
+            for (Map<String, String> row : data) {
+                jdbcManager.insertIssueReport(issueReportingDashInsert, row.get("Track"), row.get("ISSUE_DESCRIPTION"), row.get("ROOT_CAUSE"), row.get("BUSINESS_IMPACT"),
+                        row.get("FIX_DETAILS"), row.get("INCIDENT_NUMBER"), row.get("ISSUE_STARTED"), row.get("ISSUE_REPORTED_ON"), row.get("ISSUE_REPORTED_BY"),
+                        row.get("QUARTER"), row.get("PERIOD_NAME"), row.get("PRIORITY"), row.get("CODE_FIX"), row.get("PDF_REQUIRED"), row.get("BUSINESS_APROVAL"),
+                        row.get("IT_APPROVAL"), row.get("APPROVAL_COMMENTS"), row.get("PERIOD_CLOSE_IMPACTING"), row.get("ISSUE_STATUS"), row.get("EOC_INCIDENT"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int approveRejectIssueReporting(String approval, String approvedBy, String incidentNum) {
+        int test = jdbcManager.approveRejectIssueReport(issueReportingDashApprove, approval, approvedBy, incidentNum);
+        return test;
+    }
     public UserRoleInfo getUserRoles(String username) {
         String upperUsername = username.toUpperCase();
         List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
@@ -654,6 +692,18 @@ public class PeriodCloseMonitoringService {
 
     public List<Map<String, Object>> getEspAgingCaseSummary() {
         return jdbcManager.queryForList(espAgingCaseSummary);
+    }
+
+    private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
+        for (String column : dateColumns) {
+            Object value = data.get(column);
+            if (value != null) {
+                String date = value.toString().split(" ")[0];
+                data.put(column, date);
+            } else {
+                data.put(column, "");
+            }
+        }
     }
 
 }

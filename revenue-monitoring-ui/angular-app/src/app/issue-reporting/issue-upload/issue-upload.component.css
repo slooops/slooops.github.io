@@ -1,0 +1,27 @@
+.file-drop-zone {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.selected-files {
+  margin-top: 20px;
+}
+
+.selected-files ul {
+  list-style: none;
+  padding: 0;
+}
+
+.selected-files li {
+  margin: 5px 0;
+}
+
+mat-list-item {
+  text-align: left;
+}
+
+.mat-form-field {
+  width: 100% !important; /* Adjust the width as needed */
+}

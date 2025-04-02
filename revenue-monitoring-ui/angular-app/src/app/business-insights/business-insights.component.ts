@@ -47,6 +47,11 @@ export class BusinessInsightsComponent implements OnInit {
       component: 'app-wd0-historical-data',
       role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
     },
+    {
+      label: 'Issue Reporting',
+      component: 'app-issue-reporting',
+      role: ['ADMIN'],
+    },
   ];
 
   selectedIndex: number = 0;

@@ -1,0 +1,136 @@
+<br />
+<div>
+  <div class="container rol-error-summary-container">
+    <div class="header-container">
+      <h5 class="section-title action-buttons">
+        Summary
+        <span class="action-buttons">
+          &nbsp;&nbsp;
+          <!-- <button
+            class="custom-button-primary"
+            (click)="viewTransactionDetails()"
+          >
+            View Details
+          </button>
+          &nbsp;&nbsp; -->
+          <button
+            class="custom-button-primary"
+            style="background-color: #04aa6d"
+            *ngIf="selection.selected.length === 1"
+            (click)="openDialog('Approve')"
+          >
+            Approve
+          </button>
+          <button
+            class="custom-button-primary"
+            style="background-color: #f44336"
+            *ngIf="selection.selected.length === 1"
+            (click)="openDialog('Reject')"
+          >
+            Reject
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="resetSelection()"
+            style="font-size: 12px; padding: 3px"
+            class="mat-small"
+            *ngIf="selection.selected.length > 0"
+          >
+            Reset
+          </button>
+        </span>
+      </h5>
+
+      <div class="action-buttons">
+        <button mat-icon-button (click)="uploadFile()">
+          <i class="fa fa-upload" style="fill: white"></i>
+        </button>
+        <button mat-icon-button>
+          <i class="svg-icon download-icon"></i>
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="summaryDatasource?.data?.length">
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="summaryDatasource"
+          class="custom-table table-responsive"
+        >
+          <ng-container
+            matColumnDef="select"
+            style="padding-top: 10px !important"
+          >
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="onRowSelectionChange($event, row)"
+                [checked]="selection.isSelected(row)"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <ng-container *ngFor="let column of summaryColumns">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                <ng-container [ngSwitch]="column">
+                  <ng-container *ngSwitchDefault>
+                    {{ replaceUnderscore(column) }}
+                  </ng-container>
+                </ng-container>
+              </th>
+
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [class.issue-description-cell]="column === 'ISSUE_DESCRIPTION'"
+              >
+                <ng-container [ngSwitch]="column">
+                  <ng-container *ngSwitchCase="'ISSUE_DESCRIPTION'">
+                    <ng-container
+                      *ngFor="
+                        let part of formatIssueDescription(element[column])
+                      "
+                    >
+                      <span *ngIf="part.breakBefore">
+                        <br />
+                        <br />
+                      </span>
+
+                      <!-- Line break before "Root Cause:" and "Business Impact:" -->
+                      <span [style.font-weight]="part.bold ? 'bold' : '500'">
+                        {{ part.text }}
+                      </span>
+                      <br *ngIf="part.breakAfter" />
+                      <!-- Line break after "Issue:", "Root Cause:", and "Business Impact:" -->
+                    </ng-container>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    {{ element[column] }}
+                  </ng-container>
+                </ng-container>
+              </td>
+            </ng-container>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: summaryDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!summaryDatasource?.data?.length">
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <div class="circle-subcaption"></div>
+        <br /><br /><br />
+      </div>
+    </ng-container>
+  </div>
+</div>
