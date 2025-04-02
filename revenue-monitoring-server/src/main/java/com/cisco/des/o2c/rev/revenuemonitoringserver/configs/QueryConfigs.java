@@ -351,6 +351,24 @@ public class QueryConfigs {
     @Value(("${debit.card.details}"))
     public String debitCardDetails;
 
+    @Value(("${issue.reporting.dash}"))
+    public String issueReportingDash;
+
+    @Bean(name = "issueReportingDash")
+    public String getIssueReportingDash() { return this.issueReportingDash; }
+
+    @Value(("${issue.reporting.dash.insert}"))
+    public String issueReportingDashInsert;
+
+    @Bean(name = "issueReportingDashApprove")
+    public String getIssueReportingDashApprove() { return this.issueReportingDashApprove; }
+
+    @Value(("${issue.reporting.dash.approve}"))
+    public String issueReportingDashApprove;
+
+    @Bean(name = "issueReportingDashInsert")
+    public String getIssueReportingDashInsert() { return this.issueReportingDashInsert; }
+
     @Bean(name = "creditCardSummary")
     public String getCreditCardSummary() { return this.creditCardSummary; }
     @Bean(name = "creditCardDetails")

@@ -115,6 +115,39 @@ public class PeriodCloseMonitoringController {
         return new ResponseEntity<>(service.getOrderStatusRevSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/issue-reporting")
+    public ResponseEntity<List<Map<String, Object>>> getIssueReporting() {
+        return new ResponseEntity<>(service.getIssueReportingData(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/issue-reporting-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> insertIssueReport(@RequestParam("file") MultipartFile file,
+                                                   @RequestParam("username") String username) {
+        if (!file.isEmpty()) {
+            try {
+                service.insertIssueReportingData(file, username);
+                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Uploaded file is empty.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-approval")
+    public ResponseEntity<String> approveRejectIssueReport(@RequestBody Map<String, Object> requestData) {
+        try {
+            String approval = (String)requestData.get("approvalStatus");
+            String approvedBy = (String)requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.approveRejectIssueReporting(approval, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
             @RequestParam("username") String username) {

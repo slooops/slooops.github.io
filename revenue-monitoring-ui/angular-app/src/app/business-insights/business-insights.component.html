@@ -36,6 +36,9 @@
           *ngIf="selectedIndex === i"
         ></app-wd0-historical-data>
       </ng-container>
+      <ng-container *ngSwitchCase="'app-issue-reporting'">
+        <app-issue-reporting *ngIf="selectedIndex === i"></app-issue-reporting>
+      </ng-container>
     </ng-container>
   </mat-tab>
 </mat-tab-group>
