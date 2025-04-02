@@ -148,6 +148,15 @@ public class PeriodCloseMonitoringController {
         }
     }
 
+    @PostMapping(value = "/issue-reporting-approval-bulk")
+    public ResponseEntity<String> bulkApproveRejectIssueReport(@RequestBody List<Map<String, Object>> requestData) {
+        try {
+            service.bulkApproveRejectIssueReporting(requestData);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
             @RequestParam("username") String username) {

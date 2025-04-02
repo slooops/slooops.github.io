@@ -48,7 +48,7 @@ export class BusinessInsightsComponent implements OnInit {
       role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
     },
     {
-      label: 'Issue Reporting',
+      label: 'Issue Resolution',
       component: 'app-issue-reporting',
       role: ['ADMIN'],
     },
