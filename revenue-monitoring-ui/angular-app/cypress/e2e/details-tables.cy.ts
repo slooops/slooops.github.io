@@ -27,37 +27,8 @@ describe('Accounts Test Demo', () => {
       .should('be.visible')
       .click();
 
-    //copy the 3rd element of the table and paste it into the input field
-    // const subref = cy
-    //   .get(':nth-child(3) > .cdk-column-SUBREF-ORDER-NUMBER')
-    //   .invoke('text');
-    // cy.log('🔎 Copied subref ID: ' + subref);
-
-    // cy.get(':nth-child(3) > .cdk-column-SUBREF-ORDER-NUMBER')
-    //   .invoke('text')
-    //   .then((subrefText) => {
-    //     cy.log('🔎 Copied subref ID: ' + subrefText);
-
-    //     cy.get(
-    //       ':nth-child(3) > .mat-form-field > .mat-form-field-wrapper > .mat-form-field-flex > .mat-form-field-infix'
-    //     )
-    //       .should('exist')
-    //       .clear()
-    //       .type(subrefText.trim());
-    //   });
-
-    // const filteredSubref = cy
-    //   .get(':nth-child(1) > .cdk-column-SUBREF-ORDER-NUMBER')
-    //   .invoke('text')
-    //   .then((filteredSubref) => {
-    //     cy.log('🔎 Copied subref ID: ' + filteredSubref);
-    //     expect(filteredSubref).to.equal(subref);
-    //   });
-
-    // //clear the input fields
-    // cy.get('.form-container > .mat-focus-indicator')
-    //   .should('be.visible')
-    //   .click();
+    //this is the stuff that works
+    //test the subref filter
 
     cy.get(':nth-child(3) > .cdk-column-SUBREF-ORDER-NUMBER')
       .invoke('text')
@@ -84,6 +55,117 @@ describe('Accounts Test Demo', () => {
             expect(cleanFiltered).to.equal(cleanSubref);
           });
       });
+
+    //the above code works, but has no handlers
+    //this is garbage below from copilot, we need to test it again
+
+    cy.get(':nth-child(3) >.cdk-column-SUBREF-ORDER-NUMBER').then((cells) => {
+      if (cells.length < 3) {
+        cy.log('⚠️ Not enough rows in the SUBREF column to run the test.');
+        console.warn(
+          '⚠️ Not enough rows in the SUBREF column to run the test.'
+        );
+        return;
+      }
+      const rawSubrefText = cells[2].innerText || '';
+      const cleanSubref = rawSubrefText
+
+        .replace(/\u00a0/g, ' ')
+        .match(/\d+/)?.[0];
+      if (!cleanSubref) {
+        cy.log('⚠️ Could not extract a numeric subref from the 3rd row.');
+        console.warn('⚠️ Could not extract a numeric subref from the 3rd row.');
+        return;
+      }
+      cy.log(`🔎 Copied subref ID: ${cleanSubref}`);
+      console.log(`🔎 Copied subref ID: ${cleanSubref}`);
+      // Paste into the filter
+      cy.get(
+        ':nth-child(3) > .mat-form-field > .mat-form-field-wrapper > .mat-form-field-flex > .mat-form-field-infix input'
+      )
+        .should('exist')
+        .clear()
+        .type(cleanSubref);
+      // Wait a little in case there's debounce or animation delay
+      cy.wait(500);
+      // Check that a result showed up
+      cy.get('.cdk-column-SUBREF-ORDER-NUMBER').then((filteredCells) => {
+        if (filteredCells.length === 0) {
+          throw new Error(
+            '❌ Filter did not return any results for a valid input.'
+          );
+        }
+        const filteredRaw = filteredCells[0].innerText || '';
+        const cleanFiltered = filteredRaw
+          .replace(/\u00a0/g, ' ')
+          .match(/\d+/)?.[0];
+        if (cleanFiltered !== cleanSubref) {
+          throw new Error(
+            `❌ Filtered result "${cleanFiltered}" does not match expected "${cleanSubref}".`
+          );
+        }
+        cy.log(`✅ Filter working: "${cleanFiltered}" matched.`);
+        console.log(`✅ Filter working: "${cleanFiltered}" matched.`);
+      });
+    });
+
+    cy.get(' :nth-child(3) > .cdk-column-SUBREF-ORDER-NUMBER').then((cells) => {
+      if (cells.length < 3) {
+        cy.log('⚠️ Not enough rows in the SUBREF column to run the test.');
+        console.warn(
+          '⚠️ Not enough rows in the SUBREF column to run the test.'
+        );
+        return;
+      }
+
+      const rawSubrefText = cells[2].innerText || '';
+      const cleanSubref = rawSubrefText
+        .replace(/\u00a0/g, ' ')
+        .match(/\d+/)?.[0];
+
+      if (!cleanSubref) {
+        cy.log('⚠️ Could not extract a numeric subref from the 3rd row.');
+        console.warn('⚠️ Could not extract a numeric subref from the 3rd row.');
+        return;
+      }
+
+      cy.log(`🔎 Copied subref ID: ${cleanSubref}`);
+      console.log(`🔎 Copied subref ID: ${cleanSubref}`);
+
+      // Paste into the filter
+      cy.get(
+        ':nth-child(3) > .mat-form-field > .mat-form-field-wrapper > .mat-form-field-flex > .mat-form-field-infix input'
+      )
+        .should('exist')
+        .clear()
+        .type(cleanSubref);
+
+      // Wait a little in case there's debounce or animation delay
+      cy.wait(500);
+
+      // Check that a result showed up
+      cy.get('.cdk-column-SUBREF-ORDER-NUMBER').then((filteredCells) => {
+        if (filteredCells.length === 0) {
+          throw new Error(
+            '❌ Filter did not return any results for a valid input.'
+          );
+        }
+
+        const filteredRaw = filteredCells[0].innerText || '';
+        const cleanFiltered = filteredRaw
+          .replace(/\u00a0/g, ' ')
+          .match(/\d+/)?.[0];
+
+        if (cleanFiltered !== cleanSubref) {
+          throw new Error(
+            `❌ Filtered result "${cleanFiltered}" does not match expected "${cleanSubref}".`
+          );
+        }
+
+        cy.log(`✅ Filter working: "${cleanFiltered}" matched.`);
+        console.log(`✅ Filter working: "${cleanFiltered}" matched.`);
+      });
+    });
 
     // cy.get(':nth-child(3) > .cdk-column-SUBREF-ORDER-NUMBER')
     //   .invoke('text')
