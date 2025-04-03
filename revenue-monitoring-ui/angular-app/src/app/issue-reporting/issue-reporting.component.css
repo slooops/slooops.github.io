@@ -355,8 +355,8 @@ tr.mat-header-row {
 }
 
 .comments-cell {
-  min-width: 35vw;
-  max-width: 35vw;
+  /* min-width: 35vw;
+  max-width: 35vw; */
 }
 
 .icon-container {
@@ -399,6 +399,15 @@ tr.mat-header-row {
   max-width: 25vw;
 }
 
+.mat-column-FIX_DETAILS {
+  min-width: 15vw;
+  max-width: 15vw;
+}
+
+.mat-column-COLUMNS {
+  min-width: 15vw;
+  max-width: 15vw;
+}
 .issue-description-cell {
   white-space: pre-wrap;
   text-align: left !important;

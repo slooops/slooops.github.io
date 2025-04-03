@@ -173,6 +173,7 @@
                 *matCellDef="let element"
                 [class.comments-cell]="column === 'COMMENTS'"
                 [class.issue-description-cell]="column === 'ISSUE_DESCRIPTION'"
+                [class.fix-details-cell]="column === 'FIX_DETAILS'"
               >
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'ISSUE_DESCRIPTION'">
@@ -194,6 +195,119 @@
                       <!-- Line break after "Issue:", "Root Cause:", and "Business Impact:" -->
                     </ng-container>
                   </ng-container>
+
+                  <!-- Editable COMMENTS Column -->
+                  <ng-container *ngSwitchCase="'COMMENTS'">
+                    <ng-container
+                      *ngIf="
+                        editingRow === element && editingField === 'COMMENTS'
+                      "
+                    >
+                      <textarea
+                        [(ngModel)]="element.COMMENTS"
+                        style="
+                          width: 100% !important;
+                          margin-top: 10px !important;
+                          border-radius: 5px;
+                          font-size: small;
+                        "
+                      ></textarea>
+                      &nbsp;
+                      <i
+                        class="fa fa-check"
+                        (click)="saveEdit(element)"
+                        style="
+                          color: #00668a;
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                      &nbsp;
+                      <i
+                        class="fa fa-close"
+                        (click)="cancelEdit()"
+                        style="
+                          color: rgb(195, 6, 6);
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                    </ng-container>
+
+                    <ng-container
+                      *ngIf="
+                        !(editingRow === element && editingField === 'COMMENTS')
+                      "
+                    >
+                      <span>{{ element.COMMENTS }}</span>
+                      &nbsp;
+                      <i
+                        class="fa fa-pencil-square-o"
+                        style="font-weight: bold; color: rgb(79, 78, 78)"
+                        aria-hidden="true"
+                        (click)="editField(element, 'COMMENTS')"
+                      ></i>
+                    </ng-container>
+                  </ng-container>
+
+                  <!-- Editable FIX_DETAILS Column -->
+                  <ng-container *ngSwitchCase="'FIX_DETAILS'">
+                    <ng-container
+                      *ngIf="
+                        editingRow === element && editingField === 'FIX_DETAILS'
+                      "
+                    >
+                      <textarea
+                        [(ngModel)]="element.FIX_DETAILS"
+                        style="
+                          width: 100% !important;
+                          margin-top: 10px !important;
+                          border-radius: 5px;
+                          font-size: small;
+                        "
+                      ></textarea>
+
+                      &nbsp;
+                      <i
+                        class="fa fa-check"
+                        (click)="saveEdit(element)"
+                        style="
+                          color: #00668a;
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                      &nbsp;
+                      <i
+                        class="fa fa-close"
+                        (click)="cancelEdit()"
+                        style="
+                          color: rgb(195, 6, 6);
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                    </ng-container>
+
+                    <ng-container
+                      *ngIf="
+                        !(
+                          editingRow === element &&
+                          editingField === 'FIX_DETAILS'
+                        )
+                      "
+                    >
+                      <span>{{ element.FIX_DETAILS }}</span>
+                      &nbsp;
+                      <i
+                        class="fa fa-pencil-square-o"
+                        style="font-weight: bold; color: rgb(79, 78, 78)"
+                        aria-hidden="true"
+                        (click)="editField(element, 'FIX_DETAILS')"
+                      ></i>
+                    </ng-container>
+                  </ng-container>
+
                   <ng-container *ngSwitchDefault>
                     {{ element[column] }}
                   </ng-container>
