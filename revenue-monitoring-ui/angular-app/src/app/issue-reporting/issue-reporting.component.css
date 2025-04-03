@@ -431,3 +431,47 @@ tr.mat-header-row {
   padding: 0 0 !important;
   border-top: 0 !important;
 }
+
+.edit-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 8px;
+  height: 30vh;
+  margin-bottom: -24px;
+}
+
+.edit-textarea {
+  flex: 1;
+  height: 100%;
+  /* padding: 6px; */
+  border-radius: 5px;
+  font-size: 12px;
+  resize: vertical;
+  box-sizing: border-box;
+  text-align: center;
+  align-content: center;
+  font-family: "Roboto", Helvetica, Arial, sans-serif;
+  font-weight: 500;
+}
+
+.edit-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 6px;
+}
+
+.edit-icon {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.edit-icon.confirm {
+  color: #00668a;
+}
+
+.edit-icon.cancel {
+  color: rgb(195, 6, 6);
+}
