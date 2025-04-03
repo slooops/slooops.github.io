@@ -360,6 +360,18 @@ public class QueryConfigs {
     @Value(("${issue.reporting.dash.insert}"))
     public String issueReportingDashInsert;
 
+    @Value(("${issue.reporting.dash.comments.update}"))
+    public String issueReportingDashCommentsUpdate;
+
+    @Bean(name = "issueReportingDashCommentsUpdate")
+    public String getIssueReportingDashCommentsUpdate() { return this.issueReportingDashCommentsUpdate; }
+
+    @Value(("${issue.reporting.dash.fix.details.update}"))
+    public String issueReportingDashFixDetailsUpdate;
+
+    @Bean(name = "issueReportingDashFixDetailsUpdate")
+    public String getIssueReportingDashFixDetailsUpdate() { return this.issueReportingDashFixDetailsUpdate; }
+
     @Bean(name = "issueReportingDashApprove")
     public String getIssueReportingDashApprove() { return this.issueReportingDashApprove; }
 

@@ -169,6 +169,67 @@ export class IssueReportingComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  editingRow: any = null; // Tracks the row being edited
+  editingField: string | null = null; // Tracks the specific field being edited
+
+  editField(row: any, field: string): void {
+    this.editingRow = row;
+    this.editingField = field;
+  }
+
+  saveEdit(row: any): void {
+    if (this.editingField === 'COMMENTS') {
+      this.saveComments(row[this.editingField!], row.INCIDENT_NUMBER);
+    } else if (this.editingField === 'FIX_DETAILS') {
+      this.saveFixDetails(row[this.editingField!], row.INCIDENT_NUMBER);
+    }
+    this.editingRow = null;
+    this.editingField = null;
+  }
+
+  saveComments(data: any, incidentNumber: any) {
+    const body = {
+      incidentNumber: incidentNumber,
+      username: this.username,
+      comments: data,
+    };
+    this.http
+      .post('issue-reporting-comments-update', body, {
+        responseType: 'text',
+      })
+      .subscribe((data: any) => {
+        this.selection.clear();
+        this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      });
+  }
+
+  saveFixDetails(data: any, incidentNumber: any) {
+    const body = {
+      incidentNumber: incidentNumber,
+      username: this.username,
+      fixDetails: data,
+    };
+    this.http
+      .post('issue-reporting-fix-details-update', body, {
+        responseType: 'text',
+      })
+      .subscribe((data: any) => {
+        this.selection.clear();
+        this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      });
+  }
+
+  cancelEdit(): void {
+    this.editingRow = null;
+    this.editingField = null;
+  }
+
   formatIssueDescription(description: string): {
     text: string;
     bold: boolean;

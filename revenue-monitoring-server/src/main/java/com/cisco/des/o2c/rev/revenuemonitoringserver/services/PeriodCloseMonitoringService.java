@@ -57,6 +57,8 @@ public class PeriodCloseMonitoringService {
     private String issueReportingDash;
     private String issueReportingDashInsert;
     private String issueReportingDashApprove;
+    private String issueReportingDashCommentsUpdate;
+    private String issueReportingDashFixDetailsUpdate;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -70,7 +72,8 @@ public class PeriodCloseMonitoringService {
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
              String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
                                         String espWeeklyComparisonSummary, String periodName, String issueReportingDash,
-                                        String issueReportingDashInsert, String issueReportingDashApprove) {
+                                        String issueReportingDashInsert, String issueReportingDashApprove,
+                                        String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -106,6 +109,8 @@ public class PeriodCloseMonitoringService {
         this.issueReportingDash = issueReportingDash;
         this.issueReportingDashInsert = issueReportingDashInsert;
         this.issueReportingDashApprove = issueReportingDashApprove;
+        this.issueReportingDashCommentsUpdate = issueReportingDashCommentsUpdate;
+        this.issueReportingDashFixDetailsUpdate = issueReportingDashFixDetailsUpdate;
     }
 
     public List<Map<String, Object>> getIssueReportingData() {
@@ -136,6 +141,18 @@ public class PeriodCloseMonitoringService {
 
     public int approveRejectIssueReporting(String approval, String approvedBy, String incidentNum) {
         int test = jdbcManager.approveRejectIssueReport(issueReportingDashApprove, approval, approvedBy, incidentNum);
+        return test;
+    }
+
+    public int updateCommentsIssueReporting(String comments, String approvedBy, String incidentNum) {
+        int test = jdbcManager.updateCommentsIssueReport(issueReportingDashCommentsUpdate, comments, approvedBy, incidentNum);
+        System.out.println(test);
+        return test;
+    }
+
+    public int updateFixDetailsIssueReporting(String fixDetails, String approvedBy, String incidentNum) {
+        int test = jdbcManager.updateFixDetailsIssueReport(issueReportingDashFixDetailsUpdate, fixDetails, approvedBy, incidentNum);
+        System.out.println(test);
         return test;
     }
 
