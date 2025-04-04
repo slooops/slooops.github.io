@@ -330,12 +330,17 @@
     ></i
     >&nbsp;&nbsp;Upload Issues
   </div>
-  <div mat-menu-item class="viewHighlight" style="font-size: small">
+  <div
+    mat-menu-item
+    class="viewHighlight"
+    style="font-size: small"
+    (click)="exportSummaryData()"
+  >
     <i
       class="fa fa-angle-right"
       aria-hidden="true"
       style="font-size: medium"
-    ></i
-    >&nbsp;&nbsp;Download
+    ></i>
+    &nbsp;&nbsp;Download
   </div>
 </mat-menu>
