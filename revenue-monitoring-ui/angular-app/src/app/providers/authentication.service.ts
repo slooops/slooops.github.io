@@ -32,7 +32,7 @@ export class AuthenticationService {
   async getTokens() {
     let authClientId = this.appConfig.getConfig().authClientId;
     let authClientSecret = this.appConfig.getConfig().authClientSecret;
-    let ssoUrl = 'https://cloudsso.cisco.com';
+    let ssoUrl = 'https://id.cisco.com';
 
     const href = window.location.href;
     if (
@@ -41,12 +41,12 @@ export class AuthenticationService {
       href.search('-ts3') !== -1 ||
       href.search('-int') !== -1
     ) {
-      ssoUrl = 'https://cloudsso-test.cisco.com';
+      ssoUrl = 'https://int-id.cisco.com';
     } else if (href.search('localhost') !== -1) {
       ssoUrl = '';
     }
 
-    const tokenSsoUrl = ssoUrl + '/as/token.oauth2';
+    const tokenSsoUrl = ssoUrl + '/oauth2/default/v1/token';
 
     sessionStorage.removeItem('tokenObject');
     sessionStorage.removeItem('authBasic');
