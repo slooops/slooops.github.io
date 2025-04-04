@@ -50,7 +50,7 @@ export class BusinessInsightsComponent implements OnInit {
     {
       label: 'Issue Resolution',
       component: 'app-issue-reporting',
-      role: ['ADMIN'],
+      role: ['ADMIN', 'ISSUE_RESOLUTION'],
     },
   ];
 
