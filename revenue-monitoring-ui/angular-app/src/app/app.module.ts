@@ -101,6 +101,7 @@ import {
   IssueReportingComponent,
 } from './issue-reporting/issue-reporting.component';
 import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
+import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -172,6 +173,7 @@ export function initApp(authService: AuthenticationService) {
     IssueReportingComponent,
     DialogBox,
     IssueUploadComponent,
+    BulkApproveRejectComponent,
   ],
   imports: [
     BrowserModule,

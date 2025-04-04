@@ -1,18 +1,66 @@
-<br />
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
-      <h5 class="section-title action-buttons">
-        Summary
-        <span class="action-buttons">
-          &nbsp;&nbsp;
-          <!-- <button
-            class="custom-button-primary"
-            (click)="viewTransactionDetails()"
-          >
-            View Details
-          </button>
-          &nbsp;&nbsp; -->
+      <span class="action-buttons">
+        &nbsp;
+        <form [formGroup]="searchForm" class="search__form">
+          <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-label>Select Track</mat-label>
+            <mat-select
+              id="track"
+              name="track"
+              formControlName="track"
+              [(value)]="trackFilter"
+              panelClass="progPanel"
+              multiple
+            >
+              <mat-option
+                *ngFor="let track of trackOptions"
+                [value]="track"
+                (onSelectionChange)="filter()"
+                >{{ track }}</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+          &nbsp;
+          <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-label>Select Quarter</mat-label>
+            <mat-select
+              id="quarter"
+              name="quarter"
+              formControlName="quarter"
+              [(value)]="quarterFilter"
+              panelClass="progPanel"
+              multiple
+            >
+              <mat-option
+                *ngFor="let acc of quarterOptions"
+                [value]="acc"
+                (onSelectionChange)="filter()"
+                >{{ acc }}</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+          &nbsp;
+          <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-label>Select Status</mat-label>
+            <mat-select
+              id="status"
+              name="status"
+              formControlName="status"
+              [(value)]="statusFilter"
+              panelClass="progPanel"
+              multiple
+            >
+              <mat-option
+                *ngFor="let status of statusOptions"
+                [value]="status"
+                (onSelectionChange)="filter()"
+                >{{ status }}</mat-option
+              >
+            </mat-select>
+          </mat-form-field>
+          &nbsp;
           <button
             class="custom-button-primary"
             style="background-color: #04aa6d"
@@ -21,6 +69,7 @@
           >
             Approve
           </button>
+          &nbsp;
           <button
             class="custom-button-primary"
             style="background-color: #f44336"
@@ -29,6 +78,16 @@
           >
             Reject
           </button>
+          &nbsp;
+          <button
+            class="custom-button-primary"
+            style="background-color: #185996"
+            *ngIf="selection.selected.length > 1"
+            (click)="bulkApproveReject()"
+          >
+            Approve/ Reject
+          </button>
+          &nbsp;
           <button
             mat-stroked-button
             type="button"
@@ -39,16 +98,42 @@
           >
             Reset
           </button>
-        </span>
-      </h5>
+        </form>
+        <!-- <button
+            class="custom-button-primary"
+            (click)="viewTransactionDetails()"
+          >
+            View Details
+          </button>
+          &nbsp;&nbsp; -->
+      </span>
 
       <div class="action-buttons">
-        <button mat-icon-button (click)="uploadFile()">
-          <i class="fa fa-upload" style="fill: white"></i>
-        </button>
-        <button mat-icon-button>
-          <i class="svg-icon download-icon"></i>
-        </button>
+        <span
+          style="
+            float: right !important;
+            text-align: right !important;
+            margin-right: 5px;
+            font-size: 12px;
+            margin-top: 15px;
+          "
+        >
+          <a
+            style="color: black; text-decoration: none"
+            [matMenuTriggerFor]="dropdownMenu"
+            >Options&nbsp;&nbsp;
+            <i
+              class="fa fa-ellipsis-v"
+              aria-hidden="true"
+              style="
+                font-size: large;
+                color: #4f5051;
+                justify-content: end;
+                float: right;
+              "
+            ></i>
+          </a>
+        </span>
       </div>
     </div>
 
@@ -86,7 +171,9 @@
               <td
                 mat-cell
                 *matCellDef="let element"
+                [class.comments-cell]="column === 'COMMENTS'"
                 [class.issue-description-cell]="column === 'ISSUE_DESCRIPTION'"
+                [class.fix-details-cell]="column === 'FIX_DETAILS'"
               >
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'ISSUE_DESCRIPTION'">
@@ -108,6 +195,119 @@
                       <!-- Line break after "Issue:", "Root Cause:", and "Business Impact:" -->
                     </ng-container>
                   </ng-container>
+
+                  <!-- Editable COMMENTS Column -->
+                  <ng-container *ngSwitchCase="'COMMENTS'">
+                    <ng-container
+                      *ngIf="
+                        editingRow === element && editingField === 'COMMENTS'
+                      "
+                    >
+                      <textarea
+                        [(ngModel)]="element.COMMENTS"
+                        style="
+                          width: 100% !important;
+                          margin-top: 10px !important;
+                          border-radius: 5px;
+                          font-size: small;
+                        "
+                      ></textarea>
+                      &nbsp;
+                      <i
+                        class="fa fa-check"
+                        (click)="saveEdit(element)"
+                        style="
+                          color: #00668a;
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                      &nbsp;
+                      <i
+                        class="fa fa-close"
+                        (click)="cancelEdit()"
+                        style="
+                          color: rgb(195, 6, 6);
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                    </ng-container>
+
+                    <ng-container
+                      *ngIf="
+                        !(editingRow === element && editingField === 'COMMENTS')
+                      "
+                    >
+                      <span>{{ element.COMMENTS }}</span>
+                      &nbsp;
+                      <i
+                        class="fa fa-pencil-square-o"
+                        style="font-weight: bold; color: rgb(79, 78, 78)"
+                        aria-hidden="true"
+                        (click)="editField(element, 'COMMENTS')"
+                      ></i>
+                    </ng-container>
+                  </ng-container>
+
+                  <!-- Editable FIX_DETAILS Column -->
+                  <ng-container *ngSwitchCase="'FIX_DETAILS'">
+                    <ng-container
+                      *ngIf="
+                        editingRow === element && editingField === 'FIX_DETAILS'
+                      "
+                    >
+                      <textarea
+                        [(ngModel)]="element.FIX_DETAILS"
+                        style="
+                          width: 100% !important;
+                          margin-top: 10px !important;
+                          border-radius: 5px;
+                          font-size: small;
+                        "
+                      ></textarea>
+
+                      &nbsp;
+                      <i
+                        class="fa fa-check"
+                        (click)="saveEdit(element)"
+                        style="
+                          color: #00668a;
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                      &nbsp;
+                      <i
+                        class="fa fa-close"
+                        (click)="cancelEdit()"
+                        style="
+                          color: rgb(195, 6, 6);
+                          font-weight: bold;
+                          font-size: 16px;
+                        "
+                      ></i>
+                    </ng-container>
+
+                    <ng-container
+                      *ngIf="
+                        !(
+                          editingRow === element &&
+                          editingField === 'FIX_DETAILS'
+                        )
+                      "
+                    >
+                      <span>{{ element.FIX_DETAILS }}</span>
+                      &nbsp;
+                      <i
+                        class="fa fa-pencil-square-o"
+                        style="font-weight: bold; color: rgb(79, 78, 78)"
+                        aria-hidden="true"
+                        (click)="editField(element, 'FIX_DETAILS')"
+                      ></i>
+                    </ng-container>
+                  </ng-container>
+
                   <ng-container *ngSwitchDefault>
                     {{ element[column] }}
                   </ng-container>
@@ -132,5 +332,37 @@
         <br /><br /><br />
       </div>
     </ng-container>
+
+    <mat-paginator
+      [pageSize]="10"
+      length="length"
+      [pageSizeOptions]="[]"
+      showFirstLastButtons
+      aria-label="Select page"
+    ></mat-paginator>
   </div>
 </div>
+
+<mat-menu #dropdownMenu="matMenu" class="custom-menu">
+  <div
+    mat-menu-item
+    (click)="uploadFile()"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;Upload Issues
+  </div>
+  <div mat-menu-item class="viewHighlight" style="font-size: small">
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;Download
+  </div>
+</mat-menu>

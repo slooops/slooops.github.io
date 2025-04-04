@@ -1,4 +1,10 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -12,6 +18,9 @@ import { DatePipe } from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { IssueUploadComponent } from './issue-upload/issue-upload.component';
+import { MatPaginator } from '@angular/material/paginator';
+import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-reject.component';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-issue-reporting',
@@ -37,6 +46,23 @@ export class IssueReportingComponent implements OnInit {
   summaryColumns: string[] = [];
   summaryDisplayedColumns: string[] = [];
   username: string = '';
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  searchForm: FormGroup = new FormGroup({
+    track: new FormControl(''),
+    quarter: new FormControl(''),
+    status: new FormControl(''),
+  });
+
+  trackOptions: string[] = [];
+  quarterOptions: string[] = [];
+  statusOptions: string[] = [];
+  trackTemp: string[] = [];
+  quarterTemp: string[] = [];
+  statusTemp: string[] = [];
+
+  trackFilter: string[] = [];
+  quarterFilter: string[] = [];
+  statusFilter: string[] = [];
 
   getIssueReporting() {
     this.http
@@ -55,8 +81,50 @@ export class IssueReportingComponent implements OnInit {
         this.summaryDatasource = new MatTableDataSource<IssueReportingModel>(
           this.summaryData
         );
+        this.filterData();
+        this.summaryDatasource.paginator = this.paginator;
+        this.summaryDatasource.filterPredicate = this.filterPredicate;
       });
   }
+
+  filterData() {
+    this.summaryData.forEach((data) => {
+      this.trackTemp.push(data.TRACK);
+      this.quarterTemp.push(data.QUARTER);
+      this.statusTemp.push(data.STATUS);
+    });
+    this.trackOptions = [...new Set(this.trackTemp)];
+    this.quarterOptions = [...new Set(this.quarterTemp)];
+    this.statusOptions = [...new Set(this.statusTemp)];
+  }
+
+  filterPredicate = (data: any, filter: any) => {
+    const filters = JSON.parse(filter);
+    const trackMatch =
+      filters.trackFilter.length === 0 ||
+      filters.trackFilter.includes(data.TRACK);
+    const quarterMatch =
+      filters.quarterFilter.length === 0 ||
+      filters.quarterFilter.includes(data.QUARTER);
+    const statusMatch =
+      filters.statusFilter.length === 0 ||
+      filters.statusFilter.includes(data.STATUS);
+    return trackMatch && statusMatch && quarterMatch;
+  };
+
+  filter() {
+    this.searchForm.valueChanges.subscribe((data) => {
+      this.trackFilter = data['track'];
+      this.statusFilter = data['status'];
+      this.quarterFilter = data['quarter'];
+      this.summaryDatasource.filter = JSON.stringify({
+        trackFilter: this.trackFilter,
+        statusFilter: this.statusFilter,
+        quarterFilter: this.quarterFilter,
+      });
+    });
+  }
+
   dateTransform(dateString: string): string {
     return this.datePipe.transform(dateString, 'MM/dd/yyyy');
   }
@@ -99,6 +167,67 @@ export class IssueReportingComponent implements OnInit {
     this.selection.clear();
     this.selectedRows = [];
     this.cdr.detectChanges();
+  }
+
+  editingRow: any = null; // Tracks the row being edited
+  editingField: string | null = null; // Tracks the specific field being edited
+
+  editField(row: any, field: string): void {
+    this.editingRow = row;
+    this.editingField = field;
+  }
+
+  saveEdit(row: any): void {
+    if (this.editingField === 'COMMENTS') {
+      this.saveComments(row[this.editingField!], row.INCIDENT_NUMBER);
+    } else if (this.editingField === 'FIX_DETAILS') {
+      this.saveFixDetails(row[this.editingField!], row.INCIDENT_NUMBER);
+    }
+    this.editingRow = null;
+    this.editingField = null;
+  }
+
+  saveComments(data: any, incidentNumber: any) {
+    const body = {
+      incidentNumber: incidentNumber,
+      username: this.username,
+      comments: data,
+    };
+    this.http
+      .post('issue-reporting-comments-update', body, {
+        responseType: 'text',
+      })
+      .subscribe((data: any) => {
+        this.selection.clear();
+        this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      });
+  }
+
+  saveFixDetails(data: any, incidentNumber: any) {
+    const body = {
+      incidentNumber: incidentNumber,
+      username: this.username,
+      fixDetails: data,
+    };
+    this.http
+      .post('issue-reporting-fix-details-update', body, {
+        responseType: 'text',
+      })
+      .subscribe((data: any) => {
+        this.selection.clear();
+        this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      });
+  }
+
+  cancelEdit(): void {
+    this.editingRow = null;
+    this.editingField = null;
   }
 
   formatIssueDescription(description: string): {
@@ -162,9 +291,68 @@ export class IssueReportingComponent implements OnInit {
       .subscribe((data: any) => {
         this.selection.clear();
         this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
         this.cdr.detectChanges();
       });
   }
+
+  bulkApproveReject() {
+    if (this.selectedRows.length === 0) {
+      alert('Select at least one incident!');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(BulkApproveRejectComponent, {
+      width: '400px',
+      data: this.selectedRows.map((data) => ({
+        incidentNumber: data.INCIDENT_NUMBER,
+        status: data.IT_APPROVAL, // Default empty status
+        approvedBy: this.username, // Replace with logged-in user
+      })),
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log('Submitted Data:', result);
+        this.selection.clear();
+        this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      }
+    });
+  }
+  //   isAllSelected() {
+  //     const numSelected = this.selection.selected.length;
+  //     const numRows = this.summaryDatasource.data.length;
+  //     return numSelected === numRows;
+  //   }
+
+  //   export(sheetName: string, filename: string) {
+  //     if (this.isAllSelected() || this.selection.selected.length === 0) {
+  //       this.exportTableToExcel(this.orderLifeCycleDownload, sheetName, filename);
+  //     } else if (!this.isAllSelected()) {
+  //       this.selectedArr = this.orderLifeCycleDownload.filter((data) =>
+  //         this.selection.selected.some((ele) => {
+  //           return (
+  //             data.DEAL_ID === ele.DEAL_ID && data.SALES_ORDER === ele.SALES_ORDER
+  //           );
+  //         })
+  //       );
+  //       this.exportTableToExcel(this.selectedArr, sheetName, filename);
+  //     }
+  //   }
+  //   exportTableToExcel(data: any[], sheetName: string, filename: string) {
+  //     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+  //     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  //     let excelBuffer: any = XLSX.write(workbook, {
+  //       bookType: 'xlsx',
+  //       type: 'array',
+  //     });
+  //     this.saveAsExcelFile(excelBuffer, filename);
+  //   }
 }
 
 export interface IssueReportingModel {

@@ -30,7 +30,7 @@
 
 .mat-cell {
   text-align: center !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 500 !important;
   padding: 0.4vh !important;
   border: 0px !important;
@@ -42,10 +42,6 @@ tr.mat-row {
   border-bottom: 0px;
 }
 
-td {
-  font-size: 11px;
-}
-
 th {
   text-align: center !important;
   border-bottom: 0px !important;
@@ -55,7 +51,7 @@ th {
 
 td {
   text-align: center !important;
-  font-size: 11px;
+  font-size: 12px;
   padding: 0.4vh !important ;
   border: 0px !important;
 }
@@ -101,8 +97,8 @@ tr.mat-header-row {
 }
 
 .comments-cell {
-  min-width: 20vw;
-  max-width: 20vw;
+  min-width: 10vw;
+  max-width: 10vw;
 }
 
 .page-title {
@@ -219,7 +215,6 @@ tr.mat-header-row {
   justify-content: space-between; /* Space between title/form on left and action buttons on right */
   align-items: center; /* Vertically align items in the center */
   width: 100%;
-  padding: 0 10px 0 12px;
 }
 
 .details-header {
@@ -252,7 +247,6 @@ tr.mat-header-row {
 .action-buttons {
   display: flex;
   justify-content: flex-end; /* Align action buttons to the right */
-  gap: 10px; /* Optional space between action buttons */
 }
 
 .rol-error-summary-container {
@@ -361,8 +355,8 @@ tr.mat-header-row {
 }
 
 .comments-cell {
-  min-width: 35vw;
-  max-width: 35vw;
+  /* min-width: 35vw;
+  max-width: 35vw; */
 }
 
 .icon-container {
@@ -405,6 +399,35 @@ tr.mat-header-row {
   max-width: 25vw;
 }
 
+.mat-column-FIX_DETAILS {
+  min-width: 15vw;
+  max-width: 15vw;
+}
+
+.mat-column-COLUMNS {
+  min-width: 15vw;
+  max-width: 15vw;
+}
 .issue-description-cell {
   white-space: pre-wrap;
+  text-align: left !important;
+}
+
+.custom-menu {
+  min-width: 180px; /* Set a minimum width if desired */
+  width: auto;
+  max-width: 100%; /* Allow the menu to grow up to the screen width */
+}
+
+.progPanel {
+  min-width: calc(100% + 30px) !important;
+}
+
+.mat-form-field-appearance-standard .mat-form-field-flex {
+  padding-top: 0px !important;
+}
+
+.mat-form-field-infix {
+  padding: 0 0 !important;
+  border-top: 0 !important;
 }

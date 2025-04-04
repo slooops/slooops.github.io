@@ -148,6 +148,43 @@ public class PeriodCloseMonitoringController {
         }
     }
 
+    @PostMapping(value = "/issue-reporting-approval-bulk")
+    public ResponseEntity<String> bulkApproveRejectIssueReport(@RequestBody List<Map<String, Object>> requestData) {
+        try {
+            service.bulkApproveRejectIssueReporting(requestData);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-comments-update")
+    public ResponseEntity<String> updateCommentsIssueReport(@RequestBody Map<String, Object> requestData) {
+        System.out.println(requestData);
+        try {
+            String comments = (String)requestData.get("comments");
+            String approvedBy = (String) requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.updateCommentsIssueReporting(comments, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-fix-details-update")
+    public ResponseEntity<String> updateFixDetailsIssueReport(@RequestBody Map<String, Object> requestData) {
+        System.out.println(requestData);
+        try {
+            String fixDetails = (String)requestData.get("fixDetails");
+            String approvedBy = (String) requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.updateFixDetailsIssueReporting(fixDetails, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
     @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
             @RequestParam("username") String username) {

@@ -173,6 +173,14 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, approval, approvedBy, incidentNum);
     }
 
+    public int updateCommentsIssueReport(String sql, String comments, String approvedBy, String incidentNum) {
+        return primaryJdbcTemplate.update(sql, comments, approvedBy, incidentNum);
+    }
+
+    public int updateFixDetailsIssueReport(String sql, String fixDetails, String approvedBy, String incidentNum) {
+        return primaryJdbcTemplate.update(sql, fixDetails, approvedBy, incidentNum);
+    }
+
     public int insertIssueReport(String sql, String track,
                                  String issueDescription,
                                  String rootCause,
