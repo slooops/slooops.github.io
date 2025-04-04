@@ -21,6 +21,7 @@ import { IssueUploadComponent } from './issue-upload/issue-upload.component';
 import { MatPaginator } from '@angular/material/paginator';
 import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-reject.component';
 import { FormGroup, FormControl } from '@angular/forms';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-issue-reporting',
@@ -329,30 +330,35 @@ export class IssueReportingComponent implements OnInit {
   //     return numSelected === numRows;
   //   }
 
-  //   export(sheetName: string, filename: string) {
-  //     if (this.isAllSelected() || this.selection.selected.length === 0) {
-  //       this.exportTableToExcel(this.orderLifeCycleDownload, sheetName, filename);
-  //     } else if (!this.isAllSelected()) {
-  //       this.selectedArr = this.orderLifeCycleDownload.filter((data) =>
-  //         this.selection.selected.some((ele) => {
-  //           return (
-  //             data.DEAL_ID === ele.DEAL_ID && data.SALES_ORDER === ele.SALES_ORDER
-  //           );
-  //         })
-  //       );
-  //       this.exportTableToExcel(this.selectedArr, sheetName, filename);
-  //     }
-  //   }
-  //   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-  //     let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-  //     let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-  //     XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-  //     let excelBuffer: any = XLSX.write(workbook, {
-  //       bookType: 'xlsx',
-  //       type: 'array',
-  //     });
-  //     this.saveAsExcelFile(excelBuffer, filename);
-  //   }
+  exportSummaryData(): void {
+    // Create a worksheet from the summary data
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
+      this.summaryData
+    );
+
+    // Create a new workbook and append the worksheet
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Summary');
+
+    // Write the workbook to an array buffer
+    const excelBuffer: any = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+
+    // Create a Blob from the buffer
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+    // Create a temporary link element and trigger a download
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `summary_${new Date().getTime()}.xlsx`;
+    a.click();
+
+    // Clean up by revoking the object URL
+    window.URL.revokeObjectURL(url);
+  }
 }
 
 export interface IssueReportingModel {

@@ -203,35 +203,22 @@
                         editingRow === element && editingField === 'COMMENTS'
                       "
                     >
-                      <textarea
-                        [(ngModel)]="element.COMMENTS"
-                        style="
-                          width: 100% !important;
-                          margin-top: 10px !important;
-                          border-radius: 5px;
-                          font-size: small;
-                        "
-                      ></textarea>
-                      &nbsp;
-                      <i
-                        class="fa fa-check"
-                        (click)="saveEdit(element)"
-                        style="
-                          color: #00668a;
-                          font-weight: bold;
-                          font-size: 16px;
-                        "
-                      ></i>
-                      &nbsp;
-                      <i
-                        class="fa fa-close"
-                        (click)="cancelEdit()"
-                        style="
-                          color: rgb(195, 6, 6);
-                          font-weight: bold;
-                          font-size: 16px;
-                        "
-                      ></i>
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.COMMENTS"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
                     </ng-container>
 
                     <ng-container
@@ -257,36 +244,22 @@
                         editingRow === element && editingField === 'FIX_DETAILS'
                       "
                     >
-                      <textarea
-                        [(ngModel)]="element.FIX_DETAILS"
-                        style="
-                          width: 100% !important;
-                          margin-top: 10px !important;
-                          border-radius: 5px;
-                          font-size: small;
-                        "
-                      ></textarea>
-
-                      &nbsp;
-                      <i
-                        class="fa fa-check"
-                        (click)="saveEdit(element)"
-                        style="
-                          color: #00668a;
-                          font-weight: bold;
-                          font-size: 16px;
-                        "
-                      ></i>
-                      &nbsp;
-                      <i
-                        class="fa fa-close"
-                        (click)="cancelEdit()"
-                        style="
-                          color: rgb(195, 6, 6);
-                          font-weight: bold;
-                          font-size: 16px;
-                        "
-                      ></i>
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.FIX_DETAILS"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
                     </ng-container>
 
                     <ng-container
