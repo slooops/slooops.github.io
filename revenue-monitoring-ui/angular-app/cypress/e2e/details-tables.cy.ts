@@ -56,6 +56,11 @@ describe('Accounts Test Demo', () => {
           });
       });
 
+    //clear the input fields
+    cy.get('.form-container > .mat-focus-indicator')
+      .should('be.visible')
+      .click();
+
     //the above code works, but has no handlers
     //this is garbage below from copilot, we need to test it again
 
