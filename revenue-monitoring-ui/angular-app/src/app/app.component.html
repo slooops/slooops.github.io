@@ -98,7 +98,14 @@
           <li
             class="menu-item"
             [class.disabled]="
-              !(hasRole$(['LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES']) || isAdmin$)
+              !(
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) || isAdmin$
+              )
             "
           >
             <a

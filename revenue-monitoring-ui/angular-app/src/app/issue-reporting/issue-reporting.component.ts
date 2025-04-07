@@ -330,7 +330,6 @@ export class IssueReportingComponent implements OnInit {
   //     return numSelected === numRows;
   //   }
 
-  // In your IssueReportingComponent
   exportSummaryData(): void {
     // Create a worksheet from the summary data
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
