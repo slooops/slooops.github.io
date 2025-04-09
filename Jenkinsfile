@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Pre-Build') {
             when {
-                expression { env.BRANCH_NAME == 'develop' }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 notifyBuildStart()
@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build Server') {
             when {
-                expression { env.BRANCH_NAME == 'develop'  }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 dir("revenue-monitoring-server") {
@@ -32,7 +32,7 @@ pipeline {
 
         stage('Push Server') {
             when {
-                expression { env.BRANCH_NAME == 'develop' }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0'}
             }
             steps {
                 sh "pwd"
@@ -45,7 +45,7 @@ pipeline {
 
         stage('Deploy Server') {
             when {
-                expression { env.BRANCH_NAME == 'develop'  }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 triggerSpinnakerDevDeployment(
@@ -59,7 +59,7 @@ pipeline {
 
         stage('Build UI') {
             when {
-                expression { env.BRANCH_NAME == 'develop'  }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 dir("revenue-monitoring-ui") {
@@ -71,7 +71,7 @@ pipeline {
 
         stage('Push UI') {
             when {
-                expression { env.BRANCH_NAME == 'develop'  }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0' }
             }
             steps {
                 sh "pwd"
@@ -84,7 +84,7 @@ pipeline {
 
         stage('Deploy UI') {
             when {
-                expression { env.BRANCH_NAME == 'develop' }
+                expression { env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'UI2.0'}
             }
             steps {
                 triggerSpinnakerDevDeployment(
