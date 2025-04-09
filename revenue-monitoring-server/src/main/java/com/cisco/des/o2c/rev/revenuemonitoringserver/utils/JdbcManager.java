@@ -181,6 +181,14 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, fixDetails, approvedBy, incidentNum);
     }
 
+    public int updateStatusIssueReport(String sql, String status, String approvedBy, String incidentNum) {
+        return primaryJdbcTemplate.update(sql, status, approvedBy, incidentNum);
+    }
+
+    public int updateIssueDescIssueReport(String sql, String issue, String rootCause, String businessImpact, String approvedBy, String incidentNum) {
+        return primaryJdbcTemplate.update(sql, issue, rootCause, businessImpact, approvedBy, incidentNum);
+    }
+
     public int insertIssueReport(String sql, String track,
                                  String issueDescription,
                                  String rootCause,
@@ -200,12 +208,13 @@ public class JdbcManager {
                                  String approvalComments,
                                  String periodCloseImpacting,
                                  String issueStatus,
-                                 String eocIncident) {
+                                 String eocIncident,
+                                 String username) {
         return primaryJdbcTemplate.update(sql, track, issueDescription, rootCause, businessImpact, fixDetails,
                 incidentNumber, issueStarted, issueReportedOn, issueReportedBy,
                 quarter, periodName, priority, codeFix, pdfRequired,
                 businessApproval, itApproval, approvalComments,
-                periodCloseImpacting, issueStatus, eocIncident);
+                periodCloseImpacting, issueStatus, eocIncident, username);
 
     }
 }

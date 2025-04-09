@@ -46,7 +46,6 @@ export class MenuService {
   header$ = this.headerSubject.asObservable();
 
   updateHeader(newHeader: string) {
-    console.log('Updating header to:', newHeader);
     this.headerSubject.next(newHeader);
   }
 }

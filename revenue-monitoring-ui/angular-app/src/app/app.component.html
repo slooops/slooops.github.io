@@ -74,7 +74,18 @@
           <!-- Period Close Tracking -->
           <li
             class="menu-item"
-            *ngIf="!hasRole$(['ISSUE_RESOLUTION'])"
+            *ngIf="
+              !(
+                hasRole$(['ISSUE_RESOLUTION']) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON'
+                ])
+              )
+            "
             [class.disabled]="
               !(
                 hasRole$([
@@ -99,7 +110,14 @@
           <li
             class="menu-item"
             [class.disabled]="
-              !(hasRole$(['LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES']) || isAdmin$)
+              !(
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) || isAdmin$
+              )
             "
           >
             <a
@@ -114,7 +132,7 @@
           <!-- Revenue Accounting -->
           <li
             class="menu-item"
-            *ngIf="!hasRole$(['ISSUE_RESOLUTION'])"
+            *ngIf="!(hasRole$(['ISSUE_RESOLUTION']) && !isAdmin$)"
             [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
           >
             <a

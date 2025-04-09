@@ -65,6 +65,7 @@ export class IssueReportingComponent implements OnInit {
   quarterFilter: string[] = [];
   statusFilter: string[] = [];
 
+  statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
     this.http
       .get('issue-reporting', this.destroyManager)
@@ -183,6 +184,8 @@ export class IssueReportingComponent implements OnInit {
       this.saveComments(row[this.editingField!], row.INCIDENT_NUMBER);
     } else if (this.editingField === 'FIX_DETAILS') {
       this.saveFixDetails(row[this.editingField!], row.INCIDENT_NUMBER);
+    } else if (this.editingField === 'ISSUE_DESCRIPTION') {
+      this.splitIssueDescription(row[this.editingField!], row.INCIDENT_NUMBER);
     }
     this.editingRow = null;
     this.editingField = null;
@@ -199,8 +202,6 @@ export class IssueReportingComponent implements OnInit {
         responseType: 'text',
       })
       .subscribe((data: any) => {
-        this.selection.clear();
-        this.selectedRows = [];
         this.summaryDatasource = null;
         this.getIssueReporting();
         this.cdr.detectChanges();
@@ -218,8 +219,52 @@ export class IssueReportingComponent implements OnInit {
         responseType: 'text',
       })
       .subscribe((data: any) => {
-        this.selection.clear();
-        this.selectedRows = [];
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      });
+  }
+
+  splitIssueDescription(data: any, incidentNumber: any) {
+    const parts = data.split(
+      /(Issue\s*:|Root Cause\s*:|Business Impact\s*:)/gi
+    ); // Split at keywords
+    let issue = '';
+    let rootCause = '';
+    let businessImpact = '';
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i].trim();
+      if (part === 'Issue :') {
+        issue = parts[i + 1]?.trim() || '';
+      } else if (part === 'Root Cause :') {
+        rootCause = parts[i + 1]?.trim() || '';
+      } else if (part === 'Business Impact :') {
+        businessImpact = parts[i + 1]?.trim() || '';
+      }
+    }
+    this.saveIssueDescription(issue, rootCause, businessImpact, incidentNumber);
+  }
+
+  saveIssueDescription(
+    issue: any,
+    rootCause: any,
+    businessImpact: any,
+    incidentNumber: any
+  ) {
+    const body = {
+      incidentNumber: incidentNumber,
+      username: this.username,
+      issue: issue,
+      rootCause: rootCause,
+      businessImpact: businessImpact,
+    };
+
+    this.http
+      .post('issue-reporting-issue-desc-update', body, {
+        responseType: 'text',
+      })
+      .subscribe((data: any) => {
         this.summaryDatasource = null;
         this.getIssueReporting();
         this.cdr.detectChanges();
@@ -251,6 +296,33 @@ export class IssueReportingComponent implements OnInit {
           bold: isKeyword, // Bold only for the keywords
           breakBefore: index > 0 && isKeyword, // Break before "Root Cause:" and "Business Impact:"
           breakAfter: isKeyword, // Break after "Issue:", "Root Cause:", and "Business Impact:"
+        };
+      });
+  }
+
+  formatFixDetails(fixDetails: string): {
+    text: string;
+    bullet: boolean;
+    bold: boolean;
+    breakBefore: boolean;
+    longTerm: boolean;
+  }[] {
+    if (!fixDetails) return [];
+
+    return fixDetails
+      .split(/(Short term\s*:|Long Term\s*:|•)/gi) // Split at "Short term:", "Long Term:", and "•"
+      .filter((part) => part.trim() !== '') // Remove empty parts
+      .map((part, index, array) => {
+        const isKeyword = /^(Short term|Long Term)\s*:$/i.test(part.trim());
+        const longTerm = /Long Term\s*:/.test(part.trim());
+        const isBullet = part.trim().startsWith('•');
+        const breakBefore = isBullet && array[index - 1]?.trim() !== '•'; // Add a break before keywords or first bullet
+        return {
+          text: part.trim(),
+          bullet: isBullet, // Mark as bullet if it starts with "•"
+          bold: isKeyword, // Bold for "Short term:" and "Long Term:"
+          breakBefore: breakBefore, // Add a break before keywords or first bullet
+          longTerm: longTerm, // Add a double break before "Long Term:"
         };
       });
   }
@@ -324,11 +396,45 @@ export class IssueReportingComponent implements OnInit {
       }
     });
   }
-  //   isAllSelected() {
-  //     const numSelected = this.selection.selected.length;
-  //     const numRows = this.summaryDatasource.data.length;
-  //     return numSelected === numRows;
-  //   }
+
+  onStatusChange(element: any) {
+    const dialogRef = this.dialog.open(StatusDialog, {
+      width: '450px',
+      data: {
+        status: element.STATUS,
+        incidentNumber: element.INCIDENT_NUMBER,
+        approvedBy: this.username,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.updateStatus(element);
+      } else {
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  updateStatus(element: any) {
+    const body = {
+      status: element.STATUS,
+      incidentNumber: element.INCIDENT_NUMBER,
+      username: this.username,
+    };
+
+    this.http
+      .post('issue-reporting-status-update', body, {
+        responseType: 'text',
+      })
+      .subscribe((data: any) => {
+        this.summaryDatasource = null;
+        this.getIssueReporting();
+        this.cdr.detectChanges();
+      });
+  }
 
   exportSummaryData(): void {
     // Create a worksheet from the summary data
@@ -391,7 +497,7 @@ export interface IssueReportingModel {
 @Component({
   template: `
     <mat-dialog-content>
-      <b>Please confirm you want to approve this Incident:</b>
+      <b>Please confirm you want to {{ data.message }} this Incident:</b>
     </mat-dialog-content>
     <mat-dialog-actions style="justify-content: center !important;">
       <button
@@ -433,6 +539,49 @@ export class DialogBox {
   constructor(
     private dialogRef: MatDialogRef<DialogBox>,
     @Inject(MAT_DIALOG_DATA) public data: { message: string }
+  ) {}
+
+  closeDialog(isConfirmed: boolean) {
+    this.dialogRef.close(isConfirmed);
+  }
+}
+
+@Component({
+  template: `
+    <div>
+      <b>Please confirm you want to change the status as {{ data.status }}:</b>
+    </div>
+    <br />
+    <div style="text-align: center !important;">
+      <button class="btn openClose" (click)="closeDialog(true)">Confirm</button>
+      &nbsp;
+      <button
+        class="btn btn-default"
+        style="background-color: white !important;"
+        (click)="closeDialog(false)"
+      >
+        Cancel
+      </button>
+    </div>
+  `,
+  styles: [
+    `
+      .dialog-content {
+        font-size: 16px;
+        color: #333;
+        text-align: center;
+      }
+      .openClose {
+        background-color: #185996 !important;
+        color: white !important;
+      }
+    `,
+  ],
+})
+export class StatusDialog {
+  constructor(
+    private dialogRef: MatDialogRef<StatusDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
   closeDialog(isConfirmed: boolean) {

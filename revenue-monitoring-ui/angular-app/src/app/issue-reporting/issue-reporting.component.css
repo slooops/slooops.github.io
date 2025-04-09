@@ -353,11 +353,11 @@ tr.mat-header-row {
   border: none;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
-
+/*
 .comments-cell {
-  /* min-width: 35vw;
-  max-width: 35vw; */
-}
+  min-width: 35vw;
+  max-width: 35vw;
+} */
 
 .icon-container {
   display: inline-flex;
@@ -413,6 +413,11 @@ tr.mat-header-row {
   text-align: left !important;
 }
 
+.fix-details-cell {
+  white-space: pre-wrap;
+  text-align: left !important;
+}
+
 .custom-menu {
   min-width: 180px; /* Set a minimum width if desired */
   width: auto;
@@ -438,8 +443,8 @@ tr.mat-header-row {
   align-items: stretch;
   width: 100%;
   gap: 8px;
-  height: 30vh;
-  margin-bottom: -24px;
+  height: 15vh;
+  /* margin-bottom: -24px; */
 }
 
 .edit-textarea {
