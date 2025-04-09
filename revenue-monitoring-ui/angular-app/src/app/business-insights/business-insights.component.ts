@@ -28,7 +28,6 @@ export class BusinessInsightsComponent implements OnInit {
   onTabChange(index: number) {
     this.selectedIndex = index;
     const newHeader = `Business Insights > ${this.filteredTabs[index]?.label}`;
-    console.log('🔹 Tab changed, updating header:', newHeader);
     this.menuService.updateHeader(newHeader);
   }
   visibleTabs: { label: string; component: string; role: string[] }[] = [
@@ -36,6 +35,11 @@ export class BusinessInsightsComponent implements OnInit {
       label: 'Large Deal Tracker',
       component: 'app-large-deal',
       role: ['ADMIN', 'LARGE_DEAL'],
+    },
+    {
+      label: 'Issue Resolution',
+      component: 'app-issue-reporting',
+      role: ['ADMIN', 'ISSUE_RESOLUTION'],
     },
     {
       label: 'Midclose Status',
@@ -46,11 +50,6 @@ export class BusinessInsightsComponent implements OnInit {
       label: 'Midclose Volumes',
       component: 'app-wd0-historical-data',
       role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-    },
-    {
-      label: 'Issue Resolution',
-      component: 'app-issue-reporting',
-      role: ['ADMIN', 'ISSUE_RESOLUTION'],
     },
   ];
 

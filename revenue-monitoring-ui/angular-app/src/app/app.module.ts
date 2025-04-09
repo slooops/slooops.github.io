@@ -218,6 +218,7 @@ export function initApp(authService: AuthenticationService) {
     FontAwesomeModule,
     MatStepperModule,
     CommonModule,
+    MatDialogModule,
   ],
   providers: [
     DatePipe,

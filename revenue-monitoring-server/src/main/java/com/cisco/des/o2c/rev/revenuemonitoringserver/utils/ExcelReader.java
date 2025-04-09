@@ -3,6 +3,7 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ExcelReader {
@@ -51,11 +52,26 @@ public class ExcelReader {
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf(cell.getNumericCellValue());
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    // Format the date as desired
+                    Date date = cell.getDateCellValue();
+                    return new SimpleDateFormat("yyyy-MM-dd").format(date);
+                } else {
+                    // Remove .0 from integer-looking values
+                    double val = cell.getNumericCellValue();
+                    if (val == Math.floor(val)) {
+                        return String.valueOf((long) val);  // e.g., 45658 → "45658"
+                    }
+                    return String.valueOf(val);
+                }
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
-                return cell.getCellFormula();
+                try {
+                    return cell.getStringCellValue(); // try string value first
+                } catch (IllegalStateException e) {
+                    return String.valueOf(cell.getNumericCellValue()); // fallback to numeric
+                }
             case BLANK:
                 return "";
             default:

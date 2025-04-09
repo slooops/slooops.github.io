@@ -74,6 +74,18 @@
           <!-- Period Close Tracking -->
           <li
             class="menu-item"
+            *ngIf="
+              !(
+                hasRole$(['ISSUE_RESOLUTION']) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON'
+                ])
+              )
+            "
             [class.disabled]="
               !(
                 hasRole$([
@@ -120,6 +132,7 @@
           <!-- Revenue Accounting -->
           <li
             class="menu-item"
+            *ngIf="!(hasRole$(['ISSUE_RESOLUTION']) && !isAdmin$)"
             [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
           >
             <a

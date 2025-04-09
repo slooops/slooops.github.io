@@ -88,16 +88,9 @@
             Approve/ Reject
           </button>
           &nbsp;
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="resetSelection()"
-            style="font-size: 12px; padding: 3px"
-            class="mat-small"
-            *ngIf="selection.selected.length > 0"
-          >
-            Reset
-          </button>
+          <a (click)="resetSelection()" *ngIf="selection.selected.length > 0">
+            Clear Selection
+          </a>
         </form>
         <!-- <button
             class="custom-button-primary"
@@ -178,21 +171,59 @@
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'ISSUE_DESCRIPTION'">
                     <ng-container
-                      *ngFor="
-                        let part of formatIssueDescription(element[column])
+                      *ngIf="
+                        editingRow === element &&
+                        editingField === 'ISSUE_DESCRIPTION'
                       "
                     >
-                      <span *ngIf="part.breakBefore">
-                        <br />
-                        <br />
-                      </span>
-
-                      <!-- Line break before "Root Cause:" and "Business Impact:" -->
-                      <span [style.font-weight]="part.bold ? 'bold' : '500'">
-                        {{ part.text }}
-                      </span>
-                      <br *ngIf="part.breakAfter" />
-                      <!-- Line break after "Issue:", "Root Cause:", and "Business Impact:" -->
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.ISSUE_DESCRIPTION"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
+                    </ng-container>
+                    <ng-container
+                      *ngIf="
+                        !(
+                          editingRow === element &&
+                          editingField === 'ISSUE_DESCRIPTION'
+                        )
+                      "
+                    >
+                      <ng-container
+                        *ngFor="
+                          let part of formatIssueDescription(element[column])
+                        "
+                      >
+                        <span *ngIf="part.breakBefore">
+                          <br />
+                          <br />
+                        </span>
+                        <!-- Line break before "Root Cause:" and "Business Impact:" -->
+                        <span [style.font-weight]="part.bold ? 'bold' : '500'">
+                          {{ part.text }}
+                        </span>
+                        <br *ngIf="part.breakAfter" />
+                        <!-- Line break after "Issue:", "Root Cause:", and "Business Impact:" -->
+                      </ng-container>
+                      &nbsp; &nbsp;
+                      <i
+                        class="fa fa-pencil-square-o"
+                        style="font-weight: bold; color: rgb(79, 78, 78)"
+                        aria-hidden="true"
+                        (click)="editField(element, 'ISSUE_DESCRIPTION')"
+                      ></i>
                     </ng-container>
                   </ng-container>
 
@@ -233,12 +264,77 @@
                         style="font-weight: bold; color: rgb(79, 78, 78)"
                         aria-hidden="true"
                         (click)="editField(element, 'COMMENTS')"
+                        *ngIf="element.COMMENTS && element.COMMENTS.length > 0"
+                      ></i>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'FIX_DETAILS'">
+                    <ng-container
+                      *ngIf="
+                        editingRow === element && editingField === 'FIX_DETAILS'
+                      "
+                    >
+                      <div class="edit-container">
+                        <textarea
+                          [(ngModel)]="element.FIX_DETAILS"
+                          class="edit-textarea"
+                        ></textarea>
+                        <div class="edit-actions">
+                          <i
+                            class="fa fa-check edit-icon confirm"
+                            (click)="saveEdit(element)"
+                          ></i>
+                          <i
+                            class="fa fa-close edit-icon cancel"
+                            (click)="cancelEdit()"
+                          ></i>
+                        </div>
+                      </div>
+                    </ng-container>
+                    <ng-container
+                      *ngIf="
+                        !(
+                          editingRow === element &&
+                          editingField === 'FIX_DETAILS'
+                        )
+                      "
+                    >
+                      <ng-container
+                        *ngFor="let part of formatFixDetails(element[column])"
+                      >
+                        <span *ngIf="part.breakBefore">
+                          <br />
+                        </span>
+                        <span *ngIf="part.longTerm">
+                          <br />
+                          <br />
+                        </span>
+                        <span *ngIf="part.bold" style="font-weight: bold">
+                          {{ part.text }}
+                        </span>
+                        <!-- <span *ngIf="part.longTerm">
+                          <br />
+                        </span> -->
+                        <span *ngIf="part.bullet">
+                          {{ part.text }}
+                        </span>
+                        <span *ngIf="!part.bold && !part.bullet">{{
+                          part.text
+                        }}</span>
+                      </ng-container>
+                      &nbsp; &nbsp;
+                      <i
+                        class="fa fa-pencil-square-o"
+                        style="font-weight: bold; color: rgb(79, 78, 78)"
+                        aria-hidden="true"
+                        (click)="editField(element, 'FIX_DETAILS')"
                       ></i>
                     </ng-container>
                   </ng-container>
 
                   <!-- Editable FIX_DETAILS Column -->
-                  <ng-container *ngSwitchCase="'FIX_DETAILS'">
+                  <!-- <ng-container *ngSwitchCase="'FIX_DETAILS'">
                     <ng-container
                       *ngIf="
                         editingRow === element && editingField === 'FIX_DETAILS'
@@ -279,6 +375,28 @@
                         (click)="editField(element, 'FIX_DETAILS')"
                       ></i>
                     </ng-container>
+                  </ng-container> -->
+
+                  <ng-container *ngSwitchCase="'STATUS'">
+                    <mat-form-field
+                      appearance="standard"
+                      style="
+                        text-align: center;
+                        font-weight: 500;
+                        max-width: 5vw;
+                      "
+                    >
+                      <mat-select
+                        [(ngModel)]="element[column]"
+                        (selectionChange)="onStatusChange(element)"
+                      >
+                        <mat-option
+                          *ngFor="let status of statusOps"
+                          [value]="status"
+                          >{{ status }}</mat-option
+                        >
+                      </mat-select>
+                    </mat-form-field>
                   </ng-container>
 
                   <ng-container *ngSwitchDefault>

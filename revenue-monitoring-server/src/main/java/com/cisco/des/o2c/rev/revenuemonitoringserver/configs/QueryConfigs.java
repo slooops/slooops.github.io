@@ -354,6 +354,19 @@ public class QueryConfigs {
     @Value(("${issue.reporting.dash}"))
     public String issueReportingDash;
 
+    @Value(("${issue.reporting.dash.status.update}"))
+    public String issueReportingDashStatusUpdate;
+
+    @Bean(name = "issueReportingDashStatusUpdate")
+    public String getIssueReportingDashStatusUpdate() { return this.issueReportingDashStatusUpdate; }
+
+
+    @Value(("${issue.reporting.dash.issue.description.update}"))
+    public String issueReportingDashIssueDescUpdate;
+
+    @Bean(name = "issueReportingDashIssueDescUpdate")
+    public String getIssueReportingDashIssueDescUpdate() { return this.issueReportingDashIssueDescUpdate; }
+
     @Bean(name = "issueReportingDash")
     public String getIssueReportingDash() { return this.issueReportingDash; }
 
