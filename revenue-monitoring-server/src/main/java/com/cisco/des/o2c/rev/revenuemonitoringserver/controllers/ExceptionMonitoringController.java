@@ -557,24 +557,20 @@ public class ExceptionMonitoringController {
                                                                     @RequestParam List<String> applicationNames,
                                                                     @RequestParam List<String> processFlows,
                                                                     @RequestParam List<String> ledgerNames,
-                                                                    @RequestParam List<String> accountSegs,
+                                                                    @RequestParam List<String> glBatchNames,
                                                                     @RequestParam List<String> transactionDates) {
-        System.out.println("here");
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(applicationNames.size(), Math.min(processFlows.size(), Math.min(ledgerNames.size(), Math.min(accountSegs.size(), transactionDates.size())))));
-            System.out.println(minLength);
+            int minLength = Math.min(periodNames.size(), Math.min(applicationNames.size(), Math.min(processFlows.size(), Math.min(ledgerNames.size(), Math.min(glBatchNames.size(), transactionDates.size())))));
             for (int i = 0; i < minLength; i++) {
                 String processFlow = processFlows.get(i);
                 String ledgerName = ledgerNames.get(i);
                 String appName = applicationNames.get(i);
                 String periodName = periodNames.get(i);
-                String accountseg = accountSegs.get(i);
+                String glbatch = glBatchNames.get(i);
                 String uniqueId = transactionDates.get(i);
-                System.out.println(periodName);
-                System.out.println(processFlow);
                 List<Map<String, Object>> result = service.getGlDetailsFilter(periodName, appName, processFlow, ledgerName,
-                        accountseg, uniqueId);
+                        glbatch, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();

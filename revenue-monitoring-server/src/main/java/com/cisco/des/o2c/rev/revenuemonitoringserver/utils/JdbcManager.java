@@ -99,10 +99,10 @@ public class JdbcManager {
     }
 
     public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
-            String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg,
+            String processFlow, String ledgerName, String applicationName, String journalSource, String glbatch,
             String transactionDate) {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName,
-                journalSource, accountSeg, transactionDate);
+                journalSource, glbatch, transactionDate);
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName,

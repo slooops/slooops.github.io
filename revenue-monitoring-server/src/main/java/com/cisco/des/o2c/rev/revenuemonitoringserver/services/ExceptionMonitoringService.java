@@ -901,9 +901,9 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String periodName, String applicationName, String processFlow, String ledgerName,
-                                                         String accountSeg, String transactionDate) {
+                                                         String glbatch, String transactionDate) {
         List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, periodName, applicationName, processFlow, ledgerName,
-                 accountSeg, transactionDate);
+                glbatch, transactionDate);
         return result;
     }
 
