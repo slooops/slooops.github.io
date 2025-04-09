@@ -64,7 +64,10 @@
           <button
             class="custom-button-primary"
             style="background-color: #04aa6d"
-            *ngIf="selection.selected.length === 1"
+            *ngIf="
+              roles.includes('ISSUE_RESOLUTION') &&
+              selection.selected.length === 1
+            "
             (click)="openDialog('Approve')"
           >
             Approve
@@ -73,7 +76,10 @@
           <button
             class="custom-button-primary"
             style="background-color: #f44336"
-            *ngIf="selection.selected.length === 1"
+            *ngIf="
+              roles.includes('ISSUE_RESOLUTION') &&
+              selection.selected.length === 1
+            "
             (click)="openDialog('Reject')"
           >
             Reject
@@ -82,7 +88,10 @@
           <button
             class="custom-button-primary"
             style="background-color: #185996"
-            *ngIf="selection.selected.length > 1"
+            *ngIf="
+              roles.includes('ISSUE_RESOLUTION') &&
+              selection.selected.length > 1
+            "
             (click)="bulkApproveReject()"
           >
             Approve/ Reject
@@ -264,7 +273,6 @@
                         style="font-weight: bold; color: rgb(79, 78, 78)"
                         aria-hidden="true"
                         (click)="editField(element, 'COMMENTS')"
-                        *ngIf="element.COMMENTS && element.COMMENTS.length > 0"
                       ></i>
                     </ng-container>
                   </ng-container>
@@ -378,25 +386,30 @@
                   </ng-container> -->
 
                   <ng-container *ngSwitchCase="'STATUS'">
-                    <mat-form-field
-                      appearance="standard"
-                      style="
-                        text-align: center;
-                        font-weight: 500;
-                        max-width: 5vw;
-                      "
-                    >
-                      <mat-select
-                        [(ngModel)]="element[column]"
-                        (selectionChange)="onStatusChange(element)"
+                    <span *ngIf="roles.includes('ISSUE_RESOLUTION')">
+                      <mat-form-field
+                        appearance="standard"
+                        style="
+                          text-align: center;
+                          font-weight: 500;
+                          max-width: 5vw;
+                        "
                       >
-                        <mat-option
-                          *ngFor="let status of statusOps"
-                          [value]="status"
-                          >{{ status }}</mat-option
+                        <mat-select
+                          [(ngModel)]="element[column]"
+                          (selectionChange)="onStatusChange(element)"
                         >
-                      </mat-select>
-                    </mat-form-field>
+                          <mat-option
+                            *ngFor="let status of statusOps"
+                            [value]="status"
+                            >{{ status }}</mat-option
+                          >
+                        </mat-select>
+                      </mat-form-field>
+                    </span>
+                    <span *ngIf="!roles.includes('ISSUE_RESOLUTION')">
+                      {{ element[column] }}
+                    </span>
                   </ng-container>
 
                   <ng-container *ngSwitchDefault>

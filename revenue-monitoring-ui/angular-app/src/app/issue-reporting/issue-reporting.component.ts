@@ -39,6 +39,7 @@ export class IssueReportingComponent implements OnInit {
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
+    this.roles = this.authService.getRoles();
     this.getIssueReporting();
   }
 
@@ -47,6 +48,7 @@ export class IssueReportingComponent implements OnInit {
   summaryColumns: string[] = [];
   summaryDisplayedColumns: string[] = [];
   username: string = '';
+  roles: string[] = [];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   searchForm: FormGroup = new FormGroup({
     track: new FormControl(''),
@@ -71,7 +73,6 @@ export class IssueReportingComponent implements OnInit {
       .get('issue-reporting', this.destroyManager)
       .subscribe((data: any) => {
         this.summaryData = data;
-        console.log(data);
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
         }
