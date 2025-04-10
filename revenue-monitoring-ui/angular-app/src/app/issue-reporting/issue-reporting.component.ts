@@ -151,6 +151,26 @@ export class IssueReportingComponent implements OnInit {
     });
   }
 
+  toggleSelectAll(event: any): void {
+    if (event.checked) {
+      this.selection.select(...this.summaryDatasource.data);
+    } else {
+      this.selection.clear();
+    }
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.summaryDatasource?.data?.length || 0;
+    return numSelected === numRows;
+  }
+
+  isSomeSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.summaryDatasource?.data?.length || 0;
+    return numSelected > 0 && numSelected < numRows;
+  }
+
   selection = new SelectionModel<any>(true, []);
   selectedSummaryData: any[] = [];
   isModalOpen: boolean = false;
