@@ -49,11 +49,90 @@ Cypress.Commands.add('testProcessFlowAndAssignment', () => {
   cy.get('h5 button.mat-focus-indicator').click();
 });
 
+Cypress.Commands.add(
+  'testTableFilter',
+  (columnClass: string, rowIndex: number, filterInputSelector: string) => {
+    //clear the filter input
+    cy.get('.form-container > .mat-focus-indicator')
+      .should('be.visible')
+      .click();
+
+    //get the column
+    cy.get(`.cdk-column-${columnClass}`)
+      .eq(rowIndex)
+      .invoke('text')
+      .then((rawText) => {
+        const cleaned = rawText
+          .replace(/\u00a0/g, ' ')
+          .match(/\d+(?!.*\d+)/)?.[0];
+
+        if (!cleaned) {
+          cy.log(
+            `⚠️ Could not extract valid value from row ${
+              rowIndex + 1
+            } of ${columnClass}.`
+          );
+          console.warn(
+            `⚠️ Could not extract valid value from row ${
+              rowIndex + 1
+            } of ${columnClass}.`
+          );
+          return;
+        }
+
+        cy.log(`🔎 Copied ${columnClass}: ${cleaned}`);
+        console.log(`🔎 Copied ${columnClass}: ${cleaned}`);
+
+        //paste into the filter input
+        cy.get(
+          `:nth-child(${filterInputSelector}) > .mat-form-field > .mat-form-field-wrapper > .mat-form-field-flex > .mat-form-field-infix input`
+        )
+          .should('exist')
+          .clear()
+          .type(cleaned);
+
+        cy.wait(500);
+
+        cy.get(`.cdk-column-${columnClass}`)
+          .eq(1)
+          .invoke('text')
+          .then((filteredRaw) => {
+            const filteredClean = filteredRaw
+              .replace(/\u00a0/g, ' ')
+              .match(/\d+(?!.*\d+)/)?.[0];
+
+            if (filteredClean !== cleaned) {
+              throw new Error(
+                `❌ Filtered "${filteredClean}" does not match expected "${cleaned}".`
+              );
+            }
+
+            cy.log(
+              `✅ Filter for ${columnClass} working: "${filteredClean}" matched "${cleaned}".`
+            );
+            console.log(
+              `✅ Filter for ${columnClass} working: "${filteredClean}" matched "${cleaned}".`
+            );
+          });
+      });
+
+    //clear the filter input
+    cy.get('.form-container > .mat-focus-indicator')
+      .should('be.visible')
+      .click();
+  }
+);
+
 // Extend the Cypress interface globally
 declare global {
   namespace Cypress {
     interface Chainable {
       testProcessFlowAndAssignment(): Chainable<void>;
+      testTableFilter(
+        columnClass: string,
+        rowIndex: number,
+        filterInputSelector: string
+      ): Chainable<void>;
     }
   }
 }
