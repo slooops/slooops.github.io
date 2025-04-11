@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -96,6 +96,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
             ? false
             : !!this.data[0].ASSIGNED_TO,
         },
+        Validators.required,
       ],
       comments: [this.data[0].COMMENTS || ''],
     });

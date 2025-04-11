@@ -39,7 +39,7 @@
         <div class="input-stack" *ngFor="let field of enabledFields">
           <label>{{ field.label }}</label>
           <ng-container *ngIf="field.controlName === 'assignedTo'">
-            <select [formControlName]="field.controlName">
+            <select [formControlName]="field.controlName" required>
               <option value="" disabled selected hidden>Select User</option>
               <option
                 *ngFor="let data of assignmentUsers"
@@ -64,7 +64,13 @@
       <button class="custom-button-tertiary" (click)="closeDialog('cancel')">
         Cancel
       </button>
-      <button class="custom-button-primary" (click)="submitData()">Save</button>
+      <button
+        class="custom-button-primary"
+        [disabled]="updateForm.invalid"
+        (click)="submitData()"
+      >
+        Save
+      </button>
     </div>
   </div>
 </div>

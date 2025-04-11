@@ -347,7 +347,6 @@ public class ExceptionMonitoringService {
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
         int sequenceNum = Integer.parseInt(updateData.get("sequenceNum"));
-        System.out.println(updateData);
         int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy,
                 sequenceNum);
         return 1;
@@ -553,7 +552,6 @@ public class ExceptionMonitoringService {
 //        result.forEach(data -> {
 //            formatDateColumns(data, dateColumns);
 //        });
-        System.out.println(result);
         return result;
     }
 

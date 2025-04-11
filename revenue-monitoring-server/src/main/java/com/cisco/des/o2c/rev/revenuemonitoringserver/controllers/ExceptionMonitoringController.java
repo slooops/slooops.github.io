@@ -542,13 +542,11 @@ public class ExceptionMonitoringController {
     //General Ledger
     @GetMapping("/gl-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {
-        System.out.println("here");
         return new ResponseEntity<>(service.getGlErrorSummary(), HttpStatus.OK);
     }
 
     @GetMapping("/gl-error-details")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorDetails() {
-        System.out.println("here");
         return new ResponseEntity<>(service.getGlErrorDetails(), HttpStatus.OK);
     }
 
