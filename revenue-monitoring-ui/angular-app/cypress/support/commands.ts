@@ -49,17 +49,39 @@ Cypress.Commands.add('testProcessFlowAndAssignment', () => {
   cy.get('h5 button.mat-focus-indicator').click();
 });
 
+Cypress.Commands.add('checkIfNoData', () => {
+  return cy.get('img').then(($imgs) => {
+    const hasNoData = $imgs.length > 0;
+
+    if (hasNoData) {
+      cy.log(`⚠️ Skipping tests — no data image detected.`);
+      console.warn(`⚠️ Skipping tests — no data image detected.`);
+    }
+
+    return cy.wrap(hasNoData); // ✅ Wrap it!
+  });
+});
+
 Cypress.Commands.add(
   'testTableFilter',
-  (columnClass: string, rowIndex: number, filterInputSelector: string) => {
+  (
+    columnClass: string,
+    rowIndex: number,
+    filterInputSelector: string,
+    tableSectionIndex: number
+  ) => {
     //clear the filter input
     cy.get('.form-container > .mat-focus-indicator')
       .should('be.visible')
       .click();
 
+    const columnSelector = tableSectionIndex
+      ? `:nth-child(${tableSectionIndex}) > .table-container > .mat-table > tbody > :nth-child(${rowIndex}) > .cdk-column-${columnClass}`
+      : `:nth-child(${rowIndex}) > .cdk-column-${columnClass}`;
+
     //get the column
-    cy.get(`.cdk-column-${columnClass}`)
-      .eq(rowIndex)
+    cy.get(columnSelector)
+      // .eq(rowIndex)
       .invoke('text')
       .then((rawText) => {
         const cleaned = rawText
@@ -93,8 +115,12 @@ Cypress.Commands.add(
 
         cy.wait(500);
 
-        cy.get(`.cdk-column-${columnClass}`)
-          .eq(1)
+        const filteredColumnSelector = tableSectionIndex
+          ? `:nth-child(${tableSectionIndex}) > .table-container > .mat-table > tbody > :nth-child(1) > .cdk-column-${columnClass}`
+          : `:nth-child(1) > .cdk-column-${columnClass}`;
+
+        cy.get(filteredColumnSelector)
+          // .eq(1)
           .invoke('text')
           .then((filteredRaw) => {
             const filteredClean = filteredRaw
@@ -128,10 +154,12 @@ declare global {
   namespace Cypress {
     interface Chainable {
       testProcessFlowAndAssignment(): Chainable<void>;
+      checkIfNoData(): Chainable<boolean>;
       testTableFilter(
         columnClass: string,
         rowIndex: number,
-        filterInputSelector: string
+        filterInputSelector: string,
+        tableSectionIndex?: number
       ): Chainable<void>;
     }
   }
