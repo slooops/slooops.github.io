@@ -76,7 +76,12 @@
             class="menu-item"
             *ngIf="
               !(
-                hasRole$(['ISSUE_RESOLUTION']) &&
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) &&
                 !isAdmin$ &&
                 !hasRole$([
                   'PERIOD_CLOSE',
@@ -132,7 +137,16 @@
           <!-- Revenue Accounting -->
           <li
             class="menu-item"
-            *ngIf="!(hasRole$(['ISSUE_RESOLUTION']) && !isAdmin$)"
+            *ngIf="
+              !(
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) && !isAdmin$
+              )
+            "
             [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
           >
             <a
