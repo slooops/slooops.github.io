@@ -99,7 +99,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       wd2.setDate(monthEnd.getDate() - 2);
       wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
 
-      wd1.setDate(monthEnd.getDate() - 2);
+      wd1.setDate(monthEnd.getDate() - 1);
       wd1.setHours(15); // 4 PM rollover for WD-1
 
       // Determine the effective WD based on the current time
@@ -1220,10 +1220,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
           this.newMonthData,
           regressionData.X.length - 1
         );
-      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-      fastestTimes.push(null);
-      slowestTimes.push(null);
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      // fastestTimes.push(null);
+      // slowestTimes.push(null);
 
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)
