@@ -357,6 +357,12 @@ public class QueryConfigs {
     @Value(("${issue.reporting.dash.status.update}"))
     public String issueReportingDashStatusUpdate;
 
+    @Value(("${wd0.midclose.actuals.product.q}"))
+    public String wd0MidcloseActualsProduct;
+
+    @Value(("${wd0.midclose.actuals.service.q}"))
+    public String wd0MidcloseActualsService;
+
     @Bean(name = "issueReportingDashStatusUpdate")
     public String getIssueReportingDashStatusUpdate() { return this.issueReportingDashStatusUpdate; }
 
@@ -911,4 +917,11 @@ public class QueryConfigs {
 
     @Bean( name = "tspAccountSummaryUpdate" )
     public String getTspAccountSummaryUpdate() {return this.tspAccountSummaryUpdate; }
+
+    @Bean( name = "wd0MidcloseActualsProduct" )
+    public String getWd0MidcloseActualsProduct() {return this.wd0MidcloseActualsProduct; }
+
+    @Bean( name = "wd0MidcloseActualsService" )
+    public String getWd0MidcloseActualsService() {return this.wd0MidcloseActualsService; }
+
 }

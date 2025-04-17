@@ -61,6 +61,8 @@ public class PeriodCloseMonitoringService {
     private String issueReportingDashFixDetailsUpdate;
     private String issueReportingDashStatusUpdate;
     private String issueReportingDashIssueDescUpdate;
+    private String wd0MidcloseActualsProduct;
+    private String wd0MidcloseActualsService;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -72,11 +74,12 @@ public class PeriodCloseMonitoringService {
             String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
             String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
-             String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
+                                        String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
                                         String espWeeklyComparisonSummary, String periodName, String issueReportingDash,
                                         String issueReportingDashInsert, String issueReportingDashApprove,
                                         String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate,
-                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate) {
+                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate,
+                                        String wd0MidcloseActualsProduct, String wd0MidcloseActualsService) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -116,6 +119,8 @@ public class PeriodCloseMonitoringService {
         this.issueReportingDashFixDetailsUpdate = issueReportingDashFixDetailsUpdate;
         this.issueReportingDashStatusUpdate = issueReportingDashStatusUpdate;
         this.issueReportingDashIssueDescUpdate = issueReportingDashIssueDescUpdate;
+        this.wd0MidcloseActualsProduct = wd0MidcloseActualsProduct;
+        this.wd0MidcloseActualsService = wd0MidcloseActualsService;
     }
 
     public List<Map<String, Object>> getIssueReportingData() {
@@ -740,6 +745,14 @@ public class PeriodCloseMonitoringService {
                 data.put(column, "");
             }
         }
+    }
+
+    public List<Map<String, Object>> getWd0MidcloseActualsProduct() {
+        return jdbcManager.queryForList(wd0MidcloseActualsProduct);
+    }
+
+    public List<Map<String, Object>> getWd0MidcloseActualsService() {
+        return jdbcManager.queryForList(wd0MidcloseActualsService);
     }
 
 }

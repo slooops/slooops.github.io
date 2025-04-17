@@ -1,19 +1,11 @@
 <div class="modal-overlay" (click)="closeDialog('cancel')">
   <div class="modal-content container" (click)="$event.stopPropagation()">
     <div
-      style="
-        margin: -24px -24px 0 -24px; /* Removes default padding */
-        background-color: #08ace4;
-        padding: 10px;
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      "
+      style="display: flex; justify-content: space-between; align-items: center"
     >
       <h5
         class="section-title"
-        style="margin: 0; color: white; font-weight: lighter"
+        style="margin: 0; color: rgb(60, 60, 60); font-weight: lighter"
       >
         Assign User
       </h5>
@@ -23,6 +15,7 @@
         style="cursor: pointer; color: white; font-size: 16px"
       ></i>
     </div>
+    <hr />
 
     <div class="modal-body">
       <form [formGroup]="updateForm" class="form-stack">
