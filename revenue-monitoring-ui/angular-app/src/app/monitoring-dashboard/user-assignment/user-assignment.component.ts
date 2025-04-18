@@ -57,7 +57,6 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
     private authService: AuthenticationService
   ) {
     this.username = this.authService.getUserID();
-    console.log('User Name:', this.username);
     this.userRoles = this.authService.getRoles();
   }
   ngOnInit(): void {
@@ -150,9 +149,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
         responseType: 'text',
       })
       .subscribe({
-        next: (data) => {
-          console.log('Message sent successfully:', data);
-        },
+        next: (data) => {},
         error: (err) => {
           console.error('Error while sending message:', err);
           this.closeDialog('webex-message-failed');

@@ -104,7 +104,6 @@ tr.mat-header-row {
   min-width: 40vw;
   max-width: 40vw;
   white-space: pre-wrap; /* Allows text to wrap */
-  text-align: left !important;
 }
 
 .page-title {

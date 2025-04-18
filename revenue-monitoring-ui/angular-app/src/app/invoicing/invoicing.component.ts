@@ -371,6 +371,26 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
+  rpoExtractUrls: { [key: string]: string } = {
+    summaryUrl: 'rpo-extract-error-summary',
+    detailsUrl: 'rpo-extract-error-details',
+    filteredDetailsUrl: 'rpo-extract-details-filtered',
+    summaryUpdateUrl: 'rpo-extract-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  srtProcessUrls: { [key: string]: string } = {
+    summaryUrl: 'srt-process-error-summary',
+    detailsUrl: 'srt-process-error-details',
+    filteredDetailsUrl: 'srt-process-details-filtered',
+    summaryUpdateUrl: 'srt-process-summary-update',
+    webexMessageUrl: 'send-message-invoicing',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
   eInvoicingUrls: { [key: string]: string } = {
     summaryUrl: 'einvoicing-error-summary',
     detailsUrl: 'einvoicing-error-details',
@@ -400,6 +420,24 @@ export class InvoicingComponent implements OnInit {
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
+
+  rpoFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [];
+
+  rpoTotals: { [key: string]: number } = {};
+
+  srtFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [];
+
+  srtTotals: { [key: string]: number } = {};
 
   fusionFilters: {
     formControlName: string;

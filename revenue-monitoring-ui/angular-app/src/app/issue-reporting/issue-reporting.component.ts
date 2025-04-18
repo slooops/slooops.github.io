@@ -171,6 +171,12 @@ export class IssueReportingComponent implements OnInit {
     return numSelected > 0 && numSelected < numRows;
   }
 
+  areAllRowsApproved(): boolean {
+    return this.summaryDatasource?.data?.every(
+      (row: any) => row.APPROVAL === 'Approved'
+    );
+  }
+
   selection = new SelectionModel<any>(true, []);
   selectedSummaryData: any[] = [];
   isModalOpen: boolean = false;
