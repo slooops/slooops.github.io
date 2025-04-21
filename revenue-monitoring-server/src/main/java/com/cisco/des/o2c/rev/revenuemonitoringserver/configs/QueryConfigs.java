@@ -941,6 +941,7 @@ public class QueryConfigs {
 
     @Bean( name = "issueReportingDashSummary" )
     public String getIssueReportingDashSummary() {return this.issueReportingDashSummary; }
+    
 
     @Bean( name = "rpoExtractSummary" )
     public String getRpoExtractSummary() {return this.rpoExtractSummary; }
