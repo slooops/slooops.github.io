@@ -911,4 +911,58 @@ public class QueryConfigs {
 
     @Bean( name = "tspAccountSummaryUpdate" )
     public String getTspAccountSummaryUpdate() {return this.tspAccountSummaryUpdate; }
+
+    @Value(("${rpo.extract.summary}"))
+    public String rpoExtractSummary;
+
+    @Value(("${rpo.extract.details}"))
+    public String rpoExtractDetails;
+
+    @Value(("${rpo.extract.details.filter}"))
+    public String rpoExtractDetailsFilter;
+
+    @Value(("${rpo.extract.summary.update}"))
+    public String rpoExtractSummaryUpdate;
+
+    @Value(("${srt.process.summary}"))
+    public String srtProcessSummary;
+
+    @Value(("${srt.process.details}"))
+    public String srtProcessDetails;
+
+    @Value(("${srt.process.details.filter}"))
+    public String srtProcessDetailsFilter;
+
+    @Value(("${srt.process.summary.update}"))
+    public String srtProcessSummaryUpdate;
+
+    @Value(("${issue.reporting.dash.summary}"))
+    public String issueReportingDashSummary;
+
+    @Bean( name = "issueReportingDashSummary" )
+    public String getIssueReportingDashSummary() {return this.issueReportingDashSummary; }
+
+    @Bean( name = "rpoExtractSummary" )
+    public String getRpoExtractSummary() {return this.rpoExtractSummary; }
+
+    @Bean( name = "rpoExtractDetails" )
+    public String getRpoExtractDetails() {return this.rpoExtractDetails; }
+
+    @Bean( name = "rpoExtractDetailsFilter" )
+    public String getRpoExtractDetailsFilter() {return this.rpoExtractDetailsFilter; }
+
+    @Bean( name = "rpoExtractSummaryUpdate" )
+    public String getRpoExtractSummaryUpdate() {return this.rpoExtractSummaryUpdate; }
+
+    @Bean( name = "srtProcessSummary" )
+    public String getSrtProcessSummary() {return this.srtProcessSummary; }
+
+    @Bean( name = "srtProcessDetails" )
+    public String getSrtProcessDetails() {return this.srtProcessDetails; }
+
+    @Bean( name = "srtProcessDetailsFilter" )
+    public String getSrtProcessDetailsFilter() {return this.srtProcessDetailsFilter; }
+
+    @Bean( name = "srtProcessSummaryUpdate" )
+    public String getSrtProcessSummaryUpdate() {return this.srtProcessSummaryUpdate; }
 }

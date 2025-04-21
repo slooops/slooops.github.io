@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,6 +63,7 @@ public class PeriodCloseMonitoringService {
     private String issueReportingDashFixDetailsUpdate;
     private String issueReportingDashStatusUpdate;
     private String issueReportingDashIssueDescUpdate;
+    private String issueReportingDashSummary;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -76,7 +79,7 @@ public class PeriodCloseMonitoringService {
                                         String espWeeklyComparisonSummary, String periodName, String issueReportingDash,
                                         String issueReportingDashInsert, String issueReportingDashApprove,
                                         String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate,
-                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate) {
+                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate, String issueReportingDashSummary) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -116,6 +119,7 @@ public class PeriodCloseMonitoringService {
         this.issueReportingDashFixDetailsUpdate = issueReportingDashFixDetailsUpdate;
         this.issueReportingDashStatusUpdate = issueReportingDashStatusUpdate;
         this.issueReportingDashIssueDescUpdate = issueReportingDashIssueDescUpdate;
+        this.issueReportingDashSummary = issueReportingDashSummary;
     }
 
     public List<Map<String, Object>> getIssueReportingData() {
@@ -125,6 +129,12 @@ public class PeriodCloseMonitoringService {
             formatDateColumns(data, dateColumns);
         });
         return result;
+    }
+
+    public List<Map<String, Object>> getIssueReportingDataSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(issueReportingDashSummary);
+        List<Map<String, Object>> finalRes = transform(result);
+        return finalRes;
     }
 
     public void insertIssueReportingData(MultipartFile file, String username) throws IOException {
@@ -172,6 +182,49 @@ public class PeriodCloseMonitoringService {
         for(Map<String, Object> data: approveData) {
             approveRejectIssueReporting((String)data.get("status"), (String)data.get("approvedBy"), (String)data.get("incidentNumber"));
         }
+    }
+
+    public static List<Map<String, Object>> transform(List<Map<String, Object>> data) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        int grandTotal = 0;
+
+        Map<String, List<Map<String, Object>>> grouped = data.stream()
+                .collect(Collectors.groupingBy(row -> String.valueOf(row.get("TRACK"))));
+
+        for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
+            String track = entry.getKey();
+            List<Map<String, Object>> rows = entry.getValue();
+
+            for (Map<String, Object> row : rows) {
+                Map<String, Object> newRow = new LinkedHashMap<>();
+                newRow.put("Track", track);
+                newRow.put("Count", 1);
+                newRow.put("Issue Status", row.get("ISSUE_STATUS"));
+                newRow.put("IT Approval", row.get("IT_APPROVAL"));
+                newRow.put("Approved On", formatDate(String.valueOf(row.get("APPROVED_ON"))));
+                newRow.put("Issue Description", row.get("ISSUE_DESCRIPTION"));
+                result.add(newRow);
+            }
+
+            Map<String, Object> subtotalRow = new LinkedHashMap<>();
+            subtotalRow.put("Track", "Sub Total (" + track + ")");
+            subtotalRow.put("Count", rows.size());
+            result.add(subtotalRow);
+
+            grandTotal += rows.size();
+        }
+
+        Map<String, Object> totalRow = new LinkedHashMap<>();
+        totalRow.put("Track", "Total");
+        totalRow.put("Count", grandTotal);
+        result.add(totalRow);
+
+        return result;
+    }
+
+    private static String formatDate(String isoDate) {
+        return LocalDate.parse(isoDate.substring(0, 10))
+                .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
 
     public UserRoleInfo getUserRoles(String username) {

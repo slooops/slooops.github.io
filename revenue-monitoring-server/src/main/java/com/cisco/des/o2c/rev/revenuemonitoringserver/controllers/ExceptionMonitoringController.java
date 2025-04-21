@@ -230,8 +230,9 @@ public class ExceptionMonitoringController {
                 String ouName = orgNames.get(i);
                 String appName = applicationNames.get(i);
                 String transactionDate = transactionDates.get(i);
+                String processFlow = processFlows.get(i);
                 List<Map<String, Object>> result = service.getPreInvoiceErrorDetailsFiltered(appName, ouName,
-                        periodName, transactionDate);
+                        periodName, processFlow, transactionDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();
@@ -409,6 +410,96 @@ public class ExceptionMonitoringController {
         return new ResponseEntity<>(service.getDebitCardDetails(), HttpStatus.OK);
     }
 
+    @GetMapping("/rpo-extract-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getRpoExtractSummary() {
+        return new ResponseEntity<>(service.getRpoExtractSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rpo-extract-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getRpoExtractDetails() {
+        return new ResponseEntity<>(service.getRpoExtractDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rpo-extract-details-filtered")
+    public ResponseEntity<Map<String, Object>> getRpoExtractDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> transactionDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                String processFlow = processFlows.get(i);
+                List<Map<String, Object>> result = service.getRpoExtractDetailsFiltered(periodName, appName, processFlow, ouName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/rpo-extract-summary-update")
+    public ResponseEntity<String> updateRPOExtractSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateRPOExtractSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
+    @GetMapping("/srt-process-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getSrtProcessSummary() {
+        return new ResponseEntity<>(service.getSrtProcessSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/srt-process-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getSrtProcessDetails() {
+        return new ResponseEntity<>(service.getSrtProcessDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/srt-process-details-filtered")
+    public ResponseEntity<Map<String, Object>> getSRTProcessDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> eventTypes,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> srtDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(eventTypes.size(), Math.min(processFlows.size(), srtDates.size()))));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String eventType = eventTypes.get(i);
+                String srtDate = srtDates.get(i);
+                String processFlow = processFlows.get(i);
+                List<Map<String, Object>> result = service.getSRTProcessDetailsFiltered(periodName, processFlow, eventType, ouName, srtDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/srt-process-summary-update")
+    public ResponseEntity<String> updateSRTProcessSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateSRTProcessSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
     //opl
     @GetMapping("/opl-data")
     public ResponseEntity<List<Map<String, Object>>> getOplData() {
@@ -542,13 +633,11 @@ public class ExceptionMonitoringController {
     //General Ledger
     @GetMapping("/gl-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorSummary() {
-        System.out.println("here");
         return new ResponseEntity<>(service.getGlErrorSummary(), HttpStatus.OK);
     }
 
     @GetMapping("/gl-error-details")
     public ResponseEntity<List<Map<String, Object>>> getGlErrorDetails() {
-        System.out.println("here");
         return new ResponseEntity<>(service.getGlErrorDetails(), HttpStatus.OK);
     }
 
@@ -557,24 +646,20 @@ public class ExceptionMonitoringController {
                                                                     @RequestParam List<String> applicationNames,
                                                                     @RequestParam List<String> processFlows,
                                                                     @RequestParam List<String> ledgerNames,
-                                                                    @RequestParam List<String> accountSegs,
+                                                                    @RequestParam List<String> glBatchNames,
                                                                     @RequestParam List<String> transactionDates) {
-        System.out.println("here");
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
-            int minLength = Math.min(periodNames.size(), Math.min(applicationNames.size(), Math.min(processFlows.size(), Math.min(ledgerNames.size(), Math.min(accountSegs.size(), transactionDates.size())))));
-            System.out.println(minLength);
+            int minLength = Math.min(periodNames.size(), Math.min(applicationNames.size(), Math.min(processFlows.size(), Math.min(ledgerNames.size(), Math.min(glBatchNames.size(), transactionDates.size())))));
             for (int i = 0; i < minLength; i++) {
                 String processFlow = processFlows.get(i);
                 String ledgerName = ledgerNames.get(i);
                 String appName = applicationNames.get(i);
                 String periodName = periodNames.get(i);
-                String accountseg = accountSegs.get(i);
+                String glbatch = glBatchNames.get(i);
                 String uniqueId = transactionDates.get(i);
-                System.out.println(periodName);
-                System.out.println(processFlow);
                 List<Map<String, Object>> result = service.getGlDetailsFilter(periodName, appName, processFlow, ledgerName,
-                        accountseg, uniqueId);
+                        glbatch, uniqueId);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();

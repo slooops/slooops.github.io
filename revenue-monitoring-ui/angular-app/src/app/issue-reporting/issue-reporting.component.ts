@@ -39,7 +39,9 @@ export class IssueReportingComponent implements OnInit {
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
+    this.roles = this.authService.getRoles();
     this.getIssueReporting();
+    this.getIssueReportingSummary();
   }
 
   summaryData: any[];
@@ -47,6 +49,7 @@ export class IssueReportingComponent implements OnInit {
   summaryColumns: string[] = [];
   summaryDisplayedColumns: string[] = [];
   username: string = '';
+  roles: string[] = [];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   searchForm: FormGroup = new FormGroup({
     track: new FormControl(''),
@@ -71,7 +74,6 @@ export class IssueReportingComponent implements OnInit {
       .get('issue-reporting', this.destroyManager)
       .subscribe((data: any) => {
         this.summaryData = data;
-        console.log(data);
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
         }
@@ -86,6 +88,15 @@ export class IssueReportingComponent implements OnInit {
         this.filterData();
         this.summaryDatasource.paginator = this.paginator;
         this.summaryDatasource.filterPredicate = this.filterPredicate;
+      });
+  }
+
+  issueSummaryData: any[] = [];
+  getIssueReportingSummary() {
+    this.http
+      .get('issue-reporting-summary', this.destroyManager)
+      .subscribe((data: any) => {
+        this.issueSummaryData = data;
       });
   }
 
@@ -148,6 +159,32 @@ export class IssueReportingComponent implements OnInit {
     const dialogRef = this.dialog.open(IssueUploadComponent, {
       width: '400px',
     });
+  }
+
+  toggleSelectAll(event: any): void {
+    if (event.checked) {
+      this.selection.select(...this.summaryDatasource.data);
+    } else {
+      this.selection.clear();
+    }
+  }
+
+  isAllSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.summaryDatasource?.data?.length || 0;
+    return numSelected === numRows;
+  }
+
+  isSomeSelected(): boolean {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.summaryDatasource?.data?.length || 0;
+    return numSelected > 0 && numSelected < numRows;
+  }
+
+  areAllRowsApproved(): boolean {
+    return this.summaryDatasource?.data?.every(
+      (row: any) => row.APPROVAL === 'Approved'
+    );
   }
 
   selection = new SelectionModel<any>(true, []);
@@ -346,6 +383,13 @@ export class IssueReportingComponent implements OnInit {
           this.approveRejectSingleIncident('Rejected');
         }
       }
+    });
+  }
+
+  openSummaryDialog() {
+    const dialogRef = this.dialog.open(SummaryDialog, {
+      width: '1200px',
+      data: this.issueSummaryData,
     });
   }
 
@@ -586,5 +630,138 @@ export class StatusDialog {
 
   closeDialog(isConfirmed: boolean) {
     this.dialogRef.close(isConfirmed);
+  }
+}
+
+@Component({
+  template: `
+    <div
+      style="display: flex; justify-content: space-between; align-items: center;"
+    >
+      <h5 style="margin: 0; font-weight: bold">Summary</h5>
+      <button
+        mat-icon-button
+        (click)="closeDialog()"
+        aria-label="Close"
+        style="margin-left: auto; font-size: 24px; font-weight: bold;"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div>
+      <table mat-table [dataSource]="dataSource">
+        <!-- Track Column -->
+        <ng-container matColumnDef="Track">
+          <th mat-header-cell *matHeaderCellDef>Track</th>
+          <td mat-cell *matCellDef="let element">{{ element['Track'] }}</td>
+        </ng-container>
+
+        <!-- Count Column -->
+        <ng-container matColumnDef="Count">
+          <th mat-header-cell *matHeaderCellDef>Count</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element['Count'] || '' }}
+          </td>
+        </ng-container>
+
+        <!-- Issue Status Column -->
+        <ng-container matColumnDef="Issue Status">
+          <th mat-header-cell *matHeaderCellDef>Issue Status</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element['Issue Status'] || '' }}
+          </td>
+        </ng-container>
+
+        <!-- IT Approval Column -->
+        <ng-container matColumnDef="IT Approval">
+          <th mat-header-cell *matHeaderCellDef>IT Approval</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element['IT Approval'] || '' }}
+          </td>
+        </ng-container>
+
+        <!-- Approved On Column -->
+        <ng-container matColumnDef="Approved On">
+          <th mat-header-cell *matHeaderCellDef>Approved On</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element['Approved On'] || '' }}
+          </td>
+        </ng-container>
+
+        <!-- Issue Description Column -->
+        <ng-container matColumnDef="Issue Description">
+          <th mat-header-cell *matHeaderCellDef>Issue Description</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element['Issue Description'] || '' }}
+          </td>
+        </ng-container>
+
+        <!-- Header and Row Declarations -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          [ngClass]="{
+            'bold-row':
+              row['Track']?.toLowerCase()?.includes('sub total') ||
+              row['Track']?.toLowerCase()?.includes('total')
+          }"
+        ></tr>
+      </table>
+    </div>
+  `,
+  styles: [
+    `
+      table {
+        width: 100%;
+        border-collapse: separate; /* Allows spacing between cells */
+        border-spacing: 0 4px; /* Adds vertical spacing between rows (optional) */
+      }
+
+      th.mat-header-cell,
+      td.mat-cell {
+        padding: 12px 16px; /* Horizontal padding creates gap between columns */
+        font-size: 14px;
+      }
+
+      th.mat-header-cell {
+        white-space: nowrap;
+        font-weight: bold;
+        background-color: #08ace4;
+        color: white;
+      }
+
+      td.mat-cell {
+        vertical-align: top;
+      }
+
+      /* Bold rows for Sub Total and Total */
+      tr.bold-row td {
+        font-weight: bold;
+      }
+    `,
+  ],
+})
+export class SummaryDialog {
+  displayedColumns: string[] = [
+    'Track',
+    'Count',
+    'Issue Status',
+    'IT Approval',
+    'Approved On',
+    'Issue Description',
+  ];
+  dataSource: MatTableDataSource<any>;
+  constructor(
+    private dialogRef: MatDialogRef<StatusDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    console.log('Data:', data);
+    this.dataSource = new MatTableDataSource(this.data);
+  }
+
+  closeDialog() {
+    this.dialogRef.close();
   }
 }

@@ -185,6 +185,69 @@
               [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
           </mat-tab>
+          <mat-tab label="SRT Process">
+            <app-monitoring-dashboard
+              [urls]="srtProcessUrls"
+              [keysToMap]="[
+                'PERIOD_NAME',
+                'PROCESS_FLOW',
+                'EVENT_TYPE',
+                'ORG_NAME',
+                'SRT_DATE'
+              ]"
+              [processFlowKeys]="srtTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'SRT Process'"
+              [processFlowTabsToDisplay]="[]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]=""
+              [dynamicCss]=""
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="srtFilters"
+              [detailsColumnsToHide]="[]"
+              [submitKeysToMap]="['PERIOD_NAME', 'ORG_NAME', 'SRT_DATE']"
+              [webexKeysToMap]="[
+                'PERIOD_NAME',
+                'EVENT_TYPE',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'SRT_DATE'
+              ]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="RPO Extract">
+            <app-monitoring-dashboard
+              [urls]="rpoExtractUrls"
+              [keysToMap]="preAndAutoInvoiceKeysToMap"
+              [processFlowKeys]="rpoTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'RPO Extract'"
+              [processFlowTabsToDisplay]="[]"
+              [specialWords]="specialWords"
+              [skippedWords]="skippedWords"
+              [dynamicTemplate]=""
+              [dynamicCss]=""
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="rpoFilters"
+              [detailsColumnsToHide]="[]"
+              [submitKeysToMap]="[
+                'PERIOD_NAME',
+                'ORG_NAME',
+                'TRANSACTION_DATE'
+              ]"
+              [webexKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE',
+                'AMOUNT'
+              ]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
           <!-- <mat-tab label="Debit Card Payments">
             <app-monitoring-dashboard
               [urls]="debitCardUrls"

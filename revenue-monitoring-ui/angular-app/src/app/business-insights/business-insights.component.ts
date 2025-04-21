@@ -37,11 +37,6 @@ export class BusinessInsightsComponent implements OnInit {
       role: ['ADMIN', 'LARGE_DEAL'],
     },
     {
-      label: 'Issue Resolution',
-      component: 'app-issue-reporting',
-      role: ['ADMIN', 'ISSUE_RESOLUTION'],
-    },
-    {
       label: 'Midclose Status',
       component: 'app-wd0-status',
       role: ['ADMIN', 'WD0'],
@@ -50,6 +45,11 @@ export class BusinessInsightsComponent implements OnInit {
       label: 'Midclose Volumes',
       component: 'app-wd0-historical-data',
       role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
+    },
+    {
+      label: 'PBI/PDF Approval',
+      component: 'app-issue-reporting',
+      role: ['ADMIN', 'ISSUE_RESOLUTION'],
     },
   ];
 

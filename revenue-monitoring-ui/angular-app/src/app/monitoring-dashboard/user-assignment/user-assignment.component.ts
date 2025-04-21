@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -57,7 +57,6 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
     private authService: AuthenticationService
   ) {
     this.username = this.authService.getUserID();
-    console.log('User Name:', this.username);
     this.userRoles = this.authService.getRoles();
   }
   ngOnInit(): void {
@@ -96,6 +95,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
             ? false
             : !!this.data[0].ASSIGNED_TO,
         },
+        Validators.required,
       ],
       comments: [this.data[0].COMMENTS || ''],
     });
@@ -149,9 +149,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
         responseType: 'text',
       })
       .subscribe({
-        next: (data) => {
-          console.log('Message sent successfully:', data);
-        },
+        next: (data) => {},
         error: (err) => {
           console.error('Error while sending message:', err);
           this.closeDialog('webex-message-failed');
