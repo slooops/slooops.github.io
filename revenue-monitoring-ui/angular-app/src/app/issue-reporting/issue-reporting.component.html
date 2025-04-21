@@ -460,6 +460,19 @@
 <mat-menu #dropdownMenu="matMenu" class="custom-menu">
   <div
     mat-menu-item
+    (click)="openSummaryDialog()"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;View Summary
+  </div>
+  <div
+    mat-menu-item
     (click)="uploadFile()"
     class="viewHighlight"
     style="font-size: small"

@@ -936,6 +936,12 @@ public class QueryConfigs {
     @Value(("${srt.process.summary.update}"))
     public String srtProcessSummaryUpdate;
 
+    @Value(("${issue.reporting.dash.summary}"))
+    public String issueReportingDashSummary;
+
+    @Bean( name = "issueReportingDashSummary" )
+    public String getIssueReportingDashSummary() {return this.issueReportingDashSummary; }
+
     @Bean( name = "rpoExtractSummary" )
     public String getRpoExtractSummary() {return this.rpoExtractSummary; }
 
