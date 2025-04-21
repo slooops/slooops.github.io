@@ -183,7 +183,7 @@ export class IssueReportingComponent implements OnInit {
 
   areAllRowsApproved(): boolean {
     return this.summaryDatasource?.data?.every(
-      (row: any) => row.APPROVAL === 'Approved'
+      (row: any) => row.STATUS === 'Closed'
     );
   }
 
