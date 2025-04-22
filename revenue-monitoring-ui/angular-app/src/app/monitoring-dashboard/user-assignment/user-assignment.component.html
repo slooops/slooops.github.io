@@ -1,21 +1,27 @@
 <div class="modal-overlay" (click)="closeDialog('cancel')">
   <div class="modal-content container" (click)="$event.stopPropagation()">
     <div
-      style="display: flex; justify-content: space-between; align-items: center"
+      style="
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #08ace4;
+        margin: -20px -20px 0 -20px;
+        padding: 18px;
+      "
     >
       <h5
         class="section-title"
-        style="margin: 0; color: rgb(60, 60, 60); font-weight: lighter"
+        style="margin: 0; font-weight: lighter; color: white"
       >
         Assign User
       </h5>
       <i
-        class="fa fa-close"
+        class="svg-icon close-icon-white"
         (click)="closeDialog('cancel')"
-        style="cursor: pointer; color: white; font-size: 16px"
+        style="cursor: pointer; font-size: 16px; color: white"
       ></i>
     </div>
-    <hr />
 
     <div class="modal-body">
       <form [formGroup]="updateForm" class="form-stack">

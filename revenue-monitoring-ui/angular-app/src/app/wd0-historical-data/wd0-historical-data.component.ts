@@ -83,6 +83,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ngOnInit(): void {
     this.dataTimestamp = `Last Updated: ...`;
 
+    this.getWd0MidcloseActualsProduct();
+    this.getWd0MidcloseActualsService();
+
     // Ensure the current date and time are interpreted in Pacific Time
     const nowPacificTime = new Date(
       new Date().toLocaleString('en-US', {
@@ -283,11 +286,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     this.refreshExportData();
     this.getHistoricalData();
-    this.getWd0MidcloseActualsProduct();
-    this.getWd0MidcloseActualsService();
   }
 
   getWd0MidcloseActualsProduct() {
+    console.log('func called');
     this.http
       .get('wd0-midclose-actuals-product', this.destroyManager)
       .subscribe((data: any) => {
