@@ -396,7 +396,13 @@
                   </ng-container> -->
 
                   <ng-container *ngSwitchCase="'STATUS'">
-                    <span *ngIf="roles.includes('ISSUE_APPROVAL')">
+                    <span
+                      *ngIf="
+                        element[column] === 'Open' &&
+                        (roles.includes('ISSUE_APPROVAL') ||
+                          roles.includes('ADMIN'))
+                      "
+                    >
                       <mat-form-field
                         appearance="standard"
                         style="
@@ -417,7 +423,15 @@
                         </mat-select>
                       </mat-form-field>
                     </span>
-                    <span *ngIf="!roles.includes('ISSUE_APPROVAL')">
+                    <span
+                      *ngIf="
+                        element[column] === 'Closed' ||
+                        !(
+                          roles.includes('ISSUE_APPROVAL') ||
+                          roles.includes('ADMIN')
+                        )
+                      "
+                    >
                       {{ element[column] }}
                     </span>
                   </ng-container>
@@ -462,7 +476,7 @@
     mat-menu-item
     (click)="openSummaryDialog()"
     class="viewHighlight"
-    style="font-size: small"
+    style="font-size: small; font-weight: 500"
   >
     <i
       class="fa fa-angle-right"
@@ -475,7 +489,7 @@
     mat-menu-item
     (click)="uploadFile()"
     class="viewHighlight"
-    style="font-size: small"
+    style="font-size: small; font-weight: 500"
   >
     <i
       class="fa fa-angle-right"
@@ -487,7 +501,7 @@
   <div
     mat-menu-item
     class="viewHighlight"
-    style="font-size: small"
+    style="font-size: small; font-weight: 500"
     (click)="exportSummaryData()"
   >
     <i

@@ -388,7 +388,7 @@ export class IssueReportingComponent implements OnInit {
 
   openSummaryDialog() {
     const dialogRef = this.dialog.open(SummaryDialog, {
-      width: '1200px',
+      width: '600px',
       data: this.issueSummaryData,
     });
   }
@@ -690,12 +690,12 @@ export class StatusDialog {
         </ng-container>
 
         <!-- Issue Description Column -->
-        <ng-container matColumnDef="Issue Description">
+        <!-- <ng-container matColumnDef="Issue Description">
           <th mat-header-cell *matHeaderCellDef>Issue Description</th>
           <td mat-cell *matCellDef="let element">
             {{ element['Issue Description'] || '' }}
           </td>
-        </ng-container>
+        </ng-container> -->
 
         <!-- Header and Row Declarations -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -716,13 +716,13 @@ export class StatusDialog {
       table {
         width: 100%;
         border-collapse: separate; /* Allows spacing between cells */
-        border-spacing: 0 4px; /* Adds vertical spacing between rows (optional) */
+        border-spacing: 0 2px; /* Adds vertical spacing between rows (optional) */
       }
 
       th.mat-header-cell,
       td.mat-cell {
-        padding: 12px 16px; /* Horizontal padding creates gap between columns */
-        font-size: 14px;
+        padding: 8px 12px; /* Horizontal padding creates gap between columns */
+        font-size: 13px;
       }
 
       th.mat-header-cell {
@@ -750,7 +750,7 @@ export class SummaryDialog {
     'Issue Status',
     'IT Approval',
     'Approved On',
-    'Issue Description',
+    // 'Issue Description',
   ];
   dataSource: MatTableDataSource<any>;
   constructor(
