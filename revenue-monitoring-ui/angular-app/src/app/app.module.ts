@@ -99,6 +99,8 @@ import { ContinuousMonitoringComponent } from './continuous-monitoring/continuou
 import {
   DialogBox,
   IssueReportingComponent,
+  StatusDialog,
+  SummaryDialog,
 } from './issue-reporting/issue-reporting.component';
 import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
@@ -176,6 +178,8 @@ export function initApp(authService: AuthenticationService) {
     IssueUploadComponent,
     BulkApproveRejectComponent,
     TableModalComponent,
+    StatusDialog,
+    SummaryDialog,
   ],
   imports: [
     BrowserModule,

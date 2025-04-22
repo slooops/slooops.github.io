@@ -120,6 +120,11 @@ public class PeriodCloseMonitoringController {
         return new ResponseEntity<>(service.getIssueReportingData(), HttpStatus.OK);
     }
 
+    @GetMapping("/issue-reporting-summary")
+    public ResponseEntity<List<Map<String, Object>>> getIssueReportingSummary() {
+        return new ResponseEntity<>(service.getIssueReportingDataSummary(), HttpStatus.OK);
+    }
+
     @PostMapping(value = "/issue-reporting-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> insertIssueReport(@RequestParam("file") MultipartFile file,
                                                    @RequestParam("username") String username) {

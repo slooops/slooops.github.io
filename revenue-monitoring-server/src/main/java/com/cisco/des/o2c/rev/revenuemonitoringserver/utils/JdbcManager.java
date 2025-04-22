@@ -41,6 +41,11 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, uniqueId);
     }
 
+    public List<Map<String, Object>> queryForListWithParamsPreInvoice(String sql, String appName, String operatingUnit,
+                                                                       String periodName, String processFlow, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, appName, operatingUnit, periodName, processFlow, uniqueId);
+    }
+
     public List<Map<String, Object>> queryForListWithParamsAccruals(String sql, String periodName, String ouName,
             String processFlow, int sequenceNum) {
         return primaryJdbcTemplate.queryForList(sql, periodName, ouName, processFlow, sequenceNum);
@@ -99,10 +104,10 @@ public class JdbcManager {
     }
 
     public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
-            String processFlow, String ledgerName, String applicationName, String journalSource, String accountSeg,
+            String processFlow, String ledgerName, String applicationName, String journalSource, String glbatch,
             String transactionDate) {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, processFlow, ledgerName, applicationName,
-                journalSource, accountSeg, transactionDate);
+                journalSource, glbatch, transactionDate);
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName,
@@ -147,6 +152,26 @@ public class JdbcManager {
     public List<Map<String, Object>> getPrintDetailsFiltered(String sql, String periodName,
                                                                String appName, String processFlow, String ouName, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
+    }
+
+    public List<Map<String, Object>> getRPOExtractDetailsFiltered(String sql, String periodName,
+                                                             String appName, String processFlow, String ouName, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
+    }
+
+    public int updateRPOExtractSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,
+                                     String orgName, String transactionDate) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, orgName, transactionDate);
+    }
+
+    public List<Map<String, Object>> getSRTProcessDetailsFiltered(String sql, String periodName,
+                                                                   String processFlow, String eventType, String ouName, String srtDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName,  processFlow, eventType, ouName, srtDate);
+    }
+
+    public int updateSRTProcessSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,
+                                       String entityName, String srtDate) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, entityName, srtDate);
     }
 
     public int updateCMAmortSummary(String sql, String assignedTo, String assignedBy, String comments, String periodName,

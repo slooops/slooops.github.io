@@ -432,13 +432,6 @@ export class MonitoringDashboardComponent<T>
           (data) => !this.detailsColumnsToHide.includes(data)
         );
         this.errorDetails.forEach((row) => {
-          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-          if (row.RULE_START_DATE || row.RULE_END_DATE) {
-            row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
-            row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
-          } else if (row.PAYMENT_DATE) {
-            row.PAYMENT_DATE = this.dateTransform(row.PAYMENT_DATE);
-          }
           this.detailsDisplayedColumns.forEach((column) => {
             if (row[column] === '-') {
               row[column] = '--';
@@ -481,7 +474,6 @@ export class MonitoringDashboardComponent<T>
       acc[keyName] = data.map((row) => row[key]).join(',');
       return acc;
     }, {});
-
     this.http
       .get(this.urls['filteredDetailsUrl'], this.destroyManager, {
         params: pageRequest,
@@ -492,13 +484,7 @@ export class MonitoringDashboardComponent<T>
           this.errorDetailsFiltered = this.formatData(
             this.errorDetailsFiltered
           );
-          this.errorDetailsFiltered.forEach((row) => {
-            row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-            if (row.RULE_START_DATE || row.RULE_END_DATE) {
-              row.RULE_START_DATE = this.dateTransform(row.RULE_START_DATE);
-              row.RULE_END_DATE = this.dateTransform(row.RULE_END_DATE);
-            }
-          });
+          this.errorDetailsFiltered.forEach((row) => {});
           this.originalFilteredData = this.errorDetailsFiltered;
           this.filtereddataSource = new MatTableDataSource<T>(
             this.errorDetailsFiltered

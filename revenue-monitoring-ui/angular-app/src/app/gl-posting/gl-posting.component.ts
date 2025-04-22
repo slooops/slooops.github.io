@@ -174,7 +174,7 @@ export class GlPostingComponent implements OnInit {
     'APPLICATION_NAME',
     'PROCESS_FLOW',
     'LEDGER_NAME',
-    'ACCOUNT_SEG',
+    'GL_BATCH_NAME',
     'TRANSACTION_DATE',
   ];
 
