@@ -55,6 +55,7 @@ export class IssueReportingComponent implements OnInit {
     track: new FormControl(''),
     quarter: new FormControl(''),
     status: new FormControl(''),
+    incidentNum: new FormControl(''),
   });
 
   trackOptions: string[] = [];
@@ -67,6 +68,7 @@ export class IssueReportingComponent implements OnInit {
   trackFilter: string[] = [];
   quarterFilter: string[] = [];
   statusFilter: string[] = [];
+  incidentNumFilter: string = '';
 
   statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
@@ -122,7 +124,9 @@ export class IssueReportingComponent implements OnInit {
     const statusMatch =
       filters.statusFilter.length === 0 ||
       filters.statusFilter.includes(data.STATUS);
-    return trackMatch && statusMatch && quarterMatch;
+    const incidentNumMatch =
+      data.INCIDENT_NUMBER.toString().indexOf(filters.incidentNumFilter) !== -1;
+    return trackMatch && statusMatch && quarterMatch && incidentNumMatch;
   };
 
   filter() {
@@ -130,12 +134,19 @@ export class IssueReportingComponent implements OnInit {
       this.trackFilter = data['track'];
       this.statusFilter = data['status'];
       this.quarterFilter = data['quarter'];
+      this.incidentNumFilter = this.searchForm.get('incidentNum').value;
       this.summaryDatasource.filter = JSON.stringify({
         trackFilter: this.trackFilter,
         statusFilter: this.statusFilter,
         quarterFilter: this.quarterFilter,
+        incidentNumFilter: this.incidentNumFilter,
       });
     });
+  }
+
+  clearFilters() {
+    this.summaryDatasource.filter = '';
+    this.searchForm.reset();
   }
 
   dateTransform(dateString: string): string {
@@ -410,6 +421,8 @@ export class IssueReportingComponent implements OnInit {
         this.selectedRows = [];
         this.summaryDatasource = null;
         this.getIssueReporting();
+        this.issueSummaryData = [];
+        this.getIssueReportingSummary();
         this.cdr.detectChanges();
       });
   }
@@ -436,6 +449,8 @@ export class IssueReportingComponent implements OnInit {
         this.selectedRows = [];
         this.summaryDatasource = null;
         this.getIssueReporting();
+        this.issueSummaryData = [];
+        this.getIssueReportingSummary();
         this.cdr.detectChanges();
       }
     });
@@ -476,6 +491,8 @@ export class IssueReportingComponent implements OnInit {
       .subscribe((data: any) => {
         this.summaryDatasource = null;
         this.getIssueReporting();
+        this.issueSummaryData = [];
+        this.getIssueReportingSummary();
         this.cdr.detectChanges();
       });
   }

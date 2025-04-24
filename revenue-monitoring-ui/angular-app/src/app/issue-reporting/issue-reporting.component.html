@@ -61,6 +61,25 @@
             </mat-select>
           </mat-form-field>
           &nbsp;
+          <mat-form-field
+            class="filter"
+            floatLabel="never"
+            [style.width.px]="125"
+          >
+            <mat-label>Search Incident Num</mat-label>
+            <input matInput (keyup)="filter()" formControlName="incidentNum" />
+            <i
+              matSuffix
+              class="fa fa-search hoverIcon"
+              style="color: gray"
+              (click)="filter()"
+            ></i>
+          </mat-form-field>
+          &nbsp;
+          <button class="custom-button-reset" (click)="clearFilters()">
+            Reset
+          </button>
+          &nbsp;
           <button
             class="custom-button-primary"
             style="background-color: #04aa6d"
@@ -95,7 +114,7 @@
           >
             Approve/ Reject
           </button>
-          &nbsp;
+          <!-- &nbsp; -->
           <a (click)="resetSelection()" *ngIf="selection.selected.length > 0">
             Clear Selection
           </a>
