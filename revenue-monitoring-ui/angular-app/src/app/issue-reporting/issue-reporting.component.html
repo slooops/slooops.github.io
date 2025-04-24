@@ -455,6 +455,14 @@
                     </span>
                   </ng-container>
 
+                  <ng-container *ngSwitchCase="'INCIDENT_NUMBER'">
+                    <ng-container *ngIf="element[column]">
+                      <a (click)="openIncidentDetails(element[column])">
+                        {{ element[column] }}
+                      </a>
+                    </ng-container>
+                  </ng-container>
+
                   <ng-container *ngSwitchDefault>
                     {{ element[column] }}
                   </ng-container>
