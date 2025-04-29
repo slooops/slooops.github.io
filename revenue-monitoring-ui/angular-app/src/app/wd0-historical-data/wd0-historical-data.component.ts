@@ -16,6 +16,9 @@ import { el, hi, is } from 'date-fns/locale';
 import { set } from 'date-fns';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
+import { TableModalComponent } from '../components/table-modal/table-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+
 Chart.register(...registerables);
 
 @Component({
@@ -34,6 +37,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
   barChartLoading: boolean = true;
   dataTimestamp: string;
   numberOfQuartersOfHistoricalData: number = 8;
+  showProductModal = false;
+  showServiceModal = false;
+  productActuals: any[] = [];
+  serviceActuals: any[] = [];
 
   upperCI: number;
   lowerCI: number;
@@ -42,6 +49,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
     http: ApiHttpService,
     private regressionService: RegressionService,
     private destroyManager: DestroyManager,
+    private dialog: MatDialog,
     private menuService: MenuService
   ) {
     Chart.register(...registerables, ChartDataLabels);
@@ -75,6 +83,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ngOnInit(): void {
     this.dataTimestamp = `Last Updated: ...`;
 
+    this.getWd0MidcloseActualsProduct();
+    this.getWd0MidcloseActualsService();
+
     // Ensure the current date and time are interpreted in Pacific Time
     const nowPacificTime = new Date(
       new Date().toLocaleString('en-US', {
@@ -99,7 +110,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
       wd2.setDate(monthEnd.getDate() - 2);
       wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
 
-      wd1.setDate(monthEnd.getDate() - 2);
+      wd1.setDate(monthEnd.getDate() - 1);
       wd1.setHours(15); // 4 PM rollover for WD-1
 
       // Determine the effective WD based on the current time
@@ -275,6 +286,33 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
     this.refreshExportData();
     this.getHistoricalData();
+  }
+
+  getWd0MidcloseActualsProduct() {
+    console.log('func called');
+    this.http
+      .get('wd0-midclose-actuals-product', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('wd0MidcloseActualsProduct:', data);
+        this.productActuals = data;
+      });
+  }
+
+  openWd0ProductModal(): void {
+    this.showProductModal = true;
+  }
+
+  getWd0MidcloseActualsService() {
+    this.http
+      .get('wd0-midclose-actuals-service', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('wd0MidcloseActualsService:', data);
+        this.serviceActuals = data;
+      });
+  }
+
+  openWd0ServiceModal(): void {
+    this.showServiceModal = true;
   }
 
   //this method is necessary for predicting the next month in the absence of
@@ -1220,10 +1258,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
           this.newMonthData,
           regressionData.X.length - 1
         );
-      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-      fastestTimes.push(null);
-      slowestTimes.push(null);
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      // fastestTimes.push(null);
+      // slowestTimes.push(null);
 
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)

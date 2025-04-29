@@ -104,6 +104,7 @@ import {
 } from './issue-reporting/issue-reporting.component';
 import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
+import { TableModalComponent } from './components/table-modal/table-modal.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -176,6 +177,7 @@ export function initApp(authService: AuthenticationService) {
     DialogBox,
     IssueUploadComponent,
     BulkApproveRejectComponent,
+    TableModalComponent,
     StatusDialog,
     SummaryDialog,
   ],

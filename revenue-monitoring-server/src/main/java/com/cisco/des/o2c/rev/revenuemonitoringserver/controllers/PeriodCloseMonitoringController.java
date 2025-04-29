@@ -351,4 +351,15 @@ public class PeriodCloseMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getEspWeeklyComparisonSummary() {
         return new ResponseEntity<>(service.getEspWeeklyComparisonSummary(), HttpStatus.OK);
     }
+
+    @GetMapping("/wd0-midclose-actuals-product")
+    public ResponseEntity<List<Map<String, Object>>> getWd0MidcloseActualsProduct() {
+        return new ResponseEntity<>(service.getWd0MidcloseActualsProduct(), HttpStatus.OK);
+    }
+
+    @GetMapping("/wd0-midclose-actuals-service")
+    public ResponseEntity<List<Map<String, Object>>> getWd0MidcloseActualsService() {
+        return new ResponseEntity<>(service.getWd0MidcloseActualsService(), HttpStatus.OK);
+    }
+
 }
