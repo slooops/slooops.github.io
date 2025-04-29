@@ -245,6 +245,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         this.prepareDataForRegression(data);
 
         this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+        console.log(this.latestPeriodName);
 
         this.loading = false;
         this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
@@ -318,7 +319,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
   //this method is necessary for predicting the next month in the absence of
   //actual data for the current month from Surya
   getLatestPeriodName(data: any[]): string {
-    // Create a map of month names
     const monthMap = {
       JAN: 'FEB',
       FEB: 'MAR',
@@ -331,29 +331,48 @@ export class Wd0HistoricalDataComponent implements OnInit {
       SEP: 'OCT',
       OCT: 'NOV',
       NOV: 'DEC',
-      DEC: 'JAN', // Wrap back around to JAN
+      DEC: 'JAN', // Wrap back to JAN
     };
 
-    // Filter the data to ensure PERIOD_NAME exists
     const filteredData = data.filter((entry) => entry.PERIOD_NAME);
 
-    // Get the last entry in the filtered array
+    if (filteredData.length === 0) {
+      return 'Unknown Period';
+    }
+
     const latestEntry = filteredData[filteredData.length - 1];
+    const currentPeriodName = latestEntry.PERIOD_NAME;
+    const [currentPeriodMonth] = currentPeriodName.split('-');
 
-    // If it's wd-2, show the next month period name
-    if (this.isWd2 && latestEntry) {
-      const currentPeriodName = latestEntry.PERIOD_NAME;
-      const currentMonth = currentPeriodName.split('-')[0].toUpperCase(); // Extract the month
-      const nextMonth = monthMap[currentMonth]; // Map to the next month
+    // Get current local machine month in 3-letter uppercase format (e.g., 'NOV')
+    const monthNames = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
+    const currentMachineMonth = monthNames[new Date().getMonth()];
 
-      // Return the new period with the same year but next month
+    // If it's WD-2 and latest period is NOT the current month, advance it
+    if (
+      (this.isWd2 || this.isWd3) &&
+      currentPeriodMonth !== currentMachineMonth
+    ) {
+      const nextMonth = monthMap[currentPeriodMonth];
       return nextMonth
         ? `${nextMonth}-${currentPeriodName.split('-')[1]}`
         : 'Unknown Period';
     }
 
-    // Otherwise, return the last entry's period name or 'Unknown Period'
-    return latestEntry ? latestEntry.PERIOD_NAME : 'Unknown Period';
+    return currentPeriodName;
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
