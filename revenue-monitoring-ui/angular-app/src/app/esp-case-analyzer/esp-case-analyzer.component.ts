@@ -4,8 +4,6 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
-// import { resolve } from 'path';
-import { el } from 'date-fns/locale';
 Chart.register(...registerables);
 
 @Component({
@@ -27,8 +25,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   selectedTabIndex = 0;
 
-  isChartLoading = true;
-  isPriorChartLoading = true;
+  isQ1Q2Loading = true;
+  isQ2Q3Loading = true;
+  isQ3Q4Loading = true;
 
   quarterComparisons: [string, string][] = [];
 
@@ -39,12 +38,14 @@ export class EspCaseAnalyzerComponent implements OnInit {
   dataSourceCaseSummaryQuarter: MatTableDataSource<any>[] = [];
 
   espWeeklyComparisonSummary: any[] = [];
-  backlogInflowChart: Chart | null = null;
-  cancelledPdfChart: Chart | null = null;
-  routedMisroutedChart: Chart | null = null;
 
-  backlogInflowChartPrior: Chart | null = null;
-  cancelledPdfChartPrior: Chart | null = null;
+  birChartQ1Q2: Chart | null = null;
+  birChartQ2Q3: Chart | null = null;
+  birChartQ3Q4: Chart | null = null;
+
+  prmcChartQ1Q2: Chart | null = null;
+  prmcChartQ2Q3: Chart | null = null;
+  prmcChartQ3Q4: Chart | null = null;
 
   q1: string | null = null;
   q2: string | null = null;
@@ -53,10 +54,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
   q5: string | null = null;
 
   ngOnInit(): void {
-    this.getEspAgingCaseSummary();
-    this.getEspCaseServiceMetricSummary();
-    // this.getEspWeeklyComparisonSummary();
-
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
         responseType: 'json',
@@ -83,8 +80,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
         this.selectedTabIndex = Math.max(0, recentQuarters.length - 2); // last valid pair is at length - 2
 
-        // this.espWeeklyComparisonSummary = data;
-        this.getEspWeeklyComparisonSummary(data);
+        this.espWeeklyComparisonSummary = data;
 
         this.getEspAgingCaseSummary();
         this.getEspCaseServiceMetricSummary();
@@ -186,12 +182,46 @@ export class EspCaseAnalyzerComponent implements OnInit {
       });
   }
 
-  getEspWeeklyComparisonSummary(data: any) {
-    this.espWeeklyComparisonSummary = data;
+  generateChartForPair(qStart: string, qEnd: string, name: string): void {
+    const prmcCategories = ['PDF', 'ROUTED OUT', 'MISROUTED', 'CANCELLED'];
+    const birCategories = ['BACKLOG', 'INFLOW', 'RESOLVED'];
+    const labels = this.getSortedLabels();
 
-    this.destroyCharts();
-    this.initializeCurrentQuarterCharts();
-    this.initializePreviousQuarterCharts();
+    const prmcDatasets = this.generateDatasetsForQuarterComparison(
+      qStart,
+      qEnd,
+      prmcCategories,
+      this.COLORS
+    );
+    const birDatasets = this.generateDatasetsForQuarterComparison(
+      qStart,
+      qEnd,
+      birCategories,
+      this.COLORS
+    );
+
+    const prmcCanvas = document.getElementById(
+      `prmcChart${name}`
+    ) as HTMLCanvasElement;
+    const birCanvas = document.getElementById(
+      `birChart${name}`
+    ) as HTMLCanvasElement;
+
+    if (prmcCanvas && prmcCanvas.getContext('2d')) {
+      this[`prmcChart${name}`] = new Chart(prmcCanvas, {
+        type: 'bar',
+        data: { labels, datasets: prmcDatasets },
+        options: this.sharedChartOptions,
+      });
+    }
+
+    if (birCanvas && birCanvas.getContext('2d')) {
+      this[`birChart${name}`] = new Chart(birCanvas, {
+        type: 'bar',
+        data: { labels, datasets: birDatasets },
+        options: this.sharedChartOptions,
+      });
+    }
   }
 
   sharedChartOptions: ChartOptions = {
@@ -220,249 +250,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
     },
   };
 
-  initializeCurrentQuarterCharts(): void {
-    this.isChartLoading = false;
-    const labels = this.getSortedLabels();
-
-    const ctx1 = document.getElementById(
-      'backlogInflowChart'
-    ) as HTMLCanvasElement;
-    if (ctx1 && ctx1.getContext('2d')) {
-      this.backlogInflowChart = new Chart('backlogInflowChart', {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Backlog (Previous Quarter)',
-              data: this.transformData('1', 'BACKLOG'),
-              ...this.COLORS.backlogPrevious,
-            },
-            {
-              label: 'Backlog (Current Quarter)',
-              data: this.transformData('0', 'BACKLOG'),
-              ...this.COLORS.backlogCurrent,
-            },
-            {
-              label: 'Inflow (Previous Quarter)',
-              data: this.transformData('1', 'INFLOW'),
-              ...this.COLORS.inflowPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Inflow (Current Quarter)',
-              data: this.transformData('0', 'INFLOW'),
-              ...this.COLORS.inflowCurrent,
-              type: 'line',
-            },
-            {
-              label: 'Resolved (Previous Quarter)',
-              data: this.transformData('1', 'RESOLVED'),
-              ...this.COLORS.resolvedPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Resolved (Current Quarter)',
-              data: this.transformData('0', 'RESOLVED'),
-              ...this.COLORS.resolvedCurrent,
-              type: 'line',
-            },
-
-            // {
-            //   label: 'Total (Current Quarter)',
-            //   data: transformData('CURRENT QUARTER', 'TOTAL'),
-            //   ...COLORS.totalCurrent,
-            //   type: 'line',
-            // },
-            // {
-            //   label: 'Total (Previous Quarter)',
-            //   data: transformData('PREVIOUS QUARTER', 'TOTAL'),
-            //   ...COLORS.totalPrevious,
-            //   type: 'line',
-            // },
-          ],
-        },
-        options: this.sharedChartOptions,
-      });
-    }
-
-    const ctx2 = document.getElementById(
-      'cancelledPdfChart'
-    ) as HTMLCanvasElement;
-    if (ctx2 && ctx2.getContext('2d')) {
-      this.cancelledPdfChart = new Chart('cancelledPdfChart', {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'PDF (Last Quarter)',
-              data: this.transformData('1', 'PDF'),
-              ...this.COLORS.pdfPrevious,
-            },
-            {
-              label: 'PDF (This Quarter)',
-              data: this.transformData('0', 'PDF'),
-              ...this.COLORS.pdfCurrent,
-            },
-            {
-              label: 'Routed Out (Last Quarter)',
-              data: this.transformData('1', 'ROUTED OUT'),
-              ...this.COLORS.routedOutPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Routed Out (This Quarter)',
-              data: this.transformData('0', 'ROUTED OUT'),
-              ...this.COLORS.routedOutCurrent,
-              type: 'line',
-            },
-            {
-              label: 'Misrouted (Last Quarter)',
-              data: this.transformData('1', 'MISROUTED'),
-              ...this.COLORS.misroutedPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Misrouted (This Quarter)',
-              data: this.transformData('0', 'MISROUTED'),
-              ...this.COLORS.misroutedCurrent,
-              type: 'line',
-            },
-            {
-              label: 'Cancelled (Last Quarter)',
-              data: this.transformData('1', 'CANCELLED'),
-              ...this.COLORS.cancelledPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Cancelled (This Quarter)',
-              data: this.transformData('0', 'CANCELLED'),
-              ...this.COLORS.cancelledCurrent,
-              type: 'line',
-            },
-          ],
-        },
-        options: this.sharedChartOptions,
-      });
-    }
-  }
-
-  initializePreviousQuarterCharts(): void {
-    this.isPriorChartLoading = false;
-    const labels = this.getSortedLabels();
-
-    const ctx3 = document.getElementById(
-      'backlogInflowChartPrior'
-    ) as HTMLCanvasElement;
-    if (ctx3 && ctx3.getContext('2d')) {
-      this.backlogInflowChartPrior = new Chart('backlogInflowChartPrior', {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Backlog (Prior Quarter)',
-              data: this.transformData('2', 'BACKLOG'),
-              ...this.COLORS.backlogPrevious,
-            },
-            {
-              label: 'Backlog (Last Quarter)',
-              data: this.transformData('1', 'BACKLOG'),
-              ...this.COLORS.backlogCurrent,
-            },
-            {
-              label: 'Inflow (Prior Quarter)',
-              data: this.transformData('2', 'INFLOW'),
-              ...this.COLORS.inflowPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Inflow (Last Quarter)',
-              data: this.transformData('1', 'INFLOW'),
-              ...this.COLORS.inflowCurrent,
-              type: 'line',
-            },
-            {
-              label: 'Resolved (Prior Quarter)',
-              data: this.transformData('2', 'RESOLVED'),
-              ...this.COLORS.resolvedPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Resolved (Last Quarter)',
-              data: this.transformData('1', 'RESOLVED'),
-              ...this.COLORS.resolvedCurrent,
-              type: 'line',
-            },
-          ],
-        },
-        options: this.sharedChartOptions,
-      });
-    }
-
-    const ctx4 = document.getElementById(
-      'cancelledPdfChartPrior'
-    ) as HTMLCanvasElement;
-    if (ctx4 && ctx4.getContext('2d')) {
-      this.cancelledPdfChartPrior = new Chart('cancelledPdfChartPrior', {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'PDF (Prior Quarter)',
-              data: this.transformData('2', 'PDF'),
-              ...this.COLORS.pdfPrevious,
-            },
-            {
-              label: 'PDF (Last Quarter)',
-              data: this.transformData('1', 'PDF'),
-              ...this.COLORS.pdfCurrent,
-            },
-            {
-              label: 'Routed Out (Prior Quarter)',
-              data: this.transformData('2', 'ROUTED OUT'),
-              ...this.COLORS.routedOutPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Routed Out (Last Quarter)',
-              data: this.transformData('1', 'ROUTED OUT'),
-              ...this.COLORS.routedOutCurrent,
-              type: 'line',
-            },
-            {
-              label: 'Misrouted (Prior Quarter)',
-              data: this.transformData('2', 'MISROUTED'),
-              ...this.COLORS.misroutedPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Misrouted (Last Quarter)',
-              data: this.transformData('1', 'MISROUTED'),
-              ...this.COLORS.misroutedCurrent,
-              type: 'line',
-            },
-            {
-              label: 'Cancelled (Prior Quarter)',
-              data: this.transformData('2', 'CANCELLED'),
-              ...this.COLORS.cancelledPrevious,
-              type: 'line',
-            },
-            {
-              label: 'Cancelled (Last Quarter)',
-              data: this.transformData('1', 'CANCELLED'),
-              ...this.COLORS.cancelledCurrent,
-              type: 'line',
-            },
-          ],
-        },
-        options: this.sharedChartOptions,
-      });
-    }
-  }
-
   transformData(fiscalQuarter: string, category: string): number[] {
     const labels = this.getSortedLabels();
     return labels.map((label) => {
@@ -470,8 +257,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
       const entry = this.espWeeklyComparisonSummary.find(
         (item) =>
           item.WEEK_NUM === weekNum &&
-          item.QTR_RELATIVE_POSITION.toString() === fiscalQuarter &&
-          // item.FISC_QTR === fiscalQuarter &&
+          // item.QTR_RELATIVE_POSITION.toString() === fiscalQuarter &&
+          item.FISC_QTR.slice(1, -4) === fiscalQuarter &&
           item.CATEGORY === category
       );
 
@@ -492,42 +279,53 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
 
   onTabClick(event: any): void {
-    this.isChartLoading = true;
-    this.isPriorChartLoading = true;
+    const tabIndex = event.index;
+
     this.destroyCharts();
-    this.initializeCurrentQuarterCharts();
-    this.initializePreviousQuarterCharts();
+
+    if (tabIndex === 0 && this.q1 && this.q2) {
+      this.isQ1Q2Loading = false;
+      setTimeout(() => this.generateChartForPair(this.q1, this.q2, 'Q1Q2'), 0);
+    }
+
+    if (tabIndex === 1 && this.q2 && this.q3) {
+      this.isQ2Q3Loading = false;
+      setTimeout(() => this.generateChartForPair(this.q2, this.q3, 'Q2Q3'), 0);
+    }
+
+    if (tabIndex === 2 && this.q3 && this.q4) {
+      this.isQ3Q4Loading = false;
+      setTimeout(() => this.generateChartForPair(this.q3, this.q4, 'Q3Q4'), 0);
+    }
   }
 
   destroyCharts(): void {
     // Destroy charts if they exist
-    if (this.backlogInflowChart) {
-      this.backlogInflowChart.destroy();
-      this.backlogInflowChart = null;
-    }
-    if (this.cancelledPdfChart) {
-      this.cancelledPdfChart.destroy();
-      this.cancelledPdfChart = null;
+    if (this.birChartQ1Q2) {
+      this.birChartQ1Q2.destroy();
+      this.birChartQ1Q2 = null;
     }
 
-    if (this.backlogInflowChartPrior) {
-      this.backlogInflowChartPrior.destroy();
-      this.backlogInflowChartPrior = null;
+    if (this.birChartQ2Q3) {
+      this.birChartQ2Q3.destroy();
+      this.birChartQ2Q3 = null;
     }
-    if (this.cancelledPdfChartPrior) {
-      this.cancelledPdfChartPrior.destroy();
-      this.cancelledPdfChartPrior = null;
+    if (this.birChartQ3Q4) {
+      this.birChartQ3Q4.destroy();
+      this.birChartQ3Q4 = null;
     }
-
-    console.log('Destroying charts');
-    [this.backlogInflowChart, this.cancelledPdfChart].forEach((chart) => {
-      if (chart) {
-        chart.destroy();
-      }
-    });
-
-    this.backlogInflowChart = null;
-    this.cancelledPdfChart = null;
+    if (this.prmcChartQ1Q2) {
+      this.prmcChartQ1Q2.destroy();
+      this.prmcChartQ1Q2 = null;
+    }
+    if (this.prmcChartQ2Q3) {
+      this.prmcChartQ2Q3.destroy();
+      this.prmcChartQ2Q3 = null;
+    }
+    if (this.prmcChartQ3Q4) {
+      this.prmcChartQ3Q4.destroy();
+      this.prmcChartQ3Q4 = null;
+    }
   }
 
   COLORS = {
@@ -603,13 +401,13 @@ export class EspCaseAnalyzerComponent implements OnInit {
       pointBackgroundColor: 'rgba(153, 102, 255, 0.5)',
       pointBorderColor: 'rgba(153, 102, 255, 0.5)',
     },
-    cancelledCurrent: {
+    canceledCurrent: {
       backgroundColor: 'rgba(201, 203, 207, 0.6)',
       borderColor: 'rgba(201, 203, 207, 1)',
       pointBackgroundColor: 'rgba(201, 203, 207, 1)',
       pointBorderColor: 'rgba(201, 203, 207, 1)',
     },
-    cancelledPrevious: {
+    canceledPrevious: {
       backgroundColor: 'rgba(201, 203, 207, 0.3)',
       borderColor: 'rgba(201, 203, 207, 0.5)',
       pointBackgroundColor: 'rgba(201, 203, 207, 0.5)',
@@ -636,10 +434,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
     });
   }
 
-  private filterByQuarter(data: any[], quarter: number): any[] {
-    return data.filter((item) => item.QTR_RELATIVE_POSITION === quarter);
-  }
-
   private filterNonZeroRows(data: any[], columnsToCheck: string[]): any[] {
     return data.filter((item) =>
       columnsToCheck.some((column) => item[column] !== 0)
@@ -657,6 +451,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
     });
   }
 
+  // If this method breaks at the year-end 5 quarter state,
+  // remember you can rewrite the sql query:
+  // ... order by QTR_RELATIVE_POSITION ASC;
+  // This puts FISC_QTR order as sequential newest first
+  // so you can probs just throw this method out and use that approach.
+  // Cross that bridge when you have to.
   private extractRecentQuarters(
     data: any[]
   ): { quarterIndex: number; fiscalQuarter: string }[] {
@@ -710,5 +510,66 @@ export class EspCaseAnalyzerComponent implements OnInit {
       })),
       ...(q5 ? [{ quarterIndex: 5, fiscalQuarter: q5.fiscalQuarter }] : []),
     ];
+  }
+
+  generateDatasetsForQuarterComparison(
+    firstQuarter: string | null,
+    secondQuarter: string | null,
+    categories: string[],
+    colors: any
+  ) {
+    if (!firstQuarter || !secondQuarter) {
+      console.warn('One of the quarters is null, skipping dataset generation.');
+      return [];
+    }
+
+    const categoryColorKeyMap: { [key: string]: string } = {
+      pdf: 'pdf',
+      'routed out': 'routedOut',
+      misrouted: 'misrouted',
+      cancelled: 'canceled',
+      backlog: 'backlog',
+      inflow: 'inflow',
+      resolved: 'resolved',
+    };
+
+    const toTitleCase = (str: string) =>
+      str
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+
+    const datasets = categories.flatMap((category) => {
+      const mappedKey =
+        categoryColorKeyMap[category.toLowerCase()] ||
+        category.toLowerCase().replace(/[\s_]+/g, '');
+
+      const chartType = ['PDF', 'BACKLOG'].includes(category.toUpperCase())
+        ? undefined
+        : 'line';
+
+      const previousColor = colors[`${mappedKey}Previous`];
+      const currentColor = colors[`${mappedKey}Current`];
+
+      const displayName =
+        category.toUpperCase() === 'PDF' ? 'PDF' : toTitleCase(category);
+      return [
+        {
+          label: `${displayName} ${firstQuarter.slice(0, 2)}`,
+          data: this.transformData(firstQuarter.slice(1, 2), category),
+          ...(previousColor || {}),
+          ...(chartType && { type: chartType }),
+        },
+        {
+          label: `${displayName} ${secondQuarter.slice(0, 2)}`,
+          data: this.transformData(secondQuarter.slice(1, 2), category),
+          ...(currentColor || {}),
+          ...(chartType && { type: chartType }),
+        },
+      ];
+    });
+
+    return datasets;
   }
 }
