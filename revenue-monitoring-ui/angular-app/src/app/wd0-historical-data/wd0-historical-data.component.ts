@@ -20,6 +20,9 @@ import { tap } from 'rxjs/operators';
 import { monthEndDates } from './monthEndDates';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
+import { TableModalComponent } from '../components/table-modal/table-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+
 Chart.register(...registerables);
 
 @Component({
@@ -38,6 +41,10 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
   barChartLoading: boolean = true;
   dataTimestamp: string;
   numberOfQuartersOfHistoricalData: number = 8;
+  showProductModal = false;
+  showServiceModal = false;
+  productActuals: any[] = [];
+  serviceActuals: any[] = [];
 
   upperCI: number;
   lowerCI: number;
@@ -47,7 +54,8 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
     private regressionService: RegressionService,
     private destroyManager: DestroyManager,
     private menuService: MenuService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -98,6 +106,9 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.dataTimestamp = `Last Updated: ...`;
+
+    this.getWd0MidcloseActualsProduct();
+    this.getWd0MidcloseActualsService();
 
     // Ensure the current date and time are interpreted in Pacific Time
     const nowPacificTime = new Date(
@@ -292,6 +303,33 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
 
     this.refreshExportData();
     this.getHistoricalData();
+  }
+
+  getWd0MidcloseActualsProduct() {
+    console.log('func called');
+    this.http
+      .get('wd0-midclose-actuals-product', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('wd0MidcloseActualsProduct:', data);
+        this.productActuals = data;
+      });
+  }
+
+  openWd0ProductModal(): void {
+    this.showProductModal = true;
+  }
+
+  getWd0MidcloseActualsService() {
+    this.http
+      .get('wd0-midclose-actuals-service', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('wd0MidcloseActualsService:', data);
+        this.serviceActuals = data;
+      });
+  }
+
+  openWd0ServiceModal(): void {
+    this.showServiceModal = true;
   }
 
   //this method is necessary for predicting the next month in the absence of
