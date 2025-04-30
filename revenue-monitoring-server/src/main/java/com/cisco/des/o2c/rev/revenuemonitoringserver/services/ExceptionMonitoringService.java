@@ -84,6 +84,12 @@ public class ExceptionMonitoringService {
     private String srtProcessDetails;
     private String srtProcessDetailsFilter;
     private String srtProcessSummaryUpdate;
+    private String i2cControlsSummary;
+    private String i2cControlsDetails;
+    private String i2cControlsDetailsFiltered;
+    private String revControlsSummary;
+    private String revControlsDetails;
+    private String revControlsDetailsFiltered;
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate,
@@ -103,7 +109,8 @@ public class ExceptionMonitoringService {
                                       String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager, String creditCardSummary,
                                       String creditCardDetails, String debitCardSummary, String debitCardDetails, String rpoExtractSummary, String rpoExtractDetails,
                                       String rpoExtractDetailsFilter, String rpoExtractSummaryUpdate, String srtProcessSummary, String srtProcessDetails,
-                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate
+                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate, String i2cControlsSummary, String i2cControlsDetails, String i2cControlsDetailsFiltered,
+                                      String revControlsSummary, String revControlsDetails, String revControlsDetailsFiltered
 
     ) {
         this.jdbcManager = jdbcManager;
@@ -174,7 +181,129 @@ public class ExceptionMonitoringService {
         this.srtProcessDetails = srtProcessDetails;
         this.srtProcessDetailsFilter = srtProcessDetailsFilter;
         this.srtProcessSummaryUpdate = srtProcessSummaryUpdate;
+        this.i2cControlsSummary = i2cControlsSummary;
+        this.i2cControlsDetails = i2cControlsDetails;
+        this.i2cControlsDetailsFiltered = i2cControlsDetailsFiltered;
+        this.revControlsSummary = revControlsSummary;
+        this.revControlsDetails = revControlsDetails;
+        this.revControlsDetailsFiltered = revControlsDetailsFiltered;
     }
+
+
+    //i2c controls summary
+    public List<Map<String, Object>> geti2cControlsSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(i2cControlsSummary);
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        result.forEach(data -> {
+            renameKey(data, "Transaction Date", "TRANSACTION_DATE");
+            renameKey(data, "Comments", "COMMENTS");
+            renameKey(data, "Period Num", "PERIOD_NAME");
+            renameKey(data, "Amount in USD", "AMOUNT");
+            renameKey(data, "Application", "APPLICATION");
+            renameKey(data, "Operating Unit Name", "ORG_NAME");
+            renameKey(data, "APPLICATION", "APPLICATION_NAME");
+            data.remove("Aging");
+            data.remove("Period Year");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("Aging", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("Aging")) {
+                reorderedData.put("Aging", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getI2CControlsDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(i2cControlsDetails);
+        String[] dateColumns = { "TRANSACTION_DATE", "ISSUE_IDENTIFIED_DATE", "ISSUE_RESOLVED_DATE" };
+        result.forEach(data -> {
+            data.remove("PERIOD_YEAR");
+            data.remove("TXN_CURRENCY_CODE");
+            renameKey(data, "OPERATING_UNIT_NAME", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getI2CControlsDetailsFiltered(String periodName, String appName,
+                                                                   String operatingUnit, String transactionDate) {
+        List<Map<String, Object>> result = jdbcManager.queryForListStageWithParams(i2cControlsDetailsFiltered, periodName, appName, operatingUnit, transactionDate);
+        String[] dateColumns = { "TRANSACTION_DATE", "ISSUE_IDENTIFIED_DATE", "ISSUE_RESOLVED_DATE" };
+        result.forEach(data -> {
+            data.remove("PERIOD_YEAR");
+            data.remove("TXN_CURRENCY_CODE");
+            renameKey(data, "OPERATING_UNIT_NAME", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevControlsDetailsFiltered(String periodName, String appName,
+                                                                   String operatingUnit, String transactionDate) {
+        System.out.println("here2");
+        List<Map<String, Object>> result = jdbcManager.queryForListStageWithParams(revControlsDetailsFiltered, periodName, appName, operatingUnit, transactionDate);
+        String[] dateColumns = { "TRANSACTION_DATE"};
+        result.forEach(data -> {
+            data.remove("PERIOD_YEAR");
+            data.remove("TXN_CURRENCY_CODE");
+            renameKey(data, "OPERATING_UNIT_NAME", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevControlsSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(revControlsSummary);
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        result.forEach(data -> {
+            renameKey(data, "Transaction Date", "TRANSACTION_DATE");
+            renameKey(data, "Comments", "COMMENTS");
+            renameKey(data, "Period Num", "PERIOD_NAME");
+            renameKey(data, "Amount in USD", "AMOUNT");
+            renameKey(data, "Operating Unit Name", "ORG_NAME");
+            renameKey(data, "APPLICATION", "APPLICATION_NAME");
+
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("Aging", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("Aging")) {
+                reorderedData.put("Aging", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getRevControlsDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(revControlsDetails);
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        result.forEach(data -> {
+            data.remove("PERIOD_YEAR");
+            data.remove("TXN_CURRENCY_CODE");
+            renameKey(data, "OPERATING_UNIT_NAME", "ORG_NAME");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
 
 
     // Standard Revenue

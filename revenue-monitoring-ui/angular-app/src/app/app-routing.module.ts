@@ -29,6 +29,7 @@ import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
+import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 
 const routes: Routes = [
   {
@@ -268,6 +269,14 @@ const routes: Routes = [
     data: {
       title: 'Operations Control Tower',
       header: 'Business Insights',
+    },
+  },
+  {
+    path: 'operations-controls',
+    component: OperationsControlsComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Operations Controls',
     },
   },
 ];

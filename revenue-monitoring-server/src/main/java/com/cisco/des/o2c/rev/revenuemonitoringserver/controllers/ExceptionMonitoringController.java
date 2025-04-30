@@ -19,9 +19,83 @@ public class ExceptionMonitoringController {
     @Autowired
     private ExceptionMonitoringService service;
 
+    @GetMapping("/rev-controls-errors-summary")
+    public ResponseEntity<List<Map<String, Object>>> getRevControlsErrorSummary() {
+        return new ResponseEntity<>(service.getRevControlsSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/rev-controls-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getRevControlsErrorDetails() {
+        return new ResponseEntity<>(service.getRevControlsDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/i2c-controls-errors-summary")
+    public ResponseEntity<List<Map<String, Object>>> getI2CControlsErrorSummary() {
+        return new ResponseEntity<>(service.geti2cControlsSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/i2c-controls-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getI2CControlsErrorDetails() {
+        return new ResponseEntity<>(service.getI2CControlsDetails(), HttpStatus.OK);
+    }
+    @GetMapping("/i2c-controls-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getI2CControlsErrorDetailsFiltered(@RequestParam List<String> periodNames,
+                                                                                  @RequestParam List<String> orgNames,
+                                                                                  @RequestParam List<String> applicationNames,
+                                                                                  @RequestParam List<String> transactionDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(),transactionDates.size())));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getI2CControlsDetailsFiltered(periodName, appName, ouName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/rev-controls-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getRevControlsErrorDetailsFiltered(@RequestParam List<String> periodNames,
+                                                                                  @RequestParam List<String> orgNames,
+                                                                                  @RequestParam List<String> applicationNames,
+                                                                                  @RequestParam List<String> transactionDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(),transactionDates.size())));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                System.out.println("here");
+                List<Map<String, Object>> result = service.getRevControlsDetailsFiltered(periodName, appName, ouName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     //Standard Revenue
     @GetMapping("/standard-revenue-errors-summary")
     public ResponseEntity<List<Map<String, Object>>> getStandardRevenueErrorSummary() {
+        getI2CControlsErrorSummary();
+        getRevControlsErrorSummary();
         return new ResponseEntity<>(service.getStandardRevenueSummary(), HttpStatus.OK);
     }
 

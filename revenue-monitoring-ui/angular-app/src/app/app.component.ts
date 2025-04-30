@@ -32,8 +32,8 @@ export class AppComponent implements OnInit, OnDestroy {
   header: string = '';
   userName: string = this.authService.getUserName();
   isHelpDropdownOpen: boolean = false;
-  userRoles: string[] = this.authService.getRoles();
-  isAdmin$: boolean = this.userRoles.includes('ADMIN');
+  // userRoles: string[] = this.authService.getRoles();
+  // isAdmin$: boolean = this.userRoles.includes('ADMIN');
   showMenu: boolean = true;
   menuItems: any[] = [];
   ngOnInit(): void {
@@ -56,7 +56,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.header = data['header'];
         this.dataService.setHeader(data['header']);
         const hiddenRoutes = ['/home', '/error', '/business-insights']; // Define routes where menu should be hidden
-        this.showMenu = !hiddenRoutes.includes(this.router.url);
+        // this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 
     this.router.events.subscribe((event) => {
@@ -227,9 +227,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authService.ssoLogout();
   }
 
-  hasRole$(roles: string[]) {
-    return roles.some((role) => this.userRoles.includes(role));
-  }
+  // hasRole$(roles: string[]) {
+  //   return roles.some((role) => this.userRoles.includes(role));
+  // }
 
   ngOnDestroy(): void {
     this.destroy$.next();
