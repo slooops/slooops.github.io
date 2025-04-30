@@ -359,6 +359,20 @@ tr.mat-header-row {
   max-width: 35vw;
 } */
 
+.custom-button-reset {
+  font-family: "Inter", sans-serif !important;
+  padding: 4px 8px;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  border-radius: 6px;
+  background-color: white;
+  color: black;
+  border: 2px solid gray;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
 .icon-container {
   display: inline-flex;
   align-items: center; /* Aligns items vertically in the center */

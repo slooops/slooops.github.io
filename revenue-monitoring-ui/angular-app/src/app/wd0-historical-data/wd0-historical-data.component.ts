@@ -1,4 +1,10 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
@@ -12,8 +18,6 @@ import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { monthEndDates } from './monthEndDates';
-import { el, hi, is } from 'date-fns/locale';
-import { set } from 'date-fns';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
 import { TableModalComponent } from '../components/table-modal/table-modal.component';
@@ -27,7 +31,7 @@ Chart.register(...registerables);
   styleUrls: ['./wd0-historical-data.component.scss'],
   providers: [DestroyManager],
 })
-export class Wd0HistoricalDataComponent implements OnInit {
+export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
   protected http: ApiHttpService;
   loading: boolean = true;
   serviceLoading: boolean = true;
@@ -49,8 +53,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
     http: ApiHttpService,
     private regressionService: RegressionService,
     private destroyManager: DestroyManager,
-    private dialog: MatDialog,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -61,6 +66,25 @@ export class Wd0HistoricalDataComponent implements OnInit {
   private lineChart: Chart | null = null;
   private serviceLineChart: Chart | null = null;
   private productLineChart: Chart | null = null;
+
+  ngOnDestroy(): void {
+    // Destroy the chart instance if it exists
+    if (this.lineChart) {
+      this.lineChart.destroy();
+      this.lineChart = null; // Set to null to avoid memory leaks
+    }
+
+    // Destroy other charts if applicable
+    if (this.serviceLineChart) {
+      this.serviceLineChart.destroy();
+      this.serviceLineChart = null;
+    }
+
+    if (this.productLineChart) {
+      this.productLineChart.destroy();
+      this.productLineChart = null;
+    }
+  }
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
@@ -129,8 +153,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
       } else {
       }
     });
-
-    console.log('Effective WD:', effectiveWd);
 
     this.fetchDataForNewMonth = false;
     this.isWd1 = false;
@@ -245,20 +267,17 @@ export class Wd0HistoricalDataComponent implements OnInit {
         this.prepareDataForRegression(data);
 
         this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-        console.log(this.latestPeriodName);
 
         this.loading = false;
         this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
       });
     } else if (this.isWd3) {
-      console.log('WD-3 case');
       this.getEndpointData('wd0-regression').subscribe((data: any) => {
         productActuals = this.extractProductActuals(data);
         serviceActuals = this.extractServiceActuals(data);
         this.getWd0Volumes(productActuals, serviceActuals);
 
         const latestPeriodName = this.getLatestPeriodName(data);
-        console.log(`Data is from the period: ${latestPeriodName}`);
 
         this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
 
@@ -272,9 +291,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
         productActuals = this.extractProductActuals(data);
         serviceActuals = this.extractServiceActuals(data);
         this.getWd0Volumes(productActuals, serviceActuals);
-
-        const latestPeriodName = this.getLatestPeriodName(data);
-        console.log(`Data is from the period: ${latestPeriodName}`);
 
         this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
 
@@ -620,6 +636,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
+  private retryCountServiceLine = 0;
+  private maxRetriesServiceLine = 5;
   // Update the Q3 Service Line Predictive Model Chart
   updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
     const labels = serviceData.map((entry: any) => entry.WD).reverse();
@@ -690,6 +708,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         // Destroy existing chart if it exists
         if (this.serviceLineChart) {
           this.serviceLineChart.destroy();
+          this.serviceLineChart = null;
         }
 
         // Create the new chart
@@ -701,16 +720,26 @@ export class Wd0HistoricalDataComponent implements OnInit {
         });
 
         this.serviceLoading = false; // Stop loading when chart is created
+        this.cdr.detectChanges(); // Trigger change detection
       } else {
         console.error('Failed to get 2D context for service line chart');
       }
     } else {
       // console.error('Canvas element for Service Line chart not created');
-      setTimeout(() => {
-        this.updateServiceLineChart(serviceData, serviceActuals);
-      }, 1000);
+      // Retry logic for canvas creation
+      if (this.retryCountServiceLine < this.maxRetriesServiceLine) {
+        setTimeout(() => {
+          this.retryCountServiceLine++;
+          this.updateServiceLineChart(serviceData, serviceActuals);
+        }, 1000);
+      } else {
+        console.error('Max retries reached for Service Line chart');
+      }
     }
   }
+
+  private retryCountProductLine = 0;
+  private maxRetriesProdcutLine = 5;
 
   updateProductLineChart(productData: any[], productActuals: number[]) {
     const labels = productData.map((entry: any) => entry.WD).reverse();
@@ -781,6 +810,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         // Destroy existing chart if it exists
         if (this.productLineChart) {
           this.productLineChart.destroy();
+          this.productLineChart = null;
         }
 
         // Create the new chart
@@ -791,15 +821,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
         });
 
         this.productLoading = false; // Stop loading when chart is created
+        this.cdr.detectChanges(); // Trigger change detection
       } else {
         // this.handleChartCreationError();
       }
     } else {
       // console.error('Canvas element for Product Line chart not created');
-
-      setTimeout(() => {
-        this.updateProductLineChart(productData, productActuals);
-      }, 1000);
+      // Retry logic for canvas creation
+      if (this.retryCountProductLine < this.maxRetriesProdcutLine) {
+        setTimeout(() => {
+          this.retryCountProductLine++;
+          this.updateProductLineChart(productData, productActuals);
+        }, 1000);
+      } else {
+        console.error('Max retries reached for Product Line chart');
+      }
     }
   }
 
@@ -1234,7 +1270,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ) => {
     try {
       if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-        console.log('Regression data is empty:', regressionData);
         this.errorMessage = true;
         this.loading = false;
         return;
@@ -1305,6 +1340,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
     }
   };
 
+  private retryCountLineGraph = 0;
+  private maxRetriesLineGraph = 5;
+
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
     const canvas = document.getElementById(
       'lineChartCanvas'
@@ -1317,6 +1355,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         // Check if lineChart already exists. If so, destroy it.
         if (this.lineChart) {
           this.lineChart.destroy();
+          this.lineChart = null;
         }
 
         // Now, recreate the chart with the new data
@@ -1418,20 +1457,25 @@ export class Wd0HistoricalDataComponent implements OnInit {
           },
         });
         this.loading = false; // Set loading to false after data is processed
+        this.cdr.detectChanges(); // Trigger change detection
       } else {
         console.error('Failed to get 2D context for line chart');
       }
     } else {
-      // console.error('Canvas element for combined chart failed to be created');
-      setTimeout(() => {
-        this.createLineGraph(
-          fastestTimes,
-          slowestTimes,
-          labels,
-          lines,
-          actualTimes
-        );
-      }, 1000);
+      if (this.retryCountLineGraph < this.maxRetriesLineGraph) {
+        this.retryCountLineGraph++;
+        setTimeout(() => {
+          this.createLineGraph(
+            fastestTimes,
+            slowestTimes,
+            labels,
+            lines,
+            actualTimes
+          );
+        }, 1000);
+      } else {
+        console.error('Max retries reached for chart creation');
+      }
     }
   }
 }

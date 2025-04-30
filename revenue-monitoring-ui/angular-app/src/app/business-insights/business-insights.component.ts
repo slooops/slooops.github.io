@@ -47,9 +47,9 @@ export class BusinessInsightsComponent implements OnInit {
       role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
     },
     {
-      label: 'PBI/PDF Approval',
+      label: 'Active Incidents',
       component: 'app-issue-reporting',
-      role: ['ADMIN', 'ISSUE_RESOLUTION'],
+      role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
   ];
 

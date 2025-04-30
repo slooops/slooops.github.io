@@ -200,6 +200,13 @@ public class PeriodCloseMonitoringService {
             String track = entry.getKey();
             List<Map<String, Object>> rows = entry.getValue();
 
+            // Add subtotal before the rows
+            Map<String, Object> subtotalRow = new LinkedHashMap<>();
+            subtotalRow.put("Track", "Sub Total (" + track + ")");
+            subtotalRow.put("Count", rows.size());
+            result.add(subtotalRow);
+
+            // Add the detailed rows
             for (Map<String, Object> row : rows) {
                 Map<String, Object> newRow = new LinkedHashMap<>();
                 newRow.put("Track", track);
@@ -211,18 +218,14 @@ public class PeriodCloseMonitoringService {
                 result.add(newRow);
             }
 
-            Map<String, Object> subtotalRow = new LinkedHashMap<>();
-            subtotalRow.put("Track", "Sub Total (" + track + ")");
-            subtotalRow.put("Count", rows.size());
-            result.add(subtotalRow);
-
             grandTotal += rows.size();
         }
 
+        // Add grand total at the top
         Map<String, Object> totalRow = new LinkedHashMap<>();
         totalRow.put("Track", "Total");
         totalRow.put("Count", grandTotal);
-        result.add(totalRow);
+        result.add(totalRow); // insert at the beginning
 
         return result;
     }
@@ -269,13 +272,14 @@ public class PeriodCloseMonitoringService {
         finalResult.put("PRECLOSE", new ArrayList<>());
         finalResult.put("MIDCLOSE", new ArrayList<>());
 
-        Map<String, Map<String, Object>> preCloseResults = new HashMap<>();
-        Map<String, Map<String, Object>> midCloseResults = new HashMap<>();
+        Map<String, Map<String, Object>> preCloseResults = new LinkedHashMap<>();
+        Map<String, Map<String, Object>> midCloseResults = new LinkedHashMap<>();
+        Map<String, List<Map<String, Object>>> percentageBuffer = new HashMap<>();
 
         for (Map<String, Object> row : data) {
             String lineType = row.get("LINE_TYPE").toString();
             String closeType = row.get("CLOSE_TYPE").toString(); // "PRECLOSE" or "MIDCLOSE"
-            String uniqueKey = lineType + "-" + closeType; // Ensures unique objects for each type
+            String uniqueKey = lineType + "-" + closeType;
 
             Map<String, Object> resultMap = closeType.equals("PRECLOSE")
                     ? preCloseResults.computeIfAbsent(uniqueKey, k -> new LinkedHashMap<>())
@@ -286,27 +290,47 @@ public class PeriodCloseMonitoringService {
             String periodKey = isQuarterEnd ? row.get("QUARTER").toString() : row.get("PERIOD_NAME").toString();
             resultMap.put(periodKey, row.get("LINE_COUNT"));
 
+            Map<String, Object> temp = new LinkedHashMap<>();
             if (isQuarterEnd) {
-                if (row.get("QOQ_PERCENTAGE") != null) {
-                    resultMap.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
-                }
-                if (row.get("YOY_PERCENTAGE") != null) {
-                    resultMap.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
-                }
+                if (row.get("QOQ_PERCENTAGE") != null) temp.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
+                if (row.get("YOY_PERCENTAGE") != null) temp.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
             } else {
-                if (row.get("MOM_PERCENTAGE") != null) {
-                    resultMap.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
-                }
-                if (row.get("PQM_PERCENTAGE") != null) {
-                    resultMap.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+                if (row.get("MOM_PERCENTAGE") != null) temp.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
+                if (row.get("PQM_PERCENTAGE") != null) temp.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+            }
+
+            if (!temp.isEmpty()) {
+                String percentKey = lineType + "-" + closeType;
+                percentageBuffer.computeIfAbsent(percentKey, k -> new ArrayList<>()).add(temp);
+            }
+        }
+
+        for (Map.Entry<String, Map<String, Object>> entry : preCloseResults.entrySet()) {
+            String key = entry.getKey();
+            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
+            for (Map<String, Object> percentMap : percentList) {
+                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
+                    entry.getValue().put(p.getKey(), p.getValue());
                 }
             }
         }
+
+        for (Map.Entry<String, Map<String, Object>> entry : midCloseResults.entrySet()) {
+            String key = entry.getKey();
+            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
+            for (Map<String, Object> percentMap : percentList) {
+                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
+                    entry.getValue().put(p.getKey(), p.getValue());
+                }
+            }
+        }
+
         finalResult.get("PRECLOSE").addAll(preCloseResults.values());
         finalResult.get("MIDCLOSE").addAll(midCloseResults.values());
 
         return finalResult;
     }
+
 
     public List<Map<String, Object>> getCloseStartEndTime() {
         return jdbcManager.queryForList(closeStartEndTime);
@@ -427,91 +451,70 @@ public class PeriodCloseMonitoringService {
     }
 
     public List<OrderLifecycleSummaryModel> getOrderStatusSummary() {
-        // Fetch data from the database and map it to the model list
+        // Step 1: Fetch and map data
         List<Map<String, Object>> res = jdbcManager.queryForList(orderStatusSummary);
-        List<OrderLifecycleSummaryModel> resultList = mapToOrderLifecycleSummaryModelList(res);
+        List<OrderLifecycleSummaryModel> rawList = mapToOrderLifecycleSummaryModelList(res);
 
-        // Extract unique program names
-        List<String> programNames = resultList.stream()
-                .map(model -> model.PROGRAM_NAME) // Assuming PROGRAM_NAME is a public field
-                .distinct()
-                .collect(Collectors.toList());
+        // Step 2: Group by PROGRAM_NAME
+        Map<String, List<OrderLifecycleSummaryModel>> groupedByProgram = rawList.stream()
+                .collect(Collectors.groupingBy(model -> model.PROGRAM_NAME, LinkedHashMap::new, Collectors.toList()));
 
-        // Calculate the last index for each program and sort by the index
-        Map<String, Integer> lastIndexSorted = programNames.stream()
-                .collect(Collectors.toMap(
-                        prog -> prog,
-                        prog -> getLastIndexOfProperty(resultList, prog)
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new
-                ));
+        List<OrderLifecycleSummaryModel> finalList = new ArrayList<>();
 
-        // Insert summary models at the correct positions
-        int indexOffset = 0;
-        for (Map.Entry<String, Integer> entry : lastIndexSorted.entrySet()) {
-            int position = entry.getValue() + indexOffset;
-            resultList.add(position, orderLifecycleSummary(resultList, entry.getKey()));
-            indexOffset++;
+        // Step 3: Build the result list with subtotals inserted immediately after each group
+        for (Map.Entry<String, List<OrderLifecycleSummaryModel>> entry : groupedByProgram.entrySet()) {
+            String programName = entry.getKey();
+            List<OrderLifecycleSummaryModel> group = entry.getValue();
+
+
+            int subtotal = group.stream().mapToInt(m -> m.ORDER_COUNT).sum();
+            finalList.add(new OrderLifecycleSummaryModel("Sub Total (" + programName + ")", subtotal, null, null));
+            finalList.addAll(group); // add all rows for that program
+
         }
 
-        // Calculate the total count across all programs
-        int totalCount = programNames.stream()
-                .mapToInt(prog -> calculateOrderCountSumByProgramName(resultList, prog))
+        // Step 4: Add grand total at the top
+        int totalCount = finalList.stream()
+                .filter(m -> m.PROGRAM_NAME != null && !m.PROGRAM_NAME.startsWith("Sub Total"))
+                .mapToInt(m -> m.ORDER_COUNT)
                 .sum();
 
-        // Add the total count as a summary row
-        resultList.add(new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        finalList.add( new OrderLifecycleSummaryModel("Total", totalCount, null, null));
 
-        return resultList;
+        return finalList;
     }
 
     public List<LargeDealSummaryByAccountModel> getLargeDealSummaryByAccount() {
         // Fetch and map the results to the model list
         List<Map<String, Object>> res = jdbcManager.queryForList(largeDealSummaryByAccount);
-        List<LargeDealSummaryByAccountModel> resultList = mapToLargeDealSummaryByAccountModelList(res);
+        List<LargeDealSummaryByAccountModel> rawList = mapToLargeDealSummaryByAccountModelList(res);
 
-        // Extract unique accounts directly using a stream
-        List<String> accounts = resultList.stream()
-                .map(model -> model.ACCOUNT) // Assuming ACCOUNT is a public field
-                .distinct()
-                .collect(Collectors.toList());
+        // Group the raw data by ACCOUNT
+        Map<String, List<LargeDealSummaryByAccountModel>> groupedByAccount = rawList.stream()
+                .collect(Collectors.groupingBy(model -> model.ACCOUNT, LinkedHashMap::new, Collectors.toList()));
 
-        // Calculate the last index for each account and sort by value
-        Map<String, Integer> lastIndexSorted = accounts.stream()
-                .collect(Collectors.toMap(
-                        acc -> acc,
-                        acc -> getLastIndexOfPropertyforAccount(resultList, acc)
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new
-                ));
+        List<LargeDealSummaryByAccountModel> resultList = new ArrayList<>();
 
-        // Insert summary models at the correct positions
-        int indexOffset = 0;
-        for (Map.Entry<String, Integer> entry : lastIndexSorted.entrySet()) {
-            int position = entry.getValue() + indexOffset;
-            resultList.add(position, largeDealSummaryByAccount(resultList, entry.getKey()));
-            indexOffset++;
+        // Build the result list by account group
+        for (Map.Entry<String, List<LargeDealSummaryByAccountModel>> entry : groupedByAccount.entrySet()) {
+            String account = entry.getKey();
+            List<LargeDealSummaryByAccountModel> accountModels = entry.getValue();
+
+             // add all rows for the account
+
+            // add subtotal after the rows
+            int subtotal = accountModels.stream().mapToInt(m -> m.ORDER_COUNT).sum();
+            resultList.add(new LargeDealSummaryByAccountModel("Sub Total (" + account + ")", subtotal, null, null));
+            resultList.addAll(accountModels);
         }
 
-        // Calculate the total count across all accounts
-        int totalCount = accounts.stream()
-                .mapToInt(acc -> calculateOrderCountSumByAccount(resultList, acc))
+        // Add the grand total row at the top
+        int totalCount = resultList.stream()
+                .filter(m -> m.ACCOUNT != null && !m.ACCOUNT.startsWith("Sub Total"))
+                .mapToInt(m -> m.ORDER_COUNT)
                 .sum();
 
-        // Add the total row
-        resultList.add(new LargeDealSummaryByAccountModel("Total", totalCount, null, null));
+        resultList.add( new LargeDealSummaryByAccountModel("Total", totalCount, null, null));
 
         return resultList;
     }
@@ -585,42 +588,6 @@ public class PeriodCloseMonitoringService {
             }
         }
         return sum;
-    }
-
-    public static int getLastIndexOfProperty(List<OrderLifecycleSummaryModel> objects, String targetProperty) {
-        for (int i = objects.size() - 1; i >= 0; i--) {
-            OrderLifecycleSummaryModel obj = objects.get(i);
-            if (obj.PROGRAM_NAME.equals(targetProperty)) {
-                return i;
-            }
-        }
-        return -1; // Property not found
-    }
-
-    public static int getLastIndexOfPropertyforAccount(List<LargeDealSummaryByAccountModel> objects,
-            String targetProperty) {
-        for (int i = objects.size() - 1; i >= 0; i--) {
-            LargeDealSummaryByAccountModel obj = objects.get(i);
-            if (obj.ACCOUNT.equals(targetProperty)) {
-                return i;
-            }
-        }
-        return -1; // Property not found
-    }
-
-    public static HashMap<String, Integer> sortByValue(Map<String, Integer> hm) {
-        List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(hm.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-            public int compare(Map.Entry<String, Integer> o1,
-                    Map.Entry<String, Integer> o2) {
-                return (o1.getValue()).compareTo(o2.getValue());
-            }
-        });
-        HashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
-        for (Map.Entry<String, Integer> aa : list) {
-            temp.put(aa.getKey(), aa.getValue());
-        }
-        return temp;
     }
 
     public List<Map<String, Object>> getOrderStatusRevSummary() {

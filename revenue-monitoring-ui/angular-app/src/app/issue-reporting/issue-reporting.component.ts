@@ -55,6 +55,7 @@ export class IssueReportingComponent implements OnInit {
     track: new FormControl(''),
     quarter: new FormControl(''),
     status: new FormControl(''),
+    incidentNum: new FormControl(''),
   });
 
   trackOptions: string[] = [];
@@ -67,6 +68,7 @@ export class IssueReportingComponent implements OnInit {
   trackFilter: string[] = [];
   quarterFilter: string[] = [];
   statusFilter: string[] = [];
+  incidentNumFilter: string = '';
 
   statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
@@ -122,7 +124,9 @@ export class IssueReportingComponent implements OnInit {
     const statusMatch =
       filters.statusFilter.length === 0 ||
       filters.statusFilter.includes(data.STATUS);
-    return trackMatch && statusMatch && quarterMatch;
+    const incidentNumMatch =
+      data.INCIDENT_NUMBER.toString().indexOf(filters.incidentNumFilter) !== -1;
+    return trackMatch && statusMatch && quarterMatch && incidentNumMatch;
   };
 
   filter() {
@@ -130,12 +134,19 @@ export class IssueReportingComponent implements OnInit {
       this.trackFilter = data['track'];
       this.statusFilter = data['status'];
       this.quarterFilter = data['quarter'];
+      this.incidentNumFilter = this.searchForm.get('incidentNum').value;
       this.summaryDatasource.filter = JSON.stringify({
         trackFilter: this.trackFilter,
         statusFilter: this.statusFilter,
         quarterFilter: this.quarterFilter,
+        incidentNumFilter: this.incidentNumFilter,
       });
     });
+  }
+
+  clearFilters() {
+    this.summaryDatasource.filter = '';
+    this.searchForm.reset();
   }
 
   dateTransform(dateString: string): string {
@@ -183,7 +194,7 @@ export class IssueReportingComponent implements OnInit {
 
   areAllRowsApproved(): boolean {
     return this.summaryDatasource?.data?.every(
-      (row: any) => row.APPROVAL === 'Approved'
+      (row: any) => row.STATUS === 'Closed'
     );
   }
 
@@ -388,9 +399,15 @@ export class IssueReportingComponent implements OnInit {
 
   openSummaryDialog() {
     const dialogRef = this.dialog.open(SummaryDialog, {
-      width: '1200px',
+      width: '550px',
       data: this.issueSummaryData,
     });
+  }
+
+  openIncidentDetails(data: any) {
+    const incidentNumber = data; // Assuming INCIDENT_NUMBER is the unique identifier
+    const url = `https://cisco.service-now.com/text_search_exact_match.do?sysparm_search=${incidentNumber}`; // Replace with your desired route or URL
+    window.open(url, '_blank');
   }
 
   incidentNumber: any;
@@ -410,6 +427,8 @@ export class IssueReportingComponent implements OnInit {
         this.selectedRows = [];
         this.summaryDatasource = null;
         this.getIssueReporting();
+        this.issueSummaryData = [];
+        this.getIssueReportingSummary();
         this.cdr.detectChanges();
       });
   }
@@ -436,6 +455,8 @@ export class IssueReportingComponent implements OnInit {
         this.selectedRows = [];
         this.summaryDatasource = null;
         this.getIssueReporting();
+        this.issueSummaryData = [];
+        this.getIssueReportingSummary();
         this.cdr.detectChanges();
       }
     });
@@ -476,6 +497,8 @@ export class IssueReportingComponent implements OnInit {
       .subscribe((data: any) => {
         this.summaryDatasource = null;
         this.getIssueReporting();
+        this.issueSummaryData = [];
+        this.getIssueReportingSummary();
         this.cdr.detectChanges();
       });
   }
@@ -682,20 +705,20 @@ export class StatusDialog {
         </ng-container>
 
         <!-- Approved On Column -->
-        <ng-container matColumnDef="Approved On">
+        <!-- <ng-container matColumnDef="Approved On">
           <th mat-header-cell *matHeaderCellDef>Approved On</th>
           <td mat-cell *matCellDef="let element">
             {{ element['Approved On'] || '' }}
           </td>
-        </ng-container>
+        </ng-container> -->
 
         <!-- Issue Description Column -->
-        <ng-container matColumnDef="Issue Description">
+        <!-- <ng-container matColumnDef="Issue Description">
           <th mat-header-cell *matHeaderCellDef>Issue Description</th>
           <td mat-cell *matCellDef="let element">
             {{ element['Issue Description'] || '' }}
           </td>
-        </ng-container>
+        </ng-container> -->
 
         <!-- Header and Row Declarations -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -716,13 +739,14 @@ export class StatusDialog {
       table {
         width: 100%;
         border-collapse: separate; /* Allows spacing between cells */
-        border-spacing: 0 4px; /* Adds vertical spacing between rows (optional) */
+        border-spacing: 0 2px; /* Adds vertical spacing between rows (optional) */
       }
 
       th.mat-header-cell,
       td.mat-cell {
-        padding: 12px 16px; /* Horizontal padding creates gap between columns */
-        font-size: 14px;
+        padding: 8px 12px; /* Horizontal padding creates gap between columns */
+        font-size: 13px;
+        text-align: center;
       }
 
       th.mat-header-cell {
@@ -749,8 +773,8 @@ export class SummaryDialog {
     'Count',
     'Issue Status',
     'IT Approval',
-    'Approved On',
-    'Issue Description',
+    // 'Approved On',
+    // 'Issue Description',
   ];
   dataSource: MatTableDataSource<any>;
   constructor(
