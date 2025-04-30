@@ -57,7 +57,7 @@ spec:
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: ops-control-tower-stg.cisco.com
+  name: order-to-cash-control-tower-stg.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
 spec:
   contexts:

@@ -57,26 +57,26 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: db.name
-            - name: DATABASE_URL
+            - name: TS3_DATABASE_URL
               valueFrom:
                 configMapKeyRef:
                   name: db-properties
-                  key: db.url
-            - name: DATABASE_USERNAME
+                  key: ts3.db.url
+            - name: TS3_DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
-                  key: username
-            - name: DATABASE_PASSWORD
+                  key: ts3.username
+            - name: TS3_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
-                  key: password
+                  key: ts3.password
             - name: CORS_URL
               valueFrom:
                 configMapKeyRef:
                   name: server-properties
-                  key: cors.final.url
+                  key: cors.new.url
             - name: REVENUE_CONTROLS_Q
               valueFrom:
                 configMapKeyRef:
@@ -862,13 +862,133 @@ spec:
                 configMapKeyRef:
                   name: db-properties
                   key: debit.card.details
+            - name: ISSUE_REPORTING_DASH_INSERT_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.insert
+            - name: ISSUE_REPORTING_DASH_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash
+            - name: ISSUE_REPORTING_DASH_APPROVE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.approve
+            - name: ISSUE_REPORTING_DASH_UPDATE_COMMENTS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.comments.update
+            - name: ISSUE_REPORTING_DASH_UPDATE_FIX_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.fix.details.update
+            - name: ISSUE_REPORTING_DASH_UPDATE_STATUS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.status.update
+            - name: ISSUE_REPORTING_DASH_UPDATE_ISSUE_DESCRIPTION_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.issue.description.update
+            - name: RPO_EXTRACT_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rpo.extract.summary
+            - name: RPO_EXTRACT_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rpo.extract.details
+            - name: RPO_EXTRACT_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rpo.extract.details.filter
+            - name: RPO_EXTRACT_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rpo.extract.summary.update
+            - name: SRT_PROCESS_SUMMARY_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: srt.process.summary
+            - name: SRT_PROCESS_DETAILS_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: srt.process.details
+            - name: SRT_PROCESS_DETAILS_FILTERED_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: srt.process.details.filter
+            - name: SRT_PROCESS_SUMMARY_UPDATE_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: srt.process.summary.update
+            - name: ISSUE_REPORTING_DASH_SUMMARY_VIEW_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: issue.reporting.dash.summary
+            - name: I2C_CONTROLS_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: i2c.controls.summary
+            - name: I2C_CONTROLS_DETAILS_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: i2c.controls.details
+            - name: I2C_CONTROLS_DETAILS_FILTERED_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: i2c.controls.details.filtered
+            - name: REV_CONTROLS_SUMMARY
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rev.controls.summary
+            - name: REV_CONTROLS_DETAILS_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rev.controls.details
+            - name: REV_CONTROLS_DETAILS_FILTERED_VIEW
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: rev.controls.details.filtered
+            - name: WD0_MIDCLOSE_ACTUALS_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.midclose.actuals.product.q
+            - name: WD0_MIDCLOSE_ACTUALS_SERVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: db-properties
+                  key: wd0.midclose.actuals.service.q
       imagePullSecrets:
         - name: it-cvc-order-to-cash-cdconsole-bot-pull-secret
 ---
 apiVersion: cae.cisco.com/v1
 kind: SSOAuthConfig
 metadata:
-  name: ops-control-tower-stg-api.cisco.com
+  name: order-to-cash-control-tower-stg-api.cisco.com
   namespace: rev-operations-dashboard-stg-rtp2
   annotations:
     ssoauthconfig.cae.cisco.com/provider.secondary_idp: ping
