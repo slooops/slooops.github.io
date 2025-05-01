@@ -34,7 +34,7 @@ import { OrderManagementComponent } from './order-management/order-management.co
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/order-management',
     pathMatch: 'full',
   },
   {
