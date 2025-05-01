@@ -20,6 +20,11 @@ public class JdbcManager {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
     }
 
+    public List<Map<String, Object>> queryForListStageWithParams(String sql, String periodName, String appName,
+                                                                 String operatingUnit, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
+    }
+
     public List<Map<String, Object>> queryForList(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }

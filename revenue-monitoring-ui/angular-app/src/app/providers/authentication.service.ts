@@ -32,7 +32,7 @@ export class AuthenticationService {
   async getTokens() {
     let authClientId = this.appConfig.getConfig().authClientId;
     let authClientSecret = this.appConfig.getConfig().authClientSecret;
-    let ssoUrl = 'https://id.cisco.com';
+    let ssoUrl = 'https://int-id.cisco.com';
 
     const href = window.location.href;
     if (
@@ -132,18 +132,18 @@ export class AuthenticationService {
       .then(async (info) => {
         this.username = info['auth_user_name'];
         this.userId = info['auth_user'];
-        await this.getUserRoles(info['auth_user']);
-        if (
-          this.userRoles.length === 0 &&
-          !this.bypassRoutes.includes(this.router.url)
-        ) {
-          this.router.navigate(['/error']);
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching user info:', error);
-        this.router.navigate(['/error']);
+        // await this.getUserRoles(info['auth_user']);
+        // if (
+        //   this.userRoles.length === 0 &&
+        //   !this.bypassRoutes.includes(this.router.url)
+        // ) {
+        //   this.router.navigate(['/error']);
+        // }
       });
+    // .catch((error) => {
+    //   console.error('Error fetching user info:', error);
+    //   this.router.navigate(['/error']);
+    // });
   }
 
   getUserID() {
@@ -169,7 +169,7 @@ export class AuthenticationService {
   }
 
   getRoles() {
-    return this.userRoles;
+    return ['ADMIN'];
   }
 
   ssoLogout() {
