@@ -32,7 +32,7 @@ export class AuthenticationService {
   async getTokens() {
     let authClientId = this.appConfig.getConfig().authClientId;
     let authClientSecret = this.appConfig.getConfig().authClientSecret;
-    let ssoUrl = 'https://id.cisco.com';
+    let ssoUrl = 'https://int-id.cisco.com';
 
     const href = window.location.href;
     if (

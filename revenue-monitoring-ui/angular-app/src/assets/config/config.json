@@ -1,5 +1,5 @@
 {
-  "api_url": "https://operations-control-tower-api.cisco.com/api/",
-  "authClientId": "frs-oauth-prod",
-  "authClientSecret": "SeCUzxUXA-rgxBw8wWBkL8bOlViFg_0l-EdUkRoZgQwWmO-XkG-SVw_LNNVYBcj2"
+  "api_url": "https://order-to-cash-control-tower-stg-api.cisco.com/api/",
+  "authClientId": "frs-oauth-nprd",
+  "authClientSecret": "TSzxB9tbVU9kgkWLA68kaucOpDFfLCVaNS-EtKQtSXT2XCKIiQyqnPsRqlERppWD"
 }

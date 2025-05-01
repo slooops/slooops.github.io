@@ -240,14 +240,6 @@ const routes: Routes = [
     },
   },
   {
-    path: 'opl',
-    component: OplComponent,
-    data: {
-      title: 'Operations Control Tower',
-      header: 'OPL',
-    },
-  },
-  {
     path: 'order-management',
     component: OrderManagementComponent,
     data: {

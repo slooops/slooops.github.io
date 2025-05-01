@@ -58,21 +58,21 @@
             <div style="font-size: 14px">{{ header }}</div>
           </span>
           <span *ngIf="header.length === 0">
-            <span>Operations Control Tower</span>
+            <span>Order to Cash Control Tower</span>
           </span>
         </h5>
       </span>
       <span class="navbar">
         <ul class="menu">
           <!-- Home -->
-          <li class="menu-item" [class.disabled]="!isAdmin$">
+          <!-- <li class="menu-item" [class.disabled]="!isAdmin$">
             <a [routerLink]="'/home'" class="top-link">
               <i class="svg-icon home-icon" style="font-weight: 900"></i>
             </a>
-          </li>
+          </li> -->
 
           <!-- Period Close Tracking -->
-          <li
+          <!-- <li
             class="menu-item"
             *ngIf="
               !(
@@ -109,52 +109,23 @@
             >
               Continuous Monitoring
             </a>
-          </li>
+          </li> -->
 
           <!-- Invoice to Cash -->
-          <li
-            class="menu-item"
-            [class.disabled]="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) || isAdmin$
-              )
-            "
-          >
-            <a
-              [routerLink]="'/business-insights'"
-              class="top-link"
-              style="font-weight: 500"
-            >
-              Business Insights
+          <li class="menu-item">
+            <a [routerLink]="'/opl'" class="top-link" style="font-weight: 500">
+              OPL
             </a>
           </li>
 
           <!-- Revenue Accounting -->
-          <li
-            class="menu-item"
-            *ngIf="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) && !isAdmin$
-              )
-            "
-            [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
-          >
+          <li class="menu-item">
             <a
-              [routerLink]="'/case-analyzer'"
+              [routerLink]="'/order-management'"
               class="top-link"
               style="font-weight: 500"
             >
-              ESP Case Manager
+              Order Management
             </a>
           </li>
         </ul>
