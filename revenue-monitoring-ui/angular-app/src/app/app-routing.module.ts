@@ -29,6 +29,7 @@ import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
+import { O2c360Component } from './o2c-360/o2c-360.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 
@@ -214,6 +215,11 @@ const routes: Routes = [
     path: 'o2c-landing',
     component: O2cLandingComponent,
     data: { title: 'O2C Home', header: 'O2C Home', hideNavbar: true },
+  },
+  {
+    path: 'o2c-360',
+    component: O2c360Component,
+    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
   },
   {
     path: 'o2c-overview',

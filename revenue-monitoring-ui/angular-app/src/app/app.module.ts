@@ -105,6 +105,8 @@ import {
 import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
 import { TableModalComponent } from './components/table-modal/table-modal.component';
+import { O2c360Component } from './o2c-360/o2c-360.component';
+import { O2cSidebarNavComponent } from './shared/o2c-sidebar-nav/o2c-sidebar-nav.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 
@@ -182,6 +184,8 @@ export function initApp(authService: AuthenticationService) {
     TableModalComponent,
     StatusDialog,
     SummaryDialog,
+    O2c360Component,
+    O2cSidebarNavComponent,
     OperationsControlsComponent,
     OrderManagementComponent,
   ],
