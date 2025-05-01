@@ -1005,7 +1005,7 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
 
   //for the blue line on the table
   isProductTotalRow(row: any): boolean {
-    return row.ENTITY === 'Product Lines';
+    return row.LINE_TYPE === 'Product Lines';
   }
 
   getTrend(

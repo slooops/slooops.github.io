@@ -99,6 +99,12 @@
   background: transparent;
 }
 
+.custom-search-input::placeholder {
+  color: #d9d9d9;
+  font-style: italic;
+  opacity: 1; /* Optional: ensures full visibility in some browsers */
+}
+
 .custom-search-input:focus-within {
   color: #2e2e2e;
 }
