@@ -573,6 +573,26 @@ public class ExceptionMonitoringService {
         return result;
     }
 
+    public List<Map<String, Object>> getOMDetailsData() {
+        String[] dateColumns = { "crDt", "eventTm", "processCrDt", "processUpdDt", "updDt" };
+        List<Map<String, Object>> result = mongoDBManager.getOMDetailsData();
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getOMSummaryData() {
+        String[] dateColumns = { "crDt", "eventTm", "processCrDt", "processUpdDt", "updDt" };
+        List<Map<String, Object>> result = mongoDBManager.getOMSUmmaryData();
+//        result.forEach(data -> {
+//            formatDateColumns(data, dateColumns);
+//        });
+        return result;
+    }
+
+
+
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };

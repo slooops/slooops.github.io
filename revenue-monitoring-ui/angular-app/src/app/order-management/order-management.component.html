@@ -1,0 +1,169 @@
+<br />
+<br />
+<div>
+  <div class="container rol-error-summary-container">
+    <div class="header-container">
+      <h5 class="section-title action-buttons">OM Summary Data</h5>
+    </div>
+
+    <ng-container *ngIf="summaryDataSource?.data?.length">
+      <div
+        class="table table-responsive table-container"
+        style="overflow-y: hidden !important"
+      >
+        <table
+          mat-table
+          [dataSource]="summaryDataSource"
+          class="custom-table table-responsive"
+        >
+          <ng-container matColumnDef="created_date">
+            <th mat-header-cell *matHeaderCellDef>Created Date</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.created_date }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="data_source">
+            <th mat-header-cell *matHeaderCellDef>Data Source</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.data_source }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="scenario">
+            <th mat-header-cell *matHeaderCellDef>Scenario</th>
+            <td mat-cell *matCellDef="let element">{{ element.scenario }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+            <td mat-cell *matCellDef="let element">{{ element.timestamp }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="total_count">
+            <th mat-header-cell *matHeaderCellDef>Total Count</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.total_count }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: summaryDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<br />
+<br />
+
+<div>
+  <div class="container rol-error-summary-container">
+    <div class="header-container">
+      <h5 class="section-title action-buttons">OM Details Data</h5>
+    </div>
+
+    <ng-container *ngIf="detailsDataSource?.data?.length">
+      <div
+        class="table table-responsive table-container"
+        style="overflow-y: hidden !important"
+      >
+        <table
+          mat-table
+          [dataSource]="detailsDataSource"
+          class="custom-table table-responsive"
+        >
+          <ng-container matColumnDef="actionable_flag">
+            <th mat-header-cell *matHeaderCellDef>Actionable Flag</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.actionable_flag }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="assigned_to">
+            <th mat-header-cell *matHeaderCellDef>Assigned To</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.assigned_to }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="closed_date">
+            <th mat-header-cell *matHeaderCellDef>Closed Date</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.closed_date }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="comments">
+            <th mat-header-cell *matHeaderCellDef>Comments</th>
+            <td mat-cell *matCellDef="let element">{{ element.comments }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="count">
+            <th mat-header-cell *matHeaderCellDef>Count</th>
+            <td mat-cell *matCellDef="let element">{{ element.count }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="created_date">
+            <th mat-header-cell *matHeaderCellDef>Created Date</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.created_date }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="data_source">
+            <th mat-header-cell *matHeaderCellDef>Data Source</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.data_source }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="database">
+            <th mat-header-cell *matHeaderCellDef>Database</th>
+            <td mat-cell *matCellDef="let element">{{ element.database }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="head_1">
+            <th mat-header-cell *matHeaderCellDef>Head 1</th>
+            <td mat-cell *matCellDef="let element">{{ element.head_1 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="head_2">
+            <th mat-header-cell *matHeaderCellDef>Head 2</th>
+            <td mat-cell *matCellDef="let element">{{ element.head_2 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="head_3">
+            <th mat-header-cell *matHeaderCellDef>Head 3</th>
+            <td mat-cell *matCellDef="let element">{{ element.head_3 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="scenario">
+            <th mat-header-cell *matHeaderCellDef>Scenario</th>
+            <td mat-cell *matCellDef="let element">{{ element.scenario }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">{{ element.status }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+            <td mat-cell *matCellDef="let element">{{ element.timestamp }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: detailsDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+</div>
