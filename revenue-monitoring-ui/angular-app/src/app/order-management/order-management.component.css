@@ -1,0 +1,77 @@
+.custom-table {
+  min-width: 100%; /* Adjust based on your needs */
+  table-layout: auto; /* Allows columns to resize dynamically */
+}
+
+.card,
+.container {
+  position: relative;
+  display: block;
+  padding: 16px;
+  background-color: #fff;
+  border: 2px solid #e1e4e8;
+  border-radius: 8px;
+  transition: all linear 0.5s;
+  width: 100%;
+}
+
+.container {
+  padding: 8px 0 12px 0;
+  margin-bottom: 16px;
+  border: 0px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px #00000014;
+}
+
+.rol-error-summary-container {
+  overflow-x: auto; /* Ensure the table scrolls horizontally if too wide */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: fit-content;
+  padding-top: 0px;
+  margin-top: -6px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between; /* Space between title/form on left and action buttons on right */
+  align-items: center; /* Vertically align items in the center */
+  width: 100%;
+  padding: 0 10px 0 12px;
+}
+
+.mat-header-cell {
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 14px !important;
+  padding: 1vh !important;
+}
+
+.mat-cell {
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  padding: 0.4vh !important;
+  border: 0px !important;
+  text-wrap: wrap;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
+}
+
+th {
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 14px;
+  padding: 0.5vh !important ;
+}
+
+td {
+  text-align: center !important;
+  font-size: 14px;
+  padding: 0.4vh !important ;
+  border: 0px !important;
+}

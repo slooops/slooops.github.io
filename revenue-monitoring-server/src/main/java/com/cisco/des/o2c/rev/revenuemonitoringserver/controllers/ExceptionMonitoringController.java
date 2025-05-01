@@ -580,6 +580,15 @@ public class ExceptionMonitoringController {
         return new ResponseEntity<>(service.getOplData(), HttpStatus.OK);
     }
 
+    @GetMapping("/om-summary-data")
+    public ResponseEntity<List<Map<String, Object>>> getOMSummaryData() {
+        return new ResponseEntity<>(service.getOMSummaryData(), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-details-data")
+    public ResponseEntity<List<Map<String, Object>>> getOMDetailsData() {
+        return new ResponseEntity<>(service.getOMDetailsData(), HttpStatus.OK);
+    }
     //eInvoicing
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {

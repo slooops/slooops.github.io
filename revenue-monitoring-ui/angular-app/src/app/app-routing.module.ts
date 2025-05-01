@@ -30,6 +30,7 @@ import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
+import { OrderManagementComponent } from './order-management/order-management.component';
 
 const routes: Routes = [
   {
@@ -240,11 +241,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'opl',
-    component: OplComponent,
+    path: 'order-management',
+    component: OrderManagementComponent,
     data: {
       title: 'Operations Control Tower',
-      header: 'OPL',
+      header: 'Order Management Monitoring',
     },
   },
   {
