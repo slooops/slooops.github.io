@@ -29,6 +29,10 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
+    public List<Map<String, Object>> queryForO2CData(String sql) {
+        return primaryJdbcTemplate.queryForList(sql);
+    }
+
     public int updateComments(String sql, String closeType, String comments) {
         return primaryJdbcTemplate.update(sql, closeType, comments);
     }
