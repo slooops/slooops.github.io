@@ -10,9 +10,9 @@ export class O2cSidebarNavComponent {
   activeItem: string = 'Orders';
 
   @Input() navItems = [
-    { label: 'Orders', icon: 'fa fa-shopping-cart', count: 1 },
-    { label: 'Subscriptions', icon: 'fa fa-bookmark', count: 70 },
-    { label: 'Invoices', icon: 'fa fa-file-invoice', count: 70 },
+    { label: 'Orders', icon: 'cart-icon', count: 1 },
+    { label: 'Subscriptions', icon: 'bookmark-icon', count: 70 },
+    { label: 'Invoices', icon: 'receipt-icon', count: 70 },
   ];
 
   toggleSidebar() {

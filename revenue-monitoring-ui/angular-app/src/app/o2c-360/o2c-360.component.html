@@ -1,1 +1,65 @@
-<app-o2c-nav></app-o2c-nav> <app-o2c-sidebar-nav></app-o2c-sidebar-nav>
+<app-o2c-nav></app-o2c-nav>
+<div class="o2c-360-container">
+  <app-o2c-sidebar-nav></app-o2c-sidebar-nav>
+
+  <div class="o2c-column-container">
+    <p class="result-header">1 Order Result Found</p>
+
+    <div class="o2c-card order-banner">
+      <div class="order-info">
+        <span class="status-dot"></span>
+        <span class="order-id"
+          ><strong>28221819418344</strong> Order Summary</span
+        >
+        <button class="details-button">Order Details</button>
+      </div>
+      <div class="chevron-icon"></div>
+    </div>
+
+    <div class="o2c-card order-banner process-flow-banner">
+      <app-o2c-process-flow
+        [circleStatus]="circleStatus"
+        [navigationMap]="navigationMap"
+        [stepValues]="{ Order: '$0', Subscription: '$63,000' }"
+      ></app-o2c-process-flow>
+    </div>
+
+    <div
+      class="o2c-card order-banner table-banner"
+      (click)="toggleAccordion('subscription')"
+    >
+      <div class="order-info accordion-header">
+        <i
+          [ngClass]="{
+            'plus-icon': !expanded.subscription,
+            'minus-icon': expanded.subscription
+          }"
+        ></i>
+        Subscription Summary
+      </div>
+    </div>
+    <div *ngIf="expanded.subscription" class="accordion-content o2c-card">
+      <!-- Replace with real subscription content -->
+      <p>Subscription Summary Content goes here...</p>
+    </div>
+
+    <div
+      class="o2c-card order-banner table-banner"
+      (click)="toggleAccordion('invoice')"
+    >
+      <div class="order-info accordion-header">
+        <i
+          [ngClass]="{
+            'plus-icon': !expanded.invoice,
+            'minus-icon': expanded.invoice
+          }"
+        ></i>
+        Invoice Summary
+      </div>
+    </div>
+    <div *ngIf="expanded.invoice" class="accordion-content o2c-card">
+      <!-- Replace with real invoice content -->
+      <p>Invoice Summary Content goes here...</p>
+    </div>
+  </div>
+</div>

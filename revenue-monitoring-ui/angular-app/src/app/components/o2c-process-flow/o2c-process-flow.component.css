@@ -1,1 +1,90 @@
 @import "src/assets/o2c-common-styles.css";
+
+.flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 76px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.slider-bar {
+  margin-top: 24px;
+  position: absolute;
+  width: fit-content;
+  height: 1px;
+  border-radius: 10px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+  transition: background 0.3s ease-in-out;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -7px;
+}
+
+.circle-loop {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #08ace4;
+  position: relative;
+  margin-top: 0px;
+  left: 67px;
+}
+
+/* Circle states */
+.completed-circle {
+  background: #078a00;
+}
+
+.current-circle {
+  background-color: #078a00;
+  border: 3px solid #078a00;
+  box-shadow: 0 0 0 4px white, 0 0 0 6px #078a00; /* halo */
+}
+
+.uncompleted-circle {
+  background: #16371e43; /* Gray for uncompleted */
+}
+
+.in-progress-circle {
+  background-color: #d57b00;
+  box-shadow: 0 0 0 4px white, 0 0 0 6px #d57b00; /* halo */
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  margin: -10px 0 0 0;
+}
+
+.circle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+
+.step-value {
+  margin-top: -4px;
+  margin-left: -5px;
+}
+
+.step-value--default,
+.step-value--completed {
+  color: #078a00;
+}
+.step-value--in-progress {
+  color: #d57b00;
+}
+.step-value--uncompleted {
+  color: #16371e43;
+}
