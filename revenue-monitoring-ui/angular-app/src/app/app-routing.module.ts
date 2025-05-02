@@ -32,6 +32,7 @@ import { BusinessInsightsComponent } from './business-insights/business-insights
 import { O2c360Component } from './o2c-360/o2c-360.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
+import { CmsComponent } from './cms/cms.component';
 
 const routes: Routes = [
   {
@@ -284,6 +285,14 @@ const routes: Routes = [
     data: {
       title: 'Operations Control Tower',
       header: 'Operations Controls',
+    },
+  },
+  {
+    path: 'cms',
+    component: CmsComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'CMS',
     },
   },
 ];
