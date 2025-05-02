@@ -1006,4 +1006,36 @@ public class QueryConfigs {
     public String getRevControlsDetails() { return this.revControlsDetails; }
     @Bean(name = "revControlsDetailsFiltered")
     public String getRevControlsDetailsFiltered() { return this.revControlsDetailsFiltered; }
+
+
+    @Value(("${order.summary}"))
+    public String orderSummary;
+
+    @Bean(name = "orderSummary")
+    public String getOrderSummary() { return this.orderSummary; }
+
+    @Value(("${invoice.summary}"))
+    public String invoiceSummary;
+
+    @Bean(name = "invoiceSummary")
+    public String getInvoiceSummary() { return this.invoiceSummary; }
+
+
+    @Value(("${invoice.line.summary}"))
+    public String invoiceLineSummary;
+
+    @Bean(name = "invoiceLineSummary")
+    public String getInvoiceLineSummary() { return this.invoiceLineSummary; }
+
+    @Value(("${subscription.summary}"))
+    public String subscriptionSummary;
+
+    @Bean(name = "subscriptionSummary")
+    public String getSubscriptionSummary() { return this.subscriptionSummary; }
+
+    @Value(("${subscription.line.summary}"))
+    public String subscriptionLineSummary;
+
+    @Bean(name = "subscriptionLineSummary")
+    public String getSubscriptionLineSummary() { return this.subscriptionLineSummary; }
 }
