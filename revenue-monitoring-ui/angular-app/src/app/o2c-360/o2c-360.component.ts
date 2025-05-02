@@ -14,6 +14,27 @@ export class O2c360Component implements OnInit {
     private destroyManager: DestroyManager
   ) {}
 
+  expanded = {
+    subscription: false,
+    invoice: false,
+  };
+
+  circleStatus: { [key: string]: number } = {
+    Order: 2,
+    Subscription: -1,
+    Invoicing: 2,
+    Accounting: 2,
+    Cash: 2,
+  };
+
+  navigationMap: { [key: string]: string } = {
+    Order: '',
+    Subscription: '',
+    Invoicing: '',
+    Accounting: '',
+    Cash: '',
+  };
+
   ngOnInit(): void {
     this.http.get('order-summary', this.destroyManager).subscribe((data) => {
       console.log('Order Summary:', data);
@@ -37,27 +58,6 @@ export class O2c360Component implements OnInit {
         console.log('Subscription Line Summary:', data);
       });
   }
-
-  expanded = {
-    subscription: false,
-    invoice: false,
-  };
-
-  circleStatus: { [key: string]: number } = {
-    Order: 2,
-    Subscription: -1,
-    Invoicing: 2,
-    Accounting: 2,
-    Cash: 2,
-  };
-
-  navigationMap: { [key: string]: string } = {
-    Order: '',
-    Subscription: '',
-    Invoicing: '',
-    Accounting: '',
-    Cash: '',
-  };
 
   toggleAccordion(section: 'subscription' | 'invoice') {
     this.expanded[section] = !this.expanded[section];
