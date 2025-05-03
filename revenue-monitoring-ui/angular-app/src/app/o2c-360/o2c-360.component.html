@@ -2,7 +2,7 @@
 <div class="o2c-360-container">
   <app-o2c-sidebar-nav></app-o2c-sidebar-nav>
 
-  <div class="o2c-column-container">
+  <div class="o2c-column-container" [style.width]="invoiceContainerWidth">
     <p class="result-header">1 Order Result Found</p>
 
     <div class="o2c-card order-banner">
@@ -39,8 +39,27 @@
       </div>
     </div>
     <div *ngIf="expanded.subscription" class="accordion-content o2c-card">
-      <!-- Replace with real subscription content -->
-      <p>Subscription Summary Content goes here...</p>
+      <table mat-table [dataSource]="subscriptionSummaryDataSource">
+        <ng-container
+          *ngFor="let column of subscriptionSummaryDisplayedColumns"
+          [matColumnDef]="column"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            {{ formatColumnName(column) }}
+          </th>
+
+          <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: subscriptionSummaryDisplayedColumns"
+        ></tr>
+      </table>
     </div>
 
     <div
@@ -58,8 +77,35 @@
       </div>
     </div>
     <div *ngIf="expanded.invoice" class="accordion-content o2c-card">
-      <!-- Replace with real invoice content -->
-      <p>Invoice Summary Content goes here...</p>
+      <div class="invoice-summary-table">
+        <table mat-table [dataSource]="invoiceSummaryDataSource">
+          <ng-container
+            *ngFor="let column of invoiceSummaryDisplayedColumns"
+            [matColumnDef]="column"
+          >
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
+
+            <td mat-cell *matCellDef="let element">
+              {{
+                column === "TRX_DATE" || column === "DUE_DATE"
+                  ? (element[column] | date : "MM/dd/yyyy")
+                  : element[column]
+              }}
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="invoiceSummaryDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
+          ></tr>
+        </table>
+      </div>
     </div>
   </div>
 </div>

@@ -132,7 +132,11 @@
 }
 
 .accordion-content {
-  animation: fadeIn 0.2s ease-in-out;
+  margin-top: -7px;
+  padding: 0;
+  animation: fadeIn 0.5s ease-in-out;
+  border: none;
+  overflow-x: auto;
 }
 
 @keyframes fadeIn {
@@ -144,4 +148,43 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+td.mat-cell {
+  padding: 10px !important;
+  font-size: 12px !important;
+  text-align: left;
+  color: #000;
+  width: 11vw;
+  border: 1px solid #ababab !important;
+  width: 11vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+th.mat-header-cell {
+  font-weight: 700;
+  padding: 10px !important;
+  font-size: 12px !important;
+  text-align: left;
+  color: #000;
+  border: 1px solid #ababab !important;
+  width: 11vw;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.invoice-summary-table {
+  overflow-x: scroll;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
+}
+
+tr.mat-header-row {
+  height: 30px;
 }
