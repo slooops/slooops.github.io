@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { SidebarService } from 'src/app/sidebar.service';
 
 @Component({
   selector: 'app-o2c-sidebar-nav',
@@ -6,17 +7,20 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./o2c-sidebar-nav.component.css'],
 })
 export class O2cSidebarNavComponent {
+  constructor(private sidebarService: SidebarService) {}
+
   collapsed = false;
   activeItem: string = 'Orders';
 
   @Input() navItems = [
-    { label: 'Orders', icon: 'fa fa-shopping-cart', count: 1 },
-    { label: 'Subscriptions', icon: 'fa fa-bookmark', count: 70 },
-    { label: 'Invoices', icon: 'fa fa-file-invoice', count: 70 },
+    { label: 'Orders', icon: 'cart-icon', count: 1 },
+    { label: 'Subscriptions', icon: 'bookmark-icon', count: 70 },
+    { label: 'Invoices', icon: 'receipt-icon', count: 70 },
   ];
 
   toggleSidebar() {
     this.collapsed = !this.collapsed;
+    this.sidebarService.setSidebarState(!this.collapsed);
   }
 
   selectItem(label: string) {

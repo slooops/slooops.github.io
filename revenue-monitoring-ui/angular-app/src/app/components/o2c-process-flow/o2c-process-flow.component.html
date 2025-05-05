@@ -5,13 +5,13 @@
       [ngStyle]="getSliderBarStyle(i)"
     >
       <div class="circle-wrapper-loop" (click)="navigateToRoute(step)">
-        <p class="circle-caption-loop">{{ removeUnderscores(step) }}</p>
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
-      </div>
-
-      <div *ngIf="i < circleSteps.length - 1" class="chevron-wrapper-loop">
-        <div class="chevron"></div>
-        <div class="chevron-white"></div>
+        <p class="circle-caption-loop" [ngClass]="getCaptionClass(step)">
+          {{ removeUnderscores(step) }}
+        </p>
+        <p class="step-value" [ngClass]="getCaptionClass(step)">
+          {{ stepValues[step] || "$0" }}
+        </p>
       </div>
     </div>
   </div>
