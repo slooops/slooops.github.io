@@ -411,6 +411,16 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
+  creditCardCheckUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-check-summary-view',
+    detailsUrl: 'credit-card-check-detail-view',
+    filteredDetailsUrl: 'credit-card-check-detail-view-filtered',
+    summaryUpdateUrl: 'credit-card-check-summary-update',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
   transactionsProcessedUrls: { [key: string]: string } = {
     summaryUrl: 'transactions-processed-summary',
     detailsUrl: 'transactions-processed-details',
@@ -545,6 +555,11 @@ export class InvoicingComponent implements OnInit {
     {
       label: 'Fusion',
       component: 'app-fusion',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Credit Check Process',
+      component: 'app-credit-card-check',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     // {

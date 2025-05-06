@@ -84,6 +84,12 @@ public class ExceptionMonitoringService {
     private String srtProcessDetails;
     private String srtProcessDetailsFilter;
     private String srtProcessSummaryUpdate;
+    private String creditCardCheckSummaryView;
+    private String creditCardCheckDetailView;
+    private String creditCardCheckDetailFilteredView;
+    private String updateCreditCardCheckSummary;
+
+
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate,
@@ -103,7 +109,9 @@ public class ExceptionMonitoringService {
                                       String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager, String creditCardSummary,
                                       String creditCardDetails, String debitCardSummary, String debitCardDetails, String rpoExtractSummary, String rpoExtractDetails,
                                       String rpoExtractDetailsFilter, String rpoExtractSummaryUpdate, String srtProcessSummary, String srtProcessDetails,
-                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate
+                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate, String creditCardCheckSummaryView, String creditCardCheckDetailView,
+                                      String creditCardCheckDetailFilteredView, String updateCreditCardCheckSummary
+
 
     ) {
         this.jdbcManager = jdbcManager;
@@ -174,6 +182,66 @@ public class ExceptionMonitoringService {
         this.srtProcessDetails = srtProcessDetails;
         this.srtProcessDetailsFilter = srtProcessDetailsFilter;
         this.srtProcessSummaryUpdate = srtProcessSummaryUpdate;
+        this.creditCardCheckDetailView = creditCardCheckDetailView;
+        this.creditCardCheckSummaryView = creditCardCheckSummaryView;
+        this.creditCardCheckDetailFilteredView = creditCardCheckDetailFilteredView;
+        this.updateCreditCardCheckSummary = updateCreditCardCheckSummary;
+
+    }
+
+    public List<Map<String, Object>> getCreditCardCheckSummaryView() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(creditCardCheckSummaryView);
+        String[] dateColumns = { "HOLD_APPLY_DATE", "ASSIGNED_DATE" };
+        result.forEach(data -> {
+            data.remove("AGING");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 5) {
+                    reorderedData.put("AGING", calculateAging(data.get("HOLD_APPLY_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("HOLD_APPLY_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardCheckDetailView() {
+        String[] dateColumns = { "HOLD_APPLY_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(creditCardCheckDetailView);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardCheckDetailFilteredView(String periodName,
+                                                                          String orgName, String holdApplyDate, String processFlow) {
+        String[] dateColumns = { "HOLD_APPLY_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getCreditCardCheckDetailsFiltered(creditCardCheckDetailFilteredView, periodName, orgName, holdApplyDate, processFlow);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updateCreditCardCheckSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String flooringBid = updateData.get("processFlow").toUpperCase();
+        String entityName = updateData.get("orgName");
+        String holdApplyDate = updateData.get("holdApplyDate");
+        String assignedBy = updateData.get("username");
+        int test = jdbcManager.updateCreditCardCheckSummary(updateCreditCardCheckSummary, assignedTo, assignedBy, comments,
+                 entityName, holdApplyDate, flooringBid);
+        return test;
     }
 
 

@@ -338,6 +338,33 @@
         ></app-monitoring-dashboard>
       </ng-container>
 
+      <ng-container *ngSwitchCase="'app-credit-card-check'">
+        <app-monitoring-dashboard
+          [urls]="creditCardCheckUrls"
+          [keysToMap]="[
+            'PERIOD_NAME',
+            'ORG_NAME',
+            'HOLD_APPLY_DATE',
+            'PROCESS_FLOW'
+          ]"
+          [processFlowKeys]="fusionTotals"
+          [periodStatus]="periodStatus"
+          [componentName]="'Credit Check Process'"
+          [processFlowTabsToDisplay]="['']"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="fusionFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="['ORG_NAME', 'HOLD_APPLY_DATE', 'PROCESS_FLOW']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+
       <ng-container *ngSwitchCase="'app-transactions-processed'">
         <app-monitoring-dashboard
           [urls]="transactionsProcessedUrls"

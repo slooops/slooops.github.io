@@ -242,4 +242,14 @@ public class JdbcManager {
                 periodCloseImpacting, issueStatus, eocIncident, username);
 
     }
+
+    public List<Map<String, Object>> getCreditCardCheckDetailsFiltered(String sql, String periodName,
+                                                                       String orgName, String holdApplyDate, String processFlow) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, orgName, holdApplyDate, processFlow);
+    }
+
+    public int updateCreditCardCheckSummary(String sql, String assignedTo, String assignedBy, String comments,
+                                            String entityName, String holdApplyDate, String flooringBid) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  entityName, holdApplyDate, flooringBid);
+    }
 }
