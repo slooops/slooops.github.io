@@ -11,7 +11,17 @@
         <span class="order-id"
           ><strong>28221819418344</strong> Order Summary</span
         >
-        <button class="details-button">Order Details</button>
+        <button class="details-button" (click)="showDetailsModal = true">
+          Order Details
+        </button>
+
+        <app-modal
+          *ngIf="showDetailsModal"
+          [title]="'Subscription Details'"
+          (close)="showDetailsModal = false"
+        >
+          <p>This is your custom modal content!</p>
+        </app-modal>
       </div>
       <!-- <div class="chevron-icon"></div> -->
     </div>
@@ -109,29 +119,41 @@
     </div>
     <div *ngIf="expanded.subscription" class="accordion-content o2c-card">
       <div class="invoice-summary-table">
-        <div class="invoice-summary-table">
-          <table mat-table [dataSource]="subscriptionSummaryDataSource">
-            <ng-container
-              *ngFor="let column of subscriptionSummaryDisplayedColumns"
-              [matColumnDef]="column"
-            >
-              <th mat-header-cell *matHeaderCellDef>
-                {{ formatColumnName(column) }}
-              </th>
+        <table mat-table [dataSource]="subscriptionSummaryDataSource">
+          <ng-container
+            *ngFor="let column of subscriptionSummaryDisplayedColumns"
+            [matColumnDef]="column"
+          >
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
 
-              <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-            </ng-container>
+            <td mat-cell *matCellDef="let element">
+              <a
+                *ngIf="column === 'SUBSCRIPTION_ID'"
+                href="#"
+                (click)="
+                  openSubscriptionModal(element[column]);
+                  $event.preventDefault()
+                "
+              >
+                {{ element[column] }}
+              </a>
+              <span *ngIf="column !== 'SUBSCRIPTION_ID'">{{
+                element[column]
+              }}</span>
+            </td>
+          </ng-container>
 
-            <tr
-              mat-header-row
-              *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
-            ></tr>
-            <tr
-              mat-row
-              *matRowDef="let row; columns: subscriptionSummaryDisplayedColumns"
-            ></tr>
-          </table>
-        </div>
+          <tr
+            mat-header-row
+            *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: subscriptionSummaryDisplayedColumns"
+          ></tr>
+        </table>
       </div>
     </div>
 
@@ -162,10 +184,20 @@
             </th>
 
             <td mat-cell *matCellDef="let element">
-              <ng-container *ngIf="column === 'OTHER_DETAILS'; else normalCell">
-                <a href="/o2c-invoice">{{ element[column] }}</a>
+              <ng-container
+                *ngIf="column === 'TRANSACTION_NUMBER'; else otherCell"
+              >
+                <a
+                  href="#"
+                  (click)="
+                    openInvoiceModal(element[column]); $event.preventDefault()
+                  "
+                >
+                  {{ element[column] }}
+                </a>
               </ng-container>
-              <ng-template #normalCell>
+
+              <ng-template #otherCell>
                 {{
                   column === "TRANSACTION_DATE" || column === "DUE_DATE"
                     ? (element[column] | date : "yyyy/MM/dd")
@@ -188,3 +220,131 @@
     </div>
   </div>
 </div>
+
+<app-modal
+  *ngIf="showSubscriptionModal"
+  [title]="
+    'Subscription Line Summary &nbsp; -  &nbsp; ' +
+    selectedSubscriptionId +
+    ' &nbsp;&nbsp; | &nbsp;&nbsp;
+    Web Order ID &nbsp; - &nbsp; ' +
+    orderID
+  "
+  (close)="showSubscriptionModal = false"
+>
+  <div class="invoice-summary-table">
+    <table mat-table [dataSource]="dataSourceSubscriptionModal">
+      <ng-container
+        *ngFor="let column of displayedColumnsSubscriptionModal"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+
+        <td mat-cell *matCellDef="let element">
+          {{ element[column] }}
+        </td>
+      </ng-container>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumnsSubscriptionModal"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnsSubscriptionModal"
+      ></tr>
+    </table>
+  </div>
+</app-modal>
+
+<app-modal
+  *ngIf="showInvoiceModal"
+  [title]="
+    'Invoice Line Summary  &nbsp; -  &nbsp; ' +
+    selectedTransactionNumber +
+    '  &nbsp;&nbsp; | &nbsp;&nbsp; Web Order ID  &nbsp; -  &nbsp; ' +
+    orderID
+  "
+  (close)="showInvoiceModal = false"
+>
+  <!-- PRINT STATUS TABLE -->
+  <div class="invoice-summary-table">
+    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+      Print Status
+    </div>
+    <table
+      mat-table
+      style="width: 100%"
+      [dataSource]="dataSourceInvoicePrintStatus"
+    >
+      <ng-container
+        *ngFor="let column of displayedColumnsInvoicePrintStatus"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+        <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+      </ng-container>
+
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumnsInvoicePrintStatus"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnsInvoicePrintStatus"
+      ></tr>
+    </table>
+  </div>
+
+  <!-- E-INVOICE STATUS TABLE -->
+  <div class="invoice-summary-table" style="margin-top: 18px">
+    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+      E-Invoice Status & Collector Info
+    </div>
+    <table mat-table style="width: 100%" [dataSource]="dataSourceInvoiceStatus">
+      <ng-container
+        *ngFor="let column of displayedColumnsInvoiceStatus"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+        <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoiceStatus"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnsInvoiceStatus"
+      ></tr>
+    </table>
+  </div>
+
+  <!-- CASH APPLICATION TABLE -->
+  <div class="invoice-summary-table" style="margin-top: 18px">
+    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+      Cash Application
+    </div>
+    <table mat-table style="width: 100%" [dataSource]="dataSourceInvoiceCash">
+      <ng-container
+        *ngFor="let column of displayedColumnsInvoiceCash"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+        <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoiceCash"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumnsInvoiceCash"
+      ></tr>
+    </table>
+  </div>
+</app-modal>

@@ -71,7 +71,7 @@ export class O2cInvoiceComponent implements OnInit {
   }
 
   formatColumnName(column: string): string {
-    const acronyms = ['id', 'sql', 'api', 'url'];
+    const acronyms = ['id', 'sku', 'qty', 'tsv', 'gl'];
     const name = column.replace(/_/g, ' ').toLowerCase();
     return name
       .split(' ')

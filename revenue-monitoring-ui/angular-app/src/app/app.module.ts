@@ -111,6 +111,7 @@ import { OperationsControlsComponent } from './operations-controls/operations-co
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
 import { O2cSubComponent } from './o2c-sub/o2c-sub.component';
+import { ModalComponent } from './components/modal/modal.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -191,6 +192,7 @@ export function initApp(authService: AuthenticationService) {
     OrderManagementComponent,
     O2cInvoiceComponent,
     O2cSubComponent,
+    ModalComponent,
   ],
   imports: [
     BrowserModule,

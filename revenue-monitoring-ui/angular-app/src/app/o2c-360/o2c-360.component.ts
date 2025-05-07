@@ -16,6 +16,16 @@ export class O2c360Component implements OnInit {
     invoice: false,
   };
 
+  showDetailsModal = false;
+
+  showSubscriptionModal = false;
+  selectedSubscriptionId: string | null = null;
+  selectedWebOrderId: string | null = null;
+
+  showInvoiceModal = false;
+  selectedTransactionNumber: string | null = null;
+  selectedInvoiceOrderId: string | null = null;
+
   circleStatus: { [key: string]: number } = {
     Order: 2,
     Subscription: -1,
@@ -29,6 +39,8 @@ export class O2c360Component implements OnInit {
     { label: 'Subscriptions', icon: 'bookmark-icon', count: null },
     { label: 'Invoices', icon: 'receipt-icon', count: null },
   ];
+
+  orderID: string = '91742826';
 
   orderSummaryDisplayedColumns1: string[] = [
     'WEB_ORDER_ID',
@@ -77,6 +89,179 @@ export class O2c360Component implements OnInit {
   invoiceLinesDisplayedColumns: string[] = [];
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
+  displayedColumnsSubscriptionModal: string[] = [
+    // 'Subscription_ID',
+    // 'WebOrder',
+    'Web_Order_Line_ID',
+    // 'SKU',
+    'SKU_Description',
+    'Charge_Type',
+    'Quantity',
+    'Duration',
+    'Line_Amount',
+    'Bill_Line_Reference',
+    'Billing_Frequency',
+    'USP_(USD)',
+    'Pricing_Term',
+    'Charge_Cycle',
+    // 'Charge_Cycle_End_Date',
+    'Bill_Number',
+    'AR_Trxn_Number',
+  ];
+  dataSourceSubscriptionModal = new MatTableDataSource<any>([
+    {
+      Subscription_ID: 'Sub1797786',
+      WebOrder: '96635062',
+      Web_Order_Line_ID: '328252623',
+      SKU: 'ETD-ESS-LIC',
+      SKU_Description: 'Cisco Email Threat Defense Essential License',
+      Charge_Type: 'Recurring',
+      Quantity: '125',
+      Duration: '12',
+      Billing_Frequency: 'Prepaid',
+      'USP_(USD)': '12.46',
+      Pricing_Term: '12',
+      Line_Amount: '1557.49',
+      Charge_Cycle: '3/15/2024 - 3/14/2025',
+      Charge_Cycle_End_Date: '3/14/2025',
+      Bill_Number: '1000728386177',
+      Bill_Line_Reference: '3-348272651709527498',
+      AR_Trxn_Number: '6102098772',
+    },
+
+    {
+      Subscription_ID: 'Sub1797786',
+      WebOrder: '96635062',
+      Web_Order_Line_ID: '328252624',
+      SKU: 'SVS-ETD-SUP-E',
+      SKU_Description: 'Enhanced Support for Email Threat Defense',
+      Charge_Type: 'Recurring',
+      Quantity: '1',
+      Duration: '12',
+      Billing_Frequency: 'Prepaid',
+      'USP_(USD)': '23.52',
+      Pricing_Term: '1',
+      Line_Amount: '282.24',
+      Charge_Cycle: '3/15/2024 - 3/14/2025',
+      Charge_Cycle_End_Date: '3/14/2025',
+      Bill_Number: '1000728386177',
+      Bill_Line_Reference: '3-348272651709528010',
+      AR_Trxn_Number: '6102098772',
+    },
+
+    {
+      Subscription_ID: 'Sub1797787',
+      WebOrder: '96635062',
+      Web_Order_Line_ID: '328252626',
+      SKU: 'UMB-DNS-ADV-K9',
+      SKU_Description: 'Cisco Umbrella DNS Security Advantage',
+      Charge_Type: 'Recurring',
+      Quantity: '125',
+      Duration: '12',
+      Billing_Frequency: 'Prepaid',
+      'USP_(USD)': '33.06',
+      Pricing_Term: '12',
+      Line_Amount: '4132.5',
+      Charge_Cycle: '3/15/2024 - 3/14/2025',
+      Charge_Cycle_End_Date: '3/14/2025',
+      Bill_Number: '1000728386062',
+      Bill_Line_Reference: '2-348272651709556380',
+      AR_Trxn_Number: '6102098772',
+    },
+
+    {
+      Subscription_ID: 'Sub1797787',
+      WebOrder: '96635062',
+      Web_Order_Line_ID: '328252627',
+      SKU: 'SVS-UMB-SUP-E',
+      SKU_Description: 'Enhanced Support for Umbrella',
+      Charge_Type: 'Recurring',
+      Quantity: '1',
+      Duration: '12',
+      Billing_Frequency: 'Prepaid',
+      'USP_(USD)': '51.66',
+      Pricing_Term: '1',
+      Line_Amount: '619.92',
+      Charge_Cycle: '3/15/2024 - 3/14/2025',
+      Charge_Cycle_End_Date: '3/14/2025',
+      Bill_Number: '1000728386062',
+      Bill_Line_Reference: '2-348272651709556124',
+      AR_Trxn_Number: '6102098772',
+    },
+  ]);
+
+  displayedColumnsInvoicePrintStatus: string[] = [
+    'Invoice_Delivery_Method',
+    'Print_Date',
+    // 'Previous_Trx_Num',
+    'Print_Status_/_Exception',
+    'E-DEL_email_address',
+    'SFTP',
+    'B2B',
+    'SRT_Contact_Email_address',
+  ];
+  dataSourceInvoicePrintStatus = new MatTableDataSource<any>([
+    {
+      Invoice_Delivery_Method: 'EDELIV, SFTP, B2B, FTP, Image',
+      Print_Date: '15/Mar/24',
+      Previous_Trx_Num: 'Completed',
+      'Print_Status_/_Exception': 'John@pccoonectionsinc.com',
+      'E-DEL_email_address': 'Customer Account Num',
+      SFTP: 'TP ID 123',
+      B2B: null,
+      SRT_Contact_Email_address: null,
+    },
+  ]);
+
+  displayedColumnsInvoiceStatus: string[] = [
+    'eInvoicing_Status/Exception',
+    'IRN/UUID',
+    'IRN_Date',
+    'Previous_IRN_/_UUID',
+    'Collector',
+    // 'Partner_Name',
+    // 'End_Customer',
+  ];
+  dataSourceInvoiceStatus = new MatTableDataSource<any>([
+    {
+      'eInvoicing_Status/Exception': 'idk man gimme data',
+      'IRN/UUID': 'what is this?',
+      IRN_Date: '08/Mar/24',
+      'Previous_IRN_/_UUID': 'None',
+      Collector: 'US_PARTNER_9',
+      Partner_Name: 'Jack Sloop',
+      End_Customer: 'Jacks Patisserie',
+    },
+  ]);
+
+  displayedColumnsInvoiceCash: string[] = [
+    'Receipt_Applied',
+    'CM_Applied',
+    'Write_Off_/_Adjustments',
+  ];
+  dataSourceInvoiceCash = new MatTableDataSource<any>([
+    {
+      Transaction_Number: '6102098772',
+      Invoice_Type: 'Subscription',
+      Web_Order_ID: '96635062',
+      Purchase_Order: '2598271',
+      Bill_To_Id: '413587662',
+      Bill_Number: '1000728386177 , 1000728386062',
+      Invoice_Status: 'Invoiced',
+      TRX_Number: '6102098772',
+      Currency: 'USD',
+      Transaction_Class: 'INV',
+      Transaction_Date: '15/Mar/24',
+      Due_Date: '14/Apr/24',
+      TRX_Status: 'Closed',
+      Amount_Due_Original: '6592.15',
+      Amount_Due_Remaining: '0',
+      Receipt_Applied: 'WIRE1234',
+      CM_Applied: 'CM123',
+      'Write_Off_/_Adjustments': 'Adjustment Id 123',
+    },
+  ]);
+
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
@@ -111,10 +296,8 @@ export class O2c360Component implements OnInit {
       .subscribe((data: any) => {
         console.log('Order Summary:', data);
 
-        const orderID = '91742826';
-
         this.orderSummaryDataSource = new MatTableDataSource(
-          data.filter((data) => data.WEB_ORDER_ID === orderID)
+          data.filter((data) => data.WEB_ORDER_ID === this.orderID)
         );
         this.navTotals[0].count = data.length;
       });
@@ -159,7 +342,17 @@ export class O2c360Component implements OnInit {
   }
 
   formatColumnName(column: string): string {
-    const acronyms = ['id', 'sql', 'api', 'url'];
+    const acronyms = [
+      'id',
+      'irn',
+      'uuid',
+      'cm',
+      'sftp',
+      'b2b',
+      'srt',
+      'e-del',
+      'irn/uuid',
+    ];
     const name = column.replace(/_/g, ' ').toLowerCase();
     return name
       .split(' ')
@@ -185,5 +378,17 @@ export class O2c360Component implements OnInit {
   get invoiceContainerWidth(): string {
     if (!this.expanded.invoice && !this.expanded.subscription) return '100%';
     return this.sidebarExpanded ? 'calc(100% - 255px)' : 'calc(100% - 71px)';
+  }
+
+  openSubscriptionModal(subId: string): void {
+    this.selectedSubscriptionId = subId;
+    this.selectedWebOrderId = this.orderID;
+    this.showSubscriptionModal = true;
+  }
+
+  openInvoiceModal(transactionNumber: string): void {
+    this.selectedTransactionNumber = transactionNumber;
+    this.selectedInvoiceOrderId = this.orderID;
+    this.showInvoiceModal = true;
   }
 }
