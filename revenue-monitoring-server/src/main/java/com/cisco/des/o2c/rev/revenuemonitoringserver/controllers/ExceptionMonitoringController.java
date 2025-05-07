@@ -58,7 +58,6 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/credit-card-check-summary-update")
     public ResponseEntity<String> updateCreditCardCheckSummary(@RequestBody Map<String, String> updateData) {
-        System.out.println(updateData);
         int test = service.updateCreditCardCheckSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }

@@ -4,6 +4,7 @@ import {
   AfterViewInit,
   OnDestroy,
   ChangeDetectorRef,
+  NgZone,
 } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
@@ -31,7 +32,9 @@ Chart.register(...registerables);
   styleUrls: ['./wd0-historical-data.component.scss'],
   providers: [DestroyManager],
 })
-export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
+export class Wd0HistoricalDataComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   protected http: ApiHttpService;
   loading: boolean = true;
   serviceLoading: boolean = true;
@@ -55,7 +58,8 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
     private destroyManager: DestroyManager,
     private menuService: MenuService,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private ngZone: NgZone
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -110,199 +114,188 @@ export class Wd0HistoricalDataComponent implements OnInit, OnDestroy {
     this.getWd0MidcloseActualsProduct();
     this.getWd0MidcloseActualsService();
 
-    // Ensure the current date and time are interpreted in Pacific Time
-    const nowPacificTime = new Date(
-      new Date().toLocaleString('en-US', {
-        timeZone: 'America/Los_Angeles',
-      })
-    );
-
-    let effectiveWd = null;
-
-    monthEndDates.forEach((monthEndDate, index) => {
-      const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Explicit Pacific Time for month end
-      monthEnd.setHours(10); // WD-0 starts at 10 AM
-
-      // Calculate WD-3, WD-2, and WD-1 with rollovers
-      const wd3 = new Date(monthEnd);
-      const wd2 = new Date(monthEnd);
-      const wd1 = new Date(monthEnd);
-
-      wd3.setDate(monthEnd.getDate() - 3);
-      wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
-
-      wd2.setDate(monthEnd.getDate() - 2);
-      wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
-
-      wd1.setDate(monthEnd.getDate() - 1);
-      wd1.setHours(15); // 4 PM rollover for WD-1
-
-      // Determine the effective WD based on the current time
-      if (
-        nowPacificTime.toLocaleDateString('en-CA') ===
-          monthEnd.toLocaleDateString('en-CA') &&
-        nowPacificTime > wd1
-      ) {
-        effectiveWd = { wd: 'WD-0', index }; // WD-0
-      } else if (nowPacificTime >= wd1 && nowPacificTime < monthEnd) {
-        effectiveWd = { wd: 'WD-1', index }; // WD-1
-      } else if (nowPacificTime >= wd2 && nowPacificTime < wd1) {
-        effectiveWd = { wd: 'WD-2', index }; // WD-2
-      } else if (nowPacificTime >= wd3 && nowPacificTime < wd2) {
-        effectiveWd = { wd: 'WD-3', index }; // WD-3
-      } else {
-      }
-    });
-
-    this.fetchDataForNewMonth = false;
-    this.isWd1 = false;
-    this.isWd2 = false;
-    this.isWd3 = false;
-
-    // Set the flags for the effective WD
-    if (effectiveWd) {
-      switch (effectiveWd.wd) {
-        case 'WD-0':
-          this.fetchDataForNewMonth = true;
-          break;
-        case 'WD-1':
-          this.isWd1 = true;
-          break;
-        case 'WD-2':
-          this.isWd2 = true;
-          break;
-        case 'WD-3':
-        case 'WD-3 (fallback)':
-          this.isWd3 = true;
-          break;
-        default:
-          console.error('Unknown WD:', effectiveWd.wd);
-      }
-      // this.menuService.updateMenuItems([
-      //   {
-      //     label: 'Large Deal Tracker',
-      //     route: '/large-deal-tracker',
-      //     role: ['ADMIN', 'LARGE_DEAL'],
-      //   },
-      //   {
-      //     label: 'WD0',
-      //     route: '/wd0',
-      //     role: ['ADMIN', 'WD0'],
-      //   },
-      //   {
-      //     label: 'Mid Close Volumes',
-      //     route: '/midclose-volumes',
-      //     role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-      //   },
-      // ]);
-    }
-
-    let serviceActuals = [null, null, null];
-    let productActuals = [null, null, null];
-
-    // Fetch data for regression
-    if (this.fetchDataForNewMonth) {
-      this.getEndpointData('wd0-current-month')
-        .pipe(
-          tap((data: any) => {
-            this.newMonthName = data[0].PERIOD_NAME;
-            this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
-          }),
-          switchMap(() => this.getEndpointData('wd0-regression'))
-        )
-        .subscribe((data: any) => {
-          let serviceActuals = [null, null, null];
-          let productActuals = [null, null, null];
-
-          // Check if the new month's data is present
-          const newMonthDataExists = data.some(
-            (entry: any) => entry.PERIOD_NAME === this.newMonthName
-          );
-
-          // If the new month's data exists, extract actuals. Otherwise, keep them as null.
-          if (newMonthDataExists) {
-            productActuals = this.extractProductActuals(data);
-            serviceActuals = this.extractServiceActuals(data);
-          }
-
-          // Pass the actuals (whether null or extracted) to getWd0Volumes
-          this.getWd0Volumes(productActuals, serviceActuals);
-
-          this.prepareDataForRegression(data);
-          this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-        });
-    } else if (this.isWd1) {
-      this.getEndpointData('wd0-current-month')
-        .pipe(
-          tap((data: any) => {
-            // Process the current month data
-            data.forEach((item: any) => {
-              if (item.LINE_TYPE === 'PRODUCT') {
-                // this.newMonthData[0][0] = item.LINE_COUNT;
-                this.newMonthData[0][0] = 0;
-              } else if (item.LINE_TYPE === 'SERVICE') {
-                // this.newMonthData[0][1] = item.LINE_COUNT;
-                this.newMonthData[0][1] = 0;
-              }
-            });
-            this.newMonthName = data[0].PERIOD_NAME;
-            this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-1
-          }),
-          switchMap(() => this.getEndpointData('wd0-regression'))
-        )
-        .subscribe((data: any) => {
-          let productActuals = [null, null, null];
-          let serviceActuals = [null, null, null];
-          this.getWd0Volumes(productActuals, serviceActuals);
-
-          this.prepareDataForRegression(data);
-          this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-        });
-    } else if (this.isWd2) {
-      let productActuals = [null, null, null];
-      let serviceActuals = [null, null, null];
-      this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
-
-      this.getEndpointData('wd0-regression').subscribe((data: any) => {
-        this.prepareDataForRegression(data);
-
-        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-        this.loading = false;
-        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-      });
-    } else if (this.isWd3) {
-      this.getEndpointData('wd0-regression').subscribe((data: any) => {
-        productActuals = this.extractProductActuals(data);
-        serviceActuals = this.extractServiceActuals(data);
-        this.getWd0Volumes(productActuals, serviceActuals);
-
-        const latestPeriodName = this.getLatestPeriodName(data);
-
-        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-        this.prepareDataForRegression(data);
-
-        this.loading = false;
-        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-      });
-    } else {
-      this.getEndpointData('wd0-regression').subscribe((data: any) => {
-        productActuals = this.extractProductActuals(data);
-        serviceActuals = this.extractServiceActuals(data);
-        this.getWd0Volumes(productActuals, serviceActuals);
-
-        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-        this.prepareDataForRegression(data);
-
-        this.loading = false;
-        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-      });
-    }
-
     this.refreshExportData();
     this.getHistoricalData();
+  }
+
+  ngAfterViewInit(): void {
+    requestAnimationFrame(() => {
+      this.ngZone.runOutsideAngular(() => {
+        // Ensure the current date and time are interpreted in Pacific Time
+        const nowPacificTime = new Date(
+          new Date().toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
+          })
+        );
+
+        let effectiveWd = null;
+
+        monthEndDates.forEach((monthEndDate, index) => {
+          const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Explicit Pacific Time for month end
+          monthEnd.setHours(10); // WD-0 starts at 10 AM
+
+          // Calculate WD-3, WD-2, and WD-1 with rollovers
+          const wd3 = new Date(monthEnd);
+          const wd2 = new Date(monthEnd);
+          const wd1 = new Date(monthEnd);
+
+          wd3.setDate(monthEnd.getDate() - 3);
+          wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
+
+          wd2.setDate(monthEnd.getDate() - 2);
+          wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
+
+          wd1.setDate(monthEnd.getDate() - 1);
+          wd1.setHours(15); // 4 PM rollover for WD-1
+
+          // Determine the effective WD based on the current time
+          if (
+            nowPacificTime.toLocaleDateString('en-CA') ===
+              monthEnd.toLocaleDateString('en-CA') &&
+            nowPacificTime > wd1
+          ) {
+            effectiveWd = { wd: 'WD-0', index }; // WD-0
+          } else if (nowPacificTime >= wd1 && nowPacificTime < monthEnd) {
+            effectiveWd = { wd: 'WD-1', index }; // WD-1
+          } else if (nowPacificTime >= wd2 && nowPacificTime < wd1) {
+            effectiveWd = { wd: 'WD-2', index }; // WD-2
+          } else if (nowPacificTime >= wd3 && nowPacificTime < wd2) {
+            effectiveWd = { wd: 'WD-3', index }; // WD-3
+          } else {
+          }
+        });
+
+        this.fetchDataForNewMonth = false;
+        this.isWd1 = false;
+        this.isWd2 = false;
+        this.isWd3 = false;
+
+        // Set the flags for the effective WD
+        if (effectiveWd) {
+          switch (effectiveWd.wd) {
+            case 'WD-0':
+              this.fetchDataForNewMonth = true;
+              break;
+            case 'WD-1':
+              this.isWd1 = true;
+              break;
+            case 'WD-2':
+              this.isWd2 = true;
+              break;
+            case 'WD-3':
+            case 'WD-3 (fallback)':
+              this.isWd3 = true;
+              break;
+            default:
+              console.error('Unknown WD:', effectiveWd.wd);
+          }
+        }
+
+        let serviceActuals = [null, null, null];
+        let productActuals = [null, null, null];
+
+        // Fetch data for regression
+        if (this.fetchDataForNewMonth) {
+          this.getEndpointData('wd0-current-month')
+            .pipe(
+              tap((data: any) => {
+                this.newMonthName = data[0].PERIOD_NAME;
+                this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
+              }),
+              switchMap(() => this.getEndpointData('wd0-regression'))
+            )
+            .subscribe((data: any) => {
+              let serviceActuals = [null, null, null];
+              let productActuals = [null, null, null];
+
+              // Check if the new month's data is present
+              const newMonthDataExists = data.some(
+                (entry: any) => entry.PERIOD_NAME === this.newMonthName
+              );
+
+              // If the new month's data exists, extract actuals. Otherwise, keep them as null.
+              if (newMonthDataExists) {
+                productActuals = this.extractProductActuals(data);
+                serviceActuals = this.extractServiceActuals(data);
+              }
+
+              // Pass the actuals (whether null or extracted) to getWd0Volumes
+              this.getWd0Volumes(productActuals, serviceActuals);
+
+              this.prepareDataForRegression(data);
+              this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+            });
+        } else if (this.isWd1) {
+          this.getEndpointData('wd0-current-month')
+            .pipe(
+              tap((data: any) => {
+                // Process the current month data
+                data.forEach((item: any) => {
+                  if (item.LINE_TYPE === 'PRODUCT') {
+                    // this.newMonthData[0][0] = item.LINE_COUNT;
+                    this.newMonthData[0][0] = 0;
+                  } else if (item.LINE_TYPE === 'SERVICE') {
+                    // this.newMonthData[0][1] = item.LINE_COUNT;
+                    this.newMonthData[0][1] = 0;
+                  }
+                });
+                this.newMonthName = data[0].PERIOD_NAME;
+                this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-1
+              }),
+              switchMap(() => this.getEndpointData('wd0-regression'))
+            )
+            .subscribe((data: any) => {
+              let productActuals = [null, null, null];
+              let serviceActuals = [null, null, null];
+              this.getWd0Volumes(productActuals, serviceActuals);
+
+              this.prepareDataForRegression(data);
+              this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+            });
+        } else if (this.isWd2) {
+          let productActuals = [null, null, null];
+          let serviceActuals = [null, null, null];
+          this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
+
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            this.prepareDataForRegression(data);
+
+            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
+        } else if (this.isWd3) {
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            productActuals = this.extractProductActuals(data);
+            serviceActuals = this.extractServiceActuals(data);
+            this.getWd0Volumes(productActuals, serviceActuals);
+
+            const latestPeriodName = this.getLatestPeriodName(data);
+
+            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+            this.prepareDataForRegression(data);
+
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
+        } else {
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            productActuals = this.extractProductActuals(data);
+            serviceActuals = this.extractServiceActuals(data);
+            this.getWd0Volumes(productActuals, serviceActuals);
+
+            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+            this.prepareDataForRegression(data);
+
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
+        }
+      });
+    });
   }
 
   getWd0MidcloseActualsProduct() {

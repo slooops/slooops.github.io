@@ -481,6 +481,38 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
+  creditCardCheckFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderNumber',
+      columnName: 'ORDER_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'icmsYN',
+      columnName: 'ICMS_Y_N',
+      type: 'select',
+      subAppMapping: false,
+    },
+  ];
+
   fusionTotals: { [key: string]: number } = {
     'Order Import': 0,
   };
