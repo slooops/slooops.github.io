@@ -24,14 +24,33 @@ export class O2c360Component implements OnInit {
     Cash: 2,
   };
 
-  navigationMap: { [key: string]: string } = {
-    Order: '',
-    Subscription: '',
-    Invoicing: '',
-    Accounting: '',
-    Cash: '',
-  };
+  navTotals = [
+    { label: 'Orders', icon: 'cart-icon', count: null },
+    { label: 'Subscriptions', icon: 'bookmark-icon', count: null },
+    { label: 'Invoices', icon: 'receipt-icon', count: null },
+  ];
 
+  orderSummaryDisplayedColumns1: string[] = [
+    'WEB_ORDER_ID',
+    'DEAL_ID',
+    'CREATION_DATE',
+    'STATUS',
+    'PURCHASE_ORDER',
+    'ORDER_TOTAL',
+    'BILLING_ID',
+    'ORDER_ORIGIN',
+    'ORDER_BOOKED_DATE',
+  ];
+  orderSummaryDisplayedColumns2: string[] = [
+    'HYBRID_ORDER',
+    'ROUTE_TO_MARKET',
+    'ORDER_HOLDS',
+    // 'CLOUD_SUB_ORDER_HOLDS',
+    'CLOUD_SUB_ORDER _HOLDS',
+    'FLOW_STATUS_CODE',
+    'PARTNER',
+    'END_CUSTOMER',
+  ];
   orderSummaryDisplayedColumns: string[] = [];
   orderSummaryDataSource = new MatTableDataSource<any>();
 
@@ -41,7 +60,18 @@ export class O2c360Component implements OnInit {
   subscriptionLinesDisplayedColumns: string[] = [];
   subscriptionLinesDataSource = new MatTableDataSource<any>();
 
-  invoiceSummaryDisplayedColumns: string[] = [];
+  invoiceSummaryDisplayedColumns: string[] = [
+    'TRANSACTION_NUMBER',
+    'TRANSACTION_CLASS',
+    'TRANSACTION_STATUS',
+    'TRANSACTION_DATE',
+    'DUE_DATE',
+    'STATUS',
+    'AMOUNT_DUE_ORIGINAL',
+    'AMOUNT_DUE_REMAINING',
+    'BILL_NUMBER',
+    'OTHER_DETAILS',
+  ];
   invoiceSummaryDataSource = new MatTableDataSource<any>();
 
   invoiceLinesDisplayedColumns: string[] = [];
@@ -60,6 +90,20 @@ export class O2c360Component implements OnInit {
       this.sidebarExpanded = isExpanded;
     });
 
+    this.sidebarService.activeItem$.subscribe((item) => {
+      if (item === 'Subscriptions') {
+        this.expanded.subscription = true;
+        this.expanded.invoice = false;
+      } else if (item === 'Invoices') {
+        this.expanded.invoice = true;
+        this.expanded.subscription = false;
+      } else {
+        // collapse both for "Orders" or anything else
+        this.expanded.subscription = false;
+        this.expanded.invoice = false;
+      }
+    });
+
     this.http
       .get('order-summary', this.destroyManager, {
         responseType: 'json',
@@ -67,26 +111,25 @@ export class O2c360Component implements OnInit {
       .subscribe((data: any) => {
         console.log('Order Summary:', data);
 
-        this.orderSummaryDisplayedColumns = Object.keys(data[0]);
-        this.orderSummaryDataSource = new MatTableDataSource(data);
+        const orderID = '91742826';
+
+        this.orderSummaryDataSource = new MatTableDataSource(
+          data.filter((data) => data.WEB_ORDER_ID === orderID)
+        );
+        this.navTotals[0].count = data.length;
       });
 
     this.http
       .get('subscription-summary', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('Subscription Summary:', data);
+        console.log('Subscription Summary:', data.length, data);
 
-        this.subscriptionSummaryDisplayedColumns = Object.keys(data[0]);
         this.subscriptionSummaryDisplayedColumns = this.removeColumns(
-          this.subscriptionSummaryDisplayedColumns,
+          Object.keys(data[0]),
           ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE']
         );
-
-        console.log(
-          'Subscription Summary Columns:',
-          this.subscriptionSummaryDisplayedColumns
-        );
         this.subscriptionSummaryDataSource = new MatTableDataSource(data);
+        this.navTotals[1].count = data.length;
       });
 
     this.http
@@ -102,27 +145,14 @@ export class O2c360Component implements OnInit {
       .get('invoice-summary', this.destroyManager)
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
-
-        this.invoiceSummaryDisplayedColumns = [
-          'TRX_NUMBER',
-          'TRX_CLASS',
-          'TRX_STATUS',
-          'TRX_DATE',
-          'DUE_DATE',
-          'STATUS',
-          'AMOUNT_DUE_ORIGINAL',
-          'AMOUNT_DUE_REMAINING',
-          'BILL_NUMBER',
-          'OTHER_DETAILS',
-        ];
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
+        this.navTotals[2].count = data.length;
       });
 
     this.http
       .get('invoice-line-summary', this.destroyManager)
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
-
         this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
       });
@@ -153,7 +183,7 @@ export class O2c360Component implements OnInit {
   }
 
   get invoiceContainerWidth(): string {
-    if (!this.expanded.invoice) return '100%';
+    if (!this.expanded.invoice && !this.expanded.subscription) return '100%';
     return this.sidebarExpanded ? 'calc(100% - 255px)' : 'calc(100% - 71px)';
   }
 }

@@ -25,6 +25,6 @@ export class O2cSidebarNavComponent {
 
   selectItem(label: string) {
     this.activeItem = label;
-    // emit event or navigate here if needed
+    this.sidebarService.setActiveItem(label);
   }
 }
