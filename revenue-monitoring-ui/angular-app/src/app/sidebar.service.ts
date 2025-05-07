@@ -10,4 +10,11 @@ export class SidebarService {
   setSidebarState(isExpanded: boolean) {
     this._isExpanded.next(isExpanded);
   }
+
+  private _activeItem = new BehaviorSubject<string>('Orders');
+  activeItem$ = this._activeItem.asObservable();
+
+  setActiveItem(item: string) {
+    this._activeItem.next(item);
+  }
 }

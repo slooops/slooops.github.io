@@ -32,7 +32,7 @@ export class O2cNavComponent {
 
     if (!searchKey) {
       // If search is empty, navigate to the landing page
-      this.router.navigate(['/o2c-landing']);
+      this.router.navigate(['/o2c-360']);
       console.log('Navigating to O2C Landing Page');
       return;
     }

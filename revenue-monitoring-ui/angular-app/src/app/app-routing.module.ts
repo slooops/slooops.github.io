@@ -9,7 +9,6 @@ import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
 import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
@@ -33,6 +32,8 @@ import { O2c360Component } from './o2c-360/o2c-360.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { CmsComponent } from './cms/cms.component';
+import { O2cSubComponent } from './o2c-sub/o2c-sub.component';
+import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
 
 const routes: Routes = [
   {
@@ -193,15 +194,7 @@ const routes: Routes = [
     component: O2cOrderComponent,
     data: { title: 'O2C Orders', header: 'O2C Orders', hideNavbar: true },
   },
-  {
-    path: 'o2c-sub',
-    component: O2cSubComponent,
-    data: {
-      title: 'O2C Subscriptions',
-      header: 'O2C Subscriptions',
-      hideNavbar: true,
-    },
-  },
+
   {
     path: 'o2c-accrual',
     component: O2cAccrualComponent,
@@ -220,6 +213,17 @@ const routes: Routes = [
   {
     path: 'o2c-360',
     component: O2c360Component,
+    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+  },
+
+  {
+    path: 'o2c-sub',
+    component: O2cSubComponent,
+    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+  },
+  {
+    path: 'o2c-invoice',
+    component: O2cInvoiceComponent,
     data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
   },
   {

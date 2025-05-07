@@ -134,57 +134,98 @@
 .accordion-content {
   margin-top: -7px;
   padding: 0;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.3s linear;
   border: none;
-  overflow-x: auto;
+  /* z-index: -1; */
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-0px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0px);
   }
-}
-
-td.mat-cell {
-  padding: 10px !important;
-  font-size: 12px !important;
-  text-align: left;
-  color: #000;
-  width: 11vw;
-  border: 1px solid #ababab !important;
-  width: 11vw;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-th.mat-header-cell {
-  font-weight: 700;
-  padding: 10px !important;
-  font-size: 12px !important;
-  text-align: left;
-  color: #000;
-  border: 1px solid #ababab !important;
-  width: 11vw;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .invoice-summary-table {
   overflow-x: scroll;
 }
 
-tr.mat-row {
-  height: 30px;
-  border-bottom: 0px;
+.view-all-button {
+  color: var(--Blues-Blue-60, #0076d5);
+
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+
+  cursor: pointer;
 }
 
+.view-all-button:hover {
+  text-decoration: none !important;
+  color: #4a99d9 !important;
+}
+
+th.mat-header-cell,
+td.mat-cell {
+  padding: 10px !important;
+  font-size: 12px !important;
+  text-align: left;
+  border: 1px solid #ababab;
+  width: 11vw;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+th.mat-header-cell {
+  font-weight: 700;
+  color: #394454;
+}
+
+td.mat-cell {
+  color: #243034;
+}
+
+tr.mat-row,
 tr.mat-header-row {
   height: 30px;
+  border-bottom: 0;
+}
+
+/* order table styles */
+.order-table th.mat-header-cell,
+.order-table td.mat-cell {
+  border: none;
+  padding: 0px 0.5vw !important;
+}
+
+.order-table th.mat-header-cell {
+  font-weight: 700;
+  color: #394454;
+}
+
+.order-table td.mat-cell {
+  color: #243034;
+  overflow-wrap: anywhere;
+  white-space: wrap;
+  vertical-align: top;
+}
+
+.order-table tr.mat-header-row {
+  height: 16px;
+  border-bottom: 0;
+}
+.order-table tr.mat-row {
+  height: 22px;
+  border-bottom: 0;
+}
+
+.order-table .wide-column {
+  width: 20vw;
+  max-width: 20vw;
+  white-space: wrap;
 }
