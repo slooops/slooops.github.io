@@ -115,8 +115,8 @@ import { ModalComponent } from './components/modal/modal.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
-    return authService.getTokens().then(() => {
-      return authService.getUserId();
+    return authService.getUserId().then(() => {
+      return authService.getTokens();
     });
   };
 }
