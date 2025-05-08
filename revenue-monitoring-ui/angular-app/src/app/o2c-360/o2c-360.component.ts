@@ -339,6 +339,16 @@ export class O2c360Component implements OnInit {
         this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
       });
+
+    this.getO2cConnector();
+  }
+
+  getO2cConnector() {
+    this.http
+      .get('o2c-connector', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('o2cConnector:', data);
+      });
   }
 
   formatColumnName(column: string): string {
@@ -352,6 +362,10 @@ export class O2c360Component implements OnInit {
       'srt',
       'e-del',
       'irn/uuid',
+      'ar',
+      'usp',
+      '(usd)',
+      'sku',
     ];
     const name = column.replace(/_/g, ' ').toLowerCase();
     return name

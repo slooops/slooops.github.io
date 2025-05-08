@@ -13,6 +13,24 @@
   </p>
 </div>
 
+<div class="custom-search-bar">
+  <select [(ngModel)]="searchType" class="custom-search-dropdown">
+    <option value="order">Order Number</option>
+    <option value="invoice">Invoice Number</option>
+    <option value="subscription">Subscription Number</option>
+  </select>
+
+  <input
+    type="text"
+    [placeholder]="'Search ' + formatSearchType(searchType) + '...'"
+    class="custom-search-input"
+    [(ngModel)]="searchValue"
+    (keyup.enter)="onSearch()"
+  />
+
+  <i class="svg-icon search-icon" (click)="onSearch()"></i>
+</div>
+
 <!-- Pick Up Where You Left Off Table -->
 <div class="o2c-rows">
   <h3 class="table-title">Pick Up Where You Left Off</h3>

@@ -184,26 +184,32 @@
             </th>
 
             <td mat-cell *matCellDef="let element">
-              <ng-container
-                *ngIf="column === 'TRANSACTION_NUMBER'; else otherCell"
-              >
-                <a
-                  href="#"
-                  (click)="
-                    openInvoiceModal(element[column]); $event.preventDefault()
-                  "
-                >
-                  {{ element[column] }}
-                </a>
-              </ng-container>
+              <ng-container [ngSwitch]="column">
+                <!-- TRANSACTION_NUMBER: opens modal -->
+                <ng-container *ngSwitchCase="'TRANSACTION_NUMBER'">
+                  <a
+                    href="#"
+                    (click)="
+                      openInvoiceModal(element[column]); $event.preventDefault()
+                    "
+                  >
+                    {{ element[column] }}
+                  </a>
+                </ng-container>
 
-              <ng-template #otherCell>
-                {{
-                  column === "TRANSACTION_DATE" || column === "DUE_DATE"
-                    ? (element[column] | date : "yyyy/MM/dd")
-                    : element[column]
-                }}
-              </ng-template>
+                <!-- OTHER_DETAILS: goes to /o2c-invoice -->
+                <ng-container *ngSwitchCase="'OTHER_DETAILS'">
+                  <a href="/o2c-invoice">{{ element[column] }}</a>
+                </ng-container>
+
+                <ng-container *ngSwitchDefault>
+                  {{
+                    column === "TRANSACTION_DATE" || column === "DUE_DATE"
+                      ? (element[column] | date : "yyyy/MM/dd")
+                      : element[column]
+                  }}
+                </ng-container>
+              </ng-container>
             </td>
           </ng-container>
 
@@ -262,7 +268,7 @@
 <app-modal
   *ngIf="showInvoiceModal"
   [title]="
-    'Invoice Line Summary  &nbsp; -  &nbsp; ' +
+    'Transaction Number  &nbsp; -  &nbsp; ' +
     selectedTransactionNumber +
     '  &nbsp;&nbsp; | &nbsp;&nbsp; Web Order ID  &nbsp; -  &nbsp; ' +
     orderID

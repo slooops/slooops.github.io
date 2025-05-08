@@ -44,4 +44,9 @@ public class O2CMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getSubscriptionLineSummary() {
         return new ResponseEntity<>(service.getSubscriptionLineSummary(), HttpStatus.OK);
     }
+
+    @GetMapping("/o2c-connector")
+    public ResponseEntity<List<Map<String, Object>>> getO2cConnector() {
+        return new ResponseEntity<>(service.getO2cConnector(), HttpStatus.OK);
+    }
 }

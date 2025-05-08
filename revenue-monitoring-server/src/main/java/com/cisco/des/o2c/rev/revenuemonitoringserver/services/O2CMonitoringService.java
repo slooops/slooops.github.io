@@ -18,15 +18,20 @@ public class O2CMonitoringService {
     private String invoiceLineSummary;
     private String subscriptionSummary;
     private String subscriptionLineSummary;
+    private String o2cConnector;
+
 
     @Autowired
-    public O2CMonitoringService(JdbcManager jdbcManager, String orderSummary, String invoiceSummary, String invoiceLineSummary, String subscriptionSummary, String subscriptionLineSummary) {
+    public O2CMonitoringService(JdbcManager jdbcManager, String orderSummary, String invoiceSummary,
+                                String invoiceLineSummary, String subscriptionSummary,
+                                String subscriptionLineSummary, String o2cConnector) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
         this.invoiceSummary = invoiceSummary;
         this.invoiceLineSummary = invoiceLineSummary;
         this.subscriptionSummary = subscriptionSummary;
         this.subscriptionLineSummary = subscriptionLineSummary;
+        this.o2cConnector = o2cConnector;
     }
 
     public List<Map<String, Object>> getOrderSummary() {
@@ -52,5 +57,9 @@ public class O2CMonitoringService {
     public List<Map<String, Object>> getSubscriptionLineSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForO2CData(subscriptionLineSummary);
         return result;
+    }
+
+    public List<Map<String, Object>> getO2cConnector() {
+        return jdbcManager.queryForList(o2cConnector);
     }
 }

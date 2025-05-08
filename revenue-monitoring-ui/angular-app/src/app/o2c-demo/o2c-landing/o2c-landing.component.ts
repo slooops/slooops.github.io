@@ -20,14 +20,17 @@ export class O2cLandingComponent implements OnInit {
 
   circleSteps: string[] = [];
   searchValue: string = '';
+  searchType: string = 'order'; // default
+
   noResults: boolean = false;
 
   // Search Mapping (User Input -> Route + QueryParam Name)
   searchMap: { [key: string]: { route: string; paramName: string } } = {
-    '4910695': { route: '/o2c-accrual', paramName: 'accrualId' },
-    '75947116': { route: '/o2c-order', paramName: 'dealId' },
-    Sub1797786: { route: '/o2c-sub', paramName: 'subRefId' },
-    Sub1797787: { route: '/o2c-sub', paramName: 'subRefId' },
+    '91742826': { route: '/o2c-360', paramName: 'orderId' },
+    '4910695': { route: '/o2c-360', paramName: 'accrualId' },
+    '75947116': { route: '/o2c-360', paramName: 'dealId' },
+    Sub1797786: { route: '/o2c-360', paramName: 'subRefId' },
+    Sub1797787: { route: '/o2c-360', paramName: 'subRefId' },
   };
   searchEntries: MatTableDataSource<any> = new MatTableDataSource([]);
 
@@ -56,11 +59,24 @@ export class O2cLandingComponent implements OnInit {
     });
   }
 
+  formatSearchType(type: string): string {
+    switch (type) {
+      case 'order':
+        return 'Order #';
+      case 'invoice':
+        return 'Invoice #';
+      case 'subscription':
+        return 'Subscription #';
+      default:
+        return '';
+    }
+  }
+
   onSearch(): void {
     const searchKey = this.searchValue.trim();
 
     if (!searchKey) {
-      this.router.navigate(['/o2c-landing']);
+      this.router.navigate(['/o2c-360']);
       console.log('Navigating to O2C Landing Page');
       return;
     }
@@ -72,7 +88,7 @@ export class O2cLandingComponent implements OnInit {
       });
       console.log(`Navigating to ${route} with ${paramName}: ${searchKey}`);
     } else {
-      this.router.navigate(['/o2c-landing'], {
+      this.router.navigate(['/o2c-360'], {
         queryParams: { noResults: 'true' },
       });
       console.warn('No matching route found for search:', searchKey);
@@ -97,25 +113,6 @@ export class O2cLandingComponent implements OnInit {
 
       console.log(`Navigating to ${route} with ${paramName}: ${value}`);
     }
-  }
-
-  getCircleClass(step: string): string {
-    const value = this.circleStatus[step];
-    if (value === 2) return 'completed-circle';
-    if (value === 1) return 'current-circle';
-    return 'uncompleted-circle';
-  }
-
-  getSliderBarStyle(index: number): { [key: string]: string } {
-    const step = this.circleSteps[index];
-    const value = this.circleStatus[step];
-
-    return {
-      background:
-        value === 1
-          ? 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)'
-          : '#16371e43',
-    };
   }
 
   removeUnderscores(key: string): string {

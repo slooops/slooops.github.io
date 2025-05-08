@@ -1038,4 +1038,10 @@ public class QueryConfigs {
 
     @Bean(name = "subscriptionLineSummary")
     public String getSubscriptionLineSummary() { return this.subscriptionLineSummary; }
+
+    @Value(("${o2c.connector.q}"))
+    public String o2cConnector;
+
+    @Bean( name = "o2cConnector" )
+    public String getO2cConnector() {return this.o2cConnector; }
 }
