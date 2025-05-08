@@ -4,6 +4,9 @@ const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
+const authClientId = process.env.AUTH_CLIENT_ID || "default_client_id";
+const authClientSecret =
+  process.env.AUTH_CLIENT_SECRET || "default_client_secret";
 
 app.use(express.json());
 
@@ -20,6 +23,8 @@ app.get("/user/name", (req, res) => {
   res.json({
     auth_user: req.authenticatedUserName,
     auth_user_name: req.authenticatedUserFirstName,
+    auth_client_id: authClientId,
+    auth_client_secret: authClientSecret,
   });
 });
 

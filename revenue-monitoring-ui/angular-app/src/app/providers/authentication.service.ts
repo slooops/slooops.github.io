@@ -130,6 +130,7 @@ export class AuthenticationService {
     return fetch('/user/name')
       .then((response) => response.json())
       .then(async (info) => {
+        console.log('User info:', info);
         this.username = info['auth_user_name'];
         this.userId = info['auth_user'];
         // await this.getUserRoles(info['auth_user']);
