@@ -1,10 +1,5 @@
 <app-o2c-nav></app-o2c-nav>
 
-<!-- <app-o2c-process-flow
-  [circleStatus]="circleStatus"
-  [navigationMap]="navigationMap"
-></app-o2c-process-flow> -->
-
 <div class="landing-container">
   <h2 class="welcome-text">Hi Jack!</h2>
   <p class="welcome-body">
@@ -20,58 +15,14 @@
     <option value="subscription">Subscription Number</option>
   </select>
 
+  <!-- [placeholder]="'Search ' + formatSearchType(searchType) + '...'" -->
+
   <input
     type="text"
-    [placeholder]="'Search ' + formatSearchType(searchType) + '...'"
     class="custom-search-input"
     [(ngModel)]="searchValue"
     (keyup.enter)="onSearch()"
   />
 
   <i class="svg-icon search-icon" (click)="onSearch()"></i>
-</div>
-
-<!-- Pick Up Where You Left Off Table -->
-<div class="o2c-rows">
-  <h3 class="table-title">Pick Up Where You Left Off</h3>
-  <table
-    class="header-card table table-condensed"
-    style="border-top: 2px solid #ddd; text-align: left"
-  >
-    <thead
-      style="
-        padding: 8px !important;
-        line-height: 1.42857143;
-        vertical-align: top;
-        border-top: 1px solid #ddd;
-        text-align: left;
-      "
-    >
-      <tr>
-        <th>ID</th>
-        <th>Step</th>
-        <th>Route</th>
-        <th>Parameter Name</th>
-      </tr>
-    </thead>
-    <tbody
-      style="
-        padding: 8px !important;
-        line-height: 1.42857143;
-        vertical-align: top;
-        border-top: 1px solid #ddd;
-      "
-    >
-      <tr
-        *ngFor="let entry of searchEntries.data"
-        (click)="onSearchEntryClick(entry)"
-        (keydown)="onSearchEntryKeyDown($event, entry)"
-      >
-        <td>{{ entry.id }}</td>
-        <td>{{ entry.step }}</td>
-        <td>{{ entry.route }}</td>
-        <td>{{ entry.paramName }}</td>
-      </tr>
-    </tbody>
-  </table>
 </div>

@@ -3,6 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-360',
@@ -15,6 +16,9 @@ export class O2c360Component implements OnInit {
     subscription: false,
     invoice: false,
   };
+
+  searchValue: string | null = null;
+  searchType: string | null = null;
 
   showDetailsModal = false;
 
@@ -265,7 +269,8 @@ export class O2c360Component implements OnInit {
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private route: ActivatedRoute
   ) {}
 
   sidebarExpanded = true;
@@ -289,24 +294,50 @@ export class O2c360Component implements OnInit {
       }
     });
 
+    this.route.queryParamMap.subscribe((params) => {
+      const orderId = params.get('orderId');
+      const subRefIds = params.get('subRefIds')?.split(',') || [];
+      const invoiceIds = params.get('invoiceIds')?.split(',') || [];
+
+      console.log('Received in O2C-360:');
+      console.log('Order:', orderId);
+      console.log('Subscriptions:', subRefIds);
+      console.log('Invoices:', invoiceIds);
+
+      // Use these to filter your tables or trigger fetches
+    });
+
+    this.getOrderSummary();
+    this.getSubscriptionSummary();
+    this.getSubscriptionLineSummary();
+    this.getInvoiceSummary();
+    this.getInvoiceLineSummary();
+    this.getO2cConnector();
+  }
+
+  handleSearch(value: string, type: string) {
+    console.log(`Searching for ${type}: ${value}`);
+    // ➕ Insert your filtering logic here
+    // Example: filter your dataSource, call API, etc.
+  }
+
+  private getOrderSummary(): void {
     this.http
-      .get('order-summary', this.destroyManager, {
-        responseType: 'json',
-      })
+      .get('order-summary', this.destroyManager, { responseType: 'json' })
       .subscribe((data: any) => {
         console.log('Order Summary:', data);
-
         this.orderSummaryDataSource = new MatTableDataSource(
           data.filter((data) => data.WEB_ORDER_ID === this.orderID)
         );
         this.navTotals[0].count = data.length;
       });
+  }
 
+  private getSubscriptionSummary(): void {
     this.http
       .get('subscription-summary', this.destroyManager)
       .subscribe((data: any) => {
         console.log('Subscription Summary:', data.length, data);
-
         this.subscriptionSummaryDisplayedColumns = this.removeColumns(
           Object.keys(data[0]),
           ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE']
@@ -314,16 +345,19 @@ export class O2c360Component implements OnInit {
         this.subscriptionSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[1].count = data.length;
       });
+  }
 
+  private getSubscriptionLineSummary(): void {
     this.http
       .get('subscription-line-summary', this.destroyManager)
       .subscribe((data: any) => {
         console.log('Subscription Lines:', data);
-
         this.subscriptionLinesDisplayedColumns = Object.keys(data[0]);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
       });
+  }
 
+  private getInvoiceSummary(): void {
     this.http
       .get('invoice-summary', this.destroyManager)
       .subscribe((data: any) => {
@@ -331,7 +365,9 @@ export class O2c360Component implements OnInit {
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
       });
+  }
 
+  private getInvoiceLineSummary(): void {
     this.http
       .get('invoice-line-summary', this.destroyManager)
       .subscribe((data: any) => {
@@ -339,11 +375,9 @@ export class O2c360Component implements OnInit {
         this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
       });
-
-    this.getO2cConnector();
   }
 
-  getO2cConnector() {
+  private getO2cConnector() {
     this.http
       .get('o2c-connector', this.destroyManager)
       .subscribe((data: any) => {
