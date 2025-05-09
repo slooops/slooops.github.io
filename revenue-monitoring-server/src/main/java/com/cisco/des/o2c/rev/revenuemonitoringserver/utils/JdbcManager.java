@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,29 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
-    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
-        return primaryJdbcTemplate.queryForList(sql, field, value);
+    public List<Map<String, Object>> queryForO2CConnectorData(String field, String value) {
+        String query = "SELECT WEBORDER_ID, SUBSCRIPTION_REF_ID, TRX_NUMBER FROM ARFINRO.ORDER_TO_CASH_CONNECTOR WHERE " + field + " = ?";
+        return primaryJdbcTemplate.queryForList(query, value);
+    }
+
+    public List<Map<String, Object>> o2cInvoiceSummary(String sql, String value) {
+        return primaryJdbcTemplate.queryForList(sql, value);
+    }
+
+    public List<Map<String, Object>> o2cSubscriptionSummary(String sql, String value) {
+        return primaryJdbcTemplate.queryForList(sql, value);
+    }
+
+    public List<Map<String, Object>> o2cOrderSummary(String sql, String value) {
+        return primaryJdbcTemplate.queryForList(sql, value);
+    }
+
+    public List<Map<String, Object>> o2cInvoiceLineSummary(String sql, String value) {
+        return primaryJdbcTemplate.queryForList(sql, value);
+    }
+
+    public List<Map<String, Object>> o2cSubscriptionLineSummary(String sql, String value) {
+        return primaryJdbcTemplate.queryForList(sql, value);
     }
 
     public int updateComments(String sql, String closeType, String comments) {
