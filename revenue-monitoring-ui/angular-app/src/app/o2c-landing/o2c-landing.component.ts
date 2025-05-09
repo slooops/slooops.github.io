@@ -38,6 +38,25 @@ export class O2cLandingComponent implements OnInit {
     const trimmedValue = this.searchValue.trim();
     if (!trimmedValue || this.o2cConnectorData.length === 0) return;
 
+    const columnMap: { [key: string]: string } = {
+      order: 'WEBORDER_ID',
+      subscription: 'SUBSCRIPTION_REF_ID',
+      invoice: 'TRX_NUMBER',
+    };
+
+    const columnName = columnMap[this.searchType] || 'UNKNOWN_COLUMN';
+
+    this.http
+      .post('o2c-search-filter', {
+        column: columnName,
+        value: trimmedValue,
+      })
+      .subscribe({
+        next: () =>
+          console.log(`Logged search: ${columnName} = ${trimmedValue}`),
+        error: (err) => console.error('Error logging search:', err),
+      });
+
     let matchingRows: any[] = [];
 
     switch (this.searchType) {

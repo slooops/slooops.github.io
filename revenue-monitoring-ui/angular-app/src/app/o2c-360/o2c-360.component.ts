@@ -315,7 +315,7 @@ export class O2c360Component implements OnInit {
     this.getSubscriptionLineSummary();
     this.getInvoiceSummary();
     this.getInvoiceLineSummary();
-    this.getO2cConnector();
+    // this.getO2cConnector();
   }
 
   handleSearch(value: string, type: string) {
