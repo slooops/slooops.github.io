@@ -22,7 +22,7 @@ export class O2cLandingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getO2cConnector();
+    // this.getO2cConnector();
   }
 
   private getO2cConnector() {
@@ -36,7 +36,7 @@ export class O2cLandingComponent implements OnInit {
 
   onSearch(): void {
     const trimmedValue = this.searchValue.trim();
-    if (!trimmedValue || this.o2cConnectorData.length === 0) return;
+    // if (!trimmedValue || this.o2cConnectorData.length === 0) return;
 
     const columnMap: { [key: string]: string } = {
       order: 'WEBORDER_ID',
@@ -47,13 +47,30 @@ export class O2cLandingComponent implements OnInit {
     const columnName = columnMap[this.searchType] || 'UNKNOWN_COLUMN';
 
     this.http
-      .post('o2c-search-filter', {
+      .post('o2c-connector-search', {
         column: columnName,
         value: trimmedValue,
       })
       .subscribe({
-        next: () =>
-          console.log(`Logged search: ${columnName} = ${trimmedValue}`),
+        next: (data: any) => {
+          console.log(data);
+          const orderIds = [
+            ...new Set(data.map((r) => r.WEBORDER_ID).filter(Boolean)),
+          ];
+          const subRefIds = [
+            ...new Set(data.map((r) => r.SUBSCRIPTION_REF_ID).filter(Boolean)),
+          ];
+          const trxNumbers = [
+            ...new Set(data.map((r) => r.TRX_NUMBER).filter(Boolean)),
+          ];
+          this.router.navigate(['/o2c-360'], {
+            queryParams: {
+              orderId: orderIds[0],
+              subRefIds: subRefIds.join(','),
+              invoiceIds: trxNumbers.join(','),
+            },
+          });
+        },
         error: (err) => console.error('Error logging search:', err),
       });
 
@@ -85,28 +102,8 @@ export class O2cLandingComponent implements OnInit {
       return;
     }
 
-    const orderIds = [
-      ...new Set(matchingRows.map((r) => r.WEBORDER_ID).filter(Boolean)),
-    ];
-    const subRefIds = [
-      ...new Set(
-        matchingRows.map((r) => r.SUBSCRIPTION_REF_ID).filter(Boolean)
-      ),
-    ];
-    const trxNumbers = [
-      ...new Set(matchingRows.map((r) => r.TRX_NUMBER).filter(Boolean)),
-    ];
-
     // console.log('Order IDs:', orderIds);
     // console.log('Subscription Ref IDs:', subRefIds);
     // console.log('Invoice (TRX) Numbers:', trxNumbers);
-
-    this.router.navigate(['/o2c-360'], {
-      queryParams: {
-        orderId: orderIds[0],
-        subRefIds: subRefIds.join(','),
-        invoiceIds: trxNumbers.join(','),
-      },
-    });
   }
 }

@@ -34,28 +34,29 @@ public class O2CMonitoringService {
         this.o2cConnector = o2cConnector;
     }
 
-    public List<Map<String, Object>> getOrderSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(orderSummary);
+    public List<Map<String, Object>> getOrderSummary(String orderId) {
+        System.out.println(orderId);
+        List<Map<String, Object>> result = jdbcManager.o2cOrderSummary(orderSummary, orderId);
         return result;
     }
 
-    public List<Map<String, Object>> getInvoiceSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(invoiceSummary);
+    public List<Map<String, Object>> getInvoiceSummary(String invoiceId) {
+        List<Map<String, Object>> result = jdbcManager.o2cInvoiceSummary(invoiceSummary, invoiceId);
         return result;
     }
 
-    public List<Map<String, Object>> getInvoiceLineSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(invoiceLineSummary);
+    public List<Map<String, Object>> getInvoiceLineSummary(String invoiceId) {
+        List<Map<String, Object>> result = jdbcManager.o2cInvoiceLineSummary(invoiceLineSummary, invoiceId);
         return result;
     }
 
-    public List<Map<String, Object>> getSubscriptionSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(subscriptionSummary);
+    public List<Map<String, Object>> getSubscriptionSummary(String subscriptionId) {
+        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionSummary(subscriptionSummary, subscriptionId);
         return result;
     }
 
-    public List<Map<String, Object>> getSubscriptionLineSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(subscriptionLineSummary);
+    public List<Map<String, Object>> getSubscriptionLineSummary(String subscriptionId) {
+        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionLineSummary(subscriptionLineSummary, subscriptionId);
         return result;
     }
 
@@ -64,6 +65,6 @@ public class O2CMonitoringService {
     }
 
     public List<Map<String, Object>> getO2cConnectorData(String field, String value) {
-        return jdbcManager.queryForO2CConnectorData(o2cConnector, field, value);
+        return jdbcManager.queryForO2CConnectorData(field, value);
     }
 }

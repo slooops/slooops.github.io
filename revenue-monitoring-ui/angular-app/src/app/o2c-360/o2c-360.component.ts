@@ -160,9 +160,19 @@ export class O2c360Component implements OnInit {
     });
 
     this.route.queryParamMap.subscribe((params) => {
+      console.log('Query Params:', params);
+
       this.orderId = params.get('orderId') || '91742826';
+      const orderIdList = this.orderId ? [this.orderId] : [];
       this.subRefIds = params.get('subRefIds')?.split(',') || ['Sub1126960'];
       this.invoiceIds = params.get('invoiceIds')?.split(',') || [
+        '6101427996',
+        '6101129079',
+      ];
+
+      const orderId = params.get('orderId') || '91742826';
+      const subRefIds = params.get('subRefIds')?.split(',') || ['Sub1126960'];
+      const invoiceIds = params.get('invoiceIds')?.split(',') || [
         '6101427996',
         '6101129079',
       ];
@@ -172,14 +182,15 @@ export class O2c360Component implements OnInit {
       console.log('Subscriptions:', this.subRefIds);
       console.log('Invoices:', this.invoiceIds);
 
+      this.getOrderSummary(orderIdList);
+      this.getSubscriptionSummary(subRefIds);
+      this.getSubscriptionLineSummary(subRefIds);
+      this.getInvoiceSummary(invoiceIds);
+      this.getInvoiceLineSummary(invoiceIds);
+
       // Use these to filter your tables or trigger fetches
     });
 
-    this.getOrderSummary();
-    this.getSubscriptionSummary();
-    this.getSubscriptionLineSummary();
-    this.getInvoiceSummary();
-    this.getInvoiceLineSummary();
     // this.getO2cConnector();
   }
 
@@ -189,9 +200,15 @@ export class O2c360Component implements OnInit {
     // Example: filter your dataSource, call API, etc.
   }
 
-  private getOrderSummary(): void {
+  private getOrderSummary(orderIdList: any): void {
+    const payload = {
+      orderIds: orderIdList,
+    };
+
     this.http
-      .get('order-summary', this.destroyManager, { responseType: 'json' })
+      .get('order-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         const filtered = data.filter(
           (row) => row.WEB_ORDER_ID === this.orderId
@@ -201,9 +218,14 @@ export class O2c360Component implements OnInit {
       });
   }
 
-  private getSubscriptionSummary(): void {
+  private getSubscriptionSummary(subRefIds: any): void {
+    const payload = {
+      subRefIds: subRefIds,
+    };
     this.http
-      .get('subscription-summary', this.destroyManager)
+      .get('subscription-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         const filtered = data.filter((row) =>
           this.subRefIds.includes(row.SUBSCRIPTION_ID)
@@ -217,18 +239,28 @@ export class O2c360Component implements OnInit {
       });
   }
 
-  private getSubscriptionLineSummary(): void {
+  private getSubscriptionLineSummary(subRefIds: any): void {
+    const payload = {
+      subRefIds: subRefIds,
+    };
     this.http
-      .get('subscription-line-summary', this.destroyManager)
+      .get('subscription-line-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         // console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
       });
   }
 
-  private getInvoiceSummary(): void {
+  private getInvoiceSummary(invoiceIds: any): void {
+    const payload = {
+      invoiceIds: invoiceIds,
+    };
     this.http
-      .get('invoice-summary', this.destroyManager)
+      .get('invoice-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
         const filtered = data.filter((row) =>
@@ -239,9 +271,14 @@ export class O2c360Component implements OnInit {
       });
   }
 
-  private getInvoiceLineSummary(): void {
+  private getInvoiceLineSummary(invoiceIds: any): void {
+    const payload = {
+      invoiceIds: invoiceIds,
+    };
     this.http
-      .get('invoice-line-summary', this.destroyManager)
+      .get('invoice-line-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
         this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
