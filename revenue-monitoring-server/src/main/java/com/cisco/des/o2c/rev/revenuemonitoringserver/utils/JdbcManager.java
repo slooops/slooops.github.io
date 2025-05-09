@@ -33,6 +33,10 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
+    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
+        return primaryJdbcTemplate.queryForList(sql, field, value);
+    }
+
     public int updateComments(String sql, String closeType, String comments) {
         return primaryJdbcTemplate.update(sql, closeType, comments);
     }
