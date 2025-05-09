@@ -295,9 +295,12 @@ export class O2c360Component implements OnInit {
     });
 
     this.route.queryParamMap.subscribe((params) => {
-      const orderId = params.get('orderId');
-      const subRefIds = params.get('subRefIds')?.split(',') || [];
-      const invoiceIds = params.get('invoiceIds')?.split(',') || [];
+      const orderId = params.get('orderId') || '91742826';
+      const subRefIds = params.get('subRefIds')?.split(',') || ['Sub1126960'];
+      const invoiceIds = params.get('invoiceIds')?.split(',') || [
+        '6101427996',
+        '6101129079',
+      ];
 
       console.log('Received in O2C-360:');
       console.log('Order:', orderId);
