@@ -3,6 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-360',
@@ -16,6 +17,13 @@ export class O2c360Component implements OnInit {
     invoice: false,
   };
 
+  searchValue: string | null = null;
+  searchType: string | null = null;
+
+  orderId: string = '';
+  subRefIds: string[] = [];
+  invoiceIds: string[] = [];
+
   showDetailsModal = false;
 
   showSubscriptionModal = false;
@@ -24,7 +32,9 @@ export class O2c360Component implements OnInit {
 
   showInvoiceModal = false;
   selectedTransactionNumber: string | null = null;
-  selectedInvoiceOrderId: string | null = null;
+
+  invoiceDataLoaded = false;
+  subscriptionDataLoaded = false;
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
@@ -39,8 +49,6 @@ export class O2c360Component implements OnInit {
     { label: 'Subscriptions', icon: 'bookmark-icon', count: null },
     { label: 'Invoices', icon: 'receipt-icon', count: null },
   ];
-
-  orderID: string = '91742826';
 
   orderSummaryDisplayedColumns1: string[] = [
     'WEB_ORDER_ID',
@@ -63,14 +71,10 @@ export class O2c360Component implements OnInit {
     'PARTNER',
     'END_CUSTOMER',
   ];
-  orderSummaryDisplayedColumns: string[] = [];
   orderSummaryDataSource = new MatTableDataSource<any>();
 
   subscriptionSummaryDisplayedColumns: string[] = [];
   subscriptionSummaryDataSource = new MatTableDataSource<any>();
-
-  subscriptionLinesDisplayedColumns: string[] = [];
-  subscriptionLinesDataSource = new MatTableDataSource<any>();
 
   invoiceSummaryDisplayedColumns: string[] = [
     'TRANSACTION_NUMBER',
@@ -84,188 +88,55 @@ export class O2c360Component implements OnInit {
     'BILL_NUMBER',
     'OTHER_DETAILS',
   ];
+  displayedColumnsInvoicePrintStatus: string[] = [
+    'INVOICE_DELIVERY_METHOD',
+    'PRINT_DATE',
+    'PRINT_STATUS',
+    'EMAIL_ADDRESS',
+    'SFTP',
+    'B2B',
+    'SRT_CONTACT_EMAIL',
+  ];
+  displayedColumnsInvoiceStatus: string[] = [
+    'EINVOICING_STATUS',
+    'IRN_UUID',
+    'IRN_UUID_DATE',
+    'PREVIOUS_IRN_UUID',
+    'COLLECTOR',
+  ];
+  displayedColumnsInvoiceCash: string[] = [
+    'RECEIPT_APPLIED',
+    'CM_APPLIED',
+    'WRITEOFF_ADJUSTMENTS',
+  ];
   invoiceSummaryDataSource = new MatTableDataSource<any>();
+  invoiceSummaryModalDataSource = new MatTableDataSource<any>();
+
+  displayedColumnsSubscriptionModal: string[] = [
+    'WEBORDER_LINEID',
+    'SKU_DESCRIPTION',
+    'CHARGE_TYPE',
+    'QTY',
+    'UNIT_SELLING_PRICE',
+    'DURATION',
+    'LINE_AMOUNT',
+    'BILL_LINEREFERENCE',
+    'CHARGE_CYCLE',
+    'TSV_CREATED',
+    'POSTED_TO_GL',
+    'GL_DATE',
+  ];
+  subscriptionLinesDataSource = new MatTableDataSource<any>();
 
   invoiceLinesDisplayedColumns: string[] = [];
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
-  displayedColumnsSubscriptionModal: string[] = [
-    // 'Subscription_ID',
-    // 'WebOrder',
-    'Web_Order_Line_ID',
-    // 'SKU',
-    'SKU_Description',
-    'Charge_Type',
-    'Quantity',
-    'Duration',
-    'Line_Amount',
-    'Bill_Line_Reference',
-    'Billing_Frequency',
-    'USP_(USD)',
-    'Pricing_Term',
-    'Charge_Cycle',
-    // 'Charge_Cycle_End_Date',
-    'Bill_Number',
-    'AR_Trxn_Number',
-  ];
-  dataSourceSubscriptionModal = new MatTableDataSource<any>([
-    {
-      Subscription_ID: 'Sub1797786',
-      WebOrder: '96635062',
-      Web_Order_Line_ID: '328252623',
-      SKU: 'ETD-ESS-LIC',
-      SKU_Description: 'Cisco Email Threat Defense Essential License',
-      Charge_Type: 'Recurring',
-      Quantity: '125',
-      Duration: '12',
-      Billing_Frequency: 'Prepaid',
-      'USP_(USD)': '12.46',
-      Pricing_Term: '12',
-      Line_Amount: '1557.49',
-      Charge_Cycle: '3/15/2024 - 3/14/2025',
-      Charge_Cycle_End_Date: '3/14/2025',
-      Bill_Number: '1000728386177',
-      Bill_Line_Reference: '3-348272651709527498',
-      AR_Trxn_Number: '6102098772',
-    },
-
-    {
-      Subscription_ID: 'Sub1797786',
-      WebOrder: '96635062',
-      Web_Order_Line_ID: '328252624',
-      SKU: 'SVS-ETD-SUP-E',
-      SKU_Description: 'Enhanced Support for Email Threat Defense',
-      Charge_Type: 'Recurring',
-      Quantity: '1',
-      Duration: '12',
-      Billing_Frequency: 'Prepaid',
-      'USP_(USD)': '23.52',
-      Pricing_Term: '1',
-      Line_Amount: '282.24',
-      Charge_Cycle: '3/15/2024 - 3/14/2025',
-      Charge_Cycle_End_Date: '3/14/2025',
-      Bill_Number: '1000728386177',
-      Bill_Line_Reference: '3-348272651709528010',
-      AR_Trxn_Number: '6102098772',
-    },
-
-    {
-      Subscription_ID: 'Sub1797787',
-      WebOrder: '96635062',
-      Web_Order_Line_ID: '328252626',
-      SKU: 'UMB-DNS-ADV-K9',
-      SKU_Description: 'Cisco Umbrella DNS Security Advantage',
-      Charge_Type: 'Recurring',
-      Quantity: '125',
-      Duration: '12',
-      Billing_Frequency: 'Prepaid',
-      'USP_(USD)': '33.06',
-      Pricing_Term: '12',
-      Line_Amount: '4132.5',
-      Charge_Cycle: '3/15/2024 - 3/14/2025',
-      Charge_Cycle_End_Date: '3/14/2025',
-      Bill_Number: '1000728386062',
-      Bill_Line_Reference: '2-348272651709556380',
-      AR_Trxn_Number: '6102098772',
-    },
-
-    {
-      Subscription_ID: 'Sub1797787',
-      WebOrder: '96635062',
-      Web_Order_Line_ID: '328252627',
-      SKU: 'SVS-UMB-SUP-E',
-      SKU_Description: 'Enhanced Support for Umbrella',
-      Charge_Type: 'Recurring',
-      Quantity: '1',
-      Duration: '12',
-      Billing_Frequency: 'Prepaid',
-      'USP_(USD)': '51.66',
-      Pricing_Term: '1',
-      Line_Amount: '619.92',
-      Charge_Cycle: '3/15/2024 - 3/14/2025',
-      Charge_Cycle_End_Date: '3/14/2025',
-      Bill_Number: '1000728386062',
-      Bill_Line_Reference: '2-348272651709556124',
-      AR_Trxn_Number: '6102098772',
-    },
-  ]);
-
-  displayedColumnsInvoicePrintStatus: string[] = [
-    'Invoice_Delivery_Method',
-    'Print_Date',
-    // 'Previous_Trx_Num',
-    'Print_Status_/_Exception',
-    'E-DEL_email_address',
-    'SFTP',
-    'B2B',
-    'SRT_Contact_Email_address',
-  ];
-  dataSourceInvoicePrintStatus = new MatTableDataSource<any>([
-    {
-      Invoice_Delivery_Method: 'EDELIV, SFTP, B2B, FTP, Image',
-      Print_Date: '15/Mar/24',
-      Previous_Trx_Num: 'Completed',
-      'Print_Status_/_Exception': 'John@pccoonectionsinc.com',
-      'E-DEL_email_address': 'Customer Account Num',
-      SFTP: 'TP ID 123',
-      B2B: null,
-      SRT_Contact_Email_address: null,
-    },
-  ]);
-
-  displayedColumnsInvoiceStatus: string[] = [
-    'eInvoicing_Status/Exception',
-    'IRN/UUID',
-    'IRN_Date',
-    'Previous_IRN_/_UUID',
-    'Collector',
-    // 'Partner_Name',
-    // 'End_Customer',
-  ];
-  dataSourceInvoiceStatus = new MatTableDataSource<any>([
-    {
-      'eInvoicing_Status/Exception': 'idk man gimme data',
-      'IRN/UUID': 'what is this?',
-      IRN_Date: '08/Mar/24',
-      'Previous_IRN_/_UUID': 'None',
-      Collector: 'US_PARTNER_9',
-      Partner_Name: 'Jack Sloop',
-      End_Customer: 'Jacks Patisserie',
-    },
-  ]);
-
-  displayedColumnsInvoiceCash: string[] = [
-    'Receipt_Applied',
-    'CM_Applied',
-    'Write_Off_/_Adjustments',
-  ];
-  dataSourceInvoiceCash = new MatTableDataSource<any>([
-    {
-      Transaction_Number: '6102098772',
-      Invoice_Type: 'Subscription',
-      Web_Order_ID: '96635062',
-      Purchase_Order: '2598271',
-      Bill_To_Id: '413587662',
-      Bill_Number: '1000728386177 , 1000728386062',
-      Invoice_Status: 'Invoiced',
-      TRX_Number: '6102098772',
-      Currency: 'USD',
-      Transaction_Class: 'INV',
-      Transaction_Date: '15/Mar/24',
-      Due_Date: '14/Apr/24',
-      TRX_Status: 'Closed',
-      Amount_Due_Original: '6592.15',
-      Amount_Due_Remaining: '0',
-      Receipt_Applied: 'WIRE1234',
-      CM_Applied: 'CM123',
-      'Write_Off_/_Adjustments': 'Adjustment Id 123',
-    },
-  ]);
-
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   sidebarExpanded = true;
@@ -289,55 +160,124 @@ export class O2c360Component implements OnInit {
       }
     });
 
+    this.route.queryParamMap.subscribe((params) => {
+      console.log('Query Params:', params);
+
+      this.orderId = params.get('orderId') || '91742826';
+      const orderIdList = this.orderId ? [this.orderId] : [];
+      this.subRefIds = params.get('subRefIds')?.split(',') || ['Sub1126960'];
+      this.invoiceIds = params.get('invoiceIds')?.split(',') || [
+        '6101427996',
+        '6101129079',
+      ];
+
+      console.log('Received in O2C-360:');
+      console.log('Order:', this.orderId);
+      console.log('Subscriptions:', this.subRefIds);
+      console.log('Invoices:', this.invoiceIds);
+
+      this.getOrderSummary(orderIdList);
+      this.getSubscriptionSummary(this.subRefIds);
+      this.getSubscriptionLineSummary(this.subRefIds);
+      this.getInvoiceSummary(this.invoiceIds);
+      this.getInvoiceLineSummary(this.invoiceIds);
+
+      // Use these to filter your tables or trigger fetches
+    });
+
+    // this.getO2cConnector();
+  }
+
+  handleSearch(value: string, type: string) {
+    console.log(`Searching for ${type}: ${value}`);
+    // ➕ Insert your filtering logic here
+    // Example: filter your dataSource, call API, etc.
+  }
+
+  private getOrderSummary(orderIdList: any): void {
+    const payload = {
+      orderIds: orderIdList,
+    };
+
     this.http
       .get('order-summary', this.destroyManager, {
-        responseType: 'json',
+        params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Order Summary:', data);
-
-        this.orderSummaryDataSource = new MatTableDataSource(
-          data.filter((data) => data.WEB_ORDER_ID === this.orderID)
-        );
+        this.orderSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[0].count = data.length;
       });
+  }
 
+  private getSubscriptionSummary(subRefIds: any): void {
+    const payload = {
+      subRefIds: subRefIds,
+    };
     this.http
-      .get('subscription-summary', this.destroyManager)
+      .get('subscription-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
-        console.log('Subscription Summary:', data.length, data);
-
         this.subscriptionSummaryDisplayedColumns = this.removeColumns(
           Object.keys(data[0]),
           ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE']
         );
         this.subscriptionSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[1].count = data.length;
+        this.subscriptionDataLoaded = true;
       });
+  }
 
+  private getSubscriptionLineSummary(subRefIds: any): void {
+    const payload = {
+      subRefIds: subRefIds,
+    };
     this.http
-      .get('subscription-line-summary', this.destroyManager)
+      .get('subscription-line-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
-        console.log('Subscription Lines:', data);
-
-        this.subscriptionLinesDisplayedColumns = Object.keys(data[0]);
+        // console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
       });
+  }
 
+  private getInvoiceSummary(invoiceIds: any): void {
+    const payload = {
+      invoiceIds: invoiceIds,
+    };
     this.http
-      .get('invoice-summary', this.destroyManager)
+      .get('invoice-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
       });
+  }
 
+  private getInvoiceLineSummary(invoiceIds: any): void {
+    const payload = {
+      invoiceIds: invoiceIds,
+    };
     this.http
-      .get('invoice-line-summary', this.destroyManager)
+      .get('invoice-line-summary', this.destroyManager, {
+        params: payload,
+      })
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
         this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
+        this.invoiceDataLoaded = true;
+      });
+  }
+
+  private getO2cConnector() {
+    this.http
+      .get('o2c-connector', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('o2cConnector:', data);
       });
   }
 
@@ -352,6 +292,13 @@ export class O2c360Component implements OnInit {
       'srt',
       'e-del',
       'irn/uuid',
+      'ar',
+      'usp',
+      '(usd)',
+      'sku',
+      'qty',
+      'tsv',
+      'gl',
     ];
     const name = column.replace(/_/g, ' ').toLowerCase();
     return name
@@ -382,13 +329,50 @@ export class O2c360Component implements OnInit {
 
   openSubscriptionModal(subId: string): void {
     this.selectedSubscriptionId = subId;
-    this.selectedWebOrderId = this.orderID;
+
+    const allLines = this.subscriptionLinesDataSource.data;
+    const filteredLines = allLines.filter(
+      (line: any) => line.SUBSCRIPTION_REF_ID === subId
+    );
+    this.subscriptionLinesDataSource = new MatTableDataSource(filteredLines);
+
     this.showSubscriptionModal = true;
   }
 
   openInvoiceModal(transactionNumber: string): void {
     this.selectedTransactionNumber = transactionNumber;
-    this.selectedInvoiceOrderId = this.orderID;
+
+    const allInvoices = this.invoiceSummaryDataSource.data;
+    const filtered = allInvoices.filter(
+      (row) => row.TRANSACTION_NUMBER === transactionNumber
+    );
+
+    this.invoiceSummaryModalDataSource = new MatTableDataSource(filtered);
+
     this.showInvoiceModal = true;
+  }
+
+  viewAllSubscriptions(): void {
+    if (!this.subscriptionSummaryDataSource?.data?.length) return;
+
+    this.router.navigate(['/o2c-sub'], {
+      state: {
+        subscriptionData: this.subscriptionSummaryDataSource.data,
+        subscriptionColumns: this.subscriptionSummaryDisplayedColumns,
+        orderData: this.orderSummaryDataSource.data,
+      },
+    });
+  }
+
+  viewAllInvoices(): void {
+    if (!this.invoiceLinesDataSource?.data?.length) return;
+
+    this.router.navigate(['/o2c-invoice'], {
+      state: {
+        invoiceLinesDisplayedColumns: this.invoiceLinesDisplayedColumns,
+        invoiceLinesData: this.invoiceLinesDataSource.data,
+        orderSummaryData: this.orderSummaryDataSource.data,
+      },
+    });
   }
 }

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-o2c-sub',
@@ -9,11 +11,6 @@ import { MatTableDataSource } from '@angular/material/table';
   styleUrl: './o2c-sub.component.css',
 })
 export class O2cSubComponent implements OnInit {
-  constructor(
-    private http: ApiHttpService,
-    private destroyManager: DestroyManager
-  ) {}
-
   circleStatus: { [key: string]: number } = {
     Order: 2,
     Subscription: -1,
@@ -44,32 +41,33 @@ export class O2cSubComponent implements OnInit {
   ];
   orderSummaryDataSource = new MatTableDataSource<any>();
 
-  subscriptionLinesDisplayedColumns: string[] = [];
-  subscriptionLinesDataSource = new MatTableDataSource<any>();
+  subscriptionSummaryDisplayedColumns: string[] = [];
+  subscriptionSummaryDataSource = new MatTableDataSource<any>();
+
+  constructor(
+    private http: ApiHttpService,
+    private destroyManager: DestroyManager,
+    private location: Location,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.http
-      .get('order-summary', this.destroyManager, {
-        responseType: 'json',
-      })
-      .subscribe((data: any) => {
-        console.log('Order Summary:', data);
+    const navState = this.location.getState() as {
+      subscriptionData?: any[];
+      subscriptionColumns?: string[];
+      orderData?: any[];
+    };
 
-        const orderID = '91742826';
+    if (navState?.subscriptionData) {
+      this.subscriptionSummaryDataSource.data = navState.subscriptionData;
+      this.subscriptionSummaryDisplayedColumns =
+        navState.subscriptionColumns || [];
 
-        this.orderSummaryDataSource = new MatTableDataSource(
-          data.filter((data) => data.WEB_ORDER_ID === orderID)
-        );
-      });
-
-    this.http
-      .get('subscription-line-summary', this.destroyManager)
-      .subscribe((data: any) => {
-        console.log('Subscription Lines:', data);
-
-        this.subscriptionLinesDisplayedColumns = Object.keys(data[0]);
-        this.subscriptionLinesDataSource = new MatTableDataSource(data);
-      });
+      this.orderSummaryDataSource.data = navState.orderData || [];
+    } else {
+      // fallback or redirect
+      console.warn('No data passed to o2c-sub, consider redirecting');
+    }
   }
 
   formatColumnName(column: string): string {

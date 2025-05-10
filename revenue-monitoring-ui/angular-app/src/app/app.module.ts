@@ -82,7 +82,7 @@ import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
 import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
-import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
+import { O2cLandingComponent } from './o2c-landing/o2c-landing.component';
 import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-process-flow.component';
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { TableComponent } from './components/table/table.component';

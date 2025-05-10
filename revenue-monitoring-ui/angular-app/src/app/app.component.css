@@ -102,7 +102,7 @@
 }
 
 .custom-search-bar:focus-within {
-  border-color: #6200ea; /* Accent color when focused */
+  border-color: #08ace4; /* Accent color when focused */
 }
 
 .custom-search-bar:hover {

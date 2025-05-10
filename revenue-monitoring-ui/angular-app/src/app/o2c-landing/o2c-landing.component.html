@@ -1,0 +1,28 @@
+<app-o2c-nav></app-o2c-nav>
+
+<div class="landing-container">
+  <h2 class="welcome-text">Hi Jack!</h2>
+  <p class="welcome-body">
+    Welcome to the Order to Cash Lifecycle Tracker - Search for orders,
+    subscriptions, accruals, and invoices across Order to Cash at Cisco.
+  </p>
+</div>
+
+<div class="custom-search-bar">
+  <select [(ngModel)]="searchType" class="custom-search-dropdown">
+    <option value="order">Order Number</option>
+    <option value="invoice">Invoice Number</option>
+    <option value="subscription">Subscription Number</option>
+  </select>
+
+  <!-- [placeholder]="'Search ' + formatSearchType(searchType) + '...'" -->
+
+  <input
+    type="text"
+    class="custom-search-input"
+    [(ngModel)]="searchValue"
+    (keyup.enter)="onSearch()"
+  />
+
+  <i class="svg-icon search-icon" (click)="onSearch()"></i>
+</div>

@@ -18,39 +18,53 @@ public class O2CMonitoringService {
     private String invoiceLineSummary;
     private String subscriptionSummary;
     private String subscriptionLineSummary;
+    private String o2cConnector;
+
 
     @Autowired
-    public O2CMonitoringService(JdbcManager jdbcManager, String orderSummary, String invoiceSummary, String invoiceLineSummary, String subscriptionSummary, String subscriptionLineSummary) {
+    public O2CMonitoringService(JdbcManager jdbcManager, String orderSummary, String invoiceSummary,
+                                String invoiceLineSummary, String subscriptionSummary,
+                                String subscriptionLineSummary, String o2cConnector) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
         this.invoiceSummary = invoiceSummary;
         this.invoiceLineSummary = invoiceLineSummary;
         this.subscriptionSummary = subscriptionSummary;
         this.subscriptionLineSummary = subscriptionLineSummary;
+        this.o2cConnector = o2cConnector;
     }
 
-    public List<Map<String, Object>> getOrderSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(orderSummary);
+    public List<Map<String, Object>> getOrderSummary(String orderId) {
+        System.out.println(orderId);
+        List<Map<String, Object>> result = jdbcManager.o2cOrderSummary(orderSummary, orderId);
         return result;
     }
 
-    public List<Map<String, Object>> getInvoiceSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(invoiceSummary);
+    public List<Map<String, Object>> getInvoiceSummary(String invoiceId) {
+        List<Map<String, Object>> result = jdbcManager.o2cInvoiceSummary(invoiceSummary, invoiceId);
         return result;
     }
 
-    public List<Map<String, Object>> getInvoiceLineSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(invoiceLineSummary);
+    public List<Map<String, Object>> getInvoiceLineSummary(String invoiceId) {
+        List<Map<String, Object>> result = jdbcManager.o2cInvoiceLineSummary(invoiceLineSummary, invoiceId);
         return result;
     }
 
-    public List<Map<String, Object>> getSubscriptionSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(subscriptionSummary);
+    public List<Map<String, Object>> getSubscriptionSummary(String subscriptionId) {
+        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionSummary(subscriptionSummary, subscriptionId);
         return result;
     }
 
-    public List<Map<String, Object>> getSubscriptionLineSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForO2CData(subscriptionLineSummary);
+    public List<Map<String, Object>> getSubscriptionLineSummary(String subscriptionId) {
+        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionLineSummary(subscriptionLineSummary, subscriptionId);
         return result;
+    }
+
+    public List<Map<String, Object>> getO2cConnector() {
+        return jdbcManager.queryForList(o2cConnector);
+    }
+
+    public List<Map<String, Object>> getO2cConnectorData(String field, String value) {
+        return jdbcManager.queryForO2CConnectorData(field, value);
     }
 }

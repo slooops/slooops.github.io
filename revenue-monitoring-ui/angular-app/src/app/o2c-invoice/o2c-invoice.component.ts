@@ -47,27 +47,20 @@ export class O2cInvoiceComponent implements OnInit {
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
   ngOnInit(): void {
-    this.http
-      .get('order-summary', this.destroyManager, {
-        responseType: 'json',
-      })
-      .subscribe((data: any) => {
-        console.log('Order Summary:', data);
+    const state = history.state;
 
-        const orderID = '91742826';
-
-        this.orderSummaryDataSource = new MatTableDataSource(
-          data.filter((data) => data.WEB_ORDER_ID === orderID)
-        );
-      });
-
-    this.http
-      .get('invoice-line-summary', this.destroyManager)
-      .subscribe((data: any) => {
-        console.log('Invoice Lines:', data);
-        this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
-        this.invoiceLinesDataSource = new MatTableDataSource(data);
-      });
+    if (state?.invoiceLinesDisplayedColumns && state?.invoiceLinesData) {
+      this.invoiceLinesDisplayedColumns = state.invoiceLinesDisplayedColumns;
+      this.invoiceLinesDataSource = new MatTableDataSource(
+        state.invoiceLinesData
+      );
+      this.orderSummaryDataSource = new MatTableDataSource(
+        state.orderSummaryData
+      );
+    } else {
+      // fallback for direct page load
+      console.warn('No data passed to o2c-sub, consider not being here');
+    }
   }
 
   formatColumnName(column: string): string {
