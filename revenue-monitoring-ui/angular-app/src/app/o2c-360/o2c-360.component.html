@@ -9,7 +9,7 @@
       <div class="order-info">
         <span class="status-dot"></span>
         <span class="order-id"
-          ><strong>28221819418344</strong> Order Summary</span
+          ><strong>{{ this.orderId }}</strong> Order Summary</span
         >
         <button class="details-button" (click)="showDetailsModal = true">
           Order Details
@@ -114,7 +114,12 @@
           }"
         ></i>
         Subscription Summary - {{ navTotals[1].count }}
-        <a class="view-all-button" href="/o2c-sub">View All</a>
+        <a
+          class="view-all-button"
+          [ngClass]="{ disabled: !subscriptionDataLoaded }"
+          (click)="viewAllSubscriptions()"
+          >{{ subscriptionDataLoaded ? "View All" : "View All Loading" }}</a
+        >
       </div>
     </div>
     <div *ngIf="expanded.subscription" class="accordion-content o2c-card">
@@ -169,7 +174,13 @@
           }"
         ></i>
         Invoice Summary - {{ navTotals[2].count }}
-        <a class="view-all-button" href="/o2c-invoice">View All</a>
+        <a
+          class="view-all-button"
+          [ngClass]="{ disabled: !invoiceDataLoaded }"
+          (click)="viewAllInvoices()"
+        >
+          {{ invoiceDataLoaded ? "View All" : "View All Loading" }}
+        </a>
       </div>
     </div>
     <div *ngIf="expanded.invoice" class="accordion-content o2c-card">
@@ -234,7 +245,7 @@
     selectedSubscriptionId +
     ' &nbsp;&nbsp; | &nbsp;&nbsp;
     Web Order ID &nbsp; - &nbsp; ' +
-    orderID
+    orderId
   "
   (close)="showSubscriptionModal = false"
 >
@@ -271,7 +282,7 @@
     'Transaction Number  &nbsp; -  &nbsp; ' +
     selectedTransactionNumber +
     '  &nbsp;&nbsp; | &nbsp;&nbsp; Web Order ID  &nbsp; -  &nbsp; ' +
-    orderID
+    orderId
   "
   (close)="showInvoiceModal = false"
 >

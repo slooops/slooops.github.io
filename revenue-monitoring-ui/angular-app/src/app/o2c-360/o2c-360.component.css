@@ -229,3 +229,8 @@ tr.mat-header-row {
   max-width: 20vw;
   white-space: wrap;
 }
+
+.view-all-button.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}

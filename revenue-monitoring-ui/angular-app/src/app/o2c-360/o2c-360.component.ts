@@ -3,7 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-360',
@@ -32,7 +32,9 @@ export class O2c360Component implements OnInit {
 
   showInvoiceModal = false;
   selectedTransactionNumber: string | null = null;
-  selectedInvoiceOrderId: string | null = null;
+
+  invoiceDataLoaded = false;
+  subscriptionDataLoaded = false;
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
@@ -47,8 +49,6 @@ export class O2c360Component implements OnInit {
     { label: 'Subscriptions', icon: 'bookmark-icon', count: null },
     { label: 'Invoices', icon: 'receipt-icon', count: null },
   ];
-
-  orderID: string = '91742826';
 
   orderSummaryDisplayedColumns1: string[] = [
     'WEB_ORDER_ID',
@@ -135,7 +135,8 @@ export class O2c360Component implements OnInit {
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private sidebarService: SidebarService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   sidebarExpanded = true;
@@ -170,23 +171,16 @@ export class O2c360Component implements OnInit {
         '6101129079',
       ];
 
-      const orderId = params.get('orderId') || '91742826';
-      const subRefIds = params.get('subRefIds')?.split(',') || ['Sub1126960'];
-      const invoiceIds = params.get('invoiceIds')?.split(',') || [
-        '6101427996',
-        '6101129079',
-      ];
-
       console.log('Received in O2C-360:');
       console.log('Order:', this.orderId);
       console.log('Subscriptions:', this.subRefIds);
       console.log('Invoices:', this.invoiceIds);
 
       this.getOrderSummary(orderIdList);
-      this.getSubscriptionSummary(subRefIds);
-      this.getSubscriptionLineSummary(subRefIds);
-      this.getInvoiceSummary(invoiceIds);
-      this.getInvoiceLineSummary(invoiceIds);
+      this.getSubscriptionSummary(this.subRefIds);
+      this.getSubscriptionLineSummary(this.subRefIds);
+      this.getInvoiceSummary(this.invoiceIds);
+      this.getInvoiceLineSummary(this.invoiceIds);
 
       // Use these to filter your tables or trigger fetches
     });
@@ -210,11 +204,8 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        const filtered = data.filter(
-          (row) => row.WEB_ORDER_ID === this.orderId
-        );
-        this.orderSummaryDataSource = new MatTableDataSource(filtered);
-        this.navTotals[0].count = filtered.length;
+        this.orderSummaryDataSource = new MatTableDataSource(data);
+        this.navTotals[0].count = data.length;
       });
   }
 
@@ -227,15 +218,13 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        const filtered = data.filter((row) =>
-          this.subRefIds.includes(row.SUBSCRIPTION_ID)
-        );
         this.subscriptionSummaryDisplayedColumns = this.removeColumns(
           Object.keys(data[0]),
           ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE']
         );
-        this.subscriptionSummaryDataSource = new MatTableDataSource(filtered);
-        this.navTotals[1].count = filtered.length;
+        this.subscriptionSummaryDataSource = new MatTableDataSource(data);
+        this.navTotals[1].count = data.length;
+        this.subscriptionDataLoaded = true;
       });
   }
 
@@ -263,11 +252,8 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
-        const filtered = data.filter((row) =>
-          this.invoiceIds.includes(row.TRANSACTION_NUMBER)
-        );
-        this.invoiceSummaryDataSource = new MatTableDataSource(filtered);
-        this.navTotals[2].count = filtered.length;
+        this.invoiceSummaryDataSource = new MatTableDataSource(data);
+        this.navTotals[2].count = data.length;
       });
   }
 
@@ -283,6 +269,7 @@ export class O2c360Component implements OnInit {
         console.log('Invoice Lines:', data);
         this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
+        this.invoiceDataLoaded = true;
       });
   }
 
@@ -342,7 +329,6 @@ export class O2c360Component implements OnInit {
 
   openSubscriptionModal(subId: string): void {
     this.selectedSubscriptionId = subId;
-    this.selectedWebOrderId = this.orderID;
 
     const allLines = this.subscriptionLinesDataSource.data;
     const filteredLines = allLines.filter(
@@ -355,7 +341,6 @@ export class O2c360Component implements OnInit {
 
   openInvoiceModal(transactionNumber: string): void {
     this.selectedTransactionNumber = transactionNumber;
-    this.selectedInvoiceOrderId = this.orderID;
 
     const allInvoices = this.invoiceSummaryDataSource.data;
     const filtered = allInvoices.filter(
@@ -365,5 +350,29 @@ export class O2c360Component implements OnInit {
     this.invoiceSummaryModalDataSource = new MatTableDataSource(filtered);
 
     this.showInvoiceModal = true;
+  }
+
+  viewAllSubscriptions(): void {
+    if (!this.subscriptionSummaryDataSource?.data?.length) return;
+
+    this.router.navigate(['/o2c-sub'], {
+      state: {
+        subscriptionData: this.subscriptionSummaryDataSource.data,
+        subscriptionColumns: this.subscriptionSummaryDisplayedColumns,
+        orderData: this.orderSummaryDataSource.data,
+      },
+    });
+  }
+
+  viewAllInvoices(): void {
+    if (!this.invoiceLinesDataSource?.data?.length) return;
+
+    this.router.navigate(['/o2c-invoice'], {
+      state: {
+        invoiceLinesDisplayedColumns: this.invoiceLinesDisplayedColumns,
+        invoiceLinesData: this.invoiceLinesDataSource.data,
+        orderSummaryData: this.orderSummaryDataSource.data,
+      },
+    });
   }
 }

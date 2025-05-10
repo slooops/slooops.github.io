@@ -80,8 +80,8 @@
     <div class="order-info accordion-header">
       Subscriptions -
       {{
-        subscriptionLinesDataSource.data.length
-          ? subscriptionLinesDataSource.data.length
+        subscriptionSummaryDataSource.data.length
+          ? subscriptionSummaryDataSource.data.length
           : null
       }}
     </div>
@@ -89,11 +89,11 @@
   <div class="accordion-content o2c-card">
     <div class="invoice-summary-table">
       <ng-container
-        *ngIf="subscriptionLinesDataSource?.data?.length; else loading"
+        *ngIf="subscriptionSummaryDataSource?.data?.length; else loading"
       >
-        <table mat-table [dataSource]="subscriptionLinesDataSource">
+        <table mat-table [dataSource]="subscriptionSummaryDataSource">
           <ng-container
-            *ngFor="let column of subscriptionLinesDisplayedColumns"
+            *ngFor="let column of subscriptionSummaryDisplayedColumns"
             [matColumnDef]="column"
           >
             <th mat-header-cell *matHeaderCellDef>
@@ -111,11 +111,11 @@
 
           <tr
             mat-header-row
-            *matHeaderRowDef="subscriptionLinesDisplayedColumns"
+            *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
           ></tr>
           <tr
             mat-row
-            *matRowDef="let row; columns: subscriptionLinesDisplayedColumns"
+            *matRowDef="let row; columns: subscriptionSummaryDisplayedColumns"
           ></tr>
         </table>
       </ng-container>
