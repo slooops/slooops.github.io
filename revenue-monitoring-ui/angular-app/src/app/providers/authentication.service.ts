@@ -140,16 +140,15 @@ export class AuthenticationService {
     return fetch('/user/name')
       .then((response) => response.json())
       .then(async (info) => {
-        console.log('User info:', info);
         this.username = info['auth_user_name'];
         this.userId = info['auth_user'];
         this.authClientId = info['auth_client_id'];
         this.authClientSecret = info['auth_client_secret'];
-      })
-      .catch((error) => {
-        console.error('Error fetching user info:', error);
-        this.router.navigate(['/error']);
       });
+    // .catch((error) => {
+    //   console.error('Error fetching user info:', error);
+    //   this.router.navigate(['/error']);
+    // });
   }
 
   getUserID() {

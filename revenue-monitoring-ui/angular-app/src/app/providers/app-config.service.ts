@@ -4,26 +4,12 @@ declare var require: any;
 var configJson: any = require('../../assets/config/config.json');
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppConfigService {
-
   constructor() {}
 
-  getApiUrl () : string {
+  getApiUrl(): string {
     return configJson.api_url;
   }
-
-  getAuthClientId(): string {
-    return configJson.authClientId
-  }
-
-  getAuthClientSecret(): string {
-    return configJson.authClientSecret;
-  }
-
-  getConfig() {
-    return configJson;
-  }
-
 }
