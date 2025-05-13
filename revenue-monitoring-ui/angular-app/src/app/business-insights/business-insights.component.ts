@@ -26,9 +26,11 @@ export class BusinessInsightsComponent implements OnInit {
     // Implement menu toggle logic here
   }
   onTabChange(index: number) {
-    this.selectedIndex = index;
-    const newHeader = `Business Insights > ${this.filteredTabs[index]?.label}`;
-    this.menuService.updateHeader(newHeader);
+    setTimeout(() => {
+      this.selectedIndex = index; // Switch to the new tab
+      const newHeader = `Business Insights > ${this.filteredTabs[index]?.label}`;
+      this.menuService.updateHeader(newHeader);
+    }, 50);
   }
   visibleTabs: { label: string; component: string; role: string[] }[] = [
     {

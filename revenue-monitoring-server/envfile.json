@@ -149,5 +149,9 @@
   "SRT_PROCESS_DETAILS_FILTERED_QUERY": "SELECT * FROM ARFINRO.XXCFIR_SRT_EXTRACT_DTL_V where period_name=? and process_flow=? AND EVENT_TYPE=? and org_name=? and trunc(SRT_DATE)=to_date(?,'MM/DD/YYYY')",
   "SRT_PROCESS_SUMMARY_UPDATE_QUERY": "UPDATE arfinro.XXCFIR_SRT_MON_DASH SET assigned_to=?, assigned_date=SYSDATE, assigned_by=?, comments=? WHERE period_name=? AND entity_name=? AND trunc(SRT_DATE)=TO_DATE(?,'MM/DD/YYYY')",
   "ISSUE_REPORTING_DASH_SUMMARY_VIEW_QUERY": "select * from ARFINRO.XXCFI_ASK_ISSUE_RPT_DSH_SUMM_V",
+  "CREDIT_CARD_CHECK_SUMMARY_VIEW": "select * from arfinro.xxcfir_credit_chk_dash_summ_v",
+  "CREDIT_CARD_CHECK_DETAIL_VIEW": "select * from arfinro.xxcfir_credit_chk_dash_dtl_v",
+  "CREDIT_CARD_CHECK_DETAIL_FILTERED_VIEW": "select * from arfinro.xxcfir_credit_chk_dash_dtl_v where period_name=? and org_name=? and trunc(HOLD_APPLY_DATE)=to_date(?,'MM/DD/YYYY') and process_flow=?",
+  "UPDATE_CREDIT_CARD_CHECK_SUMMARY_QUERY": "UPDATE arfinro.XXCFIR_845_DASH_MON SET assigned_to=?, assigned_date=SYSDATE, assigned_by=?, comments=? WHERE entity=? AND trunc(HOLD_APPLY_DATE)=to_date(?,'MM/DD/YYYY') and flooring_bid=?",
   "CORS_URL": "http://localhost:3000"
 }

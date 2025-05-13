@@ -19,6 +19,49 @@ public class ExceptionMonitoringController {
     @Autowired
     private ExceptionMonitoringService service;
 
+
+    @GetMapping("/credit-card-check-summary-view")
+    public ResponseEntity<List<Map<String, Object>>> getCreditCardCheckSummaryView() {
+        return new ResponseEntity<>(service.getCreditCardCheckSummaryView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/credit-card-check-detail-view")
+    public ResponseEntity<List<Map<String, Object>>> getCreditCardCheckDetailView() {
+        return new ResponseEntity<>(service.getCreditCardCheckDetailView(), HttpStatus.OK);
+    }
+
+    @GetMapping("/credit-card-check-detail-view-filtered")
+    public ResponseEntity<Map<String, Object>> getCreditCardCheckDetailFilteredView(@RequestParam List<String> periodNames,
+                                                                                 @RequestParam List<String> orgNames,
+                                                                                 @RequestParam List<String> holdApplyDates,
+                                                                                 @RequestParam List<String> processFlows) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(holdApplyDates.size(), processFlows.size())));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String orgName = orgNames.get(i);
+                String holdApplyDate = holdApplyDates.get(i);
+                String processFlow = processFlows.get(i);
+                List<Map<String, Object>> result = service.getCreditCardCheckDetailFilteredView(periodName, orgName, holdApplyDate, processFlow);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/credit-card-check-summary-update")
+    public ResponseEntity<String> updateCreditCardCheckSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updateCreditCardCheckSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
     //Standard Revenue
     @GetMapping("/standard-revenue-errors-summary")
     public ResponseEntity<List<Map<String, Object>>> getStandardRevenueErrorSummary() {

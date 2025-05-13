@@ -977,4 +977,31 @@ public class QueryConfigs {
 
     @Bean( name = "srtProcessSummaryUpdate" )
     public String getSrtProcessSummaryUpdate() {return this.srtProcessSummaryUpdate; }
+
+    @Value(("${credit.card.check.summary.view.q}"))
+    public String creditCardCheckSummaryView;
+
+    @Bean( name = "creditCardCheckSummaryView" )
+    public String getCreditCardCheckSummaryView() {return this.creditCardCheckSummaryView; }
+
+    @Value(("${credit.card.check.detail.view.q}"))
+    public String creditCardCheckDetailView;
+
+    @Bean( name = "creditCardCheckDetailView" )
+    public String getCreditCardCheckDetailView() {return this.creditCardCheckDetailView; }
+
+    @Value(("${credit.card.check.detail.filtered.view.q}"))
+    public String creditCardCheckDetailFilteredView;
+
+    @Bean( name = "creditCardCheckDetailFilteredView" )
+    public String getCreditCardCheckDetailFilteredView() {return this.creditCardCheckDetailFilteredView; }
+
+    @Value(("${update.credit.card.check.summary.q}"))
+    public String updateCreditCardCheckSummary;
+
+    @Bean( name = "updateCreditCardCheckSummary" )
+    public String getUpdateCreditCardCheckSummary() {return this.updateCreditCardCheckSummary; }
+
+
+
 }

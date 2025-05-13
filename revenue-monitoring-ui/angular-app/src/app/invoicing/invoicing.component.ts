@@ -411,6 +411,16 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
+  creditCardCheckUrls: { [key: string]: string } = {
+    summaryUrl: 'credit-card-check-summary-view',
+    detailsUrl: 'credit-card-check-detail-view',
+    filteredDetailsUrl: 'credit-card-check-detail-view-filtered',
+    summaryUpdateUrl: 'credit-card-check-summary-update',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
   transactionsProcessedUrls: { [key: string]: string } = {
     summaryUrl: 'transactions-processed-summary',
     detailsUrl: 'transactions-processed-details',
@@ -467,6 +477,38 @@ export class InvoicingComponent implements OnInit {
       formControlName: 'transactionId',
       columnName: 'TRANSACTION_ID',
       type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  creditCardCheckFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderNumber',
+      columnName: 'ORDER_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'icmsYN',
+      columnName: 'ICMS_Y_N',
+      type: 'select',
       subAppMapping: false,
     },
   ];
@@ -545,6 +587,11 @@ export class InvoicingComponent implements OnInit {
     {
       label: 'Fusion',
       component: 'app-fusion',
+      role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+    },
+    {
+      label: 'Credit Check Process',
+      component: 'app-credit-card-check',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
     // {

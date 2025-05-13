@@ -108,8 +108,8 @@ import { TableModalComponent } from './components/table-modal/table-modal.compon
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
-    return authService.getTokens().then(() => {
-      return authService.getUserId();
+    return authService.getUserId().then(() => {
+      return authService.getTokens();
     });
   };
 }

@@ -30,8 +30,8 @@ export class AuthenticationService {
   }
 
   async getTokens() {
-    let authClientId = this.appConfig.getConfig().authClientId;
-    let authClientSecret = this.appConfig.getConfig().authClientSecret;
+    let authClientId = this.authClientId;
+    let authClientSecret = this.authClientSecret;
     let ssoUrl = 'https://id.cisco.com';
 
     const href = window.location.href;
@@ -91,7 +91,7 @@ export class AuthenticationService {
       },
     })
       .then((response) => response.json())
-      .then((info) => {
+      .then(async (info) => {
         const tknObjStr = JSON.stringify(info);
         sessionStorage.setItem('refreshTokenData', tknObjStr);
         if (sessionStorage.getItem('accessToken')) {
@@ -111,11 +111,21 @@ export class AuthenticationService {
         const expireTime =
           timeStampCurr + expires_in - 300; /* time 5 min before token expire */
         sessionStorage.setItem('accessTokenExpireTime', '' + expireTime);
+
+        await this.getUserRoles(this.userId);
+        if (
+          this.userRoles.length === 0 &&
+          !this.bypassRoutes.includes(this.router.url)
+        ) {
+          this.router.navigate(['/error']);
+        }
       });
   }
 
   username: string;
   userId: string;
+  authClientId: string;
+  authClientSecret: string;
   bypassRoutes = [
     '/o2c-demo',
     '/o2c-details',
@@ -129,16 +139,11 @@ export class AuthenticationService {
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
-      .then(async (info) => {
+      .then((info) => {
         this.username = info['auth_user_name'];
         this.userId = info['auth_user'];
-        await this.getUserRoles(info['auth_user']);
-        if (
-          this.userRoles.length === 0 &&
-          !this.bypassRoutes.includes(this.router.url)
-        ) {
-          this.router.navigate(['/error']);
-        }
+        this.authClientId = info['auth_client_id'];
+        this.authClientSecret = info['auth_client_secret'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
