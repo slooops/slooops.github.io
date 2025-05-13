@@ -243,3 +243,11 @@ tr.mat-header-row {
   width: 100%;
   height: 150px;
 }
+
+.no-data-container {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
+  border: 1px solid #e4e4e4;
+}

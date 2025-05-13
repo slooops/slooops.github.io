@@ -121,8 +121,8 @@ export class O2cViewAllComponent implements OnInit {
     'SUBSCRIPTION_ID',
     'CHARGE_CYCLE_START_DATE',
     'CHARGE_CYCLE_END_DATE',
-    'BILL_NUMBER',
-    'BILL_LINE_NUMBER',
+    'BRM_BILL_NUMBER', // Updated from BILL_NUMBER
+    'BRM_BILL_LINE_NUMBER', // Updated from BILL_LINE_NUMBER
     'PREVIOUS_BILL_NUMBER',
     'PREVIOUS_BILL_LINE_NUMBER',
     'POSTED_TO_GL',
@@ -223,6 +223,7 @@ export class O2cViewAllComponent implements OnInit {
       'qty',
       'tsv',
       'gl',
+      'brm',
     ];
     const name = column.replace(/_/g, ' ').toLowerCase();
     return name
@@ -244,11 +245,16 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   toggleInvoiceLinesTable(billNumber: string): void {
+    console.log('Bill Number:', billNumber);
+    console.log('Invoice Lines Data Source:', this.invoiceLinesDataSource.data);
+
     this.selectedBillNumber = billNumber;
 
     const filteredLines = this.invoiceLinesDataSource.data.filter(
-      (line) => line.BILL_NUMBER === billNumber
+      (line) => line.BRM_BILL_NUMBER === billNumber
     );
+
+    console.log('Filtered Lines:', filteredLines);
 
     this.invoiceLinesFilteredDataSource.data = filteredLines;
     this.showInvoiceLines = true;

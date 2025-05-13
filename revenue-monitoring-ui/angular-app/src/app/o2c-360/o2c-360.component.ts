@@ -34,8 +34,11 @@ export class O2c360Component implements OnInit {
   showInvoiceModal = false;
   selectedTransactionNumber: string | null = null;
 
-  invoiceDataLoaded = false;
+  orderDataLoaded = false;
   subscriptionDataLoaded = false;
+  subscriptionLinesDataLoaded = false;
+  invoiceDataLoaded = false;
+  invoiceLinesDataLoaded = false;
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
@@ -128,7 +131,6 @@ export class O2c360Component implements OnInit {
   ];
   subscriptionLinesDataSource = new MatTableDataSource<any>();
 
-  invoiceLinesDisplayedColumns: string[] = [];
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
   constructor(
@@ -149,14 +151,8 @@ export class O2c360Component implements OnInit {
     this.sidebarService.activeItem$.subscribe((item) => {
       if (item === 'Subscriptions') {
         this.expanded.subscription = true;
-        this.expanded.invoice = false;
       } else if (item === 'Invoices') {
         this.expanded.invoice = true;
-        this.expanded.subscription = false;
-      } else {
-        // collapse both for "Orders" or anything else
-        this.expanded.subscription = false;
-        this.expanded.invoice = false;
       }
     });
 
@@ -200,12 +196,20 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
+        console.log('Order Summary:', data);
         this.orderSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[0].count = data.length;
+        this.orderDataLoaded = true;
       });
   }
 
   private getSubscriptionSummary(subRefIds: any): void {
+    if (!subRefIds || !subRefIds.length || subRefIds[0] === '') {
+      console.warn('No subscription IDs provided');
+      this.subscriptionSummaryDataSource = new MatTableDataSource([]);
+      this.subscriptionDataLoaded = true;
+      return;
+    }
     const payload = {
       subRefIds: subRefIds,
     };
@@ -214,6 +218,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
+        console.log('Subscription Summary:', data);
         this.subscriptionSummaryDisplayedColumns = this.removeColumns(
           Object.keys(data[0]),
           ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE']
@@ -225,6 +230,12 @@ export class O2c360Component implements OnInit {
   }
 
   private getSubscriptionLineSummary(subRefIds: any): void {
+    if (!subRefIds || !subRefIds.length || subRefIds[0] === '') {
+      console.warn('No subscription IDs provided');
+      this.subscriptionLinesDataSource = new MatTableDataSource([]);
+      this.subscriptionLinesDataLoaded = true;
+      return;
+    }
     const payload = {
       subRefIds: subRefIds,
     };
@@ -233,12 +244,20 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Subscription Lines:', data);
+        console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
+        this.subscriptionLinesDataLoaded = true;
       });
   }
 
   private getInvoiceSummary(invoiceIds: any): void {
+    if (!invoiceIds || !invoiceIds.length || invoiceIds[0] === '') {
+      console.warn('No invoice IDs provided');
+      this.invoiceSummaryDataSource = new MatTableDataSource([]);
+      this.invoiceDataLoaded = true;
+      return;
+    }
+
     const payload = {
       invoiceIds: invoiceIds,
     };
@@ -250,10 +269,17 @@ export class O2c360Component implements OnInit {
         console.log('Invoice Summary:', data);
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
+        this.invoiceDataLoaded = true;
       });
   }
 
   private getInvoiceLineSummary(invoiceIds: any): void {
+    if (!invoiceIds || !invoiceIds.length || invoiceIds[0] === '') {
+      console.warn('No invoice IDs provided');
+      this.invoiceLinesDataSource = new MatTableDataSource([]);
+      this.invoiceLinesDataLoaded = true;
+      return;
+    }
     const payload = {
       invoiceIds: invoiceIds,
     };
@@ -263,9 +289,8 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
-        this.invoiceLinesDisplayedColumns = Object.keys(data[0]);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
-        this.invoiceDataLoaded = true;
+        this.invoiceLinesDataLoaded = true;
       });
   }
 
@@ -355,13 +380,18 @@ export class O2c360Component implements OnInit {
       (isInvoice && !this.invoiceSummaryDataSource?.data?.length) ||
       (isSubscription && !this.subscriptionSummaryDataSource?.data?.length)
     ) {
+      console.warn(
+        `No ${type} data available to view all. Please check the data source.`
+      );
       return;
     }
+
+    console.log('View All inv lines:', this.invoiceLinesDataSource.data);
 
     this.router.navigate(['/o2c-view-all'], {
       state: {
         defaultTab: type,
-        defaultBillNumber: billNumber, // <-- NEW
+        defaultBillNumber: billNumber,
         orderData: this.orderSummaryDataSource.data,
 
         subscriptionData: this.subscriptionSummaryDataSource.data,
