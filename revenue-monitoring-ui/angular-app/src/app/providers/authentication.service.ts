@@ -78,6 +78,14 @@ export class AuthenticationService {
     if (ssoUrl) {
       await this.postRequest(tokenSsoUrl, data);
     }
+
+    await this.getUserRoles(this.userId);
+    if (
+      this.userRoles.length === 0 &&
+      !this.bypassRoutes.includes(this.router.url)
+    ) {
+      this.router.navigate(['/error']);
+    }
   }
 
   postRequest(url: string, data: any) {
@@ -111,14 +119,6 @@ export class AuthenticationService {
         const expireTime =
           timeStampCurr + expires_in - 300; /* time 5 min before token expire */
         sessionStorage.setItem('accessTokenExpireTime', '' + expireTime);
-
-        await this.getUserRoles(this.userId);
-        if (
-          this.userRoles.length === 0 &&
-          !this.bypassRoutes.includes(this.router.url)
-        ) {
-          this.router.navigate(['/error']);
-        }
       });
   }
 
