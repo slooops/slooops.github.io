@@ -4,9 +4,9 @@ const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const authClientId = process.env.AUTH_CLIENT_ID || "default_client_id";
-const authClientSecret =
-  process.env.AUTH_CLIENT_SECRET || "default_client_secret";
+const authClientId = process.env.AUTH_CLIENT_ID;
+const authClientSecret = process.env.AUTH_CLIENT_SECRET;
+const authUrl = process.env.AUTH_URL || "http://localhost:8080/api/";
 
 app.use(express.json());
 
@@ -25,6 +25,7 @@ app.get("/user/name", (req, res) => {
     auth_user_name: req.authenticatedUserFirstName,
     auth_client_id: authClientId,
     auth_client_secret: authClientSecret,
+    auth_url: authUrl,
   });
 });
 
