@@ -32,7 +32,7 @@ import { O2c360Component } from './o2c-360/o2c-360.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { CmsComponent } from './cms/cms.component';
-import { O2cSubComponent } from './o2c-sub/o2c-sub.component';
+import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
 
 const routes: Routes = [
@@ -217,8 +217,8 @@ const routes: Routes = [
   },
 
   {
-    path: 'o2c-sub',
-    component: O2cSubComponent,
+    path: 'o2c-view-all',
+    component: O2cViewAllComponent,
     data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
   },
   {

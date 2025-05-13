@@ -28,6 +28,7 @@ export class O2c360Component implements OnInit {
 
   showSubscriptionModal = false;
   selectedSubscriptionId: string | null = null;
+
   selectedWebOrderId: string | null = null;
 
   showInvoiceModal = false;
@@ -38,10 +39,10 @@ export class O2c360Component implements OnInit {
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
-    Subscription: -1,
-    Invoicing: 2,
-    Accounting: 2,
-    Cash: 2,
+    Subscription: 2,
+    Invoicing: -1,
+    Accounting: 0,
+    Cash: 0,
   };
 
   navTotals = [
@@ -79,7 +80,6 @@ export class O2c360Component implements OnInit {
   invoiceSummaryDisplayedColumns: string[] = [
     'TRANSACTION_NUMBER',
     'TRANSACTION_CLASS',
-    'TRANSACTION_STATUS',
     'TRANSACTION_DATE',
     'DUE_DATE',
     'STATUS',
@@ -112,7 +112,7 @@ export class O2c360Component implements OnInit {
   invoiceSummaryDataSource = new MatTableDataSource<any>();
   invoiceSummaryModalDataSource = new MatTableDataSource<any>();
 
-  displayedColumnsSubscriptionModal: string[] = [
+  subscriptionLinesDisplayedColumns: string[] = [
     'WEBORDER_LINEID',
     'SKU_DESCRIPTION',
     'CHARGE_TYPE',
@@ -171,6 +171,12 @@ export class O2c360Component implements OnInit {
         '6101129079',
       ];
 
+      if (params.get('searchType') === 'subscription') {
+        this.expanded.subscription = true;
+      } else if (params.get('searchType') === 'invoice') {
+        this.expanded.invoice = true;
+      }
+
       console.log('Received in O2C-360:');
       console.log('Order:', this.orderId);
       console.log('Subscriptions:', this.subRefIds);
@@ -181,17 +187,7 @@ export class O2c360Component implements OnInit {
       this.getSubscriptionLineSummary(this.subRefIds);
       this.getInvoiceSummary(this.invoiceIds);
       this.getInvoiceLineSummary(this.invoiceIds);
-
-      // Use these to filter your tables or trigger fetches
     });
-
-    // this.getO2cConnector();
-  }
-
-  handleSearch(value: string, type: string) {
-    console.log(`Searching for ${type}: ${value}`);
-    // ➕ Insert your filtering logic here
-    // Example: filter your dataSource, call API, etc.
   }
 
   private getOrderSummary(orderIdList: any): void {
@@ -273,14 +269,6 @@ export class O2c360Component implements OnInit {
       });
   }
 
-  private getO2cConnector() {
-    this.http
-      .get('o2c-connector', this.destroyManager)
-      .subscribe((data: any) => {
-        console.log('o2cConnector:', data);
-      });
-  }
-
   formatColumnName(column: string): string {
     const acronyms = [
       'id',
@@ -318,6 +306,13 @@ export class O2c360Component implements OnInit {
     return columns.filter((column) => !columnsToRemove.includes(column));
   }
 
+  get limitedInvoiceData() {
+    return this.invoiceSummaryDataSource.data.slice(0, 5);
+  }
+  get limitedSubscriptionData() {
+    return this.subscriptionSummaryDataSource.data.slice(0, 5);
+  }
+
   toggleAccordion(section: 'subscription' | 'invoice') {
     this.expanded[section] = !this.expanded[section];
   }
@@ -352,26 +347,30 @@ export class O2c360Component implements OnInit {
     this.showInvoiceModal = true;
   }
 
-  viewAllSubscriptions(): void {
-    if (!this.subscriptionSummaryDataSource?.data?.length) return;
+  viewAll(type: 'subscriptions' | 'invoices', billNumber?: string): void {
+    const isInvoice = type === 'invoices';
+    const isSubscription = type === 'subscriptions';
 
-    this.router.navigate(['/o2c-sub'], {
+    if (
+      (isInvoice && !this.invoiceSummaryDataSource?.data?.length) ||
+      (isSubscription && !this.subscriptionSummaryDataSource?.data?.length)
+    ) {
+      return;
+    }
+
+    this.router.navigate(['/o2c-view-all'], {
       state: {
+        defaultTab: type,
+        defaultBillNumber: billNumber, // <-- NEW
+        orderData: this.orderSummaryDataSource.data,
+
         subscriptionData: this.subscriptionSummaryDataSource.data,
         subscriptionColumns: this.subscriptionSummaryDisplayedColumns,
-        orderData: this.orderSummaryDataSource.data,
-      },
-    });
-  }
+        subscriptionLineData: this.subscriptionLinesDataSource?.data || [],
 
-  viewAllInvoices(): void {
-    if (!this.invoiceLinesDataSource?.data?.length) return;
-
-    this.router.navigate(['/o2c-invoice'], {
-      state: {
-        invoiceLinesDisplayedColumns: this.invoiceLinesDisplayedColumns,
-        invoiceLinesData: this.invoiceLinesDataSource.data,
-        orderSummaryData: this.orderSummaryDataSource.data,
+        invoiceData: this.invoiceSummaryDataSource.data,
+        invoiceColumns: this.invoiceSummaryDisplayedColumns,
+        invoiceLineData: this.invoiceLinesDataSource?.data || [],
       },
     });
   }

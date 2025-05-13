@@ -65,6 +65,7 @@ export class O2cLandingComponent implements OnInit {
           ];
           this.router.navigate(['/o2c-360'], {
             queryParams: {
+              searchType: this.searchType,
               orderId: orderIds[0],
               subRefIds: subRefIds.join(','),
               invoiceIds: trxNumbers.join(','),

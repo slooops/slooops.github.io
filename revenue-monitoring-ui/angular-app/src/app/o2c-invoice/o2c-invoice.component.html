@@ -80,18 +80,20 @@
     <div class="order-info accordion-header">
       Invoices -
       {{
-        invoiceLinesDataSource.data.length
-          ? invoiceLinesDataSource.data.length
+        invoiceSummaryDataSource.data.length
+          ? invoiceSummaryDataSource.data.length
           : null
       }}
     </div>
   </div>
   <div class="accordion-content o2c-card">
     <div class="invoice-summary-table">
-      <ng-container *ngIf="invoiceLinesDataSource?.data?.length; else loading">
-        <table mat-table [dataSource]="invoiceLinesDataSource">
+      <ng-container
+        *ngIf="invoiceSummaryDataSource?.data?.length; else loading"
+      >
+        <table mat-table [dataSource]="invoiceSummaryDataSource">
           <ng-container
-            *ngFor="let column of invoiceLinesDisplayedColumns"
+            *ngFor="let column of invoiceSummaryDisplayedColumns"
             [matColumnDef]="column"
           >
             <th mat-header-cell *matHeaderCellDef>
@@ -109,11 +111,11 @@
 
           <tr
             mat-header-row
-            *matHeaderRowDef="invoiceLinesDisplayedColumns"
+            *matHeaderRowDef="invoiceSummaryDisplayedColumns"
           ></tr>
           <tr
             mat-row
-            *matRowDef="let row; columns: invoiceLinesDisplayedColumns"
+            *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
           ></tr>
         </table>
       </ng-container>

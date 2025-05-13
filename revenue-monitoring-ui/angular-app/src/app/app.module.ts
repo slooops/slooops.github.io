@@ -110,7 +110,7 @@ import { O2cSidebarNavComponent } from './shared/o2c-sidebar-nav/o2c-sidebar-nav
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
-import { O2cSubComponent } from './o2c-sub/o2c-sub.component';
+import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { ModalComponent } from './components/modal/modal.component';
 
 export function initApp(authService: AuthenticationService) {
@@ -191,7 +191,7 @@ export function initApp(authService: AuthenticationService) {
     OperationsControlsComponent,
     OrderManagementComponent,
     O2cInvoiceComponent,
-    O2cSubComponent,
+    O2cViewAllComponent,
     ModalComponent,
   ],
   imports: [
