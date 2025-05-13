@@ -9,7 +9,11 @@
         <p class="circle-caption-loop" [ngClass]="getCaptionClass(step)">
           {{ removeUnderscores(step) }}
         </p>
-        <p class="step-value" [ngClass]="getCaptionClass(step)">
+        <p
+          class="step-value"
+          *ngIf="stepValues && stepValues[step]"
+          [ngClass]="getCaptionClass(step)"
+        >
           {{ stepValues[step] || "$0" }}
         </p>
       </div>

@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 export class O2cProcessFlowComponent implements OnInit {
   @Input() circleStatus: { [key: string]: number } = {};
   @Input() navigationMap: { [key: string]: string } = {};
-  @Input() stepValues: { [key: string]: string } = {}; // e.g. { Order: '$62000', Subscription: '$000' }
+  @Input() stepValues?: { [key: string]: string } = {}; // e.g. { Order: '$62000', Subscription: '$000' }
 
   circleSteps: string[] = [];
 

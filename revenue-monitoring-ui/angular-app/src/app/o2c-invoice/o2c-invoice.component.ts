@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiHttpService } from '../providers/http.service';
-import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource } from '@angular/material/table';
 @Component({
   selector: 'app-o2c-invoice',
@@ -8,10 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
   styleUrl: './o2c-invoice.component.css',
 })
 export class O2cInvoiceComponent implements OnInit {
-  constructor(
-    private http: ApiHttpService,
-    private destroyManager: DestroyManager
-  ) {}
+  constructor() {}
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
@@ -43,23 +38,20 @@ export class O2cInvoiceComponent implements OnInit {
   ];
   orderSummaryDataSource = new MatTableDataSource<any>();
 
-  invoiceLinesDisplayedColumns: string[] = [];
-  invoiceLinesDataSource = new MatTableDataSource<any>();
+  invoiceSummaryDisplayedColumns: string[] = [];
+  invoiceSummaryDataSource = new MatTableDataSource<any>();
 
   ngOnInit(): void {
     const state = history.state;
 
-    if (state?.invoiceLinesDisplayedColumns && state?.invoiceLinesData) {
-      this.invoiceLinesDisplayedColumns = state.invoiceLinesDisplayedColumns;
-      this.invoiceLinesDataSource = new MatTableDataSource(
-        state.invoiceLinesData
-      );
+    if (state?.invoiceData && state?.invoiceColumns) {
+      this.invoiceSummaryDisplayedColumns = state.invoiceColumns;
+      this.invoiceSummaryDataSource = new MatTableDataSource(state.invoiceData);
       this.orderSummaryDataSource = new MatTableDataSource(
         state.orderSummaryData
       );
     } else {
-      // fallback for direct page load
-      console.warn('No data passed to o2c-sub, consider not being here');
+      console.warn('No data passed to o2c-invoice, consider not being here');
     }
   }
 
