@@ -29,7 +29,7 @@ export class O2cViewAllComponent implements OnInit {
   circleStatus: { [key: string]: number } = {
     Order: 2,
     Subscription: 2,
-    Invoicing: -1,
+    Invoicing: 2,
     Accounting: 0,
     Cash: 0,
   };

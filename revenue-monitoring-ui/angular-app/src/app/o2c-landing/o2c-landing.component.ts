@@ -22,7 +22,23 @@ export class O2cLandingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // this.getO2cConnector();
+    this.route.queryParamMap.subscribe((params) => {
+      const searchValue = params.get('searchValue');
+      const searchType = params.get('searchType');
+
+      if (searchValue) {
+        this.searchValue = searchValue;
+        this.onSearch();
+      }
+
+      // if (searchType) {
+      //   this.searchType = searchType;
+      // }
+
+      // if (searchValue && searchType) {
+      //   this.onSearch();
+      // }
+    });
   }
 
   private getO2cConnector() {

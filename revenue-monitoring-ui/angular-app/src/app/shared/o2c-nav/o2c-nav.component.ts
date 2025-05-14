@@ -37,7 +37,12 @@ export class O2cNavComponent {
   };
 
   onSearch(): void {
-    this.router.navigate(['/o2c-landing'], {});
+    this.router.navigate(['/o2c-landing'], {
+      queryParams: {
+        searchValue: this.searchValue,
+        // searchType: this.searchType,
+      },
+    });
 
     // const trimmedValue = this.searchValue.trim();
     // if (!trimmedValue) return;

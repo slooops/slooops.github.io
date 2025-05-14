@@ -440,4 +440,12 @@ export class O2c360Component implements OnInit {
       },
     });
   }
+
+  hasExceptions(): boolean {
+    return (
+      !!this.orderExceptionMessage ||
+      !!this.subscriptionExceptionMessage ||
+      !!this.invoiceExceptionMessage
+    );
+  }
 }
