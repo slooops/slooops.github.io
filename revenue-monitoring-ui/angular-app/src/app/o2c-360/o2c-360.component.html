@@ -338,7 +338,9 @@
                           disabled:
                             !invoiceLinesDataLoaded && !subscriptionDataLoaded
                         }"
-                        (click)="viewAll('invoices', element['BILL_NUMBER'])"
+                        (click)="
+                          viewAll('invoices', element['TRANSACTION_NUMBER'])
+                        "
                         >{{ element[column] }}</a
                       >
                     </ng-container>

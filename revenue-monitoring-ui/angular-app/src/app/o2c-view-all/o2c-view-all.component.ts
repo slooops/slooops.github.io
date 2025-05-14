@@ -15,7 +15,6 @@ export class O2cViewAllComponent implements OnInit {
   selectedTabIndex: number = 0;
 
   showInvoiceLines: boolean = false;
-  selectedBillNumber: string | null = null;
 
   orderId: string | null = null;
   subscriptionId: string | null = null;
@@ -51,7 +50,7 @@ export class O2cViewAllComponent implements OnInit {
     'ORDER_HOLDS',
     'CLOUD_SUB_ORDER_HOLDS',
     'FLOW_STATUS_CODE',
-    'PARTNER',
+    'BILL_TO_CUSTOMER',
     'END_CUSTOMER',
   ];
   orderSummaryDataSource = new MatTableDataSource<any>();
@@ -137,7 +136,7 @@ export class O2cViewAllComponent implements OnInit {
   ngOnInit(): void {
     const navState = this.location.getState() as {
       defaultTab?: string;
-      defaultBillNumber?: string;
+      defaultTransactionNumber?: string;
       orderData?: any[];
 
       subscriptionData?: any[];
@@ -168,8 +167,8 @@ export class O2cViewAllComponent implements OnInit {
       this.invoiceId = this.invoiceSummaryDataSource.data[0].TRANSACTION_NUMBER;
       this.invoiceLinesDataSource.data = navState.invoiceLineData;
 
-      if (navState.defaultBillNumber) {
-        this.toggleInvoiceLinesTable(navState.defaultBillNumber);
+      if (navState.defaultTransactionNumber) {
+        this.toggleInvoiceLinesTable(navState.defaultTransactionNumber);
       }
     }
 
@@ -244,14 +243,14 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedTab = index === 0 ? 'subscriptions' : 'invoices';
   }
 
-  toggleInvoiceLinesTable(billNumber: string): void {
-    console.log('Bill Number:', billNumber);
+  toggleInvoiceLinesTable(TransactionNumber: string): void {
+    console.log('Bill Number:', TransactionNumber);
     console.log('Invoice Lines Data Source:', this.invoiceLinesDataSource.data);
 
-    this.selectedBillNumber = billNumber;
+    this.selectedTransactionNumber = TransactionNumber;
 
     const filteredLines = this.invoiceLinesDataSource.data.filter(
-      (line) => line.BRM_BILL_NUMBER === billNumber
+      (line) => line.TRANSACTION_NUMBER === TransactionNumber
     );
 
     console.log('Filtered Lines:', filteredLines);

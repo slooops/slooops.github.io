@@ -72,10 +72,9 @@ export class O2c360Component implements OnInit {
     'HYBRID_ORDER',
     'ROUTE_TO_MARKET',
     'ORDER_HOLDS',
-    // 'CLOUD_SUB_ORDER_HOLDS',
-    'CLOUD_SUB_ORDER _HOLDS',
+    'CLOUD_SUB_ORDER_HOLDS',
     'FLOW_STATUS_CODE',
-    'PARTNER',
+    'BILL_TO_CUSTOMER',
     'END_CUSTOMER',
   ];
   orderSummaryDataSource = new MatTableDataSource<any>();

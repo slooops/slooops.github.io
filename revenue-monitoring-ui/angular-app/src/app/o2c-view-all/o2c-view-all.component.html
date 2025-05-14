@@ -235,7 +235,9 @@
 
                   <ng-container *ngSwitchCase="'TRANSACTION_NUMBER'">
                     <a
-                      (click)="toggleInvoiceLinesTable(element['BILL_NUMBER'])"
+                      (click)="
+                        toggleInvoiceLinesTable(element['TRANSACTION_NUMBER'])
+                      "
                     >
                       {{ element[column] }}
                     </a>
