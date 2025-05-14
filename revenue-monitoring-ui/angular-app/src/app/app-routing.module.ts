@@ -248,6 +248,14 @@ const routes: Routes = [
     },
   },
   {
+    path: 'OM-monitoring',
+    component: OrderManagementComponent,
+    data: {
+      title: 'Operations Control Tower',
+      header: 'Order Management Monitoring',
+    },
+  },
+  {
     path: 'wd0',
     component: Wd0DashComponent,
     data: {

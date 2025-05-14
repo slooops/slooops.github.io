@@ -1,9 +1,65 @@
-<br />
-<br />
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
-      <h5 class="section-title action-buttons">OM Summary Data</h5>
+      <h5 class="section-title action-buttons">
+        Error Summary
+        <span class="action-buttons">
+          &nbsp;&nbsp;
+          <!-- <button
+            class="custom-button-primary"
+            (click)="viewTransactionDetails()"
+          >
+            View Details
+          </button>
+          &nbsp;&nbsp; -->
+          <button
+            class="custom-button-primary"
+            style="background-color: #aaa8a8"
+            *ngIf="selection.selected.length === 1"
+          >
+            Assign User
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            style="font-size: 12px; padding: 3px"
+            class="mat-small"
+            *ngIf="selection.selected.length > 0"
+          >
+            Reset
+          </button>
+        </span>
+      </h5>
+
+      <div class="action-buttons">
+        <div
+          style="
+            font-size: 12px;
+            padding: 5px 0vw 0 0;
+            display: flex;
+            flex-direction: column;
+          "
+        >
+          <div style="display: flex">
+            <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
+            <span><b>Period end date:</b> {{ periodEnd }}</span>
+          </div>
+          <p
+            class="card-subtitle"
+            style="
+              margin: 0px 0px 0 0;
+              font-size: 12px;
+              display: flex;
+              justify-content: flex-end;
+            "
+          >
+            {{ summaryLoadTime }}
+          </p>
+        </div>
+        <button mat-icon-button>
+          <i class="svg-icon download-icon"></i>
+        </button>
+      </div>
     </div>
 
     <ng-container *ngIf="summaryDataSource?.data?.length">
@@ -16,6 +72,20 @@
           [dataSource]="summaryDataSource"
           class="custom-table table-responsive"
         >
+          <ng-container
+            matColumnDef="select"
+            style="padding-top: 10px !important"
+          >
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="onRowSelectionChange($event, row)"
+                [checked]="selection.isSelected(row)"
+              >
+              </mat-checkbox>
+            </td>
+          </ng-container>
           <ng-container matColumnDef="created_date">
             <th mat-header-cell *matHeaderCellDef>Created Date</th>
             <td mat-cell *matCellDef="let element">
@@ -46,6 +116,12 @@
               {{ element.total_count }}
             </td>
           </ng-container>
+          <ng-container matColumnDef="aging">
+            <th mat-header-cell *matHeaderCellDef>Aging</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.aging }}
+            </td>
+          </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
           <tr
@@ -55,16 +131,33 @@
         </table>
       </div>
     </ng-container>
+
+    <mat-paginator
+      #summaryPaginator
+      [pageSize]="10"
+      length="totalSummaryRecords"
+      [pageSizeOptions]="[]"
+      showFirstLastButtons
+      aria-label="Select page"
+    ></mat-paginator>
   </div>
 </div>
-
-<br />
-<br />
 
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
-      <h5 class="section-title action-buttons">OM Details Data</h5>
+      <div class="details-header">
+        <h5 class="section-title">Error Details</h5>
+      </div>
+
+      <div class="action-buttons">
+        <button mat-icon-button [disabled]="true">
+          <i class="svg-icon chart-icon"></i>
+        </button>
+        <button mat-icon-button>
+          <i class="svg-icon download-icon"></i>
+        </button>
+      </div>
     </div>
 
     <ng-container *ngIf="detailsDataSource?.data?.length">
@@ -165,5 +258,14 @@
         </table>
       </div>
     </ng-container>
+
+    <mat-paginator
+      #detailsPaginator
+      [pageSize]="20"
+      length="totalRecords"
+      [pageSizeOptions]="[]"
+      showFirstLastButtons
+      aria-label="Select page"
+    ></mat-paginator>
   </div>
 </div>
