@@ -41,7 +41,7 @@ public class MongoDBManager {
         query.addCriteria(Criteria.where("actionable_flag").is(true));
         query.addCriteria(Criteria.where("closed_date").is(""));
         query.with(Sort.by(Sort.Direction.DESC, "timestamp"));
-        query.with(PageRequest.of(0, 20));
+        query.with(PageRequest.of(0, 50));
     
         return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, "oplAlertMonitorData"));
     }
