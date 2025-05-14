@@ -340,6 +340,8 @@
 
 <app-modal
   *ngIf="showSubscriptionModal"
+  [headerBgColor]="'#def7ff'"
+  [borderRadius]="'0px'"
   [title]="
     'Subscription Line Summary &nbsp; -  &nbsp; ' +
     selectedSubscriptionId +
@@ -378,6 +380,8 @@
 
 <app-modal
   *ngIf="showInvoiceModal"
+  [headerBgColor]="'#def7ff'"
+  [borderRadius]="'0px'"
   [title]="
     'Transaction Number  &nbsp; -  &nbsp; ' +
     selectedTransactionNumber +

@@ -25,6 +25,9 @@ export class O2c360Component implements OnInit {
   invoiceIds: string[] = [];
 
   showDetailsModal = false;
+  orderExceptionMessage: string = '';
+  subscriptionExceptionMessage: string = '';
+  invoiceExceptionMessage: string = '';
 
   showSubscriptionModal = false;
   selectedSubscriptionId: string | null = null;
@@ -42,8 +45,8 @@ export class O2c360Component implements OnInit {
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
-    Subscription: 2,
-    Invoicing: -1,
+    Subscription: 0,
+    Invoicing: 0,
     Accounting: 0,
     Cash: 0,
   };
@@ -197,6 +200,15 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Order Summary:', data);
+
+        const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
+        this.circleStatus['Subscription'] = hasException ? -1 : 2;
+        this.orderExceptionMessage = hasException
+          ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
+            ''
+          : '';
+        console.log('Order Summary Exception:', this.orderExceptionMessage);
+
         this.orderSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[0].count = data.length;
         this.orderDataLoaded = true;
@@ -219,9 +231,21 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Subscription Summary:', data);
+
+        const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
+        this.circleStatus['Invoicing'] = hasException ? -1 : 2;
+        this.subscriptionExceptionMessage = hasException
+          ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
+            ''
+          : '';
+        console.log(
+          'Subscription Summary Exception:',
+          this.subscriptionExceptionMessage
+        );
+
         this.subscriptionSummaryDisplayedColumns = this.removeColumns(
           Object.keys(data[0]),
-          ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE']
+          ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE', 'EXCEPTION_DETAILS']
         );
         this.subscriptionSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[1].count = data.length;
@@ -267,6 +291,18 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
+        const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
+        this.circleStatus['Accounting'] = hasException ? -1 : 2;
+        console.log(
+          'Invoice Summary Circle Status:',
+          this.circleStatus['Invoice']
+        );
+        this.invoiceExceptionMessage = hasException
+          ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
+            ''
+          : '';
+        console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
+
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
         this.invoiceDataLoaded = true;

@@ -1,9 +1,18 @@
 <div class="modal-overlay" (click)="emitClose()">
-  <div class="modal-content" (click)="stopPropagation($event)">
-    <div class="modal-header">
+  <div
+    class="modal-content"
+    (click)="stopPropagation($event)"
+    [ngStyle]="{ 'border-radius': borderRadius || '8px' }"
+  >
+    <div
+      class="modal-header"
+      *ngIf="title"
+      [ngStyle]="{ 'background-color': headerBgColor || '#def7ff' }"
+    >
       <h5 class="modal-title">{{ title }}</h5>
       <button class="close-button" (click)="emitClose()">✕</button>
     </div>
+
     <div class="modal-body">
       <ng-content></ng-content>
     </div>

@@ -251,3 +251,47 @@ tr.mat-header-row {
   padding: 2rem;
   border: 1px solid #e4e4e4;
 }
+
+.exception-box {
+  display: flex;
+  align-items: flex-start;
+  background-color: #fff;
+  position: relative;
+  font-family: "Inter", sans-serif;
+}
+
+.icon-container {
+  display: flex;
+  background-color: #fe9e20;
+  height: 100px;
+  width: 50px;
+  margin: -15px;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-content {
+  flex-grow: 1;
+  margin: 0 30px;
+}
+
+.exception-title {
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+}
+
+.exception-text span {
+  display: block;
+  color: #d02b2b;
+  font-weight: 500;
+}
+
+.close-icon-container {
+  position: absolute;
+  top: -6px;
+  right: 0px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #444;
+}

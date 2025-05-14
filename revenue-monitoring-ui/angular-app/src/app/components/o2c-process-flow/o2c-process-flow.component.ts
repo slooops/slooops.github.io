@@ -49,7 +49,7 @@ export class O2cProcessFlowComponent implements OnInit {
       this.router.navigate([this.navigationMap[identifier]]);
       console.log(`Navigating to ${this.navigationMap[identifier]}`);
     } else {
-      console.warn('No navigation path found for:', identifier);
+      // console.warn('No navigation path found for:', identifier);
     }
   }
 
