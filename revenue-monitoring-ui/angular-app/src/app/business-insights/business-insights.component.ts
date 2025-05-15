@@ -30,7 +30,12 @@ export class BusinessInsightsComponent implements OnInit {
     const newHeader = `Business Insights > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
   }
-  visibleTabs: { label: string; component: string; role: string[] }[] = [
+  visibleTabs: {
+    label: string;
+    component: string;
+    role: string[];
+    disabled?: boolean;
+  }[] = [
     {
       label: 'Large Deal Tracker',
       component: 'app-large-deal',
@@ -54,7 +59,7 @@ export class BusinessInsightsComponent implements OnInit {
   ];
 
   selectedIndex: number = 0;
-  filteredTabs: { label: string; component: string }[] = [];
+  filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>

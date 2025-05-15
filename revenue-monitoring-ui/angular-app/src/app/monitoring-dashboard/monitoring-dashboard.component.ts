@@ -132,11 +132,6 @@ export class MonitoringDashboardComponent<T>
           const totals = this.calculateTotalsByProcessFlow(data);
           this.dataService.setTabData(this.componentName, totals);
         }
-        this.summaryData.forEach((row) => {
-          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-          row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
-          row.AGING = row.AGING + ' Days';
-        });
         this.originalData = this.summaryData;
         this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
         if (this.summaryPaginator) {

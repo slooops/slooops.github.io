@@ -501,20 +501,88 @@ public class ExceptionMonitoringController {
     }
 
     //opl
-    @GetMapping("/opl-data")
-    public ResponseEntity<List<Map<String, Object>>> getOplData() {
-        return new ResponseEntity<>(service.getOplData(), HttpStatus.OK);
+
+    @GetMapping("/om-import-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMImportSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_holds_summary_view"), HttpStatus.OK);
     }
 
-    @GetMapping("/om-summary-data")
-    public ResponseEntity<List<Map<String, Object>>> getOMSummaryData() {
-        return new ResponseEntity<>(service.getOMSummaryData(), HttpStatus.OK);
+    @GetMapping("/om-import-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMImportDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_import_detail_view"), HttpStatus.OK);
     }
 
-    @GetMapping("/om-details-data")
-    public ResponseEntity<List<Map<String, Object>>> getOMDetailsData() {
-        return new ResponseEntity<>(service.getOMDetailsData(), HttpStatus.OK);
+    @GetMapping("/om-holds-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMHoldsSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_holds_summary_view"), HttpStatus.OK);
     }
+
+    @GetMapping("/om-holds-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMHoldsDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_holds_detail_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-bookings-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMBookingsSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_bookings_summary_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-bookings-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMBookingsDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_bookings_detail_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-workflow-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMWorkflowSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_workflow_summary_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-workflow-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMWorkflowDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_workflow_detail_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-processing-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMProcessingSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_processing_summary_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-processing-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMProcessingDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_processing_detail_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-distribution-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMDistributionSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_distribution_summary_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-distribution-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMDistributionDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_distribution_detail_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-attribution-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMAttributionSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_attribution_summary_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-attribution-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMAttributionDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_attribution_detail_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-jobs-summary")
+    public ResponseEntity<List<Map<String, Object>>> getOMJobsSummary() {
+        return new ResponseEntity<>(service.getOMSummaryData("om_control_tower_jobs_summary_view"), HttpStatus.OK);
+    }
+
+    @GetMapping("/om-jobs-details")
+    public ResponseEntity<List<Map<String, Object>>> getOMJobsDetails() {
+        return new ResponseEntity<>(service.getOMDetailsData("om_control_tower_jobs_detail_view"), HttpStatus.OK);
+    }
+
+
     //eInvoicing
     @GetMapping("/einvoicing-error-summary")
     public ResponseEntity<List<Map<String, Object>>> getEInvoicingErrorSummary() {

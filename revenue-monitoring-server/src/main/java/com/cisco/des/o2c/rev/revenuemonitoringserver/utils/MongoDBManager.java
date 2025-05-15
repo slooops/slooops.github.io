@@ -14,10 +14,7 @@ import org.springframework.stereotype.Component;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -30,20 +27,22 @@ public class MongoDBManager {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public List<Map<String, Object>> getAllData(int page, int size) {
+    public List<Map<String, Object>> getAllData(String collection) {
         Query query = new Query();
-        query.with(PageRequest.of(page, size));
-        return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, "oplExceptionNotificationLog"));
+        return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, collection));
     }
 
-    public List<Map<String, Object>> getOMDetailsData() {
+    public List<Map<String, Object>> getOmControlTowerSummary() {
         Query query = new Query();
-        query.addCriteria(Criteria.where("actionable_flag").is(true));
-        query.addCriteria(Criteria.where("closed_date").is(""));
-        query.with(Sort.by(Sort.Direction.DESC, "timestamp"));
-        query.with(PageRequest.of(0, 50));
-    
-        return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, "oplAlertMonitorData"));
+
+        query.with(PageRequest.of(0, 20));
+        List<Document> documents = mongoTemplate.find(query, Document.class, "om_control_tower_attribution_summary_view");
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Document doc : documents) {
+            result.add(doc);
+        }
+        return result;
     }
 
     public static List<Map<String, Object>> convertDocumentsToMaps(List<Document> documents) {
@@ -54,46 +53,4 @@ public class MongoDBManager {
                 .collect(Collectors.toList());
     }
 
-    public List<Map<String, Object>> getOMSUmmaryData() {
-
-        Document agingExpression = new Document("$dateDiff",
-                new Document("startDate", "$created_date_parsed")
-                        .append("endDate", "$$NOW")
-                        .append("unit", "day")
-        );
-
-        Aggregation aggregation = newAggregation(
-                match(Criteria.where("actionable_flag").is(true).and("closed_date").is("")),
-
-                group("created_date", "timestamp", "scenario", "data_source")
-                        .sum("count").as("total_count"),
-
-                addFields()
-                        .addField("created_date_parsed")
-                        .withValue(ConvertOperators.ToDate.toDate("$_id.created_date"))
-                        .build(),
-
-                addFields()
-                        .addField("aging")
-                        .withValue(agingExpression)
-                        .build(),
-
-                // Do NOT try to exclude here; just include what you want
-                project()
-                        .and("_id.created_date").as("created_date")
-                        .and("_id.timestamp").as("timestamp")
-                        .and("_id.scenario").as("scenario")
-                        .and("_id.data_source").as("data_source")
-                        .and("total_count").as("total_count")
-                        .and("aging").as("aging"),
-
-                sort(Sort.Direction.DESC, "timestamp"),
-                limit(20)
-        );
-
-        AggregationResults<Document> results =
-                mongoTemplate.aggregate(aggregation, "oplAlertMonitorData", Document.class);
-
-        return convertDocumentsToMaps(results.getMappedResults());
-    }
 }

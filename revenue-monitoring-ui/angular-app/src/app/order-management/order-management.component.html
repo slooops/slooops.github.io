@@ -1,271 +1,181 @@
-<div>
-  <div class="container rol-error-summary-container">
-    <div class="header-container">
-      <h5 class="section-title action-buttons">
-        Error Summary
-        <span class="action-buttons">
-          &nbsp;&nbsp;
-          <!-- <button
-            class="custom-button-primary"
-            (click)="viewTransactionDetails()"
-          >
-            View Details
-          </button>
-          &nbsp;&nbsp; -->
-          <button
-            class="custom-button-primary"
-            style="background-color: #aaa8a8"
-            *ngIf="selection.selected.length === 1"
-          >
-            Assign User
-          </button>
-          <button
-            mat-stroked-button
-            type="button"
-            style="font-size: 12px; padding: 3px"
-            class="mat-small"
-            *ngIf="selection.selected.length > 0"
-          >
-            Reset
-          </button>
-        </span>
-      </h5>
-
-      <div class="action-buttons">
-        <div
-          style="
-            font-size: 12px;
-            padding: 5px 0vw 0 0;
-            display: flex;
-            flex-direction: column;
-          "
-        >
-          <div style="display: flex">
-            <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
-            <span><b>Period end date:</b> {{ periodEnd }}</span>
-          </div>
-          <p
-            class="card-subtitle"
-            style="
-              margin: 0px 0px 0 0;
-              font-size: 12px;
-              display: flex;
-              justify-content: flex-end;
-            "
-          >
-            {{ summaryLoadTime }}
-          </p>
-        </div>
-        <button mat-icon-button>
-          <i class="svg-icon download-icon"></i>
-        </button>
-      </div>
-    </div>
-
-    <ng-container *ngIf="summaryDataSource?.data?.length">
-      <div
-        class="table table-responsive table-container"
-        style="overflow-y: hidden !important"
-      >
-        <table
-          mat-table
-          [dataSource]="summaryDataSource"
-          class="custom-table table-responsive"
-        >
-          <ng-container
-            matColumnDef="select"
-            style="padding-top: 10px !important"
-          >
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let row">
-              <mat-checkbox
-                (click)="$event.stopPropagation()"
-                (change)="onRowSelectionChange($event, row)"
-                [checked]="selection.isSelected(row)"
-              >
-              </mat-checkbox>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="created_date">
-            <th mat-header-cell *matHeaderCellDef>Created Date</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.created_date }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="data_source">
-            <th mat-header-cell *matHeaderCellDef>Data Source</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.data_source }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="scenario">
-            <th mat-header-cell *matHeaderCellDef>Scenario</th>
-            <td mat-cell *matCellDef="let element">{{ element.scenario }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="timestamp">
-            <th mat-header-cell *matHeaderCellDef>Timestamp</th>
-            <td mat-cell *matCellDef="let element">{{ element.timestamp }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="total_count">
-            <th mat-header-cell *matHeaderCellDef>Total Count</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.total_count }}
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="aging">
-            <th mat-header-cell *matHeaderCellDef>Aging</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.aging }}
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: summaryDisplayedColumns"
-          ></tr>
-        </table>
-      </div>
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
+  <mat-tab
+    *ngFor="let tab of filteredTabs; let i = index"
+    [label]="tab.label"
+    [disabled]="tab.disabled"
+  >
+    <ng-container [ngSwitch]="tab.component">
+      <ng-container *ngSwitchCase="'app-imports'">
+        <app-monitoring-dashboard
+          [urls]="omImportUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Imports'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omImportFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-holds'">
+        <app-monitoring-dashboard
+          [urls]="omHoldsUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Holds'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omHoldsFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-bookings'">
+        <app-monitoring-dashboard
+          [urls]="omBookingsUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Bookings'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omBookingsFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-workflow'">
+        <app-monitoring-dashboard
+          [urls]="omWorkflowUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Workflow'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omWorkflowFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-processing'">
+        <app-monitoring-dashboard
+          [urls]="omProcessingUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Processing'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omProcessingFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-distribution'">
+        <app-monitoring-dashboard
+          [urls]="omDistributionUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Distribution'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omDistributionFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-attribution'">
+        <app-monitoring-dashboard
+          [urls]="omAttributionUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Attribution'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omAttributionFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-jobs'">
+        <app-monitoring-dashboard
+          [urls]="omJobsUrls"
+          [keysToMap]=""
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Jobs'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omJobsFilters"
+          [detailsColumnsToHide]="[]"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
     </ng-container>
-
-    <mat-paginator
-      #summaryPaginator
-      [pageSize]="10"
-      length="totalSummaryRecords"
-      [pageSizeOptions]="[]"
-      showFirstLastButtons
-      aria-label="Select page"
-    ></mat-paginator>
-  </div>
-</div>
-
-<div>
-  <div class="container rol-error-summary-container">
-    <div class="header-container">
-      <div class="details-header">
-        <h5 class="section-title">Error Details</h5>
-      </div>
-
-      <div class="action-buttons">
-        <button mat-icon-button [disabled]="true">
-          <i class="svg-icon chart-icon"></i>
-        </button>
-        <button mat-icon-button>
-          <i class="svg-icon download-icon"></i>
-        </button>
-      </div>
-    </div>
-
-    <ng-container *ngIf="detailsDataSource?.data?.length">
-      <div
-        class="table table-responsive table-container"
-        style="overflow-y: hidden !important"
-      >
-        <table
-          mat-table
-          [dataSource]="detailsDataSource"
-          class="custom-table table-responsive"
-        >
-          <ng-container matColumnDef="actionable_flag">
-            <th mat-header-cell *matHeaderCellDef>Actionable Flag</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.actionable_flag }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="assigned_to">
-            <th mat-header-cell *matHeaderCellDef>Assigned To</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.assigned_to }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="closed_date">
-            <th mat-header-cell *matHeaderCellDef>Closed Date</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.closed_date }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="comments">
-            <th mat-header-cell *matHeaderCellDef>Comments</th>
-            <td mat-cell *matCellDef="let element">{{ element.comments }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="count">
-            <th mat-header-cell *matHeaderCellDef>Count</th>
-            <td mat-cell *matCellDef="let element">{{ element.count }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="created_date">
-            <th mat-header-cell *matHeaderCellDef>Created Date</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.created_date }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="data_source">
-            <th mat-header-cell *matHeaderCellDef>Data Source</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.data_source }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="database">
-            <th mat-header-cell *matHeaderCellDef>Database</th>
-            <td mat-cell *matCellDef="let element">{{ element.database }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="head_1">
-            <th mat-header-cell *matHeaderCellDef>Head 1</th>
-            <td mat-cell *matCellDef="let element">{{ element.head_1 }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="head_2">
-            <th mat-header-cell *matHeaderCellDef>Head 2</th>
-            <td mat-cell *matCellDef="let element">{{ element.head_2 }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="head_3">
-            <th mat-header-cell *matHeaderCellDef>Head 3</th>
-            <td mat-cell *matCellDef="let element">{{ element.head_3 }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="scenario">
-            <th mat-header-cell *matHeaderCellDef>Scenario</th>
-            <td mat-cell *matCellDef="let element">{{ element.scenario }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let element">{{ element.status }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="timestamp">
-            <th mat-header-cell *matHeaderCellDef>Timestamp</th>
-            <td mat-cell *matCellDef="let element">{{ element.timestamp }}</td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: detailsDisplayedColumns"
-          ></tr>
-        </table>
-      </div>
-    </ng-container>
-
-    <mat-paginator
-      #detailsPaginator
-      [pageSize]="20"
-      length="totalRecords"
-      [pageSizeOptions]="[]"
-      showFirstLastButtons
-      aria-label="Select page"
-    ></mat-paginator>
-  </div>
-</div>
+  </mat-tab>
+</mat-tab-group>
