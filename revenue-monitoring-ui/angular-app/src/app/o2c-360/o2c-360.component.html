@@ -16,7 +16,7 @@
         </button>
 
         <app-modal
-          *ngIf="hasExceptions()"
+          *ngIf="hasExceptions() && showDetailsModal"
           [headerBgColor]="'#e6f4ea'"
           [borderRadius]="'0px'"
           (close)="showDetailsModal = false"

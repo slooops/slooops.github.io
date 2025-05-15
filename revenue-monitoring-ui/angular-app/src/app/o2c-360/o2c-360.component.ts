@@ -426,7 +426,7 @@ export class O2c360Component implements OnInit {
     this.router.navigate(['/o2c-view-all'], {
       state: {
         defaultTab: type,
-        defaultBillNumber: billNumber,
+        defaultTransactionNumber: billNumber,
         orderData: this.orderSummaryDataSource.data,
 
         subscriptionData: this.subscriptionSummaryDataSource.data,
