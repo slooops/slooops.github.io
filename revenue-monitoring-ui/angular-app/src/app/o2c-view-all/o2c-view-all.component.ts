@@ -26,9 +26,9 @@ export class O2cViewAllComponent implements OnInit {
   showInvoiceModal: boolean = false;
 
   circleStatus: { [key: string]: number } = {
-    Order: 2,
-    Subscription: 2,
-    Invoicing: 2,
+    Order: 0,
+    Subscription: 0,
+    Invoicing: 0,
     Accounting: 0,
     Cash: 0,
   };
@@ -146,11 +146,17 @@ export class O2cViewAllComponent implements OnInit {
       invoiceData?: any[];
       invoiceColumns?: string[];
       invoiceLineData?: any[];
+
+      circleStatus?: { [key: string]: number };
     };
 
     this.selectedTab =
       navState.defaultTab === 'invoices' ? 'invoices' : 'subscriptions';
     this.selectedTabIndex = this.selectedTab === 'invoices' ? 1 : 0;
+
+    if (navState?.circleStatus) {
+      this.circleStatus = navState.circleStatus;
+    }
 
     if (navState?.subscriptionData) {
       this.subscriptionSummaryDataSource.data = navState.subscriptionData;
@@ -165,7 +171,11 @@ export class O2cViewAllComponent implements OnInit {
       this.invoiceSummaryDataSource.data = navState.invoiceData;
       this.invoiceSummaryDisplayedColumns = navState.invoiceColumns || [];
       this.invoiceId = this.invoiceSummaryDataSource.data[0].TRANSACTION_NUMBER;
-      this.invoiceLinesDataSource.data = navState.invoiceLineData;
+
+      const sortedData = navState.invoiceLineData
+        .slice()
+        .sort((a: any, b: any) => (a.LINE_NUMBER ?? 0) - (b.LINE_NUMBER ?? 0));
+      this.invoiceLinesDataSource.data = sortedData;
 
       if (navState.defaultTransactionNumber) {
         this.toggleInvoiceLinesTable(navState.defaultTransactionNumber);
