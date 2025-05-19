@@ -51,7 +51,7 @@
   padding: 10px 20px;
   background-color: #f3f9ff;
   border: none;
-  border-bottom: 1px solid var(--Grays-Gray-40, #cfcfcf);
+  border-bottom: 1px solid var(--Grays-Gray-40, #e4e4e4);
   justify-content: center;
 }
 
@@ -129,6 +129,7 @@
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+  cursor: pointer;
 }
 
 .accordion-content {
@@ -154,6 +155,16 @@
   overflow-x: scroll;
 }
 
+.invoice-summary-table::-webkit-scrollbar {
+  height: 8px;
+  background-color: #f4f4f4;
+}
+
+.invoice-summary-table::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
 .view-all-button {
   color: var(--Blues-Blue-60, #0076d5);
 
@@ -175,7 +186,7 @@ td.mat-cell {
   padding: 10px !important;
   font-size: 12px !important;
   text-align: left;
-  border: 1px solid #ababab;
+  border: 1px solid #e4e4e4;
   width: 11vw;
   overflow: hidden;
   white-space: nowrap;
@@ -206,6 +217,7 @@ tr.mat-header-row {
 .order-table th.mat-header-cell {
   font-weight: 700;
   color: #394454;
+  width: 11.1%;
 }
 
 .order-table td.mat-cell {
@@ -225,8 +237,8 @@ tr.mat-header-row {
 }
 
 .order-table .wide-column {
-  width: 20vw;
-  max-width: 20vw;
+  width: 22.2%;
+  max-width: 22.2% !important;
   white-space: wrap;
 }
 

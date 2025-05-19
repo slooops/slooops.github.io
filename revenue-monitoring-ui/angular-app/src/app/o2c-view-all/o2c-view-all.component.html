@@ -39,7 +39,8 @@
           mat-header-cell
           *matHeaderCellDef
           [ngClass]="{
-            'wide-column': column === 'PARTNER' || column === 'END_CUSTOMER'
+            'wide-column':
+              column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
           }"
         >
           {{ formatColumnName(column) }}
@@ -49,7 +50,8 @@
           mat-cell
           *matCellDef="let element"
           [ngClass]="{
-            'wide-column': column === 'PARTNER' || column === 'END_CUSTOMER'
+            'wide-column':
+              column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
           }"
         >
           {{ element[column] }}
@@ -364,7 +366,11 @@
         </th>
 
         <td mat-cell *matCellDef="let element">
-          {{ element[column] }}
+          {{
+            column === "GL_DATE"
+              ? (element[column] | date : "MM/dd/yyyy")
+              : element[column]
+          }}
         </td>
       </ng-container>
 

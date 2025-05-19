@@ -29,6 +29,10 @@
   top: -7px;
 }
 
+.slider-bar-item:last-child {
+  width: 0px;
+}
+
 .circle-loop {
   width: 15px;
   height: 15px;
@@ -36,7 +40,7 @@
   background: #08ace4;
   position: relative;
   margin-top: 0px;
-  left: 67px;
+  left: 0px;
 }
 
 /* Circle states */
@@ -63,7 +67,7 @@
   font-size: 12px;
   color: #333;
   text-align: center;
-  margin: -10px 0 0 0;
+  margin: -10px 0 0 -136px;
 }
 
 .circle {

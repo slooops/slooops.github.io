@@ -6,13 +6,24 @@
   margin-top: 8px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #ddd;
+  /* border-right: 1px solid #ddd; */
   transition: width 0.3s ease;
   height: 100%;
+  position: relative;
 }
 
 .o2c-sidebar.collapsed {
   width: 54px;
+}
+
+.o2c-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, #ddd, transparent 100%);
 }
 
 .menu-button {
@@ -25,7 +36,6 @@
   font-weight: bold;
   margin: 8px 6px;
   font-size: 14px;
-  text-wrap: nowrap;
 }
 
 .nav-item {
@@ -68,6 +78,7 @@
   cursor: pointer;
   font-size: 16px;
   margin-left: -15px;
+  z-index: 1;
 }
 
 .chevron-alignment-open {

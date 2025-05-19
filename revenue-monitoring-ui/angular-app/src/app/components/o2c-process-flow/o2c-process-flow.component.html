@@ -3,6 +3,7 @@
     <div
       *ngFor="let step of circleSteps; let i = index"
       [ngStyle]="getSliderBarStyle(i)"
+      class="slider-bar-item"
     >
       <div class="circle-wrapper-loop" (click)="navigateToRoute(step)">
         <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
