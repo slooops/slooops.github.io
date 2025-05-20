@@ -54,6 +54,7 @@ export class MonitoringDashboardComponent<T>
   }[];
   @Input() summaryColumnsToHide: string[] = [];
   @Input() detailsColumnsToHide: string[] = [];
+  @Input() assignmentDialogFieldConfig: any[] = [];
   @Input() submitKeysToMap: string[] = [];
   @Input() webexKeysToMap: string[] = [];
   periodName: string = '';

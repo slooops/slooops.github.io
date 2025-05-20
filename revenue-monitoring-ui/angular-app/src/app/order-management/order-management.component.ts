@@ -6,6 +6,7 @@ import { DatePipe } from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-order-management',
@@ -57,11 +58,58 @@ export class OrderManagementComponent {
 
   skippedWords: string[] = ['IOL', 'AR', 'ID'];
 
+  fieldConfig = [
+    {
+      controlName: 'timeStamp',
+      label: 'Timestamp',
+      sourceKey: 'timestamp',
+      disabled: true,
+    },
+    {
+      controlName: 'scneario',
+      label: 'Scenario',
+      sourceKey: 'scenario',
+      disabled: true,
+    },
+    {
+      controlName: 'dataSource',
+      label: 'Data Source',
+      sourceKey: 'data_source',
+      disabled: true,
+    },
+    {
+      controlName: 'database',
+      label: 'Database',
+      sourceKey: 'database',
+      disabled: true,
+    },
+    {
+      controlName: 'totalCount',
+      label: 'Total Count',
+      sourceKey: 'total_count',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'aging',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'assigned_to',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'comments' },
+  ];
+
   omImportUrls: { [key: string]: string } = {
     summaryUrl: 'om-import-summary',
     detailsUrl: 'om-import-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-import-details-filtered',
+    summaryUpdateUrl: 'om-import-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -84,8 +132,8 @@ export class OrderManagementComponent {
   omHoldsUrls: { [key: string]: string } = {
     summaryUrl: 'om-holds-summary',
     detailsUrl: 'om-holds-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-holds-details-filtered',
+    summaryUpdateUrl: 'om-holds-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -108,8 +156,8 @@ export class OrderManagementComponent {
   omBookingsUrls: { [key: string]: string } = {
     summaryUrl: 'om-bookings-summary',
     detailsUrl: 'om-bookings-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-bookings-details-filtered',
+    summaryUpdateUrl: 'om-bookings-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -132,8 +180,8 @@ export class OrderManagementComponent {
   omWorkflowUrls: { [key: string]: string } = {
     summaryUrl: 'om-workflow-summary',
     detailsUrl: 'om-workflow-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-workflow-details-filtered',
+    summaryUpdateUrl: 'om-workflow-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -156,8 +204,8 @@ export class OrderManagementComponent {
   omProcessingUrls: { [key: string]: string } = {
     summaryUrl: 'om-processing-summary',
     detailsUrl: 'om-processing-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-processing-details-filtered',
+    summaryUpdateUrl: 'om-processing-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -180,8 +228,8 @@ export class OrderManagementComponent {
   omDistributionUrls: { [key: string]: string } = {
     summaryUrl: 'om-distribution-summary',
     detailsUrl: 'om-distribution-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-distribution-details-filtered',
+    summaryUpdateUrl: 'om-distribution-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -204,8 +252,8 @@ export class OrderManagementComponent {
   omAttributionUrls: { [key: string]: string } = {
     summaryUrl: 'om-attribution-summary',
     detailsUrl: 'om-attribution-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-attribution-details-filtered',
+    summaryUpdateUrl: 'om-attribution-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
@@ -228,8 +276,8 @@ export class OrderManagementComponent {
   omJobsUrls: { [key: string]: string } = {
     summaryUrl: 'om-jobs-summary',
     detailsUrl: 'om-jobs-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
+    filteredDetailsUrl: 'om-jobs-details-filtered',
+    summaryUpdateUrl: 'om-jobs-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',

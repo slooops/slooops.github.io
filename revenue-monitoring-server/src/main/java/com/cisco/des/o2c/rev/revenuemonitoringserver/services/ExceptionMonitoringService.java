@@ -563,6 +563,25 @@ public class ExceptionMonitoringService {
     }
 
     //OPL
+    public long updateOmSummary(String collection, Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String timestamp = updateData.get("timestamp");
+        String scenario = updateData.get("scenario");
+        System.out.println(updateData);
+        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments);
+        return 1;
+    }
+    public List<Map<String, Object>> getOMDetailsDataFiltered(String collection, String timestamp, String scenario) {
+        String[] dateColumns = { "assigned_date"};
+        List<Map<String, Object>> result = mongoDBManager.getFilteredData(collection, timestamp, scenario);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        System.out.println(result);
+        return result;
+    }
+
 
     public List<Map<String, Object>> getOMDetailsData(String collection) {
         String[] dateColumns = { "assigned_date"};
