@@ -211,6 +211,13 @@ export class O2c360Component implements OnInit {
         this.orderSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[0].count = data.length;
         this.orderDataLoaded = true;
+
+        if (this.orderSummaryDataSource.data.length === 0) {
+          this.circleStatus['Order'] = 0;
+          this.circleStatus['Subscription'] = 0;
+          this.circleStatus['Invoicing'] = 0;
+          this.circleStatus['Accounting'] = 0;
+        }
       });
   }
 
@@ -416,18 +423,17 @@ export class O2c360Component implements OnInit {
     const subGood = orderGood && !hasSubException;
     const invoiceGood = subGood && !hasInvoiceException;
 
-    this.circleStatus['Order'] = hasOrderException ? -1 : 2;
-    this.circleStatus['Subscription'] = hasOrderException
+    this.circleStatus['Subscription'] = hasOrderException ? -1 : 2;
+    this.circleStatus['Invoicing'] = hasOrderException
       ? 0
       : hasSubException
       ? -1
       : 2;
-    this.circleStatus['Invoicing'] = subGood
+    this.circleStatus['Accounting'] = subGood
       ? hasInvoiceException
         ? -1
         : 2
       : 0;
-    this.circleStatus['Accounting'] = invoiceGood ? 2 : 0;
 
     // Special handling for cash:
     const allClosed =
