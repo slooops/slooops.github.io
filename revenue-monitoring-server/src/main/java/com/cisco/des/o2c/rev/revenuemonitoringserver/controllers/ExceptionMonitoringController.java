@@ -536,7 +536,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-import-summary-update")
     public ResponseEntity<String> updateOMImportSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_import_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -574,7 +574,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-holds-summary-update")
     public ResponseEntity<String> updateOMHoldsSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_holds_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -612,7 +612,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-bookings-summary-update")
     public ResponseEntity<String> updateOMBookingsSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_bookings_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -650,7 +650,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-workflow-summary-update")
     public ResponseEntity<String> updateOMWorkflowSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_workflow_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -688,7 +688,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-processing-summary-update")
     public ResponseEntity<String> updateOMProcessingSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_processing_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -726,7 +726,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-distribution-summary-update")
     public ResponseEntity<String> updateOMDistributionSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_distribution_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -764,7 +764,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-attribution-summary-update")
     public ResponseEntity<String> updateOMAttributionSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_attribution_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
@@ -802,7 +802,7 @@ public class ExceptionMonitoringController {
 
     @PostMapping("/om-jobs-summary-update")
     public ResponseEntity<String> updateOMJobsSummary(@RequestBody Map<String, String> updateData) {
-        long test = service.updateOmSummary("om_control_tower_jobs_summary_view", updateData);
+        long test = service.updateOmSummary("oplAlertMonitorData", updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
