@@ -27,6 +27,7 @@ import * as XLSX from 'xlsx';
   selector: 'app-issue-reporting',
   templateUrl: './issue-reporting.component.html',
   styleUrl: './issue-reporting.component.css',
+  providers: [DestroyManager],
 })
 export class IssueReportingComponent implements OnInit {
   constructor(
