@@ -17,4 +17,7 @@ export default defineConfig({
     },
     specPattern: '**/*.cy.ts',
   },
+
+  defaultCommandTimeout: 10000, // 10 seconds
+  pageLoadTimeout: 60000, // time for full page load
 });
