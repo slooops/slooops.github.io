@@ -514,8 +514,6 @@ public class ExceptionMonitoringController {
 
     @GetMapping("/om-import-details-filtered")
     public ResponseEntity<Map<String, Object>> getOMImportDetailsFiltered(@RequestParam List<String> timestamps, @RequestParam List<String> scenarios) {
-        System.out.println("here");
-
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(timestamps.size(), scenarios.size());

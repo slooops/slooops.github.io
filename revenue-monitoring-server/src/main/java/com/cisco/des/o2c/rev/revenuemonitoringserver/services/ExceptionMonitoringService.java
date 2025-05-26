@@ -568,7 +568,6 @@ public class ExceptionMonitoringService {
         String comments = updateData.get("comments");
         String timestamp = updateData.get("timestamp");
         String scenario = updateData.get("scenario");
-        System.out.println(updateData);
         long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments);
         return 1;
     }
@@ -578,7 +577,6 @@ public class ExceptionMonitoringService {
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
-        System.out.println(result);
         return result;
     }
 

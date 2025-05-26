@@ -102,6 +102,7 @@ export class OrderManagementComponent {
       disabled: 'dynamic',
       validators: [Validators.required],
     },
+    { controlName: 'status', label: 'Status', sourceKey: 'status' },
     { controlName: 'comments', label: 'Comments', sourceKey: 'comments' },
   ];
 

@@ -44,7 +44,7 @@ public class MongoDBManager {
         Query query = new Query();
         query.addCriteria(Criteria.where("timestamp").is(timestamp).and("scenario").is(scenario));
         Update update = new Update().set("assigned_to", assignedTo).set("comments", comments);
-        UpdateResult result = mongoTemplate.updateFirst(query, update, collection);
+        UpdateResult result = mongoTemplate.updateMulti(query, update, collection);
         return result.getModifiedCount();
     }
 
