@@ -111,50 +111,20 @@
             </a>
           </li>
 
-          <!-- Invoice to Cash -->
-          <li
-            class="menu-item"
-            [class.disabled]="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) || isAdmin$
-              )
-            "
+          <a
+            [routerLink]="'/case-analyzer'"
+            class="top-link"
+            style="font-weight: 500"
           >
+            ESP Case Manager
+          </a>
+          <li class="menu-item">
             <a
-              [routerLink]="'/business-insights'"
+              [routerLink]="'/order-management'"
               class="top-link"
               style="font-weight: 500"
             >
-              Business Insights
-            </a>
-          </li>
-
-          <!-- Revenue Accounting -->
-          <li
-            class="menu-item"
-            *ngIf="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) && !isAdmin$
-              )
-            "
-            [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
-          >
-            <a
-              [routerLink]="'/case-analyzer'"
-              class="top-link"
-              style="font-weight: 500"
-            >
-              ESP Case Manager
+              Order Management
             </a>
           </li>
         </ul>

@@ -27,6 +27,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
   @Input() webexUrl: string;
   @Input() componentName: string;
   @Output() close = new EventEmitter<void>();
+  @Input() fieldConfig: any[] = [];
 
   updateForm: FormGroup;
   username: any;
@@ -35,7 +36,6 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
   assignmentUsers: any;
   submitKeys: string[] = [];
   webeKeys: string[] = [];
-  @Input() fieldConfig: any[] = [];
 
   // disabledFields = [
   //   { controlName: 'periodName', label: 'Period Name' },
@@ -141,6 +141,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.webeKeys = this.webexKeysToMap;
     }
   }
+
   submitData() {
     const assigneeName = this.getAssigneeName();
     const updateData = this.createDynamicObject(
@@ -148,6 +149,8 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.submitKeys,
       true
     );
+    console.log('updateData:', updateData);
+    console.log(this.updateUrl);
     this.http
       .post(this.updateUrl, updateData, {
         responseType: 'text',

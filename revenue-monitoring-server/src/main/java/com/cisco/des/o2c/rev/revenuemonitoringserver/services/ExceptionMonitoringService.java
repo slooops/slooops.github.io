@@ -631,15 +631,57 @@ public class ExceptionMonitoringService {
     }
 
     //OPL
-
-    public List<Map<String, Object>> getOplData() {
-        String[] dateColumns = { "crDt", "eventTm", "processCrDt", "processUpdDt", "updDt" };
-        List<Map<String, Object>> result = mongoDBManager.getAllData(2,7);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//        });
+    public long updateOmSummary(String collection, Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String timestamp = updateData.get("timestamp");
+        String scenario = updateData.get("scenario");
+        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments);
+        return 1;
+    }
+    public List<Map<String, Object>> getOMDetailsDataFiltered(String collection, String timestamp, String scenario) {
+        String[] dateColumns = { "assigned_date"};
+        List<Map<String, Object>> result = mongoDBManager.getFilteredData(collection, timestamp, scenario);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
         return result;
     }
+
+
+    public List<Map<String, Object>> getOMDetailsData(String collection) {
+        String[] dateColumns = { "assigned_date"};
+        List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getOMSummaryData(String collection) {
+        String[] dateColumns = { "assigned_date", "closed_date", "created_date"};
+        List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("aging", calculateAging(data.get("created_date")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("aging")) {
+                reorderedData.put("aging", calculateAging(data.get("created_date")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+
 
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
@@ -1156,19 +1198,39 @@ public class ExceptionMonitoringService {
     }
 
     private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd"); // adjust if needed
-        SimpleDateFormat outputFormat = new SimpleDateFormat("MM/dd/yyyy");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        List<DateTimeFormatter> inputFormatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                DateTimeFormatter.ofPattern("MM/dd/yyyy"),
+                DateTimeFormatter.ofPattern("MM-dd-yyyy"),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+                DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+        );
 
         for (String column : dateColumns) {
             Object value = data.get(column);
             if (value != null) {
-                try {
-                    String rawDate = value.toString().split(" ")[0];
-                    Date parsedDate = inputFormat.parse(rawDate);
-                    String formattedDate = outputFormat.format(parsedDate);
-                    data.put(column, formattedDate);
-                } catch (Exception e) {
-                    // If parsing fails, fallback to original value
+                String rawDate = value.toString().split(" ")[0].length() > 10 ? value.toString() : value.toString().split(" ")[0];
+                boolean parsed = false;
+
+                for (DateTimeFormatter formatter : inputFormatters) {
+                    try {
+                        ZonedDateTime zonedDate = ZonedDateTime.parse(rawDate, formatter);
+                        data.put(column, outputFormatter.format(zonedDate));
+                        parsed = true;
+                        break;
+                    } catch (Exception e1) {
+                        try {
+                            LocalDate localDate = LocalDate.parse(rawDate, formatter);
+                            data.put(column, outputFormatter.format(localDate));
+                            parsed = true;
+                            break;
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                if (!parsed) {
                     data.put(column, value.toString());
                 }
             } else {
@@ -1188,18 +1250,31 @@ public class ExceptionMonitoringService {
 
     private String calculateAging(Object transactionDate) {
         if (transactionDate == null || !(transactionDate instanceof String)) {
-            return "0";
+            return "0 days";
         }
-        try {
-            String dateString = (String) transactionDate;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-            LocalDate creationDate = LocalDate.parse(dateString, formatter);
-            ZonedDateTime today = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
-            long agingInDays = ChronoUnit.DAYS.between(creationDate, today.toLocalDate());
-            return Long.toString(agingInDays);
-        } catch (Exception e) {
-            return "0";
+
+        String dateString = (String) transactionDate;
+        List<DateTimeFormatter> formatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("MM/dd/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                DateTimeFormatter.ofPattern("MM-dd-yyyy"),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd")
+        );
+
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                LocalDate creationDate = LocalDate.parse(dateString, formatter);
+                ZonedDateTime today = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+                long agingInDays = ChronoUnit.DAYS.between(creationDate, today.toLocalDate());
+                return agingInDays + " days";
+            } catch (Exception ignored) {
+                // Try next format
+            }
         }
+
+        // If none of the formats matched
+        return "0 days";
     }
 
 }

@@ -52,87 +52,6 @@ export class InvoicingComponent implements OnInit {
         route: '',
         role: [''],
       },
-
-      // {
-      //   category: 'Invoice to Cash',
-      //   items: [
-      //     {
-      //       label: 'Pre Invoicing',
-      //       route: '/pre-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Invoicing',
-      //       route: '/invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Post Invoicing',
-      //       route: '/post-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'eInvoicing',
-      //       route: '/einvoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Fusion',
-      //       route: '/fusion',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Revenue Accounting',
-      //   items: [
-      //     {
-      //       label: 'Standard Revenue',
-      //       route: '/standard-revenue',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Rol',
-      //       route: '/rol',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accruals',
-      //       route: '/accruals',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accounts',
-      //       route: '/accounts',
-      //       role: ['ADMIN', 'ACCOUNT_RECON'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'GL Posting',
-      //   items: [
-      //     {
-      //       label: 'General Ledger',
-      //       route: '/general-ledger',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Operations Controls',
-      //   items: [
-      //     {
-      //       label: 'Invoice to Cash',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //     {
-      //       label: 'Revenue',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //   ],
-      // },
     ]);
   }
 
@@ -613,7 +532,6 @@ export class InvoicingComponent implements OnInit {
   onTabChange(index: number) {
     this.selectedIndex = index;
     const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
-    console.log('🔹 Tab changed, updating header:', newHeader);
     this.menuService.updateHeader(newHeader);
   }
 
