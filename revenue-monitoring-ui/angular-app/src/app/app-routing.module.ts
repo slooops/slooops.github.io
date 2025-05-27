@@ -35,7 +35,7 @@ import { OrderManagementComponent } from './order-management/order-management.co
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/order-management',
+    redirectTo: '/home',
     pathMatch: 'full',
   },
   {
@@ -241,7 +241,7 @@ const routes: Routes = [
     },
   },
   {
-    path: 'Order-management-monitoring',
+    path: 'order-management',
     component: OrderManagementComponent,
     data: {
       title: 'Finance IT Control Tower',

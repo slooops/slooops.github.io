@@ -4,6 +4,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-custom-revenue',
@@ -140,6 +141,53 @@ export class CustomRevenueComponent implements OnInit {
     XXCFIR_ROL_XLA_SUMMARY: 0,
     XLA_AE_HEADERS: 0,
   };
+
+  fieldConfig = [
+    {
+      controlName: 'periodName',
+      label: 'Period Name',
+      sourceKey: 'PERIOD_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'appName',
+      label: 'Application Name',
+      sourceKey: 'APPLICATION_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'processFlow',
+      label: 'Process Flow',
+      sourceKey: 'PROCESS_FLOW',
+      disabled: true,
+    },
+    {
+      controlName: 'orgName',
+      label: 'Organization Name',
+      sourceKey: 'ORG_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'creationDate',
+      label: 'Transaction Date',
+      sourceKey: 'TRANSACTION_DATE',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'AGING',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'ASSIGNED_TO',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
+  ];
 
   standardRevenueUrl: { [key: string]: string } = {
     summaryUrl: 'standard-revenue-errors-summary',

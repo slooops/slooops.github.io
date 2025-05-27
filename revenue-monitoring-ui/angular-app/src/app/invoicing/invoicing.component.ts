@@ -4,6 +4,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-invoicing',
@@ -54,6 +55,53 @@ export class InvoicingComponent implements OnInit {
       },
     ]);
   }
+
+  fieldConfig = [
+    {
+      controlName: 'periodName',
+      label: 'Period Name',
+      sourceKey: 'PERIOD_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'appName',
+      label: 'Application Name',
+      sourceKey: 'APPLICATION_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'processFlow',
+      label: 'Process Flow',
+      sourceKey: 'PROCESS_FLOW',
+      disabled: true,
+    },
+    {
+      controlName: 'orgName',
+      label: 'Organization Name',
+      sourceKey: 'ORG_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'creationDate',
+      label: 'Transaction Date',
+      sourceKey: 'TRANSACTION_DATE',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'AGING',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'ASSIGNED_TO',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
+  ];
 
   preInvoicingTotals: { [key: string]: number } = {
     '1 - SBP Staging': 0,

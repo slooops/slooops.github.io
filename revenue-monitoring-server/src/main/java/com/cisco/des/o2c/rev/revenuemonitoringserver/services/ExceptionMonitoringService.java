@@ -493,7 +493,7 @@ public class ExceptionMonitoringService {
 
     // Pre-Invoice
     public List<Map<String, Object>> getPreInvoiceErrorSummaryView() {
-        String[] dateColumns = { "TRANSACTION_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorSummaryView);
         result.forEach(data -> {
             data.remove("AGING");
@@ -1026,7 +1026,7 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getFusionErrorSummary() {
-        String[] dateColumns = { "TRANSACTION_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(fusionErrorSummary);
         result.forEach(data -> {
             data.remove("AGING");
