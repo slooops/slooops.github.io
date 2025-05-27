@@ -57,6 +57,8 @@ export class MonitoringDashboardComponent<T>
   @Input() assignmentDialogFieldConfig: any[] = [];
   @Input() submitKeysToMap: string[] = [];
   @Input() webexKeysToMap: string[] = [];
+  @Input() assignmentUsersFilter: string = '';
+
   periodName: string = '';
   periodEnd: string = '';
   totalImpactData$: Observable<any>;

@@ -87,7 +87,8 @@
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ])
               )
             "
@@ -97,7 +98,8 @@
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ]) || isAdmin$
               )
             "
@@ -111,7 +113,37 @@
             </a>
           </li>
 
-          <li class="menu-item">
+          <li
+            class="menu-item"
+            *ngIf="
+              !(
+                hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ])
+              )
+            "
+            [class.disabled]="
+              !(
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) || isAdmin$
+              )
+            "
+          >
             <a
               [routerLink]="'/business-insights'"
               class="top-link"
@@ -120,7 +152,7 @@
               Business Insights
             </a>
           </li>
-          <li class="menu-item">
+          <li class="menu-item" *ngIf="isAdmin$">
             <a
               [routerLink]="'/case-analyzer'"
               class="top-link"

@@ -31,11 +31,8 @@
           <ng-container *ngIf="field.controlName === 'assignedTo'">
             <select [formControlName]="field.controlName" required>
               <option value="" disabled>Select User</option>
-              <option
-                *ngFor="let data of assignmentUsers"
-                [value]="data.LOOKUP_CODE"
-              >
-                {{ data.LOOKUP_CODE }}
+              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
+                {{ data.NAME }}
               </option>
             </select>
           </ng-container>
