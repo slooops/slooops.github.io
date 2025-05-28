@@ -104,6 +104,7 @@ import {
 } from './issue-reporting/issue-reporting.component';
 import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
+import { ModalComponent } from './components/modal/modal.component';
 import { TableModalComponent } from './components/table-modal/table-modal.component';
 
 export function initApp(authService: AuthenticationService) {
@@ -178,6 +179,7 @@ export function initApp(authService: AuthenticationService) {
     IssueUploadComponent,
     BulkApproveRejectComponent,
     TableModalComponent,
+    ModalComponent,
     StatusDialog,
     SummaryDialog,
   ],

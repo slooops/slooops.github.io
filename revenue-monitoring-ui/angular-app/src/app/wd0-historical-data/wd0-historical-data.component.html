@@ -13,20 +13,279 @@
 </p>
 
 <!-- Product Modal -->
-<app-table-modal
+<!-- [data]="productMidCloseActuals" -->
+<app-modal
   *ngIf="showProductModal"
-  [title]="'WD0 Mid Close Product Actuals'"
-  [data]="productActuals"
+  [headerBgColor]="'#ffffff'"
+  [title]="'WD-0 Mid-Close Product Actuals'"
   (close)="showProductModal = false"
-></app-table-modal>
+>
+  <div class="mc-modal-container">
+    <div class="mc-scroll-inner">
+      <div class="mc-h2" style="margin-top: 0">
+        Mid-Close Product Actual Counts Breakdown
+      </div>
+      <p>
+        For each category of our products, the following tables show the
+        breakdown of midclose actual counts for the most current month by batch
+        source.
+      </p>
 
-<!-- Service Modal -->
-<app-table-modal
+      <ng-container *ngIf="productActualsLoading">
+        <div style="text-align: center; height: 10vh">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </ng-container>
+      <div
+        *ngIf="!productActualsLoading"
+        style="position: relative; max-width: 25vw; margin: -3vw auto"
+      >
+        <canvas id="productPieChart"></canvas>
+      </div>
+
+      <div class="mc-h3">Significant Attributes from Regression Analysis</div>
+      <div class="mc-body-section">
+        <ul class="mc-ul">
+          <li>
+            Promise Date* (Supply chain fulfillment) on a booked order (54%)
+          </li>
+          <li>Request date for License (39%)</li>
+          <li>Return Order (RMA) date (1.6%)</li>
+          <li>Others (Ex Training SKUs) (5.4%)</li>
+        </ul>
+        <p style="color: #666; margin-top: 1em">
+          Note: Order in ”Booked” status are considered
+        </p>
+
+        <p style="color: #666; margin-top: 1em">
+          Based on linear regression analysis, we apply weightages to the main
+          attributes contributing to midclose. We apply different weightages on
+          different WDs to account for variability and dispersion. Our
+          underlying assumption is as we approach WD-0, the variability range
+          will decrease. These weightages are based on historical data.
+        </p>
+        <p style="color: #666">
+          For product lines predictions, we look at the promise date counts for
+          WD-1 and WD+1 in CG1. For promise date counts on WD-1, we multiply by
+          0.45 and on counts for WD+1, we multiply by 0.65. Once multiplied, we
+          add the counts.
+        </p>
+      </div>
+
+      <div class="mc-h3">Steps on WD Weightage Calculations</div>
+      <div class="mc-body-section">
+        <ul class="mc-ul">
+          <li>
+            For product predictions on WD-3/-2/-1, we first apply date
+            weightages to promise date counts, sum them up, and then apply WD
+            weightages to the totals. In CG1, we use the same date weightages on
+            promise date counts, sum them, and apply WD weightages to minimum
+            and maximum predictions for accuracy and variability.
+          </li>
+          <li>
+            The following table is the breakdown of weightages by WD and the
+            approximate times we run the predictions. The weightages for product
+            / service lines are the same.
+          </li>
+        </ul>
+      </div>
+
+      <div class="mc-h4">WD Weightage Table</div>
+      <div class="mc-body-section">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>Workday</th>
+              <th>Weightage Minimum</th>
+              <th>Weightage Maximum</th>
+              <th>Time Model Runs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>WD-3</td>
+              <td>0.35</td>
+              <td>1.89</td>
+              <td>3PM PST</td>
+            </tr>
+            <tr>
+              <td>WD-2</td>
+              <td>0.47</td>
+              <td>1.65</td>
+              <td>3PM PST</td>
+            </tr>
+            <tr>
+              <td>WD-1</td>
+              <td>0.65</td>
+              <td>1.35</td>
+              <td>3PM PST / 11:59PM PST</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mc-h4">Notes</div>
+      <div class="mc-body-section">
+        <ul class="mc-ul">
+          <li>
+            As we approach WD-0, we assume that more interfaced lines will count
+            for midclose; thus, the weightage variability range decreases.
+          </li>
+          <li>
+            The weightages indicate that, based on historical volumes, 35% of
+            interfaced lines contribute to the midclose minimum and 189% to the
+            midclose maximum on WD-3. On WD-2, it's 47% for the minimum and 165%
+            for the maximum, while on WD-1, it's 65% for the minimum and 135%
+            for the maximum.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</app-modal>
+
+<!-- Service Modal [data]="serviceMidCloseActuals" -->
+<app-modal
   *ngIf="showServiceModal"
-  [title]="'WD0 Mid Close Service Actuals'"
-  [data]="serviceActuals"
+  [title]="'WD-0 Mid-Close Service Actuals'"
   (close)="showServiceModal = false"
-></app-table-modal>
+  [headerBgColor]="'#ffffff'"
+>
+  <div class="mc-modal-container">
+    <div class="mc-scroll-inner">
+      <div class="mc-h2" style="margin-top: 0">
+        Mid-close Service Actual Counts Breakdown
+      </div>
+      <p>
+        For each category of our services, the following tables show the
+        breakdown of midclose actual counts for the most current month by batch
+        source.
+      </p>
+
+      <ng-container *ngIf="serviceActualsLoading">
+        <div style="text-align: center; height: 10vh">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </ng-container>
+
+      <div
+        *ngIf="!serviceActualsLoading"
+        style="position: relative; max-width: 25vw; margin: -3vw auto"
+      >
+        <canvas style="" id="servicePieChart"></canvas>
+      </div>
+
+      <div class="mc-h3">Significant Attributes from Regression Analysis</div>
+      <div class="mc-body-section">
+        <ul class="mc-ul">
+          <li>
+            Future Invoice Release Date*: Flexible Invoicing, Quote and Renewal
+            (Invoice only) orders (80%)
+          </li>
+          <li>
+            Promise Date*: For Service lines associated with HW shipment (12%)
+          </li>
+          <li>Quote and Renewal (Invoice only) orders booked on WD-0 (8%)</li>
+        </ul>
+
+        <p style="color: #666; margin-top: 1em">
+          Note: Order in ”Booked” status are considered
+        </p>
+
+        <p style="color: #666; margin-top: 1em">
+          Based on linear regression analysis, we apply weightages to the main
+          attributes contributing to midclose. We apply different weightages on
+          different WDs to account for variability and dispersion. Our
+          underlying assumption is as we approach WD-0, the variability range
+          will decrease. These weightages are based on historical data.
+        </p>
+        <p style="color: #666">
+          For service lines predictions, we look at the flexible invoicing date
+          counts for WD-0 and WD+0 in CG1. For those counts on WD-1, we multiply
+          by 0.65 and on counts for WD+1, we multiply by 1. Once multiplied, we
+          add the counts.
+        </p>
+        <p style="color: #666">
+          Additionally, for service lines predictions, we look at the future
+          invoice release date counts for WD-1 to WD+2. We multiply the count
+          for WD-1 by 0.47, WD-0 by 0.65, WD+0 by 1, WD+1 by 0.65 and WD+2 by
+          0.45. Once multiplied, we add the counts.
+        </p>
+        <p style="color: #666">
+          This date weightage process is the same for all WD-3/-2/-1.
+        </p>
+      </div>
+
+      <div class="mc-h3">Steps on WD Weightage Calculations</div>
+      <div class="mc-body-section">
+        <ul class="mc-ul">
+          <li>
+            For service predictions on WD-3/-2/-1, we follow the same process:
+            apply date weightages to counts for flexible invoicing and future
+            invoice release dates, sum them, and then apply WD weightages. In
+            CG1, we repeat this for flexible invoice and future invoice release
+            counts, summing and applying WD weightages to minimum and maximum
+            predictions.
+          </li>
+          <li>
+            The following table is the breakdown of weightages by WD and the
+            approximate times we run the predictions. The weightages for product
+            / service lines are the same.
+          </li>
+        </ul>
+      </div>
+
+      <div class="mc-h4">WD Weightage Table</div>
+      <div class="mc-body-section">
+        <table class="mc-table">
+          <thead>
+            <tr>
+              <th>Workday</th>
+              <th>Weightage Minimum</th>
+              <th>Weightage Maximum</th>
+              <th>Time Model Runs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>WD-3</td>
+              <td>0.35</td>
+              <td>1.89</td>
+              <td>3PM PST</td>
+            </tr>
+            <tr>
+              <td>WD-2</td>
+              <td>0.47</td>
+              <td>1.65</td>
+              <td>3PM PST</td>
+            </tr>
+            <tr>
+              <td>WD-1</td>
+              <td>0.65</td>
+              <td>1.35</td>
+              <td>3PM PST / 11:59PM PST</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mc-h4">Notes</div>
+      <ul class="mc-ul" style="color: #666">
+        <li>
+          As we approach WD-0, we assume that more interfaced lines will count
+          for midclose; thus, the weightage variability range decreases.
+        </li>
+        <li>
+          The weightages indicate that, based on historical volumes, 35% of
+          interfaced lines contribute to the midclose minimum and 189% to the
+          midclose maximum on WD-3. On WD-2, it's 47% for the minimum and 165%
+          for the maximum, while on WD-1, it's 65% for the minimum and 135% for
+          the maximum.
+        </li>
+      </ul>
+    </div>
+  </div>
+</app-modal>
 
 <div
   style="
@@ -73,11 +332,13 @@
         <b>{{ latestPeriodName }}</b> Service line projection based on booked
         orders and promise date
       </p>
-      <!-- <i
+      <i
         class="svg-icon info-icon"
+        [class.icon-disabled]="serviceActualsLoading"
+        [style.pointerEvents]="serviceActualsLoading ? 'none' : 'auto'"
         style="font-size: 20px; cursor: pointer"
         (click)="openWd0ServiceModal()"
-      ></i> -->
+      ></i>
     </div>
   </div>
 
@@ -109,11 +370,13 @@
         <b>{{ latestPeriodName }}</b> Product line projection based on booked
         orders and promise date
       </p>
-      <!-- <i
+      <i
         class="svg-icon info-icon"
+        [class.icon-disabled]="productActualsLoading"
+        [style.pointerEvents]="productActualsLoading ? 'none' : 'auto'"
         style="font-size: 20px; cursor: pointer"
         (click)="openWd0ProductModal()"
-      ></i> -->
+      ></i>
     </div>
   </div>
 

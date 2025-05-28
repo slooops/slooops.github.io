@@ -44,10 +44,16 @@ export class Wd0HistoricalDataComponent
   barChartLoading: boolean = true;
   dataTimestamp: string;
   numberOfQuartersOfHistoricalData: number = 8;
+
   showProductModal = false;
   showServiceModal = false;
-  productActuals: any[] = [];
-  serviceActuals: any[] = [];
+  productMidCloseActuals: any[] = [];
+  serviceMidCloseActuals: any[] = [];
+  productActualsLoading: boolean = true;
+  serviceActualsLoading: boolean = true;
+
+  servicePieChart: Chart | null = null;
+  productPieChart: Chart | null = null;
 
   upperCI: number;
   lowerCI: number;
@@ -299,30 +305,102 @@ export class Wd0HistoricalDataComponent
   }
 
   getWd0MidcloseActualsProduct() {
+    this.productActualsLoading = true;
     console.log('func called');
     this.http
       .get('wd0-midclose-actuals-product', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('wd0MidcloseActualsProduct:', data);
-        this.productActuals = data;
+        this.productMidCloseActuals = data.map(
+          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
+        );
+        console.log('productMidCloseActuals', this.productMidCloseActuals);
+        this.productActualsLoading = false;
       });
   }
 
   openWd0ProductModal(): void {
     this.showProductModal = true;
+
+    setTimeout(() => {
+      this.renderPieChart(this.productMidCloseActuals, 'productPieChart');
+    }, 0);
   }
 
   getWd0MidcloseActualsService() {
+    this.serviceActualsLoading = true;
     this.http
       .get('wd0-midclose-actuals-service', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('wd0MidcloseActualsService:', data);
-        this.serviceActuals = data;
+        this.serviceMidCloseActuals = data.map(
+          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
+        );
+        console.log('serviceMidCloseActuals', this.serviceMidCloseActuals);
+        this.serviceActualsLoading = false;
       });
   }
 
   openWd0ServiceModal(): void {
     this.showServiceModal = true;
+    setTimeout(() => {
+      this.renderPieChart(this.serviceMidCloseActuals, 'servicePieChart');
+    }, 0);
+  }
+
+  renderPieChart(
+    data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
+    canvasId: string
+  ): void {
+    const labels = data.map(
+      (entry) => `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`
+    );
+    const counts = data.map((entry) => entry.TOTAL_COUNT);
+
+    const ctx = (
+      document.getElementById(canvasId) as HTMLCanvasElement
+    )?.getContext('2d');
+
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: '',
+              data: counts,
+              borderWidth: 0,
+              hoverOffset: 10,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            // datalabels: {
+            //   display: true,
+            //   color: '#ffffff',
+            //   font: {
+            //     size: 10,
+            //     weight: 'bold',
+            //   },
+            //   backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
+            //   borderRadius: 3,
+            //   padding: {
+            //     top: 2,
+            //     bottom: 2,
+            //     left: 4,
+            //     right: 4,
+            //   },
+            // },
+          },
+        },
+      });
+    } else {
+      console.error(`Canvas with id ${canvasId} not found`);
+    }
   }
 
   //this method is necessary for predicting the next month in the absence of
