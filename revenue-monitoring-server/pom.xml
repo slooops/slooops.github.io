@@ -15,6 +15,7 @@
 	<description>API Server and backend for Accruals Monitoring Framework</description>
 	<properties>
 		<java.version>11</java.version>
+		<tomcat.version>9.0.99</tomcat.version>
 	</properties>
 	<repositories>
 		<repository>

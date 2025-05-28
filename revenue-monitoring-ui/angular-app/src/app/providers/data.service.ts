@@ -105,8 +105,13 @@ export class DataService implements OnDestroy {
     this.assignmentUsers = assignmentUsers;
   }
 
-  getAssignmentUsers() {
-    return this.assignmentUsers;
+  getAssignmentUsers(componentName: string): any {
+    if (!this.assignmentUsers || !componentName) {
+      return this.assignmentUsers;
+    }
+    return this.assignmentUsers.filter(
+      (user: any) => user.FILTER_KEY === componentName
+    );
   }
 
   private ensureTabData(tabName: string) {

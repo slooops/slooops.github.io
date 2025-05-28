@@ -81,6 +81,8 @@ export class AppComponent implements OnInit, OnDestroy {
           this.menuService.updateHeader(
             'Business Insights > Large Deal Tracker'
           );
+        } else if (event.url.includes('/order-management')) {
+          this.menuService.updateHeader('Order Management > Imports');
         }
       }
     });

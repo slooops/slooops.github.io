@@ -7,7 +7,7 @@
         align-items: center;
         background-color: #08ace4;
         margin: -20px -20px 0 -20px;
-        padding: 18px;
+        padding: 15px;
       "
     >
       <h5
@@ -25,29 +25,18 @@
 
     <div class="modal-body">
       <form [formGroup]="updateForm" class="form-stack">
-        <div class="input-stack" *ngFor="let field of disabledFields">
+        <div class="input-stack" *ngFor="let field of fieldConfig">
           <label>{{ field.label }}</label>
-          <input
-            type="text"
-            [formControlName]="field.controlName"
-            [attr.disabled]="true"
-            [placeholder]="'Enter ' + field.label"
-          />
-        </div>
 
-        <div class="input-stack" *ngFor="let field of enabledFields">
-          <label>{{ field.label }}</label>
           <ng-container *ngIf="field.controlName === 'assignedTo'">
             <select [formControlName]="field.controlName" required>
-              <option value="" disabled selected hidden>Select User</option>
-              <option
-                *ngFor="let data of assignmentUsers"
-                [value]="data.LOOKUP_CODE"
-              >
-                {{ data.LOOKUP_CODE }}
+              <option value="" disabled>Select User</option>
+              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
+                {{ data.NAME }}
               </option>
             </select>
           </ng-container>
+
           <ng-container *ngIf="field.controlName !== 'assignedTo'">
             <input
               type="text"

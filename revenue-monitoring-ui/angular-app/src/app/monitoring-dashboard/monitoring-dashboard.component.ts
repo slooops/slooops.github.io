@@ -54,8 +54,11 @@ export class MonitoringDashboardComponent<T>
   }[];
   @Input() summaryColumnsToHide: string[] = [];
   @Input() detailsColumnsToHide: string[] = [];
+  @Input() assignmentDialogFieldConfig: any[] = [];
   @Input() submitKeysToMap: string[] = [];
   @Input() webexKeysToMap: string[] = [];
+  @Input() assignmentUsersFilter: string = '';
+
   periodName: string = '';
   periodEnd: string = '';
   totalImpactData$: Observable<any>;
@@ -132,11 +135,6 @@ export class MonitoringDashboardComponent<T>
           const totals = this.calculateTotalsByProcessFlow(data);
           this.dataService.setTabData(this.componentName, totals);
         }
-        this.summaryData.forEach((row) => {
-          row.TRANSACTION_DATE = this.dateTransform(row.TRANSACTION_DATE);
-          row.ASSIGNED_DATE = this.dateTransform(row.ASSIGNED_DATE);
-          row.AGING = row.AGING + ' Days';
-        });
         this.originalData = this.summaryData;
         this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
         if (this.summaryPaginator) {

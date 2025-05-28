@@ -106,6 +106,7 @@ import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-uploa
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { TableModalComponent } from './components/table-modal/table-modal.component';
+import { OrderManagementComponent } from './order-management/order-management.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -182,6 +183,7 @@ export function initApp(authService: AuthenticationService) {
     ModalComponent,
     StatusDialog,
     SummaryDialog,
+    OrderManagementComponent,
   ],
   imports: [
     BrowserModule,

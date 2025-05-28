@@ -4,6 +4,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-invoicing',
@@ -52,89 +53,55 @@ export class InvoicingComponent implements OnInit {
         route: '',
         role: [''],
       },
-
-      // {
-      //   category: 'Invoice to Cash',
-      //   items: [
-      //     {
-      //       label: 'Pre Invoicing',
-      //       route: '/pre-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Invoicing',
-      //       route: '/invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Post Invoicing',
-      //       route: '/post-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'eInvoicing',
-      //       route: '/einvoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Fusion',
-      //       route: '/fusion',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Revenue Accounting',
-      //   items: [
-      //     {
-      //       label: 'Standard Revenue',
-      //       route: '/standard-revenue',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Rol',
-      //       route: '/rol',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accruals',
-      //       route: '/accruals',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accounts',
-      //       route: '/accounts',
-      //       role: ['ADMIN', 'ACCOUNT_RECON'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'GL Posting',
-      //   items: [
-      //     {
-      //       label: 'General Ledger',
-      //       route: '/general-ledger',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Operations Controls',
-      //   items: [
-      //     {
-      //       label: 'Invoice to Cash',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //     {
-      //       label: 'Revenue',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //   ],
-      // },
     ]);
   }
+
+  fieldConfig = [
+    {
+      controlName: 'periodName',
+      label: 'Period Name',
+      sourceKey: 'PERIOD_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'appName',
+      label: 'Application Name',
+      sourceKey: 'APPLICATION_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'processFlow',
+      label: 'Process Flow',
+      sourceKey: 'PROCESS_FLOW',
+      disabled: true,
+    },
+    {
+      controlName: 'orgName',
+      label: 'Organization Name',
+      sourceKey: 'ORG_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'creationDate',
+      label: 'Transaction Date',
+      sourceKey: 'TRANSACTION_DATE',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'AGING',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'ASSIGNED_TO',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
+  ];
 
   preInvoicingTotals: { [key: string]: number } = {
     '1 - SBP Staging': 0,
@@ -613,7 +580,6 @@ export class InvoicingComponent implements OnInit {
   onTabChange(index: number) {
     this.selectedIndex = index;
     const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
-    console.log('🔹 Tab changed, updating header:', newHeader);
     this.menuService.updateHeader(newHeader);
   }
 

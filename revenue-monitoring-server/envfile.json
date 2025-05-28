@@ -82,7 +82,7 @@
   "WEBEX_URL": "https://webexapis.com/v1/messages",
   "ROOM_ID_REVENUE_ACCOUNTING": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpHWmlNelkxWlRBdE9ERmlNeTB4TVdWbUxUazFOamt0WWpVd1ltVmpZVE0yTkdGbQ==",
   "ROOM_ID_INVOICING": "WTJselkyOXpjR0Z5YXpvdkwzVnpMMUpQVDAwdlpqTmlNalF6WXpBdE9USmxaaTB4TVdWbUxUazFOR010T0dZNE5qVTRPVGhsT1dKbAo=",
-  "SUMMARY_ASSIGNMENT_USERS_QUERY": "SELECT MIN(lookup_code) AS lookup_code, meaning FROM ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP WHERE lookup_type='USER_ASSIGNMENT' AND enabled_flag='Y' GROUP BY meaning ORDER BY lookup_code",
+  "SUMMARY_ASSIGNMENT_USERS_QUERY": "SELECT MIN(lookup_code) AS name, meaning AS email, attribute1 AS filter_key FROM ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP WHERE lookup_type='USER_ASSIGNMENT' AND enabled_flag='Y' GROUP BY meaning, attribute1 ORDER BY name",
   "EPAGE_ACCESS_TOKEN_URI": "https://cloudsso.cisco.com/as/token.oauth2",
   "EPAGE_ACCESS_TOKEN_CLIENT_ID": "",
   "EPAGE_ACCESS_TOKEN_CLIENT_SECRET": "",

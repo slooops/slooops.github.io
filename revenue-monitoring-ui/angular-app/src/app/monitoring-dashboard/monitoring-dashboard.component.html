@@ -6,6 +6,8 @@
   [componentName]="componentName"
   [submitKeysToMap]="submitKeysToMap"
   [webexKeysToMap]="webexKeysToMap"
+  [fieldConfig]="assignmentDialogFieldConfig"
+  [assignmentUsersFilter]="assignmentUsersFilter"
   (close)="closeAssignModal($event)"
 ></app-user-assignment>
 
@@ -208,9 +210,9 @@
                             getCircleNumber(element)
                           }}</span>
                         </span> -->
-                        <span *ngIf="!isEscalated(element)">
+                        <!-- <span *ngIf="!isEscalated(element)">
                           &nbsp;&nbsp;&nbsp;
-                        </span>
+                        </span> -->
                       </span>
                       <span
                         [ngClass]="{

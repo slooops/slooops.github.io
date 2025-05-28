@@ -87,7 +87,8 @@
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ])
               )
             "
@@ -97,7 +98,8 @@
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ]) || isAdmin$
               )
             "
@@ -111,9 +113,26 @@
             </a>
           </li>
 
-          <!-- Invoice to Cash -->
           <li
             class="menu-item"
+            *ngIf="
+              !(
+                hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ])
+              )
+            "
             [class.disabled]="
               !(
                 hasRole$([
@@ -133,22 +152,7 @@
               Business Insights
             </a>
           </li>
-
-          <!-- Revenue Accounting -->
-          <li
-            class="menu-item"
-            *ngIf="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) && !isAdmin$
-              )
-            "
-            [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
-          >
+          <li class="menu-item" *ngIf="isAdmin$">
             <a
               [routerLink]="'/case-analyzer'"
               class="top-link"
@@ -274,6 +278,13 @@
     "
   >
     General Ledger
+  </button>
+  <button
+    mat-menu-item
+    [routerLink]="'/order-management'"
+    [disabled]="!(hasRole$(['ORDER_MANAGEMENT']) || isAdmin$)"
+  >
+    Order Management
   </button>
   <button mat-menu-item [routerLink]="''" [disabled]="true">
     Operations Controls

@@ -2,7 +2,11 @@
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
 >
-  <mat-tab *ngFor="let tab of filteredTabs; let i = index" [label]="tab.label">
+  <mat-tab
+    *ngFor="let tab of filteredTabs; let i = index"
+    [label]="tab.label"
+    [disabled]="tab.disabled"
+  >
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-large-deal'">
         <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>

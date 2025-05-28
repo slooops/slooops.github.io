@@ -30,6 +30,7 @@ import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 import { CmsComponent } from './cms/cms.component';
+import { OrderManagementComponent } from './order-management/order-management.component';
 
 const routes: Routes = [
   {
@@ -237,6 +238,14 @@ const routes: Routes = [
     data: {
       title: 'Finance IT Control Tower',
       header: 'OPL',
+    },
+  },
+  {
+    path: 'order-management',
+    component: OrderManagementComponent,
+    data: {
+      title: 'Finance IT Control Tower',
+      header: 'Order Management Monitoring',
     },
   },
   {
