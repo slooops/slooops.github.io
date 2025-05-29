@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 export class O2cProcessFlowComponent implements OnInit {
   @Input() circleStatus: { [key: string]: number } = {};
   @Input() navigationMap: { [key: string]: string } = {};
+  @Input() stepValues?: { [key: string]: string } = {}; // e.g. { Order: '$62000', Subscription: '$000' }
 
   circleSteps: string[] = [];
 
@@ -20,11 +21,18 @@ export class O2cProcessFlowComponent implements OnInit {
 
   getCircleClass(step: string): string {
     const value = this.circleStatus[step];
-    return value === 2
-      ? 'completed-circle'
-      : value === 1
-      ? 'current-circle'
-      : 'uncompleted-circle';
+    if (value === 2) return 'completed-circle';
+    if (value === 1) return 'current-circle'; // shows halo
+    if (value === -1) return 'in-progress-circle'; // optional mid-step
+    return 'uncompleted-circle';
+  }
+
+  getCaptionClass(step: string): string {
+    const value = this.circleStatus[step];
+    if (value === 2) return 'step-value--completed';
+    if (value === 1) return 'step-value--current';
+    if (value === -1) return 'step-value--in-progress';
+    return 'step-value--uncompleted';
   }
 
   getSliderBarStyle(index: number): { [key: string]: string } {
@@ -32,10 +40,7 @@ export class O2cProcessFlowComponent implements OnInit {
     const value = this.circleStatus[step];
 
     return {
-      background:
-        value === 1
-          ? 'linear-gradient(to right, #16371e43, #08ace4, #16371e43)'
-          : '#16371e43',
+      background: value === 1 ? '#16371e43' : '#16371e43',
     };
   }
 
@@ -44,7 +49,7 @@ export class O2cProcessFlowComponent implements OnInit {
       this.router.navigate([this.navigationMap[identifier]]);
       console.log(`Navigating to ${this.navigationMap[identifier]}`);
     } else {
-      console.warn('No navigation path found for:', identifier);
+      // console.warn('No navigation path found for:', identifier);
     }
   }
 
