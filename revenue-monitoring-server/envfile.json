@@ -2,6 +2,7 @@
   "DATABASE_NAME": "local",
   "DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CG1PRD,cn=OracleContext,dc=cisco,dc=com",
   "STG_DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com",
+  "TS3_DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldprd:5000/cn=OracleContext,dc=cisco,dc=com/TS3CG1_SRVC_OMF",
   "RDAC_OSUSER": "",
   "ASK_QE_ME_DASH_BOARD_STATUS_Q": "SELECT period_name, close_type, comments, creation_date FROM ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS",
   "UPDATE_COMMENTS_Q": "INSERT INTO ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS (QUARTER, PERIOD_NAME, PERIOD_YEAR, PERIOD_NUM, CLOSE_TYPE, COMMENTS, CREATION_DATE) VALUES ('Q4FY2023','JUN-23',2023,10,?,?,SYSDATE)",
@@ -153,5 +154,11 @@
   "CREDIT_CARD_CHECK_DETAIL_VIEW": "select * from arfinro.xxcfir_credit_chk_dash_dtl_v",
   "CREDIT_CARD_CHECK_DETAIL_FILTERED_VIEW": "select * from arfinro.xxcfir_credit_chk_dash_dtl_v where period_name=? and org_name=? and trunc(HOLD_APPLY_DATE)=to_date(?,'MM/DD/YYYY') and process_flow=?",
   "UPDATE_CREDIT_CARD_CHECK_SUMMARY_QUERY": "UPDATE arfinro.XXCFIR_845_DASH_MON SET assigned_to=?, assigned_date=SYSDATE, assigned_by=?, comments=? WHERE entity=? AND trunc(HOLD_APPLY_DATE)=to_date(?,'MM/DD/YYYY') and flooring_bid=?",
+  "ORDER_SUMMARY_QUERY": "select * from ARFINRO.ORDER_SUMMARY_O2C where WEB_ORDER_ID=?",
+  "INVOICE_SUMMARY_QUERY": "select * from ARFINRO.INV_SUMMARY_O2C where TRANSACTION_NUMBER=?",
+  "INVOICE_LINE_SUMMARY_QUERY": "select * from ARFINRO.INV_LINE_SUMMARY_O2C where TRANSACTION_NUMBER=?",
+  "SUBSCRIPTION_SUMMARY_QUERY": "select * from ARFINRO.SUBSCRIPTION_SUMMARY_O2C where SUBSCRIPTION_ID=?",
+  "SUBSCRIPTION_LINE_SUMMARY_QUERY": "select * from ARFINRO.SUBSCRIPTION_LINE_SUMMARY_O2C where SUBSCRIPTION_REF_ID=?",
+  "O2C_CONNECTOR_QUERY": "SELECT WEBORDER_ID, SUBSCRIPTION_REF_ID, TRX_NUMBER FROM ARFINRO.ORDER_TO_CASH_CONNECTOR",
   "CORS_URL": "http://localhost:3000"
 }

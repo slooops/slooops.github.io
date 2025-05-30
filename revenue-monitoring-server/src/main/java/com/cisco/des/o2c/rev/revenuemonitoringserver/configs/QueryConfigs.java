@@ -364,17 +364,22 @@ public class QueryConfigs {
     public String wd0MidcloseActualsService;
 
     @Bean(name = "issueReportingDashStatusUpdate")
-    public String getIssueReportingDashStatusUpdate() { return this.issueReportingDashStatusUpdate; }
-
+    public String getIssueReportingDashStatusUpdate() {
+        return this.issueReportingDashStatusUpdate;
+    }
 
     @Value(("${issue.reporting.dash.issue.description.update}"))
     public String issueReportingDashIssueDescUpdate;
 
     @Bean(name = "issueReportingDashIssueDescUpdate")
-    public String getIssueReportingDashIssueDescUpdate() { return this.issueReportingDashIssueDescUpdate; }
+    public String getIssueReportingDashIssueDescUpdate() {
+        return this.issueReportingDashIssueDescUpdate;
+    }
 
     @Bean(name = "issueReportingDash")
-    public String getIssueReportingDash() { return this.issueReportingDash; }
+    public String getIssueReportingDash() {
+        return this.issueReportingDash;
+    }
 
     @Value(("${issue.reporting.dash.insert}"))
     public String issueReportingDashInsert;
@@ -383,82 +388,161 @@ public class QueryConfigs {
     public String issueReportingDashCommentsUpdate;
 
     @Bean(name = "issueReportingDashCommentsUpdate")
-    public String getIssueReportingDashCommentsUpdate() { return this.issueReportingDashCommentsUpdate; }
+    public String getIssueReportingDashCommentsUpdate() {
+        return this.issueReportingDashCommentsUpdate;
+    }
 
     @Value(("${issue.reporting.dash.fix.details.update}"))
     public String issueReportingDashFixDetailsUpdate;
 
     @Bean(name = "issueReportingDashFixDetailsUpdate")
-    public String getIssueReportingDashFixDetailsUpdate() { return this.issueReportingDashFixDetailsUpdate; }
+    public String getIssueReportingDashFixDetailsUpdate() {
+        return this.issueReportingDashFixDetailsUpdate;
+    }
 
     @Bean(name = "issueReportingDashApprove")
-    public String getIssueReportingDashApprove() { return this.issueReportingDashApprove; }
+    public String getIssueReportingDashApprove() {
+        return this.issueReportingDashApprove;
+    }
 
     @Value(("${issue.reporting.dash.approve}"))
     public String issueReportingDashApprove;
 
     @Bean(name = "issueReportingDashInsert")
-    public String getIssueReportingDashInsert() { return this.issueReportingDashInsert; }
+    public String getIssueReportingDashInsert() {
+        return this.issueReportingDashInsert;
+    }
 
     @Bean(name = "creditCardSummary")
-    public String getCreditCardSummary() { return this.creditCardSummary; }
+    public String getCreditCardSummary() {
+        return this.creditCardSummary;
+    }
+
     @Bean(name = "creditCardDetails")
-    public String getCreditCardDetails() { return this.creditCardDetails; }
+    public String getCreditCardDetails() {
+        return this.creditCardDetails;
+    }
+
     @Bean(name = "debitCardSummary")
-    public String getDebitCardSummary() { return this.debitCardSummary; }
+    public String getDebitCardSummary() {
+        return this.debitCardSummary;
+    }
+
     @Bean(name = "debitCardDetails")
-    public String getDebitCardDetails() { return this.debitCardDetails; }
+    public String getDebitCardDetails() {
+        return this.debitCardDetails;
+    }
+
     @Bean(name = "printSummary")
-    public String getPrintSummary() { return this.printSummary; }
+    public String getPrintSummary() {
+        return this.printSummary;
+    }
+
     @Bean(name = "printDetail")
-    public String getPrintDetail() { return this.printDetail; }
+    public String getPrintDetail() {
+        return this.printDetail;
+    }
+
     @Bean(name = "printDetailFiltered")
-    public String getPrintDetailFiltered() { return this.printDetailFiltered; }
+    public String getPrintDetailFiltered() {
+        return this.printDetailFiltered;
+    }
+
     @Bean(name = "printSummaryUpdate")
-    public String getPrintSummaryUpdate() { return this.printSummaryUpdate; }
+    public String getPrintSummaryUpdate() {
+        return this.printSummaryUpdate;
+    }
+
     @Bean(name = "periodName")
-    public String getPeriodName() { return this.periodName; }
+    public String getPeriodName() {
+        return this.periodName;
+    }
+
     @Bean(name = "standardRevenueSummary")
-    public String getStandardRevenueSummary() { return this.standardRevenueSummary; }
+    public String getStandardRevenueSummary() {
+        return this.standardRevenueSummary;
+    }
 
     @Bean(name = "standardRevenueDetails")
-    public String getStandardRevenueDetails() { return this.standardRevenueDetails; }
+    public String getStandardRevenueDetails() {
+        return this.standardRevenueDetails;
+    }
 
     @Bean(name = "cmAmortSummary")
-    public String getcmAmortSummary() { return this.cmAmortSummary; }
+    public String getcmAmortSummary() {
+        return this.cmAmortSummary;
+    }
+
     @Bean(name = "cmAmortDetails")
-    public String getcmAmortDetails() { return this.cmAmortDetails; }
+    public String getcmAmortDetails() {
+        return this.cmAmortDetails;
+    }
+
     @Bean(name = "standardRevenueDetailsFiltered")
-    public String getStandardRevenueDetailsFiltered() { return this.standardRevenueDetailsFiltered; }
+    public String getStandardRevenueDetailsFiltered() {
+        return this.standardRevenueDetailsFiltered;
+    }
+
     @Bean(name = "standardRevenueSummaryUpdate")
-    public String getStandardRevenueSummaryUpdate() { return this.standardRevenueSummaryUpdate; }
+    public String getStandardRevenueSummaryUpdate() {
+        return this.standardRevenueSummaryUpdate;
+    }
 
     @Bean(name = "cmAmortDetailsFiltered")
-    public String getCmAmortDetailsFiltered() { return this.cmAmortDetailsFiltered; }
+    public String getCmAmortDetailsFiltered() {
+        return this.cmAmortDetailsFiltered;
+    }
+
     @Bean(name = "cmAmortSummaryUpdate")
-    public String getCmAmortSummaryUpdate() { return this.cmAmortSummaryUpdate; }
+    public String getCmAmortSummaryUpdate() {
+        return this.cmAmortSummaryUpdate;
+    }
 
     @Bean(name = "fusionErrorSummaryUpdate")
-    public String getFusionErrorSummaryUpdate() { return this.fusionErrorSummaryUpdate; }
-    @Bean(name="fusionErrorDetailsFiltered")
-    public String getFusionErrorDetailsFiltered() { return this.fusionErrorDetailsFiltered; }
+    public String getFusionErrorSummaryUpdate() {
+        return this.fusionErrorSummaryUpdate;
+    }
 
-    @Bean(name="transactionsProcessedSummary")
-    public String getTransactionsProcessedSummary() { return this.transactionsProcessedSummary; }
-    @Bean(name="transactionsProcessedDetails")
-    public String getTransactionsProcessedDetails() { return this.transactionsProcessedDetails; }
-    @Bean(name="transactionsProcessedDetailsFiltered")
-    public String getTransactionsProcessedDetailsFiltered() { return this.transactionsProcessedDetailsFiltered; }
+    @Bean(name = "fusionErrorDetailsFiltered")
+    public String getFusionErrorDetailsFiltered() {
+        return this.fusionErrorDetailsFiltered;
+    }
 
-    @Bean(name="fusionErrorSummary")
-    public String getFusionErrorSummary() { return this.fusionErrorSummary; }
-    @Bean(name="fusionErrorDetails")
-    public String getFusionErrorDetails() { return this.fusionErrorDetails; }
+    @Bean(name = "transactionsProcessedSummary")
+    public String getTransactionsProcessedSummary() {
+        return this.transactionsProcessedSummary;
+    }
 
-    @Bean(name="eInvoicingSummaryUpdate")
-    public String geteInvoicingSummaryUpdate() { return this.eInvoicingSummaryUpdate; }
-    @Bean(name="einvoicingDetailsFiltered")
-    public String getEinvoicingDetailsFiltered() { return this.einvoicingDetailsFiltered; }
+    @Bean(name = "transactionsProcessedDetails")
+    public String getTransactionsProcessedDetails() {
+        return this.transactionsProcessedDetails;
+    }
+
+    @Bean(name = "transactionsProcessedDetailsFiltered")
+    public String getTransactionsProcessedDetailsFiltered() {
+        return this.transactionsProcessedDetailsFiltered;
+    }
+
+    @Bean(name = "fusionErrorSummary")
+    public String getFusionErrorSummary() {
+        return this.fusionErrorSummary;
+    }
+
+    @Bean(name = "fusionErrorDetails")
+    public String getFusionErrorDetails() {
+        return this.fusionErrorDetails;
+    }
+
+    @Bean(name = "eInvoicingSummaryUpdate")
+    public String geteInvoicingSummaryUpdate() {
+        return this.eInvoicingSummaryUpdate;
+    }
+
+    @Bean(name = "einvoicingDetailsFiltered")
+    public String getEinvoicingDetailsFiltered() {
+        return this.einvoicingDetailsFiltered;
+    }
+
     @Bean(name = "glErrorDetails")
     public String getGlErrorDetails() {
         return this.glErrorDetails;
@@ -488,7 +572,6 @@ public class QueryConfigs {
     public String getGlPostingSummaryUpdate() {
         return this.glPostingSummaryUpdate;
     }
-
 
     @Bean(name = "autoInvoiceErrorSummaryView")
     public String getAutoInvoiceErrorSummaryView() {
@@ -815,7 +898,6 @@ public class QueryConfigs {
         return this.rolTransactionDataCount;
     }
 
-
     @Bean(name = "rolErrorsSummaryUpdate")
     public String updateRolErrorSummaryUpdate() {
         return this.rolErrorsSummaryUpdate;
@@ -906,23 +988,35 @@ public class QueryConfigs {
         return this.espWeeklyComparisonSummary;
     }
 
-    @Bean( name = "tspAccountSummaryView" )
-    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
+    @Bean(name = "tspAccountSummaryView")
+    public String getTspAccountSummaryView() {
+        return this.tspAccountSummaryView;
+    }
 
-    @Bean( name = "tspAccountDetailView" )
-    public String getTspAccountDetailView() {return this.tspAccountDetailView; }
+    @Bean(name = "tspAccountDetailView")
+    public String getTspAccountDetailView() {
+        return this.tspAccountDetailView;
+    }
 
-    @Bean( name = "tspAccountDetailViewFiltered" )
-    public String getTspAccountDetailViewFiltered() {return this.tspAccountDetailViewFiltered; }
+    @Bean(name = "tspAccountDetailViewFiltered")
+    public String getTspAccountDetailViewFiltered() {
+        return this.tspAccountDetailViewFiltered;
+    }
 
-    @Bean( name = "tspAccountSummaryUpdate" )
-    public String getTspAccountSummaryUpdate() {return this.tspAccountSummaryUpdate; }
+    @Bean(name = "tspAccountSummaryUpdate")
+    public String getTspAccountSummaryUpdate() {
+        return this.tspAccountSummaryUpdate;
+    }
 
-    @Bean( name = "wd0MidcloseActualsProduct" )
-    public String getWd0MidcloseActualsProduct() {return this.wd0MidcloseActualsProduct; }
+    @Bean(name = "wd0MidcloseActualsProduct")
+    public String getWd0MidcloseActualsProduct() {
+        return this.wd0MidcloseActualsProduct;
+    }
 
-    @Bean( name = "wd0MidcloseActualsService" )
-    public String getWd0MidcloseActualsService() {return this.wd0MidcloseActualsService; }
+    @Bean(name = "wd0MidcloseActualsService")
+    public String getWd0MidcloseActualsService() {
+        return this.wd0MidcloseActualsService;
+    }
 
     @Value(("${rpo.extract.summary}"))
     public String rpoExtractSummary;
@@ -951,57 +1045,129 @@ public class QueryConfigs {
     @Value(("${issue.reporting.dash.summary}"))
     public String issueReportingDashSummary;
 
-    @Bean( name = "issueReportingDashSummary" )
-    public String getIssueReportingDashSummary() {return this.issueReportingDashSummary; }
+    @Bean(name = "issueReportingDashSummary")
+    public String getIssueReportingDashSummary() {
+        return this.issueReportingDashSummary;
+    }
 
-    @Bean( name = "rpoExtractSummary" )
-    public String getRpoExtractSummary() {return this.rpoExtractSummary; }
+    @Bean(name = "rpoExtractSummary")
+    public String getRpoExtractSummary() {
+        return this.rpoExtractSummary;
+    }
 
-    @Bean( name = "rpoExtractDetails" )
-    public String getRpoExtractDetails() {return this.rpoExtractDetails; }
+    @Bean(name = "rpoExtractDetails")
+    public String getRpoExtractDetails() {
+        return this.rpoExtractDetails;
+    }
 
-    @Bean( name = "rpoExtractDetailsFilter" )
-    public String getRpoExtractDetailsFilter() {return this.rpoExtractDetailsFilter; }
+    @Bean(name = "rpoExtractDetailsFilter")
+    public String getRpoExtractDetailsFilter() {
+        return this.rpoExtractDetailsFilter;
+    }
 
-    @Bean( name = "rpoExtractSummaryUpdate" )
-    public String getRpoExtractSummaryUpdate() {return this.rpoExtractSummaryUpdate; }
+    @Bean(name = "rpoExtractSummaryUpdate")
+    public String getRpoExtractSummaryUpdate() {
+        return this.rpoExtractSummaryUpdate;
+    }
 
-    @Bean( name = "srtProcessSummary" )
-    public String getSrtProcessSummary() {return this.srtProcessSummary; }
+    @Bean(name = "srtProcessSummary")
+    public String getSrtProcessSummary() {
+        return this.srtProcessSummary;
+    }
 
-    @Bean( name = "srtProcessDetails" )
-    public String getSrtProcessDetails() {return this.srtProcessDetails; }
+    @Bean(name = "srtProcessDetails")
+    public String getSrtProcessDetails() {
+        return this.srtProcessDetails;
+    }
 
-    @Bean( name = "srtProcessDetailsFilter" )
-    public String getSrtProcessDetailsFilter() {return this.srtProcessDetailsFilter; }
+    @Bean(name = "srtProcessDetailsFilter")
+    public String getSrtProcessDetailsFilter() {
+        return this.srtProcessDetailsFilter;
+    }
 
-    @Bean( name = "srtProcessSummaryUpdate" )
-    public String getSrtProcessSummaryUpdate() {return this.srtProcessSummaryUpdate; }
+    @Bean(name = "srtProcessSummaryUpdate")
+    public String getSrtProcessSummaryUpdate() {
+        return this.srtProcessSummaryUpdate;
+    }
 
     @Value(("${credit.card.check.summary.view.q}"))
     public String creditCardCheckSummaryView;
 
-    @Bean( name = "creditCardCheckSummaryView" )
-    public String getCreditCardCheckSummaryView() {return this.creditCardCheckSummaryView; }
+    @Bean(name = "creditCardCheckSummaryView")
+    public String getCreditCardCheckSummaryView() {
+        return this.creditCardCheckSummaryView;
+    }
 
     @Value(("${credit.card.check.detail.view.q}"))
     public String creditCardCheckDetailView;
 
-    @Bean( name = "creditCardCheckDetailView" )
-    public String getCreditCardCheckDetailView() {return this.creditCardCheckDetailView; }
+    @Bean(name = "creditCardCheckDetailView")
+    public String getCreditCardCheckDetailView() {
+        return this.creditCardCheckDetailView;
+    }
 
     @Value(("${credit.card.check.detail.filtered.view.q}"))
     public String creditCardCheckDetailFilteredView;
 
-    @Bean( name = "creditCardCheckDetailFilteredView" )
-    public String getCreditCardCheckDetailFilteredView() {return this.creditCardCheckDetailFilteredView; }
+    @Bean(name = "creditCardCheckDetailFilteredView")
+    public String getCreditCardCheckDetailFilteredView() {
+        return this.creditCardCheckDetailFilteredView;
+    }
 
     @Value(("${update.credit.card.check.summary.q}"))
     public String updateCreditCardCheckSummary;
 
-    @Bean( name = "updateCreditCardCheckSummary" )
-    public String getUpdateCreditCardCheckSummary() {return this.updateCreditCardCheckSummary; }
+    @Bean(name = "updateCreditCardCheckSummary")
+    public String getUpdateCreditCardCheckSummary() {
+        return this.updateCreditCardCheckSummary;
+    }
 
+    @Value(("${order.summary}"))
+    public String orderSummary;
 
+    @Bean(name = "orderSummary")
+    public String getOrderSummary() {
+        return this.orderSummary;
+    }
+
+    @Value(("${invoice.summary}"))
+    public String invoiceSummary;
+
+    @Bean(name = "invoiceSummary")
+    public String getInvoiceSummary() {
+        return this.invoiceSummary;
+    }
+
+    @Value(("${invoice.line.summary}"))
+    public String invoiceLineSummary;
+
+    @Bean(name = "invoiceLineSummary")
+    public String getInvoiceLineSummary() {
+        return this.invoiceLineSummary;
+    }
+
+    @Value(("${subscription.summary}"))
+    public String subscriptionSummary;
+
+    @Bean(name = "subscriptionSummary")
+    public String getSubscriptionSummary() {
+        return this.subscriptionSummary;
+    }
+
+    @Value(("${subscription.line.summary}"))
+    public String subscriptionLineSummary;
+
+    @Bean(name = "subscriptionLineSummary")
+    public String getSubscriptionLineSummary() {
+        return this.subscriptionLineSummary;
+    }
+
+    @Value(("${o2c.connector.q}"))
+    public String o2cConnector;
+
+    @Bean(name = "o2cConnector")
+    public String getO2cConnector() {
+        return this.o2cConnector;
+    }
 
 }
