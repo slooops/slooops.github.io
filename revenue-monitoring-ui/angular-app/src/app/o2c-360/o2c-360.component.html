@@ -189,12 +189,13 @@
             disabled: !invoiceLinesDataLoaded && !subscriptionLinesDataLoaded
           }"
           (click)="viewAll('subscriptions')"
-          >{{
+        >
+          {{
             subscriptionLinesDataLoaded && invoiceLinesDataLoaded
               ? "View All"
-              : "View All Loading"
-          }}</a
-        >
+              : "View All Loading..."
+          }}
+        </a>
       </div>
     </div>
     <div *ngIf="expanded.subscription" class="accordion-content o2c-card">
@@ -302,7 +303,7 @@
           }"
           (click)="viewAll('invoices')"
         >
-          {{ invoiceLinesDataLoaded ? "View All" : "View All Loading" }}
+          {{ invoiceLinesDataLoaded ? "View All" : "View All Loading..." }}
         </a>
       </div>
     </div>

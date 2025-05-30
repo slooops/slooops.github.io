@@ -84,11 +84,11 @@
   padding: 2px 8px;
   border: none;
   border-radius: 12px;
-  cursor: pointer;
+  cursor: default;
 }
 
 .details-button:hover {
-  background-color: #005bb5;
+  /* background-color: #005bb5; */
 }
 
 .chevron {
@@ -166,14 +166,13 @@
 }
 
 .view-all-button {
-  color: var(--Blues-Blue-60, #0076d5);
-
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  color: #0076d5;
 
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .view-all-button:hover {
@@ -243,8 +242,10 @@ tr.mat-header-row {
 }
 
 .view-all-button.disabled {
-  color: #ababab;
-  pointer-events: none;
+  color: #ababab !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  text-decoration: none !important;
   opacity: 0.5;
 }
 

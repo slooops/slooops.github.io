@@ -14,6 +14,7 @@ export class O2cViewAllComponent implements OnInit {
   selectedTab: 'subscriptions' | 'invoices' = 'subscriptions';
   selectedTabIndex: number = 0;
 
+  showSubscriptionLines: boolean = false;
   showInvoiceLines: boolean = false;
 
   orderId: string | null = null;
@@ -253,6 +254,10 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedTab = index === 0 ? 'subscriptions' : 'invoices';
   }
 
+  goBack(): void {
+    window.history.back();
+  }
+
   toggleInvoiceLinesTable(TransactionNumber: string): void {
     console.log('Bill Number:', TransactionNumber);
     console.log('Invoice Lines Data Source:', this.invoiceLinesDataSource.data);
@@ -267,6 +272,7 @@ export class O2cViewAllComponent implements OnInit {
 
     this.invoiceLinesFilteredDataSource.data = filteredLines;
     this.showInvoiceLines = true;
+    this.showSubscriptionLines = true;
   }
 
   handleDownload(

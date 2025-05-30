@@ -1,6 +1,10 @@
 <app-o2c-nav></app-o2c-nav>
 
 <div class="circle-header">
+  <button class="back-btn-floating" (click)="goBack()">
+    <i class="back-icon"></i> Back
+  </button>
+
   <app-o2c-process-flow [circleStatus]="circleStatus"></app-o2c-process-flow>
 </div>
 
@@ -99,7 +103,7 @@
   style="padding: 0 6vw"
 >
   <mat-tab label="Subscriptions">
-    <div class="tool-bar-container">
+    <div class="tool-bar-container" *ngIf="!showSubscriptionLines">
       <div class="o2c-toolbar">
         <button
           (click)="
@@ -123,7 +127,7 @@
       </div>
     </div>
 
-    <div class="table-container">
+    <div class="table-container" *ngIf="!showSubscriptionLines">
       <div class="table-banner">
         <div class="order-info accordion-header">
           Subscriptions -
@@ -205,6 +209,53 @@
             </div>
           </ng-template>
         </div>
+      </div>
+    </div>
+
+    <!-- TOOLBAR for Subscription Lines -->
+    <div
+      class="tool-bar-container"
+      style="flex-direction: row"
+      *ngIf="showSubscriptionLines"
+    >
+      <button
+        class="back-btn"
+        (click)="showSubscriptionLines = false; showInvoiceLines = false"
+      >
+        <i class="back-icon"></i> Summary
+      </button>
+      <div class="o2c-toolbar">
+        <button
+          class="toolbar-btn"
+          (click)="
+            handleDownload(
+              subscriptionLinesDataSource.data,
+              'O2C 360 Subscription Lines - ' + orderId,
+              'Subscription Lines'
+            )
+          "
+        >
+          <i class="download-icon"></i> Download
+        </button>
+        <button class="toolbar-btn" (click)="handlePrint()">
+          <i class="print-icon"></i> Print
+        </button>
+        <button class="toolbar-btn" (click)="handleShare()">
+          <i class="share-icon"></i> Share
+        </button>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION LINES TABLE -->
+    <div class="table-container" *ngIf="showSubscriptionLines">
+      <div class="table-banner">
+        <div class="order-info accordion-header">
+          Subscription Line Details -
+          {{ subscriptionLinesDataSource.data.length }}
+        </div>
+      </div>
+      <div class="accordion-content o2c-card">
+        <ng-container *ngTemplateOutlet="subscriptionLinesTable"></ng-container>
       </div>
     </div>
   </mat-tab>
@@ -318,8 +369,11 @@
       style="flex-direction: row"
       *ngIf="showInvoiceLines"
     >
-      <button class="back-btn" (click)="showInvoiceLines = false">
-        <i class="back-icon"></i> Back to Invoices
+      <button
+        class="back-btn"
+        (click)="showInvoiceLines = false; showSubscriptionLines = false"
+      >
+        <i class="back-icon"></i> Summary
       </button>
       <div class="o2c-toolbar">
         <button
@@ -410,6 +464,10 @@
   "
   (close)="showSubscriptionModal = false"
 >
+  <ng-container *ngTemplateOutlet="subscriptionLinesTable"></ng-container>
+</app-modal>
+
+<ng-template #subscriptionLinesTable>
   <div class="invoice-summary-table">
     <ng-container
       *ngIf="
@@ -451,7 +509,7 @@
       </div>
     </ng-template>
   </div>
-</app-modal>
+</ng-template>
 
 <app-modal
   *ngIf="showInvoiceModal"

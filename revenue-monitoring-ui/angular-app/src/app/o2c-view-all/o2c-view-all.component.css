@@ -8,6 +8,7 @@
   align-self: stretch;
   border-bottom: 1px solid var(--Grays-Gray-40, #e4e4e4);
   background: var(--Blues-Blue-10, #f3f9ff);
+  position: relative;
 }
 
 .o2c-card {
@@ -229,6 +230,23 @@ tr.mat-header-row {
   transition: background 0.2s;
   background-color: #ffffff;
   height: 33px;
+}
+
+.back-btn-floating {
+  position: absolute;
+  left: 6vw;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  font-weight: 500;
+  color: #0076d5;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .toolbar-btn:last-child {

@@ -247,14 +247,18 @@ export class O2c360Component implements OnInit {
           'Subscription Summary Exception:',
           this.subscriptionExceptionMessage
         );
-        this.updateCircleStatus();
 
-        this.subscriptionSummaryDisplayedColumns = this.removeColumns(
-          Object.keys(data[0]),
-          ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE', 'EXCEPTION_DETAILS']
-        );
+        if (Array.isArray(data) && data.length > 0) {
+          this.subscriptionSummaryDisplayedColumns = this.removeColumns(
+            Object.keys(data[0]),
+            ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE', 'EXCEPTION_DETAILS']
+          );
+        } else {
+          this.subscriptionSummaryDisplayedColumns = [];
+        }
         this.subscriptionSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[1].count = data.length;
+        this.updateCircleStatus();
         this.subscriptionDataLoaded = true;
       });
   }
@@ -307,10 +311,11 @@ export class O2c360Component implements OnInit {
             ''
           : '';
         console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
-        this.updateCircleStatus();
 
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
+
+        this.updateCircleStatus();
         this.invoiceDataLoaded = true;
       });
   }
@@ -420,6 +425,8 @@ export class O2c360Component implements OnInit {
     const hasSubException = !!this.subscriptionExceptionMessage;
     const hasInvoiceException = !!this.invoiceExceptionMessage;
 
+    const subscriptionDataExists =
+      this.subscriptionSummaryDataSource?.data?.length > 0;
     const invoiceDataExists = this.invoiceSummaryDataSource?.data?.length > 0;
 
     const orderGood = !hasOrderException;
@@ -429,6 +436,8 @@ export class O2c360Component implements OnInit {
     this.circleStatus['Subscription'] = hasOrderException ? -1 : 2;
 
     this.circleStatus['Invoicing'] = hasOrderException
+      ? 0
+      : !subscriptionDataExists
       ? 0
       : hasSubException
       ? -1
@@ -453,6 +462,10 @@ export class O2c360Component implements OnInit {
   }
 
   viewAll(type: 'subscriptions' | 'invoices', billNumber?: string): void {
+    if (!this.subscriptionLinesDataLoaded || !this.invoiceLinesDataLoaded) {
+      return;
+    }
+
     const isInvoice = type === 'invoices';
     const isSubscription = type === 'subscriptions';
 
