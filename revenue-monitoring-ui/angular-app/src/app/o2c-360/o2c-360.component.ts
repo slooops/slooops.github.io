@@ -414,6 +414,7 @@ export class O2c360Component implements OnInit {
     this.showInvoiceModal = true;
   }
 
+  //needs more work
   private updateCircleStatus(): void {
     const hasOrderException = !!this.orderExceptionMessage;
     const hasSubException = !!this.subscriptionExceptionMessage;
