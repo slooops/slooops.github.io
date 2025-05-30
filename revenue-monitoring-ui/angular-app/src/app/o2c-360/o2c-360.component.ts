@@ -419,26 +419,31 @@ export class O2c360Component implements OnInit {
     const hasSubException = !!this.subscriptionExceptionMessage;
     const hasInvoiceException = !!this.invoiceExceptionMessage;
 
+    const invoiceDataExists = this.invoiceSummaryDataSource?.data?.length > 0;
+
     const orderGood = !hasOrderException;
     const subGood = orderGood && !hasSubException;
-    const invoiceGood = subGood && !hasInvoiceException;
+    const invoiceGood = subGood && !hasInvoiceException && invoiceDataExists;
 
     this.circleStatus['Subscription'] = hasOrderException ? -1 : 2;
+
     this.circleStatus['Invoicing'] = hasOrderException
       ? 0
       : hasSubException
       ? -1
       : 2;
-    this.circleStatus['Accounting'] = subGood
-      ? hasInvoiceException
-        ? -1
-        : 2
-      : 0;
+
+    this.circleStatus['Accounting'] = !subGood
+      ? 0
+      : !invoiceDataExists
+      ? 0
+      : hasInvoiceException
+      ? -1
+      : 2;
 
     // Special handling for cash:
     const allClosed =
       invoiceGood &&
-      this.invoiceSummaryDataSource.data.length > 0 &&
       this.invoiceSummaryDataSource.data.every(
         (row: any) => row.STATUS === 'Closed'
       );

@@ -167,6 +167,14 @@ tr.mat-header-row {
   height: 150px;
 }
 
+.no-data-container {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem;
+  border: 1px solid #e4e4e4;
+}
+
 .table-container {
   display: flex;
   padding: 10px 0;

@@ -6,71 +6,90 @@
 
 <div class="order-banner">
   <div class="order-table">
-    <table mat-table [dataSource]="orderSummaryDataSource">
-      <ng-container
-        *ngFor="let column of orderSummaryDisplayedColumns1"
-        [matColumnDef]="column"
-      >
-        <th mat-header-cell *matHeaderCellDef>
-          {{ formatColumnName(column) }}
-        </th>
-
-        <td mat-cell *matCellDef="let element">
-          {{
-            column === "CREATION_DATE" || column === "ORDER_BOOKED_DATE"
-              ? (element[column] | date : "MM/dd/yyyy")
-              : element[column]
-          }}
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="orderSummaryDisplayedColumns1"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: orderSummaryDisplayedColumns1"
-      ></tr>
-    </table>
-    <table mat-table [dataSource]="orderSummaryDataSource" class="order-table">
-      <ng-container
-        *ngFor="let column of orderSummaryDisplayedColumns2"
-        [matColumnDef]="column"
-      >
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          [ngClass]="{
-            'wide-column':
-              column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
-          }"
+    <ng-container
+      *ngIf="orderSummaryDataSource.data.length > 0; else noOrderData"
+    >
+      <table mat-table [dataSource]="orderSummaryDataSource">
+        <ng-container
+          *ngFor="let column of orderSummaryDisplayedColumns1"
+          [matColumnDef]="column"
         >
-          {{ formatColumnName(column) }}
-        </th>
+          <th mat-header-cell *matHeaderCellDef>
+            {{ formatColumnName(column) }}
+          </th>
 
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [ngClass]="{
-            'wide-column':
-              column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
-          }"
+          <td mat-cell *matCellDef="let element">
+            {{
+              column === "CREATION_DATE" || column === "ORDER_BOOKED_DATE"
+                ? (element[column] | date : "MM/dd/yyyy")
+                : element[column]
+            }}
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="orderSummaryDisplayedColumns1"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: orderSummaryDisplayedColumns1"
+        ></tr>
+      </table>
+      <table
+        mat-table
+        [dataSource]="orderSummaryDataSource"
+        class="order-table"
+      >
+        <ng-container
+          *ngFor="let column of orderSummaryDisplayedColumns2"
+          [matColumnDef]="column"
         >
-          {{ element[column] }}
-        </td>
-      </ng-container>
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            [ngClass]="{
+              'wide-column':
+                column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
+            }"
+          >
+            {{ formatColumnName(column) }}
+          </th>
 
-      <tr mat-header-row *matHeaderRowDef="orderSummaryDisplayedColumns2"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: orderSummaryDisplayedColumns2"
-      ></tr>
-    </table>
-    <hr />
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [ngClass]="{
+              'wide-column':
+                column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
+            }"
+          >
+            {{ element[column] }}
+          </td>
+        </ng-container>
 
-    <a
-      class="details-button"
-      href="https://ccw-cstg.cisco.com/icw/pdrqo/portal.order"
-      >View complete order details in CCW <i class="open-ccw-icon"></i
-    ></a>
+        <tr
+          mat-header-row
+          *matHeaderRowDef="orderSummaryDisplayedColumns2"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: orderSummaryDisplayedColumns2"
+        ></tr>
+      </table>
+      <hr />
+
+      <a
+        class="details-button"
+        href="https://ccw-cstg.cisco.com/icw/pdrqo/portal.order"
+        >View complete order details in CCW <i class="open-ccw-icon"></i
+      ></a>
+    </ng-container>
+    <ng-template #noOrderData>
+      <div class="no-data-container">
+        <p>No data available for this order.</p>
+      </div>
+    </ng-template>
   </div>
 </div>
 
@@ -117,59 +136,74 @@
       </div>
       <div class="accordion-content o2c-card">
         <div class="invoice-summary-table">
-          <table mat-table [dataSource]="subscriptionSummaryDataSource">
-            <ng-container
-              *ngFor="let column of subscriptionSummaryDisplayedColumns"
-              [matColumnDef]="column"
-            >
-              <th mat-header-cell *matHeaderCellDef>
-                {{ formatColumnName(column) }}
-              </th>
+          <ng-container
+            *ngIf="
+              subscriptionSummaryDataSource.data.length > 0;
+              else noSubscriptionData
+            "
+          >
+            <table mat-table [dataSource]="subscriptionSummaryDataSource">
+              <ng-container
+                *ngFor="let column of subscriptionSummaryDisplayedColumns"
+                [matColumnDef]="column"
+              >
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ formatColumnName(column) }}
+                </th>
 
-              <td mat-cell *matCellDef="let element">
-                <a
-                  *ngIf="column === 'SUBSCRIPTION_ID'"
-                  (click)="
-                    openSubscriptionModal(element[column]);
-                    $event.preventDefault()
-                  "
-                >
-                  {{ element[column] }}
-                </a>
-                <span
-                  *ngIf="column === 'SUBSCRIPTION_STATUS'"
-                  [ngStyle]="{
-                    color:
-                      element[column] === 'ACTIVE'
-                        ? '#078a00'
-                        : element[column] === 'INACTIVE'
-                        ? '#d57b00'
-                        : ''
-                  }"
-                >
-                  {{ element[column] }}
-                </span>
+                <td mat-cell *matCellDef="let element">
+                  <a
+                    *ngIf="column === 'SUBSCRIPTION_ID'"
+                    (click)="
+                      openSubscriptionModal(element[column]);
+                      $event.preventDefault()
+                    "
+                  >
+                    {{ element[column] }}
+                  </a>
+                  <span
+                    *ngIf="column === 'SUBSCRIPTION_STATUS'"
+                    [ngStyle]="{
+                      color:
+                        element[column] === 'ACTIVE'
+                          ? '#078a00'
+                          : element[column] === 'INACTIVE'
+                          ? '#d57b00'
+                          : ''
+                    }"
+                  >
+                    {{ element[column] }}
+                  </span>
 
-                <span
-                  *ngIf="
-                    column !== 'SUBSCRIPTION_ID' &&
-                    column !== 'SUBSCRIPTION_STATUS'
-                  "
-                >
-                  {{ element[column] }}
-                </span>
-              </td>
-            </ng-container>
+                  <span
+                    *ngIf="
+                      column !== 'SUBSCRIPTION_ID' &&
+                      column !== 'SUBSCRIPTION_STATUS'
+                    "
+                  >
+                    {{ element[column] }}
+                  </span>
+                </td>
+              </ng-container>
 
-            <tr
-              mat-header-row
-              *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
-            ></tr>
-            <tr
-              mat-row
-              *matRowDef="let row; columns: subscriptionSummaryDisplayedColumns"
-            ></tr>
-          </table>
+              <tr
+                mat-header-row
+                *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="
+                  let row;
+                  columns: subscriptionSummaryDisplayedColumns
+                "
+              ></tr>
+            </table>
+          </ng-container>
+          <ng-template #noSubscriptionData>
+            <div class="no-data-container">
+              <p>No subscription data available for this order.</p>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
@@ -213,58 +247,67 @@
       </div>
       <div class="accordion-content o2c-card">
         <div class="invoice-summary-table">
-          <table mat-table [dataSource]="invoiceSummaryDataSource">
-            <ng-container
-              *ngFor="let column of invoiceSummaryDisplayedColumns"
-              [matColumnDef]="column"
-            >
-              <th mat-header-cell *matHeaderCellDef>
-                {{ formatColumnName(column) }}
-              </th>
+          <ng-container
+            *ngIf="invoiceSummaryDataSource.data.length > 0; else noInvoiceData"
+          >
+            <table mat-table [dataSource]="invoiceSummaryDataSource">
+              <ng-container
+                *ngFor="let column of invoiceSummaryDisplayedColumns"
+                [matColumnDef]="column"
+              >
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ formatColumnName(column) }}
+                </th>
 
-              <td mat-cell *matCellDef="let element">
-                <ng-container [ngSwitch]="column">
-                  <ng-container *ngSwitchCase="'OTHER_DETAILS'">
-                    <a
-                      (click)="
-                        openInvoiceModal(element['TRANSACTION_NUMBER']);
-                        $event.preventDefault()
-                      "
-                    >
-                      {{ element[column] }}
-                    </a>
+                <td mat-cell *matCellDef="let element">
+                  <ng-container [ngSwitch]="column">
+                    <ng-container *ngSwitchCase="'OTHER_DETAILS'">
+                      <a
+                        (click)="
+                          openInvoiceModal(element['TRANSACTION_NUMBER']);
+                          $event.preventDefault()
+                        "
+                      >
+                        {{ element[column] }}
+                      </a>
+                    </ng-container>
+
+                    <ng-container *ngSwitchCase="'TRANSACTION_NUMBER'">
+                      <a
+                        (click)="
+                          toggleInvoiceLinesTable(element['TRANSACTION_NUMBER'])
+                        "
+                      >
+                        {{ element[column] }}
+                      </a>
+                    </ng-container>
+
+                    <ng-container *ngSwitchDefault>
+                      {{
+                        column === "TRANSACTION_DATE" || column === "DUE_DATE"
+                          ? (element[column] | date : "MM/dd/yyyy")
+                          : element[column]
+                      }}
+                    </ng-container>
                   </ng-container>
+                </td>
+              </ng-container>
 
-                  <ng-container *ngSwitchCase="'TRANSACTION_NUMBER'">
-                    <a
-                      (click)="
-                        toggleInvoiceLinesTable(element['TRANSACTION_NUMBER'])
-                      "
-                    >
-                      {{ element[column] }}
-                    </a>
-                  </ng-container>
-
-                  <ng-container *ngSwitchDefault>
-                    {{
-                      column === "TRANSACTION_DATE" || column === "DUE_DATE"
-                        ? (element[column] | date : "MM/dd/yyyy")
-                        : element[column]
-                    }}
-                  </ng-container>
-                </ng-container>
-              </td>
-            </ng-container>
-
-            <tr
-              mat-header-row
-              *matHeaderRowDef="invoiceSummaryDisplayedColumns"
-            ></tr>
-            <tr
-              mat-row
-              *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
-            ></tr>
-          </table>
+              <tr
+                mat-header-row
+                *matHeaderRowDef="invoiceSummaryDisplayedColumns"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
+              ></tr>
+            </table>
+          </ng-container>
+          <ng-template #noInvoiceData>
+            <div class="no-data-container">
+              <p>No invoice data available for this order.</p>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
@@ -310,32 +353,44 @@
       </div>
       <div class="accordion-content o2c-card">
         <div class="invoice-summary-table">
-          <table mat-table [dataSource]="invoiceLinesFilteredDataSource">
-            <ng-container
-              *ngFor="let column of invoiceLinesDisplayedColumns"
-              [matColumnDef]="column"
-            >
-              <th mat-header-cell *matHeaderCellDef>
-                {{ formatColumnName(column) }}
-              </th>
-              <td mat-cell *matCellDef="let element">
-                {{
-                  column === "GL_DATE"
-                    ? (element[column] | date : "MM/dd/yyyy")
-                    : element[column]
-                }}
-              </td>
-            </ng-container>
+          <ng-container
+            *ngIf="
+              invoiceLinesFilteredDataSource.data.length > 0;
+              else noInvoiceLineData
+            "
+          >
+            <table mat-table [dataSource]="invoiceLinesFilteredDataSource">
+              <ng-container
+                *ngFor="let column of invoiceLinesDisplayedColumns"
+                [matColumnDef]="column"
+              >
+                <th mat-header-cell *matHeaderCellDef>
+                  {{ formatColumnName(column) }}
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  {{
+                    column === "GL_DATE"
+                      ? (element[column] | date : "MM/dd/yyyy")
+                      : element[column]
+                  }}
+                </td>
+              </ng-container>
 
-            <tr
-              mat-header-row
-              *matHeaderRowDef="invoiceLinesDisplayedColumns"
-            ></tr>
-            <tr
-              mat-row
-              *matRowDef="let row; columns: invoiceLinesDisplayedColumns"
-            ></tr>
-          </table>
+              <tr
+                mat-header-row
+                *matHeaderRowDef="invoiceLinesDisplayedColumns"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: invoiceLinesDisplayedColumns"
+              ></tr>
+            </table>
+          </ng-container>
+          <ng-template #noInvoiceLineData>
+            <div class="no-data-container">
+              <p>No invoice line data available for this order.</p>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
@@ -356,33 +411,45 @@
   (close)="showSubscriptionModal = false"
 >
   <div class="invoice-summary-table">
-    <table mat-table [dataSource]="subscriptionLinesDataSource">
-      <ng-container
-        *ngFor="let column of subscriptionLinesDisplayedColumns"
-        [matColumnDef]="column"
-      >
-        <th mat-header-cell *matHeaderCellDef>
-          {{ formatColumnName(column) }}
-        </th>
+    <ng-container
+      *ngIf="
+        subscriptionLinesDataSource.data.length > 0;
+        else noSubscriptionLineData
+      "
+    >
+      <table mat-table [dataSource]="subscriptionLinesDataSource">
+        <ng-container
+          *ngFor="let column of subscriptionLinesDisplayedColumns"
+          [matColumnDef]="column"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            {{ formatColumnName(column) }}
+          </th>
 
-        <td mat-cell *matCellDef="let element">
-          {{
-            column === "GL_DATE"
-              ? (element[column] | date : "MM/dd/yyyy")
-              : element[column]
-          }}
-        </td>
-      </ng-container>
+          <td mat-cell *matCellDef="let element">
+            {{
+              column === "GL_DATE"
+                ? (element[column] | date : "MM/dd/yyyy")
+                : element[column]
+            }}
+          </td>
+        </ng-container>
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="subscriptionLinesDisplayedColumns"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: subscriptionLinesDisplayedColumns"
-      ></tr>
-    </table>
+        <tr
+          mat-header-row
+          *matHeaderRowDef="subscriptionLinesDisplayedColumns"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: subscriptionLinesDisplayedColumns"
+        ></tr>
+      </table>
+    </ng-container>
+    <ng-template #noSubscriptionLineData>
+      <div class="no-data-container">
+        <p>No subscription line data available for this order.</p>
+      </div>
+    </ng-template>
   </div>
 </app-modal>
 
