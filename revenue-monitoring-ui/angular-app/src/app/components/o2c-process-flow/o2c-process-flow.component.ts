@@ -40,7 +40,7 @@ export class O2cProcessFlowComponent implements OnInit {
     const value = this.circleStatus[step];
 
     return {
-      background: value === 1 ? '#16371e43' : '#16371e43',
+      background: value === 1 ? '#c0c4c4' : '#c0c4c4',
     };
   }
 

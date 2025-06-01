@@ -58,6 +58,11 @@ export class BusinessInsightsComponent implements OnInit {
       component: 'app-issue-reporting',
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
+    // {
+    //   label: 'O2C 360',
+    //   component: 'app-02c-360',
+    //   role: ['ADMIN'],
+    // },
   ];
 
   selectedIndex: number = 0;

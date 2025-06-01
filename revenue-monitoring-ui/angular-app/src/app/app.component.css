@@ -82,9 +82,7 @@
   flex-grow: 1;
   border: none;
   outline: none;
-  padding: 8px 12px;
   font-size: 13px;
-  border-radius: 24px; /* Match container's rounded ends */
   background: transparent;
 }
 
@@ -113,15 +111,11 @@
   background-color: #08ace4;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Ensure it spreads correctly */
-  width: 100%; /* Make sure it takes full width */
   box-sizing: border-box; /* Ensures padding doesn’t cause overflow */
   margin: 0; /* Reset margin */
-  flex-grow: 1;
 }
 
 h5 {
-  min-width: 200px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

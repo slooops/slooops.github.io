@@ -112,6 +112,7 @@ import { O2cSidebarNavComponent } from './shared/o2c-sidebar-nav/o2c-sidebar-nav
 import { OrderManagementComponent } from './order-management/order-management.component';
 // import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
+import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -192,6 +193,7 @@ export function initApp(authService: AuthenticationService) {
     OrderManagementComponent,
     O2cViewAllComponent,
     ModalComponent,
+    O2cSearchComponent,
   ],
   imports: [
     BrowserModule,

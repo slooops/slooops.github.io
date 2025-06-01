@@ -55,7 +55,7 @@
 }
 
 .uncompleted-circle {
-  background: #16371e43; /* Gray for uncompleted */
+  background: #c0c4c4; /* Gray for uncompleted */
 }
 
 .in-progress-circle {
@@ -90,5 +90,5 @@
   color: #d57b00;
 }
 .step-value--uncompleted {
-  color: #16371e43;
+  color: #c0c4c4;
 }

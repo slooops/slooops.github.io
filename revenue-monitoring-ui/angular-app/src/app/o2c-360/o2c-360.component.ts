@@ -161,13 +161,10 @@ export class O2c360Component implements OnInit {
     this.route.queryParamMap.subscribe((params) => {
       console.log('Query Params:', params);
 
-      this.orderId = params.get('orderId') || '91742826';
+      this.orderId = params.get('orderId') || 'Search to get an';
       const orderIdList = this.orderId ? [this.orderId] : [];
-      this.subRefIds = params.get('subRefIds')?.split(',') || ['Sub1126960'];
-      this.invoiceIds = params.get('invoiceIds')?.split(',') || [
-        '6101427996',
-        '6101129079',
-      ];
+      this.subRefIds = params.get('subRefIds')?.split(',') || [''];
+      this.invoiceIds = params.get('invoiceIds')?.split(',') || [];
 
       if (params.get('searchType') === 'subscription') {
         this.expanded.subscription = true;
