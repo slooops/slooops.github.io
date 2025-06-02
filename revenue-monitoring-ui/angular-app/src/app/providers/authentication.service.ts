@@ -149,6 +149,10 @@ export class AuthenticationService {
         console.error('Error fetching user info:', error);
         this.router.navigate(['/error']);
       });
+    // .catch((error) => {
+    //   console.error('Error fetching user info:', error);
+    //   this.router.navigate(['/error']);
+    // });
   }
 
   getUserID() {

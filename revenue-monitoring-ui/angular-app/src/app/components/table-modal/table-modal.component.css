@@ -136,7 +136,7 @@ th {
   border-radius: 8px;
   width: fit-content;
   max-width: 90vw;
-  max-height: 80vh;
+  max-height: 100vh;
   overflow-y: auto;
   gap: 16px;
 }

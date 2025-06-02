@@ -32,7 +32,12 @@ export class BusinessInsightsComponent implements OnInit {
       this.menuService.updateHeader(newHeader);
     }, 50);
   }
-  visibleTabs: { label: string; component: string; role: string[] }[] = [
+  visibleTabs: {
+    label: string;
+    component: string;
+    role: string[];
+    disabled?: boolean;
+  }[] = [
     {
       label: 'Large Deal Tracker',
       component: 'app-large-deal',
@@ -53,10 +58,15 @@ export class BusinessInsightsComponent implements OnInit {
       component: 'app-issue-reporting',
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
+    // {
+    //   label: 'O2C 360',
+    //   component: 'app-02c-360',
+    //   role: ['ADMIN'],
+    // },
   ];
 
   selectedIndex: number = 0;
-  filteredTabs: { label: string; component: string }[] = [];
+  filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>

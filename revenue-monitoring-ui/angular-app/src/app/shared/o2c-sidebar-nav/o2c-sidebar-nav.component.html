@@ -1,0 +1,32 @@
+<div style="display: flex; height: calc(90vh - 78px)">
+  <div class="o2c-sidebar" [class.collapsed]="collapsed">
+    <button class="menu-button" (click)="toggleSidebar()">
+      <i class="fa fa-bars"></i>
+      <span *ngIf="!collapsed">Search Results</span>
+    </button>
+
+    <nav>
+      <div
+        class="nav-item"
+        *ngFor="let item of navItems"
+        [class.active]="item.label === activeItem"
+        (click)="selectItem(item.label)"
+      >
+        <i [class]="item.icon"></i>
+        <span *ngIf="!collapsed">{{ item.label }}</span>
+        <span *ngIf="!collapsed && item.count !== undefined" class="count">
+          {{ item.count }}
+        </span>
+      </div>
+    </nav>
+  </div>
+  <button class="collapse-toggle" (click)="toggleSidebar()">
+    <i
+      [ngClass]="
+        collapsed
+          ? 'chevron-icon chevron-alignment-close'
+          : 'chevron-icon chevron-alignment-open'
+      "
+    ></i>
+  </button>
+</div>

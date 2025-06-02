@@ -9,9 +9,8 @@ import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
 import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
-import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
+import { O2cLandingComponent } from './o2c-landing/o2c-landing.component';
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
@@ -29,6 +28,11 @@ import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
+import { CmsComponent } from './cms/cms.component';
+import { O2c360Component } from './o2c-360/o2c-360.component';
+// import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
+import { OrderManagementComponent } from './order-management/order-management.component';
+import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 
 const routes: Routes = [
   {
@@ -40,21 +44,21 @@ const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Home',
     },
   },
   {
     path: 'error',
     component: ErrorComponent,
-    data: { title: 'Operations Control Tower', header: '' },
+    data: { title: 'Finance IT Control Tower', header: '' },
   },
 
   {
     path: 'period-close-tracking',
     component: PeriodCloseTrackingComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -62,7 +66,7 @@ const routes: Routes = [
     path: 'period-close-tracking-midclose',
     component: MidcloseComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Period Close Tracking',
     },
   },
@@ -70,7 +74,7 @@ const routes: Routes = [
     path: 'large-deal-tracker',
     component: OrderLifecycleComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Large Deal Tracker',
     },
   },
@@ -78,7 +82,7 @@ const routes: Routes = [
     path: 'standard-revenue',
     component: StandardRevenueComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Standard Revenue',
     },
   },
@@ -86,7 +90,7 @@ const routes: Routes = [
     path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -94,7 +98,7 @@ const routes: Routes = [
     path: 'accruals',
     component: AccrualsComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Accruals',
     },
   },
@@ -102,7 +106,7 @@ const routes: Routes = [
     path: 'accounts',
     component: AccountReconComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Accounts',
     },
   },
@@ -110,7 +114,7 @@ const routes: Routes = [
     path: 'gl-posting',
     component: GlPostingComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -126,7 +130,7 @@ const routes: Routes = [
     path: 'case-analyzer',
     component: EspCaseAnalyzerComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'ESP Case Manager',
     },
   },
@@ -134,7 +138,7 @@ const routes: Routes = [
     path: 'pre-invoicing',
     component: PreInvoicingComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Pre-Invoicing',
     },
   },
@@ -142,7 +146,7 @@ const routes: Routes = [
     path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -150,7 +154,7 @@ const routes: Routes = [
     path: 'post-invoicing',
     component: PostInvoicingComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Post-Invoicing',
     },
   },
@@ -158,7 +162,7 @@ const routes: Routes = [
     path: 'einvoicing',
     component: EinvoicingComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'EInvoicing',
     },
   },
@@ -166,7 +170,7 @@ const routes: Routes = [
     path: 'fusion',
     component: FusionComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Fusion',
     },
   },
@@ -189,15 +193,7 @@ const routes: Routes = [
     component: O2cOrderComponent,
     data: { title: 'O2C Orders', header: 'O2C Orders', hideNavbar: true },
   },
-  {
-    path: 'o2c-sub',
-    component: O2cSubComponent,
-    data: {
-      title: 'O2C Subscriptions',
-      header: 'O2C Subscriptions',
-      hideNavbar: true,
-    },
-  },
+
   {
     path: 'o2c-accrual',
     component: O2cAccrualComponent,
@@ -212,6 +208,17 @@ const routes: Routes = [
     path: 'o2c-landing',
     component: O2cLandingComponent,
     data: { title: 'O2C Home', header: 'O2C Home', hideNavbar: true },
+  },
+  {
+    path: 'o2c-360',
+    component: O2c360Component,
+    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+  },
+
+  {
+    path: 'o2c-view-all',
+    component: O2cViewAllComponent,
+    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
   },
   {
     path: 'o2c-overview',
@@ -234,23 +241,23 @@ const routes: Routes = [
     path: 'opl',
     component: OplComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'OPL',
     },
   },
   {
-    path: 'opl',
-    component: OplComponent,
+    path: 'order-management',
+    component: OrderManagementComponent,
     data: {
-      title: 'Operations Control Tower',
-      header: 'OPL',
+      title: 'Finance IT Control Tower',
+      header: 'Order Management Monitoring',
     },
   },
   {
     path: 'wd0',
     component: Wd0DashComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Miclose Status',
     },
   },
@@ -258,7 +265,7 @@ const routes: Routes = [
     path: 'midclose-volumes',
     component: Wd0HistoricalDataComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Midclose Volumes',
     },
   },
@@ -266,8 +273,16 @@ const routes: Routes = [
     path: 'business-insights',
     component: BusinessInsightsComponent,
     data: {
-      title: 'Operations Control Tower',
+      title: 'Finance IT Control Tower',
       header: 'Business Insights',
+    },
+  },
+  {
+    path: 'cms',
+    component: CmsComponent,
+    data: {
+      title: 'Finance IT Control Tower',
+      header: 'CMS',
     },
   },
 ];

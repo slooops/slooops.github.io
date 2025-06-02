@@ -78,11 +78,11 @@ import { CommonModule } from '@angular/common';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
 import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
+// import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
 import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
-import { O2cLandingComponent } from './o2c-demo/o2c-landing/o2c-landing.component';
+import { O2cLandingComponent } from './o2c-landing/o2c-landing.component';
 import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-process-flow.component';
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { TableComponent } from './components/table/table.component';
@@ -104,7 +104,15 @@ import {
 } from './issue-reporting/issue-reporting.component';
 import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-upload.component';
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
+import { ModalComponent } from './components/modal/modal.component';
 import { TableModalComponent } from './components/table-modal/table-modal.component';
+import { O2c360Component } from './o2c-360/o2c-360.component';
+import { O2cSidebarNavComponent } from './shared/o2c-sidebar-nav/o2c-sidebar-nav.component';
+// import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
+import { OrderManagementComponent } from './order-management/order-management.component';
+// import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
+import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
+import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -154,7 +162,6 @@ export function initApp(authService: AuthenticationService) {
     GlPostingComponent,
     O2cDetailsComponent,
     O2cOrderComponent,
-    O2cSubComponent,
     O2cAccrualComponent,
     O2cInvoicingComponent,
     O2cNavComponent,
@@ -178,8 +185,15 @@ export function initApp(authService: AuthenticationService) {
     IssueUploadComponent,
     BulkApproveRejectComponent,
     TableModalComponent,
+    ModalComponent,
     StatusDialog,
     SummaryDialog,
+    O2c360Component,
+    O2cSidebarNavComponent,
+    OrderManagementComponent,
+    O2cViewAllComponent,
+    ModalComponent,
+    O2cSearchComponent,
   ],
   imports: [
     BrowserModule,

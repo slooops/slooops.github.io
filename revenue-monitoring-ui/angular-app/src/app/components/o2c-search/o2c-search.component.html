@@ -1,0 +1,20 @@
+<div class="custom-search-bar">
+  <select
+    class="custom-search-dropdown"
+    [value]="searchType"
+    (change)="onSearchTypeChange($event)"
+  >
+    <option value="order">Order Number</option>
+    <option value="subscription">Subscription #</option>
+    <option value="invoice">Invoice Number</option>
+  </select>
+
+  <input
+    class="custom-search-input"
+    [value]="searchValue"
+    (input)="onSearchValueChange($event)"
+    (keyup.enter)="onSearch()"
+  />
+
+  <i class="svg-icon search-icon" (click)="onSearch()"></i>
+</div>

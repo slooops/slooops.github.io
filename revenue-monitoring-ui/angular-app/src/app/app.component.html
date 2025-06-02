@@ -1,15 +1,7 @@
-<div class="row" *ngIf="showNavbar">
+<div class="row">
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
     <div style="width: 100%; display: flex; justify-content: space-between">
-      <span
-        style="
-          display: flex;
-          align-items: center;
-          padding: 0px 0 0px;
-          min-width: 500px;
-          max-width: 500px;
-        "
-      >
+      <span style="display: flex; align-items: center; padding: 0px 0 0px">
         <span
           style="
             display: flex;
@@ -87,7 +79,8 @@
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ])
               )
             "
@@ -97,7 +90,8 @@
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ]) || isAdmin$
               )
             "
@@ -111,9 +105,26 @@
             </a>
           </li>
 
-          <!-- Invoice to Cash -->
           <li
             class="menu-item"
+            *ngIf="
+              !(
+                hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ])
+              )
+            "
             [class.disabled]="
               !(
                 hasRole$([
@@ -133,22 +144,7 @@
               Business Insights
             </a>
           </li>
-
-          <!-- Revenue Accounting -->
-          <li
-            class="menu-item"
-            *ngIf="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) && !isAdmin$
-              )
-            "
-            [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
-          >
+          <li class="menu-item" *ngIf="isAdmin$">
             <a
               [routerLink]="'/case-analyzer'"
               class="top-link"
@@ -161,7 +157,7 @@
       </span>
 
       <span style="display: flex; align-items: center">
-        <div class="custom-search-bar">
+        <div class="custom-search-bar" *ngIf="showNavbar">
           <input
             type="text"
             placeholder="Search"
@@ -170,6 +166,8 @@
           />
           <i class="svg-icon search-icon"></i>
         </div>
+
+        <app-o2c-search *ngIf="!showNavbar"></app-o2c-search>
         <i
           class="fa fa-question-circle"
           aria-hidden="true"
@@ -274,6 +272,13 @@
     "
   >
     General Ledger
+  </button>
+  <button
+    mat-menu-item
+    [routerLink]="'/order-management'"
+    [disabled]="!(hasRole$(['ORDER_MANAGEMENT']) || isAdmin$)"
+  >
+    Order Management
   </button>
   <button mat-menu-item [routerLink]="''" [disabled]="true">
     Operations Controls

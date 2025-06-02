@@ -2,22 +2,34 @@
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
 >
-  <mat-tab *ngFor="let tab of filteredTabs; let i = index" [label]="tab.label">
+  <mat-tab
+    *ngFor="let tab of filteredTabs; let i = index"
+    [label]="tab.label"
+    [disabled]="tab.disabled"
+  >
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-large-deal'">
         <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>
       </ng-container>
+
       <ng-container *ngSwitchCase="'app-wd0-status'">
         <app-wd0-dash *ngIf="selectedIndex === i"></app-wd0-dash>
       </ng-container>
+
       <ng-container *ngSwitchCase="'app-wd0-historical-data'">
         <app-wd0-historical-data
           *ngIf="selectedIndex === i"
         ></app-wd0-historical-data>
       </ng-container>
+
       <ng-container *ngSwitchCase="'app-issue-reporting'">
         <app-issue-reporting *ngIf="selectedIndex === i"></app-issue-reporting>
       </ng-container>
+
+      <!-- <ng-container *ngSwitchCase="'app-o2c-360'">
+        <h5>Coming Soon!</h5>
+        <app-o2c-360 *ngIf="selectedIndex === i"></app-o2c-360>
+      </ng-container> -->
     </ng-container>
   </mat-tab>
 </mat-tab-group>
