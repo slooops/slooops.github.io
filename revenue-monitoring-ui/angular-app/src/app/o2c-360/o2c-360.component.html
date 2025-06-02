@@ -569,3 +569,22 @@
     </div>
   </ng-template>
 </app-modal>
+
+<div
+  class="o2c-welcome-overlay"
+  *ngIf="showWelcomeOverlay"
+  (click)="dismissOverlay()"
+>
+  <div class="welcome-card">
+    <h2>Welcome to the O2C 360 Search Engine 👋</h2>
+    <p>
+      Use the search bar <strong>in the top right</strong> to look up by Order
+      Number, Subscription Number, or Invoice Number. Just type and hit Enter!
+    </p>
+    <!-- <button class="dismiss-button" (click)="dismissOverlay()">Got it!</button> -->
+  </div>
+  <div class="arrow-container">
+    <div class="arrow-head"></div>
+    <div class="arrow-stem"></div>
+  </div>
+</div>

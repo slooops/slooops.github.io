@@ -20,6 +20,8 @@ export class O2c360Component implements OnInit {
   searchValue: string | null = null;
   searchType: string | null = null;
 
+  showWelcomeOverlay = false;
+
   orderId: string = '';
   subRefIds: string[] = [];
   invoiceIds: string[] = [];
@@ -165,6 +167,10 @@ export class O2c360Component implements OnInit {
       const orderIdList = this.orderId ? [this.orderId] : [];
       this.subRefIds = params.get('subRefIds')?.split(',') || [''];
       this.invoiceIds = params.get('invoiceIds')?.split(',') || [];
+
+      if (this.orderId === 'Search to get an') {
+        this.showWelcomeOverlay = true;
+      }
 
       if (params.get('searchType') === 'subscription') {
         this.expanded.subscription = true;
@@ -503,5 +509,9 @@ export class O2c360Component implements OnInit {
       !!this.subscriptionExceptionMessage ||
       !!this.invoiceExceptionMessage
     );
+  }
+
+  dismissOverlay(): void {
+    this.showWelcomeOverlay = false;
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { SearchContextService } from '../search-context.service';
 
 @Component({
   selector: 'app-business-insights',
@@ -10,7 +11,8 @@ import { MenuService } from '../providers/menu.service';
 export class BusinessInsightsComponent implements OnInit {
   constructor(
     private authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private searchContextService: SearchContextService
   ) {}
   roles: string[] = [];
 
@@ -30,6 +32,9 @@ export class BusinessInsightsComponent implements OnInit {
       this.selectedIndex = index; // Switch to the new tab
       const newHeader = `Business Insights > ${this.filteredTabs[index]?.label}`;
       this.menuService.updateHeader(newHeader);
+
+      const isO2c = this.filteredTabs[index]?.component === 'app-o2c-360';
+      this.searchContextService.setO2cSearchVisible(isO2c);
     }, 50);
   }
   visibleTabs: {
@@ -58,11 +63,11 @@ export class BusinessInsightsComponent implements OnInit {
       component: 'app-issue-reporting',
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
-    // {
-    //   label: 'O2C 360',
-    //   component: 'app-02c-360',
-    //   role: ['ADMIN'],
-    // },
+    {
+      label: 'O2C 360',
+      component: 'app-o2c-360',
+      role: ['ADMIN'],
+    },
   ];
 
   selectedIndex: number = 0;
