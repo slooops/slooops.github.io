@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
-import { SearchContextService } from '../search-context.service';
+import {
+  O2cSearchResult,
+  SearchContextService,
+} from '../search-context.service';
 
 @Component({
   selector: 'app-business-insights',
@@ -19,8 +22,22 @@ export class BusinessInsightsComponent implements OnInit {
   ngOnInit() {
     this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
+
+    this.searchContextService.searchPayload$.subscribe((payload) => {
+      if (payload) {
+        const o2cTabIndex = this.filteredTabs.findIndex(
+          (tab) => tab.component === 'app-o2c-360'
+        );
+        if (o2cTabIndex >= 0) {
+          this.selectedIndex = o2cTabIndex;
+          this.searchContextService.setO2cSearchVisible(true);
+          this.o2cSearchParams = payload; // store it for passing to child
+        }
+      }
+    });
   }
 
+  o2cSearchParams: O2cSearchResult | null = null;
   menuOpen = false;
 
   toggleMenu() {

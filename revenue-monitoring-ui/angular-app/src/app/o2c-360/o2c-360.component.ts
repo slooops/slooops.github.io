@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import {
+  SearchContextService,
+  O2cSearchResult,
+} from '../search-context.service';
 
 @Component({
   selector: 'app-o2c-360',
@@ -146,6 +150,26 @@ export class O2c360Component implements OnInit {
   ) {}
 
   sidebarExpanded = true;
+  @Input() searchParams: O2cSearchResult | null = null;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['searchParams']?.currentValue) {
+      const { searchType, orderId, subRefIds, invoiceIds } = this.searchParams!;
+
+      this.loadData(orderId, subRefIds, invoiceIds);
+
+      this.expanded = {
+        subscription: false,
+        invoice: false,
+      };
+
+      if (searchType === 'subscription') {
+        this.expanded.subscription = true;
+      } else if (searchType === 'invoice') {
+        this.expanded.invoice = true;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.sidebarService.isExpanded$.subscribe((isExpanded) => {
@@ -160,35 +184,45 @@ export class O2c360Component implements OnInit {
       }
     });
 
-    this.route.queryParamMap.subscribe((params) => {
-      console.log('Query Params:', params);
+    // Only listen to query params if this wasn't initialized via @Input()
+    if (!this.searchParams) {
+      this.route.queryParamMap.subscribe((params) => {
+        const orderId = params.get('orderId') || 'Search to get an';
+        const subRefIds = params.get('subRefIds')?.split(',') || [''];
+        const invoiceIds = params.get('invoiceIds')?.split(',') || [];
 
-      this.orderId = params.get('orderId') || 'Search to get an';
-      const orderIdList = this.orderId ? [this.orderId] : [];
-      this.subRefIds = params.get('subRefIds')?.split(',') || [''];
-      this.invoiceIds = params.get('invoiceIds')?.split(',') || [];
+        this.loadData(orderId, subRefIds, invoiceIds);
 
-      if (this.orderId === 'Search to get an') {
-        this.showWelcomeOverlay = true;
-      }
+        const searchType = params.get('searchType');
+        if (searchType === 'subscription') {
+          this.expanded.subscription = true;
+        } else if (searchType === 'invoice') {
+          this.expanded.invoice = true;
+        }
+      });
+    }
+  }
 
-      if (params.get('searchType') === 'subscription') {
-        this.expanded.subscription = true;
-      } else if (params.get('searchType') === 'invoice') {
-        this.expanded.invoice = true;
-      }
+  private loadData(
+    orderId: string,
+    subRefIds: string[],
+    invoiceIds: string[]
+  ): void {
+    this.orderId = orderId || 'Search to get an';
+    this.subRefIds = subRefIds;
+    this.invoiceIds = invoiceIds;
 
-      console.log('Received in O2C-360:');
-      console.log('Order:', this.orderId);
-      console.log('Subscriptions:', this.subRefIds);
-      console.log('Invoices:', this.invoiceIds);
+    if (this.orderId === 'Search to get an') {
+      this.showWelcomeOverlay = true;
+    } else {
+      this.showWelcomeOverlay = false;
+    }
 
-      this.getOrderSummary(orderIdList);
-      this.getSubscriptionSummary(this.subRefIds);
-      this.getSubscriptionLineSummary(this.subRefIds);
-      this.getInvoiceSummary(this.invoiceIds);
-      this.getInvoiceLineSummary(this.invoiceIds);
-    });
+    this.getOrderSummary([orderId]);
+    this.getSubscriptionSummary(subRefIds);
+    this.getSubscriptionLineSummary(subRefIds);
+    this.getInvoiceSummary(invoiceIds);
+    this.getInvoiceLineSummary(invoiceIds);
   }
 
   private getOrderSummary(orderIdList: any): void {
