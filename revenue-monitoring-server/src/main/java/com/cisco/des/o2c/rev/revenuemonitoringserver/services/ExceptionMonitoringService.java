@@ -636,7 +636,9 @@ public class ExceptionMonitoringService {
         String comments = updateData.get("comments");
         String timestamp = updateData.get("timestamp");
         String scenario = updateData.get("scenario");
-        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments);
+        String status = updateData.get("status");
+        System.out.println(updateData);
+        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments, status);
         return 1;
     }
     public List<Map<String, Object>> getOMDetailsDataFiltered(String collection, String timestamp, String scenario) {
@@ -644,6 +646,7 @@ public class ExceptionMonitoringService {
         List<Map<String, Object>> result = mongoDBManager.getFilteredData(collection, timestamp, scenario);
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
+            data.remove("assigned_data");
         });
         return result;
     }
@@ -653,7 +656,7 @@ public class ExceptionMonitoringService {
         String[] dateColumns = { "assigned_date"};
         List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
         result.forEach(data -> {
-            formatDateColumns(data, dateColumns);
+            data.remove("assigned_date");
         });
         return result;
     }
@@ -677,6 +680,7 @@ public class ExceptionMonitoringService {
             }
             data.clear();
             data.putAll(reorderedData);
+            data.remove("closed_date");
         });
         return result;
     }
@@ -922,7 +926,7 @@ public class ExceptionMonitoringService {
             Map<String, Object> reorderedData = new LinkedHashMap<>();
             int index = 0;
             for (Map.Entry<String, Object> entry : data.entrySet()) {
-                if (index == 6) {
+                if (index == 5) {
                     reorderedData.put("AGING", calculateAging(data.get("SRT_DATE")));
                 }
                 reorderedData.put(entry.getKey(), entry.getValue());
@@ -1204,34 +1208,38 @@ public class ExceptionMonitoringService {
                 DateTimeFormatter.ofPattern("MM/dd/yyyy"),
                 DateTimeFormatter.ofPattern("MM-dd-yyyy"),
                 DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
-                DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+                DateTimeFormatter.ofPattern("yyyy/MM/dd")
         );
 
         for (String column : dateColumns) {
             Object value = data.get(column);
             if (value != null) {
-                String rawDate = value.toString().split(" ")[0].length() > 10 ? value.toString() : value.toString().split(" ")[0];
+                String rawDate = value.toString();
                 boolean parsed = false;
 
+                // Try DateTimeFormatter-based parsers
                 for (DateTimeFormatter formatter : inputFormatters) {
                     try {
-                        ZonedDateTime zonedDate = ZonedDateTime.parse(rawDate, formatter);
-                        data.put(column, outputFormatter.format(zonedDate));
+                        LocalDate localDate = LocalDate.parse(rawDate, formatter);
+                        data.put(column, outputFormatter.format(localDate));
                         parsed = true;
                         break;
-                    } catch (Exception e1) {
-                        try {
-                            LocalDate localDate = LocalDate.parse(rawDate, formatter);
-                            data.put(column, outputFormatter.format(localDate));
-                            parsed = true;
-                            break;
-                        } catch (Exception ignored) {}
-                    }
+                    } catch (Exception ignored) {}
+                }
+
+                // Try parsing using SimpleDateFormat for java.util.Date.toString() format
+                if (!parsed) {
+                    try {
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                        Date utilDate = sdf.parse(rawDate);
+                        LocalDate date = utilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                        data.put(column, outputFormatter.format(date));
+                        parsed = true;
+                    } catch (Exception ignored) {}
                 }
 
                 if (!parsed) {
-                    data.put(column, value.toString());
+                    data.put(column, rawDate); // Leave as is
                 }
             } else {
                 data.put(column, "");

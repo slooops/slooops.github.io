@@ -40,10 +40,17 @@ public class MongoDBManager {
         return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, collection));
     }
 
-    public long updateSummaryData(String collection, String timestamp, String scenario, String assignedTo, String comments) {
+    public long updateSummaryData(String collection, String timestamp, String scenario, String assignedTo, String comments, String status) {
         Query query = new Query();
         query.addCriteria(Criteria.where("timestamp").is(timestamp).and("scenario").is(scenario));
-        Update update = new Update().set("assigned_to", assignedTo).set("comments", comments);
+        Update update = new Update()
+                .set("assigned_to", assignedTo)
+                .set("comments", comments)
+                .set("status", status);  // Set this *before* conditional logic
+
+        if ("In Progress".equals(status)) {
+            update.set("assigned_date", new Date());
+        }
         UpdateResult result = mongoTemplate.updateMulti(query, update, collection);
         return result.getModifiedCount();
     }
