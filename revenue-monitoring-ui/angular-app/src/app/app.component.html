@@ -146,11 +146,11 @@
           </li>
           <li class="menu-item" *ngIf="isAdmin$">
             <a
-              [routerLink]="'/case-analyzer'"
+              [matMenuTriggerFor]="espMenu"
               class="top-link"
               style="font-weight: 500"
             >
-              ESP Case Manager
+              Case Manager
             </a>
           </li>
         </ul>
@@ -282,5 +282,22 @@
   </button>
   <button mat-menu-item [routerLink]="''" [disabled]="true">
     Operations Controls
+  </button>
+</mat-menu>
+
+<mat-menu #espMenu="matMenu">
+  <button
+    mat-menu-item
+    [routerLink]="'/esp-case-analyzer'"
+    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+  >
+    I2C
+  </button>
+  <button
+    mat-menu-item
+    [routerLink]="'/sbp-case-analyzer'"
+    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+  >
+    SBP
   </button>
 </mat-menu>

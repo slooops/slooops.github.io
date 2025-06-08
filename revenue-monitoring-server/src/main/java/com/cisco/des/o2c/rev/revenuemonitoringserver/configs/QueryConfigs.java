@@ -270,6 +270,15 @@ public class QueryConfigs {
     @Value(("${esp.weekly.comparison.summary.q}"))
     public String espWeeklyComparisonSummary;
 
+    @Value(("${sbp.esp.aging.case.summary.q}"))
+    public String sbpEspAgingCaseSummary;
+
+    @Value(("${sbp.esp.case.service.metric.summary.q}"))
+    public String sbpEspCaseServiceMetricSummary;
+
+    @Value(("${sbp.esp.weekly.comparison.summary.q}"))
+    public String sbpEspWeeklyComparisonSummary;
+
     @Value(("${einvoicing.details.filtered.q}"))
     public String einvoicingDetailsFiltered;
 
@@ -988,10 +997,23 @@ public class QueryConfigs {
         return this.espWeeklyComparisonSummary;
     }
 
-    @Bean(name = "tspAccountSummaryView")
-    public String getTspAccountSummaryView() {
-        return this.tspAccountSummaryView;
+    @Bean(name = "sbpEspAgingCaseSummary")
+    public String getSbpEspAgingCaseSummary() {
+        return this.sbpEspAgingCaseSummary;
     }
+
+    @Bean(name = "sbpEspCaseServiceMetricSummary")
+    public String getSbpEspCaseServiceMetricSummary() {
+        return this.sbpEspCaseServiceMetricSummary;
+    }
+
+    @Bean(name = "sbpEspWeeklyComparisonSummary")
+    public String getSbpEspWeeklyComparisonSummary() {
+        return this.sbpEspWeeklyComparisonSummary;
+    }
+
+    @Bean( name = "tspAccountSummaryView" )
+    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
 
     @Bean(name = "tspAccountDetailView")
     public String getTspAccountDetailView() {
