@@ -127,7 +127,7 @@ const routes: Routes = [
   //   },
   // },
   {
-    path: 'esp-case-analyzer',
+    path: 'i2c-case-analyzer',
     component: EspCaseAnalyzerComponent,
     data: {
       title: 'Finance IT Control Tower',
