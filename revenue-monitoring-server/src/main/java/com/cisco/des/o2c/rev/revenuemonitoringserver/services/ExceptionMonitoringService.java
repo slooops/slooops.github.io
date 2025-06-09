@@ -777,10 +777,10 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getCreditCardSummary() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(creditCardSummary);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
 //            Map<String, Object> reorderedData = new LinkedHashMap<>();
 //            int index = 0;
 //            for (Map.Entry<String, Object> entry : data.entrySet()) {
@@ -795,16 +795,16 @@ public class ExceptionMonitoringService {
 //            }
 //            data.clear();
 //            data.putAll(reorderedData);
-//        });
+        });
         return result;
     }
 
     public List<Map<String, Object>> getCreditCardDetails() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(creditCardDetails);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//        });
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
         return result;
     }
 

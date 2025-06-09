@@ -98,16 +98,11 @@
               [processFlowKeys]="cmAmortTotals"
               [periodStatus]="periodStatus"
               [componentName]="'CM Amortization'"
-              [processFlowTabsToDisplay]="[
-                'Pre-Invoicing',
-                'Auto-Invoicing',
-                'CM Amortization',
-                'Print'
-              ]"
+              [processFlowTabsToDisplay]="['CM Amortization']"
               [specialWords]="specialWords"
               [skippedWords]="skippedWords"
-              [dynamicTemplate]="dynamicTemplate"
-              [dynamicCss]="invoicingprocessflowCss"
+              [dynamicTemplate]="cmAmortTemplate"
+              [dynamicCss]="cmAmortprocessflowCss"
               [isSubAppMapping]="false"
               [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
@@ -147,8 +142,8 @@
               ]"
               [specialWords]="specialWords"
               [skippedWords]="skippedWords"
-              [dynamicTemplate]="dynamicTemplate"
-              [dynamicCss]="invoicingprocessflowCss"
+              [dynamicTemplate]="printTemplate"
+              [dynamicCss]="printTotalsprocessflowCss"
               [isSubAppMapping]="false"
               [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
@@ -180,11 +175,11 @@
               [processFlowKeys]="creditCardTotals"
               [periodStatus]="periodStatus"
               [componentName]="'Credit Card'"
-              [processFlowTabsToDisplay]="[]"
+              [processFlowTabsToDisplay]="['Credit Card']"
               [specialWords]="specialWords"
               [skippedWords]="skippedWords"
-              [dynamicTemplate]=""
-              [dynamicCss]=""
+              [dynamicTemplate]="creditCardTemplate"
+              [dynamicCss]="creditCardprocessflowCss"
               [isSubAppMapping]="false"
               [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
@@ -208,11 +203,11 @@
               [processFlowKeys]="srtTotals"
               [periodStatus]="periodStatus"
               [componentName]="'SRT Process'"
-              [processFlowTabsToDisplay]="[]"
+              [processFlowTabsToDisplay]="['SRT Process']"
               [specialWords]="specialWords"
               [skippedWords]="skippedWords"
-              [dynamicTemplate]=""
-              [dynamicCss]=""
+              [dynamicTemplate]="srtProcessTemplate"
+              [dynamicCss]="srtProcessprocessflowCss"
               [isSubAppMapping]="false"
               [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="srtFilters"
@@ -236,11 +231,11 @@
               [processFlowKeys]="rpoTotals"
               [periodStatus]="periodStatus"
               [componentName]="'RPO Extract'"
-              [processFlowTabsToDisplay]="[]"
+              [processFlowTabsToDisplay]="['RPO Extract']"
               [specialWords]="specialWords"
               [skippedWords]="skippedWords"
-              [dynamicTemplate]=""
-              [dynamicCss]=""
+              [dynamicTemplate]="rpoExtractTemplate"
+              [dynamicCss]="rpoExtractprocessflowCss"
               [isSubAppMapping]="false"
               [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="rpoFilters"
@@ -576,7 +571,7 @@
         </div>
 
         <div
-          *ngIf="i < formattedFusionSteps.length - 1"
+          *ngIf="i < formattedCreditCheckSteps.length - 1"
           class="chevron-wrapper-loop"
         >
           <div class="chevron"></div>
@@ -587,6 +582,130 @@
   </div>
 </ng-template>
 
+<ng-template #creditCardTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedCreditCardSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Credit Card']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedCreditCardSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #rpoExtractTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedRPOExtractSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['RPO Extract']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedRPOExtractSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #srtProcessTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedSRTProcessSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['SRT Process']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedSRTProcessSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #cmAmortTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedCMAmortizationSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['CM Amortization']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedCMAmortizationSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #printTemplate let-allTotals="allTotals">
+  <div class="flowchart-container">
+    <div class="slider-bar">
+      <div *ngFor="let step of formattedPrintSteps; let i = index">
+        <div class="circle-wrapper-loop">
+          <p class="circle-caption-loop">{{ step.label }}</p>
+          <p class="circle-loop"></p>
+          <p class="circle-subcaption">
+            Total Impact:
+            {{ allTotals['Print']?.[step.impact] || 'N/A' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="i < formattedPrintSteps.length - 1"
+          class="chevron-wrapper-loop"
+        >
+          <div class="chevron"></div>
+          <div class="chevron-white"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
 <div
   style="display: flex; justify-content: center; align-items: center !important"
 >
