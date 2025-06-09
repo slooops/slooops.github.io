@@ -193,9 +193,14 @@ export class MonitoringDashboardComponent<T>
                 maximumFractionDigits: 2,
               }
             )}M`
-          : `$${this.processFlowKeys[key].toLocaleString(undefined, {
+          : this.componentName !== 'Credit Check Process'
+          ? `$${this.processFlowKeys[key].toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
+            })}`
+          : `${this.processFlowKeys[key].toLocaleString(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
             })}`;
     });
 

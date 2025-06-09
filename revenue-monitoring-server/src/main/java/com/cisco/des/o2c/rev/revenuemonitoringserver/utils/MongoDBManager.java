@@ -46,10 +46,12 @@ public class MongoDBManager {
         Update update = new Update()
                 .set("assigned_to", assignedTo)
                 .set("comments", comments)
-                .set("status", status);  // Set this *before* conditional logic
+                .set("status", status);
 
         if ("In Progress".equals(status)) {
             update.set("assigned_date", new Date());
+        } else if ("Closed".equals(status)) {
+            update.set("closed_date", new Date());
         }
         UpdateResult result = mongoTemplate.updateMulti(query, update, collection);
         return result.getModifiedCount();

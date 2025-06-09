@@ -1210,16 +1210,14 @@ public class ExceptionMonitoringService {
                 DateTimeFormatter.ofPattern("dd/MM/yyyy"),
                 DateTimeFormatter.ofPattern("yyyy/MM/dd"),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
-
         );
 
         for (String column : dateColumns) {
             Object value = data.get(column);
             if (value != null) {
-                String rawDate = value.toString();
+                String rawDate = value.toString().split(" ")[0].length() > 10 ? value.toString() : value.toString().split(" ")[0];
                 boolean parsed = false;
 
-                // Try DateTimeFormatter-based parsers
                 for (DateTimeFormatter formatter : inputFormatters) {
                     try {
                         LocalDate localDate = LocalDate.parse(rawDate, formatter);
@@ -1229,11 +1227,10 @@ public class ExceptionMonitoringService {
                     } catch (Exception ignored) {}
                 }
 
-                // Try parsing using SimpleDateFormat for java.util.Date.toString() format
                 if (!parsed) {
                     try {
                         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
-                        Date utilDate = sdf.parse(rawDate);
+                        Date utilDate = sdf.parse(value.toString());
                         LocalDate date = utilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                         data.put(column, outputFormatter.format(date));
                         parsed = true;
@@ -1241,7 +1238,7 @@ public class ExceptionMonitoringService {
                 }
 
                 if (!parsed) {
-                    data.put(column, rawDate); // Leave as is
+                    data.put(column, rawDate);
                 }
             } else {
                 data.put(column, "");

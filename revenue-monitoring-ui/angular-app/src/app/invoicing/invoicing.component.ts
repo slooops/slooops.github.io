@@ -405,7 +405,9 @@ export class InvoicingComponent implements OnInit {
     subAppMapping: boolean;
   }[] = [];
 
-  rpoTotals: { [key: string]: number } = {};
+  rpoTotals: { [key: string]: number } = {
+    'Billing Pending': 0,
+  };
 
   srtFilters: {
     formControlName: string;
@@ -414,7 +416,9 @@ export class InvoicingComponent implements OnInit {
     subAppMapping: boolean;
   }[] = [];
 
-  srtTotals: { [key: string]: number } = {};
+  srtTotals: { [key: string]: number } = {
+    SAASTerminateNotify: 0,
+  };
 
   fusionFilters: {
     formControlName: string;
@@ -506,7 +510,6 @@ export class InvoicingComponent implements OnInit {
     })
   );
 
-  // Function to format the label
   formatLabel(label: string): string {
     const acronyms = this.skippedWords || [];
 
