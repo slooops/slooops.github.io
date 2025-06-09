@@ -169,7 +169,7 @@ export class MonitoringDashboardComponent<T>
         const processFlowKey = item.PROCESS_FLOW;
         if (this.processFlowKeys.hasOwnProperty(processFlowKey)) {
           if (!this.summaryColumns.includes('AMOUNT')) {
-            this.processFlowKeys[processFlowKey] += Number(item.BALANCE);
+            this.processFlowKeys[processFlowKey] += Number(item.ORDER_COUNT);
           } else {
             this.processFlowKeys[processFlowKey] += Number(item.AMOUNT);
           }
