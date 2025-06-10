@@ -114,6 +114,7 @@ import { OrderManagementComponent } from './order-management/order-management.co
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
 import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { ChatbotComponent } from './chatbot/chatbot.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -195,6 +196,7 @@ export function initApp(authService: AuthenticationService) {
     ModalComponent,
     O2cSearchComponent,
     SbpEspCaseAnalyzerComponent,
+    ChatbotComponent,
   ],
   imports: [
     BrowserModule,

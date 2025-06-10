@@ -166,6 +166,70 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
+  rpoExtractFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subscriptionId',
+      columnName: 'SUBSCRIPTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  srtProcessFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subscriptionId',
+      columnName: 'SUBSCRIPTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionList',
+      columnName: 'TRANSACTION_LIST',
+      type: 'select',
+      subAppMapping: false,
+    },
+  ];
+
   postInvoicingFilters: {
     formControlName: string;
     columnName: string;
@@ -335,7 +399,7 @@ export class InvoicingComponent implements OnInit {
   creditCardUrls: { [key: string]: string } = {
     summaryUrl: 'credit-card-error-summary',
     detailsUrl: 'credit-card-error-details',
-    filteredDetailsUrl: '',
+    filteredDetailsUrl: 'credit-card-error-details-filtered',
     summaryUpdateUrl: '',
     webexMessageUrl: '',
     chartTotalsUrl: '',
@@ -412,23 +476,9 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  rpoFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [];
-
   rpoTotals: { [key: string]: number } = {
     'Billing Pending': 0,
   };
-
-  srtFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [];
 
   srtTotals: { [key: string]: number } = {
     SAASTerminateNotify: 0,

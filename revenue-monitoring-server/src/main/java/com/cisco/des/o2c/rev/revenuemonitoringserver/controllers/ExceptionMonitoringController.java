@@ -443,14 +443,33 @@ public class ExceptionMonitoringController {
         return new ResponseEntity<>(service.getCreditCardDetails(), HttpStatus.OK);
     }
 
-    @GetMapping("/debit-card-error-summary")
-    public ResponseEntity<List<Map<String, Object>>> getDebitCardErrorSummary() {
-        return new ResponseEntity<>(service.getDebitCardSummary(), HttpStatus.OK);
-    }
+    @GetMapping("/credit-card-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getCreditCardErrorDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> transactionDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
 
-    @GetMapping("/debit-card-error-details")
-    public ResponseEntity<List<Map<String, Object>>> getDebitCardErrorDetails() {
-        return new ResponseEntity<>(service.getDebitCardDetails(), HttpStatus.OK);
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                String processFlow = processFlows.get(i);
+                List<Map<String, Object>> result = service.getCreditCardDetailsFiltered(periodName, appName, processFlow, ouName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @GetMapping("/rpo-extract-error-summary")

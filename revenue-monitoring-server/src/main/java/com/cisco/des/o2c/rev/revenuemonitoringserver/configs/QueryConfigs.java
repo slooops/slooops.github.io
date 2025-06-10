@@ -355,10 +355,10 @@ public class QueryConfigs {
     public String creditCardSummary;
     @Value(("${credit.card.details}"))
     public String creditCardDetails;
-    @Value(("${debit.card.summary}"))
-    public String debitCardSummary;
-    @Value(("${debit.card.details}"))
-    public String debitCardDetails;
+    @Value(("${credit.card.details.filtered}"))
+    public String creditCardDetailsFiltered;
+    @Value(("${credit.card.summary.update}"))
+    public String creditCardSummaryUpdate;
 
     @Value(("${issue.reporting.dash}"))
     public String issueReportingDash;
@@ -431,16 +431,16 @@ public class QueryConfigs {
     public String getCreditCardDetails() {
         return this.creditCardDetails;
     }
-
-    @Bean(name = "debitCardSummary")
-    public String getDebitCardSummary() {
-        return this.debitCardSummary;
+    @Bean(name = "creditCardDetailsFiltered")
+    public String getCreditCardDetailsFiltered() {
+        return this.creditCardDetailsFiltered;
     }
 
-    @Bean(name = "debitCardDetails")
-    public String getDebitCardDetails() {
-        return this.debitCardDetails;
+    @Bean(name = "creditCardSummaryUpdate")
+    public String getCreditCardSummaryUpdate() {
+        return this.creditCardSummaryUpdate;
     }
+
 
     @Bean(name = "printSummary")
     public String getPrintSummary() {
