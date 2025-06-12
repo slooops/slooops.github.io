@@ -168,8 +168,10 @@ export class MonitoringDashboardComponent<T>
       if (item.PROCESS_FLOW !== null) {
         const processFlowKey = item.PROCESS_FLOW;
         if (this.processFlowKeys.hasOwnProperty(processFlowKey)) {
-          if (!this.summaryColumns.includes('AMOUNT')) {
-            this.processFlowKeys[processFlowKey] += Number(item.BALANCE);
+          if (this.componentName === 'Credit Check Process') {
+            this.processFlowKeys[processFlowKey] += Number(item.ORDER_COUNT);
+          } else if (this.componentName === 'SRT Process') {
+            this.processFlowKeys[processFlowKey] += Number(item.TRXN_COUNT);
           } else {
             this.processFlowKeys[processFlowKey] += Number(item.AMOUNT);
           }
@@ -193,9 +195,15 @@ export class MonitoringDashboardComponent<T>
                 maximumFractionDigits: 2,
               }
             )}M`
-          : `$${this.processFlowKeys[key].toLocaleString(undefined, {
+          : this.componentName !== 'Credit Check Process' &&
+            this.componentName !== 'SRT Process'
+          ? `$${this.processFlowKeys[key].toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
+            })}`
+          : `${this.processFlowKeys[key].toLocaleString(undefined, {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0,
             })}`;
     });
 

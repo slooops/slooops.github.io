@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class PeriodCloseMonitoringService {
@@ -66,6 +65,9 @@ public class PeriodCloseMonitoringService {
     private String wd0MidcloseActualsProduct;
     private String wd0MidcloseActualsService;
     private String issueReportingDashSummary;
+    private String sbpEspAgingCaseSummary;
+    private String sbpEspCaseServiceMetricSummary;
+    private String sbpEspWeeklyComparisonSummary;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -82,7 +84,9 @@ public class PeriodCloseMonitoringService {
                                         String issueReportingDashInsert, String issueReportingDashApprove,
                                         String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate,
                                         String wd0MidcloseActualsProduct, String wd0MidcloseActualsService,
-                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate, String issueReportingDashSummary) {
+                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate,
+                                        String issueReportingDashSummary, String sbpEspAgingCaseSummary,
+                                        String sbpEspCaseServiceMetricSummary, String sbpEspWeeklyComparisonSummary) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -125,6 +129,9 @@ public class PeriodCloseMonitoringService {
         this.wd0MidcloseActualsProduct = wd0MidcloseActualsProduct;
         this.wd0MidcloseActualsService = wd0MidcloseActualsService;
         this.issueReportingDashSummary = issueReportingDashSummary;
+        this.sbpEspAgingCaseSummary = sbpEspAgingCaseSummary;
+        this.sbpEspCaseServiceMetricSummary = sbpEspCaseServiceMetricSummary;
+        this.sbpEspWeeklyComparisonSummary = sbpEspWeeklyComparisonSummary;
     }
 
     public List<Map<String, Object>> getIssueReportingData() {
@@ -753,6 +760,18 @@ public class PeriodCloseMonitoringService {
 
     public List<Map<String, Object>> getEspAgingCaseSummary() {
         return jdbcManager.queryForList(espAgingCaseSummary);
+    }
+
+    public List<Map<String, Object>> getSbpEspCaseServiceMetricSummary() {
+        return jdbcManager.queryForList(sbpEspCaseServiceMetricSummary);
+    }
+
+    public List<Map<String, Object>> getSbpEspWeeklyComparisonSummary() {
+        return jdbcManager.queryForList(sbpEspWeeklyComparisonSummary);
+    }
+
+    public List<Map<String, Object>> getSbpEspAgingCaseSummary() {
+        return jdbcManager.queryForList(sbpEspAgingCaseSummary);
     }
 
     private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {

@@ -15,7 +15,6 @@ import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.compo
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
 import { OplComponent } from './opl/opl.component';
-import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { StandardRevenueComponent } from './standard-revenue/standard-revenue.component';
@@ -34,6 +33,7 @@ import { O2c360Component } from './o2c-360/o2c-360.component';
 // import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
+import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
 
 const routes: Routes = [
   {
@@ -128,8 +128,16 @@ const routes: Routes = [
   //   },
   // },
   {
-    path: 'case-analyzer',
+    path: 'i2c-case-analyzer',
     component: EspCaseAnalyzerComponent,
+    data: {
+      title: 'Finance IT Control Tower',
+      header: 'ESP Case Manager',
+    },
+  },
+  {
+    path: 'sbp-case-analyzer',
+    component: SbpEspCaseAnalyzerComponent,
     data: {
       title: 'Finance IT Control Tower',
       header: 'ESP Case Manager',

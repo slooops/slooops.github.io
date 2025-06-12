@@ -197,6 +197,11 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
     }
 
+    public List<Map<String, Object>> getCreditCardDetailsFiltered(String sql, String periodName,
+                                                             String appName, String processFlow, String ouName, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
+    }
+
     public List<Map<String, Object>> getRPOExtractDetailsFiltered(String sql, String periodName,
             String appName, String processFlow, String ouName, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);

@@ -270,6 +270,15 @@ public class QueryConfigs {
     @Value(("${esp.weekly.comparison.summary.q}"))
     public String espWeeklyComparisonSummary;
 
+    @Value(("${sbp.esp.aging.case.summary.q}"))
+    public String sbpEspAgingCaseSummary;
+
+    @Value(("${sbp.esp.case.service.metric.summary.q}"))
+    public String sbpEspCaseServiceMetricSummary;
+
+    @Value(("${sbp.esp.weekly.comparison.summary.q}"))
+    public String sbpEspWeeklyComparisonSummary;
+
     @Value(("${einvoicing.details.filtered.q}"))
     public String einvoicingDetailsFiltered;
 
@@ -346,10 +355,10 @@ public class QueryConfigs {
     public String creditCardSummary;
     @Value(("${credit.card.details}"))
     public String creditCardDetails;
-    @Value(("${debit.card.summary}"))
-    public String debitCardSummary;
-    @Value(("${debit.card.details}"))
-    public String debitCardDetails;
+    @Value(("${credit.card.details.filtered}"))
+    public String creditCardDetailsFiltered;
+    @Value(("${credit.card.summary.update}"))
+    public String creditCardSummaryUpdate;
 
     @Value(("${issue.reporting.dash}"))
     public String issueReportingDash;
@@ -422,16 +431,16 @@ public class QueryConfigs {
     public String getCreditCardDetails() {
         return this.creditCardDetails;
     }
-
-    @Bean(name = "debitCardSummary")
-    public String getDebitCardSummary() {
-        return this.debitCardSummary;
+    @Bean(name = "creditCardDetailsFiltered")
+    public String getCreditCardDetailsFiltered() {
+        return this.creditCardDetailsFiltered;
     }
 
-    @Bean(name = "debitCardDetails")
-    public String getDebitCardDetails() {
-        return this.debitCardDetails;
+    @Bean(name = "creditCardSummaryUpdate")
+    public String getCreditCardSummaryUpdate() {
+        return this.creditCardSummaryUpdate;
     }
+
 
     @Bean(name = "printSummary")
     public String getPrintSummary() {
@@ -988,10 +997,23 @@ public class QueryConfigs {
         return this.espWeeklyComparisonSummary;
     }
 
-    @Bean(name = "tspAccountSummaryView")
-    public String getTspAccountSummaryView() {
-        return this.tspAccountSummaryView;
+    @Bean(name = "sbpEspAgingCaseSummary")
+    public String getSbpEspAgingCaseSummary() {
+        return this.sbpEspAgingCaseSummary;
     }
+
+    @Bean(name = "sbpEspCaseServiceMetricSummary")
+    public String getSbpEspCaseServiceMetricSummary() {
+        return this.sbpEspCaseServiceMetricSummary;
+    }
+
+    @Bean(name = "sbpEspWeeklyComparisonSummary")
+    public String getSbpEspWeeklyComparisonSummary() {
+        return this.sbpEspWeeklyComparisonSummary;
+    }
+
+    @Bean( name = "tspAccountSummaryView" )
+    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
 
     @Bean(name = "tspAccountDetailView")
     public String getTspAccountDetailView() {

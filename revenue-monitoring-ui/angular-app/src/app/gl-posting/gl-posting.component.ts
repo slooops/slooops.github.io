@@ -135,7 +135,7 @@ export class GlPostingComponent implements OnInit {
   }
 
   glTotals: { [key: string]: number } = {
-    '2 - GL Interface': 0,
+    '1 - CG1- CFN GL Batch Copy	': 0,
   };
 
   glFilters: {

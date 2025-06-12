@@ -166,6 +166,70 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
+  rpoExtractFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subscriptionId',
+      columnName: 'SUBSCRIPTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionId',
+      columnName: 'TRANSACTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
+  srtProcessFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'subscriptionId',
+      columnName: 'SUBSCRIPTION_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'transactionList',
+      columnName: 'TRANSACTION_LIST',
+      type: 'select',
+      subAppMapping: false,
+    },
+  ];
+
   postInvoicingFilters: {
     formControlName: string;
     columnName: string;
@@ -222,18 +286,32 @@ export class InvoicingComponent implements OnInit {
     'CM Amortization': 0,
   };
 
+  formattedCMAmortizationSteps = Object.keys(this.cmAmortTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: key,
+  }));
+
   printTotals: { [key: string]: number } = {
-    Print: 0,
+    'B2B, Email': 0,
+    FTP: 0,
+    B2B: 0,
+    Email: 0,
   };
+
+  formattedPrintSteps = Object.keys(this.printTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: key,
+  }));
 
   creditCardTotals: { [key: string]: number } = {
     'Credit Card Recurring': 0,
-    'Credit Card One Time': 0,
+    'Debit Card One Time': 0,
   };
 
-  debitCardTotals: { [key: string]: number } = {
-    'Debit Card': 0,
-  };
+  formattedCreditCardSteps = Object.keys(this.creditCardTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: key,
+  }));
 
   autoInvoicingTotals: { [key: string]: number } = {
     '3 - Auto Invoice': 0,
@@ -321,7 +399,7 @@ export class InvoicingComponent implements OnInit {
   creditCardUrls: { [key: string]: string } = {
     summaryUrl: 'credit-card-error-summary',
     detailsUrl: 'credit-card-error-details',
-    filteredDetailsUrl: '',
+    filteredDetailsUrl: 'credit-card-error-details-filtered',
     summaryUpdateUrl: '',
     webexMessageUrl: '',
     chartTotalsUrl: '',
@@ -398,23 +476,13 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  rpoFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [];
+  rpoTotals: { [key: string]: number } = {
+    'Billing Pending': 0,
+  };
 
-  rpoTotals: { [key: string]: number } = {};
-
-  srtFilters: {
-    formControlName: string;
-    columnName: string;
-    type: string;
-    subAppMapping: boolean;
-  }[] = [];
-
-  srtTotals: { [key: string]: number } = {};
+  srtTotals: { [key: string]: number } = {
+    SAASTerminateNotify: 0,
+  };
 
   fusionFilters: {
     formControlName: string;
@@ -484,6 +552,11 @@ export class InvoicingComponent implements OnInit {
     'Order Import': 0,
   };
 
+  creditCheckTotals: { [key: string]: number } = {
+    Flooring: 0,
+    'Non-Flooring': 0,
+  };
+
   formattedFusionSteps = Object.keys(this.fusionTotals).map((key) => ({
     label: this.formatLabel(key),
     impact: key,
@@ -494,7 +567,23 @@ export class InvoicingComponent implements OnInit {
     impact: key,
   }));
 
-  // Function to format the label
+  formattedCreditCheckSteps = Object.keys(this.creditCheckTotals).map(
+    (key) => ({
+      label: this.formatLabel(key),
+      impact: key,
+    })
+  );
+
+  formattedRPOExtractSteps = Object.keys(this.rpoTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: key,
+  }));
+
+  formattedSRTProcessSteps = Object.keys(this.srtTotals).map((key) => ({
+    label: this.formatLabel(key),
+    impact: key,
+  }));
+
   formatLabel(label: string): string {
     const acronyms = this.skippedWords || [];
 
@@ -913,4 +1002,544 @@ margin-left: -4px; /* To overlay on the darker chevron */
 top: 0px;
 }
 `;
+
+  creditCardprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 320px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  creditCheckprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 320px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  rpoExtractprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 170px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  srtProcessprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 170px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  cmAmortprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 170px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
+
+  printTotalsprocessflowCss: string = `
+  .flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 82px;
+  width: 620px;
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 20px;
+}
+
+.slider-bar {
+  margin-top: 40px;
+  position: absolute;
+  width: fit-content;
+  height: 4px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 150px;
+  top: -40px;
+}
+
+.circle-loop {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin-top: -0px;
+  left: 67px;
+}
+
+.circle-caption-loop {
+  font-size: 12px;
+  color: #333;
+  text-align: center;
+  height: 20px;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #000;
+  font-weight: bold;
+}
+
+.chevron-wrapper-loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px; /* Matches the circle wrapper width */
+  position: relative;
+  top: -105px;
+  left: 150px;
+}
+
+.chevron,
+.chevron-white {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: relative;
+}
+
+.chevron {
+  border-width: 2px 2px 2px 2px;
+  border-color: transparent #16371e43 transparent transparent;
+  transform: rotate(180deg);
+  z-index: 1;
+  top: 0px;
+}
+
+.chevron-white {
+  border-width: 8px 8px 8px 8px;
+  border-color: transparent #fcfcfc transparent transparent;
+  transform: rotate(180deg);
+  margin-left: -4px; /* To overlay on the darker chevron */
+  top: 0px;
+}
+  `;
 }

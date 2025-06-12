@@ -202,6 +202,7 @@ export class CustomRevenueComponent implements OnInit {
   standardRevenueTotals: { [key: string]: number } = {
     Adjustments: 0,
     Transactions: 0,
+    Payments: 0,
   };
 
   rolUrls: { [key: string]: string } = {
@@ -357,6 +358,7 @@ export class CustomRevenueComponent implements OnInit {
 
   accountsTotals: { [key: string]: number } = {
     '27041': 0,
+    '27031': 0,
   };
 
   formatStandardRevenueSteps = Object.keys(this.standardRevenueTotals).map(
@@ -757,7 +759,7 @@ export class CustomRevenueComponent implements OnInit {
   flex-direction: column;
   align-items: center;
   height: 82px;
-  width: 170px;
+  width: 320px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;
@@ -847,7 +849,7 @@ export class CustomRevenueComponent implements OnInit {
   flex-direction: column;
   align-items: center;
   height: 82px;
-  width: 330px;
+  width: 480px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;

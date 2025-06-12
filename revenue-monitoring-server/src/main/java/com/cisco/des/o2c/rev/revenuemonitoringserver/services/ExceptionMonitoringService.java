@@ -74,8 +74,8 @@ public class ExceptionMonitoringService {
     private String printSummaryUpdate;
     private String creditCardSummary;
     private String creditCardDetails;
-    private String debitCardSummary;
-    private String debitCardDetails;
+    private String creditCardDetailsFiltered;
+    private String creditCardSummaryUpdate;
     private String rpoExtractSummary;
     private String rpoExtractDetails;
     private String rpoExtractDetailsFilter;
@@ -107,7 +107,7 @@ public class ExceptionMonitoringService {
                                       String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
                                       String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail,
                                       String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager, String creditCardSummary,
-                                      String creditCardDetails, String debitCardSummary, String debitCardDetails, String rpoExtractSummary, String rpoExtractDetails,
+                                      String creditCardDetails, String creditCardDetailsFiltered, String creditCardSummaryUpdate,  String rpoExtractSummary, String rpoExtractDetails,
                                       String rpoExtractDetailsFilter, String rpoExtractSummaryUpdate, String srtProcessSummary, String srtProcessDetails,
                                       String srtProcessDetailsFilter, String srtProcessSummaryUpdate, String creditCardCheckSummaryView, String creditCardCheckDetailView,
                                       String creditCardCheckDetailFilteredView, String updateCreditCardCheckSummary
@@ -172,8 +172,6 @@ public class ExceptionMonitoringService {
         this.printSummaryUpdate = printSummaryUpdate;
         this.creditCardSummary = creditCardSummary;
         this.creditCardDetails = creditCardDetails;
-        this.debitCardSummary = debitCardSummary;
-        this.debitCardDetails = debitCardDetails;
         this.rpoExtractSummary = rpoExtractSummary;
         this.rpoExtractDetails = rpoExtractDetails;
         this.rpoExtractDetailsFilter = rpoExtractDetailsFilter;
@@ -186,6 +184,8 @@ public class ExceptionMonitoringService {
         this.creditCardCheckSummaryView = creditCardCheckSummaryView;
         this.creditCardCheckDetailFilteredView = creditCardCheckDetailFilteredView;
         this.updateCreditCardCheckSummary = updateCreditCardCheckSummary;
+        this.creditCardDetailsFiltered = creditCardDetailsFiltered;
+        this.creditCardSummaryUpdate = creditCardSummaryUpdate;
 
     }
 
@@ -636,7 +636,9 @@ public class ExceptionMonitoringService {
         String comments = updateData.get("comments");
         String timestamp = updateData.get("timestamp");
         String scenario = updateData.get("scenario");
-        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments);
+        String status = updateData.get("status");
+        System.out.println(updateData);
+        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments, status);
         return 1;
     }
     public List<Map<String, Object>> getOMDetailsDataFiltered(String collection, String timestamp, String scenario) {
@@ -644,6 +646,7 @@ public class ExceptionMonitoringService {
         List<Map<String, Object>> result = mongoDBManager.getFilteredData(collection, timestamp, scenario);
         result.forEach(data -> {
             formatDateColumns(data, dateColumns);
+            data.remove("assigned_data");
         });
         return result;
     }
@@ -653,7 +656,7 @@ public class ExceptionMonitoringService {
         String[] dateColumns = { "assigned_date"};
         List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
         result.forEach(data -> {
-            formatDateColumns(data, dateColumns);
+            data.remove("assigned_date");
         });
         return result;
     }
@@ -677,6 +680,7 @@ public class ExceptionMonitoringService {
             }
             data.clear();
             data.putAll(reorderedData);
+            data.remove("closed_date");
         });
         return result;
     }
@@ -773,10 +777,10 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getCreditCardSummary() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(creditCardSummary);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
 //            Map<String, Object> reorderedData = new LinkedHashMap<>();
 //            int index = 0;
 //            for (Map.Entry<String, Object> entry : data.entrySet()) {
@@ -791,47 +795,24 @@ public class ExceptionMonitoringService {
 //            }
 //            data.clear();
 //            data.putAll(reorderedData);
-//        });
+        });
         return result;
     }
 
     public List<Map<String, Object>> getCreditCardDetails() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(creditCardDetails);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//        });
-        return result;
-    }
-
-    public List<Map<String, Object>> getDebitCardSummary() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(debitCardSummary);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//            Map<String, Object> reorderedData = new LinkedHashMap<>();
-//            int index = 0;
-//            for (Map.Entry<String, Object> entry : data.entrySet()) {
-//                if (index == 6) {
-//                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
-//                }
-//                reorderedData.put(entry.getKey(), entry.getValue());
-//                index++;
-//            }
-//            if (!reorderedData.containsKey("AGING")) {
-//                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
-//            }
-//            data.clear();
-//            data.putAll(reorderedData);
-//        });
-        return result;
-    }
-
-    public List<Map<String, Object>> getDebitCardDetails() {
-        String[] dateColumns = { "PAYMENT_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(debitCardDetails);
         result.forEach(data -> {
-            renameKey(data, "TRX_NUMBER", "TRANSACTION_ID");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardDetailsFiltered(String periodName,
+                                                                  String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getCreditCardDetailsFiltered(creditCardDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
         return result;
@@ -922,7 +903,7 @@ public class ExceptionMonitoringService {
             Map<String, Object> reorderedData = new LinkedHashMap<>();
             int index = 0;
             for (Map.Entry<String, Object> entry : data.entrySet()) {
-                if (index == 6) {
+                if (index == 5) {
                     reorderedData.put("AGING", calculateAging(data.get("SRT_DATE")));
                 }
                 reorderedData.put(entry.getKey(), entry.getValue());
@@ -1205,7 +1186,7 @@ public class ExceptionMonitoringService {
                 DateTimeFormatter.ofPattern("MM-dd-yyyy"),
                 DateTimeFormatter.ofPattern("dd/MM/yyyy"),
                 DateTimeFormatter.ofPattern("yyyy/MM/dd"),
-                DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH)
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
         );
 
         for (String column : dateColumns) {
@@ -1216,22 +1197,25 @@ public class ExceptionMonitoringService {
 
                 for (DateTimeFormatter formatter : inputFormatters) {
                     try {
-                        ZonedDateTime zonedDate = ZonedDateTime.parse(rawDate, formatter);
-                        data.put(column, outputFormatter.format(zonedDate));
+                        LocalDate localDate = LocalDate.parse(rawDate, formatter);
+                        data.put(column, outputFormatter.format(localDate));
                         parsed = true;
                         break;
-                    } catch (Exception e1) {
-                        try {
-                            LocalDate localDate = LocalDate.parse(rawDate, formatter);
-                            data.put(column, outputFormatter.format(localDate));
-                            parsed = true;
-                            break;
-                        } catch (Exception ignored) {}
-                    }
+                    } catch (Exception ignored) {}
                 }
 
                 if (!parsed) {
-                    data.put(column, value.toString());
+                    try {
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                        Date utilDate = sdf.parse(value.toString());
+                        LocalDate date = utilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                        data.put(column, outputFormatter.format(date));
+                        parsed = true;
+                    } catch (Exception ignored) {}
+                }
+
+                if (!parsed) {
+                    data.put(column, rawDate);
                 }
             } else {
                 data.put(column, "");
@@ -1259,7 +1243,8 @@ public class ExceptionMonitoringService {
                 DateTimeFormatter.ofPattern("yyyy-MM-dd"),
                 DateTimeFormatter.ofPattern("MM-dd-yyyy"),
                 DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-                DateTimeFormatter.ofPattern("yyyy/MM/dd")
+                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
         );
 
         for (DateTimeFormatter formatter : formatters) {

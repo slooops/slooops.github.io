@@ -352,6 +352,21 @@ public class PeriodCloseMonitoringController {
         return new ResponseEntity<>(service.getEspWeeklyComparisonSummary(), HttpStatus.OK);
     }
 
+    @GetMapping("/sbp-esp-aging-case-summary")
+    public ResponseEntity<List<Map<String, Object>>> getSbpEspAgingCaseSummary() {
+        return new ResponseEntity<>(service.getSbpEspAgingCaseSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/sbp-esp-case-service-metric-summary")
+    public ResponseEntity<List<Map<String, Object>>> getSbpEspCaseServiceMetricSummary() {
+        return new ResponseEntity<>(service.getSbpEspCaseServiceMetricSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/sbp-esp-weekly-comparison-summary")
+    public ResponseEntity<List<Map<String, Object>>> getSbpEspWeeklyComparisonSummary() {
+        return new ResponseEntity<>(service.getSbpEspWeeklyComparisonSummary(), HttpStatus.OK);
+    }
+
     @GetMapping("/wd0-midclose-actuals-product")
     public ResponseEntity<List<Map<String, Object>>> getWd0MidcloseActualsProduct() {
         return new ResponseEntity<>(service.getWd0MidcloseActualsProduct(), HttpStatus.OK);
