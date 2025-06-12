@@ -21,15 +21,19 @@ export class CmsSftpDetailsComponent implements OnInit {
   isDataLoaded: boolean = false;
 
   ngOnInit(): void {
-    // Listen for the data passed via postMessage
-    window.addEventListener('message', (event) => {
-      if (event.data && event.data.data) {
-        this.data = event.data.data;
-        this.isDataLoaded = true; // Set the flag to true once data is received
-      } else {
-        console.error('No data received for CMS SFTP Details page.');
-      }
-    });
+    const raw = localStorage.getItem('sftpDetails');
+    if (raw) {
+      this.data = JSON.parse(raw);
+      localStorage.removeItem('sftpDetails');
+    }
+    if (this.data.length === 0) {
+      console.warn('No SFTP details found in localStorage');
+    } else {
+      this.isDataLoaded = true;
+      console.log('CMS SFTP Details data loaded:', this.data);
+    }
+
+    console.log('CMS SFTP Details component initialized.');
   }
 
   formatTimestamp(timestamp: string): string {

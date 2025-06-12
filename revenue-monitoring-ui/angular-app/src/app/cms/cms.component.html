@@ -55,13 +55,15 @@
               <td>{{ replaceUnderscore(item.extract) }}</td>
               <td>
                 <span
-                  class="clickable-text"
+                  [class.clickable-text]="item.unprocessedFiles.length > 0"
+                  [class.disabled]="item.unprocessedFiles.length === 0"
                   (click)="
-                    openDetailsPage(
-                      item.directory,
-                      item.extract,
-                      item.unprocessedFiles
-                    )
+                    item.unprocessedFiles.length > 0 &&
+                      openDetailsPage(
+                        item.directory,
+                        item.extract,
+                        item.unprocessedFiles
+                      )
                   "
                 >
                   {{ item.unprocessedFiles.length }}
@@ -83,13 +85,15 @@
               <td>{{ replaceUnderscore(item.extract) }}</td>
               <td>
                 <span
-                  class="clickable-text"
+                  [class.clickable-text]="item.unprocessedFiles.length > 0"
+                  [class.disabled]="item.unprocessedFiles.length === 0"
                   (click)="
-                    openDetailsPage(
-                      item.directory,
-                      item.extract,
-                      item.unprocessedFiles
-                    )
+                    item.unprocessedFiles.length > 0 &&
+                      openDetailsPage(
+                        item.directory,
+                        item.extract,
+                        item.unprocessedFiles
+                      )
                   "
                 >
                   {{ item.unprocessedFiles.length }}
@@ -111,13 +115,15 @@
               <td>{{ replaceUnderscore(item.extract) }}</td>
               <td>
                 <span
-                  class="clickable-text"
+                  [class.clickable-text]="item.unprocessedFiles.length > 0"
+                  [class.disabled]="item.unprocessedFiles.length === 0"
                   (click)="
-                    openDetailsPage(
-                      item.directory,
-                      item.extract,
-                      item.unprocessedFiles
-                    )
+                    item.unprocessedFiles.length > 0 &&
+                      openDetailsPage(
+                        item.directory,
+                        item.extract,
+                        item.unprocessedFiles
+                      )
                   "
                 >
                   {{ item.unprocessedFiles.length }}

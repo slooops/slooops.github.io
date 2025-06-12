@@ -505,27 +505,15 @@ export class CmsComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  openDetailsPage(
-    directory: string,
-    extract: string,
-    unprocessedFiles: any[]
-  ): void {
-    const dataToPass = unprocessedFiles.map((file: any) => ({
-      ...file,
+  openDetailsPage(directory: string, extract: string, unprocessedFiles: any[]) {
+    const dataToPass = unprocessedFiles.map((f) => ({
+      ...f,
       directory,
       extract,
     }));
 
-    // Open the new tab
-    const newTab = window.open('/cms-sftp-details');
+    localStorage.setItem('sftpDetails', JSON.stringify(dataToPass));
 
-    // Post the data to the new tab
-    if (newTab) {
-      newTab.addEventListener('load', () => {
-        setTimeout(() => {
-          newTab.postMessage({ data: dataToPass }, '*');
-        }, 100); // Add a delay in milliseconds if needed
-      });
-    }
+    window.open('/cms-sftp-details', '_blank');
   }
 }

@@ -29,6 +29,7 @@ import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 import { CmsComponent } from './cms/cms.component';
+import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { O2c360Component } from './o2c-360/o2c-360.component';
 // import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
@@ -283,6 +284,14 @@ const routes: Routes = [
     data: {
       title: 'Finance IT Control Tower',
       header: 'CMS',
+    },
+  },
+  {
+    path: 'cms-sftp-details',
+    component: CmsSftpDetailsComponent,
+    data: {
+      title: 'Finance IT Control Tower',
+      header: 'CMS SFTP Details',
     },
   },
 ];
