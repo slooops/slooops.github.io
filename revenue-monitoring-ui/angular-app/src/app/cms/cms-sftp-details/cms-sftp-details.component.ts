@@ -26,6 +26,7 @@ export class CmsSftpDetailsComponent implements OnInit {
       this.data = JSON.parse(raw);
       localStorage.removeItem('sftpDetails');
     }
+    // Check if data is empty
     if (this.data.length === 0) {
       console.warn('No SFTP details found in localStorage');
     } else {
