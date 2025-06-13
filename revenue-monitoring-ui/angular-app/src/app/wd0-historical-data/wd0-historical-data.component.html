@@ -36,11 +36,20 @@
           <app-loading-symbol></app-loading-symbol>
         </div>
       </ng-container>
-      <div
-        *ngIf="!productActualsLoading"
-        style="position: relative; max-width: 25vw; margin: -3vw auto"
-      >
-        <canvas id="productPieChart"></canvas>
+      <div *ngIf="!productActualsLoading" class="chart-legend-wrapper">
+        <div class="chart-container">
+          <canvas id="productPieChart"></canvas>
+        </div>
+
+        <div class="custom-legend">
+          <div *ngFor="let item of customLegend" class="legend-item">
+            <span
+              class="legend-color-box"
+              [style.background]="item.color"
+            ></span>
+            {{ item.label }}
+          </div>
+        </div>
       </div>
 
       <div class="mc-h3">Significant Attributes from Regression Analysis</div>
@@ -167,12 +176,19 @@
           <app-loading-symbol></app-loading-symbol>
         </div>
       </ng-container>
-
-      <div
-        *ngIf="!serviceActualsLoading"
-        style="position: relative; max-width: 25vw; margin: -3vw auto"
-      >
-        <canvas style="" id="servicePieChart"></canvas>
+      <div *ngIf="!serviceActualsLoading" class="chart-legend-wrapper">
+        <div class="chart-container">
+          <canvas id="servicePieChart"></canvas>
+        </div>
+        <div class="custom-legend">
+          <div *ngFor="let item of customLegend" class="legend-item">
+            <span
+              class="legend-color-box"
+              [style.background]="item.color"
+            ></span>
+            {{ item.label }}
+          </div>
+        </div>
       </div>
 
       <div class="mc-h3">Significant Attributes from Regression Analysis</div>

@@ -346,14 +346,29 @@ export class Wd0HistoricalDataComponent
     }, 0);
   }
 
+  customLegend: { label: string; color: string }[] = [];
   renderPieChart(
     data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
     canvasId: string
   ): void {
+    const pieColors = [
+      'rgba(75, 192, 192, 0.6)', // Teal
+      'rgba(255, 159, 64, 0.6)', // Orange
+      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
+      'rgba(54, 162, 235, 0.6)', // Blue
+      'rgba(255, 99, 132, 0.6)', // Red-pink
+      'rgba(153, 102, 255, 0.6)', // Purple
+      'rgba(201, 203, 207, 0.6)', // Gray
+      'rgba(100, 255, 218, 0.6)', // Mint
+      'rgba(255, 205, 86, 0.6)', // Yellow
+      'rgba(0, 255, 157, 0.6)', // Lime
+    ];
+
     const labels = data.map(
       (entry) => `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`
     );
     const counts = data.map((entry) => entry.TOTAL_COUNT);
+    const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
     const ctx = (
       document.getElementById(canvasId) as HTMLCanvasElement
@@ -366,38 +381,27 @@ export class Wd0HistoricalDataComponent
           labels,
           datasets: [
             {
-              label: '',
               data: counts,
+              backgroundColor: colors,
               borderWidth: 0,
-              hoverOffset: 10,
+              hoverOffset: 0,
             },
           ],
         },
         options: {
           responsive: true,
           plugins: {
-            legend: {
-              position: 'right',
-            },
-            // datalabels: {
-            //   display: true,
-            //   color: '#ffffff',
-            //   font: {
-            //     size: 10,
-            //     weight: 'bold',
-            //   },
-            //   backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
-            //   borderRadius: 3,
-            //   padding: {
-            //     top: 2,
-            //     bottom: 2,
-            //     left: 4,
-            //     right: 4,
-            //   },
-            // },
+            legend: { display: false },
+            tooltip: { enabled: false },
           },
         },
       });
+
+      // Generate custom legend
+      this.customLegend = labels.map((label, i) => ({
+        label,
+        color: colors[i],
+      }));
     } else {
       console.error(`Canvas with id ${canvasId} not found`);
     }
