@@ -34,9 +34,14 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
-    public List<Map<String, Object>> queryForO2CConnectorData(String field, String value) {
-        String query = "SELECT WEBORDER_ID, SUBSCRIPTION_REF_ID, TRX_NUMBER FROM ARFINRO.ORDER_TO_CASH_CONNECTOR WHERE "
-                + field + " = ?";
+    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
+        // Only allow specific, known-safe fields
+        List<String> allowedFields = Arrays.asList("SUBSCRIPTION_REF_ID", "TRX_NUMBER", "WEBORDER_ID");
+        if (!allowedFields.contains(field)) {
+            throw new IllegalArgumentException("Invalid field name");
+        }
+        String query = sql + "WHERE " + field + " = ?";
+        System.out.println(query);
         return primaryJdbcTemplate.queryForList(query, value);
     }
 
