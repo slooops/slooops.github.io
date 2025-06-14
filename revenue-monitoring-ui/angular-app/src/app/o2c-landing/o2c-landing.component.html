@@ -1,4 +1,4 @@
-<app-o2c-nav></app-o2c-nav>
+<!-- <app-o2c-nav></app-o2c-nav> -->
 
 <!-- <div class="landing-container">
   <h2 class="welcome-text">Hi Jack!</h2>
@@ -53,5 +53,43 @@
     />
 
     <i class="svg-icon search-icon" (click)="onSearch()"></i>
+  </div>
+
+  <div class="o2c-donut-row">
+    <div class="chart-legend-wrapper">
+      <div class="chart-container">
+        <canvas id="donutChart1"></canvas>
+      </div>
+      <div class="custom-legend">
+        <div *ngFor="let item of customLegend" class="legend-item">
+          <span class="legend-color-box" [style.background]="item.color"></span>
+          {{ item.label }}
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-legend-wrapper">
+      <div class="chart-container">
+        <canvas id="donutChart2"></canvas>
+      </div>
+      <div class="custom-legend">
+        <div *ngFor="let item of customLegend" class="legend-item">
+          <span class="legend-color-box" [style.background]="item.color"></span>
+          {{ item.label }}
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-legend-wrapper">
+      <div class="chart-container">
+        <canvas id="donutChart3"></canvas>
+      </div>
+      <div class="custom-legend">
+        <div *ngFor="let item of customLegend" class="legend-item">
+          <span class="legend-color-box" [style.background]="item.color"></span>
+          {{ item.label }}
+        </div>
+      </div>
+    </div>
   </div>
 </div>

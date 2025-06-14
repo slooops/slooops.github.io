@@ -122,3 +122,93 @@ td {
   outline: none;
   cursor: pointer;
 }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.legend-color-box {
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+
+.chart-legend-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 60vw;
+}
+
+.chart-container {
+  flex: 0 0 auto;
+  max-width: 18vw;
+}
+
+.custom-legend {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.legend-color-box {
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 20px;
+}
+
+.o2c-donut-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.chart-legend-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  max-width: 30%;
+  flex: 1;
+}
+
+.chart-container {
+  width: 180px;
+  height: 180px;
+}
+
+.custom-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.legend-color-box {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border-radius: 3px;
+}

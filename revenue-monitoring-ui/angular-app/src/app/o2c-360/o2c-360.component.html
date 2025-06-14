@@ -575,14 +575,29 @@
   *ngIf="showWelcomeOverlay"
   (click)="dismissOverlay()"
 >
-  <div class="welcome-card">
+  <div class="welcome-card" (click)="$event.stopPropagation()">
     <h2>Welcome to the O2C 360 Search Engine 👋</h2>
+
+    <app-o2c-search
+      style="
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        border-radius: 24px;
+      "
+    ></app-o2c-search>
+
     <p>
-      Use the search bar <strong>in the top right</strong> to look up by Order
-      Number, Subscription Number, or Invoice Number. Just type and hit Enter!
+      You can search directly here below, or anytime later using the
+      <strong>search bar in the top right</strong>. Search by
+      <em>Order Number</em>, <em>Subscription Number</em>, or
+      <em>Invoice Number</em>. Just type and press <strong>Enter</strong>!
     </p>
+
+    <!-- Optional: You can re-enable this dismiss button if needed -->
     <!-- <button class="dismiss-button" (click)="dismissOverlay()">Got it!</button> -->
   </div>
+
   <div class="arrow-container">
     <div class="arrow-head"></div>
     <div class="arrow-stem"></div>

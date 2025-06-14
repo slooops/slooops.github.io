@@ -320,7 +320,7 @@ tr.mat-header-row {
     rgba(240, 255, 255, 0)
   );
 
-  /* backdrop-filter: blur(1px);  */
+  backdrop-filter: blur(1px);
 
   z-index: 1000;
   display: flex;
@@ -330,11 +330,16 @@ tr.mat-header-row {
 }
 
 .welcome-card {
-  padding: 24px;
+  background: white;
   border-radius: 12px;
-  max-width: 420px;
+  padding: 5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
   text-align: center;
-  font-family: "Inter", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .arrow-container {
