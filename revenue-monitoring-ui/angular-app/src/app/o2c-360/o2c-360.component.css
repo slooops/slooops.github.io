@@ -331,10 +331,10 @@ tr.mat-header-row {
 
 .welcome-card {
   background: white;
-  border-radius: 12px;
+  border-radius: 2px;
   padding: 5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
+  max-width: 400px;
   width: 90%;
   text-align: center;
   display: flex;

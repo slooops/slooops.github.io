@@ -81,9 +81,9 @@ export class BusinessInsightsComponent implements OnInit {
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
     {
-      label: 'O2C 360',
+      label: 'O2C - 360',
       component: 'app-o2c-360',
-      role: ['ADMIN'],
+      role: ['ADMIN', 'O360'],
     },
   ];
 

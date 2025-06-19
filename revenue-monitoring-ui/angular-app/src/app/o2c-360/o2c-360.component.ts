@@ -25,6 +25,7 @@ export class O2c360Component implements OnInit {
   searchType: string | null = null;
 
   showWelcomeOverlay = false;
+  hasSearched = false;
 
   orderId: string = '';
   subRefIds: string[] = [];
@@ -155,9 +156,10 @@ export class O2c360Component implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['searchParams']?.currentValue) {
       const { searchType, orderId, subRefIds, invoiceIds } = this.searchParams!;
-
       this.loadData(orderId, subRefIds, invoiceIds);
 
+      this.showWelcomeOverlay = false;
+      console.log('show overlay from ng on changes:', this.showWelcomeOverlay);
       this.expanded = {
         subscription: false,
         invoice: false,
@@ -193,6 +195,10 @@ export class O2c360Component implements OnInit {
 
         this.loadData(orderId, subRefIds, invoiceIds);
 
+        this.showWelcomeOverlay =
+          !this.router.url.includes('?searchType=') &&
+          this.orderId.includes('Search to get an');
+
         const searchType = params.get('searchType');
         if (searchType === 'subscription') {
           this.expanded.subscription = true;
@@ -212,12 +218,6 @@ export class O2c360Component implements OnInit {
     this.subRefIds = subRefIds;
     this.invoiceIds = invoiceIds;
 
-    if (this.orderId === 'Search to get an') {
-      this.showWelcomeOverlay = true;
-    } else {
-      this.showWelcomeOverlay = false;
-    }
-
     this.getOrderSummary([orderId]);
     this.getSubscriptionSummary(subRefIds);
     this.getSubscriptionLineSummary(subRefIds);
@@ -235,7 +235,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Order Summary:', data);
+        // console.log('Order Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.orderExceptionMessage = hasException
@@ -273,17 +273,17 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Subscription Summary:', data);
+        // console.log('Subscription Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.subscriptionExceptionMessage = hasException
           ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
             ''
           : '';
-        console.log(
-          'Subscription Summary Exception:',
-          this.subscriptionExceptionMessage
-        );
+        // console.log(
+        //   'Subscription Summary Exception:',
+        //   this.subscriptionExceptionMessage
+        // );
 
         if (Array.isArray(data) && data.length > 0) {
           this.subscriptionSummaryDisplayedColumns = this.removeColumns(
@@ -315,7 +315,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Subscription Lines:', data);
+        // console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
         this.subscriptionLinesDataLoaded = true;
       });
@@ -337,17 +337,17 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Invoice Summary:', data);
+        // console.log('Invoice Summary:', data);
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
-        console.log(
-          'Invoice Summary Circle Status:',
-          this.circleStatus['Invoice']
-        );
+        // console.log(
+        //   'Invoice Summary Circle Status:',
+        //   this.circleStatus['Invoice']
+        // );
         this.invoiceExceptionMessage = hasException
           ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
             ''
           : '';
-        console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
+        // console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
 
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
@@ -372,7 +372,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Invoice Lines:', data);
+        // console.log('Invoice Lines:', data);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
         this.invoiceLinesDataLoaded = true;
       });
@@ -515,8 +515,6 @@ export class O2c360Component implements OnInit {
       );
       return;
     }
-
-    console.log('View All inv lines:', this.invoiceLinesDataSource.data);
 
     this.router.navigate(['/o2c-view-all'], {
       state: {
