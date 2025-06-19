@@ -352,16 +352,16 @@ export class Wd0HistoricalDataComponent
     canvasId: string
   ): void {
     const pieColors = [
-      'rgba(75, 192, 192, 0.6)', // Teal
-      'rgba(255, 159, 64, 0.6)', // Orange
-      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
       'rgba(54, 162, 235, 0.6)', // Blue
-      'rgba(255, 99, 132, 0.6)', // Red-pink
-      'rgba(153, 102, 255, 0.6)', // Purple
-      'rgba(201, 203, 207, 0.6)', // Gray
       'rgba(100, 255, 218, 0.6)', // Mint
-      'rgba(255, 205, 86, 0.6)', // Yellow
+      'rgba(255, 99, 132, 0.6)', // Red-pink
+      'rgba(255, 159, 64, 0.6)', // Orange
+      'rgba(153, 102, 255, 0.6)', // Purple
+      'rgba(75, 192, 192, 0.6)', // Teal
+      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
+      'rgba(201, 203, 207, 0.6)', // Gray
       'rgba(0, 255, 157, 0.6)', // Lime
+      'rgba(255, 205, 86, 0.6)', // Yellow
     ];
 
     const labels = data.map(
@@ -384,20 +384,31 @@ export class Wd0HistoricalDataComponent
               data: counts,
               backgroundColor: colors,
               borderWidth: 0,
-              hoverOffset: 0,
+              hoverOffset: 0, // No offset effect on hover
             },
           ],
         },
         options: {
           responsive: true,
           plugins: {
-            legend: { display: false },
-            tooltip: { enabled: false },
+            legend: { display: false }, // Hide legend
+            tooltip: { enabled: false }, // Disable tooltips
+            datalabels: {
+              display: false, // This hides the data labels
+            },
+          },
+          // Removes animations on hover & segment highlighting
+          hover: {
+            mode: null,
+          },
+          animation: {
+            animateRotate: false,
+            animateScale: false,
           },
         },
       });
 
-      // Generate custom legend
+      // Set custom legend
       this.customLegend = labels.map((label, i) => ({
         label,
         color: colors[i],

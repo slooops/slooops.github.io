@@ -25,19 +25,6 @@ export class O2cSearchComponent {
     private searchContextService: SearchContextService
   ) {}
 
-  ngOnInit(): void {
-    this.getO2cConnector();
-  }
-
-  private getO2cConnector() {
-    this.http
-      .get('o2c-connector', this.destroyManager)
-      .subscribe((data: any) => {
-        this.o2cConnectorData = data;
-        console.log('Connector loaded:', data);
-      });
-  }
-
   onSearchTypeChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     this.searchType = target.value;
@@ -85,21 +72,25 @@ export class O2cSearchComponent {
             ),
           ];
 
-          // this.router.navigate(['/o2c-360'], {
-          //   queryParams: {
-          //     searchType: this.searchType,
-          //     orderId: orderIds[0],
-          //     subRefIds: subRefIds.join(','),
-          //     invoiceIds: trxNumbers.join(','),
-          //   },
-          // });
-
           this.searchContextService.emitSearchPayload({
             searchType: this.searchType,
-            orderId: orderIds[0] || '',
+            orderId: orderIds[0] || 'No Results ',
             subRefIds: subRefIds,
             invoiceIds: trxNumbers,
           });
+
+          const isTabbedView = this.router.url.includes('business-insights');
+
+          if (!isTabbedView) {
+            this.router.navigate(['/o2c-360'], {
+              queryParams: {
+                searchType: this.searchType,
+                orderId: orderIds[0],
+                subRefIds: subRefIds.join(','),
+                invoiceIds: trxNumbers.join(','),
+              },
+            });
+          }
         },
         error: (err) => console.error('Search error:', err),
       });
