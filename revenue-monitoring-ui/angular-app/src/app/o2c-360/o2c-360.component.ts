@@ -459,6 +459,11 @@ export class O2c360Component implements OnInit {
   //needs more work
   private updateCircleStatus(): void {
     const hasOrderException = !!this.orderExceptionMessage;
+    console.log(
+      'has Order Exception Message:',
+      this.orderExceptionMessage,
+      hasOrderException
+    );
     const hasSubException = !!this.subscriptionExceptionMessage;
     const hasInvoiceException = !!this.invoiceExceptionMessage;
 
@@ -467,6 +472,8 @@ export class O2c360Component implements OnInit {
     const invoiceDataExists = this.invoiceSummaryDataSource?.data?.length > 0;
 
     const orderGood = !hasOrderException;
+    console.log('Order Good:', orderGood, hasOrderException);
+    this.circleStatus['Order'] = orderGood ? 2 : -1;
     const subGood = orderGood && !hasSubException;
     const invoiceGood = subGood && !hasInvoiceException && invoiceDataExists;
 
