@@ -6,6 +6,7 @@ import { Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { ChartData, ChartDataset } from 'chart.js/auto';
 import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
+
 @Component({
   selector: 'app-o2c-landing',
   templateUrl: './o2c-landing.component.html',
@@ -51,18 +52,9 @@ export class O2cLandingComponent implements OnInit {
     ];
 
     // Render three donut charts
-    this.renderPieChart(dummyData, 'donutChart1');
-    this.renderPieChart(dummyData, 'donutChart2');
-    this.renderPieChart(dummyData, 'donutChart3');
-  }
-
-  private getO2cConnector() {
-    this.http
-      .get('o2c-connector', this.destroyManager)
-      .subscribe((data: any) => {
-        this.o2cConnectorData = data;
-        console.log('o2cConnector loaded:', data);
-      });
+    this.renderPieChart(dummyData, 'donutChart1', '$4M', '#12');
+    this.renderPieChart(dummyData, 'donutChart2', '$321M', '#277');
+    this.renderPieChart(dummyData, 'donutChart3', '13.3M', '#123');
   }
 
   onSearch(): void {
@@ -140,21 +132,24 @@ export class O2cLandingComponent implements OnInit {
   }
 
   customLegend: { label: string; color: string }[] = [];
+
   renderPieChart(
     data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
-    canvasId: string
+    canvasId: string,
+    centerTextOverride?: string,
+    subtitleText?: string
   ): void {
     const pieColors = [
-      'rgba(75, 192, 192, 0.6)', // Teal
-      'rgba(255, 159, 64, 0.6)', // Orange
-      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
       'rgba(54, 162, 235, 0.6)', // Blue
-      'rgba(255, 99, 132, 0.6)', // Red-pink
-      'rgba(153, 102, 255, 0.6)', // Purple
-      'rgba(201, 203, 207, 0.6)', // Gray
       'rgba(100, 255, 218, 0.6)', // Mint
-      'rgba(255, 205, 86, 0.6)', // Yellow
+      'rgba(255, 99, 132, 0.6)', // Red-pink
+      'rgba(255, 159, 64, 0.6)', // Orange
+      'rgba(153, 102, 255, 0.6)', // Purple
+      'rgba(75, 192, 192, 0.6)', // Teal
+      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
+      'rgba(201, 203, 207, 0.6)', // Gray
       'rgba(0, 255, 157, 0.6)', // Lime
+      'rgba(255, 205, 86, 0.6)', // Yellow
     ];
 
     const labels = data.map(
@@ -186,11 +181,50 @@ export class O2cLandingComponent implements OnInit {
           plugins: {
             legend: { display: false },
             tooltip: { enabled: false },
+            datalabels: { display: false },
+          },
+          hover: { mode: null },
+          animation: {
+            animateRotate: false,
+            animateScale: false,
           },
         },
+        plugins: [
+          {
+            id: 'centerText',
+            beforeDraw(chart) {
+              const { width, height, ctx } = chart;
+              const centerText =
+                centerTextOverride ||
+                counts.reduce((a, b) => a + b, 0).toString();
+              const subtitle = subtitleText;
+
+              ctx.save();
+
+              // Main center text
+              ctx.font = 'bold 24px Inter, sans-serif';
+              ctx.fillStyle = '#333';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+
+              // If there's a subtitle, adjust the main text position slightly up
+              const mainTextY = subtitle ? height / 2 - 10 : height / 2;
+              ctx.fillText(centerText, width / 2, mainTextY);
+
+              // Subtitle text
+              if (subtitle) {
+                ctx.font = '14px Inter, sans-serif';
+                ctx.fillStyle = '#666';
+                ctx.fillText(subtitle, width / 2, height / 2 + 15);
+              }
+
+              ctx.restore();
+            },
+          },
+        ],
       });
 
-      // Generate custom legend
+      // Set custom legend
       this.customLegend = labels.map((label, i) => ({
         label,
         color: colors[i],
@@ -199,4 +233,11 @@ export class O2cLandingComponent implements OnInit {
       console.error(`Canvas with id ${canvasId} not found`);
     }
   }
+}
+
+interface ChartOptionsWithCenterText extends ChartOptions<'doughnut'> {
+  centerText?: {
+    display: boolean;
+    text: string;
+  };
 }
