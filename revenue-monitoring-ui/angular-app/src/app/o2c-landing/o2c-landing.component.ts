@@ -47,9 +47,9 @@ export class O2cLandingComponent implements OnInit {
 
     // Dummy data
     const dummyData = [
-      { BATCH_SOURCE: 'Order Entry', TOTAL_COUNT: 120 },
-      { BATCH_SOURCE: 'Manual Entry', TOTAL_COUNT: 90 },
-      { BATCH_SOURCE: 'Web Submission', TOTAL_COUNT: 60 },
+      { BATCH_SOURCE: 'Order Entry', TOTAL_COUNT: 130 },
+      { BATCH_SOURCE: 'Manual Entry', TOTAL_COUNT: 80 },
+      { BATCH_SOURCE: 'Web Submission', TOTAL_COUNT: 40 },
     ];
 
     // Render three donut charts
