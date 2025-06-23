@@ -35,6 +35,7 @@ export class O2cLandingComponent implements OnInit {
         this.onSearch();
       }
 
+      //might need to review this later
       // if (searchType) {
       //   this.searchType = searchType;
       // }
