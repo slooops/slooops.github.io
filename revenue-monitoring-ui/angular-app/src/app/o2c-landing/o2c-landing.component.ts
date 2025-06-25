@@ -26,124 +26,48 @@ export class O2cLandingComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      const searchValue = params.get('searchValue');
-      const searchType = params.get('searchType');
-
-      if (searchValue) {
-        this.searchValue = searchValue;
-        this.onSearch();
-      }
-
-      //might need to review this later
-      // if (searchType) {
-      //   this.searchType = searchType;
-      // }
-
-      // if (searchValue && searchType) {
-      //   this.onSearch();
-      // }
-    });
+    this.route.queryParamMap.subscribe((params) => {});
 
     // Dummy data
-    const dummyData = [
-      { BATCH_SOURCE: 'Order Entry', TOTAL_COUNT: 130 },
-      { BATCH_SOURCE: 'Manual Entry', TOTAL_COUNT: 80 },
-      { BATCH_SOURCE: 'Web Submission', TOTAL_COUNT: 40 },
+    const dummyData1 = [
+      { INCIDENT_TYPE: 'Order Entry', INCIDENT_VALUE: 130 },
+      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_VALUE: 80 },
+      { INCIDENT_TYPE: 'Web Submission', INCIDENT_VALUE: 40 },
+      { INCIDENT_TYPE: 'API Integration', INCIDENT_VALUE: 10 },
+      { INCIDENT_TYPE: 'CSV Upload', INCIDENT_VALUE: 5 },
     ];
 
+    const dummyData2 = [
+      { INCIDENT_TYPE: 'Order Entry', INCIDENT_VALUE: 100 },
+      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_VALUE: 50 },
+      { INCIDENT_TYPE: 'Web Submission', INCIDENT_VALUE: 30 },
+    ];
+
+    const dummyData3 = [{ INCIDENT_TYPE: 'Order Entry', INCIDENT_VALUE: 200 }];
+
     // Render three donut charts
-    this.renderPieChart(dummyData, 'donutChart1', '$4M', '#12');
-    this.renderPieChart(dummyData, 'donutChart2', '$321M', '#277');
-    this.renderPieChart(dummyData, 'donutChart3', '13.3M', '#123');
+    this.renderPieChart(dummyData1, 'donutChart1', '$4M', '#12');
+    this.renderPieChart(dummyData2, 'donutChart2', '$321M', '#277');
+    this.renderPieChart(dummyData3, 'donutChart3', '13.3M', '#123');
   }
 
-  onSearch(): void {
-    const trimmedValue = this.searchValue.trim();
-    // if (!trimmedValue || this.o2cConnectorData.length === 0) return;
-
-    const columnMap: { [key: string]: string } = {
-      order: 'WEBORDER_ID',
-      subscription: 'SUBSCRIPTION_REF_ID',
-      invoice: 'TRX_NUMBER',
-    };
-
-    const columnName = columnMap[this.searchType] || 'UNKNOWN_COLUMN';
-
-    this.http
-      .post('o2c-connector-search', {
-        column: columnName,
-        value: trimmedValue,
-      })
-      .subscribe({
-        next: (data: any) => {
-          console.log(data);
-          const orderIds = [
-            ...new Set(data.map((r) => r.WEBORDER_ID).filter(Boolean)),
-          ];
-          const subRefIds = [
-            ...new Set(data.map((r) => r.SUBSCRIPTION_REF_ID).filter(Boolean)),
-          ];
-          const trxNumbers = [
-            ...new Set(data.map((r) => r.TRX_NUMBER).filter(Boolean)),
-          ];
-          this.router.navigate(['/o2c-360'], {
-            queryParams: {
-              searchType: this.searchType,
-              orderId: orderIds[0],
-              subRefIds: subRefIds.join(','),
-              invoiceIds: trxNumbers.join(','),
-            },
-          });
-        },
-        error: (err) => console.error('Error logging search:', err),
-      });
-
-    let matchingRows: any[] = [];
-
-    switch (this.searchType) {
-      case 'order':
-        matchingRows = this.o2cConnectorData.filter(
-          (row) => row.WEBORDER_ID === trimmedValue
-        );
-        break;
-      case 'subscription':
-        matchingRows = this.o2cConnectorData.filter(
-          (row) => row.SUBSCRIPTION_REF_ID === trimmedValue
-        );
-        break;
-      case 'invoice':
-        matchingRows = this.o2cConnectorData.filter(
-          (row) => row.TRX_NUMBER === trimmedValue
-        );
-        break;
-      default:
-        console.warn('Unknown searchType');
-        return;
-    }
-
-    if (matchingRows.length === 0) {
-      console.warn('No results found for search:', trimmedValue);
-      return;
-    }
-
-    // console.log('Order IDs:', orderIds);
-    // console.log('Subscription Ref IDs:', subRefIds);
-    // console.log('Invoice (TRX) Numbers:', trxNumbers);
-  }
-
-  customLegend: { label: string; color: string }[] = [];
+  legendMap: { [canvasId: string]: { label: string; color: string }[] } = {};
 
   renderPieChart(
-    data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
+    data: { INCIDENT_TYPE: string; INCIDENT_VALUE: number }[],
     canvasId: string,
     centerTextOverride?: string,
     subtitleText?: string
   ): void {
     const pieColors = [
+      '#399E20',
+      '#FBAB2C',
+      '#1990FA',
+      '#00509E',
+      'rgba(255, 99, 132, 0.6)', // Red-pink
+
       'rgba(54, 162, 235, 0.6)', // Blue
       'rgba(100, 255, 218, 0.6)', // Mint
-      'rgba(255, 99, 132, 0.6)', // Red-pink
       'rgba(255, 159, 64, 0.6)', // Orange
       'rgba(153, 102, 255, 0.6)', // Purple
       'rgba(75, 192, 192, 0.6)', // Teal
@@ -154,9 +78,10 @@ export class O2cLandingComponent implements OnInit {
     ];
 
     const labels = data.map(
-      (entry) => `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`
+      (entry) =>
+        `${entry.INCIDENT_VALUE.toLocaleString()} - ${entry.INCIDENT_TYPE}`
     );
-    const counts = data.map((entry) => entry.TOTAL_COUNT);
+    const counts = data.map((entry) => entry.INCIDENT_VALUE);
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
     const ctx = (
@@ -189,6 +114,7 @@ export class O2cLandingComponent implements OnInit {
             animateRotate: false,
             animateScale: false,
           },
+          cutout: '70%',
         },
         plugins: [
           {
@@ -203,20 +129,20 @@ export class O2cLandingComponent implements OnInit {
               ctx.save();
 
               // Main center text
-              ctx.font = 'bold 24px Inter, sans-serif';
+              ctx.font = '600 16px Inter, sans-serif';
               ctx.fillStyle = '#333';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
 
               // If there's a subtitle, adjust the main text position slightly up
-              const mainTextY = subtitle ? height / 2 - 10 : height / 2;
+              const mainTextY = subtitle ? height / 2 - 2 : height / 2;
               ctx.fillText(centerText, width / 2, mainTextY);
 
               // Subtitle text
               if (subtitle) {
-                ctx.font = '14px Inter, sans-serif';
+                ctx.font = '12px Inter, sans-serif';
                 ctx.fillStyle = '#666';
-                ctx.fillText(subtitle, width / 2, height / 2 + 15);
+                ctx.fillText(subtitle, width / 2, height / 2 + 12);
               }
 
               ctx.restore();
@@ -226,19 +152,13 @@ export class O2cLandingComponent implements OnInit {
       });
 
       // Set custom legend
-      this.customLegend = labels.map((label, i) => ({
+      this.legendMap[canvasId] = labels.map((label, i) => ({
         label,
         color: colors[i],
       }));
+      console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);
     } else {
       console.error(`Canvas with id ${canvasId} not found`);
     }
   }
-}
-
-interface ChartOptionsWithCenterText extends ChartOptions<'doughnut'> {
-  centerText?: {
-    display: boolean;
-    text: string;
-  };
 }
