@@ -7,10 +7,22 @@
       <div class="chart-container">
         <canvas id="donutChart1"></canvas>
       </div>
+
       <div class="custom-legend" *ngIf="legendMap['donutChart1']">
         <div *ngFor="let item of legendMap['donutChart1']" class="legend-item">
-          <span class="legend-color-box" [style.background]="item.color"></span>
-          <span class="legend-label">{{ item.label }}</span>
+          <div class="legend-item">
+            <div class="legend-left">
+              <span
+                class="legend-color-box"
+                [style.background]="item.color"
+              ></span>
+              <span class="legend-type">{{ item.type }}</span>
+            </div>
+            <div class="legend-right">
+              <span class="legend-count">{{ item.count }}</span>
+              <span class="legend-value">{{ item.value | number }} M</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -19,14 +31,25 @@
       <div class="chart-container">
         <canvas id="donutChart2"></canvas>
       </div>
+
       <div class="custom-legend" *ngIf="legendMap['donutChart2']">
         <div *ngFor="let item of legendMap['donutChart2']" class="legend-item">
-          <span class="legend-color-box" [style.background]="item.color"></span>
-          <span class="legend-label">{{ item.label }}</span>
+          <div class="legend-item">
+            <div class="legend-left">
+              <span
+                class="legend-color-box"
+                [style.background]="item.color"
+              ></span>
+              <span class="legend-type">{{ item.type }}</span>
+            </div>
+            <div class="legend-right">
+              <span class="legend-count">{{ item.count }}</span>
+              <span class="legend-value">{{ item.value | number }} M</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
     <div class="chart-legend-wrapper">
       <div class="chart-container">
         <canvas id="donutChart3"></canvas>
@@ -34,8 +57,19 @@
 
       <div class="custom-legend" *ngIf="legendMap['donutChart3']">
         <div *ngFor="let item of legendMap['donutChart3']" class="legend-item">
-          <span class="legend-color-box" [style.background]="item.color"></span>
-          <span class="legend-label">{{ item.label }}</span>
+          <div class="legend-item">
+            <div class="legend-left">
+              <span
+                class="legend-color-box"
+                [style.background]="item.color"
+              ></span>
+              <span class="legend-type">{{ item.type }}</span>
+            </div>
+            <div class="legend-right">
+              <span class="legend-count">{{ item.count }}</span>
+              <span class="legend-value">{{ item.value | number }} M</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

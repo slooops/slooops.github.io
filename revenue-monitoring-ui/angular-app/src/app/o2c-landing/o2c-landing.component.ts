@@ -29,32 +29,59 @@ export class O2cLandingComponent implements OnInit {
     this.route.queryParamMap.subscribe((params) => {});
 
     // Dummy data
+
     const dummyData1 = [
-      { INCIDENT_TYPE: 'Order Entry', INCIDENT_VALUE: 130 },
-      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_VALUE: 80 },
-      { INCIDENT_TYPE: 'Web Submission', INCIDENT_VALUE: 40 },
-      { INCIDENT_TYPE: 'API Integration', INCIDENT_VALUE: 10 },
-      { INCIDENT_TYPE: 'CSV Upload', INCIDENT_VALUE: 5 },
+      {
+        INCIDENT_TYPE: 'Order Entry',
+        INCIDENT_COUNT: 5,
+        INCIDENT_VALUE: 4,
+      },
+      {
+        INCIDENT_TYPE: 'Manual Entry',
+        INCIDENT_COUNT: 3,
+        INCIDENT_VALUE: 2,
+      },
+      {
+        INCIDENT_TYPE: 'Data Entry',
+        INCIDENT_COUNT: 2,
+        INCIDENT_VALUE: 1.2,
+      },
     ];
 
     const dummyData2 = [
-      { INCIDENT_TYPE: 'Order Entry', INCIDENT_VALUE: 100 },
-      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_VALUE: 50 },
-      { INCIDENT_TYPE: 'Web Submission', INCIDENT_VALUE: 30 },
+      {
+        INCIDENT_TYPE: 'Order Entry',
+        INCIDENT_COUNT: 5,
+        INCIDENT_VALUE: 2.1,
+      },
     ];
 
-    const dummyData3 = [{ INCIDENT_TYPE: 'Order Entry', INCIDENT_VALUE: 200 }];
+    const dummyData3 = [
+      { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 50, INCIDENT_VALUE: 1.4 },
+      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_COUNT: 3, INCIDENT_VALUE: 0.9 },
+    ];
 
     // Render three donut charts
     this.renderPieChart(dummyData1, 'donutChart1', '$4M', '#12');
-    this.renderPieChart(dummyData2, 'donutChart2', '$321M', '#277');
-    this.renderPieChart(dummyData3, 'donutChart3', '13.3M', '#123');
+    this.renderPieChart(dummyData2, 'donutChart3', '$321M', '#277');
+    this.renderPieChart(dummyData3, 'donutChart2', '13.3M', '#123');
   }
 
-  legendMap: { [canvasId: string]: { label: string; color: string }[] } = {};
+  legendMap: {
+    [canvasId: string]: {
+      type: string;
+      count: number;
+      value: number;
+      color: string;
+    }[];
+  } = {};
 
   renderPieChart(
-    data: { INCIDENT_TYPE: string; INCIDENT_VALUE: number }[],
+    data: {
+      INCIDENT_TYPE: string;
+      INCIDENT_COUNT: number;
+      INCIDENT_VALUE: number;
+    }[],
     canvasId: string,
     centerTextOverride?: string,
     subtitleText?: string
@@ -77,10 +104,10 @@ export class O2cLandingComponent implements OnInit {
       'rgba(255, 205, 86, 0.6)', // Yellow
     ];
 
-    const labels = data.map(
-      (entry) =>
-        `${entry.INCIDENT_VALUE.toLocaleString()} - ${entry.INCIDENT_TYPE}`
-    );
+    // const labels = data.map(
+    //   (entry) =>
+    //     `${entry.INCIDENT_VALUE.toLocaleString()} - ${entry.INCIDENT_TYPE}`
+    // );
     const counts = data.map((entry) => entry.INCIDENT_VALUE);
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
@@ -92,7 +119,7 @@ export class O2cLandingComponent implements OnInit {
       new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels,
+          // labels,
           datasets: [
             {
               data: counts,
@@ -152,10 +179,13 @@ export class O2cLandingComponent implements OnInit {
       });
 
       // Set custom legend
-      this.legendMap[canvasId] = labels.map((label, i) => ({
-        label,
+      this.legendMap[canvasId] = data.map((entry, i) => ({
+        type: entry.INCIDENT_TYPE,
+        count: entry.INCIDENT_COUNT,
+        value: entry.INCIDENT_VALUE,
         color: colors[i],
       }));
+
       console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);
     } else {
       console.error(`Canvas with id ${canvasId} not found`);
