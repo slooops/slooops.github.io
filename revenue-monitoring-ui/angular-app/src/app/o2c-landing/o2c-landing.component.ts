@@ -62,9 +62,9 @@ export class O2cLandingComponent implements OnInit {
     ];
 
     // Render three donut charts
-    this.renderPieChart(dummyData1, 'donutChart1', '$4M', '#12');
-    this.renderPieChart(dummyData2, 'donutChart3', '$321M', '#277');
-    this.renderPieChart(dummyData3, 'donutChart2', '13.3M', '#123');
+    this.renderPieChart(dummyData1, 'donutChart1');
+    this.renderPieChart(dummyData2, 'donutChart3');
+    this.renderPieChart(dummyData3, 'donutChart2');
   }
 
   legendMap: {
@@ -82,34 +82,38 @@ export class O2cLandingComponent implements OnInit {
       INCIDENT_COUNT: number;
       INCIDENT_VALUE: number;
     }[],
-    canvasId: string,
-    centerTextOverride?: string,
-    subtitleText?: string
+    canvasId: string
   ): void {
     const pieColors = [
       '#399E20',
       '#FBAB2C',
       '#1990FA',
       '#00509E',
-      'rgba(255, 99, 132, 0.6)', // Red-pink
-
-      'rgba(54, 162, 235, 0.6)', // Blue
-      'rgba(100, 255, 218, 0.6)', // Mint
-      'rgba(255, 159, 64, 0.6)', // Orange
-      'rgba(153, 102, 255, 0.6)', // Purple
-      'rgba(75, 192, 192, 0.6)', // Teal
-      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
-      'rgba(201, 203, 207, 0.6)', // Gray
-      'rgba(0, 255, 157, 0.6)', // Lime
-      'rgba(255, 205, 86, 0.6)', // Yellow
+      'rgba(255, 99, 132, 0.6)',
+      'rgba(54, 162, 235, 0.6)',
+      'rgba(100, 255, 218, 0.6)',
+      'rgba(255, 159, 64, 0.6)',
+      'rgba(153, 102, 255, 0.6)',
+      'rgba(75, 192, 192, 0.6)',
+      'rgba(235, 154, 229, 0.6)',
+      'rgba(201, 203, 207, 0.6)',
+      'rgba(0, 255, 157, 0.6)',
+      'rgba(255, 205, 86, 0.6)',
     ];
 
-    // const labels = data.map(
-    //   (entry) =>
-    //     `${entry.INCIDENT_VALUE.toLocaleString()} - ${entry.INCIDENT_TYPE}`
-    // );
     const counts = data.map((entry) => entry.INCIDENT_VALUE);
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
+
+    // Compute totals
+    const totalCount = data.reduce((sum, e) => sum + e.INCIDENT_COUNT, 0);
+    const totalValue = data.reduce((sum, e) => sum + e.INCIDENT_VALUE, 0);
+
+    // Format total value, e.g., $4.2M
+    const formattedTotalValue =
+      totalValue >= 1_000_000
+        ? `$${(totalValue / 1_000_000).toFixed(1)} M`
+        : `$${totalValue.toLocaleString()} M`;
+    const formattedTotalCount = `#${totalCount}`;
 
     const ctx = (
       document.getElementById(canvasId) as HTMLCanvasElement
@@ -119,7 +123,6 @@ export class O2cLandingComponent implements OnInit {
       new Chart(ctx, {
         type: 'doughnut',
         data: {
-          // labels,
           datasets: [
             {
               data: counts,
@@ -148,29 +151,21 @@ export class O2cLandingComponent implements OnInit {
             id: 'centerText',
             beforeDraw(chart) {
               const { width, height, ctx } = chart;
-              const centerText =
-                centerTextOverride ||
-                counts.reduce((a, b) => a + b, 0).toString();
-              const subtitle = subtitleText;
 
               ctx.save();
 
-              // Main center text
+              // Main center text (e.g., $4.2M)
               ctx.font = '600 16px Inter, sans-serif';
               ctx.fillStyle = '#333';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
+              const mainTextY = height / 2 - 2;
+              ctx.fillText(formattedTotalValue, width / 2, mainTextY);
 
-              // If there's a subtitle, adjust the main text position slightly up
-              const mainTextY = subtitle ? height / 2 - 2 : height / 2;
-              ctx.fillText(centerText, width / 2, mainTextY);
-
-              // Subtitle text
-              if (subtitle) {
-                ctx.font = '12px Inter, sans-serif';
-                ctx.fillStyle = '#666';
-                ctx.fillText(subtitle, width / 2, height / 2 + 12);
-              }
+              // Subtitle (e.g., #12)
+              ctx.font = '12px Inter, sans-serif';
+              ctx.fillStyle = '#666';
+              ctx.fillText(formattedTotalCount, width / 2, height / 2 + 12);
 
               ctx.restore();
             },
@@ -179,13 +174,21 @@ export class O2cLandingComponent implements OnInit {
       });
 
       // Set custom legend
-      this.legendMap[canvasId] = data.map((entry, i) => ({
+      const legendEntries = data.map((entry, i) => ({
         type: entry.INCIDENT_TYPE,
         count: entry.INCIDENT_COUNT,
         value: entry.INCIDENT_VALUE,
         color: colors[i],
       }));
 
+      legendEntries.push({
+        type: 'Total Exceptions',
+        count: totalCount,
+        value: totalValue,
+        color: 'transparent',
+      });
+
+      this.legendMap[canvasId] = legendEntries;
       console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);
     } else {
       console.error(`Canvas with id ${canvasId} not found`);

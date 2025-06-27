@@ -9,19 +9,22 @@
       </div>
 
       <div class="custom-legend" *ngIf="legendMap['donutChart1']">
-        <div *ngFor="let item of legendMap['donutChart1']" class="legend-item">
-          <div class="legend-item">
-            <div class="legend-left">
-              <span
-                class="legend-color-box"
-                [style.background]="item.color"
-              ></span>
-              <span class="legend-type">{{ item.type }}</span>
-            </div>
-            <div class="legend-right">
-              <span class="legend-count">{{ item.count }}</span>
-              <span class="legend-value">{{ item.value | number }} M</span>
-            </div>
+        <div
+          *ngFor="let item of legendMap['donutChart1']; let i = index"
+          class="legend-item"
+          [class.total-row]="item.type === 'Total Exceptions'"
+        >
+          <div class="legend-left">
+            <span
+              class="legend-color-box"
+              *ngIf="item.color !== 'transparent'"
+              [style.background]="item.color"
+            ></span>
+            <span class="legend-type">{{ item.type }}</span>
+          </div>
+          <div class="legend-right">
+            <span class="legend-count">{{ item.count }}</span>
+            <span class="legend-value">{{ item.value | number }} M</span>
           </div>
         </div>
       </div>
@@ -33,19 +36,22 @@
       </div>
 
       <div class="custom-legend" *ngIf="legendMap['donutChart2']">
-        <div *ngFor="let item of legendMap['donutChart2']" class="legend-item">
-          <div class="legend-item">
-            <div class="legend-left">
-              <span
-                class="legend-color-box"
-                [style.background]="item.color"
-              ></span>
-              <span class="legend-type">{{ item.type }}</span>
-            </div>
-            <div class="legend-right">
-              <span class="legend-count">{{ item.count }}</span>
-              <span class="legend-value">{{ item.value | number }} M</span>
-            </div>
+        <div
+          *ngFor="let item of legendMap['donutChart2']; let i = index"
+          class="legend-item"
+          [class.total-row]="item.type === 'Total Exceptions'"
+        >
+          <div class="legend-left">
+            <span
+              class="legend-color-box"
+              *ngIf="item.color !== 'transparent'"
+              [style.background]="item.color"
+            ></span>
+            <span class="legend-type">{{ item.type }}</span>
+          </div>
+          <div class="legend-right">
+            <span class="legend-count">{{ item.count }}</span>
+            <span class="legend-value">{{ item.value | number }} M</span>
           </div>
         </div>
       </div>
@@ -56,19 +62,22 @@
       </div>
 
       <div class="custom-legend" *ngIf="legendMap['donutChart3']">
-        <div *ngFor="let item of legendMap['donutChart3']" class="legend-item">
-          <div class="legend-item">
-            <div class="legend-left">
-              <span
-                class="legend-color-box"
-                [style.background]="item.color"
-              ></span>
-              <span class="legend-type">{{ item.type }}</span>
-            </div>
-            <div class="legend-right">
-              <span class="legend-count">{{ item.count }}</span>
-              <span class="legend-value">{{ item.value | number }} M</span>
-            </div>
+        <div
+          *ngFor="let item of legendMap['donutChart3']; let i = index"
+          class="legend-item"
+          [class.total-row]="item.type === 'Total Exceptions'"
+        >
+          <div class="legend-left">
+            <span
+              class="legend-color-box"
+              *ngIf="item.color !== 'transparent'"
+              [style.background]="item.color"
+            ></span>
+            <span class="legend-type">{{ item.type }}</span>
+          </div>
+          <div class="legend-right">
+            <span class="legend-count">{{ item.count }}</span>
+            <span class="legend-value">{{ item.value | number }} M</span>
           </div>
         </div>
       </div>
