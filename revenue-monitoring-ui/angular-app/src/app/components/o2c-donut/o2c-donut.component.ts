@@ -1,107 +1,29 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { DestroyManager } from '../providers/destroy-manager.service';
-import { ApiHttpService } from '../providers/http.service';
+import { Component, Input } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { ChartData, ChartDataset } from 'chart.js/auto';
 import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
 
 @Component({
-  selector: 'app-o2c-landing',
-  templateUrl: './o2c-landing.component.html',
-  styleUrls: ['./o2c-landing.component.css'],
+  selector: 'app-o2c-donut',
+  templateUrl: './o2c-donut.component.html',
+  styleUrl: './o2c-donut.component.css',
 })
-export class O2cLandingComponent implements OnInit {
-  searchValue: string = '';
-  searchType: string = 'order'; // default
+export class O2cDonutComponent {
+  @Input() data: {
+    INCIDENT_TYPE: string;
+    INCIDENT_COUNT: number;
+    INCIDENT_VALUE: number;
+  }[] = [];
 
-  o2cConnectorData: any[] = [];
+  @Input() canvasId: string = 'donutCanvas'; // fallback if not set
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private http: ApiHttpService,
-    private destroyManager: DestroyManager
-  ) {}
-
-  dummyData1 = [
-    {
-      INCIDENT_TYPE: 'Order Entry',
-      INCIDENT_COUNT: 5,
-      INCIDENT_VALUE: 4,
-    },
-    {
-      INCIDENT_TYPE: 'Manual Entry',
-      INCIDENT_COUNT: 3,
-      INCIDENT_VALUE: 2,
-    },
-    {
-      INCIDENT_TYPE: 'Data Entry',
-      INCIDENT_COUNT: 2,
-      INCIDENT_VALUE: 1.2,
-    },
-  ];
-
-  dummyData2 = [
-    {
-      INCIDENT_TYPE: 'Order Entry',
-      INCIDENT_COUNT: 5,
-      INCIDENT_VALUE: 2.1,
-    },
-  ];
-
-  dummyData3 = [
-    { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 50, INCIDENT_VALUE: 1.4 },
-    { INCIDENT_TYPE: 'Manual Entry', INCIDENT_COUNT: 3, INCIDENT_VALUE: 0.9 },
-  ];
-
-  dummyData4 = [
-    {
-      INCIDENT_TYPE: 'Order Entry',
-      INCIDENT_COUNT: 5,
-      INCIDENT_VALUE: 2.1,
-    },
-    {
-      INCIDENT_TYPE: 'Manual Entry',
-      INCIDENT_COUNT: 3,
-      INCIDENT_VALUE: 1.5,
-    },
-    {
-      INCIDENT_TYPE: 'Data Entry',
-      INCIDENT_COUNT: 2,
-      INCIDENT_VALUE: 0.8,
-    },
-    {
-      INCIDENT_TYPE: 'System Error',
-      INCIDENT_COUNT: 1,
-      INCIDENT_VALUE: 0.3,
-    },
-  ];
-
-  dummyData5 = [
-    {
-      INCIDENT_TYPE: 'Order Entry',
-      INCIDENT_COUNT: 5,
-      INCIDENT_VALUE: 2.1,
-    },
-  ];
-  ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {});
-
-    // Dummy data
-
-    // Render three donut charts
-    this.renderPieChart(this.dummyData1, 'donutChart1');
-    this.renderPieChart(this.dummyData2, 'donutChart3');
-    this.renderPieChart(this.dummyData3, 'donutChart2');
-  }
-
-  isOpen: boolean[] = Array(7).fill(true);
-
-  toggleAccordion(index: number): void {
-    this.isOpen[index] = !this.isOpen[index];
-  }
+  legendItems: {
+    type: string;
+    count: number;
+    value: number;
+    color: string;
+  }[] = [];
 
   legendMap: {
     [canvasId: string]: {
@@ -111,6 +33,10 @@ export class O2cLandingComponent implements OnInit {
       color: string;
     }[];
   } = {};
+
+  ngAfterViewInit() {
+    this.renderPieChart(this.data, this.canvasId);
+  }
 
   renderPieChart(
     data: {
@@ -223,6 +149,8 @@ export class O2cLandingComponent implements OnInit {
         value: totalValue,
         color: 'transparent',
       });
+
+      this.legendItems = legendEntries;
 
       this.legendMap[canvasId] = legendEntries;
       console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);

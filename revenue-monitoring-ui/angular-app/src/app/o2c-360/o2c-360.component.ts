@@ -506,7 +506,12 @@ export class O2c360Component implements OnInit {
   }
 
   viewAll(type: 'subscriptions' | 'invoices', billNumber?: string): void {
-    if (!this.subscriptionLinesDataLoaded || !this.invoiceLinesDataLoaded) {
+    if (
+      !this.subscriptionDataLoaded ||
+      !this.subscriptionLinesDataLoaded ||
+      !this.invoiceLinesDataLoaded ||
+      !this.invoiceDataLoaded
+    ) {
       return;
     }
 
