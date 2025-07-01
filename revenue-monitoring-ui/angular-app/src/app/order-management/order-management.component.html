@@ -1,0 +1,197 @@
+<mat-tab-group
+  [selectedIndex]="selectedIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
+  <mat-tab
+    *ngFor="let tab of filteredTabs; let i = index"
+    [label]="tab.label"
+    [disabled]="tab.disabled"
+  >
+    <ng-container [ngSwitch]="tab.component">
+      <ng-container *ngSwitchCase="'app-imports'">
+        <app-monitoring-dashboard
+          [urls]="omImportUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Imports'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omImportFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-holds'">
+        <app-monitoring-dashboard
+          [urls]="omHoldsUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Holds'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omHoldsFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-bookings'">
+        <app-monitoring-dashboard
+          [urls]="omBookingsUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Bookings'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omBookingsFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-workflow'">
+        <app-monitoring-dashboard
+          [urls]="omWorkflowUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Workflow'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omWorkflowFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-processing'">
+        <app-monitoring-dashboard
+          [urls]="omProcessingUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Processing'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omProcessingFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-distribution'">
+        <app-monitoring-dashboard
+          [urls]="omDistributionUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Distribution'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omDistributionFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-attribution'">
+        <app-monitoring-dashboard
+          [urls]="omAttributionUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Attribution'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omAttributionFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+      <ng-container *ngSwitchCase="'app-jobs'">
+        <app-monitoring-dashboard
+          [urls]="omJobsUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [processFlowKeys]=""
+          [periodStatus]="periodStatus"
+          [componentName]="'Order Management Jobs'"
+          [processFlowTabsToDisplay]="[]"
+          [specialWords]="specialWords"
+          [skippedWords]="skippedWords"
+          [dynamicTemplate]=""
+          [dynamicCss]=""
+          [isSubAppMapping]="false"
+          [warningMessage]="'Warning message '"
+          [columnsToFilter]="omJobsFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [assignmentUsersFilter]="'ORDER_MANAGEMENT'"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          *ngIf="selectedIndex === i"
+        ></app-monitoring-dashboard>
+      </ng-container>
+    </ng-container>
+  </mat-tab>
+</mat-tab-group>

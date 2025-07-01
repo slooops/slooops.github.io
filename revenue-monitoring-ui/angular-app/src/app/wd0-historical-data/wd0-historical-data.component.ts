@@ -1,4 +1,11 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ChangeDetectorRef,
+  NgZone,
+} from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
@@ -12,10 +19,11 @@ import { Observable, interval, last, startWith, switchMap } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { monthEndDates } from './monthEndDates';
-import { el, hi, is } from 'date-fns/locale';
-import { set } from 'date-fns';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
+import { TableModalComponent } from '../components/table-modal/table-modal.component';
+import { MatDialog } from '@angular/material/dialog';
+
 Chart.register(...registerables);
 
 @Component({
@@ -24,7 +32,9 @@ Chart.register(...registerables);
   styleUrls: ['./wd0-historical-data.component.scss'],
   providers: [DestroyManager],
 })
-export class Wd0HistoricalDataComponent implements OnInit {
+export class Wd0HistoricalDataComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   protected http: ApiHttpService;
   loading: boolean = true;
   serviceLoading: boolean = true;
@@ -35,6 +45,16 @@ export class Wd0HistoricalDataComponent implements OnInit {
   dataTimestamp: string;
   numberOfQuartersOfHistoricalData: number = 8;
 
+  showProductModal = false;
+  showServiceModal = false;
+  productMidCloseActuals: any[] = [];
+  serviceMidCloseActuals: any[] = [];
+  productActualsLoading: boolean = true;
+  serviceActualsLoading: boolean = true;
+
+  servicePieChart: Chart | null = null;
+  productPieChart: Chart | null = null;
+
   upperCI: number;
   lowerCI: number;
 
@@ -42,7 +62,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
     http: ApiHttpService,
     private regressionService: RegressionService,
     private destroyManager: DestroyManager,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private ngZone: NgZone
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -53,6 +76,25 @@ export class Wd0HistoricalDataComponent implements OnInit {
   private lineChart: Chart | null = null;
   private serviceLineChart: Chart | null = null;
   private productLineChart: Chart | null = null;
+
+  ngOnDestroy(): void {
+    // Destroy the chart instance if it exists
+    if (this.lineChart) {
+      this.lineChart.destroy();
+      this.lineChart = null; // Set to null to avoid memory leaks
+    }
+
+    // Destroy other charts if applicable
+    if (this.serviceLineChart) {
+      this.serviceLineChart.destroy();
+      this.serviceLineChart = null;
+    }
+
+    if (this.productLineChart) {
+      this.productLineChart.destroy();
+      this.productLineChart = null;
+    }
+  }
 
   displayedColumns: string[] = [];
   historicalData: HistoricalDataModel[];
@@ -75,212 +117,310 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ngOnInit(): void {
     this.dataTimestamp = `Last Updated: ...`;
 
-    // Ensure the current date and time are interpreted in Pacific Time
-    const nowPacificTime = new Date(
-      new Date().toLocaleString('en-US', {
-        timeZone: 'America/Los_Angeles',
-      })
-    );
-
-    let effectiveWd = null;
-
-    monthEndDates.forEach((monthEndDate, index) => {
-      const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Explicit Pacific Time for month end
-      monthEnd.setHours(10); // WD-0 starts at 10 AM
-
-      // Calculate WD-3, WD-2, and WD-1 with rollovers
-      const wd3 = new Date(monthEnd);
-      const wd2 = new Date(monthEnd);
-      const wd1 = new Date(monthEnd);
-
-      wd3.setDate(monthEnd.getDate() - 3);
-      wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
-
-      wd2.setDate(monthEnd.getDate() - 2);
-      wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
-
-      wd1.setDate(monthEnd.getDate() - 2);
-      wd1.setHours(15); // 4 PM rollover for WD-1
-
-      // Determine the effective WD based on the current time
-      if (
-        nowPacificTime.toLocaleDateString('en-CA') ===
-          monthEnd.toLocaleDateString('en-CA') &&
-        nowPacificTime > wd1
-      ) {
-        effectiveWd = { wd: 'WD-0', index }; // WD-0
-      } else if (nowPacificTime >= wd1 && nowPacificTime < monthEnd) {
-        effectiveWd = { wd: 'WD-1', index }; // WD-1
-      } else if (nowPacificTime >= wd2 && nowPacificTime < wd1) {
-        effectiveWd = { wd: 'WD-2', index }; // WD-2
-      } else if (nowPacificTime >= wd3 && nowPacificTime < wd2) {
-        effectiveWd = { wd: 'WD-3', index }; // WD-3
-      } else {
-      }
-    });
-
-    console.log('Effective WD:', effectiveWd);
-
-    this.fetchDataForNewMonth = false;
-    this.isWd1 = false;
-    this.isWd2 = false;
-    this.isWd3 = false;
-
-    // Set the flags for the effective WD
-    if (effectiveWd) {
-      switch (effectiveWd.wd) {
-        case 'WD-0':
-          this.fetchDataForNewMonth = true;
-          break;
-        case 'WD-1':
-          this.isWd1 = true;
-          break;
-        case 'WD-2':
-          this.isWd2 = true;
-          break;
-        case 'WD-3':
-        case 'WD-3 (fallback)':
-          this.isWd3 = true;
-          break;
-        default:
-          console.error('Unknown WD:', effectiveWd.wd);
-      }
-      // this.menuService.updateMenuItems([
-      //   {
-      //     label: 'Large Deal Tracker',
-      //     route: '/large-deal-tracker',
-      //     role: ['ADMIN', 'LARGE_DEAL'],
-      //   },
-      //   {
-      //     label: 'WD0',
-      //     route: '/wd0',
-      //     role: ['ADMIN', 'WD0'],
-      //   },
-      //   {
-      //     label: 'Mid Close Volumes',
-      //     route: '/midclose-volumes',
-      //     role: ['ADMIN', 'MIDCLOSE_VOLUMES'],
-      //   },
-      // ]);
-    }
-
-    let serviceActuals = [null, null, null];
-    let productActuals = [null, null, null];
-
-    // Fetch data for regression
-    if (this.fetchDataForNewMonth) {
-      this.getEndpointData('wd0-current-month')
-        .pipe(
-          tap((data: any) => {
-            this.newMonthName = data[0].PERIOD_NAME;
-            this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
-          }),
-          switchMap(() => this.getEndpointData('wd0-regression'))
-        )
-        .subscribe((data: any) => {
-          let serviceActuals = [null, null, null];
-          let productActuals = [null, null, null];
-
-          // Check if the new month's data is present
-          const newMonthDataExists = data.some(
-            (entry: any) => entry.PERIOD_NAME === this.newMonthName
-          );
-
-          // If the new month's data exists, extract actuals. Otherwise, keep them as null.
-          if (newMonthDataExists) {
-            productActuals = this.extractProductActuals(data);
-            serviceActuals = this.extractServiceActuals(data);
-          }
-
-          // Pass the actuals (whether null or extracted) to getWd0Volumes
-          this.getWd0Volumes(productActuals, serviceActuals);
-
-          this.prepareDataForRegression(data);
-          this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-        });
-    } else if (this.isWd1) {
-      this.getEndpointData('wd0-current-month')
-        .pipe(
-          tap((data: any) => {
-            // Process the current month data
-            data.forEach((item: any) => {
-              if (item.LINE_TYPE === 'PRODUCT') {
-                // this.newMonthData[0][0] = item.LINE_COUNT;
-                this.newMonthData[0][0] = 0;
-              } else if (item.LINE_TYPE === 'SERVICE') {
-                // this.newMonthData[0][1] = item.LINE_COUNT;
-                this.newMonthData[0][1] = 0;
-              }
-            });
-            this.newMonthName = data[0].PERIOD_NAME;
-            this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-1
-          }),
-          switchMap(() => this.getEndpointData('wd0-regression'))
-        )
-        .subscribe((data: any) => {
-          let productActuals = [null, null, null];
-          let serviceActuals = [null, null, null];
-          this.getWd0Volumes(productActuals, serviceActuals);
-
-          this.prepareDataForRegression(data);
-          this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-        });
-    } else if (this.isWd2) {
-      let productActuals = [null, null, null];
-      let serviceActuals = [null, null, null];
-      this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
-
-      this.getEndpointData('wd0-regression').subscribe((data: any) => {
-        this.prepareDataForRegression(data);
-
-        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-        this.loading = false;
-        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-      });
-    } else if (this.isWd3) {
-      console.log('WD-3 case');
-      this.getEndpointData('wd0-regression').subscribe((data: any) => {
-        productActuals = this.extractProductActuals(data);
-        serviceActuals = this.extractServiceActuals(data);
-        this.getWd0Volumes(productActuals, serviceActuals);
-
-        const latestPeriodName = this.getLatestPeriodName(data);
-        console.log(`Data is from the period: ${latestPeriodName}`);
-
-        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-        this.prepareDataForRegression(data);
-
-        this.loading = false;
-        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-      });
-    } else {
-      this.getEndpointData('wd0-regression').subscribe((data: any) => {
-        productActuals = this.extractProductActuals(data);
-        serviceActuals = this.extractServiceActuals(data);
-        this.getWd0Volumes(productActuals, serviceActuals);
-
-        const latestPeriodName = this.getLatestPeriodName(data);
-        console.log(`Data is from the period: ${latestPeriodName}`);
-
-        this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-        this.prepareDataForRegression(data);
-
-        this.loading = false;
-        this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-      });
-    }
+    this.getWd0MidcloseActualsProduct();
+    this.getWd0MidcloseActualsService();
 
     this.refreshExportData();
     this.getHistoricalData();
   }
 
+  ngAfterViewInit(): void {
+    requestAnimationFrame(() => {
+      this.ngZone.runOutsideAngular(() => {
+        // Ensure the current date and time are interpreted in Pacific Time
+        const nowPacificTime = new Date(
+          new Date().toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
+          })
+        );
+
+        let effectiveWd = null;
+
+        monthEndDates.forEach((monthEndDate, index) => {
+          const monthEnd = new Date(`${monthEndDate}T00:00:00-08:00`); // Explicit Pacific Time for month end
+          monthEnd.setHours(10); // WD-0 starts at 10 AM
+
+          // Calculate WD-3, WD-2, and WD-1 with rollovers
+          const wd3 = new Date(monthEnd);
+          const wd2 = new Date(monthEnd);
+          const wd1 = new Date(monthEnd);
+
+          wd3.setDate(monthEnd.getDate() - 3);
+          wd3.setHours(15); // 4 PM DST, 3 PM summer time rollover for WD-3
+
+          wd2.setDate(monthEnd.getDate() - 2);
+          wd2.setHours(5); // early rollover for WD-2, so wd3 data can be seen
+
+          wd1.setDate(monthEnd.getDate() - 1);
+          wd1.setHours(15); // 4 PM rollover for WD-1
+
+          // Determine the effective WD based on the current time
+          if (
+            nowPacificTime.toLocaleDateString('en-CA') ===
+              monthEnd.toLocaleDateString('en-CA') &&
+            nowPacificTime > wd1
+          ) {
+            effectiveWd = { wd: 'WD-0', index }; // WD-0
+          } else if (nowPacificTime >= wd1 && nowPacificTime < monthEnd) {
+            effectiveWd = { wd: 'WD-1', index }; // WD-1
+          } else if (nowPacificTime >= wd2 && nowPacificTime < wd1) {
+            effectiveWd = { wd: 'WD-2', index }; // WD-2
+          } else if (nowPacificTime >= wd3 && nowPacificTime < wd2) {
+            effectiveWd = { wd: 'WD-3', index }; // WD-3
+          } else {
+          }
+        });
+
+        this.fetchDataForNewMonth = false;
+        this.isWd1 = false;
+        this.isWd2 = false;
+        this.isWd3 = false;
+
+        // Set the flags for the effective WD
+        if (effectiveWd) {
+          switch (effectiveWd.wd) {
+            case 'WD-0':
+              this.fetchDataForNewMonth = true;
+              break;
+            case 'WD-1':
+              this.isWd1 = true;
+              break;
+            case 'WD-2':
+              this.isWd2 = true;
+              break;
+            case 'WD-3':
+            case 'WD-3 (fallback)':
+              this.isWd3 = true;
+              break;
+            default:
+              console.error('Unknown WD:', effectiveWd.wd);
+          }
+        }
+
+        let serviceActuals = [null, null, null];
+        let productActuals = [null, null, null];
+
+        // Fetch data for regression
+        if (this.fetchDataForNewMonth) {
+          this.getEndpointData('wd0-current-month')
+            .pipe(
+              tap((data: any) => {
+                this.newMonthName = data[0].PERIOD_NAME;
+                this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-0
+              }),
+              switchMap(() => this.getEndpointData('wd0-regression'))
+            )
+            .subscribe((data: any) => {
+              let serviceActuals = [null, null, null];
+              let productActuals = [null, null, null];
+
+              // Check if the new month's data is present
+              const newMonthDataExists = data.some(
+                (entry: any) => entry.PERIOD_NAME === this.newMonthName
+              );
+
+              // If the new month's data exists, extract actuals. Otherwise, keep them as null.
+              if (newMonthDataExists) {
+                productActuals = this.extractProductActuals(data);
+                serviceActuals = this.extractServiceActuals(data);
+              }
+
+              // Pass the actuals (whether null or extracted) to getWd0Volumes
+              this.getWd0Volumes(productActuals, serviceActuals);
+
+              this.prepareDataForRegression(data);
+              this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+            });
+        } else if (this.isWd1) {
+          this.getEndpointData('wd0-current-month')
+            .pipe(
+              tap((data: any) => {
+                // Process the current month data
+                data.forEach((item: any) => {
+                  if (item.LINE_TYPE === 'PRODUCT') {
+                    // this.newMonthData[0][0] = item.LINE_COUNT;
+                    this.newMonthData[0][0] = 0;
+                  } else if (item.LINE_TYPE === 'SERVICE') {
+                    // this.newMonthData[0][1] = item.LINE_COUNT;
+                    this.newMonthData[0][1] = 0;
+                  }
+                });
+                this.newMonthName = data[0].PERIOD_NAME;
+                this.latestPeriodName = this.newMonthName; // Set latestPeriodName for wd-1
+              }),
+              switchMap(() => this.getEndpointData('wd0-regression'))
+            )
+            .subscribe((data: any) => {
+              let productActuals = [null, null, null];
+              let serviceActuals = [null, null, null];
+              this.getWd0Volumes(productActuals, serviceActuals);
+
+              this.prepareDataForRegression(data);
+              this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+            });
+        } else if (this.isWd2) {
+          let productActuals = [null, null, null];
+          let serviceActuals = [null, null, null];
+          this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
+
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            this.prepareDataForRegression(data);
+
+            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
+        } else if (this.isWd3) {
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            productActuals = this.extractProductActuals(data);
+            serviceActuals = this.extractServiceActuals(data);
+            this.getWd0Volumes(productActuals, serviceActuals);
+
+            const latestPeriodName = this.getLatestPeriodName(data);
+
+            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+            this.prepareDataForRegression(data);
+
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
+        } else {
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            productActuals = this.extractProductActuals(data);
+            serviceActuals = this.extractServiceActuals(data);
+            this.getWd0Volumes(productActuals, serviceActuals);
+
+            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
+
+            this.prepareDataForRegression(data);
+
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
+        }
+      });
+    });
+  }
+
+  getWd0MidcloseActualsProduct() {
+    this.productActualsLoading = true;
+    console.log('func called');
+    this.http
+      .get('wd0-midclose-actuals-product', this.destroyManager)
+      .subscribe((data: any) => {
+        this.productMidCloseActuals = data.map(
+          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
+        );
+        console.log('productMidCloseActuals', this.productMidCloseActuals);
+        this.productActualsLoading = false;
+      });
+  }
+
+  openWd0ProductModal(): void {
+    this.showProductModal = true;
+
+    setTimeout(() => {
+      this.renderPieChart(this.productMidCloseActuals, 'productPieChart');
+    }, 0);
+  }
+
+  getWd0MidcloseActualsService() {
+    this.serviceActualsLoading = true;
+    this.http
+      .get('wd0-midclose-actuals-service', this.destroyManager)
+      .subscribe((data: any) => {
+        this.serviceMidCloseActuals = data.map(
+          ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
+        );
+        console.log('serviceMidCloseActuals', this.serviceMidCloseActuals);
+        this.serviceActualsLoading = false;
+      });
+  }
+
+  openWd0ServiceModal(): void {
+    this.showServiceModal = true;
+    setTimeout(() => {
+      this.renderPieChart(this.serviceMidCloseActuals, 'servicePieChart');
+    }, 0);
+  }
+
+  customLegend: { label: string; color: string }[] = [];
+  renderPieChart(
+    data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
+    canvasId: string
+  ): void {
+    const pieColors = [
+      'rgba(54, 162, 235, 0.6)', // Blue
+      'rgba(100, 255, 218, 0.6)', // Mint
+      'rgba(255, 99, 132, 0.6)', // Red-pink
+      'rgba(255, 159, 64, 0.6)', // Orange
+      'rgba(153, 102, 255, 0.6)', // Purple
+      'rgba(75, 192, 192, 0.6)', // Teal
+      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
+      'rgba(201, 203, 207, 0.6)', // Gray
+      'rgba(0, 255, 157, 0.6)', // Lime
+      'rgba(255, 205, 86, 0.6)', // Yellow
+    ];
+
+    const labels = data.map(
+      (entry) => `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`
+    );
+    const counts = data.map((entry) => entry.TOTAL_COUNT);
+    const colors = data.map((_, index) => pieColors[index % pieColors.length]);
+
+    const ctx = (
+      document.getElementById(canvasId) as HTMLCanvasElement
+    )?.getContext('2d');
+
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: colors,
+              borderWidth: 0,
+              hoverOffset: 0, // No offset effect on hover
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }, // Hide legend
+            tooltip: { enabled: false }, // Disable tooltips
+            datalabels: {
+              display: false, // This hides the data labels
+            },
+          },
+          // Removes animations on hover & segment highlighting
+          hover: {
+            mode: null,
+          },
+          animation: {
+            animateRotate: false,
+            animateScale: false,
+          },
+        },
+      });
+
+      // Set custom legend
+      this.customLegend = labels.map((label, i) => ({
+        label,
+        color: colors[i],
+      }));
+    } else {
+      console.error(`Canvas with id ${canvasId} not found`);
+    }
+  }
+
   //this method is necessary for predicting the next month in the absence of
   //actual data for the current month from Surya
   getLatestPeriodName(data: any[]): string {
-    // Create a map of month names
     const monthMap = {
       JAN: 'FEB',
       FEB: 'MAR',
@@ -293,29 +433,48 @@ export class Wd0HistoricalDataComponent implements OnInit {
       SEP: 'OCT',
       OCT: 'NOV',
       NOV: 'DEC',
-      DEC: 'JAN', // Wrap back around to JAN
+      DEC: 'JAN', // Wrap back to JAN
     };
 
-    // Filter the data to ensure PERIOD_NAME exists
     const filteredData = data.filter((entry) => entry.PERIOD_NAME);
 
-    // Get the last entry in the filtered array
+    if (filteredData.length === 0) {
+      return 'Unknown Period';
+    }
+
     const latestEntry = filteredData[filteredData.length - 1];
+    const currentPeriodName = latestEntry.PERIOD_NAME;
+    const [currentPeriodMonth] = currentPeriodName.split('-');
 
-    // If it's wd-2, show the next month period name
-    if (this.isWd2 && latestEntry) {
-      const currentPeriodName = latestEntry.PERIOD_NAME;
-      const currentMonth = currentPeriodName.split('-')[0].toUpperCase(); // Extract the month
-      const nextMonth = monthMap[currentMonth]; // Map to the next month
+    // Get current local machine month in 3-letter uppercase format (e.g., 'NOV')
+    const monthNames = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
+    ];
+    const currentMachineMonth = monthNames[new Date().getMonth()];
 
-      // Return the new period with the same year but next month
+    // If it's WD-2 and latest period is NOT the current month, advance it
+    if (
+      (this.isWd2 || this.isWd3) &&
+      currentPeriodMonth !== currentMachineMonth
+    ) {
+      const nextMonth = monthMap[currentPeriodMonth];
       return nextMonth
         ? `${nextMonth}-${currentPeriodName.split('-')[1]}`
         : 'Unknown Period';
     }
 
-    // Otherwise, return the last entry's period name or 'Unknown Period'
-    return latestEntry ? latestEntry.PERIOD_NAME : 'Unknown Period';
+    return currentPeriodName;
   }
 
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
@@ -563,6 +722,8 @@ export class Wd0HistoricalDataComponent implements OnInit {
     });
   }
 
+  private retryCountServiceLine = 0;
+  private maxRetriesServiceLine = 5;
   // Update the Q3 Service Line Predictive Model Chart
   updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
     const labels = serviceData.map((entry: any) => entry.WD).reverse();
@@ -633,6 +794,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         // Destroy existing chart if it exists
         if (this.serviceLineChart) {
           this.serviceLineChart.destroy();
+          this.serviceLineChart = null;
         }
 
         // Create the new chart
@@ -644,16 +806,26 @@ export class Wd0HistoricalDataComponent implements OnInit {
         });
 
         this.serviceLoading = false; // Stop loading when chart is created
+        this.cdr.detectChanges(); // Trigger change detection
       } else {
         console.error('Failed to get 2D context for service line chart');
       }
     } else {
       // console.error('Canvas element for Service Line chart not created');
-      setTimeout(() => {
-        this.updateServiceLineChart(serviceData, serviceActuals);
-      }, 1000);
+      // Retry logic for canvas creation
+      if (this.retryCountServiceLine < this.maxRetriesServiceLine) {
+        setTimeout(() => {
+          this.retryCountServiceLine++;
+          this.updateServiceLineChart(serviceData, serviceActuals);
+        }, 1000);
+      } else {
+        console.error('Max retries reached for Service Line chart');
+      }
     }
   }
+
+  private retryCountProductLine = 0;
+  private maxRetriesProdcutLine = 5;
 
   updateProductLineChart(productData: any[], productActuals: number[]) {
     const labels = productData.map((entry: any) => entry.WD).reverse();
@@ -724,6 +896,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         // Destroy existing chart if it exists
         if (this.productLineChart) {
           this.productLineChart.destroy();
+          this.productLineChart = null;
         }
 
         // Create the new chart
@@ -734,15 +907,21 @@ export class Wd0HistoricalDataComponent implements OnInit {
         });
 
         this.productLoading = false; // Stop loading when chart is created
+        this.cdr.detectChanges(); // Trigger change detection
       } else {
         // this.handleChartCreationError();
       }
     } else {
       // console.error('Canvas element for Product Line chart not created');
-
-      setTimeout(() => {
-        this.updateProductLineChart(productData, productActuals);
-      }, 1000);
+      // Retry logic for canvas creation
+      if (this.retryCountProductLine < this.maxRetriesProdcutLine) {
+        setTimeout(() => {
+          this.retryCountProductLine++;
+          this.updateProductLineChart(productData, productActuals);
+        }, 1000);
+      } else {
+        console.error('Max retries reached for Product Line chart');
+      }
     }
   }
 
@@ -912,7 +1091,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
 
   //for the blue line on the table
   isProductTotalRow(row: any): boolean {
-    return row.ENTITY === 'Product Lines';
+    return row.LINE_TYPE === 'Product Lines';
   }
 
   getTrend(
@@ -1177,7 +1356,6 @@ export class Wd0HistoricalDataComponent implements OnInit {
   ) => {
     try {
       if (regressionData.X.length === 0 || regressionData.y.length === 0) {
-        console.log('Regression data is empty:', regressionData);
         this.errorMessage = true;
         this.loading = false;
         return;
@@ -1220,10 +1398,10 @@ export class Wd0HistoricalDataComponent implements OnInit {
           this.newMonthData,
           regressionData.X.length - 1
         );
-      // fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
-      // slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
-      fastestTimes.push(null);
-      slowestTimes.push(null);
+      fastestTimes.push(+upcomingMonthPrediction.lowerCI.toFixed(2));
+      slowestTimes.push(+upcomingMonthPrediction.upperCI.toFixed(2));
+      // fastestTimes.push(null);
+      // slowestTimes.push(null);
 
       let actualTimes = regressionData.y
         .slice(-this.numberOfMonths)
@@ -1248,6 +1426,9 @@ export class Wd0HistoricalDataComponent implements OnInit {
     }
   };
 
+  private retryCountLineGraph = 0;
+  private maxRetriesLineGraph = 5;
+
   createLineGraph(fastestTimes, slowestTimes, labels, lines, actualTimes) {
     const canvas = document.getElementById(
       'lineChartCanvas'
@@ -1260,6 +1441,7 @@ export class Wd0HistoricalDataComponent implements OnInit {
         // Check if lineChart already exists. If so, destroy it.
         if (this.lineChart) {
           this.lineChart.destroy();
+          this.lineChart = null;
         }
 
         // Now, recreate the chart with the new data
@@ -1361,20 +1543,25 @@ export class Wd0HistoricalDataComponent implements OnInit {
           },
         });
         this.loading = false; // Set loading to false after data is processed
+        this.cdr.detectChanges(); // Trigger change detection
       } else {
         console.error('Failed to get 2D context for line chart');
       }
     } else {
-      // console.error('Canvas element for combined chart failed to be created');
-      setTimeout(() => {
-        this.createLineGraph(
-          fastestTimes,
-          slowestTimes,
-          labels,
-          lines,
-          actualTimes
-        );
-      }, 1000);
+      if (this.retryCountLineGraph < this.maxRetriesLineGraph) {
+        this.retryCountLineGraph++;
+        setTimeout(() => {
+          this.createLineGraph(
+            fastestTimes,
+            slowestTimes,
+            labels,
+            lines,
+            actualTimes
+          );
+        }, 1000);
+      } else {
+        console.error('Max retries reached for chart creation');
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { ApiHttpService } from '../../providers/http.service';
 
 @Component({
   selector: 'app-o2c-nav',
@@ -7,17 +8,25 @@ import { Router } from '@angular/router';
   styleUrls: ['./o2c-nav.component.css'],
 })
 export class O2cNavComponent {
-  constructor(private router: Router) {}
+  searchValue: string = '';
+  searchType: string = 'order'; // default dropdown value
+  o2cConnectorData: any[] = [];
+
+  columnMap: { [key: string]: string } = {
+    order: 'WEBORDER_ID',
+    subscription: 'SUBSCRIPTION_REF_ID',
+    invoice: 'TRX_NUMBER',
+  };
+
+  constructor(private router: Router, private http: ApiHttpService) {}
 
   goToO2cHome() {
-    this.router.navigate(['/o2c-demo'], {});
+    this.router.navigate(['/o2c-landing'], {});
   }
 
   goToO2cOverview() {
-    this.router.navigate(['/o2c-overview'], {});
+    this.router.navigate(['/o2c-landing'], {});
   }
-
-  searchValue: string = ''; // Store input value
 
   // Mapping search values to their respective pages
   searchMap: { [key: string]: { route: string; paramName: string } } = {
@@ -28,27 +37,47 @@ export class O2cNavComponent {
   };
 
   onSearch(): void {
-    const searchKey = this.searchValue.trim();
+    this.router.navigate(['/o2c-landing'], {
+      queryParams: {
+        searchValue: this.searchValue,
+        // searchType: this.searchType,
+      },
+    });
 
-    if (!searchKey) {
-      // If search is empty, navigate to the landing page
-      this.router.navigate(['/o2c-landing']);
-      console.log('Navigating to O2C Landing Page');
-      return;
-    }
+    // const trimmedValue = this.searchValue.trim();
+    // if (!trimmedValue) return;
 
-    if (this.searchMap[searchKey]) {
-      const { route, paramName } = this.searchMap[searchKey];
-      this.router.navigate([route], {
-        queryParams: { [paramName]: searchKey },
-      });
-      console.log(`Navigating to ${route} with ${paramName}: ${searchKey}`);
-    } else {
-      // No match found → Navigate to O2C Landing & Show "No Results"
-      this.router.navigate(['/o2c-landing'], {
-        queryParams: { noResults: 'true' },
-      });
-      console.warn('No matching route found for search:', searchKey);
-    }
+    // const columnName = this.columnMap[this.searchType];
+
+    // this.http
+    //   .post<any[]>('o2c-connector-search', {
+    //     column: columnName,
+    //     value: trimmedValue,
+    //   })
+    //   .subscribe({
+    //     next: (data) => {
+    //       const orderIds = [
+    //         ...new Set(data.map((r) => r.WEBORDER_ID).filter(Boolean)),
+    //       ];
+    //       const subRefIds = [
+    //         ...new Set(data.map((r) => r.SUBSCRIPTION_REF_ID).filter(Boolean)),
+    //       ];
+    //       const trxNumbers = [
+    //         ...new Set(data.map((r) => r.TRX_NUMBER).filter(Boolean)),
+    //       ];
+
+    //       this.router.navigate(['/o2c-360'], {
+    //         queryParams: {
+    //           searchType: this.searchType,
+    //           orderId: orderIds[0],
+    //           subRefIds: subRefIds.join(','),
+    //           invoiceIds: trxNumbers.join(','),
+    //         },
+    //       });
+    //     },
+    //     error: (err) => {
+    //       console.error('Search failed:', err);
+    //     },
+    //   });
   }
 }

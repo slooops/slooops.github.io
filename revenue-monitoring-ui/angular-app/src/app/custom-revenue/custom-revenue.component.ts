@@ -4,6 +4,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-custom-revenue',
@@ -141,6 +142,53 @@ export class CustomRevenueComponent implements OnInit {
     XLA_AE_HEADERS: 0,
   };
 
+  fieldConfig = [
+    {
+      controlName: 'periodName',
+      label: 'Period Name',
+      sourceKey: 'PERIOD_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'appName',
+      label: 'Application Name',
+      sourceKey: 'APPLICATION_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'processFlow',
+      label: 'Process Flow',
+      sourceKey: 'PROCESS_FLOW',
+      disabled: true,
+    },
+    {
+      controlName: 'orgName',
+      label: 'Organization Name',
+      sourceKey: 'ORG_NAME',
+      disabled: true,
+    },
+    {
+      controlName: 'creationDate',
+      label: 'Transaction Date',
+      sourceKey: 'TRANSACTION_DATE',
+      disabled: true,
+    },
+    {
+      controlName: 'aging',
+      label: 'Aging',
+      sourceKey: 'AGING',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'ASSIGNED_TO',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
+  ];
+
   standardRevenueUrl: { [key: string]: string } = {
     summaryUrl: 'standard-revenue-errors-summary',
     detailsUrl: 'standard-revenue-error-details',
@@ -154,6 +202,7 @@ export class CustomRevenueComponent implements OnInit {
   standardRevenueTotals: { [key: string]: number } = {
     Adjustments: 0,
     Transactions: 0,
+    Payments: 0,
   };
 
   rolUrls: { [key: string]: string } = {
@@ -309,6 +358,7 @@ export class CustomRevenueComponent implements OnInit {
 
   accountsTotals: { [key: string]: number } = {
     '27041': 0,
+    '27031': 0,
   };
 
   formatStandardRevenueSteps = Object.keys(this.standardRevenueTotals).map(
@@ -709,7 +759,7 @@ export class CustomRevenueComponent implements OnInit {
   flex-direction: column;
   align-items: center;
   height: 82px;
-  width: 170px;
+  width: 320px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;
@@ -799,7 +849,7 @@ export class CustomRevenueComponent implements OnInit {
   flex-direction: column;
   align-items: center;
   height: 82px;
-  width: 330px;
+  width: 480px;
   background: #ffffff;
   top: 0px;
   padding-bottom: 20px;

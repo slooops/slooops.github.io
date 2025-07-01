@@ -1,0 +1,153 @@
+.table-responsive {
+  overflow: auto;
+}
+
+.mat-header-row {
+  background-color: #ffffff !important;
+  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+}
+
+.mat-header-cell {
+  color: rgb(46, 46, 46) !important;
+  text-align: center !important;
+  border-bottom: 0px !important;
+  font-size: 12px !important;
+  padding: 1vh !important;
+}
+
+.mat-cell {
+  font-size: 12px;
+  /* white-space: normal !important; */
+}
+
+th.mat-header-cell {
+  padding-bottom: unset !important;
+  padding-top: unset !important;
+  padding-left: 15px !important;
+}
+
+td {
+  text-align: center !important;
+  font-size: 11px;
+}
+
+td.mat-cell {
+  padding: 0px;
+}
+
+table.mat-table {
+  border-collapse: collapse;
+}
+
+tr.mat-row {
+  height: 25px;
+  border-bottom: 0px;
+}
+
+tr.mat-header-row {
+  height: 40px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.boldrow {
+  font-weight: bold !important;
+}
+
+td.mat-cell tr.mat-row.total-row-separator {
+  border-bottom: 1px solid black;
+}
+
+.chart-description {
+  font-size: 12px;
+  color: #6c6c6c;
+  margin-top: 10px;
+  padding-left: 3vw;
+}
+
+tr.mat-footer-row {
+  border: 1px solid #e7e7e7;
+  font-weight: bold;
+  height: 10px !important;
+}
+
+.generic-table {
+  background: white;
+  color: black;
+  width: 100%;
+  overflow-x: auto;
+  text-align: center;
+}
+
+th {
+  text-align: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.modal-icons {
+  display: flex;
+  align-items: center;
+}
+
+::ng-deep .mat-dialog-container {
+  display: block;
+  padding: 12px !important;
+  border-radius: 8px;
+  box-sizing: border-box;
+  overflow: auto;
+  outline: 0;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  max-height: inherit;
+}
+
+::ng-deep .mat-dialog-content {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: fit-content;
+  max-width: 90vw;
+  max-height: 100vh;
+  overflow-y: auto;
+  gap: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+}

@@ -30,9 +30,9 @@ export class AuthenticationService {
   }
 
   async getTokens() {
-    let authClientId = this.appConfig.getConfig().authClientId;
-    let authClientSecret = this.appConfig.getConfig().authClientSecret;
-    let ssoUrl = 'https://cloudsso.cisco.com';
+    let authClientId = this.authClientId;
+    let authClientSecret = this.authClientSecret;
+    let ssoUrl = 'https://id.cisco.com';
 
     const href = window.location.href;
     if (
@@ -41,12 +41,12 @@ export class AuthenticationService {
       href.search('-ts3') !== -1 ||
       href.search('-int') !== -1
     ) {
-      ssoUrl = 'https://cloudsso-test.cisco.com';
+      ssoUrl = 'https://int-id.cisco.com';
     } else if (href.search('localhost') !== -1) {
       ssoUrl = '';
     }
 
-    const tokenSsoUrl = ssoUrl + '/as/token.oauth2';
+    const tokenSsoUrl = ssoUrl + '/oauth2/default/v1/token';
 
     sessionStorage.removeItem('tokenObject');
     sessionStorage.removeItem('authBasic');
@@ -78,6 +78,14 @@ export class AuthenticationService {
     if (ssoUrl) {
       await this.postRequest(tokenSsoUrl, data);
     }
+
+    await this.getUserRoles(this.userId);
+    if (
+      this.userRoles.length === 0 &&
+      !this.bypassRoutes.includes(this.router.url)
+    ) {
+      this.router.navigate(['/error']);
+    }
   }
 
   postRequest(url: string, data: any) {
@@ -91,7 +99,7 @@ export class AuthenticationService {
       },
     })
       .then((response) => response.json())
-      .then((info) => {
+      .then(async (info) => {
         const tknObjStr = JSON.stringify(info);
         sessionStorage.setItem('refreshTokenData', tknObjStr);
         if (sessionStorage.getItem('accessToken')) {
@@ -116,6 +124,8 @@ export class AuthenticationService {
 
   username: string;
   userId: string;
+  authClientId: string;
+  authClientSecret: string;
   bypassRoutes = [
     '/o2c-demo',
     '/o2c-details',
@@ -129,21 +139,20 @@ export class AuthenticationService {
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
-      .then(async (info) => {
+      .then((info) => {
         this.username = info['auth_user_name'];
         this.userId = info['auth_user'];
-        await this.getUserRoles(info['auth_user']);
-        if (
-          this.userRoles.length === 0 &&
-          !this.bypassRoutes.includes(this.router.url)
-        ) {
-          this.router.navigate(['/error']);
-        }
+        this.authClientId = info['auth_client_id'];
+        this.authClientSecret = info['auth_client_secret'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
         this.router.navigate(['/error']);
       });
+    // .catch((error) => {
+    //   console.error('Error fetching user info:', error);
+    //   this.router.navigate(['/error']);
+    // });
   }
 
   getUserID() {

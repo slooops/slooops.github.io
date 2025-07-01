@@ -534,11 +534,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   replaceUnderscoreWithDash(column: string): string {
-    return column
-      .replace(/_/g, '-')
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+    return column.replace(/_/g, '-').split(' ').join(' ');
   }
 
   getPrecloseMeStatus() {
@@ -766,11 +762,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   replaceUnderscoreWithEmpty(column: string): string {
-    return column
-      .replace(/_/g, ' ')
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+    return column.replace(/_/g, ' ');
   }
 
   getEstimatedCompletionTime() {

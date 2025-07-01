@@ -5,6 +5,7 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -73,8 +74,22 @@ public class ExceptionMonitoringService {
     private String printSummaryUpdate;
     private String creditCardSummary;
     private String creditCardDetails;
-    private String debitCardSummary;
-    private String debitCardDetails;
+    private String creditCardDetailsFiltered;
+    private String creditCardSummaryUpdate;
+    private String rpoExtractSummary;
+    private String rpoExtractDetails;
+    private String rpoExtractDetailsFilter;
+    private String rpoExtractSummaryUpdate;
+    private String srtProcessSummary;
+    private String srtProcessDetails;
+    private String srtProcessDetailsFilter;
+    private String srtProcessSummaryUpdate;
+    private String creditCardCheckSummaryView;
+    private String creditCardCheckDetailView;
+    private String creditCardCheckDetailFilteredView;
+    private String updateCreditCardCheckSummary;
+
+
 
     @Autowired
     public ExceptionMonitoringService(JdbcManager jdbcManager, String accrualsDetailsFiltered, String accrualsSummaryUpdate,
@@ -92,7 +107,11 @@ public class ExceptionMonitoringService {
                                       String cmAmortSummary, String cmAmortDetails, String cmAmortSummaryUpdate, String cmAmortDetailsFiltered,
                                       String standardRevenueSummaryUpdate, String standardRevenueDetailsFiltered, String printSummary, String printDetail,
                                       String printDetailFiltered, String printSummaryUpdate, MongoDBManager mongoDBManager, String creditCardSummary,
-                                      String creditCardDetails, String debitCardSummary, String debitCardDetails
+                                      String creditCardDetails, String creditCardDetailsFiltered, String creditCardSummaryUpdate,  String rpoExtractSummary, String rpoExtractDetails,
+                                      String rpoExtractDetailsFilter, String rpoExtractSummaryUpdate, String srtProcessSummary, String srtProcessDetails,
+                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate, String creditCardCheckSummaryView, String creditCardCheckDetailView,
+                                      String creditCardCheckDetailFilteredView, String updateCreditCardCheckSummary
+
 
     ) {
         this.jdbcManager = jdbcManager;
@@ -153,9 +172,76 @@ public class ExceptionMonitoringService {
         this.printSummaryUpdate = printSummaryUpdate;
         this.creditCardSummary = creditCardSummary;
         this.creditCardDetails = creditCardDetails;
-        this.debitCardSummary = debitCardSummary;
-        this.debitCardDetails = debitCardDetails;
+        this.rpoExtractSummary = rpoExtractSummary;
+        this.rpoExtractDetails = rpoExtractDetails;
+        this.rpoExtractDetailsFilter = rpoExtractDetailsFilter;
+        this.rpoExtractSummaryUpdate = rpoExtractSummaryUpdate;
+        this.srtProcessSummary = srtProcessSummary;
+        this.srtProcessDetails = srtProcessDetails;
+        this.srtProcessDetailsFilter = srtProcessDetailsFilter;
+        this.srtProcessSummaryUpdate = srtProcessSummaryUpdate;
+        this.creditCardCheckDetailView = creditCardCheckDetailView;
+        this.creditCardCheckSummaryView = creditCardCheckSummaryView;
+        this.creditCardCheckDetailFilteredView = creditCardCheckDetailFilteredView;
+        this.updateCreditCardCheckSummary = updateCreditCardCheckSummary;
+        this.creditCardDetailsFiltered = creditCardDetailsFiltered;
+        this.creditCardSummaryUpdate = creditCardSummaryUpdate;
 
+    }
+
+    public List<Map<String, Object>> getCreditCardCheckSummaryView() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(creditCardCheckSummaryView);
+        String[] dateColumns = { "HOLD_APPLY_DATE", "ASSIGNED_DATE" };
+        result.forEach(data -> {
+            data.remove("AGING");
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 5) {
+                    reorderedData.put("AGING", calculateAging(data.get("HOLD_APPLY_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("HOLD_APPLY_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardCheckDetailView() {
+        String[] dateColumns = { "HOLD_APPLY_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(creditCardCheckDetailView);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardCheckDetailFilteredView(String periodName,
+                                                                          String orgName, String holdApplyDate, String processFlow) {
+        String[] dateColumns = { "HOLD_APPLY_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getCreditCardCheckDetailsFiltered(creditCardCheckDetailFilteredView, periodName, orgName, holdApplyDate, processFlow);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updateCreditCardCheckSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String flooringBid = updateData.get("processFlow").toUpperCase();
+        String entityName = updateData.get("orgName");
+        String holdApplyDate = updateData.get("holdApplyDate");
+        String assignedBy = updateData.get("username");
+        int test = jdbcManager.updateCreditCardCheckSummary(updateCreditCardCheckSummary, assignedTo, assignedBy, comments,
+                 entityName, holdApplyDate, flooringBid);
+        return test;
     }
 
 
@@ -347,7 +433,6 @@ public class ExceptionMonitoringService {
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
         int sequenceNum = Integer.parseInt(updateData.get("sequenceNum"));
-        System.out.println(updateData);
         int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy,
                 sequenceNum);
         return 1;
@@ -408,7 +493,7 @@ public class ExceptionMonitoringService {
 
     // Pre-Invoice
     public List<Map<String, Object>> getPreInvoiceErrorSummaryView() {
-        String[] dateColumns = { "TRANSACTION_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(preInvoiceErrorSummaryView);
         result.forEach(data -> {
             data.remove("AGING");
@@ -451,7 +536,7 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getPreInvoiceErrorDetailsFiltered(String appName, String operatingUnit,
-                                                                       String periodName, String uniqueId) {
+                                                                       String periodName, String processFlow, String uniqueId) {
         String[] dateColumns = { "TRANSACTION_DATE" };
         String[] emptyAmountColumns = { "IOL_HOLD",
                 "IOL_PENDING",
@@ -459,8 +544,8 @@ public class ExceptionMonitoringService {
                 "AR_INTERFACE",
                 "AR_INTERFACE_ERROR",
                 "INVOICED" };
-        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsAutoInvoice(preInvoiceErrorDetailsFiltered,
-                appName, operatingUnit, periodName, uniqueId);
+        List<Map<String, Object>> result = jdbcManager.queryForListWithParamsPreInvoice(preInvoiceErrorDetailsFiltered,
+                appName, operatingUnit, periodName, processFlow, uniqueId);
         result.forEach(data -> {
             renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
             renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
@@ -546,21 +631,65 @@ public class ExceptionMonitoringService {
     }
 
     //OPL
-
-    public List<Map<String, Object>> getOplData() {
-        String[] dateColumns = { "crDt", "eventTm", "processCrDt", "processUpdDt", "updDt" };
-        List<Map<String, Object>> result = mongoDBManager.getAllData(2,7);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//        });
-        System.out.println(result);
+    public long updateOmSummary(String collection, Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String timestamp = updateData.get("timestamp");
+        String scenario = updateData.get("scenario");
+        String status = updateData.get("status");
+        System.out.println(updateData);
+        long test = mongoDBManager.updateSummaryData(collection, timestamp, scenario, assignedTo, comments, status);
+        return 1;
+    }
+    public List<Map<String, Object>> getOMDetailsDataFiltered(String collection, String timestamp, String scenario) {
+        String[] dateColumns = { "assigned_date"};
+        List<Map<String, Object>> result = mongoDBManager.getFilteredData(collection, timestamp, scenario);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+            data.remove("assigned_data");
+        });
         return result;
     }
+
+
+    public List<Map<String, Object>> getOMDetailsData(String collection) {
+        String[] dateColumns = { "assigned_date"};
+        List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
+        result.forEach(data -> {
+            data.remove("assigned_date");
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getOMSummaryData(String collection) {
+        String[] dateColumns = { "assigned_date", "closed_date", "created_date"};
+        List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("aging", calculateAging(data.get("created_date")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("aging")) {
+                reorderedData.put("aging", calculateAging(data.get("created_date")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+            data.remove("closed_date");
+        });
+        return result;
+    }
+
+
 
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        System.out.println(mongoDBManager.getAllData(0,10));
         List<Map<String, Object>> result = jdbcManager.queryForList(cmAmortSummary);
         result.forEach(data -> {
             data.remove("AGING");
@@ -648,10 +777,10 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getCreditCardSummary() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(creditCardSummary);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
 //            Map<String, Object> reorderedData = new LinkedHashMap<>();
 //            int index = 0;
 //            for (Map.Entry<String, Object> entry : data.entrySet()) {
@@ -666,47 +795,24 @@ public class ExceptionMonitoringService {
 //            }
 //            data.clear();
 //            data.putAll(reorderedData);
-//        });
+        });
         return result;
     }
 
     public List<Map<String, Object>> getCreditCardDetails() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(creditCardDetails);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//        });
-        return result;
-    }
-
-    public List<Map<String, Object>> getDebitCardSummary() {
-//        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(debitCardSummary);
-//        result.forEach(data -> {
-//            formatDateColumns(data, dateColumns);
-//            Map<String, Object> reorderedData = new LinkedHashMap<>();
-//            int index = 0;
-//            for (Map.Entry<String, Object> entry : data.entrySet()) {
-//                if (index == 6) {
-//                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
-//                }
-//                reorderedData.put(entry.getKey(), entry.getValue());
-//                index++;
-//            }
-//            if (!reorderedData.containsKey("AGING")) {
-//                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
-//            }
-//            data.clear();
-//            data.putAll(reorderedData);
-//        });
-        return result;
-    }
-
-    public List<Map<String, Object>> getDebitCardDetails() {
-        String[] dateColumns = { "PAYMENT_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(debitCardDetails);
         result.forEach(data -> {
-            renameKey(data, "TRX_NUMBER", "TRANSACTION_ID");
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getCreditCardDetailsFiltered(String periodName,
+                                                                  String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getCreditCardDetailsFiltered(creditCardDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
             formatDateColumns(data, dateColumns);
         });
         return result;
@@ -732,6 +838,114 @@ public class ExceptionMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updatePrintSummary(printSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        return 1;
+    }
+
+    public List<Map<String, Object>> getRpoExtractSummary() {
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(rpoExtractSummary);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getRpoExtractDetails() {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(rpoExtractDetails);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getRpoExtractDetailsFiltered(String periodName,
+                                                                  String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getRPOExtractDetailsFiltered(
+                rpoExtractDetailsFilter, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updateRPOExtractSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String orgName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        int test = jdbcManager.updateRPOExtractSummary(rpoExtractSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        return 1;
+    }
+
+    public List<Map<String, Object>> getSrtProcessSummary() {
+        String[] dateColumns = { "SRT_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(srtProcessSummary);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 5) {
+                    reorderedData.put("AGING", calculateAging(data.get("SRT_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", calculateAging(data.get("SRT_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getSrtProcessDetails() {
+        String[] dateColumns = { "SRT_DATE" };
+        List<Map<String, Object>> result = jdbcManager.queryForList(srtProcessDetails);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getSRTProcessDetailsFiltered(String periodName,
+                                                                  String processFlow, String eventType, String ouName, String srtDate) {
+        String[] dateColumns = { "SRT_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getSRTProcessDetailsFiltered(
+                srtProcessDetailsFilter, periodName, processFlow, eventType, ouName, srtDate);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updateSRTProcessSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String entityName = updateData.get("orgName");
+        String srtDate = updateData.get("srtDate");
+        int test = jdbcManager.updateSRTProcessSummary(srtProcessSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  entityName, srtDate);
         return 1;
     }
 
@@ -793,7 +1007,7 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getFusionErrorSummary() {
-        String[] dateColumns = { "TRANSACTION_DATE" };
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         List<Map<String, Object>> result = jdbcManager.queryForList(fusionErrorSummary);
         result.forEach(data -> {
             data.remove("AGING");
@@ -901,9 +1115,9 @@ public class ExceptionMonitoringService {
     }
 
     public List<Map<String, Object>> getGlDetailsFilter(String periodName, String applicationName, String processFlow, String ledgerName,
-                                                         String accountSeg, String transactionDate) {
+                                                         String glbatch, String transactionDate) {
         List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, periodName, applicationName, processFlow, ledgerName,
-                 accountSeg, transactionDate);
+                glbatch, transactionDate);
         return result;
     }
 
@@ -965,11 +1179,44 @@ public class ExceptionMonitoringService {
     }
 
     private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        List<DateTimeFormatter> inputFormatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                DateTimeFormatter.ofPattern("MM/dd/yyyy"),
+                DateTimeFormatter.ofPattern("MM-dd-yyyy"),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
+        );
+
         for (String column : dateColumns) {
             Object value = data.get(column);
             if (value != null) {
-                String date = value.toString().split(" ")[0];
-                data.put(column, date);
+                String rawDate = value.toString().split(" ")[0].length() > 10 ? value.toString() : value.toString().split(" ")[0];
+                boolean parsed = false;
+
+                for (DateTimeFormatter formatter : inputFormatters) {
+                    try {
+                        LocalDate localDate = LocalDate.parse(rawDate, formatter);
+                        data.put(column, outputFormatter.format(localDate));
+                        parsed = true;
+                        break;
+                    } catch (Exception ignored) {}
+                }
+
+                if (!parsed) {
+                    try {
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+                        Date utilDate = sdf.parse(value.toString());
+                        LocalDate date = utilDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                        data.put(column, outputFormatter.format(date));
+                        parsed = true;
+                    } catch (Exception ignored) {}
+                }
+
+                if (!parsed) {
+                    data.put(column, rawDate);
+                }
             } else {
                 data.put(column, "");
             }
@@ -987,18 +1234,32 @@ public class ExceptionMonitoringService {
 
     private String calculateAging(Object transactionDate) {
         if (transactionDate == null || !(transactionDate instanceof String)) {
-            return "0";
+            return "0 days";
         }
-        try {
-            String dateString = (String) transactionDate;
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate creationDate = LocalDate.parse(dateString, formatter);
-            ZonedDateTime today = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
-            long agingInDays = ChronoUnit.DAYS.between(creationDate, today.toLocalDate());
-            return Long.toString(agingInDays);
-        } catch (Exception e) {
-            return "0";
+
+        String dateString = (String) transactionDate;
+        List<DateTimeFormatter> formatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("MM/dd/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                DateTimeFormatter.ofPattern("MM-dd-yyyy"),
+                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+                DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
+        );
+
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                LocalDate creationDate = LocalDate.parse(dateString, formatter);
+                ZonedDateTime today = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+                long agingInDays = ChronoUnit.DAYS.between(creationDate, today.toLocalDate());
+                return agingInDays + " days";
+            } catch (Exception ignored) {
+                // Try next format
+            }
         }
+
+        // If none of the formats matched
+        return "0 days";
     }
 
 }

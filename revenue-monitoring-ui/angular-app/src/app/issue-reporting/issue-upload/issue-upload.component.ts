@@ -65,6 +65,7 @@ export class IssueUploadComponent {
             this.closeDialog('uploaded');
           },
           (error) => {
+            console.error('Error uploading file:', error);
             this.closeDialog('error');
           }
         );

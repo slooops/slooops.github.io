@@ -14,9 +14,10 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class PeriodCloseMonitoringService {
@@ -59,6 +60,14 @@ public class PeriodCloseMonitoringService {
     private String issueReportingDashApprove;
     private String issueReportingDashCommentsUpdate;
     private String issueReportingDashFixDetailsUpdate;
+    private String issueReportingDashStatusUpdate;
+    private String issueReportingDashIssueDescUpdate;
+    private String wd0MidcloseActualsProduct;
+    private String wd0MidcloseActualsService;
+    private String issueReportingDashSummary;
+    private String sbpEspAgingCaseSummary;
+    private String sbpEspCaseServiceMetricSummary;
+    private String sbpEspWeeklyComparisonSummary;
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -70,10 +79,14 @@ public class PeriodCloseMonitoringService {
             String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
             String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
-             String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
+                                        String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
                                         String espWeeklyComparisonSummary, String periodName, String issueReportingDash,
                                         String issueReportingDashInsert, String issueReportingDashApprove,
-                                        String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate) {
+                                        String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate,
+                                        String wd0MidcloseActualsProduct, String wd0MidcloseActualsService,
+                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate,
+                                        String issueReportingDashSummary, String sbpEspAgingCaseSummary,
+                                        String sbpEspCaseServiceMetricSummary, String sbpEspWeeklyComparisonSummary) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -111,6 +124,14 @@ public class PeriodCloseMonitoringService {
         this.issueReportingDashApprove = issueReportingDashApprove;
         this.issueReportingDashCommentsUpdate = issueReportingDashCommentsUpdate;
         this.issueReportingDashFixDetailsUpdate = issueReportingDashFixDetailsUpdate;
+        this.issueReportingDashStatusUpdate = issueReportingDashStatusUpdate;
+        this.issueReportingDashIssueDescUpdate = issueReportingDashIssueDescUpdate;
+        this.wd0MidcloseActualsProduct = wd0MidcloseActualsProduct;
+        this.wd0MidcloseActualsService = wd0MidcloseActualsService;
+        this.issueReportingDashSummary = issueReportingDashSummary;
+        this.sbpEspAgingCaseSummary = sbpEspAgingCaseSummary;
+        this.sbpEspCaseServiceMetricSummary = sbpEspCaseServiceMetricSummary;
+        this.sbpEspWeeklyComparisonSummary = sbpEspWeeklyComparisonSummary;
     }
 
     public List<Map<String, Object>> getIssueReportingData() {
@@ -122,19 +143,24 @@ public class PeriodCloseMonitoringService {
         return result;
     }
 
+    public List<Map<String, Object>> getIssueReportingDataSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(issueReportingDashSummary);
+        List<Map<String, Object>> finalRes = transform(result);
+        return finalRes;
+    }
+
     public void insertIssueReportingData(MultipartFile file, String username) throws IOException {
         try {
             List<Map<String, String>> data = ExcelReader.readExcel(file.getInputStream());
 
-            // Print extracted data
-            System.out.println("Extracted Excel Data:");
             for (Map<String, String> row : data) {
-                jdbcManager.insertIssueReport(issueReportingDashInsert, row.get("Track"), row.get("ISSUE_DESCRIPTION"), row.get("ROOT_CAUSE"), row.get("BUSINESS_IMPACT"),
+                jdbcManager.insertIssueReport(issueReportingDashInsert, row.get("TRACK"), row.get("ISSUE_DESCRIPTION"), row.get("ROOT_CAUSE"), row.get("BUSINESS_IMPACT"),
                         row.get("FIX_DETAILS"), row.get("INCIDENT_NUMBER"), row.get("ISSUE_STARTED"), row.get("ISSUE_REPORTED_ON"), row.get("ISSUE_REPORTED_BY"),
                         row.get("QUARTER"), row.get("PERIOD_NAME"), row.get("PRIORITY"), row.get("CODE_FIX"), row.get("PDF_REQUIRED"), row.get("BUSINESS_APROVAL"),
-                        row.get("IT_APPROVAL"), row.get("APPROVAL_COMMENTS"), row.get("PERIOD_CLOSE_IMPACTING"), row.get("ISSUE_STATUS"), row.get("EOC_INCIDENT"));
+                        row.get("IT_APPROVAL"), row.get("APPROVAL_COMMENTS"), row.get("PERIOD_CLOSE_IMPACTING"), row.get("ISSUE_STATUS"), row.get("EOC_INCIDENT"), username);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            System.out.println(e);
             e.printStackTrace();
         }
     }
@@ -146,21 +172,74 @@ public class PeriodCloseMonitoringService {
 
     public int updateCommentsIssueReporting(String comments, String approvedBy, String incidentNum) {
         int test = jdbcManager.updateCommentsIssueReport(issueReportingDashCommentsUpdate, comments, approvedBy, incidentNum);
-        System.out.println(test);
         return test;
     }
 
     public int updateFixDetailsIssueReporting(String fixDetails, String approvedBy, String incidentNum) {
         int test = jdbcManager.updateFixDetailsIssueReport(issueReportingDashFixDetailsUpdate, fixDetails, approvedBy, incidentNum);
-        System.out.println(test);
+        return test;
+    }
+
+    public int updateStatusIssueReporting(String status, String approvedBy, String incidentNum) {
+        int test = jdbcManager.updateStatusIssueReport(issueReportingDashStatusUpdate, status, approvedBy, incidentNum);
+        return test;
+    }
+
+    public int updateIssueDescIssueReporting(String issue, String rootCause, String businessImpact, String approvedBy, String incidentNum) {
+        int test = jdbcManager.updateIssueDescIssueReport(issueReportingDashIssueDescUpdate, issue, rootCause, businessImpact, approvedBy, incidentNum);
         return test;
     }
 
     public void bulkApproveRejectIssueReporting(List<Map<String, Object>> approveData){
-        System.out.println(approveData);
         for(Map<String, Object> data: approveData) {
             approveRejectIssueReporting((String)data.get("status"), (String)data.get("approvedBy"), (String)data.get("incidentNumber"));
         }
+    }
+
+    public static List<Map<String, Object>> transform(List<Map<String, Object>> data) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        int grandTotal = 0;
+
+        Map<String, List<Map<String, Object>>> grouped = data.stream()
+                .collect(Collectors.groupingBy(row -> String.valueOf(row.get("TRACK"))));
+
+        for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
+            String track = entry.getKey();
+            List<Map<String, Object>> rows = entry.getValue();
+
+            // Add subtotal before the rows
+            Map<String, Object> subtotalRow = new LinkedHashMap<>();
+            subtotalRow.put("Track", "Sub Total (" + track + ")");
+            subtotalRow.put("Count", rows.size());
+            result.add(subtotalRow);
+
+            // Add the detailed rows
+            for (Map<String, Object> row : rows) {
+                Map<String, Object> newRow = new LinkedHashMap<>();
+                newRow.put("Track", track);
+                newRow.put("Count", 1);
+                newRow.put("Issue Status", row.get("ISSUE_STATUS"));
+                newRow.put("IT Approval", row.get("IT_APPROVAL"));
+                newRow.put("Approved On", formatDate(String.valueOf(row.get("APPROVED_ON"))));
+                newRow.put("Issue Description", row.get("ISSUE_DESCRIPTION"));
+                result.add(newRow);
+            }
+
+            grandTotal += rows.size();
+        }
+
+        // Add grand total at the top
+        Map<String, Object> totalRow = new LinkedHashMap<>();
+        totalRow.put("Track", "Total");
+        totalRow.put("Count", grandTotal);
+        result.add(totalRow); // insert at the beginning
+
+        return result;
+    }
+
+    private static String formatDate(String isoDate) {
+        return LocalDate.parse(isoDate.substring(0, 10))
+                .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
     }
 
     public UserRoleInfo getUserRoles(String username) {
@@ -200,13 +279,14 @@ public class PeriodCloseMonitoringService {
         finalResult.put("PRECLOSE", new ArrayList<>());
         finalResult.put("MIDCLOSE", new ArrayList<>());
 
-        Map<String, Map<String, Object>> preCloseResults = new HashMap<>();
-        Map<String, Map<String, Object>> midCloseResults = new HashMap<>();
+        Map<String, Map<String, Object>> preCloseResults = new LinkedHashMap<>();
+        Map<String, Map<String, Object>> midCloseResults = new LinkedHashMap<>();
+        Map<String, List<Map<String, Object>>> percentageBuffer = new HashMap<>();
 
         for (Map<String, Object> row : data) {
             String lineType = row.get("LINE_TYPE").toString();
             String closeType = row.get("CLOSE_TYPE").toString(); // "PRECLOSE" or "MIDCLOSE"
-            String uniqueKey = lineType + "-" + closeType; // Ensures unique objects for each type
+            String uniqueKey = lineType + "-" + closeType;
 
             Map<String, Object> resultMap = closeType.equals("PRECLOSE")
                     ? preCloseResults.computeIfAbsent(uniqueKey, k -> new LinkedHashMap<>())
@@ -217,27 +297,47 @@ public class PeriodCloseMonitoringService {
             String periodKey = isQuarterEnd ? row.get("QUARTER").toString() : row.get("PERIOD_NAME").toString();
             resultMap.put(periodKey, row.get("LINE_COUNT"));
 
+            Map<String, Object> temp = new LinkedHashMap<>();
             if (isQuarterEnd) {
-                if (row.get("QOQ_PERCENTAGE") != null) {
-                    resultMap.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
-                }
-                if (row.get("YOY_PERCENTAGE") != null) {
-                    resultMap.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
-                }
+                if (row.get("QOQ_PERCENTAGE") != null) temp.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
+                if (row.get("YOY_PERCENTAGE") != null) temp.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
             } else {
-                if (row.get("MOM_PERCENTAGE") != null) {
-                    resultMap.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
-                }
-                if (row.get("PQM_PERCENTAGE") != null) {
-                    resultMap.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+                if (row.get("MOM_PERCENTAGE") != null) temp.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
+                if (row.get("PQM_PERCENTAGE") != null) temp.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+            }
+
+            if (!temp.isEmpty()) {
+                String percentKey = lineType + "-" + closeType;
+                percentageBuffer.computeIfAbsent(percentKey, k -> new ArrayList<>()).add(temp);
+            }
+        }
+
+        for (Map.Entry<String, Map<String, Object>> entry : preCloseResults.entrySet()) {
+            String key = entry.getKey();
+            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
+            for (Map<String, Object> percentMap : percentList) {
+                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
+                    entry.getValue().put(p.getKey(), p.getValue());
                 }
             }
         }
+
+        for (Map.Entry<String, Map<String, Object>> entry : midCloseResults.entrySet()) {
+            String key = entry.getKey();
+            List<Map<String, Object>> percentList = percentageBuffer.getOrDefault(key, Collections.emptyList());
+            for (Map<String, Object> percentMap : percentList) {
+                for (Map.Entry<String, Object> p : percentMap.entrySet()) {
+                    entry.getValue().put(p.getKey(), p.getValue());
+                }
+            }
+        }
+
         finalResult.get("PRECLOSE").addAll(preCloseResults.values());
         finalResult.get("MIDCLOSE").addAll(midCloseResults.values());
 
         return finalResult;
     }
+
 
     public List<Map<String, Object>> getCloseStartEndTime() {
         return jdbcManager.queryForList(closeStartEndTime);
@@ -358,91 +458,70 @@ public class PeriodCloseMonitoringService {
     }
 
     public List<OrderLifecycleSummaryModel> getOrderStatusSummary() {
-        // Fetch data from the database and map it to the model list
+        // Step 1: Fetch and map data
         List<Map<String, Object>> res = jdbcManager.queryForList(orderStatusSummary);
-        List<OrderLifecycleSummaryModel> resultList = mapToOrderLifecycleSummaryModelList(res);
+        List<OrderLifecycleSummaryModel> rawList = mapToOrderLifecycleSummaryModelList(res);
 
-        // Extract unique program names
-        List<String> programNames = resultList.stream()
-                .map(model -> model.PROGRAM_NAME) // Assuming PROGRAM_NAME is a public field
-                .distinct()
-                .collect(Collectors.toList());
+        // Step 2: Group by PROGRAM_NAME
+        Map<String, List<OrderLifecycleSummaryModel>> groupedByProgram = rawList.stream()
+                .collect(Collectors.groupingBy(model -> model.PROGRAM_NAME, LinkedHashMap::new, Collectors.toList()));
 
-        // Calculate the last index for each program and sort by the index
-        Map<String, Integer> lastIndexSorted = programNames.stream()
-                .collect(Collectors.toMap(
-                        prog -> prog,
-                        prog -> getLastIndexOfProperty(resultList, prog)
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new
-                ));
+        List<OrderLifecycleSummaryModel> finalList = new ArrayList<>();
 
-        // Insert summary models at the correct positions
-        int indexOffset = 0;
-        for (Map.Entry<String, Integer> entry : lastIndexSorted.entrySet()) {
-            int position = entry.getValue() + indexOffset;
-            resultList.add(position, orderLifecycleSummary(resultList, entry.getKey()));
-            indexOffset++;
+        // Step 3: Build the result list with subtotals inserted immediately after each group
+        for (Map.Entry<String, List<OrderLifecycleSummaryModel>> entry : groupedByProgram.entrySet()) {
+            String programName = entry.getKey();
+            List<OrderLifecycleSummaryModel> group = entry.getValue();
+
+
+            int subtotal = group.stream().mapToInt(m -> m.ORDER_COUNT).sum();
+            finalList.add(new OrderLifecycleSummaryModel("Sub Total (" + programName + ")", subtotal, null, null));
+            finalList.addAll(group); // add all rows for that program
+
         }
 
-        // Calculate the total count across all programs
-        int totalCount = programNames.stream()
-                .mapToInt(prog -> calculateOrderCountSumByProgramName(resultList, prog))
+        // Step 4: Add grand total at the top
+        int totalCount = finalList.stream()
+                .filter(m -> m.PROGRAM_NAME != null && !m.PROGRAM_NAME.startsWith("Sub Total"))
+                .mapToInt(m -> m.ORDER_COUNT)
                 .sum();
 
-        // Add the total count as a summary row
-        resultList.add(new OrderLifecycleSummaryModel("Total", totalCount, null, null));
+        finalList.add( new OrderLifecycleSummaryModel("Total", totalCount, null, null));
 
-        return resultList;
+        return finalList;
     }
 
     public List<LargeDealSummaryByAccountModel> getLargeDealSummaryByAccount() {
         // Fetch and map the results to the model list
         List<Map<String, Object>> res = jdbcManager.queryForList(largeDealSummaryByAccount);
-        List<LargeDealSummaryByAccountModel> resultList = mapToLargeDealSummaryByAccountModelList(res);
+        List<LargeDealSummaryByAccountModel> rawList = mapToLargeDealSummaryByAccountModelList(res);
 
-        // Extract unique accounts directly using a stream
-        List<String> accounts = resultList.stream()
-                .map(model -> model.ACCOUNT) // Assuming ACCOUNT is a public field
-                .distinct()
-                .collect(Collectors.toList());
+        // Group the raw data by ACCOUNT
+        Map<String, List<LargeDealSummaryByAccountModel>> groupedByAccount = rawList.stream()
+                .collect(Collectors.groupingBy(model -> model.ACCOUNT, LinkedHashMap::new, Collectors.toList()));
 
-        // Calculate the last index for each account and sort by value
-        Map<String, Integer> lastIndexSorted = accounts.stream()
-                .collect(Collectors.toMap(
-                        acc -> acc,
-                        acc -> getLastIndexOfPropertyforAccount(resultList, acc)
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new
-                ));
+        List<LargeDealSummaryByAccountModel> resultList = new ArrayList<>();
 
-        // Insert summary models at the correct positions
-        int indexOffset = 0;
-        for (Map.Entry<String, Integer> entry : lastIndexSorted.entrySet()) {
-            int position = entry.getValue() + indexOffset;
-            resultList.add(position, largeDealSummaryByAccount(resultList, entry.getKey()));
-            indexOffset++;
+        // Build the result list by account group
+        for (Map.Entry<String, List<LargeDealSummaryByAccountModel>> entry : groupedByAccount.entrySet()) {
+            String account = entry.getKey();
+            List<LargeDealSummaryByAccountModel> accountModels = entry.getValue();
+
+             // add all rows for the account
+
+            // add subtotal after the rows
+            int subtotal = accountModels.stream().mapToInt(m -> m.ORDER_COUNT).sum();
+            resultList.add(new LargeDealSummaryByAccountModel("Sub Total (" + account + ")", subtotal, null, null));
+            resultList.addAll(accountModels);
         }
 
-        // Calculate the total count across all accounts
-        int totalCount = accounts.stream()
-                .mapToInt(acc -> calculateOrderCountSumByAccount(resultList, acc))
+        // Add the grand total row at the top
+        int totalCount = resultList.stream()
+                .filter(m -> m.ACCOUNT != null && !m.ACCOUNT.startsWith("Sub Total"))
+                .mapToInt(m -> m.ORDER_COUNT)
                 .sum();
 
-        // Add the total row
-        resultList.add(new LargeDealSummaryByAccountModel("Total", totalCount, null, null));
+        resultList.add( new LargeDealSummaryByAccountModel("Total", totalCount, null, null));
 
         return resultList;
     }
@@ -516,42 +595,6 @@ public class PeriodCloseMonitoringService {
             }
         }
         return sum;
-    }
-
-    public static int getLastIndexOfProperty(List<OrderLifecycleSummaryModel> objects, String targetProperty) {
-        for (int i = objects.size() - 1; i >= 0; i--) {
-            OrderLifecycleSummaryModel obj = objects.get(i);
-            if (obj.PROGRAM_NAME.equals(targetProperty)) {
-                return i;
-            }
-        }
-        return -1; // Property not found
-    }
-
-    public static int getLastIndexOfPropertyforAccount(List<LargeDealSummaryByAccountModel> objects,
-            String targetProperty) {
-        for (int i = objects.size() - 1; i >= 0; i--) {
-            LargeDealSummaryByAccountModel obj = objects.get(i);
-            if (obj.ACCOUNT.equals(targetProperty)) {
-                return i;
-            }
-        }
-        return -1; // Property not found
-    }
-
-    public static HashMap<String, Integer> sortByValue(Map<String, Integer> hm) {
-        List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(hm.entrySet());
-        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-            public int compare(Map.Entry<String, Integer> o1,
-                    Map.Entry<String, Integer> o2) {
-                return (o1.getValue()).compareTo(o2.getValue());
-            }
-        });
-        HashMap<String, Integer> temp = new LinkedHashMap<String, Integer>();
-        for (Map.Entry<String, Integer> aa : list) {
-            temp.put(aa.getKey(), aa.getValue());
-        }
-        return temp;
     }
 
     public List<Map<String, Object>> getOrderStatusRevSummary() {
@@ -719,6 +762,18 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.queryForList(espAgingCaseSummary);
     }
 
+    public List<Map<String, Object>> getSbpEspCaseServiceMetricSummary() {
+        return jdbcManager.queryForList(sbpEspCaseServiceMetricSummary);
+    }
+
+    public List<Map<String, Object>> getSbpEspWeeklyComparisonSummary() {
+        return jdbcManager.queryForList(sbpEspWeeklyComparisonSummary);
+    }
+
+    public List<Map<String, Object>> getSbpEspAgingCaseSummary() {
+        return jdbcManager.queryForList(sbpEspAgingCaseSummary);
+    }
+
     private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
         for (String column : dateColumns) {
             Object value = data.get(column);
@@ -729,6 +784,14 @@ public class PeriodCloseMonitoringService {
                 data.put(column, "");
             }
         }
+    }
+
+    public List<Map<String, Object>> getWd0MidcloseActualsProduct() {
+        return jdbcManager.queryForList(wd0MidcloseActualsProduct);
+    }
+
+    public List<Map<String, Object>> getWd0MidcloseActualsService() {
+        return jdbcManager.queryForList(wd0MidcloseActualsService);
     }
 
 }

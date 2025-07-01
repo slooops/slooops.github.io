@@ -325,7 +325,7 @@
             <ng-container [matColumnDef]="column">
               <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
                 <ng-container [ngSwitch]="column">
-                  <ng-container **ngSwitchCase="PERIOD_NAME">
+                  <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     {{ replaceUnderscoreWithEmpty(column) }}
                   </ng-container>
 

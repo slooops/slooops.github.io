@@ -2,59 +2,81 @@
   <div class="modal-content container" (click)="$event.stopPropagation()">
     <div
       style="
-        margin: -24px -24px 0 -24px; /* Removes default padding */
-        background-color: #08ace4;
-        padding: 10px;
-        color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background-color: #08ace4;
+        margin: -20px -20px 0 -20px;
+        padding: 15px;
       "
     >
       <h5
         class="section-title"
-        style="margin: 0; color: white; font-weight: lighter"
+        style="margin: 0; font-weight: lighter; color: white"
       >
         Assign User
       </h5>
       <i
-        class="fa fa-close"
+        class="svg-icon close-icon-white"
         (click)="closeDialog('cancel')"
-        style="cursor: pointer; color: white; font-size: 16px"
+        style="cursor: pointer; font-size: 16px; color: white"
       ></i>
     </div>
 
     <div class="modal-body">
       <form [formGroup]="updateForm" class="form-stack">
-        <div class="input-stack" *ngFor="let field of disabledFields">
+        <!-- <div class="input-stack" *ngFor="let field of fieldConfig">
           <label>{{ field.label }}</label>
-          <input
-            type="text"
-            [formControlName]="field.controlName"
-            [attr.disabled]="true"
-            [placeholder]="'Enter ' + field.label"
-          />
-        </div>
 
-        <div class="input-stack" *ngFor="let field of enabledFields">
-          <label>{{ field.label }}</label>
           <ng-container *ngIf="field.controlName === 'assignedTo'">
-            <select [formControlName]="field.controlName">
-              <option value="" disabled selected hidden>Select User</option>
-              <option
-                *ngFor="let data of assignmentUsers"
-                [value]="data.LOOKUP_CODE"
-              >
-                {{ data.LOOKUP_CODE }}
+            <select [formControlName]="field.controlName" required>
+              <option value="" disabled>Select User</option>
+              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
+                {{ data.NAME }}
               </option>
             </select>
           </ng-container>
+
           <ng-container *ngIf="field.controlName !== 'assignedTo'">
             <input
               type="text"
               [formControlName]="field.controlName"
               [placeholder]="'Enter ' + field.label"
             />
+          </ng-container>
+        </div> -->
+
+        <div class="input-stack" *ngFor="let field of fieldConfig">
+          <label>{{ field.label }}</label>
+
+          <ng-container *ngIf="field.controlName === 'assignedTo'">
+            <select [formControlName]="field.controlName" required>
+              <option value="" disabled>Select User</option>
+              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
+                {{ data.NAME }}
+              </option>
+            </select>
+          </ng-container>
+
+          <ng-container *ngIf="field.controlName !== 'assignedTo'">
+            <ng-container *ngIf="field.options?.length; else inputField">
+              <select [formControlName]="field.controlName">
+                <option value="" disabled>Select {{ field.label }}</option>
+                <option
+                  *ngFor="let option of field.options"
+                  [value]="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+            </ng-container>
+            <ng-template #inputField>
+              <input
+                type="text"
+                [formControlName]="field.controlName"
+                [placeholder]="'Enter ' + field.label"
+              />
+            </ng-template>
           </ng-container>
         </div>
       </form>
@@ -64,7 +86,13 @@
       <button class="custom-button-tertiary" (click)="closeDialog('cancel')">
         Cancel
       </button>
-      <button class="custom-button-primary" (click)="submitData()">Save</button>
+      <button
+        class="custom-button-primary"
+        [disabled]="updateForm.invalid"
+        (click)="submitData()"
+      >
+        Save
+      </button>
     </div>
   </div>
 </div>

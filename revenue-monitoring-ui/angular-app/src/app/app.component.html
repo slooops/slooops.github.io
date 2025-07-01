@@ -1,15 +1,7 @@
-<div class="row" *ngIf="showNavbar">
+<div class="row">
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
     <div style="width: 100%; display: flex; justify-content: space-between">
-      <span
-        style="
-          display: flex;
-          align-items: center;
-          padding: 0px 0 0px;
-          min-width: 500px;
-          max-width: 500px;
-        "
-      >
+      <span style="display: flex; align-items: center; padding: 0px 0 0px">
         <span
           style="
             display: flex;
@@ -54,11 +46,11 @@
           "
         >
           <span *ngIf="header.length > 0">
-            <div style="font-size: 12px">Operations Control Tower</div>
+            <div style="font-size: 12px">Finance IT Control Tower</div>
             <div style="font-size: 14px">{{ header }}</div>
           </span>
           <span *ngIf="header.length === 0">
-            <span>Operations Control Tower</span>
+            <span>Finance IT Control Tower</span>
           </span>
         </h5>
       </span>
@@ -74,13 +66,32 @@
           <!-- Period Close Tracking -->
           <li
             class="menu-item"
+            *ngIf="
+              !(
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
+                ])
+              )
+            "
             [class.disabled]="
               !(
                 hasRole$([
                   'PERIOD_CLOSE',
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON'
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
                 ]) || isAdmin$
               )
             "
@@ -94,11 +105,35 @@
             </a>
           </li>
 
-          <!-- Invoice to Cash -->
           <li
             class="menu-item"
+            *ngIf="
+              !(
+                hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT'
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ])
+              )
+            "
             [class.disabled]="
-              !(hasRole$(['LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES']) || isAdmin$)
+              !(
+                hasRole$([
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) || isAdmin$
+              )
             "
           >
             <a
@@ -109,14 +144,9 @@
               Business Insights
             </a>
           </li>
-
-          <!-- Revenue Accounting -->
-          <li
-            class="menu-item"
-            [class.disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
-          >
+          <li class="menu-item" *ngIf="isAdmin$">
             <a
-              [routerLink]="'/case-analyzer'"
+              [matMenuTriggerFor]="espMenu"
               class="top-link"
               style="font-weight: 500"
             >
@@ -127,7 +157,7 @@
       </span>
 
       <span style="display: flex; align-items: center">
-        <div class="custom-search-bar">
+        <div class="custom-search-bar" *ngIf="showNavbar">
           <input
             type="text"
             placeholder="Search"
@@ -136,6 +166,8 @@
           />
           <i class="svg-icon search-icon"></i>
         </div>
+
+        <app-o2c-search *ngIf="!showNavbar"></app-o2c-search>
         <i
           class="fa fa-question-circle"
           aria-hidden="true"
@@ -239,9 +271,35 @@
       !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
     "
   >
-    GL Posting
+    General Ledger
+  </button>
+  <button
+    mat-menu-item
+    [routerLink]="'/order-management'"
+    [disabled]="!(hasRole$(['ORDER_MANAGEMENT']) || isAdmin$)"
+  >
+    Order Management
   </button>
   <button mat-menu-item [routerLink]="''" [disabled]="true">
     Operations Controls
   </button>
 </mat-menu>
+
+<mat-menu #espMenu="matMenu">
+  <button
+    mat-menu-item
+    [routerLink]="'/i2c-case-analyzer'"
+    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+  >
+    I2C
+  </button>
+  <button
+    mat-menu-item
+    [routerLink]="'/sbp-case-analyzer'"
+    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+  >
+    SBP
+  </button>
+</mat-menu>
+
+<!-- <app-chatbot></app-chatbot> -->
