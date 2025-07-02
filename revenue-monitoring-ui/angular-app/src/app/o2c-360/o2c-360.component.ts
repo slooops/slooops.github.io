@@ -235,7 +235,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Order Summary:', data);
+        console.log('Order Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.orderExceptionMessage = hasException
@@ -273,7 +273,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Subscription Summary:', data);
+        console.log('Subscription Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.subscriptionExceptionMessage = hasException
@@ -315,7 +315,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Subscription Lines:', data);
+        console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
         this.subscriptionLinesDataLoaded = true;
       });
@@ -337,7 +337,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Invoice Summary:', data);
+        console.log('Invoice Summary:', data);
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         // console.log(
         //   'Invoice Summary Circle Status:',
@@ -372,7 +372,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Invoice Lines:', data);
+        console.log('Invoice Lines:', data);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
         this.invoiceLinesDataLoaded = true;
       });

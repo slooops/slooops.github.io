@@ -167,17 +167,22 @@
 
 .view-all-button {
   font-size: 14px;
-  font-style: normal;
   font-weight: 400;
   line-height: normal;
   color: #0076d5;
-
-  /* cursor: pointer; */
+  background: none;
+  border: none;
+  padding: 0;
 }
 
-.view-all-button:hover {
-  text-decoration: none !important;
-  color: #4a99d9 !important;
+.view-all-button:not(.disabled):hover {
+  color: #0076d5;
+}
+
+.view-all-button.disabled {
+  color: #ababab;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 th.mat-header-cell,
@@ -367,6 +372,30 @@ tr.mat-header-row {
   width: 4px;
   height: 30px;
   background-color: #08ace4;
+}
+
+/* Reset the default disabled button behavior */
+button:disabled {
+  pointer-events: auto !important;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #0076d5;
+  font-size: inherit;
+}
+
+/* More specific selector to override any defaults */
+button.link-button:disabled {
+  color: #808080;
+  opacity: 0.5;
+  cursor: wait !important;
+}
+
+.link-button:not(:disabled):hover {
+  color: #0897e4;
 }
 
 @keyframes bounce {
