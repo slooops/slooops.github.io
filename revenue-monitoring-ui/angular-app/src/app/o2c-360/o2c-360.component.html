@@ -435,8 +435,16 @@
           *ngFor="let column of subscriptionLinesDisplayedColumns"
           [matColumnDef]="column"
         >
-          <th mat-header-cell *matHeaderCellDef>
+          <th mat-header-cell *matHeaderCellDef (click)="sortTable(column)">
             {{ formatColumnName(column) }}
+            <span
+              class="sort-icon"
+              *ngIf="
+                column === 'TSV_CREATED' || column === 'UNIT_SELLING_PRICE'
+              "
+            >
+              {{ getSortIcon(column) }}
+            </span>
           </th>
 
           <td mat-cell *matCellDef="let element">
