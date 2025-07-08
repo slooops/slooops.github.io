@@ -461,51 +461,62 @@ export class O2c360Component implements OnInit {
 
   //needs more work
   private updateCircleStatus(): void {
+    // Determine if exceptions exist
     const hasOrderException = !!this.orderExceptionMessage;
-    console.log(
-      'has Order Exception Message:',
-      this.orderExceptionMessage,
-      hasOrderException
-    );
     const hasSubException = !!this.subscriptionExceptionMessage;
     const hasInvoiceException = !!this.invoiceExceptionMessage;
 
+    // Data existence checks
     const subscriptionDataExists =
       this.subscriptionSummaryDataSource?.data?.length > 0;
     const invoiceDataExists = this.invoiceSummaryDataSource?.data?.length > 0;
 
-    const orderGood = !hasOrderException;
-    console.log('Order Good:', orderGood, hasOrderException);
-    this.circleStatus['Order'] = orderGood ? 2 : -1;
-    const subGood = orderGood && !hasSubException;
-    const invoiceGood = subGood && !hasInvoiceException && invoiceDataExists;
+    // Step 1: Order status
+    // Order is either good (2) or has an error (-1)
+    this.circleStatus['Order'] = hasOrderException ? -1 : 2;
 
-    this.circleStatus['Subscription'] = hasOrderException ? -1 : 2;
-
-    this.circleStatus['Invoicing'] = hasOrderException
-      ? 0
-      : !subscriptionDataExists
-      ? 0
+    // Step 2: Subscription status
+    // Subscription depends on its own exceptions, not order
+    this.circleStatus['Subscription'] = !subscriptionDataExists
+      ? 0 // No data = pending
       : hasSubException
-      ? -1
-      : 2;
+      ? -1 // Has exception = error
+      : 2; // No exception = good
 
-    this.circleStatus['Accounting'] = !subGood
-      ? 0
-      : !invoiceDataExists
-      ? 0
-      : hasInvoiceException
-      ? -1
-      : 2;
+    // Step 3: Invoicing status
+    // Invoicing shows warning if previous step had error
+    this.circleStatus['Invoicing'] =
+      hasOrderException || hasSubException
+        ? 0 // Previous error = pending
+        : !invoiceDataExists
+        ? 0 // No data = pending
+        : hasInvoiceException
+        ? -1 // Has exception = error
+        : 2; // No exception = good
 
-    // Special handling for cash:
+    // Step 4: Accounting status
+    // Accounting depends on invoice data
+    this.circleStatus['Accounting'] =
+      hasOrderException || hasSubException || hasInvoiceException
+        ? 0 // Previous error = pending
+        : !invoiceDataExists
+        ? 0 // No data = pending
+        : 2; // Otherwise good
+
+    // Step 5: Cash status (special handling)
+    // Cash is good only if all invoices are closed
     const allClosed =
-      invoiceGood &&
+      invoiceDataExists &&
+      !hasOrderException &&
+      !hasSubException &&
+      !hasInvoiceException &&
       this.invoiceSummaryDataSource.data.every(
         (row: any) => row.STATUS === 'Closed'
       );
 
     this.circleStatus['Cash'] = allClosed ? 2 : 0;
+
+    console.log('Circle status updated:', this.circleStatus);
   }
 
   viewAll(type: 'subscriptions' | 'invoices', billNumber?: string): void {
