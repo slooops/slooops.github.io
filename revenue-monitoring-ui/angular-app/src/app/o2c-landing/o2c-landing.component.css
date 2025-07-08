@@ -1,214 +1,51 @@
-@import "src/assets/o2c-common-styles.css";
-
-.landing-container {
-  height: 70vh;
+.o2c-container {
   display: flex;
-  margin-top: 2rem;
-  padding: 5rem;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
+  height: 100%;
+  gap: 6px;
+  padding: 6px 22px;
 }
 
-.landing-container p {
-  max-width: 60%;
-  word-wrap: break-word;
-}
-
-.welcome-text {
-  color: var(--Blues-Blue-90, #1e4471);
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  margin: 16px 0 0 16px;
-}
-
-.welcome-body {
-  font-size: 16px;
-  font-weight: 300;
-  margin: 0 0 10px;
-}
-
-.table-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #227bb1;
-}
-
-th {
-  font-size: 13px;
-  font-weight: bold;
-  /* color: #227bb1; */
-  text-align: left !important;
-}
-
-td {
-  font-size: 12px;
-  font-weight: 300;
-}
-
-.search-bar-container {
-  display: flex;
-  justify-content: center;
-}
-
-.custom-search-bar {
-  display: flex;
-  align-items: center;
-  border: 1px solid #c4c4c4;
-  border-radius: 10vw; /* Rounded ends */
-  padding: 8px 16px; /* Inner padding */
-  /* height: 32px; */
-  background-color: #ffffff; /* Light background */
-  width: 40vw;
-  margin: 5vh auto; /* Optional: Center the search bar */
-  /* box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);  */
-}
-
-.custom-search-input {
-  flex-grow: 1;
-  border: none;
-  outline: none;
-  padding: 8px 12px;
-  font-size: auto;
-  border-radius: 24px; /* Match container's rounded ends */
-  background: transparent;
-}
-
-.custom-search-input::placeholder {
-  color: #d9d9d9;
-  font-style: italic;
-  opacity: 1; /* Optional: ensures full visibility in some browsers */
-}
-
-.custom-search-input:focus-within {
-  color: #2e2e2e;
-}
-
-.custom-search-input:focus {
-  outline: none;
-  border-color: #90a4ae; /* or #6b6b6b, or whatever you want */
-  box-shadow: none; /* remove default Material shadow */
-}
-
-.custom-search-input:active {
-  color: #2e2e2e;
-}
-
-.custom-search-icon {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 4px;
-  color: #6b6b6b; /* Icon color */
-}
-
-.custom-search-bar:focus-within {
-  border-color: #08ace4; /* Accent color when focused */
-}
-
-.custom-search-bar:hover {
-  background-color: #eeeeee; /* Slight hover effect */
-}
-
-.custom-search-dropdown {
-  border: none;
-  background: transparent;
-  padding: 8px 12px;
-  font-size: auto;
-  color: #2e2e2e;
-  outline: none;
-  cursor: pointer;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 14px;
-}
-
-.legend-color-box {
-  width: 12px;
-  height: 12px;
-  margin-right: 8px;
-  border-radius: 2px;
-}
-
-.chart-legend-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin: 2rem auto;
-  max-width: 60vw;
-}
-
-.chart-container {
-  flex: 0 0 auto;
-  max-width: 18vw;
-}
-
-.custom-legend {
+.o2c-column-container {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.legend-color-box {
-  width: 12px;
-  height: 12px;
-  margin-right: 8px;
-  border-radius: 20px;
+  gap: 6px;
+  width: 100%;
 }
 
 .o2c-donut-row {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 24px;
+  display: grid;
+  width: 100%;
+  gap: 20px;
+  flex: 1 0 0;
+  grid-template-rows: auto;
+  grid-template-columns: repeat(3, 1fr); /* Default: 3 columns */
+}
+
+/* For medium-sized screens */
+@media screen and (max-width: 1400px) {
+  .o2c-donut-row {
+    grid-template-columns: repeat(2, 1fr); /* 2x2 + 1 layout */
+  }
+}
+
+/* For smaller screens */
+@media screen and (max-width: 900px) {
+  .o2c-donut-row {
+    grid-template-columns: 1fr; /* Stack all items vertically */
+  }
 }
 
 .chart-legend-wrapper {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 16px;
-  max-width: 30%;
+  align-items: flex-start;
+  gap: 20px;
   flex: 1;
 }
 
-.chart-container {
-  width: 180px;
-  height: 180px;
-}
-
-.custom-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-}
-
-.legend-color-box {
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  border-radius: 3px;
+/* Adjust for smaller screens */
+@media screen and (max-width: 600px) {
+  .chart-legend-wrapper {
+    flex-direction: column; /* Stack chart and legend vertically on very small screens */
+  }
 }
