@@ -1,81 +1,104 @@
 <div
+  style="
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 2vh 22px 0 22px;
+  "
+>
+  <app-o2c-donut
+    [data]="dummyData1"
+    canvasId="donutChartLarge"
+    [showCircleBackground]="false"
+    [showLegend]="false"
+    chartSize="150px"
+  >
+  </app-o2c-donut>
+
+  <app-o2c-card
+    [title]="'Order'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Enter to Booked'"
+    [countDoubleWide]="0"
+    [valueDoubleWide]="'0'"
+    [footerDoubleWide]="'Booked to Fulfillment'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Subscription'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Fulfillment to Invoicing'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Invoice'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Fulfillment to Invoicing'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Accounting'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Accounting'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Cash'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Cash Collection'"
+  ></app-o2c-card>
+</div>
+
+<div
   class="o2c-container"
   style="justify-content: center; align-items: center; margin-top: 2vh"
 >
   <div class="o2c-donut-row">
-    <div class="chart-legend-wrapper">
-      <div class="accordion">
-        <div class="accordion-header" (click)="toggleAccordion(1)">
-          <span>Donut Chart 1 Title</span>
-          <span class="accordion-icon">{{ isOpen[1] ? "−" : "+" }}</span>
-        </div>
-        <div class="accordion-body" [class.open]="isOpen[1]">
-          <app-o2c-donut
-            [data]="dummyData1"
-            canvasId="donutChart1"
-          ></app-o2c-donut>
-        </div>
-      </div>
-    </div>
+    <app-o2c-accordion
+      [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
+      [isOpen]="isOpen[1]"
+      (toggleOpen)="toggleAccordion(1)"
+    >
+      <app-o2c-donut [data]="dummyData1" canvasId="donutChart1"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <div class="chart-legend-wrapper">
-      <div class="accordion">
-        <div class="accordion-header" (click)="toggleAccordion(2)">
-          <span>Donut Chart 2 Title</span>
-          <span class="accordion-icon">{{ isOpen[2] ? "−" : "+" }}</span>
-        </div>
-        <div class="accordion-body" [class.open]="isOpen[2]">
-          <app-o2c-donut
-            [data]="dummyData2"
-            canvasId="donutChart2"
-          ></app-o2c-donut>
-        </div>
-      </div>
-    </div>
+    <app-o2c-accordion
+      [title]="'Credit Holds'"
+      [isOpen]="isOpen[2]"
+      (toggleOpen)="toggleAccordion(2)"
+    >
+      <app-o2c-donut [data]="dummyData2" canvasId="donutChart2"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <div class="chart-legend-wrapper">
-      <div class="accordion">
-        <div class="accordion-header" (click)="toggleAccordion(3)">
-          <span>Donut Chart 3 Title</span>
-          <span class="accordion-icon">{{ isOpen[3] ? "−" : "+" }}</span>
-        </div>
-        <div class="accordion-body" [class.open]="isOpen[3]">
-          <app-o2c-donut
-            [data]="dummyData3"
-            canvasId="donutChart3"
-          ></app-o2c-donut>
-        </div>
-      </div>
-    </div>
+    <app-o2c-accordion
+      [title]="'Data Configuration'"
+      [isOpen]="isOpen[3]"
+      (toggleOpen)="toggleAccordion(3)"
+    >
+      <app-o2c-donut [data]="dummyData3" canvasId="donutChart3"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <div class="chart-legend-wrapper">
-      <div class="accordion">
-        <div class="accordion-header" (click)="toggleAccordion(4)">
-          <span>Donut Chart 4 Title</span>
-          <span class="accordion-icon">{{ isOpen[4] ? "−" : "+" }}</span>
-        </div>
-        <div class="accordion-body" [class.open]="isOpen[4]">
-          <app-o2c-donut
-            [data]="dummyData4"
-            canvasId="donutChart4"
-          ></app-o2c-donut>
-        </div>
-      </div>
-    </div>
+    <app-o2c-accordion
+      [title]="'Donut Chart 4 Title'"
+      [isOpen]="isOpen[4]"
+      (toggleOpen)="toggleAccordion(4)"
+    >
+      <app-o2c-donut [data]="dummyData4" canvasId="donutChart4"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <div class="chart-legend-wrapper">
-      <div class="accordion">
-        <div class="accordion-header" (click)="toggleAccordion(5)">
-          <span>Donut Chart 5 Title</span>
-          <span class="accordion-icon">{{ isOpen[5] ? "−" : "+" }}</span>
-        </div>
-        <div class="accordion-body" [class.open]="isOpen[5]">
-          <app-o2c-donut
-            [data]="dummyData5"
-            canvasId="donutChart5"
-          ></app-o2c-donut>
-        </div>
-      </div>
-    </div>
+    <app-o2c-accordion
+      [title]="'Process Exceptions'"
+      [isOpen]="isOpen[5]"
+      (toggleOpen)="toggleAccordion(5)"
+    >
+      <app-o2c-donut [data]="dummyData5" canvasId="donutChart5"></app-o2c-donut>
+    </app-o2c-accordion>
   </div>
 </div>

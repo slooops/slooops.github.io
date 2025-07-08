@@ -18,6 +18,12 @@ export class O2cDonutComponent {
 
   @Input() canvasId: string = 'donutCanvas'; // fallback if not set
 
+  @Input() showCircleBackground?: boolean = true;
+
+  @Input() showLegend?: boolean = true;
+
+  @Input() chartSize?: string = '125px';
+
   legendItems: {
     type: string;
     count: number;
@@ -34,8 +40,11 @@ export class O2cDonutComponent {
     }[];
   } = {};
 
-  ngAfterViewInit() {
-    this.renderPieChart(this.data, this.canvasId);
+  ngOnInit() {
+    // Make sure chart container styles get applied before rendering
+    setTimeout(() => {
+      this.renderPieChart(this.data, this.canvasId);
+    });
   }
 
   renderPieChart(
@@ -67,15 +76,24 @@ export class O2cDonutComponent {
     const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
     // Compute totals
-    const totalCount = data.reduce((sum, e) => sum + e.INCIDENT_COUNT, 0);
-    const totalValue = data.reduce((sum, e) => sum + e.INCIDENT_VALUE, 0);
+    const totalCount = data.reduce((sum, e) => {
+      const count = e.INCIDENT_COUNT;
+      return sum + (count !== undefined && count !== null ? count : 0);
+    }, 0);
+
+    const totalValue = data.reduce(
+      (sum, e) => sum + (e.INCIDENT_VALUE || 0),
+      0
+    );
 
     // Format total value, e.g., $4.2M
     const formattedTotalValue =
       totalValue >= 1_000_000
         ? `$${(totalValue / 1_000_000).toFixed(1)} M`
         : `$${totalValue.toLocaleString()} M`;
-    const formattedTotalCount = `#${totalCount}`;
+
+    // Format count, handling empty/undefined values
+    const formattedTotalCount = totalCount ? `#${totalCount}` : '';
 
     const ctx = (
       document.getElementById(canvasId) as HTMLCanvasElement
@@ -150,10 +168,10 @@ export class O2cDonutComponent {
         color: 'transparent',
       });
 
-      this.legendItems = legendEntries;
+      this.legendItems = this.showLegend ? legendEntries : [];
 
       this.legendMap[canvasId] = legendEntries;
-      console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);
+      // console.log(`Legend for ${canvasId}:`, this.legendMap[canvasId]);
     } else {
       console.error(`Canvas with id ${canvasId} not found`);
     }
