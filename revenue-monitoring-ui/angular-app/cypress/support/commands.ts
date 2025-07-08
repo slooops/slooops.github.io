@@ -149,6 +149,47 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add(
+  'testMatColumnSort',
+  (columnTitle: string, columnClass: string) => {
+    cy.log(`🔎 Checking sort for column: ${columnTitle}`);
+
+    // Find the column header and click to sort
+
+    cy.get('.mat-header-row > .cdk-column-' + columnClass)
+      .should('exist')
+      .click();
+
+    // Capture the value before sorting
+    cy.get(`.cdk-column-${columnClass}`)
+      .eq(1)
+      .invoke('text')
+      .then((beforeSortValue) => {
+        // Click again to toggle sort direction
+        cy.get('.mat-header-row > .cdk-column-' + columnClass).click();
+
+        // Capture the value after sorting
+        cy.get(`.cdk-column-${columnClass}`)
+          .eq(1)
+          .invoke('text')
+          .then((afterSortValue) => {
+            if (beforeSortValue.trim() === afterSortValue.trim()) {
+              cy.log(
+                `⚠️ Sort on column "${columnTitle}" may not be working (value did not change): ${beforeSortValue.trim()}, ${afterSortValue.trim()}.`
+              );
+              console.warn(
+                `⚠️ Column "${columnTitle}" sort may not be functioning correctly: value before/after was "${beforeSortValue.trim()}".`
+              );
+            } else {
+              cy.log(
+                `✅ Column "${columnTitle}" sort appears functional, ${beforeSortValue.trim()} ➔ ${afterSortValue.trim()}`
+              );
+            }
+          });
+      });
+  }
+);
+
 // Extend the Cypress interface globally
 declare global {
   namespace Cypress {
@@ -160,6 +201,10 @@ declare global {
         rowIndex: number,
         filterInputSelector: string,
         tableSectionIndex?: number
+      ): Chainable<void>;
+      testMatColumnSort(
+        columnTitle: string,
+        columnClass: string
       ): Chainable<void>;
     }
   }

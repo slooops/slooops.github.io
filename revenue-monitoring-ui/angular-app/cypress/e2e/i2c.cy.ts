@@ -5,6 +5,8 @@ describe('Invoice to Cash', () => {
 
     // Perform common process flow steps on Pre-Invoicing tab
     cy.testProcessFlowAndAssignment();
+    cy.testMatColumnSort('Aging"', 'AGING');
+
     cy.testTableFilter('BILL_NUMBER', 2, '3');
     cy.testTableFilter('TRANSACTION_ID', 2, '4');
 
