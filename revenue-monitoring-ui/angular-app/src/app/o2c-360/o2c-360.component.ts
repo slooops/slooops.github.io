@@ -235,7 +235,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Order Summary:', data);
+        console.log('Order Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.orderExceptionMessage = hasException
@@ -273,7 +273,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Subscription Summary:', data);
+        console.log('Subscription Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.subscriptionExceptionMessage = hasException
@@ -315,8 +315,11 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Subscription Lines:', data);
+        console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
+        if (this.sortColumn) {
+          this.sortTable(this.sortColumn);
+        }
         this.subscriptionLinesDataLoaded = true;
       });
   }
@@ -337,7 +340,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Invoice Summary:', data);
+        console.log('Invoice Summary:', data);
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         // console.log(
         //   'Invoice Summary Circle Status:',
@@ -372,7 +375,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        // console.log('Invoice Lines:', data);
+        console.log('Invoice Lines:', data);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
         this.invoiceLinesDataLoaded = true;
       });
@@ -557,5 +560,61 @@ export class O2c360Component implements OnInit {
 
   dismissOverlay(): void {
     this.showWelcomeOverlay = false;
+  }
+
+  // Add these properties to your component
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  // Add this method to handle sorting
+  sortTable(column: string): void {
+    console.log('Sorting by column:', column);
+    // If clicking the same column, toggle direction
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, default to ascending
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    // Clone the data array
+    const data = [...this.subscriptionLinesDataSource.data];
+
+    // Sort the data
+    data.sort((a, b) => {
+      const aValue = a[column];
+      const bValue = b[column];
+
+      // Handle date comparison for TSV_CREATED
+      if (column === 'TSV_CREATED') {
+        const dateA = new Date(aValue).getTime();
+        const dateB = new Date(bValue).getTime();
+        return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+
+      // Handle numeric comparison for UNIT_SELLING_PRICE
+      if (column === 'UNIT_SELLING_PRICE') {
+        const numA = parseFloat(aValue) || 0;
+        const numB = parseFloat(bValue) || 0;
+        return this.sortDirection === 'asc' ? numA - numB : numB - numA;
+      }
+
+      // Default string comparison
+      return this.sortDirection === 'asc'
+        ? String(aValue).localeCompare(String(bValue))
+        : String(bValue).localeCompare(String(aValue));
+    });
+
+    // Update the data source
+    this.subscriptionLinesDataSource = new MatTableDataSource(data);
+  }
+
+  // Helper method to show sort icons
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return '↕'; // or use a neutral icon
+    }
+    return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 }

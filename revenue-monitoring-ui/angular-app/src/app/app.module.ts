@@ -116,6 +116,8 @@ import { O2cSearchComponent } from './components/o2c-search/o2c-search.component
 import { O2cDonutComponent } from './components/o2c-donut/o2c-donut.component';
 import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
+import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
+import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -199,6 +201,7 @@ export function initApp(authService: AuthenticationService) {
     O2cDonutComponent,
     SbpEspCaseAnalyzerComponent,
     ChatbotComponent,
+    O2cCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -244,6 +247,7 @@ export function initApp(authService: AuthenticationService) {
     MatStepperModule,
     CommonModule,
     MatDialogModule,
+    O2cAccordionComponent,
   ],
   providers: [
     DatePipe,
