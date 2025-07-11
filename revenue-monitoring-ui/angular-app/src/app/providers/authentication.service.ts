@@ -39,7 +39,8 @@ export class AuthenticationService {
       href.search('-dev') !== -1 ||
       href.search('-ts1') !== -1 ||
       href.search('-ts3') !== -1 ||
-      href.search('-int') !== -1
+      href.search('-int') !== -1 ||
+      href.search('-stg') !== -1
     ) {
       ssoUrl = 'https://int-id.cisco.com';
     } else if (href.search('localhost') !== -1) {
