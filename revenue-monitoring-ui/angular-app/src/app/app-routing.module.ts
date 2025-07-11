@@ -119,14 +119,6 @@ const routes: Routes = [
       header: 'Continuous Monitoring',
     },
   },
-  // {
-  //   path: 'sbp',
-  //   component: SbpComponent,
-  //   data: {
-  //     title: 'SBP Monitoring',
-  //     header: 'Subscription Billing Platform Monitoring',
-  //   },
-  // },
   {
     path: 'i2c-case-analyzer',
     component: EspCaseAnalyzerComponent,
