@@ -466,16 +466,6 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  transactionsProcessedUrls: { [key: string]: string } = {
-    summaryUrl: 'transactions-processed-summary',
-    detailsUrl: 'transactions-processed-details',
-    filteredDetailsUrl: 'transactions-processed-details-filtered',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
   rpoTotals: { [key: string]: number } = {
     'Billing Pending': 0,
   };
@@ -634,12 +624,6 @@ export class InvoicingComponent implements OnInit {
       component: 'app-eInvoicing',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
-    // {
-    //   label: 'CMS',
-    //   component: 'app-cms',
-    //   role: ['ADMIN', 'CMS'],
-    //   disabled: true,
-    // },
     {
       label: 'Fusion',
       component: 'app-fusion',
@@ -650,11 +634,6 @@ export class InvoicingComponent implements OnInit {
       component: 'app-credit-card-check',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
-    // {
-    //   label: 'Transactions Processed',
-    //   component: 'app-transactions-processed',
-    //   role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    // },
   ];
 
   selectedIndex: number = 0;

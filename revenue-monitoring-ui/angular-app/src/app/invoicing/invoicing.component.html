@@ -382,66 +382,12 @@
         ></app-monitoring-dashboard>
       </ng-container>
 
-      <ng-container *ngSwitchCase="'app-transactions-processed'">
-        <app-monitoring-dashboard
-          [urls]="transactionsProcessedUrls"
-          [keysToMap]="['ORG_NAME']"
-          [periodStatus]="periodStatus"
-          [componentName]="'Transactions Processed'"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
-          [columnsToFilter]="[]"
-          [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
-          *ngIf="selectedIndex === i"
-        ></app-monitoring-dashboard>
-      </ng-container>
-
       <ng-container *ngSwitchCase="'app-cms'">
         <app-cms *ngIf="selectedIndex === i"></app-cms>
       </ng-container>
     </ng-container>
   </mat-tab>
 </mat-tab-group>
-
-<!-- <app-monitoring-dashboard
-  [urls]="autoInvoicingUrls"
-  [keysToMap]="preAndAutoInvoiceKeysToMap"
-  [processFlowKeys]="autoInvoicingTotals"
-  [periodStatus]="periodStatus"
-  [componentName]="'Auto-Invoicing'"
-  [processFlowTabsToDisplay]="[
-    'Pre-Invoicing',
-    'Auto-Invoicing',
-    'CM-Amortization',
-    'Print'
-  ]"
-  [specialWords]="specialWords"
-  [skippedWords]="skippedWords"
-  [dynamicTemplate]="dynamicTemplate"
-  [dynamicCss]="invoicingprocessflowCss"
-  [isSubAppMapping]="false"
-  [warningMessage]="'Invoice processing is delayed '"
-  [columnsToFilter]="autoInvoicingFilters"
-  [detailsColumnsToHide]="['TRANSACTION_DATE']"
-  [submitKeysToMap]="[
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_DATE'
-  ]"
-  [webexKeysToMap]="[
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_DATE',
-    'AMOUNT'
-  ]"
-></app-monitoring-dashboard> -->
 
 <ng-template #dynamicTemplate let-allTotals="allTotals">
   <div

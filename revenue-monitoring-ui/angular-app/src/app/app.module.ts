@@ -62,7 +62,6 @@ import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.co
 import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
-import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { HelpDataComponent } from './help-data/help-data.component';
@@ -78,7 +77,6 @@ import { CommonModule } from '@angular/common';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
 import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-// import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
 import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
@@ -153,7 +151,6 @@ export function initApp(authService: AuthenticationService) {
     CmsDetailsComponent,
     CmsModalComponent,
     CmsSftpDetailsComponent,
-    SbpComponent,
     LoadingSymbolSmallComponent,
     EspCaseAnalyzerComponent,
     HelpDataComponent,
