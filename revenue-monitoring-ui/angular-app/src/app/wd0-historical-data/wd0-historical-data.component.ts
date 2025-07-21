@@ -23,6 +23,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
 import { TableModalComponent } from '../components/table-modal/table-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 Chart.register(...registerables);
 
@@ -65,7 +66,8 @@ export class Wd0HistoricalDataComponent
     private menuService: MenuService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private exportToExcelService: ExportToExcelService
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -1232,25 +1234,7 @@ export class Wd0HistoricalDataComponent
         });
       }
     }
-
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
-
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
-    let link = document.createElement('a'); // create link
-    link.href = url;
-    link.download = filename + '.xlsx';
-    link.click(); // triggers the download process and save file prompt in browser
-    window.URL.revokeObjectURL(url); // revoke temp URL
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
   }
 
   getEndpointData(endpoint: string): Observable<any> {

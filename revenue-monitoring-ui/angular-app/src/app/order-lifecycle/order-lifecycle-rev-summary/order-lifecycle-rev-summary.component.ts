@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
@@ -14,7 +15,8 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<OrderLifecycleRevSummaryComponent>,
     http: ApiHttpService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private exportToExcelService: ExportToExcelService
   ) {
     this.http = http;
   }
@@ -427,25 +429,7 @@ export class OrderLifecycleRevSummaryComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
-
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data);
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = filename + '.xlsx';
-    link.click();
-    window.URL.revokeObjectURL(url);
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
   }
 
   closeDialog() {

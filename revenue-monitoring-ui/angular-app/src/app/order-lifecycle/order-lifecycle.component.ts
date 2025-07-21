@@ -22,6 +22,7 @@ import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({
   selector: 'app-invoice-status',
@@ -38,7 +39,7 @@ export class OrderLifecycleComponent implements OnInit {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private menuService: MenuService
+    private exportToExcelService: ExportToExcelService
   ) {
     this.http = http;
   }
@@ -215,6 +216,7 @@ export class OrderLifecycleComponent implements OnInit {
 
         this.filterData();
         this.length = this.orderLifecycleStatus.length;
+        console.log(this.length);
         this.setSortAndPaginator();
         this.dataSource.filterPredicate = this.filterPredicate;
       },
@@ -582,25 +584,9 @@ export class OrderLifecycleComponent implements OnInit {
       this.exportTableToExcel(this.selectedArr, sheetName, filename);
     }
   }
-  exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
 
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data);
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = filename + '.xlsx';
-    link.click();
-    window.URL.revokeObjectURL(url);
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
   }
 
   updateTime() {
