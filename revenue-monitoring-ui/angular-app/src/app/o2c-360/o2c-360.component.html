@@ -345,10 +345,11 @@
                       <button
                         class="link-button"
                         [disabled]="
-                          !invoiceLinesDataLoaded || !subscriptionDataLoaded
+                          !invoiceLinesDataLoaded ||
+                          !subscriptionLinesDataLoaded
                         "
                         [style.cursor]="
-                          invoiceLinesDataLoaded && subscriptionDataLoaded
+                          invoiceLinesDataLoaded && subscriptionLinesDataLoaded
                             ? 'pointer'
                             : 'wait'
                         "

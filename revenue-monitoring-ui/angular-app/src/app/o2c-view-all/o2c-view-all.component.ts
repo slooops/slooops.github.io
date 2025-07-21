@@ -50,7 +50,7 @@ export class O2cViewAllComponent implements OnInit {
     'ROUTE_TO_MARKET',
     'ORDER_HOLDS',
     'CLOUD_SUB_ORDER_HOLDS',
-    'FLOW_STATUS_CODE',
+    'LEGAL_ENTITY',
     'BILL_TO_CUSTOMER',
     'END_CUSTOMER',
   ];
@@ -67,7 +67,7 @@ export class O2cViewAllComponent implements OnInit {
     'UNIT_SELLING_PRICE',
     'DURATION',
     'LINE_AMOUNT',
-    'BILL_LINEREFERENCE',
+    'BILL_LINE_REFERENCE',
     'CHARGE_CYCLE',
     'TSV_CREATED',
     'POSTED_TO_GL',

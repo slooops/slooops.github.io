@@ -260,6 +260,7 @@ tr.mat-header-row {
   justify-content: center;
   width: 100%;
   height: 150px;
+  border: 1px solid #e4e4e4;
 }
 
 .no-data-container {
@@ -404,12 +405,12 @@ button.link-button:disabled {
 }
 
 th[mat-header-cell] {
-  cursor: pointer;
+  cursor: default;
 }
 
-th[mat-header-cell]:hover {
+/* th[mat-header-cell]:hover {
   background-color: rgba(0, 0, 0, 0.04);
-}
+}  */
 
 @keyframes bounce {
   0% {

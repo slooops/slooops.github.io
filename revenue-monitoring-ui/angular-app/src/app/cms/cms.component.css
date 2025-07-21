@@ -49,7 +49,9 @@ a {
 }
 
 .callout-box.callout-box-widget {
-  width: fill-available;
+  width: -webkit-fill-available;
+  width: -moz-available;
+  width: stretch;
 }
 
 .box-header {

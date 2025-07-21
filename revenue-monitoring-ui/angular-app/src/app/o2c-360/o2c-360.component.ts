@@ -8,6 +8,7 @@ import {
   SearchContextService,
   O2cSearchResult,
 } from '../search-context.service';
+import { is } from 'date-fns/locale';
 
 @Component({
   selector: 'app-o2c-360',
@@ -80,7 +81,7 @@ export class O2c360Component implements OnInit {
     'ROUTE_TO_MARKET',
     'ORDER_HOLDS',
     'CLOUD_SUB_ORDER_HOLDS',
-    'FLOW_STATUS_CODE',
+    'LEGAL_ENTITY',
     'BILL_TO_CUSTOMER',
     'END_CUSTOMER',
   ];
@@ -132,7 +133,7 @@ export class O2c360Component implements OnInit {
     'UNIT_SELLING_PRICE',
     'DURATION',
     'LINE_AMOUNT',
-    'BILL_LINEREFERENCE',
+    'BILL_LINE_REFERENCE',
     'CHARGE_CYCLE',
     'TSV_CREATED',
     'POSTED_TO_GL',
@@ -176,13 +177,26 @@ export class O2c360Component implements OnInit {
   ngOnInit(): void {
     this.sidebarService.isExpanded$.subscribe((isExpanded) => {
       this.sidebarExpanded = isExpanded;
+
+      if (!isExpanded) {
+        this.expanded.subscription = true;
+        this.expanded.invoice = true;
+      } else if (isExpanded) {
+        this.expanded.subscription = false;
+        this.expanded.invoice = false;
+      }
     });
 
     this.sidebarService.activeItem$.subscribe((item) => {
       if (item === 'Subscriptions') {
         this.expanded.subscription = true;
+        this.expanded.invoice = false;
       } else if (item === 'Invoices') {
         this.expanded.invoice = true;
+        this.expanded.subscription = false;
+      } else if (item === 'Orders') {
+        this.expanded.subscription = false;
+        this.expanded.invoice = false;
       }
     });
 

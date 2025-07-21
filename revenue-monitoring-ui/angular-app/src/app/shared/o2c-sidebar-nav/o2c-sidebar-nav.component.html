@@ -2,19 +2,19 @@
   <div class="o2c-sidebar" [class.collapsed]="collapsed">
     <button class="menu-button" (click)="toggleSidebar()">
       <i class="fa fa-bars"></i>
-      <span *ngIf="!collapsed">Search Results</span>
+      <span>Search Results</span>
     </button>
 
     <nav>
-      <div
+      <div 
         class="nav-item"
         *ngFor="let item of navItems"
         [class.active]="item.label === activeItem"
         (click)="selectItem(item.label)"
       >
         <i [class]="item.icon"></i>
-        <span *ngIf="!collapsed">{{ item.label }}</span>
-        <span *ngIf="!collapsed && item.count !== undefined" class="count">
+        <span>{{ item.label }}</span>
+        <span *ngIf="item.count !== undefined" class="count">
           {{ item.count }}
         </span>
       </div>
