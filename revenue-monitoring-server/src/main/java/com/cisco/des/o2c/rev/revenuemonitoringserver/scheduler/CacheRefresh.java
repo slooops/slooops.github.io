@@ -19,7 +19,7 @@ public class CacheRefresh {
 	private static long startTime = 0;
 	
 	private long cmsRefresh;
-	
+
 	@Autowired
     private CMSMonitoringService cmsMonitoringService;
 	
@@ -29,7 +29,7 @@ public class CacheRefresh {
 	public CacheRefresh(long cmsRefresh)
 	{
 		this.cmsRefresh = cmsRefresh;
-		
+
 		cacheCollection.put("cmsRefresh", cmsRefresh);
 		startTime = new Date().getTime();
 	}
@@ -37,9 +37,7 @@ public class CacheRefresh {
 	//check every 50
 	@Scheduled(fixedRate = 50000)
 	public void refreshCache() {
-		//log.info("The time is now {}", dateFormat.format(new Date()));
-		//log.info("Check the file and what needs to be refreshed " + cmsRefresh);
-		
+
 		for (String key : cacheCollection.keySet()) {
 			 
 			long currentTime = new Date().getTime();
@@ -63,7 +61,7 @@ public class CacheRefresh {
 					case "anythingElse":
 						break;
 					default:
-						
+						break;
 				}
 			}
 			else {

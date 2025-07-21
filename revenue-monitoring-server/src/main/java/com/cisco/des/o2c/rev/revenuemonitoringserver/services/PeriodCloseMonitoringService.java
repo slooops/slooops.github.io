@@ -238,9 +238,33 @@ public class PeriodCloseMonitoringService {
     }
 
     private static String formatDate(String isoDate) {
-        return LocalDate.parse(isoDate.substring(0, 10))
-                .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        if (isoDate == null || isoDate.isBlank() || isoDate.equalsIgnoreCase("null")) {
+            return "";
+        }
+
+        // If it contains '=', split and take the last part
+        if (isoDate.contains("=")) {
+            isoDate = isoDate.split("=")[1].trim();
+        }
+
+        // If still "null" after splitting, return empty
+        if (isoDate.equalsIgnoreCase("null")) {
+            return "";
+        }
+
+        // Take only the date portion (before the space)
+        String datePart = isoDate.split(" ")[0];
+
+        // Validate date pattern
+        try {
+            return LocalDate.parse(datePart, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } catch (Exception e) {
+            return ""; // or return isoDate if you want the original string
+        }
     }
+
+
 
     public UserRoleInfo getUserRoles(String username) {
         String upperUsername = username.toUpperCase();

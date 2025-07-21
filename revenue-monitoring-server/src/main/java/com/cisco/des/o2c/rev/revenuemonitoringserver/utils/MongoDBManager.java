@@ -71,15 +71,22 @@ public class MongoDBManager {
     }
 
     public static List<Map<String, Object>> convertDocumentsToMaps(List<Document> documents) {
+        if (documents == null) {
+            return new ArrayList<>();
+        }
+        
         return documents.stream()
-                .map(Document::entrySet)
-                .map(entries -> entries.stream()
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                Map.Entry::getValue,
-                                (v1, v2) -> v1, // merge function (not used here)
-                                LinkedHashMap::new // preserves order
-                        )))
+                .map(doc -> {
+                    if (doc == null) {
+                        return new LinkedHashMap<String, Object>();
+                    }
+                    
+                    LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+                    for (Map.Entry<String, Object> entry : doc.entrySet()) {
+                        map.put(entry.getKey(), entry.getValue());
+                    }
+                    return map;
+                })
                 .collect(Collectors.toList());
     }
 
