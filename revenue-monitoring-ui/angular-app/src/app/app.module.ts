@@ -85,15 +85,7 @@ import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-proce
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { TableComponent } from './components/table/table.component';
 import { OplComponent } from './opl/opl.component';
-import { AccountReconComponent } from './account-recon/account-recon.component';
-import { AccrualsComponent } from './accruals/accruals.component';
-import { StandardRevenueComponent } from './standard-revenue/standard-revenue.component';
-import { PreInvoicingComponent } from './pre-invoicing/pre-invoicing.component';
-import { PostInvoicingComponent } from './post-invoicing/post-invoicing.component';
-import { EinvoicingComponent } from './einvoicing/einvoicing.component';
-import { FusionComponent } from './fusion/fusion.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
-import { ContinuousMonitoringComponent } from './continuous-monitoring/continuous-monitoring.component';
 import {
   DialogBox,
   IssueReportingComponent,
@@ -172,15 +164,7 @@ export function initApp(authService: AuthenticationService) {
     O2cOverviewComponent,
     TableComponent,
     OplComponent,
-    AccountReconComponent,
-    AccrualsComponent,
-    StandardRevenueComponent,
-    PreInvoicingComponent,
-    PostInvoicingComponent,
-    EinvoicingComponent,
-    FusionComponent,
     BusinessInsightsComponent,
-    ContinuousMonitoringComponent,
     IssueReportingComponent,
     DialogBox,
     IssueUploadComponent,

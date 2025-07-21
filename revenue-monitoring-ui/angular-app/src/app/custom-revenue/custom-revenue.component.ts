@@ -482,7 +482,7 @@ export class CustomRevenueComponent implements OnInit {
 
     {
       label: 'Meraki',
-      component: 'app-eInvoicing',
+      component: 'app-meraki',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
       disabled: true,
     },

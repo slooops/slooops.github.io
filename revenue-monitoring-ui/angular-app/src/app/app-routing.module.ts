@@ -17,13 +17,6 @@ import { ErrorComponent } from './error/error.component';
 import { OplComponent } from './opl/opl.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
-import { StandardRevenueComponent } from './standard-revenue/standard-revenue.component';
-import { AccrualsComponent } from './accruals/accruals.component';
-import { AccountReconComponent } from './account-recon/account-recon.component';
-import { PreInvoicingComponent } from './pre-invoicing/pre-invoicing.component';
-import { PostInvoicingComponent } from './post-invoicing/post-invoicing.component';
-import { EinvoicingComponent } from './einvoicing/einvoicing.component';
-import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
@@ -80,35 +73,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'standard-revenue',
-    component: StandardRevenueComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Standard Revenue',
-    },
-  },
-  {
     path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
       title: 'Finance IT Control Tower',
       header: 'Continuous Monitoring',
-    },
-  },
-  {
-    path: 'accruals',
-    component: AccrualsComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Accruals',
-    },
-  },
-  {
-    path: 'accounts',
-    component: AccountReconComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Accounts',
     },
   },
   {
@@ -136,43 +105,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'pre-invoicing',
-    component: PreInvoicingComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Pre-Invoicing',
-    },
-  },
-  {
     path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
       title: 'Finance IT Control Tower',
       header: 'Continuous Monitoring',
-    },
-  },
-  {
-    path: 'post-invoicing',
-    component: PostInvoicingComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Post-Invoicing',
-    },
-  },
-  {
-    path: 'einvoicing',
-    component: EinvoicingComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'EInvoicing',
-    },
-  },
-  {
-    path: 'fusion',
-    component: FusionComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Fusion',
     },
   },
   {
