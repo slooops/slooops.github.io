@@ -1,6 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.scheduler;
 
-import com.cisco.des.o2c.rev.revenuemonitoringserver.services.CMSMonitoringService;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +19,42 @@ public class CacheRefresh {
 	private static long startTime = 0;
 	
 	private long cmsRefresh;
+	private long glRefresh;
+	private long i2cRefresh;
+	private long postInvoicingRefresh;
+	private long revenueRefresh;
 
 	@Autowired
     private CMSMonitoringService cmsMonitoringService;
+
+	@Autowired
+	private GLPostingMonitoringService glPostingMonitoringService;
+
+	@Autowired
+	private InvoiceToCashMonitoringService invoiceToCashMonitoringService;
+
+	@Autowired
+	private PostInvoicingMonitoringService postInvoicingMonitoringService;
+
+	@Autowired
+	private RevenueAccountingMonitoringService revenueAccountingMonitoringService;
 	
 	private HashMap<String,Long > cacheCollection = new HashMap<String,Long>();
 	
 	@Autowired
-	public CacheRefresh(long cmsRefresh)
+	public CacheRefresh(long cmsRefresh, long glRefresh, long i2cRefresh, long postInvoicingRefresh, long revenueRefresh)
 	{
 		this.cmsRefresh = cmsRefresh;
+		this.glRefresh = glRefresh;
+		this.i2cRefresh = i2cRefresh;
+		this.postInvoicingRefresh = postInvoicingRefresh;
+		this.revenueRefresh = revenueRefresh;
 
 		cacheCollection.put("cmsRefresh", cmsRefresh);
+		cacheCollection.put("glRefresh", glRefresh);
+		cacheCollection.put("i2cRefresh", i2cRefresh);
+		cacheCollection.put("postInvoicingRefresh", postInvoicingRefresh);
+		cacheCollection.put("revenueRefresh", revenueRefresh);
 		startTime = new Date().getTime();
 	}
 	
@@ -57,6 +81,18 @@ public class CacheRefresh {
 				switch(key) {
 					case "cmsRefresh":
 						cmsMonitoringService.refreshCMSCache(); 
+						break;
+					case "glRefresh":
+						glPostingMonitoringService.refreshGlPostingMonitoringCache();
+						break;
+					case "i2cRefresh":
+						invoiceToCashMonitoringService.refreshInvoiceToCashMonitoringCache();
+						break;
+					case "postInvoicingRefresh":
+						postInvoicingMonitoringService.refreshPostInvoicingMonitoringCache();
+						break;
+					case "revenueRefresh":
+						revenueAccountingMonitoringService.refreshRevenueAccountingMonitoringCache();
 						break;
 					case "anythingElse":
 						break;
