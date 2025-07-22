@@ -127,6 +127,7 @@ export class AuthenticationService {
   userId: string;
   authClientId: string;
   authClientSecret: string;
+  authUrl: string;
   bypassRoutes = [
     '/o2c-demo',
     '/o2c-details',
@@ -145,6 +146,7 @@ export class AuthenticationService {
         this.userId = info['auth_user'];
         this.authClientId = info['auth_client_id'];
         this.authClientSecret = info['auth_client_secret'];
+        this.authUrl = info['auth_url'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
