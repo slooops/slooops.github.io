@@ -37,42 +37,42 @@ public class Common {
         this.invoiceToCashSummary = invoiceToCashSummary;
     }
 
-//    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql){
-//        try {
-//            if (redisRepository.findData(cacheId) != null) {
-//                System.out.println("Fetching data from Redis cache for " + cacheId);
-//                List<Map<String, Object>> result = redisRepository.findData(cacheId);
-//                return result;
-//            } else {
-//                System.out.println("Fetching data from database for " + cacheId);
-//                List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
-//                redisRepository.add(cacheId, retObject);
-//                return retObject;
-//            }
-//        } catch (Exception e) {
-//            logger.error("Exception in get"+cacheId+"():: " + e);
-//        }
-//        return null;
-//    }
-
-    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql) {
+    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql){
         try {
-            if (useRedis && redisRepository.findData(cacheId) != null) {
+            if (redisRepository.findData(cacheId) != null) {
                 System.out.println("Fetching data from Redis cache for " + cacheId);
-                return redisRepository.findData(cacheId);
+                List<Map<String, Object>> result = redisRepository.findData(cacheId);
+                return result;
             } else {
                 System.out.println("Fetching data from database for " + cacheId);
                 List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
-                if (useRedis) {
-                    redisRepository.add(cacheId, retObject);
-                }
+                redisRepository.add(cacheId, retObject);
                 return retObject;
             }
         } catch (Exception e) {
-            logger.error("Exception in get" + cacheId + "():: " + e);
+            logger.error("Exception in get"+cacheId+"():: " + e);
         }
         return null;
     }
+
+//    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql) {
+//        try {
+//            if (useRedis && redisRepository.findData(cacheId) != null) {
+//                System.out.println("Fetching data from Redis cache for " + cacheId);
+//                return redisRepository.findData(cacheId);
+//            } else {
+//                System.out.println("Fetching data from database for " + cacheId);
+//                List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
+//                if (useRedis) {
+//                    redisRepository.add(cacheId, retObject);
+//                }
+//                return retObject;
+//            }
+//        } catch (Exception e) {
+//            logger.error("Exception in get" + cacheId + "():: " + e);
+//        }
+//        return null;
+//    }
 
     public void renameKey(Map<String, Object> data, String oldKey, String newKey) {
         List<Map.Entry<String, Object>> entries = new ArrayList<>(data.entrySet());
