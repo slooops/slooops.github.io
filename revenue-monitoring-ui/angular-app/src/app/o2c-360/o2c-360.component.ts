@@ -143,6 +143,32 @@ export class O2c360Component implements OnInit {
 
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
+  financialDataLoaded: true;
+  financialSummaryDataSource = new MatTableDataSource<any>([
+    {
+      ORDER_TSV: 'USD 0.00',
+      TOTAL_SUBSCRIPTION_TSV: 'USD 0.00',
+      BILLING_MODEL: 'Prepaid',
+      BILLED: 'USD 100.00',
+      UNBILLED: 'USD 50.00',
+      REVENUE_RECOGNITION: 'USD 75.00',
+      REVENUE_TO_BE_RECOGNIZED: 'USD 25.00',
+      CASH: 'Paid',
+      actions: 'View in CCW', // Placeholder for actions column
+    },
+  ]);
+  financialSummaryDisplayedColumns: string[] = [
+    'ORDER_TSV',
+    'TOTAL_SUBSCRIPTION_TSV',
+    'BILLING_MODEL',
+    'BILLED',
+    'UNBILLED',
+    'REVENUE_RECOGNITION',
+    'REVENUE_TO_BE_RECOGNIZED',
+    'CASH',
+    'actions',
+  ];
+
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
@@ -538,8 +564,11 @@ export class O2c360Component implements OnInit {
       !this.subscriptionDataLoaded ||
       !this.subscriptionLinesDataLoaded ||
       !this.invoiceLinesDataLoaded ||
-      !this.invoiceDataLoaded
+      !this.invoiceDataLoaded ||
+      // !this.financialDataLoaded ||
+      !this.orderDataLoaded
     ) {
+      console.warn('Not all data has loaded. Please wait.');
       return;
     }
 
@@ -561,6 +590,7 @@ export class O2c360Component implements OnInit {
         defaultTab: type,
         defaultTransactionNumber: billNumber,
         orderData: this.orderSummaryDataSource.data,
+        financialData: this.financialSummaryDataSource.data,
 
         subscriptionData: this.subscriptionSummaryDataSource.data,
         subscriptionColumns: this.subscriptionSummaryDisplayedColumns,
@@ -641,5 +671,12 @@ export class O2c360Component implements OnInit {
       return '↕'; // or use a neutral icon
     }
     return this.sortDirection === 'asc' ? '↑' : '↓';
+  }
+
+  viewInCCW(): void {
+    window.open(
+      'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
+      '_blank'
+    );
   }
 }

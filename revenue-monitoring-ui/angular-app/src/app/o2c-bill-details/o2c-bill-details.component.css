@@ -1,0 +1,86 @@
+@import "src/assets/o2c-common-styles.css";
+
+.back-icon {
+  width: 16px;
+  height: 16px;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2IiBmaWxsPSIjMDA3NkQ1Ij4KICA8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTUuMzEzNzUgMS41NDc2N0M1LjU2NjA5IDEuODE1NzggNS41NTMzMSAyLjIzNzcgNS4yODUyIDIuNDkwMDVMMy42ODA4OSA0TDguNjY2NTQgMy45OTk5OUMxMS45ODAyIDMuOTk5OTUgMTQuNjY2NSA2LjY4NjIxIDE0LjY2NjUgOS45OTk5QzE0LjY2NjUgMTEuODk1IDEzLjc4NzIgMTMuNTg1MSAxMi40MTY4IDE0LjY4MzdDMTIuMTI5NiAxNC45MTM5IDExLjcxIDE0Ljg2NzggMTEuNDc5NyAxNC41ODA1QzExLjI0OTQgMTQuMjkzMiAxMS4yOTU2IDEzLjg3MzYgMTEuNTgyOSAxMy42NDMzQzEyLjY1MTEgMTIuNzg3IDEzLjMzMzIgMTEuNDczMyAxMy4zMzMyIDkuOTk5OUMxMy4zMzMyIDcuNDIyNTkgMTEuMjQzOSA1LjMzMzI5IDguNjY2NTQgNS4zMzMzM0wzLjU0NjQ5IDUuMzMzMzNMNS4zMTI5NiA3LjIwMzY4QzUuNTY1NzcgNy40NzEzNiA1LjU1MzcxIDcuODkzMyA1LjI4NjA0IDguMTQ2MTFDNS4wMTgzNiA4LjM5ODkyIDQuNTk2NDIgOC4zODY4NyA0LjM0MzYxIDguMTE5MTlMMS4wNTY2NCA0LjYzODkxTDQuMzcxMzcgMS41MTkxMkM0LjYzOTQ5IDEuMjY2NzcgNS4wNjE0IDEuMjc5NTUgNS4zMTM3NSAxLjU0NzY3WiIgZmlsbD0iIzAwNzZENSIvPgo8L3N2Zz4=);
+  background-size: cover;
+}
+
+.share-icon {
+  width: 16px;
+  height: 16px;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgZmlsbD0iIzAxNzVhMiIgdmlld0JveD0iMCAwIDI1NiAyNTYiPjxwYXRoIGQ9Ik0yNDAuNDksMTAzLjUybC04MC04MEExMiwxMiwwLDAsMCwxNDAsMzJWNjguNzRjLTI1Ljc2LDMuMTItNTMuNjYsMTUuODktNzYuNzUsMzUuNDctMjkuMTYsMjQuNzQtNDcuMzIsNTYuNjktNTEuMTQsOTBBMTYsMTYsMCwwLDAsMzkuNjcsMjA3aDBjMTAuNDYtMTEuMTQsNDctNDUuNzQsMTAwLjMzLTUwLjQyVjE5MmExMiwxMiwwLDAsMCwyMC40OCw4LjQ4bDgwLTgwQTEyLDEyLDAsMCwwLDI0MC40OSwxMDMuNTJaTTE2NCwxNjNWMTQ0YTEyLDEyLDAsMCwwLTEyLTEyYy00OSwwLTg2LjU3LDIxLjU2LTEwOS43OSw0MC4xMSw3LjEzLTE4LjE2LDE5LjYzLTM1LjIyLDM2LjU3LTQ5LjU5QzEwMS4zLDEwMy40MSwxMjguNjcsOTIsMTUyLDkyYTEyLDEyLDAsMCwwLDEyLTEyVjYxbDUxLDUxWiI+PC9wYXRoPjwvc3ZnPg==);
+  background-size: cover;
+}
+
+.print-icon {
+  width: 16px;
+  height: 16px;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgZmlsbD0iIzAxNzVhMiIgdmlld0JveD0iMCAwIDI1NiAyNTYiPjxwYXRoIGQ9Ik0yMTQuNjcsNjhIMjA0VjQwYTEyLDEyLDAsMCwwLTEyLTEySDY0QTEyLDEyLDAsMCwwLDUyLDQwVjY4SDQxLjMzQzI1LjE2LDY4LDEyLDgwLjU2LDEyLDk2djgwYTEyLDEyLDAsMCwwLDEyLDEySDUydjI4YTEyLDEyLDAsMCwwLDEyLDEySDE5MmExMiwxMiwwLDAsMCwxMi0xMlYxODhoMjhhMTIsMTIsMCwwLDAsMTItMTJWOTZDMjQ0LDgwLjU2LDIzMC44NCw2OCwyMTQuNjcsNjhaTTc2LDUySDE4MFY2OEg3NlpNMTgwLDIwNEg3NlYxNzJIMTgwWm00MC00MEgyMDR2LTRhMTIsMTIsMCwwLDAtMTItMTJINjRhMTIsMTIsMCwwLDAtMTIsMTJ2NEgzNlY5NmMwLTIuMTcsMi40NC00LDUuMzMtNEgyMTQuNjdjMi44OSwwLDUuMzMsMS44Myw1LjMzLDRabS0xNi00NGExNiwxNiwwLDEsMS0xNi0xNkExNiwxNiwwLDAsMSwyMDQsMTIwWiI+PC9wYXRoPjwvc3ZnPg==);
+  background-size: cover;
+}
+
+.download-icon {
+  width: 16px;
+  height: 16px;
+  background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgZmlsbD0iIzAxNzVhMiIgdmlld0JveD0iMCAwIDI1NiAyNTYiPjxwYXRoIGQ9Ik0yMjgsMTQ0djY0YTEyLDEyLDAsMCwxLTEyLDEySDQwYTEyLDEyLDAsMCwxLTEyLTEyVjE0NGExMiwxMiwwLDAsMSwyNCwwdjUySDIwNFYxNDRhMTIsMTIsMCwwLDEsMjQsMFptLTEwOC40OSw4LjQ5YTEyLDEyLDAsMCwwLDE3LDBsNDAtNDBhMTIsMTIsMCwwLDAtMTctMTdMMTQwLDExNVYzMmExMiwxMiwwLDAsMC0yNCwwdjgzTDk2LjQ5LDk1LjUxYTEyLDEyLDAsMCwwLTE3LDE3WiI+PC9wYXRoPjwvc3ZnPg==);
+  background-size: cover;
+}
+
+.back-btn-floating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0px;
+  background: transparent;
+  border: none;
+  font-weight: 500;
+  color: #0076d5;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.order-table {
+  border-radius: 12px 12px 0px 0px;
+  border: 0px solid #e4e4e4;
+  background: #f7f4f4;
+  padding: 10px 20px 6px 20px;
+}
+
+.mat-table {
+  background: none;
+}
+
+.tool-bar-container {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row-reverse;
+  background-color: #f4f6f8;
+  padding: 10px 14px;
+  border: 1px solid #e4e4e4;
+}
+
+.o2c-toolbar {
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0px 12px;
+  font-size: 14px;
+  color: #0175a2;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.late-billing {
+  color: #dd3633;
+}

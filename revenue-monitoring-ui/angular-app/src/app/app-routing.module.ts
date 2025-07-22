@@ -34,6 +34,8 @@ import { O2c360Component } from './o2c-360/o2c-360.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { O2cBillingScheduleComponent } from './o2c-billing-schedule/o2c-billing-schedule.component';
+import { O2cBillDetailsComponent } from './o2c-bill-details/o2c-bill-details.component';
 
 const routes: Routes = [
   {
@@ -228,6 +230,24 @@ const routes: Routes = [
     path: 'o2c-view-all',
     component: O2cViewAllComponent,
     data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+  },
+  {
+    path: 'o2c-billing-schedule',
+    component: O2cBillingScheduleComponent,
+    data: {
+      title: 'O2C Billing Schedule',
+      header: 'O2C Billing Schedule',
+      hideNavbar: true,
+    },
+  },
+  {
+    path: 'o2c-bill-details',
+    component: O2cBillDetailsComponent,
+    data: {
+      title: 'O2C Bill Details',
+      header: 'O2C Bill Details',
+      hideNavbar: true,
+    },
   },
   {
     path: 'o2c-overview',

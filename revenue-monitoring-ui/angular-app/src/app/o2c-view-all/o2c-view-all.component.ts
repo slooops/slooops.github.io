@@ -56,6 +56,20 @@ export class O2cViewAllComponent implements OnInit {
   ];
   orderSummaryDataSource = new MatTableDataSource<any>();
 
+  financialDataLoaded: any;
+  financialSummaryDataSource = new MatTableDataSource<any>([]);
+  financialSummaryDisplayedColumns: string[] = [
+    'ORDER_TSV',
+    'TOTAL_SUBSCRIPTION_TSV',
+    'BILLING_MODEL',
+    'BILLED',
+    'UNBILLED',
+    'REVENUE_RECOGNITION',
+    'REVENUE_TO_BE_RECOGNIZED',
+    'CASH',
+    'actions',
+  ];
+
   subscriptionSummaryDisplayedColumns: string[] = [];
   subscriptionSummaryDataSource = new MatTableDataSource<any>();
 
@@ -139,6 +153,7 @@ export class O2cViewAllComponent implements OnInit {
       defaultTab?: string;
       defaultTransactionNumber?: string;
       orderData?: any[];
+      financialData?: any[];
 
       subscriptionData?: any[];
       subscriptionColumns?: string[];
@@ -186,6 +201,10 @@ export class O2cViewAllComponent implements OnInit {
     if (navState?.orderData) {
       this.orderSummaryDataSource.data = navState.orderData;
       this.orderId = this.orderSummaryDataSource.data[0].WEB_ORDER_ID;
+    }
+
+    if (navState?.financialData) {
+      this.financialSummaryDataSource.data = navState.financialData;
     }
   }
 
@@ -317,5 +336,12 @@ export class O2cViewAllComponent implements OnInit {
         .then(() => alert('Link copied to clipboard'))
         .catch(() => alert('Unable to copy link'));
     }
+  }
+
+  viewInCCW(): void {
+    window.open(
+      'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
+      '_blank'
+    );
   }
 }
