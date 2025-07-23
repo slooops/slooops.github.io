@@ -6,10 +6,10 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-o2c-billing-schedule',
-  templateUrl: './o2c-billing-schedule.component.html',
-  styleUrls: ['./o2c-billing-schedule.component.css'],
+  templateUrl: './o2c-bill-schedule.component.html',
+  styleUrls: ['./o2c-bill-schedule.component.css'],
 })
-export class O2cBillingScheduleComponent {
+export class O2cBillScheduleComponent {
   orderId = '28221819418344'; // Placeholder for order ID
   subRefId = 'Sub2822413'; // Placeholder for subscription reference ID
   invoiceId = '32219418347'; // Placeholder for invoice ID

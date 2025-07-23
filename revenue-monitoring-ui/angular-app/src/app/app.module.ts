@@ -118,7 +118,7 @@ import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-cas
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
 import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
-import { O2cBillingScheduleComponent } from './o2c-billing-schedule/o2c-billing-schedule.component';
+import { O2cBillScheduleComponent } from './o2c-bill-schedule/o2c-bill-schedule.component';
 import { O2cBillDetailsComponent } from './o2c-bill-details/o2c-bill-details.component';
 
 export function initApp(authService: AuthenticationService) {
@@ -204,7 +204,7 @@ export function initApp(authService: AuthenticationService) {
     SbpEspCaseAnalyzerComponent,
     ChatbotComponent,
     O2cCardComponent,
-    O2cBillingScheduleComponent,
+    O2cBillScheduleComponent,
     O2cBillDetailsComponent,
   ],
   imports: [
