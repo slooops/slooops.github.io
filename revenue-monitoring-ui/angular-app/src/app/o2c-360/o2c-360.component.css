@@ -187,7 +187,7 @@
 
 th.mat-header-cell,
 td.mat-cell {
-  padding: 10px !important;
+  padding: 5px 10px !important;
   font-size: 12px !important;
   text-align: left;
   border: 1px solid #e4e4e4;

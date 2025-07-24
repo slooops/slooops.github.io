@@ -33,74 +33,6 @@ export class O2cGlComponent {
     { label: 'Invoices', icon: 'receipt-icon', count: null },
   ];
 
-  billScheduleLoaded = true; // Set to false when implementing real data loading
-  billScheduleSummaryDisplayedColumns: string[] = [
-    'WEB_ORDER_ID',
-    'SUB_REF_ID',
-    'LAST_MODIFIED_DATE',
-    'BILLING_PREFERENCE',
-    'SUBSCRIPTION_SOURCE',
-    'CURRENCY',
-    'BILLING_SCHEDULE',
-    'BILLING_FREQUENCY',
-  ];
-  billScheduleSummaryDataSource = new MatTableDataSource<any>([
-    {
-      WEB_ORDER_ID: '28221819418344',
-      SUB_REF_ID: 'Sub2822413',
-      LAST_MODIFIED_DATE: '2023-10-01',
-      BILLING_PREFERENCE: 'SSD 5',
-      SUBSCRIPTION_SOURCE: 'BRM',
-      CURRENCY: 'USD',
-      BILLING_SCHEDULE: '2/4',
-      BILLING_FREQUENCY: 'Quarterly',
-    },
-  ]);
-
-  billScheduleDataLoaded = true; // Set to false when implementing real data loading
-  billScheduleDisplayedColumns: string[] = [
-    'BILL_DATE',
-    'BILLING_PERIOD',
-    'BILL_AMOUNT_(USD)',
-    'STATUS',
-    'BILLED_ON_DATE',
-    'BILL_NUMBER',
-  ];
-  billScheduleDataSource = new MatTableDataSource<any>([
-    {
-      BILL_DATE: '2023-10-15',
-      BILLING_PERIOD: '2-Jan-25 to 1-Apr-25',
-      'BILL_AMOUNT_(USD)': 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2023-10-12',
-      BILL_NUMBER: '12345678790',
-    },
-    {
-      BILL_DATE: '2024-01-15',
-      BILLING_PERIOD: '1-Jan-24 to 31-Mar-24',
-      'BILL_AMOUNT_(USD)': 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2024-01-14',
-      BILL_NUMBER: '12345678791',
-    },
-    {
-      BILL_DATE: '2024-04-15',
-      BILLING_PERIOD: '1-Apr-24 to 30-Jun-24',
-      'BILL_AMOUNT_(USD)': 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2024-04-13',
-      BILL_NUMBER: '12345678792',
-    },
-    {
-      BILL_DATE: '2024-07-15',
-      BILLING_PERIOD: '1-Jul-24 to 30-Sep-24',
-      'BILL_AMOUNT_(USD)': 2500.0,
-      STATUS: 'Pending',
-      BILLED_ON_DATE: '2024-07-17',
-      BILL_NUMBER: '12345678793',
-    },
-  ]);
-
   orderSummaryDisplayedColumns1: string[] = [
     'WEB_ORDER_ID',
     'DEAL_ID',
@@ -124,7 +56,6 @@ export class O2cGlComponent {
   orderSummaryDataSource = new MatTableDataSource<any>();
 
   financialDataLoaded: any;
-  financialSummaryDataSource = new MatTableDataSource<any>([]);
   financialSummaryDisplayedColumns: string[] = [
     'ORDER_TSV',
     'TOTAL_SUBSCRIPTION_TSV',
@@ -136,6 +67,91 @@ export class O2cGlComponent {
     'CASH',
     'actions',
   ];
+  financialSummaryDataSource = new MatTableDataSource<any>([]);
+
+  table1Loaded = true; // Set to false when implementing real data loading
+  table1DisplayedColumns: string[] = [
+    'SKU_TYPE',
+    'TOTAL_SALES_VALUE',
+    'SSD',
+    'SED',
+    'BDOM',
+    'CHANGE_START_DATE',
+    'CHANGE_END_DATE',
+    'CHARGE_TYPE',
+    'LINE_TYPE',
+  ];
+  table1DataSource = new MatTableDataSource<any>([
+    {
+      SKU_TYPE: 'Product',
+      TOTAL_SALES_VALUE: 2500.0,
+      SSD: 1000.0,
+      SED: 500.0,
+      BDOM: 100.0,
+      CHANGE_START_DATE: '2023-10-15',
+      CHANGE_END_DATE: '2024-10-15',
+      CHARGE_TYPE: 'Recurring',
+      LINE_TYPE: 'Subscription',
+    },
+  ]);
+
+  table2Loaded = true; // Set to false when implementing real data loading
+  table2DisplayedColumns: string[] = [
+    'ON_PREM_TOP_SKU',
+    'SPLIT_PERCENTAGE',
+    'ACC_RULE',
+    'CHANGE_START_DATE',
+    'CHANGE_END_DATE',
+    'AMOUNT_(USD)',
+  ];
+  table2DataSource = new MatTableDataSource<any>([
+    {
+      ON_PREM_TOP_SKU: 'Cisco Webex',
+      SPLIT_PERCENTAGE: '80%',
+      ACC_RULE: 'Recurring',
+      CHANGE_START_DATE: '2023-10-15',
+      CHANGE_END_DATE: '2024-10-15',
+      'AMOUNT_(USD)': 1250.0,
+    },
+    {
+      ON_PREM_TOP_SKU: 'Cisco Webex',
+      SPLIT_PERCENTAGE: '20%',
+      ACC_RULE: 'One-Time',
+      CHANGE_START_DATE: '2023-10-15',
+      CHANGE_END_DATE: '2024-10-15',
+      'AMOUNT_(USD)': 250.0,
+    },
+    {
+      ON_PREM_TOP_SKU: 'Cisco Webex',
+      SPLIT_PERCENTAGE: '100%',
+      ACC_RULE: 'Recurring',
+      CHANGE_START_DATE: '2023-10-15',
+      CHANGE_END_DATE: '2024-10-15',
+      'AMOUNT_(USD)': 1000.0,
+    },
+  ]);
+
+  table3Loaded = true; // Set to false when implementing real data loading
+  table3DisplayedColumns: string[] = [
+    'ACCOUNT',
+    'ACCOUNT_CLASS',
+    'DR_(USD)',
+    'CR_(USD)',
+  ];
+  table3DataSource = new MatTableDataSource<any>([
+    {
+      ACCOUNT: '110-060-000000-13630-000-000000',
+      ACCOUNT_CLASS: 'Contract Assets',
+      'DR_(USD)': 1000.0,
+      'CR_(USD)': '-',
+    },
+    {
+      ACCOUNT: '110-060-000000-13630-000-000001',
+      ACCOUNT_CLASS: 'Deferred Revenue',
+      'DR_(USD)': '-',
+      'CR_(USD)': 3040.0,
+    },
+  ]);
 
   constructor(private sidebarService: SidebarService, private router: Router) {}
 
@@ -175,6 +191,12 @@ export class O2cGlComponent {
 
   formatColumnName(column: string): string {
     const acronyms = [
+      'cr',
+      'dr',
+      'sed',
+      'ssd',
+      'bdom',
+      'acc',
       'id',
       'irn',
       'uuid',

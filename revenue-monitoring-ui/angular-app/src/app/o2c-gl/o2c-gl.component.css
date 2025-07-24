@@ -1,5 +1,12 @@
 @import "src/assets/o2c-common-styles.css";
 
+.o2c-body-container {
+  margin: 0 6vw;
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
 .circle-header {
   display: flex;
   padding: 20px;
@@ -51,7 +58,7 @@
 
 th.mat-header-cell,
 td.mat-cell {
-  padding: 10px !important;
+  padding: 5px 10px !important;
   font-size: 12px !important;
   text-align: left;
   border: 1px solid #e4e4e4;
@@ -138,12 +145,41 @@ tr.mat-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #000;
+  color: #243034;
 
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+}
+
+.ac-header-grey {
+  color: #5d656c;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: inherit;
+}
+
+.ac-header-blue {
+  color: #0076d5;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: inherit;
+}
+
+.ac-tag-green {
+  background-color: #42aa00;
+  border-radius: 10px;
+  display: flex;
+  padding: 5px 10px;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .accordion-content {
@@ -189,37 +225,6 @@ tr.mat-header-row {
   width: 100%;
 }
 
-.tool-bar-container {
-  width: 100%;
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-direction: row-reverse;
-}
-
-.o2c-toolbar {
-  display: inline-flex;
-  margin-top: 10px;
-  border: 1px solid #d1d1d1;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.toolbar-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 14px;
-  color: #0175a2;
-  background-color: #f4f6f8;
-  border: none;
-  border-right: 1px solid #d1d1d1;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
 .back-btn {
   display: flex;
   align-items: center;
@@ -252,18 +257,35 @@ tr.mat-header-row {
   font-size: 14px;
 }
 
-.toolbar-btn:last-child {
-  border-right: none;
-}
-
-.toolbar-btn:hover:not(.disabled) {
-  background-color: #e4e8eb;
-}
-
-.toolbar-btn.disabled {
-  color: #a1a1a1;
+.tool-bar-container {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
   background-color: #f4f6f8;
-  cursor: not-allowed;
+  padding: 10px 10px;
+  border: 1px solid #e4e4e4;
+  height: 36px;
+  /* margin: 0 0 -21px 0; */
+}
+
+.o2c-toolbar {
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0px 12px;
+  font-size: 14px;
+  color: #0175a2;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: transparent;
 }
 
 .summary-title {

@@ -155,102 +155,223 @@
   </div>
 </div>
 
-<!-- TOOLBAR and title -->
-<div class="tool-bar-container" style="flex-direction: row; padding: 0 6vw">
-  <div class="accordion-header">Bill Schedule</div>
-  <div class="o2c-toolbar">
-    <button class="toolbar-btn"><i class="download-icon"></i> Download</button>
-    <button class="toolbar-btn" (click)="handlePrint()">
-      <i class="print-icon"></i> Print
-    </button>
-    <button class="toolbar-btn" (click)="handleShare()">
-      <i class="share-icon"></i> Share
-    </button>
+<div class="o2c-body-container">
+  <div style="margin-top: 20px">
+    <div class="accordion-header">Posted to GL</div>
+  </div>
+
+  <!-- TOOLBAR and title -->
+  <div class="tool-bar-container">
+    <div style="gap: 20px; display: flex; flex-direction: row">
+      <div class="ac-header-grey">Subscription</div>
+      <div class="ac-header-blue">{{ subRefId }}</div>
+      <div class="ac-header-grey">Web Order ID</div>
+      <div class="ac-header-blue" style="font-weight: 700">{{ orderId }}</div>
+      <div class="ac-tag-green">Posted to GL: Y</div>
+    </div>
+
+    <div class="o2c-toolbar">
+      <button class="toolbar-btn">
+        <i class="download-icon"></i> Download
+      </button>
+      <button class="toolbar-btn" (click)="handlePrint()">
+        <i class="print-icon"></i> Print
+      </button>
+      <button class="toolbar-btn" (click)="handleShare()">
+        <i class="share-icon"></i> Share
+      </button>
+    </div>
+  </div>
+
+  <!-- Table 1 -->
+  <div class="invoice-summary-table">
+    <!-- <ng-container *ngIf="table1Loaded; else loading">
+      <ng-container *ngIf="table1DataSource.data.length > 0; else noData"> -->
+    <table mat-table [dataSource]="table1DataSource" style="width: 100%">
+      <ng-container
+        *ngFor="let column of table1DisplayedColumns"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+
+        <td mat-cell *matCellDef="let element">
+          <ng-container [ngSwitch]="column">
+            <ng-container *ngSwitchCase="'BILL_AMOUNT_(USD)'">
+              {{ element[column] | currency : "USD" : "symbol" : "1.2-2" }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'CHANGE_START_DATE'">
+              <span>
+                {{ element[column] | date : "MM/dd/yyyy" }}
+              </span>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              <ng-container *ngIf="column === 'BILL_DATE'; else regularCell">
+                <button
+                  class="link-button"
+                  (click)="navigateToBillDetails(element)"
+                >
+                  {{ element[column] | date : "MM/dd/yyyy" }}
+                </button>
+              </ng-container>
+              <ng-template #regularCell>
+                {{ element[column] }}
+              </ng-template>
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="table1DisplayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: table1DisplayedColumns"></tr>
+    </table>
+    <!-- </ng-container>
+
+      <ng-template #noData>
+        <div class="no-data-container">
+          <p>No data available for this subscription.</p>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-template> -->
+  </div>
+
+  <!-- Table 2 -->
+  <div class="invoice-summary-table">
+    <!-- <ng-container *ngIf="table1Loaded; else loading">
+      <ng-container *ngIf="table1DataSource.data.length > 0; else noData"> -->
+    <table mat-table [dataSource]="table2DataSource" style="width: 100%">
+      <ng-container
+        *ngFor="let column of table2DisplayedColumns"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+
+        <td mat-cell *matCellDef="let element">
+          <ng-container [ngSwitch]="column">
+            <ng-container *ngSwitchCase="'BILL_AMOUNT_(USD)'">
+              {{ element[column] | currency : "USD" : "symbol" : "1.2-2" }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'CHANGE_START_DATE'">
+              <span>
+                {{ element[column] | date : "MM/dd/yyyy" }}
+              </span>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              <ng-container *ngIf="column === 'BILL_DATE'; else regularCell">
+                <button
+                  class="link-button"
+                  (click)="navigateToBillDetails(element)"
+                >
+                  {{ element[column] | date : "MM/dd/yyyy" }}
+                </button>
+              </ng-container>
+              <ng-template #regularCell>
+                {{ element[column] }}
+              </ng-template>
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="table2DisplayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: table2DisplayedColumns"></tr>
+    </table>
+    <!-- </ng-container>
+
+      <ng-template #noData>
+        <div class="no-data-container">
+          <p>No data available for this subscription.</p>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-template> -->
+  </div>
+
+  <!-- Table 3 -->
+  <div class="ac-header-grey">Order End Completed : 1/1/2022</div>
+  <div class="ac-header-grey">
+    TSV Accounting Before Invoicing as on 1/1/2022
+  </div>
+  <div class="invoice-summary-table">
+    <!-- <ng-container *ngIf="table1Loaded; else loading">
+      <ng-container *ngIf="table1DataSource.data.length > 0; else noData"> -->
+    <table mat-table [dataSource]="table3DataSource" style="width: 100%">
+      <ng-container
+        *ngFor="let column of table3DisplayedColumns"
+        [matColumnDef]="column"
+      >
+        <th mat-header-cell *matHeaderCellDef>
+          {{ formatColumnName(column) }}
+        </th>
+
+        <td mat-cell *matCellDef="let element">
+          <ng-container [ngSwitch]="column">
+            <ng-container *ngSwitchCase="'BILL_AMOUNT_(USD)'">
+              {{ element[column] | currency : "USD" : "symbol" : "1.2-2" }}
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'CHANGE_START_DATE'">
+              <span>
+                {{ element[column] | date : "MM/dd/yyyy" }}
+              </span>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              <ng-container *ngIf="column === 'BILL_DATE'; else regularCell">
+                <button
+                  class="link-button"
+                  (click)="navigateToBillDetails(element)"
+                >
+                  {{ element[column] | date : "MM/dd/yyyy" }}
+                </button>
+              </ng-container>
+              <ng-template #regularCell>
+                {{ element[column] }}
+              </ng-template>
+            </ng-container>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="table3DisplayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: table3DisplayedColumns"></tr>
+    </table>
+    <!-- </ng-container>
+
+      <ng-template #noData>
+        <div class="no-data-container">
+          <p>No data available for this subscription.</p>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #loading>
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <br /><br /><br />
+      </div>
+    </ng-template> -->
   </div>
 </div>
 
-<!-- Bill Schedule Table -->
-<div class="invoice-summary-table" style="padding: 0 6vw">
-  <ng-container *ngIf="billScheduleDataLoaded; else loading">
-    <ng-container *ngIf="billScheduleDataSource.data.length > 0; else noData">
-      <table
-        mat-table
-        [dataSource]="billScheduleDataSource"
-        style="width: 100%"
-      >
-        <ng-container
-          *ngFor="let column of billScheduleDisplayedColumns"
-          [matColumnDef]="column"
-        >
-          <th mat-header-cell *matHeaderCellDef>
-            {{ formatColumnName(column) }}
-          </th>
-
-          <td mat-cell *matCellDef="let element">
-            <ng-container [ngSwitch]="column">
-              <ng-container *ngSwitchCase="'BILL_AMOUNT_(USD)'">
-                {{ element[column] | currency : "USD" : "symbol" : "1.2-2" }}
-              </ng-container>
-
-              <ng-container *ngSwitchCase="'STATUS'">
-                <span
-                  [ngStyle]="{
-                    color:
-                      element[column] === 'Billed'
-                        ? '#078a00'
-                        : element[column] === 'Pending'
-                        ? '#d57b00'
-                        : element[column] === 'Error'
-                        ? '#d50000'
-                        : ''
-                  }"
-                >
-                  {{ element[column] }}
-                </span>
-              </ng-container>
-
-              <ng-container *ngSwitchCase="'BILLED_ON_DATE'">
-                <span>
-                  {{ element[column] | date : "MM/dd/yyyy" }}
-                </span>
-              </ng-container>
-
-              <ng-container *ngSwitchDefault>
-                <ng-container *ngIf="column === 'BILL_DATE'; else regularCell">
-                  <button
-                    class="link-button"
-                    (click)="navigateToBillDetails(element)"
-                  >
-                    {{ element[column] | date : "MM/dd/yyyy" }}
-                  </button>
-                </ng-container>
-                <ng-template #regularCell>
-                  {{ element[column] }}
-                </ng-template>
-              </ng-container>
-            </ng-container>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="billScheduleDisplayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: billScheduleDisplayedColumns"
-        ></tr>
-      </table>
-    </ng-container>
-
-    <ng-template #noData>
-      <div class="no-data-container">
-        <p>No bill schedule data available for this subscription.</p>
-      </div>
-    </ng-template>
-  </ng-container>
-
-  <ng-template #loading>
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-      <br /><br /><br />
-    </div>
-  </ng-template>
-</div>
+<br /><br />
