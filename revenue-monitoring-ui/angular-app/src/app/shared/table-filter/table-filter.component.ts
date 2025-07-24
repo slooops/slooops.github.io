@@ -1,24 +1,32 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-table-filter',
   templateUrl: './table-filter.component.html',
   styleUrls: ['./table-filter.component.css'],
 })
-export class TableFilterComponent {
+export class TableFilterComponent implements OnInit {
   @Input() columnLabel = 'USD';
   @Input() options: SimpleFilterOption[] = [];
   @Output() optionSelected = new EventEmitter<string>();
 
   isOpen = false;
+  selectedOption: string = '';
+
+  ngOnInit(): void {
+    const defaultOption = this.options.find((opt) => opt.default);
+    if (defaultOption) {
+      this.selectedOption = defaultOption.value;
+    }
+  }
 
   toggleDropdown() {
     this.isOpen = !this.isOpen;
   }
 
-  selectOption(value: string) {
-    this.optionSelected.emit(value);
+  selectOption(option: any) {
+    this.selectedOption = option.value;
+    this.optionSelected.emit(option.value);
     this.isOpen = false;
   }
 }
@@ -26,4 +34,5 @@ export class TableFilterComponent {
 export interface SimpleFilterOption {
   label: string;
   value: string;
+  default: boolean;
 }

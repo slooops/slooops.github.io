@@ -1,4 +1,3 @@
-<!-- <app-o2c-nav></app-o2c-nav> -->
 <div class="o2c-360-container">
   <app-o2c-sidebar-nav [navItems]="navTotals"></app-o2c-sidebar-nav>
 
@@ -392,6 +391,11 @@
       </div>
     </div>
 
+    <span *ngIf="filteredDataNotFound" class="update-status-modal">
+      <span class="update-status-content">
+        No data found for the selected filters.
+      </span>
+    </span>
     <div
       class="o2c-card order-banner table-banner"
       (click)="toggleAccordion('invoice')"
@@ -409,8 +413,8 @@
             ? "Loading..."
             : limitedInvoiceData.length > 0
             ? invoiceSummaryDataSource?.data?.length > 5
-              ? "5 / " + navTotals[2].count
-              : navTotals[2].count
+              ? "5 / " + invoiceSummaryDataSource?.data?.length
+              : invoiceSummaryDataSource?.data?.length
             : "No Data"
         }}
         <button
@@ -447,12 +451,15 @@
                     >
                       <app-table-filter
                         [columnLabel]="'USD'"
-                        [options]="[
-                          { label: 'All', value: 'all' },
-                          { label: 'USD Equal to 0', value: 'eq0' },
-                          { label: 'USD Greater than 0', value: 'gt0' }
-                        ]"
-                        (optionSelected)="handleFilter($event, column)"
+                        [options]="amountOptions"
+                        (optionSelected)="
+                          handleFilter(
+                            $event,
+                            column,
+                            originalInvoiceSummaryData,
+                            'invoiceSummaryDataSource'
+                          )
+                        "
                       ></app-table-filter>
                     </ng-container>
                   </div>

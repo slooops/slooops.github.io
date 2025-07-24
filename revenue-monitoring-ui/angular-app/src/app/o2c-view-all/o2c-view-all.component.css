@@ -279,7 +279,7 @@ tr.mat-header-row {
 .ccw-button-text {
   color: #0076d5;
   font-weight: 500;
-  text-decoration: line-through;
+  text-decoration: none;
 }
 
 .link-button {
@@ -328,4 +328,36 @@ button.link-button:hover .ccw-button-text {
   height: 16px;
   background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDE2IDE2IiBmaWxsPSIjMDA3NkQ1Ij4KICA8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTUuMzEzNzUgMS41NDc2N0M1LjU2NjA5IDEuODE1NzggNS41NTMzMSAyLjIzNzcgNS4yODUyIDIuNDkwMDVMMy42ODA4OSA0TDguNjY2NTQgMy45OTk5OUMxMS45ODAyIDMuOTk5OTUgMTQuNjY2NSA2LjY4NjIxIDE0LjY2NjUgOS45OTk5QzE0LjY2NjUgMTEuODk1IDEzLjc4NzIgMTMuNTg1MSAxMi40MTY4IDE0LjY4MzdDMTIuMTI5NiAxNC45MTM5IDExLjcxIDE0Ljg2NzggMTEuNDc5NyAxNC41ODA1QzExLjI0OTQgMTQuMjkzMiAxMS4yOTU2IDEzLjg3MzYgMTEuNTgyOSAxMy42NDMzQzEyLjY1MTEgMTIuNzg3IDEzLjMzMzIgMTEuNDczMyAxMy4zMzMyIDkuOTk5OUMxMy4zMzMyIDcuNDIyNTkgMTEuMjQzOSA1LjMzMzI5IDguNjY2NTQgNS4zMzMzM0wzLjU0NjQ5IDUuMzMzMzNMNS4zMTI5NiA3LjIwMzY4QzUuNTY1NzcgNy40NzEzNiA1LjU1MzcxIDcuODkzMyA1LjI4NjA0IDguMTQ2MTFDNS4wMTgzNiA4LjM5ODkyIDQuNTk2NDIgOC4zODY4NyA0LjM0MzYxIDguMTE5MTlMMS4wNTY2NCA0LjYzODkxTDQuMzcxMzcgMS41MTkxMkM0LjYzOTQ5IDEuMjY2NzcgNS4wNjE0IDEuMjc5NTUgNS4zMTM3NSAxLjU0NzY3WiIgZmlsbD0iIzAwNzZENSIvPgo8L3N2Zz4=);
   background-size: cover;
+}
+
+::ng-deep .mat-header-cell {
+  overflow: visible !important;
+}
+
+.update-status-modal {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  background: none;
+  padding: 0;
+  width: auto;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  align-items: center;
+}
+.update-status-content {
+  background: #fff;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 18px 32px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }

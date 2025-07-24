@@ -7,8 +7,9 @@
     <div
       class="dropdown-option"
       *ngFor="let opt of options"
-      (click)="selectOption(opt.value)"
+      (click)="selectOption(opt)"
     >
+      <mat-icon *ngIf="selectedOption === opt.value">check</mat-icon>
       {{ opt.label }}
     </div>
   </div>

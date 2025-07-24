@@ -1,4 +1,9 @@
 <!-- <app-o2c-nav></app-o2c-nav> -->
+<span *ngIf="filteredDataNotFound" class="update-status-modal">
+  <span class="update-status-content">
+    No data found for the selected filters.
+  </span>
+</span>
 
 <div class="circle-header">
   <button class="back-btn-floating" (click)="goBack()">
@@ -381,7 +386,29 @@
                 [matColumnDef]="column"
               >
                 <th mat-header-cell *matHeaderCellDef>
-                  {{ formatColumnName(column) }}
+                  <div class="header-with-filter">
+                    <span>{{ formatColumnName(column) }}</span>
+
+                    <ng-container
+                      *ngIf="
+                        column === 'AMOUNT_DUE_ORIGINAL' ||
+                        column === 'AMOUNT_DUE_REMAINING'
+                      "
+                    >
+                      <app-table-filter
+                        [columnLabel]="'USD'"
+                        [options]="amountOptions"
+                        (optionSelected)="
+                          handleFilter(
+                            $event,
+                            column,
+                            originalInvoiceSummaryData,
+                            'invoiceSummaryDataSource'
+                          )
+                        "
+                      ></app-table-filter>
+                    </ng-container>
+                  </div>
                 </th>
 
                 <td mat-cell *matCellDef="let element">
@@ -504,7 +531,23 @@
                 [matColumnDef]="column"
               >
                 <th mat-header-cell *matHeaderCellDef>
-                  {{ formatColumnName(column) }}
+                  <div class="header-with-filter">
+                    <span>{{ formatColumnName(column) }}</span>
+
+                    <ng-container *ngIf="column === 'POSTED_TO_GL'">
+                      <app-table-filter
+                        [options]="postedToGLOptions"
+                        (optionSelected)="
+                          handleFilter(
+                            $event,
+                            column,
+                            originalInvoiceLinesData,
+                            'invoiceLinesDataSource'
+                          )
+                        "
+                      ></app-table-filter>
+                    </ng-container>
+                  </div>
                 </th>
 
                 <td mat-cell *matCellDef="let element">
@@ -521,7 +564,6 @@
                     >
                       {{ element[column] | currency : "USD" : "" }}
                     </ng-container> -->
-
                     <ng-container *ngSwitchDefault>
                       {{
                         column === "GL_DATE"
