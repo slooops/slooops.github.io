@@ -120,6 +120,9 @@ import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
 import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
 import { O2cBillScheduleComponent } from './o2c-bill-schedule/o2c-bill-schedule.component';
 import { O2cBillDetailsComponent } from './o2c-bill-details/o2c-bill-details.component';
+import { TableFilterComponent } from './shared/table-filter/table-filter.component';
+import { O2cTsvComponent } from './o2c-tsv/o2c-tsv.component';
+import { O2cGlComponent } from './o2c-gl/o2c-gl.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -206,6 +209,9 @@ export function initApp(authService: AuthenticationService) {
     O2cCardComponent,
     O2cBillScheduleComponent,
     O2cBillDetailsComponent,
+    TableFilterComponent,
+    O2cTsvComponent,
+    O2cGlComponent,
   ],
   imports: [
     BrowserModule,

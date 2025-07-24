@@ -1,0 +1,15 @@
+<div class="filter-wrapper">
+  <button class="filter-button" (click)="toggleDropdown()">
+    <mat-icon style="margin-bottom: -10px">filter_list</mat-icon>
+  </button>
+
+  <div class="dropdown" *ngIf="isOpen">
+    <div
+      class="dropdown-option"
+      *ngFor="let opt of options"
+      (click)="selectOption(opt.value)"
+    >
+      {{ opt.label }}
+    </div>
+  </div>
+</div>

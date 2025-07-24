@@ -36,6 +36,8 @@ import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
 import { O2cBillScheduleComponent } from './o2c-bill-schedule/o2c-bill-schedule.component';
 import { O2cBillDetailsComponent } from './o2c-bill-details/o2c-bill-details.component';
+import { O2cTsvComponent } from './o2c-tsv/o2c-tsv.component';
+import { O2cGlComponent } from './o2c-gl/o2c-gl.component';
 
 const routes: Routes = [
   {
@@ -248,6 +250,16 @@ const routes: Routes = [
       header: 'O2C Bill Details',
       hideNavbar: true,
     },
+  },
+  {
+    path: 'o2c-gl',
+    component: O2cGlComponent,
+    data: { title: 'O2C GL', header: 'O2C GL', hideNavbar: true },
+  },
+  {
+    path: 'o2c-tsv',
+    component: O2cTsvComponent,
+    data: { title: 'O2C TSV', header: 'O2C TSV', hideNavbar: true },
   },
   {
     path: 'o2c-overview',

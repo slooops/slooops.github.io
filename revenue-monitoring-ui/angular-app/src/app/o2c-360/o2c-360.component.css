@@ -445,3 +445,7 @@ button.link-button:hover .ccw-button-text {
   color: #0897e4;
   text-decoration: underline;
 }
+
+::ng-deep .mat-header-cell {
+  overflow: visible !important;
+}

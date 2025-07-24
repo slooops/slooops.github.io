@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -679,4 +685,23 @@ export class O2c360Component implements OnInit {
       '_blank'
     );
   }
+
+  // this needs to be made generic, because same filter function
+  // may be used on the same table or dataset with different options in play
+  handleFilter(value: string, column: string) {
+    console.log(`Filtering ${column} by: ${value}`);
+    // TODO: Add actual filter logic here based on column/value
+  }
+
+  originalAmountOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'USD Equal to 0', value: 'eq0' },
+    { label: 'USD Greater than 0', value: 'gt0' },
+  ];
+
+  remainingAmountOptions = [
+    { label: 'All', value: 'all' },
+    { label: 'USD Equal to 0', value: 'eq0' },
+    { label: 'USD Greater than 0', value: 'gt0' },
+  ];
 }
