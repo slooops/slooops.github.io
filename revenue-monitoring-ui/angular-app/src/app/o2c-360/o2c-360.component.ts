@@ -7,14 +7,11 @@ import {
 } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  SearchContextService,
-  O2cSearchResult,
-} from '../search-context.service';
-import { is } from 'date-fns/locale';
+import { O2cSearchResult } from '../search-context.service';
+import { FiltersService } from '../providers/filters.service';
 
 @Component({
   selector: 'app-o2c-360',
@@ -180,7 +177,8 @@ export class O2c360Component implements OnInit {
     private destroyManager: DestroyManager,
     private sidebarService: SidebarService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private filtersService: FiltersService
   ) {}
 
   sidebarExpanded = true;
@@ -370,6 +368,8 @@ export class O2c360Component implements OnInit {
       });
   }
 
+  originalInvoiceSummaryData: any[] = [];
+
   private getInvoiceSummary(invoiceIds: any): void {
     if (!invoiceIds || !invoiceIds.length || invoiceIds[0] === '') {
       console.warn('No invoice IDs provided');
@@ -397,6 +397,7 @@ export class O2c360Component implements OnInit {
             ''
           : '';
         // console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
+        this.originalInvoiceSummaryData = [...data];
 
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
@@ -686,22 +687,42 @@ export class O2c360Component implements OnInit {
     );
   }
 
-  // this needs to be made generic, because same filter function
-  // may be used on the same table or dataset with different options in play
-  handleFilter(value: string, column: string) {
-    console.log(`Filtering ${column} by: ${value}`);
-    // TODO: Add actual filter logic here based on column/value
+  filters: { [key: string]: string } = {};
+  filteredDataNotFound: boolean = false;
+  amountOptions = [
+    { label: 'All', value: 'all', default: true },
+    { label: 'USD Equal to 0', value: 'equal to 0', default: false },
+    { label: 'USD Greater than 0', value: 'greater than 0', default: false },
+    { label: 'USD Less than 0', value: 'less than 0', default: false },
+  ];
+
+  handleFilter(
+    value: string,
+    column: string,
+    data: any[],
+    dataSourceProp:
+      | 'orderSummaryDataSource'
+      | 'subscriptionSummaryDataSource'
+      | 'invoiceSummaryDataSource'
+      | 'invoiceSummaryModalDataSource'
+      | 'subscriptionLinesDataSource'
+      | 'invoiceLinesDataSource'
+      | 'financialSummaryDataSource'
+  ) {
+    if (value === 'all') {
+      delete this.filters[column];
+    } else {
+      this.filters[column] = value;
+    }
+    let tableData = this.filtersService.applyFilters(data, this.filters);
+    if (tableData.length === 0) {
+      this.filteredDataNotFound = true;
+      setTimeout(() => {
+        this.filteredDataNotFound = false;
+      }, 5000);
+    } else {
+      this.filteredDataNotFound = false;
+      (this[dataSourceProp] as MatTableDataSource<any>).data = tableData;
+    }
   }
-
-  originalAmountOptions = [
-    { label: 'All', value: 'all' },
-    { label: 'USD Equal to 0', value: 'eq0' },
-    { label: 'USD Greater than 0', value: 'gt0' },
-  ];
-
-  remainingAmountOptions = [
-    { label: 'All', value: 'all' },
-    { label: 'USD Equal to 0', value: 'eq0' },
-    { label: 'USD Greater than 0', value: 'gt0' },
-  ];
 }

@@ -386,6 +386,7 @@ button:disabled {
   padding: 0;
   color: #0076d5;
   font-size: inherit;
+  text-decoration: none;
 }
 
 /* More specific selector to override any defaults */
@@ -438,7 +439,7 @@ th[mat-header-cell] {
 .ccw-button-text {
   color: #0076d5;
   font-weight: 500;
-  text-decoration: line-through;
+  text-decoration: none;
 }
 
 button.link-button:hover .ccw-button-text {
@@ -448,4 +449,32 @@ button.link-button:hover .ccw-button-text {
 
 ::ng-deep .mat-header-cell {
   overflow: visible !important;
+}
+
+.update-status-modal {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  background: none;
+  padding: 0;
+  width: auto;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  align-items: center;
+}
+.update-status-content {
+  background: #fff;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 18px 32px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }

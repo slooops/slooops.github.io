@@ -4,6 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import * as XLSX from 'xlsx';
+import { FiltersService } from '../providers/filters.service';
 
 @Component({
   selector: 'app-o2c-view-all',
@@ -25,6 +26,18 @@ export class O2cViewAllComponent implements OnInit {
   selectedTransactionNumber: string | null = null;
   showSubscriptionModal: boolean = false;
   showInvoiceModal: boolean = false;
+  amountOptions = [
+    { label: 'All', value: 'all', default: true },
+    { label: 'USD Equal to 0', value: 'equal to 0', default: false },
+    { label: 'USD Greater than 0', value: 'greater than 0', default: false },
+    { label: 'USD Less than 0', value: 'less than 0', default: false },
+  ];
+
+  postedToGLOptions = [
+    { label: 'All', value: 'all', default: true },
+    { label: 'Y', value: 'Y', default: false },
+    { label: 'N', value: 'N', default: false },
+  ];
 
   circleStatus: { [key: string]: number } = {
     Order: 0,
@@ -146,7 +159,46 @@ export class O2cViewAllComponent implements OnInit {
   invoiceLinesFilteredDataSource = new MatTableDataSource<any>();
   invoiceSummaryModalDataSource = new MatTableDataSource<any>();
 
-  constructor(private location: Location, private router: Router) {}
+  constructor(
+    private location: Location,
+    private router: Router,
+    private filtersService: FiltersService
+  ) {}
+
+  filters: { [key: string]: string } = {};
+  filteredDataNotFound: boolean = false;
+  originalInvoiceSummaryData: any[] = [];
+  originalInvoiceLinesData: any[] = [];
+  handleFilter(
+    value: string,
+    column: string,
+    data: any[],
+    dataSourceProp:
+      | 'invoiceSummaryDataSource'
+      | 'orderSummaryDataSource'
+      | 'subscriptionSummaryDataSource'
+      | 'invoiceLinesDataSource'
+      | 'invoiceLinesFilteredDataSource'
+      | 'financialSummaryDataSource'
+      | 'subscriptionLinesDataSource'
+      | 'invoiceSummaryModalDataSource'
+  ) {
+    if (value === 'all') {
+      delete this.filters[column];
+    } else {
+      this.filters[column] = value;
+    }
+    let tableData = this.filtersService.applyFilters(data, this.filters);
+    if (tableData.length === 0) {
+      this.filteredDataNotFound = true;
+      setTimeout(() => {
+        this.filteredDataNotFound = false;
+      }, 5000);
+    } else {
+      this.filteredDataNotFound = false;
+      (this[dataSourceProp] as MatTableDataSource<any>).data = tableData;
+    }
+  }
 
   ngOnInit(): void {
     const navState = this.location.getState() as {
@@ -184,10 +236,11 @@ export class O2cViewAllComponent implements OnInit {
     }
 
     if (navState?.invoiceData) {
+      this.originalInvoiceSummaryData = [...navState.invoiceData];
       this.invoiceSummaryDataSource.data = navState.invoiceData;
       this.invoiceSummaryDisplayedColumns = navState.invoiceColumns || [];
       this.invoiceId = this.invoiceSummaryDataSource.data[0].TRANSACTION_NUMBER;
-
+      this.originalInvoiceLinesData = [...navState.invoiceLineData];
       const sortedData = navState.invoiceLineData
         .slice()
         .sort((a: any, b: any) => (a.LINE_NUMBER ?? 0) - (b.LINE_NUMBER ?? 0));
