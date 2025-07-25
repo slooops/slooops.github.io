@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-o2c-billing-schedule',
+  selector: 'app-o2c-bill-schedule',
   templateUrl: './o2c-bill-schedule.component.html',
   styleUrls: ['./o2c-bill-schedule.component.css'],
 })
@@ -21,9 +21,9 @@ export class O2cBillScheduleComponent {
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
-    Subscription: 0,
-    Invoicing: 0,
-    Accounting: 0,
+    Subscription: 2,
+    Invoicing: 2,
+    Accounting: 2,
     Cash: 0,
   };
 
@@ -238,6 +238,7 @@ export class O2cBillScheduleComponent {
         billData: rowData,
         orderId: this.orderId,
         subRefId: this.subRefId,
+        circleStatus: this.circleStatus,
       },
     });
   }

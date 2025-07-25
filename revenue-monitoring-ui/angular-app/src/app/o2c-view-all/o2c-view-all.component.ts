@@ -24,7 +24,6 @@ export class O2cViewAllComponent implements OnInit {
 
   selectedSubscriptionId: string | null = null;
   selectedTransactionNumber: string | null = null;
-  showSubscriptionModal: boolean = false;
   showInvoiceModal: boolean = false;
   amountOptions = [
     { label: 'All', value: 'all', default: true },
@@ -159,12 +158,6 @@ export class O2cViewAllComponent implements OnInit {
   invoiceLinesFilteredDataSource = new MatTableDataSource<any>();
   invoiceSummaryModalDataSource = new MatTableDataSource<any>();
 
-  constructor(
-    private location: Location,
-    private router: Router,
-    private filtersService: FiltersService
-  ) {}
-
   filters: { [key: string]: string } = {};
   filteredDataNotFound: boolean = false;
   originalInvoiceSummaryData: any[] = [];
@@ -200,10 +193,17 @@ export class O2cViewAllComponent implements OnInit {
     }
   }
 
+  constructor(
+    private location: Location,
+    private router: Router,
+    private filtersService: FiltersService
+  ) {}
+
   ngOnInit(): void {
     const navState = this.location.getState() as {
       defaultTab?: string;
       defaultTransactionNumber?: string;
+      defaultSubscriptionId?: string; // Add this line
       orderData?: any[];
       financialData?: any[];
 
@@ -231,15 +231,21 @@ export class O2cViewAllComponent implements OnInit {
       this.subscriptionSummaryDisplayedColumns =
         navState.subscriptionColumns || [];
       this.subscriptionId =
-        this.subscriptionSummaryDataSource.data[0].SUBSCRIPTION_ID;
+        this.subscriptionSummaryDataSource.data[0]?.SUBSCRIPTION_ID;
       this.subscriptionLinesDataSource.data = navState.subscriptionLineData;
+
+      // Handle subscription line specific view
+      if (navState.defaultSubscriptionId) {
+        this.toggleSubscriptionLinesTable(navState.defaultSubscriptionId);
+      }
     }
 
     if (navState?.invoiceData) {
       this.originalInvoiceSummaryData = [...navState.invoiceData];
       this.invoiceSummaryDataSource.data = navState.invoiceData;
       this.invoiceSummaryDisplayedColumns = navState.invoiceColumns || [];
-      this.invoiceId = this.invoiceSummaryDataSource.data[0].TRANSACTION_NUMBER;
+      this.invoiceId =
+        this.invoiceSummaryDataSource.data[0]?.TRANSACTION_NUMBER;
       this.originalInvoiceLinesData = [...navState.invoiceLineData];
       const sortedData = navState.invoiceLineData
         .slice()
@@ -259,19 +265,6 @@ export class O2cViewAllComponent implements OnInit {
     if (navState?.financialData) {
       this.financialSummaryDataSource.data = navState.financialData;
     }
-  }
-
-  openSubscriptionModal(subId: string): void {
-    this.selectedSubscriptionId = subId;
-
-    const allLines = this.subscriptionLinesDataSource.data;
-    const filteredLines = allLines.filter(
-      (line: any) => line.SUBSCRIPTION_REF_ID === subId
-    );
-
-    this.subscriptionLinesDataSource = new MatTableDataSource(filteredLines);
-
-    this.showSubscriptionModal = true;
   }
 
   openInvoiceModal(transactionNumber: string): void {
@@ -347,6 +340,26 @@ export class O2cViewAllComponent implements OnInit {
     this.showSubscriptionLines = true;
   }
 
+  toggleSubscriptionLinesTable(subscriptionId: string): void {
+    console.log('Subscription ID:', subscriptionId);
+    console.log(
+      'Subscription Lines Data Source:',
+      this.subscriptionLinesDataSource.data
+    );
+
+    this.selectedSubscriptionId = subscriptionId;
+
+    const filteredLines = this.subscriptionLinesDataSource.data.filter(
+      (line) => line.SUBSCRIPTION_REF_ID === subscriptionId
+    );
+
+    console.log('Filtered Subscription Lines:', filteredLines);
+
+    this.subscriptionLinesDataSource.data = filteredLines;
+    this.showSubscriptionLines = true;
+    this.showInvoiceLines = false;
+  }
+
   handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
@@ -396,5 +409,63 @@ export class O2cViewAllComponent implements OnInit {
       'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
       '_blank'
     );
+  }
+
+  navigateToTsv(rowData: any): void {
+    console.log('Navigating to TSV with row data:', rowData);
+    console.log('Order data to pass:', this.orderSummaryDataSource.data);
+    console.log(
+      'Financial data to pass:',
+      this.financialSummaryDataSource.data
+    );
+
+    // Check if the data sources have data before navigating
+    if (
+      !this.orderSummaryDataSource.data ||
+      this.orderSummaryDataSource.data.length === 0
+    ) {
+      console.warn('Order data is empty');
+    }
+
+    if (
+      !this.financialSummaryDataSource.data ||
+      this.financialSummaryDataSource.data.length === 0
+    ) {
+      console.warn('Financial data is empty');
+    }
+
+    this.router.navigate(['/o2c-tsv'], {
+      state: {
+        rowData: rowData,
+        orderId: this.orderId,
+        circleStatus: this.circleStatus,
+        subscriptionId: this.selectedSubscriptionId,
+        orderData: this.orderSummaryDataSource.data || [],
+        financialData: this.financialSummaryDataSource.data || [],
+        source: 'view-all',
+      },
+    });
+  }
+
+  navigateToGl(rowData: any): void {
+    console.log('Navigating to GL with row data:', rowData);
+    console.log('Order data to pass:', this.orderSummaryDataSource.data);
+    console.log(
+      'Financial data to pass:',
+      this.financialSummaryDataSource.data
+    );
+
+    this.router.navigate(['/o2c-gl'], {
+      state: {
+        rowData: rowData,
+        orderId: this.orderId,
+        circleStatus: this.circleStatus,
+        subscriptionId: this.selectedSubscriptionId,
+        orderData: this.orderSummaryDataSource.data || [],
+        financialData: this.financialSummaryDataSource.data || [],
+        source: 'view-all',
+      },
+      queryParams: { t: Date.now() },
+    });
   }
 }

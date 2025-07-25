@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
+import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
-import { SidebarService } from '../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 
@@ -153,40 +153,56 @@ export class O2cGlComponent {
     },
   ]);
 
-  constructor(private sidebarService: SidebarService, private router: Router) {}
+  rowData: any = null;
+  sourceComponent: string | null = null;
+  isPostedToGL: boolean = false;
 
-  sidebarExpanded = true;
+  constructor(private location: Location, private router: Router) {}
 
   ngOnInit(): void {
-    this.sidebarService.isExpanded$.subscribe((isExpanded) => {
-      this.sidebarExpanded = isExpanded;
+    const navState = this.location.getState() as {
+      rowData?: any;
+      orderId?: string;
+      subscriptionId?: string;
+      circleStatus?: { [key: string]: number };
+      orderData?: any[];
+      financialData?: any[];
+      source?: string;
+    };
 
-      if (!isExpanded) {
-        this.expanded.subscription = true;
-        this.expanded.invoice = true;
-      } else if (isExpanded) {
-        this.expanded.subscription = false;
-        this.expanded.invoice = false;
-      }
-    });
+    if (!navState || Object.keys(navState).length === 0) {
+      console.warn('No navigation state received in o2c-gl');
+      return;
+    }
 
-    this.sidebarService.activeItem$.subscribe((item) => {
-      if (item === 'Subscriptions') {
-        this.expanded.subscription = true;
-        this.expanded.invoice = false;
-      } else if (item === 'Invoices') {
-        this.expanded.invoice = true;
-        this.expanded.subscription = false;
-      } else if (item === 'Orders') {
-        this.expanded.subscription = false;
-        this.expanded.invoice = false;
-      }
-    });
+    // Assign passed values with basic fallbacks
+    this.rowData = navState.rowData || null;
+    this.orderId = navState.orderId || this.orderId;
+    this.subRefId = navState.subscriptionId || this.subRefId;
+    this.sourceComponent = navState.source || null;
+    this.circleStatus = navState.circleStatus || this.circleStatus;
+
+    if (this.rowData?.POSTED_TO_GL) {
+      this.isPostedToGL = this.rowData.POSTED_TO_GL === 'Y';
+    }
+
+    if (Array.isArray(navState.orderData) && navState.orderData.length > 0) {
+      this.orderSummaryDataSource.data = navState.orderData;
+    }
+
+    if (
+      Array.isArray(navState.financialData) &&
+      navState.financialData.length > 0
+    ) {
+      this.financialSummaryDataSource.data = navState.financialData;
+    }
   }
 
-  get invoiceContainerWidth(): string {
-    if (!this.expanded.invoice && !this.expanded.subscription) return '100%';
-    return this.sidebarExpanded ? 'calc(100% - 255px)' : 'calc(100% - 71px)';
+  updateTsvDisplayFromRowData(): void {
+    if (this.rowData) {
+      // You could update specific tables or sections based on the rowData
+      console.log('Updating GL display with row data details:', this.rowData);
+    }
   }
 
   formatColumnName(column: string): string {

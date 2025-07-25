@@ -566,13 +566,12 @@ export class O2c360Component implements OnInit {
     console.log('Circle status updated:', this.circleStatus);
   }
 
-  viewAll(type: 'subscriptions' | 'invoices', billNumber?: string): void {
+  viewAll(type: 'subscriptions' | 'invoices', id?: string): void {
     if (
       !this.subscriptionDataLoaded ||
       !this.subscriptionLinesDataLoaded ||
       !this.invoiceLinesDataLoaded ||
       !this.invoiceDataLoaded ||
-      // !this.financialDataLoaded ||
       !this.orderDataLoaded
     ) {
       console.warn('Not all data has loaded. Please wait.');
@@ -595,7 +594,10 @@ export class O2c360Component implements OnInit {
     this.router.navigate(['/o2c-view-all'], {
       state: {
         defaultTab: type,
-        defaultTransactionNumber: billNumber,
+        // Pass the ID based on the type
+        defaultTransactionNumber: isInvoice ? id : undefined,
+        defaultSubscriptionId: isSubscription ? id : undefined,
+
         orderData: this.orderSummaryDataSource.data,
         financialData: this.financialSummaryDataSource.data,
 

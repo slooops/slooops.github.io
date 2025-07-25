@@ -167,7 +167,15 @@
       <div class="ac-header-blue">{{ subRefId }}</div>
       <div class="ac-header-grey">Web Order ID</div>
       <div class="ac-header-blue" style="font-weight: 700">{{ orderId }}</div>
-      <div class="ac-tag-green">Posted to GL: Y</div>
+      <div
+        class="ac-tag"
+        [ngClass]="{
+          'ac-tag-success': isPostedToGL,
+          'ac-tag-warning': !isPostedToGL
+        }"
+      >
+        Posted to GL: {{ isPostedToGL ? "Y" : "N" }}
+      </div>
     </div>
 
     <div class="o2c-toolbar">

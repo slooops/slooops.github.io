@@ -139,6 +139,7 @@
               </svg>
             </button>
           </ng-container>
+
           <ng-template #regularCell>
             {{ element[column] }}
           </ng-template>
@@ -234,7 +235,7 @@
                   <a
                     *ngIf="column === 'SUBSCRIPTION_ID'"
                     (click)="
-                      openSubscriptionModal(element[column]);
+                      toggleSubscriptionLinesTable(element[column]);
                       $event.preventDefault()
                     "
                   >
@@ -596,21 +597,7 @@
   </mat-tab>
 </mat-tab-group>
 
-<app-modal
-  *ngIf="showSubscriptionModal"
-  [headerBgColor]="'#def7ff'"
-  [borderRadius]="'0px'"
-  [title]="
-    'Subscription Line Summary &nbsp; -  &nbsp; ' +
-    selectedSubscriptionId +
-    ' &nbsp;&nbsp; | &nbsp;&nbsp;
-    Web Order ID &nbsp; - &nbsp; ' +
-    orderId
-  "
-  (close)="showSubscriptionModal = false"
->
-  <ng-container *ngTemplateOutlet="subscriptionLinesTable"></ng-container>
-</app-modal>
+<br /><br />
 
 <ng-template #subscriptionLinesTable>
   <div class="invoice-summary-table">
@@ -630,11 +617,31 @@
           </th>
 
           <td mat-cell *matCellDef="let element">
-            {{
-              column === "GL_DATE"
-                ? (element[column] | date : "MM/dd/yyyy")
-                : element[column]
-            }}
+            <ng-container [ngSwitch]="column">
+              <!-- GL Date formatting -->
+              <ng-container *ngSwitchCase="'GL_DATE'">
+                {{ element[column] | date : "MM/dd/yyyy" }}
+              </ng-container>
+
+              <!-- TSV_CREATED clickable link -->
+              <ng-container *ngSwitchCase="'TSV_CREATED'">
+                <button class="link-button" (click)="navigateToTsv(element)">
+                  {{ element[column] }}
+                </button>
+              </ng-container>
+
+              <!-- POSTED_TO_GL clickable link -->
+              <ng-container *ngSwitchCase="'POSTED_TO_GL'">
+                <button class="link-button" (click)="navigateToGl(element)">
+                  {{ element[column] }}
+                </button>
+              </ng-container>
+
+              <!-- Default case for other columns -->
+              <ng-container *ngSwitchDefault>
+                {{ element[column] }}
+              </ng-container>
+            </ng-container>
           </td>
         </ng-container>
 

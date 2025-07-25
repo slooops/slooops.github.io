@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
 import * as XLSX from 'xlsx';
@@ -121,7 +122,11 @@ export class O2cBillDetailsComponent {
     },
   ]);
 
-  constructor(private sidebarService: SidebarService, private router: Router) {}
+  constructor(
+    private sidebarService: SidebarService,
+    private router: Router,
+    private location: Location
+  ) {}
 
   sidebarExpanded = true;
 
@@ -151,21 +156,24 @@ export class O2cBillDetailsComponent {
       }
     });
 
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras?.state) {
-      const state = navigation.extras.state as {
-        billData: any;
-        orderId: string;
-        subRefId: string;
-      };
-
-      this.billData = state.billData;
-
+    const navState = this.location.getState() as {
+      billData?: any;
+      orderId?: string;
+      subRefId?: string;
+      circleStatus?: { [key: string]: number };
+    };
+    if (!navState) {
+      console.warn(
+        'No navigation state found, initializing with default values.'
+      );
+    } else {
+      this.billData = navState.billData;
       // Update component properties if they were passed
-      if (state.orderId) this.orderId = state.orderId;
-      if (state.subRefId) this.subRefId = state.subRefId;
-
-      console.log('Received bill data in details component:', this.billData);
+      if (navState.orderId) this.orderId = navState.orderId;
+      if (navState.subRefId) this.subRefId = navState.subRefId;
+      if (navState.circleStatus) {
+        this.circleStatus = navState.circleStatus;
+      }
 
       // You might want to use this data to load more specific details
       if (this.billData && this.billData.BILL_DATE) {
