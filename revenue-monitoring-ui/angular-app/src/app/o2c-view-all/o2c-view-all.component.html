@@ -548,6 +548,26 @@
                         "
                       ></app-table-filter>
                     </ng-container>
+
+                    <ng-container
+                      *ngIf="
+                        column === 'EXTENDED_AMOUNT' ||
+                        column === 'LINE_AMOUNT' ||
+                        column === 'TAX_AMOUNT'
+                      "
+                    >
+                      <app-table-filter
+                        [options]="amountOptions"
+                        (optionSelected)="
+                          handleFilter(
+                            $event,
+                            column,
+                            originalInvoiceLinesData,
+                            'invoiceLinesDataSource'
+                          )
+                        "
+                      ></app-table-filter>
+                    </ng-container>
                   </div>
                 </th>
 
@@ -565,6 +585,15 @@
                     >
                       {{ element[column] | currency : "USD" : "" }}
                     </ng-container> -->
+
+                    <ng-container *ngSwitchCase="'POSTED_TO_GL'">
+                      <button
+                        class="link-button"
+                        (click)="navigateToGl(element)"
+                      >
+                        {{ element[column] }}
+                      </button>
+                    </ng-container>
                     <ng-container *ngSwitchDefault>
                       {{
                         column === "GL_DATE"
