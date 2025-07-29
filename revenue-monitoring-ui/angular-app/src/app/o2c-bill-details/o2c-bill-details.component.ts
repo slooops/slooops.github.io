@@ -67,7 +67,7 @@ export class O2cBillDetailsComponent {
     'ITEM_TOTAL_(USD)',
     'IS_REFUND_LINE',
     'PREV_ORDER_LINE_ID',
-    'ACTION',
+    // 'ACTION',
   ];
   billScheduleDataSource = new MatTableDataSource<any>([
     {

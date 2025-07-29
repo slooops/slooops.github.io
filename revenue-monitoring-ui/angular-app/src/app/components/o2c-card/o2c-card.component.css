@@ -1,6 +1,7 @@
 .cash-card {
   /* width: 220px; */
   width: 1 fr;
+  min-width: 280px;
   background-color: #f2f8fc;
   border-radius: 12px;
   padding: 16px;

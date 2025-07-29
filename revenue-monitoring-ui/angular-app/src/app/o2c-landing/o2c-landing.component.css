@@ -1,8 +1,10 @@
+@import "src/assets/o2c-common-styles.css";
+
 .o2c-container {
   display: flex;
   height: 100%;
   gap: 6px;
-  padding: 6px 22px;
+  margin: 1vh 22px;
 }
 
 .o2c-column-container {
@@ -48,4 +50,33 @@
   .chart-legend-wrapper {
     flex-direction: column; /* Stack chart and legend vertically on very small screens */
   }
+}
+
+.sm-light-text {
+  color: #6c757d;
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+/* Consolidated scrollbar styles */
+.scrollable {
+  overflow-x: auto;
+}
+
+.scrollable::-webkit-scrollbar {
+  height: 8px;
+  background-color: #f8f8f8;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: #efefef;
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: #e3e3e3;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background-color: #ffffff;
 }

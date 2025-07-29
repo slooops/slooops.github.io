@@ -97,18 +97,23 @@
   </div>
   <div class="metrics-container" [class.side-by-side]="valueDoubleWide">
     <div class="card-metrics">
+      <div class="metric-footer">{{ footer }}</div>
+
       <div class="metric-labels">
         <span>{{ title }}</span>
         <span>$ USD M.</span>
       </div>
+
       <div class="metric-values">
         <span class="orders">{{ count }}</span>
         <span class="usd">{{ value }}</span>
       </div>
-      <div class="metric-footer">{{ footer }}</div>
     </div>
 
     <div class="card-metrics" *ngIf="valueDoubleWide">
+      <div class="metric-footer">
+        {{ footerDoubleWide }}
+      </div>
       <div class="metric-labels">
         <span>{{ title }}</span>
         <span>$ USD M.</span>
@@ -116,9 +121,6 @@
       <div class="metric-values">
         <span class="orders">{{ countDoubleWide }}</span>
         <span class="usd">{{ valueDoubleWide }}</span>
-      </div>
-      <div class="metric-footer">
-        {{ footerDoubleWide }}
       </div>
     </div>
   </div>

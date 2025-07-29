@@ -1,59 +1,109 @@
+<div class="o2c-container">Hello Nirmala, Welcome!</div>
+
+<div class="o2c-container result-header">
+  Exceptions Dashboard
+  <mat-tab-group
+    style="margin: -20px 0 0 20px"
+    tabindex="3"
+    [selectedIndex]="2"
+  >
+    <mat-tab label="Hardware"> </mat-tab>
+    <mat-tab label="Services"> </mat-tab>
+    <mat-tab label="Subscription"> </mat-tab>
+    <mat-tab label="Others"> </mat-tab>
+  </mat-tab-group>
+</div>
+
 <div
   style="
     display: flex;
     gap: 20px;
-    flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
-    margin: 2vh 22px 0 22px;
+    margin: 2vh 22px;
   "
 >
   <app-o2c-donut
     [data]="dummyData1"
     canvasId="donutChartLarge"
     [showCircleBackground]="false"
-    [showLegend]="false"
+    [showLegend]="true"
     chartSize="150px"
   >
   </app-o2c-donut>
 
-  <app-o2c-card
-    [title]="'Order'"
-    [count]="0"
-    [value]="'0'"
-    [footer]="'Enter to Booked'"
-    [countDoubleWide]="0"
-    [valueDoubleWide]="'0'"
-    [footerDoubleWide]="'Booked to Fulfillment'"
-  ></app-o2c-card>
+  <div
+    style="
+      overflow-x: scroll;
+      display: flex;
+      gap: 20px;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 2px 0;
+    "
+    class="scrollable"
+  >
+    <app-o2c-card
+      [title]="'Order'"
+      [count]="0"
+      [value]="'0'"
+      [footer]="'Enter to Booked'"
+      [countDoubleWide]="0"
+      [valueDoubleWide]="'0'"
+      [footerDoubleWide]="'Booked to Fulfillment'"
+    ></app-o2c-card>
 
-  <app-o2c-card
-    [title]="'Subscription'"
-    [count]="0"
-    [value]="'0'"
-    [footer]="'Fulfillment to Invoicing'"
-  ></app-o2c-card>
+    <app-o2c-card
+      [title]="'Subscription'"
+      [count]="0"
+      [value]="'0'"
+      [footer]="'Fulfillment to Invoicing'"
+    ></app-o2c-card>
 
-  <app-o2c-card
-    [title]="'Invoice'"
-    [count]="0"
-    [value]="'0'"
-    [footer]="'Fulfillment to Invoicing'"
-  ></app-o2c-card>
+    <app-o2c-card
+      [title]="'Invoice'"
+      [count]="0"
+      [value]="'0'"
+      [footer]="'Fulfillment to Invoicing'"
+    ></app-o2c-card>
 
-  <app-o2c-card
-    [title]="'Accounting'"
-    [count]="0"
-    [value]="'0'"
-    [footer]="'Accounting'"
-  ></app-o2c-card>
+    <app-o2c-card
+      [title]="'Accounting'"
+      [count]="0"
+      [value]="'0'"
+      [footer]="'Accounting'"
+    ></app-o2c-card>
 
-  <app-o2c-card
-    [title]="'Cash'"
-    [count]="0"
-    [value]="'0'"
-    [footer]="'Cash Collection'"
-  ></app-o2c-card>
+    <app-o2c-card
+      [title]="'Cash'"
+      [count]="0"
+      [value]="'0'"
+      [footer]="'Cash Collection'"
+    ></app-o2c-card>
+  </div>
+</div>
+
+<div class="o2c-container">
+  <div class="order-banner" style="background-color: #fef7ec">
+    <mat-tab-group>
+      <mat-tab label="Order"> </mat-tab>
+      <mat-tab label="Subscription"><h5>hi</h5> </mat-tab>
+      <mat-tab label="Invoice"> </mat-tab>
+      <mat-tab label="Accounting"> </mat-tab>
+      <mat-tab label="Cash"> </mat-tab>
+    </mat-tab-group>
+    <div class="sm-light-text">Last Refreshed Date:</div>
+  </div>
+</div>
+
+<div class="o2c-container">
+  <div
+    class="order-banner accordion-header"
+    style="padding: 10px; justify-content: flex-start; gap: 10px"
+  >
+    <div class="status-dot"></div>
+    <div>Order Entered to Booked</div>
+  </div>
 </div>
 
 <div

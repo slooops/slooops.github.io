@@ -332,7 +332,7 @@ export class O2c360Component implements OnInit {
         if (Array.isArray(data) && data.length > 0) {
           this.subscriptionSummaryDisplayedColumns = this.removeColumns(
             Object.keys(data[0]),
-            ['EFFECTIVE_START_DATE', 'EFFECTIVE_END_DATE', 'EXCEPTION_DETAILS']
+            ['TERM_START_DATE', 'TERM_END_DATE']
           );
         } else {
           this.subscriptionSummaryDisplayedColumns = [];
@@ -687,6 +687,13 @@ export class O2c360Component implements OnInit {
       'https://ccw-cstg.cisco.com/icw/pdrqo/portal.order' + this.orderId,
       '_blank'
     );
+  }
+
+  navigateToBillingSchedule(rowData: any): void {
+    console.log('Navigating to Billing Schedule with row data:', rowData);
+    this.router.navigate(['/o2c-bill-schedule'], {
+      state: { rowData: rowData },
+    });
   }
 
   filters: { [key: string]: string } = {};

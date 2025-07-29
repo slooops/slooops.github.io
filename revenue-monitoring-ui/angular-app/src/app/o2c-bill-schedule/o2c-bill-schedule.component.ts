@@ -3,6 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-o2c-bill-schedule',
@@ -101,7 +102,11 @@ export class O2cBillScheduleComponent {
     },
   ]);
 
-  constructor(private sidebarService: SidebarService, private router: Router) {}
+  constructor(
+    private sidebarService: SidebarService,
+    private router: Router,
+    private location: Location
+  ) {}
 
   sidebarExpanded = true;
 
@@ -130,6 +135,12 @@ export class O2cBillScheduleComponent {
         this.expanded.invoice = false;
       }
     });
+
+    const navState = this.location.getState() as {
+      rowData?: any;
+    };
+
+    console.log('Navigation state:', navState);
   }
 
   get invoiceContainerWidth(): string {

@@ -181,6 +181,7 @@
   align-self: stretch;
   background-color: #def7ff; /* Light blue */
   border: 1px solid #e4e4e4;
+  width: 100%;
 }
 
 .table-banner {
