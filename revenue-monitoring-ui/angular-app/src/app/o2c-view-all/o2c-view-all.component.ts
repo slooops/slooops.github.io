@@ -162,6 +162,11 @@ export class O2cViewAllComponent implements OnInit {
   filteredDataNotFound: boolean = false;
   originalInvoiceSummaryData: any[] = [];
   originalInvoiceLinesData: any[] = [];
+  filteredOriginalInvoiceLinesData: any[] = [];
+  invoiceLinesFiltered: boolean = false;
+  originalSubscriptionLinesData: any[] = [];
+  filteredOriginalSubscriptionLinesData: any[] = [];
+  subscriptionLinesFiltered: boolean = false;
   handleFilter(
     value: string,
     column: string,
@@ -234,6 +239,7 @@ export class O2cViewAllComponent implements OnInit {
         this.subscriptionSummaryDataSource.data[0]?.SUBSCRIPTION_ID;
       this.subscriptionLinesDataSource.data = navState.subscriptionLineData;
 
+      this.originalSubscriptionLinesData = [...navState.subscriptionLineData];
       // Handle subscription line specific view
       if (navState.defaultSubscriptionId) {
         this.toggleSubscriptionLinesTable(navState.defaultSubscriptionId);
@@ -246,11 +252,12 @@ export class O2cViewAllComponent implements OnInit {
       this.invoiceSummaryDisplayedColumns = navState.invoiceColumns || [];
       this.invoiceId =
         this.invoiceSummaryDataSource.data[0]?.TRANSACTION_NUMBER;
-      this.originalInvoiceLinesData = [...navState.invoiceLineData];
       const sortedData = navState.invoiceLineData
         .slice()
         .sort((a: any, b: any) => (a.LINE_NUMBER ?? 0) - (b.LINE_NUMBER ?? 0));
       this.invoiceLinesDataSource.data = sortedData;
+
+      this.originalInvoiceLinesData = [...sortedData];
 
       if (navState.defaultTransactionNumber) {
         this.toggleInvoiceLinesTable(navState.defaultTransactionNumber);
@@ -324,8 +331,10 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   toggleInvoiceLinesTable(TransactionNumber: string): void {
-    console.log('Bill Number:', TransactionNumber);
-    console.log('Invoice Lines Data Source:', this.invoiceLinesDataSource.data);
+    this.invoiceLinesFiltered = true;
+
+    // console.log('Bill Number:', TransactionNumber);
+    // console.log('Invoice Lines Data Source:', this.invoiceLinesDataSource.data);
 
     this.selectedTransactionNumber = TransactionNumber;
 
@@ -333,28 +342,32 @@ export class O2cViewAllComponent implements OnInit {
       (line) => line.TRANSACTION_NUMBER === TransactionNumber
     );
 
-    console.log('Filtered Lines:', filteredLines);
+    // console.log('Filtered Lines:', filteredLines);
 
+    console.log('filtred Invoice Lines Data:', filteredLines);
+    this.filteredOriginalInvoiceLinesData = [...filteredLines];
     this.invoiceLinesFilteredDataSource.data = filteredLines;
     this.showInvoiceLines = true;
     this.showSubscriptionLines = true;
   }
 
   toggleSubscriptionLinesTable(subscriptionId: string): void {
-    console.log('Subscription ID:', subscriptionId);
-    console.log(
-      'Subscription Lines Data Source:',
-      this.subscriptionLinesDataSource.data
-    );
+    // console.log('Subscription ID:', subscriptionId);
+    // console.log(
+    //   'Subscription Lines Data Source:',
+    //   this.subscriptionLinesDataSource.data
+    // );
 
+    this.subscriptionLinesFiltered = true;
     this.selectedSubscriptionId = subscriptionId;
 
     const filteredLines = this.subscriptionLinesDataSource.data.filter(
       (line) => line.SUBSCRIPTION_REF_ID === subscriptionId
     );
 
-    console.log('Filtered Subscription Lines:', filteredLines);
+    // console.log('Filtered Subscription Lines:', filteredLines);
 
+    this.filteredOriginalSubscriptionLinesData = [...filteredLines];
     this.subscriptionLinesDataSource.data = filteredLines;
     this.showSubscriptionLines = true;
     this.showInvoiceLines = false;
@@ -366,11 +379,11 @@ export class O2cViewAllComponent implements OnInit {
     sheetName: string = 'Data'
   ): void {
     if (!data?.length) {
-      console.warn('No data to export');
+      // console.warn('No data to export');
       return;
     }
 
-    console.log('Exporting data:', data);
+    // console.log('Exporting data:', data);
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = {
@@ -412,12 +425,12 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   navigateToTsv(rowData: any): void {
-    console.log('Navigating to TSV with row data:', rowData);
-    console.log('Order data to pass:', this.orderSummaryDataSource.data);
-    console.log(
-      'Financial data to pass:',
-      this.financialSummaryDataSource.data
-    );
+    // console.log('Navigating to TSV with row data:', rowData);
+    // console.log('Order data to pass:', this.orderSummaryDataSource.data);
+    // console.log(
+    //   'Financial data to pass:',
+    //   this.financialSummaryDataSource.data
+    // );
 
     // Check if the data sources have data before navigating
     if (
@@ -448,12 +461,12 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   navigateToGl(rowData: any): void {
-    console.log('Navigating to GL with row data:', rowData);
-    console.log('Order data to pass:', this.orderSummaryDataSource.data);
-    console.log(
-      'Financial data to pass:',
-      this.financialSummaryDataSource.data
-    );
+    // console.log('Navigating to GL with row data:', rowData);
+    // console.log('Order data to pass:', this.orderSummaryDataSource.data);
+    // console.log(
+    //   'Financial data to pass:',
+    //   this.financialSummaryDataSource.data
+    // );
 
     this.router.navigate(['/o2c-gl'], {
       state: {

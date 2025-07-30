@@ -542,8 +542,12 @@
                           handleFilter(
                             $event,
                             column,
-                            originalInvoiceLinesData,
-                            'invoiceLinesDataSource'
+                            invoiceLinesFiltered
+                              ? filteredOriginalInvoiceLinesData
+                              : originalInvoiceLinesData,
+                            invoiceLinesFiltered
+                              ? 'invoiceLinesFilteredDataSource'
+                              : 'invoiceLinesDataSource'
                           )
                         "
                       ></app-table-filter>
@@ -557,13 +561,18 @@
                       "
                     >
                       <app-table-filter
+                        [columnLabel]="'USD'"
                         [options]="amountOptions"
                         (optionSelected)="
                           handleFilter(
                             $event,
                             column,
-                            originalInvoiceLinesData,
-                            'invoiceLinesDataSource'
+                            invoiceLinesFiltered
+                              ? filteredOriginalInvoiceLinesData
+                              : originalInvoiceLinesData,
+                            invoiceLinesFiltered
+                              ? 'invoiceLinesFilteredDataSource'
+                              : 'invoiceLinesDataSource'
                           )
                         "
                       ></app-table-filter>
@@ -642,7 +651,55 @@
           [matColumnDef]="column"
         >
           <th mat-header-cell *matHeaderCellDef>
-            {{ formatColumnName(column) }}
+            <ng-container [ngSwitch]="column">
+              <span> {{ formatColumnName(column) }} </span>
+              <ng-container *ngIf="column === 'LINE_AMOUNT'">
+                <app-table-filter
+                  [columnLabel]="'USD'"
+                  [options]="amountOptions"
+                  (optionSelected)="
+                    handleFilter(
+                      $event,
+                      column,
+                      subscriptionLinesFiltered
+                        ? filteredOriginalSubscriptionLinesData
+                        : originalSubscriptionLinesData,
+                      'subscriptionLinesDataSource'
+                    )
+                  "
+                ></app-table-filter>
+              </ng-container>
+              <ng-container *ngIf="column === 'POSTED_TO_GL'">
+                <app-table-filter
+                  [options]="postedToGLOptions"
+                  (optionSelected)="
+                    handleFilter(
+                      $event,
+                      column,
+                      subscriptionLinesFiltered
+                        ? filteredOriginalSubscriptionLinesData
+                        : originalSubscriptionLinesData,
+                      'subscriptionLinesDataSource'
+                    )
+                  "
+                ></app-table-filter>
+              </ng-container>
+              <ng-container *ngIf="column === 'TSV_CREATED'">
+                <app-table-filter
+                  [options]="postedToGLOptions"
+                  (optionSelected)="
+                    handleFilter(
+                      $event,
+                      column,
+                      subscriptionLinesFiltered
+                        ? filteredOriginalSubscriptionLinesData
+                        : originalSubscriptionLinesData,
+                      'subscriptionLinesDataSource'
+                    )
+                  "
+                ></app-table-filter>
+              </ng-container>
+            </ng-container>
           </th>
 
           <td mat-cell *matCellDef="let element">
