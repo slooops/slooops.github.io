@@ -116,6 +116,14 @@ import { O2cBillDetailsComponent } from './o2c/o2c-bill-details/o2c-bill-details
 import { TableFilterComponent } from './shared/table-filter/table-filter.component';
 import { O2cTsvComponent } from './o2c/o2c-tsv/o2c-tsv.component';
 import { O2cGlComponent } from './o2c/o2c-gl/o2c-gl.component';
+import { O2cHardwareComponent } from './o2c/o2c-landing/o2c-hardware/o2c-hardware.component';
+import { O2cServicesComponent } from './o2c/o2c-landing/o2c-services/o2c-services.component';
+import { O2cSubComponent } from './o2c/o2c-landing/o2c-sub/o2c-sub.component';
+import { O2cAccountingComponent } from './o2c/o2c-landing/o2c-sub/o2c-accounting/o2c-accounting.component';
+import { O2cCashComponent } from './o2c/o2c-landing/o2c-sub/o2c-cash/o2c-cash.component';
+import { O2cInvoiceComponent } from './o2c/o2c-landing/o2c-sub/o2c-invoice/o2c-invoice.component';
+import { O2cOrderComponent } from './o2c/o2c-landing/o2c-sub/o2c-order/o2c-order.component';
+import { O2cSubscriptionComponent } from './o2c/o2c-landing/o2c-sub/o2c-subscription/o2c-subscription.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -199,6 +207,14 @@ export function initApp(authService: AuthenticationService) {
     TableFilterComponent,
     O2cTsvComponent,
     O2cGlComponent,
+    O2cHardwareComponent,
+    O2cServicesComponent,
+    O2cSubComponent,
+    O2cAccountingComponent,
+    O2cCashComponent,
+    O2cInvoiceComponent,
+    O2cOrderComponent,
+    O2cSubscriptionComponent,
   ],
   imports: [
     BrowserModule,
