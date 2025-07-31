@@ -12,22 +12,24 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { Observable } from 'rxjs';
+import { Observable, takeUntil } from 'rxjs';
 import { DataService } from '../providers/data.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { DestroyObservables } from './providers/http.service';
 import { ExportService } from './providers/export.service';
 import { DataFormattingService } from './providers/data-formatting.service';
 import { MonitoringDataService } from './providers/data.service';
 import { UtilsService } from './providers/utils.service';
+import { BaseComponent } from './shared/base.component';
 
 @Component({
   selector: 'app-monitoring-dashboard',
   templateUrl: './monitoring-dashboard.component.html',
   styleUrl: './monitoring-dashboard.component.css',
-  providers: [DestroyObservables],
 })
-export class MonitoringDashboardComponent<T> implements OnInit, OnChanges {
+export class MonitoringDashboardComponent<T>
+  extends BaseComponent
+  implements OnInit, OnChanges
+{
   @ViewChild('detailsPaginator') detailsPaginator: MatPaginator;
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
   @Input() urls: { [key: string]: string };
@@ -70,9 +72,10 @@ export class MonitoringDashboardComponent<T> implements OnInit, OnChanges {
     private exportService: ExportService,
     private dataFormattingService: DataFormattingService,
     private monitoringDataService: MonitoringDataService,
-    private utilService: UtilsService,
-    private destroyManager: DestroyObservables
-  ) {}
+    private utilService: UtilsService
+  ) {
+    super();
+  }
   ngOnInit(): void {
     this.getErrorSummary();
     this.getErrorDetails();
@@ -107,7 +110,8 @@ export class MonitoringDashboardComponent<T> implements OnInit, OnChanges {
     this.summaryLoading = true;
     this.summaryLoadTime = `Last Updated: ...`;
     this.monitoringDataService
-      .getSummary(this.urls['summaryUrl'], this.destroyManager)
+      .getSummary(this.urls['summaryUrl'])
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
           this.summaryData = this.dataFormattingService.formatData(data);
@@ -121,6 +125,11 @@ export class MonitoringDashboardComponent<T> implements OnInit, OnChanges {
           if (this.summaryColumns.includes('PROCESS_FLOW')) {
             this.resetPreInvoicingTotals();
             const totals = this.calculateTotalsByProcessFlow(data);
+            console.log(
+              'Calculated Totals by Process Flow:',
+              totals,
+              this.componentName
+            );
             this.dataService.setTabData(this.componentName, totals);
           }
           this.originalData = this.summaryData;
@@ -340,7 +349,8 @@ export class MonitoringDashboardComponent<T> implements OnInit, OnChanges {
     this.isLoading = true;
     this.isFiltered = false;
     this.monitoringDataService
-      .getDetails(this.urls['detailsUrl'], this.destroyManager)
+      .getDetails(this.urls['detailsUrl'])
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
           this.errorDetails = data;
@@ -385,12 +395,8 @@ export class MonitoringDashboardComponent<T> implements OnInit, OnChanges {
     this.isLoading = true;
     this.isFiltered = true;
     this.monitoringDataService
-      .getFilteredDetails(
-        this.urls['filteredDetailsUrl'],
-        data,
-        this.keysToMap,
-        this.destroyManager
-      )
+      .getFilteredDetails(this.urls['filteredDetailsUrl'], data, this.keysToMap)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: any) => {
           this.errorDetailsFiltered = data.errorDetailsFiltered;

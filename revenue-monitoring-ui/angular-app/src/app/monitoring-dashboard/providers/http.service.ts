@@ -1,6 +1,6 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntil } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class HttpService {
@@ -9,49 +9,19 @@ export class HttpService {
 
   constructor(private http: HttpClient) {}
 
-  public get(url: string, destroyManager: DestroyObservables, options?: any) {
-    console.log('GET request to:', this.hostUrl + url);
-    return this.http
-      .get(this.hostUrl + url, options)
-      .pipe(takeUntil(destroyManager.destroyObservable));
+  public get(url: string, options?: any) {
+    return this.http.get(this.hostUrl + url, options);
   }
 
   public post(url: string, data: any, options?: any) {
     return this.http.post(this.hostUrl + url, data, options);
   }
 
-  public put(
-    url: string,
-    data: any,
-    destroyManager: DestroyObservables,
-    options?: any
-  ) {
-    return this.http
-      .put(this.hostUrl + url, data, options)
-      .pipe(takeUntil(destroyManager.destroyObservable));
+  public put(url: string, data: any, options?: any) {
+    return this.http.put(this.hostUrl + url, data, options);
   }
 
-  public delete(
-    url: string,
-    destroyManager: DestroyObservables,
-    options?: any
-  ) {
-    return this.http
-      .delete(this.hostUrl + url, options)
-      .pipe(takeUntil(destroyManager.destroyObservable));
-  }
-}
-
-@Injectable()
-export class DestroyObservables implements OnDestroy {
-  private readonly destroy$ = new Subject<void>();
-
-  get destroyObservable() {
-    return this.destroy$.asObservable();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+  public delete(url: string, options?: any) {
+    return this.http.delete(this.hostUrl + url, options);
   }
 }

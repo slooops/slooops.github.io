@@ -313,4 +313,15 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, entityName, holdApplyDate,
                 flooringBid);
     }
+
+    public List<Map<String, Object>> getPCMApplicationDetailsFiltered(String sql, String periodName,
+                                                                       String appName, String processFlow, String ouName, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, appName, ouName, periodName, processFlow, transactionDate);
+    }
+
+    public int updatePCMApplicationSummary(String sql, String assignedTo, String assignedBy, String comments,
+                                            String periodName, String batchSource, String processFlow, String entityName, String transactionDate) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, batchSource,
+                processFlow, entityName, transactionDate);
+    }
 }

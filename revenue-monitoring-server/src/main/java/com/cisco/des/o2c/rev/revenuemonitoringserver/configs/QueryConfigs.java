@@ -1192,4 +1192,36 @@ public class QueryConfigs {
         return this.o2cConnector;
     }
 
+    @Value(("${pcm.cash.application.summary.q}"))
+    public String pcmApplicationSummary;
+
+    @Bean(name = "pcmApplicationSummary")
+    public String getPcmApplicationSummary() {
+        return this.pcmApplicationSummary;
+    }
+
+    @Value(("${pcm.cash.application.details.q}"))
+    public String pcmApplicationDetails;
+
+    @Bean(name = "pcmApplicationDetails")
+    public String getPcmApplicationDetails() {
+        return this.pcmApplicationDetails;
+    }
+
+    @Value(("${pcm.cash.application.details.filtered.q}"))
+    public String pcmApplicationDetailsFiltered;
+
+    @Bean(name = "pcmApplicationDetailsFiltered")
+    public String getPcmApplicationDetailsFiltered() {
+        return this.pcmApplicationDetailsFiltered;
+    }
+
+    @Value(("${pcm.cash.application.summary.update.q}"))
+    public String pcmApplicationSummaryUpdate;
+
+    @Bean(name = "pcmApplicationSummaryUpdate")
+    public String getPcmApplicationSummaryUpdate() {
+        return this.pcmApplicationSummaryUpdate;
+    }
+
 }

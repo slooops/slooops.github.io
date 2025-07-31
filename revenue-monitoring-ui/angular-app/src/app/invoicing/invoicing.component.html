@@ -243,6 +243,32 @@
               ]"
             ></app-monitoring-dashboard>
           </mat-tab>
+          <mat-tab label="PCM Application">
+            <app-monitoring-dashboard
+              [urls]="pcmApplicationUrls"
+              [keysToMap]="preAndAutoInvoiceKeysToMap"
+              [processFlowKeys]="rpoTotals"
+              [periodStatus]="periodStatus"
+              [componentName]="'PCM Application'"
+              [processFlowTabsToDisplay]="['PCM Application']"
+              [dynamicTemplate]=""
+              [dynamicCss]=""
+              [isSubAppMapping]="false"
+              [warningMessage]="'Invoice processing is delayed '"
+              [columnsToFilter]="pcmFilters"
+              [detailsColumnsToHide]="[]"
+              [assignmentDialogFieldConfig]="fieldConfig"
+              [assignmentUsersFilter]="'I2C'"
+              [submitKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE'
+              ]"
+              [webexKeysToMap]="[]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
           <!-- <mat-tab label="Debit Card Payments">
             <app-monitoring-dashboard
               [urls]="debitCardUrls"

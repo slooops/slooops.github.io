@@ -241,4 +241,49 @@ public class PostInvoicingMonitoringController {
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
 
+    @GetMapping("/pcm-application-summary")
+    public ResponseEntity<List<Map<String, Object>>> getPcmApplicationSummary() {
+        return new ResponseEntity<>(service.getPCMApplicationSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/pcm-application-details")
+    public ResponseEntity<List<Map<String, Object>>> getPcmApplicationDetails() {
+        return new ResponseEntity<>(service.getPCMApplicationDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/pcm-application-details-filtered")
+    public ResponseEntity<Map<String, Object>> getPcmApplicationDetailsFiltered(
+            @RequestParam List<String> periodNames,
+            @RequestParam List<String> orgNames,
+            @RequestParam List<String> applicationNames,
+            @RequestParam List<String> processFlows,
+            @RequestParam List<String> transactionDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
+                    Math.min(applicationNames.size(), Math.min(processFlows.size(), transactionDates.size()))));
+
+            for (int i = 0; i < minLength; i++) {
+                String periodName = periodNames.get(i);
+                String ouName = orgNames.get(i);
+                String appName = applicationNames.get(i);
+                String transactionDate = transactionDates.get(i);
+                String processFlow = processFlows.get(i);
+                List<Map<String, Object>> result = service.getPCMApplicationDetailsFiltered(periodName, appName, processFlow, ouName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @PostMapping("/pcm-application-summary-update")
+    public ResponseEntity<String> updatePCMApplicationSummary(@RequestBody Map<String, String> updateData) {
+        int test = service.updatePCMApplicationSummary(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
+    }
+
 }

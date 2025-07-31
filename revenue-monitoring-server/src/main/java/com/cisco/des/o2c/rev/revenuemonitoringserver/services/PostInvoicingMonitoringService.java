@@ -33,6 +33,10 @@ public class PostInvoicingMonitoringService {
     private String srtProcessDetails;
     private String srtProcessDetailsFilter;
     private String srtProcessSummaryUpdate;
+    private String pcmApplicationSummary;
+    private String pcmApplicationDetails;
+    private String pcmApplicationDetailsFiltered;
+    private String pcmApplicationSummaryUpdate;
     @Autowired
     private Common common;
     @Autowired
@@ -47,7 +51,8 @@ public class PostInvoicingMonitoringService {
                                       String creditCardSummary, String creditCardDetails, String creditCardDetailsFiltered, String creditCardSummaryUpdate,
                                       String rpoExtractSummary, String rpoExtractDetails,
                                       String rpoExtractDetailsFilter, String rpoExtractSummaryUpdate, String srtProcessSummary, String srtProcessDetails,
-                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate
+                                      String srtProcessDetailsFilter, String srtProcessSummaryUpdate, String pcmApplicationSummary, String pcmApplicationDetails,
+                                          String pcmApplicationDetailsFiltered, String pcmApplicationSummaryUpdate
     ) {
         this.jdbcManager = jdbcManager;
         this.cmAmortSummary = cmAmortSummary;
@@ -70,6 +75,10 @@ public class PostInvoicingMonitoringService {
         this.srtProcessSummaryUpdate = srtProcessSummaryUpdate;
         this.creditCardDetailsFiltered = creditCardDetailsFiltered;
         this.creditCardSummaryUpdate = creditCardSummaryUpdate;
+        this.pcmApplicationSummary = pcmApplicationSummary;
+        this.pcmApplicationDetails = pcmApplicationDetails;
+        this.pcmApplicationDetailsFiltered = pcmApplicationDetailsFiltered;
+        this.pcmApplicationSummaryUpdate = pcmApplicationSummaryUpdate;
 
     }
 
@@ -311,19 +320,79 @@ public class PostInvoicingMonitoringService {
         return 1;
     }
 
+
+    public List<Map<String, Object>> getPCMApplicationSummary() {
+        String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
+        List<Map<String, Object>> result = common.checkRedisForCachedData("PcmApplicationSummary", pcmApplicationSummary);
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+            Map<String, Object> reorderedData = new LinkedHashMap<>();
+            int index = 0;
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                if (index == 6) {
+                    reorderedData.put("AGING", common.calculateAging(data.get("TRANSACTION_DATE")));
+                }
+                reorderedData.put(entry.getKey(), entry.getValue());
+                index++;
+            }
+            if (!reorderedData.containsKey("AGING")) {
+                reorderedData.put("AGING", common.calculateAging(data.get("TRANSACTION_DATE")));
+            }
+            data.clear();
+            data.putAll(reorderedData);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPCMApplicationDetails() {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = common.checkRedisForCachedData("PcmApplicationDetails", pcmApplicationDetails);
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getPCMApplicationDetailsFiltered(String periodName,
+                                                                      String appName, String processFlow, String ouName, String transactionDate) {
+        String[] dateColumns = { "TRANSACTION_DATE" };
+        List<Map<String, Object>> result = jdbcManager.getPCMApplicationDetailsFiltered(
+                pcmApplicationDetailsFiltered, periodName, appName, processFlow, ouName, transactionDate);
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public int updatePCMApplicationSummary(Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String assignedBy = updateData.get("username");
+        String comments = updateData.get("comments");
+        String periodName = updateData.get("periodName");
+        String entityName = updateData.get("orgName");
+        String transactionDate = updateData.get("transactionDate");
+        String batchSource = updateData.get("applicationName");
+        String processFlow = updateData.get("processFlow");
+        System.out.println(assignedTo + assignedBy + comments + periodName + entityName + transactionDate + batchSource + processFlow);
+        int test = jdbcManager.updatePCMApplicationSummary(pcmApplicationSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  batchSource, processFlow, entityName, transactionDate);
+        return 1;
+    }
+
     public void refreshPostInvoicingMonitoringCache() {
-        Map<String, String> cacheKeyToQueryMap = Map.of(
-                "CmAmortSummary", cmAmortSummary,
-                "CmAmortDetails", cmAmortDetails,
-                "PrintSummary", printSummary,
-                "PrintDetail", printDetail,
-                "CreditCardSummary", creditCardSummary,
-                "CreditCardDetails", creditCardDetails,
-                "RpoExtractSummary", rpoExtractSummary,
-                "RpoExtractDetails", rpoExtractDetails,
-                "SrtProcessSummary", srtProcessSummary,
-                "SrtProcessDetails", srtProcessDetails
-        );
+        Map<String, String> cacheKeyToQueryMap = new HashMap<>();
+        cacheKeyToQueryMap.put("CmAmortSummary", cmAmortSummary);
+        cacheKeyToQueryMap.put("CmAmortDetails", cmAmortDetails);
+        cacheKeyToQueryMap.put("PrintSummary", printSummary);
+        cacheKeyToQueryMap.put("PrintDetail", printDetail);
+        cacheKeyToQueryMap.put("CreditCardSummary", creditCardSummary);
+        cacheKeyToQueryMap.put("CreditCardDetails", creditCardDetails);
+        cacheKeyToQueryMap.put("RpoExtractSummary", rpoExtractSummary);
+        cacheKeyToQueryMap.put("RpoExtractDetails", rpoExtractDetails);
+        cacheKeyToQueryMap.put("SrtProcessSummary", srtProcessSummary);
+        cacheKeyToQueryMap.put("SrtProcessDetails", srtProcessDetails);
+        cacheKeyToQueryMap.put("PcmApplicationSummary",pcmApplicationSummary);
+        cacheKeyToQueryMap.put("PcmApplicationDetails", pcmApplicationDetails);
+
         System.out.println("refresh from post invoicing service");
 
         cacheCommon.refreshExceptionMonitoringCache(cacheKeyToQueryMap);

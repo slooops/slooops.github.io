@@ -198,6 +198,38 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
+  pcmFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'receiptNumber',
+      columnName: 'RECEIPT_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'bankTraceId',
+      columnName: 'BANK_TRACE_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
   srtProcessFilters: {
     formControlName: string;
     columnName: string;
@@ -461,6 +493,16 @@ export class InvoicingComponent implements OnInit {
     detailsUrl: 'credit-card-check-detail-view',
     filteredDetailsUrl: 'credit-card-check-detail-view-filtered',
     summaryUpdateUrl: 'credit-card-check-summary-update',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  pcmApplicationUrls: { [key: string]: string } = {
+    summaryUrl: 'pcm-application-summary',
+    detailsUrl: 'pcm-application-details',
+    filteredDetailsUrl: 'pcm-application-details-filtered',
+    summaryUpdateUrl: 'pcm-application-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
