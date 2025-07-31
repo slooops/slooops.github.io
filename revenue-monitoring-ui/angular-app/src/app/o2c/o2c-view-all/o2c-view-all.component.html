@@ -30,11 +30,25 @@
           </th>
 
           <td mat-cell *matCellDef="let element">
-            {{
-              column === "CREATION_DATE" || column === "ORDER_BOOKED_DATE"
-                ? (element[column] | date : "MM/dd/yyyy")
-                : element[column]
-            }}
+            <ng-container [ngSwitch]="column">
+              <ng-container *ngSwitchCase="'STATUS'">
+                <span
+                  [ngClass]="{
+                    'status-closed': element[column]?.toLowerCase() === 'closed'
+                  }"
+                >
+                  {{ element[column] }}
+                </span>
+              </ng-container>
+
+              <ng-container *ngSwitchDefault>
+                {{
+                  column === "CREATION_DATE" || column === "ORDER_BOOKED_DATE"
+                    ? (element[column] | date : "MM/dd/yyyy")
+                    : element[column]
+                }}
+              </ng-container>
+            </ng-container>
           </td>
         </ng-container>
 

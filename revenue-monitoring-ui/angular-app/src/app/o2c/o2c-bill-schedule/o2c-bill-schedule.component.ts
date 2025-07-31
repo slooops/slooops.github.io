@@ -1,20 +1,19 @@
 import { Component } from '@angular/core';
-import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
-import { SidebarService } from '../sidebar.service';
+import { SidebarService } from '../../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
-  selector: 'app-o2c-bill-details',
-  templateUrl: './o2c-bill-details.component.html',
-  styleUrls: ['./o2c-bill-details.component.css'],
+  selector: 'app-o2c-bill-schedule',
+  templateUrl: './o2c-bill-schedule.component.html',
+  styleUrls: ['./o2c-bill-schedule.component.css'],
 })
-export class O2cBillDetailsComponent {
+export class O2cBillScheduleComponent {
   orderId = '28221819418344'; // Placeholder for order ID
   subRefId = 'Sub2822413'; // Placeholder for subscription reference ID
   invoiceId = '32219418347'; // Placeholder for invoice ID
-  billId = 'BILL123456'; // Placeholder for bill ID
 
   expanded = {
     subscription: false,
@@ -23,9 +22,9 @@ export class O2cBillDetailsComponent {
 
   circleStatus: { [key: string]: number } = {
     Order: 2,
-    Subscription: 0,
-    Invoicing: 0,
-    Accounting: 0,
+    Subscription: 2,
+    Invoicing: 2,
+    Accounting: 2,
     Cash: 0,
   };
 
@@ -35,83 +34,92 @@ export class O2cBillDetailsComponent {
     { label: 'Invoices', icon: 'receipt-icon', count: null },
   ];
 
-  billScheduleSummaryLoaded = true; // Set to false when implementing real data loading
+  billScheduleLoaded = true; // Set to false when implementing real data loading
   billScheduleSummaryDisplayedColumns: string[] = [
     'WEB_ORDER_ID',
     'SUB_REF_ID',
+    'LAST_MODIFIED_DATE',
+    'BILLING_PREFERENCE',
+    'SUBSCRIPTION_SOURCE',
+    'CURRENCY',
     'BILLING_SCHEDULE',
     'BILLING_FREQUENCY',
-    'BILLING_DATE',
-    'BILLING_PERIOD',
-    'STATUS',
   ];
   billScheduleSummaryDataSource = new MatTableDataSource<any>([
     {
       WEB_ORDER_ID: '95075262',
       SUB_REF_ID: 'SR100112',
-      BILLING_SCHEDULE: '1/2',
-      BILLING_FREQUENCY: 'Recurring Term',
-      BILLING_DATE: '06/08/2022',
-      BILLING_PERIOD: '06/08/2022 - 06/07/2027',
-      STATUS: 'Unbilled',
+      LAST_MODIFIED_DATE: '07/25/2025',
+      BILLING_PREFERENCE: 'SSD 5',
+      SUBSCRIPTION_SOURCE: 'BRM',
+      CURRENCY: 'USD',
+      BILLING_SCHEDULE: '1/12',
+      BILLING_FREQUENCY: 'Recurring',
     },
   ]);
 
   billScheduleDataLoaded = true; // Set to false when implementing real data loading
   billScheduleDisplayedColumns: string[] = [
-    'ORDERED_ITEM',
-    'CCW_ORDER_LINE_ID',
-    'LINE_STATUS',
-    'CHARGE_CYCLE',
-    'ITEM_TOTAL_(USD)',
-    'IS_REFUND_LINE',
-    'PREV_ORDER_LINE_ID',
+    'BILL_DATE',
+    'BILLING_PERIOD',
+    'BILL_AMOUNT',
+    'STATUS',
+    'BILLED_ON_DATE',
+    'BILL_NUMBER',
   ];
   billScheduleDataSource = new MatTableDataSource<any>([
+    // On-time bills
     {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910887',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333005',
+      BILL_DATE: '2023-06-28',
+      BILLING_PERIOD: '28-Jun-23 to 27-Sep-23',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Billed',
+      BILLED_ON_DATE: '2023-06-28',
+      BILL_NUMBER: '12345678901',
     },
     {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910888',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333006',
+      BILL_DATE: '2023-09-28',
+      BILLING_PERIOD: '28-Sep-23 to 27-Dec-23',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Billed',
+      BILLED_ON_DATE: '2023-09-28',
+      BILL_NUMBER: '12345678902',
+    },
+
+    // Late bills
+    {
+      BILL_DATE: '2024-01-15',
+      BILLING_PERIOD: '15-Jan-24 to 14-Apr-24',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Billed',
+      BILLED_ON_DATE: '2024-01-20', // Late by 5 days
+      BILL_NUMBER: '12345678903',
     },
     {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910889',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333007',
+      BILL_DATE: '2024-04-15',
+      BILLING_PERIOD: '15-Apr-24 to 14-Jul-24',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Billed',
+      BILLED_ON_DATE: '2024-04-18', // Late by 3 days
+      BILL_NUMBER: '12345678904',
+    },
+
+    // Future bills with no billed-on date or bill number
+    {
+      BILL_DATE: '2027-03-15',
+      BILLING_PERIOD: '15-Mar-27 to 14-Jun-27',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Pending',
+      BILLED_ON_DATE: null,
+      BILL_NUMBER: null,
     },
     {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910890',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333008',
-    },
-    {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910891',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333009',
+      BILL_DATE: '2027-06-07',
+      BILLING_PERIOD: '7-Jun-27 to 6-Sep-27',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Future',
+      BILLED_ON_DATE: null,
+      BILL_NUMBER: null,
     },
   ]);
 
@@ -150,37 +158,30 @@ export class O2cBillDetailsComponent {
     });
 
     const navState = this.location.getState() as {
+      rowData?: any;
       orderId?: string;
-      subRefId?: string;
-      circleStatus?: { [key: string]: number };
-      billData?: any;
-      summaryTableData?: any[];
     };
 
-    console.log('Navigation state:', navState);
-
-    if (navState) {
+    if (navState.rowData && navState.orderId) {
       this.orderId = navState.orderId;
-      this.subRefId = navState.subRefId;
-      this.billId = navState.billData?.BILL_NUMBER || this.billId;
-      this.circleStatus = navState.circleStatus;
+      this.subRefId = navState.rowData?.SUBSCRIPTION_CODE;
+
       this.billScheduleSummaryDataSource.data =
         this.billScheduleSummaryDataSource.data.map((item) => ({
           ...item,
           WEB_ORDER_ID: this.orderId,
-          SUB_REF_ID: this.subRefId,
-          BILLING_SCHEDULE:
-            navState.summaryTableData?.[0]?.BILLING_SCHEDULE ||
-            item.BILLING_SCHEDULE,
-          BILLING_FREQUENCY:
-            navState.summaryTableData?.[0]?.BILLING_FREQUENCY ||
-            item.BILLING_FREQUENCY,
-          BILLING_DATE: navState.billData?.BILL_DATE || item.BILLING_DATE,
-          BILLING_PERIOD:
-            navState.billData?.BILLING_PERIOD || item.BILLING_PERIOD,
-          STATUS: navState.billData?.STATUS || item.STATUS,
+
+          SUB_REF_ID: navState.rowData.SUBSCRIPTION_ID,
+          LAST_MODIFIED_DATE: new Date(
+            navState.rowData.LAST_UPDATE_DATE
+          ).toLocaleDateString(),
+          BILLING_PREFERENCE: navState.rowData.BILLING_PREFERENCE,
+          BILLING_SCHEDULE: navState.rowData.BILLING_SCHEDULE,
+          BILLING_FREQUENCY: navState.rowData.BILLING_FREQ_TYPE,
         }));
     }
+
+    console.log('Navigation state:', navState);
   }
 
   get invoiceContainerWidth(): string {
@@ -206,7 +207,6 @@ export class O2cBillDetailsComponent {
       'qty',
       'tsv',
       'gl',
-      'ccw',
     ];
     const name = column.replace(/_/g, ' ').toLowerCase();
     return name
@@ -224,10 +224,6 @@ export class O2cBillDetailsComponent {
 
   goBack() {
     window.history.back();
-  }
-
-  handlePrint(): void {
-    window.print();
   }
 
   handleDownload(
@@ -251,6 +247,29 @@ export class O2cBillDetailsComponent {
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
 
+  handlePrint(): void {
+    window.print();
+  }
+
+  handleShare(): void {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: 'O2C View All Dashboard',
+          text: 'Check out this data dashboard',
+          url,
+        })
+        .then(() => console.log('Share successful'))
+        .catch((err) => console.error('Error sharing:', err));
+    } else {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => alert('Link copied to clipboard'))
+        .catch(() => alert('Unable to copy link'));
+    }
+  }
+
   isBilledLate(element: any): boolean {
     if (!element['BILLED_ON_DATE'] || !element['BILL_DATE']) {
       return false;
@@ -260,5 +279,20 @@ export class O2cBillDetailsComponent {
     const scheduledDate = new Date(element['BILL_DATE']);
 
     return billedDate > scheduledDate;
+  }
+
+  navigateToBillDetails(rowData: any): void {
+    console.log('Navigating to bill details with data:', rowData);
+
+    // Navigate to the bill details page with the data
+    this.router.navigate(['/o2c-bill-details'], {
+      state: {
+        billData: rowData,
+        orderId: this.orderId,
+        subRefId: this.subRefId,
+        circleStatus: this.circleStatus,
+        summaryTableData: this.billScheduleSummaryDataSource.data,
+      },
+    });
   }
 }

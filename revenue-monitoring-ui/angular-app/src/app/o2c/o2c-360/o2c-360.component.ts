@@ -5,13 +5,13 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { ApiHttpService } from '../providers/http.service';
-import { DestroyManager } from '../providers/destroy-manager.service';
+import { ApiHttpService } from '../../providers/http.service';
+import { DestroyManager } from '../../providers/destroy-manager.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { SidebarService } from '../sidebar.service';
+import { SidebarService } from '../../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { O2cSearchResult } from '../search-context.service';
-import { FiltersService } from '../providers/filters.service';
+import { O2cSearchResult } from '../../search-context.service';
+import { FiltersService } from '../../providers/filters.service';
 
 @Component({
   selector: 'app-o2c-360',
@@ -40,11 +40,8 @@ export class O2c360Component implements OnInit {
   subscriptionExceptionMessage: string = '';
   invoiceExceptionMessage: string = '';
 
-  showSubscriptionModal = false;
   selectedSubscriptionId: string | null = null;
-
   selectedWebOrderId: string | null = null;
-
   showInvoiceModal = false;
   selectedTransactionNumber: string | null = null;
 
@@ -479,18 +476,6 @@ export class O2c360Component implements OnInit {
   get invoiceContainerWidth(): string {
     if (!this.expanded.invoice && !this.expanded.subscription) return '100%';
     return this.sidebarExpanded ? 'calc(100% - 255px)' : 'calc(100% - 71px)';
-  }
-
-  openSubscriptionModal(subId: string): void {
-    this.selectedSubscriptionId = subId;
-
-    const allLines = this.subscriptionLinesDataSource.data;
-    const filteredLines = allLines.filter(
-      (line: any) => line.SUBSCRIPTION_REF_ID === subId
-    );
-    this.subscriptionLinesDataSource = new MatTableDataSource(filteredLines);
-
-    this.showSubscriptionModal = true;
   }
 
   openInvoiceModal(transactionNumber: string): void {

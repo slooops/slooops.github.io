@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import * as XLSX from 'xlsx';
-import { FiltersService } from '../providers/filters.service';
+import { FiltersService } from '../../providers/filters.service';
 
 @Component({
   selector: 'app-o2c-view-all',

@@ -426,6 +426,7 @@ button.link-button:hover .ccw-button-text {
   pointer-events: none;
   align-items: center;
 }
+
 .update-status-content {
   background: #fff;
   color: #333;
@@ -438,4 +439,11 @@ button.link-button:hover .ccw-button-text {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.status-closed {
+  background-color: #5d656c;
+  color: white;
+  padding: 4px 4px 1px 4px;
+  font-weight: 500;
 }

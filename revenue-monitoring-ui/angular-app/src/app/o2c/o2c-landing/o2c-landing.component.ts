@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { DestroyManager } from '../providers/destroy-manager.service';
-import { ApiHttpService } from '../providers/http.service';
+import { DestroyManager } from '../../providers/destroy-manager.service';
+import { ApiHttpService } from '../../providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
