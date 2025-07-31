@@ -481,4 +481,11 @@ export class O2cViewAllComponent implements OnInit {
       queryParams: { t: Date.now() },
     });
   }
+
+  navigateToBillingSchedule(rowData: any): void {
+    console.log('Navigating to Billing Schedule with row data:', rowData);
+    this.router.navigate(['/o2c-bill-schedule'], {
+      state: { rowData: rowData, orderId: this.orderId },
+    });
+  }
 }

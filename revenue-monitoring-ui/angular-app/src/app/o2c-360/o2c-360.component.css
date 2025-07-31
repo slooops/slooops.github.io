@@ -348,33 +348,6 @@ tr.mat-header-row {
   gap: 2rem;
 }
 
-.arrow-container {
-  position: absolute;
-  top: 61px;
-  right: 260px;
-  width: 24px;
-  height: 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: bounce 1.2s infinite;
-}
-
-.arrow-head {
-  width: 12px;
-  height: 12px;
-  border-top: 4px solid #08ace4;
-  border-right: 4px solid #08ace4;
-  transform: rotate(-45deg);
-  margin-bottom: -10px;
-}
-
-.arrow-stem {
-  width: 4px;
-  height: 30px;
-  background-color: #08ace4;
-}
-
 /* Reset the default disabled button behavior */
 button:disabled {
   pointer-events: auto !important;
@@ -412,18 +385,6 @@ th[mat-header-cell] {
 /* th[mat-header-cell]:hover {
   background-color: rgba(0, 0, 0, 0.04);
 }  */
-
-@keyframes bounce {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 
 .summary-title {
   color: #394454;

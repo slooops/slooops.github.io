@@ -152,10 +152,10 @@ export class O2c360Component implements OnInit {
       ORDER_TSV: 'USD 0.00',
       TOTAL_SUBSCRIPTION_TSV: 'USD 0.00',
       BILLING_MODEL: 'Prepaid',
-      BILLED: 'USD 100.00',
-      UNBILLED: 'USD 50.00',
-      REVENUE_RECOGNITION: 'USD 75.00',
-      REVENUE_TO_BE_RECOGNIZED: 'USD 25.00',
+      BILLED: 'USD 0.00',
+      UNBILLED: 'USD 0.00',
+      REVENUE_RECOGNITION: 'USD 0.00',
+      REVENUE_TO_BE_RECOGNIZED: 'USD 0.00',
       CASH: 'Paid',
       actions: 'View in CCW', // Placeholder for actions column
     },
@@ -692,7 +692,7 @@ export class O2c360Component implements OnInit {
   navigateToBillingSchedule(rowData: any): void {
     console.log('Navigating to Billing Schedule with row data:', rowData);
     this.router.navigate(['/o2c-bill-schedule'], {
-      state: { rowData: rowData },
+      state: { rowData: rowData, orderId: this.orderId },
     });
   }
 

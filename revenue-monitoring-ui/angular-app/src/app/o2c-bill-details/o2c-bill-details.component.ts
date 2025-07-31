@@ -14,8 +14,7 @@ export class O2cBillDetailsComponent {
   orderId = '28221819418344'; // Placeholder for order ID
   subRefId = 'Sub2822413'; // Placeholder for subscription reference ID
   invoiceId = '32219418347'; // Placeholder for invoice ID
-
-  billData: any = null;
+  billId = 'BILL123456'; // Placeholder for bill ID
 
   expanded = {
     subscription: false,
@@ -48,12 +47,12 @@ export class O2cBillDetailsComponent {
   ];
   billScheduleSummaryDataSource = new MatTableDataSource<any>([
     {
-      WEB_ORDER_ID: '28221819418344',
-      SUB_REF_ID: 'Sub2822413',
-      BILLING_SCHEDULE: '2/4',
-      BILLING_FREQUENCY: 'Quarterly',
-      BILLING_DATE: '2025-10-15',
-      BILLING_PERIOD: '2-Jan-25 to 1-Apr-25',
+      WEB_ORDER_ID: '95075262',
+      SUB_REF_ID: 'SR100112',
+      BILLING_SCHEDULE: '1/2',
+      BILLING_FREQUENCY: 'Recurring Term',
+      BILLING_DATE: '06/08/2022',
+      BILLING_PERIOD: '06/08/2022 - 06/07/2027',
       STATUS: 'Unbilled',
     },
   ]);
@@ -67,7 +66,6 @@ export class O2cBillDetailsComponent {
     'ITEM_TOTAL_(USD)',
     'IS_REFUND_LINE',
     'PREV_ORDER_LINE_ID',
-    // 'ACTION',
   ];
   billScheduleDataSource = new MatTableDataSource<any>([
     {
@@ -78,7 +76,6 @@ export class O2cBillDetailsComponent {
       'ITEM_TOTAL_(USD)': '3193.49',
       IS_REFUND_LINE: 'N',
       PREV_ORDER_LINE_ID: '343333005',
-      ACTION: 'Download',
     },
     {
       ORDERED_ITEM: 'LIC-MR-E',
@@ -88,7 +85,6 @@ export class O2cBillDetailsComponent {
       'ITEM_TOTAL_(USD)': '3193.49',
       IS_REFUND_LINE: 'N',
       PREV_ORDER_LINE_ID: '343333006',
-      ACTION: 'Download',
     },
     {
       ORDERED_ITEM: 'LIC-MR-E',
@@ -98,7 +94,6 @@ export class O2cBillDetailsComponent {
       'ITEM_TOTAL_(USD)': '3193.49',
       IS_REFUND_LINE: 'N',
       PREV_ORDER_LINE_ID: '343333007',
-      ACTION: 'Download',
     },
     {
       ORDERED_ITEM: 'LIC-MR-E',
@@ -108,7 +103,6 @@ export class O2cBillDetailsComponent {
       'ITEM_TOTAL_(USD)': '3193.49',
       IS_REFUND_LINE: 'N',
       PREV_ORDER_LINE_ID: '343333008',
-      ACTION: 'Download',
     },
     {
       ORDERED_ITEM: 'LIC-MR-E',
@@ -118,7 +112,6 @@ export class O2cBillDetailsComponent {
       'ITEM_TOTAL_(USD)': '3193.49',
       IS_REFUND_LINE: 'N',
       PREV_ORDER_LINE_ID: '343333009',
-      ACTION: 'Download',
     },
   ]);
 
@@ -157,30 +150,36 @@ export class O2cBillDetailsComponent {
     });
 
     const navState = this.location.getState() as {
-      billData?: any;
       orderId?: string;
       subRefId?: string;
       circleStatus?: { [key: string]: number };
+      billData?: any;
+      summaryTableData?: any[];
     };
-    if (!navState) {
-      console.warn(
-        'No navigation state found, initializing with default values.'
-      );
-    } else {
-      this.billData = navState.billData;
-      // Update component properties if they were passed
-      if (navState.orderId) this.orderId = navState.orderId;
-      if (navState.subRefId) this.subRefId = navState.subRefId;
-      if (navState.circleStatus) {
-        this.circleStatus = navState.circleStatus;
-      }
 
-      // You might want to use this data to load more specific details
-      if (this.billData && this.billData.BILL_DATE) {
-        console.log('Bill date received:', this.billData.BILL_DATE);
-        // You could call a service method here to load detailed data for this bill
-        // this.loadBillDetails(this.billData.BILL_DATE, this.billData.BILL_NUMBER);
-      }
+    console.log('Navigation state:', navState);
+
+    if (navState) {
+      this.orderId = navState.orderId;
+      this.subRefId = navState.subRefId;
+      this.billId = navState.billData?.BILL_NUMBER || this.billId;
+      this.circleStatus = navState.circleStatus;
+      this.billScheduleSummaryDataSource.data =
+        this.billScheduleSummaryDataSource.data.map((item) => ({
+          ...item,
+          WEB_ORDER_ID: this.orderId,
+          SUB_REF_ID: this.subRefId,
+          BILLING_SCHEDULE:
+            navState.summaryTableData?.[0]?.BILLING_SCHEDULE ||
+            item.BILLING_SCHEDULE,
+          BILLING_FREQUENCY:
+            navState.summaryTableData?.[0]?.BILLING_FREQUENCY ||
+            item.BILLING_FREQUENCY,
+          BILLING_DATE: navState.billData?.BILL_DATE || item.BILLING_DATE,
+          BILLING_PERIOD:
+            navState.billData?.BILLING_PERIOD || item.BILLING_PERIOD,
+          STATUS: navState.billData?.STATUS || item.STATUS,
+        }));
     }
   }
 
@@ -227,6 +226,10 @@ export class O2cBillDetailsComponent {
     window.history.back();
   }
 
+  handlePrint(): void {
+    window.print();
+  }
+
   handleDownload(
     data: any[],
     fileName: string = 'ExportedData',
@@ -246,29 +249,6 @@ export class O2cBillDetailsComponent {
     };
 
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
-  }
-
-  handlePrint(): void {
-    window.print();
-  }
-
-  handleShare(): void {
-    const url = window.location.href;
-    if (navigator.share) {
-      navigator
-        .share({
-          title: 'O2C View All Dashboard',
-          text: 'Check out this data dashboard',
-          url,
-        })
-        .then(() => console.log('Share successful'))
-        .catch((err) => console.error('Error sharing:', err));
-    } else {
-      navigator.clipboard
-        .writeText(url)
-        .then(() => alert('Link copied to clipboard'))
-        .catch(() => alert('Unable to copy link'));
-    }
   }
 
   isBilledLate(element: any): boolean {

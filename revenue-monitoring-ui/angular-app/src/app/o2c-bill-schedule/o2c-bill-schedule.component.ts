@@ -47,14 +47,14 @@ export class O2cBillScheduleComponent {
   ];
   billScheduleSummaryDataSource = new MatTableDataSource<any>([
     {
-      WEB_ORDER_ID: '28221819418344',
-      SUB_REF_ID: 'Sub2822413',
-      LAST_MODIFIED_DATE: '2023-10-01',
+      WEB_ORDER_ID: '95075262',
+      SUB_REF_ID: 'SR100112',
+      LAST_MODIFIED_DATE: '07/25/2025',
       BILLING_PREFERENCE: 'SSD 5',
       SUBSCRIPTION_SOURCE: 'BRM',
       CURRENCY: 'USD',
-      BILLING_SCHEDULE: '2/4',
-      BILLING_FREQUENCY: 'Quarterly',
+      BILLING_SCHEDULE: '1/12',
+      BILLING_FREQUENCY: 'Recurring',
     },
   ]);
 
@@ -62,43 +62,64 @@ export class O2cBillScheduleComponent {
   billScheduleDisplayedColumns: string[] = [
     'BILL_DATE',
     'BILLING_PERIOD',
-    'BILL_AMOUNT_(USD)',
+    'BILL_AMOUNT',
     'STATUS',
     'BILLED_ON_DATE',
     'BILL_NUMBER',
   ];
   billScheduleDataSource = new MatTableDataSource<any>([
+    // On-time bills
     {
-      BILL_DATE: '2023-10-15',
-      BILLING_PERIOD: '2-Jan-25 to 1-Apr-25',
-      'BILL_AMOUNT_(USD)': 2500.0,
+      BILL_DATE: '2023-06-28',
+      BILLING_PERIOD: '28-Jun-23 to 27-Sep-23',
+      BILL_AMOUNT: 2500.0,
       STATUS: 'Billed',
-      BILLED_ON_DATE: '2023-10-12',
-      BILL_NUMBER: '12345678790',
+      BILLED_ON_DATE: '2023-06-28',
+      BILL_NUMBER: '12345678901',
     },
     {
-      BILL_DATE: '2024-01-15',
-      BILLING_PERIOD: '1-Jan-24 to 31-Mar-24',
-      'BILL_AMOUNT_(USD)': 2500.0,
+      BILL_DATE: '2023-09-28',
+      BILLING_PERIOD: '28-Sep-23 to 27-Dec-23',
+      BILL_AMOUNT: 2500.0,
       STATUS: 'Billed',
-      BILLED_ON_DATE: '2024-01-14',
-      BILL_NUMBER: '12345678791',
+      BILLED_ON_DATE: '2023-09-28',
+      BILL_NUMBER: '12345678902',
+    },
+
+    // Late bills
+    {
+      BILL_DATE: '2024-01-15',
+      BILLING_PERIOD: '15-Jan-24 to 14-Apr-24',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Billed',
+      BILLED_ON_DATE: '2024-01-20', // Late by 5 days
+      BILL_NUMBER: '12345678903',
     },
     {
       BILL_DATE: '2024-04-15',
-      BILLING_PERIOD: '1-Apr-24 to 30-Jun-24',
-      'BILL_AMOUNT_(USD)': 2500.0,
+      BILLING_PERIOD: '15-Apr-24 to 14-Jul-24',
+      BILL_AMOUNT: 2500.0,
       STATUS: 'Billed',
-      BILLED_ON_DATE: '2024-04-13',
-      BILL_NUMBER: '12345678792',
+      BILLED_ON_DATE: '2024-04-18', // Late by 3 days
+      BILL_NUMBER: '12345678904',
+    },
+
+    // Future bills with no billed-on date or bill number
+    {
+      BILL_DATE: '2027-03-15',
+      BILLING_PERIOD: '15-Mar-27 to 14-Jun-27',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Pending',
+      BILLED_ON_DATE: null,
+      BILL_NUMBER: null,
     },
     {
-      BILL_DATE: '2024-07-15',
-      BILLING_PERIOD: '1-Jul-24 to 30-Sep-24',
-      'BILL_AMOUNT_(USD)': 2500.0,
-      STATUS: 'Pending',
-      BILLED_ON_DATE: '2024-07-17',
-      BILL_NUMBER: '12345678793',
+      BILL_DATE: '2027-06-07',
+      BILLING_PERIOD: '7-Jun-27 to 6-Sep-27',
+      BILL_AMOUNT: 2500.0,
+      STATUS: 'Future',
+      BILLED_ON_DATE: null,
+      BILL_NUMBER: null,
     },
   ]);
 
@@ -138,7 +159,27 @@ export class O2cBillScheduleComponent {
 
     const navState = this.location.getState() as {
       rowData?: any;
+      orderId?: string;
     };
+
+    if (navState.rowData && navState.orderId) {
+      this.orderId = navState.orderId;
+      this.subRefId = navState.rowData?.SUBSCRIPTION_CODE;
+
+      this.billScheduleSummaryDataSource.data =
+        this.billScheduleSummaryDataSource.data.map((item) => ({
+          ...item,
+          WEB_ORDER_ID: this.orderId,
+
+          SUB_REF_ID: navState.rowData.SUBSCRIPTION_ID,
+          LAST_MODIFIED_DATE: new Date(
+            navState.rowData.LAST_UPDATE_DATE
+          ).toLocaleDateString(),
+          BILLING_PREFERENCE: navState.rowData.BILLING_PREFERENCE,
+          BILLING_SCHEDULE: navState.rowData.BILLING_SCHEDULE,
+          BILLING_FREQUENCY: navState.rowData.BILLING_FREQ_TYPE,
+        }));
+    }
 
     console.log('Navigation state:', navState);
   }
@@ -250,6 +291,7 @@ export class O2cBillScheduleComponent {
         orderId: this.orderId,
         subRefId: this.subRefId,
         circleStatus: this.circleStatus,
+        summaryTableData: this.billScheduleSummaryDataSource.data,
       },
     });
   }

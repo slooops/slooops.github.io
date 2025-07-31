@@ -2,7 +2,7 @@
   <app-o2c-sidebar-nav [navItems]="navTotals"></app-o2c-sidebar-nav>
 
   <div class="o2c-column-container" [style.width]="invoiceContainerWidth">
-    <p class="result-header">1 Order Result Found</p>
+    <p class="result-header">Lines for Bill {{ billId }}</p>
 
     <div class="o2c-card order-banner">
       <div class="order-info">
@@ -11,9 +11,9 @@
           ><strong>
             {{ orderId }}
           </strong>
-          Order Summary</span
+          Order Number</span
         >
-        <button class="details-button">Order Details</button>
+        <button class="details-button">Bill ID: {{ billId }}</button>
       </div>
     </div>
 
@@ -47,7 +47,31 @@
           </th>
 
           <td mat-cell *matCellDef="let element">
-            {{ element[column] }}
+            <ng-container [ngSwitch]="column">
+              <ng-container *ngSwitchCase="'STATUS'">
+                <span
+                  [ngStyle]="{
+                    color:
+                      element[column] === 'Billed'
+                        ? '#078a00'
+                        : element[column] === 'Pending'
+                        ? '#d57b00'
+                        : element[column] === 'Error'
+                        ? '#d50000'
+                        : ''
+                  }"
+                >
+                  {{ element[column] }}
+                </span>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                {{
+                  column === "BILLING_DATE"
+                    ? (element[column] | date : "MM/dd/yyyy")
+                    : element[column]
+                }}
+              </ng-container>
+            </ng-container>
           </td>
         </ng-container>
 
@@ -79,16 +103,22 @@
 
     <!-- TOOLBAR brought from View All -->
     <div class="tool-bar-container" style="flex-direction: row">
-      <div class="accordion-header">Bill Schedule</div>
+      <div class="accordion-header">Lines for Bill Number {{ billId }}</div>
       <div class="o2c-toolbar">
-        <button class="toolbar-btn">
-          <i class="download-icon"></i> Download
-        </button>
         <button class="toolbar-btn" (click)="handlePrint()">
           <i class="print-icon"></i> Print
         </button>
-        <button class="toolbar-btn" (click)="handleShare()">
-          <i class="share-icon"></i> Share
+        <button
+          class="toolbar-btn"
+          (click)="
+            handleDownload(
+              billScheduleDataSource.data,
+              'Bill Schedule Data for ' + orderId
+            )
+          "
+        >
+          <i class="download-icon"></i>
+          Download
         </button>
       </div>
     </div>
