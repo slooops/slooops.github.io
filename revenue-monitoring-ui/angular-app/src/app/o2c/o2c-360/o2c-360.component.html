@@ -397,10 +397,10 @@
                     <!-- BILLING_SCHEDULE -->
                     <ng-container *ngSwitchCase="'BILLING_SCHEDULE'">
                       <button
-                        class="link-button"
+                        class="link-button cell-button"
                         (click)="navigateToBillingSchedule(element)"
                       >
-                        {{ element[column] }}
+                        {{ element[column] || "View Schedule" }}
                       </button>
                     </ng-container>
 

@@ -19,12 +19,12 @@ public class O2CMonitoringService {
     private String subscriptionSummary;
     private String subscriptionLineSummary;
     private String o2cConnector;
-
+    private String sbpBillScheduleHeader;
 
     @Autowired
     public O2CMonitoringService(JdbcManager jdbcManager, String orderSummary, String invoiceSummary,
-                                String invoiceLineSummary, String subscriptionSummary,
-                                String subscriptionLineSummary, String o2cConnector) {
+            String invoiceLineSummary, String subscriptionSummary,
+            String subscriptionLineSummary, String o2cConnector, String sbpBillScheduleHeader) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
         this.invoiceSummary = invoiceSummary;
@@ -32,6 +32,7 @@ public class O2CMonitoringService {
         this.subscriptionSummary = subscriptionSummary;
         this.subscriptionLineSummary = subscriptionLineSummary;
         this.o2cConnector = o2cConnector;
+        this.sbpBillScheduleHeader = sbpBillScheduleHeader;
     }
 
     public List<Map<String, Object>> getOrderSummary(String orderId) {
@@ -56,7 +57,13 @@ public class O2CMonitoringService {
     }
 
     public List<Map<String, Object>> getSubscriptionLineSummary(String subscriptionId) {
-        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionLineSummary(subscriptionLineSummary, subscriptionId);
+        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionLineSummary(subscriptionLineSummary,
+                subscriptionId);
+        return result;
+    }
+
+    public List<Map<String, Object>> getSbpBillScheduleHeader(String subscriptionId) {
+        List<Map<String, Object>> result = jdbcManager.sbpBillScheduleHeader(sbpBillScheduleHeader, subscriptionId);
         return result;
     }
 

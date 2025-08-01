@@ -65,6 +65,10 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, value);
     }
 
+    public List<Map<String, Object>> sbpBillScheduleHeader(String sql, String value) {
+        return primaryJdbcTemplate.queryForList(sql, value);
+    }
+
     public int updateComments(String sql, String closeType, String comments) {
         return primaryJdbcTemplate.update(sql, closeType, comments);
     }
@@ -203,7 +207,7 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getCreditCardDetailsFiltered(String sql, String periodName,
-                                                             String appName, String processFlow, String ouName, String transactionDate) {
+            String appName, String processFlow, String ouName, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, processFlow, ouName, transactionDate);
     }
 

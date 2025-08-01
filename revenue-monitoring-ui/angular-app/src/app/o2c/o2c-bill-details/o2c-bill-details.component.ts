@@ -4,6 +4,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ApiHttpService } from '../../providers/http.service';
 
 @Component({
   selector: 'app-o2c-bill-details',
@@ -118,7 +120,9 @@ export class O2cBillDetailsComponent {
   constructor(
     private sidebarService: SidebarService,
     private router: Router,
-    private location: Location
+    private location: Location,
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
   ) {}
 
   sidebarExpanded = true;
@@ -181,6 +185,24 @@ export class O2cBillDetailsComponent {
           STATUS: navState.billData?.STATUS || item.STATUS,
         }));
     }
+
+    this.getBillScheduleLines();
+  }
+
+  private getBillScheduleLines(): void {
+    this.http
+      .get('sbp-bill-schedule-lines', this.destroyManager, {
+        params: this.orderId,
+      })
+      .subscribe((data: any) => {
+        console.log('Bill Schedule Lines:', data);
+
+        // I can handle the data from here, but this one is a simple just
+        // set the mat data source and you're done
+
+        // this.billScheduleDisplayedColumns = Object.keys(data[0]);
+        // this.billScheduleDataSource.data = data;
+      });
   }
 
   get invoiceContainerWidth(): string {

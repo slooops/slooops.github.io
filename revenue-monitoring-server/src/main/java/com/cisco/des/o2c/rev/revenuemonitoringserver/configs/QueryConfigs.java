@@ -1192,4 +1192,22 @@ public class QueryConfigs {
         return this.o2cConnector;
     }
 
+    @Value(("${sbp.bill.schedule.header.q}"))
+    public String sbpBillScheduleHeader;
+
+    @Bean( name = "sbpBillScheduleHeader" )
+    public String getSbpBillScheduleHeader() {return this.sbpBillScheduleHeader; }
+
+    @Value(("${sbp.bill.schedules.q}"))
+    public String sbpBillSchedules;
+
+    @Bean( name = "sbpBillSchedules" )
+    public String getSbpBillSchedules() {return this.sbpBillSchedules; }
+
+    @Value(("${sbp.bill.schedule.lines.q}"))
+    public String sbpBillScheduleLines;
+
+    @Bean( name = "sbpBillScheduleLines" )
+    public String getSbpBillScheduleLines() {return this.sbpBillScheduleLines; }
+
 }

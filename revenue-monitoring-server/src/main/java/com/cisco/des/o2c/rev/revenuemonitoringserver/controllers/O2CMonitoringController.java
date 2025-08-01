@@ -111,15 +111,33 @@ public class O2CMonitoringController {
         }
     }
 
-//    @GetMapping("/o2c-connector")
-//    public ResponseEntity<List<Map<String, Object>>> getO2cConnector() {
-//        return new ResponseEntity<>(service.getO2cConnector(), HttpStatus.OK);
-//    }
+    @GetMapping("/sbp-bill-schedule-header")
+    public ResponseEntity<List<Map<String, Object>>> getSbpBillScheduleHeader(@RequestParam List<String> subRefIds) {
+        try {
+            List<Map<String, Object>> details = new ArrayList<>();
+            int minLength = subRefIds.size();
+
+            for (int i = 0; i < minLength; i++) {
+                String value = subRefIds.get(i);
+                List<Map<String, Object>> result = service.getSbpBillScheduleHeader(value);
+                details.addAll(result);
+            }
+            return new ResponseEntity<>(details, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // @GetMapping("/o2c-connector")
+    // public ResponseEntity<List<Map<String, Object>>> getO2cConnector() {
+    // return new ResponseEntity<>(service.getO2cConnector(), HttpStatus.OK);
+    // }
 
     @PostMapping("/o2c-connector-search")
     public ResponseEntity<List<Map<String, Object>>> getO2cConnector(@RequestBody Map<String, String> data) {
         String field = data.get("column");
         String value = data.get("value");
-        return new ResponseEntity<>(service.getO2cConnectorData(field,value), HttpStatus.OK);
+        return new ResponseEntity<>(service.getO2cConnectorData(field, value), HttpStatus.OK);
     }
 }

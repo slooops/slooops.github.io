@@ -4,6 +4,8 @@ import { SidebarService } from '../../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ApiHttpService } from '../../providers/http.service';
 
 @Component({
   selector: 'app-o2c-bill-schedule',
@@ -126,7 +128,9 @@ export class O2cBillScheduleComponent {
   constructor(
     private sidebarService: SidebarService,
     private router: Router,
-    private location: Location
+    private location: Location,
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
   ) {}
 
   sidebarExpanded = true;
@@ -182,6 +186,48 @@ export class O2cBillScheduleComponent {
     }
 
     console.log('Navigation state:', navState);
+
+    this.getBillScheduleHeader();
+    this.getBillSchedule();
+  }
+
+  private getBillScheduleHeader(): void {
+    this.http
+      .get('sbp-bill-schedule-header', this.destroyManager, {
+        params: this.orderId,
+      })
+      .subscribe((data: any) => {
+        console.log('Bill Schedule Header:', data);
+
+        // I'll take care of the rest from here, because as you can see
+        // most of the data for the billScheduleSummaryDataSource is already
+        // set in the ngOnInit method. we only need the currency and subscription source
+        // to be set here
+
+        // this.billScheduleSummaryDataSource.data =
+        //   this.billScheduleSummaryDataSource.data.map((item) => ({
+        //     ...item,
+        //     CURRENCY: data.CURRENCY,
+        //     SUBSCRIPTION_SOURCE: data.SUBSCRIPTION_SOURCE,
+        //   }));
+      });
+  }
+
+  private getBillSchedule(): void {
+    this.http
+      .get('sbp-bill-schedule', this.destroyManager, {
+        //Surya set this as bill schedules (PLURAL), so be careful
+        params: this.orderId,
+      })
+      .subscribe((data: any) => {
+        console.log('Bill Schedule:', data);
+
+        // I can handle the data from here, but this one is a simple just
+        // set the mat data source and you're done
+
+        // this.billScheduleDisplayedColumns = Object.keys(data[0]);
+        // this.billScheduleDataSource.data = data;
+      });
   }
 
   get invoiceContainerWidth(): string {
