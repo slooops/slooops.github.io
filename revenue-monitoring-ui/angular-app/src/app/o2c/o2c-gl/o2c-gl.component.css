@@ -190,12 +190,6 @@ tr.mat-header-row {
   background-color: #e67700; /* Orange for 'N' */
 }
 
-.accordion-content {
-  padding: 0;
-  border: none;
-  width: 100%;
-}
-
 .table-banner {
   display: flex;
   padding: 10px;

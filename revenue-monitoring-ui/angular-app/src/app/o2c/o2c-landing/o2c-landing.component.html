@@ -1,10 +1,10 @@
+<div class="o2c-container welcome-message">
+  Hello <strong>{{ userName }},</strong> welcome!
+</div>
+
 <div class="o2c-container result-header">
   Exceptions Dashboard
-  <mat-tab-group
-    style="margin: -10px 0 0 20px"
-    tabindex="3"
-    [selectedIndex]="2"
-  >
+  <mat-tab-group class="exceptions-tab-group" tabindex="3" [selectedIndex]="2">
     <mat-tab label="Hardware"> </mat-tab>
     <mat-tab label="Services"> </mat-tab>
     <mat-tab label="Subscription"> </mat-tab>
@@ -12,15 +12,7 @@
   </mat-tab-group>
 </div>
 
-<div
-  style="
-    display: flex;
-    gap: 20px;
-    justify-content: flex-start;
-    align-items: center;
-    margin: 2vh 22px;
-  "
->
+<div class="chart-cards-container">
   <app-o2c-donut
     [data]="dummyData1"
     canvasId="donutChartLarge"
@@ -30,17 +22,7 @@
   >
   </app-o2c-donut>
 
-  <div
-    style="
-      overflow-x: scroll;
-      display: flex;
-      gap: 20px;
-      justify-content: flex-start;
-      align-items: center;
-      padding: 2px 0;
-    "
-    class="scrollable"
-  >
+  <div class="cards-scroll-container scrollable">
     <app-o2c-card
       [title]="'Order'"
       [count]="0"
@@ -81,72 +63,45 @@
   </div>
 </div>
 
-<div class="o2c-container">
-  <div class="order-banner" style="background-color: #fef7ec">
-    <mat-tab-group>
-      <mat-tab label="Order"> </mat-tab>
-      <mat-tab label="Subscription"><h5>hi</h5> </mat-tab>
-      <mat-tab label="Invoice"> </mat-tab>
-      <mat-tab label="Accounting"> </mat-tab>
-      <mat-tab label="Cash"> </mat-tab>
+<div class="o2c-container accordion-container">
+  <div class="tab-wrapper">
+    <div class="tab-header-with-refresh order-banner-light">
+      <div class="sm-light-text">Last Refreshed Date:</div>
+    </div>
+    <mat-tab-group
+      class="main-tabs"
+      (selectedTabChange)="onTabChange($event)"
+      [selectedIndex]="selectedTabIndex"
+    >
+      <mat-tab label="Order">
+        <div class="full-width-content">
+          <app-o2c-order *ngIf="selectedTabIndex === 0"></app-o2c-order>
+        </div>
+      </mat-tab>
+      <mat-tab label="Subscription">
+        <div class="full-width-content">
+          <app-o2c-subscription
+            *ngIf="selectedTabIndex === 1"
+          ></app-o2c-subscription>
+        </div>
+      </mat-tab>
+      <mat-tab label="Invoice">
+        <div class="full-width-content">
+          <app-o2c-invoice *ngIf="selectedTabIndex === 2"></app-o2c-invoice>
+        </div>
+      </mat-tab>
+      <mat-tab label="Accounting">
+        <div class="full-width-content">
+          <app-o2c-accounting
+            *ngIf="selectedTabIndex === 3"
+          ></app-o2c-accounting>
+        </div>
+      </mat-tab>
+      <mat-tab label="Cash">
+        <div class="full-width-content">
+          <app-o2c-cash *ngIf="selectedTabIndex === 4"></app-o2c-cash>
+        </div>
+      </mat-tab>
     </mat-tab-group>
-    <div class="sm-light-text">Last Refreshed Date:</div>
-  </div>
-</div>
-
-<div class="o2c-container">
-  <div
-    class="order-banner accordion-header"
-    style="padding: 10px; justify-content: flex-start; gap: 10px"
-  >
-    <div class="status-dot"></div>
-    <div>Order Entered to Booked</div>
-  </div>
-</div>
-
-<div
-  class="o2c-container"
-  style="justify-content: center; align-items: center; margin-top: 2vh"
->
-  <div class="o2c-donut-row">
-    <app-o2c-accordion
-      [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
-      [isOpen]="isOpen[1]"
-      (toggleOpen)="toggleAccordion(1)"
-    >
-      <app-o2c-donut [data]="dummyData1" canvasId="donutChart1"></app-o2c-donut>
-    </app-o2c-accordion>
-
-    <app-o2c-accordion
-      [title]="'Credit Holds'"
-      [isOpen]="isOpen[2]"
-      (toggleOpen)="toggleAccordion(2)"
-    >
-      <app-o2c-donut [data]="dummyData2" canvasId="donutChart2"></app-o2c-donut>
-    </app-o2c-accordion>
-
-    <app-o2c-accordion
-      [title]="'Data Configuration'"
-      [isOpen]="isOpen[3]"
-      (toggleOpen)="toggleAccordion(3)"
-    >
-      <app-o2c-donut [data]="dummyData3" canvasId="donutChart3"></app-o2c-donut>
-    </app-o2c-accordion>
-
-    <app-o2c-accordion
-      [title]="'Donut Chart 4 Title'"
-      [isOpen]="isOpen[4]"
-      (toggleOpen)="toggleAccordion(4)"
-    >
-      <app-o2c-donut [data]="dummyData4" canvasId="donutChart4"></app-o2c-donut>
-    </app-o2c-accordion>
-
-    <app-o2c-accordion
-      [title]="'Process Exceptions'"
-      [isOpen]="isOpen[5]"
-      (toggleOpen)="toggleAccordion(5)"
-    >
-      <app-o2c-donut [data]="dummyData5" canvasId="donutChart5"></app-o2c-donut>
-    </app-o2c-accordion>
   </div>
 </div>

@@ -1,1 +1,50 @@
-<p>o2c-invoice works!</p>
+<div class="o2c-container accordion-container">
+  <div class="order-banner accordion-header order-status-banner">
+    <div class="status-dot"></div>
+    <div>Fulfillment to Invoicing</div>
+  </div>
+</div>
+
+<div class="o2c-container accordion-container">
+  <div class="o2c-donut-row">
+    <app-o2c-accordion
+      [title]="'Pre-Invoicing'"
+      [isOpen]="isOpen[2]"
+      (toggleOpen)="toggleAccordion(2)"
+    >
+      <app-o2c-donut [data]="dummyData2" canvasId="donutChart2"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Invoice Creation'"
+      [isOpen]="isOpen[5]"
+      (toggleOpen)="toggleAccordion(5)"
+    >
+      <app-o2c-donut [data]="dummyData5" canvasId="donutChart5"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Invoice: Print / Image / Delivery'"
+      [isOpen]="isOpen[3]"
+      (toggleOpen)="toggleAccordion(3)"
+    >
+      <app-o2c-donut [data]="dummyData3" canvasId="donutChart3"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Invoice PID (Post Invoice Disputes)'"
+      [isOpen]="isOpen[1]"
+      (toggleOpen)="toggleAccordion(1)"
+    >
+      <app-o2c-donut [data]="dummyData1" canvasId="donutChart1"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Others'"
+      [isOpen]="isOpen[4]"
+      (toggleOpen)="toggleAccordion(4)"
+    >
+      <app-o2c-donut [data]="dummyData4" canvasId="donutChart4"></app-o2c-donut>
+    </app-o2c-accordion>
+  </div>
+</div>

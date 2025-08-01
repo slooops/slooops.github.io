@@ -1,5 +1,10 @@
 @import "src/assets/o2c-common-styles.css";
 
+/* Welcome message styling */
+.welcome-message {
+  color: #1990fa;
+}
+
 .o2c-container {
   display: flex;
   height: 100%;
@@ -7,65 +12,94 @@
   margin: 1vh 22px;
 }
 
-.o2c-column-container {
+/* Tab group styling */
+.exceptions-tab-group {
+  margin: -20px 0 0 20px;
+}
+
+/* Chart and cards container */
+.chart-cards-container {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 20px;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 2vh 22px;
+}
+
+/* Cards scroll container */
+.cards-scroll-container {
+  overflow-x: scroll;
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.order-banner-light {
+  background-color: #fef7ec;
+}
+
+.accordion-container {
+  justify-content: center;
+  align-items: center;
+  margin-top: 2vh;
+}
+
+/* New tab wrapper styles */
+.tab-wrapper {
   width: 100%;
 }
 
-.o2c-donut-row {
-  display: grid;
-  width: 100%;
-  gap: 20px;
-  flex: 1 0 0;
-  grid-template-rows: auto;
-  grid-template-columns: repeat(3, 1fr); /* Default: 3 columns */
-}
-
-/* For medium-sized screens */
-@media screen and (max-width: 1400px) {
-  .o2c-donut-row {
-    grid-template-columns: repeat(2, 1fr); /* 2x2 + 1 layout */
-  }
-}
-
-/* For smaller screens */
-@media screen and (max-width: 900px) {
-  .o2c-donut-row {
-    grid-template-columns: 1fr; /* Stack all items vertically */
-  }
-}
-
-.chart-legend-wrapper {
+.tab-header-with-refresh {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 20px;
-  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  height: 48px; /* Match tab header height */
 }
 
-/* Adjust for smaller screens */
-@media screen and (max-width: 600px) {
-  .chart-legend-wrapper {
-    flex-direction: column; /* Stack chart and legend vertically on very small screens */
-  }
+.tab-header-placeholder {
+  flex: 1; /* Takes up space on the left */
+}
+
+.main-tabs {
+  width: 100%;
+}
+
+/* Override default tab styles */
+.main-tabs ::ng-deep .mat-tab-header {
+  background-color: #fef7ec;
+  border-bottom: 1px solid #e4e4e4;
+  margin-top: -48px; /* Overlap with the header */
+  position: relative;
+  z-index: 1;
+}
+
+.main-tabs ::ng-deep .mat-tab-body-wrapper {
+  background-color: white;
+  padding: 0;
+}
+
+.full-width-content {
+  width: 100%;
+  background-color: white;
 }
 
 .sm-light-text {
   color: #6c757d;
   font-size: 12px;
   padding: 0 10px;
+  white-space: nowrap;
 }
 
-/* Consolidated scrollbar styles */
 .scrollable {
   overflow-x: auto;
 }
 
 .scrollable::-webkit-scrollbar {
   height: 8px;
-  background-color: #f8f8f8;
+  background-color: #f0f0f0;
 }
 
 .scrollable::-webkit-scrollbar-thumb {

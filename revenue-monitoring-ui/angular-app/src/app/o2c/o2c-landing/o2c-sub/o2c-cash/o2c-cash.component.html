@@ -1,1 +1,42 @@
-<p>o2c-cash works!</p>
+<div class="o2c-container accordion-container">
+  <div class="order-banner accordion-header order-status-banner">
+    <div class="status-dot"></div>
+    <div>Cash Collection</div>
+  </div>
+</div>
+
+<div class="o2c-container accordion-container">
+  <div class="o2c-donut-row">
+    <app-o2c-accordion
+      [title]="'Past Due'"
+      [isOpen]="isOpen[2]"
+      (toggleOpen)="toggleAccordion(2)"
+    >
+      <app-o2c-donut [data]="dummyData2" canvasId="donutChart2"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Partial Payments'"
+      [isOpen]="isOpen[5]"
+      (toggleOpen)="toggleAccordion(5)"
+    >
+      <app-o2c-donut [data]="dummyData5" canvasId="donutChart5"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'On Account'"
+      [isOpen]="isOpen[3]"
+      (toggleOpen)="toggleAccordion(3)"
+    >
+      <app-o2c-donut [data]="dummyData3" canvasId="donutChart3"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Unidentified'"
+      [isOpen]="isOpen[4]"
+      (toggleOpen)="toggleAccordion(4)"
+    >
+      <app-o2c-donut [data]="dummyData4" canvasId="donutChart4"></app-o2c-donut>
+    </app-o2c-accordion>
+  </div>
+</div>

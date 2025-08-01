@@ -1,1 +1,18 @@
-<p>o2c-accounting works!</p>
+<div class="o2c-container accordion-container">
+  <div class="order-banner accordion-header order-status-banner">
+    <div class="status-dot"></div>
+    <div>Accounting</div>
+  </div>
+</div>
+
+<div class="o2c-container accordion-container">
+  <div class="o2c-donut-row">
+    <app-o2c-accordion
+      [title]="'Create Accounting'"
+      [isOpen]="isOpen[2]"
+      (toggleOpen)="toggleAccordion(2)"
+    >
+      <app-o2c-donut [data]="dummyData2" canvasId="donutChart2"></app-o2c-donut>
+    </app-o2c-accordion>
+  </div>
+</div>

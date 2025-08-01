@@ -23,11 +23,17 @@
 .accordion-body {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  opacity: 0;
+  padding: 0 20px; /* Keep horizontal padding consistent */
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.3s ease 0.1s,
+    /* Delay opacity slightly */ padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .accordion-body.open {
-  transition: max-height 0.3s ease;
-  max-height: 500px; /* Adjust as needed */
-  padding: 10px 20px;
+  max-height: 1000px;
+  opacity: 1;
+  padding: 20px; /* Full padding when open */
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease 0s,
+    /* No delay on opening */ padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
