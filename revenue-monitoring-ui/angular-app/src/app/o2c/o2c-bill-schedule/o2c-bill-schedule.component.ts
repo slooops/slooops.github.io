@@ -3,9 +3,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from '../../providers/http.service';
+import { offset } from '@popperjs/core';
+import { ro } from 'date-fns/locale';
 
 @Component({
   selector: 'app-o2c-bill-schedule',
@@ -13,9 +15,10 @@ import { ApiHttpService } from '../../providers/http.service';
   styleUrls: ['./o2c-bill-schedule.component.css'],
 })
 export class O2cBillScheduleComponent {
-  orderId = '28221819418344'; // Placeholder for order ID
-  subRefId = 'Sub2822413'; // Placeholder for subscription reference ID
-  invoiceId = '32219418347'; // Placeholder for invoice ID
+  orderId: string = '28221819418344'; // Placeholder for order ID
+  subRefId: string = 'Sub2252774'; // Placeholder for subscription reference ID
+  invoiceId: string = '32219418347'; // Placeholder for invoice ID
+  offsetId: string = '35699'; // Placeholder for offset ID
 
   expanded = {
     subscription: false,
@@ -47,90 +50,19 @@ export class O2cBillScheduleComponent {
     'BILLING_SCHEDULE',
     'BILLING_FREQUENCY',
   ];
-  billScheduleSummaryDataSource = new MatTableDataSource<any>([
-    {
-      WEB_ORDER_ID: '95075262',
-      SUB_REF_ID: 'SR100112',
-      LAST_MODIFIED_DATE: '07/25/2025',
-      BILLING_PREFERENCE: 'SSD 5',
-      SUBSCRIPTION_SOURCE: 'BRM',
-      CURRENCY: 'USD',
-      BILLING_SCHEDULE: '1/12',
-      BILLING_FREQUENCY: 'Recurring',
-    },
-  ]);
+  billScheduleSummaryDataSource = new MatTableDataSource<any>();
 
   billScheduleDataLoaded = true; // Set to false when implementing real data loading
-  billScheduleDisplayedColumns: string[] = [
-    'BILL_DATE',
-    'BILLING_PERIOD',
-    'BILL_AMOUNT',
-    'STATUS',
-    'BILLED_ON_DATE',
-    'BILL_NUMBER',
-  ];
-  billScheduleDataSource = new MatTableDataSource<any>([
-    // On-time bills
-    {
-      BILL_DATE: '2023-06-28',
-      BILLING_PERIOD: '28-Jun-23 to 27-Sep-23',
-      BILL_AMOUNT: 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2023-06-28',
-      BILL_NUMBER: '12345678901',
-    },
-    {
-      BILL_DATE: '2023-09-28',
-      BILLING_PERIOD: '28-Sep-23 to 27-Dec-23',
-      BILL_AMOUNT: 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2023-09-28',
-      BILL_NUMBER: '12345678902',
-    },
-
-    // Late bills
-    {
-      BILL_DATE: '2024-01-15',
-      BILLING_PERIOD: '15-Jan-24 to 14-Apr-24',
-      BILL_AMOUNT: 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2024-01-20', // Late by 5 days
-      BILL_NUMBER: '12345678903',
-    },
-    {
-      BILL_DATE: '2024-04-15',
-      BILLING_PERIOD: '15-Apr-24 to 14-Jul-24',
-      BILL_AMOUNT: 2500.0,
-      STATUS: 'Billed',
-      BILLED_ON_DATE: '2024-04-18', // Late by 3 days
-      BILL_NUMBER: '12345678904',
-    },
-
-    // Future bills with no billed-on date or bill number
-    {
-      BILL_DATE: '2027-03-15',
-      BILLING_PERIOD: '15-Mar-27 to 14-Jun-27',
-      BILL_AMOUNT: 2500.0,
-      STATUS: 'Pending',
-      BILLED_ON_DATE: null,
-      BILL_NUMBER: null,
-    },
-    {
-      BILL_DATE: '2027-06-07',
-      BILLING_PERIOD: '7-Jun-27 to 6-Sep-27',
-      BILL_AMOUNT: 2500.0,
-      STATUS: 'Future',
-      BILLED_ON_DATE: null,
-      BILL_NUMBER: null,
-    },
-  ]);
+  billScheduleDisplayedColumns: string[] = [];
+  billScheduleDataSource = new MatTableDataSource<any>();
 
   constructor(
     private sidebarService: SidebarService,
     private router: Router,
     private location: Location,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService
+    private http: ApiHttpService,
+    private datePipe: DatePipe
   ) {}
 
   sidebarExpanded = true;
@@ -167,66 +99,68 @@ export class O2cBillScheduleComponent {
     };
 
     if (navState.rowData && navState.orderId) {
-      this.orderId = navState.orderId;
-      this.subRefId = navState.rowData?.SUBSCRIPTION_CODE;
-
-      this.billScheduleSummaryDataSource.data =
-        this.billScheduleSummaryDataSource.data.map((item) => ({
-          ...item,
-          WEB_ORDER_ID: this.orderId,
-
-          SUB_REF_ID: navState.rowData.SUBSCRIPTION_ID,
-          LAST_MODIFIED_DATE: new Date(
-            navState.rowData.LAST_UPDATE_DATE
-          ).toLocaleDateString(),
-          BILLING_PREFERENCE: navState.rowData.BILLING_PREFERENCE,
-          BILLING_SCHEDULE: navState.rowData.BILLING_SCHEDULE,
-          BILLING_FREQUENCY: navState.rowData.BILLING_FREQ_TYPE,
-        }));
+      this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
+      this.offsetId = navState.rowData?.OFFSET_ID || this.offsetId;
     }
 
     console.log('Navigation state:', navState);
 
-    this.getBillScheduleHeader();
-    this.getBillSchedule();
+    this.getBillScheduleHeader(this.subRefId);
+    this.getBillSchedule(this.offsetId);
   }
 
-  private getBillScheduleHeader(): void {
+  private getBillScheduleHeader(subRefId: string): void {
+    console.log('Fetching bill schedule header for subRefId:', subRefId);
     this.http
       .get('sbp-bill-schedule-header', this.destroyManager, {
-        params: this.orderId,
+        params: { subRefId: [subRefId] },
       })
       .subscribe((data: any) => {
         console.log('Bill Schedule Header:', data);
-
-        // I'll take care of the rest from here, because as you can see
-        // most of the data for the billScheduleSummaryDataSource is already
-        // set in the ngOnInit method. we only need the currency and subscription source
-        // to be set here
-
-        // this.billScheduleSummaryDataSource.data =
-        //   this.billScheduleSummaryDataSource.data.map((item) => ({
-        //     ...item,
-        //     CURRENCY: data.CURRENCY,
-        //     SUBSCRIPTION_SOURCE: data.SUBSCRIPTION_SOURCE,
-        //   }));
+        if (data.length > 0) {
+          this.billScheduleSummaryDisplayedColumns = Object.keys(data[0]);
+          const index =
+            this.billScheduleSummaryDisplayedColumns.indexOf('OFFSET_ID');
+          if (index > -1) {
+            this.billScheduleSummaryDisplayedColumns.splice(index, 1);
+          }
+        }
+        this.billScheduleSummaryDataSource = new MatTableDataSource(data);
       });
   }
 
-  private getBillSchedule(): void {
+  private getBillSchedule(offsetId: string): void {
     this.http
       .get('sbp-bill-schedule', this.destroyManager, {
-        //Surya set this as bill schedules (PLURAL), so be careful
-        params: this.orderId,
+        params: { offsetId: [offsetId] },
       })
       .subscribe((data: any) => {
-        console.log('Bill Schedule:', data);
+        console.log('Bill Schedules:', data);
+        if (data.length > 0) {
+          this.billScheduleDisplayedColumns = Object.keys(data[0]);
+          const index = this.billScheduleDisplayedColumns.indexOf('OFFSET_ID');
+          if (index > -1) {
+            this.billScheduleDisplayedColumns.splice(index, 1);
+          }
+        }
+        this.billScheduleDataSource = new MatTableDataSource(data);
+      });
+  }
 
-        // I can handle the data from here, but this one is a simple just
-        // set the mat data source and you're done
-
-        // this.billScheduleDisplayedColumns = Object.keys(data[0]);
-        // this.billScheduleDataSource.data = data;
+  getBillScheduleLines(element: any): void {
+    console.log('Fetching bill schedule lines for element:', element);
+    const offsetId = element['OFFSET_ID'];
+    const billDate = this.datePipe.transform(
+      element['BILL_DATE'],
+      'MM/dd/yyyy'
+    );
+    this.http
+      .get('sbp-bill-schedule-lines', this.destroyManager, {
+        params: { offsetId: [offsetId], billDate: [billDate] },
+      })
+      .subscribe((data: any) => {
+        console.log('Bill Schedule Lines:', data);
+        this.navigateToBillDetails(data);
       });
   }
 
@@ -258,11 +192,9 @@ export class O2cBillScheduleComponent {
     return name
       .split(' ')
       .map((word) => {
-        // If the word is in the list of acronyms, return it in uppercase
         if (acronyms.includes(word)) {
           return word.toUpperCase();
         }
-        // Otherwise, capitalize only the first letter
         return word.charAt(0).toUpperCase() + word.slice(1);
       })
       .join(' ');
@@ -329,13 +261,11 @@ export class O2cBillScheduleComponent {
 
   navigateToBillDetails(rowData: any): void {
     console.log('Navigating to bill details with data:', rowData);
-
-    // Navigate to the bill details page with the data
     this.router.navigate(['/o2c-bill-details'], {
       state: {
         billData: rowData,
-        orderId: this.orderId,
-        subRefId: this.subRefId,
+        orderId: rowData['WEB_ORDER_ID'],
+        subRefId: rowData['SUBSCRIPTION_REF_ID'],
         circleStatus: this.circleStatus,
         summaryTableData: this.billScheduleSummaryDataSource.data,
       },

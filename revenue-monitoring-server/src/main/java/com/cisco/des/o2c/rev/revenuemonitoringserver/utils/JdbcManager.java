@@ -317,4 +317,12 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, entityName, holdApplyDate,
                 flooringBid);
     }
+
+    public List<Map<String, Object>> getO2CBillSchedules(String sql, String offsetId) {
+        return primaryJdbcTemplate.queryForList(sql, offsetId);
+    }
+
+    public List<Map<String, Object>> getO2CBillScheduleList(String sql, String offsetId, String billDate) {
+        return primaryJdbcTemplate.queryForList(sql, offsetId, billDate);
+    }
 }

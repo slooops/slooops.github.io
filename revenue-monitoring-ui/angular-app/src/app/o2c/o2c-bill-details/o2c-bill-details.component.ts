@@ -13,10 +13,10 @@ import { ApiHttpService } from '../../providers/http.service';
   styleUrls: ['./o2c-bill-details.component.css'],
 })
 export class O2cBillDetailsComponent {
-  orderId = '28221819418344'; // Placeholder for order ID
-  subRefId = 'Sub2822413'; // Placeholder for subscription reference ID
-  invoiceId = '32219418347'; // Placeholder for invoice ID
-  billId = 'BILL123456'; // Placeholder for bill ID
+  orderId: string = ''; // Placeholder for order ID
+  subRefId: string = ''; // Placeholder for subscription reference ID
+  invoiceId: string = ''; // Placeholder for invoice ID
+  billId: string = ''; // Placeholder for bill ID
 
   expanded = {
     subscription: false,
@@ -38,84 +38,12 @@ export class O2cBillDetailsComponent {
   ];
 
   billScheduleSummaryLoaded = true; // Set to false when implementing real data loading
-  billScheduleSummaryDisplayedColumns: string[] = [
-    'WEB_ORDER_ID',
-    'SUB_REF_ID',
-    'BILLING_SCHEDULE',
-    'BILLING_FREQUENCY',
-    'BILLING_DATE',
-    'BILLING_PERIOD',
-    'STATUS',
-  ];
-  billScheduleSummaryDataSource = new MatTableDataSource<any>([
-    {
-      WEB_ORDER_ID: '95075262',
-      SUB_REF_ID: 'SR100112',
-      BILLING_SCHEDULE: '1/2',
-      BILLING_FREQUENCY: 'Recurring Term',
-      BILLING_DATE: '06/08/2022',
-      BILLING_PERIOD: '06/08/2022 - 06/07/2027',
-      STATUS: 'Unbilled',
-    },
-  ]);
+  billScheduleSummaryDisplayedColumns: string[] = [];
+  billScheduleSummaryDataSource = new MatTableDataSource<any>();
 
   billScheduleDataLoaded = true; // Set to false when implementing real data loading
-  billScheduleDisplayedColumns: string[] = [
-    'ORDERED_ITEM',
-    'CCW_ORDER_LINE_ID',
-    'LINE_STATUS',
-    'CHARGE_CYCLE',
-    'ITEM_TOTAL_(USD)',
-    'IS_REFUND_LINE',
-    'PREV_ORDER_LINE_ID',
-  ];
-  billScheduleDataSource = new MatTableDataSource<any>([
-    {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910887',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333005',
-    },
-    {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910888',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333006',
-    },
-    {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910889',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333007',
-    },
-    {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910890',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333008',
-    },
-    {
-      ORDERED_ITEM: 'LIC-MR-E',
-      CCW_ORDER_LINE_ID: '353910891',
-      LINE_STATUS: 'Active',
-      CHARGE_CYCLE: '2-Jan-25 to 1-Apr-25',
-      'ITEM_TOTAL_(USD)': '3193.49',
-      IS_REFUND_LINE: 'N',
-      PREV_ORDER_LINE_ID: '343333009',
-    },
-  ]);
+  billScheduleDisplayedColumns: string[] = [];
+  billScheduleDataSource = new MatTableDataSource<any>();
 
   constructor(
     private sidebarService: SidebarService,
@@ -161,48 +89,34 @@ export class O2cBillDetailsComponent {
       summaryTableData?: any[];
     };
 
-    console.log('Navigation state:', navState);
-
     if (navState) {
       this.orderId = navState.orderId;
       this.subRefId = navState.subRefId;
-      this.billId = navState.billData?.BILL_NUMBER || this.billId;
+      // this.billId = navState.billData?.BILL_NUMBER || this.billId;
       this.circleStatus = navState.circleStatus;
-      this.billScheduleSummaryDataSource.data =
-        this.billScheduleSummaryDataSource.data.map((item) => ({
-          ...item,
-          WEB_ORDER_ID: this.orderId,
-          SUB_REF_ID: this.subRefId,
-          BILLING_SCHEDULE:
-            navState.summaryTableData?.[0]?.BILLING_SCHEDULE ||
-            item.BILLING_SCHEDULE,
-          BILLING_FREQUENCY:
-            navState.summaryTableData?.[0]?.BILLING_FREQUENCY ||
-            item.BILLING_FREQUENCY,
-          BILLING_DATE: navState.billData?.BILL_DATE || item.BILLING_DATE,
-          BILLING_PERIOD:
-            navState.billData?.BILLING_PERIOD || item.BILLING_PERIOD,
-          STATUS: navState.billData?.STATUS || item.STATUS,
-        }));
+      if (navState.summaryTableData.length > 0) {
+        this.billScheduleSummaryDisplayedColumns = Object.keys(
+          navState.summaryTableData[0]
+        );
+        const index =
+          this.billScheduleSummaryDisplayedColumns.indexOf('OFFSET_ID');
+        if (index > -1) {
+          this.billScheduleSummaryDisplayedColumns.splice(index, 1);
+        }
+      }
+      this.billScheduleSummaryDataSource = new MatTableDataSource(
+        navState.summaryTableData
+      );
+
+      if (navState.billData.length > 0) {
+        this.billScheduleDisplayedColumns = Object.keys(navState.billData[0]);
+        const index = this.billScheduleDisplayedColumns.indexOf('OFFSET_ID');
+        if (index > -1) {
+          this.billScheduleDisplayedColumns.splice(index, 1);
+        }
+      }
+      this.billScheduleDataSource = new MatTableDataSource(navState.billData);
     }
-
-    this.getBillScheduleLines();
-  }
-
-  private getBillScheduleLines(): void {
-    this.http
-      .get('sbp-bill-schedule-lines', this.destroyManager, {
-        params: this.orderId,
-      })
-      .subscribe((data: any) => {
-        console.log('Bill Schedule Lines:', data);
-
-        // I can handle the data from here, but this one is a simple just
-        // set the mat data source and you're done
-
-        // this.billScheduleDisplayedColumns = Object.keys(data[0]);
-        // this.billScheduleDataSource.data = data;
-      });
   }
 
   get invoiceContainerWidth(): string {

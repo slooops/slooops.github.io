@@ -112,18 +112,54 @@ public class O2CMonitoringController {
     }
 
     @GetMapping("/sbp-bill-schedule-header")
-    public ResponseEntity<List<Map<String, Object>>> getSbpBillScheduleHeader(@RequestParam List<String> subRefIds) {
+    public ResponseEntity<List<Map<String, Object>>> getSbpBillScheduleHeader(@RequestParam List<String> subRefId) {
         try {
             List<Map<String, Object>> details = new ArrayList<>();
-            int minLength = subRefIds.size();
+            int minLength = subRefId.size();
 
             for (int i = 0; i < minLength; i++) {
-                String value = subRefIds.get(i);
+                String value = subRefId.get(i);
                 List<Map<String, Object>> result = service.getSbpBillScheduleHeader(value);
                 details.addAll(result);
             }
             return new ResponseEntity<>(details, HttpStatus.OK);
 
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/sbp-bill-schedule")
+    public ResponseEntity<List<Map<String, Object>>> getSbpBillSchedule(@RequestParam List<String> offsetId) {
+        try {
+            List<Map<String, Object>> details = new ArrayList<>();
+            int minLength = offsetId.size();
+
+            for (int i = 0; i < minLength; i++) {
+                String value = offsetId.get(i);
+                List<Map<String, Object>> result = service.getSbpBillSchedule(value);
+                details.addAll(result);
+            }
+            return new ResponseEntity<>(details, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+
+    }
+
+    @GetMapping("/sbp-bill-schedule-lines")
+    public ResponseEntity<List<Map<String, Object>>> getSbpBillScheduleLines(@RequestParam List<String> offsetId, @RequestParam List<String> billDate) {
+        try {
+            List<Map<String, Object>> details = new ArrayList<>();
+            int minLength = Math.min(offsetId.size(), billDate.size());
+
+            for (int i = 0; i < minLength; i++) {
+                String offset = offsetId.get(i);
+                String date = billDate.get(i);
+                List<Map<String, Object>> result = service.getSbpBillScheduleLines(offset, date);
+                details.addAll(result);
+            }
+            return new ResponseEntity<>(details, HttpStatus.OK);
         } catch (Exception e) {
             return null;
         }
