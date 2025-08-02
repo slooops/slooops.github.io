@@ -99,8 +99,8 @@ export class O2cBillScheduleComponent {
     };
 
     if (navState.rowData && navState.orderId) {
-      this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
-      this.offsetId = navState.rowData?.OFFSET_ID || this.offsetId;
+      // this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
+      // this.offsetId = navState.rowData?.OFFSET_ID || this.offsetId;
     }
 
     console.log('Navigation state:', navState);
