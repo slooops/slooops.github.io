@@ -78,7 +78,11 @@ public class O2CMonitoringService {
     }
 
     public List<Map<String, Object>> getSbpBillSchedule(String offsetId) {
+        String[] dateColumns = { "BILL_DATE", "BILLED_ON_DATE" };
         List<Map<String, Object>> result = jdbcManager.getO2CBillSchedules(sbpBillSchedules, offsetId);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
         return result;
     }
 
