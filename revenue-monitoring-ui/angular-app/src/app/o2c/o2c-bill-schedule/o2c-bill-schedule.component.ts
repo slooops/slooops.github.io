@@ -15,10 +15,10 @@ import { ro } from 'date-fns/locale';
   styleUrls: ['./o2c-bill-schedule.component.css'],
 })
 export class O2cBillScheduleComponent {
-  orderId: string = '28221819418344'; // Placeholder for order ID
-  subRefId: string = 'Sub2252774'; // Placeholder for subscription reference ID
-  invoiceId: string = '32219418347'; // Placeholder for invoice ID
-  offsetId: string = '35699'; // Placeholder for offset ID
+  orderId: string = ''; // Placeholder for order ID
+  subRefId: string = ''; // Placeholder for subscription reference ID
+  invoiceId: string = ''; // Placeholder for invoice ID
+  offsetId: string = ''; // Placeholder for offset ID
 
   expanded = {
     subscription: false,
@@ -99,14 +99,12 @@ export class O2cBillScheduleComponent {
     };
 
     if (navState.rowData && navState.orderId) {
-      // this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
-      // this.offsetId = navState.rowData?.OFFSET_ID || this.offsetId;
+      this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
     }
 
     console.log('Navigation state:', navState);
 
     this.getBillScheduleHeader(this.subRefId);
-    this.getBillSchedule(this.offsetId);
   }
 
   private getBillScheduleHeader(subRefId: string): void {
@@ -117,6 +115,7 @@ export class O2cBillScheduleComponent {
       })
       .subscribe((data: any) => {
         console.log('Bill Schedule Header:', data);
+        this.offsetId = data[0]?.OFFSET_ID;
         if (data.length > 0) {
           this.billScheduleSummaryDisplayedColumns = Object.keys(data[0]);
           const index =
@@ -126,6 +125,7 @@ export class O2cBillScheduleComponent {
           }
         }
         this.billScheduleSummaryDataSource = new MatTableDataSource(data);
+        this.getBillSchedule(this.offsetId);
       });
   }
 

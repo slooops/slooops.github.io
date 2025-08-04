@@ -36,11 +36,11 @@ public class JdbcManager {
 
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
         // Only allow specific, known-safe fields
-        List<String> allowedFields = Arrays.asList("SUBSCRIPTION_REF_ID", "TRX_NUMBER", "WEBORDER_ID");
-        if (!allowedFields.contains(field)) {
-            throw new IllegalArgumentException("Invalid field name");
-        }
-        String query = sql + "WHERE " + field + " = ?";
+//        List<String> allowedFields = Arrays.asList("SUBSCRIPTION_ID", "TRX_NUMBER", "WEBORDER_ID");
+//        if (!allowedFields.contains(field)) {
+//            throw new IllegalArgumentException("Invalid field name");
+//        }
+        String query = sql + "WHERE " + field + "=?";
         System.out.println(query);
         return primaryJdbcTemplate.queryForList(query, value);
     }
