@@ -51,6 +51,18 @@ export class O2c360Component implements OnInit {
   invoiceDataLoaded = false;
   invoiceLinesDataLoaded = false;
 
+  // Consolidated loading state tracker
+  get allDataLoaded(): boolean {
+    return (
+      this.orderDataLoaded &&
+      this.subscriptionDataLoaded &&
+      this.subscriptionLinesDataLoaded &&
+      this.invoiceDataLoaded &&
+      this.invoiceLinesDataLoaded
+      // && this.financialDataLoaded
+    );
+  }
+
   circleStatus: { [key: string]: number } = {
     Order: 2,
     Subscription: 0,
@@ -552,13 +564,7 @@ export class O2c360Component implements OnInit {
   }
 
   viewAll(type: 'subscriptions' | 'invoices', id?: string): void {
-    if (
-      !this.subscriptionDataLoaded ||
-      !this.subscriptionLinesDataLoaded ||
-      !this.invoiceLinesDataLoaded ||
-      !this.invoiceDataLoaded ||
-      !this.orderDataLoaded
-    ) {
+    if (!this.allDataLoaded) {
       console.warn('Not all data has loaded. Please wait.');
       return;
     }

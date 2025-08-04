@@ -236,24 +236,9 @@
               <ng-container *ngSwitchCase="'CASH'">
                 <button
                   class="link-button"
-                  [disabled]="
-                    !invoiceLinesDataLoaded ||
-                    !subscriptionLinesDataLoaded ||
-                    !orderDataLoaded
-                  "
-                  [style.cursor]="
-                    invoiceLinesDataLoaded &&
-                    subscriptionLinesDataLoaded &&
-                    orderDataLoaded
-                      ? 'pointer'
-                      : 'wait'
-                  "
-                  (click)="
-                    invoiceLinesDataLoaded &&
-                      subscriptionLinesDataLoaded &&
-                      orderDataLoaded &&
-                      viewAll('invoices')
-                  "
+                  [disabled]="!allDataLoaded"
+                  [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+                  (click)="allDataLoaded && viewAll('invoices')"
                 >
                   {{ element[column] }}
                 </button>
@@ -319,36 +304,12 @@
           *ngIf="subscriptionSummaryDataSource?.data?.length > 5"
           class="view-all-button"
           [ngClass]="{
-            disabled:
-              !subscriptionLinesDataLoaded ||
-              !invoiceLinesDataLoaded ||
-              !financialDataLoaded ||
-              !orderDataLoaded
+            disabled: !allDataLoaded
           }"
-          [style.cursor]="
-            subscriptionLinesDataLoaded &&
-            invoiceLinesDataLoaded &&
-            financialDataLoaded &&
-            orderDataLoaded
-              ? 'pointer'
-              : 'wait'
-          "
-          (click)="
-            subscriptionLinesDataLoaded &&
-              invoiceLinesDataLoaded &&
-              financialDataLoaded &&
-              orderDataLoaded &&
-              viewAll('subscriptions')
-          "
+          [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+          (click)="allDataLoaded && viewAll('subscriptions')"
         >
-          {{
-            subscriptionLinesDataLoaded &&
-            invoiceLinesDataLoaded &&
-            financialDataLoaded &&
-            orderDataLoaded
-              ? "View All"
-              : "View All Loading..."
-          }}
+          {{ allDataLoaded ? "View All" : "View All Loading..." }}
         </button>
       </div>
     </div>
@@ -371,24 +332,9 @@
                     <ng-container *ngSwitchCase="'SUBSCRIPTION_ID'">
                       <button
                         class="link-button"
-                        [disabled]="
-                          !subscriptionLinesDataLoaded ||
-                          !invoiceLinesDataLoaded ||
-                          !orderDataLoaded
-                        "
-                        [style.cursor]="
-                          subscriptionLinesDataLoaded &&
-                          invoiceLinesDataLoaded &&
-                          orderDataLoaded
-                            ? 'pointer'
-                            : 'wait'
-                        "
-                        (click)="
-                          subscriptionLinesDataLoaded &&
-                            invoiceLinesDataLoaded &&
-                            orderDataLoaded &&
-                            viewAll('subscriptions')
-                        "
+                        [disabled]="!allDataLoaded"
+                        [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+                        (click)="allDataLoaded && viewAll('subscriptions')"
                       >
                         {{ element[column] }}
                       </button>
@@ -491,13 +437,11 @@
         <button
           *ngIf="invoiceSummaryDataSource?.data?.length > 5"
           class="view-all-button"
-          [ngClass]="{
-            disabled: !invoiceLinesDataLoaded || !subscriptionLinesDataLoaded
-          }"
-          [style.cursor]="invoiceLinesDataLoaded ? 'pointer' : 'wait'"
-          (click)="invoiceLinesDataLoaded && viewAll('invoices')"
+          [ngClass]="{ disabled: !allDataLoaded }"
+          [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+          (click)="allDataLoaded && viewAll('invoices')"
         >
-          {{ invoiceLinesDataLoaded ? "View All" : "View All Loading..." }}
+          {{ allDataLoaded ? "View All" : "View All Loading..." }}
         </button>
       </div>
     </div>
@@ -541,15 +485,8 @@
                     <ng-container *ngSwitchCase="'TRANSACTION_NUMBER'">
                       <button
                         class="link-button"
-                        [disabled]="
-                          !invoiceLinesDataLoaded ||
-                          !subscriptionLinesDataLoaded
-                        "
-                        [style.cursor]="
-                          invoiceLinesDataLoaded && subscriptionLinesDataLoaded
-                            ? 'pointer'
-                            : 'wait'
-                        "
+                        [disabled]="!allDataLoaded"
+                        [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
                         (click)="
                           viewAll('invoices', element['TRANSACTION_NUMBER'])
                         "
