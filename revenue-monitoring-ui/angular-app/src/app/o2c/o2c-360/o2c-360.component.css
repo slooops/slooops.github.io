@@ -455,3 +455,22 @@ button.link-button:hover .ccw-button-text {
 .full-width-button:hover {
   background-color: #f5f5f5;
 }
+
+/* Shimmer loading animation */
+.loading-shimmer {
+  background: linear-gradient(90deg, #c0c0c0bf 25%, #878787 50%, #c0c0c0bd 75%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 1s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

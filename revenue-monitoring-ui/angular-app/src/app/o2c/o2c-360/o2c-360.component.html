@@ -240,7 +240,9 @@
                   [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
                   (click)="allDataLoaded && viewAll('invoices')"
                 >
-                  {{ element[column] }}
+                  <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                    {{ element[column] }}
+                  </span>
                 </button>
               </ng-container>
 
@@ -309,7 +311,9 @@
           [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
           (click)="allDataLoaded && viewAll('subscriptions')"
         >
-          {{ allDataLoaded ? "View All" : "View All Loading..." }}
+          <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+            {{ allDataLoaded ? "View All" : "View All Loading..." }}
+          </span>
         </button>
       </div>
     </div>
@@ -336,7 +340,9 @@
                         [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
                         (click)="allDataLoaded && viewAll('subscriptions')"
                       >
-                        {{ element[column] }}
+                        <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                          {{ element[column] }}
+                        </span>
                       </button>
                     </ng-container>
 
@@ -441,7 +447,9 @@
           [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
           (click)="allDataLoaded && viewAll('invoices')"
         >
-          {{ allDataLoaded ? "View All" : "View All Loading..." }}
+          <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+            {{ allDataLoaded ? "View All" : "View All Loading..." }}
+          </span>
         </button>
       </div>
     </div>
@@ -491,7 +499,9 @@
                           viewAll('invoices', element['TRANSACTION_NUMBER'])
                         "
                       >
-                        {{ element[column] }}
+                        <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                          {{ element[column] }}
+                        </span>
                       </button>
                     </ng-container>
 
@@ -515,7 +525,9 @@
                           openInvoiceModal(element['TRANSACTION_NUMBER'])
                         "
                       >
-                        {{ element[column] }}
+                        <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                          {{ element[column] }}
+                        </span>
                       </button>
                     </ng-container>
 
