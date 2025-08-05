@@ -171,7 +171,7 @@ export class O2c360Component implements OnInit {
   ]);
   financialSummaryDisplayedColumns: string[] = [
     'ORDER_TSV',
-    'TOTAL_SUBSCRIPTION_TSV',
+    // 'TOTAL_SUBSCRIPTION_TSV',
     'BILLING_MODEL',
     'BILLED',
     'UNBILLED',
@@ -341,7 +341,7 @@ export class O2c360Component implements OnInit {
         if (Array.isArray(data) && data.length > 0) {
           this.subscriptionSummaryDisplayedColumns = this.removeColumns(
             Object.keys(data[0]),
-            ['TERM_START_DATE', 'TERM_END_DATE']
+            ['TERM_START_DATE', 'TERM_END_DATE', 'LAST_UPDATE_DATE', 'RUN_DATE']
           );
         } else {
           this.subscriptionSummaryDisplayedColumns = [];
