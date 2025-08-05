@@ -2,8 +2,11 @@
   <app-o2c-sidebar-nav [navItems]="navTotals"></app-o2c-sidebar-nav>
 
   <div class="o2c-column-container" [style.width]="invoiceContainerWidth">
-    <p class="result-header">Lines for Bill {{ billId }}</p>
-
+    <p class="result-header">
+      {{
+        billId && billId.trim() ? "Lines for Bill " + billId : "Bill Line Items"
+      }}
+    </p>
     <div class="o2c-card order-banner">
       <div class="order-info">
         <span class="status-dot"></span>
@@ -13,7 +16,13 @@
           </strong>
           Order Number</span
         >
-        <button class="details-button">Bill ID: {{ billId }}</button>
+        <button class="details-button">
+          {{
+            billId && billId.trim()
+              ? "Bill ID: " + billId
+              : "Bill No. Unavailable"
+          }}
+        </button>
       </div>
     </div>
 
@@ -32,7 +41,7 @@
       </div>
     </div>
 
-    <div class="order-table">
+    <div class="order-table invoice-summary-table">
       <!-- <ng-container *ngIf="financialDataLoaded; else loading">
         <ng-container
           *ngIf="billScheduleSummaryDataSource.data.length > 0; else noData"
@@ -103,7 +112,13 @@
 
     <!-- TOOLBAR brought from View All -->
     <div class="tool-bar-container" style="flex-direction: row">
-      <div class="accordion-header">Lines for Bill Number {{ billId }}</div>
+      <div class="accordion-header">
+        {{
+          billId && billId.trim()
+            ? "Lines for Bill Number " + billId
+            : "Line Item Details"
+        }}
+      </div>
       <div class="o2c-toolbar">
         <button class="toolbar-btn" (click)="handlePrint()">
           <i class="print-icon"></i> Print

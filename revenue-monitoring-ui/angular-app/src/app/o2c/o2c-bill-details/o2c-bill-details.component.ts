@@ -15,7 +15,6 @@ import { ApiHttpService } from '../../providers/http.service';
 export class O2cBillDetailsComponent {
   orderId: string = ''; // Placeholder for order ID
   subRefId: string = ''; // Placeholder for subscription reference ID
-  invoiceId: string = ''; // Placeholder for invoice ID
   billId: string = ''; // Placeholder for bill ID
 
   expanded = {
@@ -84,6 +83,7 @@ export class O2cBillDetailsComponent {
     const navState = this.location.getState() as {
       orderId?: string;
       subRefId?: string;
+      billNum?: string;
       circleStatus?: { [key: string]: number };
       billData?: any;
       summaryTableData?: any[];
@@ -92,7 +92,7 @@ export class O2cBillDetailsComponent {
     if (navState) {
       this.orderId = navState.orderId;
       this.subRefId = navState.subRefId;
-      // this.billId = navState.billData?.BILL_NUMBER || this.billId;
+      this.billId = navState.billNum || this.billId;
       this.circleStatus = navState.circleStatus;
       if (navState.summaryTableData.length > 0) {
         this.billScheduleSummaryDisplayedColumns = Object.keys(

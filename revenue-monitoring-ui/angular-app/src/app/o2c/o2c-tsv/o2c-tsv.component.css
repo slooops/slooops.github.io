@@ -127,20 +127,6 @@ tr.mat-header-row {
   white-space: wrap;
 }
 
-.invoice-summary-table {
-  overflow-x: scroll;
-}
-
-.invoice-summary-table::-webkit-scrollbar {
-  height: 8px;
-  background-color: #f4f4f4;
-}
-
-.invoice-summary-table::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 4px;
-}
-
 .accordion-header {
   display: flex;
   justify-content: space-between;

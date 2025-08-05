@@ -7,7 +7,7 @@ import { DatePipe, Location } from '@angular/common';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from '../../providers/http.service';
 import { offset } from '@popperjs/core';
-import { ro } from 'date-fns/locale';
+import { ro, th } from 'date-fns/locale';
 
 @Component({
   selector: 'app-o2c-bill-schedule',
@@ -17,7 +17,7 @@ import { ro } from 'date-fns/locale';
 export class O2cBillScheduleComponent {
   orderId: string = ''; // Placeholder for order ID
   subRefId: string = ''; // Placeholder for subscription reference ID
-  invoiceId: string = ''; // Placeholder for invoice ID
+  billNum: string = '';
   offsetId: string = ''; // Placeholder for offset ID
 
   expanded = {
@@ -39,7 +39,7 @@ export class O2cBillScheduleComponent {
     { label: 'Invoices', icon: 'receipt-icon', count: null },
   ];
 
-  billScheduleLoaded = true; // Set to false when implementing real data loading
+  billScheduleLoaded = false;
   billScheduleSummaryDisplayedColumns: string[] = [
     'WEB_ORDER_ID',
     'SUB_REF_ID',
@@ -52,7 +52,7 @@ export class O2cBillScheduleComponent {
   ];
   billScheduleSummaryDataSource = new MatTableDataSource<any>();
 
-  billScheduleDataLoaded = true; // Set to false when implementing real data loading
+  billScheduleDataLoaded = false;
   billScheduleDisplayedColumns: string[] = [];
   billScheduleDataSource = new MatTableDataSource<any>();
 
@@ -99,7 +99,9 @@ export class O2cBillScheduleComponent {
     };
 
     if (navState.rowData && navState.orderId) {
+      this.orderId = navState.orderId;
       this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
+      this.billNum = navState.rowData?.BILL_NUMBER || '';
     }
 
     console.log('Navigation state:', navState);
@@ -108,24 +110,38 @@ export class O2cBillScheduleComponent {
   }
 
   private getBillScheduleHeader(subRefId: string): void {
-    console.log('Fetching bill schedule header for subRefId:', subRefId);
     this.http
       .get('sbp-bill-schedule-header', this.destroyManager, {
         params: { subRefId: [subRefId] },
       })
       .subscribe((data: any) => {
-        console.log('Bill Schedule Header:', data);
-        this.offsetId = data[0]?.OFFSET_ID;
-        if (data.length > 0) {
-          this.billScheduleSummaryDisplayedColumns = Object.keys(data[0]);
+        const safeData = data || [];
+        if (safeData.length > 0) {
+          this.offsetId = safeData[0]?.OFFSET_ID;
+          this.billScheduleSummaryDisplayedColumns = Object.keys(safeData[0]);
           const index =
             this.billScheduleSummaryDisplayedColumns.indexOf('OFFSET_ID');
           if (index > -1) {
             this.billScheduleSummaryDisplayedColumns.splice(index, 1);
           }
+          this.billScheduleSummaryDataSource = new MatTableDataSource(safeData);
+
+          // Only call getBillSchedule if we have an offsetId
+          if (this.offsetId) {
+            this.getBillSchedule(this.offsetId);
+          } else {
+            // No offsetId means no bill schedule data
+            this.billScheduleDataSource = new MatTableDataSource([]);
+            this.billScheduleDataLoaded = true;
+          }
+        } else {
+          // No header data available
+          this.billScheduleSummaryDataSource = new MatTableDataSource([]);
+          this.billScheduleDataSource = new MatTableDataSource([]);
+          this.billScheduleDataLoaded = true;
         }
-        this.billScheduleSummaryDataSource = new MatTableDataSource(data);
-        this.getBillSchedule(this.offsetId);
+
+        this.billScheduleLoaded = true;
       });
   }
 
@@ -135,32 +151,38 @@ export class O2cBillScheduleComponent {
         params: { offsetId: [offsetId] },
       })
       .subscribe((data: any) => {
-        console.log('Bill Schedules:', data);
-        if (data.length > 0) {
-          this.billScheduleDisplayedColumns = Object.keys(data[0]);
+        const safeData = data || [];
+        if (safeData.length > 0) {
+          this.billScheduleDisplayedColumns = Object.keys(safeData[0]);
           const index = this.billScheduleDisplayedColumns.indexOf('OFFSET_ID');
           if (index > -1) {
             this.billScheduleDisplayedColumns.splice(index, 1);
           }
         }
-        this.billScheduleDataSource = new MatTableDataSource(data);
+        this.billScheduleDataSource = new MatTableDataSource(safeData);
+        this.billScheduleDataLoaded = true;
       });
   }
 
   getBillScheduleLines(element: any): void {
-    console.log('Fetching bill schedule lines for element:', element);
     const offsetId = element['OFFSET_ID'];
     const billDate = this.datePipe.transform(
       element['BILL_DATE'],
       'MM/dd/yyyy'
     );
+
     this.http
       .get('sbp-bill-schedule-lines', this.destroyManager, {
         params: { offsetId: [offsetId], billDate: [billDate] },
       })
       .subscribe((data: any) => {
-        console.log('Bill Schedule Lines:', data);
-        this.navigateToBillDetails(data);
+        const safeData = data || [];
+        if (safeData.length > 0) {
+          this.navigateToBillDetails(safeData);
+        } else {
+          console.warn('No bill schedule lines available for this element');
+          alert('No detailed billing information available for this date.');
+        }
       });
   }
 
@@ -209,13 +231,6 @@ export class O2cBillScheduleComponent {
     fileName: string = 'ExportedData',
     sheetName: string = 'Data'
   ): void {
-    if (!data?.length) {
-      console.warn('No data to export');
-      return;
-    }
-
-    console.log('Exporting data:', data);
-
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = {
       Sheets: { [sheetName]: worksheet },
@@ -232,14 +247,11 @@ export class O2cBillScheduleComponent {
   handleShare(): void {
     const url = window.location.href;
     if (navigator.share) {
-      navigator
-        .share({
-          title: 'O2C View All Dashboard',
-          text: 'Check out this data dashboard',
-          url,
-        })
-        .then(() => console.log('Share successful'))
-        .catch((err) => console.error('Error sharing:', err));
+      navigator.share({
+        title: 'O2C View All Dashboard',
+        text: 'Check out this data dashboard',
+        url,
+      });
     } else {
       navigator.clipboard
         .writeText(url)
@@ -263,9 +275,11 @@ export class O2cBillScheduleComponent {
     console.log('Navigating to bill details with data:', rowData);
     this.router.navigate(['/o2c-bill-details'], {
       state: {
+        billNumber: this.billNum,
         billData: rowData,
-        orderId: rowData['WEB_ORDER_ID'],
-        subRefId: rowData['SUBSCRIPTION_REF_ID'],
+        orderId: this.billScheduleSummaryDataSource.data[0]?.WEB_ORDER_ID,
+        subRefId:
+          this.billScheduleSummaryDataSource.data[0]?.SUBSCRIPTION_REF_ID,
         circleStatus: this.circleStatus,
         summaryTableData: this.billScheduleSummaryDataSource.data,
       },

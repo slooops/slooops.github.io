@@ -285,6 +285,7 @@ button.link-button:hover .ccw-button-text {
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  overflow-x: auto;
 }
 
 .o2c-container {
