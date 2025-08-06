@@ -72,7 +72,7 @@ export class O2cViewAllComponent implements OnInit {
   financialSummaryDataSource = new MatTableDataSource<any>([]);
   financialSummaryDisplayedColumns: string[] = [
     'ORDER_TSV',
-    'TOTAL_SUBSCRIPTION_TSV',
+    // 'TOTAL_SUBSCRIPTION_TSV',
     'BILLING_MODEL',
     'BILLED',
     'UNBILLED',
@@ -85,33 +85,10 @@ export class O2cViewAllComponent implements OnInit {
   subscriptionSummaryDisplayedColumns: string[] = [];
   subscriptionSummaryDataSource = new MatTableDataSource<any>();
 
-  subscriptionLinesDisplayedColumns: string[] = [
-    'WEBORDER_LINEID',
-    'SKU_DESCRIPTION',
-    'CHARGE_TYPE',
-    'QTY',
-    'UNIT_SELLING_PRICE',
-    'DURATION',
-    'LINE_AMOUNT',
-    'BILL_LINE_REFERENCE',
-    'CHARGE_CYCLE',
-    'TSV_CREATED',
-    'POSTED_TO_GL',
-    'GL_DATE',
-  ];
+  subscriptionLinesDisplayedColumns: string[] = [];
   subscriptionLinesDataSource = new MatTableDataSource<any>();
 
-  invoiceSummaryDisplayedColumns: string[] = [
-    'TRANSACTION_NUMBER',
-    'TRANSACTION_CLASS',
-    'TRANSACTION_DATE',
-    'DUE_DATE',
-    'STATUS',
-    'AMOUNT_DUE_ORIGINAL',
-    'AMOUNT_DUE_REMAINING',
-    'BILL_NUMBER',
-    'OTHER_DETAILS',
-  ];
+  invoiceSummaryDisplayedColumns: string[] = [];
   displayedColumnsInvoicePrintStatus: string[] = [
     'INVOICE_DELIVERY_METHOD',
     'PRINT_DATE',
@@ -135,25 +112,7 @@ export class O2cViewAllComponent implements OnInit {
   ];
   invoiceSummaryDataSource = new MatTableDataSource<any>();
 
-  invoiceLinesDisplayedColumns: string[] = [
-    'LINE_NUMBER', // Trx Line#
-    'SKU',
-    'DESCRIPTION', // SKU Description
-    'QTY',
-    'UNIT_SELLING_PRICE',
-    'LINE_AMOUNT',
-    'TAX_AMOUNT',
-    'EXTENDED_AMOUNT', // Extended Line Amount (Including Tax)
-    'SUBSCRIPTION_ID',
-    'CHARGE_CYCLE_START_DATE',
-    'CHARGE_CYCLE_END_DATE',
-    'BRM_BILL_NUMBER', // Updated from BILL_NUMBER
-    'BRM_BILL_LINE_NUMBER', // Updated from BILL_LINE_NUMBER
-    'PREVIOUS_BILL_NUMBER',
-    'PREVIOUS_BILL_LINE_NUMBER',
-    'POSTED_TO_GL',
-    'GL_DATE',
-  ];
+  invoiceLinesDisplayedColumns: string[] = [];
   invoiceLinesDataSource = new MatTableDataSource<any>();
   invoiceLinesFilteredDataSource = new MatTableDataSource<any>();
   invoiceSummaryModalDataSource = new MatTableDataSource<any>();
@@ -208,17 +167,19 @@ export class O2cViewAllComponent implements OnInit {
     const navState = this.location.getState() as {
       defaultTab?: string;
       defaultTransactionNumber?: string;
-      defaultSubscriptionId?: string; // Add this line
+      defaultSubscriptionId?: string;
       orderData?: any[];
       financialData?: any[];
 
       subscriptionData?: any[];
       subscriptionColumns?: string[];
       subscriptionLineData?: any[];
+      subscriptionLineColumns?: string[]; // Add this
 
       invoiceData?: any[];
       invoiceColumns?: string[];
       invoiceLineData?: any[];
+      invoiceLineColumns?: string[]; // Add this
 
       circleStatus?: { [key: string]: number };
     };
@@ -239,8 +200,11 @@ export class O2cViewAllComponent implements OnInit {
         this.subscriptionSummaryDataSource.data[0]?.SUBSCRIPTION_ID;
       this.subscriptionLinesDataSource.data = navState.subscriptionLineData;
 
+      // Use the already-processed columns from o2c-360
+      this.subscriptionLinesDisplayedColumns =
+        navState.subscriptionLineColumns || [];
+
       this.originalSubscriptionLinesData = [...navState.subscriptionLineData];
-      // Handle subscription line specific view
       if (navState.defaultSubscriptionId) {
         this.toggleSubscriptionLinesTable(navState.defaultSubscriptionId);
       }
@@ -250,12 +214,16 @@ export class O2cViewAllComponent implements OnInit {
       this.originalInvoiceSummaryData = [...navState.invoiceData];
       this.invoiceSummaryDataSource.data = navState.invoiceData;
       this.invoiceSummaryDisplayedColumns = navState.invoiceColumns || [];
+
       this.invoiceId =
         this.invoiceSummaryDataSource.data[0]?.TRANSACTION_NUMBER;
       const sortedData = navState.invoiceLineData
         .slice()
         .sort((a: any, b: any) => (a.LINE_NUMBER ?? 0) - (b.LINE_NUMBER ?? 0));
       this.invoiceLinesDataSource.data = sortedData;
+
+      // Use the already-processed columns from o2c-360
+      this.invoiceLinesDisplayedColumns = navState.invoiceLineColumns || [];
 
       this.originalInvoiceLinesData = [...sortedData];
 
@@ -332,19 +300,12 @@ export class O2cViewAllComponent implements OnInit {
 
   toggleInvoiceLinesTable(TransactionNumber: string): void {
     this.invoiceLinesFiltered = true;
-
-    // console.log('Bill Number:', TransactionNumber);
-    // console.log('Invoice Lines Data Source:', this.invoiceLinesDataSource.data);
-
     this.selectedTransactionNumber = TransactionNumber;
 
     const filteredLines = this.invoiceLinesDataSource.data.filter(
       (line) => line.TRANSACTION_NUMBER === TransactionNumber
     );
 
-    // console.log('Filtered Lines:', filteredLines);
-
-    console.log('filtred Invoice Lines Data:', filteredLines);
     this.filteredOriginalInvoiceLinesData = [...filteredLines];
     this.invoiceLinesFilteredDataSource.data = filteredLines;
     this.showInvoiceLines = true;
@@ -352,20 +313,12 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   toggleSubscriptionLinesTable(subscriptionId: string): void {
-    // console.log('Subscription ID:', subscriptionId);
-    // console.log(
-    //   'Subscription Lines Data Source:',
-    //   this.subscriptionLinesDataSource.data
-    // );
-
     this.subscriptionLinesFiltered = true;
     this.selectedSubscriptionId = subscriptionId;
 
     const filteredLines = this.subscriptionLinesDataSource.data.filter(
       (line) => line.SUBSCRIPTION_REF_ID === subscriptionId
     );
-
-    // console.log('Filtered Subscription Lines:', filteredLines);
 
     this.filteredOriginalSubscriptionLinesData = [...filteredLines];
     this.subscriptionLinesDataSource.data = filteredLines;
@@ -425,28 +378,6 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   navigateToTsv(rowData: any): void {
-    // console.log('Navigating to TSV with row data:', rowData);
-    // console.log('Order data to pass:', this.orderSummaryDataSource.data);
-    // console.log(
-    //   'Financial data to pass:',
-    //   this.financialSummaryDataSource.data
-    // );
-
-    // Check if the data sources have data before navigating
-    if (
-      !this.orderSummaryDataSource.data ||
-      this.orderSummaryDataSource.data.length === 0
-    ) {
-      console.warn('Order data is empty');
-    }
-
-    if (
-      !this.financialSummaryDataSource.data ||
-      this.financialSummaryDataSource.data.length === 0
-    ) {
-      console.warn('Financial data is empty');
-    }
-
     this.router.navigate(['/o2c-tsv'], {
       state: {
         rowData: rowData,
@@ -461,13 +392,6 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   navigateToGl(rowData: any): void {
-    // console.log('Navigating to GL with row data:', rowData);
-    // console.log('Order data to pass:', this.orderSummaryDataSource.data);
-    // console.log(
-    //   'Financial data to pass:',
-    //   this.financialSummaryDataSource.data
-    // );
-
     this.router.navigate(['/o2c-gl'], {
       state: {
         rowData: rowData,

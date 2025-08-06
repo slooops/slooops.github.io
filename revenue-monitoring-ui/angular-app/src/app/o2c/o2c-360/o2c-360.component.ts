@@ -102,17 +102,7 @@ export class O2c360Component implements OnInit {
   subscriptionSummaryDisplayedColumns: string[] = [];
   subscriptionSummaryDataSource = new MatTableDataSource<any>();
 
-  invoiceSummaryDisplayedColumns: string[] = [
-    'TRANSACTION_NUMBER',
-    'TRANSACTION_CLASS',
-    'TRANSACTION_DATE',
-    'DUE_DATE',
-    'STATUS',
-    'AMOUNT_DUE_ORIGINAL',
-    'AMOUNT_DUE_REMAINING',
-    'BILL_NUMBER',
-    'OTHER_DETAILS',
-  ];
+  invoiceSummaryDisplayedColumns: string[] = [];
   displayedColumnsInvoicePrintStatus: string[] = [
     'INVOICE_DELIVERY_METHOD',
     'PRINT_DATE',
@@ -137,22 +127,10 @@ export class O2c360Component implements OnInit {
   invoiceSummaryDataSource = new MatTableDataSource<any>();
   invoiceSummaryModalDataSource = new MatTableDataSource<any>();
 
-  subscriptionLinesDisplayedColumns: string[] = [
-    'WEBORDER_LINEID',
-    'SKU_DESCRIPTION',
-    'CHARGE_TYPE',
-    'QTY',
-    'UNIT_SELLING_PRICE',
-    'DURATION',
-    'LINE_AMOUNT',
-    'BILL_LINE_REFERENCE',
-    'CHARGE_CYCLE',
-    'TSV_CREATED',
-    'POSTED_TO_GL',
-    'GL_DATE',
-  ];
+  subscriptionLinesDisplayedColumns: string[] = [];
   subscriptionLinesDataSource = new MatTableDataSource<any>();
 
+  invoiceLinesDisplayedColumns: string[] = [];
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
   financialDataLoaded: true;
@@ -341,7 +319,13 @@ export class O2c360Component implements OnInit {
         if (Array.isArray(data) && data.length > 0) {
           this.subscriptionSummaryDisplayedColumns = this.removeColumns(
             Object.keys(data[0]),
-            ['TERM_START_DATE', 'TERM_END_DATE', 'LAST_UPDATE_DATE', 'RUN_DATE']
+            [
+              'TERM_START_DATE',
+              'TERM_END_DATE',
+              'LAST_UPDATE_DATE',
+              'RUN_DATE',
+              'BILLING_FREQ_TYPE',
+            ]
           );
         } else {
           this.subscriptionSummaryDisplayedColumns = [];
@@ -369,6 +353,27 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Subscription Lines:', data);
+
+        if (Array.isArray(data) && data.length > 0) {
+          this.subscriptionLinesDisplayedColumns = this.removeColumns(
+            Object.keys(data[0]),
+            [
+              'CHARGE_CYCLE_FROM',
+              'CHARGE_CYCLE_TO',
+              'OBJ_ID0',
+              'SUBSCRIPTION_REF_ID',
+              'SUBSCRIPTION_NO',
+              'WEB_ORDER_ID',
+              'LAST_UPDATE_DATE',
+              'RUN_DATE',
+              'SKU',
+              'INVOICE_STATUS',
+            ]
+          );
+        } else {
+          this.subscriptionLinesDisplayedColumns = [];
+        }
+
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
         if (this.sortColumn) {
           this.sortTable(this.sortColumn);
@@ -408,6 +413,32 @@ export class O2c360Component implements OnInit {
         // console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
         this.originalInvoiceSummaryData = [...data];
 
+        if (Array.isArray(data) && data.length > 0) {
+          this.invoiceSummaryDisplayedColumns = this.removeColumns(
+            Object.keys(data[0]),
+            [
+              'TRX_TYPE',
+              'INVOICE_DELIVERY_METHOD',
+              'PRINT_DATE',
+              'PRINT_STATUS',
+              'EMAIL_ADDRESS',
+              'SFTP',
+              'B2B',
+              'SRT_CONTACT_EMAIL',
+              'EINVOICING_STATUS',
+              'IRN_UUID',
+              'IRN_UUID_DATE',
+              'PREVIOUS_IRN_UUID',
+              'COLLECTOR',
+              'RECEIPT_APPLIED',
+              'CM_APPLIED',
+              'WRITEOFF_ADJUSTMENTS',
+            ]
+          );
+        } else {
+          this.invoiceSummaryDisplayedColumns = [];
+        }
+
         this.invoiceSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[2].count = data.length;
 
@@ -432,6 +463,33 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
+
+        if (Array.isArray(data) && data.length > 0) {
+          this.invoiceLinesDisplayedColumns = this.removeColumns(
+            Object.keys(data[0]),
+            [
+              'CUSTOMER_TRX_ID',
+              'CUSTOMER_TRX_LINE_ID',
+              'RULE_START_DATE',
+              'RULE_END_DATE',
+              // 'BRM_BILL_NUMBER',
+              // 'BRM_BILL_LINE_NUMBER',
+              // 'PREVIOUS_BILL_NUMBER',
+              // 'PREVIOUS_BILL_LINE_NUMBER',
+              'UNIQUE_ID',
+              'LAST_UPDATE_DATE',
+              'WEB_ORDER_ID',
+              'RUN_DATE',
+              'OA_FLAG',
+              'SUBSCRIPTION_NUMBER',
+              'BATCH_SOURCE',
+              'TRANSACTION_NUMBER',
+            ]
+          );
+        } else {
+          this.invoiceLinesDisplayedColumns = [];
+        }
+
         this.invoiceLinesDataSource = new MatTableDataSource(data);
         this.invoiceLinesDataLoaded = true;
       });
@@ -585,7 +643,6 @@ export class O2c360Component implements OnInit {
     this.router.navigate(['/o2c-view-all'], {
       state: {
         defaultTab: type,
-        // Pass the ID based on the type
         defaultTransactionNumber: isInvoice ? id : undefined,
         defaultSubscriptionId: isSubscription ? id : undefined,
 
@@ -595,10 +652,12 @@ export class O2c360Component implements OnInit {
         subscriptionData: this.subscriptionSummaryDataSource.data,
         subscriptionColumns: this.subscriptionSummaryDisplayedColumns,
         subscriptionLineData: this.subscriptionLinesDataSource?.data || [],
+        subscriptionLineColumns: this.subscriptionLinesDisplayedColumns, // Add this
 
         invoiceData: this.invoiceSummaryDataSource.data,
         invoiceColumns: this.invoiceSummaryDisplayedColumns,
         invoiceLineData: this.invoiceLinesDataSource?.data || [],
+        invoiceLineColumns: this.invoiceLinesDisplayedColumns, // Add this
 
         circleStatus: this.circleStatus,
       },
