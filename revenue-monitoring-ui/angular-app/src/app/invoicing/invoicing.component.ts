@@ -676,6 +676,11 @@ export class InvoicingComponent implements OnInit {
       component: 'app-credit-card-check',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
+    {
+      label: 'CMS',
+      component: 'app-cms',
+      role: ['ADMIN', 'CMS'],
+    },
   ];
 
   selectedIndex: number = 0;
