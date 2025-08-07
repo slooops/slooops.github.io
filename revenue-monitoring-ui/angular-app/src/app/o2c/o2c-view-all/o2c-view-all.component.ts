@@ -87,6 +87,7 @@ export class O2cViewAllComponent implements OnInit {
 
   subscriptionLinesDisplayedColumns: string[] = [];
   subscriptionLinesDataSource = new MatTableDataSource<any>();
+  subscriptionLinesFilteredDataSource = new MatTableDataSource<any>();
 
   invoiceSummaryDisplayedColumns: string[] = [];
   displayedColumnsInvoicePrintStatus: string[] = [
@@ -123,6 +124,8 @@ export class O2cViewAllComponent implements OnInit {
   originalInvoiceLinesData: any[] = [];
   filteredOriginalInvoiceLinesData: any[] = [];
   invoiceLinesFiltered: boolean = false;
+  originalSubscriptionSummaryData: any[] = [];
+  filteredOriginalSubscriptionSummaryData: any[] = [];
   originalSubscriptionLinesData: any[] = [];
   filteredOriginalSubscriptionLinesData: any[] = [];
   subscriptionLinesFiltered: boolean = false;
@@ -193,18 +196,24 @@ export class O2cViewAllComponent implements OnInit {
     }
 
     if (navState?.subscriptionData) {
+      this.originalSubscriptionSummaryData = [...navState.subscriptionData];
       this.subscriptionSummaryDataSource.data = navState.subscriptionData;
       this.subscriptionSummaryDisplayedColumns =
         navState.subscriptionColumns || [];
+
       this.subscriptionId =
         this.subscriptionSummaryDataSource.data[0]?.SUBSCRIPTION_ID;
-      this.subscriptionLinesDataSource.data = navState.subscriptionLineData;
+      const sortedData = navState.subscriptionLineData
+        .slice()
+        .sort((a: any, b: any) => (a.LINE_NUMBER ?? 0) - (b.LINE_NUMBER ?? 0));
+      this.subscriptionLinesDataSource.data = sortedData;
 
       // Use the already-processed columns from o2c-360
       this.subscriptionLinesDisplayedColumns =
         navState.subscriptionLineColumns || [];
 
-      this.originalSubscriptionLinesData = [...navState.subscriptionLineData];
+      this.originalSubscriptionLinesData = [...sortedData];
+
       if (navState.defaultSubscriptionId) {
         this.toggleSubscriptionLinesTable(navState.defaultSubscriptionId);
       }
@@ -309,7 +318,7 @@ export class O2cViewAllComponent implements OnInit {
     this.filteredOriginalInvoiceLinesData = [...filteredLines];
     this.invoiceLinesFilteredDataSource.data = filteredLines;
     this.showInvoiceLines = true;
-    this.showSubscriptionLines = true;
+    this.showSubscriptionLines = false;
   }
 
   toggleSubscriptionLinesTable(subscriptionId: string): void {
@@ -317,11 +326,13 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedSubscriptionId = subscriptionId;
 
     const filteredLines = this.subscriptionLinesDataSource.data.filter(
-      (line) => line.SUBSCRIPTION_REF_ID === subscriptionId
+      (line) =>
+        line.SUBSCRIPTION_REF_ID === subscriptionId ||
+        line.SUBSCRIPTION_ID === subscriptionId
     );
 
     this.filteredOriginalSubscriptionLinesData = [...filteredLines];
-    this.subscriptionLinesDataSource.data = filteredLines;
+    this.subscriptionLinesFilteredDataSource.data = filteredLines;
     this.showSubscriptionLines = true;
     this.showInvoiceLines = false;
   }

@@ -342,7 +342,7 @@
           class="toolbar-btn"
           (click)="
             handleDownload(
-              subscriptionLinesDataSource.data,
+              subscriptionLinesFilteredDataSource.data,
               'O2C 360 Subscription Lines - ' + orderId,
               'Subscription Lines'
             )
@@ -362,7 +362,7 @@
       <div class="table-banner">
         <div class="order-info accordion-header">
           Subscription Line Details -
-          {{ subscriptionLinesDataSource.data.length }}
+          {{ subscriptionLinesFilteredDataSource.data.length }}
         </div>
       </div>
       <div class="accordion-content o2c-card">
@@ -622,7 +622,7 @@
                     >
                       {{ element[column] | currency : "USD" : "" }}
                     </ng-container>
-
+                    <!-- 
                     <ng-container *ngSwitchCase="'POSTED_TO_GL'">
                       <button
                         class="link-button"
@@ -630,7 +630,8 @@
                       >
                         {{ element[column] }}
                       </button>
-                    </ng-container>
+                    </ng-container> -->
+
                     <ng-container *ngSwitchDefault>
                       {{
                         column === "GL_DATE"
@@ -669,11 +670,11 @@
   <div class="invoice-summary-table">
     <ng-container
       *ngIf="
-        subscriptionLinesDataSource.data.length > 0;
+        subscriptionLinesFilteredDataSource.data.length > 0;
         else noSubscriptionLineData
       "
     >
-      <table mat-table [dataSource]="subscriptionLinesDataSource">
+      <table mat-table [dataSource]="subscriptionLinesFilteredDataSource">
         <ng-container
           *ngFor="let column of subscriptionLinesDisplayedColumns"
           [matColumnDef]="column"
@@ -739,16 +740,37 @@
 
               <!-- TSV_CREATED clickable link -->
               <ng-container *ngSwitchCase="'TSV_CREATED'">
-                <button class="link-button" (click)="navigateToTsv(element)">
-                  {{ element[column] }}
-                </button>
+                <ng-container
+                  *ngIf="
+                    element[column]?.toLowerCase() === 'y' ||
+                      element[column]?.toLowerCase() === 'yes';
+                    else nonClickableTsv
+                  "
+                >
+                  <button class="link-button" (click)="navigateToTsv(element)">
+                    {{ element[column] }}
+                  </button>
+                </ng-container>
+                <ng-template #nonClickableTsv>
+                  <span>{{ element[column] }}</span>
+                </ng-template>
               </ng-container>
 
               <!-- POSTED_TO_GL clickable link -->
-              <ng-container *ngSwitchCase="'POSTED_TO_GL'">
+              <!-- <ng-container *ngSwitchCase="'POSTED_TO_GL'">
                 <button class="link-button" (click)="navigateToGl(element)">
                   {{ element[column] }}
                 </button>
+              </ng-container> -->
+
+              <ng-container *ngSwitchCase="'SUBSCRIPTION_REF_ID'">
+                <a
+                  (click)="
+                    toggleSubscriptionLinesTable(element['SUBSCRIPTION_REF_ID'])
+                  "
+                >
+                  {{ element[column] }}
+                </a>
               </ng-container>
 
               <!-- Default case for other columns -->

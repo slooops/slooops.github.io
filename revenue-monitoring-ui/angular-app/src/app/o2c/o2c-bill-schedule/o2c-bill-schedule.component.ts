@@ -151,6 +151,7 @@ export class O2cBillScheduleComponent {
         params: { offsetId: [offsetId] },
       })
       .subscribe((data: any) => {
+        console.log('Bill schedule data:', data);
         const safeData = data || [];
         if (safeData.length > 0) {
           this.billScheduleDisplayedColumns = Object.keys(safeData[0]);
@@ -261,11 +262,11 @@ export class O2cBillScheduleComponent {
   }
 
   isBilledLate(element: any): boolean {
-    if (!element['BILLED_ON_DATE'] || !element['BILL_DATE']) {
+    if (!element['INVOICED_DATE'] || !element['BILL_DATE']) {
       return false;
     }
 
-    const billedDate = new Date(element['BILLED_ON_DATE']);
+    const billedDate = new Date(element['INVOICED_DATE']);
     const scheduledDate = new Date(element['BILL_DATE']);
 
     return billedDate > scheduledDate;

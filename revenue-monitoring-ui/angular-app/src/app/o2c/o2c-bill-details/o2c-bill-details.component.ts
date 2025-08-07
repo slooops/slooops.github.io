@@ -186,15 +186,4 @@ export class O2cBillDetailsComponent {
 
     XLSX.writeFile(workbook, `${fileName}.xlsx`);
   }
-
-  isBilledLate(element: any): boolean {
-    if (!element['BILLED_ON_DATE'] || !element['BILL_DATE']) {
-      return false;
-    }
-
-    const billedDate = new Date(element['BILLED_ON_DATE']);
-    const scheduledDate = new Date(element['BILL_DATE']);
-
-    return billedDate > scheduledDate;
-  }
 }

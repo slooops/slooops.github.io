@@ -303,7 +303,6 @@
         }}
 
         <button
-          *ngIf="subscriptionSummaryDataSource?.data?.length > 5"
           class="view-all-button"
           [ngClass]="{
             disabled: !allDataLoaded
@@ -338,7 +337,10 @@
                         class="link-button"
                         [disabled]="!allDataLoaded"
                         [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
-                        (click)="allDataLoaded && viewAll('subscriptions')"
+                        (click)="
+                          allDataLoaded &&
+                            viewAll('subscriptions', element['SUBSCRIPTION_ID'])
+                        "
                       >
                         <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
                           {{ element[column] }}
@@ -441,7 +443,6 @@
             : "No Data"
         }}
         <button
-          *ngIf="invoiceSummaryDataSource?.data?.length > 5"
           class="view-all-button"
           [ngClass]="{ disabled: !allDataLoaded }"
           [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"

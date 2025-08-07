@@ -182,14 +182,6 @@
                     </span>
                   </ng-container>
 
-                  <ng-container *ngSwitchCase="'BILLED_ON_DATE'">
-                    <span
-                      [ngClass]="isBilledLate(element) ? 'late-billing' : ''"
-                    >
-                      {{ element[column] | date : "MM/dd/yyyy" }}
-                    </span>
-                  </ng-container>
-
                   <ng-container *ngSwitchDefault>
                     {{
                       column === "BILL_DATE"

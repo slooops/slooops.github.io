@@ -652,12 +652,12 @@ export class O2c360Component implements OnInit {
         subscriptionData: this.subscriptionSummaryDataSource.data,
         subscriptionColumns: this.subscriptionSummaryDisplayedColumns,
         subscriptionLineData: this.subscriptionLinesDataSource?.data || [],
-        subscriptionLineColumns: this.subscriptionLinesDisplayedColumns, // Add this
+        subscriptionLineColumns: this.subscriptionLinesDisplayedColumns,
 
         invoiceData: this.invoiceSummaryDataSource.data,
         invoiceColumns: this.invoiceSummaryDisplayedColumns,
         invoiceLineData: this.invoiceLinesDataSource?.data || [],
-        invoiceLineColumns: this.invoiceLinesDisplayedColumns, // Add this
+        invoiceLineColumns: this.invoiceLinesDisplayedColumns,
 
         circleStatus: this.circleStatus,
       },
