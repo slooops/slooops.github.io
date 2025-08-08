@@ -74,17 +74,7 @@ export class O2cViewAllComponent implements OnInit {
 
   financialDataLoaded: any;
   financialSummaryDataSource = new MatTableDataSource<any>([]);
-  financialSummaryDisplayedColumns: string[] = [
-    'ORDER_TSV',
-    // 'TOTAL_SUBSCRIPTION_TSV',
-    'BILLING_MODEL',
-    'BILLED',
-    'UNBILLED',
-    'REVENUE_RECOGNITION',
-    'REVENUE_TO_BE_RECOGNIZED',
-    'CASH',
-    'actions',
-  ];
+  financialSummaryDisplayedColumns: string[] = [];
 
   subscriptionSummaryDisplayedColumns: string[] = [];
   subscriptionSummaryDataSource = new MatTableDataSource<any>();
@@ -253,6 +243,9 @@ export class O2cViewAllComponent implements OnInit {
     }
 
     if (navState?.financialData) {
+      this.financialSummaryDisplayedColumns = Object.keys(
+        navState.financialData[0] || {}
+      );
       this.financialSummaryDataSource.data = navState.financialData;
     }
   }
