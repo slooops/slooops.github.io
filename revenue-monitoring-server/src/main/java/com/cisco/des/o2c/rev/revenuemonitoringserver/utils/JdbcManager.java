@@ -40,8 +40,11 @@ public class JdbcManager {
 //        if (!allowedFields.contains(field)) {
 //            throw new IllegalArgumentException("Invalid field name");
 //        }
-        String query = sql + "WHERE " + field + "=?";
-        System.out.println(query);
+        String condition = "WHERE 1=1 and ";
+        if(field.equals("SUBSCRIPTION_REF_ID")) {
+            condition = "WHERE 1=1 and latest_flag='Y' and ";
+        }
+        String query = sql + condition + field + "=?";
         return primaryJdbcTemplate.queryForList(query, value);
     }
 
