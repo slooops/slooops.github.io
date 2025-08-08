@@ -57,14 +57,14 @@ public class O2CMonitoringService {
         return result;
     }
 
-    public List<Map<String, Object>> getSubscriptionSummary(String subscriptionId) {
-        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionSummary(subscriptionSummary, subscriptionId);
+    public List<Map<String, Object>> getSubscriptionSummary(String subscriptionId, String subscriptionCode) {
+        List<Map<String, Object>> result = jdbcManager.o2cSubscriptionSummary(subscriptionSummary, subscriptionId, subscriptionCode);
         return result;
     }
 
-    public List<Map<String, Object>> getSubscriptionLineSummary(String subscriptionId) {
+    public List<Map<String, Object>> getSubscriptionLineSummary(String subscriptionId, String subscriptionCode) {
         List<Map<String, Object>> result = jdbcManager.o2cSubscriptionLineSummary(subscriptionLineSummary,
-                subscriptionId);
+                subscriptionId, subscriptionCode);
         return result;
     }
 

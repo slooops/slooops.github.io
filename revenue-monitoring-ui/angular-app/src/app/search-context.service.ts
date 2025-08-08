@@ -6,6 +6,7 @@ export interface O2cSearchResult {
   orderId: string;
   subRefIds: string[];
   invoiceIds: string[];
+  subCodes: string[];
 }
 
 @Injectable({ providedIn: 'root' })

@@ -34,6 +34,7 @@ export class O2c360Component implements OnInit {
   orderId: string = '';
   subRefIds: string[] = [];
   invoiceIds: string[] = [];
+  subCodes: string[] = [];
 
   showDetailsModal = false;
   orderExceptionMessage: string = '';
@@ -173,8 +174,9 @@ export class O2c360Component implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['searchParams']?.currentValue) {
-      const { searchType, orderId, subRefIds, invoiceIds } = this.searchParams!;
-      this.loadData(orderId, subRefIds, invoiceIds);
+      const { searchType, orderId, subRefIds, invoiceIds, subCodes } =
+        this.searchParams!;
+      this.loadData(orderId, subRefIds, invoiceIds, subCodes);
 
       this.showWelcomeOverlay = false;
       console.log('show overlay from ng on changes:', this.showWelcomeOverlay);
@@ -223,8 +225,9 @@ export class O2c360Component implements OnInit {
         const orderId = params.get('orderId') || 'Search to get an';
         const subRefIds = params.get('subRefIds')?.split(',') || [''];
         const invoiceIds = params.get('invoiceIds')?.split(',') || [];
+        const subCodes = params.get('subCodes')?.split(',') || [];
 
-        this.loadData(orderId, subRefIds, invoiceIds);
+        this.loadData(orderId, subRefIds, invoiceIds, subCodes);
 
         this.showWelcomeOverlay =
           !this.router.url.includes('?searchType=') &&
@@ -243,15 +246,17 @@ export class O2c360Component implements OnInit {
   private loadData(
     orderId: string,
     subRefIds: string[],
-    invoiceIds: string[]
+    invoiceIds: string[],
+    subCodes: string[]
   ): void {
     this.orderId = orderId || 'Search to get an';
     this.subRefIds = subRefIds;
     this.invoiceIds = invoiceIds;
+    this.subCodes = subCodes;
 
     this.getOrderSummary([orderId]);
-    this.getSubscriptionSummary(subRefIds);
-    this.getSubscriptionLineSummary(subRefIds);
+    this.getSubscriptionSummary(subRefIds, subCodes);
+    this.getSubscriptionLineSummary(subRefIds, subCodes);
     this.getInvoiceSummary(invoiceIds);
     this.getInvoiceLineSummary(invoiceIds);
   }
@@ -289,7 +294,7 @@ export class O2c360Component implements OnInit {
       });
   }
 
-  private getSubscriptionSummary(subRefIds: any): void {
+  private getSubscriptionSummary(subRefIds: any, subCodes: any): void {
     if (!subRefIds || !subRefIds.length || subRefIds[0] === '') {
       console.warn('No subscription IDs provided');
       this.subscriptionSummaryDataSource = new MatTableDataSource([]);
@@ -298,6 +303,7 @@ export class O2c360Component implements OnInit {
     }
     const payload = {
       subRefIds: subRefIds,
+      subCodes: subCodes,
     };
     this.http
       .get('subscription-summary', this.destroyManager, {
@@ -337,7 +343,7 @@ export class O2c360Component implements OnInit {
       });
   }
 
-  private getSubscriptionLineSummary(subRefIds: any): void {
+  private getSubscriptionLineSummary(subRefIds: any, subCodes: any): void {
     if (!subRefIds || !subRefIds.length || subRefIds[0] === '') {
       console.warn('No subscription IDs provided');
       this.subscriptionLinesDataSource = new MatTableDataSource([]);
@@ -346,6 +352,7 @@ export class O2c360Component implements OnInit {
     }
     const payload = {
       subRefIds: subRefIds,
+      subCodes: subCodes,
     };
     this.http
       .get('subscription-line-summary', this.destroyManager, {

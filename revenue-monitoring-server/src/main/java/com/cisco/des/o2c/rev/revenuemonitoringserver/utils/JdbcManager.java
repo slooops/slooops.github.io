@@ -49,8 +49,8 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, value);
     }
 
-    public List<Map<String, Object>> o2cSubscriptionSummary(String sql, String value) {
-        return primaryJdbcTemplate.queryForList(sql, value);
+    public List<Map<String, Object>> o2cSubscriptionSummary(String sql, String value, String code) {
+        return primaryJdbcTemplate.queryForList(sql, value, code);
     }
 
     public List<Map<String, Object>> o2cOrderSummary(String sql, String value) {
@@ -61,8 +61,8 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, value);
     }
 
-    public List<Map<String, Object>> o2cSubscriptionLineSummary(String sql, String value) {
-        return primaryJdbcTemplate.queryForList(sql, value);
+    public List<Map<String, Object>> o2cSubscriptionLineSummary(String sql, String value, String code) {
+        return primaryJdbcTemplate.queryForList(sql, value, code);
     }
 
     public List<Map<String, Object>> sbpBillScheduleHeader(String sql, String value) {

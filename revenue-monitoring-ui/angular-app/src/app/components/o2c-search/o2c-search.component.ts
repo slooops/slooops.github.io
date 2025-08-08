@@ -54,6 +54,7 @@ export class O2cSearchComponent {
       })
       .subscribe({
         next: (data: any) => {
+          console.log('Search results:', data);
           const orderIds: string[] = [
             ...new Set(
               data.map((r: any) => r.WEBORDER_ID).filter(Boolean) as string[]
@@ -63,6 +64,13 @@ export class O2cSearchComponent {
             ...new Set(
               data
                 .map((r: any) => r.SUBSCRIPTION_REF_ID)
+                .filter(Boolean) as string[]
+            ),
+          ];
+          const subCodes: string[] = [
+            ...new Set(
+              data
+                .map((r: any) => r.SUBSCRIPTION_CODE)
                 .filter(Boolean) as string[]
             ),
           ];
@@ -77,6 +85,7 @@ export class O2cSearchComponent {
             orderId: orderIds[0] || 'No Results ',
             subRefIds: subRefIds,
             invoiceIds: trxNumbers,
+            subCodes: subCodes,
           });
 
           const isTabbedView = this.router.url.includes('business-insights');
@@ -88,6 +97,7 @@ export class O2cSearchComponent {
                 orderId: orderIds[0],
                 subRefIds: subRefIds.join(','),
                 invoiceIds: trxNumbers.join(','),
+                subCodes: subCodes.join(','),
               },
             });
           }

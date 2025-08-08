@@ -75,14 +75,18 @@ public class O2CMonitoringController {
     }
 
     @GetMapping("/subscription-summary")
-    public ResponseEntity<List<Map<String, Object>>> getSubscriptionSummary(@RequestParam List<String> subRefIds) {
+    public ResponseEntity<List<Map<String, Object>>> getSubscriptionSummary(@RequestParam List<String> subRefIds, @RequestParam List<String> subCodes) {
         try {
             List<Map<String, Object>> details = new ArrayList<>();
-            int minLength = subRefIds.size();
+            int minLength = Math.min(subRefIds.size(), subCodes.size());
+
 
             for (int i = 0; i < minLength; i++) {
                 String value = subRefIds.get(i);
-                List<Map<String, Object>> result = service.getSubscriptionSummary(value);
+                String code = subCodes.get(i);
+                System.out.println(code);
+                System.out.println(value);
+                List<Map<String, Object>> result = service.getSubscriptionSummary(value, code);
                 details.addAll(result);
             }
 
@@ -94,14 +98,15 @@ public class O2CMonitoringController {
     }
 
     @GetMapping("/subscription-line-summary")
-    public ResponseEntity<List<Map<String, Object>>> getSubscriptionLineSummary(@RequestParam List<String> subRefIds) {
+    public ResponseEntity<List<Map<String, Object>>> getSubscriptionLineSummary(@RequestParam List<String> subRefIds, @RequestParam List<String> subCodes) {
         try {
             List<Map<String, Object>> details = new ArrayList<>();
-            int minLength = subRefIds.size();
+            int minLength = Math.min(subRefIds.size(), subCodes.size());
 
             for (int i = 0; i < minLength; i++) {
                 String value = subRefIds.get(i);
-                List<Map<String, Object>> result = service.getSubscriptionLineSummary(value);
+                String code = subCodes.get(i);
+                List<Map<String, Object>> result = service.getSubscriptionLineSummary(value, code);
                 details.addAll(result);
             }
             return new ResponseEntity<>(details, HttpStatus.OK);
