@@ -21,7 +21,6 @@ public class O2CMonitoringController {
 
     @GetMapping("/order-summary")
     public ResponseEntity<List<Map<String, Object>>> getOrderSummary(@RequestParam List<String> orderIds) {
-        System.out.println(orderIds);
         try {
             List<Map<String, Object>> details = new ArrayList<>();
             int minLength = orderIds.size();
@@ -38,39 +37,45 @@ public class O2CMonitoringController {
         }
     }
 
-    @GetMapping("/invoice-summary")
-    public ResponseEntity<List<Map<String, Object>>> getInvoiceSummary(@RequestParam List<String> invoiceIds) {
+    @PostMapping("/invoice-summary")
+    public ResponseEntity<List<Map<String, Object>>> getInvoiceSummary(@RequestBody Map<String, List<String>> request) {
         try {
-            List<Map<String, Object>> details = new ArrayList<>();
-            int minLength = invoiceIds.size();
+            List<String> invoiceIds = request.get("invoiceIds");
+            if (invoiceIds == null || invoiceIds.isEmpty()) {
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+            }
 
-            for (int i = 0; i < minLength; i++) {
-                String value = invoiceIds.get(i);
-                List<Map<String, Object>> result = service.getInvoiceSummary(value);
+            List<Map<String, Object>> details = new ArrayList<>();
+            for (String invoiceId : invoiceIds) {
+                List<Map<String, Object>> result = service.getInvoiceSummary(invoiceId);
                 details.addAll(result);
             }
             return new ResponseEntity<>(details, HttpStatus.OK);
 
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/invoice-line-summary")
-    public ResponseEntity<List<Map<String, Object>>> getInvoiceLineSummary(@RequestParam List<String> invoiceIds) {
+    @PostMapping("/invoice-line-summary")
+    public ResponseEntity<List<Map<String, Object>>> getInvoiceLineSummary(@RequestBody Map<String, List<String>> request) {
         try {
-            List<Map<String, Object>> details = new ArrayList<>();
-            int minLength = invoiceIds.size();
+            List<String> invoiceIds = request.get("invoiceIds");
+            if (invoiceIds == null || invoiceIds.isEmpty()) {
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+            }
 
-            for (int i = 0; i < minLength; i++) {
-                String value = invoiceIds.get(i);
-                List<Map<String, Object>> result = service.getInvoiceLineSummary(value);
+            List<Map<String, Object>> details = new ArrayList<>();
+            for (String invoiceId : invoiceIds) {
+                List<Map<String, Object>> result = service.getInvoiceLineSummary(invoiceId);
                 details.addAll(result);
             }
             return new ResponseEntity<>(details, HttpStatus.OK);
 
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -84,8 +89,6 @@ public class O2CMonitoringController {
             for (int i = 0; i < minLength; i++) {
                 String value = subRefIds.get(i);
                 String code = subCodes.get(i);
-                System.out.println(code);
-                System.out.println(value);
                 List<Map<String, Object>> result = service.getSubscriptionSummary(value, code);
                 details.addAll(result);
             }
@@ -149,7 +152,6 @@ public class O2CMonitoringController {
         } catch (Exception e) {
             return null;
         }
-
     }
 
     @GetMapping("/sbp-bill-schedule-lines")
@@ -180,5 +182,65 @@ public class O2CMonitoringController {
         String field = data.get("column");
         String value = data.get("value");
         return new ResponseEntity<>(service.getO2cConnectorData(field, value), HttpStatus.OK);
+    }
+
+    @PostMapping("/financial-summary")
+    public ResponseEntity<List<Map<String, Object>>> getFinancialSummary(@RequestBody Map<String, String> data) {
+        System.out.println(data);
+        String field = data.get("column");
+        String value = data.get("value");
+        return new ResponseEntity<>(service.callFinancialSummaryView(field, value), HttpStatus.OK);
+    }
+
+    @GetMapping("/tsv-pkg-proc")
+    public ResponseEntity<String> updateTsvPkgProc(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
+        try {
+            service.callTsvPkgProc(subscriptionIds, webOrderLineIds);
+            return new ResponseEntity<>("Updated", HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/tsv-top-sku")
+    public ResponseEntity<List<Map<String, Object>>> getTsvTopSku(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
+        try {
+            List<Map<String, Object>> details = new ArrayList<>();
+            System.out.println(subscriptionIds);
+            System.out.println(webOrderLineIds);
+            List<Map<String, Object>> result = service.callTsvTopSku(subscriptionIds, webOrderLineIds);
+            details.addAll(result);
+            return new ResponseEntity<>(details, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/tsv-sub-sku")
+    public ResponseEntity<List<Map<String, Object>>> getTsvSubSku(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
+        try {
+            List<Map<String, Object>> details = new ArrayList<>();
+            System.out.println(subscriptionIds);
+            System.out.println(webOrderLineIds);
+            List<Map<String, Object>> result = service.callTsvSubSku(subscriptionIds, webOrderLineIds);
+            details.addAll(result);
+            return new ResponseEntity<>(details, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/tsv-accounts")
+    public ResponseEntity<List<Map<String, Object>>> getTsvAccounts(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
+        try {
+            List<Map<String, Object>> details = new ArrayList<>();
+            System.out.println(subscriptionIds);
+            System.out.println(webOrderLineIds);
+            List<Map<String, Object>> result = service.callTsvAccounts(subscriptionIds, webOrderLineIds);
+            details.addAll(result);
+            return new ResponseEntity<>(details, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

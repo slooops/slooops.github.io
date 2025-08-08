@@ -1210,4 +1210,39 @@ public class QueryConfigs {
     @Bean( name = "sbpBillScheduleLines" )
     public String getSbpBillScheduleLines() {return this.sbpBillScheduleLines; }
 
+    @Value(("${financial.summary.pkg.proc}"))
+    public String financialSummaryPgkProc;
+
+    @Bean( name = "financialSummaryPgkProc" )
+    public String getFinancialSummaryPgkProc() {return this.financialSummaryPgkProc; }
+
+    @Value(("${tsv.pkg.proc}"))
+    public String tsvPkgProc;
+
+    @Bean( name = "tsvPkgProc" )
+    public String getTsvPkgProc() {return this.tsvPkgProc; }
+
+    @Value(("${tsv.top.sku.view}"))
+    public String tsvTopSku;
+
+    @Bean( name = "tsvTopSku" )
+    public String getTsvTopSku() {return this.tsvTopSku; }
+
+    @Value(("${tsv.sub.sku.view}"))
+    public String tsvSubSku;
+
+    @Bean( name = "tsvSubSku" )
+    public String getTsvSubSku() {return this.tsvSubSku; }
+
+    @Value(("${tsv.accounts.view}"))
+    public String tsvAccounts;
+
+    @Bean( name = "tsvAccounts" )
+    public String getTsvAccounts() {return this.tsvAccounts; }
+
+    @Value(("${financial.summary.view}"))
+    public String financialSummaryView;
+
+    @Bean( name = "financialSummaryView" )
+    public String getFinancialSummaryView() {return this.financialSummaryView; }
 }

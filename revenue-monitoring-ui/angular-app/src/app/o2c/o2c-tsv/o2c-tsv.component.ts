@@ -4,11 +4,14 @@ import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
   selector: 'app-o2c-tsv',
   templateUrl: './o2c-tsv.component.html',
   styleUrl: './o2c-tsv.component.css',
+  providers: [DestroyManager],
 })
 export class O2cTsvComponent {
   orderId = '28221819418344'; // Placeholder for order ID
@@ -52,108 +55,31 @@ export class O2cTsvComponent {
   orderSummaryDataSource = new MatTableDataSource<any>();
 
   financialDataLoaded: any;
-  financialSummaryDisplayedColumns: string[] = [
-    'ORDER_TSV',
-    'TOTAL_SUBSCRIPTION_TSV',
-    'BILLING_MODEL',
-    'BILLED',
-    'UNBILLED',
-    'REVENUE_RECOGNITION',
-    'REVENUE_TO_BE_RECOGNIZED',
-    'CASH',
-    'actions',
-  ];
+  financialSummaryDisplayedColumns: string[] = [];
   financialSummaryDataSource = new MatTableDataSource<any>([]);
 
-  table1Loaded = true; // Set to false when implementing real data loading
-  table1DisplayedColumns: string[] = [
-    'SKU_TYPE',
-    'TOTAL_SALES_VALUE',
-    'SSD',
-    'SED',
-    'BDOM',
-    'CHANGE_START_DATE',
-    'CHANGE_END_DATE',
-    'CHARGE_TYPE',
-    'LINE_TYPE',
-  ];
-  table1DataSource = new MatTableDataSource<any>([
-    {
-      SKU_TYPE: 'Product',
-      TOTAL_SALES_VALUE: 2500.0,
-      SSD: 1000.0,
-      SED: 500.0,
-      BDOM: 100.0,
-      CHANGE_START_DATE: '2023-10-15',
-      CHANGE_END_DATE: '2024-10-15',
-      CHARGE_TYPE: 'Recurring',
-      LINE_TYPE: 'Subscription',
-    },
-  ]);
+  table1Loaded = false; // Set to false when implementing real data loading
+  table1DisplayedColumns: string[] = [];
+  table1DataSource = new MatTableDataSource<any>();
 
-  table2Loaded = true; // Set to false when implementing real data loading
-  table2DisplayedColumns: string[] = [
-    'ON_PREM_TOP_SKU',
-    'SPLIT_PERCENTAGE',
-    'ACC_RULE',
-    'CHANGE_START_DATE',
-    'CHANGE_END_DATE',
-    'AMOUNT_(USD)',
-  ];
-  table2DataSource = new MatTableDataSource<any>([
-    {
-      ON_PREM_TOP_SKU: 'Cisco Webex',
-      SPLIT_PERCENTAGE: '80%',
-      ACC_RULE: 'Recurring',
-      CHANGE_START_DATE: '2023-10-15',
-      CHANGE_END_DATE: '2024-10-15',
-      'AMOUNT_(USD)': 1250.0,
-    },
-    {
-      ON_PREM_TOP_SKU: 'Cisco Webex',
-      SPLIT_PERCENTAGE: '20%',
-      ACC_RULE: 'One-Time',
-      CHANGE_START_DATE: '2023-10-15',
-      CHANGE_END_DATE: '2024-10-15',
-      'AMOUNT_(USD)': 250.0,
-    },
-    {
-      ON_PREM_TOP_SKU: 'Cisco Webex',
-      SPLIT_PERCENTAGE: '100%',
-      ACC_RULE: 'Recurring',
-      CHANGE_START_DATE: '2023-10-15',
-      CHANGE_END_DATE: '2024-10-15',
-      'AMOUNT_(USD)': 1000.0,
-    },
-  ]);
+  table2Loaded = false; // Set to false when implementing real data loading
+  table2DisplayedColumns: string[] = [];
+  table2DataSource = new MatTableDataSource<any>();
 
-  table3Loaded = true; // Set to false when implementing real data loading
-  table3DisplayedColumns: string[] = [
-    'ACCOUNT',
-    'ACCOUNT_CLASS',
-    'DR_(USD)',
-    'CR_(USD)',
-  ];
-  table3DataSource = new MatTableDataSource<any>([
-    {
-      ACCOUNT: '110-060-000000-13630-000-000000',
-      ACCOUNT_CLASS: 'Contract Assets',
-      'DR_(USD)': 1000.0,
-      'CR_(USD)': '-',
-    },
-    {
-      ACCOUNT: '110-060-000000-13630-000-000001',
-      ACCOUNT_CLASS: 'Deferred Revenue',
-      'DR_(USD)': '-',
-      'CR_(USD)': 3040.0,
-    },
-  ]);
+  table3Loaded = false; // Set to false when implementing real data loading
+  table3DisplayedColumns: string[] = [];
+  table3DataSource = new MatTableDataSource<any>();
 
   rowData: any = null;
   sourceComponent: string | null = null;
   isTsvCreated: boolean = false;
 
-  constructor(private location: Location, private router: Router) {}
+  constructor(
+    private location: Location,
+    private router: Router,
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
+  ) {}
 
   ngOnInit(): void {
     const navState = this.location.getState() as {
@@ -165,6 +91,10 @@ export class O2cTsvComponent {
       financialData?: any[];
       source?: string;
     };
+
+    this.getTsvTopSku(navState.rowData);
+    this.getTsvSubSku(navState.rowData);
+    this.getTsvAccounts(navState.rowData);
 
     if (!navState || Object.keys(navState).length === 0) {
       console.warn('No navigation state received in o2c-gl');
@@ -190,8 +120,66 @@ export class O2cTsvComponent {
       Array.isArray(navState.financialData) &&
       navState.financialData.length > 0
     ) {
+      this.financialSummaryDisplayedColumns = Object.keys(
+        navState.financialData[0] || {}
+      );
+      console.log('Financial Summary Data:', navState.financialData);
       this.financialSummaryDataSource.data = navState.financialData;
     }
+  }
+
+  getTsvTopSku(rowData: any) {
+    const payload = {
+      subscriptionIds: rowData.SUBSCRIPTION_REF_ID,
+      webOrderLineIds: rowData.WEBORDER_LINEID,
+    };
+
+    this.http
+      .get('tsv-top-sku', this.destroyManager, {
+        params: payload,
+      })
+      .subscribe((data: any) => {
+        console.log('TSV Top SKU Data:', data);
+        this.table1DisplayedColumns = Object.keys(data[0] || {});
+        this.table1DataSource.data = data;
+        this.table1Loaded = true;
+      });
+  }
+
+  getTsvSubSku(rowData: any) {
+    const payload = {
+      subscriptionIds: rowData.SUBSCRIPTION_REF_ID,
+      webOrderLineIds: rowData.WEBORDER_LINEID,
+    };
+
+    this.http
+      .get('tsv-sub-sku', this.destroyManager, {
+        params: payload,
+      })
+      .subscribe((data: any) => {
+        console.log('TSV Sub SKU Data:', data);
+        this.table2DisplayedColumns = Object.keys(data[0] || {});
+        this.table2DataSource.data = data;
+        this.table2Loaded = true;
+      });
+  }
+
+  getTsvAccounts(rowData: any) {
+    const payload = {
+      subscriptionIds: rowData.SUBSCRIPTION_REF_ID,
+      webOrderLineIds: rowData.WEBORDER_LINEID,
+    };
+
+    this.http
+      .get('tsv-accounts', this.destroyManager, {
+        params: payload,
+      })
+      .subscribe((data: any) => {
+        console.log('TSV accounts Data:', data);
+        this.table3DisplayedColumns = Object.keys(data[0] || {});
+        this.table3DataSource.data = data;
+        this.table3Loaded = true;
+      });
   }
 
   formatColumnName(column: string): string {

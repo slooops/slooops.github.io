@@ -35,17 +35,38 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
-        // Only allow specific, known-safe fields
-//        List<String> allowedFields = Arrays.asList("SUBSCRIPTION_ID", "TRX_NUMBER", "WEBORDER_ID");
-//        if (!allowedFields.contains(field)) {
-//            throw new IllegalArgumentException("Invalid field name");
-//        }
         String condition = "WHERE 1=1 and ";
         if(field.equals("SUBSCRIPTION_REF_ID")) {
             condition = "WHERE 1=1 and latest_flag='Y' and ";
         }
         String query = sql + condition + field + "=?";
         return primaryJdbcTemplate.queryForList(query, value);
+    }
+
+    public List<Map<String, Object>> callFinancialSummaryView(String sql, String field, String value) {
+        String condition = " WHERE 1=1 and ";
+        String query = sql + condition + field + "=?";
+        return primaryJdbcTemplate.queryForList(query, value);
+    }
+
+    public void callFinancialSummaryPkgProc(String pkgProc, String subscription, String webOrderId, String invoiceId) {
+        primaryJdbcTemplate.update(pkgProc, subscription, webOrderId, invoiceId);
+    }
+
+    public void callTsvPkgProc(String pkgProc, String subscription, String uniqueId) {
+        primaryJdbcTemplate.update(pkgProc, subscription, null, uniqueId);
+    }
+
+    public List<Map<String, Object>> tsvTopSku(String sql, String subscription, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, subscription, uniqueId);
+    }
+
+    public List<Map<String, Object>> tsvSubSku(String sql, String subscription, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, subscription, uniqueId);
+    }
+
+    public List<Map<String, Object>> tsvAccounts(String sql, String subscription, String uniqueId) {
+        return primaryJdbcTemplate.queryForList(sql, subscription, uniqueId);
     }
 
     public List<Map<String, Object>> o2cInvoiceSummary(String sql, String value) {

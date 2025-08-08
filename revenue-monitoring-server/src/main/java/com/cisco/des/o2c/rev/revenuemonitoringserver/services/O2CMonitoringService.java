@@ -2,6 +2,7 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,12 +24,20 @@ public class O2CMonitoringService {
     private String sbpBillScheduleHeader;
     private String sbpBillSchedules;
     private String sbpBillScheduleLines;
+    private String tsvPkgProc;
+    private String financialSummaryPgkProc;
+    private String tsvTopSku;
+    private String tsvSubSku;
+    private String tsvAccounts;
+    private String financialSummaryView;
+
 
     @Autowired
     public O2CMonitoringService(JdbcManager jdbcManager, String orderSummary, String invoiceSummary,
             String invoiceLineSummary, String subscriptionSummary,
             String subscriptionLineSummary, String o2cConnector, String sbpBillScheduleHeader, String sbpBillSchedules,
-                                String sbpBillScheduleLines) {
+                                String sbpBillScheduleLines, String financialSummaryPgkProc, String tsvPkgProc,
+                                String tsvTopSku, String tsvSubSku, String tsvAccounts, String financialSummaryView) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
         this.invoiceSummary = invoiceSummary;
@@ -39,10 +48,15 @@ public class O2CMonitoringService {
         this.sbpBillScheduleHeader = sbpBillScheduleHeader;
         this.sbpBillSchedules = sbpBillSchedules;
         this.sbpBillScheduleLines = sbpBillScheduleLines;
+        this.financialSummaryPgkProc = financialSummaryPgkProc;
+        this.tsvPkgProc = tsvPkgProc;
+        this.tsvTopSku = tsvTopSku;
+        this.tsvSubSku = tsvSubSku;
+        this.tsvAccounts = tsvAccounts;
+        this.financialSummaryView = financialSummaryView;
     }
 
     public List<Map<String, Object>> getOrderSummary(String orderId) {
-        System.out.println(orderId);
         List<Map<String, Object>> result = jdbcManager.o2cOrderSummary(orderSummary, orderId);
         return result;
     }
@@ -96,7 +110,64 @@ public class O2CMonitoringService {
     }
 
     public List<Map<String, Object>> getO2cConnectorData(String field, String value) {
+        callFinancialSummaryPkgProc(field,value);
         return jdbcManager.queryForO2CConnectorData(o2cConnector, field, value);
+    }
+
+    public List<Map<String, Object>> callFinancialSummaryView(String field, String value) {
+        return jdbcManager.callFinancialSummaryView(financialSummaryView, field, value);
+    }
+
+    public void callFinancialSummaryPkgProc(String field, String value) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Search value cannot be empty");
+        }
+
+        try {
+            switch (field) {
+                case "WEBORDER_ID":
+                    jdbcManager.callFinancialSummaryPkgProc(financialSummaryPgkProc, null, value, null);
+                    break;
+                case "SUBSCRIPTION_REF_ID":
+                    jdbcManager.callFinancialSummaryPkgProc(financialSummaryPgkProc, value, null, null);
+                    break;
+                case "TRX_NUMBER": // Assuming this is the third field
+                    jdbcManager.callFinancialSummaryPkgProc(financialSummaryPgkProc, null, null, value);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid search field: " + field);
+            }
+        } catch (DataAccessException e) {
+            // Log the error
+            System.out.println("Error calling financial summary procedure: "+ e.getMessage());
+            throw new RuntimeException("Failed to retrieve financial summary data", e);
+        }
+    }
+
+    public void callTsvPkgProc(String subscriptionId, String webOrderLineId) {
+        jdbcManager.callTsvPkgProc(tsvPkgProc, subscriptionId, webOrderLineId);
+    }
+
+    public List<Map<String, Object>> callTsvTopSku(String subscriptionId, String webOrderLineId) {
+        String[] dateColumns = { "SUBSCRIPTION_START_DATE", "SUBSCRIPTION_END_DATE", "CHARGE_START_DATE", "CHARGE_END_DATE" };
+        List<Map<String, Object>> result = jdbcManager.tsvTopSku(tsvTopSku, subscriptionId, webOrderLineId);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> callTsvSubSku(String subscriptionId, String webOrderLineId) {
+        String[] dateColumns = { "RULE_START_DATE", "RULE_END_DATE" };
+        List<Map<String, Object>> result = jdbcManager.tsvSubSku(tsvSubSku, subscriptionId, webOrderLineId);
+        result.forEach(data -> {
+            formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> callTsvAccounts(String subscriptionId, String webOrderLineId) {
+        return jdbcManager.tsvAccounts(tsvAccounts, subscriptionId, webOrderLineId);
     }
 
     private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {

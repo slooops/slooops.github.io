@@ -134,31 +134,9 @@ export class O2c360Component implements OnInit {
   invoiceLinesDisplayedColumns: string[] = [];
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
-  financialDataLoaded: true;
-  financialSummaryDataSource = new MatTableDataSource<any>([
-    {
-      ORDER_TSV: 'USD 0.00',
-      TOTAL_SUBSCRIPTION_TSV: 'USD 0.00',
-      BILLING_MODEL: 'Prepaid',
-      BILLED: 'USD 0.00',
-      UNBILLED: 'USD 0.00',
-      REVENUE_RECOGNITION: 'USD 0.00',
-      REVENUE_TO_BE_RECOGNIZED: 'USD 0.00',
-      CASH: 'Paid',
-      actions: 'View in CCW', // Placeholder for actions column
-    },
-  ]);
-  financialSummaryDisplayedColumns: string[] = [
-    'ORDER_TSV',
-    // 'TOTAL_SUBSCRIPTION_TSV',
-    'BILLING_MODEL',
-    'BILLED',
-    'UNBILLED',
-    'REVENUE_RECOGNITION',
-    'REVENUE_TO_BE_RECOGNIZED',
-    'CASH',
-    'actions',
-  ];
+  financialDataLoaded: boolean = false;
+  financialSummaryDataSource = new MatTableDataSource<any>();
+  financialSummaryDisplayedColumns: string[] = [];
 
   constructor(
     private http: ApiHttpService,
@@ -174,9 +152,22 @@ export class O2c360Component implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['searchParams']?.currentValue) {
-      const { searchType, orderId, subRefIds, invoiceIds, subCodes } =
-        this.searchParams!;
-      this.loadData(orderId, subRefIds, invoiceIds, subCodes);
+      const {
+        searchType,
+        searchValue,
+        orderId,
+        subRefIds,
+        invoiceIds,
+        subCodes,
+      } = this.searchParams!;
+      this.loadData(
+        searchType,
+        searchValue,
+        orderId,
+        subRefIds,
+        invoiceIds,
+        subCodes
+      );
 
       this.showWelcomeOverlay = false;
       console.log('show overlay from ng on changes:', this.showWelcomeOverlay);
@@ -222,18 +213,26 @@ export class O2c360Component implements OnInit {
     // Only listen to query params if this wasn't initialized via @Input()
     if (!this.searchParams) {
       this.route.queryParamMap.subscribe((params) => {
+        const searchType = params.get('searchType') || 'order';
+        const searchValue = params.get('searchValue') || '';
         const orderId = params.get('orderId') || 'Search to get an';
         const subRefIds = params.get('subRefIds')?.split(',') || [''];
         const invoiceIds = params.get('invoiceIds')?.split(',') || [];
         const subCodes = params.get('subCodes')?.split(',') || [];
 
-        this.loadData(orderId, subRefIds, invoiceIds, subCodes);
+        this.loadData(
+          searchType,
+          searchValue,
+          orderId,
+          subRefIds,
+          invoiceIds,
+          subCodes
+        );
 
         this.showWelcomeOverlay =
           !this.router.url.includes('?searchType=') &&
           this.orderId.includes('Search to get an');
 
-        const searchType = params.get('searchType');
         if (searchType === 'subscription') {
           this.expanded.subscription = true;
         } else if (searchType === 'invoice') {
@@ -244,21 +243,49 @@ export class O2c360Component implements OnInit {
   }
 
   private loadData(
+    searchType: string,
+    searchValue: string,
     orderId: string,
     subRefIds: string[],
     invoiceIds: string[],
     subCodes: string[]
   ): void {
+    this.searchType = searchType;
+    this.searchValue = searchValue;
     this.orderId = orderId || 'Search to get an';
     this.subRefIds = subRefIds;
     this.invoiceIds = invoiceIds;
     this.subCodes = subCodes;
 
+    console.log(searchType, searchValue);
+    this.getFinancialSummary(searchType, searchValue);
     this.getOrderSummary([orderId]);
     this.getSubscriptionSummary(subRefIds, subCodes);
     this.getSubscriptionLineSummary(subRefIds, subCodes);
     this.getInvoiceSummary(invoiceIds);
     this.getInvoiceLineSummary(invoiceIds);
+  }
+
+  private getFinancialSummary(searchType: string, searchValue: string): void {
+    const columnMap: { [key: string]: string } = {
+      order: 'WEB_ORDER_ID',
+      subscription: 'SUBSCRIPTION_REF_ID',
+      invoice: 'TRX_NUMBER',
+    };
+
+    const columnName = columnMap[searchType] || 'UNKNOWN_COLUMN';
+
+    this.http
+      .post('financial-summary', {
+        column: columnName,
+        value: searchValue,
+      })
+      .subscribe((data: any) => {
+        console.log('Financial Summary:', data);
+        this.financialSummaryDisplayedColumns = Object.keys(data[0] || {});
+        this.financialSummaryDataSource = new MatTableDataSource(data);
+        this.financialDataLoaded = true;
+      });
   }
 
   private getOrderSummary(orderIdList: any): void {
@@ -403,9 +430,7 @@ export class O2c360Component implements OnInit {
       invoiceIds: invoiceIds,
     };
     this.http
-      .get('invoice-summary', this.destroyManager, {
-        params: payload,
-      })
+      .post('invoice-summary', { invoiceIds: invoiceIds }, this.destroyManager)
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
@@ -461,13 +486,13 @@ export class O2c360Component implements OnInit {
       this.invoiceLinesDataLoaded = true;
       return;
     }
-    const payload = {
-      invoiceIds: invoiceIds,
-    };
+
     this.http
-      .get('invoice-line-summary', this.destroyManager, {
-        params: payload,
-      })
+      .post(
+        'invoice-line-summary',
+        { invoiceIds: invoiceIds },
+        this.destroyManager
+      )
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
 

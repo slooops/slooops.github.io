@@ -5,11 +5,15 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import * as XLSX from 'xlsx';
 import { FiltersService } from '../../providers/filters.service';
+import { ro } from 'date-fns/locale';
+import { ApiHttpService } from 'src/app/providers/http.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 
 @Component({
   selector: 'app-o2c-view-all',
   templateUrl: './o2c-view-all.component.html',
   styleUrl: './o2c-view-all.component.css',
+  providers: [DestroyManager],
 })
 export class O2cViewAllComponent implements OnInit {
   selectedTab: 'subscriptions' | 'invoices' = 'subscriptions';
@@ -163,7 +167,9 @@ export class O2cViewAllComponent implements OnInit {
   constructor(
     private location: Location,
     private router: Router,
-    private filtersService: FiltersService
+    private filtersService: FiltersService,
+    private destroyManager: DestroyManager,
+    private http: ApiHttpService
   ) {}
 
   ngOnInit(): void {
@@ -389,17 +395,29 @@ export class O2cViewAllComponent implements OnInit {
   }
 
   navigateToTsv(rowData: any): void {
-    this.router.navigate(['/o2c-tsv'], {
-      state: {
-        rowData: rowData,
-        orderId: this.orderId,
-        circleStatus: this.circleStatus,
-        subscriptionId: this.selectedSubscriptionId,
-        orderData: this.orderSummaryDataSource.data || [],
-        financialData: this.financialSummaryDataSource.data || [],
-        source: 'view-all',
-      },
-    });
+    const payload = {
+      subscriptionIds: rowData.SUBSCRIPTION_REF_ID,
+      webOrderLineIds: rowData.WEBORDER_LINEID,
+    };
+
+    this.http
+      .get('tsv-pkg-proc', this.destroyManager, {
+        params: payload,
+      })
+      .subscribe((data: any) => {
+        console.log('TSV Data:', data);
+        this.router.navigate(['/o2c-tsv'], {
+          state: {
+            rowData: rowData,
+            orderId: this.orderId,
+            circleStatus: this.circleStatus,
+            subscriptionId: this.selectedSubscriptionId,
+            orderData: this.orderSummaryDataSource.data || [],
+            financialData: this.financialSummaryDataSource.data || [],
+            source: 'view-all',
+          },
+        });
+      });
   }
 
   navigateToGl(rowData: any): void {

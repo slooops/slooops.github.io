@@ -82,6 +82,7 @@ export class O2cSearchComponent {
 
           this.searchContextService.emitSearchPayload({
             searchType: this.searchType,
+            searchValue: trimmedValue,
             orderId: orderIds[0] || 'No Results ',
             subRefIds: subRefIds,
             invoiceIds: trxNumbers,
@@ -94,6 +95,7 @@ export class O2cSearchComponent {
             this.router.navigate(['/o2c-360'], {
               queryParams: {
                 searchType: this.searchType,
+                searchValue: trimmedValue,
                 orderId: orderIds[0],
                 subRefIds: subRefIds.join(','),
                 invoiceIds: trxNumbers.join(','),

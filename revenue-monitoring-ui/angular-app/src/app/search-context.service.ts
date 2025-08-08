@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface O2cSearchResult {
   searchType: string;
+  searchValue: string;
   orderId: string;
   subRefIds: string[];
   invoiceIds: string[];
