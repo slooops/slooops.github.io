@@ -1245,4 +1245,10 @@ public class QueryConfigs {
 
     @Bean( name = "financialSummaryView" )
     public String getFinancialSummaryView() {return this.financialSummaryView; }
+
+    @Value(("${o2c.order.bie.exception.v.q}"))
+    public String o2cOrderBieExceptionV;
+
+    @Bean( name = "o2cOrderBieExceptionV" )
+    public String getO2cOrderBieExceptionV() {return this.o2cOrderBieExceptionV; }
 }

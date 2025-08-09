@@ -1,50 +1,39 @@
 .chart-legend-wrapper {
   display: flex;
   flex-direction: row;
-  /* align-items: center; uncomment this to match suneel's design */
   align-items: flex-start;
   gap: 20px;
   flex: 1;
+  /* Add smooth transitions */
+  transition: opacity 0.3s ease-in-out;
+  min-height: 125px; /* Prevent height jumping */
 }
 
 .chart-container {
-  min-width: 125px;
+  width: 125px;
   height: 125px;
   background-color: #f4f5f6;
   padding: 8px;
   border-radius: 100%;
+  /* Smooth transitions for any changes */
+  transition: all 0.3s ease-in-out;
+  /* Prevent layout shift */
+  flex-shrink: 0;
+}
+
+.chart-container canvas {
+  /* Smooth fade-in when chart renders */
+  transition: opacity 0.3s ease-in-out;
 }
 
 .custom-legend {
   display: flex;
   flex-direction: column;
   width: calc(100% - 141px);
-}
-
-/* .legend-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: initial;
-  border-bottom: 1px solid #ebebeb;
-} */
-
-.legend-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-}
-
-.legend-color-box {
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  border-radius: 10px;
+  /* Smooth transitions */
+  transition: opacity 0.3s ease-in-out;
+  /* Prevent layout shift */
+  min-height: 125px;
 }
 
 .legend-item {
@@ -54,6 +43,39 @@
   font-size: 12px;
   white-space: nowrap;
   width: 100%;
+  /* Smooth item transitions */
+  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+  transform: translateY(0);
+}
+
+/* Smooth fade-in animation for legend items */
+.legend-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.legend-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.legend-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.legend-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.legend-item {
+  animation: fadeInUp 0.3s ease-out forwards;
+  opacity: 0; /* Start invisible */
 }
 
 .legend-left {
@@ -62,9 +84,41 @@
   gap: 8px;
   flex: 1;
   overflow: hidden;
-  min-width: 0; /* for ellipsis to work if needed */
+  min-width: 0;
   padding: 10px 16px;
   border-bottom: 1px solid #ebebeb;
+  /* Smooth transitions */
+  transition: background-color 0.2s ease-in-out;
+}
+
+.legend-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  min-width: 100px;
+  text-align: right;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ebebeb;
+  /* Smooth transitions */
+  transition: all 0.2s ease-in-out;
+}
+
+.legend-color-box {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  border-radius: 10px;
+  /* Smooth color transitions */
+  transition: background-color 0.3s ease-in-out;
+  /* Prevent layout shift */
+  flex-shrink: 0;
+}
+
+.legend-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .legend-type {
@@ -73,27 +127,37 @@
   white-space: nowrap;
 }
 
-.legend-right {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  min-width: 100px; /* or whatever fixed/flexible width works best */
-  text-align: right;
-  padding: 10px 16px;
-  border-bottom: 1px solid #ebebeb;
-}
-
 .legend-count {
-  /* flex: 1; */
   text-align: right;
 }
 
 .legend-value {
-  /* flex: 1; */
-  width: 30px;
+  /* this width creates weird alignments that match 
+  figma but if asked to remove, this is the fix */
+  width: 40px;
   text-align: right;
 }
 
 .total-row {
   font-weight: 600;
+}
+
+/* Loading state styling */
+.chart-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Smooth entrance for the whole component */
+.chart-legend-wrapper.loaded {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

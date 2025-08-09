@@ -124,6 +124,7 @@ import { O2cCashComponent } from './o2c/o2c-landing/o2c-sub/o2c-cash/o2c-cash.co
 import { O2cInvoiceComponent } from './o2c/o2c-landing/o2c-sub/o2c-invoice/o2c-invoice.component';
 import { O2cOrderComponent } from './o2c/o2c-landing/o2c-sub/o2c-order/o2c-order.component';
 import { O2cSubscriptionComponent } from './o2c/o2c-landing/o2c-sub/o2c-subscription/o2c-subscription.component';
+import { O2cToolbarComponent } from './components/o2c-toolbar/o2c-toolbar.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -261,6 +262,7 @@ export function initApp(authService: AuthenticationService) {
     CommonModule,
     MatDialogModule,
     O2cAccordionComponent,
+    O2cToolbarComponent,
   ],
   providers: [
     DatePipe,

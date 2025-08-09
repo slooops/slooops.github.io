@@ -23,7 +23,7 @@
   align-items: center;
   align-self: stretch;
   background-color: #def7ff; /* Light blue */
-  border: 1px solid #e4e4e4;
+  /* border: 1px solid #e4e4e4; */
   width: 100%;
 }
 
@@ -480,4 +480,63 @@ button.link-button:hover .ccw-button-text {
 
 .scrollable::-webkit-scrollbar-track {
   background-color: #ffffff;
+}
+
+.tool-bar-container {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-direction: row-reverse;
+}
+
+.o2c-toolbar {
+  display: inline-flex;
+  border: 1px solid #d1d1d1;
+  height: 36px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #0175a2;
+  background-color: #f4f6f8;
+  border: none;
+  border-right: 1px solid #d1d1d1;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toolbar-btn:last-child {
+  border-right: none;
+}
+
+.exceptions-padding {
+  padding: 6px 0;
+  /* height: 36px; */
+}
+
+.exception-title {
+  color: #000;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.back-btn-floating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0px;
+  background: transparent;
+  border: none;
+  font-weight: 500;
+  color: #0076d5;
+  cursor: pointer;
+  font-size: 14px;
 }

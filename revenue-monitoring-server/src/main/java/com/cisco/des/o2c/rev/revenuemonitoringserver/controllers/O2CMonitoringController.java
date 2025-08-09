@@ -243,4 +243,9 @@ public class O2CMonitoringController {
             return null;
         }
     }
+
+    @GetMapping("/o2c-order-bie-exception-v")
+    public ResponseEntity<List<Map<String, Object>>> getO2cOrderBieExceptionV() {
+        return new ResponseEntity<>(service.getO2cOrderBieExceptionV(), HttpStatus.OK);
+    }
 }

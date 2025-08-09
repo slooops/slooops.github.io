@@ -30,6 +30,7 @@ public class O2CMonitoringService {
     private String tsvSubSku;
     private String tsvAccounts;
     private String financialSummaryView;
+    private String o2cOrderBieExceptionV;
 
 
     @Autowired
@@ -37,7 +38,8 @@ public class O2CMonitoringService {
             String invoiceLineSummary, String subscriptionSummary,
             String subscriptionLineSummary, String o2cConnector, String sbpBillScheduleHeader, String sbpBillSchedules,
                                 String sbpBillScheduleLines, String financialSummaryPgkProc, String tsvPkgProc,
-                                String tsvTopSku, String tsvSubSku, String tsvAccounts, String financialSummaryView) {
+                                String tsvTopSku, String tsvSubSku, String tsvAccounts, String financialSummaryView,
+                                String o2cOrderBieExceptionV) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
         this.invoiceSummary = invoiceSummary;
@@ -54,6 +56,7 @@ public class O2CMonitoringService {
         this.tsvSubSku = tsvSubSku;
         this.tsvAccounts = tsvAccounts;
         this.financialSummaryView = financialSummaryView;
+        this.o2cOrderBieExceptionV = o2cOrderBieExceptionV;
     }
 
     public List<Map<String, Object>> getOrderSummary(String orderId) {
@@ -213,5 +216,9 @@ public class O2CMonitoringService {
                 data.put(column, "");
             }
         }
+    }
+
+    public List<Map<String, Object>> getO2cOrderBieExceptionV() {
+        return jdbcManager.queryForList(o2cOrderBieExceptionV);
     }
 }

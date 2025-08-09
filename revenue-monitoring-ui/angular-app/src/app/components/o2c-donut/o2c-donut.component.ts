@@ -1,15 +1,18 @@
-import { Component, Input } from '@angular/core';
-import { Chart, registerables } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { ChartData, ChartDataset } from 'chart.js/auto';
-import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { Chart } from 'chart.js';
 
 @Component({
   selector: 'app-o2c-donut',
   templateUrl: './o2c-donut.component.html',
   styleUrl: './o2c-donut.component.css',
 })
-export class O2cDonutComponent {
+export class O2cDonutComponent implements OnChanges {
   @Input() data: {
     INCIDENT_TYPE: string;
     INCIDENT_COUNT: number;
@@ -40,11 +43,68 @@ export class O2cDonutComponent {
     }[];
   } = {};
 
-  ngOnInit() {
-    // Make sure chart container styles get applied before rendering
-    setTimeout(() => {
-      this.renderPieChart(this.data, this.canvasId);
-    });
+  ngOnChanges(changes: SimpleChanges): void {
+    // Re-render when data changes
+    if (changes['data'] && this.data && this.data.length > 0) {
+      // Small delay to ensure canvas is ready
+      setTimeout(() => {
+        this.renderPieChart(this.data, this.canvasId);
+      }, 0);
+    }
+  }
+
+  private formatValueForDonutCenter(amount: number): string {
+    let value: string;
+    let suffix: string = '';
+
+    if (amount >= 1_000_000_000) {
+      // Billions
+      const billions = amount / 1_000_000_000;
+      if (billions < 10) {
+        value = billions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (billions < 100) {
+        value = billions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = billions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = 'B';
+    } else if (amount >= 1_000_000) {
+      // Millions
+      const millions = amount / 1_000_000;
+      if (millions < 10) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (millions < 100) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else if (millions < 1000) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = 'M';
+    } else if (amount >= 1_000) {
+      // Thousands
+      const thousands = amount / 1_000;
+      if (thousands < 10) {
+        value = thousands.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (thousands < 100) {
+        value = thousands.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = thousands.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = 'K';
+    } else {
+      // Less than 1,000
+      if (amount < 10) {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (amount < 100) {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = '';
+    }
+
+    return `$${value}${suffix}`;
   }
 
   renderPieChart(
@@ -55,6 +115,23 @@ export class O2cDonutComponent {
     }[],
     canvasId: string
   ): void {
+    if (!data || data.length === 0) {
+      console.warn(`No data provided for chart ${canvasId}`);
+      return;
+    }
+
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) {
+      console.error(`Canvas with id ${canvasId} not found`);
+      return;
+    }
+
+    // Clear any existing chart
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     const pieColors = [
       '#399E20',
       '#FBAB2C',
@@ -86,18 +163,8 @@ export class O2cDonutComponent {
       0
     );
 
-    // Format total value, e.g., $4.2M
-    const formattedTotalValue =
-      totalValue >= 1_000_000
-        ? `$${(totalValue / 1_000_000).toFixed(1)} M`
-        : `$${totalValue.toLocaleString()} M`;
-
-    // Format count, handling empty/undefined values
+    const formattedTotalValue = this.formatValueForDonutCenter(totalValue);
     const formattedTotalCount = totalCount ? `#${totalCount}` : '';
-
-    const ctx = (
-      document.getElementById(canvasId) as HTMLCanvasElement
-    )?.getContext('2d');
 
     if (ctx) {
       new Chart(ctx, {

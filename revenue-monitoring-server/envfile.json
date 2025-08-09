@@ -172,5 +172,6 @@
   "TSV_TOP_SKU_VIEW": "SELECT sku_type,total_sales_value,subscription_start_date,subscription_end_date,BDOM,charge_start_date,charge_end_date,charge_type FROM O2C_TSV_TOP_SUMMARY WHERE 1=1 AND subscription_ref_id=? AND unique_id=?",
   "TSV_SUB_SKU_VIEW": "SELECT sub_sku,split_percent,accounting_rule_name,amount,rule_start_date,rule_end_date FROM O2C_TSV_SUB_SUMMARY WHERE 1=1 AND subscription_ref_id=? AND unique_id=? ORDER BY accounting_rule_name DESC",
   "TSV_ACCOUNTS_VIEW": "select account,account_class,DEBIT,CREDIT,ACC_AMOUNT from O2C_TSV_ACC_SUMMARY where 1=1 AND subscription_ref_id=? AND unique_id=?",
+  "O2C_ORDER_BIE_EXCEPTION_V": "select * from arfinro.O2C_ORDER_BIE_EXCEPTION_V",
   "CORS_URL": "http://localhost:3000"
 }

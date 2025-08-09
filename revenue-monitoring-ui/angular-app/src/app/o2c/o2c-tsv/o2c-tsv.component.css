@@ -261,6 +261,7 @@ tr.mat-header-row {
 .o2c-toolbar {
   display: inline-flex;
   overflow: hidden;
+  border: none;
 }
 
 .toolbar-btn {

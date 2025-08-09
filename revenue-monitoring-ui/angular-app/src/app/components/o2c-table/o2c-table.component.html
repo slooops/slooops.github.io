@@ -1,48 +1,61 @@
-<div style="padding-bottom: 0px">
-  <table mat-table [dataSource]="dataSource" class="gridded-table">
-    <ng-container *ngFor="let column of displayedColumns">
-      <ng-container [matColumnDef]="column">
-        <!-- Header Row (conditionally rendered inside tr, but column defs always exist) -->
-        <th
-          mat-header-cell
-          *matHeaderCellDef
-          [ngClass]="{
-            'double-width': isWideColumn(column),
-            'extra-wide': isExtraWideColumn(column)
-          }"
-        >
-          {{ removeUnderscores(column) }}
-        </th>
+<div class="table-container" style="padding-bottom: 0px; overflow: auto">
+  <!-- Loading State -->
+  <div
+    *ngIf="isLoading"
+    class="table-loading-container"
+    [class.fade-out]="!isLoading"
+  >
+    <app-loading-symbol></app-loading-symbol>
+    <p class="loading-text">Loading table data...</p>
+  </div>
 
-        <!-- Data Row -->
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [ngClass]="{
-            'clickable-cell': isNavigableColumn(column),
-            'double-width': isWideColumn(column),
-            'extra-wide': isExtraWideColumn(column),
-            'green-text':
-              (column === 'Order_Status' && element[column] === 'CLOSED') ||
-              (column === 'Subscription_Status' && element[column] === 'ACTIVE')
-          }"
-          (click)="
-            isNavigableColumn(column)
-              ? navigateToRoute(column, element[column])
-              : null
-          "
-        >
-          {{ element[column] }}
-        </td>
+  <!-- Table Content with fade-in animation -->
+  <div *ngIf="shouldShowTable" class="table-content">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      class="invoice-summary-table main-tabs"
+    >
+      <ng-container
+        *ngFor="let column of displayedColumns; trackBy: trackByColumn"
+      >
+        <ng-container [matColumnDef]="column">
+          <!-- Header Row -->
+          <th mat-header-cell *matHeaderCellDef>
+            {{ formatColumnName(column) }}
+          </th>
+
+          <!-- Data Row -->
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [ngClass]="{
+              'clickable-cell': isNavigableColumn(column),
+            
+            }"
+            (click)="
+              isNavigableColumn(column)
+                ? navigateToRoute(column, element[column])
+                : null
+            "
+          >
+            {{ getDisplayValue(column, element[column]) }}
+          </td>
+        </ng-container>
       </ng-container>
-    </ng-container>
 
-    <!-- Conditionally render the header row -->
-    <ng-container *ngIf="showHeaderRow">
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    </ng-container>
+      <!-- Conditionally render the header row -->
+      <ng-container *ngIf="showHeaderRow">
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      </ng-container>
 
-    <!-- Always render the data rows -->
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
+      <!-- Always render the data rows -->
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+
+  <!-- No Data State -->
+  <div *ngIf="shouldShowNoData" class="no-data-container">
+    <p class="no-data-text">No data available for this table.</p>
+  </div>
 </div>
