@@ -11,6 +11,7 @@
       [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
       [isOpen]="isOpen[1]"
       (toggleOpen)="toggleAccordion(1)"
+      linkHref="/o2c-landing"
     >
       <app-o2c-donut [data]="dummyData1" canvasId="donutChart1"></app-o2c-donut>
     </app-o2c-accordion>
@@ -45,6 +46,42 @@
       (toggleOpen)="toggleAccordion(5)"
     >
       <app-o2c-donut [data]="dummyData5" canvasId="donutChart5"></app-o2c-donut>
+    </app-o2c-accordion>
+  </div>
+</div>
+
+<div class="o2c-container accordion-container">
+  <div class="order-banner accordion-header order-status-banner">
+    <div class="status-dot"></div>
+    <div>Order Booked to Fulfillment</div>
+  </div>
+</div>
+
+<div class="o2c-container accordion-container">
+  <div class="o2c-donut-row">
+    <app-o2c-accordion
+      [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
+      [isOpen]="isOpen[6]"
+      (toggleOpen)="toggleAccordion(6)"
+      linkHref="/o2c-landing"
+    >
+      <app-o2c-donut [data]="dummyData1" canvasId="donutChart6"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Credit Holds'"
+      [isOpen]="isOpen[7]"
+      (toggleOpen)="toggleAccordion(7)"
+    >
+      <app-o2c-donut [data]="dummyData2" canvasId="donutChart7"></app-o2c-donut>
+    </app-o2c-accordion>
+
+    <app-o2c-accordion
+      [title]="'Data Configuration'"
+      [isOpen]="isOpen[8]"
+      (toggleOpen)="toggleAccordion(8)"
+    >
+      <app-o2c-donut [data]="dummyData3" canvasId="donutChart8"></app-o2c-donut>
     </app-o2c-accordion>
   </div>
 </div>

@@ -330,11 +330,19 @@ button.link-button:hover .ccw-button-text {
   margin: 1vh 0;
 }
 
+.o2c-tabs-container {
+  display: flex;
+  height: 100%;
+  gap: 6px;
+  margin: 1vh 22px;
+}
+
 .order-status-banner {
   padding: 10px;
   justify-content: flex-start;
   gap: 10px;
   height: 44px;
+  cursor: default;
 }
 
 .accordion-container {
@@ -379,4 +387,97 @@ button.link-button:hover .ccw-button-text {
   .chart-legend-wrapper {
     flex-direction: column; /* Stack chart and legend vertically on very small screens */
   }
+}
+
+/* Chart and cards container */
+.chart-cards-container {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  align-items: center;
+  /* margin: 2vh 22px; */
+  margin: 1vh 22px;
+}
+
+/* Cards scroll container */
+.cards-scroll-container {
+  overflow-x: scroll;
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.order-banner-light {
+  background-color: #fef7ec;
+}
+
+/* New tab wrapper styles */
+.tab-wrapper {
+  width: 100%;
+}
+
+.tab-header-with-refresh {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  height: 48px; /* Match tab header height */
+}
+
+.tab-header-placeholder {
+  flex: 1; /* Takes up space on the left */
+}
+
+.main-tabs {
+  width: 100%;
+}
+
+/* Override default tab styles */
+.main-tabs ::ng-deep .mat-tab-header {
+  background-color: #fef7ec;
+  border-bottom: 1px solid #e4e4e4;
+  margin-top: -48px; /* Overlap with the header */
+  position: relative;
+  z-index: 1;
+}
+
+.main-tabs ::ng-deep .mat-tab-body-wrapper {
+  background-color: white;
+  padding: 0;
+}
+
+.full-width-content {
+  width: 100%;
+  background-color: white;
+}
+
+.sm-light-text {
+  color: #6c757d;
+  font-size: 12px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.scrollable {
+  overflow-x: auto;
+}
+
+.scrollable::-webkit-scrollbar {
+  height: 8px;
+  background-color: #f0f0f0;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: #efefef;
+  border-radius: 4px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: #e3e3e3;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background-color: #ffffff;
 }

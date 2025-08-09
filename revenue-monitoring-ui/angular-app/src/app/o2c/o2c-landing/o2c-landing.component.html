@@ -2,106 +2,30 @@
   Hello <strong>{{ userName }},</strong> welcome!
 </div>
 
-<div class="o2c-container result-header">
+<div class="o2c-container result-header" style="font-size: 30px">
   Exceptions Dashboard
   <mat-tab-group class="exceptions-tab-group" tabindex="3" [selectedIndex]="2">
-    <mat-tab label="Hardware"> </mat-tab>
-    <mat-tab label="Services"> </mat-tab>
-    <mat-tab label="Subscription"> </mat-tab>
-    <mat-tab label="Others"> </mat-tab>
+    <mat-tab label="Hardware" [disabled]="true"> </mat-tab>
+    <mat-tab label="Services" [disabled]="true"> </mat-tab>
+    <mat-tab label="Subscription" [disabled]="false"> </mat-tab>
+    <mat-tab label="Others" [disabled]="true"> </mat-tab>
   </mat-tab-group>
 </div>
 
-<div class="chart-cards-container">
-  <app-o2c-donut
-    [data]="dummyData1"
-    canvasId="donutChartLarge"
-    [showCircleBackground]="false"
-    [showLegend]="true"
-    chartSize="150px"
-  >
-  </app-o2c-donut>
-
-  <div class="cards-scroll-container scrollable">
-    <app-o2c-card
-      [title]="'Order'"
-      [count]="0"
-      [value]="'0'"
-      [footer]="'Enter to Booked'"
-      [countDoubleWide]="0"
-      [valueDoubleWide]="'0'"
-      [footerDoubleWide]="'Booked to Fulfillment'"
-    ></app-o2c-card>
-
-    <app-o2c-card
-      [title]="'Subscription'"
-      [count]="0"
-      [value]="'0'"
-      [footer]="'Fulfillment to Invoicing'"
-    ></app-o2c-card>
-
-    <app-o2c-card
-      [title]="'Invoice'"
-      [count]="0"
-      [value]="'0'"
-      [footer]="'Fulfillment to Invoicing'"
-    ></app-o2c-card>
-
-    <app-o2c-card
-      [title]="'Accounting'"
-      [count]="0"
-      [value]="'0'"
-      [footer]="'Accounting'"
-    ></app-o2c-card>
-
-    <app-o2c-card
-      [title]="'Cash'"
-      [count]="0"
-      [value]="'0'"
-      [footer]="'Cash Collection'"
-    ></app-o2c-card>
+<ng-container [ngSwitch]="selectedTabIndex">
+  <div *ngSwitchCase="0" class="full-width-tab-content">
+    <p>Hardware exceptions content coming soon...</p>
   </div>
-</div>
 
-<div class="o2c-container accordion-container">
-  <div class="tab-wrapper">
-    <div class="tab-header-with-refresh order-banner-light">
-      <div class="sm-light-text">Last Refreshed Date:</div>
-    </div>
-    <mat-tab-group
-      class="main-tabs"
-      (selectedTabChange)="onTabChange($event)"
-      [selectedIndex]="selectedTabIndex"
-    >
-      <mat-tab label="Order">
-        <div class="full-width-content">
-          <app-o2c-order *ngIf="selectedTabIndex === 0"></app-o2c-order>
-        </div>
-      </mat-tab>
-      <mat-tab label="Subscription">
-        <div class="full-width-content">
-          <app-o2c-subscription
-            *ngIf="selectedTabIndex === 1"
-          ></app-o2c-subscription>
-        </div>
-      </mat-tab>
-      <mat-tab label="Invoice">
-        <div class="full-width-content">
-          <app-o2c-invoice *ngIf="selectedTabIndex === 2"></app-o2c-invoice>
-        </div>
-      </mat-tab>
-      <mat-tab label="Accounting">
-        <div class="full-width-content">
-          <app-o2c-accounting
-            *ngIf="selectedTabIndex === 3"
-          ></app-o2c-accounting>
-        </div>
-      </mat-tab>
-      <mat-tab label="Cash">
-        <div class="full-width-content">
-          <app-o2c-cash *ngIf="selectedTabIndex === 4"></app-o2c-cash>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+  <div *ngSwitchCase="1" class="full-width-tab-content">
+    <p>Services exceptions content coming soon...</p>
   </div>
-</div>
+
+  <div *ngSwitchCase="2" class="full-width-tab-content">
+    <app-o2c-sub></app-o2c-sub>
+  </div>
+
+  <div *ngSwitchCase="3" class="full-width-tab-content">
+    <p>Others exceptions content coming soon...</p>
+  </div>
+</ng-container>

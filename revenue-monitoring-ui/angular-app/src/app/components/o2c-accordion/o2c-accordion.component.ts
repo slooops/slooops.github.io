@@ -11,9 +11,15 @@ import { CommonModule } from '@angular/common';
 export class O2cAccordionComponent {
   @Input() title: string = '';
   @Input() isOpen: boolean = false;
+  @Input() linkHref?: string = '';
+  @Input() linkText?: string = 'View Details';
   @Output() toggleOpen = new EventEmitter<void>();
 
   toggle(): void {
     this.toggleOpen.emit();
+  }
+
+  get hasLink(): boolean {
+    return !!this.linkHref;
   }
 }

@@ -8,11 +8,29 @@
 .accordion-header {
   display: flex;
   justify-content: space-between;
+  font-size: 16px;
+  align-items: center;
   padding: 10px 20px;
   cursor: pointer;
   font-weight: 600;
   background-color: #f5f5f5;
   font-family: Inter, sans-serif;
+}
+
+.accordion-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.accordion-link {
+  color: #0897e4 !important;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.accordion-link:hover {
+  text-decoration: none !important;
 }
 
 .accordion-icon {

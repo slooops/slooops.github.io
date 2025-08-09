@@ -11,7 +11,7 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
   styleUrls: ['./o2c-landing.component.css'],
 })
 export class O2cLandingComponent {
-  selectedTabIndex = 0;
+  selectedTabIndex = 2;
   userName: string = this.authService.getUserName();
 
   constructor(
@@ -21,24 +21,6 @@ export class O2cLandingComponent {
     private destroyManager: DestroyManager,
     private authService: AuthenticationService
   ) {}
-
-  dummyData1 = [
-    {
-      INCIDENT_TYPE: 'Order Entry',
-      INCIDENT_COUNT: 5,
-      INCIDENT_VALUE: 4,
-    },
-    {
-      INCIDENT_TYPE: 'Manual Entry',
-      INCIDENT_COUNT: 3,
-      INCIDENT_VALUE: 2,
-    },
-    {
-      INCIDENT_TYPE: 'Data Entry',
-      INCIDENT_COUNT: 2,
-      INCIDENT_VALUE: 1.2,
-    },
-  ];
 
   onTabChange(event: any): void {
     this.selectedTabIndex = event.index;

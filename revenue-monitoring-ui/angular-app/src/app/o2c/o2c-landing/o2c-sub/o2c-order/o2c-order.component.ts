@@ -68,7 +68,7 @@ export class O2cOrderComponent {
     },
   ];
 
-  isOpen: boolean[] = Array(7).fill(true);
+  isOpen: boolean[] = Array(9).fill(true);
 
   toggleAccordion(index: number): void {
     this.isOpen[index] = !this.isOpen[index];
