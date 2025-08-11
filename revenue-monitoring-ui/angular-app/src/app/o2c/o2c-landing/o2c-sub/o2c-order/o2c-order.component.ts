@@ -1,9 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import { FiltersService } from 'src/app/providers/filters.service';
 import { MatTableDataSource } from '@angular/material/table';
+
+interface ExceptionData {
+  loading: boolean;
+  dataSource: MatTableDataSource<any>;
+  displayedColumns: string[];
+  pieChartData: any[];
+  apiEndpoint: string;
+}
 
 @Component({
   selector: 'app-o2c-order',
@@ -11,72 +17,124 @@ import { MatTableDataSource } from '@angular/material/table';
   styleUrls: ['./o2c-order.component.css'],
 })
 export class O2cOrderComponent implements OnInit {
-  // Data properties
-  orderBieExceptionLoading = true;
-  orderBieExceptionDataSource = new MatTableDataSource<any>();
-  orderBieExceptionDisplayedColumns: string[] = [];
-  orderBiePieChartData: any[] = [];
-
-  // View state
   showDetailView = false;
   currentDetailType: string = '';
   isOpen: boolean[] = Array(9).fill(true);
 
-  // Dummy data for charts (consolidate similar data)
-  dummyData = {
-    single: [
-      { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 5, INCIDENT_VALUE: 2.1 },
-    ],
-    multi: [
-      { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 5, INCIDENT_VALUE: 4 },
-      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_COUNT: 3, INCIDENT_VALUE: 2 },
-      { INCIDENT_TYPE: 'Data Entry', INCIDENT_COUNT: 2, INCIDENT_VALUE: 1.2 },
-    ],
-    config: [
-      { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 50, INCIDENT_VALUE: 1.4 },
-      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_COUNT: 3, INCIDENT_VALUE: 0.9 },
-    ],
-    fourItems: [
-      { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 5, INCIDENT_VALUE: 2.1 },
-      { INCIDENT_TYPE: 'Manual Entry', INCIDENT_COUNT: 3, INCIDENT_VALUE: 1.5 },
-      { INCIDENT_TYPE: 'Data Entry', INCIDENT_COUNT: 2, INCIDENT_VALUE: 0.8 },
-      { INCIDENT_TYPE: 'System Error', INCIDENT_COUNT: 1, INCIDENT_VALUE: 0.3 },
-    ],
+  // Consolidated data structure
+  private exceptionData: { [key: string]: ExceptionData } = {
+    bie: {
+      loading: true,
+      dataSource: new MatTableDataSource<any>(),
+      displayedColumns: [],
+      pieChartData: [],
+      apiEndpoint: 'o2c-order-bie-exception-v',
+    },
+    ch: {
+      loading: true,
+      dataSource: new MatTableDataSource<any>(),
+      displayedColumns: [],
+      pieChartData: [],
+      apiEndpoint: 'o2c-order-ch-exception-v',
+    },
+    pe: {
+      loading: true,
+      dataSource: new MatTableDataSource<any>(),
+      displayedColumns: [],
+      pieChartData: [],
+      apiEndpoint: 'o2c-order-pe-exception-v',
+    },
+    ot: {
+      loading: true,
+      dataSource: new MatTableDataSource<any>(),
+      displayedColumns: [],
+      pieChartData: [],
+      apiEndpoint: 'o2c-order-ot-exception-v',
+    },
+    bh: {
+      loading: true,
+      dataSource: new MatTableDataSource<any>(),
+      displayedColumns: [],
+      pieChartData: [],
+      apiEndpoint: 'o2c-order-bh-exception-v',
+    },
+    ec: {
+      loading: true,
+      dataSource: new MatTableDataSource<any>(),
+      displayedColumns: [],
+      pieChartData: [],
+      apiEndpoint: 'o2c-order-ec-exception-v',
+    },
   };
 
-  // Configuration for detail types
+  // Configuration mapping detail types to data keys and metadata
   private detailTypeConfig = {
     'bie-order-entered': {
+      dataKey: 'bie',
       title: 'Cisco Business Inclusion and Exclusion (BIE)',
-      category: 'entered',
-    },
-    'credit-holds-entered': { title: 'Credit Holds', category: 'entered' },
-    'data-config-entered': { title: 'Data Configuration', category: 'entered' },
-    'process-exceptions-entered': {
-      title: 'Process Exceptions',
       category: 'entered',
     },
     'bie-booked': {
+      dataKey: 'bie',
       title: 'Cisco Business Inclusion and Exclusion (BIE)',
       category: 'booked',
     },
-    'credit-holds-booked': { title: 'Credit Holds', category: 'booked' },
-    'data-config-booked': { title: 'Data Configuration', category: 'booked' },
+    'credit-holds-entered': {
+      dataKey: 'ch',
+      title: 'Credit Holds',
+      category: 'entered',
+    },
+    'process-exceptions-entered': {
+      dataKey: 'pe',
+      title: 'Process Exceptions',
+      category: 'entered',
+    },
+    'other-exceptions-entered': {
+      dataKey: 'ot',
+      title: 'Other Exceptions',
+      category: 'entered',
+    },
+    'booking-holds-entered': {
+      dataKey: 'bh',
+      title: 'Booking Holds',
+      category: 'entered',
+    },
+    'export-compliance-booked': {
+      dataKey: 'ec',
+      title: 'Export Compliance',
+      category: 'booked',
+    },
   };
 
   constructor(
     private http: ApiHttpService,
-    private destroyManager: DestroyManager,
-    private route: ActivatedRoute,
-    private router: Router,
-    private filtersService: FiltersService
+    private destroyManager: DestroyManager
   ) {}
 
   ngOnInit(): void {
-    this.getOrderBieException();
+    // Load all data on init
+    Object.keys(this.exceptionData).forEach((key) => {
+      this.loadExceptionData(key);
+    });
   }
 
-  // Data preparation and accordion methods
+  // Generic data loading method
+  private loadExceptionData(dataKey: string): void {
+    const data = this.exceptionData[dataKey];
+    if (!data) return;
+
+    data.loading = true;
+    this.http
+      .get(data.apiEndpoint, this.destroyManager)
+      .subscribe((response: any) => {
+        data.dataSource.data = response;
+        data.displayedColumns = Object.keys(response[0] || {});
+        data.pieChartData = this.prepareDonutData(response);
+        data.loading = false;
+      });
+  }
+
+  // Data preparation method
   prepareDonutData(rawData: any[]): any[] {
     const groupedData = rawData.reduce((acc, item) => {
       const holdReason = item.HOLD_REASON || 'Unknown';
@@ -101,15 +159,20 @@ export class O2cOrderComponent implements OnInit {
     }));
   }
 
+  // View management
   toggleAccordion(index: number): void {
     this.isOpen[index] = !this.isOpen[index];
   }
 
-  // View management
   showDetailTable(detailType: string): void {
     this.currentDetailType = detailType;
     this.showDetailView = true;
-    this.loadDataForDetailType(detailType);
+
+    // Reload data for this specific type if needed
+    const config = this.detailTypeConfig[detailType];
+    if (config) {
+      this.loadExceptionData(config.dataKey);
+    }
   }
 
   goBack(): void {
@@ -117,93 +180,69 @@ export class O2cOrderComponent implements OnInit {
     this.currentDetailType = '';
   }
 
-  // Data loading
-  private loadDataForDetailType(detailType: string): void {
-    switch (detailType) {
-      case 'bie-order-entered':
-        this.getOrderBieException();
-        break;
-      // Add other API calls here as they're implemented
-      default:
-        console.log(`Loading data for ${detailType}...`);
-    }
+  // Helper method to get current data configuration
+  private getCurrentConfig() {
+    const config = this.detailTypeConfig[this.currentDetailType];
+    if (!config) return null;
+
+    return {
+      config,
+      data: this.exceptionData[config.dataKey],
+    };
   }
 
-  getOrderBieException(): void {
-    this.orderBieExceptionLoading = true;
-    this.http
-      .get('o2c-order-bie-exception-v', this.destroyManager)
-      .subscribe((data: any) => {
-        this.orderBieExceptionDataSource.data = data;
-        this.orderBieExceptionDisplayedColumns = Object.keys(data[0] || {});
-        this.orderBiePieChartData = this.prepareDonutData(data);
-        this.orderBieExceptionLoading = false;
-      });
-  }
-
-  // Current state getters (used by template)
+  // Simplified getters using the helper method
   getCurrentTitle(): string {
-    return this.detailTypeConfig[this.currentDetailType]?.title || '';
+    return this.getCurrentConfig()?.config.title || '';
   }
 
   getCurrentSubtitle(): string {
-    const category = this.detailTypeConfig[this.currentDetailType]?.category;
+    const category = this.getCurrentConfig()?.config.category;
     return category === 'entered'
       ? 'Orders Entered Not Booked'
       : 'Orders Booked to Fulfillment';
   }
 
   getCurrentFileName(): string {
-    const baseNames = {
-      'bie-order-entered': 'O2C Order BIE Exceptions',
-      'credit-holds-entered': 'O2C Credit Holds Exceptions',
-      'data-config-entered': 'O2C Data Config Exceptions',
-      'process-exceptions-entered': 'O2C Process Exceptions',
-    };
-    return baseNames[this.currentDetailType] || 'O2C Exceptions';
+    const title = this.getCurrentTitle();
+    return title ? `O2C ${title} Exceptions` : 'O2C Exceptions';
   }
 
   getCurrentDataSource(): MatTableDataSource<any> {
-    switch (this.currentDetailType) {
-      case 'bie-order-entered':
-        return this.orderBieExceptionDataSource;
-      default:
-        return new MatTableDataSource<any>();
-    }
+    return (
+      this.getCurrentConfig()?.data.dataSource || new MatTableDataSource<any>()
+    );
   }
 
   getCurrentDisplayedColumns(): string[] {
-    switch (this.currentDetailType) {
-      case 'bie-order-entered':
-        return this.orderBieExceptionDisplayedColumns;
-      default:
-        return [];
-    }
+    return this.getCurrentConfig()?.data.displayedColumns || [];
   }
 
   getCurrentLoadingState(): boolean {
-    switch (this.currentDetailType) {
-      case 'bie-order-entered':
-        return this.orderBieExceptionLoading;
-      default:
-        return false;
-    }
+    return this.getCurrentConfig()?.data.loading || false;
   }
 
-  // Dummy data getters for template
-  get dummyData1() {
-    return this.dummyData.multi;
+  getCurrentPieChartData(): any[] {
+    return this.getCurrentConfig()?.data.pieChartData || [];
   }
-  get dummyData2() {
-    return this.dummyData.single;
+
+  // Convenience getters for template (to maintain backwards compatibility)
+  get orderBiePieChartData() {
+    return this.exceptionData['bie'].pieChartData;
   }
-  get dummyData3() {
-    return this.dummyData.config;
+  get orderChPieChartData() {
+    return this.exceptionData['ch'].pieChartData;
   }
-  get dummyData4() {
-    return this.dummyData.fourItems;
+  get orderPePieChartData() {
+    return this.exceptionData['pe'].pieChartData;
   }
-  get dummyData5() {
-    return this.dummyData.single;
+  get orderOtPieChartData() {
+    return this.exceptionData['ot'].pieChartData;
+  }
+  get orderBhPieChartData() {
+    return this.exceptionData['bh'].pieChartData;
+  }
+  get orderEcPieChartData() {
+    return this.exceptionData['ec'].pieChartData;
   }
 }

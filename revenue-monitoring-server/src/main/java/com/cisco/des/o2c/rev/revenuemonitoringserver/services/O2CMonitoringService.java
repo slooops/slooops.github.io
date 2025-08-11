@@ -31,6 +31,25 @@ public class O2CMonitoringService {
     private String tsvAccounts;
     private String financialSummaryView;
     private String o2cOrderBieExceptionV;
+    private String o2cOrderChExceptionV;
+    private String o2cOrderPeExceptionV;
+    private String o2cOrderOtExceptionV;
+    private String o2cOrderBhExceptionV;
+    private String o2cOrderEcExceptionV;
+    private String o2cOrderSabExceptionV;
+    private String o2cOrderSubotExceptionV;
+    private String o2cOrderPreinvExceptionV;
+    private String o2cOrderInvExceptionV;
+    private String o2cOrderInvpidExceptionV;
+    private String o2cOrderInvothExceptionV;
+    private String o2cOrderCaExceptionV;
+    private String o2cOrderSlaExceptionV;
+    private String o2cOrderGlExceptionV;
+    private String o2cOrderAccotExceptionV;
+    private String o2cOrderPastdueExceptionV;
+    private String o2cOrderPartialpayExceptionV;
+    private String o2cOrderUnidentifiedExceptionV;
+    private String o2cOrderCashothExceptionV;
 
 
     @Autowired
@@ -39,7 +58,26 @@ public class O2CMonitoringService {
             String subscriptionLineSummary, String o2cConnector, String sbpBillScheduleHeader, String sbpBillSchedules,
                                 String sbpBillScheduleLines, String financialSummaryPgkProc, String tsvPkgProc,
                                 String tsvTopSku, String tsvSubSku, String tsvAccounts, String financialSummaryView,
-                                String o2cOrderBieExceptionV) {
+                                String o2cOrderBieExceptionV,     String o2cOrderChExceptionV,
+                                String o2cOrderPeExceptionV,
+                                String o2cOrderOtExceptionV,
+                                String o2cOrderBhExceptionV,
+                                String o2cOrderEcExceptionV,
+                                String o2cOrderSabExceptionV,
+                                String o2cOrderSubotExceptionV,
+                                String o2cOrderPreinvExceptionV,
+                                String o2cOrderInvExceptionV,
+                                String o2cOrderInvpidExceptionV,
+                                String o2cOrderInvothExceptionV,
+                                String o2cOrderCaExceptionV,
+                                String o2cOrderSlaExceptionV,
+                                String o2cOrderGlExceptionV,
+                                String o2cOrderAccotExceptionV,
+                                String o2cOrderPastdueExceptionV,
+                                String o2cOrderPartialpayExceptionV,
+                                String o2cOrderUnidentifiedExceptionV,
+                                String o2cOrderCashothExceptionV
+    ) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
         this.invoiceSummary = invoiceSummary;
@@ -57,6 +95,25 @@ public class O2CMonitoringService {
         this.tsvAccounts = tsvAccounts;
         this.financialSummaryView = financialSummaryView;
         this.o2cOrderBieExceptionV = o2cOrderBieExceptionV;
+        this.o2cOrderChExceptionV = o2cOrderChExceptionV;
+        this.o2cOrderPeExceptionV = o2cOrderPeExceptionV;
+        this.o2cOrderOtExceptionV = o2cOrderOtExceptionV;
+        this.o2cOrderBhExceptionV = o2cOrderBhExceptionV;
+        this.o2cOrderEcExceptionV = o2cOrderEcExceptionV;
+        this.o2cOrderSabExceptionV = o2cOrderSabExceptionV;
+        this.o2cOrderSubotExceptionV = o2cOrderSubotExceptionV;
+        this.o2cOrderPreinvExceptionV = o2cOrderPreinvExceptionV;
+        this.o2cOrderInvExceptionV = o2cOrderInvExceptionV;
+        this.o2cOrderInvpidExceptionV = o2cOrderInvpidExceptionV;
+        this.o2cOrderInvothExceptionV = o2cOrderInvothExceptionV;
+        this.o2cOrderCaExceptionV = o2cOrderCaExceptionV;
+        this.o2cOrderSlaExceptionV = o2cOrderSlaExceptionV;
+        this.o2cOrderGlExceptionV = o2cOrderGlExceptionV;
+        this.o2cOrderAccotExceptionV = o2cOrderAccotExceptionV;
+        this.o2cOrderPastdueExceptionV = o2cOrderPastdueExceptionV;
+        this.o2cOrderPartialpayExceptionV = o2cOrderPartialpayExceptionV;
+        this.o2cOrderUnidentifiedExceptionV = o2cOrderUnidentifiedExceptionV;
+        this.o2cOrderCashothExceptionV = o2cOrderCashothExceptionV;
     }
 
     public List<Map<String, Object>> getOrderSummary(String orderId) {
@@ -220,5 +277,81 @@ public class O2CMonitoringService {
 
     public List<Map<String, Object>> getO2cOrderBieExceptionV() {
         return jdbcManager.queryForList(o2cOrderBieExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderChExceptionV() {
+        return jdbcManager.queryForList(o2cOrderChExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderPeExceptionV() {
+        return jdbcManager.queryForList(o2cOrderPeExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderOtExceptionV() {
+        return jdbcManager.queryForList(o2cOrderOtExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderBhExceptionV() {
+        return jdbcManager.queryForList(o2cOrderBhExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderEcExceptionV() {
+        return jdbcManager.queryForList(o2cOrderEcExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderSabExceptionV() {
+        return jdbcManager.queryForList(o2cOrderSabExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderSubotExceptionV() {
+        return jdbcManager.queryForList(o2cOrderSubotExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderPreinvExceptionV() {
+        return jdbcManager.queryForList(o2cOrderPreinvExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderInvExceptionV() {
+        return jdbcManager.queryForList(o2cOrderInvExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderInvpidExceptionV() {
+        return jdbcManager.queryForList(o2cOrderInvpidExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderInvothExceptionV() {
+        return jdbcManager.queryForList(o2cOrderInvothExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderCaExceptionV() {
+        return jdbcManager.queryForList(o2cOrderCaExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderSlaExceptionV() {
+        return jdbcManager.queryForList(o2cOrderSlaExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderGlExceptionV() {
+        return jdbcManager.queryForList(o2cOrderGlExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderAccotExceptionV() {
+        return jdbcManager.queryForList(o2cOrderAccotExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderPastdueExceptionV() {
+        return jdbcManager.queryForList(o2cOrderPastdueExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderPartialpayExceptionV() {
+        return jdbcManager.queryForList(o2cOrderPartialpayExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderUnidentifiedExceptionV() {
+        return jdbcManager.queryForList(o2cOrderUnidentifiedExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cOrderCashothExceptionV() {
+        return jdbcManager.queryForList(o2cOrderCashothExceptionV);
     }
 }

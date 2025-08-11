@@ -361,14 +361,14 @@ button.link-button:hover .ccw-button-text {
 }
 
 /* For medium-sized screens */
-@media screen and (max-width: 1400px) {
+@media screen and (max-width: 1800px) {
   .o2c-donut-row {
     grid-template-columns: repeat(2, 1fr); /* 2x2 + 1 layout */
   }
 }
 
 /* For smaller screens */
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1200px) {
   .o2c-donut-row {
     grid-template-columns: 1fr; /* Stack all items vertically */
   }

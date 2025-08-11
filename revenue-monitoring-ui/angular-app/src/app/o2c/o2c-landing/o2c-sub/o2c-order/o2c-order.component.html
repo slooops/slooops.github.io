@@ -1,165 +1,149 @@
-<div>
-  <!-- Accordion View (hidden when detail view is shown) -->
-  <div *ngIf="!showDetailView">
-    <div class="o2c-container accordion-container">
-      <div class="order-banner accordion-header order-status-banner">
-        <div class="status-dot"></div>
-        <div>Order Entered to Booked</div>
-      </div>
-    </div>
-
-    <div class="o2c-container accordion-container">
-      <div class="o2c-donut-row">
-        <app-o2c-accordion
-          [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
-          [isOpen]="isOpen[1]"
-          (toggleOpen)="toggleAccordion(1)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('bie-order-entered')"
-        >
-          <app-o2c-donut
-            [data]="orderBiePieChartData"
-            canvasId="donutChart1"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-
-        <app-o2c-accordion
-          [title]="'Credit Holds'"
-          [isOpen]="isOpen[2]"
-          (toggleOpen)="toggleAccordion(2)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('credit-holds-entered')"
-        >
-          <app-o2c-donut
-            [data]="dummyData2"
-            canvasId="donutChart2"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-
-        <app-o2c-accordion
-          [title]="'Data Configuration'"
-          [isOpen]="isOpen[3]"
-          (toggleOpen)="toggleAccordion(3)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('data-config-entered')"
-        >
-          <app-o2c-donut
-            [data]="dummyData3"
-            canvasId="donutChart3"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-
-        <app-o2c-accordion
-          [title]="'Donut Chart 4 Title'"
-          [isOpen]="isOpen[4]"
-          (toggleOpen)="toggleAccordion(4)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('chart4-entered')"
-        >
-          <app-o2c-donut
-            [data]="dummyData4"
-            canvasId="donutChart4"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-
-        <app-o2c-accordion
-          [title]="'Process Exceptions'"
-          [isOpen]="isOpen[5]"
-          (toggleOpen)="toggleAccordion(5)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('process-exceptions-entered')"
-        >
-          <app-o2c-donut
-            [data]="dummyData5"
-            canvasId="donutChart5"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-      </div>
-    </div>
-
-    <div class="o2c-container accordion-container">
-      <div class="order-banner accordion-header order-status-banner">
-        <div class="status-dot"></div>
-        <div>Order Booked to Fulfillment</div>
-      </div>
-    </div>
-
-    <div class="o2c-container accordion-container">
-      <div class="o2c-donut-row">
-        <app-o2c-accordion
-          [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
-          [isOpen]="isOpen[6]"
-          (toggleOpen)="toggleAccordion(6)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('bie-booked')"
-        >
-          <app-o2c-donut
-            [data]="dummyData1"
-            canvasId="donutChart6"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-
-        <app-o2c-accordion
-          [title]="'Credit Holds'"
-          [isOpen]="isOpen[7]"
-          (toggleOpen)="toggleAccordion(7)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('credit-holds-booked')"
-        >
-          <app-o2c-donut
-            [data]="dummyData2"
-            canvasId="donutChart7"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-
-        <app-o2c-accordion
-          [title]="'Data Configuration'"
-          [isOpen]="isOpen[8]"
-          (toggleOpen)="toggleAccordion(8)"
-          linkHref="#"
-          linkText="View Details"
-          (linkClick)="showDetailTable('data-config-booked')"
-        >
-          <app-o2c-donut
-            [data]="dummyData3"
-            canvasId="donutChart8"
-          ></app-o2c-donut>
-        </app-o2c-accordion>
-      </div>
+<!-- Accordion View (hidden when detail view is shown) -->
+<div *ngIf="!showDetailView">
+  <div class="o2c-container accordion-container">
+    <div class="order-banner accordion-header order-status-banner">
+      <div class="status-dot"></div>
+      <div>Order Entered to Booked</div>
     </div>
   </div>
 
-  <!-- Detail View (shown when a "View Details" link is clicked) -->
-  <div *ngIf="showDetailView">
-    <div class="order-info" style="margin-top: 20px">
-      <button class="back-btn-floating" (click)="goBack()">
-        <i class="back-icon" style="margin-top: -4px"></i> Back
-      </button>
-      <div class="exception-title">
-        {{ getCurrentTitle() }}
-      </div>
-    </div>
+  <div class="o2c-container accordion-container">
+    <div class="o2c-donut-row">
+      <app-o2c-accordion
+        [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
+        [isOpen]="isOpen[1]"
+        (toggleOpen)="toggleAccordion(1)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('bie-order-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderBiePieChartData"
+          canvasId="donutChart1"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
 
-    <div class="accordion-header exceptions-padding">
-      {{ getCurrentSubtitle() }}
-      <app-o2c-toolbar
-        [fileName]="getCurrentFileName()"
-        [data]="getCurrentDataSource()?.data || []"
-      ></app-o2c-toolbar>
-    </div>
+      <app-o2c-accordion
+        [title]="'Credit Holds'"
+        [isOpen]="isOpen[2]"
+        (toggleOpen)="toggleAccordion(2)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('credit-holds-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderChPieChartData"
+          canvasId="donutChart2"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
 
-    <!-- Use direct method calls instead of config object -->
-    <app-o2c-table
-      [dataSource]="getCurrentDataSource()"
-      [displayedColumns]="getCurrentDisplayedColumns()"
-      [isLoading]="getCurrentLoadingState()"
-    ></app-o2c-table>
+      <app-o2c-accordion
+        [title]="'Process Exceptions'"
+        [isOpen]="isOpen[3]"
+        (toggleOpen)="toggleAccordion(3)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('process-exceptions-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderPePieChartData"
+          canvasId="donutChart3"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'Other Exceptions'"
+        [isOpen]="isOpen[4]"
+        (toggleOpen)="toggleAccordion(4)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('other-exceptions-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderOtPieChartData"
+          canvasId="donutChart4"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'Booking Holds'"
+        [isOpen]="isOpen[5]"
+        (toggleOpen)="toggleAccordion(5)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('booking-holds-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderBhPieChartData"
+          canvasId="donutChart5"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+    </div>
   </div>
+
+  <div class="o2c-container accordion-container">
+    <div class="order-banner accordion-header order-status-banner">
+      <div class="status-dot"></div>
+      <div>Order Booked to Fulfillment</div>
+    </div>
+  </div>
+
+  <div class="o2c-container accordion-container">
+    <div class="o2c-donut-row">
+      <app-o2c-accordion
+        [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
+        [isOpen]="isOpen[6]"
+        (toggleOpen)="toggleAccordion(6)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('bie-booked')"
+      >
+        <app-o2c-donut
+          [data]="orderBiePieChartData"
+          canvasId="donutChart6"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'Export Compliance'"
+        [isOpen]="isOpen[7]"
+        (toggleOpen)="toggleAccordion(7)"
+        linkHref="#"
+        linkText="View Details"
+        (linkClick)="showDetailTable('export-compliance-booked')"
+      >
+        <app-o2c-donut
+          [data]="orderEcPieChartData"
+          canvasId="donutChart7"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+    </div>
+  </div>
+</div>
+
+<!-- Detail View (shown when a "View Details" link is clicked) -->
+<div *ngIf="showDetailView">
+  <div class="order-info" style="margin-top: 20px">
+    <button class="back-btn-floating" (click)="goBack()">
+      <i class="back-icon" style="margin-top: -4px"></i> Back
+    </button>
+    <div class="exception-title">
+      {{ getCurrentTitle() }}
+    </div>
+  </div>
+
+  <div class="accordion-header exceptions-padding">
+    {{ getCurrentSubtitle() }}
+    <app-o2c-toolbar
+      [fileName]="getCurrentFileName()"
+      [data]="getCurrentDataSource()?.data || []"
+    ></app-o2c-toolbar>
+  </div>
+
+  <!-- Use direct method calls instead of config object -->
+  <app-o2c-table
+    [dataSource]="getCurrentDataSource()"
+    [displayedColumns]="getCurrentDisplayedColumns()"
+    [isLoading]="getCurrentLoadingState()"
+  ></app-o2c-table>
 </div>
