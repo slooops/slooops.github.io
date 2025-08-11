@@ -33,7 +33,7 @@ public class GLPostingMonitoringService{
 
     // General Ledger
     public List<Map<String, Object>> getGlErrorSummary() {
-        List<Map<String, Object>> result = common.checkRedisForCachedData("GlErrorSummary", glErrorSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("GlErrorSummary", glErrorSummary);
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             data.remove("AGING");
@@ -57,7 +57,7 @@ public class GLPostingMonitoringService{
     }
 
     public List<Map<String, Object>> getGlErrorDetails() {
-        List<Map<String, Object>> result = common.checkRedisForCachedData("GlErrorDetails", glErrorDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("GlErrorDetails", glErrorDetails);
         return result;
     }
 

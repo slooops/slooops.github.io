@@ -210,21 +210,19 @@ public class PostInvoicingMonitoringController {
     public ResponseEntity<Map<String, Object>> getSRTProcessDetailsFiltered(
             @RequestParam List<String> periodNames,
             @RequestParam List<String> orgNames,
-            @RequestParam List<String> eventTypes,
             @RequestParam List<String> processFlows,
             @RequestParam List<String> srtDates) {
         try {
             List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
             int minLength = Math.min(periodNames.size(), Math.min(orgNames.size(),
-                    Math.min(eventTypes.size(), Math.min(processFlows.size(), srtDates.size()))));
+                     Math.min(processFlows.size(), srtDates.size())));
 
             for (int i = 0; i < minLength; i++) {
                 String periodName = periodNames.get(i);
                 String ouName = orgNames.get(i);
-                String eventType = eventTypes.get(i);
                 String srtDate = srtDates.get(i);
                 String processFlow = processFlows.get(i);
-                List<Map<String, Object>> result = service.getSRTProcessDetailsFiltered(periodName, processFlow, eventType, ouName, srtDate);
+                List<Map<String, Object>> result = service.getSRTProcessDetailsFiltered(periodName, processFlow, ouName, srtDate);
                 errorDetailsFiltered.addAll(result);
             }
             Map<String, Object> response = new HashMap<>();

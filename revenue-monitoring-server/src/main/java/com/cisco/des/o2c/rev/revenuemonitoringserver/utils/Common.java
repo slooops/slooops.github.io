@@ -14,19 +14,15 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class Common {
 
-    @Autowired
-    private RedisRepositoryImpl redisRepository;
     private JdbcManager jdbcManager;
     private String invoiceToCashSummary;
     private String summaryAssignmentUsers;
     private String rolErrorsSummaryPeriodStatus;
-    @Value("${app.use-redis:true}")
-    private boolean useRedis;
-
 
     private Logger logger = LoggerFactory.getLogger(Common.class);
 
@@ -36,43 +32,6 @@ public class Common {
         this.summaryAssignmentUsers = summaryAssignmentUsers;
         this.invoiceToCashSummary = invoiceToCashSummary;
     }
-
-    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql){
-        try {
-            if (redisRepository.findData(cacheId) != null) {
-                System.out.println("Fetching data from Redis cache for " + cacheId);
-                List<Map<String, Object>> result = redisRepository.findData(cacheId);
-                return result;
-            } else {
-                System.out.println("Fetching data from database for " + cacheId);
-                List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
-                redisRepository.add(cacheId, retObject);
-                return retObject;
-            }
-        } catch (Exception e) {
-            logger.error("Exception in get"+cacheId+"():: " + e);
-        }
-        return null;
-    }
-
-//    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql) {
-//        try {
-//            if (useRedis && redisRepository.findData(cacheId) != null) {
-//                System.out.println("Fetching data from Redis cache for " + cacheId);
-//                return redisRepository.findData(cacheId);
-//            } else {
-//                System.out.println("Fetching data from database for " + cacheId);
-//                List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
-//                if (useRedis) {
-//                    redisRepository.add(cacheId, retObject);
-//                }
-//                return retObject;
-//            }
-//        } catch (Exception e) {
-//            logger.error("Exception in get" + cacheId + "():: " + e);
-//        }
-//        return null;
-//    }
 
     public void renameKey(Map<String, Object> data, String oldKey, String newKey) {
         List<Map.Entry<String, Object>> entries = new ArrayList<>(data.entrySet());
@@ -242,5 +201,73 @@ public class Common {
         }
         
         return null;
+    }
+
+    public List<Map<String, Object>> transformForActiveIncidentsSummary(List<Map<String, Object>> data) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        int grandTotal = 0;
+
+        Map<String, List<Map<String, Object>>> grouped = data.stream()
+                .collect(Collectors.groupingBy(row -> String.valueOf(row.get("TRACK"))));
+
+        for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
+            String track = entry.getKey();
+            List<Map<String, Object>> rows = entry.getValue();
+
+            // Add subtotal before the rows
+            Map<String, Object> subtotalRow = new LinkedHashMap<>();
+            subtotalRow.put("Track", "Sub Total (" + track + ")");
+            subtotalRow.put("Count", rows.size());
+            result.add(subtotalRow);
+
+            // Add the detailed rows
+            for (Map<String, Object> row : rows) {
+                Map<String, Object> newRow = new LinkedHashMap<>();
+                newRow.put("Track", track);
+                newRow.put("Count", 1);
+                newRow.put("Issue Status", row.get("ISSUE_STATUS"));
+                newRow.put("IT Approval", row.get("IT_APPROVAL"));
+                newRow.put("Approved On", formatDate(String.valueOf(row.get("APPROVED_ON"))));
+                newRow.put("Issue Description", row.get("ISSUE_DESCRIPTION"));
+                result.add(newRow);
+            }
+
+            grandTotal += rows.size();
+        }
+
+        // Add grand total at the top
+        Map<String, Object> totalRow = new LinkedHashMap<>();
+        totalRow.put("Track", "Total");
+        totalRow.put("Count", grandTotal);
+        result.add(totalRow); // insert at the beginning
+
+        return result;
+    }
+
+    private static String formatDate(String isoDate) {
+        if (isoDate == null || isoDate.isBlank() || isoDate.equalsIgnoreCase("null")) {
+            return "";
+        }
+
+        // If it contains '=', split and take the last part
+        if (isoDate.contains("=")) {
+            isoDate = isoDate.split("=")[1].trim();
+        }
+
+        // If still "null" after splitting, return empty
+        if (isoDate.equalsIgnoreCase("null")) {
+            return "";
+        }
+
+        // Take only the date portion (before the space)
+        String datePart = isoDate.split(" ")[0];
+
+        // Validate date pattern
+        try {
+            return LocalDate.parse(datePart, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                    .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+        } catch (Exception e) {
+            return ""; // or return isoDate if you want the original string
+        }
     }
 }

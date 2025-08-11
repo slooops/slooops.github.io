@@ -85,7 +85,7 @@ public class PostInvoicingMonitoringService {
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("CmAmortSummary", cmAmortSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CmAmortSummary", cmAmortSummary);
         result.forEach(data -> {
             data.remove("AGING");
             common.formatDateColumns(data, dateColumns);
@@ -109,7 +109,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getCMAmortErrorDetails() {
         String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("CmAmortDetails", cmAmortDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CmAmortDetails", cmAmortDetails);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -141,7 +141,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getPrintErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("PrintSummary", printSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PrintSummary", printSummary);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -164,7 +164,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getPrintErrorDetails() {
         String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("PrintDetail", printDetail);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PrintDetail", printDetail);
 //        result.forEach(data -> {
 //            formatDateColumns(data, dateColumns);
 //        });
@@ -173,13 +173,19 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getCreditCardSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("CreditCardSummary", creditCardSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardSummary", creditCardSummary);
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
         return result;
     }
 
     public List<Map<String, Object>> getCreditCardDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("CreditCardDetails", creditCardDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardDetails", creditCardDetails);
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
         return result;
     }
 
@@ -214,7 +220,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getRpoExtractSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("RpoExtractSummary", rpoExtractSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RpoExtractSummary", rpoExtractSummary);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -237,7 +243,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getRpoExtractDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("RpoExtractDetails", rpoExtractDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RpoExtractDetails", rpoExtractDetails);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -268,7 +274,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getSrtProcessSummary() {
         String[] dateColumns = { "SRT_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("SrtProcessSummary", srtProcessSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("SrtProcessSummary", srtProcessSummary);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -291,7 +297,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getSrtProcessDetails() {
         String[] dateColumns = { "SRT_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("SrtProcessDetails", srtProcessDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("SrtProcessDetails", srtProcessDetails);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -299,10 +305,10 @@ public class PostInvoicingMonitoringService {
     }
 
     public List<Map<String, Object>> getSRTProcessDetailsFiltered(String periodName,
-                                                                  String processFlow, String eventType, String ouName, String srtDate) {
+                                                                  String processFlow, String ouName, String srtDate) {
         String[] dateColumns = { "SRT_DATE" };
         List<Map<String, Object>> result = jdbcManager.getSRTProcessDetailsFiltered(
-                srtProcessDetailsFilter, periodName, processFlow, eventType, ouName, srtDate);
+                srtProcessDetailsFilter, periodName, processFlow, ouName, srtDate);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -323,7 +329,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getPCMApplicationSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("PcmApplicationSummary", pcmApplicationSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PcmApplicationSummary", pcmApplicationSummary);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -346,7 +352,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getPCMApplicationDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("PcmApplicationDetails", pcmApplicationDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PcmApplicationDetails", pcmApplicationDetails);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });

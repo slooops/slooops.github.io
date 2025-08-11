@@ -1,7 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
-import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.ExcelReader;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +36,6 @@ public class PeriodCloseMonitoringService {
     private String wd0ArMidCloseStatusQuery;
     private String wd0ArMidCloseHeaderDataQuery;
     private String wd0HistoricalDataQuery;
-    private String personaAccessRoles;
     private String wd0Regression;
     private String wd0CurrentMonth;
     private String deleteSelectedDeals;
@@ -50,24 +46,11 @@ public class PeriodCloseMonitoringService {
     private String largeDealSummaryByAccount;
     private String cloSampleDownloadData;
     private String wd0Volumes;
-    private String espAgingCaseSummary;
-    private String espCaseServiceMetricSummary;
-    private String espWeeklyComparisonSummary;
     private Boolean isQuarterEnd;
     private String periodName;
-    private String issueReportingDash;
-    private String issueReportingDashInsert;
-    private String issueReportingDashApprove;
-    private String issueReportingDashCommentsUpdate;
-    private String issueReportingDashFixDetailsUpdate;
-    private String issueReportingDashStatusUpdate;
-    private String issueReportingDashIssueDescUpdate;
     private String wd0MidcloseActualsProduct;
     private String wd0MidcloseActualsService;
-    private String issueReportingDashSummary;
-    private String sbpEspAgingCaseSummary;
-    private String sbpEspCaseServiceMetricSummary;
-    private String sbpEspWeeklyComparisonSummary;
+
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
@@ -76,17 +59,12 @@ public class PeriodCloseMonitoringService {
             String updateComments, String wd0ArMidCloseStatusQuery,
             String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
             String orderStatusSummary, String orderStatusDownload, String updateOrderStatus,
-            String orderStatusRevSummary, String personaAccessRoles, String wd0Regression, String wd0CurrentMonth,
+            String orderStatusRevSummary,  String wd0Regression, String wd0CurrentMonth,
             String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
-                                        String wd0Volumes,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
-                                        String espWeeklyComparisonSummary, String periodName, String issueReportingDash,
-                                        String issueReportingDashInsert, String issueReportingDashApprove,
-                                        String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate,
-                                        String wd0MidcloseActualsProduct, String wd0MidcloseActualsService,
-                                        String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate,
-                                        String issueReportingDashSummary, String sbpEspAgingCaseSummary,
-                                        String sbpEspCaseServiceMetricSummary, String sbpEspWeeklyComparisonSummary) {
+                                        String wd0Volumes,  String periodName,
+                                        String wd0MidcloseActualsProduct, String wd0MidcloseActualsService
+                                        ) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -104,7 +82,6 @@ public class PeriodCloseMonitoringService {
         this.orderStatusDownload = orderStatusDownload;
         this.updateOrderStatus = updateOrderStatus;
         this.orderStatusRevSummary = orderStatusRevSummary;
-        this.personaAccessRoles = personaAccessRoles;
         this.wd0Regression = wd0Regression;
         this.wd0CurrentMonth = wd0CurrentMonth;
         this.deleteSelectedDeals = deleteSelectedDeals;
@@ -115,177 +92,9 @@ public class PeriodCloseMonitoringService {
         this.largeDealSummaryByAccount = largeDealSummaryByAccount;
         this.cloSampleDownloadData = cloSampleDownloadData;
         this.wd0Volumes = wd0Volumes;
-        this.espAgingCaseSummary = espAgingCaseSummary;
-        this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
-        this.espWeeklyComparisonSummary = espWeeklyComparisonSummary;
         this.periodName = periodName;
-        this.issueReportingDash = issueReportingDash;
-        this.issueReportingDashInsert = issueReportingDashInsert;
-        this.issueReportingDashApprove = issueReportingDashApprove;
-        this.issueReportingDashCommentsUpdate = issueReportingDashCommentsUpdate;
-        this.issueReportingDashFixDetailsUpdate = issueReportingDashFixDetailsUpdate;
-        this.issueReportingDashStatusUpdate = issueReportingDashStatusUpdate;
-        this.issueReportingDashIssueDescUpdate = issueReportingDashIssueDescUpdate;
         this.wd0MidcloseActualsProduct = wd0MidcloseActualsProduct;
         this.wd0MidcloseActualsService = wd0MidcloseActualsService;
-        this.issueReportingDashSummary = issueReportingDashSummary;
-        this.sbpEspAgingCaseSummary = sbpEspAgingCaseSummary;
-        this.sbpEspCaseServiceMetricSummary = sbpEspCaseServiceMetricSummary;
-        this.sbpEspWeeklyComparisonSummary = sbpEspWeeklyComparisonSummary;
-    }
-
-    public List<Map<String, Object>> getIssueReportingData() {
-        String[] dateColumns = { "START_DATE", "REPORTED_DATE" };
-        List<Map<String, Object>> result = jdbcManager.queryForList(issueReportingDash);
-        result.forEach(data -> {
-            formatDateColumns(data, dateColumns);
-        });
-        return result;
-    }
-
-    public List<Map<String, Object>> getIssueReportingDataSummary() {
-        List<Map<String, Object>> result = jdbcManager.queryForList(issueReportingDashSummary);
-        List<Map<String, Object>> finalRes = transform(result);
-        return finalRes;
-    }
-
-    public void insertIssueReportingData(MultipartFile file, String username) throws IOException {
-        try {
-            List<Map<String, String>> data = ExcelReader.readExcel(file.getInputStream());
-
-            for (Map<String, String> row : data) {
-                jdbcManager.insertIssueReport(issueReportingDashInsert, row.get("TRACK"), row.get("ISSUE_DESCRIPTION"), row.get("ROOT_CAUSE"), row.get("BUSINESS_IMPACT"),
-                        row.get("FIX_DETAILS"), row.get("INCIDENT_NUMBER"), row.get("ISSUE_STARTED"), row.get("ISSUE_REPORTED_ON"), row.get("ISSUE_REPORTED_BY"),
-                        row.get("QUARTER"), row.get("PERIOD_NAME"), row.get("PRIORITY"), row.get("CODE_FIX"), row.get("PDF_REQUIRED"), row.get("BUSINESS_APROVAL"),
-                        row.get("IT_APPROVAL"), row.get("APPROVAL_COMMENTS"), row.get("PERIOD_CLOSE_IMPACTING"), row.get("ISSUE_STATUS"), row.get("EOC_INCIDENT"), username);
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
-    }
-
-    public int approveRejectIssueReporting(String approval, String approvedBy, String incidentNum) {
-        int test = jdbcManager.approveRejectIssueReport(issueReportingDashApprove, approval, approvedBy, incidentNum);
-        return test;
-    }
-
-    public int updateCommentsIssueReporting(String comments, String approvedBy, String incidentNum) {
-        int test = jdbcManager.updateCommentsIssueReport(issueReportingDashCommentsUpdate, comments, approvedBy, incidentNum);
-        return test;
-    }
-
-    public int updateFixDetailsIssueReporting(String fixDetails, String approvedBy, String incidentNum) {
-        int test = jdbcManager.updateFixDetailsIssueReport(issueReportingDashFixDetailsUpdate, fixDetails, approvedBy, incidentNum);
-        return test;
-    }
-
-    public int updateStatusIssueReporting(String status, String approvedBy, String incidentNum) {
-        int test = jdbcManager.updateStatusIssueReport(issueReportingDashStatusUpdate, status, approvedBy, incidentNum);
-        return test;
-    }
-
-    public int updateIssueDescIssueReporting(String issue, String rootCause, String businessImpact, String approvedBy, String incidentNum) {
-        int test = jdbcManager.updateIssueDescIssueReport(issueReportingDashIssueDescUpdate, issue, rootCause, businessImpact, approvedBy, incidentNum);
-        return test;
-    }
-
-    public void bulkApproveRejectIssueReporting(List<Map<String, Object>> approveData){
-        for(Map<String, Object> data: approveData) {
-            approveRejectIssueReporting((String)data.get("status"), (String)data.get("approvedBy"), (String)data.get("incidentNumber"));
-        }
-    }
-
-    public static List<Map<String, Object>> transform(List<Map<String, Object>> data) {
-        List<Map<String, Object>> result = new ArrayList<>();
-        int grandTotal = 0;
-
-        Map<String, List<Map<String, Object>>> grouped = data.stream()
-                .collect(Collectors.groupingBy(row -> String.valueOf(row.get("TRACK"))));
-
-        for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
-            String track = entry.getKey();
-            List<Map<String, Object>> rows = entry.getValue();
-
-            // Add subtotal before the rows
-            Map<String, Object> subtotalRow = new LinkedHashMap<>();
-            subtotalRow.put("Track", "Sub Total (" + track + ")");
-            subtotalRow.put("Count", rows.size());
-            result.add(subtotalRow);
-
-            // Add the detailed rows
-            for (Map<String, Object> row : rows) {
-                Map<String, Object> newRow = new LinkedHashMap<>();
-                newRow.put("Track", track);
-                newRow.put("Count", 1);
-                newRow.put("Issue Status", row.get("ISSUE_STATUS"));
-                newRow.put("IT Approval", row.get("IT_APPROVAL"));
-                newRow.put("Approved On", formatDate(String.valueOf(row.get("APPROVED_ON"))));
-                newRow.put("Issue Description", row.get("ISSUE_DESCRIPTION"));
-                result.add(newRow);
-            }
-
-            grandTotal += rows.size();
-        }
-
-        // Add grand total at the top
-        Map<String, Object> totalRow = new LinkedHashMap<>();
-        totalRow.put("Track", "Total");
-        totalRow.put("Count", grandTotal);
-        result.add(totalRow); // insert at the beginning
-
-        return result;
-    }
-
-    private static String formatDate(String isoDate) {
-        if (isoDate == null || isoDate.isBlank() || isoDate.equalsIgnoreCase("null")) {
-            return "";
-        }
-
-        // If it contains '=', split and take the last part
-        if (isoDate.contains("=")) {
-            isoDate = isoDate.split("=")[1].trim();
-        }
-
-        // If still "null" after splitting, return empty
-        if (isoDate.equalsIgnoreCase("null")) {
-            return "";
-        }
-
-        // Take only the date portion (before the space)
-        String datePart = isoDate.split(" ")[0];
-
-        // Validate date pattern
-        try {
-            return LocalDate.parse(datePart, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                    .format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
-        } catch (Exception e) {
-            return ""; // or return isoDate if you want the original string
-        }
-    }
-
-
-
-    public UserRoleInfo getUserRoles(String username) {
-        String upperUsername = username.toUpperCase();
-        List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
-        Optional<Map<String, Object>> userOptional = rolesList.stream()
-                .filter(user -> upperUsername.equals(user.get("USER_NAME")))
-                .findFirst();
-
-        if (userOptional.isPresent()) {
-            Map<String, Object> user = userOptional.get();
-            String userName = (String) user.get("USER_NAME");
-            String userEmail = (String) user.get("USER_EMAIL");
-
-            List<String> roles = rolesList.stream()
-                    .filter(u -> upperUsername.equals(u.get("USER_NAME")))
-                    .map(u -> (String) u.get("USER_ROLE"))
-                    .collect(Collectors.toList());
-
-            return new UserRoleInfo(userName, userEmail, roles);
-        }
-        return null;
     }
 
     public List<Map<String, Object>> getCloseInvStats() {
@@ -774,41 +583,7 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.queryForList(wd0Volumes);
     }
 
-    public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
-        return jdbcManager.queryForList(espCaseServiceMetricSummary);
-    }
 
-    public List<Map<String, Object>> getEspWeeklyComparisonSummary() {
-        return jdbcManager.queryForList(espWeeklyComparisonSummary);
-    }
-
-    public List<Map<String, Object>> getEspAgingCaseSummary() {
-        return jdbcManager.queryForList(espAgingCaseSummary);
-    }
-
-    public List<Map<String, Object>> getSbpEspCaseServiceMetricSummary() {
-        return jdbcManager.queryForList(sbpEspCaseServiceMetricSummary);
-    }
-
-    public List<Map<String, Object>> getSbpEspWeeklyComparisonSummary() {
-        return jdbcManager.queryForList(sbpEspWeeklyComparisonSummary);
-    }
-
-    public List<Map<String, Object>> getSbpEspAgingCaseSummary() {
-        return jdbcManager.queryForList(sbpEspAgingCaseSummary);
-    }
-
-    private void formatDateColumns(Map<String, Object> data, String[] dateColumns) {
-        for (String column : dateColumns) {
-            Object value = data.get(column);
-            if (value != null) {
-                String date = value.toString().split(" ")[0];
-                data.put(column, date);
-            } else {
-                data.put(column, "");
-            }
-        }
-    }
 
     public List<Map<String, Object>> getWd0MidcloseActualsProduct() {
         return jdbcManager.queryForList(wd0MidcloseActualsProduct);

@@ -73,7 +73,7 @@ public class InvoiceToCashMonitoringService{
     // Pre-Invoice
     public List<Map<String, Object>> getPreInvoiceErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("PreInvoiceErrorSummaryView", preInvoiceErrorSummaryView);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PreInvoiceErrorSummaryView", preInvoiceErrorSummaryView);
         result.forEach(data -> {
             data.remove("AGING");
             common.renameKey(data, "ERROR_AMOUNT", "AMOUNT");
@@ -104,7 +104,7 @@ public class InvoiceToCashMonitoringService{
                 "AR_INTERFACE",
                 "AR_INTERFACE_ERROR",
                 "INVOICED" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("PreInvoiceErrorDetails", preInvoiceErrorDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PreInvoiceErrorDetails", preInvoiceErrorDetails);
         result.forEach(data -> {
             common.renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
             common.renameKey(data, "SUBSCRIPTION_ID", "TRANSACTION_ID");
@@ -149,7 +149,7 @@ public class InvoiceToCashMonitoringService{
     // Auto-Invoice
     public List<Map<String, Object>> getAutoInvoiceErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("AutoInvoiceErrorSummaryView", autoInvoiceErrorSummaryView);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("AutoInvoiceErrorSummaryView", autoInvoiceErrorSummaryView);
         result.forEach(data -> {
             data.remove("AGING");
             common.renameKey(data, "OPERATING_UNIT", "ORG_NAME");
@@ -175,7 +175,7 @@ public class InvoiceToCashMonitoringService{
 
     public List<Map<String, Object>> getAutoInvoiceErrorDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("AutoInvoiceErrorDetails", autoInvoiceErrorDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("AutoInvoiceErrorDetails", autoInvoiceErrorDetails);
         result.forEach(data -> {
             common.renameKey(data, "OPERATING_UNIT", "ORG_NAME");
             common.formatDateColumns(data, dateColumns);
@@ -211,7 +211,7 @@ public class InvoiceToCashMonitoringService{
 
     // eInvoicing
     public List<Map<String, Object>> getEInvoicingSummary() {
-        List<Map<String, Object>> result = common.checkRedisForCachedData("EinvoicingSummary", einvoicingSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("EinvoicingSummary", einvoicingSummary);
         String[] dateColumns = { "ASSIGNED_DATE", "TRANSACTION_DATE" };
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
@@ -236,7 +236,7 @@ public class InvoiceToCashMonitoringService{
     }
 
     public List<Map<String, Object>> getEInvoicingDetails() {
-        List<Map<String, Object>> result = common.checkRedisForCachedData("EinvoicingDetails", einvoicingDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("EinvoicingDetails", einvoicingDetails);
         result.forEach(data -> {
             common.renameKey(data,"TRX_NUMBER", "TRANSACTION_ID");
         });
@@ -268,7 +268,7 @@ public class InvoiceToCashMonitoringService{
 
     public List<Map<String, Object>> getFusionErrorSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("FusionErrorSummary", fusionErrorSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("FusionErrorSummary", fusionErrorSummary);
         result.forEach(data -> {
             data.remove("AGING");
             common.renameKey(data,"ENTITY_NAME", "ORG_NAME");
@@ -292,7 +292,7 @@ public class InvoiceToCashMonitoringService{
     }
 
     public List<Map<String, Object>> getFusionDetails() {
-        List<Map<String, Object>> result = common.checkRedisForCachedData("FusionErrorDetails", fusionErrorDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("FusionErrorDetails", fusionErrorDetails);
         result.forEach(data -> {
             common.renameKey(data,"ENTITY_NAME", "ORG_NAME");
         });
@@ -321,7 +321,7 @@ public class InvoiceToCashMonitoringService{
     }
 
     public List<Map<String, Object>> getCreditCardCheckSummaryView() {
-        List<Map<String, Object>> result = common.checkRedisForCachedData("CreditCardCheckSummaryView", creditCardCheckSummaryView);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardCheckSummaryView", creditCardCheckSummaryView);
         String[] dateColumns = { "HOLD_APPLY_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             data.remove("AGING");
@@ -346,7 +346,7 @@ public class InvoiceToCashMonitoringService{
 
     public List<Map<String, Object>> getCreditCardCheckDetailView() {
         String[] dateColumns = { "HOLD_APPLY_DATE" };
-        List<Map<String, Object>> result = common.checkRedisForCachedData("CreditCardCheckDetailView", creditCardCheckDetailView);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardCheckDetailView", creditCardCheckDetailView);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });

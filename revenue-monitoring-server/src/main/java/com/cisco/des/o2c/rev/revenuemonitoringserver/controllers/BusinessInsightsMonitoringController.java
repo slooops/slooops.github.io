@@ -1,0 +1,123 @@
+package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
+
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.BusinessInsightsMonitoringService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@CrossOrigin(origins = "${CORS_URL}")
+@RequestMapping("/api")
+public class BusinessInsightsMonitoringController {
+
+    @Autowired
+    BusinessInsightsMonitoringService service;
+
+    @GetMapping("/issue-reporting")
+    public ResponseEntity<List<Map<String, Object>>> getIssueReporting() {
+        return new ResponseEntity<>(service.getIssueReportingData(), HttpStatus.OK);
+    }
+
+    @GetMapping("/issue-reporting-summary")
+    public ResponseEntity<List<Map<String, Object>>> getIssueReportingSummary() {
+        return new ResponseEntity<>(service.getIssueReportingDataSummary(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/issue-reporting-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> insertIssueReport(@RequestParam("file") MultipartFile file,
+                                                    @RequestParam("username") String username) {
+        if (!file.isEmpty()) {
+            try {
+                service.insertIssueReportingData(file, username);
+                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Uploaded file is empty.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-approval")
+    public ResponseEntity<String> approveRejectIssueReport(@RequestBody Map<String, Object> requestData) {
+        try {
+            String approval = (String)requestData.get("approvalStatus");
+            String approvedBy = (String)requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.approveRejectIssueReporting(approval, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-approval-bulk")
+    public ResponseEntity<String> bulkApproveRejectIssueReport(@RequestBody List<Map<String, Object>> requestData) {
+        try {
+            service.bulkApproveRejectIssueReporting(requestData);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-comments-update")
+    public ResponseEntity<String> updateCommentsIssueReport(@RequestBody Map<String, Object> requestData) {
+        try {
+            String comments = (String)requestData.get("comments");
+            String approvedBy = (String) requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.updateCommentsIssueReporting(comments, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-fix-details-update")
+    public ResponseEntity<String> updateFixDetailsIssueReport(@RequestBody Map<String, Object> requestData) {
+        try {
+            String fixDetails = (String)requestData.get("fixDetails");
+            String approvedBy = (String) requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.updateFixDetailsIssueReporting(fixDetails, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-status-update")
+    public ResponseEntity<String> updateStatusIssueReport(@RequestBody Map<String, Object> requestData) {
+        try {
+            String status = (String)requestData.get("status");
+            String approvedBy = (String) requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.updateStatusIssueReporting(status, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+
+    @PostMapping(value = "/issue-reporting-issue-desc-update")
+    public ResponseEntity<String> updateIssueDescIssueReport(@RequestBody Map<String, Object> requestData) {
+        try {
+            String issue = (String)requestData.get("issue");
+            String rootCause = (String)requestData.get("rootCause");
+            String businessImpact = (String)requestData.get("businessImpact");
+            String approvedBy = (String) requestData.get("username");
+            String incidentNum = (String)requestData.get("incidentNumber");
+            service.updateIssueDescIssueReporting(issue, rootCause, businessImpact, approvedBy, incidentNum);
+            return ResponseEntity.status(HttpStatus.OK).body("successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to Approve/ Reject.");
+        }
+    }
+}

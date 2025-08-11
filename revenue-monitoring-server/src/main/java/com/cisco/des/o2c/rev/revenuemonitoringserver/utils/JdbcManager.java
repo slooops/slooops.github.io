@@ -219,8 +219,8 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getSRTProcessDetailsFiltered(String sql, String periodName,
-            String processFlow, String eventType, String ouName, String srtDate) {
-        return primaryJdbcTemplate.queryForList(sql, periodName, processFlow, eventType, ouName, srtDate);
+            String processFlow, String ouName, String srtDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, processFlow, ouName, srtDate);
     }
 
     public int updateSRTProcessSummary(String sql, String assignedTo, String assignedBy, String comments,

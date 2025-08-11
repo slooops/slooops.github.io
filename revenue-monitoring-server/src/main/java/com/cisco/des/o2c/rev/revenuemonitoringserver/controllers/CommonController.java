@@ -1,13 +1,11 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UserRoleInfo;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.CommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -35,5 +33,11 @@ public class CommonController {
     @GetMapping("/monitoring-period-status")
     public ResponseEntity<List<Map<String, Object>>> getMonitoringPeriodStatus() {
         return new ResponseEntity<>(service.getMonitoringPeriodStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/user-role")
+    public ResponseEntity<UserRoleInfo> getUserRoles(@RequestParam String username) {
+        UserRoleInfo userRoles = service.getUserRoles(username);
+        return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
 }

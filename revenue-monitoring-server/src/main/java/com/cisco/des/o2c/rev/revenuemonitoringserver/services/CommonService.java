@@ -1,5 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.models.UserRoleInfo;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.CacheCommon;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CommonService {
@@ -16,6 +19,8 @@ public class CommonService {
     private String invoiceToCashSummary;
     private String summaryAssignmentUsers;
     private String rolErrorsSummaryPeriodStatus;
+    private String personaAccessRoles;
+
 
     @Autowired
     private Common common;
@@ -23,11 +28,13 @@ public class CommonService {
     @Autowired
     private CacheCommon cacheCommon;
 
-    public CommonService(JdbcManager jdbcManager, String invoiceToCashSummary, String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus) {
+    public CommonService(JdbcManager jdbcManager, String invoiceToCashSummary,
+                         String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus,String personaAccessRoles) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
         this.invoiceToCashSummary = invoiceToCashSummary;
+        this.personaAccessRoles = personaAccessRoles;
     }
 
 
@@ -50,6 +57,28 @@ public class CommonService {
     public List<Map<String, Object>> getSummaryAssignmentUsers() {
         List<Map<String, Object>> result = jdbcManager.queryForList(summaryAssignmentUsers);
         return result;
+    }
+
+    public UserRoleInfo getUserRoles(String username) {
+        String upperUsername = username.toUpperCase();
+        List<Map<String, Object>> rolesList = jdbcManager.queryForList(personaAccessRoles);
+        Optional<Map<String, Object>> userOptional = rolesList.stream()
+                .filter(user -> upperUsername.equals(user.get("USER_NAME")))
+                .findFirst();
+
+        if (userOptional.isPresent()) {
+            Map<String, Object> user = userOptional.get();
+            String userName = (String) user.get("USER_NAME");
+            String userEmail = (String) user.get("USER_EMAIL");
+
+            List<String> roles = rolesList.stream()
+                    .filter(u -> upperUsername.equals(u.get("USER_NAME")))
+                    .map(u -> (String) u.get("USER_ROLE"))
+                    .collect(Collectors.toList());
+
+            return new UserRoleInfo(userName, userEmail, roles);
+        }
+        return null;
     }
 
 }
