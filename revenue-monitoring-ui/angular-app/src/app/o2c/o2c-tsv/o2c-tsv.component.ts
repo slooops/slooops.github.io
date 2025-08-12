@@ -140,8 +140,26 @@ export class O2cTsvComponent {
       })
       .subscribe((data: any) => {
         console.log('TSV Top SKU Data:', data);
-        this.table1DisplayedColumns = Object.keys(data[0] || {});
-        this.table1DataSource.data = data;
+
+        const currencyColumns = ['TOTAL_SALES_VALUE'];
+        const formattedData = data.map((row: any) => ({
+          ...row,
+          ...currencyColumns.reduce((acc, col) => {
+            if (row[col] != null) {
+              const num =
+                typeof row[col] === 'string' ? parseFloat(row[col]) : row[col];
+              acc[col] = isNaN(num)
+                ? row[col]
+                : num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  });
+            }
+            return acc;
+          }, {} as any),
+        }));
+        this.table1DisplayedColumns = Object.keys(formattedData[0] || {});
+        this.table1DataSource.data = formattedData;
         this.table1Loaded = true;
       });
   }
@@ -158,8 +176,25 @@ export class O2cTsvComponent {
       })
       .subscribe((data: any) => {
         console.log('TSV Sub SKU Data:', data);
-        this.table2DisplayedColumns = Object.keys(data[0] || {});
-        this.table2DataSource.data = data;
+        const currencyColumns = ['AMOUNT'];
+        const formattedData = data.map((row: any) => ({
+          ...row,
+          ...currencyColumns.reduce((acc, col) => {
+            if (row[col] != null) {
+              const num =
+                typeof row[col] === 'string' ? parseFloat(row[col]) : row[col];
+              acc[col] = isNaN(num)
+                ? row[col]
+                : num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  });
+            }
+            return acc;
+          }, {} as any),
+        }));
+        this.table2DisplayedColumns = Object.keys(formattedData[0] || {});
+        this.table2DataSource.data = formattedData;
         this.table2Loaded = true;
       });
   }
@@ -176,8 +211,25 @@ export class O2cTsvComponent {
       })
       .subscribe((data: any) => {
         console.log('TSV accounts Data:', data);
-        this.table3DisplayedColumns = Object.keys(data[0] || {});
-        this.table3DataSource.data = data;
+        const currencyColumns = ['AMOUNT'];
+        const formattedData = data.map((row: any) => ({
+          ...row,
+          ...currencyColumns.reduce((acc, col) => {
+            if (row[col] != null) {
+              const num =
+                typeof row[col] === 'string' ? parseFloat(row[col]) : row[col];
+              acc[col] = isNaN(num)
+                ? row[col]
+                : num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  });
+            }
+            return acc;
+          }, {} as any),
+        }));
+        this.table3DisplayedColumns = Object.keys(formattedData[0] || {});
+        this.table3DataSource.data = formattedData;
         this.table3Loaded = true;
       });
   }
