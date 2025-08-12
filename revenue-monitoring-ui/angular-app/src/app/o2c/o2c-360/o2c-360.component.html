@@ -303,6 +303,7 @@
         }}
 
         <button
+          *ngIf="subscriptionSummaryDataSource?.data?.length > 5"
           class="view-all-button"
           [ngClass]="{
             disabled: !allDataLoaded
@@ -443,6 +444,7 @@
             : "No Data"
         }}
         <button
+          *ngIf="invoiceSummaryDataSource?.data?.length > 5"
           class="view-all-button"
           [ngClass]="{ disabled: !allDataLoaded }"
           [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"

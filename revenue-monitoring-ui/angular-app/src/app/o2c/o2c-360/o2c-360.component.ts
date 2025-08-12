@@ -282,8 +282,35 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Financial Summary:', data);
-        this.financialSummaryDisplayedColumns = Object.keys(data[0] || {});
-        this.financialSummaryDataSource = new MatTableDataSource(data);
+
+        // Inline currency formatting for specific columns
+        const currencyColumns = [
+          'BILLED',
+          'ORDER_TSV',
+          'REVENUE_RECOGNIZED',
+          'REVENUE_TO_BE_RECOGNIZED',
+          'UNBILLED',
+        ];
+        const formattedData = data.map((row: any) => ({
+          ...row,
+          ...currencyColumns.reduce((acc, col) => {
+            if (row[col] != null) {
+              const num =
+                typeof row[col] === 'string' ? parseFloat(row[col]) : row[col];
+              acc[col] = isNaN(num)
+                ? row[col]
+                : num.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  });
+            }
+            return acc;
+          }, {} as any),
+        }));
+
+        const baseColumns = Object.keys(data[0] || {});
+        this.financialSummaryDisplayedColumns = [...baseColumns, 'actions'];
+        this.financialSummaryDataSource = new MatTableDataSource(formattedData);
         this.financialDataLoaded = true;
       });
   }

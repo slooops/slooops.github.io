@@ -243,9 +243,8 @@ export class O2cViewAllComponent implements OnInit {
     }
 
     if (navState?.financialData) {
-      this.financialSummaryDisplayedColumns = Object.keys(
-        navState.financialData[0] || {}
-      );
+      const baseColumns = Object.keys(navState.financialData[0] || {});
+      this.financialSummaryDisplayedColumns = [...baseColumns, 'actions'];
       this.financialSummaryDataSource.data = navState.financialData;
     }
   }
