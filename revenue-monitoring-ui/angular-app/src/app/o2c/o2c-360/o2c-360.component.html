@@ -214,7 +214,7 @@
             <!-- Use ngSwitch to handle different column types -->
             <ng-container [ngSwitch]="column">
               <!-- Actions column with CCW button -->
-              <ng-container *ngSwitchCase="'actions'">
+              <!-- <ng-container *ngSwitchCase="'actions'">
                 <button class="link-button" (click)="viewInCCW()">
                   <span class="ccw-button-text">View in CCW</span>
                   <svg
@@ -234,7 +234,7 @@
                     />
                   </svg>
                 </button>
-              </ng-container>
+              </ng-container> -->
 
               <!-- CASH column with link to invoices view -->
               <ng-container *ngSwitchCase="'CASH'">
