@@ -19,13 +19,11 @@ export class O2cDonutComponent implements OnChanges {
     INCIDENT_VALUE: number;
   }[] = [];
 
-  @Input() canvasId: string = 'donutCanvas'; // fallback if not set
-
+  @Input() canvasId: string = 'donutCanvas';
   @Input() showCircleBackground?: boolean = true;
-
   @Input() showLegend?: boolean = true;
-
   @Input() chartSize?: string = '125px';
+  @Input() noDataMessage: string = 'No exceptions found';
 
   legendItems: {
     type: string;
@@ -43,14 +41,64 @@ export class O2cDonutComponent implements OnChanges {
     }[];
   } = {};
 
+  isLoading: boolean = true;
+  hasReceivedData: boolean = false;
+
   ngOnChanges(changes: SimpleChanges): void {
-    // Re-render when data changes
-    if (changes['data'] && this.data && this.data.length > 0) {
-      // Small delay to ensure canvas is ready
-      setTimeout(() => {
-        this.renderPieChart(this.data, this.canvasId);
-      }, 0);
+    if (changes['data']) {
+      const dataChange = changes['data'];
+
+      // Only proceed if this is NOT the initial instantiation with empty array
+      // Real API data comes as either:
+      // 1. Array with actual data
+      // 2. Empty array but NOT on first change (meaning API responded with no data)
+      const isInitialEmptyArray =
+        dataChange.firstChange &&
+        Array.isArray(dataChange.currentValue) &&
+        dataChange.currentValue.length === 0;
+
+      if (!isInitialEmptyArray) {
+        // This is real API data (either with content or empty response)
+        this.hasReceivedData = true;
+        this.isLoading = false;
+
+        if (this.data && this.data.length > 0) {
+          // We have actual data - render the chart
+          setTimeout(() => {
+            this.renderPieChart(this.data, this.canvasId);
+          }, 0);
+        } else {
+          // API returned empty data - clear any existing chart
+          this.legendItems = [];
+          this.clearCanvas();
+        }
+      }
+      // If it's initial empty array, stay in loading state
     }
+  }
+
+  // Helper method to clear canvas
+  private clearCanvas(): void {
+    const canvas = document.getElementById(this.canvasId) as HTMLCanvasElement;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+  }
+
+  // Getter for template logic
+  get showLoadingState(): boolean {
+    return this.isLoading && !this.hasReceivedData;
+  }
+
+  get showNoDataState(): boolean {
+    return this.hasReceivedData && (!this.data || this.data.length === 0);
+  }
+
+  get showChartAndLegend(): boolean {
+    return this.hasReceivedData && this.data && this.data.length > 0;
   }
 
   private formatValueForDonutCenter(amount: number): string {

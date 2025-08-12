@@ -1,35 +1,78 @@
 <div class="chart-legend-wrapper">
+  <!-- Chart container - always present for consistent layout -->
   <div
     class="chart-container"
     [style.background-color]="showCircleBackground ? '#f4f5f6' : 'transparent'"
     [style.min-width]="chartSize"
     [style.height]="chartSize"
   >
-    <canvas [id]="canvasId"></canvas>
+    <!-- Loading state in chart area -->
+    <div *ngIf="showLoadingState" class="chart-loading-state">
+      <!-- <app-loading-symbol></app-loading-symbol> -->
+    </div>
+
+    <!-- Actual chart canvas -->
+    <canvas
+      [id]="canvasId"
+      *ngIf="showChartAndLegend"
+      [style.opacity]="showChartAndLegend ? 1 : 0"
+    ></canvas>
+
+    <!-- No data indicator in chart area (optional) -->
+    <div *ngIf="showNoDataState && !isLoading" class="chart-no-data">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+          fill="#ccc"
+        />
+      </svg>
+    </div>
   </div>
 
-  <div class="custom-legend" *ngIf="showLegend && legendItems">
-    <div
-      *ngFor="let item of legendItems"
-      class="legend-item"
-      [class.total-row]="item.type === 'Total Exceptions'"
-    >
-      <div class="legend-left">
-        <span
-          class="legend-color-box"
-          *ngIf="item.color !== 'transparent'"
-          [style.background]="item.color"
-        ></span>
-        <span class="legend-type">{{ item.type }}</span>
+  <!-- Legend area with three states -->
+  <div class="legend-area">
+    <!-- Loading state -->
+    <div *ngIf="showLoadingState" class="loading-legend">
+      <div
+        class="loading-legend-item"
+        *ngFor="let item of [1, 2, 3]; let i = index"
+      >
+        <div class="loading-shimmer loading-color-box"></div>
+        <div class="loading-shimmer loading-text"></div>
+        <div class="loading-shimmer loading-number"></div>
       </div>
-      <div class="legend-right">
-        <span class="legend-count">{{
-          item.count !== undefined && item.count !== null ? item.count : "-"
-        }}</span>
-        <span class="legend-value">{{
-          item.value | currency : "USD" : ""
-        }}</span>
+    </div>
+
+    <!-- Actual legend -->
+    <div class="custom-legend" *ngIf="showChartAndLegend">
+      <div
+        *ngFor="let item of legendItems; let i = index"
+        class="legend-item"
+        [style.--item-index]="i + 1"
+        [class.total-row]="item.type === 'Total Exceptions'"
+      >
+        <div class="legend-left">
+          <span
+            class="legend-color-box"
+            *ngIf="item.color !== 'transparent'"
+            [style.background]="item.color"
+          ></span>
+          <span class="legend-type">{{ item.type }}</span>
+        </div>
+        <div class="legend-right">
+          <span class="legend-count">{{
+            item.count !== undefined && item.count !== null ? item.count : "-"
+          }}</span>
+          <span class="legend-value">{{
+            item.value | currency : "USD" : ""
+          }}</span>
+        </div>
       </div>
+    </div>
+
+    <!-- No data state -->
+    <div class="no-data-message" *ngIf="showNoDataState && !isLoading">
+      {{ noDataMessage }}
     </div>
   </div>
 </div>
