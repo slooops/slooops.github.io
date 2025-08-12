@@ -355,12 +355,12 @@
 
                     <!-- BILLING_SCHEDULE -->
                     <ng-container *ngSwitchCase="'BILLING_SCHEDULE'">
-                      <button
-                        class="link-button cell-button"
+                      <a
+                        style="text-decoration: none"
                         (click)="navigateToBillingSchedule(element)"
                       >
                         {{ element[column] }}
-                      </button>
+                      </a>
                     </ng-container>
 
                     <!-- SUBSCRIPTION_STATUS -->

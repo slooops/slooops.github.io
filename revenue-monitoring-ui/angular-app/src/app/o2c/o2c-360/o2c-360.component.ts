@@ -12,7 +12,6 @@ import { SidebarService } from '../../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { O2cSearchResult } from '../../search-context.service';
 import { FiltersService } from '../../providers/filters.service';
-import { da } from 'date-fns/locale';
 
 @Component({
   selector: 'app-o2c-360',
@@ -283,17 +282,6 @@ export class O2c360Component implements OnInit {
       })
       .subscribe((data: any) => {
         console.log('Financial Summary:', data);
-
-        data.forEach((row: any) => {
-          row.ORDER_TSV = this.formatAmount(row.ORDER_TSV);
-          row.BILLED = this.formatAmount(row.BILLED);
-          row.UNBILLED = this.formatAmount(row.UNBILLED);
-          row.REVENUE_RECOGNIZED = this.formatAmount(row.REVENUE_RECOGNIZED);
-          row.REVENUE_TO_BE_RECOGNIZED = this.formatAmount(
-            row.REVENUE_TO_BE_RECOGNIZED
-          );
-        });
-
         // Inline currency formatting for specific columns
         const currencyColumns = [
           'BILLED',
