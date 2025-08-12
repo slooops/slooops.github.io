@@ -132,8 +132,8 @@
 
         <td mat-cell *matCellDef="let element">
           <!-- Special handling for the actions column to add a button -->
-          <ng-container *ngIf="column === 'actions'; else regularCell">
-            <button class="link-button" (click)="viewInCCW()">
+          <!-- <ng-container *ngIf="column === 'actions'; else regularCell">
+            <button class="link-button" (click)="viewInCCW()" disabled>
               <span class="ccw-button-text">View in CCW</span>
               <svg
                 width="14"
@@ -152,11 +152,43 @@
                 />
               </svg>
             </button>
-          </ng-container>
+          </ng-container> -->
 
-          <ng-template #regularCell>
+          <!-- <ng-template>
             {{ element[column] }}
-          </ng-template>
+          </ng-template> -->
+
+          <ng-container [ngSwitch]="column">
+            <!-- Actions column with CCW button -->
+            <!-- <ng-container *ngSwitchCase="'actions'">
+                <button class="link-button" (click)="viewInCCW()" disabled>
+                  <span class="ccw-button-text">View in CCW</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style="margin: 0px 0 -2px 5px"
+                  >
+                    <path
+                      d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14"
+                      stroke="#0076d5"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </ng-container> -->
+
+            <!-- CASH column with link to invoices view -->
+
+            <!-- Default case for all other columns -->
+            <ng-container *ngSwitchDefault>
+              {{ element[column] }}
+            </ng-container>
+          </ng-container>
         </td>
       </ng-container>
 
@@ -278,12 +310,12 @@
 
                     <!-- BILLING_SCHEDULE -->
                     <ng-container *ngSwitchCase="'BILLING_SCHEDULE'">
-                      <button
-                        class="link-button cell-button"
+                      <a
+                        style="text-decoration: none"
                         (click)="navigateToBillingSchedule(element)"
                       >
                         {{ element[column] }}
-                      </button>
+                      </a>
                     </ng-container>
 
                     <!-- Default case for date columns and other fields -->

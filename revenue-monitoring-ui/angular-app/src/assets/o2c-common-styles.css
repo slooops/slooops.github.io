@@ -300,7 +300,7 @@ th[mat-header-cell] {
 .ccw-button-text {
   color: #0076d5;
   font-weight: 500;
-  text-decoration: line-through;
+  text-decoration: none;
 }
 
 button.link-button:hover .ccw-button-text {
