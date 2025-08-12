@@ -4,6 +4,7 @@ import {
   OnInit,
   OnChanges,
   SimpleChanges,
+  OnDestroy,
 } from '@angular/core';
 import { Chart } from 'chart.js';
 
@@ -12,7 +13,7 @@ import { Chart } from 'chart.js';
   templateUrl: './o2c-donut.component.html',
   styleUrl: './o2c-donut.component.css',
 })
-export class O2cDonutComponent implements OnChanges {
+export class O2cDonutComponent implements OnChanges, OnDestroy {
   @Input() data: {
     INCIDENT_TYPE: string;
     INCIDENT_COUNT: number;
@@ -43,6 +44,9 @@ export class O2cDonutComponent implements OnChanges {
 
   isLoading: boolean = true;
   hasReceivedData: boolean = false;
+
+  private chart: any = null;
+  private animationFrame: number | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -75,6 +79,27 @@ export class O2cDonutComponent implements OnChanges {
       }
       // If it's initial empty array, stay in loading state
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroyChart();
+  }
+
+  private destroyChart(): void {
+    // Cancel any pending animation frames
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+
+    // Properly destroy Chart.js instance
+    if (this.chart) {
+      this.chart.destroy();
+      this.chart = null;
+    }
+
+    // Clear canvas context
+    this.clearCanvas();
   }
 
   // Helper method to clear canvas
@@ -163,22 +188,14 @@ export class O2cDonutComponent implements OnChanges {
     }[],
     canvasId: string
   ): void {
-    if (!data || data.length === 0) {
-      console.warn(`No data provided for chart ${canvasId}`);
-      return;
-    }
+    // Destroy existing chart first
+    this.destroyChart();
 
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas) {
-      console.error(`Canvas with id ${canvasId} not found`);
-      return;
-    }
+    if (!canvas) return;
 
-    // Clear any existing chart
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const pieColors = [
       '#399E20',
@@ -215,7 +232,7 @@ export class O2cDonutComponent implements OnChanges {
     const formattedTotalCount = totalCount ? `#${totalCount}` : '';
 
     if (ctx) {
-      new Chart(ctx, {
+      this.chart = new Chart(ctx, {
         type: 'doughnut',
         data: {
           datasets: [
@@ -235,10 +252,7 @@ export class O2cDonutComponent implements OnChanges {
             datalabels: { display: false },
           },
           hover: { mode: null },
-          animation: {
-            animateRotate: false,
-            animateScale: false,
-          },
+          animation: false,
           cutout: '70%',
         },
         plugins: [
