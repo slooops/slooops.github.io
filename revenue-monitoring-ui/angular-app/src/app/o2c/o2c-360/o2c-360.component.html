@@ -103,6 +103,10 @@
                     </span>
                   </ng-container>
 
+                  <!-- <ng-container *ngSwitchCase="column === 'ORDER_TOTAL'">
+                    {{ element[column] | currency }}
+                  </ng-container> -->
+
                   <ng-container *ngSwitchDefault>
                     {{
                       column === "CREATION_DATE" ||
@@ -476,6 +480,7 @@
                       "
                     >
                       <app-table-filter
+                        class="floating-filter"
                         [columnLabel]="'USD'"
                         [options]="amountOptions"
                         (optionSelected)="

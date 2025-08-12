@@ -193,12 +193,11 @@ public class O2CMonitoringController {
     }
 
     @GetMapping("/tsv-pkg-proc")
-    public ResponseEntity<String> updateTsvPkgProc(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
+    public void updateTsvPkgProc(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
         try {
             service.callTsvPkgProc(subscriptionIds, webOrderLineIds);
-            return new ResponseEntity<>("Updated", HttpStatus.OK);
         } catch (Exception e) {
-            return null;
+            System.out.println(e);
         }
     }
 
@@ -206,8 +205,6 @@ public class O2CMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getTsvTopSku(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
         try {
             List<Map<String, Object>> details = new ArrayList<>();
-            System.out.println(subscriptionIds);
-            System.out.println(webOrderLineIds);
             List<Map<String, Object>> result = service.callTsvTopSku(subscriptionIds, webOrderLineIds);
             details.addAll(result);
             return new ResponseEntity<>(details, HttpStatus.OK);
@@ -220,8 +217,6 @@ public class O2CMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getTsvSubSku(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
         try {
             List<Map<String, Object>> details = new ArrayList<>();
-            System.out.println(subscriptionIds);
-            System.out.println(webOrderLineIds);
             List<Map<String, Object>> result = service.callTsvSubSku(subscriptionIds, webOrderLineIds);
             details.addAll(result);
             return new ResponseEntity<>(details, HttpStatus.OK);
@@ -234,8 +229,6 @@ public class O2CMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getTsvAccounts(@RequestParam String subscriptionIds, @RequestParam String webOrderLineIds) {
         try {
             List<Map<String, Object>> details = new ArrayList<>();
-            System.out.println(subscriptionIds);
-            System.out.println(webOrderLineIds);
             List<Map<String, Object>> result = service.callTsvAccounts(subscriptionIds, webOrderLineIds);
             details.addAll(result);
             return new ResponseEntity<>(details, HttpStatus.OK);

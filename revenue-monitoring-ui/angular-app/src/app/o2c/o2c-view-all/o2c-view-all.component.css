@@ -386,3 +386,35 @@ button.link-button:hover .ccw-button-text {
 .full-width-button:hover {
   background-color: #f5f5f5;
 }
+
+/* Add this to your o2c-360.component.css file */
+
+/* Make the filter dropdown appear as an overlay above other content */
+.floating-filter {
+  z-index: 1000;
+  top: 100%;
+  right: 0;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); */
+  background-color: white;
+  /* Ensure it appears above the table content */
+  transform: translateY(0);
+}
+
+/* Fix for the table to prevent automatic scrollbars */
+.invoice-summary-table {
+  overflow: visible !important;
+  position: relative;
+}
+
+/* Ensure header cells can position the filter dropdown properly */
+
+/* Remove internal scrolling from Angular Material tables */
+.mat-table {
+  overflow: visible !important;
+}
+
+/* Ensure table cells don't create overflow */
+.mat-cell,
+.mat-header-cell {
+  overflow: visible !important;
+}

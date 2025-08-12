@@ -429,6 +429,7 @@
                       "
                     >
                       <app-table-filter
+                        class="floating-filter"
                         [columnLabel]="'USD'"
                         [options]="amountOptions"
                         (optionSelected)="
@@ -570,6 +571,7 @@
 
                     <ng-container *ngIf="column === 'POSTED_TO_GL'">
                       <app-table-filter
+                        class="floating-filter"
                         [options]="postedToGLOptions"
                         (optionSelected)="
                           handleFilter(
@@ -594,6 +596,7 @@
                       "
                     >
                       <app-table-filter
+                        class="floating-filter"
                         [columnLabel]="'USD'"
                         [options]="amountOptions"
                         (optionSelected)="
@@ -617,12 +620,15 @@
                   <ng-container [ngSwitch]="column">
                     <ng-container
                       *ngSwitchCase="
-                        column === 'UNIT_SELLING_PRICE' ? column : ''
+                        column === 'LINE_AMOUNT' ||
+                        column === 'TAX_AMOUNT' ||
+                        column === 'EXTENDED_AMOUNT' ||
+                        column === 'UNIT_SELLING_PRICE'
                       "
                     >
-                      {{ element[column] | currency : "USD" : "" }}
+                      {{ element[column] | currency }}
                     </ng-container>
-                    <!-- 
+                    <!--
                     <ng-container *ngSwitchCase="'POSTED_TO_GL'">
                       <button
                         class="link-button"
@@ -684,6 +690,7 @@
               <span> {{ formatColumnName(column) }} </span>
               <ng-container *ngIf="column === 'LINE_AMOUNT'">
                 <app-table-filter
+                  class="floating-filter"
                   [columnLabel]="'USD'"
                   [options]="amountOptions"
                   (optionSelected)="
@@ -700,6 +707,7 @@
               </ng-container>
               <ng-container *ngIf="column === 'POSTED_TO_GL'">
                 <app-table-filter
+                  class="floating-filter"
                   [options]="postedToGLOptions"
                   (optionSelected)="
                     handleFilter(
@@ -715,6 +723,7 @@
               </ng-container>
               <ng-container *ngIf="column === 'TSV_CREATED'">
                 <app-table-filter
+                  class="floating-filter"
                   [options]="postedToGLOptions"
                   (optionSelected)="
                     handleFilter(
@@ -733,12 +742,9 @@
 
           <td mat-cell *matCellDef="let element">
             <ng-container [ngSwitch]="column">
-              <!-- GL Date formatting -->
               <ng-container *ngSwitchCase="'GL_DATE'">
                 {{ element[column] | date : "MM/dd/yyyy" }}
               </ng-container>
-
-              <!-- TSV_CREATED clickable link -->
               <ng-container *ngSwitchCase="'TSV_CREATED'">
                 <ng-container
                   *ngIf="
@@ -762,6 +768,10 @@
                   {{ element[column] }}
                 </button>
               </ng-container> -->
+
+              <ng-container *ngSwitchCase="column === 'UNIT_SELLING_PRICE'">
+                {{ formatAmount(element[column]) }}
+              </ng-container>
 
               <ng-container *ngSwitchCase="'SUBSCRIPTION_REF_ID'">
                 <a

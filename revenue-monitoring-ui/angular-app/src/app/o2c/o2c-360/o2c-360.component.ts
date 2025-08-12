@@ -12,6 +12,7 @@ import { SidebarService } from '../../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { O2cSearchResult } from '../../search-context.service';
 import { FiltersService } from '../../providers/filters.service';
+import { da } from 'date-fns/locale';
 
 @Component({
   selector: 'app-o2c-360',
@@ -283,6 +284,16 @@ export class O2c360Component implements OnInit {
       .subscribe((data: any) => {
         console.log('Financial Summary:', data);
 
+        data.forEach((row: any) => {
+          row.ORDER_TSV = this.formatAmount(row.ORDER_TSV);
+          row.BILLED = this.formatAmount(row.BILLED);
+          row.UNBILLED = this.formatAmount(row.UNBILLED);
+          row.REVENUE_RECOGNIZED = this.formatAmount(row.REVENUE_RECOGNIZED);
+          row.REVENUE_TO_BE_RECOGNIZED = this.formatAmount(
+            row.REVENUE_TO_BE_RECOGNIZED
+          );
+        });
+
         // Inline currency formatting for specific columns
         const currencyColumns = [
           'BILLED',
@@ -315,6 +326,14 @@ export class O2c360Component implements OnInit {
       });
   }
 
+  formatAmount(amount: string): string {
+    let formattedAmount = Number(amount).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return `${formattedAmount}`;
+  }
+
   private getOrderSummary(orderIdList: any): void {
     const payload = {
       orderIds: orderIdList,
@@ -335,6 +354,14 @@ export class O2c360Component implements OnInit {
         console.log('Order Summary Exception:', this.orderExceptionMessage);
         this.updateCircleStatus();
 
+        data.forEach((row: any) => {
+          let [currency, amount] = row.ORDER_TOTAL.split(' ');
+          let formattedAmount = Number(amount).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+          row.ORDER_TOTAL = `${currency} ${formattedAmount}`;
+        });
         this.orderSummaryDataSource = new MatTableDataSource(data);
         this.navTotals[0].count = data.length;
         this.orderDataLoaded = true;
@@ -435,6 +462,13 @@ export class O2c360Component implements OnInit {
           this.subscriptionLinesDisplayedColumns = [];
         }
 
+        console.log('sub lines', data);
+        data.forEach((row: any) => {
+          row.UNIT_SELLING_PRICE = this.formatAmount(row.UNIT_SELLING_PRICE);
+          row.LINE_AMOUNT = this.formatAmount(row.LINE_AMOUNT);
+        });
+
+        console.log('Formatted Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
         if (this.sortColumn) {
           this.sortTable(this.sortColumn);
@@ -522,6 +556,13 @@ export class O2c360Component implements OnInit {
       )
       .subscribe((data: any) => {
         console.log('Invoice Lines:', data);
+
+        data.forEach((row: any) => {
+          row.UNIT_SELLING_PRICE = this.formatAmount(row.UNIT_SELLING_PRICE);
+          row.LINE_AMOUNT = this.formatAmount(row.LINE_AMOUNT);
+          row.TAX_AMOUNT = this.formatAmount(row.TAX_AMOUNT);
+          row.EXTENDED_AMOUNT = this.formatAmount(row.EXTENDED_AMOUNT);
+        });
 
         if (Array.isArray(data) && data.length > 0) {
           this.invoiceLinesDisplayedColumns = this.removeColumns(
@@ -779,6 +820,7 @@ export class O2c360Component implements OnInit {
         : String(bValue).localeCompare(String(aValue));
     });
 
+    console.log('Sorted data sub lines:', data);
     // Update the data source
     this.subscriptionLinesDataSource = new MatTableDataSource(data);
   }

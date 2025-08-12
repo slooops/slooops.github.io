@@ -143,11 +143,7 @@ public class O2CMonitoringService {
     }
 
     public List<Map<String, Object>> getSbpBillScheduleHeader(String subscriptionId) {
-        String[] dateColumns = { "LAST_MODIFIED_DATE" };
         List<Map<String, Object>> result = jdbcManager.sbpBillScheduleHeader(sbpBillScheduleHeader, subscriptionId);
-        result.forEach(data -> {
-            formatDateColumns(data, dateColumns);
-        });
         return result;
     }
 

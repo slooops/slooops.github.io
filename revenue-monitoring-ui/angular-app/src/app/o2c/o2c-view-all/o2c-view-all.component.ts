@@ -300,6 +300,14 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedTabIndex = index;
     this.selectedTab = index === 0 ? 'subscriptions' : 'invoices';
   }
+  formatAmount(amount: string): string {
+    console.log('Formatting amount:', amount);
+    let formattedAmount = Number(amount).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return `USD ${formattedAmount}`;
+  }
 
   goBack(): void {
     window.history.back();
@@ -397,7 +405,6 @@ export class O2cViewAllComponent implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('TSV Data:', data);
         this.router.navigate(['/o2c-tsv'], {
           state: {
             rowData: rowData,
