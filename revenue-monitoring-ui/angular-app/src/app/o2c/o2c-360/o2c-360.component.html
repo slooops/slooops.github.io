@@ -173,14 +173,14 @@
         </ng-container>
 
         <ng-template #noData>
-          <div class="no-data-container">
+          <div class="no-data-container" style="margin: 0 0.5vw 5px 0.5vw">
             <p>No data available for this order.</p>
           </div>
         </ng-template>
       </ng-container>
 
       <ng-template #loading>
-        <div class="loading-container">
+        <div class="loading-container" style="border: none">
           <app-loading-symbol></app-loading-symbol>
           <br /><br /><br />
         </div>
@@ -193,28 +193,26 @@
       class="order-table"
       style="overflow-x: scroll; margin: 0 -0.5vw 1vh -0.5vw"
     >
-      <!-- <ng-container *ngIf="financialDataLoaded; else loading">
-        <ng-container
-          *ngIf="financialSummaryDataSource.data.length > 0; else noData"
-        > -->
-      <table mat-table [dataSource]="financialSummaryDataSource">
-        <ng-container
-          *ngFor="let column of financialSummaryDisplayedColumns"
-          [matColumnDef]="column"
-        >
-          <!-- Special handling for the actions column -->
-          <th mat-header-cell *matHeaderCellDef>
-            <!-- Empty header for actions column -->
-            <span *ngIf="column !== 'actions'">{{
-              formatColumnName(column)
-            }}</span>
-          </th>
+      <ng-container *ngIf="financialDataLoaded; else finSumLoading">
+        <ng-container *ngIf="!financialNoData; else noData">
+          <table mat-table [dataSource]="financialSummaryDataSource">
+            <ng-container
+              *ngFor="let column of financialSummaryDisplayedColumns"
+              [matColumnDef]="column"
+            >
+              <!-- Special handling for the actions column -->
+              <th mat-header-cell *matHeaderCellDef>
+                <!-- Empty header for actions column -->
+                <span *ngIf="column !== 'actions'">{{
+                  formatColumnName(column)
+                }}</span>
+              </th>
 
-          <td mat-cell *matCellDef="let element">
-            <!-- Use ngSwitch to handle different column types -->
-            <ng-container [ngSwitch]="column">
-              <!-- Actions column with CCW button -->
-              <!-- <ng-container *ngSwitchCase="'actions'">
+              <td mat-cell *matCellDef="let element">
+                <!-- Use ngSwitch to handle different column types -->
+                <ng-container [ngSwitch]="column">
+                  <!-- Actions column with CCW button -->
+                  <!-- <ng-container *ngSwitchCase="'actions'">
                 <button class="link-button" (click)="viewInCCW()" disabled>
                   <span class="ccw-button-text">View in CCW</span>
                   <svg
@@ -236,52 +234,52 @@
                 </button>
               </ng-container> -->
 
-              <!-- CASH column with link to invoices view -->
-              <ng-container *ngSwitchCase="'CASH'">
-                <button
-                  class="link-button"
-                  [disabled]="!allDataLoaded"
-                  [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
-                  (click)="allDataLoaded && viewAll('invoices')"
-                >
-                  <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
-                    {{ element[column] }}
-                  </span>
-                </button>
-              </ng-container>
+                  <!-- CASH column with link to invoices view -->
+                  <ng-container *ngSwitchCase="'CASH'">
+                    <button
+                      class="link-button"
+                      [disabled]="!allDataLoaded"
+                      [style.cursor]="allDataLoaded ? 'pointer' : 'wait'"
+                      (click)="allDataLoaded && viewAll('invoices')"
+                    >
+                      <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
+                        {{ element[column] }}
+                      </span>
+                    </button>
+                  </ng-container>
 
-              <!-- Default case for all other columns -->
-              <ng-container *ngSwitchDefault>
-                {{ element[column] }}
-              </ng-container>
+                  <!-- Default case for all other columns -->
+                  <ng-container *ngSwitchDefault>
+                    {{ element[column] }}
+                  </ng-container>
+                </ng-container>
+              </td>
             </ng-container>
-          </td>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="financialSummaryDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: financialSummaryDisplayedColumns"
+            ></tr>
+          </table>
         </ng-container>
 
-        <tr
-          mat-header-row
-          *matHeaderRowDef="financialSummaryDisplayedColumns"
-        ></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: financialSummaryDisplayedColumns"
-        ></tr>
-      </table>
-      <!-- </ng-container>
-
         <ng-template #noData>
-          <div class="no-data-container">
+          <!-- <div class="no-data-container">
             <p>No financial data available for this order.</p>
-          </div>
+          </div> -->
         </ng-template>
       </ng-container>
 
-      <ng-template #loading>
-        <div class="loading-container">
+      <ng-template #finSumLoading>
+        <!-- <div class="loading-container">
           <app-loading-symbol></app-loading-symbol>
           <br /><br /><br />
-        </div>
-      </ng-template> -->
+        </div> -->
+      </ng-template>
     </div>
 
     <div
@@ -742,14 +740,7 @@
     </svg>
     <h2>Welcome to the O2C 360 Search Engine</h2>
 
-    <app-o2c-search
-      style="
-        display: flex;
-        justify-content: center;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        border-radius: 24px;
-      "
-    ></app-o2c-search>
+    <app-o2c-search class="welcome-card-searchbox"></app-o2c-search>
 
     <p>
       You can search directly here below, or anytime later using the

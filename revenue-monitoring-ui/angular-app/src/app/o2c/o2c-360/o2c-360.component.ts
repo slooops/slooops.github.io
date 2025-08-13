@@ -10,7 +10,11 @@ import { DestroyManager } from '../../providers/destroy-manager.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { SidebarService } from '../../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { O2cSearchResult } from '../../search-context.service';
+import {
+  O2cSearchResult,
+  O2cSearchStarted,
+  SearchContextService,
+} from '../../search-context.service';
 import { FiltersService } from '../../providers/filters.service';
 
 @Component({
@@ -135,6 +139,7 @@ export class O2c360Component implements OnInit {
   invoiceLinesDataSource = new MatTableDataSource<any>();
 
   financialDataLoaded: boolean = false;
+  financialNoData: boolean = false;
   financialSummaryDataSource = new MatTableDataSource<any>();
   financialSummaryDisplayedColumns: string[] = [];
 
@@ -144,7 +149,8 @@ export class O2c360Component implements OnInit {
     private sidebarService: SidebarService,
     private route: ActivatedRoute,
     private router: Router,
-    private filtersService: FiltersService
+    private filtersService: FiltersService,
+    private searchContextService: SearchContextService
   ) {}
 
   sidebarExpanded = true;
@@ -240,6 +246,55 @@ export class O2c360Component implements OnInit {
         }
       });
     }
+
+    // Enhanced search subscriptions with proper error handling and validation
+    this.searchContextService.searchStarted$.subscribe((searchStarted) => {
+      if (searchStarted) {
+        this.resetToLoadingState(searchStarted);
+      }
+    });
+
+    this.searchContextService.searchPayload$.subscribe((payload) => {
+      if (payload && payload.searchType && payload.searchValue) {
+        const {
+          searchType,
+          searchValue,
+          orderId,
+          subRefIds,
+          invoiceIds,
+          subCodes,
+        } = payload;
+
+        // Check if this is a "No Results" scenario and handle appropriately
+        if (
+          orderId === 'No Results ' &&
+          (!subRefIds?.length || subRefIds[0] === '') &&
+          !invoiceIds?.length
+        ) {
+          console.log('No results found for search, showing empty state');
+          this.handleNoResultsScenario(payload);
+          return;
+        }
+
+        this.loadData(
+          searchType,
+          searchValue,
+          orderId,
+          subRefIds,
+          invoiceIds,
+          subCodes
+        );
+        this.showWelcomeOverlay = false;
+
+        // Reset accordions
+        this.expanded = { subscription: false, invoice: false };
+        if (searchType === 'subscription') {
+          this.expanded.subscription = true;
+        } else if (searchType === 'invoice') {
+          this.expanded.invoice = true;
+        }
+      }
+    });
   }
 
   private loadData(
@@ -264,6 +319,53 @@ export class O2c360Component implements OnInit {
     this.getSubscriptionLineSummary(subRefIds, subCodes);
     this.getInvoiceSummary(invoiceIds);
     this.getInvoiceLineSummary(invoiceIds);
+  }
+
+  private resetToLoadingState(searchPayload: O2cSearchStarted): void {
+    // Reset all loading states to false (showing loading spinners)
+    this.financialDataLoaded = false;
+    this.orderDataLoaded = false;
+    this.subscriptionDataLoaded = false;
+    this.subscriptionLinesDataLoaded = false;
+    this.invoiceDataLoaded = false;
+    this.invoiceLinesDataLoaded = false;
+
+    // Clear all table data sources
+    this.financialSummaryDataSource.data = [];
+    this.orderSummaryDataSource.data = [];
+    this.subscriptionSummaryDataSource.data = [];
+    this.subscriptionLinesDataSource.data = [];
+    this.invoiceSummaryDataSource.data = [];
+    this.invoiceLinesDataSource.data = [];
+
+    // Reset displayed columns to avoid stale headers
+    this.financialSummaryDisplayedColumns = [];
+    this.orderSummaryDisplayedColumns1 = [
+      'WEB_ORDER_ID',
+      'DEAL_ID',
+      'CREATION_DATE',
+      'STATUS',
+      'PURCHASE_ORDER',
+      'ORDER_TOTAL',
+      'BILLING_ID',
+      'ORDER_ORIGIN',
+      'ORDER_BOOKED_DATE',
+    ];
+    this.orderSummaryDisplayedColumns2 = [
+      'HYBRID_ORDER',
+      'ROUTE_TO_MARKET',
+      'ORDER_HOLDS',
+      'CLOUD_SUB_ORDER_HOLDS',
+      'LEGAL_ENTITY',
+      'BILL_TO_CUSTOMER',
+      'END_CUSTOMER',
+    ];
+    this.subscriptionSummaryDisplayedColumns = [];
+    this.subscriptionLinesDisplayedColumns = [];
+    this.invoiceSummaryDisplayedColumns = [];
+    this.invoiceLinesDisplayedColumns = [];
+
+    console.log('O2C-360 reset to loading state for search:', searchPayload);
   }
 
   private getFinancialSummary(searchType: string, searchValue: string): void {
@@ -872,5 +974,41 @@ export class O2c360Component implements OnInit {
       this.filteredDataNotFound = false;
       (this[dataSourceProp] as MatTableDataSource<any>).data = tableData;
     }
+  }
+
+  // Add this method to handle no results properly
+  private handleNoResultsScenario(searchPayload: O2cSearchResult): void {
+    // Set all loading states to false (stop loading spinners)
+    this.financialDataLoaded = true;
+    this.financialNoData = true;
+    this.orderDataLoaded = true;
+    this.subscriptionDataLoaded = true;
+    this.subscriptionLinesDataLoaded = true;
+    this.invoiceDataLoaded = true;
+    this.invoiceLinesDataLoaded = true;
+
+    // Clear all data sources to show empty tables
+    this.financialSummaryDataSource.data = [];
+    this.orderSummaryDataSource.data = [];
+    this.subscriptionSummaryDataSource.data = [];
+    this.subscriptionLinesDataSource.data = [];
+    this.invoiceSummaryDataSource.data = [];
+    this.invoiceLinesDataSource.data = [];
+
+    // Reset navigation totals
+    this.navTotals[0].count = 0;
+    this.navTotals[1].count = 0;
+    this.navTotals[2].count = 0;
+
+    // Update circle status for no results
+    this.circleStatus = {
+      Order: 0,
+      Subscription: 0,
+      Invoicing: 0,
+      Accounting: 0,
+      Cash: 0,
+    };
+
+    console.log('No results scenario handled - showing empty state');
   }
 }

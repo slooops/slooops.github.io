@@ -339,6 +339,14 @@ tr.mat-header-row {
   gap: 2rem;
 }
 
+.welcome-card-searchbox {
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 24px;
+  transition: box-shadow 0.5s ease-in-out;
+}
+
 /* Reset the default disabled button behavior */
 button:disabled {
   pointer-events: auto !important;
