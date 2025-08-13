@@ -20,7 +20,7 @@ export class O2cGlComponent {
   };
 
   circleStatus: { [key: string]: number } = {
-    Order: 2,
+    Order: 0,
     Subscription: 0,
     Invoicing: 0,
     Accounting: 0,

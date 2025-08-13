@@ -377,6 +377,20 @@
                       </span>
                     </ng-container>
 
+                    <!-- Invoice_STATUS -->
+                    <ng-container *ngSwitchCase="'INVOICE_STATUS'">
+                      <span class="exception-row">
+                        {{ element[column] }}
+                        <i
+                          *ngIf="element['EXCEPTION_MESSAGE']"
+                          class="warning-icon"
+                          title="Click to view exception details"
+                          (click)="showDetailsModal = true"
+                          >⚠️</i
+                        >
+                      </span>
+                    </ng-container>
+
                     <!-- Default Case -->
                     <ng-container *ngSwitchDefault>
                       {{
@@ -523,18 +537,34 @@
                     </ng-container>
 
                     <ng-container *ngSwitchCase="'OTHER_DETAILS'">
-                      <button
-                        class="link-button"
-                        [disabled]="!invoiceDataLoaded"
-                        [style.cursor]="invoiceDataLoaded ? 'pointer' : 'wait'"
-                        (click)="
-                          openInvoiceModal(element['TRANSACTION_NUMBER'])
-                        "
-                      >
-                        <span [ngClass]="{ 'loading-shimmer': !allDataLoaded }">
-                          {{ element[column] }}
-                        </span>
-                      </button>
+                      <div class="exception-row">
+                        <button
+                          class="link-button"
+                          [disabled]="!invoiceDataLoaded"
+                          [style.cursor]="
+                            invoiceDataLoaded ? 'pointer' : 'wait'
+                          "
+                          (click)="
+                            openInvoiceModal(element['TRANSACTION_NUMBER'])
+                          "
+                        >
+                          <span
+                            [ngClass]="{ 'loading-shimmer': !allDataLoaded }"
+                          >
+                            {{ element[column] }}
+                          </span>
+                        </button>
+
+                        <i
+                          *ngIf="element['EXCEPTION_MESSAGE']"
+                          class="warning-icon"
+                          title="Click to view exception details"
+                          (click)="
+                            showDetailsModal = true; $event.stopPropagation()
+                          "
+                          >⚠️</i
+                        >
+                      </div>
                     </ng-container>
 
                     <ng-container *ngSwitchDefault>

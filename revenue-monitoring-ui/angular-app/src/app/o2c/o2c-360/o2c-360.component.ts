@@ -69,7 +69,7 @@ export class O2c360Component implements OnInit {
   }
 
   circleStatus: { [key: string]: number } = {
-    Order: 2,
+    Order: 0,
     Subscription: 0,
     Invoicing: 0,
     Accounting: 0,
@@ -436,9 +436,9 @@ export class O2c360Component implements OnInit {
       .subscribe((data: any) => {
         console.log('Order Summary:', data);
 
-        const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
+        const hasException = data.some((row: any) => !!row.EXCEPTION_MESSAGE);
         this.orderExceptionMessage = hasException
-          ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
+          ? data.find((row: any) => row.EXCEPTION_MESSAGE)?.EXCEPTION_MESSAGE ||
             ''
           : '';
         console.log('Order Summary Exception:', this.orderExceptionMessage);
@@ -483,9 +483,9 @@ export class O2c360Component implements OnInit {
       .subscribe((data: any) => {
         console.log('Subscription Summary:', data);
 
-        const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
+        const hasException = data.some((row: any) => !!row.EXCEPTION_MESSAGE);
         this.subscriptionExceptionMessage = hasException
-          ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
+          ? data.find((row: any) => row.EXCEPTION_MESSAGE)?.EXCEPTION_MESSAGE ||
             ''
           : '';
         // console.log(
@@ -502,6 +502,7 @@ export class O2c360Component implements OnInit {
               'LAST_UPDATE_DATE',
               'RUN_DATE',
               'BILLING_FREQ_TYPE',
+              'EXCEPTION_MESSAGE',
             ]
           );
         } else {
@@ -584,13 +585,13 @@ export class O2c360Component implements OnInit {
       .post('invoice-summary', { invoiceIds: invoiceIds }, this.destroyManager)
       .subscribe((data: any) => {
         console.log('Invoice Summary:', data);
-        const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
+        const hasException = data.some((row: any) => !!row.EXCEPTION_MESSAGE);
         // console.log(
         //   'Invoice Summary Circle Status:',
         //   this.circleStatus['Invoice']
         // );
         this.invoiceExceptionMessage = hasException
-          ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
+          ? data.find((row: any) => row.EXCEPTION_MESSAGE)?.EXCEPTION_MESSAGE ||
             ''
           : '';
         // console.log('Invoice Summary Exception:', this.invoiceExceptionMessage);
@@ -767,9 +768,11 @@ export class O2c360Component implements OnInit {
     // Order is either good (2) or has an error (-1)
     this.circleStatus['Order'] = hasOrderException ? -1 : 2;
 
+    this.circleStatus['Subscription'] = hasOrderException ? -1 : 2;
+
     // Step 2: Subscription status
     // Subscription depends on its own exceptions, not order
-    this.circleStatus['Subscription'] = !subscriptionDataExists
+    this.circleStatus['Invoicing'] = !subscriptionDataExists
       ? 0 // No data = pending
       : hasSubException
       ? -1 // Has exception = error
@@ -777,7 +780,7 @@ export class O2c360Component implements OnInit {
 
     // Step 3: Invoicing status
     // Invoicing shows warning if previous step had error
-    this.circleStatus['Invoicing'] =
+    this.circleStatus['Accounting'] =
       hasOrderException || hasSubException
         ? 0 // Previous error = pending
         : !invoiceDataExists
@@ -933,7 +936,11 @@ export class O2c360Component implements OnInit {
   navigateToBillingSchedule(rowData: any): void {
     console.log('Navigating to Billing Schedule with row data:', rowData);
     this.router.navigate(['/o2c-bill-schedule'], {
-      state: { rowData: rowData, orderId: this.orderId },
+      state: {
+        rowData: rowData,
+        orderId: this.orderId,
+        circleStatus: this.circleStatus,
+      },
     });
   }
 

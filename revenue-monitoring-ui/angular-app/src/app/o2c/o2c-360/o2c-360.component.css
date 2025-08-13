@@ -483,7 +483,22 @@ button.link-button:hover .ccw-button-text {
   }
 }
 
-/* Add this to your o2c-360.component.css file */
+i {
+  font-style: normal;
+}
+
+.exception-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.warning-icon {
+  cursor: pointer;
+  font-size: 12px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  user-select: none;
+}
 
 /* Make the filter dropdown appear as an overlay above other content */
 .floating-filter {

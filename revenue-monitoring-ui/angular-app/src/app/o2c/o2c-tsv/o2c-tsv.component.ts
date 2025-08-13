@@ -19,7 +19,7 @@ export class O2cTsvComponent {
   invoiceId = '32219418347'; // Placeholder for invoice ID
 
   circleStatus: { [key: string]: number } = {
-    Order: 2,
+    Order: 0,
     Subscription: 0,
     Invoicing: 0,
     Accounting: 0,

@@ -26,10 +26,10 @@ export class O2cBillScheduleComponent {
   };
 
   circleStatus: { [key: string]: number } = {
-    Order: 2,
-    Subscription: 2,
-    Invoicing: 2,
-    Accounting: 2,
+    Order: 0,
+    Subscription: 0,
+    Invoicing: 0,
+    Accounting: 0,
     Cash: 0,
   };
 
@@ -96,12 +96,14 @@ export class O2cBillScheduleComponent {
     const navState = this.location.getState() as {
       rowData?: any;
       orderId?: string;
+      circleStatus?: { [key: string]: number };
     };
 
     if (navState.rowData && navState.orderId) {
       this.orderId = navState.orderId;
       this.subRefId = navState.rowData?.SUBSCRIPTION_ID;
       this.billNum = navState.rowData?.BILL_NUMBER || '';
+      this.circleStatus = navState.circleStatus || this.circleStatus;
     }
 
     console.log('Navigation state:', navState);
