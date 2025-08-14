@@ -2,57 +2,46 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { MatTableDataSource } from '@angular/material/table';
-
-interface ExceptionData {
-  loading: boolean;
-  dataSource: MatTableDataSource<any>;
-  displayedColumns: string[];
-  pieChartData: any[];
-  apiEndpoint: string;
-}
+import { O2cBaseComponent } from '../../o2c-base.component';
 
 @Component({
   selector: 'app-o2c-cash',
   templateUrl: './o2c-cash.component.html',
   styleUrl: './o2c-cash.component.css',
 })
-export class O2cCashComponent {
-  showDetailView = false;
-  currentDetailType: string = '';
-  isOpen: boolean[] = Array(9).fill(true);
-
-  private exceptionData: { [key: string]: ExceptionData } = {
+export class O2cCashComponent extends O2cBaseComponent implements OnInit {
+  exceptionData = {
     'o2c-order-pastdue-exception-v': {
       loading: false,
-      dataSource: new MatTableDataSource<any>(),
+      dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
       apiEndpoint: 'o2c-order-pastdue-exception-v',
     },
     'o2c-order-partialpay-exception-v': {
       loading: false,
-      dataSource: new MatTableDataSource<any>(),
+      dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
       apiEndpoint: 'o2c-order-partialpay-exception-v',
     },
     'o2c-order-unidentified-exception-v': {
       loading: false,
-      dataSource: new MatTableDataSource<any>(),
+      dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
       apiEndpoint: 'o2c-order-unidentified-exception-v',
     },
     'o2c-order-cashoth-exception-v': {
       loading: false,
-      dataSource: new MatTableDataSource<any>(),
+      dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
       apiEndpoint: 'o2c-order-cashoth-exception-v',
     },
   };
 
-  private detailTypeConfig: { [key: string]: any } = {
+  detailTypeConfig = {
     'o2c-order-pastdue-exception-v': {
       title: 'Past Due Exceptions',
       dataKey: 'o2c-order-pastdue-exception-v',
@@ -74,20 +63,19 @@ export class O2cCashComponent {
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
-    // Load all data on init
     Object.keys(this.exceptionData).forEach((key) => {
       this.loadExceptionData(key);
     });
   }
 
-  // Generic data loading method
-  private loadExceptionData(dataKey: string): void {
+  loadExceptionData(dataKey: string): void {
     const data = this.exceptionData[dataKey];
     if (!data) return;
-
     data.loading = true;
     this.http
       .get(data.apiEndpoint, this.destroyManager)
@@ -97,98 +85,6 @@ export class O2cCashComponent {
         data.pieChartData = this.prepareDonutData(response);
         data.loading = false;
       });
-  }
-
-  // Data preparation method
-  prepareDonutData(rawData: any[]): any[] {
-    const groupedData = rawData.reduce((acc, item) => {
-      const holdReason = item.HOLD_REASON || 'Unknown';
-      const orderAmount = parseFloat(item.ORDER_AMOUNT_USD) || 0;
-
-      if (!acc[holdReason]) {
-        acc[holdReason] = {
-          INCIDENT_TYPE: holdReason,
-          INCIDENT_COUNT: 0,
-          INCIDENT_VALUE: 0,
-        };
-      }
-
-      acc[holdReason].INCIDENT_COUNT++;
-      acc[holdReason].INCIDENT_VALUE += orderAmount;
-      return acc;
-    }, {} as { [key: string]: any });
-
-    return Object.values(groupedData).map((item: any) => ({
-      ...item,
-      INCIDENT_VALUE: Math.round(item.INCIDENT_VALUE * 100) / 100,
-    }));
-  }
-
-  // View management
-  toggleAccordion(index: number): void {
-    this.isOpen[index] = !this.isOpen[index];
-  }
-
-  showDetailTable(detailType: string): void {
-    this.currentDetailType = detailType;
-    this.showDetailView = true;
-
-    // Reload data for this specific type if needed
-    const config = this.detailTypeConfig[detailType];
-    if (config) {
-      this.loadExceptionData(config.dataKey);
-    }
-  }
-
-  goBack(): void {
-    this.showDetailView = false;
-    this.currentDetailType = '';
-  }
-
-  // Helper method to get current data configuration
-  private getCurrentConfig() {
-    const config = this.detailTypeConfig[this.currentDetailType];
-    if (!config) return null;
-
-    return {
-      config,
-      data: this.exceptionData[config.dataKey],
-    };
-  }
-
-  // Simplified getters using the helper method
-  getCurrentTitle(): string {
-    return this.getCurrentConfig()?.config.title || '';
-  }
-
-  getCurrentSubtitle(): string {
-    const category = this.getCurrentConfig()?.config.category;
-    return category === 'entered'
-      ? 'Fulfillment to Invoicing'
-      : 'Fulfillment to Invoicing';
-  }
-
-  getCurrentFileName(): string {
-    const title = this.getCurrentTitle();
-    return title ? `O2C ${title} Exceptions` : 'O2C Exceptions';
-  }
-
-  getCurrentDataSource(): MatTableDataSource<any> {
-    return (
-      this.getCurrentConfig()?.data.dataSource || new MatTableDataSource<any>()
-    );
-  }
-
-  getCurrentDisplayedColumns(): string[] {
-    return this.getCurrentConfig()?.data.displayedColumns || [];
-  }
-
-  getCurrentLoadingState(): boolean {
-    return this.getCurrentConfig()?.data.loading || false;
-  }
-
-  getCurrentPieChartData(): any[] {
-    return this.getCurrentConfig()?.data.pieChartData || [];
   }
 
   get o2cOrderPastdueExceptionPieChartData() {

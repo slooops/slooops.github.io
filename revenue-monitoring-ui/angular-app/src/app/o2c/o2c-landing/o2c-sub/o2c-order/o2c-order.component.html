@@ -64,20 +64,6 @@
           canvasId="donutChart4"
         ></app-o2c-donut>
       </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Booking Holds'"
-        [isOpen]="isOpen[5]"
-        (toggleOpen)="toggleAccordion(5)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('booking-holds-entered')"
-      >
-        <app-o2c-donut
-          [data]="orderBhPieChartData"
-          canvasId="donutChart5"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
     </div>
   </div>
 
@@ -91,23 +77,23 @@
   <div class="o2c-container accordion-container">
     <div class="o2c-donut-row">
       <app-o2c-accordion
-        [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
-        [isOpen]="isOpen[6]"
-        (toggleOpen)="toggleAccordion(6)"
+        [title]="'Booking Holds'"
+        [isOpen]="isOpen[5]"
+        (toggleOpen)="toggleAccordion(5)"
         linkHref="#"
         linkText="View Details"
-        (linkClick)="showDetailTable('bie-booked')"
+        (linkClick)="showDetailTable('booking-holds-entered')"
       >
         <app-o2c-donut
-          [data]="orderBiePieChartData"
-          canvasId="donutChart6"
+          [data]="orderBhPieChartData"
+          canvasId="donutChart5"
         ></app-o2c-donut>
       </app-o2c-accordion>
 
       <app-o2c-accordion
         [title]="'Export Compliance'"
-        [isOpen]="isOpen[7]"
-        (toggleOpen)="toggleAccordion(7)"
+        [isOpen]="isOpen[6]"
+        (toggleOpen)="toggleAccordion(6)"
         linkHref="#"
         linkText="View Details"
         (linkClick)="showDetailTable('export-compliance-booked')"
