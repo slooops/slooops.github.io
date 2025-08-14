@@ -33,11 +33,6 @@ public class PeriodCloseMonitoringService {
     private String updateOrderStatus;
     private String orderStatusRevSummary;
     private String updateInvoiceEligibleDate;
-    private String wd0ArMidCloseStatusQuery;
-    private String wd0ArMidCloseHeaderDataQuery;
-    private String wd0HistoricalDataQuery;
-    private String wd0Regression;
-    private String wd0CurrentMonth;
     private String deleteSelectedDeals;
     private String cloBulkUpdate;
     private String invoiceEligibleUpdate;
@@ -45,25 +40,19 @@ public class PeriodCloseMonitoringService {
     private String estimatedCompletionTime;
     private String largeDealSummaryByAccount;
     private String cloSampleDownloadData;
-    private String wd0Volumes;
     private Boolean isQuarterEnd;
     private String periodName;
-    private String wd0MidcloseActualsProduct;
-    private String wd0MidcloseActualsService;
 
 
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
             String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
             String closeMEStatus, String closeQECashCollected, String dashboardComments,
-            String updateComments, String wd0ArMidCloseStatusQuery,
-            String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery, String orderStatus,
+            String updateComments,  String orderStatus,
             String orderStatusSummary, String orderStatusDownload, String updateOrderStatus,
-            String orderStatusRevSummary,  String wd0Regression, String wd0CurrentMonth,
-            String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
+            String orderStatusRevSummary, String deleteSelectedDeals, String cloBulkUpdate, String invoiceEligibleUpdate, String cloCommentUpdate,
             String estimatedCompletionTime, String largeDealSummaryByAccount, String cloSampleDownloadData,
-                                        String wd0Volumes,  String periodName,
-                                        String wd0MidcloseActualsProduct, String wd0MidcloseActualsService
+                                          String periodName
                                         ) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
@@ -75,15 +64,10 @@ public class PeriodCloseMonitoringService {
         this.dashboardComments = dashboardComments;
         this.updateComments = updateComments;
         this.orderStatus = orderStatus;
-        this.wd0ArMidCloseStatusQuery = wd0ArMidCloseStatusQuery;
-        this.wd0ArMidCloseHeaderDataQuery = wd0ArMidCloseHeaderDataQuery;
-        this.wd0HistoricalDataQuery = wd0HistoricalDataQuery;
         this.orderStatusSummary = orderStatusSummary;
         this.orderStatusDownload = orderStatusDownload;
         this.updateOrderStatus = updateOrderStatus;
         this.orderStatusRevSummary = orderStatusRevSummary;
-        this.wd0Regression = wd0Regression;
-        this.wd0CurrentMonth = wd0CurrentMonth;
         this.deleteSelectedDeals = deleteSelectedDeals;
         this.cloBulkUpdate = cloBulkUpdate;
         this.invoiceEligibleUpdate = invoiceEligibleUpdate;
@@ -91,10 +75,7 @@ public class PeriodCloseMonitoringService {
         this.estimatedCompletionTime = estimatedCompletionTime;
         this.largeDealSummaryByAccount = largeDealSummaryByAccount;
         this.cloSampleDownloadData = cloSampleDownloadData;
-        this.wd0Volumes = wd0Volumes;
         this.periodName = periodName;
-        this.wd0MidcloseActualsProduct = wd0MidcloseActualsProduct;
-        this.wd0MidcloseActualsService = wd0MidcloseActualsService;
     }
 
     public List<Map<String, Object>> getCloseInvStats() {
@@ -196,17 +177,6 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.updateComments(updateComments, closeType, comments);
     }
 
-    public List<Map<String, Object>> getWd0ArMidCloseStatus() {
-        return jdbcManager.queryForList(wd0ArMidCloseStatusQuery);
-    }
-
-    public List<Map<String, Object>> getWd0ArMidCloseHeaderData() {
-        return jdbcManager.queryForList(wd0ArMidCloseHeaderDataQuery);
-    }
-
-    public List<Map<String, Object>> getWd0HistoricalData() {
-        return jdbcManager.queryForList(wd0HistoricalDataQuery);
-    }
 
     public OrderLifecycleModel getOrderStatus() {
         OrderLifecycleModel orderLifecycleModel = new OrderLifecycleModel();
@@ -434,14 +404,6 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.queryForList(orderStatusRevSummary);
     }
 
-    public List<Map<String, Object>> getWd0Regression() {
-        return jdbcManager.queryForList(wd0Regression);
-    }
-
-    public List<Map<String, Object>> getWd0CurrentMonth() {
-        return jdbcManager.queryForList(wd0CurrentMonth);
-    }
-
     public void deleteSelectedDeals(List<Map<String, Object>> selectedDeals, String username) {
         for (Map<String, Object> deal : selectedDeals) {
             deleteDeals(username, (int) deal.get("DEAL_ID"), (String) deal.get("SALES_ORDER"));
@@ -579,18 +541,5 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.queryForList(cloSampleDownloadData);
     }
 
-    public List<Map<String, Object>> getWd0Volumes() {
-        return jdbcManager.queryForList(wd0Volumes);
-    }
-
-
-
-    public List<Map<String, Object>> getWd0MidcloseActualsProduct() {
-        return jdbcManager.queryForList(wd0MidcloseActualsProduct);
-    }
-
-    public List<Map<String, Object>> getWd0MidcloseActualsService() {
-        return jdbcManager.queryForList(wd0MidcloseActualsService);
-    }
 
 }

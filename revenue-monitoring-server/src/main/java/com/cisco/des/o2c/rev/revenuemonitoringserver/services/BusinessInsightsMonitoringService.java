@@ -23,6 +23,14 @@ public class BusinessInsightsMonitoringService {
     private String issueReportingDashStatusUpdate;
     private String issueReportingDashIssueDescUpdate;
     private String issueReportingDashSummary;
+    private String wd0ArMidCloseStatusQuery;
+    private String wd0ArMidCloseHeaderDataQuery;
+    private String wd0MidcloseActualsProduct;
+    private String wd0MidcloseActualsService;
+    private String wd0Volumes;
+    private String wd0HistoricalDataQuery;
+    private String wd0Regression;
+    private String wd0CurrentMonth;
     @Autowired
     private Common common;
 
@@ -31,7 +39,10 @@ public class BusinessInsightsMonitoringService {
                                              String issueReportingDashInsert, String issueReportingDashApprove,
                                              String issueReportingDashCommentsUpdate, String issueReportingDashFixDetailsUpdate,
                                              String issueReportingDashStatusUpdate, String issueReportingDashIssueDescUpdate,
-                                             String issueReportingDashSummary) {
+                                             String issueReportingDashSummary, String wd0ArMidCloseStatusQuery,
+                                             String wd0ArMidCloseHeaderDataQuery, String wd0HistoricalDataQuery,
+                                             String wd0Regression, String wd0CurrentMonth, String wd0Volumes,
+                                             String wd0MidcloseActualsProduct, String wd0MidcloseActualsService) {
         this.jdbcManager = jdbcManager;
         this.issueReportingDash = issueReportingDash;
         this.issueReportingDashInsert = issueReportingDashInsert;
@@ -41,7 +52,14 @@ public class BusinessInsightsMonitoringService {
         this.issueReportingDashStatusUpdate = issueReportingDashStatusUpdate;
         this.issueReportingDashIssueDescUpdate = issueReportingDashIssueDescUpdate;
         this.issueReportingDashSummary = issueReportingDashSummary;
-
+        this.wd0ArMidCloseStatusQuery = wd0ArMidCloseStatusQuery;
+        this.wd0ArMidCloseHeaderDataQuery = wd0ArMidCloseHeaderDataQuery;
+        this.wd0MidcloseActualsProduct = wd0MidcloseActualsProduct;
+        this.wd0MidcloseActualsService = wd0MidcloseActualsService;
+        this.wd0Regression = wd0Regression;
+        this.wd0CurrentMonth = wd0CurrentMonth;
+        this.wd0HistoricalDataQuery = wd0HistoricalDataQuery;
+        this.wd0Volumes = wd0Volumes;
     }
 
     public List<Map<String, Object>> getIssueReportingData() {
@@ -105,4 +123,34 @@ public class BusinessInsightsMonitoringService {
         }
     }
 
+    public List<Map<String, Object>> getWd0ArMidCloseStatus() {
+        return jdbcManager.queryForList(wd0ArMidCloseStatusQuery);
+    }
+
+    public List<Map<String, Object>> getWd0ArMidCloseHeaderData() {
+        return jdbcManager.queryForList(wd0ArMidCloseHeaderDataQuery);
+    }
+    public List<Map<String, Object>> getWd0HistoricalData() {
+        return jdbcManager.queryForList(wd0HistoricalDataQuery);
+    }
+
+    public List<Map<String, Object>> getWd0Regression() {
+        return jdbcManager.queryForList(wd0Regression);
+    }
+
+    public List<Map<String, Object>> getWd0CurrentMonth() {
+        return jdbcManager.queryForList(wd0CurrentMonth);
+    }
+
+    public List<Map<String, Object>> getWd0Volumes() {
+        return jdbcManager.queryForList(wd0Volumes);
+    }
+
+    public List<Map<String, Object>> getWd0MidcloseActualsProduct() {
+        return jdbcManager.queryForList(wd0MidcloseActualsProduct);
+    }
+
+    public List<Map<String, Object>> getWd0MidcloseActualsService() {
+        return jdbcManager.queryForList(wd0MidcloseActualsService);
+    }
 }

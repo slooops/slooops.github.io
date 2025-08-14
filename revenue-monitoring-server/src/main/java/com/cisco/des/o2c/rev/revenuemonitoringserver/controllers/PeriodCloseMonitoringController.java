@@ -82,27 +82,12 @@ public class PeriodCloseMonitoringController {
         return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
     }
 
-    @GetMapping("/wd0-ar-midclose-status")
-    public ResponseEntity<List<Map<String, Object>>> getWd0ArMidCloseStatus() {
-        return new ResponseEntity<>(service.getWd0ArMidCloseStatus(), HttpStatus.OK);
-    }
-
     @GetMapping("/dashboard-current-timestamp")
     public Map<String, Date> getCurrentTimestamp() {
         Date date = new Date();
         Map<String, Date> timeNow = new HashMap<>();
         timeNow.put("timeNow", date);
         return timeNow;
-    }
-
-    @GetMapping("/wd0-ar-midclose-header-data")
-    public ResponseEntity<List<Map<String, Object>>> getWd0ArMidCloseHeaderData() {
-        return new ResponseEntity<>(service.getWd0ArMidCloseHeaderData(), HttpStatus.OK);
-    }
-
-    @GetMapping("/wd0-historical-data")
-    public ResponseEntity<List<Map<String, Object>>> getWd0HistoricalData() {
-        return new ResponseEntity<>(service.getWd0HistoricalData(), HttpStatus.OK);
     }
 
     @GetMapping("/order-status-summary")
@@ -138,16 +123,6 @@ public class PeriodCloseMonitoringController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
         }
-    }
-
-    @GetMapping("/wd0-regression")
-    public ResponseEntity<List<Map<String, Object>>> getWd0Regression() {
-        return new ResponseEntity<>(service.getWd0Regression(), HttpStatus.OK);
-    }
-
-    @GetMapping("/wd0-current-month")
-    public ResponseEntity<List<Map<String, Object>>> getWd0CurrentMonth() {
-        return new ResponseEntity<>(service.getWd0CurrentMonth(), HttpStatus.OK);
     }
 
     @PostMapping(value = "/delete-selected-deals")
@@ -222,22 +197,6 @@ public class PeriodCloseMonitoringController {
     @GetMapping("/clo-sample-download-data")
     public ResponseEntity<List<Map<String, Object>>> getCloSampleDownloadData() {
         return new ResponseEntity<>(service.getCloSampleDownloadData(), HttpStatus.OK);
-    }
-
-    @GetMapping("/wd0-volumes")
-    public ResponseEntity<List<Map<String, Object>>> getWd0Volumes() {
-        return new ResponseEntity<>(service.getWd0Volumes(), HttpStatus.OK);
-    }
-
-
-    @GetMapping("/wd0-midclose-actuals-product")
-    public ResponseEntity<List<Map<String, Object>>> getWd0MidcloseActualsProduct() {
-        return new ResponseEntity<>(service.getWd0MidcloseActualsProduct(), HttpStatus.OK);
-    }
-
-    @GetMapping("/wd0-midclose-actuals-service")
-    public ResponseEntity<List<Map<String, Object>>> getWd0MidcloseActualsService() {
-        return new ResponseEntity<>(service.getWd0MidcloseActualsService(), HttpStatus.OK);
     }
 
 }
