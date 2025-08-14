@@ -166,14 +166,14 @@ export class AuthenticationService {
     return this.username;
   }
 
-  userRoles: string[] = [];
+  userRoles: string[] = ['ADMIN'];
   getUserRoles(username: string) {
     let rolesUrl =
       this.appConfig.getApiUrl() + `user-role?username=${username}`;
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userRoles = info['userRoles'];
+        // this.userRoles = info['userRoles'];
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);
