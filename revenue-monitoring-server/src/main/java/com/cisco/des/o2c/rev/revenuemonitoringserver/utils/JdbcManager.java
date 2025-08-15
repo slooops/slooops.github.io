@@ -324,4 +324,8 @@ public class JdbcManager {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, batchSource,
                 processFlow, entityName, transactionDate);
     }
+
+    public List<Map<String, Object>> getProcessFlowTotal(String sql, String compName) {
+        return primaryJdbcTemplate.queryForList(sql, compName);
+    }
 }

@@ -1224,4 +1224,13 @@ public class QueryConfigs {
         return this.pcmApplicationSummaryUpdate;
     }
 
+    @Value(("${process.flow.total}"))
+    public String processFlowTotal;
+
+    @Bean(name = "processFlowTotal")
+    public String getProcessFlowTotal() {
+        return this.processFlowTotal;
+    }
+
+
 }

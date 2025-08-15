@@ -217,8 +217,8 @@ tr.mat-header-row {
 
 .header-container {
   display: flex;
-  justify-content: space-between; /* Space between title/form on left and action buttons on right */
-  align-items: center; /* Vertically align items in the center */
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   padding: 0 10px 0 12px;
 }
@@ -252,8 +252,14 @@ tr.mat-header-row {
 
 .action-buttons {
   display: flex;
-  justify-content: flex-end; /* Align action buttons to the right */
-  gap: 10px; /* Optional space between action buttons */
+  justify-content: flex-end;
+  gap: 10px;
+}
+.assign-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  width: 200px !important; /* Fixed width for the assign buttons */
 }
 
 .rol-error-summary-container {

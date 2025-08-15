@@ -30,29 +30,13 @@
   </span>
 </ng-template> -->
 
-<ng-template #processToolTip>
-  <app-process-flow-tooltip
-    [processFlowTabsToDisplay]="processFlowTabsToDisplay"
-    [dynamicTemplate]="dynamicTemplate"
-    [dynamicCss]="dynamicCss"
-  >
-    ></app-process-flow-tooltip
-  >
-</ng-template>
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
       <h5 class="section-title action-buttons">
         Error Summary
-        <span class="action-buttons">
+        <div class="assign-buttons">
           &nbsp;&nbsp;
-          <!-- <button
-            class="custom-button-primary"
-            (click)="viewTransactionDetails()"
-          >
-            View Details
-          </button>
-          &nbsp;&nbsp; -->
           <button
             class="custom-button-primary"
             style="background-color: #aaa8a8"
@@ -71,8 +55,12 @@
           >
             Reset
           </button>
-        </span>
+        </div>
       </h5>
+      <div class="process-flow-fixed">
+        <app-process-flow-tooltip [processFlowTotals]="processFlowTotals">
+        </app-process-flow-tooltip>
+      </div>
 
       <div class="action-buttons">
         <div
@@ -167,14 +155,6 @@
                       ></i>
                     </span>
                   </ng-container>
-                  <ng-container *ngSwitchCase="'PROCESS_FLOW'">
-                    <span
-                      [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
-                      [contentTemplate]="processToolTip"
-                    >
-                      {{ replaceUnderscore(column) }}
-                    </span>
-                  </ng-container>
 
                   <ng-container *ngSwitchDefault>
                     {{ replaceUnderscore(column) }}
@@ -190,7 +170,7 @@
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                     <span *ngIf="isSubAppMapping">
-                      {{ subAppMapper(element[column]) }}
+                      {{ element[column] }}
                     </span>
                     <span *ngIf="!isSubAppMapping">
                       {{ element[column] }}
@@ -322,7 +302,7 @@
                       (onSelectionChange)="filter()"
                     >
                       <span *ngIf="column.subAppMapping">
-                        {{ subAppMapper(option) }}
+                        {{ option }}
                       </span>
                       <span *ngIf="!column.subAppMapping">
                         {{ option }}
@@ -508,7 +488,7 @@
               <ng-container [ngSwitch]="column">
                 <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                   <span *ngIf="isSubAppMapping">
-                    {{ subAppMapper(element[column]) }}
+                    {{ element[column] }}
                   </span>
                   <span *ngIf="!isSubAppMapping">
                     {{ element[column] }}

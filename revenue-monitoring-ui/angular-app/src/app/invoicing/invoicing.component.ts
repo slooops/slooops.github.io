@@ -17,7 +17,7 @@ export class InvoicingComponent implements OnInit {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private http: ApiHttpService,
-    private authService: AuthenticationService,
+    public authService: AuthenticationService,
     private menuService: MenuService
   ) {}
   preInvoicingProcessFlowHtml: string = '';

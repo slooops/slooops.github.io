@@ -20,6 +20,7 @@ public class CommonService {
     private String summaryAssignmentUsers;
     private String rolErrorsSummaryPeriodStatus;
     private String personaAccessRoles;
+    private String processFlowTotal;
 
 
     @Autowired
@@ -29,12 +30,14 @@ public class CommonService {
     private CacheCommon cacheCommon;
 
     public CommonService(JdbcManager jdbcManager, String invoiceToCashSummary,
-                         String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus,String personaAccessRoles) {
+                         String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus,String personaAccessRoles,
+                         String processFlowTotal) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
         this.invoiceToCashSummary = invoiceToCashSummary;
         this.personaAccessRoles = personaAccessRoles;
+        this.processFlowTotal = processFlowTotal;
     }
 
 
@@ -79,6 +82,11 @@ public class CommonService {
             return new UserRoleInfo(userName, userEmail, roles);
         }
         return null;
+    }
+
+    public List<Map<String, Object>> getProcessFlowTotals(String compName) {
+        List<Map<String, Object>> result = jdbcManager.getProcessFlowTotal(processFlowTotal, compName);
+        return result;
     }
 
 }

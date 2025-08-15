@@ -1,0 +1,70 @@
+.flowchart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 70px; /* Increased from 65px to accommodate spacing */
+  background: #ffffff;
+  top: 0px;
+  padding-bottom: 10px;
+  overflow: visible;
+  margin: 0 auto;
+}
+
+.slider-bar {
+  margin-top: 35px; /* Increased from 30px to align with circle center */
+  position: absolute;
+  width: fit-content;
+  height: 3px;
+  background: #16371e43;
+  border-radius: 5px;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.circle-wrapper-loop {
+  align-items: center;
+  text-align: center;
+  position: relative;
+  width: 140px;
+  top: -21px; /* Adjusted for proper alignment */
+}
+
+.circle-caption-loop {
+  font-size: 11px;
+  color: #43484f;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0 5px;
+  margin: 0 0 4px 0; /* Added bottom margin for spacing */
+  line-height: 1.1; /* Slightly increased for readability */
+}
+
+.circle-loop {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #828d9b;
+  position: relative;
+  margin: 0; /* Removed top/bottom margins to align with line */
+  left: 60px;
+  z-index: 3;
+}
+
+.circle-subcaption {
+  font-size: 10px;
+  color: #858585;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 3px;
+  margin: 4px 0 0 0; /* Added top margin for spacing */
+  line-height: 1.1; /* Slightly increased for readability */
+}
+
+.mat-typography p {
+  margin: 0 !important;
+  line-height: 1.1 !important; /* Updated to match other elements */
+}

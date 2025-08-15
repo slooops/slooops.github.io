@@ -40,4 +40,9 @@ public class CommonController {
         UserRoleInfo userRoles = service.getUserRoles(username);
         return ResponseEntity.status(HttpStatus.OK).body(userRoles);
     }
+
+    @GetMapping(value = "/process-flow-total")
+    public ResponseEntity<List<Map<String, Object>>> getProcessFlowtotal(@RequestParam String compName) {
+        return new ResponseEntity<>(service.getProcessFlowTotals(compName), HttpStatus.OK);
+    }
 }

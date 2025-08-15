@@ -20,6 +20,7 @@ import { DataFormattingService } from './providers/data-formatting.service';
 import { MonitoringDataService } from './providers/data.service';
 import { UtilsService } from './providers/utils.service';
 import { BaseComponent } from './shared/base.component';
+import { HttpService } from './providers/http.service';
 
 @Component({
   selector: 'app-monitoring-dashboard',
@@ -55,6 +56,7 @@ export class MonitoringDashboardComponent<T>
   @Input() submitKeysToMap: string[] = [];
   @Input() webexKeysToMap: string[] = [];
   @Input() assignmentUsersFilter: string = '';
+  @Input() apiUrl: string;
 
   periodName: string = '';
   periodEnd: string = '';
@@ -72,18 +74,26 @@ export class MonitoringDashboardComponent<T>
     private exportService: ExportService,
     private dataFormattingService: DataFormattingService,
     private monitoringDataService: MonitoringDataService,
-    private utilService: UtilsService
+    private utilService: UtilsService,
+    private httpService: HttpService
   ) {
     super();
   }
   ngOnInit(): void {
+    if (this.apiUrl) {
+      this.httpService.setHostUrl(this.apiUrl);
+    }
     this.getErrorSummary();
     this.getErrorDetails();
     this.updateUrl = this.urls['summaryUpdateUrl'];
     this.webexUrl = this.urls['webexMessageUrl'];
     this.initializeForm();
+    this.getProcessFlowTotals();
   }
   ngOnChanges(changes: SimpleChanges) {
+    if (changes['apiUrl'] && changes['apiUrl'].currentValue) {
+      this.httpService.setHostUrl(changes['apiUrl'].currentValue);
+    }
     if (this.periodStatus) {
       this.periodName = this.periodStatus[0].PERIOD_NAME;
       this.periodEnd = this.dataFormattingService.dateTransform(
@@ -122,16 +132,6 @@ export class MonitoringDashboardComponent<T>
             (data) => !this.summaryColumnsToHide.includes(data)
           );
           this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
-          if (this.summaryColumns.includes('PROCESS_FLOW')) {
-            this.resetPreInvoicingTotals();
-            const totals = this.calculateTotalsByProcessFlow(data);
-            console.log(
-              'Calculated Totals by Process Flow:',
-              totals,
-              this.componentName
-            );
-            this.dataService.setTabData(this.componentName, totals);
-          }
           this.originalData = this.summaryData;
           this.summaryDatasource = new MatTableDataSource<T>(this.summaryData);
           if (this.summaryPaginator) {
@@ -152,63 +152,22 @@ export class MonitoringDashboardComponent<T>
       });
   }
 
-  private resetPreInvoicingTotals(): void {
-    Object.keys(this.processFlowKeys).forEach((key) => {
-      this.processFlowKeys[key] = 0;
-    });
-  }
-
-  calculateTotalsByProcessFlow(data: any[]): {
-    [key: string]: string;
-  } {
-    data.forEach((item) => {
-      if (item.PROCESS_FLOW !== null) {
-        const processFlowKey = item.PROCESS_FLOW;
-        if (this.processFlowKeys.hasOwnProperty(processFlowKey)) {
-          if (this.componentName === 'Credit Check Process') {
-            this.processFlowKeys[processFlowKey] += Number(item.ORDER_COUNT);
-          } else if (this.componentName === 'SRT Process') {
-            this.processFlowKeys[processFlowKey] += Number(item.TRXN_COUNT);
-          } else {
-            this.processFlowKeys[processFlowKey] += Number(item.AMOUNT);
-          }
-        }
-      }
-    });
-
-    const formattedTotals: { [key: string]: string } = {};
-    Object.keys(this.processFlowKeys).forEach((key) => {
-      formattedTotals[key] =
-        this.processFlowKeys[key] === 0
-          ? '0'
-          : this.processFlowKeys[key] === undefined ||
-            this.processFlowKeys[key] === null
-          ? 'N/A'
-          : this.processFlowKeys[key] >= 1_000_000
-          ? `$${(this.processFlowKeys[key] / 1_000_000).toLocaleString(
-              undefined,
-              {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              }
-            )}M`
-          : this.componentName !== 'Credit Check Process' &&
-            this.componentName !== 'SRT Process'
-          ? `$${this.processFlowKeys[key].toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}`
-          : `${this.processFlowKeys[key].toLocaleString(undefined, {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0,
-            })}`;
-    });
-
-    return formattedTotals;
-  }
-
-  subAppMapper(key: string): string | undefined {
-    return this.subAppMapping[key];
+  processFlowTotals: any[] = [];
+  getProcessFlowTotals() {
+    const params = { compName: this.componentName };
+    this.httpService
+      .get('process-flow-total', { params: params })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data: any) => {
+          console.log('Process flow totals:', data);
+          this.processFlowTotals = data;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error fetching process flow totals', err);
+        },
+      });
   }
 
   sortColumn: string | null = null;

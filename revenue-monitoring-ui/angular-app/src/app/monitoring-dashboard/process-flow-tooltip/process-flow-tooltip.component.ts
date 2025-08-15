@@ -4,12 +4,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
-  ElementRef,
-  Renderer2,
-  TemplateRef,
 } from '@angular/core';
-import { combineLatest, map, Observable } from 'rxjs';
-import { DataService } from 'src/app/providers/data.service';
 
 @Component({
   selector: 'app-process-flow-tooltip',
@@ -17,65 +12,75 @@ import { DataService } from 'src/app/providers/data.service';
   styleUrl: './process-flow-tooltip.component.css',
 })
 export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
-  @Input() processFlowTabsToDisplay: string[];
-  @Input() dynamicTemplate: TemplateRef<any> | null = null;
-  @Input() dynamicCss: string = '';
-  totals$:
-    | Observable<{ [tabName: string]: { [key: string]: number } }>
-    | undefined;
-  tabsToDisplay: string[] = [];
-  processFlowhtml: string = '';
-  processFlowcss: string = '';
-  htmlContent: string = '';
-  htmlTemplate: TemplateRef<any> | null = null;
-  csstemplate: string = '';
+  @Input() processFlowTotals: any[] = [];
 
-  constructor(
-    private dataService: DataService,
-    private el: ElementRef,
-    private renderer: Renderer2
-  ) {}
+  processSteps: any[] = [];
+  containerWidth: number = 140; // Base width for a single circle
 
-  ngOnInit() {}
+  constructor() {}
+
+  ngOnInit() {
+    this.processSteps = this.sortProcessSteps();
+    this.calculateContainerWidth();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (
-      changes['processFlowTabsToDisplay'] &&
-      changes['dynamicTemplate'] &&
-      changes['dynamicCss']
-    ) {
-      this.tabsToDisplay = this.processFlowTabsToDisplay;
-      this.totals$ = this.getCombinedTotals(this.tabsToDisplay);
-      this.htmlTemplate = this.dynamicTemplate;
-      this.injectCss();
+    if (changes['processFlowTotals']) {
+      this.processSteps = this.sortProcessSteps();
+      this.calculateContainerWidth();
     }
   }
 
-  ngAfterViewInit() {}
-
-  private getCombinedTotals(
-    tabNames: string[]
-  ): Observable<{ [tabName: string]: { [key: string]: number } }> {
-    const tabObservables = tabNames.map((tabName) =>
-      this.dataService
-        .getTabData(tabName)
-        .pipe(map((totals) => ({ [tabName]: totals })))
-    );
-
-    return combineLatest(tabObservables).pipe(
-      map((results) => Object.assign({}, ...results))
-    );
-  }
-
-  objectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
-
-  injectCss() {
-    if (this.dynamicCss) {
-      const style = this.renderer.createElement('style');
-      style.innerHTML = this.dynamicCss;
-      this.renderer.appendChild(this.el.nativeElement, style);
+  sortProcessSteps(): any[] {
+    if (!this.processFlowTotals || !Array.isArray(this.processFlowTotals)) {
+      return [];
     }
+
+    // Sort by numeric prefix if available
+    return [...this.processFlowTotals];
+    // .sort((a, b) => {
+    //   const aMatch = a.PROCESS_FLOW?.match(/^(\d+)/);
+    //   const bMatch = b.PROCESS_FLOW?.match(/^(\d+)/);
+
+    //   if (aMatch && bMatch) {
+    //     return parseInt(aMatch[1], 10) - parseInt(bMatch[1], 10);
+    //   }
+
+    //   // Fallback to alphabetical sorting
+    //   return (a.PROCESS_FLOW || '').localeCompare(b.PROCESS_FLOW || '');
+    // });
+  }
+
+  calculateContainerWidth(): void {
+    // Each step is now 140px wide for better spacing
+    const stepCount = this.processSteps.length || 1;
+    this.containerWidth = Math.max(150, stepCount * 140);
+  }
+
+  formatLabel(label: string): string {
+    if (!label) return '';
+
+    return label;
+    // const formattedLabel = label.replace(/^\d+\s*-\s*/, '');
+
+    // return formattedLabel
+    //   .split(' ')
+    //   .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    //   .join(' ');
+  }
+
+  formatAmount(amount: any): string {
+    if (amount === undefined || amount === null) return 'N/A';
+
+    // Convert to number if it's a string
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+
+    // Format as currency
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(numAmount);
   }
 }
