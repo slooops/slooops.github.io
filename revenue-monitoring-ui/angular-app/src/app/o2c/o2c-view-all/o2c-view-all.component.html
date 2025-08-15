@@ -219,6 +219,34 @@
   </div>
 </div>
 
+<!-- Add this OUTSIDE and BEFORE the mat-tab-group -->
+<div class="external-filters-container">
+  <app-table-filter
+    *ngIf="getActiveFilter()"
+    class="external-filter"
+    [style.left.px]="getActiveFilter().position.x"
+    [style.top.px]="getActiveFilter().position.y"
+    [columnLabel]="getActiveFilter().columnLabel"
+    [options]="getActiveFilter().options"
+    [isOpen]="true"
+    [currentValue]="
+      getCurrentFilterValue(
+        getActiveFilter().column,
+        getActiveFilter().dataSource
+      )
+    "
+    (optionSelected)="
+      handleFilter(
+        $event,
+        getActiveFilter().column,
+        getActiveFilter().data,
+        getActiveFilter().dataSource
+      )
+    "
+    (clickOutside)="closeAllFilters()"
+  ></app-table-filter>
+</div>
+
 <mat-tab-group
   [(selectedIndex)]="selectedTabIndex"
   (selectedIndexChange)="onTabChange($event)"
@@ -460,19 +488,24 @@
                         column === 'AMOUNT_DUE_REMAINING'
                       "
                     >
-                      <app-table-filter
-                        class="floating-filter"
-                        [columnLabel]="'USD'"
-                        [options]="amountOptions"
-                        (optionSelected)="
-                          handleFilter(
+                      <button
+                        class="filter-trigger-btn"
+                        [class.active]="
+                          isFilterActive(column, 'invoiceSummaryDataSource')
+                        "
+                        (click)="
+                          showFilter(
                             $event,
                             column,
+                            'USD',
+                            amountOptions,
                             originalInvoiceSummaryData,
                             'invoiceSummaryDataSource'
                           )
                         "
-                      ></app-table-filter>
+                      >
+                        <mat-icon>filter_list</mat-icon>
+                      </button>
                     </ng-container>
                   </div>
                 </th>
@@ -602,13 +635,22 @@
                     <span>{{ formatColumnName(column) }}</span>
 
                     <ng-container *ngIf="column === 'POSTED_TO_GL'">
-                      <app-table-filter
-                        class="floating-filter"
-                        [options]="postedToGLOptions"
-                        (optionSelected)="
-                          handleFilter(
+                      <button
+                        class="filter-trigger-btn"
+                        [class.active]="
+                          isFilterActive(
+                            column,
+                            invoiceLinesFiltered
+                              ? 'invoiceLinesFilteredDataSource'
+                              : 'invoiceLinesDataSource'
+                          )
+                        "
+                        (click)="
+                          showFilter(
                             $event,
                             column,
+                            '',
+                            postedToGLOptions,
                             invoiceLinesFiltered
                               ? filteredOriginalInvoiceLinesData
                               : originalInvoiceLinesData,
@@ -617,7 +659,9 @@
                               : 'invoiceLinesDataSource'
                           )
                         "
-                      ></app-table-filter>
+                      >
+                        <mat-icon>filter_list</mat-icon>
+                      </button>
                     </ng-container>
 
                     <ng-container
@@ -627,14 +671,22 @@
                         column === 'TAX_AMOUNT'
                       "
                     >
-                      <app-table-filter
-                        class="floating-filter"
-                        [columnLabel]="'USD'"
-                        [options]="amountOptions"
-                        (optionSelected)="
-                          handleFilter(
+                      <button
+                        class="filter-trigger-btn"
+                        [class.active]="
+                          isFilterActive(
+                            column,
+                            invoiceLinesFiltered
+                              ? 'invoiceLinesFilteredDataSource'
+                              : 'invoiceLinesDataSource'
+                          )
+                        "
+                        (click)="
+                          showFilter(
                             $event,
                             column,
+                            'USD',
+                            amountOptions,
                             invoiceLinesFiltered
                               ? filteredOriginalInvoiceLinesData
                               : originalInvoiceLinesData,
@@ -643,7 +695,9 @@
                               : 'invoiceLinesDataSource'
                           )
                         "
-                      ></app-table-filter>
+                      >
+                        <mat-icon>filter_list</mat-icon>
+                      </button>
                     </ng-container>
                   </div>
                 </th>
@@ -721,53 +775,79 @@
             <ng-container [ngSwitch]="column">
               <span> {{ formatColumnName(column) }} </span>
               <ng-container *ngIf="column === 'LINE_AMOUNT'">
-                <app-table-filter
-                  class="floating-filter"
-                  [columnLabel]="'USD'"
-                  [options]="amountOptions"
-                  (optionSelected)="
-                    handleFilter(
+                <button
+                  class="filter-trigger-btn"
+                  [class.active]="
+                    isFilterActive(
+                      column,
+                      'subscriptionLinesFilteredDataSource'
+                    )
+                  "
+                  (click)="
+                    showFilter(
                       $event,
                       column,
+                      'USD',
+                      amountOptions,
                       subscriptionLinesFiltered
                         ? filteredOriginalSubscriptionLinesData
                         : originalSubscriptionLinesData,
-                      'subscriptionLinesDataSource'
+                      'subscriptionLinesFilteredDataSource'
                     )
                   "
-                ></app-table-filter>
+                >
+                  <mat-icon>filter_list</mat-icon>
+                </button>
               </ng-container>
               <ng-container *ngIf="column === 'POSTED_TO_GL'">
-                <app-table-filter
-                  class="floating-filter"
-                  [options]="postedToGLOptions"
-                  (optionSelected)="
-                    handleFilter(
+                <button
+                  class="filter-trigger-btn"
+                  [class.active]="
+                    isFilterActive(
+                      column,
+                      'subscriptionLinesFilteredDataSource'
+                    )
+                  "
+                  (click)="
+                    showFilter(
                       $event,
                       column,
+                      '',
+                      postedToGLOptions,
                       subscriptionLinesFiltered
                         ? filteredOriginalSubscriptionLinesData
                         : originalSubscriptionLinesData,
-                      'subscriptionLinesDataSource'
+                      'subscriptionLinesFilteredDataSource'
                     )
                   "
-                ></app-table-filter>
+                >
+                  <mat-icon>filter_list</mat-icon>
+                </button>
               </ng-container>
               <ng-container *ngIf="column === 'TSV_CREATED'">
-                <app-table-filter
-                  class="floating-filter"
-                  [options]="postedToGLOptions"
-                  (optionSelected)="
-                    handleFilter(
+                <button
+                  class="filter-trigger-btn"
+                  [class.active]="
+                    isFilterActive(
+                      column,
+                      'subscriptionLinesFilteredDataSource'
+                    )
+                  "
+                  (click)="
+                    showFilter(
                       $event,
                       column,
+                      '',
+                      postedToGLOptions,
                       subscriptionLinesFiltered
                         ? filteredOriginalSubscriptionLinesData
                         : originalSubscriptionLinesData,
-                      'subscriptionLinesDataSource'
+                      'subscriptionLinesFilteredDataSource'
                     )
                   "
-                ></app-table-filter>
+                >
+                  <mat-icon>filter_list</mat-icon>
+                </button>
               </ng-container>
             </ng-container>
           </th>

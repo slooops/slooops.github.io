@@ -413,7 +413,7 @@ button.link-button:hover .ccw-button-text {
 
 .update-status-modal {
   position: fixed;
-  top: 20px;
+  top: 50%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2000;
@@ -429,7 +429,7 @@ button.link-button:hover .ccw-button-text {
 .update-status-content {
   background: #fff;
   color: #333;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   padding: 18px 32px;
   font-size: 1.5rem;
@@ -445,23 +445,6 @@ button.link-button:hover .ccw-button-text {
   color: white;
   padding: 4px 4px 1px 4px;
   font-weight: 500;
-}
-
-.cell-button,
-.full-width-button {
-  width: 100%;
-  height: 100%;
-  min-height: 22px; /* Match your table row height */
-  text-align: left;
-  padding: 4px 8px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.cell-button:hover,
-.full-width-button:hover {
-  background-color: #f5f5f5;
 }
 
 /* Shimmer loading animation */
@@ -500,32 +483,37 @@ i {
   user-select: none;
 }
 
-/* Make the filter dropdown appear as an overlay above other content */
-.floating-filter {
-  z-index: 1000;
-  top: 100%;
-  right: 0;
-  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); */
-  background-color: white;
-  /* Ensure it appears above the table content */
-  transform: translateY(0);
+.filter-trigger-btn mat-icon {
+  margin: 0 -4px -14px 0;
 }
 
-/* Fix for the table to prevent automatic scrollbars */
-.invoice-summary-table {
-  overflow: visible !important;
+.external-filters-container {
   position: relative;
+  z-index: 2000;
 }
 
-/* Ensure header cells can position the filter dropdown properly */
-
-/* Remove internal scrolling from Angular Material tables */
-.mat-table {
-  overflow: visible !important;
+.external-filter {
+  position: fixed;
+  z-index: 2001;
+  background: white;
 }
 
-/* Ensure table cells don't create overflow */
-.mat-cell,
-.mat-header-cell {
-  overflow: visible !important;
+.filter-trigger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  margin-left: 4px;
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.header-with-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }

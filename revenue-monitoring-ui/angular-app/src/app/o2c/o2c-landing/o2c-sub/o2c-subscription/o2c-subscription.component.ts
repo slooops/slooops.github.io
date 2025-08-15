@@ -9,7 +9,10 @@ import { O2cBaseComponent } from '../../o2c-base.component';
   templateUrl: './o2c-subscription.component.html',
   styleUrls: ['./o2c-subscription.component.css'],
 })
-export class O2cSubscriptionComponent extends O2cBaseComponent implements OnInit {
+export class O2cSubscriptionComponent
+  extends O2cBaseComponent
+  implements OnInit
+{
   exceptionData = {
     sab: {
       loading: true,

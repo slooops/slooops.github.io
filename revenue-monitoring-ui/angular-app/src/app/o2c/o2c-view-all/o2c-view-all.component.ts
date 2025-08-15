@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-
+import { Component, OnInit, HostListener } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -123,36 +122,10 @@ export class O2cViewAllComponent implements OnInit {
   originalSubscriptionLinesData: any[] = [];
   filteredOriginalSubscriptionLinesData: any[] = [];
   subscriptionLinesFiltered: boolean = false;
-  handleFilter(
-    value: string,
-    column: string,
-    data: any[],
-    dataSourceProp:
-      | 'invoiceSummaryDataSource'
-      | 'orderSummaryDataSource'
-      | 'subscriptionSummaryDataSource'
-      | 'invoiceLinesDataSource'
-      | 'invoiceLinesFilteredDataSource'
-      | 'financialSummaryDataSource'
-      | 'subscriptionLinesDataSource'
-      | 'invoiceSummaryModalDataSource'
-  ) {
-    if (value === 'all') {
-      delete this.filters[column];
-    } else {
-      this.filters[column] = value;
-    }
-    let tableData = this.filtersService.applyFilters(data, this.filters);
-    if (tableData.length === 0) {
-      this.filteredDataNotFound = true;
-      setTimeout(() => {
-        this.filteredDataNotFound = false;
-      }, 5000);
-    } else {
-      this.filteredDataNotFound = false;
-      (this[dataSourceProp] as MatTableDataSource<any>).data = tableData;
-    }
-  }
+
+  // Filter positioning system
+  activeFilters: { [key: string]: any } = {};
+  currentFilterValues: { [key: string]: string } = {};
 
   constructor(
     private location: Location,
@@ -439,5 +412,132 @@ export class O2cViewAllComponent implements OnInit {
     this.router.navigate(['/o2c-bill-schedule'], {
       state: { rowData: rowData, orderId: this.orderId },
     });
+  }
+
+  showFilter(
+    event: MouseEvent,
+    column: string,
+    columnLabel: string,
+    options: any[],
+    data: any[],
+    dataSource: string
+  ): void {
+    event.stopPropagation();
+
+    // Create unique key for this filter instance
+    const filterKey = `${dataSource}_${column}`;
+
+    // Check if clicking the same filter button - toggle it off
+    if (this.activeFilters[filterKey]?.show) {
+      this.closeFilter(filterKey);
+      return;
+    }
+
+    // Close any other open filters first
+    this.closeAllFilters();
+
+    const button = event.target as HTMLElement;
+    const rect = button.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft =
+      window.pageXOffset || document.documentElement.scrollLeft;
+
+    this.activeFilters[filterKey] = {
+      show: true,
+      column,
+      columnLabel,
+      options,
+      data,
+      dataSource,
+      position: {
+        x: rect.left + scrollLeft,
+        y: rect.bottom + scrollTop + 5,
+      },
+    };
+  }
+
+  closeFilter(filterKey?: string): void {
+    if (filterKey) {
+      if (this.activeFilters[filterKey]) {
+        this.activeFilters[filterKey].show = false;
+      }
+    } else {
+      this.closeAllFilters();
+    }
+  }
+
+  closeAllFilters(): void {
+    Object.keys(this.activeFilters).forEach((key) => {
+      this.activeFilters[key].show = false;
+    });
+  }
+
+  handleFilter(
+    value: string,
+    column: string,
+    data: any[],
+    dataSourceProp: string
+  ) {
+    // Create unique key for this filter's value
+    const filterValueKey = `${dataSourceProp}_${column}`;
+
+    // Update the current filter value for this specific column/datasource
+    this.currentFilterValues[filterValueKey] = value;
+
+    if (value === 'all') {
+      delete this.filters[column];
+      delete this.currentFilterValues[filterValueKey];
+    } else {
+      this.filters[column] = value;
+    }
+
+    let tableData = this.filtersService.applyFilters(data, this.filters);
+
+    if (tableData.length === 0) {
+      this.filteredDataNotFound = true;
+      setTimeout(() => {
+        this.filteredDataNotFound = false;
+      }, 5000);
+    } else {
+      this.filteredDataNotFound = false;
+      (this[dataSourceProp as keyof this] as MatTableDataSource<any>).data =
+        tableData;
+    }
+
+    // Close filter after selection
+    this.closeAllFilters();
+  }
+
+  // Helper method to get current filter value for a specific column/datasource
+  getCurrentFilterValue(column: string, dataSource: string): string {
+    const filterValueKey = `${dataSource}_${column}`;
+    return this.currentFilterValues[filterValueKey] || '';
+  }
+
+  // Helper method to check if a filter is active
+  isFilterActive(column: string, dataSource: string): boolean {
+    const filterKey = `${dataSource}_${column}`;
+    return this.activeFilters[filterKey]?.show || false;
+  }
+
+  // Helper method to get the active filter for rendering
+  getActiveFilter(): any {
+    const activeKey = Object.keys(this.activeFilters).find(
+      (key) => this.activeFilters[key].show
+    );
+    return activeKey ? this.activeFilters[activeKey] : null;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    // Close filters if clicking outside of them
+    if (
+      !target.closest('.external-filter') &&
+      !target.closest('.filter-trigger-btn')
+    ) {
+      this.closeAllFilters();
+    }
   }
 }

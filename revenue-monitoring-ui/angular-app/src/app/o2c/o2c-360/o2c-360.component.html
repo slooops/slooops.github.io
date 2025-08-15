@@ -1,3 +1,31 @@
+<!-- External filters container -->
+<div class="external-filters-container">
+  <app-table-filter
+    *ngIf="getActiveFilter()"
+    class="external-filter"
+    [style.left.px]="getActiveFilter().position.x"
+    [style.top.px]="getActiveFilter().position.y"
+    [columnLabel]="getActiveFilter().columnLabel"
+    [options]="getActiveFilter().options"
+    [isOpen]="true"
+    [currentValue]="
+      getCurrentFilterValue(
+        getActiveFilter().column,
+        getActiveFilter().dataSource
+      )
+    "
+    (optionSelected)="
+      handleFilter(
+        $event,
+        getActiveFilter().column,
+        getActiveFilter().data,
+        getActiveFilter().dataSource
+      )
+    "
+    (clickOutside)="closeAllFilters()"
+  ></app-table-filter>
+</div>
+
 <div class="o2c-360-container">
   <app-o2c-sidebar-nav [navItems]="navTotals"></app-o2c-sidebar-nav>
 
@@ -491,19 +519,24 @@
                         column === 'AMOUNT_DUE_REMAINING'
                       "
                     >
-                      <app-table-filter
-                        class="floating-filter"
-                        [columnLabel]="'USD'"
-                        [options]="amountOptions"
-                        (optionSelected)="
-                          handleFilter(
+                      <button
+                        class="filter-trigger-btn"
+                        [class.active]="
+                          isFilterActive(column, 'invoiceSummaryDataSource')
+                        "
+                        (click)="
+                          showFilter(
                             $event,
                             column,
+                            'USD',
+                            amountOptions,
                             originalInvoiceSummaryData,
                             'invoiceSummaryDataSource'
                           )
                         "
-                      ></app-table-filter>
+                      >
+                        <mat-icon>filter_list</mat-icon>
+                      </button>
                     </ng-container>
                   </div>
                 </th>

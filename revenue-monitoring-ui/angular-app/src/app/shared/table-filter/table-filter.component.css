@@ -13,12 +13,11 @@
 
 .dropdown {
   position: absolute;
-  top: 24px; /* move below the button */
+  top: -24px; /* move below the button */
   left: 0;
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   white-space: nowrap;
   display: flex;
@@ -27,9 +26,10 @@
 }
 
 .dropdown-option {
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 9px 10px;
+  font-size: 12px;
   cursor: pointer;
+  color: #243034;
 }
 
 .dropdown-option:hover {
@@ -41,4 +41,10 @@
   width: 20px;
   height: 20px;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0iIzAwMDAwMCIgdmlld0JveD0iMCAwIDI1NiAyNTYiPjxwYXRoIGQ9Ik0yMzQuMjksNDcuOTFBMjAsMjAsMCwwLDAsMjE2LDM2SDQwQTIwLDIwLDAsMCwwLDI1LjIsNjkuNDVsLjEyLjE0TDkyLDE0MC43NVYyMTZhMjAsMjAsMCwwLDAsMzEuMSwxNi42NGwzMi0yMS4zM0EyMCwyMCwwLDAsMCwxNjQsMTk0LjY2VjE0MC43NWw2Ni42Ny03MS4xNi4xMi0uMTRBMjAsMjAsMCwwLDAsMjM0LjI5LDQ3LjkxWm0tOTEsNzkuODlBMTIsMTIsMCwwLDAsMTQwLDEzNnY1Ni41MmwtMjQsMTZWMTM2YTEyLDEyLDAsMCwwLTMuMjUtOC4yTDQ5LjIzLDYwSDIwNi43N1oiPjwvcGF0aD48L3N2Zz4=");
+}
+
+.mat-icon {
+  width: unset;
+  height: unset;
+  margin: 0 3px 0 -2px;
 }
