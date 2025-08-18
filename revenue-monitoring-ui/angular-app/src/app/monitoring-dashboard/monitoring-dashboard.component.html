@@ -33,36 +33,37 @@
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
-      <h5 class="section-title action-buttons">
-        Error Summary
-        <div class="assign-buttons">
-          &nbsp;&nbsp;
-          <button
-            class="custom-button-primary"
-            style="background-color: #aaa8a8"
-            (click)="viewDetails()"
-            *ngIf="selection.selected.length === 1"
-          >
-            Assign User
-          </button>
+      <div class="left-section">
+        <h5 class="section-title">Error Summary</h5>
+        <div class="process-flow-left">
+          <app-process-flow-tooltip [processFlowTotals]="processFlowTotals">
+          </app-process-flow-tooltip>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <div>
           <button
             mat-stroked-button
             type="button"
             (click)="resetSelection()"
             style="font-size: 12px; padding: 3px"
             class="mat-small"
-            *ngIf="selection.selected.length > 0"
+            [disabled]="selection.selected.length === 0"
           >
             Reset
           </button>
+          &nbsp;&nbsp;
+          <button
+            class="custom-button-primary"
+            style="background-color: #aaa8a8"
+            (click)="viewDetails()"
+            [disabled]="selection.selected.length != 1"
+          >
+            Assign User
+          </button>
         </div>
-      </h5>
-      <div class="process-flow-fixed">
-        <app-process-flow-tooltip [processFlowTotals]="processFlowTotals">
-        </app-process-flow-tooltip>
-      </div>
-
-      <div class="action-buttons">
+        &nbsp;
         <div
           style="
             font-size: 12px;

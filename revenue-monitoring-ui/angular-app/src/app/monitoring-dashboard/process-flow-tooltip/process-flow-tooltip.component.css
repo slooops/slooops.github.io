@@ -2,12 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 70px; /* Increased from 65px to accommodate spacing */
+  height: 65px;
   background: #ffffff;
-  top: 0px;
   padding-bottom: 10px;
   overflow: visible;
   margin: 0 auto;
+  width: fit-content;
 }
 
 .slider-bar {
@@ -47,8 +47,8 @@
   border-radius: 50%;
   background: #828d9b;
   position: relative;
-  margin: 0; /* Removed top/bottom margins to align with line */
-  left: 60px;
+  margin: 2px 0;
+  left: 67px;
   z-index: 3;
 }
 
@@ -59,12 +59,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 3px;
+  padding: 0 5px;
   margin: 4px 0 0 0; /* Added top margin for spacing */
   line-height: 1.1; /* Slightly increased for readability */
 }
 
 .mat-typography p {
   margin: 0 !important;
-  line-height: 1.1 !important; /* Updated to match other elements */
+  line-height: 1.1 !important;
 }

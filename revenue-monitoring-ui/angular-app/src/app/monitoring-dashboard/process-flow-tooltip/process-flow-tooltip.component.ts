@@ -52,9 +52,8 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
   }
 
   calculateContainerWidth(): void {
-    // Each step is now 140px wide for better spacing
     const stepCount = this.processSteps.length || 1;
-    this.containerWidth = Math.max(150, stepCount * 140);
+    this.containerWidth = 150 + (stepCount - 1) * 140;
   }
 
   formatLabel(label: string): string {

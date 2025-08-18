@@ -113,11 +113,6 @@ tr.mat-header-row {
   margin: 0px;
 }
 
-.section-title {
-  color: #373c42;
-  margin: 0px;
-}
-
 .table-container {
   overflow-x: auto;
   width: 100%;
@@ -215,12 +210,48 @@ tr.mat-header-row {
   cursor: pointer;
 }
 
+/* .header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 10px 0 12px;
+} */
+
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
   padding: 0 10px 0 12px;
+  min-height: 80px;
+}
+
+/* .section-title {
+  color: #373c42;
+  margin: 0px;
+} */
+
+.left-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 0 0 auto; /* Changed from flex: 1 to prevent taking full width */
+  gap: 20px;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.process-flow-left {
+  margin-top: -10px;
+  width: auto; /* Let it size naturally based on content */
+  max-width: none; /* Remove max-width constraint */
+  flex: 0 0 auto; /* Don't grow, just take the space needed */
 }
 
 .details-header {
@@ -250,10 +281,17 @@ tr.mat-header-row {
   gap: 10px; /* Space between form items */
 }
 
-.action-buttons {
+/* .action-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+} */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
 }
 .assign-buttons {
   display: flex;
