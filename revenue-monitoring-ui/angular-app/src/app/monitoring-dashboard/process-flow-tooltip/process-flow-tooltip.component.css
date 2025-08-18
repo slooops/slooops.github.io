@@ -15,7 +15,7 @@
   position: absolute;
   width: fit-content;
   height: 3px;
-  background: #16371e43;
+  background: #00000043;
   border-radius: 5px;
   z-index: 1;
   display: flex;
@@ -32,7 +32,7 @@
 
 .circle-caption-loop {
   font-size: 11px;
-  color: #43484f;
+  color: #000;
   text-align: center;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -45,7 +45,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #828d9b;
+  background: #69717b;
   position: relative;
   margin: 2px 0;
   left: 67px;
@@ -54,7 +54,7 @@
 
 .circle-subcaption {
   font-size: 10px;
-  color: #858585;
+  color: #000;
   font-weight: bold;
   white-space: nowrap;
   overflow: hidden;
