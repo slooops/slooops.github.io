@@ -4,8 +4,6 @@ import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.MongoDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,20 +54,6 @@ public class OrderManagementMonitoringService {
         List<Map<String, Object>> result = mongoDBManager.getAllData(collection);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
-            Map<String, Object> reorderedData = new LinkedHashMap<>();
-            int index = 0;
-            for (Map.Entry<String, Object> entry : data.entrySet()) {
-                if (index == 6) {
-                    reorderedData.put("aging", common.calculateAging(data.get("created_date")));
-                }
-                reorderedData.put(entry.getKey(), entry.getValue());
-                index++;
-            }
-            if (!reorderedData.containsKey("aging")) {
-                reorderedData.put("aging", common.calculateAging(data.get("created_date")));
-            }
-            data.clear();
-            data.putAll(reorderedData);
             data.remove("closed_date");
         });
         return result;

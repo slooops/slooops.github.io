@@ -146,6 +146,8 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
         const currentValue = this.updateForm.value[field.controlName];
         if (currentValue !== originalValue) {
           changed[field.controlName] = currentValue;
+        } else {
+          changed[field.controlName] = originalValue;
         }
       }
     });
