@@ -11,12 +11,12 @@ export class HttpService {
 
   constructor(private http: HttpClient) {}
 
-  setHostUrl(hostUrl: string): void {
-    console.log('Setting host URL:', hostUrl);
-    if (hostUrl) {
-      this.hostUrl = hostUrl;
-    }
-  }
+  // setHostUrl(hostUrl: string): void {
+  //   console.log('Setting host URL:', hostUrl);
+  //   if (hostUrl) {
+  //     this.hostUrl = hostUrl;
+  //   }
+  // }
 
   public get(url: string, options?: any) {
     return this.http.get(this.hostUrl + url, options);

@@ -10,7 +10,6 @@
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-pre-invoicing'">
         <app-monitoring-dashboard
-          [apiUrl]="authService.authUrl"
           [urls]="preInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
           [periodStatus]="periodStatus"
