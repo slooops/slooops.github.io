@@ -4,8 +4,8 @@ import { HttpClient } from '@angular/common/http';
 @Injectable({ providedIn: 'root' })
 export class HttpService {
   // hostUrl: string = 'http://localhost:8080/api/';
-  // hostUrl: string = 'https://operations-control-tower-stg-api.cisco.com/api/';
-  hostUrl: string = 'https://operations-control-tower-api.cisco.com/api/';
+  hostUrl: string = 'https://operations-control-tower-stg-api.cisco.com/api/';
+  // hostUrl: string = 'https://operations-control-tower-api.cisco.com/api/';
 
   constructor(private http: HttpClient) {}
 
