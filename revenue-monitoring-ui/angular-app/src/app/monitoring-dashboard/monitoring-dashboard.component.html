@@ -42,7 +42,7 @@
       </div>
 
       <div class="action-buttons">
-        <div>
+        <div *ngIf="summaryDatasource?.data?.length">
           <button
             mat-stroked-button
             type="button"
@@ -71,6 +71,7 @@
             display: flex;
             flex-direction: column;
           "
+          *ngIf="summaryDatasource?.data?.length"
         >
           <div style="display: flex">
             <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;

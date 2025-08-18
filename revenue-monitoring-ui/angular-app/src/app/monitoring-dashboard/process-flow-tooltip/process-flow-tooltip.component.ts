@@ -70,11 +70,7 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
 
   formatAmount(amount: any): string {
     if (amount === undefined || amount === null) return 'N/A';
-
-    // Convert to number if it's a string
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-
-    // Format as currency
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
