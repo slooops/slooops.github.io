@@ -39,21 +39,21 @@ const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Home',
     },
   },
   {
     path: 'error',
     component: ErrorComponent,
-    data: { title: 'Finance IT Control Tower', header: '' },
+    data: { title: 'Finance-IT Control Tower', header: '' },
   },
 
   {
     path: 'period-close-tracking',
     component: PeriodCloseTrackingComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -61,7 +61,7 @@ const routes: Routes = [
     path: 'period-close-tracking-midclose',
     component: MidcloseComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Period Close Tracking',
     },
   },
@@ -69,7 +69,7 @@ const routes: Routes = [
     path: 'large-deal-tracker',
     component: OrderLifecycleComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Large Deal Tracker',
     },
   },
@@ -77,7 +77,7 @@ const routes: Routes = [
     path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -85,7 +85,7 @@ const routes: Routes = [
     path: 'gl-posting',
     component: GlPostingComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -93,7 +93,7 @@ const routes: Routes = [
     path: 'i2c-case-analyzer',
     component: EspCaseAnalyzerComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
     },
   },
@@ -101,7 +101,7 @@ const routes: Routes = [
     path: 'sbp-case-analyzer',
     component: SbpEspCaseAnalyzerComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
     },
   },
@@ -109,7 +109,7 @@ const routes: Routes = [
     path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -180,7 +180,7 @@ const routes: Routes = [
     path: 'opl',
     component: OplComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'OPL',
     },
   },
@@ -188,7 +188,7 @@ const routes: Routes = [
     path: 'order-management',
     component: OrderManagementComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Order Management Monitoring',
     },
   },
@@ -196,7 +196,7 @@ const routes: Routes = [
     path: 'wd0',
     component: Wd0DashComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Miclose Status',
     },
   },
@@ -204,7 +204,7 @@ const routes: Routes = [
     path: 'midclose-volumes',
     component: Wd0HistoricalDataComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Midclose Volumes',
     },
   },
@@ -212,7 +212,7 @@ const routes: Routes = [
     path: 'business-insights',
     component: BusinessInsightsComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Business Insights',
     },
   },
@@ -220,7 +220,7 @@ const routes: Routes = [
     path: 'cms',
     component: CmsComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'CMS',
     },
   },
@@ -228,7 +228,7 @@ const routes: Routes = [
     path: 'cms-sftp-details',
     component: CmsSftpDetailsComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'CMS SFTP Details',
     },
   },
@@ -236,7 +236,7 @@ const routes: Routes = [
     path: 'operations-controls',
     component: OperationsControlsComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
