@@ -1232,5 +1232,34 @@ public class QueryConfigs {
         return this.processFlowTotal;
     }
 
+    @Value(("${i2c.controls.summary}"))
+    public String i2cControlsSummary;
+    @Value(("${i2c.controls.details}"))
+    public String i2cControlsDetails;
+    @Value(("${i2c.controls.details.filtered}"))
+    public String i2cControlsDetailsFiltered;
+
+    @Bean(name = "i2cControlsSummary")
+    public String getI2cControlsSummary() { return this.i2cControlsSummary; }
+    @Bean(name = "i2cControlsDetails")
+    public String getI2cControlsDetails() { return this.i2cControlsDetails; }
+    @Bean(name = "i2cControlsDetailsFiltered")
+    public String getI2cControlsDetailsFiltered() { return this.i2cControlsDetailsFiltered; }
+
+    @Value(("${rev.controls.summary}"))
+    public String revControlsSummary;
+    @Value(("${rev.controls.details}"))
+    public String revControlsDetails;
+
+    @Value(("${rev.controls.details.filtered}"))
+    public String revControlsDetailsFiltered;
+
+    @Bean(name = "revControlsSummary")
+    public String getRevControlsSummary() { return this.revControlsSummary; }
+    @Bean(name = "revControlsDetails")
+    public String getRevControlsDetails() { return this.revControlsDetails; }
+    @Bean(name = "revControlsDetailsFiltered")
+    public String getRevControlsDetailsFiltered() { return this.revControlsDetailsFiltered; }
+
 
 }

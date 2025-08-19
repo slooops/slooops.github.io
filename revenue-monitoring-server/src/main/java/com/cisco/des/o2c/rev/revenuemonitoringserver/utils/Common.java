@@ -19,19 +19,7 @@ import java.util.stream.Collectors;
 @Component
 public class Common {
 
-    private JdbcManager jdbcManager;
-    private String invoiceToCashSummary;
-    private String summaryAssignmentUsers;
-    private String rolErrorsSummaryPeriodStatus;
-
     private Logger logger = LoggerFactory.getLogger(Common.class);
-
-    public Common(JdbcManager jdbcManager, String invoiceToCashSummary, String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus) {
-        this.jdbcManager = jdbcManager;
-        this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
-        this.summaryAssignmentUsers = summaryAssignmentUsers;
-        this.invoiceToCashSummary = invoiceToCashSummary;
-    }
 
     public void renameKey(Map<String, Object> data, String oldKey, String newKey) {
         List<Map.Entry<String, Object>> entries = new ArrayList<>(data.entrySet());

@@ -280,7 +280,11 @@
   >
     Order Management
   </button>
-  <button mat-menu-item [routerLink]="''" [disabled]="true">
+  <button
+    mat-menu-item
+    [routerLink]="'/operations-controls'"
+    [disabled]="!isAdmin$"
+  >
     Operations Controls
   </button>
 </mat-menu>

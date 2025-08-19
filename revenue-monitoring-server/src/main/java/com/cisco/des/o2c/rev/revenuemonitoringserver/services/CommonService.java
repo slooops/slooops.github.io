@@ -21,11 +21,8 @@ public class CommonService {
     private String rolErrorsSummaryPeriodStatus;
     private String personaAccessRoles;
     private String processFlowTotal;
-
-
     @Autowired
     private Common common;
-
     @Autowired
     private CacheCommon cacheCommon;
 

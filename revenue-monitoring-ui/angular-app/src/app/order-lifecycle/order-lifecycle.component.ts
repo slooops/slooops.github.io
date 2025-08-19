@@ -11,7 +11,6 @@ import { ApiHttpService } from '../providers/http.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormGroup, FormControl } from '@angular/forms';
-import * as XLSX from 'xlsx';
 import { MatDialog } from '@angular/material/dialog';
 import { OrderLifecycleSummaryComponent } from './order-lifecycle-summary/order-lifecycle-summary.component';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload/order-lifecycle-upload.component';
@@ -21,7 +20,6 @@ import { ColumnSelectComponent } from './column-select/column-select.component';
 import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
-import { MenuService } from '../providers/menu.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({

@@ -27,6 +27,7 @@ import { O2c360Component } from './o2c-360/o2c-360.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 
 const routes: Routes = [
   {
@@ -229,6 +230,14 @@ const routes: Routes = [
     data: {
       title: 'Finance IT Control Tower',
       header: 'CMS SFTP Details',
+    },
+  },
+  {
+    path: 'operations-controls',
+    component: OperationsControlsComponent,
+    data: {
+      title: 'Finance IT Control Tower',
+      header: 'Continuous Monitoring',
     },
   },
 ];

@@ -72,15 +72,6 @@ public class PeriodCloseMonitoringController {
         return timeNow;
     }
 
-    @GetMapping("/order-status-download")
-    public ResponseEntity<List<Map<String, Object>>> getOrderStatusDownload() {
-        return new ResponseEntity<>(service.getOrderStatusDownload(), HttpStatus.OK);
-    }
-
-    @GetMapping("/order-status")
-    public ResponseEntity<OrderLifecycleModel> getOrderStatus() {
-        return new ResponseEntity<>(service.getOrderStatus(), HttpStatus.OK);
-    }
 
     @GetMapping("/dashboard-current-timestamp")
     public Map<String, Date> getCurrentTimestamp() {
@@ -90,113 +81,9 @@ public class PeriodCloseMonitoringController {
         return timeNow;
     }
 
-    @GetMapping("/order-status-summary")
-    public ResponseEntity<List<OrderLifecycleSummaryModel>> getOrderStatusSummary() {
-        return new ResponseEntity<>(service.getOrderStatusSummary(), HttpStatus.OK);
-    }
-
-    @GetMapping("/order-status-rev-summary")
-    public ResponseEntity<List<Map<String, Object>>> getOrderStatusRevSummary() {
-        return new ResponseEntity<>(service.getOrderStatusRevSummary(), HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/order-lifecycle-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file,
-            @RequestParam("username") String username) {
-        if (!file.isEmpty()) {
-            try {
-                service.setUpdateOrderStatusFromFile(file, username);
-                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
-            }
-        } else {
-            return ResponseEntity.badRequest().body("Uploaded file is empty.");
-        }
-    }
-
-    @PostMapping(value = "/order-lifecycle-upload-manual")
-    public ResponseEntity<String> manualUpload(@RequestBody UpdateOrderModel input) {
-        try {
-            service.setUpdateOrderStatusFromData(input);
-            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
-        }
-    }
-
-    @PostMapping(value = "/delete-selected-deals")
-    public ResponseEntity<String> deleteSelectedDeals(@RequestBody Map<String, Object> requestData) {
-        try {
-            List<Map<String, Object>> selectedDeals = (List<Map<String, Object>>) requestData.get("deleteRows");
-            String username = (String) requestData.get("username");
-            service.deleteSelectedDeals(selectedDeals, username);
-            return ResponseEntity.status(HttpStatus.OK).body("successful.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete.");
-        }
-    }
-
-    @PostMapping("/clo-bulk-upload")
-    public ResponseEntity<String> manualCLOUpload(@RequestBody UpdateCLOData input) {
-        try {
-            service.setCloBulkUpdate(input, input.getUsername());
-            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload CLO data.");
-        }
-    }
-
-    @PostMapping(value = "/clo-bulk-upload-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> cloUploadByFile(@RequestParam("file") MultipartFile file,
-            @RequestParam("username") String username) {
-        if (!file.isEmpty()) {
-            try {
-                service.setCloBulkUpdateFromFile(file, username);
-                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
-            }
-        } else {
-            return ResponseEntity.badRequest().body("Uploaded file is empty.");
-        }
-    }
-
-    @RequestMapping(value = "/update-invoice-eligible-date", method = RequestMethod.POST)
-    public ResponseEntity<String> updateInvoiceEligibleDate(@RequestBody Map<String, String> updatedModel) {
-        try {
-            String username = (String) updatedModel.get("username");
-            service.setUpdateInvoiceEligibleDate(updatedModel, username);
-            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
-        }
-    }
-
-    @RequestMapping(value = "/update-clo-comments", method = RequestMethod.POST)
-    public ResponseEntity<String> updateCLOComments(@RequestBody Map<String, String> updatedModel) {
-        try {
-            String username = (String) updatedModel.get("username");
-            service.setCloCommentUpdate(updatedModel, username);
-            return ResponseEntity.status(HttpStatus.OK).body("Data uploaded successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload deal data.");
-        }
-    }
-
     @GetMapping("/estimated-completion-time")
     public ResponseEntity<List<Map<String, Object>>> getEstimatedCompletionTime() {
         return new ResponseEntity<>(service.getEstimatedCompletionTime(), HttpStatus.OK);
-    }
-
-    @GetMapping("/large-deal-summary-account")
-    public ResponseEntity<List<LargeDealSummaryByAccountModel>> getLargeDealSummaryByAccount() {
-        return new ResponseEntity<>(service.getLargeDealSummaryByAccount(), HttpStatus.OK);
-    }
-
-    @GetMapping("/clo-sample-download-data")
-    public ResponseEntity<List<Map<String, Object>>> getCloSampleDownloadData() {
-        return new ResponseEntity<>(service.getCloSampleDownloadData(), HttpStatus.OK);
     }
 
 }

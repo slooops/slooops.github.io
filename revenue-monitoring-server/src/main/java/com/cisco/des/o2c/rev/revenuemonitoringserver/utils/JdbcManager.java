@@ -20,12 +20,6 @@ public class JdbcManager {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
     }
 
-    // unknown function
-    public List<Map<String, Object>> queryForListStageWithParams(String sql, String periodName, String appName,
-            String operatingUnit, String transactionDate) {
-        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
-    }
-
     public List<Map<String, Object>> queryForList(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }
@@ -220,6 +214,12 @@ public class JdbcManager {
 
     public List<Map<String, Object>> getSRTProcessDetailsFiltered(String sql, String periodName,
             String processFlow, String ouName, String srtDate) {
+        System.out.println(sql);
+        System.out.println(periodName);
+        System.out.println(processFlow);
+        System.out.println(ouName);
+        System.out.println(srtDate);
+        System.out.println(primaryJdbcTemplate.queryForList(sql, periodName, processFlow, ouName, srtDate));
         return primaryJdbcTemplate.queryForList(sql, periodName, processFlow, ouName, srtDate);
     }
 
@@ -327,5 +327,15 @@ public class JdbcManager {
 
     public List<Map<String, Object>> getProcessFlowTotal(String sql, String compName) {
         return primaryJdbcTemplate.queryForList(sql, compName);
+    }
+
+    public List<Map<String, Object>> filterI2cControls(String sql, String periodName, String appName,
+                                                                 String operatingUnit, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
+    }
+
+    public List<Map<String, Object>> filterRevControls(String sql, String periodName, String appName,
+                                                       String operatingUnit, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
     }
 }

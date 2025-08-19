@@ -108,6 +108,7 @@ import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-cas
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
 import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
+import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -183,6 +184,7 @@ export function initApp(authService: AuthenticationService) {
     SbpEspCaseAnalyzerComponent,
     ChatbotComponent,
     O2cCardComponent,
+    OperationsControlsComponent,
   ],
   imports: [
     BrowserModule,
