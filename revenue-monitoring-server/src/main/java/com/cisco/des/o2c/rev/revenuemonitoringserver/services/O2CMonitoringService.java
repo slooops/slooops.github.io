@@ -50,6 +50,8 @@ public class O2CMonitoringService {
     private String o2cOrderPartialpayExceptionV;
     private String o2cOrderUnidentifiedExceptionV;
     private String o2cOrderCashothExceptionV;
+    private String o2cSubscriptionDonutTotals;
+    private String o2cSubscriptionCards;
 
 
     @Autowired
@@ -76,7 +78,9 @@ public class O2CMonitoringService {
                                 String o2cOrderPastdueExceptionV,
                                 String o2cOrderPartialpayExceptionV,
                                 String o2cOrderUnidentifiedExceptionV,
-                                String o2cOrderCashothExceptionV
+                                String o2cOrderCashothExceptionV,
+                                String o2cSubscriptionDonutTotals,
+                                String o2cSubscriptionCards
     ) {
         this.jdbcManager = jdbcManager;
         this.orderSummary = orderSummary;
@@ -114,6 +118,8 @@ public class O2CMonitoringService {
         this.o2cOrderPartialpayExceptionV = o2cOrderPartialpayExceptionV;
         this.o2cOrderUnidentifiedExceptionV = o2cOrderUnidentifiedExceptionV;
         this.o2cOrderCashothExceptionV = o2cOrderCashothExceptionV;
+        this.o2cSubscriptionDonutTotals = o2cSubscriptionDonutTotals;
+        this.o2cSubscriptionCards = o2cSubscriptionCards;
     }
 
     public List<Map<String, Object>> getOrderSummary(String orderId) {
@@ -349,5 +355,13 @@ public class O2CMonitoringService {
 
     public List<Map<String, Object>> getO2cOrderCashothExceptionV() {
         return jdbcManager.queryForList(o2cOrderCashothExceptionV);
+    }
+
+    public List<Map<String, Object>> getO2cSubscriptionDonutTotals() {
+        return jdbcManager.queryForList(o2cSubscriptionDonutTotals);
+    }
+
+    public List<Map<String, Object>> getO2cSubscriptionCards() {
+        return jdbcManager.queryForList(o2cSubscriptionCards);
     }
 }

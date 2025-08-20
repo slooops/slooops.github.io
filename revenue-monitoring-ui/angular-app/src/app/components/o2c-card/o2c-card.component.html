@@ -93,7 +93,8 @@
       </ng-container>
     </div>
 
-    <span class="card-title">{{ title }} – {{ count }} – {{ value }}</span>
+    <!-- <span class="card-title">{{ title }} – {{ count }} – {{ value }}</span> storing for if we need this back later -->
+    <span class="card-title">{{ title }} </span>
   </div>
   <div class="metrics-container" [class.side-by-side]="valueDoubleWide">
     <div class="card-metrics">
@@ -106,7 +107,7 @@
 
       <div class="metric-values">
         <span class="orders">{{ count }}</span>
-        <span class="usd">{{ value }}</span>
+        <span class="usd">{{ formattedValue }}</span>
       </div>
     </div>
 
@@ -120,7 +121,7 @@
       </div>
       <div class="metric-values">
         <span class="orders">{{ countDoubleWide }}</span>
-        <span class="usd">{{ valueDoubleWide }}</span>
+        <span class="usd">{{ formattedValueDoubleWide }}</span>
       </div>
     </div>
   </div>

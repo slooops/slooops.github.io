@@ -336,4 +336,14 @@ public class O2CMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getO2cOrderCashothExceptionV() {
         return new ResponseEntity<>(service.getO2cOrderCashothExceptionV(), HttpStatus.OK);
     }
+
+    @GetMapping("/o2c-subscription-donut-totals")
+    public ResponseEntity<List<Map<String, Object>>> getO2cSubscriptionDonutTotals() {
+        return new ResponseEntity<>(service.getO2cSubscriptionDonutTotals(), HttpStatus.OK);
+    }
+
+    @GetMapping("/o2c-subscription-cards")
+    public ResponseEntity<List<Map<String, Object>>> getO2cSubscriptionCards() {
+        return new ResponseEntity<>(service.getO2cSubscriptionCards(), HttpStatus.OK);
+    }
 }

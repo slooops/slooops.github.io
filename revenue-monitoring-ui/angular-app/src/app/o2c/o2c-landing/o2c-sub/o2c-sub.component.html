@@ -1,6 +1,6 @@
 <div class="chart-cards-container">
   <app-o2c-donut
-    [data]="dummyData1"
+    [data]="donutData"
     canvasId="donutChartLarge"
     [showCircleBackground]="false"
     [showLegend]="true"
@@ -11,39 +11,39 @@
   <div class="cards-scroll-container scrollable">
     <app-o2c-card
       [title]="'Order'"
-      [count]="0"
-      [value]="'0'"
+      [count]="orderCard.count"
+      [value]="orderCard.value"
       [footer]="'Enter to Booked'"
-      [countDoubleWide]="0"
-      [valueDoubleWide]="'0'"
+      [countDoubleWide]="orderCard.countDoubleWide"
+      [valueDoubleWide]="orderCard.valueDoubleWide"
       [footerDoubleWide]="'Booked to Fulfillment'"
     ></app-o2c-card>
 
     <app-o2c-card
       [title]="'Subscription'"
-      [count]="0"
-      [value]="'0'"
+      [count]="subscriptionCard.count"
+      [value]="subscriptionCard.value"
       [footer]="'Fulfillment to Invoicing'"
     ></app-o2c-card>
 
     <app-o2c-card
       [title]="'Invoice'"
-      [count]="0"
-      [value]="'0'"
+      [count]="invoiceCard.count"
+      [value]="invoiceCard.value"
       [footer]="'Fulfillment to Invoicing'"
     ></app-o2c-card>
 
     <app-o2c-card
       [title]="'Accounting'"
-      [count]="0"
-      [value]="'0'"
+      [count]="accountingCard.count"
+      [value]="accountingCard.value"
       [footer]="'Accounting'"
     ></app-o2c-card>
 
     <app-o2c-card
       [title]="'Cash'"
-      [count]="0"
-      [value]="'0'"
+      [count]="cashCard.count"
+      [value]="cashCard.value"
       [footer]="'Cash Collection'"
     ></app-o2c-card>
   </div>

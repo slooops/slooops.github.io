@@ -1365,4 +1365,16 @@ public class QueryConfigs {
 
     @Bean( name = "o2cOrderCashothExceptionV" )
     public String getO2cOrderCashothExceptionV() {return this.o2cOrderCashothExceptionV; }
+
+    @Value(("${o2c.subscription.donut.totals.q}"))
+    public String o2cSubscriptionDonutTotals;
+
+    @Bean( name = "o2cSubscriptionDonutTotals" )
+    public String getO2cSubscriptionDonutTotals() {return this.o2cSubscriptionDonutTotals; }
+
+    @Value(("${o2c.subscription.cards.q}"))
+    public String o2cSubscriptionCards;
+
+    @Bean( name = "o2cSubscriptionCards" )
+    public String getO2cSubscriptionCards() {return this.o2cSubscriptionCards; }
 }
