@@ -56,7 +56,7 @@ export abstract class O2cBaseComponent {
     return this.getCurrentConfig()?.config.title || '';
   }
   getCurrentSubtitle() {
-    return 'Fulfillment to Invoicing';
+    return 'Orders Entered Not Booked';
   }
   getCurrentFileName() {
     const title = this.getCurrentTitle();

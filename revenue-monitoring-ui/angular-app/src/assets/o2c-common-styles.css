@@ -520,6 +520,7 @@ button.link-button:hover .ccw-button-text {
 .exceptions-padding {
   padding: 6px 0;
   /* height: 36px; */
+  margin-top: -42px;
 }
 
 .exception-title {

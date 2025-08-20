@@ -13,18 +13,18 @@ export class O2cSubComponent {
   dummyData1 = [
     {
       INCIDENT_TYPE: 'Order Entry',
-      INCIDENT_COUNT: 5,
-      INCIDENT_VALUE: 4,
+      INCIDENT_COUNT: 25,
+      INCIDENT_VALUE: 40030232,
     },
     {
       INCIDENT_TYPE: 'Manual Entry',
-      INCIDENT_COUNT: 3,
-      INCIDENT_VALUE: 2,
+      INCIDENT_COUNT: 32,
+      INCIDENT_VALUE: 23931490,
     },
     {
       INCIDENT_TYPE: 'Data Entry',
-      INCIDENT_COUNT: 2,
-      INCIDENT_VALUE: 1.2,
+      INCIDENT_COUNT: 9,
+      INCIDENT_VALUE: 10223039,
     },
   ];
 
