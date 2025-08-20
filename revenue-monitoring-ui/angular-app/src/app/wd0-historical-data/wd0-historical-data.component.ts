@@ -233,7 +233,7 @@ export class Wd0HistoricalDataComponent
               this.prepareDataForRegression(data);
               this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
             });
-        } else if (this.isWd1 || this.isWd2 || this.isWd3) {
+        } else if (this.isWd1) {
           this.getEndpointData('wd0-current-month')
             .pipe(
               tap((data: any) => {
@@ -260,43 +260,21 @@ export class Wd0HistoricalDataComponent
               this.prepareDataForRegression(data);
               this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
             });
-          // } else if (this.isWd2) {
-          //   let productActuals = [null, null, null];
-          //   let serviceActuals = [null, null, null];
-          //   this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
+        } else if (this.isWd2 || this.isWd3) {
+          let productActuals = [null, null, null];
+          let serviceActuals = [null, null, null];
+          this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
 
-          //   this.getEndpointData('wd0-regression').subscribe((data: any) => {
-          //     this.prepareDataForRegression(data);
-
-          //     this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-          //     this.loading = false;
-          //     this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-          //   });
-          // } else if (this.isWd3) {
-          //   let productActuals = [null, null, null];
-          //   let serviceActuals = [null, null, null];
-          //   this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
-
-          //   this.getEndpointData('wd0-regression').subscribe((data: any) => {
-          //     // productActuals = this.extractProductActuals(data);
-          //     // serviceActuals = this.extractServiceActuals(data);
-          //     this.getWd0Volumes(productActuals, serviceActuals);
-
-          //     this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-          //     this.prepareDataForRegression(data);
-
-          //     this.loading = false;
-          //     this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-          //   });
+          this.getEndpointData('wd0-regression').subscribe((data: any) => {
+            this.prepareDataForRegression(data);
+            this.loading = false;
+            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
+          });
         } else {
           this.getEndpointData('wd0-regression').subscribe((data: any) => {
             productActuals = this.extractProductActuals(data);
             serviceActuals = this.extractServiceActuals(data);
             this.getWd0Volumes(productActuals, serviceActuals);
-
-            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
 
             this.prepareDataForRegression(data);
 
@@ -422,73 +400,10 @@ export class Wd0HistoricalDataComponent
     }
   }
 
-  //this method is necessary for predicting the next month in the absence of
-  //actual data for the current month from Surya
-  getLatestPeriodName(data: any[]): string {
-    const monthMap = {
-      JAN: 'FEB',
-      FEB: 'MAR',
-      MAR: 'APR',
-      APR: 'MAY',
-      MAY: 'JUN',
-      JUN: 'JUL',
-      JUL: 'AUG',
-      AUG: 'SEP',
-      SEP: 'OCT',
-      OCT: 'NOV',
-      NOV: 'DEC',
-      DEC: 'JAN', // Wrap back to JAN
-    };
-
-    const filteredData = data.filter((entry) => entry.PERIOD_NAME);
-    console.log('Filtered Data:', filteredData);
-
-    if (filteredData.length === 0) {
-      return 'Unknown Period';
-    }
-
-    const latestEntry = filteredData[filteredData.length - 1];
-    const currentPeriodName = latestEntry.PERIOD_NAME;
-    const [currentPeriodMonth] = currentPeriodName.split('-');
-
-    // Get current local machine month in 3-letter uppercase format (e.g., 'NOV')
-    const monthNames = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
-    ];
-    const currentMachineMonth = monthNames[new Date().getMonth()];
-
-    // If it's WD-2 and latest period is NOT the current month, advance it
-    if (
-      (this.isWd2 || this.isWd3) &&
-      currentPeriodMonth !== currentMachineMonth
-    ) {
-      const nextMonth = monthMap[currentPeriodMonth];
-      return nextMonth
-        ? `${nextMonth}-${currentPeriodName.split('-')[1]}`
-        : 'Unknown Period';
-    }
-
-    return currentPeriodName;
-  }
-
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
     this.http.get('wd0-volumes', this.destroyManager).subscribe((data: any) => {
-      console.log('wd0-volumes', data);
-
       // Step 1: Identify the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
-      console.log('Most recent fiscal period:', mostRecentFiscalPeriod);
 
       // Get the current date in Pacific Time
       const nowPacificTime = new Date().toLocaleString('en-US', {
@@ -586,10 +501,6 @@ export class Wd0HistoricalDataComponent
 
   // Step 1: Identify the most recent fiscal period
   getMostRecentFiscalPeriod(data: any[]): string {
-    if (this.isWd3) {
-      // If isWd3 is true, return the period from the item at the 2nd index (prev month)
-      // return data[2] ? data[2].FISCAL_PERIOD : 'Unknown Period';
-    }
     // Step 1: Identify the most recent RUN_DATE
     const mostRecentEntry = data.reduce(
       (latest, entry) => {
@@ -600,6 +511,8 @@ export class Wd0HistoricalDataComponent
       },
       { period: null, date: 0 }
     );
+
+    this.latestPeriodName = mostRecentEntry.period;
 
     // Return the fiscal period of the most recent RUN_DATE entry
     return mostRecentEntry.period || 'Unknown Period'; // Fallback if no data is found
