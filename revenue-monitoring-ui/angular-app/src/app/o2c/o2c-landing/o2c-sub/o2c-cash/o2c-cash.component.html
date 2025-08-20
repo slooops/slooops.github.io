@@ -17,6 +17,7 @@
       >
         <app-o2c-donut
           [data]="o2cOrderPastdueExceptionPieChartData"
+          [isLoading]="o2cOrderPastdueExceptionLoading"
           canvasId="donutChart1"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -30,6 +31,7 @@
       >
         <app-o2c-donut
           [data]="o2cOrderPartialpayExceptionPieChartData"
+          [isLoading]="o2cOrderPartialpayExceptionLoading"
           canvasId="donutChart2"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -43,6 +45,7 @@
       >
         <app-o2c-donut
           [data]="o2cOrderUnidentifiedExceptionPieChartData"
+          [isLoading]="o2cOrderUnidentifiedExceptionLoading"
           canvasId="donutChart3"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -56,6 +59,7 @@
       >
         <app-o2c-donut
           [data]="o2cOrderCashothExceptionPieChartData"
+          [isLoading]="o2cOrderCashothExceptionLoading"
           canvasId="donutChart4"
         ></app-o2c-donut>
       </app-o2c-accordion>

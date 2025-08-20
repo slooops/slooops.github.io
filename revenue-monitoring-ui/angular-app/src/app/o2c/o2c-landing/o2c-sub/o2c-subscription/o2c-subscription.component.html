@@ -17,6 +17,7 @@
       >
         <app-o2c-donut
           [data]="orderSabPieChartData"
+          [isLoading]="orderSabLoading"
           canvasId="donutChart1"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -30,6 +31,7 @@
       >
         <app-o2c-donut
           [data]="orderSubotPieChartData"
+          [isLoading]="orderSubotLoading"
           canvasId="donutChart2"
         ></app-o2c-donut>
       </app-o2c-accordion>

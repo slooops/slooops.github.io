@@ -74,4 +74,12 @@ export class O2cSubscriptionComponent
   get orderSubotPieChartData() {
     return this.exceptionData['subot'].pieChartData;
   }
+
+  // Loading state getters
+  get orderSabLoading() {
+    return this.exceptionData['sab'].loading;
+  }
+  get orderSubotLoading() {
+    return this.exceptionData['subot'].loading;
+  }
 }

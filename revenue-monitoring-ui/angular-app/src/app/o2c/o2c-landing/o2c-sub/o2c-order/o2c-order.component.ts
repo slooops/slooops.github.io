@@ -138,4 +138,24 @@ export class O2cOrderComponent extends O2cBaseComponent implements OnInit {
   get orderEcPieChartData() {
     return this.exceptionData['ec'].pieChartData;
   }
+
+  // Loading state getters
+  get orderBieLoading() {
+    return this.exceptionData['bie'].loading;
+  }
+  get orderChLoading() {
+    return this.exceptionData['ch'].loading;
+  }
+  get orderPeLoading() {
+    return this.exceptionData['pe'].loading;
+  }
+  get orderOtLoading() {
+    return this.exceptionData['ot'].loading;
+  }
+  get orderBhLoading() {
+    return this.exceptionData['bh'].loading;
+  }
+  get orderEcLoading() {
+    return this.exceptionData['ec'].loading;
+  }
 }

@@ -103,4 +103,21 @@ export class O2cCashComponent extends O2cBaseComponent implements OnInit {
   get o2cOrderCashothExceptionPieChartData() {
     return this.exceptionData['o2c-order-cashoth-exception-v'].pieChartData;
   }
+
+  // Loading state getters
+  get o2cOrderPastdueExceptionLoading() {
+    return this.exceptionData['o2c-order-pastdue-exception-v'].loading;
+  }
+
+  get o2cOrderPartialpayExceptionLoading() {
+    return this.exceptionData['o2c-order-partialpay-exception-v'].loading;
+  }
+
+  get o2cOrderUnidentifiedExceptionLoading() {
+    return this.exceptionData['o2c-order-unidentified-exception-v'].loading;
+  }
+
+  get o2cOrderCashothExceptionLoading() {
+    return this.exceptionData['o2c-order-cashoth-exception-v'].loading;
+  }
 }

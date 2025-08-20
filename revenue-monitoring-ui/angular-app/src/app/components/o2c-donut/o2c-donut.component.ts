@@ -21,6 +21,7 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
   }[] = [];
 
   @Input() canvasId: string = 'donutCanvas';
+  @Input() isLoading?: boolean = false; // Add explicit loading state
   @Input() showCircleBackground?: boolean = true;
   @Input() showLegend?: boolean = true;
   @Input() chartSize?: string = '125px';
@@ -42,42 +43,31 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
     }[];
   } = {};
 
-  isLoading: boolean = true;
   hasReceivedData: boolean = false;
 
   private chart: any = null;
   private animationFrame: number | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
-      const dataChange = changes['data'];
-
-      // Only proceed if this is NOT the initial instantiation with empty array
-      // Real API data comes as either:
-      // 1. Array with actual data
-      // 2. Empty array but NOT on first change (meaning API responded with no data)
-      const isInitialEmptyArray =
-        dataChange.firstChange &&
-        Array.isArray(dataChange.currentValue) &&
-        dataChange.currentValue.length === 0;
-
-      if (!isInitialEmptyArray) {
-        // This is real API data (either with content or empty response)
-        this.hasReceivedData = true;
-        this.isLoading = false;
-
-        if (this.data && this.data.length > 0) {
-          // We have actual data - render the chart
-          setTimeout(() => {
-            this.renderPieChart(this.data, this.canvasId);
-          }, 0);
-        } else {
-          // API returned empty data - clear any existing chart
-          this.legendItems = [];
-          this.clearCanvas();
-        }
+    if (changes['data'] || changes['isLoading']) {
+      // Use the explicit loading state from parent
+      if (this.isLoading) {
+        // Still loading - show loading state
+        this.hasReceivedData = false;
+        return;
       }
-      // If it's initial empty array, stay in loading state
+
+      // Not loading anymore - we have final data (empty or populated)
+      this.hasReceivedData = true;
+
+      if (this.data && this.data.length > 0) {
+        setTimeout(() => {
+          this.renderPieChart(this.data, this.canvasId);
+        }, 0);
+      } else {
+        this.legendItems = [];
+        this.clearCanvas();
+      }
     }
   }
 
@@ -115,15 +105,24 @@ export class O2cDonutComponent implements OnChanges, OnDestroy {
 
   // Getter for template logic
   get showLoadingState(): boolean {
-    return this.isLoading && !this.hasReceivedData;
+    return this.isLoading;
   }
 
   get showNoDataState(): boolean {
-    return this.hasReceivedData && (!this.data || this.data.length === 0);
+    return (
+      !this.isLoading &&
+      this.hasReceivedData &&
+      (!this.data || this.data.length === 0)
+    );
   }
 
   get showChartAndLegend(): boolean {
-    return this.hasReceivedData && this.data && this.data.length > 0;
+    return (
+      !this.isLoading &&
+      this.hasReceivedData &&
+      this.data &&
+      this.data.length > 0
+    );
   }
 
   private formatValueForDonutCenter(amount: number): string {

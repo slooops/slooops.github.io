@@ -102,4 +102,21 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
   get orderInvOthersPieChartData(): any[] {
     return this.exceptionData['invoice-others'].pieChartData;
   }
+
+  // Loading state getters
+  get orderPreInvLoading(): boolean {
+    return this.exceptionData['pre-invoicing'].loading;
+  }
+
+  get orderInvLoading(): boolean {
+    return this.exceptionData['invoice-creation'].loading;
+  }
+
+  get orderInvPidLoading(): boolean {
+    return this.exceptionData['invoice-pid'].loading;
+  }
+
+  get orderInvOthersLoading(): boolean {
+    return this.exceptionData['invoice-others'].loading;
+  }
 }

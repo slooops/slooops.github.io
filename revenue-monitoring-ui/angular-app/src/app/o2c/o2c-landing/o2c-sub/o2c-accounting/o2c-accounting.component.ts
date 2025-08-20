@@ -102,4 +102,21 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
   get o2cOrderAccotExceptionPieChartData() {
     return this.exceptionData['o2c-order-accot-exception-v'].pieChartData;
   }
+
+  // Loading state getters
+  get o2cOrderCaExceptionLoading() {
+    return this.exceptionData['o2c-order-ca-exception-v'].loading;
+  }
+
+  get o2cOrderSlaExceptionLoading() {
+    return this.exceptionData['o2c-order-sla-exception-v'].loading;
+  }
+
+  get o2cOrderGlExceptionLoading() {
+    return this.exceptionData['o2c-order-gl-exception-v'].loading;
+  }
+
+  get o2cOrderAccotExceptionLoading() {
+    return this.exceptionData['o2c-order-accot-exception-v'].loading;
+  }
 }

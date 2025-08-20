@@ -35,7 +35,6 @@ export class O2cSubComponent implements OnInit {
     this.http
       .get('o2c-subscription-donut-totals', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('o2cSubscriptionDonutTotals:', data);
         this.donutData = data;
       });
   }
@@ -44,7 +43,6 @@ export class O2cSubComponent implements OnInit {
     this.http
       .get('o2c-subscription-cards', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('o2cSubscriptionCards:', data);
         this.cardsData = data;
         this.processCardsData();
       });
