@@ -228,25 +228,6 @@ export class MonitoringDashboardComponent<T>
     return this.escalationLevel;
   }
 
-  formatTimestamp(timestamp: string): string {
-    if (!timestamp || !/^\d{14}$/.test(timestamp)) {
-      return timestamp;
-    }
-
-    try {
-      // Extract parts from the timestamp (format: yyyyMMddHHmmss)
-      const year = timestamp.substring(0, 4);
-      const month = timestamp.substring(4, 6);
-      const day = timestamp.substring(6, 8);
-
-      // Return formatted date (MM/dd/yyyy)
-      return `${month}/${day}/${year}`;
-    } catch (error) {
-      console.error('Error formatting timestamp:', error);
-      return timestamp;
-    }
-  }
-
   selection = new SelectionModel<any>(true, []);
   selectedSummaryData: any[] = [];
   isModalOpen: boolean = false;

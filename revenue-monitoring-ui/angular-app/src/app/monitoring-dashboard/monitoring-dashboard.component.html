@@ -181,10 +181,6 @@
                     </span>
                   </ng-container>
 
-                  <ng-container *ngSwitchCase="'timestamp'">
-                    {{ formatTimestamp(element[column]) }}
-                  </ng-container>
-
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
                       <span class="icon-container">
@@ -502,9 +498,6 @@
                   <span *ngIf="!isSubAppMapping">
                     {{ element[column] }}
                   </span>
-                </ng-container>
-                <ng-container *ngSwitchCase="'timestamp'">
-                  {{ formatTimestamp(element[column]) }}
                 </ng-container>
                 <ng-container *ngSwitchDefault>
                   {{ element[column] }}
