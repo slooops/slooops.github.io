@@ -59,13 +59,16 @@
           ></span>
           <span class="legend-type">{{ item.type }}</span>
         </div>
+
         <div class="legend-right">
-          <span class="legend-count">{{
-            item.count !== undefined && item.count !== null ? item.count : "-"
-          }}</span>
-          <span class="legend-value">{{
-            item.value | currency : "USD" : ""
-          }}</span>
+          <span class="legend-count">
+            {{
+              item.count !== undefined && item.count !== null ? item.count : "-"
+            }}
+          </span>
+          <span class="legend-value">
+            {{ item.value | currency : "USD" : "" }}
+          </span>
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@
         <app-o2c-donut
           [data]="orderBiePieChartData"
           [isLoading]="orderBieLoading"
+          [noDataMessage]="getNoDataMessage('bie')"
           canvasId="donutChart1"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -35,6 +36,7 @@
         <app-o2c-donut
           [data]="orderChPieChartData"
           [isLoading]="orderChLoading"
+          [noDataMessage]="getNoDataMessage('ch')"
           canvasId="donutChart2"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -50,6 +52,7 @@
         <app-o2c-donut
           [data]="orderPePieChartData"
           [isLoading]="orderPeLoading"
+          [noDataMessage]="getNoDataMessage('pe')"
           canvasId="donutChart3"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -65,6 +68,7 @@
         <app-o2c-donut
           [data]="orderOtPieChartData"
           [isLoading]="orderOtLoading"
+          [noDataMessage]="getNoDataMessage('ot')"
           canvasId="donutChart4"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -91,6 +95,7 @@
         <app-o2c-donut
           [data]="orderBhPieChartData"
           [isLoading]="orderBhLoading"
+          [noDataMessage]="getNoDataMessage('bh')"
           canvasId="donutChart5"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -106,6 +111,7 @@
         <app-o2c-donut
           [data]="orderEcPieChartData"
           [isLoading]="orderEcLoading"
+          [noDataMessage]="getNoDataMessage('ec')"
           canvasId="donutChart7"
         ></app-o2c-donut>
       </app-o2c-accordion>
