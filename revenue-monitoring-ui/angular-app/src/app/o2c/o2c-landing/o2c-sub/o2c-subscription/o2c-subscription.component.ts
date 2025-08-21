@@ -19,6 +19,7 @@ export class O2cSubscriptionComponent
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-sab-exception-v',
     },
     subot: {
@@ -26,6 +27,7 @@ export class O2cSubscriptionComponent
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-subot-exception-v',
     },
   };
@@ -58,14 +60,23 @@ export class O2cSubscriptionComponent
     const data = this.exceptionData[dataKey];
     if (!data) return;
     data.loading = true;
-    this.http
-      .get(data.apiEndpoint, this.destroyManager)
-      .subscribe((response: any) => {
+    data.hasError = false;
+    this.http.get(data.apiEndpoint, this.destroyManager).subscribe({
+      next: (response: any) => {
         data.dataSource.data = response;
         data.displayedColumns = Object.keys(response[0] || {});
         data.pieChartData = this.prepareDonutData(response);
         data.loading = false;
-      });
+      },
+      error: (error) => {
+        console.error(`ERROR`, error);
+        data.loading = false;
+        data.hasError = true;
+        data.dataSource.data = [];
+        data.displayedColumns = [];
+        data.pieChartData = [];
+      },
+    });
   }
 
   get orderSabPieChartData() {
@@ -81,5 +92,13 @@ export class O2cSubscriptionComponent
   }
   get orderSubotLoading() {
     return this.exceptionData['subot'].loading;
+  }
+
+  // Single method to get the appropriate message for any data key
+  getNoDataMessage(dataKey: string): string {
+    const data = this.exceptionData[dataKey];
+    return data?.hasError
+      ? 'Database error: Unable to fetch data. Please contact your database administrator.'
+      : 'No exceptions found';
   }
 }

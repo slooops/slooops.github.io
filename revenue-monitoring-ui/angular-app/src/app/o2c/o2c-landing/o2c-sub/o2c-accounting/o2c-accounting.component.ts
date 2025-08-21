@@ -16,6 +16,7 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-ca-exception-v',
     },
     'o2c-order-sla-exception-v': {
@@ -23,6 +24,7 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-sla-exception-v',
     },
     'o2c-order-gl-exception-v': {
@@ -30,6 +32,7 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-gl-exception-v',
     },
     'o2c-order-accot-exception-v': {
@@ -37,6 +40,7 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-accot-exception-v',
     },
   };
@@ -77,14 +81,23 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
     const data = this.exceptionData[dataKey];
     if (!data) return;
     data.loading = true;
-    this.http
-      .get(data.apiEndpoint, this.destroyManager)
-      .subscribe((response: any) => {
+    data.hasError = false;
+    this.http.get(data.apiEndpoint, this.destroyManager).subscribe({
+      next: (response: any) => {
         data.dataSource.data = response;
         data.displayedColumns = Object.keys(response[0] || {});
         data.pieChartData = this.prepareDonutData(response);
         data.loading = false;
-      });
+      },
+      error: (error) => {
+        console.error(`ERROR`, error);
+        data.loading = false;
+        data.hasError = true;
+        data.dataSource.data = [];
+        data.displayedColumns = [];
+        data.pieChartData = [];
+      },
+    });
   }
 
   get o2cOrderCaExceptionPieChartData() {
@@ -118,5 +131,13 @@ export class O2cAccountingComponent extends O2cBaseComponent implements OnInit {
 
   get o2cOrderAccotExceptionLoading() {
     return this.exceptionData['o2c-order-accot-exception-v'].loading;
+  }
+
+  // Single method to get the appropriate message for any data key
+  getNoDataMessage(dataKey: string): string {
+    const data = this.exceptionData[dataKey];
+    return data?.hasError
+      ? 'Database error: Unable to fetch data. Please contact your database administrator.'
+      : 'No exceptions found';
   }
 }

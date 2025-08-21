@@ -18,6 +18,7 @@
         <app-o2c-donut
           [data]="o2cOrderCaExceptionPieChartData"
           [isLoading]="o2cOrderCaExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-ca-exception-v')"
           canvasId="donutChart1"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -32,6 +33,7 @@
         <app-o2c-donut
           [data]="o2cOrderSlaExceptionPieChartData"
           [isLoading]="o2cOrderSlaExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-sla-exception-v')"
           canvasId="donutChart2"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -46,6 +48,7 @@
         <app-o2c-donut
           [data]="o2cOrderGlExceptionPieChartData"
           [isLoading]="o2cOrderGlExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-gl-exception-v')"
           canvasId="donutChart3"
         ></app-o2c-donut>
       </app-o2c-accordion>
@@ -60,6 +63,7 @@
         <app-o2c-donut
           [data]="o2cOrderAccotExceptionPieChartData"
           [isLoading]="o2cOrderAccotExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-accot-exception-v')"
           canvasId="donutChart4"
         ></app-o2c-donut>
       </app-o2c-accordion>

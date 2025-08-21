@@ -16,6 +16,7 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-preinv-exception-v',
     },
     'invoice-creation': {
@@ -23,6 +24,7 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-inv-exception-v',
     },
     'invoice-pid': {
@@ -30,6 +32,7 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-invpid-exception-v',
     },
     'invoice-others': {
@@ -37,6 +40,7 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
       dataSource: new MatTableDataSource(),
       displayedColumns: [],
       pieChartData: [],
+      hasError: false,
       apiEndpoint: 'o2c-order-invoth-exception-v',
     },
   };
@@ -77,14 +81,23 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
     const data = this.exceptionData[dataKey];
     if (!data) return;
     data.loading = true;
-    this.http
-      .get(data.apiEndpoint, this.destroyManager)
-      .subscribe((response: any) => {
+    data.hasError = false;
+    this.http.get(data.apiEndpoint, this.destroyManager).subscribe({
+      next: (response: any) => {
         data.dataSource.data = response;
         data.displayedColumns = Object.keys(response[0] || {});
         data.pieChartData = this.prepareDonutData(response);
         data.loading = false;
-      });
+      },
+      error: (error) => {
+        console.error(`ERROR`, error);
+        data.loading = false;
+        data.hasError = true;
+        data.dataSource.data = [];
+        data.displayedColumns = [];
+        data.pieChartData = [];
+      },
+    });
   }
 
   get orderPreInvPieChartData(): any[] {
@@ -118,5 +131,13 @@ export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
 
   get orderInvOthersLoading(): boolean {
     return this.exceptionData['invoice-others'].loading;
+  }
+
+  // Single method to get the appropriate message for any data key
+  getNoDataMessage(dataKey: string): string {
+    const data = this.exceptionData[dataKey];
+    return data?.hasError
+      ? 'Database error: Unable to fetch data. Please contact your database administrator.'
+      : 'No exceptions found';
   }
 }
