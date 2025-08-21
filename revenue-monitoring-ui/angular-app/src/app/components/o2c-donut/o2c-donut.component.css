@@ -179,9 +179,9 @@
 }
 
 .loading-shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #fafafa 50%, #f0f0f0 75%);
+  background: linear-gradient(100deg, #f0f0f0 10%, #fafafa 50%, #f0f0f0 80%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1s infinite;
   border-radius: 4px;
 }
 
