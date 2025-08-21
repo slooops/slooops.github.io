@@ -1,5 +1,5 @@
 #angular build
-FROM node:18.20.2
+FROM node:20-slim
 RUN adduser node root
 
 COPY ./angular-app /ui
