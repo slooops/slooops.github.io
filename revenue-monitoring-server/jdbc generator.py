@@ -63,5 +63,5 @@ def generate_jdbc_setup(query_name):
 
 
 # Example usage
-generate_jdbc_setup("")
-generate_jdbc_setup("")
+generate_jdbc_setup("example_query")
+# generate_jdbc_setup("another_example_query")
