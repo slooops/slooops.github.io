@@ -17,7 +17,7 @@ public class CacheRefresh {
 	private static final Logger log = LoggerFactory.getLogger(CacheRefresh.class);
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	private static long startTime = 0;
-	
+
 	private long cmsRefresh;
 	private long glRefresh;
 	private long i2cRefresh;
@@ -25,7 +25,7 @@ public class CacheRefresh {
 	private long revenueRefresh;
 
 	@Autowired
-    private CMSMonitoringService cmsMonitoringService;
+	private CMSMonitoringService cmsMonitoringService;
 
 	@Autowired
 	private GLPostingMonitoringService glPostingMonitoringService;
@@ -38,12 +38,12 @@ public class CacheRefresh {
 
 	@Autowired
 	private RevenueAccountingMonitoringService revenueAccountingMonitoringService;
-	
-	private HashMap<String,Long > cacheCollection = new HashMap<String,Long>();
-	
+
+	private HashMap<String, Long> cacheCollection = new HashMap<String, Long>();
+
 	@Autowired
-	public CacheRefresh(long cmsRefresh, long glRefresh, long i2cRefresh, long postInvoicingRefresh, long revenueRefresh)
-	{
+	public CacheRefresh(long cmsRefresh, long glRefresh, long i2cRefresh, long postInvoicingRefresh,
+			long revenueRefresh) {
 		this.cmsRefresh = cmsRefresh;
 		this.glRefresh = glRefresh;
 		this.i2cRefresh = i2cRefresh;
@@ -57,30 +57,30 @@ public class CacheRefresh {
 		cacheCollection.put("revenueRefresh", revenueRefresh);
 		startTime = new Date().getTime();
 	}
-	
-	//check every 50
-	@Scheduled(fixedRate = 50000)
+
+	// check every 10 minutes
+	@Scheduled(fixedRate = 600000)
 	public void refreshCache() {
 
 		for (String key : cacheCollection.keySet()) {
-			 
+
 			long currentTime = new Date().getTime();
-			
-			/* 
-			log.info("****************");
-			log.info("currentTime " + currentTime);
-			log.info("startTime " + startTime);
-			log.info("cacheCollection.get(key) " + cacheCollection.get(key));
-			log.info("((currentTime) - (startTime)) / cacheCollection.get(key)" 
-					+ ((currentTime) - (startTime)) / cacheCollection.get(key));
-			*/
-			
-			if( ((currentTime - startTime)/10000) % cacheCollection.get(key) == 0 ) {
+
+			/*
+			 * log.info("****************");
+			 * log.info("currentTime " + currentTime);
+			 * log.info("startTime " + startTime);
+			 * log.info("cacheCollection.get(key) " + cacheCollection.get(key));
+			 * log.info("((currentTime) - (startTime)) / cacheCollection.get(key)"
+			 * + ((currentTime) - (startTime)) / cacheCollection.get(key));
+			 */
+
+			if (((currentTime - startTime) / 10000) % cacheCollection.get(key) == 0) {
 				log.info("Time to refresh Cache");
-				
-				switch(key) {
+
+				switch (key) {
 					case "cmsRefresh":
-						cmsMonitoringService.refreshCMSCache(); 
+						cmsMonitoringService.refreshCMSCache();
 						break;
 					case "glRefresh":
 						glPostingMonitoringService.refreshGlPostingMonitoringCache();
@@ -99,8 +99,7 @@ public class CacheRefresh {
 					default:
 						break;
 				}
-			}
-			else {
+			} else {
 				log.info("Skip refresh Cache");
 			}
 		}
