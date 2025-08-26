@@ -41,6 +41,9 @@ public class CacheRefresh {
 
 	private HashMap<String, Long> cacheCollection = new HashMap<String, Long>();
 
+	// Add flag to prevent concurrent cache refreshes
+	private volatile boolean cacheRefreshInProgress = false;
+
 	@Autowired
 	public CacheRefresh(long cmsRefresh, long glRefresh, long i2cRefresh, long postInvoicingRefresh,
 			long revenueRefresh) {
@@ -62,46 +65,53 @@ public class CacheRefresh {
 	@Scheduled(fixedRate = 600000)
 	public void refreshCache() {
 
-		for (String key : cacheCollection.keySet()) {
+		// Prevent concurrent cache refresh operations
+		if (cacheRefreshInProgress) {
+			log.warn("Cache refresh already in progress, skipping this cycle");
+			return;
+		}
 
-			long currentTime = new Date().getTime();
+		try {
+			cacheRefreshInProgress = true;
+			log.info("Starting cache refresh cycle");
 
-			/*
-			 * log.info("****************");
-			 * log.info("currentTime " + currentTime);
-			 * log.info("startTime " + startTime);
-			 * log.info("cacheCollection.get(key) " + cacheCollection.get(key));
-			 * log.info("((currentTime) - (startTime)) / cacheCollection.get(key)"
-			 * + ((currentTime) - (startTime)) / cacheCollection.get(key));
-			 */
+			for (String key : cacheCollection.keySet()) {
 
-			if (((currentTime - startTime) / 10000) % cacheCollection.get(key) == 0) {
-				log.info("Time to refresh Cache");
+				long currentTime = new Date().getTime();
 
-				switch (key) {
-					case "cmsRefresh":
-						cmsMonitoringService.refreshCMSCache();
-						break;
-					case "glRefresh":
-						glPostingMonitoringService.refreshGlPostingMonitoringCache();
-						break;
-					case "i2cRefresh":
-						invoiceToCashMonitoringService.refreshInvoiceToCashMonitoringCache();
-						break;
-					case "postInvoicingRefresh":
-						postInvoicingMonitoringService.refreshPostInvoicingMonitoringCache();
-						break;
-					case "revenueRefresh":
-						revenueAccountingMonitoringService.refreshRevenueAccountingMonitoringCache();
-						break;
-					case "anythingElse":
-						break;
-					default:
-						break;
+				if (((currentTime - startTime) / 600000) % cacheCollection.get(key) == 0) {
+					log.info("Time to refresh Cache for: " + key);
+
+					switch (key) {
+						case "cmsRefresh":
+							cmsMonitoringService.refreshCMSCache();
+							break;
+						case "glRefresh":
+							glPostingMonitoringService.refreshGlPostingMonitoringCache();
+							break;
+						case "i2cRefresh":
+							invoiceToCashMonitoringService.refreshInvoiceToCashMonitoringCache();
+							break;
+						case "postInvoicingRefresh":
+							postInvoicingMonitoringService.refreshPostInvoicingMonitoringCache();
+							break;
+						case "revenueRefresh":
+							revenueAccountingMonitoringService.refreshRevenueAccountingMonitoringCache();
+							break;
+						case "anythingElse":
+							break;
+						default:
+							break;
+					}
+				} else {
+					log.debug("Skip refresh Cache for: " + key);
 				}
-			} else {
-				log.info("Skip refresh Cache");
 			}
+		} catch (Exception e) {
+			log.error("Error during cache refresh", e);
+		} finally {
+			cacheRefreshInProgress = false;
+			log.info("Cache refresh cycle completed");
 		}
 	}
 }
