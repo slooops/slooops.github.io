@@ -22,6 +22,9 @@ public class GLPostingMonitoringService{
     @Autowired
     private CacheCommon cacheCommon;
 
+    private Boolean useRedisGlPosting = true;
+
+
     public GLPostingMonitoringService(JdbcManager jdbcManager, String glErrorSummary, String glErrorDetails,
                                       String glPostingDetailsFiltered, String glPostingSummaryUpdate) {
         this.jdbcManager = jdbcManager;
@@ -33,7 +36,7 @@ public class GLPostingMonitoringService{
 
     // General Ledger
     public List<Map<String, Object>> getGlErrorSummary() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("GlErrorSummary", glErrorSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("GlErrorSummary", glErrorSummary, useRedisGlPosting);
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             data.remove("AGING");
@@ -57,7 +60,7 @@ public class GLPostingMonitoringService{
     }
 
     public List<Map<String, Object>> getGlErrorDetails() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("GlErrorDetails", glErrorDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("GlErrorDetails", glErrorDetails, useRedisGlPosting);
         return result;
     }
 
@@ -84,12 +87,13 @@ public class GLPostingMonitoringService{
     }
 
     public void refreshGlPostingMonitoringCache() {
-        Map<String, String> cacheKeyToQueryMap = Map.of(
-                "GlErrorSummary", glErrorSummary,
-                "GlErrorDetails", glErrorDetails
-        );
+        Map<String, String> glErrorSummaryMap = Map.of("GlErrorSummary", glErrorSummary);
+        Map<String, String> glErrorDetailsMap = Map.of("GlErrorDetails", glErrorDetails);
+
         System.out.println("refresh from gl posting service");
-        cacheCommon.refreshExceptionMonitoringCache(cacheKeyToQueryMap);
+
+        cacheCommon.refreshExceptionMonitoringCache(glErrorSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(glErrorDetailsMap);
     }
 
 }

@@ -19,8 +19,8 @@ public class CacheCommon {
     private RedisRepositoryImpl redisRepository;
     private Logger logger = LoggerFactory.getLogger(CacheCommon.class);
     private JdbcManager jdbcManager;
-    @Value("${app.use-redis:false}")
-    private boolean useRedis;
+//    @Value("${app.use-redis:false}")
+//    private boolean useRedis;
 
     public CacheCommon(JdbcManager jdbcManager) {
         this.jdbcManager = jdbcManager;
@@ -30,29 +30,18 @@ public class CacheCommon {
     public void refreshExceptionMonitoringCache(Map<String, String> cacheKeyToQueryMap) {
         try {
             logger.info("Starting Exception Monitoring Refresh (dynamic)");
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-
             for (Map.Entry<String, String> entry : cacheKeyToQueryMap.entrySet()) {
                 String cacheKey = entry.getKey();
                 String query = entry.getValue();
-
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                CompletableFuture.runAsync(() -> {
                     try {
                         redisRepository.add(cacheKey, jdbcManager.queryForList(query));
-                        logger.debug("Successfully refreshed cache for: " + cacheKey);
                     } catch (Exception e) {
                         logger.error("Failed to refresh " + cacheKey, e);
                     }
                 });
-                futures.add(future);
             }
-
-            // Wait for all futures to complete - this blocks until all are done
-            CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-            allFutures.join(); // This ensures we wait for completion
-
-            logger.info("Dynamic Exception Monitoring Refresh completed");
-
+            logger.info("Dynamic Exception Monitoring Refresh triggered asynchronously");
         } catch (Exception e) {
             logger.error("Exception in dynamic refreshExceptionMonitoringCache", e);
         }
@@ -77,7 +66,7 @@ public class CacheCommon {
     // return null;
     // }
 
-    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql) {
+    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql, Boolean useRedis) {
         try {
             if (useRedis && redisRepository.findData(cacheId) != null) {
                 System.out.println("Fetching data from Redis cache for " + cacheId);

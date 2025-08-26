@@ -65,53 +65,47 @@ public class CacheRefresh {
 	@Scheduled(fixedRate = 600000)
 	public void refreshCache() {
 
-		// Prevent concurrent cache refresh operations
-		if (cacheRefreshInProgress) {
-			log.warn("Cache refresh already in progress, skipping this cycle");
-			return;
-		}
+		for (String key : cacheCollection.keySet()) {
 
-		try {
-			cacheRefreshInProgress = true;
-			log.info("Starting cache refresh cycle");
+			long currentTime = new Date().getTime();
 
-			for (String key : cacheCollection.keySet()) {
+		/*
+		log.info("****************");
+		log.info("currentTime " + currentTime);
+		log.info("startTime " + startTime);
+		log.info("cacheCollection.get(key) " + cacheCollection.get(key));
+		log.info("((currentTime) - (startTime)) / cacheCollection.get(key)"
+				+ ((currentTime) - (startTime)) / cacheCollection.get(key));
+		*/
 
-				long currentTime = new Date().getTime();
+			if( ((currentTime - startTime)/10000) % cacheCollection.get(key) == 0 ) {
+				log.info("Time to refresh Cache");
 
-				if (((currentTime - startTime) / 600000) % cacheCollection.get(key) == 0) {
-					log.info("Time to refresh Cache for: " + key);
-
-					switch (key) {
-						case "cmsRefresh":
-							cmsMonitoringService.refreshCMSCache();
-							break;
-						case "glRefresh":
-							glPostingMonitoringService.refreshGlPostingMonitoringCache();
-							break;
-						case "i2cRefresh":
-							invoiceToCashMonitoringService.refreshInvoiceToCashMonitoringCache();
-							break;
-						case "postInvoicingRefresh":
-							postInvoicingMonitoringService.refreshPostInvoicingMonitoringCache();
-							break;
-						case "revenueRefresh":
-							revenueAccountingMonitoringService.refreshRevenueAccountingMonitoringCache();
-							break;
-						case "anythingElse":
-							break;
-						default:
-							break;
-					}
-				} else {
-					log.debug("Skip refresh Cache for: " + key);
+				switch(key) {
+					case "cmsRefresh":
+						cmsMonitoringService.refreshCMSCache();
+						break;
+					case "glRefresh":
+						glPostingMonitoringService.refreshGlPostingMonitoringCache();
+						break;
+					case "i2cRefresh":
+						invoiceToCashMonitoringService.refreshInvoiceToCashMonitoringCache();
+						break;
+					case "postInvoicingRefresh":
+						postInvoicingMonitoringService.refreshPostInvoicingMonitoringCache();
+						break;
+					case "revenueRefresh":
+						revenueAccountingMonitoringService.refreshRevenueAccountingMonitoringCache();
+						break;
+					case "anythingElse":
+						break;
+					default:
+						break;
 				}
 			}
-		} catch (Exception e) {
-			log.error("Error during cache refresh", e);
-		} finally {
-			cacheRefreshInProgress = false;
-			log.info("Cache refresh cycle completed");
+			else {
+				log.info("Skip refresh Cache");
+			}
 		}
 	}
 }

@@ -36,6 +36,8 @@ public class RevenueAccountingMonitoringService {
     @Autowired
     private CacheCommon cacheCommon;
 
+    private Boolean useRedisRevAccounting = true;
+
     @Autowired
     public RevenueAccountingMonitoringService(JdbcManager jdbcManager, String rolErrorsSummaryUpdate, String rolTransactionDataFilter,
                                               String rolTransactionData, String rolErrorsSummary,String standardRevenueSummaryUpdate,
@@ -63,7 +65,7 @@ public class RevenueAccountingMonitoringService {
     }
 
     public List<Map<String, Object>> getRolErrorsSummary() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RolErrorsSummary", rolErrorsSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RolErrorsSummary", rolErrorsSummary, useRedisRevAccounting);
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             common.renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
@@ -91,7 +93,7 @@ public class RevenueAccountingMonitoringService {
     }
 
     public List<Map<String, Object>> getRolErrorDetails() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RolErrorsDetails", rolTransactionData);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RolErrorsDetails", rolTransactionData, useRedisRevAccounting);
         result.forEach(data -> {
             common.renameKey(data, "OU_NAME", "ORG_NAME");
             common.renameKey(data, "SUB_APPLICATION", "PROCESS_FLOW");
@@ -138,7 +140,7 @@ public class RevenueAccountingMonitoringService {
     }
 
     public List<Map<String, Object>> getStandardRevenueSummary() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("StandardRevenueSummary", standardRevenueSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("StandardRevenueSummary", standardRevenueSummary, useRedisRevAccounting);
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             data.remove("AGING");
@@ -162,7 +164,7 @@ public class RevenueAccountingMonitoringService {
     }
 
     public List<Map<String, Object>> getStandardRevenueDetails() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("StandardRevenueDetails", standardRevenueDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("StandardRevenueDetails", standardRevenueDetails, useRedisRevAccounting);
         return result;
     }
 
@@ -189,7 +191,7 @@ public class RevenueAccountingMonitoringService {
 
     // Accruals
     public List<Map<String, Object>> getAccrualsSummary() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("AccrualsSummary", accrualsSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("AccrualsSummary", accrualsSummary, useRedisRevAccounting);
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
@@ -215,7 +217,7 @@ public class RevenueAccountingMonitoringService {
 
     public List<Map<String, Object>> getAccrualsDetails() {
         String[] dateColumns = { "CREATION_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("AccrualsDetails", accrualsDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("AccrualsDetails", accrualsDetails, useRedisRevAccounting);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             common.renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
@@ -247,7 +249,7 @@ public class RevenueAccountingMonitoringService {
 
     public List<Map<String, Object>> getTspAccountSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("TspAccountSummaryView", tspAccountSummaryView);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("TspAccountSummaryView", tspAccountSummaryView, useRedisRevAccounting);
         result.forEach(data -> {
             data.remove("ASSIGNED_BY");
             common.formatDateColumns(data, dateColumns);
@@ -270,7 +272,7 @@ public class RevenueAccountingMonitoringService {
     }
 
     public List<Map<String, Object>> getTspAccountDetailView() {
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("TspAccountDetailView", tspAccountDetailView);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("TspAccountDetailView", tspAccountDetailView, useRedisRevAccounting);
         result.forEach(data -> {
             common.renameKey(data, "CREATION_DATE", "TRANSACTION_DATE");
             data.remove("SEQUENCE_NUMBER");
@@ -298,19 +300,25 @@ public class RevenueAccountingMonitoringService {
     }
 
     public void refreshRevenueAccountingMonitoringCache() {
-        Map<String, String> cacheKeyToQueryMap = Map.of(
-                "RolErrorsSummary", rolErrorsSummary,
-                "RolErrorsDetails", rolTransactionData,
-                "StandardRevenueSummary", standardRevenueSummary,
-                "StandardRevenueDetails", standardRevenueDetails,
-                "AccrualsSummary", accrualsSummary,
-                "AccrualsDetails", accrualsDetails,
-                "TspAccountSummaryView", tspAccountSummaryView,
-                "TspAccountDetailView", tspAccountDetailView
-        );
+        Map<String, String> rolErrorsSummaryMap = Map.of("RolErrorsSummary", rolErrorsSummary);
+        Map<String, String> rolErrorsDetailsMap = Map.of("RolErrorsDetails", rolTransactionData);
+        Map<String, String> standardRevenueSummaryMap = Map.of("StandardRevenueSummary", standardRevenueSummary);
+        Map<String, String> standardRevenueDetailsMap = Map.of("StandardRevenueDetails", standardRevenueDetails);
+        Map<String, String> accrualsSummaryMap = Map.of("AccrualsSummary", accrualsSummary);
+        Map<String, String> accrualsDetailsMap = Map.of("AccrualsDetails", accrualsDetails);
+        Map<String, String> tspAccountSummaryViewMap = Map.of("TspAccountSummaryView", tspAccountSummaryView);
+        Map<String, String> tspAccountDetailViewMap = Map.of("TspAccountDetailView", tspAccountDetailView);
+
         System.out.println("refresh from revenue accounting service");
 
-        cacheCommon.refreshExceptionMonitoringCache(cacheKeyToQueryMap);
+        cacheCommon.refreshExceptionMonitoringCache(rolErrorsSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(rolErrorsDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(standardRevenueSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(standardRevenueDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(accrualsSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(accrualsDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(tspAccountSummaryViewMap);
+        cacheCommon.refreshExceptionMonitoringCache(tspAccountDetailViewMap);
     }
 
 }
