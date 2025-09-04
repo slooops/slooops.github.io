@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 @Component
 public class CacheCommon {
     @Autowired
@@ -45,23 +47,24 @@ public class CacheCommon {
         }
     }
 
-//        public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql){
-//        try {
-//            if (redisRepository.findData(cacheId) != null) {
-//                System.out.println("Fetching data from Redis cache for " + cacheId);
-//                List<Map<String, Object>> result = redisRepository.findData(cacheId);
-//                return result;
-//            } else {
-//                System.out.println("Fetching data from database for " + cacheId);
-//                List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
-//                redisRepository.add(cacheId, retObject);
-//                return retObject;
-//            }
-//        } catch (Exception e) {
-//            logger.error("Exception in get"+cacheId+"():: " + e);
-//        }
-//        return null;
-//    }
+    // public List<Map<String, Object>> checkRedisForCachedData(String cacheId,
+    // String sql){
+    // try {
+    // if (redisRepository.findData(cacheId) != null) {
+    // System.out.println("Fetching data from Redis cache for " + cacheId);
+    // List<Map<String, Object>> result = redisRepository.findData(cacheId);
+    // return result;
+    // } else {
+    // System.out.println("Fetching data from database for " + cacheId);
+    // List<Map<String, Object>> retObject = jdbcManager.queryForList(sql);
+    // redisRepository.add(cacheId, retObject);
+    // return retObject;
+    // }
+    // } catch (Exception e) {
+    // logger.error("Exception in get"+cacheId+"():: " + e);
+    // }
+    // return null;
+    // }
 
     public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql, Boolean useRedis) {
         try {
