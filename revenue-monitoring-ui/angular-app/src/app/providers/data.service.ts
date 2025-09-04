@@ -109,6 +109,7 @@ export class DataService implements OnDestroy {
     if (!this.assignmentUsers || !componentName) {
       return this.assignmentUsers;
     }
+    console.log('Component Name:', componentName);
     return this.assignmentUsers.filter(
       (user: any) =>
         user.FILTER_KEY === null || user.FILTER_KEY === componentName
