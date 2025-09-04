@@ -110,7 +110,8 @@ export class DataService implements OnDestroy {
       return this.assignmentUsers;
     }
     return this.assignmentUsers.filter(
-      (user: any) => user.FILTER_KEY === componentName
+      (user: any) =>
+        user.FILTER_KEY === null || user.FILTER_KEY === componentName
     );
   }
 
