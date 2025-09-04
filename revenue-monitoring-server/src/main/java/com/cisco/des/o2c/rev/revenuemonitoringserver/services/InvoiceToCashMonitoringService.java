@@ -147,7 +147,10 @@ public class InvoiceToCashMonitoringService{
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updatePreInvoiceErrorsSummaryData(preInvoiceErrorsSummaryUpdate, assignedTo, assignedBy,
                 comments, ouName, transactionDate, processFlow);
-        return 1;
+        if(test == 1) {
+            refreshInvoiceToCashMonitoringCache();
+        }
+            return 1;
     }
 
     // Auto-Invoice
@@ -210,6 +213,9 @@ public class InvoiceToCashMonitoringService{
         String creationDate = updateData.get("transactionDate");
         int test = jdbcManager.updateAutoInvoiceErrorsSummaryData(autoInvoiceErrorsSummaryUpdate, assignedTo,
                 assignedBy, comments, ouName, processFlow, periodName, batchSourceName, creationDate);
+        if(test == 1) {
+            refreshInvoiceToCashMonitoringCache();
+        }
         return 1;
     }
 
@@ -267,6 +273,9 @@ public class InvoiceToCashMonitoringService{
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateEInvoicingSummary(eInvoicingSummaryUpdate, assignedTo, assignedBy, comments, periodName, appName,
                 processFlow, ouName, transactionDate);
+        if(test == 1) {
+            refreshInvoiceToCashMonitoringCache();
+        }
         return 1;
     }
 
@@ -321,6 +330,9 @@ public class InvoiceToCashMonitoringService{
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateFusionErrorSummary(fusionErrorSummaryUpdate, assignedTo, assignedBy, comments, periodName,
                 processFlow, ouName, transactionDate);
+        if(test == 1) {
+            refreshInvoiceToCashMonitoringCache();
+        }
         return 1;
     }
 
@@ -376,6 +388,9 @@ public class InvoiceToCashMonitoringService{
         String assignedBy = updateData.get("username");
         int test = jdbcManager.updateCreditCardCheckSummary(updateCreditCardCheckSummary, assignedTo, assignedBy, comments,
                 entityName, holdApplyDate, flooringBid);
+        if(test == 1) {
+            refreshInvoiceToCashMonitoringCache();
+        }
         return test;
     }
 

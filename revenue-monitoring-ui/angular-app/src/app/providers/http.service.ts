@@ -3,14 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { AppConfigService } from './app-config.service';
 import { Subject, takeUntil } from 'rxjs';
 import { DestroyManager } from './destroy-manager.service';
+import { AuthenticationService } from './authentication.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
-  hostUrl: string = '';
+  hostUrl: string = this.authService.getHostUrl();
 
-  constructor(private http: HttpClient, private config: AppConfigService) {
-    this.hostUrl = this.config.getApiUrl();
-  }
+  constructor(
+    private http: HttpClient,
+    private authService: AuthenticationService
+  ) {}
 
   public getHostUrl(): string {
     return this.hostUrl;

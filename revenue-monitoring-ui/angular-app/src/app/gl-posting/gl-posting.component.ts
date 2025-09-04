@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -16,7 +15,7 @@ export class GlPostingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private authService: AuthenticationService,
+    protected authService: AuthenticationService,
     private menuService: MenuService
   ) {}
   roles: string[] = [];

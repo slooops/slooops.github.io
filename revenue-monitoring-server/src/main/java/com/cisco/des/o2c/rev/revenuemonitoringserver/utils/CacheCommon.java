@@ -43,7 +43,7 @@ public class CacheCommon {
             }
             logger.info("Dynamic Exception Monitoring Refresh triggered asynchronously");
         } catch (Exception e) {
-            logger.error("Exception in dynamic refreshExceptionMonitoringCache", e);
+            logger.error("Exception in dynamic refreshExceptionMonitoringCache",e);
         }
     }
 

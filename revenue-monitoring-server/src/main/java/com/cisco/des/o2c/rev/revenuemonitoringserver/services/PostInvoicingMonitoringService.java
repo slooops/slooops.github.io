@@ -139,6 +139,9 @@ public class PostInvoicingMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateCMAmortSummary(cmAmortSummaryUpdate, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
@@ -218,6 +221,9 @@ public class PostInvoicingMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updatePrintSummary(printSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
@@ -272,6 +278,9 @@ public class PostInvoicingMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateRPOExtractSummary(rpoExtractSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
@@ -326,6 +335,9 @@ public class PostInvoicingMonitoringService {
         String entityName = updateData.get("orgName");
         String srtDate = updateData.get("srtDate");
         int test = jdbcManager.updateSRTProcessSummary(srtProcessSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  entityName, srtDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
@@ -384,6 +396,9 @@ public class PostInvoicingMonitoringService {
         String processFlow = updateData.get("processFlow");
         System.out.println(assignedTo + assignedBy + comments + periodName + entityName + transactionDate + batchSource + processFlow);
         int test = jdbcManager.updatePCMApplicationSummary(pcmApplicationSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  batchSource, processFlow, entityName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 

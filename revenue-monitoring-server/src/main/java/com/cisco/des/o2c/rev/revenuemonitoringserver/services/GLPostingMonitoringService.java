@@ -83,6 +83,9 @@ public class GLPostingMonitoringService{
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments,
                 processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
+        if(test == 1){
+            refreshGlPostingMonitoringCache();
+        }
         return 1;
     }
 
