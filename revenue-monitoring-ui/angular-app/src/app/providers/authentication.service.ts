@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthenticationService {
-  constructor(private appConfig: AppConfigService, private router: Router) {}
+  constructor(private router: Router) {}
 
   async getValidToken() {
     const date = new Date();
@@ -172,8 +172,7 @@ export class AuthenticationService {
 
   userRoles: string[] = [];
   getUserRoles(username: string) {
-    let rolesUrl =
-      this.appConfig.getApiUrl() + `user-role?username=${username}`;
+    let rolesUrl = this.authUrl + `user-role?username=${username}`;
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
