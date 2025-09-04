@@ -136,9 +136,8 @@ public class RevenueAccountingMonitoringService {
         String assignedBy = updateData.get("username");
         int test = jdbcManager.updateRolErrorsSummaryData(rolErrorsSummaryUpdate, assignedTo, comments, assignedBy,
                 periodName, appName, subApp, orgName);
-        if(test == 1) {
-            refreshRevenueAccountingMonitoringCache();
-        }
+        refreshRevenueAccountingMonitoringCache();
+
         return test;
     }
 
@@ -189,9 +188,8 @@ public class RevenueAccountingMonitoringService {
         String assignedBy = updateData.get("username");
         int test = jdbcManager.updateStandardRevenueSummary(standardRevenueSummaryUpdate, assignedTo, assignedBy, comments,
                 periodName, processFlow, orgName, transactionDate);
-        if(test == 1) {
-            refreshRevenueAccountingMonitoringCache();
-        }
+        refreshRevenueAccountingMonitoringCache();
+
         return test;
     }
 
@@ -250,9 +248,8 @@ public class RevenueAccountingMonitoringService {
         int sequenceNum = Integer.parseInt(updateData.get("sequenceNum"));
         int test = jdbcManager.updateAccrualsErrorsSummaryData(accrualsSummaryUpdate, assignedTo, comments, assignedBy,
                 sequenceNum);
-        if(test == 1) {
-            refreshRevenueAccountingMonitoringCache();
-        }
+        refreshRevenueAccountingMonitoringCache();
+
         return 1;
     }
 
@@ -304,9 +301,8 @@ public class RevenueAccountingMonitoringService {
         String comments = updateData.get("comments");
         String sequenceNumber = updateData.get("sequenceNumber");
         int test = jdbcManager.updateTspAccountSummary(tspAccountSummaryUpdate, assignedTo, assignedBy, comments, sequenceNumber);
-        if(test == 1) {
-            refreshRevenueAccountingMonitoringCache();
-        }
+        refreshRevenueAccountingMonitoringCache();
+
         return 1;
     }
 
