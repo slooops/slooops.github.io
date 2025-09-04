@@ -10,6 +10,7 @@
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-pre-invoicing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="preInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
           [periodStatus]="periodStatus"
@@ -39,6 +40,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-auto-invoicing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="autoInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
           [periodStatus]="periodStatus"
@@ -69,6 +71,7 @@
         <mat-tab-group [selectedIndex]="0">
           <mat-tab label="CM Amortization">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="cmAmortUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
               [processFlowKeys]="cmAmortTotals"
@@ -99,6 +102,7 @@
           </mat-tab>
           <mat-tab label="Invoice Delivery">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="printUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
               [processFlowKeys]="printTotals"
@@ -138,6 +142,7 @@
           </mat-tab>
           <mat-tab label="Digital Payments">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="creditCardUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
               [processFlowKeys]="creditCardTotals"
@@ -158,6 +163,7 @@
           </mat-tab>
           <mat-tab label="SRT Process">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="srtProcessUrls"
               [keysToMap]="[
                 'PERIOD_NAME',
@@ -189,6 +195,7 @@
           </mat-tab>
           <mat-tab label="RPO Extract">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="rpoExtractUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
               [processFlowKeys]="rpoTotals"
@@ -220,6 +227,7 @@
           </mat-tab>
           <mat-tab label="PCM Application">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="pcmApplicationUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
               [processFlowKeys]="rpoTotals"
@@ -270,6 +278,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-eInvoicing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="eInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
           [processFlowKeys]="eInvoicingTotals"
@@ -304,6 +313,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-fusion'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="fusionUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
           [processFlowKeys]="fusionTotals"
@@ -338,6 +348,7 @@
 
       <ng-container *ngSwitchCase="'app-credit-card-check'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="creditCardCheckUrls"
           [keysToMap]="[
             'PERIOD_NAME',

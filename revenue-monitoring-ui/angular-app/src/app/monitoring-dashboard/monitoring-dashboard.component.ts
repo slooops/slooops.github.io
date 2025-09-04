@@ -56,7 +56,7 @@ export class MonitoringDashboardComponent<T>
   @Input() submitKeysToMap: string[] = [];
   @Input() webexKeysToMap: string[] = [];
   @Input() assignmentUsersFilter: string = '';
-  // @Input() apiUrl: string;
+  @Input() apiUrl: string;
 
   periodName: string = '';
   periodEnd: string = '';
@@ -80,9 +80,9 @@ export class MonitoringDashboardComponent<T>
     super();
   }
   ngOnInit(): void {
-    // if (this.apiUrl) {
-    //   this.httpService.setHostUrl(this.apiUrl);
-    // }
+    if (this.apiUrl) {
+      this.httpService.setHostUrl(this.apiUrl);
+    }
     this.getErrorSummary();
     this.getErrorDetails();
     this.updateUrl = this.urls['summaryUpdateUrl'];
@@ -91,9 +91,9 @@ export class MonitoringDashboardComponent<T>
     this.getProcessFlowTotals();
   }
   ngOnChanges(changes: SimpleChanges) {
-    // if (changes['apiUrl'] && changes['apiUrl'].currentValue) {
-    //   this.httpService.setHostUrl(changes['apiUrl'].currentValue);
-    // }
+    if (changes['apiUrl'] && changes['apiUrl'].currentValue) {
+      this.httpService.setHostUrl(changes['apiUrl'].currentValue);
+    }
     if (this.periodStatus) {
       this.periodName = this.periodStatus[0].PERIOD_NAME;
       this.periodEnd = this.dataFormattingService.dateTransform(

@@ -17,7 +17,7 @@ export class CustomRevenueComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private authService: AuthenticationService,
+    protected authService: AuthenticationService,
     private menuService: MenuService
   ) {}
   ngOnInit(): void {

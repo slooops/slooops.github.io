@@ -43,6 +43,9 @@ public class PostInvoicingMonitoringService {
     private CacheCommon cacheCommon;
     private Logger logger = LoggerFactory.getLogger(PostInvoicingMonitoringService.class);
 
+    private Boolean useRedisPostInv = true;
+
+
 
     @Autowired
     public PostInvoicingMonitoringService(JdbcManager jdbcManager,
@@ -85,7 +88,7 @@ public class PostInvoicingMonitoringService {
     //Post-Invoice
     public List<Map<String, Object>> getCMAmortErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CmAmortSummary", cmAmortSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CmAmortSummary", cmAmortSummary, useRedisPostInv);
         result.forEach(data -> {
             data.remove("AGING");
             common.formatDateColumns(data, dateColumns);
@@ -109,7 +112,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getCMAmortErrorDetails() {
         String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CmAmortDetails", cmAmortDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CmAmortDetails", cmAmortDetails, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -136,12 +139,15 @@ public class PostInvoicingMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateCMAmortSummary(cmAmortSummaryUpdate, assignedTo, assignedBy, comments,  periodName, processFlow, orgName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
     public List<Map<String, Object>> getPrintErrorSummaryView() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PrintSummary", printSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PrintSummary", printSummary, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -164,7 +170,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getPrintErrorDetails() {
         String[] dateColumns = { "TRANSACTION_DATE", "RULE_START_DATE", "RULE_END_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PrintDetail", printDetail);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PrintDetail", printDetail, useRedisPostInv);
 //        result.forEach(data -> {
 //            formatDateColumns(data, dateColumns);
 //        });
@@ -173,7 +179,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getCreditCardSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardSummary", creditCardSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardSummary", creditCardSummary, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -182,7 +188,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getCreditCardDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardDetails", creditCardDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("CreditCardDetails", creditCardDetails, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -215,12 +221,15 @@ public class PostInvoicingMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updatePrintSummary(printSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
     public List<Map<String, Object>> getRpoExtractSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RpoExtractSummary", rpoExtractSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RpoExtractSummary", rpoExtractSummary, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -243,7 +252,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getRpoExtractDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RpoExtractDetails", rpoExtractDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("RpoExtractDetails", rpoExtractDetails, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -269,12 +278,15 @@ public class PostInvoicingMonitoringService {
         String orgName = updateData.get("orgName");
         String transactionDate = updateData.get("transactionDate");
         int test = jdbcManager.updateRPOExtractSummary(rpoExtractSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  orgName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
     public List<Map<String, Object>> getSrtProcessSummary() {
         String[] dateColumns = { "SRT_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("SrtProcessSummary", srtProcessSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("SrtProcessSummary", srtProcessSummary, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -297,7 +309,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getSrtProcessDetails() {
         String[] dateColumns = { "SRT_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("SrtProcessDetails", srtProcessDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("SrtProcessDetails", srtProcessDetails, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -323,13 +335,16 @@ public class PostInvoicingMonitoringService {
         String entityName = updateData.get("orgName");
         String srtDate = updateData.get("srtDate");
         int test = jdbcManager.updateSRTProcessSummary(srtProcessSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  entityName, srtDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
 
     public List<Map<String, Object>> getPCMApplicationSummary() {
         String[] dateColumns = { "TRANSACTION_DATE", "ASSIGNED_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PcmApplicationSummary", pcmApplicationSummary);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PcmApplicationSummary", pcmApplicationSummary, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             Map<String, Object> reorderedData = new LinkedHashMap<>();
@@ -352,7 +367,7 @@ public class PostInvoicingMonitoringService {
 
     public List<Map<String, Object>> getPCMApplicationDetails() {
         String[] dateColumns = { "TRANSACTION_DATE" };
-        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PcmApplicationDetails", pcmApplicationDetails);
+        List<Map<String, Object>> result = cacheCommon.checkRedisForCachedData("PcmApplicationDetails", pcmApplicationDetails, useRedisPostInv);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -381,27 +396,40 @@ public class PostInvoicingMonitoringService {
         String processFlow = updateData.get("processFlow");
         System.out.println(assignedTo + assignedBy + comments + periodName + entityName + transactionDate + batchSource + processFlow);
         int test = jdbcManager.updatePCMApplicationSummary(pcmApplicationSummaryUpdate, assignedTo, assignedBy, comments,  periodName,  batchSource, processFlow, entityName, transactionDate);
+        if(test == 1) {
+            refreshPostInvoicingMonitoringCache();
+        }
         return 1;
     }
 
     public void refreshPostInvoicingMonitoringCache() {
-        Map<String, String> cacheKeyToQueryMap = new HashMap<>();
-        cacheKeyToQueryMap.put("CmAmortSummary", cmAmortSummary);
-        cacheKeyToQueryMap.put("CmAmortDetails", cmAmortDetails);
-        cacheKeyToQueryMap.put("PrintSummary", printSummary);
-        cacheKeyToQueryMap.put("PrintDetail", printDetail);
-        cacheKeyToQueryMap.put("CreditCardSummary", creditCardSummary);
-        cacheKeyToQueryMap.put("CreditCardDetails", creditCardDetails);
-        cacheKeyToQueryMap.put("RpoExtractSummary", rpoExtractSummary);
-        cacheKeyToQueryMap.put("RpoExtractDetails", rpoExtractDetails);
-        cacheKeyToQueryMap.put("SrtProcessSummary", srtProcessSummary);
-        cacheKeyToQueryMap.put("SrtProcessDetails", srtProcessDetails);
-        cacheKeyToQueryMap.put("PcmApplicationSummary",pcmApplicationSummary);
-        cacheKeyToQueryMap.put("PcmApplicationDetails", pcmApplicationDetails);
+        Map<String, String> cmAmortSummaryMap = Map.of("CmAmortSummary", cmAmortSummary);
+        Map<String, String> cmAmortDetailsMap = Map.of("CmAmortDetails", cmAmortDetails);
+        Map<String, String> printSummaryMap = Map.of("PrintSummary", printSummary);
+        Map<String, String> printDetailMap = Map.of("PrintDetail", printDetail);
+        Map<String, String> creditCardSummaryMap = Map.of("CreditCardSummary", creditCardSummary);
+        Map<String, String> creditCardDetailsMap = Map.of("CreditCardDetails", creditCardDetails);
+        Map<String, String> rpoExtractSummaryMap = Map.of("RpoExtractSummary", rpoExtractSummary);
+        Map<String, String> rpoExtractDetailsMap = Map.of("RpoExtractDetails", rpoExtractDetails);
+        Map<String, String> srtProcessSummaryMap = Map.of("SrtProcessSummary", srtProcessSummary);
+        Map<String, String> srtProcessDetailsMap = Map.of("SrtProcessDetails", srtProcessDetails);
+        Map<String, String> pcmApplicationSummaryMap = Map.of("PcmApplicationSummary", pcmApplicationSummary);
+        Map<String, String> pcmApplicationDetailsMap = Map.of("PcmApplicationDetails", pcmApplicationDetails);
 
         System.out.println("refresh from post invoicing service");
 
-        cacheCommon.refreshExceptionMonitoringCache(cacheKeyToQueryMap);
+        cacheCommon.refreshExceptionMonitoringCache(cmAmortSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(cmAmortDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(printSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(printDetailMap);
+        cacheCommon.refreshExceptionMonitoringCache(creditCardSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(creditCardDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(rpoExtractSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(rpoExtractDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(srtProcessSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(srtProcessDetailsMap);
+        cacheCommon.refreshExceptionMonitoringCache(pcmApplicationSummaryMap);
+        cacheCommon.refreshExceptionMonitoringCache(pcmApplicationDetailsMap);
     }
 
 }

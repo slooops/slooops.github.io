@@ -59,7 +59,7 @@ public class CacheRefresh {
 	}
 	
 	//check every 50
-	@Scheduled(fixedRate = 50000)
+	@Scheduled(fixedRate = 450000)
 	public void refreshCache() {
 
 		for (String key : cacheCollection.keySet()) {

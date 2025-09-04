@@ -1,6 +1,7 @@
 <mat-tab-group>
   <mat-tab label="General Ledger" *ngIf="roles.includes('ADMIN')">
     <app-monitoring-dashboard
+      [apiUrl]="authService.getHostUrl()"
       [urls]="glUrls"
       [keysToMap]="glKeysToMap"
       [processFlowKeys]="glTotals"

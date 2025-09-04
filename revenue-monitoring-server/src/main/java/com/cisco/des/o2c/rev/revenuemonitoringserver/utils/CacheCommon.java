@@ -17,8 +17,8 @@ public class CacheCommon {
     private RedisRepositoryImpl redisRepository;
     private Logger logger = LoggerFactory.getLogger(CacheCommon.class);
     private JdbcManager jdbcManager;
-    @Value("${app.use-redis:false}")
-    private boolean useRedis;
+//    @Value("${app.use-redis:false}")
+//    private boolean useRedis;
 
     public CacheCommon(JdbcManager jdbcManager) {
         this.jdbcManager = jdbcManager;
@@ -41,7 +41,7 @@ public class CacheCommon {
             }
             logger.info("Dynamic Exception Monitoring Refresh triggered asynchronously");
         } catch (Exception e) {
-            logger.error("Exception in dynamic refreshExceptionMonitoringCache", e);
+            logger.error("Exception in dynamic refreshExceptionMonitoringCache",e);
         }
     }
 
@@ -63,7 +63,7 @@ public class CacheCommon {
 //        return null;
 //    }
 
-    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql) {
+    public List<Map<String, Object>> checkRedisForCachedData(String cacheId, String sql, Boolean useRedis) {
         try {
             if (useRedis && redisRepository.findData(cacheId) != null) {
                 System.out.println("Fetching data from Redis cache for " + cacheId);

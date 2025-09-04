@@ -5,16 +5,17 @@ import { HttpClient } from '@angular/common/http';
 export class HttpService {
   // hostUrl: string = 'http://localhost:8080/api/';
   // hostUrl: string = 'https://operations-control-tower-stg-api.cisco.com/api/';
-  hostUrl: string = 'https://operations-control-tower-api.cisco.com/api/';
+  // hostUrl: string = 'https://operations-control-tower-api.cisco.com/api/';
+  hostUrl: string = '';
 
   constructor(private http: HttpClient) {}
 
-  // setHostUrl(hostUrl: string): void {
-  //   console.log('Setting host URL:', hostUrl);
-  //   if (hostUrl) {
-  //     this.hostUrl = hostUrl;
-  //   }
-  // }
+  setHostUrl(hostUrl: string): void {
+    console.log('Setting host URL:', hostUrl);
+    if (hostUrl) {
+      this.hostUrl = hostUrl;
+    }
+  }
 
   public get(url: string, options?: any) {
     return this.http.get(this.hostUrl + url, options);

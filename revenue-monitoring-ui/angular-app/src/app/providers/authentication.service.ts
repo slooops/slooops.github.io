@@ -166,6 +166,10 @@ export class AuthenticationService {
     return this.username;
   }
 
+  getHostUrl() {
+    return this.authUrl;
+  }
+
   userRoles: string[] = [];
   getUserRoles(username: string) {
     let rolesUrl =

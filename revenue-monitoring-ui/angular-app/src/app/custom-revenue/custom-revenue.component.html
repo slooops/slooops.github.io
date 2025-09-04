@@ -10,6 +10,7 @@
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-standard-revenue'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="standardRevenueUrl"
           [keysToMap]="[
             'PERIOD_NAME',
@@ -52,6 +53,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-rol'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="rolUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
           [processFlowKeys]="rolTotals"
@@ -90,6 +92,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-accruals'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="accrualsUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
           [processFlowKeys]="accrualsTotals"
@@ -121,6 +124,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-accounts'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="accountsUrls"
           [keysToMap]="['SEQUENCE_NUMBER']"
           [processFlowKeys]="accountsTotals"
