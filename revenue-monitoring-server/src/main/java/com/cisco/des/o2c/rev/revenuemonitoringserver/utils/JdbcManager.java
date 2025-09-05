@@ -29,13 +29,17 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
-        // Only allow specific, known-safe fields
-        List<String> allowedFields = Arrays.asList("SUBSCRIPTION_REF_ID", "TRX_NUMBER", "WEBORDER_ID");
-        if (!allowedFields.contains(field)) {
-            throw new IllegalArgumentException("Invalid field name");
+        Map<String, String> allowedFields = Map.of(
+                "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID",
+                "TRX_NUMBER", "TRX_NUMBER",
+                "WEBORDER_ID", "WEBORDER_ID"
+        );
+        if (field == null || !allowedFields.containsKey(field.toUpperCase())) {
+            throw new IllegalArgumentException("Invalid field name: " + field);
         }
-        String query = sql + "WHERE " + field + " = ?";
-        System.out.println(query);
+        String validatedField = allowedFields.get(field.toUpperCase());
+
+        String query = sql + " WHERE " + validatedField + " = ?";
         return primaryJdbcTemplate.queryForList(query, value);
     }
 
