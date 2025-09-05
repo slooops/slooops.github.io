@@ -10,6 +10,7 @@
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-imports'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omImportUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -31,6 +32,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-holds'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omHoldsUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -52,6 +54,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-bookings'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omBookingsUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -73,6 +76,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-workflow'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omWorkflowUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -94,6 +98,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-processing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omProcessingUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -115,6 +120,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-distribution'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omDistributionUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -136,6 +142,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-attribution'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omAttributionUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""
@@ -157,6 +164,7 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-jobs'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omJobsUrls"
           [keysToMap]="['timestamp', 'scenario']"
           [processFlowKeys]=""

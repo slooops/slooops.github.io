@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-operations-controls',
@@ -10,7 +11,8 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 export class OperationsControlsComponent implements OnInit {
   constructor(
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    protected authService: AuthenticationService
   ) {}
 
   ngOnInit() {

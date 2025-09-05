@@ -20,7 +20,7 @@ export class OrderManagementComponent {
     private destroyManager: DestroyManager,
     private dataService: DataService,
     private datePipe: DatePipe,
-    private authService: AuthenticationService,
+    protected authService: AuthenticationService,
     private menuService: MenuService
   ) {
     this.http = http;
