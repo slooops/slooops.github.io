@@ -10,7 +10,7 @@ import {
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
-import { ApiHttpService } from 'src/app/providers/http.service';
+import { HttpService } from '../providers/http.service';
 
 @Component({
   selector: 'app-user-assignment',
@@ -38,7 +38,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
 
   constructor(
     private formBuilder: FormBuilder,
-    private http: ApiHttpService,
+    private http: HttpService,
     private dataService: DataService,
     private authService: AuthenticationService
   ) {

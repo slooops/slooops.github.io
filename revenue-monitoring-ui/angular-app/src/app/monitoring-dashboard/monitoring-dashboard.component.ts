@@ -5,7 +5,6 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
-  TemplateRef,
   ViewChild,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
@@ -13,8 +12,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Observable, takeUntil } from 'rxjs';
-import { DataService } from '../providers/data.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { ExportService } from './providers/export.service';
 import { DataFormattingService } from './providers/data-formatting.service';
 import { MonitoringDataService } from './providers/data.service';
@@ -35,15 +33,8 @@ export class MonitoringDashboardComponent<T>
   @ViewChild('summaryPaginator') summaryPaginator: MatPaginator;
   @Input() urls: { [key: string]: string };
   @Input() keysToMap: string[];
-  @Input() processFlowKeys: { [key: string]: number };
   @Input() periodStatus: any;
   @Input() componentName: string;
-  @Input() processFlowTabsToDisplay: string[];
-  @Input() subAppMapping: { [key: string]: string };
-  @Input() dynamicTemplate: TemplateRef<any> | null = null;
-  @Input() dynamicCss: string = '';
-  @Input() isSubAppMapping: boolean = false;
-  @Input() warningMessage: string = '';
   @Input() columnsToFilter: {
     formControlName: string;
     columnName: string;
@@ -66,11 +57,10 @@ export class MonitoringDashboardComponent<T>
   searchForm: FormGroup = new FormGroup({});
   textFilters: any[] = [];
   selectFilters: any[] = [];
+  isSubAppMapping: boolean = false;
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private dataService: DataService,
-    private fb: FormBuilder,
     private exportService: ExportService,
     private dataFormattingService: DataFormattingService,
     private monitoringDataService: MonitoringDataService,

@@ -94,4 +94,37 @@ public class OperationsControlsController {
             return null;
         }
     }
+
+    @GetMapping("/gtc-controls-errors-summary")
+    public ResponseEntity<List<Map<String, Object>>> getGtcControlsErrorSummary() {
+        return new ResponseEntity<>(service.getGtcControlsSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/gtc-controls-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getGtcControlsErrorDetails() {
+        return new ResponseEntity<>(service.getGtcControlsDetails(), HttpStatus.OK);
+    }
+
+    @GetMapping("/gtc-controls-error-details-filtered")
+    public ResponseEntity<Map<String, Object>> getGtcControlsErrorDetailsFiltered(@RequestParam List<String> processFlows,
+                                                                                  @RequestParam List<String> bookingEntitys,
+                                                                                  @RequestParam List<String> transactionDates) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(processFlows.size(),Math.min(transactionDates.size(), bookingEntitys.size()));
+
+            for (int i = 0; i < minLength; i++) {
+                String processFlow = processFlows.get(i);
+                String entityName = bookingEntitys.get(i);
+                String transactionDate = transactionDates.get(i);
+                List<Map<String, Object>> result = service.getGtcControlsDetailsFiltered(processFlow, entityName, transactionDate);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

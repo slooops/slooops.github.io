@@ -342,4 +342,9 @@ public class JdbcManager {
                                                        String operatingUnit, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
     }
+
+    public List<Map<String, Object>> filterGtcControls(String sql, String processFlow, String entityName,
+                                                        String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
+    }
 }

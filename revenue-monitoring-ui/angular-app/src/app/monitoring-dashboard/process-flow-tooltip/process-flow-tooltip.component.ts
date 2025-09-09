@@ -15,7 +15,7 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
   @Input() processFlowTotals: any[] = [];
 
   processSteps: any[] = [];
-  containerWidth: number = 140; // Base width for a single circle
+  containerWidth: number = 140;
 
   constructor() {}
 
@@ -35,20 +35,7 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
     if (!this.processFlowTotals || !Array.isArray(this.processFlowTotals)) {
       return [];
     }
-
-    // Sort by numeric prefix if available
     return [...this.processFlowTotals];
-    // .sort((a, b) => {
-    //   const aMatch = a.PROCESS_FLOW?.match(/^(\d+)/);
-    //   const bMatch = b.PROCESS_FLOW?.match(/^(\d+)/);
-
-    //   if (aMatch && bMatch) {
-    //     return parseInt(aMatch[1], 10) - parseInt(bMatch[1], 10);
-    //   }
-
-    //   // Fallback to alphabetical sorting
-    //   return (a.PROCESS_FLOW || '').localeCompare(b.PROCESS_FLOW || '');
-    // });
   }
 
   calculateContainerWidth(): void {
@@ -60,12 +47,6 @@ export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
     if (!label) return '';
 
     return label;
-    // const formattedLabel = label.replace(/^\d+\s*-\s*/, '');
-
-    // return formattedLabel
-    //   .split(' ')
-    //   .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    //   .join(' ');
   }
 
   formatAmount(amount: any): string {

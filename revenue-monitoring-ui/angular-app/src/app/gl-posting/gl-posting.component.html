@@ -4,14 +4,8 @@
       [apiUrl]="authService.getHostUrl()"
       [urls]="glUrls"
       [keysToMap]="glKeysToMap"
-      [processFlowKeys]="glTotals"
       [periodStatus]="periodStatus"
       [componentName]="'General Ledger'"
-      [processFlowTabsToDisplay]="['General Ledger']"
-      [dynamicTemplate]="glTemplate"
-      [dynamicCss]="glflowCss"
-      [isSubAppMapping]="false"
-      [warningMessage]="'Warning message '"
       [columnsToFilter]="glFilters"
       [assignmentDialogFieldConfig]="fieldConfig"
       [assignmentUsersFilter]="'I2C'"
@@ -34,27 +28,3 @@
     ></app-monitoring-dashboard>
   </mat-tab>
 </mat-tab-group>
-<ng-template #glTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedglSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['General Ledger']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedglSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>

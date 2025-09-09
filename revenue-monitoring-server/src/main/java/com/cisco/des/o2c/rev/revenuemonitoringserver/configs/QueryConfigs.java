@@ -1261,5 +1261,21 @@ public class QueryConfigs {
     @Bean(name = "revControlsDetailsFiltered")
     public String getRevControlsDetailsFiltered() { return this.revControlsDetailsFiltered; }
 
+    @Value(("${gtc.controls.summary}"))
+    public String gtcControlsSummary;
 
+    @Bean(name = "gtcControlsSummary")
+    public String getGtcControlsSummary() { return this.gtcControlsSummary; }
+
+    @Value(("${gtc.controls.details}"))
+    public String gtcControlsDetails;
+
+    @Bean(name = "gtcControlsDetails")
+    public String getGtcControlsDetails() { return this.gtcControlsDetails; }
+
+    @Value(("${gtc.controls.details.filtered}"))
+    public String gtcControlsDetailsFiltered;
+
+    @Bean(name = "gtcControlsDetailsFiltered")
+    public String getGtcControlsDetailsFiltered() { return this.gtcControlsDetailsFiltered; }
 }

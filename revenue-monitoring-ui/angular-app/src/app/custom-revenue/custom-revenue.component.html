@@ -19,16 +19,8 @@
             'PROCESS_FLOW',
             'TRANSACTION_DATE'
           ]"
-          [processFlowKeys]="standardRevenueTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Standard Revenue'"
-          [processFlowTabsToDisplay]="['Standard Revenue']"
-          [dynamicTemplate]="standardRevenueTemplate"
-          [dynamicCss]="standardRevenueprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="
-            'Displays message with impacted accounting information'
-          "
           [columnsToFilter]="standardRevenueFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -56,17 +48,8 @@
           [apiUrl]="authService.getHostUrl()"
           [urls]="rolUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
-          [processFlowKeys]="rolTotals"
           [periodStatus]="periodStatus"
           [componentName]="'ROL'"
-          [processFlowTabsToDisplay]="['Rol']"
-          [subAppMapping]="subApplicationMapping"
-          [dynamicTemplate]="rolTemplate"
-          [dynamicCss]="rolprocessflowCss"
-          [isSubAppMapping]="true"
-          [warningMessage]="
-            'Displays message with impacted accounting information'
-          "
           [columnsToFilter]="rolFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUM']"
           [detailsColumnsToHide]="['SEQUENCE_NUM']"
@@ -95,16 +78,8 @@
           [apiUrl]="authService.getHostUrl()"
           [urls]="accrualsUrls"
           [keysToMap]="rolAndAccrualsKeysToMap"
-          [processFlowKeys]="accrualsTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Accruals'"
-          [processFlowTabsToDisplay]="['Accruals']"
-          [dynamicTemplate]="accrualsTemplate"
-          [dynamicCss]="accrualsprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="
-            'Displays message with impacted accounting information'
-          "
           [columnsToFilter]="accrualsFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUM']"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
@@ -127,16 +102,8 @@
           [apiUrl]="authService.getHostUrl()"
           [urls]="accountsUrls"
           [keysToMap]="['SEQUENCE_NUMBER']"
-          [processFlowKeys]="accountsTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Accounts'"
-          [processFlowTabsToDisplay]="['Accounts']"
-          [dynamicTemplate]="accountsTemplate"
-          [dynamicCss]="accountsprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="
-            'Displays message with impacted accounting information'
-          "
           [columnsToFilter]="accountsFilters"
           [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
@@ -157,193 +124,6 @@
     </ng-container>
   </mat-tab>
 </mat-tab-group>
-
-<!-- <app-monitoring-dashboard
-  [urls]="rolUrls"
-  [keysToMap]="rolAndAccrualsKeysToMap"
-  [processFlowKeys]="rolTotals"
-  [periodStatus]="periodStatus"
-  [componentName]="'Rol'"
-  [processFlowTabsToDisplay]="['Rol']"
-  [specialWords]="specialWords"
-  [skippedWords]="skippedWords"
-  [subAppMapping]="subApplicationMapping"
-  [dynamicTemplate]="rolTemplate"
-  [dynamicCss]="rolprocessflowCss"
-  [isSubAppMapping]="true"
-  [warningMessage]="'Displays message with impacted accounting information'"
-  [columnsToFilter]="rolFilters"
-  [summaryColumnsToHide]="['SEQUENCE_NUM']"
-  [detailsColumnsToHide]="['SEQUENCE_NUM']"
-  [submitKeysToMap]="[
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_DATE'
-  ]"
-  [webexKeysToMap]="[
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_DATE',
-    'AMOUNT'
-  ]"
-></app-monitoring-dashboard> -->
-
-<ng-template #rolTemplate let-allTotals="allTotals">
-  <div
-    class="flowchart-container"
-    style="padding-left: 5px; padding-right: 5px; padding-bottom: 20px"
-  >
-    <br />
-    <div class="slider">
-      <div class="slider-bar">
-        <!-- Circle 1 -->
-        <div class="circle-wrapper circle-wrapper-1">
-          <p class="circle-caption">1. Interface</p>
-          <span class="circle circle-1"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Rol']?.['XXCFIR_REV_INTERFACE_ALL'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 1 -->
-        <div class="chevron chevron-1"></div>
-        <div class="chevron-white chevron-1"></div>
-
-        <!-- Circle 2 -->
-        <div class="circle-wrapper circle-wrapper-2">
-          <p class="circle-caption">2. Extraction</p>
-          <span class="circle circle-2"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Rol']?.['XXCFIR_REVENUE_EXTRACT_ALL'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 2 -->
-        <div class="chevron chevron-2"></div>
-        <div class="chevron-white chevron-2"></div>
-
-        <!-- Circle 3 -->
-        <div class="circle-wrapper circle-wrapper-3">
-          <p class="circle-caption">3. Distribution</p>
-          <span class="circle circle-3"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Rol']?.['XXCFIR_REVENUE_DIST_ALL'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 3 -->
-        <div class="chevron chevron-3"></div>
-        <div class="chevron-white chevron-3"></div>
-
-        <!-- Circle 4 -->
-        <div class="circle-wrapper circle-wrapper-4">
-          <p class="circle-caption">4. Summarization</p>
-          <span class="circle circle-4"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Rol']?.['XXCFIR_ROL_XLA_SUMMARY'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 4 -->
-        <div class="chevron chevron-4"></div>
-        <div class="chevron-white chevron-4"></div>
-
-        <!-- Circle 5 -->
-        <div class="circle-wrapper circle-wrapper-5">
-          <p class="circle-caption">5. SLA</p>
-          <span class="circle circle-5"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Rol']?.['XLA_AE_HEADERS'] || 'N/A' }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #accrualsTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedAccrualsSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accruals']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedAccrualsSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #accountsTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedAccountsSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Accounts']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedAccountsSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #standardRevenueTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formatStandardRevenueSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Standard Revenue']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formatStandardRevenueSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"

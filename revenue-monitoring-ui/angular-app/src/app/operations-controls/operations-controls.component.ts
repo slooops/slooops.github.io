@@ -59,6 +59,26 @@ export class OperationsControlsComponent implements OnInit {
     },
   ];
 
+  GtcControlsFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'BOOKING_ENTITY_NAME',
+      formControlName: 'bookingEntityName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'orderNumber',
+      columnName: 'ORDER_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
   preAndAutoInvoiceKeysToMap: string[] = [
     'PERIOD_NAME',
     'ORG_NAME',
@@ -104,6 +124,16 @@ export class OperationsControlsComponent implements OnInit {
     summaryUrl: 'rev-controls-errors-summary',
     detailsUrl: 'rev-controls-error-details',
     filteredDetailsUrl: 'rev-controls-error-details-filtered',
+    summaryUpdateUrl: '',
+    webexMessageUrl: '',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
+  gtcControlsUrls: { [key: string]: string } = {
+    summaryUrl: 'gtc-controls-errors-summary',
+    detailsUrl: 'gtc-controls-error-details',
+    filteredDetailsUrl: 'gtc-controls-error-details-filtered',
     summaryUpdateUrl: '',
     webexMessageUrl: '',
     chartTotalsUrl: '',
