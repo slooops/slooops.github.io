@@ -283,7 +283,7 @@
   <button
     mat-menu-item
     [routerLink]="'/operations-controls'"
-    [disabled]="!isAdmin$"
+    [disabled]="!(hasRole$(['OPERATION_CTRL']) || isAdmin$)"
   >
     Operations Controls
   </button>

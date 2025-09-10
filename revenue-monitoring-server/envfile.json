@@ -177,7 +177,7 @@
   "REV_CONTROLS_DETAILS_FILTERED_VIEW": "select * from ARFINRO.TSP_REV_OP_CONTROL_DETAIL_VIEW WHERE period_name=? and application_name=? and OPERATING_UNIT_NAME=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
   "GTC_CONTROLS_SUMMARY_VIEW": "select * from xxcfianr.XXCFIR_GTC_CUST_ERROR_SUMM_DASHBOARD_V",
   "GTC_CONTROLS_DETAILS_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V",
-  "GTC_CONTROLS_DETAILS_FILTERED_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V where process_flow=? and BOOKING_ENTITY_NAME=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
+  "GTC_CONTROLS_DETAILS_FILTERED_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V where replace(process_flow,' ','')=replace(?,' ','') and BOOKING_ENTITY_NAME=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
   "REDIS_HOST": "i2c-monitoring-redis-service.i2c-monitoring-redis-prod-int-rcdn.svc.cluster.local",
   "REDIS_PASSWORD": "h=YWHZEzAh",
   "CORS_URL": "http://localhost:3000"
