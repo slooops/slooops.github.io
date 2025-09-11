@@ -3,12 +3,14 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Component
 public class JdbcManager {
@@ -28,19 +30,63 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
-    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
-        Map<String, String> allowedFields = Map.of(
-                "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID",
-                "TRX_NUMBER", "TRX_NUMBER",
-                "WEBORDER_ID", "WEBORDER_ID"
-        );
-        if (field == null || !allowedFields.containsKey(field.toUpperCase())) {
-            throw new IllegalArgumentException("Invalid field name: " + field);
-        }
-        String validatedField = allowedFields.get(field.toUpperCase());
+//    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
+//        Map<String, String> allowedFields = Map.of(
+//                "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID",
+//                "TRX_NUMBER", "TRX_NUMBER",
+//                "WEBORDER_ID", "WEBORDER_ID"
+//        );
+//        if (field == null || !allowedFields.containsKey(field.toUpperCase())) {
+//            throw new IllegalArgumentException("Invalid field name: " + field);
+//        }
+//        String validatedField = allowedFields.get(field.toUpperCase());
+//
+//        String query = sql + " WHERE " + validatedField + " = ?";
+//        return primaryJdbcTemplate.queryForList(query, value);
+//    }
 
-        String query = sql + " WHERE " + validatedField + " = ?";
-        return primaryJdbcTemplate.queryForList(query, value);
+
+    private static final Map<String, String> ALLOWED_FIELD_CLAUSES = Map.of(
+            "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID = :value",
+            "TRX_NUMBER", "TRX_NUMBER = :value",
+            "WEBORDER_ID", "WEBORDER_ID = :value"
+    );
+
+    private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile("(?i)(.*\\b(union|select|from|where|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
+
+    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
+        if (!ALLOWED_FIELD_CLAUSES.containsKey(field)) {
+            throw new IllegalArgumentException("Invalid field name");
+        }
+        validateBaseSql(sql);
+        String whereClause = ALLOWED_FIELD_CLAUSES.get(field);
+        String query = sql + " WHERE " + whereClause;
+        System.out.println("Executing query with parameters: " + query);
+        MapSqlParameterSource params = new MapSqlParameterSource("value", value);
+        NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(primaryJdbcTemplate);
+        namedTemplate.getJdbcTemplate().setQueryTimeout(30);
+        return namedTemplate.queryForList(query, params);
+    }
+
+    private void validateBaseSql(String sql) {
+        if (sql == null || sql.trim().isEmpty()) {
+            throw new IllegalArgumentException("SQL statement cannot be empty");
+        }
+
+        String normalizedSql = sql.trim().toUpperCase();
+        if (!normalizedSql.startsWith("SELECT ") ||
+                normalizedSql.contains(" WHERE ") ||
+                normalizedSql.contains(";") ||
+                containsSqlInjectionPatterns(normalizedSql)) {
+            throw new IllegalArgumentException("Invalid SQL statement");
+        }
+    }
+
+    private boolean containsSqlInjectionPatterns(String sql) {
+        return sql.contains(";") ||
+                sql.contains("--") ||
+                sql.contains("/*") ||
+                SQL_INJECTION_PATTERN.matcher(sql).matches();
     }
 
     public List<Map<String, Object>> o2cInvoiceSummary(String sql, String value) {
