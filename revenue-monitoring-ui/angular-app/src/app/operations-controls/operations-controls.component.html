@@ -1,0 +1,60 @@
+<mat-tab-group>
+  <mat-tab
+    mat-stretch-tabs
+    backgroundColor="primary"
+    color="primary"
+    class="mat-elevation-z8"
+    label="Invoice to Cash"
+  >
+    <app-monitoring-dashboard
+      [apiUrl]="authService.getHostUrl()"
+      [urls]="preInvoicingUrls"
+      [keysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'ORG_NAME',
+        'TRANSACTION_DATE',
+        'RULE_NAME'
+      ]"
+      [periodStatus]="periodStatus"
+      [componentName]="'I2C Controls'"
+      [columnsToFilter]="preInvoicingFilters"
+      [detailsColumnsToHide]="['']"
+      [submitKeysToMap]="[]"
+      [webexKeysToMap]="[]"
+    ></app-monitoring-dashboard>
+  </mat-tab>
+  <mat-tab label="Revenue Accounting">
+    <app-monitoring-dashboard
+      [apiUrl]="authService.getHostUrl()"
+      [urls]="revControlsUrls"
+      [keysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'ORG_NAME',
+        'TRANSACTION_DATE',
+        'RULE_NAME'
+      ]"
+      [periodStatus]="periodStatus"
+      [componentName]="'Rev Controls'"
+      [columnsToFilter]="revControlsFilters"
+      [detailsColumnsToHide]="['']"
+      [submitKeysToMap]="[]"
+      [webexKeysToMap]="[]"
+    ></app-monitoring-dashboard>
+  </mat-tab>
+  <mat-tab label="Tax and Customs">
+    <app-monitoring-dashboard
+      [apiUrl]="authService.getHostUrl()"
+      [urls]="gtcControlsUrls"
+      [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
+      [periodStatus]="periodStatus"
+      [componentName]="'Gtc Controls'"
+      [columnsToFilter]="GtcControlsFilters"
+      [detailsColumnsToHide]="['']"
+      [submitKeysToMap]="[]"
+      [webexKeysToMap]="[]"
+    ></app-monitoring-dashboard>
+  </mat-tab>
+  <mat-tab label="Deferrals" [disabled]="true"> </mat-tab>
+</mat-tab-group>

@@ -1,0 +1,90 @@
+.cash-card {
+  /* width: 220px; */
+  width: 1 fr;
+  background-color: #f2f8fc;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: Inter, sans-serif;
+  color: #333;
+  text-align: center;
+}
+
+.card-title {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400 !important;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--Background-background-canvas, #fff);
+}
+
+.card-header img {
+  width: 24px;
+  height: 24px;
+}
+
+.card-metrics {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Add these styles for the double-wide layout */
+.cash-card.double-wide {
+  width: 100%;
+}
+
+.metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metrics-container.side-by-side {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.metrics-container.side-by-side .card-metrics {
+  flex: 1;
+  padding: 0 8px;
+}
+
+.metric-labels {
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 12px;
+  font-weight: 380;
+  color: #888;
+  margin-bottom: 0px;
+}
+
+.metric-values {
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+
+.metric-values .orders {
+  color: #007bff; /* blue */
+}
+
+.metric-values .usd {
+  color: #e53935; /* red */
+}
+
+.metric-footer {
+  font-size: 12px;
+  color: #666;
+  text-wrap-mode: nowrap;
+}

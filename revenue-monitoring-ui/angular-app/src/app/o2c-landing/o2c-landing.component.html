@@ -1,57 +1,104 @@
-<app-o2c-nav></app-o2c-nav>
+<div
+  style="
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 2vh 22px 0 22px;
+  "
+>
+  <app-o2c-donut
+    [data]="dummyData1"
+    canvasId="donutChartLarge"
+    [showCircleBackground]="false"
+    [showLegend]="false"
+    chartSize="150px"
+  >
+  </app-o2c-donut>
 
-<!-- <div class="landing-container">
-  <h2 class="welcome-text">Hi Jack!</h2>
-  <p class="welcome-body">
-    Welcome to the Order to Cash Lifecycle Tracker - Search for orders,
-    subscriptions, accruals, and invoices across Order to Cash at Cisco.
-  </p>
-</div> -->
+  <app-o2c-card
+    [title]="'Order'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Enter to Booked'"
+    [countDoubleWide]="0"
+    [valueDoubleWide]="'0'"
+    [footerDoubleWide]="'Booked to Fulfillment'"
+  ></app-o2c-card>
 
-<div class="landing-container">
-  <div style="display: flex">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="55"
-      height="70"
-      viewBox="0 0 55 70"
-      fill="none"
+  <app-o2c-card
+    [title]="'Subscription'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Fulfillment to Invoicing'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Invoice'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Fulfillment to Invoicing'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Accounting'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Accounting'"
+  ></app-o2c-card>
+
+  <app-o2c-card
+    [title]="'Cash'"
+    [count]="0"
+    [value]="'0'"
+    [footer]="'Cash Collection'"
+  ></app-o2c-card>
+</div>
+
+<div
+  class="o2c-container"
+  style="justify-content: center; align-items: center; margin-top: 2vh"
+>
+  <div class="o2c-donut-row">
+    <app-o2c-accordion
+      [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
+      [isOpen]="isOpen[1]"
+      (toggleOpen)="toggleAccordion(1)"
     >
-      <path
-        d="M28.0793 51.0607C31.8482 51.0607 34.6914 48.3308 34.6914 44.7458C34.6914 41.8843 33.6004 40.0424 31.2862 39.1215C29.3356 38.3321 26.823 38.2992 24.5748 38.2992H23.9467C22.2275 38.2992 20.9382 36.9507 20.9382 35.1418C20.9382 33.4972 22.2937 32.1487 23.9467 32.1487H31.5837C32.7409 32.1487 33.2698 31.3265 33.2698 30.5042C33.2698 29.6819 32.7409 28.8268 31.5837 28.8268H27.8479V26.0311C27.8479 24.8799 26.9552 24.3208 26.1618 24.3208C25.3683 24.3208 24.5087 24.8799 24.5087 26.0311V28.8268H24.2442C20.4423 28.8268 17.599 31.5567 17.599 35.1418C17.599 38.7268 20.4423 41.6212 23.9467 41.6212H25.1369C27.0544 41.5225 29.4678 41.4567 30.7242 42.6408C31.2531 43.1341 31.5176 43.8577 31.5176 44.7458C31.5176 46.3574 30.096 47.7388 28.4099 47.7388H20.5745C19.4504 47.7388 18.9545 48.5611 18.9545 49.3833C18.9545 50.2056 19.4504 51.0607 20.5745 51.0607H24.5087V54.0538C24.5087 55.1391 25.3352 55.6325 26.1618 55.6325C26.9883 55.6325 27.8479 55.1391 27.8479 54.0538V51.0607H28.0793Z"
-        fill="#5D656C"
-      />
-      <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M53.8373 22.3411C53.8373 21.941 53.6725 21.5743 53.4088 21.2742L34.8507 2.46685C34.7189 2.30012 34.587 2.20008 34.3892 2.13339H34.3563C34.1585 2.03335 33.9607 2 33.7629 2H4.22815C2.51408 2.03335 1.12964 3.4339 1.12964 5.16791V64.7913C1.12964 66.5253 2.51408 67.9258 4.22815 67.9258H50.7718C52.4859 67.9258 53.8703 66.5253 53.8703 64.7913L53.8703 22.4078C53.8703 22.3936 53.8703 22.3855 53.8677 22.3782C53.8643 22.3684 53.8562 22.3602 53.8373 22.3411ZM35.3122 7.40212L48.827 21.0741H38.4107C36.6966 21.0741 35.3122 19.6736 35.3122 17.9396V7.40212ZM50.7718 64.7913H4.22815V5.16791H32.2137V17.9396C32.2137 21.4076 34.9826 24.2087 38.4107 24.2087H50.7718V64.7913Z"
-        fill="#5D656C"
-      />
-      <path
-        d="M53.8373 22.3411C53.8373 21.941 53.6725 21.5743 53.4088 21.2742L34.8507 2.46685C34.7189 2.30012 34.587 2.20008 34.3892 2.13339H34.3563C34.1585 2.03335 33.9607 2 33.7629 2H4.22815C2.51408 2.03335 1.12964 3.4339 1.12964 5.16791V64.7913C1.12964 66.5253 2.51408 67.9258 4.22815 67.9258H50.7718C52.4859 67.9258 53.8703 66.5253 53.8703 64.7913L53.8703 22.4078C53.8703 22.3936 53.8703 22.3855 53.8677 22.3782C53.8643 22.3684 53.8562 22.3602 53.8373 22.3411ZM53.8373 22.3411C53.8461 22.3677 53.8525 22.392 53.8572 22.4158M48.827 21.0741L35.3122 7.40212V17.9396C35.3122 19.6736 36.6966 21.0741 38.4107 21.0741H48.827ZM4.22815 64.7913H50.7718V24.2087H38.4107C34.9826 24.2087 32.2137 21.4076 32.2137 17.9396V5.16791H4.22815V64.7913ZM34.6914 44.7458C34.6914 48.3308 31.8482 51.0607 28.0793 51.0607H27.8479V54.0538C27.8479 55.1391 26.9883 55.6325 26.1618 55.6325C25.3352 55.6325 24.5087 55.1391 24.5087 54.0538V51.0607H20.5745C19.4504 51.0607 18.9545 50.2056 18.9545 49.3833C18.9545 48.5611 19.4504 47.7388 20.5745 47.7388H28.4099C30.096 47.7388 31.5176 46.3574 31.5176 44.7458C31.5176 43.8577 31.2531 43.1341 30.7242 42.6408C29.4678 41.4567 27.0544 41.5225 25.1369 41.6212H23.9467C20.4423 41.6212 17.599 38.7268 17.599 35.1418C17.599 31.5567 20.4423 28.8268 24.2442 28.8268H24.5087V26.0311C24.5087 24.8799 25.3683 24.3208 26.1618 24.3208C26.9552 24.3208 27.8479 24.8799 27.8479 26.0311V28.8268H31.5837C32.7409 28.8268 33.2698 29.6819 33.2698 30.5042C33.2698 31.3265 32.7409 32.1487 31.5837 32.1487H23.9467C22.2937 32.1487 20.9382 33.4972 20.9382 35.1418C20.9382 36.9507 22.2275 38.2992 23.9467 38.2992H24.5748C26.823 38.2992 29.3356 38.3321 31.2862 39.1215C33.6004 40.0424 34.6914 41.8843 34.6914 44.7458Z"
-        stroke="#5D656C"
-        stroke-width="2.26031"
-      />
-    </svg>
-    <h2 class="welcome-text">O2C - 360</h2>
-  </div>
+      <app-o2c-donut [data]="dummyData1" canvasId="donutChart1"></app-o2c-donut>
+    </app-o2c-accordion>
 
-  <div class="custom-search-bar">
-    <select [(ngModel)]="searchType" class="custom-search-dropdown">
-      <option value="order">Order Number</option>
-      <option value="subscription">Subscription Number</option>
-      <option value="invoice">Invoice Number</option>
-    </select>
+    <app-o2c-accordion
+      [title]="'Credit Holds'"
+      [isOpen]="isOpen[2]"
+      (toggleOpen)="toggleAccordion(2)"
+    >
+      <app-o2c-donut [data]="dummyData2" canvasId="donutChart2"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <!-- [placeholder]="'Search ' + formatSearchType(searchType) + '...'" -->
+    <app-o2c-accordion
+      [title]="'Data Configuration'"
+      [isOpen]="isOpen[3]"
+      (toggleOpen)="toggleAccordion(3)"
+    >
+      <app-o2c-donut [data]="dummyData3" canvasId="donutChart3"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <input
-      type="text"
-      class="custom-search-input"
-      [(ngModel)]="searchValue"
-      (keyup.enter)="onSearch()"
-    />
+    <app-o2c-accordion
+      [title]="'Donut Chart 4 Title'"
+      [isOpen]="isOpen[4]"
+      (toggleOpen)="toggleAccordion(4)"
+    >
+      <app-o2c-donut [data]="dummyData4" canvasId="donutChart4"></app-o2c-donut>
+    </app-o2c-accordion>
 
-    <i class="svg-icon search-icon" (click)="onSearch()"></i>
+    <app-o2c-accordion
+      [title]="'Process Exceptions'"
+      [isOpen]="isOpen[5]"
+      (toggleOpen)="toggleAccordion(5)"
+    >
+      <app-o2c-donut [data]="dummyData5" canvasId="donutChart5"></app-o2c-donut>
+    </app-o2c-accordion>
   </div>
 </div>

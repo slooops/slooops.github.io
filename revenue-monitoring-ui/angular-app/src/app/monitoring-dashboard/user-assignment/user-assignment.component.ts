@@ -10,14 +10,12 @@ import {
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
-import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import { ApiHttpService } from 'src/app/providers/http.service';
+import { HttpService } from '../providers/http.service';
 
 @Component({
   selector: 'app-user-assignment',
   templateUrl: './user-assignment.component.html',
   styleUrl: './user-assignment.component.css',
-  providers: [DestroyManager],
 })
 export class UserAssignmentComponent implements OnInit, OnChanges {
   @Input() submitKeysToMap: string[] = []; // Keys for submitData
@@ -40,7 +38,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
 
   constructor(
     private formBuilder: FormBuilder,
-    private http: ApiHttpService,
+    private http: HttpService,
     private dataService: DataService,
     private authService: AuthenticationService
   ) {
@@ -83,10 +81,11 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
           isDisabled = !this.userRoles.includes('ADMIN') && !!assignedToValue;
         }
 
-        const controlConfig = [
-          { value: rawValue, disabled: isDisabled },
-          field.validators || [],
-        ];
+        const controlConfig = [{ value: rawValue, disabled: isDisabled }];
+
+        if (field.validators && field.validators.length) {
+          controlConfig.push(field.validators);
+        }
 
         formGroupObj[field.controlName] = controlConfig;
       });
@@ -104,8 +103,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.submitKeys,
       true
     );
-    console.log('updateData:', updateData);
-    console.log(this.updateUrl);
+    Object.assign(updateData, this.getChangedFields());
     this.http
       .post(this.updateUrl, updateData, {
         responseType: 'text',
@@ -123,6 +121,37 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
           this.closeDialog('successful');
         },
       });
+  }
+
+  /**
+   * Returns an object of changed fields (not disabled) with their new values.
+   */
+  private getChangedFields(): { [key: string]: any } {
+    const changed: { [key: string]: any } = {};
+    this.fieldConfig.forEach((field) => {
+      // Skip if field is disabled (true or 'dynamic' and already assigned)
+      let isDisabled = false;
+      if (field.disabled === true) {
+        isDisabled = true;
+      } else if (
+        field.disabled === 'dynamic' &&
+        field.controlName === 'assignedTo'
+      ) {
+        const assignedToValue =
+          this.data[0]?.ASSIGNED_TO ?? this.data[0]?.assigned_to;
+        isDisabled = !this.userRoles.includes('ADMIN') && !!assignedToValue;
+      }
+      if (!isDisabled) {
+        const originalValue = this.data[0]?.[field.sourceKey];
+        const currentValue = this.updateForm.value[field.controlName];
+        if (currentValue !== originalValue) {
+          changed[field.controlName] = currentValue;
+        } else {
+          changed[field.controlName] = originalValue;
+        }
+      }
+    });
+    return changed;
   }
   sendWebexMessage() {
     const assigneeName = this.getAssigneeName();
@@ -201,5 +230,19 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
     return str
       .toLowerCase()
       .replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
+  }
+  getOptions(fieldName: string): any[] | null {
+    const valueArr = this.updateForm?.controls?.[fieldName]?.value;
+    if (!Array.isArray(valueArr)) return null;
+    return (
+      valueArr.find(
+        (optArr) =>
+          Array.isArray(optArr) &&
+          optArr.length &&
+          typeof optArr[0] === 'object' &&
+          'value' in optArr[0] &&
+          'label' in optArr[0]
+      ) || null
+    );
   }
 }

@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
@@ -24,7 +25,8 @@ export class CloUpdatesComponent implements OnInit {
     private formBuilder: FormBuilder,
     public dialog: MatDialog,
     private dataService: DataService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private exportToExcelService: ExportToExcelService
   ) {}
 
   ngOnInit(): void {
@@ -79,28 +81,11 @@ export class CloUpdatesComponent implements OnInit {
   }
 
   export(sheetName: string, filename: string) {
-    this.exportTableToExcel(this.cloSampleDownloadData, sheetName, filename);
-  }
-
-  exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'csv',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
-
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data);
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = filename + '.csv';
-    link.click();
-    window.URL.revokeObjectURL(url);
+    this.exportToExcelService.exportTableToExcel(
+      this.cloSampleDownloadData,
+      sheetName,
+      filename
+    );
   }
 
   uploadCLODataFile(dialogTemplate: TemplateRef<any>) {

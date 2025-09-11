@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { MatPaginator } from '@angular/material/paginator';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 
 @Component({
   selector: 'app-order-lifecycle-summary',
@@ -19,7 +20,8 @@ export class OrderLifecycleSummaryComponent implements OnInit {
     public dialogRef: MatDialogRef<OrderLifecycleSummaryComponent>,
     @Inject(MAT_DIALOG_DATA) public injectData: any,
     http: ApiHttpService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private exportToExcelService: ExportToExcelService
   ) {
     this.http = http;
   }
@@ -92,24 +94,7 @@ export class OrderLifecycleSummaryComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
-
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data);
-    let link = document.createElement('a');
-    link.href = url;
-    link.download = filename + '.xlsx';
-    link.click();
-    window.URL.revokeObjectURL(url);
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
   }
 }
 

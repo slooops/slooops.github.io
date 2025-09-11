@@ -183,3 +183,52 @@ th {
     max-height: 80vh;
   }
 }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+
+.legend-color-box {
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 2px;
+}
+
+.chart-legend-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 60vw;
+}
+
+.chart-container {
+  flex: 0 0 auto;
+  max-width: 14vw;
+}
+
+.custom-legend {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.legend-color-box {
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 20px;
+}

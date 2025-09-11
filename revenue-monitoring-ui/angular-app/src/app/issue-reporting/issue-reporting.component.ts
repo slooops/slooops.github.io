@@ -22,6 +22,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-reject.component';
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
+import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({
   selector: 'app-issue-reporting',
@@ -36,7 +37,8 @@ export class IssueReportingComponent implements OnInit {
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private exportToExcelService: ExportToExcelService
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
@@ -504,34 +506,16 @@ export class IssueReportingComponent implements OnInit {
       });
   }
 
+  exportTableToExcel(data: any[], sheetName: string, filename: string) {
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
+  }
+
   exportSummaryData(): void {
-    // Create a worksheet from the summary data
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(
-      this.summaryData
+    this.exportTableToExcel(
+      this.summaryData,
+      'Active Incidents Summary',
+      'active_incidents_summary'
     );
-
-    // Create a new workbook and append the worksheet
-    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Summary');
-
-    // Write the workbook to an array buffer
-    const excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-
-    // Create a Blob from the buffer
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
-    // Create a temporary link element and trigger a download
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `summary_${new Date().getTime()}.xlsx`;
-    a.click();
-
-    // Clean up by revoking the object URL
-    window.URL.revokeObjectURL(url);
   }
 }
 

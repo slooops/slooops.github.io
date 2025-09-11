@@ -4,12 +4,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
-  ElementRef,
-  Renderer2,
-  TemplateRef,
 } from '@angular/core';
-import { combineLatest, map, Observable } from 'rxjs';
-import { DataService } from 'src/app/providers/data.service';
 
 @Component({
   selector: 'app-process-flow-tooltip',
@@ -17,65 +12,51 @@ import { DataService } from 'src/app/providers/data.service';
   styleUrl: './process-flow-tooltip.component.css',
 })
 export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
-  @Input() processFlowTabsToDisplay: string[];
-  @Input() dynamicTemplate: TemplateRef<any> | null = null;
-  @Input() dynamicCss: string = '';
-  totals$:
-    | Observable<{ [tabName: string]: { [key: string]: number } }>
-    | undefined;
-  tabsToDisplay: string[] = [];
-  processFlowhtml: string = '';
-  processFlowcss: string = '';
-  htmlContent: string = '';
-  htmlTemplate: TemplateRef<any> | null = null;
-  csstemplate: string = '';
+  @Input() processFlowTotals: any[] = [];
 
-  constructor(
-    private dataService: DataService,
-    private el: ElementRef,
-    private renderer: Renderer2
-  ) {}
+  processSteps: any[] = [];
+  containerWidth: number = 140;
 
-  ngOnInit() {}
+  constructor() {}
+
+  ngOnInit() {
+    this.processSteps = this.sortProcessSteps();
+    this.calculateContainerWidth();
+  }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (
-      changes['processFlowTabsToDisplay'] &&
-      changes['dynamicTemplate'] &&
-      changes['dynamicCss']
-    ) {
-      this.tabsToDisplay = this.processFlowTabsToDisplay;
-      this.totals$ = this.getCombinedTotals(this.tabsToDisplay);
-      this.htmlTemplate = this.dynamicTemplate;
-      this.injectCss();
+    if (changes['processFlowTotals']) {
+      this.processSteps = this.sortProcessSteps();
+      this.calculateContainerWidth();
     }
   }
 
-  ngAfterViewInit() {}
-
-  private getCombinedTotals(
-    tabNames: string[]
-  ): Observable<{ [tabName: string]: { [key: string]: number } }> {
-    const tabObservables = tabNames.map((tabName) =>
-      this.dataService
-        .getTabData(tabName)
-        .pipe(map((totals) => ({ [tabName]: totals })))
-    );
-
-    return combineLatest(tabObservables).pipe(
-      map((results) => Object.assign({}, ...results))
-    );
-  }
-
-  objectKeys(obj: any): string[] {
-    return obj ? Object.keys(obj) : [];
-  }
-
-  injectCss() {
-    if (this.dynamicCss) {
-      const style = this.renderer.createElement('style');
-      style.innerHTML = this.dynamicCss;
-      this.renderer.appendChild(this.el.nativeElement, style);
+  sortProcessSteps(): any[] {
+    if (!this.processFlowTotals || !Array.isArray(this.processFlowTotals)) {
+      return [];
     }
+    return [...this.processFlowTotals];
+  }
+
+  calculateContainerWidth(): void {
+    const stepCount = this.processSteps.length || 1;
+    this.containerWidth = 150 + (stepCount - 1) * 140;
+  }
+
+  formatLabel(label: string): string {
+    if (!label) return '';
+
+    return label;
+  }
+
+  formatAmount(amount: any): string {
+    if (amount === undefined || amount === null) return 'N/A';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(numAmount);
   }
 }

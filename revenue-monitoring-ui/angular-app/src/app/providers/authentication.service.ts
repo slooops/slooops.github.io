@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthenticationService {
-  constructor(private appConfig: AppConfigService, private router: Router) {}
+  constructor(private router: Router) {}
 
   async getValidToken() {
     const date = new Date();
@@ -39,7 +39,8 @@ export class AuthenticationService {
       href.search('-dev') !== -1 ||
       href.search('-ts1') !== -1 ||
       href.search('-ts3') !== -1 ||
-      href.search('-int') !== -1
+      href.search('-int') !== -1 ||
+      href.search('-stg') !== -1
     ) {
       ssoUrl = 'https://int-id.cisco.com';
     } else if (href.search('localhost') !== -1) {
@@ -126,6 +127,7 @@ export class AuthenticationService {
   userId: string;
   authClientId: string;
   authClientSecret: string;
+  authUrl: string;
   bypassRoutes = [
     '/o2c-demo',
     '/o2c-details',
@@ -144,6 +146,7 @@ export class AuthenticationService {
         this.userId = info['auth_user'];
         this.authClientId = info['auth_client_id'];
         this.authClientSecret = info['auth_client_secret'];
+        this.authUrl = info['auth_url'];
       })
       .catch((error) => {
         console.error('Error fetching user info:', error);
@@ -163,10 +166,13 @@ export class AuthenticationService {
     return this.username;
   }
 
+  getHostUrl() {
+    return this.authUrl;
+  }
+
   userRoles: string[] = [];
   getUserRoles(username: string) {
-    let rolesUrl =
-      this.appConfig.getApiUrl() + `user-role?username=${username}`;
+    let rolesUrl = this.authUrl + `user-role?username=${username}`;
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {

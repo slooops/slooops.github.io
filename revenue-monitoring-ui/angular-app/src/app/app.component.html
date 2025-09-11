@@ -46,11 +46,11 @@
           "
         >
           <span *ngIf="header.length > 0">
-            <div style="font-size: 12px">Finance IT Control Tower</div>
+            <div style="font-size: 12px">Finance-IT Control Tower</div>
             <div style="font-size: 14px">{{ header }}</div>
           </span>
           <span *ngIf="header.length === 0">
-            <span>Finance IT Control Tower</span>
+            <span>Finance-IT Control Tower</span>
           </span>
         </h5>
       </span>
@@ -146,7 +146,7 @@
           </li>
           <li class="menu-item" *ngIf="isAdmin$">
             <a
-              [routerLink]="'/case-analyzer'"
+              [matMenuTriggerFor]="espMenu"
               class="top-link"
               style="font-weight: 500"
             >
@@ -280,7 +280,30 @@
   >
     Order Management
   </button>
-  <button mat-menu-item [routerLink]="''" [disabled]="true">
+  <button
+    mat-menu-item
+    [routerLink]="'/operations-controls'"
+    [disabled]="!(hasRole$(['OPERATION_CTRL']) || isAdmin$)"
+  >
     Operations Controls
   </button>
 </mat-menu>
+
+<mat-menu #espMenu="matMenu">
+  <button
+    mat-menu-item
+    [routerLink]="'/i2c-case-analyzer'"
+    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+  >
+    I2C
+  </button>
+  <button
+    mat-menu-item
+    [routerLink]="'/sbp-case-analyzer'"
+    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+  >
+    SBP
+  </button>
+</mat-menu>
+
+<!-- <app-chatbot></app-chatbot> -->

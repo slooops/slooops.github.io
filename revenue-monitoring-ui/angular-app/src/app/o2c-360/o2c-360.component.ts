@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { SidebarService } from '../sidebar.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import {
+  SearchContextService,
+  O2cSearchResult,
+} from '../search-context.service';
 
 @Component({
   selector: 'app-o2c-360',
@@ -19,6 +23,9 @@ export class O2c360Component implements OnInit {
 
   searchValue: string | null = null;
   searchType: string | null = null;
+
+  showWelcomeOverlay = false;
+  hasSearched = false;
 
   orderId: string = '';
   subRefIds: string[] = [];
@@ -144,6 +151,27 @@ export class O2c360Component implements OnInit {
   ) {}
 
   sidebarExpanded = true;
+  @Input() searchParams: O2cSearchResult | null = null;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['searchParams']?.currentValue) {
+      const { searchType, orderId, subRefIds, invoiceIds } = this.searchParams!;
+      this.loadData(orderId, subRefIds, invoiceIds);
+
+      this.showWelcomeOverlay = false;
+      console.log('show overlay from ng on changes:', this.showWelcomeOverlay);
+      this.expanded = {
+        subscription: false,
+        invoice: false,
+      };
+
+      if (searchType === 'subscription') {
+        this.expanded.subscription = true;
+      } else if (searchType === 'invoice') {
+        this.expanded.invoice = true;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.sidebarService.isExpanded$.subscribe((isExpanded) => {
@@ -158,31 +186,43 @@ export class O2c360Component implements OnInit {
       }
     });
 
-    this.route.queryParamMap.subscribe((params) => {
-      console.log('Query Params:', params);
+    // Only listen to query params if this wasn't initialized via @Input()
+    if (!this.searchParams) {
+      this.route.queryParamMap.subscribe((params) => {
+        const orderId = params.get('orderId') || 'Search to get an';
+        const subRefIds = params.get('subRefIds')?.split(',') || [''];
+        const invoiceIds = params.get('invoiceIds')?.split(',') || [];
 
-      this.orderId = params.get('orderId') || 'Search to get an';
-      const orderIdList = this.orderId ? [this.orderId] : [];
-      this.subRefIds = params.get('subRefIds')?.split(',') || [''];
-      this.invoiceIds = params.get('invoiceIds')?.split(',') || [];
+        this.loadData(orderId, subRefIds, invoiceIds);
 
-      if (params.get('searchType') === 'subscription') {
-        this.expanded.subscription = true;
-      } else if (params.get('searchType') === 'invoice') {
-        this.expanded.invoice = true;
-      }
+        this.showWelcomeOverlay =
+          !this.router.url.includes('?searchType=') &&
+          this.orderId.includes('Search to get an');
 
-      console.log('Received in O2C-360:');
-      console.log('Order:', this.orderId);
-      console.log('Subscriptions:', this.subRefIds);
-      console.log('Invoices:', this.invoiceIds);
+        const searchType = params.get('searchType');
+        if (searchType === 'subscription') {
+          this.expanded.subscription = true;
+        } else if (searchType === 'invoice') {
+          this.expanded.invoice = true;
+        }
+      });
+    }
+  }
 
-      this.getOrderSummary(orderIdList);
-      this.getSubscriptionSummary(this.subRefIds);
-      this.getSubscriptionLineSummary(this.subRefIds);
-      this.getInvoiceSummary(this.invoiceIds);
-      this.getInvoiceLineSummary(this.invoiceIds);
-    });
+  private loadData(
+    orderId: string,
+    subRefIds: string[],
+    invoiceIds: string[]
+  ): void {
+    this.orderId = orderId || 'Search to get an';
+    this.subRefIds = subRefIds;
+    this.invoiceIds = invoiceIds;
+
+    this.getOrderSummary([orderId]);
+    this.getSubscriptionSummary(subRefIds);
+    this.getSubscriptionLineSummary(subRefIds);
+    this.getInvoiceSummary(invoiceIds);
+    this.getInvoiceLineSummary(invoiceIds);
   }
 
   private getOrderSummary(orderIdList: any): void {
@@ -195,7 +235,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Order Summary:', data);
+        // console.log('Order Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.orderExceptionMessage = hasException
@@ -233,7 +273,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Subscription Summary:', data);
+        // console.log('Subscription Summary:', data);
 
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
         this.subscriptionExceptionMessage = hasException
@@ -275,8 +315,11 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Subscription Lines:', data);
+        // console.log('Subscription Lines:', data);
         this.subscriptionLinesDataSource = new MatTableDataSource(data);
+        if (this.sortColumn) {
+          this.sortTable(this.sortColumn);
+        }
         this.subscriptionLinesDataLoaded = true;
       });
   }
@@ -297,12 +340,12 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Invoice Summary:', data);
+        // console.log('Invoice Summary:', data);
         const hasException = data.some((row: any) => !!row.EXCEPTION_DETAILS);
-        console.log(
-          'Invoice Summary Circle Status:',
-          this.circleStatus['Invoice']
-        );
+        // console.log(
+        //   'Invoice Summary Circle Status:',
+        //   this.circleStatus['Invoice']
+        // );
         this.invoiceExceptionMessage = hasException
           ? data.find((row: any) => row.EXCEPTION_DETAILS)?.EXCEPTION_DETAILS ||
             ''
@@ -332,7 +375,7 @@ export class O2c360Component implements OnInit {
         params: payload,
       })
       .subscribe((data: any) => {
-        console.log('Invoice Lines:', data);
+        // console.log('Invoice Lines:', data);
         this.invoiceLinesDataSource = new MatTableDataSource(data);
         this.invoiceLinesDataLoaded = true;
       });
@@ -418,48 +461,71 @@ export class O2c360Component implements OnInit {
 
   //needs more work
   private updateCircleStatus(): void {
+    // Determine if exceptions exist
     const hasOrderException = !!this.orderExceptionMessage;
     const hasSubException = !!this.subscriptionExceptionMessage;
     const hasInvoiceException = !!this.invoiceExceptionMessage;
 
+    // Data existence checks
     const subscriptionDataExists =
       this.subscriptionSummaryDataSource?.data?.length > 0;
     const invoiceDataExists = this.invoiceSummaryDataSource?.data?.length > 0;
 
-    const orderGood = !hasOrderException;
-    const subGood = orderGood && !hasSubException;
-    const invoiceGood = subGood && !hasInvoiceException && invoiceDataExists;
+    // Step 1: Order status
+    // Order is either good (2) or has an error (-1)
+    this.circleStatus['Order'] = hasOrderException ? -1 : 2;
 
-    this.circleStatus['Subscription'] = hasOrderException ? -1 : 2;
-
-    this.circleStatus['Invoicing'] = hasOrderException
-      ? 0
-      : !subscriptionDataExists
-      ? 0
+    // Step 2: Subscription status
+    // Subscription depends on its own exceptions, not order
+    this.circleStatus['Subscription'] = !subscriptionDataExists
+      ? 0 // No data = pending
       : hasSubException
-      ? -1
-      : 2;
+      ? -1 // Has exception = error
+      : 2; // No exception = good
 
-    this.circleStatus['Accounting'] = !subGood
-      ? 0
-      : !invoiceDataExists
-      ? 0
-      : hasInvoiceException
-      ? -1
-      : 2;
+    // Step 3: Invoicing status
+    // Invoicing shows warning if previous step had error
+    this.circleStatus['Invoicing'] =
+      hasOrderException || hasSubException
+        ? 0 // Previous error = pending
+        : !invoiceDataExists
+        ? 0 // No data = pending
+        : hasInvoiceException
+        ? -1 // Has exception = error
+        : 2; // No exception = good
 
-    // Special handling for cash:
+    // Step 4: Accounting status
+    // Accounting depends on invoice data
+    this.circleStatus['Accounting'] =
+      hasOrderException || hasSubException || hasInvoiceException
+        ? 0 // Previous error = pending
+        : !invoiceDataExists
+        ? 0 // No data = pending
+        : 2; // Otherwise good
+
+    // Step 5: Cash status (special handling)
+    // Cash is good only if all invoices are closed
     const allClosed =
-      invoiceGood &&
+      invoiceDataExists &&
+      !hasOrderException &&
+      !hasSubException &&
+      !hasInvoiceException &&
       this.invoiceSummaryDataSource.data.every(
         (row: any) => row.STATUS === 'Closed'
       );
 
     this.circleStatus['Cash'] = allClosed ? 2 : 0;
+
+    console.log('Circle status updated:', this.circleStatus);
   }
 
   viewAll(type: 'subscriptions' | 'invoices', billNumber?: string): void {
-    if (!this.subscriptionLinesDataLoaded || !this.invoiceLinesDataLoaded) {
+    if (
+      !this.subscriptionDataLoaded ||
+      !this.subscriptionLinesDataLoaded ||
+      !this.invoiceLinesDataLoaded ||
+      !this.invoiceDataLoaded
+    ) {
       return;
     }
 
@@ -475,8 +541,6 @@ export class O2c360Component implements OnInit {
       );
       return;
     }
-
-    console.log('View All inv lines:', this.invoiceLinesDataSource.data);
 
     this.router.navigate(['/o2c-view-all'], {
       state: {
@@ -503,5 +567,65 @@ export class O2c360Component implements OnInit {
       !!this.subscriptionExceptionMessage ||
       !!this.invoiceExceptionMessage
     );
+  }
+
+  dismissOverlay(): void {
+    this.showWelcomeOverlay = false;
+  }
+
+  // Add these properties to your component
+  sortColumn: string | null = null;
+  sortDirection: 'asc' | 'desc' = 'asc';
+
+  // Add this method to handle sorting
+  sortTable(column: string): void {
+    console.log('Sorting by column:', column);
+    // If clicking the same column, toggle direction
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      // New column, default to ascending
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+
+    // Clone the data array
+    const data = [...this.subscriptionLinesDataSource.data];
+
+    // Sort the data
+    data.sort((a, b) => {
+      const aValue = a[column];
+      const bValue = b[column];
+
+      // Handle date comparison for TSV_CREATED
+      if (column === 'TSV_CREATED') {
+        const dateA = new Date(aValue).getTime();
+        const dateB = new Date(bValue).getTime();
+        return this.sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+
+      // Handle numeric comparison for UNIT_SELLING_PRICE
+      if (column === 'UNIT_SELLING_PRICE') {
+        const numA = parseFloat(aValue) || 0;
+        const numB = parseFloat(bValue) || 0;
+        return this.sortDirection === 'asc' ? numA - numB : numB - numA;
+      }
+
+      // Default string comparison
+      return this.sortDirection === 'asc'
+        ? String(aValue).localeCompare(String(bValue))
+        : String(bValue).localeCompare(String(aValue));
+    });
+
+    // Update the data source
+    this.subscriptionLinesDataSource = new MatTableDataSource(data);
+  }
+
+  // Helper method to show sort icons
+  getSortIcon(column: string): string {
+    if (this.sortColumn !== column) {
+      return '↕'; // or use a neutral icon
+    }
+    return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 }

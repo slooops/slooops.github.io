@@ -270,6 +270,15 @@ public class QueryConfigs {
     @Value(("${esp.weekly.comparison.summary.q}"))
     public String espWeeklyComparisonSummary;
 
+    @Value(("${sbp.esp.aging.case.summary.q}"))
+    public String sbpEspAgingCaseSummary;
+
+    @Value(("${sbp.esp.case.service.metric.summary.q}"))
+    public String sbpEspCaseServiceMetricSummary;
+
+    @Value(("${sbp.esp.weekly.comparison.summary.q}"))
+    public String sbpEspWeeklyComparisonSummary;
+
     @Value(("${einvoicing.details.filtered.q}"))
     public String einvoicingDetailsFiltered;
 
@@ -346,10 +355,10 @@ public class QueryConfigs {
     public String creditCardSummary;
     @Value(("${credit.card.details}"))
     public String creditCardDetails;
-    @Value(("${debit.card.summary}"))
-    public String debitCardSummary;
-    @Value(("${debit.card.details}"))
-    public String debitCardDetails;
+    @Value(("${credit.card.details.filtered}"))
+    public String creditCardDetailsFiltered;
+    @Value(("${credit.card.summary.update}"))
+    public String creditCardSummaryUpdate;
 
     @Value(("${issue.reporting.dash}"))
     public String issueReportingDash;
@@ -422,16 +431,16 @@ public class QueryConfigs {
     public String getCreditCardDetails() {
         return this.creditCardDetails;
     }
-
-    @Bean(name = "debitCardSummary")
-    public String getDebitCardSummary() {
-        return this.debitCardSummary;
+    @Bean(name = "creditCardDetailsFiltered")
+    public String getCreditCardDetailsFiltered() {
+        return this.creditCardDetailsFiltered;
     }
 
-    @Bean(name = "debitCardDetails")
-    public String getDebitCardDetails() {
-        return this.debitCardDetails;
+    @Bean(name = "creditCardSummaryUpdate")
+    public String getCreditCardSummaryUpdate() {
+        return this.creditCardSummaryUpdate;
     }
+
 
     @Bean(name = "printSummary")
     public String getPrintSummary() {
@@ -988,10 +997,23 @@ public class QueryConfigs {
         return this.espWeeklyComparisonSummary;
     }
 
-    @Bean(name = "tspAccountSummaryView")
-    public String getTspAccountSummaryView() {
-        return this.tspAccountSummaryView;
+    @Bean(name = "sbpEspAgingCaseSummary")
+    public String getSbpEspAgingCaseSummary() {
+        return this.sbpEspAgingCaseSummary;
     }
+
+    @Bean(name = "sbpEspCaseServiceMetricSummary")
+    public String getSbpEspCaseServiceMetricSummary() {
+        return this.sbpEspCaseServiceMetricSummary;
+    }
+
+    @Bean(name = "sbpEspWeeklyComparisonSummary")
+    public String getSbpEspWeeklyComparisonSummary() {
+        return this.sbpEspWeeklyComparisonSummary;
+    }
+
+    @Bean( name = "tspAccountSummaryView" )
+    public String getTspAccountSummaryView() {return this.tspAccountSummaryView; }
 
     @Bean(name = "tspAccountDetailView")
     public String getTspAccountDetailView() {
@@ -1170,4 +1192,90 @@ public class QueryConfigs {
         return this.o2cConnector;
     }
 
+    @Value(("${pcm.cash.application.summary.q}"))
+    public String pcmApplicationSummary;
+
+    @Bean(name = "pcmApplicationSummary")
+    public String getPcmApplicationSummary() {
+        return this.pcmApplicationSummary;
+    }
+
+    @Value(("${pcm.cash.application.details.q}"))
+    public String pcmApplicationDetails;
+
+    @Bean(name = "pcmApplicationDetails")
+    public String getPcmApplicationDetails() {
+        return this.pcmApplicationDetails;
+    }
+
+    @Value(("${pcm.cash.application.details.filtered.q}"))
+    public String pcmApplicationDetailsFiltered;
+
+    @Bean(name = "pcmApplicationDetailsFiltered")
+    public String getPcmApplicationDetailsFiltered() {
+        return this.pcmApplicationDetailsFiltered;
+    }
+
+    @Value(("${pcm.cash.application.summary.update.q}"))
+    public String pcmApplicationSummaryUpdate;
+
+    @Bean(name = "pcmApplicationSummaryUpdate")
+    public String getPcmApplicationSummaryUpdate() {
+        return this.pcmApplicationSummaryUpdate;
+    }
+
+    @Value(("${process.flow.total}"))
+    public String processFlowTotal;
+
+    @Bean(name = "processFlowTotal")
+    public String getProcessFlowTotal() {
+        return this.processFlowTotal;
+    }
+
+    @Value(("${i2c.controls.summary}"))
+    public String i2cControlsSummary;
+    @Value(("${i2c.controls.details}"))
+    public String i2cControlsDetails;
+    @Value(("${i2c.controls.details.filtered}"))
+    public String i2cControlsDetailsFiltered;
+
+    @Bean(name = "i2cControlsSummary")
+    public String getI2cControlsSummary() { return this.i2cControlsSummary; }
+    @Bean(name = "i2cControlsDetails")
+    public String getI2cControlsDetails() { return this.i2cControlsDetails; }
+    @Bean(name = "i2cControlsDetailsFiltered")
+    public String getI2cControlsDetailsFiltered() { return this.i2cControlsDetailsFiltered; }
+
+    @Value(("${rev.controls.summary}"))
+    public String revControlsSummary;
+    @Value(("${rev.controls.details}"))
+    public String revControlsDetails;
+
+    @Value(("${rev.controls.details.filtered}"))
+    public String revControlsDetailsFiltered;
+
+    @Bean(name = "revControlsSummary")
+    public String getRevControlsSummary() { return this.revControlsSummary; }
+    @Bean(name = "revControlsDetails")
+    public String getRevControlsDetails() { return this.revControlsDetails; }
+    @Bean(name = "revControlsDetailsFiltered")
+    public String getRevControlsDetailsFiltered() { return this.revControlsDetailsFiltered; }
+
+    @Value(("${gtc.controls.summary}"))
+    public String gtcControlsSummary;
+
+    @Bean(name = "gtcControlsSummary")
+    public String getGtcControlsSummary() { return this.gtcControlsSummary; }
+
+    @Value(("${gtc.controls.details}"))
+    public String gtcControlsDetails;
+
+    @Bean(name = "gtcControlsDetails")
+    public String getGtcControlsDetails() { return this.gtcControlsDetails; }
+
+    @Value(("${gtc.controls.details.filtered}"))
+    public String gtcControlsDetailsFiltered;
+
+    @Bean(name = "gtcControlsDetailsFiltered")
+    public String getGtcControlsDetailsFiltered() { return this.gtcControlsDetailsFiltered; }
 }

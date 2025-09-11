@@ -15,24 +15,19 @@ import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.compo
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
 import { OplComponent } from './opl/opl.component';
-import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
-import { StandardRevenueComponent } from './standard-revenue/standard-revenue.component';
-import { AccrualsComponent } from './accruals/accruals.component';
-import { AccountReconComponent } from './account-recon/account-recon.component';
-import { PreInvoicingComponent } from './pre-invoicing/pre-invoicing.component';
-import { PostInvoicingComponent } from './post-invoicing/post-invoicing.component';
-import { EinvoicingComponent } from './einvoicing/einvoicing.component';
-import { FusionComponent } from './fusion/fusion.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 import { CmsComponent } from './cms/cms.component';
+import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { O2c360Component } from './o2c-360/o2c-360.component';
 // import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
+import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 
 const routes: Routes = [
   {
@@ -44,21 +39,21 @@ const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Home',
     },
   },
   {
     path: 'error',
     component: ErrorComponent,
-    data: { title: 'Finance IT Control Tower', header: '' },
+    data: { title: 'Finance-IT Control Tower', header: '' },
   },
 
   {
     path: 'period-close-tracking',
     component: PeriodCloseTrackingComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
@@ -66,7 +61,7 @@ const routes: Routes = [
     path: 'period-close-tracking-midclose',
     component: MidcloseComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Period Close Tracking',
     },
   },
@@ -74,104 +69,48 @@ const routes: Routes = [
     path: 'large-deal-tracker',
     component: OrderLifecycleComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Large Deal Tracker',
-    },
-  },
-  {
-    path: 'standard-revenue',
-    component: StandardRevenueComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Standard Revenue',
     },
   },
   {
     path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
-    },
-  },
-  {
-    path: 'accruals',
-    component: AccrualsComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Accruals',
-    },
-  },
-  {
-    path: 'accounts',
-    component: AccountReconComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Accounts',
     },
   },
   {
     path: 'gl-posting',
     component: GlPostingComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
   },
-  // {
-  //   path: 'sbp',
-  //   component: SbpComponent,
-  //   data: {
-  //     title: 'SBP Monitoring',
-  //     header: 'Subscription Billing Platform Monitoring',
-  //   },
-  // },
   {
-    path: 'case-analyzer',
+    path: 'i2c-case-analyzer',
     component: EspCaseAnalyzerComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
     },
   },
   {
-    path: 'pre-invoicing',
-    component: PreInvoicingComponent,
+    path: 'sbp-case-analyzer',
+    component: SbpEspCaseAnalyzerComponent,
     data: {
-      title: 'Finance IT Control Tower',
-      header: 'Pre-Invoicing',
+      title: 'Finance-IT Control Tower',
+      header: 'ESP Case Manager',
     },
   },
   {
     path: 'invoice-to-cash',
     component: InvoicingComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
-    },
-  },
-  {
-    path: 'post-invoicing',
-    component: PostInvoicingComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Post-Invoicing',
-    },
-  },
-  {
-    path: 'einvoicing',
-    component: EinvoicingComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'EInvoicing',
-    },
-  },
-  {
-    path: 'fusion',
-    component: FusionComponent,
-    data: {
-      title: 'Finance IT Control Tower',
-      header: 'Fusion',
     },
   },
   {
@@ -241,7 +180,7 @@ const routes: Routes = [
     path: 'opl',
     component: OplComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'OPL',
     },
   },
@@ -249,7 +188,7 @@ const routes: Routes = [
     path: 'order-management',
     component: OrderManagementComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Order Management Monitoring',
     },
   },
@@ -257,7 +196,7 @@ const routes: Routes = [
     path: 'wd0',
     component: Wd0DashComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Miclose Status',
     },
   },
@@ -265,7 +204,7 @@ const routes: Routes = [
     path: 'midclose-volumes',
     component: Wd0HistoricalDataComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Midclose Volumes',
     },
   },
@@ -273,7 +212,7 @@ const routes: Routes = [
     path: 'business-insights',
     component: BusinessInsightsComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'Business Insights',
     },
   },
@@ -281,8 +220,24 @@ const routes: Routes = [
     path: 'cms',
     component: CmsComponent,
     data: {
-      title: 'Finance IT Control Tower',
+      title: 'Finance-IT Control Tower',
       header: 'CMS',
+    },
+  },
+  {
+    path: 'cms-sftp-details',
+    component: CmsSftpDetailsComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'CMS SFTP Details',
+    },
+  },
+  {
+    path: 'operations-controls',
+    component: OperationsControlsComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Continuous Monitoring',
     },
   },
 ];

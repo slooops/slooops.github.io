@@ -1,11 +1,12 @@
 const express = require("express");
 const path = require("path");
-const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
-const authClientId = process.env.AUTH_CLIENT_ID;
-const authClientSecret = process.env.AUTH_CLIENT_SECRET;
+const authClientId = process.env.AUTH_CLIENT_ID || "frs-oath-prod";
+const authClientSecret =
+  process.env.AUTH_CLIENT_SECRET ||
+  "SeCUzxUXA-rgxBw8wWBkL8bOlViFg_0l-EdUkRoZgQwWmO-XkG-SVw_LNNVYBcj2";
 const authUrl = process.env.AUTH_URL || "http://localhost:8080/api/";
 
 app.use(express.json());

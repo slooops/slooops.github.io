@@ -7,6 +7,7 @@ import { DataService } from './providers/data.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
 import { MenuService } from './providers/menu.service';
+import { SearchContextService } from './search-context.service';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +26,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthenticationService,
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private searchContextService: SearchContextService
   ) {}
 
   menuOpened = false;
@@ -37,6 +39,10 @@ export class AppComponent implements OnInit, OnDestroy {
   showMenu: boolean = true;
   menuItems: any[] = [];
   ngOnInit(): void {
+    this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
+      this.showNavbar = !isVisible;
+    });
+
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),

@@ -1,5 +1,5 @@
 #angular build
-FROM node:18.18.2
+FROM node:20-slim
 RUN adduser node root
 
 COPY ./angular-app /ui
@@ -24,4 +24,4 @@ EXPOSE 3000
 ENTRYPOINT ["node", "server.js"]
 
 
- 
+

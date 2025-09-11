@@ -30,51 +30,40 @@
   </span>
 </ng-template> -->
 
-<ng-template #processToolTip>
-  <app-process-flow-tooltip
-    [processFlowTabsToDisplay]="processFlowTabsToDisplay"
-    [dynamicTemplate]="dynamicTemplate"
-    [dynamicCss]="dynamicCss"
-  >
-    ></app-process-flow-tooltip
-  >
-</ng-template>
 <div>
   <div class="container rol-error-summary-container">
     <div class="header-container">
-      <h5 class="section-title action-buttons">
-        Error Summary
-        <span class="action-buttons">
-          &nbsp;&nbsp;
-          <!-- <button
-            class="custom-button-primary"
-            (click)="viewTransactionDetails()"
-          >
-            View Details
-          </button>
-          &nbsp;&nbsp; -->
-          <button
-            class="custom-button-primary"
-            style="background-color: #aaa8a8"
-            (click)="viewDetails()"
-            *ngIf="selection.selected.length === 1"
-          >
-            Assign User
-          </button>
+      <div class="left-section">
+        <h5 class="section-title">Error Summary</h5>
+        <div class="process-flow-left">
+          <app-process-flow-tooltip [processFlowTotals]="processFlowTotals">
+          </app-process-flow-tooltip>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <div *ngIf="summaryDatasource?.data?.length">
           <button
             mat-stroked-button
             type="button"
             (click)="resetSelection()"
-            style="font-size: 12px; padding: 3px"
+            style="font-size: 12px; padding: 3px; font-weight: 600; color: gray"
             class="mat-small"
-            *ngIf="selection.selected.length > 0"
+            [disabled]="selection.selected.length === 0"
           >
             Reset
           </button>
-        </span>
-      </h5>
-
-      <div class="action-buttons">
+          &nbsp;&nbsp;
+          <button
+            class="custom-button-primary"
+            style="background-color: #aaa8a8"
+            (click)="viewDetails()"
+            [disabled]="selection.selected.length != 1"
+          >
+            Assign User
+          </button>
+        </div>
+        &nbsp;
         <div
           style="
             font-size: 12px;
@@ -82,6 +71,7 @@
             display: flex;
             flex-direction: column;
           "
+          *ngIf="summaryDatasource?.data?.length"
         >
           <div style="display: flex">
             <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
@@ -102,7 +92,7 @@
         <button
           mat-icon-button
           (click)="
-            exportTableToExcel(
+            exportSummary(
               summaryDatasource.data,
               componentName + ' Error Summary',
               componentName + '_Error_Summary'
@@ -167,14 +157,6 @@
                       ></i>
                     </span>
                   </ng-container>
-                  <ng-container *ngSwitchCase="'PROCESS_FLOW'">
-                    <span
-                      [customToolTip]="column === 'PROCESS_FLOW' ? 'true' : ''"
-                      [contentTemplate]="processToolTip"
-                    >
-                      {{ replaceUnderscore(column) }}
-                    </span>
-                  </ng-container>
 
                   <ng-container *ngSwitchDefault>
                     {{ replaceUnderscore(column) }}
@@ -185,17 +167,20 @@
               <td
                 mat-cell
                 *matCellDef="let element"
-                [class.comments-cell]="column === 'COMMENTS'"
+                [class.comments-cell]="
+                  column === 'COMMENTS' || column === 'comments'
+                "
               >
                 <ng-container [ngSwitch]="column">
                   <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                     <span *ngIf="isSubAppMapping">
-                      {{ subAppMapper(element[column]) }}
+                      {{ element[column] }}
                     </span>
                     <span *ngIf="!isSubAppMapping">
                       {{ element[column] }}
                     </span>
                   </ng-container>
+
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
                       <span class="icon-container">
@@ -300,61 +285,6 @@
         >
           <div class="filter-container">
             <div class="filter-item">
-              <!-- <span>
-                <mat-form-field
-                  appearance="standard"
-                  [style.width.px]="125"
-                  style="font-size: smaller"
-                >
-                  <mat-label>Select Process Flow</mat-label>
-                  <mat-select
-                    id="processFlow"
-                    name="processFlow"
-                    formControlName="processFlow"
-                    multiple
-                  >
-                    <mat-option
-                      *ngFor="let processFlow of processFlowOptions"
-                      [value]="processFlow"
-                      (onSelectionChange)="filter()"
-                    >
-                      <span *ngIf="isSubAppMapping">
-                        {{ subAppMapper(processFlow) }}
-                      </span>
-                      <span *ngIf="!isSubAppMapping">
-                        {{ processFlow }}
-                      </span>
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-                &nbsp;
-                <mat-form-field
-                  appearance="standard"
-                  [style.width.px]="125"
-                  style="font-size: smaller"
-                >
-                  <mat-label *ngIf="componentName !== 'General Ledger'"
-                    >Select Org Name</mat-label
-                  >
-                  <mat-label *ngIf="componentName === 'General Ledger'"
-                    >Select Ledger Name</mat-label
-                  >
-                  <mat-select
-                    id="orgname"
-                    name="orgname"
-                    formControlName="orgName"
-                    multiple
-                  >
-                    <mat-option
-                      *ngFor="let orgName of orgNameOptions"
-                      [value]="orgName"
-                      (onSelectionChange)="filter()"
-                    >
-                      {{ orgName }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </span> -->
               <span *ngFor="let column of selectFilters">
                 <mat-form-field
                   appearance="standard"
@@ -377,7 +307,7 @@
                       (onSelectionChange)="filter()"
                     >
                       <span *ngIf="column.subAppMapping">
-                        {{ subAppMapper(option) }}
+                        {{ option }}
                       </span>
                       <span *ngIf="!column.subAppMapping">
                         {{ option }}
@@ -410,30 +340,6 @@
                   ></i>
                 </mat-form-field>
               </span>
-              <!-- <span *ngFor="let column of columnsToFilter">
-                <mat-form-field
-                  class="filter"
-                  floatLabel="never"
-                  [style.width.px]="125"
-                  style="font-size: smaller; margin-top: 9px !important"
-                >
-                  <mat-label
-                    >Search
-                    {{ replaceUnderscore(column.columnName) }}</mat-label
-                  >
-                  <input
-                    matInput
-                    (keyup)="filter()"
-                    [formControlName]="column.formControlName"
-                  />
-                  <i
-                    matSuffix
-                    class="fa fa-search hoverIcon"
-                    style="color: gray"
-                    (click)="applyFilter()"
-                  ></i>
-                </mat-form-field>
-              </span> -->
             </div>
           </div>
           <button
@@ -454,7 +360,7 @@
         <i class="svg-icon chart-icon"></i>
       </button>
       <button mat-icon-button>
-        <i class="svg-icon download-icon" (click)="export()"></i>
+        <i class="svg-icon download-icon" (click)="exportDetails()"></i>
       </button>
     </div>
   </div>
@@ -587,7 +493,7 @@
               <ng-container [ngSwitch]="column">
                 <ng-container *ngSwitchCase="'PROCESS_FLOW'">
                   <span *ngIf="isSubAppMapping">
-                    {{ subAppMapper(element[column]) }}
+                    {{ element[column] }}
                   </span>
                   <span *ngIf="!isSubAppMapping">
                     {{ element[column] }}

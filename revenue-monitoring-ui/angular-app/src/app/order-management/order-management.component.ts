@@ -20,7 +20,7 @@ export class OrderManagementComponent {
     private destroyManager: DestroyManager,
     private dataService: DataService,
     private datePipe: DatePipe,
-    private authService: AuthenticationService,
+    protected authService: AuthenticationService,
     private menuService: MenuService
   ) {
     this.http = http;
@@ -102,7 +102,16 @@ export class OrderManagementComponent {
       disabled: 'dynamic',
       validators: [Validators.required],
     },
-    { controlName: 'status', label: 'Status', sourceKey: 'status' },
+    {
+      controlName: 'status',
+      label: 'Status',
+      sourceKey: 'status',
+      options: [
+        { value: 'In Progress', label: 'In Progress' },
+        { value: 'Closed', label: 'Closed' },
+      ],
+      validators: [Validators.required],
+    },
     { controlName: 'comments', label: 'Comments', sourceKey: 'comments' },
   ];
 
@@ -123,8 +132,8 @@ export class OrderManagementComponent {
     subAppMapping: boolean;
   }[] = [
     {
-      columnName: 'head_1',
-      formControlName: 'head1',
+      columnName: 'category',
+      formControlName: 'category',
       type: 'select',
       subAppMapping: false,
     },
@@ -147,8 +156,8 @@ export class OrderManagementComponent {
     subAppMapping: boolean;
   }[] = [
     {
-      columnName: 'head_1',
-      formControlName: 'head1',
+      columnName: 'sub_category',
+      formControlName: 'subCategory',
       type: 'select',
       subAppMapping: false,
     },
@@ -171,8 +180,8 @@ export class OrderManagementComponent {
     subAppMapping: boolean;
   }[] = [
     {
-      columnName: 'head_1',
-      formControlName: 'head1',
+      columnName: 'sub_category',
+      formControlName: 'subCategory',
       type: 'select',
       subAppMapping: false,
     },
@@ -195,8 +204,14 @@ export class OrderManagementComponent {
     subAppMapping: boolean;
   }[] = [
     {
-      columnName: 'head_1',
-      formControlName: 'head1',
+      columnName: 'sub_category',
+      formControlName: 'subCategory',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'category',
+      formControlName: 'category',
       type: 'select',
       subAppMapping: false,
     },
@@ -219,8 +234,8 @@ export class OrderManagementComponent {
     subAppMapping: boolean;
   }[] = [
     {
-      columnName: 'head_1',
-      formControlName: 'head1',
+      columnName: 'sub_category',
+      formControlName: 'subCategory',
       type: 'select',
       subAppMapping: false,
     },
@@ -243,8 +258,14 @@ export class OrderManagementComponent {
     subAppMapping: boolean;
   }[] = [
     {
-      columnName: 'head_1',
-      formControlName: 'head1',
+      columnName: 'sub_category',
+      formControlName: 'subCategory',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'category',
+      formControlName: 'category',
       type: 'select',
       subAppMapping: false,
     },

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-o2c-landing',
@@ -21,106 +22,85 @@ export class O2cLandingComponent implements OnInit {
     private destroyManager: DestroyManager
   ) {}
 
+  dummyData1 = [
+    {
+      INCIDENT_TYPE: 'Order Entry',
+      INCIDENT_COUNT: 5,
+      INCIDENT_VALUE: 4,
+    },
+    {
+      INCIDENT_TYPE: 'Manual Entry',
+      INCIDENT_COUNT: 3,
+      INCIDENT_VALUE: 2,
+    },
+    {
+      INCIDENT_TYPE: 'Data Entry',
+      INCIDENT_COUNT: 2,
+      INCIDENT_VALUE: 1.2,
+    },
+  ];
+
+  dummyData2 = [
+    {
+      INCIDENT_TYPE: 'Order Entry',
+      INCIDENT_COUNT: 5,
+      INCIDENT_VALUE: 2.1,
+    },
+  ];
+
+  dummyData3 = [
+    { INCIDENT_TYPE: 'Order Entry', INCIDENT_COUNT: 50, INCIDENT_VALUE: 1.4 },
+    { INCIDENT_TYPE: 'Manual Entry', INCIDENT_COUNT: 3, INCIDENT_VALUE: 0.9 },
+  ];
+
+  dummyData4 = [
+    {
+      INCIDENT_TYPE: 'Order Entry',
+      INCIDENT_COUNT: 5,
+      INCIDENT_VALUE: 2.1,
+    },
+    {
+      INCIDENT_TYPE: 'Manual Entry',
+      INCIDENT_COUNT: 3,
+      INCIDENT_VALUE: 1.5,
+    },
+    {
+      INCIDENT_TYPE: 'Data Entry',
+      INCIDENT_COUNT: 2,
+      INCIDENT_VALUE: 0.8,
+    },
+    {
+      INCIDENT_TYPE: 'System Error',
+      INCIDENT_COUNT: 1,
+      INCIDENT_VALUE: 0.3,
+    },
+  ];
+
+  dummyData5 = [
+    {
+      INCIDENT_TYPE: 'Order Entry',
+      INCIDENT_COUNT: 5,
+      INCIDENT_VALUE: 2.1,
+    },
+  ];
   ngOnInit(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      const searchValue = params.get('searchValue');
-      const searchType = params.get('searchType');
+    this.route.queryParamMap.subscribe((params) => {});
 
-      if (searchValue) {
-        this.searchValue = searchValue;
-        this.onSearch();
-      }
-
-      // if (searchType) {
-      //   this.searchType = searchType;
-      // }
-
-      // if (searchValue && searchType) {
-      //   this.onSearch();
-      // }
-    });
+    // Dummy data
   }
 
-  private getO2cConnector() {
-    this.http
-      .get('o2c-connector', this.destroyManager)
-      .subscribe((data: any) => {
-        this.o2cConnectorData = data;
-        console.log('o2cConnector loaded:', data);
-      });
+  isOpen: boolean[] = Array(7).fill(true);
+
+  toggleAccordion(index: number): void {
+    this.isOpen[index] = !this.isOpen[index];
   }
 
-  onSearch(): void {
-    const trimmedValue = this.searchValue.trim();
-    // if (!trimmedValue || this.o2cConnectorData.length === 0) return;
-
-    const columnMap: { [key: string]: string } = {
-      order: 'WEBORDER_ID',
-      subscription: 'SUBSCRIPTION_REF_ID',
-      invoice: 'TRX_NUMBER',
-    };
-
-    const columnName = columnMap[this.searchType] || 'UNKNOWN_COLUMN';
-
-    this.http
-      .post('o2c-connector-search', {
-        column: columnName,
-        value: trimmedValue,
-      })
-      .subscribe({
-        next: (data: any) => {
-          console.log(data);
-          const orderIds = [
-            ...new Set(data.map((r) => r.WEBORDER_ID).filter(Boolean)),
-          ];
-          const subRefIds = [
-            ...new Set(data.map((r) => r.SUBSCRIPTION_REF_ID).filter(Boolean)),
-          ];
-          const trxNumbers = [
-            ...new Set(data.map((r) => r.TRX_NUMBER).filter(Boolean)),
-          ];
-          this.router.navigate(['/o2c-360'], {
-            queryParams: {
-              searchType: this.searchType,
-              orderId: orderIds[0],
-              subRefIds: subRefIds.join(','),
-              invoiceIds: trxNumbers.join(','),
-            },
-          });
-        },
-        error: (err) => console.error('Error logging search:', err),
-      });
-
-    let matchingRows: any[] = [];
-
-    switch (this.searchType) {
-      case 'order':
-        matchingRows = this.o2cConnectorData.filter(
-          (row) => row.WEBORDER_ID === trimmedValue
-        );
-        break;
-      case 'subscription':
-        matchingRows = this.o2cConnectorData.filter(
-          (row) => row.SUBSCRIPTION_REF_ID === trimmedValue
-        );
-        break;
-      case 'invoice':
-        matchingRows = this.o2cConnectorData.filter(
-          (row) => row.TRX_NUMBER === trimmedValue
-        );
-        break;
-      default:
-        console.warn('Unknown searchType');
-        return;
-    }
-
-    if (matchingRows.length === 0) {
-      console.warn('No results found for search:', trimmedValue);
-      return;
-    }
-
-    // console.log('Order IDs:', orderIds);
-    // console.log('Subscription Ref IDs:', subRefIds);
-    // console.log('Invoice (TRX) Numbers:', trxNumbers);
-  }
+  legendMap: {
+    [canvasId: string]: {
+      type: string;
+      count: number;
+      value: number;
+      color: string;
+    }[];
+  } = {};
 }

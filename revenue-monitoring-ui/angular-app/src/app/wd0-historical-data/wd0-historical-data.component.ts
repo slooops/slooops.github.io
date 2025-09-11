@@ -23,6 +23,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
 import { TableModalComponent } from '../components/table-modal/table-modal.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 Chart.register(...registerables);
 
@@ -65,7 +66,8 @@ export class Wd0HistoricalDataComponent
     private menuService: MenuService,
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private exportToExcelService: ExportToExcelService
   ) {
     Chart.register(...registerables, ChartDataLabels);
     this.http = http;
@@ -258,31 +260,13 @@ export class Wd0HistoricalDataComponent
               this.prepareDataForRegression(data);
               this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
             });
-        } else if (this.isWd2) {
+        } else if (this.isWd2 || this.isWd3) {
           let productActuals = [null, null, null];
           let serviceActuals = [null, null, null];
           this.getWd0Volumes(productActuals, serviceActuals); // Projected data only
 
           this.getEndpointData('wd0-regression').subscribe((data: any) => {
             this.prepareDataForRegression(data);
-
-            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-            this.loading = false;
-            this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
-          });
-        } else if (this.isWd3) {
-          this.getEndpointData('wd0-regression').subscribe((data: any) => {
-            productActuals = this.extractProductActuals(data);
-            serviceActuals = this.extractServiceActuals(data);
-            this.getWd0Volumes(productActuals, serviceActuals);
-
-            const latestPeriodName = this.getLatestPeriodName(data);
-
-            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
-
-            this.prepareDataForRegression(data);
-
             this.loading = false;
             this.dataTimestamp = `Last Updated: ${new Date().toLocaleString()}`;
           });
@@ -291,8 +275,6 @@ export class Wd0HistoricalDataComponent
             productActuals = this.extractProductActuals(data);
             serviceActuals = this.extractServiceActuals(data);
             this.getWd0Volumes(productActuals, serviceActuals);
-
-            this.latestPeriodName = this.getLatestPeriodName(data); // Set latestPeriodName for regular case
 
             this.prepareDataForRegression(data);
 
@@ -306,14 +288,14 @@ export class Wd0HistoricalDataComponent
 
   getWd0MidcloseActualsProduct() {
     this.productActualsLoading = true;
-    console.log('func called');
+    // console.log('func called');
     this.http
       .get('wd0-midclose-actuals-product', this.destroyManager)
       .subscribe((data: any) => {
         this.productMidCloseActuals = data.map(
           ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
         );
-        console.log('productMidCloseActuals', this.productMidCloseActuals);
+        // console.log('productMidCloseActuals', this.productMidCloseActuals);
         this.productActualsLoading = false;
       });
   }
@@ -334,7 +316,7 @@ export class Wd0HistoricalDataComponent
         this.serviceMidCloseActuals = data.map(
           ({ PERIOD_NAME, PRODUCT_CATEGORY, ...rest }) => rest
         );
-        console.log('serviceMidCloseActuals', this.serviceMidCloseActuals);
+        // console.log('serviceMidCloseActuals', this.serviceMidCloseActuals);
         this.serviceActualsLoading = false;
       });
   }
@@ -346,14 +328,29 @@ export class Wd0HistoricalDataComponent
     }, 0);
   }
 
+  customLegend: { label: string; color: string }[] = [];
   renderPieChart(
     data: { BATCH_SOURCE: string; TOTAL_COUNT: number }[],
     canvasId: string
   ): void {
+    const pieColors = [
+      'rgba(54, 162, 235, 0.6)', // Blue
+      'rgba(100, 255, 218, 0.6)', // Mint
+      'rgba(255, 99, 132, 0.6)', // Red-pink
+      'rgba(255, 159, 64, 0.6)', // Orange
+      'rgba(153, 102, 255, 0.6)', // Purple
+      'rgba(75, 192, 192, 0.6)', // Teal
+      'rgba(235, 154, 229, 0.6)', // Muted pink-purple
+      'rgba(201, 203, 207, 0.6)', // Gray
+      'rgba(0, 255, 157, 0.6)', // Lime
+      'rgba(255, 205, 86, 0.6)', // Yellow
+    ];
+
     const labels = data.map(
       (entry) => `${entry.TOTAL_COUNT.toLocaleString()} - ${entry.BATCH_SOURCE}`
     );
     const counts = data.map((entry) => entry.TOTAL_COUNT);
+    const colors = data.map((_, index) => pieColors[index % pieColors.length]);
 
     const ctx = (
       document.getElementById(canvasId) as HTMLCanvasElement
@@ -366,106 +363,45 @@ export class Wd0HistoricalDataComponent
           labels,
           datasets: [
             {
-              label: '',
               data: counts,
+              backgroundColor: colors,
               borderWidth: 0,
-              hoverOffset: 10,
+              hoverOffset: 0, // No offset effect on hover
             },
           ],
         },
         options: {
           responsive: true,
           plugins: {
-            legend: {
-              position: 'right',
+            legend: { display: false }, // Hide legend
+            tooltip: { enabled: false }, // Disable tooltips
+            datalabels: {
+              display: false, // This hides the data labels
             },
-            // datalabels: {
-            //   display: true,
-            //   color: '#ffffff',
-            //   font: {
-            //     size: 10,
-            //     weight: 'bold',
-            //   },
-            //   backgroundColor: 'rgba(255, 255, 255, 0.833)', // White background for the labels
-            //   borderRadius: 3,
-            //   padding: {
-            //     top: 2,
-            //     bottom: 2,
-            //     left: 4,
-            //     right: 4,
-            //   },
-            // },
+          },
+          // Removes animations on hover & segment highlighting
+          hover: {
+            mode: null,
+          },
+          animation: {
+            animateRotate: false,
+            animateScale: false,
           },
         },
       });
+
+      // Set custom legend
+      this.customLegend = labels.map((label, i) => ({
+        label,
+        color: colors[i],
+      }));
     } else {
       console.error(`Canvas with id ${canvasId} not found`);
     }
   }
 
-  //this method is necessary for predicting the next month in the absence of
-  //actual data for the current month from Surya
-  getLatestPeriodName(data: any[]): string {
-    const monthMap = {
-      JAN: 'FEB',
-      FEB: 'MAR',
-      MAR: 'APR',
-      APR: 'MAY',
-      MAY: 'JUN',
-      JUN: 'JUL',
-      JUL: 'AUG',
-      AUG: 'SEP',
-      SEP: 'OCT',
-      OCT: 'NOV',
-      NOV: 'DEC',
-      DEC: 'JAN', // Wrap back to JAN
-    };
-
-    const filteredData = data.filter((entry) => entry.PERIOD_NAME);
-
-    if (filteredData.length === 0) {
-      return 'Unknown Period';
-    }
-
-    const latestEntry = filteredData[filteredData.length - 1];
-    const currentPeriodName = latestEntry.PERIOD_NAME;
-    const [currentPeriodMonth] = currentPeriodName.split('-');
-
-    // Get current local machine month in 3-letter uppercase format (e.g., 'NOV')
-    const monthNames = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
-    ];
-    const currentMachineMonth = monthNames[new Date().getMonth()];
-
-    // If it's WD-2 and latest period is NOT the current month, advance it
-    if (
-      (this.isWd2 || this.isWd3) &&
-      currentPeriodMonth !== currentMachineMonth
-    ) {
-      const nextMonth = monthMap[currentPeriodMonth];
-      return nextMonth
-        ? `${nextMonth}-${currentPeriodName.split('-')[1]}`
-        : 'Unknown Period';
-    }
-
-    return currentPeriodName;
-  }
-
   getWd0Volumes(productActuals: number[], serviceActuals: number[]) {
     this.http.get('wd0-volumes', this.destroyManager).subscribe((data: any) => {
-      // console.log('wd0-volumes', data);
-
       // Step 1: Identify the most recent fiscal period
       const mostRecentFiscalPeriod = this.getMostRecentFiscalPeriod(data);
 
@@ -565,10 +501,6 @@ export class Wd0HistoricalDataComponent
 
   // Step 1: Identify the most recent fiscal period
   getMostRecentFiscalPeriod(data: any[]): string {
-    if (this.isWd3) {
-      // If isWd3 is true, return the period from the item at the 2nd index (prev month)
-      return data[2] ? data[2].FISCAL_PERIOD : 'Unknown Period';
-    }
     // Step 1: Identify the most recent RUN_DATE
     const mostRecentEntry = data.reduce(
       (latest, entry) => {
@@ -579,6 +511,8 @@ export class Wd0HistoricalDataComponent
       },
       { period: null, date: 0 }
     );
+
+    this.latestPeriodName = mostRecentEntry.period;
 
     // Return the fiscal period of the most recent RUN_DATE entry
     return mostRecentEntry.period || 'Unknown Period'; // Fallback if no data is found
@@ -1217,25 +1151,7 @@ export class Wd0HistoricalDataComponent
         });
       }
     }
-
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
-
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
-    let link = document.createElement('a'); // create link
-    link.href = url;
-    link.download = filename + '.xlsx';
-    link.click(); // triggers the download process and save file prompt in browser
-    window.URL.revokeObjectURL(url); // revoke temp URL
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
   }
 
   getEndpointData(endpoint: string): Observable<any> {

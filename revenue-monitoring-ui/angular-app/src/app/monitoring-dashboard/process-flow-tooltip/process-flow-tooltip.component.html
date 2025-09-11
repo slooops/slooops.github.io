@@ -1,5 +1,23 @@
-<ng-container *ngIf="totals$ | async as allTotals">
-  <ng-container
-    *ngTemplateOutlet="htmlTemplate; context: { allTotals: allTotals }"
-  ></ng-container>
-</ng-container>
+<div class="flowchart-container" [style.width.px]="containerWidth">
+  <div class="slider-bar">
+    <div *ngFor="let step of processSteps; let i = index">
+      <div class="circle-wrapper-loop">
+        <p class="circle-caption-loop">{{ formatLabel(step.PROCESS_FLOW) }}</p>
+        <p class="circle-loop"></p>
+        <p class="circle-subcaption">
+          Total:
+          <span *ngIf="step.TYPE === 'Value'">
+            {{ formatAmount(step.AMOUNT) }}
+          </span>
+          <span *ngIf="step.TYPE === 'Count'">
+            {{ step.AMOUNT }}
+          </span>
+        </p>
+      </div>
+      <div *ngIf="i < processSteps.length - 1" class="chevron-wrapper-loop">
+        <div class="chevron"></div>
+        <div class="chevron-white"></div>
+      </div>
+    </div>
+  </div>
+</div>

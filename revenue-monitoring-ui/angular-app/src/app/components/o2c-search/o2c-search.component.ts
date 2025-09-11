@@ -2,6 +2,10 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import {
+  SearchContextService,
+  O2cSearchResult,
+} from 'src/app/search-context.service';
 
 @Component({
   selector: 'app-o2c-search',
@@ -17,21 +21,9 @@ export class O2cSearchComponent {
   constructor(
     private router: Router,
     private http: ApiHttpService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private searchContextService: SearchContextService
   ) {}
-
-  ngOnInit(): void {
-    this.getO2cConnector();
-  }
-
-  private getO2cConnector() {
-    this.http
-      .get('o2c-connector', this.destroyManager)
-      .subscribe((data: any) => {
-        this.o2cConnectorData = data;
-        console.log('Connector loaded:', data);
-      });
-  }
 
   onSearchTypeChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
@@ -62,24 +54,43 @@ export class O2cSearchComponent {
       })
       .subscribe({
         next: (data: any) => {
-          const orderIds = [
-            ...new Set(data.map((r) => r.WEBORDER_ID).filter(Boolean)),
+          const orderIds: string[] = [
+            ...new Set(
+              data.map((r: any) => r.WEBORDER_ID).filter(Boolean) as string[]
+            ),
           ];
-          const subRefIds = [
-            ...new Set(data.map((r) => r.SUBSCRIPTION_REF_ID).filter(Boolean)),
+          const subRefIds: string[] = [
+            ...new Set(
+              data
+                .map((r: any) => r.SUBSCRIPTION_REF_ID)
+                .filter(Boolean) as string[]
+            ),
           ];
-          const trxNumbers = [
-            ...new Set(data.map((r) => r.TRX_NUMBER).filter(Boolean)),
+          const trxNumbers: string[] = [
+            ...new Set(
+              data.map((r: any) => r.TRX_NUMBER).filter(Boolean) as string[]
+            ),
           ];
 
-          this.router.navigate(['/o2c-360'], {
-            queryParams: {
-              searchType: this.searchType,
-              orderId: orderIds[0],
-              subRefIds: subRefIds.join(','),
-              invoiceIds: trxNumbers.join(','),
-            },
+          this.searchContextService.emitSearchPayload({
+            searchType: this.searchType,
+            orderId: orderIds[0] || 'No Results ',
+            subRefIds: subRefIds,
+            invoiceIds: trxNumbers,
           });
+
+          const isTabbedView = this.router.url.includes('business-insights');
+
+          if (!isTabbedView) {
+            this.router.navigate(['/o2c-360'], {
+              queryParams: {
+                searchType: this.searchType,
+                orderId: orderIds[0],
+                subRefIds: subRefIds.join(','),
+                invoiceIds: trxNumbers.join(','),
+              },
+            });
+          }
         },
         error: (err) => console.error('Search error:', err),
       });

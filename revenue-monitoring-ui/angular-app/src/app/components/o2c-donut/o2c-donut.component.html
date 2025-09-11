@@ -1,0 +1,33 @@
+<div class="chart-legend-wrapper">
+  <div
+    class="chart-container"
+    [style.background-color]="showCircleBackground ? '#f4f5f6' : 'transparent'"
+    [style.min-width]="chartSize"
+    [style.height]="chartSize"
+  >
+    <canvas [id]="canvasId"></canvas>
+  </div>
+
+  <div class="custom-legend" *ngIf="showLegend && legendItems">
+    <div
+      *ngFor="let item of legendItems"
+      class="legend-item"
+      [class.total-row]="item.type === 'Total Exceptions'"
+    >
+      <div class="legend-left">
+        <span
+          class="legend-color-box"
+          *ngIf="item.color !== 'transparent'"
+          [style.background]="item.color"
+        ></span>
+        <span class="legend-type">{{ item.type }}</span>
+      </div>
+      <div class="legend-right">
+        <span class="legend-count">{{
+          item.count !== undefined && item.count !== null ? item.count : "-"
+        }}</span>
+        <span class="legend-value">{{ item.value }} M</span>
+      </div>
+    </div>
+  </div>
+</div>
