@@ -480,11 +480,26 @@
       </div>
     </ng-container>
 
-    <ng-container *ngIf="!summaryDatasource?.data?.length">
+    <ng-container *ngIf="!summaryDatasource?.data?.length && isLoading">
       <div class="loading-container">
         <app-loading-symbol></app-loading-symbol>
         <div class="circle-subcaption"></div>
         <br /><br /><br />
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="!summaryDatasource?.data?.length && !isLoading">
+      <div class="loading-container">
+        <img
+          src="assets/thumbnails/noDataFound.png"
+          alt="No Data Found"
+          class="no-data-image"
+          style="width: 160px; justify-content: center; align-items: center"
+        />
+        <div class="card-subtitle" style="font-weight: 600; color: gray">
+          No Open Incidents Found
+        </div>
+        <br /><br />
       </div>
     </ng-container>
 

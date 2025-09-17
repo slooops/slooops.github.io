@@ -72,12 +72,17 @@ export class IssueReportingComponent implements OnInit {
   quarterFilter: string[] = [];
   statusFilter: string[] = [];
   incidentNumFilter: string = '';
+  isLoading: boolean = false;
 
   statusOps: string[] = ['Open', 'Closed'];
   getIssueReporting() {
+    this.isLoading = true;
     this.http
       .get('issue-reporting', this.destroyManager)
       .subscribe((data: any) => {
+        if (data.length === 0) {
+          this.isLoading = false;
+        }
         this.summaryData = data;
         if (this.summaryData.length > 0) {
           this.summaryColumns = Object.keys(this.summaryData[0]);
