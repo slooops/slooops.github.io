@@ -22,7 +22,7 @@ public class GLPostingMonitoringService{
     @Autowired
     private CacheCommon cacheCommon;
 
-    private Boolean useRedisGlPosting = true;
+    private Boolean useRedisGlPosting = false;
 
 
     public GLPostingMonitoringService(JdbcManager jdbcManager, String glErrorSummary, String glErrorDetails,
@@ -91,11 +91,12 @@ public class GLPostingMonitoringService{
     public void refreshGlPostingMonitoringCache() {
         Map<String, String> glErrorSummaryMap = Map.of("GlErrorSummary", glErrorSummary);
         Map<String, String> glErrorDetailsMap = Map.of("GlErrorDetails", glErrorDetails);
+        if(useRedisGlPosting) {
+            System.out.println("refresh from gl posting service");
 
-        System.out.println("refresh from gl posting service");
-
-        cacheCommon.refreshExceptionMonitoringCache(glErrorSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(glErrorDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(glErrorSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(glErrorDetailsMap);
+        }
     }
 
 }

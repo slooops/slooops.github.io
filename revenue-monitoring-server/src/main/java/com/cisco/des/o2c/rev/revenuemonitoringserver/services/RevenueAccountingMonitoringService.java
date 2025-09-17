@@ -36,7 +36,7 @@ public class RevenueAccountingMonitoringService {
     @Autowired
     private CacheCommon cacheCommon;
 
-    private Boolean useRedisRevAccounting = true;
+    private Boolean useRedisRevAccounting = false;
 
     @Autowired
     public RevenueAccountingMonitoringService(JdbcManager jdbcManager, String rolErrorsSummaryUpdate, String rolTransactionDataFilter,
@@ -316,16 +316,18 @@ public class RevenueAccountingMonitoringService {
         Map<String, String> tspAccountSummaryViewMap = Map.of("TspAccountSummaryView", tspAccountSummaryView);
         Map<String, String> tspAccountDetailViewMap = Map.of("TspAccountDetailView", tspAccountDetailView);
 
-        System.out.println("refresh from revenue accounting service");
+        if(useRedisRevAccounting) {
+            System.out.println("refresh from revenue accounting service");
 
-        cacheCommon.refreshExceptionMonitoringCache(rolErrorsSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(rolErrorsDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(standardRevenueSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(standardRevenueDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(accrualsSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(accrualsDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(tspAccountSummaryViewMap);
-        cacheCommon.refreshExceptionMonitoringCache(tspAccountDetailViewMap);
+            cacheCommon.refreshExceptionMonitoringCache(rolErrorsSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(rolErrorsDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(standardRevenueSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(standardRevenueDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(accrualsSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(accrualsDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(tspAccountSummaryViewMap);
+            cacheCommon.refreshExceptionMonitoringCache(tspAccountDetailViewMap);
+        }
     }
 
 }

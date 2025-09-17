@@ -43,7 +43,7 @@ public class PostInvoicingMonitoringService {
     private CacheCommon cacheCommon;
     private Logger logger = LoggerFactory.getLogger(PostInvoicingMonitoringService.class);
 
-    private Boolean useRedisPostInv = true;
+    private Boolean useRedisPostInv = false;
 
 
 
@@ -411,20 +411,22 @@ public class PostInvoicingMonitoringService {
         Map<String, String> pcmApplicationSummaryMap = Map.of("PcmApplicationSummary", pcmApplicationSummary);
         Map<String, String> pcmApplicationDetailsMap = Map.of("PcmApplicationDetails", pcmApplicationDetails);
 
-        System.out.println("refresh from post invoicing service");
+        if(useRedisPostInv) {
+            System.out.println("refresh from post invoicing service");
 
-        cacheCommon.refreshExceptionMonitoringCache(cmAmortSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(cmAmortDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(printSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(printDetailMap);
-        cacheCommon.refreshExceptionMonitoringCache(creditCardSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(creditCardDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(rpoExtractSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(rpoExtractDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(srtProcessSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(srtProcessDetailsMap);
-        cacheCommon.refreshExceptionMonitoringCache(pcmApplicationSummaryMap);
-        cacheCommon.refreshExceptionMonitoringCache(pcmApplicationDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(cmAmortSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(cmAmortDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(printSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(printDetailMap);
+            cacheCommon.refreshExceptionMonitoringCache(creditCardSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(creditCardDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(rpoExtractSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(rpoExtractDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(srtProcessSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(srtProcessDetailsMap);
+            cacheCommon.refreshExceptionMonitoringCache(pcmApplicationSummaryMap);
+            cacheCommon.refreshExceptionMonitoringCache(pcmApplicationDetailsMap);
+        }
     }
 
 }
