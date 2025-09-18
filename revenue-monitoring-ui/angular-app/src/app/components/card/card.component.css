@@ -1,0 +1,26 @@
+.card,
+.container {
+  margin: 1.2rem;
+  position: relative;
+  display: block;
+  padding: 1.6rem;
+  background-color: #fff;
+  border: 2px solid #e1e4e8;
+  border-radius: 8px;
+  transition: all linear 0.5s;
+  width: auto;
+}
+
+.container {
+  border: 0px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px #00000014;
+}
+
+.cui .container {
+  max-width: none !important;
+}
+
+.card:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}

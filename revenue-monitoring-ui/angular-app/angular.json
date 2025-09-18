@@ -101,21 +101,19 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "accruals-monitoring-ui:build:prod"
+              "buildTarget": "accruals-monitoring-ui:build:prod"
             },
             "development": {
-              "browserTarget": "accruals-monitoring-ui:build:local"
+              "buildTarget": "accruals-monitoring-ui:build:local"
             }
           },
           "defaultConfiguration": "development",
-          "options": {
-            "disableHostCheck": true
-          }
+          "options": {}
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "accruals-monitoring-ui:build"
+            "buildTarget": "accruals-monitoring-ui:build"
           }
         },
         "test": {
@@ -136,7 +134,6 @@
       }
     }
   },
-  "defaultProject": "accruals-monitoring-ui",
   "cli": {
     "analytics": false
   }

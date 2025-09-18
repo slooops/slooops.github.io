@@ -438,6 +438,9 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   extractDatePrettify(date: string) {
+    if (!date || typeof date !== 'string') {
+      return 'N/A';
+    }
     let dateParts = date.split('T')[0].split('-');
     let year = dateParts[0];
     let month;
