@@ -23,6 +23,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
   isQ1Q2Loading = true;
   isQ2Q3Loading = true;
   isQ3Q4Loading = true;
+  isQ4Q1Loading = true;
 
   quarterComparisons: [string, string][] = [];
 
@@ -37,10 +38,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
   birChartQ1Q2: Chart | null = null;
   birChartQ2Q3: Chart | null = null;
   birChartQ3Q4: Chart | null = null;
+  birChartQ4Q1: Chart | null = null;
 
   prmcChartQ1Q2: Chart | null = null;
   prmcChartQ2Q3: Chart | null = null;
   prmcChartQ3Q4: Chart | null = null;
+  prmcChartQ4Q1: Chart | null = null;
 
   q1: string | null = null;
   q2: string | null = null;
@@ -56,26 +59,38 @@ export class EspCaseAnalyzerComponent implements OnInit {
       .subscribe((data: any) => {
         const recentQuarters = this.extractRecentQuarters(data);
 
-        // Assign quarters, defaulting to null if missing
-        this.q1 =
-          recentQuarters.find((q) => q.quarterIndex === 1)?.fiscalQuarter ||
-          null;
-        this.q2 =
-          recentQuarters.find((q) => q.quarterIndex === 2)?.fiscalQuarter ||
-          null;
-        this.q3 =
-          recentQuarters.find((q) => q.quarterIndex === 3)?.fiscalQuarter ||
-          null;
-        this.q4 =
-          recentQuarters.find((q) => q.quarterIndex === 4)?.fiscalQuarter ||
-          null;
-        this.q5 =
-          recentQuarters.find((q) => q.quarterIndex === 5)?.fiscalQuarter ||
-          null;
+        // Assign quarters based on available data
+        recentQuarters.forEach((quarter, index) => {
+          switch (index) {
+            case 0:
+              this.q1 = quarter.fiscalQuarter;
+              break;
+            case 1:
+              this.q2 = quarter.fiscalQuarter;
+              break;
+            case 2:
+              this.q3 = quarter.fiscalQuarter;
+              break;
+            case 3:
+              this.q4 = quarter.fiscalQuarter;
+              break;
+            case 4:
+              this.q5 = quarter.fiscalQuarter;
+              break;
+          }
+        });
 
         this.selectedTabIndex = Math.max(0, recentQuarters.length - 2); // last valid pair is at length - 2
 
         this.espWeeklyComparisonSummary = data;
+
+        console.log('Final quarter assignments:', {
+          q1: this.q1,
+          q2: this.q2,
+          q3: this.q3,
+          q4: this.q4,
+          q5: this.q5,
+        });
 
         this.getEspAgingCaseSummary();
         this.getEspCaseServiceMetricSummary();
@@ -178,6 +193,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
 
   generateChartForPair(qStart: string, qEnd: string, name: string): void {
+    console.log(
+      `Generating chart for ${name} with start: ${qStart}, end: ${qEnd}`
+    );
     const prmcCategories = ['PDF', 'ROUTED OUT', 'MISROUTED', 'CANCELLED'];
     const birCategories = ['BACKLOG', 'INFLOW', 'RESOLVED'];
     const labels = this.getSortedLabels();
@@ -252,8 +270,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
       const entry = this.espWeeklyComparisonSummary.find(
         (item) =>
           item.WEEK_NUM === weekNum &&
-          // item.QTR_RELATIVE_POSITION.toString() === fiscalQuarter &&
-          item.FISC_QTR.slice(1, -4) === fiscalQuarter &&
+          item.FISC_QTR === fiscalQuarter &&
           item.CATEGORY === category
       );
 
@@ -278,7 +295,10 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
     this.destroyCharts();
 
-    if (tabIndex === 0 && this.q1 && this.q2) {
+    if (tabIndex === 0 && this.q5 && this.q2) {
+      this.isQ1Q2Loading = false;
+      setTimeout(() => this.generateChartForPair(this.q5, this.q2, 'Q1Q2'), 0);
+    } else if (tabIndex === 0 && this.q1 && this.q2) {
       this.isQ1Q2Loading = false;
       setTimeout(() => this.generateChartForPair(this.q1, this.q2, 'Q1Q2'), 0);
     }
@@ -292,6 +312,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
       this.isQ3Q4Loading = false;
       setTimeout(() => this.generateChartForPair(this.q3, this.q4, 'Q3Q4'), 0);
     }
+
+    if (tabIndex === 3 && this.q4 && this.q1) {
+      this.isQ4Q1Loading = false;
+      setTimeout(() => this.generateChartForPair(this.q4, this.q1, 'Q4Q1'), 0);
+      console.log('Generating Q4 - Q1 chart using:', this.q4, this.q1);
+    }
   }
 
   destroyCharts(): void {
@@ -300,7 +326,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
       this.birChartQ1Q2.destroy();
       this.birChartQ1Q2 = null;
     }
-
     if (this.birChartQ2Q3) {
       this.birChartQ2Q3.destroy();
       this.birChartQ2Q3 = null;
@@ -308,6 +333,10 @@ export class EspCaseAnalyzerComponent implements OnInit {
     if (this.birChartQ3Q4) {
       this.birChartQ3Q4.destroy();
       this.birChartQ3Q4 = null;
+    }
+    if (this.birChartQ4Q1) {
+      this.birChartQ4Q1.destroy();
+      this.birChartQ4Q1 = null;
     }
     if (this.prmcChartQ1Q2) {
       this.prmcChartQ1Q2.destroy();
@@ -320,6 +349,10 @@ export class EspCaseAnalyzerComponent implements OnInit {
     if (this.prmcChartQ3Q4) {
       this.prmcChartQ3Q4.destroy();
       this.prmcChartQ3Q4 = null;
+    }
+    if (this.prmcChartQ4Q1) {
+      this.prmcChartQ4Q1.destroy();
+      this.prmcChartQ4Q1 = null;
     }
   }
 
@@ -446,64 +479,105 @@ export class EspCaseAnalyzerComponent implements OnInit {
     });
   }
 
-  // If this method breaks at the year-end 5 quarter state,
-  // remember you can rewrite the sql query:
-  // ... order by QTR_RELATIVE_POSITION ASC;
-  // This puts FISC_QTR order as sequential newest first
-  // so you can probs just throw this method out and use that approach.
-  // Cross that bridge when you have to.
   private extractRecentQuarters(
     data: any[]
   ): { quarterIndex: number; fiscalQuarter: string }[] {
-    // Create an array of unique quarters with fiscal years
-    const quarterMap = new Map<
-      string,
-      { fiscalYear: number; quarterNumber: number }
-    >();
+    // Step 1: Use QTR_RELATIVE_POSITION to get quarters in chronological order
+    const quarterPositionMap = new Map<number, string>();
 
     data.forEach((item) => {
-      const match = item.FISC_QTR.match(/Q(\d)FY(\d+)/);
-      if (match) {
-        const quarterNumber = parseInt(match[1], 10);
-        const fiscalYear = parseInt(match[2], 10);
-        quarterMap.set(item.FISC_QTR, { fiscalYear, quarterNumber });
+      const position = item.QTR_RELATIVE_POSITION;
+      const fiscalQuarter = item.FISC_QTR;
+
+      if (position !== undefined && fiscalQuarter) {
+        quarterPositionMap.set(position, fiscalQuarter);
       }
     });
 
-    // Convert to array and sort by fiscal year (descending), then by quarter number (ascending)
-    const sortedQuarters = Array.from(quarterMap.entries())
-      .map(([fiscalQuarter, { fiscalYear, quarterNumber }]) => ({
-        fiscalQuarter,
-        fiscalYear,
-        quarterNumber,
-      }))
-      .sort(
-        (a, b) =>
-          b.fiscalYear - a.fiscalYear || a.quarterNumber - b.quarterNumber
-      );
-    // Identify the most recent `Q1`
-    const latestQ1 = sortedQuarters.find((q) => q.quarterNumber === 1);
-    if (!latestQ1) return []; // If no Q1 exists, return empty array
-
-    // Get all quarters for the same fiscal year as `latestQ1`
-    const selectedYear = latestQ1.fiscalYear;
-    const recentFiscalYearQuarters = sortedQuarters.filter(
-      (q) => q.fiscalYear === selectedYear
+    // Get available positions sorted (0 = newest, higher = older)
+    const availablePositions = Array.from(quarterPositionMap.keys()).sort(
+      (a, b) => a - b
     );
 
-    // Find `Q4` from the preceding fiscal year for `q5`
-    const q5 = sortedQuarters.find(
-      (q) => q.quarterNumber === 4 && q.fiscalYear === selectedYear - 1
-    );
+    // Step 2: Parse quarters and organize by quarter type
+    const quartersByType: {
+      [key: number]: Array<{
+        fiscalQuarter: string;
+        fiscalYear: number;
+        position: number;
+      }>;
+    } = {
+      1: [],
+      2: [],
+      3: [],
+      4: [],
+    };
 
-    // Assign indices based on fiscal year quarters
-    return [
-      ...recentFiscalYearQuarters.map((q) => ({
-        quarterIndex: q.quarterNumber, // Q1 -> 1, Q2 -> 2, etc.
-        fiscalQuarter: q.fiscalQuarter,
-      })),
-      ...(q5 ? [{ quarterIndex: 5, fiscalQuarter: q5.fiscalQuarter }] : []),
-    ];
+    availablePositions.forEach((position) => {
+      const fiscalQuarter = quarterPositionMap.get(position)!;
+      const match = fiscalQuarter.match(/Q(\d)FY(\d+)/);
+
+      if (match) {
+        const quarterNumber = parseInt(match[1], 10);
+        const fiscalYear = parseInt(match[2], 10);
+
+        quartersByType[quarterNumber].push({
+          fiscalQuarter,
+          fiscalYear,
+          position,
+        });
+      }
+    });
+
+    // console.log('Quarters organized by type:', quartersByType);
+
+    // Step 3: Smart assignment based on quarter type
+    const result: { quarterIndex: number; fiscalQuarter: string }[] = [];
+
+    // Assign Q1 - use the newest (lowest position number)
+    if (quartersByType[1].length > 0) {
+      const newestQ1 = quartersByType[1].sort(
+        (a, b) => a.position - b.position
+      )[0];
+      result.push({ quarterIndex: 1, fiscalQuarter: newestQ1.fiscalQuarter });
+    }
+
+    // Assign Q2 - use the newest available Q2
+    if (quartersByType[2].length > 0) {
+      const newestQ2 = quartersByType[2].sort(
+        (a, b) => a.position - b.position
+      )[0];
+      result.push({ quarterIndex: 2, fiscalQuarter: newestQ2.fiscalQuarter });
+    }
+
+    // Assign Q3 - use the newest available Q3
+    if (quartersByType[3].length > 0) {
+      const newestQ3 = quartersByType[3].sort(
+        (a, b) => a.position - b.position
+      )[0];
+      result.push({ quarterIndex: 3, fiscalQuarter: newestQ3.fiscalQuarter });
+    }
+
+    // Assign Q4 - use the newest available Q4
+    if (quartersByType[4].length > 0) {
+      const newestQ4 = quartersByType[4].sort(
+        (a, b) => a.position - b.position
+      )[0];
+      result.push({ quarterIndex: 4, fiscalQuarter: newestQ4.fiscalQuarter });
+    }
+
+    // Assign Q5 - use older Q1 if available (for year-end transition)
+    if (quartersByType[1].length > 1) {
+      const olderQ1 = quartersByType[1].sort(
+        (a, b) => a.position - b.position
+      )[1];
+      result.push({ quarterIndex: 5, fiscalQuarter: olderQ1.fiscalQuarter });
+    }
+
+    // Sort result by quarterIndex to ensure proper order
+    result.sort((a, b) => a.quarterIndex - b.quarterIndex);
+
+    return result;
   }
 
   generateDatasetsForQuarterComparison(
@@ -551,13 +625,13 @@ export class EspCaseAnalyzerComponent implements OnInit {
       return [
         {
           label: `${displayName} ${firstQuarter.slice(0, 2)}`,
-          data: this.transformData(firstQuarter.slice(1, 2), category),
+          data: this.transformData(firstQuarter, category),
           ...(previousColor || {}),
           ...(chartType && { type: chartType }),
         },
         {
           label: `${displayName} ${secondQuarter.slice(0, 2)}`,
-          data: this.transformData(secondQuarter.slice(1, 2), category),
+          data: this.transformData(secondQuarter, category),
           ...(currentColor || {}),
           ...(chartType && { type: chartType }),
         },

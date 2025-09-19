@@ -7,15 +7,12 @@ import {
 } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { switchMap, startWith } from 'rxjs/operators';
-import { Observable, interval } from 'rxjs';
-import * as XLSX from 'xlsx';
-import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+
 import { MatDialog } from '@angular/material/dialog';
 import { CmsModalComponent } from './cms-modal/cms-modal.component';
-import { th } from 'date-fns/locale';
-import { CmsSftpDetailsComponent } from './cms-sftp-details/cms-sftp-details.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({
   selector: 'app-cms',
@@ -122,9 +119,9 @@ export class CmsComponent implements OnInit {
 
   constructor(
     http: ApiHttpService,
-    private router: Router,
     public dialog: MatDialog,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private exportToExcelService: ExportToExcelService
   ) {
     this.http = http;
   }
@@ -355,24 +352,7 @@ export class CmsComponent implements OnInit {
   }
 
   exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    let worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    let workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    let excelBuffer: any = XLSX.write(workbook, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-    this.saveAsExcelFile(excelBuffer, filename);
-  }
-
-  saveAsExcelFile(buffer: any, filename: string) {
-    let data: Blob = new Blob([buffer], { type: 'application/octet-stream' });
-    let url = window.URL.createObjectURL(data); // temp URL that points to the generated excel file data buffer
-    let link = document.createElement('a'); // create link
-    link.href = url;
-    link.download = filename + '.xlsx';
-    link.click(); // triggers the download process and save file prompt in browser
-    window.URL.revokeObjectURL(url); // revoke temp URL
+    this.exportToExcelService.exportTableToExcel(data, sheetName, filename);
   }
 
   openFullTableModal() {

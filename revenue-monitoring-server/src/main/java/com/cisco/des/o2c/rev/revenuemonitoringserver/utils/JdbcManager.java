@@ -3,12 +3,14 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Component
 public class JdbcManager {
@@ -20,12 +22,6 @@ public class JdbcManager {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
     }
 
-    // unknown function
-    public List<Map<String, Object>> queryForListStageWithParams(String sql, String periodName, String appName,
-            String operatingUnit, String transactionDate) {
-        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
-    }
-
     public List<Map<String, Object>> queryForList(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }
@@ -34,15 +30,63 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
+//    public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
+//        Map<String, String> allowedFields = Map.of(
+//                "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID",
+//                "TRX_NUMBER", "TRX_NUMBER",
+//                "WEBORDER_ID", "WEBORDER_ID"
+//        );
+//        if (field == null || !allowedFields.containsKey(field.toUpperCase())) {
+//            throw new IllegalArgumentException("Invalid field name: " + field);
+//        }
+//        String validatedField = allowedFields.get(field.toUpperCase());
+//
+//        String query = sql + " WHERE " + validatedField + " = ?";
+//        return primaryJdbcTemplate.queryForList(query, value);
+//    }
+
+
+    private static final Map<String, String> ALLOWED_FIELD_CLAUSES = Map.of(
+            "SUBSCRIPTION_REF_ID", "SUBSCRIPTION_REF_ID = :value",
+            "TRX_NUMBER", "TRX_NUMBER = :value",
+            "WEBORDER_ID", "WEBORDER_ID = :value"
+    );
+
+    private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile("(?i)(.*\\b(union|select|from|where|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
+
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
-        // Only allow specific, known-safe fields
-        List<String> allowedFields = Arrays.asList("SUBSCRIPTION_REF_ID", "TRX_NUMBER", "WEBORDER_ID");
-        if (!allowedFields.contains(field)) {
+        if (!ALLOWED_FIELD_CLAUSES.containsKey(field)) {
             throw new IllegalArgumentException("Invalid field name");
         }
-        String query = sql + "WHERE " + field + " = ?";
-        System.out.println(query);
-        return primaryJdbcTemplate.queryForList(query, value);
+        validateBaseSql(sql);
+        String whereClause = ALLOWED_FIELD_CLAUSES.get(field);
+        String query = sql + " WHERE " + whereClause;
+        System.out.println("Executing query with parameters: " + query);
+        MapSqlParameterSource params = new MapSqlParameterSource("value", value);
+        NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(primaryJdbcTemplate);
+        namedTemplate.getJdbcTemplate().setQueryTimeout(30);
+        return namedTemplate.queryForList(query, params);
+    }
+
+    private void validateBaseSql(String sql) {
+        if (sql == null || sql.trim().isEmpty()) {
+            throw new IllegalArgumentException("SQL statement cannot be empty");
+        }
+
+        String normalizedSql = sql.trim().toUpperCase();
+        if (!normalizedSql.startsWith("SELECT ") ||
+                normalizedSql.contains(" WHERE ") ||
+                normalizedSql.contains(";") ||
+                containsSqlInjectionPatterns(normalizedSql)) {
+            throw new IllegalArgumentException("Invalid SQL statement");
+        }
+    }
+
+    private boolean containsSqlInjectionPatterns(String sql) {
+        return sql.contains(";") ||
+                sql.contains("--") ||
+                sql.contains("/*") ||
+                SQL_INJECTION_PATTERN.matcher(sql).matches();
     }
 
     public List<Map<String, Object>> o2cInvoiceSummary(String sql, String value) {
@@ -219,8 +263,14 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getSRTProcessDetailsFiltered(String sql, String periodName,
-            String processFlow, String eventType, String ouName, String srtDate) {
-        return primaryJdbcTemplate.queryForList(sql, periodName, processFlow, eventType, ouName, srtDate);
+            String processFlow, String ouName, String srtDate) {
+        System.out.println(sql);
+        System.out.println(periodName);
+        System.out.println(processFlow);
+        System.out.println(ouName);
+        System.out.println(srtDate);
+        System.out.println(primaryJdbcTemplate.queryForList(sql, periodName, processFlow, ouName, srtDate));
+        return primaryJdbcTemplate.queryForList(sql, periodName, processFlow, ouName, srtDate);
     }
 
     public int updateSRTProcessSummary(String sql, String assignedTo, String assignedBy, String comments,
@@ -312,5 +362,35 @@ public class JdbcManager {
             String entityName, String holdApplyDate, String flooringBid) {
         return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, entityName, holdApplyDate,
                 flooringBid);
+    }
+
+    public List<Map<String, Object>> getPCMApplicationDetailsFiltered(String sql, String periodName,
+                                                                       String appName, String processFlow, String ouName, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, appName, ouName, periodName, processFlow, transactionDate);
+    }
+
+    public int updatePCMApplicationSummary(String sql, String assignedTo, String assignedBy, String comments,
+                                            String periodName, String batchSource, String processFlow, String entityName, String transactionDate) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, periodName, batchSource,
+                processFlow, entityName, transactionDate);
+    }
+
+    public List<Map<String, Object>> getProcessFlowTotal(String sql, String compName) {
+        return primaryJdbcTemplate.queryForList(sql, compName);
+    }
+
+    public List<Map<String, Object>> filterI2cControls(String sql, String periodName, String appName,
+                                                                 String operatingUnit, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
+    }
+
+    public List<Map<String, Object>> filterRevControls(String sql, String periodName, String appName,
+                                                       String operatingUnit, String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
+    }
+
+    public List<Map<String, Object>> filterGtcControls(String sql, String processFlow, String entityName,
+                                                        String transactionDate) {
+        return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
     }
 }

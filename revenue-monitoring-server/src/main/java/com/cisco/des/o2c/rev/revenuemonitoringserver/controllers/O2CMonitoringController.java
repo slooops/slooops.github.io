@@ -6,10 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "${CORS_URL}")
@@ -120,6 +117,19 @@ public class O2CMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getO2cConnector(@RequestBody Map<String, String> data) {
         String field = data.get("column");
         String value = data.get("value");
-        return new ResponseEntity<>(service.getO2cConnectorData(field,value), HttpStatus.OK);
+
+        // Validate inputs
+        if (field == null || field.trim().isEmpty()) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.BAD_REQUEST);
+        }
+        if (value == null || value.trim().isEmpty()) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            return new ResponseEntity<>(service.getO2cConnectorData(field, value), HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

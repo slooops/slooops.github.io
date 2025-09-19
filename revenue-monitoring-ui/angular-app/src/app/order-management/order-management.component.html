@@ -10,18 +10,11 @@
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-imports'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omImportUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Imports'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omImportFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -33,18 +26,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-holds'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omHoldsUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Holds'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omHoldsFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -56,18 +42,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-bookings'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omBookingsUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Bookings'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omBookingsFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -79,18 +58,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-workflow'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omWorkflowUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Workflow'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omWorkflowFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -102,18 +74,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-processing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omProcessingUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Processing'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omProcessingFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -125,18 +90,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-distribution'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omDistributionUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Distribution'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omDistributionFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -148,18 +106,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-attribution'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omAttributionUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Attribution'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omAttributionFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -171,18 +122,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-jobs'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="omJobsUrls"
           [keysToMap]="['timestamp', 'scenario']"
-          [processFlowKeys]=""
           [periodStatus]="periodStatus"
           [componentName]="'Order Management Jobs'"
-          [processFlowTabsToDisplay]="[]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]=""
-          [dynamicCss]=""
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="omJobsFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"

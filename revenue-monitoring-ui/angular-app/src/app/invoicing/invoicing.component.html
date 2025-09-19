@@ -10,23 +10,11 @@
     <ng-container [ngSwitch]="tab.component">
       <ng-container *ngSwitchCase="'app-pre-invoicing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="preInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
-          [processFlowKeys]="preInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Pre-Invoicing'"
-          [processFlowTabsToDisplay]="[
-            'Pre-Invoicing',
-            'Auto-Invoicing',
-            'CM-Amortization',
-            'Print'
-          ]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]="dynamicTemplate"
-          [dynamicCss]="invoicingprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Invoice processing is delayed '"
           [columnsToFilter]="preInvoicingFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -51,23 +39,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-auto-invoicing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="autoInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
-          [processFlowKeys]="autoInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Auto-Invoicing'"
-          [processFlowTabsToDisplay]="[
-            'Pre-Invoicing',
-            'Auto-Invoicing',
-            'CM-Amortization',
-            'Print'
-          ]"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]="dynamicTemplate"
-          [dynamicCss]="invoicingprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Invoice processing is delayed '"
           [columnsToFilter]="autoInvoicingFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -93,18 +69,11 @@
         <mat-tab-group [selectedIndex]="0">
           <mat-tab label="CM Amortization">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="cmAmortUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
-              [processFlowKeys]="cmAmortTotals"
               [periodStatus]="periodStatus"
               [componentName]="'CM Amortization'"
-              [processFlowTabsToDisplay]="['CM Amortization']"
-              [specialWords]="specialWords"
-              [skippedWords]="skippedWords"
-              [dynamicTemplate]="cmAmortTemplate"
-              [dynamicCss]="cmAmortprocessflowCss"
-              [isSubAppMapping]="false"
-              [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
               [detailsColumnsToHide]="['TRANSACTION_DATE']"
               [assignmentDialogFieldConfig]="fieldConfig"
@@ -129,23 +98,11 @@
           </mat-tab>
           <mat-tab label="Invoice Delivery">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="printUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
-              [processFlowKeys]="printTotals"
               [periodStatus]="periodStatus"
               [componentName]="'Print'"
-              [processFlowTabsToDisplay]="[
-                'Pre-Invoicing',
-                'Auto-Invoicing',
-                'CM Amortization',
-                'Print'
-              ]"
-              [specialWords]="specialWords"
-              [skippedWords]="skippedWords"
-              [dynamicTemplate]="printTemplate"
-              [dynamicCss]="printTotalsprocessflowCss"
-              [isSubAppMapping]="false"
-              [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
               [detailsColumnsToHide]="['TRANSACTION_DATE']"
               [assignmentDialogFieldConfig]="fieldConfig"
@@ -170,18 +127,11 @@
           </mat-tab>
           <mat-tab label="Digital Payments">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="creditCardUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
-              [processFlowKeys]="creditCardTotals"
               [periodStatus]="periodStatus"
               [componentName]="'Credit Card'"
-              [processFlowTabsToDisplay]="['Credit Card']"
-              [specialWords]="specialWords"
-              [skippedWords]="skippedWords"
-              [dynamicTemplate]="creditCardTemplate"
-              [dynamicCss]="creditCardprocessflowCss"
-              [isSubAppMapping]="false"
-              [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="postInvoicingFilters"
               [detailsColumnsToHide]="[]"
               [assignmentDialogFieldConfig]="fieldConfig"
@@ -192,24 +142,16 @@
           </mat-tab>
           <mat-tab label="SRT Process">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="srtProcessUrls"
               [keysToMap]="[
                 'PERIOD_NAME',
                 'PROCESS_FLOW',
-                'EVENT_TYPE',
                 'ORG_NAME',
                 'SRT_DATE'
               ]"
-              [processFlowKeys]="srtTotals"
               [periodStatus]="periodStatus"
               [componentName]="'SRT Process'"
-              [processFlowTabsToDisplay]="['SRT Process']"
-              [specialWords]="specialWords"
-              [skippedWords]="skippedWords"
-              [dynamicTemplate]="srtProcessTemplate"
-              [dynamicCss]="srtProcessprocessflowCss"
-              [isSubAppMapping]="false"
-              [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="srtProcessFilters"
               [detailsColumnsToHide]="[]"
               [assignmentDialogFieldConfig]="fieldConfig"
@@ -226,18 +168,11 @@
           </mat-tab>
           <mat-tab label="RPO Extract">
             <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
               [urls]="rpoExtractUrls"
               [keysToMap]="preAndAutoInvoiceKeysToMap"
-              [processFlowKeys]="rpoTotals"
               [periodStatus]="periodStatus"
               [componentName]="'RPO Extract'"
-              [processFlowTabsToDisplay]="['RPO Extract']"
-              [specialWords]="specialWords"
-              [skippedWords]="skippedWords"
-              [dynamicTemplate]="rpoExtractTemplate"
-              [dynamicCss]="rpoExtractprocessflowCss"
-              [isSubAppMapping]="false"
-              [warningMessage]="'Invoice processing is delayed '"
               [columnsToFilter]="rpoExtractFilters"
               [detailsColumnsToHide]="[]"
               [assignmentDialogFieldConfig]="fieldConfig"
@@ -255,6 +190,27 @@
                 'TRANSACTION_DATE',
                 'AMOUNT'
               ]"
+            ></app-monitoring-dashboard>
+          </mat-tab>
+          <mat-tab label="PCM Application">
+            <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
+              [urls]="pcmApplicationUrls"
+              [keysToMap]="preAndAutoInvoiceKeysToMap"
+              [periodStatus]="periodStatus"
+              [componentName]="'PCM Application'"
+              [columnsToFilter]="pcmFilters"
+              [detailsColumnsToHide]="[]"
+              [assignmentDialogFieldConfig]="fieldConfig"
+              [assignmentUsersFilter]="'I2C'"
+              [submitKeysToMap]="[
+                'PERIOD_NAME',
+                'APPLICATION_NAME',
+                'PROCESS_FLOW',
+                'ORG_NAME',
+                'TRANSACTION_DATE'
+              ]"
+              [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
           </mat-tab>
           <!-- <mat-tab label="Debit Card Payments">
@@ -283,18 +239,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-eInvoicing'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="eInvoicingUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
-          [processFlowKeys]="eInvoicingTotals"
           [periodStatus]="periodStatus"
           [componentName]="'eInvoicing'"
-          [processFlowTabsToDisplay]="['eInvoicing']"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]="eInvTemplate"
-          [dynamicCss]="eInvprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="eInvoicingFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -319,18 +268,11 @@
       </ng-container>
       <ng-container *ngSwitchCase="'app-fusion'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="fusionUrls"
           [keysToMap]="preAndAutoInvoiceKeysToMap"
-          [processFlowKeys]="fusionTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Fusion'"
-          [processFlowTabsToDisplay]="['Fusion']"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]="fusionTemplate"
-          [dynamicCss]="fusionprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="fusionFilters"
           [detailsColumnsToHide]="['TRANSACTION_DATE']"
           [assignmentDialogFieldConfig]="fieldConfig"
@@ -355,6 +297,7 @@
 
       <ng-container *ngSwitchCase="'app-credit-card-check'">
         <app-monitoring-dashboard
+          [apiUrl]="authService.getHostUrl()"
           [urls]="creditCardCheckUrls"
           [keysToMap]="[
             'PERIOD_NAME',
@@ -362,39 +305,14 @@
             'HOLD_APPLY_DATE',
             'PROCESS_FLOW'
           ]"
-          [processFlowKeys]="creditCheckTotals"
           [periodStatus]="periodStatus"
           [componentName]="'Credit Check Process'"
-          [processFlowTabsToDisplay]="['Credit Check Process']"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [dynamicTemplate]="creditCheckTemplate"
-          [dynamicCss]="creditCheckprocessflowCss"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
           [columnsToFilter]="creditCardCheckFilters"
           [detailsColumnsToHide]="[]"
           [assignmentDialogFieldConfig]="fieldConfig"
           [assignmentUsersFilter]="'I2C'"
           [submitKeysToMap]="['ORG_NAME', 'HOLD_APPLY_DATE', 'PROCESS_FLOW']"
           [webexKeysToMap]="[]"
-          *ngIf="selectedIndex === i"
-        ></app-monitoring-dashboard>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-transactions-processed'">
-        <app-monitoring-dashboard
-          [urls]="transactionsProcessedUrls"
-          [keysToMap]="['ORG_NAME']"
-          [periodStatus]="periodStatus"
-          [componentName]="'Transactions Processed'"
-          [specialWords]="specialWords"
-          [skippedWords]="skippedWords"
-          [isSubAppMapping]="false"
-          [warningMessage]="'Warning message '"
-          [columnsToFilter]="[]"
-          [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
           *ngIf="selectedIndex === i"
         ></app-monitoring-dashboard>
       </ng-container>
@@ -406,306 +324,6 @@
   </mat-tab>
 </mat-tab-group>
 
-<!-- <app-monitoring-dashboard
-  [urls]="autoInvoicingUrls"
-  [keysToMap]="preAndAutoInvoiceKeysToMap"
-  [processFlowKeys]="autoInvoicingTotals"
-  [periodStatus]="periodStatus"
-  [componentName]="'Auto-Invoicing'"
-  [processFlowTabsToDisplay]="[
-    'Pre-Invoicing',
-    'Auto-Invoicing',
-    'CM-Amortization',
-    'Print'
-  ]"
-  [specialWords]="specialWords"
-  [skippedWords]="skippedWords"
-  [dynamicTemplate]="dynamicTemplate"
-  [dynamicCss]="invoicingprocessflowCss"
-  [isSubAppMapping]="false"
-  [warningMessage]="'Invoice processing is delayed '"
-  [columnsToFilter]="autoInvoicingFilters"
-  [detailsColumnsToHide]="['TRANSACTION_DATE']"
-  [submitKeysToMap]="[
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_DATE'
-  ]"
-  [webexKeysToMap]="[
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'ORG_NAME',
-    'TRANSACTION_DATE',
-    'AMOUNT'
-  ]"
-></app-monitoring-dashboard> -->
-
-<ng-template #dynamicTemplate let-allTotals="allTotals">
-  <div
-    class="flowchart-container"
-    style="padding-left: 5px; padding-right: 5px; padding-bottom: 20px"
-  >
-    <br />
-    <div class="slider">
-      <div class="slider-bar">
-        <!-- Pre-Invoicing Circle 1 -->
-        <div class="circle-wrapper circle-wrapper-1">
-          <p class="circle-caption">1. SBP Staging</p>
-          <span class="circle circle-1"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Pre-Invoicing']?.['1 - SBP Staging'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 1 -->
-        <div class="chevron chevron-1"></div>
-        <div class="chevron-white chevron-1"></div>
-
-        <!-- Pre-Invoicing Circle 2 -->
-        <div class="circle-wrapper circle-wrapper-2">
-          <p class="circle-caption">2. Inv Orchestration Layer</p>
-          <span class="circle circle-2"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Pre-Invoicing']?.['2 - Invoice Orchestration Layer'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 2 -->
-        <div class="chevron chevron-2"></div>
-        <div class="chevron-white chevron-2"></div>
-
-        <!-- Auto-Invoicing Circle 3 -->
-        <div class="circle-wrapper circle-wrapper-3">
-          <p class="circle-caption">3. Auto-Invoice</p>
-          <span class="circle circle-3"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Auto-Invoicing']?.['3 - Auto Invoice'] || 'N/A' }}
-          </p>
-        </div>
-
-        <!-- Chevron 3 -->
-        <!-- <div class="chevron chevron-4"></div>
-        <div class="chevron-white chevron-4"></div> -->
-
-        <!-- Post-Invoice Circle 4 -->
-        <!-- <div class="circle-wrapper circle-wrapper-5">
-          <p class="circle-caption">5. Print</p>
-          <span class="circle circle-5"></span>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Print']?.['Print'] || 'N/A' }}
-          </p>
-        </div> -->
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #eInvTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedeInvoicingSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['eInvoicing']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedeInvoicingSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #fusionTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedFusionSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Fusion']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedFusionSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #creditCheckTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedCreditCheckSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Credit Check Process']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedCreditCheckSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #creditCardTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedCreditCardSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Credit Card']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedCreditCardSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #rpoExtractTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedRPOExtractSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['RPO Extract']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedRPOExtractSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #srtProcessTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedSRTProcessSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['SRT Process']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedSRTProcessSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #cmAmortTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedCMAmortizationSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['CM Amortization']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedCMAmortizationSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<ng-template #printTemplate let-allTotals="allTotals">
-  <div class="flowchart-container">
-    <div class="slider-bar">
-      <div *ngFor="let step of formattedPrintSteps; let i = index">
-        <div class="circle-wrapper-loop">
-          <p class="circle-caption-loop">{{ step.label }}</p>
-          <p class="circle-loop"></p>
-          <p class="circle-subcaption">
-            Total Impact:
-            {{ allTotals['Print']?.[step.impact] || 'N/A' }}
-          </p>
-        </div>
-
-        <div
-          *ngIf="i < formattedPrintSteps.length - 1"
-          class="chevron-wrapper-loop"
-        >
-          <div class="chevron"></div>
-          <div class="chevron-white"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-template>
 <div
   style="display: flex; justify-content: center; align-items: center !important"
 >

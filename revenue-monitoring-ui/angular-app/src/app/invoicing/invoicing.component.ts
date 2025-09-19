@@ -16,8 +16,7 @@ export class InvoicingComponent implements OnInit {
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    private http: ApiHttpService,
-    private authService: AuthenticationService,
+    public authService: AuthenticationService,
     private menuService: MenuService
   ) {}
   preInvoicingProcessFlowHtml: string = '';
@@ -27,33 +26,6 @@ export class InvoicingComponent implements OnInit {
     this.getErrorSummaryPeriodStatus();
     this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
-    this.menuService.updateMenuItems([
-      {
-        label: 'Period Close Tracking',
-        route: '/period-close-tracking',
-        role: ['ADMIN', 'PERIOD_CLOSE'],
-      },
-      {
-        label: 'Invoice to Cash',
-        route: '/invoice-to-cash',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Revenue Accounting',
-        route: '/revenue-accounting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'GL Posting',
-        route: '/gl-posting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Operations Controls',
-        route: '',
-        role: [''],
-      },
-    ]);
   }
 
   fieldConfig = [
@@ -102,11 +74,6 @@ export class InvoicingComponent implements OnInit {
     },
     { controlName: 'comments', label: 'Comments', sourceKey: 'COMMENTS' },
   ];
-
-  preInvoicingTotals: { [key: string]: number } = {
-    '1 - SBP Staging': 0,
-    '2 - Invoice Orchestration Layer': 0,
-  };
 
   preInvoicingFilters: {
     formControlName: string;
@@ -198,6 +165,38 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
+  pcmFilters: {
+    formControlName: string;
+    columnName: string;
+    type: string;
+    subAppMapping: boolean;
+  }[] = [
+    {
+      columnName: 'PROCESS_FLOW',
+      formControlName: 'processFlow',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'ORG_NAME',
+      formControlName: 'orgName',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'receiptNumber',
+      columnName: 'RECEIPT_NUMBER',
+      type: 'text',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'bankTraceId',
+      columnName: 'BANK_TRACE_ID',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
+
   srtProcessFilters: {
     formControlName: string;
     columnName: string;
@@ -281,49 +280,6 @@ export class InvoicingComponent implements OnInit {
       subAppMapping: false,
     },
   ];
-
-  cmAmortTotals: { [key: string]: number } = {
-    'CM Amortization': 0,
-  };
-
-  formattedCMAmortizationSteps = Object.keys(this.cmAmortTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
-  printTotals: { [key: string]: number } = {
-    'B2B, Email': 0,
-    FTP: 0,
-    B2B: 0,
-    Email: 0,
-  };
-
-  formattedPrintSteps = Object.keys(this.printTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
-  creditCardTotals: { [key: string]: number } = {
-    'Credit Card Recurring': 0,
-    'Debit Card One Time': 0,
-  };
-
-  formattedCreditCardSteps = Object.keys(this.creditCardTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
-  autoInvoicingTotals: { [key: string]: number } = {
-    '3 - Auto Invoice': 0,
-  };
-
-  eInvoicingTotals: { [key: string]: number } = {
-    Bolton: 0,
-    Synchro: 0,
-    Esker: 0,
-    SmartBill: 0,
-    Sovos: 0,
-  };
 
   preAndAutoInvoiceKeysToMap: string[] = [
     'PERIOD_NAME',
@@ -466,22 +422,14 @@ export class InvoicingComponent implements OnInit {
     chartDetailsUrl: '',
   };
 
-  transactionsProcessedUrls: { [key: string]: string } = {
-    summaryUrl: 'transactions-processed-summary',
-    detailsUrl: 'transactions-processed-details',
-    filteredDetailsUrl: 'transactions-processed-details-filtered',
-    summaryUpdateUrl: '',
+  pcmApplicationUrls: { [key: string]: string } = {
+    summaryUrl: 'pcm-application-summary',
+    detailsUrl: 'pcm-application-details',
+    filteredDetailsUrl: 'pcm-application-details-filtered',
+    summaryUpdateUrl: 'pcm-application-summary-update',
     webexMessageUrl: '',
     chartTotalsUrl: '',
     chartDetailsUrl: '',
-  };
-
-  rpoTotals: { [key: string]: number } = {
-    'Billing Pending': 0,
-  };
-
-  srtTotals: { [key: string]: number } = {
-    SAASTerminateNotify: 0,
   };
 
   fusionFilters: {
@@ -548,42 +496,6 @@ export class InvoicingComponent implements OnInit {
     },
   ];
 
-  fusionTotals: { [key: string]: number } = {
-    'Order Import': 0,
-  };
-
-  creditCheckTotals: { [key: string]: number } = {
-    Flooring: 0,
-    'Non-Flooring': 0,
-  };
-
-  formattedFusionSteps = Object.keys(this.fusionTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
-  formattedeInvoicingSteps = Object.keys(this.eInvoicingTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
-  formattedCreditCheckSteps = Object.keys(this.creditCheckTotals).map(
-    (key) => ({
-      label: this.formatLabel(key),
-      impact: key,
-    })
-  );
-
-  formattedRPOExtractSteps = Object.keys(this.rpoTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
-  formattedSRTProcessSteps = Object.keys(this.srtTotals).map((key) => ({
-    label: this.formatLabel(key),
-    impact: key,
-  }));
-
   formatLabel(label: string): string {
     const acronyms = this.skippedWords || [];
 
@@ -634,12 +546,6 @@ export class InvoicingComponent implements OnInit {
       component: 'app-eInvoicing',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
-    // {
-    //   label: 'CMS',
-    //   component: 'app-cms',
-    //   role: ['ADMIN', 'CMS'],
-    //   disabled: true,
-    // },
     {
       label: 'Fusion',
       component: 'app-fusion',
@@ -650,11 +556,11 @@ export class InvoicingComponent implements OnInit {
       component: 'app-credit-card-check',
       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
     },
-    // {
-    //   label: 'Transactions Processed',
-    //   component: 'app-transactions-processed',
-    //   role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-    // },
+    {
+      label: 'CMS',
+      component: 'app-cms',
+      role: ['ADMIN', 'CMS'],
+    },
   ];
 
   selectedIndex: number = 0;
@@ -671,875 +577,4 @@ export class InvoicingComponent implements OnInit {
     const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
   }
-
-  invoicingprocessflowCss: string = `
-.flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: 82px;
-
-}
-
-.slider-title {
-  color: #333;
-  margin-bottom: 30px;
-  margin-top: 0;
-  text-align: center;
-  font-weight: 500;
-  font-size: 16px;
-}
-
-.slider {
-  display: flex;
-  align-items: center;
-  margin: 10px 0;
-  position: relative;
-}
-
-.slider-bar {
-  width: 460px;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-}
-
-.circle-wrapper {
-  position: absolute;
-  text-align: center;
-  top: -20px;
-}
-
-.circle {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: absolute;
-  top: 14px;
-}
-
-.circle-caption {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  position: relative;
-  top: -12px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000000;
-  text-align: center;
-  position: relative;
-  top: 2px;
-  font-weight: bold;
-}
-
-/* Specific positioning for each circle-wrapper */
-.circle-wrapper-1 {
-  left: 0px;
-}
-
-.circle-wrapper-2 {
-  left: 150px;
-}
-
-.circle-wrapper-3 {
-  left: 325px;
-}
-
-.circle-wrapper-4 {
-  left: 490px;
-}
-
-.circle-wrapper-5 {
-  left: 670px;
-}
-
-.circle-1 {
-  left: 48px;
-}
-
-.circle-2 {
-  left: 56px;
-}
-
-.circle-3 {
-  left: 48px;
-}
-
-.circle-4 {
-  left: 48px;
-}
-
-.circle-5 {
-  left: 24px;
-}
-
-/* Chevron Arrows */
-.chevron {
-  position: absolute;
-  top: 0px;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-}
-
-.chevron-white {
-  position: absolute;
-  top: -2px;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 4px 4px 4px 4px;
-  border-color: transparent #f7f7f7 transparent transparent;
-  transform: rotate(180deg);
-}
-
-.chevron-1 {
-  left: 130px;
-}
-
-.chevron-1a {
-  left: 130px;
-}
-
-.chevron-2 {
-  left: 300px;
-}
-
-.chevron-3 {
-  left: 480px;
-}
-
-.chevron-4 {
-  left: 630px;
-}
-`;
-
-  eInvprocessflowCss: string = `
-.flowchart-container {
-display: flex;
-flex-direction: column;
-align-items: center;
-height: 82px;
-width: 760px;
-background: #ffffff;
-top: 0px;
-padding-bottom: 20px;
-}
-
-.slider-bar {
-margin-top: 40px;
-position: absolute;
-width: fit-content;
-height: 4px;
-background: #16371e43;
-border-radius: 5px;
-z-index: 0;
-display: flex;
-flex-direction: row;
-}
-
-.circle-wrapper-loop {
-align-items: center;
-text-align: center;
-position: relative;
-width: 150px;
-top: -40px;
-}
-
-.circle-loop {
-width: 16px;
-height: 16px;
-border-radius: 50%;
-background: #828d9b;
-position: relative;
-margin-top: -0px;
-left: 67px;
-}
-
-.circle-caption-loop {
-font-size: 12px;
-color: #333;
-text-align: center;
-height: 20px;
-}
-
-.circle-subcaption {
-font-size: 10px;
-color: #000;
-font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-display: flex;
-align-items: center;
-justify-content: center;
-width: 0px; /* Matches the circle wrapper width */
-position: relative;
-top: -105px;
-left: 150px;
-}
-
-.chevron,
-.chevron-white {
-width: 0;
-height: 0;
-border-style: solid;
-position: relative;
-}
-
-.chevron {
-border-width: 2px 2px 2px 2px;
-border-color: transparent #16371e43 transparent transparent;
-transform: rotate(180deg);
-z-index: 1;
-top: 0px;
-}
-
-.chevron-white {
-border-width: 8px 8px 8px 8px;
-border-color: transparent #fcfcfc transparent transparent;
-transform: rotate(180deg);
-margin-left: -4px; /* To overlay on the darker chevron */
-top: 0px;
-}
-`;
-
-  fusionprocessflowCss: string = `
-.flowchart-container {
-display: flex;
-flex-direction: column;
-align-items: center;
-height: 82px;
-width: 170px;
-background: #ffffff;
-top: 0px;
-padding-bottom: 20px;
-}
-
-.slider-bar {
-margin-top: 40px;
-position: absolute;
-width: fit-content;
-height: 4px;
-background: #16371e43;
-border-radius: 5px;
-z-index: 0;
-display: flex;
-flex-direction: row;
-}
-
-.circle-wrapper-loop {
-align-items: center;
-text-align: center;
-position: relative;
-width: 150px;
-top: -40px;
-}
-
-.circle-loop {
-width: 16px;
-height: 16px;
-border-radius: 50%;
-background: #828d9b;
-position: relative;
-margin-top: -0px;
-left: 67px;
-}
-
-.circle-caption-loop {
-font-size: 12px;
-color: #333;
-text-align: center;
-height: 20px;
-}
-
-.circle-subcaption {
-font-size: 10px;
-color: #000;
-font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-display: flex;
-align-items: center;
-justify-content: center;
-width: 0px; /* Matches the circle wrapper width */
-position: relative;
-top: -105px;
-left: 150px;
-}
-
-.chevron,
-.chevron-white {
-width: 0;
-height: 0;
-border-style: solid;
-position: relative;
-}
-
-.chevron {
-border-width: 2px 2px 2px 2px;
-border-color: transparent #16371e43 transparent transparent;
-transform: rotate(180deg);
-z-index: 1;
-top: 0px;
-}
-
-.chevron-white {
-border-width: 8px 8px 8px 8px;
-border-color: transparent #fcfcfc transparent transparent;
-transform: rotate(180deg);
-margin-left: -4px; /* To overlay on the darker chevron */
-top: 0px;
-}
-`;
-
-  creditCardprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 82px;
-  width: 320px;
-  background: #ffffff;
-  top: 0px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 40px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-  `;
-
-  creditCheckprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 82px;
-  width: 320px;
-  background: #ffffff;
-  top: 0px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 40px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-  `;
-
-  rpoExtractprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 82px;
-  width: 170px;
-  background: #ffffff;
-  top: 0px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 40px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-  `;
-
-  srtProcessprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 82px;
-  width: 170px;
-  background: #ffffff;
-  top: 0px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 40px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-  `;
-
-  cmAmortprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 82px;
-  width: 170px;
-  background: #ffffff;
-  top: 0px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 40px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-  `;
-
-  printTotalsprocessflowCss: string = `
-  .flowchart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 82px;
-  width: 620px;
-  background: #ffffff;
-  top: 0px;
-  padding-bottom: 20px;
-}
-
-.slider-bar {
-  margin-top: 40px;
-  position: absolute;
-  width: fit-content;
-  height: 4px;
-  background: #16371e43;
-  border-radius: 5px;
-  z-index: 0;
-  display: flex;
-  flex-direction: row;
-}
-
-.circle-wrapper-loop {
-  align-items: center;
-  text-align: center;
-  position: relative;
-  width: 150px;
-  top: -40px;
-}
-
-.circle-loop {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #828d9b;
-  position: relative;
-  margin-top: -0px;
-  left: 67px;
-}
-
-.circle-caption-loop {
-  font-size: 12px;
-  color: #333;
-  text-align: center;
-  height: 20px;
-}
-
-.circle-subcaption {
-  font-size: 10px;
-  color: #000;
-  font-weight: bold;
-}
-
-.chevron-wrapper-loop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 0px; /* Matches the circle wrapper width */
-  position: relative;
-  top: -105px;
-  left: 150px;
-}
-
-.chevron,
-.chevron-white {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  position: relative;
-}
-
-.chevron {
-  border-width: 2px 2px 2px 2px;
-  border-color: transparent #16371e43 transparent transparent;
-  transform: rotate(180deg);
-  z-index: 1;
-  top: 0px;
-}
-
-.chevron-white {
-  border-width: 8px 8px 8px 8px;
-  border-color: transparent #fcfcfc transparent transparent;
-  transform: rotate(180deg);
-  margin-left: -4px; /* To overlay on the darker chevron */
-  top: 0px;
-}
-  `;
 }

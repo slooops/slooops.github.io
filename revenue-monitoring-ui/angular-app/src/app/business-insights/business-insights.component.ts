@@ -83,7 +83,7 @@ export class BusinessInsightsComponent implements OnInit {
     {
       label: 'O2C - 360',
       component: 'app-o2c-360',
-      role: ['O360'],
+      role: ['ADMIN', 'O360'],
     },
   ];
 

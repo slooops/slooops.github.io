@@ -1192,4 +1192,90 @@ public class QueryConfigs {
         return this.o2cConnector;
     }
 
+    @Value(("${pcm.cash.application.summary.q}"))
+    public String pcmApplicationSummary;
+
+    @Bean(name = "pcmApplicationSummary")
+    public String getPcmApplicationSummary() {
+        return this.pcmApplicationSummary;
+    }
+
+    @Value(("${pcm.cash.application.details.q}"))
+    public String pcmApplicationDetails;
+
+    @Bean(name = "pcmApplicationDetails")
+    public String getPcmApplicationDetails() {
+        return this.pcmApplicationDetails;
+    }
+
+    @Value(("${pcm.cash.application.details.filtered.q}"))
+    public String pcmApplicationDetailsFiltered;
+
+    @Bean(name = "pcmApplicationDetailsFiltered")
+    public String getPcmApplicationDetailsFiltered() {
+        return this.pcmApplicationDetailsFiltered;
+    }
+
+    @Value(("${pcm.cash.application.summary.update.q}"))
+    public String pcmApplicationSummaryUpdate;
+
+    @Bean(name = "pcmApplicationSummaryUpdate")
+    public String getPcmApplicationSummaryUpdate() {
+        return this.pcmApplicationSummaryUpdate;
+    }
+
+    @Value(("${process.flow.total}"))
+    public String processFlowTotal;
+
+    @Bean(name = "processFlowTotal")
+    public String getProcessFlowTotal() {
+        return this.processFlowTotal;
+    }
+
+    @Value(("${i2c.controls.summary}"))
+    public String i2cControlsSummary;
+    @Value(("${i2c.controls.details}"))
+    public String i2cControlsDetails;
+    @Value(("${i2c.controls.details.filtered}"))
+    public String i2cControlsDetailsFiltered;
+
+    @Bean(name = "i2cControlsSummary")
+    public String getI2cControlsSummary() { return this.i2cControlsSummary; }
+    @Bean(name = "i2cControlsDetails")
+    public String getI2cControlsDetails() { return this.i2cControlsDetails; }
+    @Bean(name = "i2cControlsDetailsFiltered")
+    public String getI2cControlsDetailsFiltered() { return this.i2cControlsDetailsFiltered; }
+
+    @Value(("${rev.controls.summary}"))
+    public String revControlsSummary;
+    @Value(("${rev.controls.details}"))
+    public String revControlsDetails;
+
+    @Value(("${rev.controls.details.filtered}"))
+    public String revControlsDetailsFiltered;
+
+    @Bean(name = "revControlsSummary")
+    public String getRevControlsSummary() { return this.revControlsSummary; }
+    @Bean(name = "revControlsDetails")
+    public String getRevControlsDetails() { return this.revControlsDetails; }
+    @Bean(name = "revControlsDetailsFiltered")
+    public String getRevControlsDetailsFiltered() { return this.revControlsDetailsFiltered; }
+
+    @Value(("${gtc.controls.summary}"))
+    public String gtcControlsSummary;
+
+    @Bean(name = "gtcControlsSummary")
+    public String getGtcControlsSummary() { return this.gtcControlsSummary; }
+
+    @Value(("${gtc.controls.details}"))
+    public String gtcControlsDetails;
+
+    @Bean(name = "gtcControlsDetails")
+    public String getGtcControlsDetails() { return this.gtcControlsDetails; }
+
+    @Value(("${gtc.controls.details.filtered}"))
+    public String gtcControlsDetailsFiltered;
+
+    @Bean(name = "gtcControlsDetailsFiltered")
+    public String getGtcControlsDetailsFiltered() { return this.gtcControlsDetailsFiltered; }
 }

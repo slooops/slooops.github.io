@@ -10,14 +10,12 @@ import {
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
-import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import { ApiHttpService } from 'src/app/providers/http.service';
+import { HttpService } from '../providers/http.service';
 
 @Component({
   selector: 'app-user-assignment',
   templateUrl: './user-assignment.component.html',
   styleUrl: './user-assignment.component.css',
-  providers: [DestroyManager],
 })
 export class UserAssignmentComponent implements OnInit, OnChanges {
   @Input() submitKeysToMap: string[] = []; // Keys for submitData
@@ -40,7 +38,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
 
   constructor(
     private formBuilder: FormBuilder,
-    private http: ApiHttpService,
+    private http: HttpService,
     private dataService: DataService,
     private authService: AuthenticationService
   ) {
@@ -105,10 +103,7 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
       this.submitKeys,
       true
     );
-    // Add changed fields to updateData
     Object.assign(updateData, this.getChangedFields());
-    console.log('updateData:', updateData);
-    console.log(this.updateUrl);
     this.http
       .post(this.updateUrl, updateData, {
         responseType: 'text',
@@ -151,6 +146,8 @@ export class UserAssignmentComponent implements OnInit, OnChanges {
         const currentValue = this.updateForm.value[field.controlName];
         if (currentValue !== originalValue) {
           changed[field.controlName] = currentValue;
+        } else {
+          changed[field.controlName] = originalValue;
         }
       }
     });

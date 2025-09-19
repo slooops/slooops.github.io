@@ -62,7 +62,6 @@ import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.co
 import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
-import { SbpComponent } from './sbp/sbp.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
 import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
 import { HelpDataComponent } from './help-data/help-data.component';
@@ -78,7 +77,6 @@ import { CommonModule } from '@angular/common';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
 import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-// import { O2cSubComponent } from './o2c-demo/o2c-sub/o2c-sub.component';
 import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
 import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
@@ -87,15 +85,7 @@ import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-proce
 import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { TableComponent } from './components/table/table.component';
 import { OplComponent } from './opl/opl.component';
-import { AccountReconComponent } from './account-recon/account-recon.component';
-import { AccrualsComponent } from './accruals/accruals.component';
-import { StandardRevenueComponent } from './standard-revenue/standard-revenue.component';
-import { PreInvoicingComponent } from './pre-invoicing/pre-invoicing.component';
-import { PostInvoicingComponent } from './post-invoicing/post-invoicing.component';
-import { EinvoicingComponent } from './einvoicing/einvoicing.component';
-import { FusionComponent } from './fusion/fusion.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
-import { ContinuousMonitoringComponent } from './continuous-monitoring/continuous-monitoring.component';
 import {
   DialogBox,
   IssueReportingComponent,
@@ -118,6 +108,7 @@ import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-cas
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
 import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
+import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -153,7 +144,6 @@ export function initApp(authService: AuthenticationService) {
     CmsDetailsComponent,
     CmsModalComponent,
     CmsSftpDetailsComponent,
-    SbpComponent,
     LoadingSymbolSmallComponent,
     EspCaseAnalyzerComponent,
     HelpDataComponent,
@@ -175,15 +165,7 @@ export function initApp(authService: AuthenticationService) {
     O2cOverviewComponent,
     TableComponent,
     OplComponent,
-    AccountReconComponent,
-    AccrualsComponent,
-    StandardRevenueComponent,
-    PreInvoicingComponent,
-    PostInvoicingComponent,
-    EinvoicingComponent,
-    FusionComponent,
     BusinessInsightsComponent,
-    ContinuousMonitoringComponent,
     IssueReportingComponent,
     DialogBox,
     IssueUploadComponent,
@@ -202,6 +184,7 @@ export function initApp(authService: AuthenticationService) {
     SbpEspCaseAnalyzerComponent,
     ChatbotComponent,
     O2cCardComponent,
+    OperationsControlsComponent,
   ],
   imports: [
     BrowserModule,
