@@ -202,22 +202,6 @@ export class MonitoringDashboardComponent<T>
     return this.sortColumn === column && this.sortDirection !== '';
   }
 
-  isEscalated(element: any): boolean {
-    const aging = element.AGING.split(' ')[0];
-    return Number(aging) > 6;
-  }
-
-  escalationLevel: any = 0;
-  getCircleNumber(element: any): any {
-    const aging = Number(element.AGING.split(' ')[0]);
-    if (aging >= 7 && aging <= 11) {
-      this.escalationLevel = 1;
-    } else if (aging > 11) {
-      this.escalationLevel = 2;
-    }
-    return this.escalationLevel;
-  }
-
   selection = new SelectionModel<any>(true, []);
   selectedSummaryData: any[] = [];
   isModalOpen: boolean = false;

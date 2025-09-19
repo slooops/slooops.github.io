@@ -183,22 +183,6 @@
 
                   <ng-container *ngSwitchCase="'PERIOD_NAME'">
                     <div>
-                      <span class="icon-container">
-                        <!-- <span
-                          class="circle-icon"
-                          *ngIf="isEscalated(element)"
-                          [customToolTip]="'true'"
-                          [contentTemplate]="escalationToolTip"
-                          [tooltipElement]="element"
-                        >
-                          <span class="circle-number">{{
-                            getCircleNumber(element)
-                          }}</span>
-                        </span> -->
-                        <!-- <span *ngIf="!isEscalated(element)">
-                          &nbsp;&nbsp;&nbsp;
-                        </span> -->
-                      </span>
                       <span
                         [ngClass]="{
                           highlight: element.PERIOD_NAME !== periodName
@@ -209,13 +193,6 @@
                     </div>
                   </ng-container>
                   <ng-container *ngSwitchCase="'APPLICATION_NAME'">
-                    <!-- <span
-                      [customToolTip]="'true'"
-                      [contentTemplate]="warningToolTip"
-                    >
-                      {{ element[column] }}
-                    </span> -->
-
                     {{ element[column] }}
                   </ng-container>
                   <ng-container *ngSwitchDefault>
