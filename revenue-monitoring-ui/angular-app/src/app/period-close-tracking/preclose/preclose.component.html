@@ -1,99 +1,77 @@
-<div style="float: right; margin-top: 5px">
-  Dashboard updated: Today at {{ timeNow }}
-</div>
-<h4 style="margin-left: 10px; margin-top: 5px">
+<!-- Page Title Container -->
+<div class="section-title" style="margin: 1rem 2rem -1rem 2rem">
   AR Period Close Progress: Pre-close
-</h4>
-<div style="overflow-x: hidden; padding-left: 10px">
-  <div>
-    <div class="row">
-      <span class="col-sm-9" style="float: left; font-size: small">
-        <p>
-          <label>Expected Start Time:</label>
-          {{ preCloseStartTime }} &nbsp;|&nbsp;
-          <label>Expected End Time:</label>
-          {{ preCloseEndTime }}
-          <br />
-          <label>Actual End Time:</label> &nbsp;
-          {{ preCloseActualEndTime }} &nbsp;|&nbsp;
-          <label>Estimated Completion Time:</label> &nbsp;
-          {{ pcloseEstimatedCompletionTime }}
-        </p>
-      </span>
-      <span class="col-sm-3">
-        <p style="float: right; font-size: 15px">
-          <label>Quarter:</label> {{ precloseQuarter }} &nbsp;|&nbsp;
-          <label>Period:</label>
-          {{ preclosePeriod }}
-        </p>
-      </span>
-    </div>
-    <mat-divider></mat-divider>
-    <div class="row">
-      <div class="col-sm-3">
-        <br />
-        <h2>Entity View</h2>
+  <span style="flex: 1"></span>
+  <span class="card-subtitle"> Dashboard updated: Today at {{ timeNow }} </span>
+</div>
+
+<!-- Summary Container -->
+<app-card [container]="false">
+  <div class="card-title-stack">
+    <div class="section-title summary-row">
+      <div class="card-title summary-left">
+        Quarter: {{ precloseQuarter }}<br />
+        Period: {{ preclosePeriod }}
       </div>
-      <div class="col-sm-5" style="text-align: center; margin-top: 10px">
-        <br />
-        Legend: ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Delayed &nbsp; 🛑
-        Stopped &nbsp; ⏸️ Yet to start
-      </div>
-      <div class="col-sm-4">
-        <div style="float: right">
-          <span *ngIf="showpreStatusFilter">
-            <mat-form-field appearance="standard" data-cy="preclose-statuses">
-              <mat-label>Select Statuses</mat-label>
-              <mat-select
-                [formControl]="precloseStatuses"
-                id="status"
-                name="status"
-                multiple
-              >
-                <mat-option
-                  *ngFor="let status of statusList"
-                  [value]="status"
-                  (onSelectionChange)="statusChange('PRECLOSE')"
-                  [disabled]="status !== 'All' && precloseAllStatusSelected"
-                  >{{ status }}</mat-option
-                >
-              </mat-select>
-            </mat-form-field>
-          </span>
-          &nbsp;&nbsp;
-          <span>
-            <mat-form-field appearance="standard" a>
-              <mat-label>Select Entites</mat-label>
-              <mat-select
-                [formControl]="precloseEntities"
-                id="entity"
-                name="entity"
-                data-cy="preclose-entites"
-                multiple
-              >
-                <mat-option
-                  *ngFor="let entity of entityList"
-                  [value]="entity"
-                  (onSelectionChange)="entityChange('PRECLOSE')"
-                  [disabled]="entity !== 'All' && precloseAllEntitiesSelected"
-                  >{{ entity }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </span>
+      <div class="card-subtitle summary-right">
+        <div style="display: flex; flex-direction: column">
+          <span><b>Expected Start Time:</b> {{ preCloseStartTime }}</span>
+          <span><b>Actual End Time:</b> {{ preCloseActualEndTime }}</span>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <span><b>Expected End Time:</b> {{ preCloseEndTime }}</span>
+          <span
+            ><b>Estimated Completion Time:</b>
+            {{ pcloseEstimatedCompletionTime }}</span
+          >
         </div>
       </div>
     </div>
   </div>
-  <mat-divider></mat-divider>
-  <div
-    class="container periodclosetable"
-    style="overflow: auto; max-width: 100%"
-  >
-    <table
-      style="width: -webkit-fill-available; font-size: 12px"
-      class="table table-responsive equal-width table-striped"
-    >
+</app-card>
+
+<!-- Entity View -->
+<app-card [container]="true" class="mb-12">
+  <div class="section-title entity-view">
+    Entity View
+    <span style="flex: 1">
+      <div class="card-subtitle entity-legend">
+        Legend: ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Delayed &nbsp; 🛑
+        Stopped &nbsp; ⏸️ Yet to start
+      </div>
+    </span>
+
+    <div class="entity-controls">
+      <mat-form-field appearance="standard" data-cy="preclose-statuses">
+        <mat-label>Select Statuses</mat-label>
+        <mat-select [formControl]="precloseStatuses" multiple>
+          <mat-option
+            *ngFor="let status of statusList"
+            [value]="status"
+            (onSelectionChange)="statusChange('PRECLOSE')"
+            [disabled]="status !== 'All' && precloseAllStatusSelected"
+          >
+            {{ status }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="standard" data-cy="preclose-entites">
+        <mat-label>Select Entities</mat-label>
+        <mat-select [formControl]="precloseEntities" multiple>
+          <mat-option
+            *ngFor="let entity of entityList"
+            [value]="entity"
+            (onSelectionChange)="entityChange('PRECLOSE')"
+            [disabled]="entity !== 'All' && precloseAllEntitiesSelected"
+          >
+            {{ entity }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div class="periodclosetable">
+    <table class="table table-responsive equal-width table-striped">
       <thead>
         <tr>
           <th *ngFor="let col of meStatusColumns">{{ col }}</th>
@@ -111,8 +89,10 @@
               let category of templateObject.keys(pCloseProgBarStatusMapping)
             "
           >
-            <p style="margin: -8px 0 -13px 0">
+            <p class="circle-progress-container">
               <circle-progress
+                [titleFontSize]="'12'"
+                [unitsFontSize]="'12'"
                 [percent]="pCloseProgBarStatusMapping[category]['value']"
                 [outerStrokeColor]="
                   getCircleColor(
@@ -120,7 +100,8 @@
                     pcloseSelectedMonthEndStatusTableData
                   )
                 "
-              ></circle-progress>
+              >
+              </circle-progress>
             </p>
           </td>
         </tr>
@@ -164,8 +145,9 @@
                   'stopped'
                 ].indexOf(row[category].toLowerCase()) === -1
               "
-              >{{ row[category] }}</span
             >
+              {{ row[category] }}
+            </span>
           </td>
         </tr>
       </tbody>
@@ -173,257 +155,106 @@
     <span style="display: flex; justify-content: center">
       <ng-container *ngIf="precloseSelectedEntities.length == 0">
         <tr>
-          <td colspan="100%" style="text-align: center">
+          <td colspan="100%" class="centered">
             <app-loading-symbol></app-loading-symbol>
           </td>
         </tr>
       </ng-container>
     </span>
   </div>
+</app-card>
 
-  <mat-divider></mat-divider>
-  <br />
-
-  <div class="header-container">
-    <h5 class="section-title action-buttons">Interface Load</h5>
-    <span style="margin-top: 15px">
-      <p>Legend: Number of lines</p>
-    </span>
-    <div class="action-buttons">
-      <button
-        mat-icon-button
-        (click)="
-          exportTableToExcel(
-            precloseInterfaceLoadData,
-            'Preclose Interface Load',
-            'pcloseInterfaceLoadTableData'
-          )
-        "
-      >
-        <i class="svg-icon download-icon"></i>
-      </button>
-    </div>
-  </div>
-
+<!-- Interface Load Container -->
+<app-card [container]="true">
   <ng-container *ngIf="precloseInterfaceLoadDatasource?.data?.length">
-    <div class="table-container" style="overflow-y: hidden !important">
-      <table
-        mat-table
-        [dataSource]="precloseInterfaceLoadDatasource"
-        class="custom-table table-responsive"
-      >
-        <ng-container *ngFor="let column of pcloseInterfaceLoadColumns">
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
-              <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchDefault>
-                  {{ replaceUnderscoreWithEmpty(column) }}
-                </ng-container>
-              </ng-container>
-            </th>
-
-            <td mat-cell *matCellDef="let element">
-              <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchDefault>
-                  <span *ngIf="isPercentageColumn(column)">
-                    <span *ngIf="element[column] > 0">⬆</span>
-                    <span *ngIf="element[column] < 0">⬇</span>
-                    {{ element[column] }}%
-                  </span>
-                  <span *ngIf="!isPercentageColumn(column)">
-                    {{ element[column] }}
-                  </span>
-                </ng-container>
-              </ng-container>
-            </td>
-          </ng-container>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="pcloseInterfaceLoadColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: pcloseInterfaceLoadColumns"
-        ></tr>
-      </table>
-    </div>
+    <app-table
+      [title]="'Interface Load'"
+      [dataSource]="precloseInterfaceLoadDatasource"
+      [displayedColumns]="pcloseInterfaceLoadColumns"
+      exportFileName="Preclose_Interface_Load"
+    ></app-table>
   </ng-container>
-  <br />
-  <div class="header-container">
-    <h5 class="section-title action-buttons">Invoices Generated</h5>
-    <div class="action-buttons">
-      <button
-        mat-icon-button
-        (click)="
-          exportTableToExcel(
-            preCloseProgramTableData,
-            'Preclose Invoices Generated',
-            'pcloseInvoicesGeneratedTableData'
-          )
-        "
-      >
-        <i class="svg-icon download-icon"></i>
-      </button>
-    </div>
-  </div>
+</app-card>
+
+<!-- Invoices Generated Container -->
+<app-card [container]="true">
   <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
-    <div class="table-container" style="overflow-y: hidden !important">
-      <table
-        mat-table
-        [dataSource]="precloseInvGenDatasource"
-        class="custom-table table-responsive"
-      >
-        <ng-container *ngFor="let column of pcloseInvGenTableColumns">
-          <ng-container [matColumnDef]="column">
-            <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
-              <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchDefault>
-                  {{ replaceUnderscoreWithEmpty(column) }}
-                </ng-container>
-              </ng-container>
-            </th>
-
-            <td mat-cell *matCellDef="let element">
-              <ng-container [ngSwitch]="column">
-                <ng-container *ngSwitchDefault>
-                  {{ element[column] }}
-                </ng-container>
-              </ng-container>
-            </td>
-          </ng-container>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="pcloseInvGenTableColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: pcloseInvGenTableColumns"
-        ></tr>
-      </table>
-    </div>
+    <app-table
+      [title]="'Invoices Generated'"
+      [dataSource]="precloseInvGenDatasource"
+      [displayedColumns]="pcloseInvGenTableColumns"
+      exportFileName="Preclose_Invoices_Generated"
+    ></app-table>
   </ng-container>
-  <br />
+</app-card>
 
-  <div>
-    <div class="header-container">
-      <h5 class="section-title action-buttons">Cash Posted</h5>
-      <div class="action-buttons">
-        <button
-          mat-icon-button
-          (click)="
-            exportTableToExcel(
-              qeCashCollectedData,
-              'Preclose QE Cash Posted',
-              'pcloseQECashCollectedData'
-            )
-          "
-        >
-          <i class="svg-icon download-icon"></i>
-        </button>
-      </div>
-    </div>
-    <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
-      <div class="table-container" style="overflow-y: hidden !important">
-        <table
-          mat-table
-          [dataSource]="qeCashCollectedDatasource"
-          class="custom-table table-responsive"
-        >
-          <ng-container *ngFor="let column of qeCashCollectedTableColumns">
-            <ng-container [matColumnDef]="column">
-              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
-                <ng-container [ngSwitch]="column">
-                  <ng-container *ngSwitchCase="'PERIOD_NAME'">
-                    {{ replaceUnderscoreWithEmpty(column) }}
-                  </ng-container>
+<!-- Cash Posted Container -->
+<app-card [container]="true">
+  <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+    <app-table
+      [title]="'Cash Posted'"
+      [dataSource]="qeCashCollectedDatasource"
+      [displayedColumns]="qeCashCollectedTableColumns"
+      exportFileName="Preclose_QE_Cash_Posted"
+    ></app-table>
+  </ng-container>
+</app-card>
 
-                  <ng-container *ngSwitchDefault>
-                    {{ replaceUnderscoreWithDash(column) }}
-                  </ng-container>
-                </ng-container>
-              </th>
-
-              <td mat-cell *matCellDef="let element">
-                <ng-container [ngSwitch]="column">
-                  <ng-container *ngSwitchDefault>
-                    {{ element[column] }}
-                  </ng-container>
-                </ng-container>
-              </td>
-            </ng-container>
-          </ng-container>
-
-          <tr
-            mat-header-row
-            *matHeaderRowDef="qeCashCollectedTableColumns"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: qeCashCollectedTableColumns"
-          ></tr>
-        </table>
-      </div>
-    </ng-container>
-  </div>
-
-  <br />
-  <div>
-    <h3 *ngIf="(dashComments && dashComments.length > 0) || showComments">
-      Comments
-    </h3>
-    <form *ngIf="showComments">
-      <input
-        name="comments"
-        class="form-control form-control-sm"
-        type="text"
-        placeholder="Add a comment"
-        [(ngModel)]="updatedComments"
-        (focus)="showCommentSave = true"
-        style="width: 40%; height: 60px"
-      />
-      <br />
-      <span *ngIf="showCommentSave">
-        <button
-          mat-raised-button
-          (click)="updateComments()"
-          style="background-color: #049fd9; color: white"
-        >
-          Save</button
-        >&nbsp;
-        <button
-          mat-raised-button
-          (click)="showCommentSave = false"
-          style="color: gray"
-        >
-          Cancel
-        </button>
-        <br /><br />
-      </span>
-    </form>
-    <span style="float: right !important">
-      For questions, please send an email to:
+<!-- Comments Container -->
+<app-card [container]="false">
+  <div class="card-title" style="display: flex; align-items: center">
+    Comments
+    <span style="flex: 1"></span>
+    <span class="card-subtitle" style="font-size: 13px">
+      For questions, email
       <a href="mailto:i2c-close-monitoring@cisco.com">
         i2c-close-monitoring&#64;cisco.com
-      </a></span
-    >
+      </a>
+    </span>
+  </div>
+  <form *ngIf="showComments">
+    <input
+      name="comments"
+      class="form-control form-control-sm"
+      type="text"
+      placeholder="Add a comment"
+      [(ngModel)]="updatedComments"
+      (focus)="showCommentSave = true"
+      style="width: 40%; height: 60px"
+    />
     <br />
-    <mat-divider></mat-divider>
-    <br />
-    <div>
-      <div *ngFor="let comment of dashComments">
-        <ul *ngIf="comment.CLOSE_TYPE === 'PRECLOSE'">
-          <li>
-            <p style="margin-bottom: 10px; color: #454444">
-              <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
-              <b>{{ username }}</b> &nbsp;
-              <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
-            </p>
-            <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>
-          </li>
-        </ul>
-      </div>
+    <span *ngIf="showCommentSave">
+      <button
+        mat-raised-button
+        (click)="updateComments()"
+        class="custom-button-primary"
+      >
+        Save
+      </button>
+      &nbsp;
+      <button
+        mat-raised-button
+        (click)="showCommentSave = false"
+        class="custom-button-secondary"
+      >
+        Cancel
+      </button>
+      <br /><br />
+    </span>
+  </form>
+  <div>
+    <div *ngFor="let comment of dashComments">
+      <ul *ngIf="comment.CLOSE_TYPE === 'PRECLOSE'">
+        <li>
+          <p style="margin-bottom: 10px; color: #454444">
+            <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
+            <b>{{ username }}</b> &nbsp;
+            <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
+          </p>
+          <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>
+        </li>
+      </ul>
     </div>
   </div>
-
-  <br />
-  <br />
-  <br />
-</div>
+</app-card>
+<br /><br /><br />

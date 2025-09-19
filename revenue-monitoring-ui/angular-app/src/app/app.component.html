@@ -1,12 +1,19 @@
 <div class="row">
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
-    <div style="width: 100%; display: flex; justify-content: space-between">
+    <div
+      style="
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        height: 50px;
+      "
+    >
       <span style="display: flex; align-items: center; padding: 0px 0 0px">
         <span
           style="
             display: flex;
             align-items: center;
-            padding: 0 20px 0 4px;
+            padding: 0 15px;
             cursor: pointer;
           "
         >
@@ -42,12 +49,14 @@
             color: white;
             margin-bottom: 0;
             font-family: 'Inter', sans-serif;
-            font-weight: 450;
+            font-weight: 400;
           "
         >
           <span *ngIf="header.length > 0">
-            <div style="font-size: 12px">Finance-IT Control Tower</div>
-            <div style="font-size: 14px">{{ header }}</div>
+            <div style="font-size: 12px; line-height: normal">
+              Finance-IT Control Tower
+            </div>
+            <div style="font-size: 14px; line-height: normal">{{ header }}</div>
           </span>
           <span *ngIf="header.length === 0">
             <span>Finance-IT Control Tower</span>
@@ -99,7 +108,7 @@
             <a
               [matMenuTriggerFor]="menu"
               class="top-link"
-              style="font-weight: 500"
+              style="font-weight: 400"
             >
               Continuous Monitoring
             </a>
@@ -139,7 +148,7 @@
             <a
               [routerLink]="'/business-insights'"
               class="top-link"
-              style="font-weight: 500"
+              style="font-weight: 400"
             >
               Business Insights
             </a>
@@ -148,7 +157,7 @@
             <a
               [matMenuTriggerFor]="espMenu"
               class="top-link"
-              style="font-weight: 500"
+              style="font-weight: 400"
             >
               ESP Case Manager
             </a>

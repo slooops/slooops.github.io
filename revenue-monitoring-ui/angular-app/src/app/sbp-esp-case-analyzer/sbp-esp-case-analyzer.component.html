@@ -33,24 +33,28 @@
     </div>
 
     <!-- Previous Quarter Table -->
-    <app-table
-      [title]="'Case Summary for ' + (q2?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceCaseSummaryQuarter[2]"
-      [displayedColumns]="displayedColumnsForCaseSummaryQuarter[2]"
-      exportFileName="Previous_Quarter_Case_Summary"
-      reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
-      "
-      serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Case Summary for ' + (q2?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceCaseSummaryQuarter[2]"
+        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[2]"
+        exportFileName="Previous_Quarter_Case_Summary"
+        reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
+        "
+        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
 
-    <app-table
-      [title]="'Aging Backlog for ' + (q2?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceAgingBacklog[2]"
-      [displayedColumns]="displayedColumnsForAgingBacklog[2]"
-      exportFileName="Previous_Quarter_Aging_Backlog"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Aging Backlog for ' + (q2?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceAgingBacklog[2]"
+        [displayedColumns]="displayedColumnsForAgingBacklog[2]"
+        exportFileName="Previous_Quarter_Aging_Backlog"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
 
     <br /><br /><br />
   </mat-tab>
@@ -85,23 +89,27 @@
       </div>
     </div>
 
-    <app-table
-      [title]="'Case Summary for ' + (q3?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceCaseSummaryQuarter[3]"
-      [displayedColumns]="displayedColumnsForCaseSummaryQuarter[3]"
-      exportFileName="Current_Quarter_Case_Summary"
-      reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
-    "
-      serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
-    <app-table
-      [title]="'Aging Backlog for ' + (q3?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceAgingBacklog[3]"
-      [displayedColumns]="displayedColumnsForAgingBacklog[3]"
-      exportFileName="Previous_Quarter_Aging_Backlog"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Case Summary for ' + (q3?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceCaseSummaryQuarter[3]"
+        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[3]"
+        exportFileName="Current_Quarter_Case_Summary"
+        reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
+      "
+        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Aging Backlog for ' + (q3?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceAgingBacklog[3]"
+        [displayedColumns]="displayedColumnsForAgingBacklog[3]"
+        exportFileName="Previous_Quarter_Aging_Backlog"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
 
     <br /><br /><br />
   </mat-tab>
@@ -135,23 +143,27 @@
         </div>
       </div>
     </div>
-    <app-table
-      [title]="'Case Summary for ' + (q4?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceCaseSummaryQuarter[4]"
-      [displayedColumns]="displayedColumnsForCaseSummaryQuarter[4]"
-      exportFileName="Next_Quarter_Case_Summary"
-      reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
-    "
-      serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
-    <app-table
-      [title]="'Aging Backlog for ' + (q4?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceAgingBacklog[4]"
-      [displayedColumns]="displayedColumnsForAgingBacklog[4]"
-      exportFileName="Next_Quarter_Aging_Backlog"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Case Summary for ' + (q4?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceCaseSummaryQuarter[4]"
+        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[4]"
+        exportFileName="Next_Quarter_Case_Summary"
+        reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
+      "
+        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Aging Backlog for ' + (q4?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceAgingBacklog[4]"
+        [displayedColumns]="displayedColumnsForAgingBacklog[4]"
+        exportFileName="Next_Quarter_Aging_Backlog"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
     <br /><br /><br />
   </mat-tab>
 
@@ -183,23 +195,27 @@
         </div>
       </div>
     </div>
-    <app-table
-      [title]="'Case Summary for ' + (q1?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceCaseSummaryQuarter[1]"
-      [displayedColumns]="displayedColumnsForCaseSummaryQuarter[1]"
-      exportFileName="Next_Quarter_Case_Summary"
-      reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
-    "
-      serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
-    <app-table
-      [title]="'Aging Backlog for ' + (q1?.slice(0, -4) || 'N/A')"
-      [dataSource]="dataSourceAgingBacklog[1]"
-      [displayedColumns]="displayedColumnsForAgingBacklog[1]"
-      exportFileName="Next_Quarter_Aging_Backlog"
-      [extraWideColumns]="['SERVICE_OFFERING']"
-    ></app-table>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Case Summary for ' + (q1?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceCaseSummaryQuarter[1]"
+        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[1]"
+        exportFileName="Next_Quarter_Case_Summary"
+        reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
+      "
+        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
+    <app-card [container]="true">
+      <app-table
+        [title]="'Aging Backlog for ' + (q1?.slice(0, -4) || 'N/A')"
+        [dataSource]="dataSourceAgingBacklog[1]"
+        [displayedColumns]="displayedColumnsForAgingBacklog[1]"
+        exportFileName="Next_Quarter_Aging_Backlog"
+        [extraWideColumns]="['SERVICE_OFFERING']"
+      ></app-table>
+    </app-card>
     <br /><br /><br />
   </mat-tab>
 
