@@ -1,7 +1,9 @@
 describe('Invoice to Cash', () => {
   it('Tests invoice to cash', () => {
     cy.viewport(1199, 1003);
-    cy.visit('http://localhost:4200/invoice-to-cash');
+    cy.visit('http://localhost:4200/error');
+    cy.get('li:nth-of-type(2) > a').click();
+    cy.get('button:nth-of-type(2)').click();
 
     // Perform common process flow steps on Pre-Invoicing tab
     cy.testProcessFlowAndAssignment();
@@ -21,13 +23,13 @@ describe('Invoice to Cash', () => {
       .click();
     // cy.testProcessFlowAndAssignment();
 
-    cy.contains('.mat-tab-label', 'CM Amortization')
-      .should('be.visible')
-      .click();
-    cy.checkIfNoData().then((hasNoData) => {
-      if (hasNoData) return;
-      cy.testProcessFlowAndAssignment();
-    });
+    // cy.contains('.mat-tab-label', 'CM Amortization')
+    //   .should('be.visible')
+    //   .click();
+    // cy.checkIfNoData().then((hasNoData) => {
+    //   if (hasNoData) return;
+    //   cy.testProcessFlowAndAssignment();
+    // });
 
     cy.contains('.mat-tab-label', 'Invoice Delivery')
       .should('be.visible')

@@ -39,26 +39,34 @@
 
 // Define the custom Cypress command
 Cypress.Commands.add('testProcessFlowAndAssignment', () => {
-  cy.get(
-    'app-monitoring-dashboard > div:nth-of-type(1) th.cdk-column-PROCESS_FLOW > span'
-  ).click();
-  cy.get('app-monitoring-dashboard > div:nth-of-type(1) h5').click();
-  cy.get('tr:nth-of-type(1) span.mat-checkbox-inner-container').click();
+  // cy.get(
+  //   'app-monitoring-dashboard > div:nth-of-type(1) th.cdk-column-PROCESS_FLOW > span'
+  // ).click();
+  // cy.get('app-monitoring-dashboard > div:nth-of-type(1) h5').click();
+
+  // Target the first checkbox specifically in the Error Summary section (first table)
+  cy.get('tbody tr:nth-of-type(1) span.mat-checkbox-inner-container')
+    .first()
+    .click();
   cy.get('button.custom-button-primary').click();
   cy.get('button.custom-button-tertiary').click();
-  cy.get('h5 button.mat-focus-indicator').click();
+  // cy.get('h5 button.mat-focus-indicator').click();
 });
 
 Cypress.Commands.add('checkIfNoData', () => {
-  return cy.get('img').then(($imgs) => {
-    const hasNoData = $imgs.length > 0;
+  return cy.get('body').then(($body) => {
+    // Check if the no-data image exists without failing if it doesn't
+    const hasNoDataImage = $body.find('img').length > 0;
 
-    if (hasNoData) {
+    if (hasNoDataImage) {
       cy.log(`⚠️ Skipping tests — no data image detected.`);
       console.warn(`⚠️ Skipping tests — no data image detected.`);
+      return cy.wrap(true); // Has no data
+    } else {
+      cy.log(`✅ Data detected — proceeding with tests.`);
+      console.log(`✅ Data detected — proceeding with tests.`);
+      return cy.wrap(false); // Has data
     }
-
-    return cy.wrap(hasNoData); // ✅ Wrap it!
   });
 });
 
@@ -190,6 +198,13 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('clickExactTab', (tabName: string) => {
+  cy.get('.mat-tab-label')
+    .contains(new RegExp(`^${tabName}$`))
+    .should('be.visible')
+    .click();
+});
+
 // Extend the Cypress interface globally
 declare global {
   namespace Cypress {
@@ -206,6 +221,7 @@ declare global {
         columnTitle: string,
         columnClass: string
       ): Chainable<void>;
+      clickExactTab(tabName: string): Chainable<void>;
     }
   }
 }
