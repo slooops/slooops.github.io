@@ -14,14 +14,12 @@ pipeline {
 
     // SCHEDULED TRIGGERS - Only active on UI2.0 branch
     triggers {
-        // Run basic tests every 4 hours during business hours (9 AM - 6 PM)
-        cron('H 9-18/4 * * *')  // Every 4 hours, all days including weekends
-        
-        // Run full regression at 2 AM daily
-        cron('H 2 * * *')  // Daily at 2 AM
-        
-        // Run smoke tests every 2 hours during peak hours
-        cron('H 9-17/2 * * 1-5')  // Every 2 hours, business hours
+        // Combined cron schedule: basic tests every 4 hours, regression at 2 AM, smoke tests every 2 hours on weekdays
+        cron('''
+            H 9-18/4 * * *
+            H 2 * * *
+            H 9-17/2 * * 1-5
+        ''')
     }
 
     parameters {
@@ -47,9 +45,9 @@ pipeline {
         )
     }
 
-    tools {
-        nodejs 'NodeJS-18'
-    }
+    // tools {
+    //     nodejs 'NodeJS-18'  // Configure this in Jenkins Global Tools
+    // }
 
     environment {
         CYPRESS_CACHE_FOLDER = './cypress-cache'
@@ -104,6 +102,10 @@ pipeline {
                 
                 dir('revenue-monitoring-ui/angular-app') {
                     script {
+                        // Check Node.js version
+                        sh 'node --version || echo "Node.js not found in PATH"'
+                        sh 'npm --version || echo "npm not found in PATH"'
+                        
                         // Install dependencies
                         sh 'npm ci --cache .npm --prefer-offline'
                         
