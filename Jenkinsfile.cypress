@@ -52,7 +52,6 @@ pipeline {
     environment {
         CYPRESS_CACHE_FOLDER = './cypress-cache'
         TEST_BASE_URL = getTestUrl()
-        CYPRESS_RECORD_KEY = credentials('cypress-record-key')
         
         // Test suite selection based on trigger time
         SELECTED_TEST_SUITE = getTestSuite()
@@ -200,34 +199,41 @@ pipeline {
 
     post {
         always {
-            script {
-                // Archive test artifacts
-                archiveArtifacts(
-                    artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4',
-                    allowEmptyArchive: true
-                )
-                archiveArtifacts(
-                    artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png',
-                    allowEmptyArchive: true
-                )
-                
-                // Publish test results
-                publishTestResults(
-                    testResultsPattern: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml'
-                )
-                
-                // Publish HTML reports
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'revenue-monitoring-ui/angular-app/cypress/reports',
-                    reportFiles: 'index.html',
-                    reportName: 'Cypress Test Report'
-                ])
-                
-                // Generate test summary
-                generateTestSummary()
+            node {
+                script {
+                    // Only run post actions if we're on UI2.0 branch and stages actually executed
+                    if (env.BRANCH_NAME == 'UI2.0' && currentBuild.result != 'ABORTED') {
+                        // Archive test artifacts
+                        archiveArtifacts(
+                            artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4',
+                            allowEmptyArchive: true
+                        )
+                        archiveArtifacts(
+                            artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png',
+                            allowEmptyArchive: true
+                        )
+                        
+                        // Publish test results
+                        publishTestResults(
+                            testResultsPattern: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml'
+                        )
+                        
+                        // Publish HTML reports
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'revenue-monitoring-ui/angular-app/cypress/reports',
+                            reportFiles: 'index.html',
+                            reportName: 'Cypress Test Report'
+                        ])
+                        
+                        // Generate test summary
+                        generateTestSummary()
+                    } else {
+                        echo "Skipping post actions - not on UI2.0 branch or build was aborted"
+                    }
+                }
             }
         }
         
@@ -257,8 +263,10 @@ pipeline {
         }
         
         cleanup {
-            // Clean up workspace
-            cleanWs()
+            node {
+                // Clean up workspace
+                cleanWs()
+            }
         }
     }
 }
@@ -361,10 +369,7 @@ def runCypressTest(suite) {
                         --env baseUrl=${env.TEST_BASE_URL} \\
                         --spec '${specPattern}' \\
                         --reporter cypress-multi-reporters \\
-                        --reporter-options configFile=cypress/reporter.config.json \\
-                        --record --key ${env.CYPRESS_RECORD_KEY} \\
-                        --tag "${params.TEST_ENVIRONMENT},${suite}" \\
-                        --group "${suite}-tests"
+                        --reporter-options configFile=cypress/reporter.config.json
                 """
                 
                 echo "✅ ${suite} tests completed successfully"
@@ -388,10 +393,7 @@ def runCypressTestBySpecs(specPattern, groupName) {
                         --env baseUrl=${env.TEST_BASE_URL} \\
                         --spec '${specPattern}' \\
                         --reporter cypress-multi-reporters \\
-                        --reporter-options configFile=cypress/reporter.config.json \\
-                        --record --key ${env.CYPRESS_RECORD_KEY} \\
-                        --tag "${params.TEST_ENVIRONMENT},${groupName}" \\
-                        --group "${groupName}"
+                        --reporter-options configFile=cypress/reporter.config.json
                 """
                 
                 echo "✅ ${groupName} tests completed successfully"
