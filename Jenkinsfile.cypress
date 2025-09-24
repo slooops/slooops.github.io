@@ -199,40 +199,38 @@ pipeline {
 
     post {
         always {
-            node {
-                script {
-                    // Only run post actions if we're on UI2.0 branch and stages actually executed
-                    if (env.BRANCH_NAME == 'UI2.0' && currentBuild.result != 'ABORTED') {
-                        // Archive test artifacts
-                        archiveArtifacts(
-                            artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4',
-                            allowEmptyArchive: true
-                        )
-                        archiveArtifacts(
-                            artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png',
-                            allowEmptyArchive: true
-                        )
-                        
-                        // Publish test results
-                        publishTestResults(
-                            testResultsPattern: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml'
-                        )
-                        
-                        // Publish HTML reports
-                        publishHTML([
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true,
-                            reportDir: 'revenue-monitoring-ui/angular-app/cypress/reports',
-                            reportFiles: 'index.html',
-                            reportName: 'Cypress Test Report'
-                        ])
-                        
-                        // Generate test summary
-                        generateTestSummary()
-                    } else {
-                        echo "Skipping post actions - not on UI2.0 branch or build was aborted"
-                    }
+            script {
+                // Only run post actions if we're on UI2.0 branch and stages actually executed
+                if (env.BRANCH_NAME == 'UI2.0' && currentBuild.result != 'ABORTED') {
+                    // Archive test artifacts
+                    archiveArtifacts(
+                        artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4',
+                        allowEmptyArchive: true
+                    )
+                    archiveArtifacts(
+                        artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png',
+                        allowEmptyArchive: true
+                    )
+                    
+                    // Publish test results
+                    publishTestResults(
+                        testResultsPattern: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml'
+                    )
+                    
+                    // Publish HTML reports
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'revenue-monitoring-ui/angular-app/cypress/reports',
+                        reportFiles: 'index.html',
+                        reportName: 'Cypress Test Report'
+                    ])
+                    
+                    // Generate test summary
+                    generateTestSummary()
+                } else {
+                    echo "Skipping post actions - not on UI2.0 branch or build was aborted"
                 }
             }
         }
@@ -263,10 +261,8 @@ pipeline {
         }
         
         cleanup {
-            node {
-                // Clean up workspace
-                cleanWs()
-            }
+            // Clean up workspace
+            cleanWs()
         }
     }
 }
