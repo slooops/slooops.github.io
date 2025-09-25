@@ -138,42 +138,6 @@ pipeline {
             }
         }
 
-        stage('Environment Health Check') {
-            when {
-                branch 'UI2.0'
-            }
-            steps {
-                script {
-                    echo "🔍 Checking environment health..."
-                    
-                    // Check if application is accessible
-                    timeout(time: 10, unit: 'MINUTES') {
-                        waitUntil {
-                            script {
-                                try {
-                                    def response = sh(
-                                        script: "curl -s -o /dev/null -w '%{http_code}' ${env.TEST_BASE_URL}",
-                                        returnStdout: true
-                                    ).trim()
-                                    echo "Health check response: ${response}"
-                                    return response == '200'
-                                } catch (Exception e) {
-                                    echo "Health check failed: ${e.getMessage()}"
-                                    return false
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Additional API health checks
-                    sh """
-                        echo "✅ Frontend health check passed"
-                        curl -f ${env.TEST_BASE_URL}/api/health || echo "⚠️ Backend health check failed"
-                    """
-                }
-            }
-        }
-
         stage('Validate Test Configuration') {
             when {
                 branch 'UI2.0'
