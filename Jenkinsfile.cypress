@@ -105,16 +105,34 @@ pipeline {
                         sh 'node --version || echo "Node.js not found in PATH"'
                         sh 'npm --version || echo "npm not found in PATH"'
                         
-                        // Try to start Xvfb virtual display (required for Cypress on headless Linux)
+                        // Install Xvfb and start virtual display (required for Cypress on headless Linux)
                         sh '''
-                            # Check if Xvfb is available
+                            # Install xvfb if not available
+                            if ! command -v Xvfb >/dev/null 2>&1; then
+                                echo "Installing Xvfb virtual framebuffer..."
+                                if command -v yum >/dev/null 2>&1; then
+                                    sudo yum install -y xorg-x11-server-Xvfb gtk2-devel gtk3-devel libnotify-devel GConf2 nss libXScrnSaver alsa-lib
+                                elif command -v apt-get >/dev/null 2>&1; then
+                                    sudo apt-get update && sudo apt-get install -y xvfb libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2
+                                else
+                                    echo "⚠️  Package manager not found - attempting to continue without Xvfb installation"
+                                fi
+                            fi
+                            
+                            # Start Xvfb virtual display
                             if command -v Xvfb >/dev/null 2>&1; then
                                 echo "Starting Xvfb virtual display..."
-                                Xvfb :99 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+                                # Kill any existing Xvfb processes on display :99
+                                pkill -f "Xvfb :99" || true
+                                # Start Xvfb with proper configuration for Cypress
+                                Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
+                                sleep 2
                                 export DISPLAY=:99
                                 echo "Xvfb started on display :99"
+                                # Verify display is working
+                                xdpyinfo -display :99 > /dev/null 2>&1 && echo "Display :99 is ready" || echo "⚠️  Display :99 may not be fully ready"
                             else
-                                echo "⚠️  Xvfb not available - will try to run Cypress with electron headless mode"
+                                echo "⚠️  Xvfb not available - Cypress may fail on headless systems"
                             fi
                         '''
                         
@@ -196,8 +214,9 @@ pipeline {
                     )
                     
                     // Publish test results
-                    publishTestResults(
-                        testResultsPattern: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml'
+                    junit(
+                        testResults: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml',
+                        allowEmptyResults: true
                     )
                     
                     // Publish HTML reports
@@ -244,8 +263,13 @@ pipeline {
         }
         
         cleanup {
-            // Clean up workspace
-            cleanWs()
+            script {
+                // Clean up Xvfb processes
+                sh 'pkill -f "Xvfb :99" || true'
+                
+                // Clean up workspace
+                cleanWs()
+            }
         }
     }
 }
@@ -347,15 +371,33 @@ def runCypressTest(suite) {
             
             try {
                 sh """
+                    # Set up display environment
                     export DISPLAY=:99
                     export ELECTRON_ENABLE_LOGGING=1
+                    
+                    # Additional Cypress environment variables for headless execution
+                    export CYPRESS_CACHE_FOLDER=./cypress-cache
+                    export DEBUG=cypress:*
+                    
+                    # Verify display is available
+                    if command -v xdpyinfo >/dev/null 2>&1; then
+                        xdpyinfo -display :99 > /dev/null 2>&1 || {
+                            echo "⚠️  Display :99 not ready, attempting to restart Xvfb..."
+                            pkill -f "Xvfb :99" || true
+                            Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
+                            sleep 3
+                        }
+                    fi
+                    
+                    # Run Cypress with comprehensive headless configuration
                     npx cypress run \\
                         --headless \\
                         --browser electron \\
                         --env baseUrl=${env.TEST_BASE_URL} \\
                         --spec '${specPattern}' \\
                         --reporter cypress-multi-reporters \\
-                        --reporter-options configFile=cypress/reporter.config.json
+                        --reporter-options configFile=cypress/reporter.config.json \\
+                        --config video=true,screenshotOnRunFailure=true
                 """
                 
                 echo "✅ ${suite} tests completed successfully"
@@ -375,15 +417,33 @@ def runCypressTestBySpecs(specPattern, groupName) {
             
             try {
                 sh """
+                    # Set up display environment
                     export DISPLAY=:99
                     export ELECTRON_ENABLE_LOGGING=1
+                    
+                    # Additional Cypress environment variables for headless execution
+                    export CYPRESS_CACHE_FOLDER=./cypress-cache
+                    export DEBUG=cypress:*
+                    
+                    # Verify display is available
+                    if command -v xdpyinfo >/dev/null 2>&1; then
+                        xdpyinfo -display :99 > /dev/null 2>&1 || {
+                            echo "⚠️  Display :99 not ready, attempting to restart Xvfb..."
+                            pkill -f "Xvfb :99" || true
+                            Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
+                            sleep 3
+                        }
+                    fi
+                    
+                    # Run Cypress with comprehensive headless configuration
                     npx cypress run \\
                         --headless \\
                         --browser electron \\
                         --env baseUrl=${env.TEST_BASE_URL} \\
                         --spec '${specPattern}' \\
                         --reporter cypress-multi-reporters \\
-                        --reporter-options configFile=cypress/reporter.config.json
+                        --reporter-options configFile=cypress/reporter.config.json \\
+                        --config video=true,screenshotOnRunFailure=true
                 """
                 
                 echo "✅ ${groupName} tests completed successfully"
