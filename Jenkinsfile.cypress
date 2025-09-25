@@ -105,8 +105,12 @@ pipeline {
                         sh 'node --version || echo "Node.js not found in PATH"'
                         sh 'npm --version || echo "npm not found in PATH"'
                         
-                        // Install dependencies
-                        sh 'npm ci --cache .npm --prefer-offline'
+                        // Clean npm cache and remove node_modules if they exist
+                        sh 'npm cache clean --force || true'
+                        sh 'rm -rf node_modules package-lock.json || true'
+                        
+                        // Install dependencies fresh
+                        sh 'npm install'
                         
                         // Install and verify Cypress
                         sh 'npx cypress install'
