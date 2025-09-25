@@ -105,6 +105,19 @@ pipeline {
                         sh 'node --version || echo "Node.js not found in PATH"'
                         sh 'npm --version || echo "npm not found in PATH"'
                         
+                        // Try to start Xvfb virtual display (required for Cypress on headless Linux)
+                        sh '''
+                            # Check if Xvfb is available
+                            if command -v Xvfb >/dev/null 2>&1; then
+                                echo "Starting Xvfb virtual display..."
+                                Xvfb :99 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+                                export DISPLAY=:99
+                                echo "Xvfb started on display :99"
+                            else
+                                echo "⚠️  Xvfb not available - will try to run Cypress with electron headless mode"
+                            fi
+                        '''
+                        
                         // Clean npm cache and remove node_modules if they exist
                         sh 'npm cache clean --force || true'
                         sh 'rm -rf node_modules package-lock.json || true'
@@ -112,9 +125,11 @@ pipeline {
                         // Install dependencies fresh
                         sh 'npm install'
                         
-                        // Install and verify Cypress
+                        // Install Cypress
                         sh 'npx cypress install'
-                        sh 'npx cypress verify'
+                        
+                        // Skip verification for now - will verify during test execution
+                        echo 'Skipping Cypress verify - will run with proper headless configuration'
                         
                         // Create results directories
                         sh 'mkdir -p cypress/results cypress/reports'
@@ -365,7 +380,11 @@ def runCypressTest(suite) {
             
             try {
                 sh """
+                    export DISPLAY=:99
+                    export ELECTRON_ENABLE_LOGGING=1
                     npx cypress run \\
+                        --headless \\
+                        --browser electron \\
                         --env baseUrl=${env.TEST_BASE_URL} \\
                         --spec '${specPattern}' \\
                         --reporter cypress-multi-reporters \\
@@ -389,7 +408,11 @@ def runCypressTestBySpecs(specPattern, groupName) {
             
             try {
                 sh """
+                    export DISPLAY=:99
+                    export ELECTRON_ENABLE_LOGGING=1
                     npx cypress run \\
+                        --headless \\
+                        --browser electron \\
                         --env baseUrl=${env.TEST_BASE_URL} \\
                         --spec '${specPattern}' \\
                         --reporter cypress-multi-reporters \\
