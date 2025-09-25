@@ -23,11 +23,11 @@ pipeline {
     }
 
     parameters {
-        choice(
-            name: 'TEST_ENVIRONMENT',
-            choices: ['dev', 'stage', 'prod'],
-            description: 'Environment to test against'
-        )
+        // choice(
+        //     name: 'TEST_ENVIRONMENT',
+        //     choices: ['dev', 'stage', 'prod'],
+        //     description: 'Environment to test against'
+        // )
         choice(
             name: 'TEST_SUITE',
             choices: ['auto', 'smoke', 'basic', 'regression', 'all', 'i2c-only', 'rev-accounting-only', 'period-close-only'],
@@ -36,7 +36,7 @@ pipeline {
         string(
             name: 'BASE_URL_OVERRIDE',
             defaultValue: '',
-            description: 'Override base URL (leave empty for environment default)'
+            description: 'Override base URL (leave empty for prod default: https://operations-control-tower-api.cisco.com)'
         )
         booleanParam(
             name: 'PARALLEL_EXECUTION',
@@ -79,12 +79,12 @@ pipeline {
             }
             steps {
                 script {
-                    currentBuild.displayName = "#${BUILD_NUMBER} - ${params.TEST_ENVIRONMENT} - ${env.SELECTED_TEST_SUITE}"
-                    currentBuild.description = "Rev-Ops Monitoring E2E tests: ${getTestDescription(env.SELECTED_TEST_SUITE)} on ${params.TEST_ENVIRONMENT}"
+                    currentBuild.displayName = "#${BUILD_NUMBER} - prod - ${env.SELECTED_TEST_SUITE}"
+                    currentBuild.description = "Rev-Ops Monitoring E2E tests: ${getTestDescription(env.SELECTED_TEST_SUITE)} on PROD (testing only)"
                     
                     echo "🚀 Starting Cypress tests for rev-ops-monitoring"
                     echo "Branch: ${env.BRANCH_NAME}"
-                    echo "Environment: ${params.TEST_ENVIRONMENT}"
+                    echo "Environment: PROD (hardcoded for testing)"
                     echo "Test Suite: ${env.SELECTED_TEST_SUITE}"
                     echo "Base URL: ${env.TEST_BASE_URL}"
                     echo "Parallel Execution: ${params.PARALLEL_EXECUTION}"
@@ -224,18 +224,18 @@ pipeline {
             }
         }
         
-        failure {
-            script {
-                // Send email for critical failures
-                if (env.SELECTED_TEST_SUITE == 'regression' || params.TEST_ENVIRONMENT == 'prod') {
-                    emailext(
-                        subject: "🚨 Critical Cypress Test Failure - ${params.TEST_ENVIRONMENT}",
-                        body: generateFailureReport(),
-                        to: "dev-team@cisco.com,qa-team@cisco.com"
-                    )
-                }
-            }
-        }
+        // failure {
+        //     script {
+        //         // Send email for critical failures
+        //         if (env.SELECTED_TEST_SUITE == 'regression' || params.TEST_ENVIRONMENT == 'prod') {
+        //             emailext(
+        //                 subject: "🚨 Critical Cypress Test Failure - ${params.TEST_ENVIRONMENT}",
+        //                 body: generateFailureReport(),
+        //                 to: "dev-team@cisco.com,qa-team@cisco.com"
+        //             )
+        //         }
+        //     }
+        // }
         
         unstable {
             script {
@@ -257,16 +257,19 @@ def getTestUrl() {
         return params.BASE_URL_OVERRIDE
     }
     
-    switch(params.TEST_ENVIRONMENT) {
-        case 'dev':
-            return 'https://operations-control-tower-dev-api.cisco.com'
-        case 'stage':
-            return 'https://operations-control-tower-stg-api.cisco.com'
-        case 'prod':
-            return 'https://operations-control-tower-api.cisco.com'
-        default:
-            return 'https://operations-control-tower-dev-api.cisco.com'
-    }
+    // Testing only prod environment for now
+    return 'https://operations-control-tower-api.cisco.com'
+    
+    // switch(params.TEST_ENVIRONMENT) {
+    //     case 'dev':
+    //         return 'https://operations-control-tower-dev-api.cisco.com'
+    //     case 'stage':
+    //         return 'https://operations-control-tower-stg-api.cisco.com'
+    //     case 'prod':
+    //         return 'https://operations-control-tower-api.cisco.com'
+    //     default:
+    //         return 'https://operations-control-tower-dev-api.cisco.com'
+    // }
 }
 
 def getTestDescription(suite) {
@@ -429,7 +432,7 @@ def generateTestSummary() {
         def summary = """
         🧪 **Rev-Ops Monitoring Cypress Test Summary**
         
-        **Environment:** ${params.TEST_ENVIRONMENT}
+        **Environment:** PROD (testing only)
         **Test Suite:** ${env.SELECTED_TEST_SUITE} (${testDescription})
         **Spec Pattern:** ${specPattern}
         **Estimated Tests:** ~${testCount} test files
@@ -470,12 +473,12 @@ def generateFailureReport() {
     return """
     🚨 Cypress Test Failure Report
     
-    Environment: ${params.TEST_ENVIRONMENT}
+    Environment: PROD (testing only)
     Test Suite: ${env.SELECTED_TEST_SUITE}
     Build Number: ${env.BUILD_NUMBER}
     Build URL: ${env.BUILD_URL}
     
-    Failed tests detected on ${params.TEST_ENVIRONMENT} environment.
+    Failed tests detected on PROD environment (testing configuration).
     
     Please check the test reports and videos for detailed failure analysis:
     - Test Report: ${env.BUILD_URL}Cypress_Test_Report/
