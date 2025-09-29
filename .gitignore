@@ -45,3 +45,8 @@ Thumbs.db
 
 revenue-monitoring-ui/package-lock.json
 revenue-monitoring-ui/src/assets/config/config.json
+
+# Cypress
+revenue-monitoring-ui/angular-app/cypress/screenshots/
+revenue-monitoring-ui/angular-app/cypress/videos/
+revenue-monitoring-ui/angular-app/cypress-warnings.log
