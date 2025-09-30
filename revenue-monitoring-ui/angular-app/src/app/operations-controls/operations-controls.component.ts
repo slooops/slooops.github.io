@@ -151,7 +151,7 @@ export class OperationsControlsComponent implements OnInit {
       .map(
         (word) =>
           acronyms.includes(word.toUpperCase())
-            ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
+            ? word.toUpperCase()
             : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
       )
       .join(' '); // Join words back with spaces
