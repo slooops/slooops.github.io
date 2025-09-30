@@ -22,7 +22,7 @@ pipeline {
                     steps {
 
                         // Run your unit tests and prepare SonarQube output
-                        sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
+                        sh "mvn -U org.jacoco:jacoco-maven-plugin:prepare-agent test"
 
                         sonarScan('Sonar')
                     }
