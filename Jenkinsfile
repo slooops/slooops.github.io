@@ -17,24 +17,26 @@ pipeline {
             }
         }
 
-        stage ('Test/Sonar') {
-                        
-                    steps {
-
-                        // Run your unit tests and prepare SonarQube output
-                        sh "mvn -U org.jacoco:jacoco-maven-plugin:prepare-agent test"
-
-                        sonarScan('Sonar')
-                    }
-
-
-                    // Make test results visible in Jenkins UI if the install step completed successfully
-                    post {
-                        success {
-                            junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
-                        }
-                    }
+        stage ('Test/Sonar') {        
+            steps {
+                dir("revenue-monitoring-server") {
+                    sh """
+                        mvn -Djavax.net.ssl.trustStore=/path/to/corporate/truststore.jks \
+                            -Djavax.net.ssl.trustStorePassword=changeit \
+                            org.jacoco:jacoco-maven-plugin:prepare-agent test
+                    """
+                    sonarScan('Sonar')
                 }
+            }
+
+
+            // Make test results visible in Jenkins UI if the install step completed successfully
+            post {
+                success {
+                    junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
+                }
+            }
+        }
 
         stage('Build Server') {
             when {
