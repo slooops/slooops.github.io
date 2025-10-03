@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { Chart, registerables, ChartOptions } from 'chart.js';
-import { DestroyManager } from '../providers/destroy-manager.service';
-import { ApiHttpService } from '../providers/http.service';
+import { Chart, ChartOptions, registerables } from 'chart.js';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+Chart.register(...registerables);
 
 @Component({
-  selector: 'app-sbp-esp-case-analyzer',
-  templateUrl: './sbp-esp-case-analyzer.component.html',
-  styleUrl: './sbp-esp-case-analyzer.component.css',
+  selector: 'app-esp-case-analyzer',
+  templateUrl: './esp-case-analyzer.component.html',
+  styleUrl: './esp-case-analyzer.component.css',
+  providers: [DestroyManager],
 })
-export class SbpEspCaseAnalyzerComponent implements OnInit {
+export class EspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
     this.http = http;
     Chart.register(...registerables);
@@ -33,15 +35,15 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   espWeeklyComparisonSummary: any[] = [];
 
-  sbpBirChartQ1Q2: Chart | null = null;
-  sbpBirChartQ2Q3: Chart | null = null;
-  sbpBirChartQ3Q4: Chart | null = null;
-  sbpBirChartQ4Q1: Chart | null = null;
+  birChartQ1Q2: Chart | null = null;
+  birChartQ2Q3: Chart | null = null;
+  birChartQ3Q4: Chart | null = null;
+  birChartQ4Q1: Chart | null = null;
 
-  sbpPrmcChartQ1Q2: Chart | null = null;
-  sbpPrmcChartQ2Q3: Chart | null = null;
-  sbpPrmcChartQ3Q4: Chart | null = null;
-  sbpPrmcChartQ4Q1: Chart | null = null;
+  prmcChartQ1Q2: Chart | null = null;
+  prmcChartQ2Q3: Chart | null = null;
+  prmcChartQ3Q4: Chart | null = null;
+  prmcChartQ4Q1: Chart | null = null;
 
   q1: string | null = null;
   q2: string | null = null;
@@ -51,7 +53,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   ngOnInit(): void {
     this.http
-      .get('sbp-esp-weekly-comparison-summary', this.destroyManager, {
+      .get('esp-weekly-comparison-summary', this.destroyManager, {
         responseType: 'json',
       })
       .subscribe((data: any) => {
@@ -78,7 +80,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
           }
         });
 
-        this.selectedTabIndex = Math.max(0, recentQuarters.length - 2);
+        this.selectedTabIndex = Math.max(0, recentQuarters.length - 2); // last valid pair is at length - 2
 
         this.espWeeklyComparisonSummary = data;
 
@@ -97,7 +99,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   getEspCaseServiceMetricSummary() {
     this.http
-      .get('sbp-esp-case-service-metric-summary', this.destroyManager)
+      .get('esp-case-service-metric-summary', this.destroyManager)
       .subscribe((data: any) => {
         if (data && data.length > 0) {
           // Columns to remove
@@ -139,7 +141,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   getEspAgingCaseSummary() {
     this.http
-      .get('sbp-esp-aging-case-summary', this.destroyManager)
+      .get('esp-aging-case-summary', this.destroyManager)
       .subscribe((data: any) => {
         if (data && data.length > 0) {
           // Columns to remove
@@ -191,6 +193,9 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
   }
 
   generateChartForPair(qStart: string, qEnd: string, name: string): void {
+    console.log(
+      `Generating chart for ${name} with start: ${qStart}, end: ${qEnd}`
+    );
     const prmcCategories = ['PDF', 'ROUTED OUT', 'MISROUTED', 'CANCELLED'];
     const birCategories = ['BACKLOG', 'INFLOW', 'RESOLVED'];
     const labels = this.getSortedLabels();
@@ -209,14 +214,14 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     );
 
     const prmcCanvas = document.getElementById(
-      `sbpPrmcChart${name}`
+      `prmcChart${name}`
     ) as HTMLCanvasElement;
     const birCanvas = document.getElementById(
-      `sbpBirChart${name}`
+      `birChart${name}`
     ) as HTMLCanvasElement;
 
     if (prmcCanvas && prmcCanvas.getContext('2d')) {
-      this[`sbpPrmcChart${name}`] = new Chart(prmcCanvas, {
+      this[`prmcChart${name}`] = new Chart(prmcCanvas, {
         type: 'bar',
         data: { labels, datasets: prmcDatasets },
         options: this.sharedChartOptions,
@@ -224,7 +229,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     }
 
     if (birCanvas && birCanvas.getContext('2d')) {
-      this[`sbpBirChart${name}`] = new Chart(birCanvas, {
+      this[`birChart${name}`] = new Chart(birCanvas, {
         type: 'bar',
         data: { labels, datasets: birDatasets },
         options: this.sharedChartOptions,
@@ -260,18 +265,17 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   transformData(fiscalQuarter: string, category: string): number[] {
     const labels = this.getSortedLabels();
-    const result = labels.map((label) => {
+    return labels.map((label) => {
       const weekNum = parseInt(label.split(' ')[1], 10);
       const entry = this.espWeeklyComparisonSummary.find(
         (item) =>
           item.WEEK_NUM === weekNum &&
-          item.FISC_QTR === fiscalQuarter && // Use exact match instead of slice
+          item.FISC_QTR === fiscalQuarter &&
           item.CATEGORY === category
       );
 
       return entry ? entry.COUNT : 0;
     });
-    return result;
   }
 
   getSortedLabels(): string[] {
@@ -312,43 +316,43 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     if (tabIndex === 3 && this.q4 && this.q1) {
       this.isQ4Q1Loading = false;
       setTimeout(() => this.generateChartForPair(this.q4, this.q1, 'Q4Q1'), 0);
+      console.log('Generating Q4 - Q1 chart using:', this.q4, this.q1);
     }
   }
 
   destroyCharts(): void {
     // Destroy charts if they exist
-    if (this.sbpBirChartQ1Q2) {
-      this.sbpBirChartQ1Q2.destroy();
-      this.sbpBirChartQ1Q2 = null;
+    if (this.birChartQ1Q2) {
+      this.birChartQ1Q2.destroy();
+      this.birChartQ1Q2 = null;
     }
-
-    if (this.sbpBirChartQ2Q3) {
-      this.sbpBirChartQ2Q3.destroy();
-      this.sbpBirChartQ2Q3 = null;
+    if (this.birChartQ2Q3) {
+      this.birChartQ2Q3.destroy();
+      this.birChartQ2Q3 = null;
     }
-    if (this.sbpBirChartQ3Q4) {
-      this.sbpBirChartQ3Q4.destroy();
-      this.sbpBirChartQ3Q4 = null;
+    if (this.birChartQ3Q4) {
+      this.birChartQ3Q4.destroy();
+      this.birChartQ3Q4 = null;
     }
-    if (this.sbpBirChartQ4Q1) {
-      this.sbpBirChartQ4Q1.destroy();
-      this.sbpBirChartQ4Q1 = null;
+    if (this.birChartQ4Q1) {
+      this.birChartQ4Q1.destroy();
+      this.birChartQ4Q1 = null;
     }
-    if (this.sbpPrmcChartQ1Q2) {
-      this.sbpPrmcChartQ1Q2.destroy();
-      this.sbpPrmcChartQ1Q2 = null;
+    if (this.prmcChartQ1Q2) {
+      this.prmcChartQ1Q2.destroy();
+      this.prmcChartQ1Q2 = null;
     }
-    if (this.sbpPrmcChartQ2Q3) {
-      this.sbpPrmcChartQ2Q3.destroy();
-      this.sbpPrmcChartQ2Q3 = null;
+    if (this.prmcChartQ2Q3) {
+      this.prmcChartQ2Q3.destroy();
+      this.prmcChartQ2Q3 = null;
     }
-    if (this.sbpPrmcChartQ3Q4) {
-      this.sbpPrmcChartQ3Q4.destroy();
-      this.sbpPrmcChartQ3Q4 = null;
+    if (this.prmcChartQ3Q4) {
+      this.prmcChartQ3Q4.destroy();
+      this.prmcChartQ3Q4 = null;
     }
-    if (this.sbpPrmcChartQ4Q1) {
-      this.sbpPrmcChartQ4Q1.destroy();
-      this.sbpPrmcChartQ4Q1 = null;
+    if (this.prmcChartQ4Q1) {
+      this.prmcChartQ4Q1.destroy();
+      this.prmcChartQ4Q1 = null;
     }
   }
 
@@ -618,7 +622,6 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
       const displayName =
         category.toUpperCase() === 'PDF' ? 'PDF' : toTitleCase(category);
-
       return [
         {
           label: `${displayName} ${firstQuarter.slice(0, 2)}`,

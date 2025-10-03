@@ -4,7 +4,7 @@ import { HomeComponent } from './home/home.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
+import { EspCaseAnalyzerComponent } from './esp/esp-case-analyzer/esp-case-analyzer.component';
 import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
 import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
@@ -26,8 +26,9 @@ import { O2c360Component } from './o2c-360/o2c-360.component';
 // import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
-import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { SbpEspCaseAnalyzerComponent } from './esp/sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
+import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 
 const routes: Routes = [
   {
@@ -95,6 +96,14 @@ const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+    },
+  },
+  {
+    path: 'esp-home',
+    component: EspHomeComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'ESP Home',
     },
   },
   {

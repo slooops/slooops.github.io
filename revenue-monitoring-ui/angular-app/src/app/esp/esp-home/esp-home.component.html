@@ -1,0 +1,21 @@
+<div class="esp-dashboard">
+  <div class="dashboard-header">
+    <h1>ESP Case Data Review</h1>
+    <p class="subtitle">Enterprise Support Process Monitoring</p>
+  </div>
+
+  <div class="metrics-grid">
+    <mat-card
+      *ngFor="let metric of metricTiles"
+      class="metric-card"
+      [ngClass]="getStatusClass(metric.status)"
+    >
+      <mat-card-content>
+        <div class="metric-content">
+          <div class="metric-name">{{ metric.name }}</div>
+          <div class="metric-percentage">{{ metric.percentage }}%</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

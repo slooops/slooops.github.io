@@ -63,7 +63,7 @@ import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
+import { EspCaseAnalyzerComponent } from './esp/esp-case-analyzer/esp-case-analyzer.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
@@ -104,12 +104,13 @@ import { OrderManagementComponent } from './order-management/order-management.co
 import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
 import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
 import { O2cDonutComponent } from './components/o2c-donut/o2c-donut.component';
-import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { SbpEspCaseAnalyzerComponent } from './esp/sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
 import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { CardComponent } from './components/card/card.component';
+import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -183,6 +184,7 @@ export function initApp(authService: AuthenticationService) {
     O2cSearchComponent,
     O2cDonutComponent,
     SbpEspCaseAnalyzerComponent,
+    EspHomeComponent,
     ChatbotComponent,
     O2cCardComponent,
     OperationsControlsComponent,
