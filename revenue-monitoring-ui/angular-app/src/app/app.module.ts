@@ -111,6 +111,7 @@ import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { CardComponent } from './components/card/card.component';
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
+import { MetricTileComponent } from './components/metric-tile/metric-tile.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -185,6 +186,7 @@ export function initApp(authService: AuthenticationService) {
     O2cDonutComponent,
     SbpEspCaseAnalyzerComponent,
     EspHomeComponent,
+    MetricTileComponent,
     ChatbotComponent,
     O2cCardComponent,
     OperationsControlsComponent,

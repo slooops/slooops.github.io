@@ -1,18 +1,6 @@
-.periodclosetable .table th {
-  background-color: #f7f7f7;
-  color: rgb(46, 46, 46);
+:root {
+  font-size: clamp(12px, 1vw + 0.5rem, 16px);
 }
-
-/* cui-table with borders is also striped */
-/* .cui .table.table--bordered > tbody > tr:nth-child(odd) {
-  background-color: var(--cui-table-striping-even);
-}
-.cui .table.table--bordered > tbody > tr:nth-child(even) {
-  background-color: var(--cui-table-striping-odd);
-}
-.cui .table.table--bordered > tbody > tr.active td:first-child {
-  border-left: var(--cui-accent-thickness) solid var(--cui-accent-color);
-} */
 
 html,
 body {
@@ -26,11 +14,6 @@ body {
 .fa,
 .material-icons {
   font-family: "FontAwesome", "Material Icons" !important;
-}
-
-:root {
-  --grey: #c6c7ca;
-  --blue: #8fc0e6;
 }
 
 @keyframes loading {
@@ -91,6 +74,11 @@ body {
 }
 .test {
   overflow-y: hidden !important;
+}
+
+.periodclosetable .table th {
+  background-color: #f7f7f7;
+  color: rgb(46, 46, 46);
 }
 
 .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
@@ -409,10 +397,6 @@ body {
 
 .custom-button-tertiary:active {
   color: #004364;
-}
-
-.cui .container {
-  max-width: none !important;
 }
 
 .mat-drawer-container {

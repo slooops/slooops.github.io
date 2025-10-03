@@ -1,85 +1,77 @@
 .esp-dashboard {
-  padding: 24px;
-  max-width: 1200px;
+  padding: 2rem;
   margin: 0 auto;
 }
 
 .dashboard-header {
-  margin-bottom: 32px;
-  text-align: center;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .dashboard-header h1 {
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: #1976d2;
-  margin-bottom: 8px;
-}
-
-.subtitle {
   font-size: 1.1rem;
-  color: #666;
+  font-weight: 700;
+  color: #000000;
   margin: 0;
 }
 
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  max-width: 1000px;
+.period-info {
+  display: flex;
+  align-items: center;
+}
+
+.period-details {
+  font-size: 0.8rem;
+  color: #606162;
+  font-weight: 400;
+}
+
+.period-details strong {
+  font-weight: 600;
+  color: #373c42;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #1990fa;
+  margin-bottom: 0.3rem;
+}
+
+/* 1x8 horizontal layout container */
+.metrics-container {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
   margin: 0 auto;
+  padding: 1rem 0; /* Space for the triangle */
 }
 
-.metric-card {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-}
-
-.metric-content {
-  text-align: center;
-  padding: 8px 0;
-}
-
-.metric-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.metric-percentage {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: white;
-}
-
-/* Status-based styling to match Figma design */
-.status-high {
-  background: linear-gradient(135deg, #1976d2, #1565c0);
-}
-
-.status-medium {
-  background: linear-gradient(135deg, #90a4ae, #78909c);
-}
-
-.status-low {
-  background: linear-gradient(135deg, #ffb74d, #ffa726);
+hr {
+  margin: 0;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .metrics-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 12px;
+  .header-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .period-details {
+    font-size: 0.75rem;
+  }
+
+  .metrics-container {
+    gap: 0.5rem;
   }
 
   .dashboard-header h1 {
@@ -87,12 +79,6 @@
   }
 
   .esp-dashboard {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .metrics-grid {
-    grid-template-columns: 1fr 1fr;
+    padding: 1rem;
   }
 }

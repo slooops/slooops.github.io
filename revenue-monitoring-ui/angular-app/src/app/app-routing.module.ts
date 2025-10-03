@@ -103,7 +103,7 @@ const routes: Routes = [
     component: EspHomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'ESP Home',
+      header: 'Case IQ',
     },
   },
   {

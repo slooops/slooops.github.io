@@ -1,10 +1,5 @@
 import { Component } from '@angular/core';
-
-interface MetricTile {
-  name: string;
-  percentage: number;
-  status: 'high' | 'medium' | 'low';
-}
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 @Component({
   selector: 'app-esp-home',
@@ -12,27 +7,28 @@ interface MetricTile {
   styleUrls: ['./esp-home.component.css'],
 })
 export class EspHomeComponent {
-  metricTiles: MetricTile[] = [
-    { name: 'Overall', percentage: 83, status: 'high' },
-    { name: 'AIT', percentage: 80, status: 'medium' },
-    { name: 'CAPITAL', percentage: 80, status: 'medium' },
-    { name: 'FPP', percentage: 23, status: 'low' },
-    { name: 'I2C', percentage: 89, status: 'high' },
-    { name: 'OM', percentage: 35, status: 'low' },
-    { name: 'P2P', percentage: 82, status: 'high' },
-    { name: 'SM', percentage: 89, status: 'high' },
+  constructor(private authService: AuthenticationService) {}
+
+  userName: string = this.authService.getUserName() || 'Jack';
+  activeTile: string = 'I2C'; // Default I2C as active
+
+  metricTiles = [
+    { name: 'Overall', percentage: 83 },
+    { name: 'AIT', percentage: 80 },
+    { name: 'Capital', percentage: 80 },
+    { name: 'FPP', percentage: 23 },
+    { name: 'I2C', percentage: 89 },
+    { name: 'OM', percentage: 35 },
+    { name: 'P2P', percentage: 82 },
+    { name: 'SM', percentage: 89 },
   ];
 
-  getStatusClass(status: string): string {
-    switch (status) {
-      case 'high':
-        return 'status-high';
-      case 'medium':
-        return 'status-medium';
-      case 'low':
-        return 'status-low';
-      default:
-        return '';
-    }
+  onTileClick(tileName: string): void {
+    this.activeTile = tileName;
+    console.log(`Selected tile: ${tileName}`);
+  }
+
+  isActive(tileName: string): boolean {
+    return this.activeTile === tileName;
   }
 }

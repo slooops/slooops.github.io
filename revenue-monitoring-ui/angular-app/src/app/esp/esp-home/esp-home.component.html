@@ -1,21 +1,31 @@
 <div class="esp-dashboard">
   <div class="dashboard-header">
-    <h1>ESP Case Data Review</h1>
-    <p class="subtitle">Enterprise Support Process Monitoring</p>
+    <p class="subtitle">
+      Hello <strong>{{ userName }},</strong> welcome!
+    </p>
+    <div class="header-main">
+      <h1>ESP Case Data Review</h1>
+      <div class="period-info">
+        <span class="period-details">
+          Period name: <strong>SEP-26 (W4)</strong> | Period end date:
+          <strong>09/20/2025</strong> | Last Updated:
+          <strong>9/9/2025, 4:45:17 PM</strong>
+        </span>
+      </div>
+    </div>
   </div>
 
-  <div class="metrics-grid">
-    <mat-card
+  <hr />
+
+  <div class="metrics-container">
+    <app-metric-tile
       *ngFor="let metric of metricTiles"
-      class="metric-card"
-      [ngClass]="getStatusClass(metric.status)"
-    >
-      <mat-card-content>
-        <div class="metric-content">
-          <div class="metric-name">{{ metric.name }}</div>
-          <div class="metric-percentage">{{ metric.percentage }}%</div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      [name]="metric.name"
+      [percentage]="metric.percentage"
+      [isActive]="isActive(metric.name)"
+      (tileClick)="onTileClick($event)"
+    ></app-metric-tile>
   </div>
+
+  <hr />
 </div>

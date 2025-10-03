@@ -299,11 +299,7 @@
 </mat-menu>
 
 <mat-menu #espMenu="matMenu">
-  <button
-    mat-menu-item
-    [routerLink]="'/esp-home'"
-    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
-  ></button>
+  <button mat-menu-item [routerLink]="'/esp-home'" [disabled]="false"></button>
 
   <button
     mat-menu-item
