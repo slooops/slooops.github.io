@@ -36,6 +36,31 @@
   font-weight: bold;
   margin: 8px 6px;
   font-size: 14px;
+  position: relative;
+  height: 36px;
+  overflow: hidden;
+  transition: padding-left 0.3s ease;
+}
+
+.o2c-sidebar:not(.collapsed) .menu-button {
+  padding-left: 36px;
+}
+
+.o2c-sidebar.collapsed .menu-button {
+  padding-left: 8px;
+  justify-content: center;
+}
+
+.menu-button i {
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.menu-button span {
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
 }
 
 .nav-item {
@@ -48,6 +73,36 @@
   color: #002f6c;
   font-weight: 500;
   gap: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+  height: 36px;
+  transition: padding-left 0.3s ease; /* Add transition for padding */
+}
+
+.o2c-sidebar:not(.collapsed) .nav-item {
+  padding-left: 36px;
+}
+
+.o2c-sidebar.collapsed .nav-item {
+  padding-left: 8px;
+  justify-content: center;
+}
+
+.nav-item i {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nav-item span {
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+.nav-item .count {
+  transition: opacity 0.3s ease;
 }
 
 .nav-item.active {
@@ -121,4 +176,14 @@
   background-size: cover;
   width: 20px;
   height: 20px;
+}
+
+.o2c-sidebar.collapsed .nav-item span {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.o2c-sidebar.collapsed .menu-button span {
+  opacity: 0;
+  pointer-events: none;
 }

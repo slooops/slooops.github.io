@@ -16,6 +16,11 @@ body {
   font-family: "FontAwesome", "Material Icons" !important;
 }
 
+:root {
+  --grey: #c6c7ca;
+  --blue: #8fc0e6;
+}
+
 @keyframes loading {
   25% {
     fill: var(--grey);

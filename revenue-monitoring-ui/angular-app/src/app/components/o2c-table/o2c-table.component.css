@@ -1,1 +1,135 @@
 @import "src/assets/o2c-common-styles.css";
+
+/* Container with smooth height transitions */
+.table-container {
+  transition: all 0.3s ease-in-out;
+  min-height: 200px;
+}
+
+.table-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 200px;
+  /* Smooth fade out */
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.table-loading-container.fade-out {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.loading-text {
+  margin-top: 16px;
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Table fade-in animation */
+.table-content {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table styles */
+.invoice-summary-table {
+  width: 100%;
+  background-color: white;
+  border-collapse: collapse;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Row animations with staggered delay */
+.invoice-summary-table tr {
+  transition: all 0.2s ease-in-out;
+}
+
+.invoice-summary-table tbody tr {
+  animation: slideInRow 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.invoice-summary-table tbody tr:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.invoice-summary-table tbody tr:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.invoice-summary-table tbody tr:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.invoice-summary-table tbody tr:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.invoice-summary-table tbody tr:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.invoice-summary-table tbody tr:nth-child(n + 6) {
+  animation-delay: 0.35s;
+}
+
+@keyframes slideInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.no-data-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 200px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out 0.2s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.no-data-text {
+  color: #999;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.clickable-cell {
+  cursor: pointer;
+  color: #0076d5;
+  transition: all 0.2s ease-in-out;
+}
+
+.clickable-cell:hover {
+  background-color: #f5f5f5;
+  text-decoration: underline;
+  transform: translateX(2px);
+}
