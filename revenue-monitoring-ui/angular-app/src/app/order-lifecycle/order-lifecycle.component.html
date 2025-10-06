@@ -4,7 +4,7 @@
       <h5 class="section-title action-buttons">
         <span class="action-buttons">
           <form [formGroup]="searchForm" class="search__form">
-            <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-form-field appearance="outline" [style.width.px]="125">
               <mat-label>Select Program Name</mat-label>
               <mat-select
                 id="progname"
@@ -23,7 +23,7 @@
               </mat-select>
             </mat-form-field>
             &nbsp;
-            <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-form-field appearance="outline" [style.width.px]="125">
               <mat-label>Select Account</mat-label>
               <mat-select
                 id="account"
@@ -44,7 +44,7 @@
             &nbsp;
             <mat-form-field
               class="filter"
-              floatLabel="never"
+              floatLabel="auto"
               [style.width.px]="125"
             >
               <mat-label>Search Deal ID</mat-label>
@@ -59,7 +59,7 @@
             &nbsp;
             <mat-form-field
               class="filter"
-              floatLabel="never"
+              floatLabel="auto"
               [style.width.px]="125"
             >
               <mat-label>Search Order # </mat-label>
@@ -72,7 +72,7 @@
               ></i>
             </mat-form-field>
             &nbsp;
-            <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-form-field appearance="outline" [style.width.px]="125">
               <mat-label>Select Booking Status</mat-label>
               <mat-select
                 id="orderstatus"
@@ -91,7 +91,7 @@
               </mat-select>
             </mat-form-field>
             &nbsp;
-            <mat-form-field appearance="standard" [style.width.px]="125">
+            <mat-form-field appearance="outline" [style.width.px]="125">
               <mat-label>Select Invoicing Status</mat-label>
               <mat-select
                 id="invoicestatus"
@@ -388,7 +388,7 @@
               <span
                 *ngIf="updateClo && record.GL_POSTING_STATUS != 'Completed'"
               >
-                <mat-form-field floatLabel="never">
+                <mat-form-field floatLabel="auto">
                   <input
                     matInput
                     [matDatepicker]="picker"

@@ -5,14 +5,12 @@ import {
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { OrderLifecycleUploadComponent } from './order-lifecycle-upload.component';
 import { ApiHttpService } from '../../providers/http.service';
 import { TemplateRef } from '@angular/core';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('OrderLifecycleUploadComponent', () => {
   let component: OrderLifecycleUploadComponent;
@@ -21,15 +19,17 @@ describe('OrderLifecycleUploadComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MatDialogModule, ReactiveFormsModule, HttpClientTestingModule],
-      declarations: [OrderLifecycleUploadComponent],
-      providers: [
+    declarations: [OrderLifecycleUploadComponent],
+    imports: [MatDialogModule, ReactiveFormsModule],
+    providers: [
         { provide: MatDialogRef, useValue: {} },
         { provide: MAT_DIALOG_DATA, useValue: {} },
         ApiHttpService,
         FormBuilder,
-      ],
-    }).compileComponents();
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+    ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(OrderLifecycleUploadComponent);
     component = fixture.componentInstance;

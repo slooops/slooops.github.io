@@ -32,13 +32,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   menuOpened = false;
   header: string = '';
-  userName: string = this.authService.getUserName();
+  userName!: string;
   isHelpDropdownOpen: boolean = false;
-  userRoles: string[] = this.authService.getRoles();
-  isAdmin$: boolean = this.userRoles.includes('ADMIN');
+  userRoles!: string[];
+  isAdmin$!: boolean;
   showMenu: boolean = true;
   menuItems: any[] = [];
   ngOnInit(): void {
+    // Initialize properties that depend on injected services
+    this.userName = this.authService.getUserName();
+    this.userRoles = this.authService.getRoles();
+    this.isAdmin$ = this.userRoles.includes('ADMIN');
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
       this.showNavbar = !isVisible;
     });
