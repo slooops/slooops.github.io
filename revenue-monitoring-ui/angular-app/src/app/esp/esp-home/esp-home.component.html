@@ -28,4 +28,78 @@
   </div>
 
   <hr />
+
+  <!-- Content area that displays based on active tile -->
+  <ng-container [ngSwitch]="activeTab">
+    <div *ngSwitchCase="'Overall'" class="tile-content">
+      <h3>Overall</h3>
+      <p>Overall metrics and analysis content will be displayed here...</p>
+      <!-- Add your Overall specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'AIT'" class="tile-content">
+      <h3>AIT</h3>
+      <p>
+        AIT (Application Integration Tools) content and functionality will be
+        displayed here...
+      </p>
+      <!-- Add your AIT specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'Capital'" class="tile-content">
+      <h3>Capital</h3>
+      <p>Capital-related content and functionality will be displayed here...</p>
+      <!-- Add your Capital specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'FPP'" class="tile-content">
+      <h3>FPP</h3>
+      <p>
+        FPP (Finance Planning Process) content and functionality will be
+        displayed here...
+      </p>
+      <!-- Add your FPP specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'I2C'" class="tile-content">
+      <h3>I2C</h3>
+      <p>I2C content and functionality will be displayed here...</p>
+      <!-- Add your I2C specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'OM'" class="tile-content">
+      <h3>OM</h3>
+      <p>
+        OM (Operations Management) content and functionality will be displayed
+        here...
+      </p>
+      <!-- Add your OM specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'P2P'" class="tile-content">
+      <h3>P2P</h3>
+      <p>
+        P2P (Procure-to-Pay) content and functionality will be displayed here...
+      </p>
+      <!-- Add your P2P specific components/content here -->
+    </div>
+
+    <div *ngSwitchCase="'SM'" class="tile-content">
+      <h3>SM</h3>
+      <p>
+        SM (Service Management) content and functionality will be displayed
+        here...
+      </p>
+      <!-- Add your SM specific components/content here -->
+    </div>
+
+    <!-- Default case when no tile is selected -->
+    <div *ngSwitchDefault class="tile-content default-content">
+      <h3>ESP Case Data Review</h3>
+      <p>
+        Select a metric tile above to view detailed information and
+        functionality for that area.
+      </p>
+    </div>
+  </ng-container>
 </div>

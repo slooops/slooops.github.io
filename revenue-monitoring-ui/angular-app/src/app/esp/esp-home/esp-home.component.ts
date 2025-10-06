@@ -10,7 +10,7 @@ export class EspHomeComponent {
   constructor(private authService: AuthenticationService) {}
 
   userName: string = this.authService.getUserName() || 'Jack';
-  activeTile: string = 'I2C'; // Default I2C as active
+  activeTab: string = 'I2C'; // Default I2C as active
 
   metricTiles = [
     { name: 'Overall', percentage: 83 },
@@ -24,11 +24,11 @@ export class EspHomeComponent {
   ];
 
   onTileClick(tileName: string): void {
-    this.activeTile = tileName;
+    this.activeTab = tileName;
     console.log(`Selected tile: ${tileName}`);
   }
 
   isActive(tileName: string): boolean {
-    return this.activeTile === tileName;
+    return this.activeTab === tileName;
   }
 }
