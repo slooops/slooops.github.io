@@ -26,7 +26,6 @@ pipeline {
                 sonarScan('Sonar')
             }
 
-            // Make test results visible in Jenkins UI if the install step completed successfully
             post {
                 success {
                     junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
