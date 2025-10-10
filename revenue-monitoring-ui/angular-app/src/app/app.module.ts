@@ -121,6 +121,15 @@ import { OperationsControlsComponent } from './operations-controls/operations-co
 import { CardComponent } from './components/card/card.component';
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { MetricTileComponent } from './components/metric-tile/metric-tile.component';
+import { CaseiqTableComponent } from './components/caseiq-table/caseiq-table.component';
+import { CaseiqAitComponent } from './esp/esp-home/caseiq-ait/caseiq-ait.component';
+import { CaseiqCapComponent } from './esp/esp-home/caseiq-cap/caseiq-cap.component';
+import { CaseiqComponent } from './esp/esp-home/caseiq/caseiq.component';
+import { CaseiqFppComponent } from './esp/esp-home/caseiq-fpp/caseiq-fpp.component';
+import { CaseiqI2cComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
+import { CaseiqOmComponent } from './esp/esp-home/caseiq-om/caseiq-om.component';
+import { CaseiqP2pComponent } from './esp/esp-home/caseiq-p2p/caseiq-p2p.component';
+import { CaseiqSmComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -208,6 +217,15 @@ export function initApp(authService: AuthenticationService) {
     O2cSubscriptionComponent,
     OperationsControlsComponent,
     CardComponent,
+    CaseiqTableComponent,
+    CaseiqAitComponent,
+    CaseiqCapComponent,
+    CaseiqComponent,
+    CaseiqFppComponent,
+    CaseiqI2cComponent,
+    CaseiqOmComponent,
+    CaseiqP2pComponent,
+    CaseiqSmComponent,
   ],
   imports: [
     BrowserModule,

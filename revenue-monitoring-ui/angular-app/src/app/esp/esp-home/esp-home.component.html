@@ -1,8 +1,5 @@
 <div class="esp-dashboard">
   <div class="dashboard-header">
-    <p class="subtitle">
-      Hello <strong>{{ userName }},</strong> welcome!
-    </p>
     <div class="header-main">
       <h1>ESP Case Data Review</h1>
       <div class="period-info">
@@ -32,37 +29,40 @@
   <!-- Content area that displays based on active tile -->
   <ng-container [ngSwitch]="activeTab">
     <div *ngSwitchCase="'Overall'" class="tile-content">
-      <h3>Overall</h3>
-      <p>Overall metrics and analysis content will be displayed here...</p>
-      <!-- Add your Overall specific components/content here -->
+      <app-caseiq></app-caseiq>
     </div>
 
     <div *ngSwitchCase="'AIT'" class="tile-content">
-      <h3>AIT</h3>
-      <p>
-        AIT (Application Integration Tools) content and functionality will be
-        displayed here...
-      </p>
-      <!-- Add your AIT specific components/content here -->
+      <app-caseiq-ait></app-caseiq-ait>
     </div>
 
     <div *ngSwitchCase="'Capital'" class="tile-content">
-      <h3>Capital</h3>
-      <p>Capital-related content and functionality will be displayed here...</p>
-      <!-- Add your Capital specific components/content here -->
+      <app-caseiq-cap></app-caseiq-cap>
     </div>
 
     <div *ngSwitchCase="'FPP'" class="tile-content">
-      <h3>FPP</h3>
-      <p>
-        FPP (Finance Planning Process) content and functionality will be
-        displayed here...
-      </p>
-      <!-- Add your FPP specific components/content here -->
+      <app-caseiq-fpp></app-caseiq-fpp>
     </div>
 
     <div *ngSwitchCase="'I2C'" class="tile-content">
-      <!-- <h3>I2C Team - Data Analysis</h3> -->
+      <app-caseiq-i2c></app-caseiq-i2c>
+
+      <!-- <div class="row">
+        <div class="metric-box metric-content">
+          <h5>82.77%</h5>
+          <p>Category Accuracy</p>
+        </div>
+        <div class="metric-box metric-content">
+          <h5>65.77%</h5>
+          <p>Core Issue Accuracy</p>
+        </div>
+
+        <div class="metric-box metric-content">
+          <h5>2269</h5>
+          <p>Total Cases</p>
+        </div>
+      </div>
+
       <div class="charts-row">
         <div class="chart-section">
           <h4>Category Distribution (Stacked)</h4>
@@ -77,7 +77,7 @@
           </div>
         </div>
         <div class="chart-section">
-          <h4>Monthly Case Totals</h4>
+          <h4>Core Issue Distribution</h4>
           <div class="chart-container">
             <app-bar-chart
               [data]="i2cSimpleChartData"
@@ -89,42 +89,36 @@
           </div>
         </div>
       </div>
-      <div class="table-section">
-        <app-table
-          [title]="'I2C Classification Validation'"
-          [dataSource]="i2cTableData"
-          [displayedColumns]="i2cTableColumns"
-          [exportFileName]="'I2C_Validation_Summary'"
-          [extraWideColumns]="['category']"
-        >
-        </app-table>
+
+      <div class="metric-box">
+        <h4>I2C Classification Summary</h4>
+
+        <p>
+          Note: Changes made in the table below are not saved automatically.
+          Please download your edits and use the sidebar 'Update Dashboard Data'
+          option to persist changes.
+        </p>
       </div>
+
+      <app-caseiq-table
+        [dataSource]="i2cTableData"
+        [displayedColumns]="i2cTableColumns"
+        [exportFileName]="'I2C_Validation_Summary'"
+        [extraWideColumns]="['category']"
+      >
+      </app-caseiq-table> -->
     </div>
 
     <div *ngSwitchCase="'OM'" class="tile-content">
-      <h3>OM</h3>
-      <p>
-        OM (Operations Management) content and functionality will be displayed
-        here...
-      </p>
-      <!-- Add your OM specific components/content here -->
+      <app-caseiq-om></app-caseiq-om>
     </div>
 
     <div *ngSwitchCase="'P2P'" class="tile-content">
-      <h3>P2P</h3>
-      <p>
-        P2P (Procure-to-Pay) content and functionality will be displayed here...
-      </p>
-      <!-- Add your P2P specific components/content here -->
+      <app-caseiq-p2p></app-caseiq-p2p>
     </div>
 
     <div *ngSwitchCase="'SM'" class="tile-content">
-      <h3>SM</h3>
-      <p>
-        SM (Service Management) content and functionality will be displayed
-        here...
-      </p>
-      <!-- Add your SM specific components/content here -->
+      <app-caseiq-sm></app-caseiq-sm>
     </div>
 
     <!-- Default case when no tile is selected -->
@@ -137,3 +131,4 @@
     </div>
   </ng-container>
 </div>
+<br /><br />

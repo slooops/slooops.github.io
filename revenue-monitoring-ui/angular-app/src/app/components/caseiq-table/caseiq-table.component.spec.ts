@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TableComponent } from './table.component';
+import { CaseiqTableComponent } from './caseiq-table.component';
 
-describe('TableComponent', () => {
-  let component: TableComponent;
-  let fixture: ComponentFixture<TableComponent>;
+describe('CaseiqTableComponent', () => {
+  let component: CaseiqTableComponent;
+  let fixture: ComponentFixture<CaseiqTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableComponent],
+      imports: [CaseiqTableComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TableComponent);
+    fixture = TestBed.createComponent(CaseiqTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
