@@ -62,9 +62,43 @@
     </div>
 
     <div *ngSwitchCase="'I2C'" class="tile-content">
-      <h3>I2C</h3>
-      <p>I2C content and functionality will be displayed here...</p>
-      <!-- Add your I2C specific components/content here -->
+      <!-- <h3>I2C Team - Data Analysis</h3> -->
+      <div class="charts-row">
+        <div class="chart-section">
+          <h4>Category Distribution (Stacked)</h4>
+          <div class="chart-container">
+            <app-bar-chart
+              [data]="i2cChartData"
+              [stacked]="true"
+              [isLoading]="false"
+              canvasId="i2cStackedChart"
+            >
+            </app-bar-chart>
+          </div>
+        </div>
+        <div class="chart-section">
+          <h4>Monthly Case Totals</h4>
+          <div class="chart-container">
+            <app-bar-chart
+              [data]="i2cSimpleChartData"
+              [stacked]="false"
+              [isLoading]="false"
+              canvasId="i2cSimpleChart"
+            >
+            </app-bar-chart>
+          </div>
+        </div>
+      </div>
+      <div class="table-section">
+        <app-table
+          [title]="'I2C Classification Validation'"
+          [dataSource]="i2cTableData"
+          [displayedColumns]="i2cTableColumns"
+          [exportFileName]="'I2C_Validation_Summary'"
+          [extraWideColumns]="['category']"
+        >
+        </app-table>
+      </div>
     </div>
 
     <div *ngSwitchCase="'OM'" class="tile-content">
