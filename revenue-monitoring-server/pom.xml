@@ -19,8 +19,9 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>cisco-shared-libs</id>
-			<name>Cisco Artifactory</name>
+			<id>cisco maven</id>
+			<name>Maven Repository Switchboard</name>
+			<layout>default</layout>
 			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
 			<snapshots>
 				<enabled>true</enabled>
@@ -159,32 +160,32 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<outputDirectory>${project.build.directory}/../package/repo</outputDirectory>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.0</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>package</directory>
-							<includes>
-								<include>repo/*.jar</include>
-							</includes>
-							<followSymlinks>false</followSymlinks>
-						</fileset>
-					</filesets>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>UTF-8</encoding>
+					<!-- Use source/target instead of release for compatibility -->
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
 			</plugin>
 		</plugins>
 	</build>
