@@ -16,22 +16,6 @@ pipeline {
                 notifyBuildStart()
             }
         }
-        
-        stage ('Test/Sonar') {
-            steps {
-                // Run your unit tests and prepare SonarQube output
-                //sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
-                sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
-
-                sonarScan('Sonar')
-            }
-
-            post {
-                success {
-                    junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
-                }
-            }
-        }
 
         stage('Build Server') {
             when {
@@ -115,6 +99,22 @@ pipeline {
         stage('SAST Security Scan') {
             steps {
                 sastSecurityScan()
+            }
+        }
+
+        stage ('Test/Sonar') {
+            steps {
+                // Run your unit tests and prepare SonarQube output
+                //sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
+                sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
+
+                sonarScan('Sonar')
+            }
+
+            post {
+                success {
+                    junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
+                }
             }
         }
     }
