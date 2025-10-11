@@ -18,10 +18,17 @@
 		<tomcat.version>9.0.99</tomcat.version>
 	</properties>
 	<repositories>
+		<!-- ✅ Always keep Maven Central FIRST -->
 		<repository>
-			<id>cisco maven</id>
-			<name>Maven Repository Switchboard</name>
-			<layout>default</layout>
+			<id>maven-central</id>
+			<name>Maven Central</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+		</repository>
+
+		<!-- ✅ Your internal Cisco Artifactory -->
+		<repository>
+			<id>cisco-shared-libs</id>
+			<name>Cisco Artifactory</name>
 			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
 			<snapshots>
 				<enabled>true</enabled>
@@ -29,6 +36,8 @@
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 		</repository>
+
+		<!-- ✅ Oracle repo for JDBC driver only -->
 		<repository>
 			<id>oracle-maven-repo</id>
 			<name>Oracle Maven Repository</name>
