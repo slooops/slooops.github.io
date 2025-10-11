@@ -104,16 +104,19 @@ pipeline {
 
         stage ('Test/Sonar') {
             steps {
+                dir("revenue-monitoring-server") {
+
                 // Run your unit tests and prepare SonarQube output
                 //sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
-                sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
+                    sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
 
-                sonarScan('Sonar')
+                    sonarScan('Sonar')
+                }
             }
 
             post {
                 success {
-                    junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
+                    junit testResults: 'revenue-monitoring-server/target/surefire-reports/**/*.xml', allowEmptyResults: true
                 }
             }
         }
