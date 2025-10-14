@@ -1,0 +1,131 @@
+<div class="upload-container">
+  <!-- Left info box -->
+  <div class="metric-box upload-info-box flex-row">
+    <mat-icon class="note-info-icon">assignment</mat-icon>
+
+    <div class="upload-info-content">
+      <div class="info-section">
+        <h6>NOTE</h6>
+        <p>
+          <strong>Required columns:</strong> INCIDENT_NUMBER,
+          IMPACTED_SERVICE_OFFERING, SUMMARY, DESCRIPTION
+        </p>
+        <p>
+          <strong>Other column names:</strong> CATEGORY, CATEGORY_ACTUAL,
+          CORE_ISSUE, CORE_ISSUE_ACTUAL
+        </p>
+        <div class="info-section">
+          <ol style="margin: 0 0 1rem 0">
+            <li
+              style="font-size: 0.75rem; color: #606162; margin-bottom: 0.25rem"
+            >
+              Writes the ESP case data to database
+            </li>
+            <li
+              style="font-size: 0.75rem; color: #606162; margin-bottom: 0.25rem"
+            >
+              Updates dashboard metrics
+            </li>
+          </ol>
+        </div>
+
+        <div class="info-section">
+          <h6>NOTE</h6>
+          <p>*Existing cases will be updated/overwritten based on NUMBER.</p>
+        </div>
+
+        <button
+          class="btn-base download-template-btn"
+          (click)="downloadTemplate()"
+        >
+          Download Template
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right upload area box -->
+  <div class="metric-box upload-area-box">
+    <div class="flex-row" style="align-items: center">
+      <h4>
+        Manual Upload
+        <p style="font-size: 0.75rem; color: #606162; font-weight: 400">
+          You can upload one file in CSV or XLSX format with the maximum size of
+          20 MB. Select the MACD Type and download the template.
+        </p>
+      </h4>
+
+      <button
+        type="button"
+        class="btn-base upload-file-btn"
+        [class.file-ready]="selectedFile && !isUploadSuccess"
+        [class.upload-complete]="isUploadSuccess"
+        (click)="
+          isUploadSuccess
+            ? resetUpload()
+            : selectedFile
+            ? uploadFile()
+            : triggerFileInput()
+        "
+        [disabled]="false"
+      >
+        {{
+          isUploadSuccess
+            ? "Upload Complete"
+            : selectedFile
+            ? "Upload File"
+            : "Select File"
+        }}
+      </button>
+    </div>
+
+    <div
+      class="upload-area"
+      [class.file-selected]="selectedFile && !isUploadSuccess"
+      [class.upload-success]="isUploadSuccess"
+      (click)="triggerFileInput()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onFileDropped($event)"
+      [class.dragover]="isDragOver"
+    >
+      <!-- Upload Success State -->
+      <ng-container *ngIf="isUploadSuccess">
+        <mat-icon class="upload-icon success-icon">check_circle</mat-icon>
+        <div class="upload-text-container">
+          <p class="upload-title">Upload Complete</p>
+          <p class="upload-subtitle">
+            Please allow time for accuracy score updates to propagate through
+            CG1. Check back in a bit to see your changes reflected in the
+            dashboard.
+          </p>
+        </div>
+      </ng-container>
+
+      <!-- File Selected State -->
+      <ng-container *ngIf="selectedFile && !isUploadSuccess">
+        <mat-icon class="upload-icon">description</mat-icon>
+        <div class="upload-text-container">
+          <p class="upload-title">{{ selectedFile.name }}</p>
+          <p class="upload-subtitle">
+            {{ formatFileSize(selectedFile.size) }}
+          </p>
+        </div>
+      </ng-container>
+
+      <!-- Default Upload State -->
+      <ng-container *ngIf="!selectedFile && !isUploadSuccess">
+        <mat-icon class="upload-icon">folder_open</mat-icon>
+        <p class="upload-text">Drag & Drop here limit 200 MB per file</p>
+      </ng-container>
+    </div>
+
+    <input
+      type="file"
+      #fileInput
+      (change)="onFileSelected($event)"
+      accept=".csv"
+      style="display: none"
+    />
+  </div>
+</div>

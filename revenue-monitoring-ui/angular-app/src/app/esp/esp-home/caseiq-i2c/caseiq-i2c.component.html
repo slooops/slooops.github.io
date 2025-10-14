@@ -1,60 +1,67 @@
-<div class="row">
-  <div class="metric-box metric-content">
-    <h5>82.77%</h5>
-    <p>Category Accuracy</p>
-  </div>
-  <div class="metric-box metric-content">
-    <h5>65.77%</h5>
-    <p>Core Issue Accuracy</p>
-  </div>
+<mat-tab-group [selectedIndex]="0">
+  <mat-tab [label]="'I2C - Case Analyzer Accuracy'">
+    <div class="row">
+      <div class="metric-box metric-content">
+        <h5>82.77%</h5>
+        <p>Category Accuracy</p>
+      </div>
+      <div class="metric-box metric-content">
+        <h5>65.77%</h5>
+        <p>Core Issue Accuracy</p>
+      </div>
 
-  <div class="metric-box metric-content">
-    <h5>2269</h5>
-    <p>Total Cases</p>
-  </div>
-</div>
-
-<div class="charts-row">
-  <div class="chart-section">
-    <h4>Category Distribution (Stacked)</h4>
-    <div class="chart-container">
-      <app-bar-chart
-        [data]="i2cChartData"
-        [stacked]="true"
-        [isLoading]="false"
-        canvasId="i2cStackedChart"
-      >
-      </app-bar-chart>
+      <div class="metric-box metric-content">
+        <h5>2269</h5>
+        <p>Total Cases</p>
+      </div>
     </div>
-  </div>
-  <div class="chart-section">
-    <h4>Core Issue Distribution</h4>
-    <div class="chart-container">
-      <app-bar-chart
-        [data]="i2cSimpleChartData"
-        [stacked]="false"
-        [isLoading]="false"
-        canvasId="i2cSimpleChart"
-      >
-      </app-bar-chart>
+
+    <div class="charts-row">
+      <div class="chart-section">
+        <h4>Category Distribution (Stacked)</h4>
+        <div class="chart-container">
+          <app-bar-chart
+            [data]="i2cChartData"
+            [stacked]="true"
+            [isLoading]="false"
+            canvasId="i2cStackedChart"
+          >
+          </app-bar-chart>
+        </div>
+      </div>
+      <div class="chart-section">
+        <h4>Core Issue Distribution</h4>
+        <div class="chart-container">
+          <app-bar-chart
+            [data]="i2cSimpleChartData"
+            [stacked]="false"
+            [isLoading]="false"
+            canvasId="i2cSimpleChart"
+          >
+          </app-bar-chart>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div class="metric-box">
-  <h4>I2C Classification Summary</h4>
+    <div class="metric-box">
+      <h4>I2C Classification Summary</h4>
 
-  <p>
-    Note: Changes made in the table below are not saved automatically. Please
-    download your edits and use the sidebar 'Update Dashboard Data' option to
-    persist changes.
-  </p>
-</div>
+      <p>
+        Note: Changes made in the table below are not saved automatically.
+        Please download your edits and use the sidebar 'Update Dashboard Data'
+        option to persist changes.
+      </p>
+    </div>
 
-<app-caseiq-table
-  [dataSource]="i2cTableData"
-  [displayedColumns]="i2cTableColumns"
-  [exportFileName]="'I2C_Validation_Summary'"
-  [extraWideColumns]="['category']"
->
-</app-caseiq-table>
+    <app-caseiq-table
+      [dataSource]="i2cTableData"
+      [displayedColumns]="i2cTableColumns"
+      [exportFileName]="'I2C_Validation_Summary'"
+      [extraWideColumns]="['category']"
+    >
+    </app-caseiq-table>
+  </mat-tab>
+  <mat-tab [label]="'Update Dashboard Data'">
+    <app-upload-screen [source]="'i2c'"> </app-upload-screen>
+  </mat-tab>
+</mat-tab-group>

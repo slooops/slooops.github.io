@@ -11,16 +11,10 @@ import {
   styleUrl: './caseiq-i2c.component.css',
 })
 export class CaseiqI2cComponent {
-  metricTiles = [
-    { name: 'Overall', percentage: 83 },
-    { name: 'AIT', percentage: 80 },
-    { name: 'Capital', percentage: 80 },
-    { name: 'FPP', percentage: 23 },
-    { name: 'I2C', percentage: 89 },
-    { name: 'OM', percentage: 35 },
-    { name: 'P2P', percentage: 82 },
-    { name: 'SM', percentage: 89 },
-  ];
+  // Upload functionality properties
+  isDragOver = false;
+  selectedFile: File | null = null;
+  isUploadSuccess = false;
 
   // I2C Chart Data - Similar to the screenshot
   i2cChartData: StackedBarChartDataPoint[] = [

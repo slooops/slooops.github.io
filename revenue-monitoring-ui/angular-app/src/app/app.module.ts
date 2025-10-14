@@ -130,6 +130,7 @@ import { CaseiqI2cComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.compone
 import { CaseiqOmComponent } from './esp/esp-home/caseiq-om/caseiq-om.component';
 import { CaseiqP2pComponent } from './esp/esp-home/caseiq-p2p/caseiq-p2p.component';
 import { CaseiqSmComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
+import { UploadScreenComponent } from './esp/esp-home/upload-screen/upload-screen.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -226,6 +227,7 @@ export function initApp(authService: AuthenticationService) {
     CaseiqOmComponent,
     CaseiqP2pComponent,
     CaseiqSmComponent,
+    UploadScreenComponent,
   ],
   imports: [
     BrowserModule,

@@ -16,6 +16,11 @@ body {
   gap: 1rem;
 }
 
+.flex-row {
+  display: flex;
+  gap: 1rem;
+}
+
 .fa,
 .material-icons {
   font-family: "FontAwesome", "Material Icons" !important;
