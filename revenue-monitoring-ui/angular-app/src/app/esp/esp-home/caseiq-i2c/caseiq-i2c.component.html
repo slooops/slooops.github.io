@@ -2,16 +2,16 @@
   <mat-tab [label]="'I2C - Case Analyzer Accuracy'">
     <div class="row">
       <div class="metric-box metric-content">
-        <h5>82.77%</h5>
+        <h5>{{ categoryAccuracy === "-" ? "-" : categoryAccuracy + "%" }}</h5>
         <p>Category Accuracy</p>
       </div>
       <div class="metric-box metric-content">
-        <h5>65.77%</h5>
+        <h5>{{ coreIssueAccuracy === "-" ? "-" : coreIssueAccuracy + "%" }}</h5>
         <p>Core Issue Accuracy</p>
       </div>
 
       <div class="metric-box metric-content">
-        <h5>2269</h5>
+        <h5>{{ totalCases }}</h5>
         <p>Total Cases</p>
       </div>
     </div>

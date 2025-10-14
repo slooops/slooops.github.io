@@ -1550,4 +1550,22 @@ public class QueryConfigs {
     public String getGtcControlsDetailsFiltered() {
         return this.gtcControlsDetailsFiltered;
     }
+
+    @Value(("${vw.i2c.category.match.status.q}"))
+    public String vwI2cCategoryMatchStatus;
+
+    @Bean( name = "vwI2cCategoryMatchStatus" )
+    public String getVwI2cCategoryMatchStatus() {return this.vwI2cCategoryMatchStatus; }
+
+    @Value(("${vw.i2c.core.issue.match.status.q}"))
+    public String vwI2cCoreIssueMatchStatus;
+
+    @Bean( name = "vwI2cCoreIssueMatchStatus" )
+    public String getVwI2cCoreIssueMatchStatus() {return this.vwI2cCoreIssueMatchStatus; }
+
+    @Value(("${xxcaseiq.validated.cases.accuracy.v.q}"))
+    public String xxcaseiqValidatedCasesAccuracyV;
+
+    @Bean( name = "xxcaseiqValidatedCasesAccuracyV" )
+    public String getXxcaseiqValidatedCasesAccuracyV() {return this.xxcaseiqValidatedCasesAccuracyV; }
 }

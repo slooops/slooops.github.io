@@ -15,10 +15,16 @@ public class EspCaseManagerService {
     private String sbpEspAgingCaseSummary;
     private String sbpEspCaseServiceMetricSummary;
     private String sbpEspWeeklyComparisonSummary;
+    private String vwI2cCategoryMatchStatus;
+    private String vwI2cCoreIssueMatchStatus;
+    private String xxcaseiqValidatedCasesAccuracyV;
 
     public EspCaseManagerService(JdbcManager jdbcManager,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
                                  String espWeeklyComparisonSummary, String sbpEspAgingCaseSummary,
-                                 String sbpEspCaseServiceMetricSummary, String sbpEspWeeklyComparisonSummary){
+                                 String sbpEspCaseServiceMetricSummary, String sbpEspWeeklyComparisonSummary,
+                                 String vwI2cCategoryMatchStatus,
+                                 String vwI2cCoreIssueMatchStatus,
+                                 String xxcaseiqValidatedCasesAccuracyV){
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -26,6 +32,9 @@ public class EspCaseManagerService {
         this.sbpEspAgingCaseSummary = sbpEspAgingCaseSummary;
         this.sbpEspCaseServiceMetricSummary = sbpEspCaseServiceMetricSummary;
         this.sbpEspWeeklyComparisonSummary = sbpEspWeeklyComparisonSummary;
+        this.vwI2cCategoryMatchStatus = vwI2cCategoryMatchStatus;
+        this.vwI2cCoreIssueMatchStatus = vwI2cCoreIssueMatchStatus;
+        this.xxcaseiqValidatedCasesAccuracyV = xxcaseiqValidatedCasesAccuracyV;
     }
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
         return jdbcManager.queryForList(espCaseServiceMetricSummary);
@@ -49,5 +58,17 @@ public class EspCaseManagerService {
 
     public List<Map<String, Object>> getSbpEspAgingCaseSummary() {
         return jdbcManager.queryForList(sbpEspAgingCaseSummary);
+    }
+
+    public List<Map<String, Object>> getVwI2cCategoryMatchStatus() {
+        return jdbcManager.queryForList(vwI2cCategoryMatchStatus);
+    }
+
+    public List<Map<String, Object>> getVwI2cCoreIssueMatchStatus() {
+        return jdbcManager.queryForList(vwI2cCoreIssueMatchStatus);
+    }
+
+    public List<Map<String, Object>> getXxcaseiqValidatedCasesAccuracyV() {
+        return jdbcManager.queryForList(xxcaseiqValidatedCasesAccuracyV);
     }
 }
