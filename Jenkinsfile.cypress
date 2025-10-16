@@ -291,34 +291,6 @@ def getTestDescription(suite) {
     }
 }
 
-def getTestSuite() {
-    if (params.TEST_SUITE != 'auto') {
-        return params.TEST_SUITE
-    }
-    
-    // Determine test suite based on trigger time
-    def currentHour = new Date().hours
-    def isWeekend = new Date().day in [0, 6] // Sunday = 0, Saturday = 6
-    
-    if (currentHour == 2) {
-        return 'regression'  // 2 AM = full regression
-    } else if (currentHour >= 9 && currentHour <= 17 && !isWeekend) {
-        return 'smoke'  // Business hours = smoke tests
-    } else {
-        return 'basic'  // Default = basic tests
-    }
-}
-
-def runTestsParallel() {
-    parallel(
-        "Invoice to Cash Tests": {
-            runCypressTestBySpecs('cypress/e2e/{spec,i2c,pre-invoicing}.cy.ts', 'i2c-suite')
-        },
-        "Revenue Accounting Tests": {
-            runCypressTestBySpecs('cypress/e2e/{rev-ac,gl-test}.cy.ts', 'rev-accounting-suite')
-        },
-        "Period Close Tests": {
-            runCypressTestBySpecs('cypress/e2e/{pre-close,mid-close}.cy.ts', 'period-close-suite')
         },
         "General Tests": {
             runCypressTestBySpecs('cypress/e2e/{details-tables,example}.cy.ts', 'general-suite')
@@ -345,32 +317,16 @@ def runCypressTest(suite) {
             
             try {
                 sh """
-                    # Set up display environment
-                    export DISPLAY=:99
-                    export ELECTRON_ENABLE_LOGGING=1
-                    
-                    # Additional Cypress environment variables for headless execution
+                    # Headless run without Xvfb (Cypress built-in headless mode)
                     export CYPRESS_CACHE_FOLDER=./cypress-cache
                     export DEBUG=cypress:*
-                    
-                    # Verify display is available
-                    if command -v xdpyinfo >/dev/null 2>&1; then
-                        xdpyinfo -display :99 > /dev/null 2>&1 || {
-                            echo "⚠️  Display :99 not ready, attempting to restart Xvfb..."
-                            pkill -f "Xvfb :99" || true
-                            Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
-                            sleep 3
-                        }
-                    fi
-                    
-                    # Run Cypress with comprehensive headless configuration
                     npx cypress run \
                         --headless \
-                        --browser electron \
+                        --browser chrome \
                         --env baseUrl=${env.TEST_BASE_URL},genericUsername=${env.GENERIC_STAGE_USER},genericPassword=${env.GENERIC_STAGE_PASS} \
                         --spec '${specPattern}' \
-                        --reporter cypress-multi-reporters \\
-                        --reporter-options configFile=cypress/reporter.config.json \\
+                        --reporter cypress-multi-reporters \
+                        --reporter-options configFile=cypress/reporter.config.json \
                         --config video=true,screenshotOnRunFailure=true
                 """
                 
@@ -391,32 +347,15 @@ def runCypressTestBySpecs(specPattern, groupName) {
             
             try {
                 sh """
-                    # Set up display environment
-                    export DISPLAY=:99
-                    export ELECTRON_ENABLE_LOGGING=1
-                    
-                    # Additional Cypress environment variables for headless execution
                     export CYPRESS_CACHE_FOLDER=./cypress-cache
                     export DEBUG=cypress:*
-                    
-                    # Verify display is available
-                    if command -v xdpyinfo >/dev/null 2>&1; then
-                        xdpyinfo -display :99 > /dev/null 2>&1 || {
-                            echo "⚠️  Display :99 not ready, attempting to restart Xvfb..."
-                            pkill -f "Xvfb :99" || true
-                            Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
-                            sleep 3
-                        }
-                    fi
-                    
-                    # Run Cypress with comprehensive headless configuration
                     npx cypress run \
                         --headless \
-                        --browser electron \
+                        --browser chrome \
                         --env baseUrl=${env.TEST_BASE_URL},genericUsername=${env.GENERIC_STAGE_USER},genericPassword=${env.GENERIC_STAGE_PASS} \
                         --spec '${specPattern}' \
-                        --reporter cypress-multi-reporters \\
-                        --reporter-options configFile=cypress/reporter.config.json \\
+                        --reporter cypress-multi-reporters \
+                        --reporter-options configFile=cypress/reporter.config.json \
                         --config video=true,screenshotOnRunFailure=true
                 """
                 
