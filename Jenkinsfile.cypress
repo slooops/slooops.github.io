@@ -36,6 +36,27 @@ pipeline {
       }
     }
 
+    stage('Install TypeScript Support') {
+      when { branch 'UI2.0' }
+      steps {
+        dir('revenue-monitoring-ui/angular-app') {
+          script {
+            echo 'Ensuring minimal TypeScript toolchain for Cypress .ts files...'
+            // Only install if typescript is missing to keep this lightweight
+            def exitCode = sh(returnStatus: true, script: 'test -d node_modules/typescript')
+            if (exitCode != 0) {
+              echo 'TypeScript not found. Installing TypeScript + Cypress types (this will also install project deps due to package.json).'
+              sh '''
+                npm install --no-audit --no-fund --save-dev typescript @types/node @types/cypress || exit 1
+              '''
+            } else {
+              echo 'TypeScript already present - skipping install.'
+            }
+          }
+        }
+      }
+    }
+
     stage('Run Cypress Tests') {
       when { branch 'UI2.0' }
       steps {
