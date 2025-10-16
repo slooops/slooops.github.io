@@ -209,9 +209,10 @@
   "GTC_CONTROLS_SUMMARY_VIEW": "select * from xxcfianr.XXCFIR_GTC_CUST_ERROR_SUMM_DASHBOARD_V",
   "GTC_CONTROLS_DETAILS_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V",
   "GTC_CONTROLS_DETAILS_FILTERED_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V where replace(process_flow,' ','')=replace(?,' ','') and BOOKING_ENTITY_NAME=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
-  "VW_I2C_CATEGORY_MATCH_STATUS": "select * from arfinro.VW_I2C_CATEGORY_MATCH_STATUS",
-  "VW_I2C_CORE_ISSUE_MATCH_STATUS": "select * from arfinro.VW_I2C_CORE_ISSUE_MATCH_STATUS",
+  "VW_I2C_CATEGORY_MATCH_STATUS": "select * from ARFINRO.XXCASEIQ_I2C_CATEGORY_MATCH_V",
+  "VW_I2C_CORE_ISSUE_MATCH_STATUS": "select * from ARFINRO.XXCASEIQ_I2C_CORE_ISSUE_MATCH_V",
   "XXCASEIQ_VALIDATED_CASES_ACCURACY_V": "select * from arfinro.XXCASEIQ_VALIDATED_CASES_ACCURACY_V",
+  "VW_I2C_CASE_DETAILS": "SELECT * FROM arfinro.XXCASEIQ_I2C_CASE_DETAILS_V WHERE (\"Category match\" = 'N' OR \"Core issue match\" = 'N') AND rownum <= 100",
   "REDIS_HOST": "i2c-monitoring-redis-service.i2c-monitoring-redis-prod-int-rcdn.svc.cluster.local",
   "REDIS_PASSWORD": "h=YWHZEzAh",
   "CORS_URL": "http://localhost:3000"

@@ -1568,4 +1568,10 @@ public class QueryConfigs {
 
     @Bean( name = "xxcaseiqValidatedCasesAccuracyV" )
     public String getXxcaseiqValidatedCasesAccuracyV() {return this.xxcaseiqValidatedCasesAccuracyV; }
+
+    @Value(("${vw.i2c.case.details.q}"))
+    public String vwI2cCaseDetails;
+
+    @Bean( name = "vwI2cCaseDetails" )
+    public String getVwI2cCaseDetails() {return this.vwI2cCaseDetails; }
 }

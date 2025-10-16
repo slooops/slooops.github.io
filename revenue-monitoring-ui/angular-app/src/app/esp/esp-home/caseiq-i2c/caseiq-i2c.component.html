@@ -1,6 +1,6 @@
 <mat-tab-group [selectedIndex]="0">
   <mat-tab [label]="'I2C - Case Analyzer Accuracy'">
-    <div class="row">
+    <div class="flex-row">
       <div class="metric-box metric-content">
         <h5>{{ categoryAccuracy === "-" ? "-" : categoryAccuracy + "%" }}</h5>
         <p>Category Accuracy</p>
@@ -13,6 +13,29 @@
       <div class="metric-box metric-content">
         <h5>{{ totalCases }}</h5>
         <p>Total Cases</p>
+      </div>
+
+      <div
+        class="metric-box metric-content"
+        style="background-color: #36a2eb; color: white"
+      >
+        <h5 style="color: white">Matched</h5>
+        <p>Blue</p>
+      </div>
+
+      <div class="metric-box metric-content" style="background-color: #ff6384">
+        <h5>Not Matched</h5>
+        <p>Red</p>
+      </div>
+
+      <div class="metric-box metric-content" style="background-color: #ffce56">
+        <h5>Analyzed</h5>
+        <p>Yellow</p>
+      </div>
+
+      <div class="metric-box metric-content" style="background-color: #e5e5e5">
+        <h5>Unknown</h5>
+        <p>Gray</p>
       </div>
     </div>
 
@@ -30,11 +53,11 @@
         </div>
       </div>
       <div class="chart-section">
-        <h4>Core Issue Distribution</h4>
+        <h4>Core Issue Distribution (Stacked)</h4>
         <div class="chart-container">
           <app-bar-chart
             [data]="i2cSimpleChartData"
-            [stacked]="false"
+            [stacked]="true"
             [isLoading]="false"
             canvasId="i2cSimpleChart"
           >
@@ -54,10 +77,14 @@
     </div>
 
     <app-caseiq-table
+      #i2cTable
       [dataSource]="i2cTableData"
       [displayedColumns]="i2cTableColumns"
       [exportFileName]="'I2C_Validation_Summary'"
-      [extraWideColumns]="['category']"
+      [extraWideColumns]="['Case Summary - Description']"
+      [enablePagination]="true"
+      [pageSize]="5"
+      [totalRecords]="totalRecords"
     >
     </app-caseiq-table>
   </mat-tab>

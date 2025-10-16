@@ -51,7 +51,7 @@ export class EspHomeComponent implements OnInit {
     this.http
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('xxcaseiqValidatedCasesAccuracyV:', data);
+        // console.log('xxcaseiqValidatedCasesAccuracyV:', data);
         // Ensure data is an array before processing
         if (Array.isArray(data)) {
           this.updateMetricTiles(data);

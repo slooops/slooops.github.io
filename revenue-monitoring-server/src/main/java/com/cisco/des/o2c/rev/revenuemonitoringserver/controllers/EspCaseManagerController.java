@@ -63,4 +63,9 @@ public class EspCaseManagerController {
     public ResponseEntity<List<Map<String, Object>>> getXxcaseiqValidatedCasesAccuracyV() {
         return new ResponseEntity<>(service.getXxcaseiqValidatedCasesAccuracyV(), HttpStatus.OK);
     }
+
+    @GetMapping("/vw-i2c-case-details")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCaseDetails() {
+        return new ResponseEntity<>(service.getVwI2cCaseDetails(), HttpStatus.OK);
+    }
 }

@@ -1,11 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import {
-  StackedBarChartDataPoint,
-  BarChartDataPoint,
-} from 'src/app/components/bar-chart/bar-chart.component';
+import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
+import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
 
 interface I2CAccuracyData {
   TEAM_NAME: string;
@@ -21,20 +19,29 @@ interface I2CAccuracyData {
   styleUrl: './caseiq-i2c.component.css',
 })
 export class CaseiqI2cComponent implements OnInit {
+  @ViewChild('i2cTable') i2cTable!: CaseiqTableComponent;
+
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager
   ) {}
 
-  // I2C specific metrics from API
+  i2cChartData: StackedBarChartDataPoint[] = [];
+  i2cSimpleChartData: StackedBarChartDataPoint[] = [];
+
   categoryAccuracy: number | string = '-';
   coreIssueAccuracy: number | string = '-';
   totalCases: number | string = '-';
+
+  i2cTableData = new MatTableDataSource<any>([]);
+  i2cTableColumns: string[] = [];
+  totalRecords: number = 0;
 
   ngOnInit(): void {
     this.getVwI2cCategoryMatchStatus();
     this.getVwI2cCoreIssueMatchStatus();
     this.getXxcaseiqValidatedCasesAccuracyV();
+    this.getVwI2cCaseDetails();
   }
 
   getVwI2cCategoryMatchStatus() {
@@ -42,6 +49,7 @@ export class CaseiqI2cComponent implements OnInit {
       .get('vw-i2c-category-match-status', this.destroyManager)
       .subscribe((data: any) => {
         console.log('vwI2cCategoryMatchStatus:', data);
+        this.transformCategoryMatchData(data);
       });
   }
 
@@ -50,6 +58,7 @@ export class CaseiqI2cComponent implements OnInit {
       .get('vw-i2c-core-issue-match-status', this.destroyManager)
       .subscribe((data: any) => {
         console.log('vwI2cCoreIssueMatchStatus:', data);
+        this.transformCoreIssueMatchData(data);
       });
   }
 
@@ -60,6 +69,41 @@ export class CaseiqI2cComponent implements OnInit {
         console.log('xxcaseiqValidatedCasesAccuracyV:', data);
         this.updateI2CMetrics(data);
       });
+  }
+
+  getVwI2cCaseDetails() {
+    this.http
+      .get('vw-i2c-case-details', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('vwI2cCaseDetails:', data);
+        this.updateTableData(data);
+      });
+  }
+
+  /**
+   * Updates table data and columns from API response
+   * Dynamically sets columns based on the first record's keys
+   */
+  private updateTableData(apiData: any[]): void {
+    if (Array.isArray(apiData) && apiData.length > 0) {
+      this.i2cTableData.data = apiData;
+
+      // Set total records for pagination
+      this.totalRecords = apiData.length;
+      this.i2cTableColumns = Object.keys(apiData[0]);
+
+      // Manually trigger paginator setup after data is loaded
+      setTimeout(() => {
+        if (this.i2cTable) {
+          this.i2cTable.initializePaginator();
+        }
+      }, 100);
+    } else {
+      // No data received, keep empty state
+      this.i2cTableData.data = [];
+      this.i2cTableColumns = [];
+      this.totalRecords = 0;
+    }
   }
 
   /**
@@ -85,156 +129,93 @@ export class CaseiqI2cComponent implements OnInit {
     }
   }
 
-  i2cChartData: StackedBarChartDataPoint[] = [
-    {
-      label: 'Access Management',
-      segments: [
-        { name: 'Validated', value: 412, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 28, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Accounting',
-      segments: [
-        { name: 'Validated', value: 267, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 53, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Cash Apps',
-      segments: [
-        { name: 'Validated', value: 534, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 19, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Credit & Collections',
-      segments: [
-        { name: 'Validated', value: 189, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 87, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Order to Cash',
-      segments: [
-        { name: 'Validated', value: 678, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 14, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Invoicing',
-      segments: [
-        { name: 'Validated', value: 298, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 72, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'VT Customs',
-      segments: [
-        { name: 'Validated', value: 456, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 9, color: '#E5E5E5' },
-      ],
-    },
-  ];
+  /**
+   * Transforms category match status API data into stacked bar chart format
+   * Groups by CATEGORY and creates segments for each MATCH_STATUS
+   */
+  private transformCategoryMatchData(apiData: any[]): void {
+    if (!Array.isArray(apiData)) {
+      console.log('No category match data to transform');
+      return;
+    }
 
-  i2cSimpleChartData: BarChartDataPoint[] = [
-    { label: 'E-Invoicing - Esker', value: 892, color: '#E5E5E5' },
-    { label: 'E-Invoicing - Sovos', value: 156, color: '#E5E5E5' },
-    { label: 'E-Invoicing - Synchro', value: 723, color: '#E5E5E5' },
-    { label: 'E-Invoicing - IRN', value: 345, color: '#E5E5E5' },
-    { label: 'Invoice Amount', value: 567, color: '#E5E5E5' },
-    { label: 'Invoice Amount', value: 234, color: '#E5E5E5' },
-    { label: 'Invoice Enquiry Tax', value: 678, color: '#E5E5E5' },
-    { label: 'Invoice Aging', value: 123, color: '#E5E5E5' },
-    { label: 'Invoice Delivery - Email', value: 789, color: '#E5E5E5' },
-    { label: 'Invoice Delivery B2B', value: 456, color: '#E5E5E5' },
-    { label: 'Invoice Not Generated', value: 234, color: '#E5E5E5' },
-    { label: 'Post Invoice Dispute', value: 567, color: '#E5E5E5' },
-    { label: 'Receipts', value: 890, color: '#E5E5E5' },
-  ];
+    // Group data by CATEGORY
+    const categoryGroups = apiData.reduce((groups, item) => {
+      const category = item.CATEGORY;
+      if (!groups[category]) {
+        groups[category] = [];
+      }
+      groups[category].push(item);
+      return groups;
+    }, {} as Record<string, any[]>);
 
-  i2cTableData = new MatTableDataSource([
-    {
-      'Incident Number': 'INC0012345',
-      'Impacted Service': 'Indirect Tax - Global',
-      'Case Description': 'Rebill invoice not yet generated',
-      Category: 'Pre-Invoicing',
-      'Category Actual': 'Tax Inquiry',
-      'Core Issue': 'Process Gap',
-      'Core Actual': 'Process Gap',
-    },
-    {
-      'Incident Number': 'INC0012346',
-      'Impacted Service': 'Order Management - Global',
-      'Case Description': 'Credit memo not processed',
-      Category: 'Order to Cash',
-      'Category Actual': 'Credit Memo',
-      'Core Issue': 'Training',
-      'Core Actual': 'Training',
-    },
-    {
-      'Incident Number': 'INC0012347',
-      'Impacted Service': 'Cash Application - APAC',
-      'Case Description': 'Payment not applied to invoice',
-      Category: 'Invoicing',
-      'Category Actual': 'Payment Application',
-      'Core Issue': 'System Issue',
-      'Core Actual': 'System Issue',
-    },
-    {
-      'Incident Number': 'INC0012348',
-      'Impacted Service': 'Credit & Collections - EMEA',
-      'Case Description': 'Customer dispute unresolved',
-      Category: 'Order to Cash',
-      'Category Actual': 'Dispute Management',
-      'Core Issue': 'Customer Issue',
-      'Core Actual': 'Customer Issue',
-    },
-    {
-      'Incident Number': 'INC0012345',
-      'Impacted Service': 'Indirect Tax - Global',
-      'Case Description': 'Rebill invoice not yet generated',
-      Category: 'Pre-Invoicing',
-      'Category Actual': 'Tax Inquiry',
-      'Core Issue': 'Process Gap',
-      'Core Actual': 'Process Gap',
-    },
-    {
-      'Incident Number': 'INC0012346',
-      'Impacted Service': 'Order Management - Global',
-      'Case Description': 'Credit memo not processed',
-      Category: 'Order to Cash',
-      'Category Actual': 'Credit Memo',
-      'Core Issue': 'Training',
-      'Core Actual': 'Training',
-    },
-    {
-      'Incident Number': 'INC0012347',
-      'Impacted Service': 'Cash Application - APAC',
-      'Case Description': 'Payment not applied to invoice',
-      Category: 'Invoicing',
-      'Category Actual': 'Payment Application',
-      'Core Issue': 'System Issue',
-      'Core Actual': 'System Issue',
-    },
-    {
-      'Incident Number': 'INC0012348',
-      'Impacted Service': 'Credit & Collections - EMEA',
-      'Case Description': 'Customer dispute unresolved',
-      Category: 'Order to Cash',
-      'Category Actual': 'Dispute Management',
-      'Core Issue': 'Customer Issue',
-      'Core Actual': 'Customer Issue',
-    },
-  ]);
+    // Transform to stacked bar chart format
+    this.i2cChartData = Object.keys(categoryGroups).map((category) => {
+      const segments = categoryGroups[category].map((item) => ({
+        name: item.MATCH_STATUS,
+        value: item.CATEGORY_COUNT,
+        color: this.getMatchStatusColor(item.MATCH_STATUS),
+      }));
 
-  i2cTableColumns = [
-    'Incident Number',
-    'Impacted Service',
-    'Case Description',
-    'Category',
-    'Category Actual',
-    'Core Issue',
-    'Core Actual',
-  ];
+      return {
+        label: category,
+        segments: segments,
+      };
+    });
+
+    console.log('Transformed category match data:', this.i2cChartData);
+  }
+
+  /**
+   * Returns color based on match status
+   */
+  private getMatchStatusColor(matchStatus: string): string {
+    switch (matchStatus.toUpperCase()) {
+      case 'MATCHED':
+        return '#36A2EB'; // Blue for matched
+      case 'NOT MATCHED':
+        return '#FF6384'; // Red for not matched
+      case 'ANALYZED':
+        return '#FFCE56'; // Yellow for analyzed
+      default:
+        return '#E5E5E5'; // Gray for unknown
+    }
+  }
+
+  /**
+   * Transforms core issue match status API data into stacked bar chart format
+   * Groups by CORE_ISSUE and creates segments for each MATCH_STATUS
+   */
+  private transformCoreIssueMatchData(apiData: any[]): void {
+    if (!Array.isArray(apiData)) {
+      console.log('No core issue match data to transform');
+      return;
+    }
+
+    // Group data by CORE_ISSUE
+    const coreIssueGroups = apiData.reduce((groups, item) => {
+      const coreIssue = item.CORE_ISSUE;
+      if (!groups[coreIssue]) {
+        groups[coreIssue] = [];
+      }
+      groups[coreIssue].push(item);
+      return groups;
+    }, {} as Record<string, any[]>);
+
+    // Transform to stacked bar chart format
+    this.i2cSimpleChartData = Object.keys(coreIssueGroups).map((coreIssue) => {
+      const segments = coreIssueGroups[coreIssue].map((item) => ({
+        name: item.MATCH_STATUS,
+        value: item.CORE_ISSUE_COUNT,
+        color: this.getMatchStatusColor(item.MATCH_STATUS),
+      }));
+
+      return {
+        label: coreIssue,
+        segments: segments,
+      };
+    });
+
+    console.log('Transformed core issue match data:', this.i2cSimpleChartData);
+  }
 }

@@ -18,13 +18,15 @@ public class EspCaseManagerService {
     private String vwI2cCategoryMatchStatus;
     private String vwI2cCoreIssueMatchStatus;
     private String xxcaseiqValidatedCasesAccuracyV;
+    private String vwI2cCaseDetails;
 
     public EspCaseManagerService(JdbcManager jdbcManager,  String espAgingCaseSummary, String espCaseServiceMetricSummary,
                                  String espWeeklyComparisonSummary, String sbpEspAgingCaseSummary,
                                  String sbpEspCaseServiceMetricSummary, String sbpEspWeeklyComparisonSummary,
                                  String vwI2cCategoryMatchStatus,
                                  String vwI2cCoreIssueMatchStatus,
-                                 String xxcaseiqValidatedCasesAccuracyV){
+                                 String xxcaseiqValidatedCasesAccuracyV,
+                                 String vwI2cCaseDetails){
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -35,6 +37,7 @@ public class EspCaseManagerService {
         this.vwI2cCategoryMatchStatus = vwI2cCategoryMatchStatus;
         this.vwI2cCoreIssueMatchStatus = vwI2cCoreIssueMatchStatus;
         this.xxcaseiqValidatedCasesAccuracyV = xxcaseiqValidatedCasesAccuracyV;
+        this.vwI2cCaseDetails = vwI2cCaseDetails;
     }
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
         return jdbcManager.queryForList(espCaseServiceMetricSummary);
@@ -70,5 +73,9 @@ public class EspCaseManagerService {
 
     public List<Map<String, Object>> getXxcaseiqValidatedCasesAccuracyV() {
         return jdbcManager.queryForList(xxcaseiqValidatedCasesAccuracyV);
+    }
+
+    public List<Map<String, Object>> getVwI2cCaseDetails() {
+        return jdbcManager.queryForList(vwI2cCaseDetails);
     }
 }
