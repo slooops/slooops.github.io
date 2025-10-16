@@ -1,7 +1,7 @@
 describe('Invoice to Cash', () => {
   it('Tests invoice to cash', () => {
     cy.viewport(1199, 1003);
-    cy.visit('http://localhost:4200/invoice-to-cash');
+    cy.visit('/invoice-to-cash');
 
     // Perform common process flow steps on Pre-Invoicing tab
     cy.testProcessFlowAndAssignment();
@@ -56,7 +56,7 @@ describe('Invoice to Cash', () => {
     // Click "Operations Controls" tab
     // cy.contains('.mat-tab-label', 'Operations Controls').should('be.visible').click();
 
-    cy.visit('http://localhost:4200/revenue-accounting');
+    cy.visit('/revenue-accounting');
     //this opens to standard revenue
     cy.testProcessFlowAndAssignment();
     cy.testTableFilter('TRANSACTION_ID', 2, '3');
@@ -86,7 +86,7 @@ describe('Invoice to Cash', () => {
 // describe('Invoice to Cash - Tabs Navigation', () => {
 //   it('should navigate through all tabs', () => {
 //     cy.viewport(1199, 1003);
-//     cy.visit('http://localhost:4200/invoice-to-cash');
+//     cy.visit('/invoice-to-cash');
 
 //     // Click "Invoicing" tab
 //     cy.contains('.mat-tab-label', 'Invoicing').should('be.visible').click();

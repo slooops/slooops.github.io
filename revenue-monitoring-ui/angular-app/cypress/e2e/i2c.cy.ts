@@ -1,7 +1,7 @@
 describe('Invoice to Cash', () => {
   beforeEach(() => {
     cy.viewport(1199, 1003);
-    cy.visit('http://localhost:4200/error');
+    cy.visit('/error');
     cy.get('li:nth-of-type(2) > a').click();
     cy.get('button:nth-of-type(2)').click();
   });

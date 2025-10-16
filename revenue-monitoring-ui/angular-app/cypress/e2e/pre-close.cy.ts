@@ -3,13 +3,13 @@
 //     cy.visit('/');
 //     cy.get('.onHover > svg').click();
 //     cy.get('.active > span').click();
-//     cy.visit('http://localhost:4200/period-close-tracking');
+//     cy.visit('/period-close-tracking');
 //   });
 // });
 
 describe('Test the filters', () => {
   it('clicks statuses', () => {
-    cy.visit('http://localhost:4200/period-close-tracking');
+    cy.visit('/period-close-tracking');
     cy.get('[data-cy=preclose-statuses]').click();
     // cy.get('#mat-select-value-27').click();
     // cy.get('#mat-option-78 > .mat-option-text').click();
@@ -45,4 +45,4 @@ describe('Test the filters', () => {
 //   });
 // });
 
-// cy.visit('http://localhost:4200/period-close-tracking');
+// cy.visit('/period-close-tracking');

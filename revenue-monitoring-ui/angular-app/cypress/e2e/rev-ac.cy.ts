@@ -2,7 +2,7 @@ describe('Revenue Accounting', () => {
   it('Tests tabs in rev accting', () => {
     cy.viewport(1199, 1003);
 
-    cy.visit('http://localhost:4200/revenue-accounting');
+    cy.visit('/revenue-accounting');
     //this opens to standard revenue
     cy.testProcessFlowAndAssignment();
     cy.testTableFilter('TRANSACTION_ID', 2, '3');

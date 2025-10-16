@@ -1,6 +1,6 @@
 // describe('navigate to mid-close', () => {
 //   it('passes', () => {
-//     cy.visit('http://localhost:4200/');
+//     cy.visit('/');
 
 //     /* ==== Generated with Cypress Studio ==== */
 //     cy.get('.onHover > svg').click();
@@ -13,7 +13,7 @@
 describe('midclose test', () => {
   it('tests midclose test', () => {
     cy.viewport(1199, 1003);
-    cy.visit('http://localhost:4200/home');
+    cy.visit('/home');
     cy.get('div.navbar > ul > li:nth-of-type(2) > a').click();
     cy.get('#mat-tab-label-1-1 > div').click();
     cy.get('#mat-option-63').click();
