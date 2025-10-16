@@ -4,7 +4,7 @@ pipeline {
   agent {
     docker {
       image 'containers.cisco.com/epit/cypress:v1.0.0'
-      // Run as root and relocate npm cache to workspace to avoid /.npm EACCES
+      // Run as root to avoid permission issues in cached Cypress binary
       args '-u root:root -e HOME=/root'
     }
   }
@@ -13,12 +13,9 @@ pipeline {
     TEST_BASE_URL = 'https://operations-control-tower-stg.cisco.com'
     GENERIC_STAGE_USER = 'ctltwr_cypress.gen@stage.cisco.com'
     GENERIC_STAGE_PASS = 'Uitesting@2025'
-    // Local npm cache path (used when installing)
-    NPM_CACHE_DIR = 'npm-cache'
   }
 
   parameters {
-    booleanParam(name: 'SKIP_NPM_INSTALL', defaultValue: true, description: 'Skip npm install (use when tests only hit external URL and do not rely on project dependencies).')
     booleanParam(name: 'ENABLE_VIDEO', defaultValue: false, description: 'Record Cypress videos.')
   }
 
@@ -32,28 +29,10 @@ pipeline {
         }
       }
     }
-
-    stage('Checkout & Install') {
+    stage('Checkout') {
       when { branch 'UI2.0' }
       steps {
         checkout scm
-        dir('revenue-monitoring-ui/angular-app') {
-          sh 'node --version || true'
-          sh 'npm --version || true'
-          script {
-            if (params.SKIP_NPM_INSTALL) {
-              echo 'Skipping npm install as per parameter SKIP_NPM_INSTALL=true'
-            } else {
-              // Use workspace-local cache to avoid root-owned /.npm directory issues
-              sh 'mkdir -p $NPM_CACHE_DIR'
-              sh 'npm config set cache $NPM_CACHE_DIR'
-              // Clean potential stale modules
-              sh 'rm -rf node_modules'
-              // Prefer clean install with lockfile if present
-              sh '[ -f package-lock.json ] && npm ci || npm install'
-            }
-          }
-        }
       }
     }
 
