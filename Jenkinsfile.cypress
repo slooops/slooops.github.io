@@ -48,7 +48,9 @@ pipeline {
                 --browser chrome --headless \
                 --env baseUrl=${TEST_BASE_URL},genericUsername=${GENERIC_STAGE_USER},genericPassword=${GENERIC_STAGE_PASS} \
                 --spec 'cypress/e2e/**/*.cy.ts' \
-                --config video=${params.ENABLE_VIDEO ? 'true' : 'false'}
+                --config video=${params.ENABLE_VIDEO ? 'true' : 'false'} \
+                --config-file cypress.config.js \
+                -- --disable-gpu --disable-dev-shm-usage
             """)
             if (exitCode != 0) {
               error "Cypress tests failed (exit ${exitCode})"
