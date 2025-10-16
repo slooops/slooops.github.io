@@ -45,7 +45,7 @@ pipeline {
             // Run directly inside the Cypress-enabled image
             def exitCode = sh(returnStatus: true, script: """
               npx cypress run \
-                --browser chrome --headless \
+                --browser chromium --headless \
                 --env baseUrl=${TEST_BASE_URL},genericUsername=${GENERIC_STAGE_USER},genericPassword=${GENERIC_STAGE_PASS} \
                 --spec 'cypress/e2e/**/*.cy.ts' \
                 --config video=${params.ENABLE_VIDEO ? 'true' : 'false'} \
