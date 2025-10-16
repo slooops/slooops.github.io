@@ -23,20 +23,10 @@ pipeline {
     }
 
     parameters {
-        // choice(
-        //     name: 'TEST_ENVIRONMENT',
-        //     choices: ['dev', 'stage', 'prod'],
-        //     description: 'Environment to test against'
-        // )
         choice(
             name: 'TEST_SUITE',
             choices: ['auto', 'smoke', 'basic', 'regression', 'all', 'i2c-only', 'rev-accounting-only', 'period-close-only'],
             description: 'Test suite to run (auto = determined by trigger time)'
-        )
-        string(
-            name: 'BASE_URL_OVERRIDE',
-            defaultValue: '',
-            description: 'Override base URL (leave empty for prod default: https://operations-control-tower-api.cisco.com)'
         )
         booleanParam(
             name: 'PARALLEL_EXECUTION',
@@ -51,8 +41,11 @@ pipeline {
 
     environment {
         CYPRESS_CACHE_FOLDER = './cypress-cache'
-        TEST_BASE_URL = getTestUrl()
-        
+        // Hardcoded stage URL per request
+        TEST_BASE_URL = 'https://operations-control-tower-stg.cisco.com'
+        // Hardcoded generic credentials (TEMPORARY – remove after validation!)
+        GENERIC_STAGE_USER = 'ctltwr_cypress.gen@stage.cisco.com'
+        GENERIC_STAGE_PASS = 'Uitesting@2025'
         // Test suite selection based on trigger time
         SELECTED_TEST_SUITE = getTestSuite()
     }
@@ -73,18 +66,18 @@ pipeline {
             }
         }
         
-        stage('Initialize') {
+    stage('Initialize') {
             when {
                 branch 'UI2.0'
             }
             steps {
                 script {
-                    currentBuild.displayName = "#${BUILD_NUMBER} - prod - ${env.SELECTED_TEST_SUITE}"
-                    currentBuild.description = "Rev-Ops Monitoring E2E tests: ${getTestDescription(env.SELECTED_TEST_SUITE)} on PROD (testing only)"
+                    currentBuild.displayName = "#${BUILD_NUMBER} - stage - ${env.SELECTED_TEST_SUITE}"
+                    currentBuild.description = "Rev-Ops Monitoring E2E tests: ${getTestDescription(env.SELECTED_TEST_SUITE)} on STAGE (generic login bypass)"
                     
                     echo "🚀 Starting Cypress tests for rev-ops-monitoring"
                     echo "Branch: ${env.BRANCH_NAME}"
-                    echo "Environment: PROD (hardcoded for testing)"
+                    echo "Environment: STAGE (hardcoded)"
                     echo "Test Suite: ${env.SELECTED_TEST_SUITE}"
                     echo "Base URL: ${env.TEST_BASE_URL}"
                     echo "Parallel Execution: ${params.PARALLEL_EXECUTION}"
@@ -177,7 +170,7 @@ pipeline {
             }
         }
 
-        stage('Run Cypress Tests') {
+    stage('Run Cypress Tests') {
             when {
                 allOf {
                     branch 'UI2.0'
@@ -186,11 +179,10 @@ pipeline {
             }
             steps {
                 script {
+                    echo "Using hardcoded stage generic user: ${env.GENERIC_STAGE_USER}" // password intentionally not echoed
                     if (params.PARALLEL_EXECUTION && env.SELECTED_TEST_SUITE == 'all') {
-                        // Run all test suites in parallel
                         runTestsParallel()
                     } else {
-                        // Run selected test suite
                         runTestsSequential(env.SELECTED_TEST_SUITE)
                     }
                 }
@@ -276,25 +268,7 @@ pipeline {
 
 // HELPER FUNCTIONS
 
-def getTestUrl() {
-    if (params.BASE_URL_OVERRIDE) {
-        return params.BASE_URL_OVERRIDE
-    }
-    
-    // Testing only prod environment for now
-    return 'https://operations-control-tower-api.cisco.com'
-    
-    // switch(params.TEST_ENVIRONMENT) {
-    //     case 'dev':
-    //         return 'https://operations-control-tower-dev-api.cisco.com'
-    //     case 'stage':
-    //         return 'https://operations-control-tower-stg-api.cisco.com'
-    //     case 'prod':
-    //         return 'https://operations-control-tower-api.cisco.com'
-    //     default:
-    //         return 'https://operations-control-tower-dev-api.cisco.com'
-    // }
-}
+// getTestUrl removed – using hardcoded stage URL
 
 def getTestDescription(suite) {
     switch(suite) {
@@ -390,11 +364,11 @@ def runCypressTest(suite) {
                     fi
                     
                     # Run Cypress with comprehensive headless configuration
-                    npx cypress run \\
-                        --headless \\
-                        --browser electron \\
-                        --env baseUrl=${env.TEST_BASE_URL} \\
-                        --spec '${specPattern}' \\
+                    npx cypress run \
+                        --headless \
+                        --browser electron \
+                        --env baseUrl=${env.TEST_BASE_URL},genericUsername=${env.GENERIC_STAGE_USER},genericPassword=${env.GENERIC_STAGE_PASS} \
+                        --spec '${specPattern}' \
                         --reporter cypress-multi-reporters \\
                         --reporter-options configFile=cypress/reporter.config.json \\
                         --config video=true,screenshotOnRunFailure=true
@@ -436,11 +410,11 @@ def runCypressTestBySpecs(specPattern, groupName) {
                     fi
                     
                     # Run Cypress with comprehensive headless configuration
-                    npx cypress run \\
-                        --headless \\
-                        --browser electron \\
-                        --env baseUrl=${env.TEST_BASE_URL} \\
-                        --spec '${specPattern}' \\
+                    npx cypress run \
+                        --headless \
+                        --browser electron \
+                        --env baseUrl=${env.TEST_BASE_URL},genericUsername=${env.GENERIC_STAGE_USER},genericPassword=${env.GENERIC_STAGE_PASS} \
+                        --spec '${specPattern}' \
                         --reporter cypress-multi-reporters \\
                         --reporter-options configFile=cypress/reporter.config.json \\
                         --config video=true,screenshotOnRunFailure=true
@@ -492,7 +466,7 @@ def generateTestSummary() {
         def summary = """
         🧪 **Rev-Ops Monitoring Cypress Test Summary**
         
-        **Environment:** PROD (testing only)
+    **Environment:** STAGE (hardcoded generic login)
         **Test Suite:** ${env.SELECTED_TEST_SUITE} (${testDescription})
         **Spec Pattern:** ${specPattern}
         **Estimated Tests:** ~${testCount} test files
@@ -533,7 +507,7 @@ def generateFailureReport() {
     return """
     🚨 Cypress Test Failure Report
     
-    Environment: PROD (testing only)
+    Environment: STAGE (hardcoded generic login)
     Test Suite: ${env.SELECTED_TEST_SUITE}
     Build Number: ${env.BUILD_NUMBER}
     Build URL: ${env.BUILD_URL}
