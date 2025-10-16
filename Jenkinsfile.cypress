@@ -1,463 +1,77 @@
-// Cypress Testing Pipeline for rev-ops-monitoring (UI2.0 Branch Only)
-// This pipeline runs scheduled Cypress tests against deployed environments
-// 
-// Branch Restriction: Only executes on UI2.0 branch
-//
-// Test Structure:
-// - Smoke: Basic connectivity test (example.cy.ts)
-// - Basic: Core Invoice to Cash flows (spec, i2c, pre-invoicing)
-// - Regression: All business tests (excludes demo/tutorial tests)
-// - Parallel: Tests grouped by business domain for efficient execution
+// Minimal Cypress pipeline (UI2.0 branch only) using specified Docker image and hardcoded generic credentials.
 
 pipeline {
-    agent any
+  agent {
+    docker {
+      image 'containers.cisco.com/epit/cypress:v1.0.0'
+      // Add any required args (e.g. user permissions) here if needed: args '-u root:root'
+    }
+  }
 
-    // SCHEDULED TRIGGERS - Only active on UI2.0 branch
-    triggers {
-        // Combined cron schedule: basic tests every 4 hours, regression at 2 AM, smoke tests every 2 hours on weekdays
-        cron('''
-            H 9-18/4 * * *
-            H 2 * * *
-            H 9-17/2 * * 1-5
-        ''')
+  environment {
+    TEST_BASE_URL = 'https://operations-control-tower-stg.cisco.com'
+    GENERIC_STAGE_USER = 'ctltwr_cypress.gen@stage.cisco.com'
+    GENERIC_STAGE_PASS = 'Uitesting@2025'
+  }
+
+  stages {
+    stage('Branch Validation') {
+      when { not { branch 'UI2.0' } }
+      steps {
+        script {
+          echo "Skipping - only runs on UI2.0 branch (current: ${env.BRANCH_NAME})"
+          currentBuild.result = 'ABORTED'
+        }
+      }
     }
 
-    parameters {
-        choice(
-            name: 'TEST_SUITE',
-            choices: ['auto', 'smoke', 'basic', 'regression', 'all', 'i2c-only', 'rev-accounting-only', 'period-close-only'],
-            description: 'Test suite to run (auto = determined by trigger time)'
-        )
-        booleanParam(
-            name: 'PARALLEL_EXECUTION',
-            defaultValue: true,
-            description: 'Run test suites in parallel'
-        )
+    stage('Checkout & Install') {
+      when { branch 'UI2.0' }
+      steps {
+        checkout scm
+        dir('revenue-monitoring-ui/angular-app') {
+          sh 'node --version || true'
+          sh 'npm --version || true'
+          sh 'npm ci || (rm -rf node_modules package-lock.json && npm install)'
+        }
+      }
     }
-
-    // tools {
-    //     nodejs 'NodeJS-18'  // Configure this in Jenkins Global Tools
-    // }
-
-    environment {
-        CYPRESS_CACHE_FOLDER = './cypress-cache'
-        // Hardcoded stage URL per request
-        TEST_BASE_URL = 'https://operations-control-tower-stg.cisco.com'
-        // Hardcoded generic credentials (TEMPORARY – remove after validation!)
-        GENERIC_STAGE_USER = 'ctltwr_cypress.gen@stage.cisco.com'
-        GENERIC_STAGE_PASS = 'Uitesting@2025'
-        // SELECTED_TEST_SUITE will be computed in the Initialize stage (cannot call functions here)
-    }
-
-    stages {
-        stage('Branch Validation') {
-            when {
-                not { branch 'UI2.0' }
-            }
-            steps {
-                script {
-                    echo "⚠️ Skipping Cypress tests - Pipeline only runs on UI2.0 branch"
-                    echo "Current branch: ${env.BRANCH_NAME}"
-                    currentBuild.result = 'ABORTED'
-                    currentBuild.description = "Skipped: Pipeline restricted to UI2.0 branch (current: ${env.BRANCH_NAME})"
-                    return
-                }
-            }
-        }
-        
-    stage('Initialize') {
-            when {
-                branch 'UI2.0'
-            }
-            steps {
-                script {
-                    // Dynamically decide suite (auto parameter logic)
-                    def selected = getTestSuite()
-                    env.SELECTED_TEST_SUITE = selected
-
-                    currentBuild.displayName = "#${BUILD_NUMBER} - stage - ${selected}"
-                    currentBuild.description = "Rev-Ops Monitoring E2E tests: ${getTestDescription(selected)} on STAGE (generic login bypass)"
-                    
-                    echo "🚀 Starting Cypress tests for rev-ops-monitoring"
-                    echo "Branch: ${env.BRANCH_NAME}"
-                    echo "Environment: STAGE (hardcoded)"
-                    echo "Test Suite: ${selected}"
-                    echo "Base URL: ${env.TEST_BASE_URL}"
-                    echo "Parallel Execution: ${params.PARALLEL_EXECUTION}"
-                }
-            }
-        }
-
-        stage('Checkout & Setup') {
-            when {
-                branch 'UI2.0'
-            }
-            steps {
-                checkout scm
-                
-                dir('revenue-monitoring-ui/angular-app') {
-                    script {
-                        // Check Node.js version
-                        sh 'node --version || echo "Node.js not found in PATH"'
-                        sh 'npm --version || echo "npm not found in PATH"'
-                        
-                        // Clean npm cache and remove node_modules if they exist
-                        sh 'npm cache clean --force || true'
-                        sh 'rm -rf node_modules package-lock.json || true'
-                        
-                        // Install dependencies fresh
-                        sh 'npm install'
-                        
-                        // Install Cypress
-                        sh 'npx cypress install'
-                        
-                        // Skip verification for now - will verify during test execution
-                        echo 'Skipping Cypress verify - will run with proper headless configuration'
-                        
-                        // Create results directories
-                        sh 'mkdir -p cypress/results cypress/reports'
-                    }
-                }
-            }
-        }
-
-        stage('Validate Test Configuration') {
-            when {
-                branch 'UI2.0'
-            }
-            steps {
-                script {
-                    echo "🔍 Validating test configuration..."
-                    echo "Selected test suite: ${env.SELECTED_TEST_SUITE}"
-                    echo "Spec pattern: ${getSpecPattern(env.SELECTED_TEST_SUITE)}"
-                    
-                    // Validate that we're not accidentally running demo tests
-                    def specPattern = getSpecPattern(env.SELECTED_TEST_SUITE)
-                    if (specPattern.contains('1-getting-started') || specPattern.contains('2-advanced-examples')) {
-                        error("❌ Demo/tutorial tests detected in spec pattern. This should not happen in production pipeline.")
-                    }
-                    
-                    echo "✅ Test configuration validated"
-                }
-            }
-        }
 
     stage('Run Cypress Tests') {
-            when {
-                allOf {
-                    branch 'UI2.0'
-                    expression { env.SELECTED_TEST_SUITE != 'none' }
-                }
+      when { branch 'UI2.0' }
+      steps {
+        dir('revenue-monitoring-ui/angular-app') {
+          script {
+            echo 'Executing Cypress specs...'
+            // Run directly inside the Cypress-enabled image
+            def exitCode = sh(returnStatus: true, script: """
+              set +e
+              npx cypress run \
+                --browser chrome --headless \
+                --env baseUrl=${TEST_BASE_URL},genericUsername=${GENERIC_STAGE_USER},genericPassword=${GENERIC_STAGE_PASS} \
+                --spec 'cypress/e2e/**/*.cy.ts' \
+                --config video=false
+              CODE=$?
+              exit $CODE
+            """)
+            if (exitCode != 0) {
+              error "Cypress tests failed (exit ${exitCode})"
+            } else {
+              echo 'Cypress tests passed.'
             }
-            steps {
-                script {
-                    echo "Using hardcoded stage generic user: ${env.GENERIC_STAGE_USER}" // password intentionally not echoed
-                    if (params.PARALLEL_EXECUTION && env.SELECTED_TEST_SUITE == 'all') {
-                        runTestsParallel()
-                    } else {
-                        runTestsSequential(env.SELECTED_TEST_SUITE)
-                    }
-                }
-            }
+          }
         }
+      }
     }
+  }
 
-    post {
-        always {
-            script {
-                // Only run post actions if we're on UI2.0 branch and stages actually executed
-                if (env.BRANCH_NAME == 'UI2.0' && currentBuild.result != 'ABORTED') {
-                    // Archive test artifacts
-                    archiveArtifacts(
-                        artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4',
-                        allowEmptyArchive: true
-                    )
-                    archiveArtifacts(
-                        artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png',
-                        allowEmptyArchive: true
-                    )
-                    
-                    // Publish test results
-                    junit(
-                        testResults: 'revenue-monitoring-ui/angular-app/cypress/results/*.xml',
-                        allowEmptyResults: true
-                    )
-                    
-                    // Publish HTML reports
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'revenue-monitoring-ui/angular-app/cypress/reports',
-                        reportFiles: 'index.html',
-                        reportName: 'Cypress Test Report'
-                    ])
-                    
-                    // Generate test summary
-                    generateTestSummary()
-                } else {
-                    echo "Skipping post actions - not on UI2.0 branch or build was aborted"
-                }
-            }
-        }
-        
-        success {
-            script {
-                echo "✅ Cypress tests completed successfully"
-            }
-        }
-        
-        // failure {
-        //     script {
-        //         // Send email for critical failures
-        //         if (env.SELECTED_TEST_SUITE == 'regression' || params.TEST_ENVIRONMENT == 'prod') {
-        //             emailext(
-        //                 subject: "🚨 Critical Cypress Test Failure - ${params.TEST_ENVIRONMENT}",
-        //                 body: generateFailureReport(),
-        //                 to: "dev-team@cisco.com,qa-team@cisco.com"
-        //             )
-        //         }
-        //     }
-        // }
-        
-        unstable {
-            script {
-                echo "⚠️ Cypress tests completed with some failures"
-            }
-        }
-        
-        cleanup {
-            script {
-                // Clean up workspace
-                cleanWs()
-            }
-        }
+  post {
+    always {
+      script {
+        // Archive screenshots/videos if produced
+        archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/screenshots/**/*.png', allowEmptyArchive: true
+        archiveArtifacts artifacts: 'revenue-monitoring-ui/angular-app/cypress/videos/**/*.mp4', allowEmptyArchive: true
+      }
     }
-}
-
-// HELPER FUNCTIONS
-
-// getTestUrl removed – using hardcoded stage URL
-
-def getTestDescription(suite) {
-    switch(suite) {
-        case 'smoke':
-            return 'Basic connectivity & health checks'
-        case 'basic':
-            return 'Core Invoice to Cash workflows'
-        case 'regression':
-            return 'Full business process validation'
-        case 'all':
-            return 'Complete test suite execution'
-        case 'i2c-only':
-            return 'Invoice to Cash domain tests'
-        case 'rev-accounting-only':
-            return 'Revenue Accounting domain tests'
-        case 'period-close-only':
-            return 'Period Close tracking tests'
-        default:
-            return 'Custom test execution'
-    }
-}
-
-// Missing earlier: decide suite (auto uses hour-based logic)
-def getTestSuite() {
-    if (params.TEST_SUITE != 'auto') {
-        return params.TEST_SUITE
-    }
-    def hour = new Date().hours
-    // Simple heuristic: regression at 2 AM, smoke in business hours, otherwise basic
-    if (hour == 2) {
-        return 'regression'
-    } else if (hour >= 9 && hour <= 17) {
-        return 'smoke'
-    } else {
-        return 'basic'
-    }
-}
-
-def runTestsParallel() {
-    parallel(
-        "Invoice to Cash Tests": {
-            runCypressTestBySpecs('cypress/e2e/{spec,i2c,pre-invoicing}.cy.ts', 'i2c-suite')
-        },
-        "Revenue Accounting Tests": {
-            runCypressTestBySpecs('cypress/e2e/{rev-ac,gl-test}.cy.ts', 'rev-accounting-suite')
-        },
-        "Period Close Tests": {
-            runCypressTestBySpecs('cypress/e2e/{pre-close,mid-close}.cy.ts', 'period-close-suite')
-        },
-        "General Tests": {
-            runCypressTestBySpecs('cypress/e2e/{details-tables,example}.cy.ts', 'general-suite')
-        }
-    )
-}
-
-def runTestsSequential(testSuite) {
-    if (testSuite in ['i2c-only', 'rev-accounting-only', 'period-close-only']) {
-        // Use specific group name for targeted tests
-        def groupName = testSuite.replace('-only', '-suite')
-        def specPattern = getSpecPattern(testSuite)
-        runCypressTestBySpecs(specPattern, groupName)
-    } else {
-        runCypressTest(testSuite)
-    }
-}
-
-def runCypressTest(suite) {
-    dir('revenue-monitoring-ui/angular-app') {
-        script {
-            def specPattern = getSpecPattern(suite)
-            def reportName = "cypress-${suite}-report"
-            
-            try {
-                sh """
-                    # Headless run without Xvfb (Cypress built-in headless mode)
-                    export CYPRESS_CACHE_FOLDER=./cypress-cache
-                    export DEBUG=cypress:*
-                    npx cypress run \
-                        --headless \
-                        --browser chrome \
-                        --env baseUrl=${env.TEST_BASE_URL},genericUsername=${env.GENERIC_STAGE_USER},genericPassword=${env.GENERIC_STAGE_PASS} \
-                        --spec '${specPattern}' \
-                        --reporter cypress-multi-reporters \
-                        --reporter-options configFile=cypress/reporter.config.json \
-                        --config video=true,screenshotOnRunFailure=true
-                """
-                
-                echo "✅ ${suite} tests completed successfully"
-                
-            } catch (Exception e) {
-                echo "❌ ${suite} tests failed: ${e.getMessage()}"
-                currentBuild.result = 'UNSTABLE'
-            }
-        }
-    }
-}
-
-def runCypressTestBySpecs(specPattern, groupName) {
-    dir('revenue-monitoring-ui/angular-app') {
-        script {
-            def reportName = "cypress-${groupName}-report"
-            
-            try {
-                sh """
-                    export CYPRESS_CACHE_FOLDER=./cypress-cache
-                    export DEBUG=cypress:*
-                    npx cypress run \
-                        --headless \
-                        --browser chrome \
-                        --env baseUrl=${env.TEST_BASE_URL},genericUsername=${env.GENERIC_STAGE_USER},genericPassword=${env.GENERIC_STAGE_PASS} \
-                        --spec '${specPattern}' \
-                        --reporter cypress-multi-reporters \
-                        --reporter-options configFile=cypress/reporter.config.json \
-                        --config video=true,screenshotOnRunFailure=true
-                """
-                
-                echo "✅ ${groupName} tests completed successfully"
-                
-            } catch (Exception e) {
-                echo "❌ ${groupName} tests failed: ${e.getMessage()}"
-                currentBuild.result = 'UNSTABLE'
-            }
-        }
-    }
-}
-
-def getSpecPattern(suite) {
-    switch(suite) {
-        case 'smoke':
-            return 'cypress/e2e/example.cy.ts'  // Basic connectivity test
-        case 'basic':
-            // Core business flow tests
-            return 'cypress/e2e/{spec,i2c,pre-invoicing}.cy.ts'
-        case 'regression':
-            // All business tests (excludes demo/tutorial tests)
-            return 'cypress/e2e/{spec,i2c,pre-invoicing,rev-ac,gl-test,pre-close,mid-close,details-tables}.cy.ts'
-        case 'all':
-            // All business tests (excludes demo/tutorial tests)
-            return 'cypress/e2e/{spec,i2c,pre-invoicing,rev-ac,gl-test,pre-close,mid-close,details-tables,example}.cy.ts'
-        case 'i2c-only':
-            // Invoice to Cash tests only
-            return 'cypress/e2e/{spec,i2c,pre-invoicing}.cy.ts'
-        case 'rev-accounting-only':
-            // Revenue Accounting tests only
-            return 'cypress/e2e/{rev-ac,gl-test}.cy.ts'
-        case 'period-close-only':
-            // Period Close tests only
-            return 'cypress/e2e/{pre-close,mid-close}.cy.ts'
-        default:
-            return 'cypress/e2e/example.cy.ts'
-    }
-}
-
-def generateTestSummary() {
-    script {
-        def testDescription = getTestDescription(env.SELECTED_TEST_SUITE)
-        def specPattern = getSpecPattern(env.SELECTED_TEST_SUITE)
-        def testCount = getEstimatedTestCount(env.SELECTED_TEST_SUITE)
-        
-        def summary = """
-        🧪 **Rev-Ops Monitoring Cypress Test Summary**
-        
-    **Environment:** STAGE (hardcoded generic login)
-        **Test Suite:** ${env.SELECTED_TEST_SUITE} (${testDescription})
-        **Spec Pattern:** ${specPattern}
-        **Estimated Tests:** ~${testCount} test files
-        **Build:** ${env.BUILD_NUMBER}
-        **Duration:** ${currentBuild.durationString}
-        **Status:** ${currentBuild.result ?: 'SUCCESS'}
-        
-        **Reports:** [View Results](${env.BUILD_URL}Cypress_Test_Report/)
-        **Artifacts:** [Videos & Screenshots](${env.BUILD_URL}artifact/)
-        """
-        
-        currentBuild.description = summary
-    }
-}
-
-def getEstimatedTestCount(suite) {
-    switch(suite) {
-        case 'smoke':
-            return '1'
-        case 'basic':
-            return '3'
-        case 'regression':
-            return '8'
-        case 'all':
-            return '9'
-        case 'i2c-only':
-            return '3'
-        case 'rev-accounting-only':
-            return '2'
-        case 'period-close-only':
-            return '2'
-        default:
-            return '1'
-    }
-}
-
-def generateFailureReport() {
-    return """
-    🚨 Cypress Test Failure Report
-    
-    Environment: STAGE (hardcoded generic login)
-    Test Suite: ${env.SELECTED_TEST_SUITE}
-    Build Number: ${env.BUILD_NUMBER}
-    Build URL: ${env.BUILD_URL}
-    
-    Failed tests detected on STAGE environment (testing configuration).
-    
-    Please check the test reports and videos for detailed failure analysis:
-    - Test Report: ${env.BUILD_URL}Cypress_Test_Report/
-    - Video Artifacts: ${env.BUILD_URL}artifact/
-    
-    Action Required:
-    1. Review failed test cases
-    2. Verify environment stability
-    3. Check for recent deployments
-    4. Fix failing tests or report bugs
-    
-    This is an automated notification from the Cypress testing pipeline.
-    """
+  }
 }
