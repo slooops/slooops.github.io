@@ -45,14 +45,11 @@ pipeline {
             echo 'Executing Cypress specs...'
             // Run directly inside the Cypress-enabled image
             def exitCode = sh(returnStatus: true, script: """
-              set +e
               npx cypress run \
                 --browser chrome --headless \
                 --env baseUrl=${TEST_BASE_URL},genericUsername=${GENERIC_STAGE_USER},genericPassword=${GENERIC_STAGE_PASS} \
                 --spec 'cypress/e2e/**/*.cy.ts' \
                 --config video=false
-              CODE=$?
-              exit $CODE
             """)
             if (exitCode != 0) {
               error "Cypress tests failed (exit ${exitCode})"
