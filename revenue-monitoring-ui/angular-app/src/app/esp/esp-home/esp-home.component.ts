@@ -76,7 +76,7 @@ export class EspHomeComponent implements OnInit {
       return {
         ...tile,
         percentage: matchingData
-          ? Math.round(matchingData.TOTAL_ACCURACY * 100) / 100
+          ? Math.round(matchingData['Category Accuracy'] * 100) / 100
           : '-',
       };
     });

@@ -137,6 +137,29 @@ hr {
   text-align: left;
 }
 
+.chart-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.header-metrics {
+  display: flex;
+  gap: 0;
+  padding: 0;
+}
+
+.header-metrics .metric-box {
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.header-metrics .metric-box:last-child {
+  margin-right: 0;
+}
+
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .charts-row {

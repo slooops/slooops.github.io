@@ -125,9 +125,11 @@ export class CaseiqI2cComponent implements OnInit {
       );
 
       if (i2cData) {
-        this.categoryAccuracy = Math.round(i2cData.CATEGORY * 100) / 100;
-        this.coreIssueAccuracy = Math.round(i2cData.CORE_ISSUE * 100) / 100;
-        this.totalCases = i2cData.TOTAL_VALIDATED_CASES;
+        this.categoryAccuracy =
+          Math.round(i2cData['Category Accuracy'] * 100) / 100;
+        this.coreIssueAccuracy =
+          Math.round(i2cData['Core Issue Accuracy'] * 100) / 100;
+        this.totalCases = i2cData['Total Validated Cases'];
       } else {
         // No I2C data found, keep defaults
         this.categoryAccuracy = '-';
