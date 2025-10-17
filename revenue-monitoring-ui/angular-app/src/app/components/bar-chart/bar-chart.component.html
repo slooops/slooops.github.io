@@ -1,0 +1,18 @@
+<div class="bar-chart-container">
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Loading chart...</p>
+  </div>
+
+  <canvas
+    #barCanvas
+    [id]="canvasId"
+    class="bar-chart-canvas"
+    [style.display]="isLoading ? 'none' : 'block'"
+  >
+  </canvas>
+
+  <!-- <div *ngIf="!isLoading && data.length === 0" class="no-data-message">
+    {{ noDataMessage }}
+  </div> -->
+</div>

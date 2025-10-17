@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MenuComponent } from './menu/menu.component';
 import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
 import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
+import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { NgCircleProgressModule } from 'ng-circle-progress';
@@ -63,7 +64,7 @@ import { CmsDetailsComponent } from './cms/cms-details/cms-details.component';
 import { CmsModalComponent } from './cms/cms-modal/cms-modal.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
 import { LoadingSymbolSmallComponent } from './loading-symbol-small/loading-symbol-small.component';
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
+import { EspCaseAnalyzerComponent } from './esp/esp-case-analyzer/esp-case-analyzer.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
@@ -71,18 +72,12 @@ import { MonitoringDashboardComponent } from './monitoring-dashboard/monitoring-
 import { UserAssignmentComponent } from './monitoring-dashboard/user-assignment/user-assignment.component';
 import { ProcessFlowTooltipComponent } from './monitoring-dashboard/process-flow-tooltip/process-flow-tooltip.component';
 import { MatStepperModule } from '@angular/material/stepper';
-import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { CommonModule } from '@angular/common';
-import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
-import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
-import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
 import { O2cNavComponent } from './shared/o2c-nav/o2c-nav.component';
 import { O2cTableComponent } from './components/o2c-table/o2c-table.component';
-import { O2cLandingComponent } from './o2c-landing/o2c-landing.component';
+import { O2cLandingComponent } from './o2c/o2c-landing/o2c-landing.component';
 import { O2cProcessFlowComponent } from './components/o2c-process-flow/o2c-process-flow.component';
-import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
 import { TableComponent } from './components/table/table.component';
 import { OplComponent } from './opl/opl.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
@@ -96,20 +91,46 @@ import { IssueUploadComponent } from './issue-reporting/issue-upload/issue-uploa
 import { BulkApproveRejectComponent } from './issue-reporting/bulk-approve-reject/bulk-approve-reject.component';
 import { ModalComponent } from './components/modal/modal.component';
 import { TableModalComponent } from './components/table-modal/table-modal.component';
-import { O2c360Component } from './o2c-360/o2c-360.component';
+import { O2c360Component } from './o2c/o2c-360/o2c-360.component';
 import { O2cSidebarNavComponent } from './shared/o2c-sidebar-nav/o2c-sidebar-nav.component';
 // import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
 // import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
-import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
+import { O2cViewAllComponent } from './o2c/o2c-view-all/o2c-view-all.component';
 import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
 import { O2cDonutComponent } from './components/o2c-donut/o2c-donut.component';
-import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { SbpEspCaseAnalyzerComponent } from './esp/sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { O2cCardComponent } from './components/o2c-card/o2c-card.component';
 import { O2cAccordionComponent } from './components/o2c-accordion/o2c-accordion.component';
+import { O2cBillScheduleComponent } from './o2c/o2c-bill-schedule/o2c-bill-schedule.component';
+import { O2cBillDetailsComponent } from './o2c/o2c-bill-details/o2c-bill-details.component';
+import { TableFilterComponent } from './shared/table-filter/table-filter.component';
+import { O2cTsvComponent } from './o2c/o2c-tsv/o2c-tsv.component';
+import { O2cGlComponent } from './o2c/o2c-gl/o2c-gl.component';
+import { O2cHardwareComponent } from './o2c/o2c-landing/o2c-hardware/o2c-hardware.component';
+import { O2cServicesComponent } from './o2c/o2c-landing/o2c-services/o2c-services.component';
+import { O2cSubComponent } from './o2c/o2c-landing/o2c-sub/o2c-sub.component';
+import { O2cAccountingComponent } from './o2c/o2c-landing/o2c-sub/o2c-accounting/o2c-accounting.component';
+import { O2cCashComponent } from './o2c/o2c-landing/o2c-sub/o2c-cash/o2c-cash.component';
+import { O2cInvoiceComponent } from './o2c/o2c-landing/o2c-sub/o2c-invoice/o2c-invoice.component';
+import { O2cOrderComponent } from './o2c/o2c-landing/o2c-sub/o2c-order/o2c-order.component';
+import { O2cSubscriptionComponent } from './o2c/o2c-landing/o2c-sub/o2c-subscription/o2c-subscription.component';
+import { O2cToolbarComponent } from './components/o2c-toolbar/o2c-toolbar.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { CardComponent } from './components/card/card.component';
+import { EspHomeComponent } from './esp/esp-home/esp-home.component';
+import { MetricTileComponent } from './components/metric-tile/metric-tile.component';
+import { CaseiqTableComponent } from './components/caseiq-table/caseiq-table.component';
+import { CaseiqAitComponent } from './esp/esp-home/caseiq-ait/caseiq-ait.component';
+import { CaseiqCapComponent } from './esp/esp-home/caseiq-cap/caseiq-cap.component';
+import { CaseiqComponent } from './esp/esp-home/caseiq/caseiq.component';
+import { CaseiqFppComponent } from './esp/esp-home/caseiq-fpp/caseiq-fpp.component';
+import { CaseiqI2cComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
+import { CaseiqOmComponent } from './esp/esp-home/caseiq-om/caseiq-om.component';
+import { CaseiqP2pComponent } from './esp/esp-home/caseiq-p2p/caseiq-p2p.component';
+import { CaseiqSmComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
+import { UploadScreenComponent } from './esp/esp-home/upload-screen/upload-screen.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -125,6 +146,7 @@ export function initApp(authService: AuthenticationService) {
     MenuComponent,
     PrecloseComponent,
     MidcloseComponent,
+    BarChartComponent,
     LoadingSymbolComponent,
     OrderLifecycleComponent,
     TruncatePipe,
@@ -153,17 +175,11 @@ export function initApp(authService: AuthenticationService) {
     MonitoringDashboardComponent,
     UserAssignmentComponent,
     ProcessFlowTooltipComponent,
-    O2cDemoComponent,
     GlPostingComponent,
-    O2cDetailsComponent,
-    O2cOrderComponent,
-    O2cAccrualComponent,
-    O2cInvoicingComponent,
     O2cNavComponent,
     O2cTableComponent,
     O2cLandingComponent,
     O2cProcessFlowComponent,
-    O2cOverviewComponent,
     TableComponent,
     OplComponent,
     BusinessInsightsComponent,
@@ -183,10 +199,35 @@ export function initApp(authService: AuthenticationService) {
     O2cSearchComponent,
     O2cDonutComponent,
     SbpEspCaseAnalyzerComponent,
+    EspHomeComponent,
+    MetricTileComponent,
     ChatbotComponent,
     O2cCardComponent,
+    O2cBillScheduleComponent,
+    O2cBillDetailsComponent,
+    TableFilterComponent,
+    O2cTsvComponent,
+    O2cGlComponent,
+    O2cHardwareComponent,
+    O2cServicesComponent,
+    O2cSubComponent,
+    O2cAccountingComponent,
+    O2cCashComponent,
+    O2cInvoiceComponent,
+    O2cOrderComponent,
+    O2cSubscriptionComponent,
     OperationsControlsComponent,
     CardComponent,
+    CaseiqTableComponent,
+    CaseiqAitComponent,
+    CaseiqCapComponent,
+    CaseiqComponent,
+    CaseiqFppComponent,
+    CaseiqI2cComponent,
+    CaseiqOmComponent,
+    CaseiqP2pComponent,
+    CaseiqSmComponent,
+    UploadScreenComponent,
   ],
   imports: [
     BrowserModule,
@@ -233,6 +274,7 @@ export function initApp(authService: AuthenticationService) {
     CommonModule,
     MatDialogModule,
     O2cAccordionComponent,
+    O2cToolbarComponent,
   ],
   providers: [
     DatePipe,

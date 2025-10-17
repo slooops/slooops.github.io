@@ -1,4 +1,4 @@
-<div class="row">
+<div>
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
     <div
       style="
@@ -299,6 +299,9 @@
 </mat-menu>
 
 <mat-menu #espMenu="matMenu">
+  <button mat-menu-item [routerLink]="'/esp-home'" [disabled]="false">
+    CaseIQ
+  </button>
   <button
     mat-menu-item
     [routerLink]="'/i2c-case-analyzer'"

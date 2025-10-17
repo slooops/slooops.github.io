@@ -1,0 +1,109 @@
+/* table,
+th,
+td,
+.mat-header-row,
+.mat-header-cell,
+.mat-row,
+.mat-cell {
+  font-family: "Inter", sans-serif !important;
+} */
+
+.mat-header-row {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #ebebeb !important; /* Add a bar below the header row */
+}
+
+.mat-header-cell {
+  color: rgb(46, 46, 46);
+  border-bottom: 0px;
+  font-size: 12px;
+  white-space: nowrap;
+  padding: 0.1rem 0.5rem;
+  /* text-transform: uppercase; */
+}
+
+/* Styling for table rows */
+.mat-row:nth-child(odd) {
+  background-color: #f4f5f6 !important;
+}
+
+.mat-row:nth-child(even) {
+  background-color: #ffffff !important;
+}
+
+.mat-cell {
+  font-size: 11px !important;
+  font-weight: 400;
+  border: 0px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  padding: 0.1rem 0.5rem;
+}
+
+tr.mat-row {
+  height: 30px;
+  border-bottom: 0px;
+}
+
+td {
+  font-size: 11px;
+}
+
+th {
+  text-align: left !important;
+  border-bottom: 0px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+td {
+  text-align: left !important;
+  font-size: 11px;
+  border: 0px;
+}
+
+tr.mat-header-row {
+  height: 28px;
+}
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28vw;
+  min-height: 14vw;
+  width: 100%;
+  height: 100%;
+}
+
+.dash-link {
+  color: #303030 !important;
+  margin: -3px 10px 0 0;
+}
+
+table.mat-table .mat-header-cell.extra-wide-column {
+  min-width: 30rem;
+}
+
+table.mat-table .mat-cell.extra-wide-column {
+  white-space: break-spaces;
+  min-width: 30rem;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.4;
+}
+
+/* Specific handling for very long text content like URLs/emails */
+table.mat-table .mat-cell.extra-wide-column {
+  min-width: 30rem;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: -22px;
+}

@@ -4,14 +4,8 @@ import { HomeComponent } from './home/home.component';
 import { InvoicingComponent } from './invoicing/invoicing.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
-import { EspCaseAnalyzerComponent } from './esp-case-analyzer/esp-case-analyzer.component';
-import { O2cDemoComponent } from './o2c-demo/o2c-demo.component';
-import { O2cDetailsComponent } from './o2c-demo/o2c-details/o2c-details.component';
-import { O2cInvoicingComponent } from './o2c-demo/o2c-invoicing/o2c-invoicing.component';
-import { O2cOrderComponent } from './o2c-demo/o2c-order/o2c-order.component';
-import { O2cAccrualComponent } from './o2c-demo/o2c-accrual/o2c-accrual.component';
-import { O2cLandingComponent } from './o2c-landing/o2c-landing.component';
-import { O2cOverviewComponent } from './o2c-demo/o2c-overview/o2c-overview.component';
+import { EspCaseAnalyzerComponent } from './esp/esp-case-analyzer/esp-case-analyzer.component';
+import { O2cLandingComponent } from './o2c/o2c-landing/o2c-landing.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
 import { OplComponent } from './opl/opl.component';
@@ -22,12 +16,17 @@ import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
 import { CmsComponent } from './cms/cms.component';
 import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
-import { O2c360Component } from './o2c-360/o2c-360.component';
+import { O2c360Component } from './o2c/o2c-360/o2c-360.component';
 // import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
-import { O2cViewAllComponent } from './o2c-view-all/o2c-view-all.component';
-import { SbpEspCaseAnalyzerComponent } from './sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { O2cViewAllComponent } from './o2c/o2c-view-all/o2c-view-all.component';
+import { SbpEspCaseAnalyzerComponent } from './esp/sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
+import { O2cBillScheduleComponent } from './o2c/o2c-bill-schedule/o2c-bill-schedule.component';
+import { O2cBillDetailsComponent } from './o2c/o2c-bill-details/o2c-bill-details.component';
+import { O2cTsvComponent } from './o2c/o2c-tsv/o2c-tsv.component';
+import { O2cGlComponent } from './o2c/o2c-gl/o2c-gl.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
+import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 
 const routes: Routes = [
   {
@@ -98,6 +97,14 @@ const routes: Routes = [
     },
   },
   {
+    path: 'esp-home',
+    component: EspHomeComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Case IQ',
+    },
+  },
+  {
     path: 'sbp-case-analyzer',
     component: SbpEspCaseAnalyzerComponent,
     data: {
@@ -112,36 +119,6 @@ const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
     },
-  },
-  {
-    path: 'o2c-demo',
-    component: O2cDemoComponent,
-    data: {
-      title: 'O2C Demo',
-      header: 'O2C Demo',
-      hideNavbar: true,
-    },
-  },
-  {
-    path: 'o2c-details',
-    component: O2cDetailsComponent,
-    data: { title: 'O2C Details', header: 'O2C Details', hideNavbar: true },
-  },
-  {
-    path: 'o2c-order',
-    component: O2cOrderComponent,
-    data: { title: 'O2C Orders', header: 'O2C Orders', hideNavbar: true },
-  },
-
-  {
-    path: 'o2c-accrual',
-    component: O2cAccrualComponent,
-    data: { title: 'O2C Accrual', header: 'O2C Accruals', hideNavbar: true },
-  },
-  {
-    path: 'o2c-invoicing',
-    component: O2cInvoicingComponent,
-    data: { title: 'O2C Invoicing', header: 'O2C Invoicing', hideNavbar: true },
   },
   {
     path: 'o2c-landing',
@@ -160,13 +137,32 @@ const routes: Routes = [
     data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
   },
   {
-    path: 'o2c-overview',
-    component: O2cOverviewComponent,
+    path: 'o2c-bill-schedule',
+    component: O2cBillScheduleComponent,
     data: {
-      title: 'O2C Overview',
-      header: 'O2C Overview',
+      title: 'O2C Bill Schedule',
+      header: 'O2C Bill Schedule',
       hideNavbar: true,
     },
+  },
+  {
+    path: 'o2c-bill-details',
+    component: O2cBillDetailsComponent,
+    data: {
+      title: 'O2C Bill Details',
+      header: 'O2C Bill Details',
+      hideNavbar: true,
+    },
+  },
+  {
+    path: 'o2c-gl',
+    component: O2cGlComponent,
+    data: { title: 'O2C GL', header: 'O2C GL', hideNavbar: true },
+  },
+  {
+    path: 'o2c-tsv',
+    component: O2cTsvComponent,
+    data: { title: 'O2C TSV', header: 'O2C TSV', hideNavbar: true },
   },
   // {
   //   path: 'gl-posting',

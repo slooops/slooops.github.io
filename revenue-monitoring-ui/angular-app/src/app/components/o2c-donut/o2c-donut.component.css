@@ -1,99 +1,212 @@
 .chart-legend-wrapper {
   display: flex;
   flex-direction: row;
-  /* align-items: center; uncomment this to match suneel's design */
   align-items: flex-start;
   gap: 20px;
   flex: 1;
+  /* Add smooth transitions */
+  transition: opacity 0.3s ease-in-out;
+  min-height: 125px; /* Prevent height jumping */
 }
 
 .chart-container {
-  min-width: 125px;
+  width: 125px;
   height: 125px;
   background-color: #f4f5f6;
   padding: 8px;
   border-radius: 100%;
+  /* Smooth transitions for any changes */
+  transition: all 0.3s ease-in-out;
+  /* Prevent layout shift */
+  flex-shrink: 0;
+}
+
+.chart-container canvas {
+  /* Smooth fade-in when chart renders */
+  transition: opacity 0.3s ease-in-out;
 }
 
 .custom-legend {
   display: flex;
   flex-direction: column;
-  width: calc(100% - 141px);
-}
-
-/* .legend-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: initial;
-  border-bottom: 1px solid #ebebeb;
-} */
-
-.legend-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-}
-
-.legend-color-box {
-  width: 14px;
-  height: 14px;
-  margin-right: 8px;
-  border-radius: 10px;
+  /* Smooth transitions */
+  transition: opacity 0.3s ease-in-out;
+  /* Prevent layout shift */
+  min-height: 125px;
 }
 
 .legend-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  white-space: nowrap;
-  width: 100%;
-}
-
-.legend-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  overflow: hidden;
-  min-width: 0; /* for ellipsis to work if needed */
+  display: grid;
+  grid-template-columns: auto 1fr minmax(4ch, 8ch) minmax(8ch, 12ch);
+  column-gap: 12px;
+  align-items: start;
   padding: 10px 16px;
   border-bottom: 1px solid #ebebeb;
+  font-size: 12px;
+
+  animation: fadeInUp 0.3s ease-out forwards;
+  animation-delay: calc(0.01s * var(--item-index, 1));
+  opacity: 0;
 }
 
+/* No data state */
+.no-data-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 125px;
+  width: calc(100% - 140px);
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.legend-left,
+.legend-right {
+  display: contents;
+}
+
+.legend-color-box {
+  grid-column: 1;
+  width: 14px;
+  height: 14px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Long description (column 2) */
 .legend-type {
+  grid-column: 2;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal; /* allow wrapping */
+  overflow-wrap: anywhere; /* break long words/sentences */
+  line-height: 1.25;
 }
 
-.legend-right {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  min-width: 100px; /* or whatever fixed/flexible width works best */
-  text-align: right;
-  padding: 10px 16px;
-  border-bottom: 1px solid #ebebeb;
-}
-
+/* Count (column 3) */
 .legend-count {
-  /* flex: 1; */
+  grid-column: 3;
   text-align: right;
+  font-variant-numeric: tabular-nums; /* align digits */
 }
 
+/* Value (column 4) */
 .legend-value {
-  /* flex: 1; */
-  width: 30px;
+  grid-column: 4;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Optional: emphasize totals row across the grid */
 .total-row {
   font-weight: 600;
+}
+
+/* Loading state styling */
+.chart-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Smooth entrance for the whole component */
+.chart-legend-wrapper.loaded {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.legend-area {
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - 141px);
+  min-height: 125px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Chart loading state */
+.chart-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.chart-no-data {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+
+/* Loading legend skeleton */
+.loading-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loading-legend-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid #ebebeb;
+  gap: 8px;
+  animation: fadeIn 0.3s ease-out forwards;
+  animation-delay: calc(0.1s * var(--item-index, 1));
+}
+
+.loading-shimmer {
+  background: linear-gradient(100deg, #f0f0f0 10%, #fafafa 50%, #f0f0f0 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1s infinite;
+  border-radius: 4px;
+}
+
+.loading-color-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.loading-text {
+  height: 12px;
+  flex: 1;
+  max-width: 120px;
+}
+
+.loading-number {
+  height: 12px;
+  width: 40px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

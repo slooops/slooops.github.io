@@ -1,0 +1,31 @@
+<div class="o2c-container welcome-message">
+  Hello <strong>{{ userName }},</strong> welcome!
+</div>
+
+<div class="o2c-container result-header" style="font-size: 30px">
+  Exceptions Dashboard
+  <mat-tab-group class="exceptions-tab-group" tabindex="3" [selectedIndex]="2">
+    <mat-tab label="Hardware" [disabled]="true"> </mat-tab>
+    <mat-tab label="Services" [disabled]="true"> </mat-tab>
+    <mat-tab label="Subscription" [disabled]="false"> </mat-tab>
+    <mat-tab label="Others" [disabled]="true"> </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-container [ngSwitch]="selectedTabIndex">
+  <div *ngSwitchCase="0" class="full-width-tab-content">
+    <p>Hardware exceptions content coming soon...</p>
+  </div>
+
+  <div *ngSwitchCase="1" class="full-width-tab-content">
+    <p>Services exceptions content coming soon...</p>
+  </div>
+
+  <div *ngSwitchCase="2" class="full-width-tab-content">
+    <app-o2c-sub></app-o2c-sub>
+  </div>
+
+  <div *ngSwitchCase="3" class="full-width-tab-content">
+    <p>Others exceptions content coming soon...</p>
+  </div>
+</ng-container>

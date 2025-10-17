@@ -1,0 +1,222 @@
+<div class="o2c-360-container">
+  <app-o2c-sidebar-nav [navItems]="navTotals"></app-o2c-sidebar-nav>
+
+  <div class="o2c-column-container" [style.width]="invoiceContainerWidth">
+    <p class="result-header">
+      {{
+        billId && billId.trim() ? "Lines for Bill " + billId : "Bill Line Items"
+      }}
+    </p>
+    <div class="o2c-card order-banner">
+      <div class="order-info">
+        <span class="status-dot"></span>
+        <span class="order-id"
+          ><strong>
+            {{ orderId }}
+          </strong>
+          Order Number</span
+        >
+        <button class="details-button">
+          {{
+            billId && billId.trim()
+              ? "Bill ID: " + billId
+              : "Bill No. Unavailable"
+          }}
+        </button>
+      </div>
+    </div>
+
+    <div class="o2c-card order-banner process-flow-banner">
+      <app-o2c-process-flow
+        [circleStatus]="circleStatus"
+      ></app-o2c-process-flow>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 8px">
+      <button class="back-btn-floating" (click)="goBack()">
+        <i class="back-icon"></i> Bill Schedule
+      </button>
+      <div class="accordion-header" style="font-size: 14px">
+        {{ subRefId }} Summary
+      </div>
+    </div>
+
+    <div class="order-table invoice-summary-table">
+      <!-- <ng-container *ngIf="financialDataLoaded; else loading">
+        <ng-container
+          *ngIf="billScheduleSummaryDataSource.data.length > 0; else noData"
+        > -->
+      <table mat-table [dataSource]="billScheduleSummaryDataSource">
+        <ng-container
+          *ngFor="let column of billScheduleSummaryDisplayedColumns"
+          [matColumnDef]="column"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            {{ formatColumnName(column) }}
+          </th>
+
+          <td mat-cell *matCellDef="let element">
+            <ng-container [ngSwitch]="column">
+              <ng-container *ngSwitchCase="'STATUS'">
+                <span
+                  [ngStyle]="{
+                    color:
+                      element[column] === 'Billed'
+                        ? '#078a00'
+                        : element[column] === 'Pending'
+                        ? '#d57b00'
+                        : element[column] === 'Error'
+                        ? '#d50000'
+                        : ''
+                  }"
+                >
+                  {{ element[column] }}
+                </span>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                {{
+                  column === "BILLING_DATE"
+                    ? (element[column] | date : "MM/dd/yyyy")
+                    : element[column]
+                }}
+              </ng-container>
+            </ng-container>
+          </td>
+        </ng-container>
+
+        <tr
+          mat-header-row
+          *matHeaderRowDef="billScheduleSummaryDisplayedColumns"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: billScheduleSummaryDisplayedColumns"
+        ></tr>
+      </table>
+      <!-- </ng-container>
+
+        <ng-template #noData>
+          <div class="no-data-container">
+            <p>No financial data available for this order.</p>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #loading>
+        <div class="loading-container">
+          <app-loading-symbol></app-loading-symbol>
+          <br /><br /><br />
+        </div>
+      </ng-template> -->
+    </div>
+
+    <!-- TOOLBAR brought from View All -->
+    <div class="tool-bar-container" style="flex-direction: row">
+      <div class="accordion-header">
+        {{
+          billId && billId.trim()
+            ? "Lines for Bill Number " + billId
+            : "Line Item Details"
+        }}
+      </div>
+      <div class="o2c-toolbar">
+        <button class="toolbar-btn" (click)="handlePrint()">
+          <i class="print-icon"></i> Print
+        </button>
+        <button
+          class="toolbar-btn"
+          (click)="
+            handleDownload(
+              billScheduleDataSource.data,
+              'Bill Schedule Data for ' + orderId
+            )
+          "
+        >
+          <i class="download-icon"></i>
+          Download
+        </button>
+      </div>
+    </div>
+
+    <!-- Bill Schedule Table -->
+    <div class="invoice-summary-table" style="margin-top: -7px">
+      <ng-container *ngIf="billScheduleDataLoaded; else loading">
+        <ng-container
+          *ngIf="billScheduleDataSource.data.length > 0; else noData"
+        >
+          <table
+            mat-table
+            [dataSource]="billScheduleDataSource"
+            style="width: 100%"
+          >
+            <ng-container
+              *ngFor="let column of billScheduleDisplayedColumns"
+              [matColumnDef]="column"
+            >
+              <th mat-header-cell *matHeaderCellDef>
+                {{ formatColumnName(column) }}
+              </th>
+
+              <td mat-cell *matCellDef="let element">
+                <ng-container [ngSwitch]="column">
+                  <ng-container *ngSwitchCase="'BILL_AMOUNT_(USD)'">
+                    {{
+                      element[column] | currency : "USD" : "symbol" : "1.2-2"
+                    }}
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'STATUS'">
+                    <span
+                      [ngStyle]="{
+                        color:
+                          element[column] === 'Billed'
+                            ? '#078a00'
+                            : element[column] === 'Pending'
+                            ? '#d57b00'
+                            : element[column] === 'Error'
+                            ? '#d50000'
+                            : ''
+                      }"
+                    >
+                      {{ element[column] }}
+                    </span>
+                  </ng-container>
+
+                  <ng-container *ngSwitchDefault>
+                    {{
+                      column === "BILL_DATE"
+                        ? (element[column] | date : "MM/dd/yyyy")
+                        : element[column]
+                    }}
+                  </ng-container>
+                </ng-container>
+              </td>
+            </ng-container>
+
+            <tr
+              mat-header-row
+              *matHeaderRowDef="billScheduleDisplayedColumns"
+            ></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: billScheduleDisplayedColumns"
+            ></tr>
+          </table>
+        </ng-container>
+
+        <ng-template #noData>
+          <div class="no-data-container">
+            <p>No bill schedule data available for this subscription.</p>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #loading>
+        <div class="loading-container">
+          <app-loading-symbol></app-loading-symbol>
+          <br /><br /><br />
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

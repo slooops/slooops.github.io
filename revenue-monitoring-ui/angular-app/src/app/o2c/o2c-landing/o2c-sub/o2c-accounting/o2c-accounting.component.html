@@ -1,0 +1,100 @@
+<div *ngIf="!showDetailView">
+  <div class="o2c-container accordion-container">
+    <div class="order-banner accordion-header order-status-banner">
+      <div class="status-dot"></div>
+      <div>Accounting</div>
+    </div>
+  </div>
+
+  <div class="o2c-container accordion-container">
+    <div class="o2c-donut-row">
+      <app-o2c-accordion
+        [title]="'Create Account Exceptions'"
+        [isOpen]="isOpen[1]"
+        (toggleOpen)="toggleAccordion(1)"
+        linkHref="#"
+        (linkClick)="showDetailTable('o2c-order-ca-exception-v')"
+      >
+        <app-o2c-donut
+          [data]="o2cOrderCaExceptionPieChartData"
+          [isLoading]="o2cOrderCaExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-ca-exception-v')"
+          canvasId="donutChart1"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'SLA Exceptions'"
+        [isOpen]="isOpen[2]"
+        (toggleOpen)="toggleAccordion(2)"
+        linkHref="#"
+        (linkClick)="showDetailTable('o2c-order-sla-exception-v')"
+      >
+        <app-o2c-donut
+          [data]="o2cOrderSlaExceptionPieChartData"
+          [isLoading]="o2cOrderSlaExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-sla-exception-v')"
+          canvasId="donutChart2"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'GL Exceptions'"
+        [isOpen]="isOpen[3]"
+        (toggleOpen)="toggleAccordion(3)"
+        linkHref="#"
+        (linkClick)="showDetailTable('o2c-order-gl-exception-v')"
+      >
+        <app-o2c-donut
+          [data]="o2cOrderGlExceptionPieChartData"
+          [isLoading]="o2cOrderGlExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-gl-exception-v')"
+          canvasId="donutChart3"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'Other Accounting Exceptions'"
+        [isOpen]="isOpen[4]"
+        (toggleOpen)="toggleAccordion(4)"
+        linkHref="#"
+        (linkClick)="showDetailTable('o2c-order-accot-exception-v')"
+      >
+        <app-o2c-donut
+          [data]="o2cOrderAccotExceptionPieChartData"
+          [isLoading]="o2cOrderAccotExceptionLoading"
+          [noDataMessage]="getNoDataMessage('o2c-order-accot-exception-v')"
+          canvasId="donutChart4"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+    </div>
+  </div>
+</div>
+
+<!-- Detail View (shown when a "View Details" link is clicked) -->
+<div *ngIf="showDetailView">
+  <div class="order-info" style="margin-top: 20px">
+    <button class="back-btn-floating" (click)="goBack()">
+      <i class="back-icon" style="margin-top: -4px"></i> Back
+    </button>
+    <div class="exception-title">
+      {{ getCurrentTitle() }}
+    </div>
+  </div>
+
+  <div class="accordion-header exceptions-padding">
+    <!-- {{ getCurrentSubtitle() }} -->
+    &nbsp;
+    <app-o2c-toolbar
+      [fileName]="getCurrentFileName()"
+      [data]="getCurrentDataSource()?.data || []"
+    ></app-o2c-toolbar>
+  </div>
+
+  <!-- Use direct method calls instead of config object -->
+  <app-o2c-table
+    [dataSource]="getCurrentDataSource()"
+    [displayedColumns]="getCurrentDisplayedColumns()"
+    [isLoading]="getCurrentLoadingState()"
+  ></app-o2c-table>
+</div>

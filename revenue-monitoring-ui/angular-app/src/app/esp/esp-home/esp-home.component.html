@@ -1,0 +1,73 @@
+<div class="esp-dashboard">
+  <div class="dashboard-header">
+    <div class="header-main">
+      <h1>ESP Case Data Review</h1>
+      <div class="period-info">
+        <span class="period-details">
+          Period name: <strong>SEP-26 (W4)</strong> | Period end date:
+          <strong>09/20/2025</strong> | Last Updated:
+          <strong>9/9/2025, 4:45:17 PM</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="metrics-container">
+    <app-metric-tile
+      *ngFor="let metric of metricTiles"
+      [name]="metric.name"
+      [percentage]="metric.percentage"
+      [isActive]="isActive(metric.name)"
+      (tileClick)="onTileClick($event)"
+    ></app-metric-tile>
+  </div>
+
+  <hr />
+
+  <!-- Content area that displays based on active tile -->
+  <ng-container [ngSwitch]="activeTab">
+    <div *ngSwitchCase="'Overall'" class="tile-content">
+      <app-caseiq></app-caseiq>
+    </div>
+
+    <div *ngSwitchCase="'AIT'" class="tile-content">
+      <app-caseiq-ait></app-caseiq-ait>
+    </div>
+
+    <div *ngSwitchCase="'Capital'" class="tile-content">
+      <app-caseiq-cap></app-caseiq-cap>
+    </div>
+
+    <div *ngSwitchCase="'FPP'" class="tile-content">
+      <app-caseiq-fpp></app-caseiq-fpp>
+    </div>
+
+    <div *ngSwitchCase="'I2C'" class="tile-content">
+      <app-caseiq-i2c></app-caseiq-i2c>
+    </div>
+
+    <div *ngSwitchCase="'OM'" class="tile-content">
+      <app-caseiq-om></app-caseiq-om>
+    </div>
+
+    <div *ngSwitchCase="'P2P'" class="tile-content">
+      <app-caseiq-p2p></app-caseiq-p2p>
+    </div>
+
+    <div *ngSwitchCase="'SM'" class="tile-content">
+      <app-caseiq-sm></app-caseiq-sm>
+    </div>
+
+    <!-- Default case when no tile is selected -->
+    <div *ngSwitchDefault class="tile-content default-content">
+      <h3>ESP Case Data Review</h3>
+      <p>
+        Select a metric tile above to view detailed information and
+        functionality for that area.
+      </p>
+    </div>
+  </ng-container>
+</div>
+<br /><br />

@@ -48,4 +48,24 @@ public class EspCaseManagerController {
     public ResponseEntity<List<Map<String, Object>>> getSbpEspWeeklyComparisonSummary() {
         return new ResponseEntity<>(service.getSbpEspWeeklyComparisonSummary(), HttpStatus.OK);
     }
+
+    @GetMapping("/vw-i2c-category-match-status")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCategoryMatchStatus() {
+        return new ResponseEntity<>(service.getVwI2cCategoryMatchStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping("/vw-i2c-core-issue-match-status")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCoreIssueMatchStatus() {
+        return new ResponseEntity<>(service.getVwI2cCoreIssueMatchStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping("/xxcaseiq-validated-cases-accuracy-v")
+    public ResponseEntity<List<Map<String, Object>>> getXxcaseiqValidatedCasesAccuracyV() {
+        return new ResponseEntity<>(service.getXxcaseiqValidatedCasesAccuracyV(), HttpStatus.OK);
+    }
+
+    @GetMapping("/vw-i2c-case-details")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCaseDetails() {
+        return new ResponseEntity<>(service.getVwI2cCaseDetails(), HttpStatus.OK);
+    }
 }

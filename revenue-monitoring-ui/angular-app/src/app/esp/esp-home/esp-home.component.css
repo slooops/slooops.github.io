@@ -1,0 +1,436 @@
+.esp-dashboard {
+  padding: 1rem 2rem;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dashboard-header h1 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+}
+
+.period-info {
+  display: flex;
+  align-items: center;
+}
+
+.period-details {
+  font-size: 0.8rem;
+  color: #606162;
+  font-weight: 400;
+}
+
+.period-details strong {
+  font-weight: 600;
+  color: #373c42;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #1990fa;
+  margin-bottom: 0.3rem;
+}
+
+/* 1x8 horizontal layout container */
+.metrics-container {
+  display: flex;
+  gap: 1rem;
+  width: calc(100% - 2px);
+  margin: 0 auto;
+  padding: 1rem 0; /* Space for the triangle */
+}
+
+hr {
+  margin: 0;
+}
+
+/* Content area styling */
+.tile-content {
+  width: 100%;
+}
+
+.tile-content h3 {
+  color: #373c42;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.tile-content p {
+  color: #606162;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.default-content {
+  text-align: center;
+  background-color: #fff;
+  border: 2px dashed #e9ecef;
+}
+
+.default-content h3 {
+  color: #1990fa;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .period-details {
+    font-size: 0.75rem;
+  }
+
+  .metrics-container {
+    gap: 0.5rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+
+  .esp-dashboard {
+    padding: 1rem;
+  }
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+}
+
+.charts-row {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.chart-section {
+  flex: 1;
+  min-width: 0; /* Allows flex items to shrink below their content size */
+  border: 1px solid #e0e0e0;
+}
+
+.chart-section h4 {
+  margin: 1rem 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .charts-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+.metric-box {
+  padding: 1rem;
+  gap: 0.6rem;
+  background-color: #f4f5f6;
+}
+
+.metric-box h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+.metric-box p {
+  font-size: 0.7rem;
+}
+
+.metric-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: fit-content;
+  margin-top: 1rem;
+}
+
+.metric-content h5 {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+p {
+  margin: 0;
+}
+
+/* Upload screen specific styles */
+.upload-container {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.upload-info-box {
+  flex: 1;
+  min-height: 200px;
+  border: 1px solid var(--Background-Accent-weaker-pressed, #b0d8fb);
+  background: var(--Background-Accent-weaker-hover, #d7eafc);
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.upload-area-box {
+  flex: 1;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.upload-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
+}
+
+.info-section {
+  flex: 1;
+}
+
+.info-section h6 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.info-section p {
+  font-size: 0.75rem;
+  color: #606162;
+  line-height: 1.4;
+  margin: 0 0 1rem 0;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-list li {
+  font-size: 0.75rem;
+  color: #606162;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.info-list li::before {
+  content: "•";
+  left: 0;
+  color: #606162;
+}
+
+.upload-area {
+  flex: 1;
+  border: 2px dashed #d0d7de;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+  border-color: #1990fa;
+  background-color: #f0f8ff;
+}
+
+.upload-area.file-selected {
+  border-color: #1990fa;
+  background-color: #f0f8ff;
+}
+
+.upload-area.dragover {
+  border-color: #1990fa;
+  background-color: #f0f8ff;
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  font-size: 2rem;
+  color: #606162;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  font-size: 0.8rem;
+  color: #606162;
+  margin: 0.25rem 0;
+}
+
+.upload-subtext {
+  font-size: 0.7rem;
+  color: #8b949e;
+  margin: 0;
+}
+
+/* Base button class for both upload and download */
+.btn-base {
+  border-radius: 20px;
+  padding: 0rem 2rem;
+  font-size: 0.8rem;
+  height: 2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+  border: none;
+  white-space: nowrap;
+}
+
+.download-template-btn {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.download-template-btn:hover {
+  background-color: #bbdefb;
+  color: #0d47a1;
+}
+
+.upload-file-btn {
+  background-color: #1976d2;
+  color: white;
+}
+
+.upload-file-btn:hover {
+  background-color: #1565c0;
+}
+
+.upload-file-btn.file-ready {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.upload-file-btn.file-ready:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+/* Info section with icon layout */
+.info-section-with-icon {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.info-icon-column {
+  flex-shrink: 0;
+  width: 1.5rem;
+  display: flex;
+  justify-content: center;
+  padding-top: 0.1rem;
+}
+
+.note-info-icon {
+  color: #1976d2;
+  font-size: 3rem !important;
+  width: 3rem;
+  margin-top: 2rem;
+}
+
+.info-content-column {
+  flex: 1;
+}
+
+/* Responsive design for upload screen */
+@media (max-width: 768px) {
+  .upload-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .upload-area {
+    padding: 1.5rem;
+  }
+
+  .upload-file-btn {
+    position: static;
+    margin-bottom: 1rem;
+    align-self: flex-end;
+  }
+}
+
+.upload-area.upload-success {
+  background-color: #f0f9ff;
+  border-color: #22c55e;
+  color: #047857;
+}
+
+.upload-area.upload-success:hover {
+  background-color: #ecfdf5;
+  cursor: default;
+}
+
+.success-icon {
+  color: #22c55e !important;
+}
+
+.upload-text-container {
+  text-align: center;
+  flex: 1;
+}
+
+.upload-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0 0 0.25rem 0;
+  color: inherit;
+}
+
+.upload-subtitle {
+  font-size: 0.875rem;
+  margin: 0;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.upload-file-btn.upload-complete {
+  background-color: #22c55e;
+  border-color: #22c55e;
+  color: white;
+}
+
+.upload-file-btn.upload-complete:hover {
+  background-color: #16a34a;
+  border-color: #16a34a;
+}
