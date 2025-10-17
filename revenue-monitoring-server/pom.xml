@@ -29,8 +29,14 @@
 			</snapshots>
 		</repository>
 		<repository>
+			<id>cisco-public</id>
+			<url>https://repo-art.cisco.com/artifactory/public</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
 			<id>central</id>
-			<url>https://repo.maven.apache.org/maven2</url>
+			<url>http://repo.maven.apache.org/maven2</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>false</enabled></snapshots>
 		</repository>
