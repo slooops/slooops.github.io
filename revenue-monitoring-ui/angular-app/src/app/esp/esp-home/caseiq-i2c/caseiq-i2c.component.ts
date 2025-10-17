@@ -49,7 +49,11 @@ export class CaseiqI2cComponent implements OnInit {
       .get('vw-i2c-category-match-status', this.destroyManager)
       .subscribe((data: any) => {
         console.log('vwI2cCategoryMatchStatus:', data);
-        this.transformCategoryMatchData(data);
+        this.i2cChartData = this.transformMatchStatusData(
+          data,
+          'CATEGORY',
+          'CATEGORY_COUNT'
+        );
       });
   }
 
@@ -58,7 +62,11 @@ export class CaseiqI2cComponent implements OnInit {
       .get('vw-i2c-core-issue-match-status', this.destroyManager)
       .subscribe((data: any) => {
         console.log('vwI2cCoreIssueMatchStatus:', data);
-        this.transformCoreIssueMatchData(data);
+        this.i2cSimpleChartData = this.transformMatchStatusData(
+          data,
+          'CORE_ISSUE',
+          'CORE_ISSUE_COUNT'
+        );
       });
   }
 
@@ -130,40 +138,48 @@ export class CaseiqI2cComponent implements OnInit {
   }
 
   /**
-   * Transforms category match status API data into stacked bar chart format
-   * Groups by CATEGORY and creates segments for each MATCH_STATUS
+   * Generic method to transform match status API data into stacked bar chart format
+   * Groups by specified groupColumn and creates segments for each MATCH_STATUS
    */
-  private transformCategoryMatchData(apiData: any[]): void {
+  private transformMatchStatusData(
+    apiData: any[],
+    groupColumn: string,
+    countColumn: string
+  ): StackedBarChartDataPoint[] {
     if (!Array.isArray(apiData)) {
-      console.log('No category match data to transform');
-      return;
+      console.log(`No ${groupColumn.toLowerCase()} match data to transform`);
+      return [];
     }
 
-    // Group data by CATEGORY
-    const categoryGroups = apiData.reduce((groups, item) => {
-      const category = item.CATEGORY;
-      if (!groups[category]) {
-        groups[category] = [];
+    // Group data by the specified column
+    const groups = apiData.reduce((acc, item) => {
+      const groupKey = item[groupColumn];
+      if (!acc[groupKey]) {
+        acc[groupKey] = [];
       }
-      groups[category].push(item);
-      return groups;
+      acc[groupKey].push(item);
+      return acc;
     }, {} as Record<string, any[]>);
 
     // Transform to stacked bar chart format
-    this.i2cChartData = Object.keys(categoryGroups).map((category) => {
-      const segments = categoryGroups[category].map((item) => ({
+    const chartData = Object.keys(groups).map((groupKey) => {
+      const segments = groups[groupKey].map((item) => ({
         name: item.MATCH_STATUS,
-        value: item.CATEGORY_COUNT,
+        value: item[countColumn],
         color: this.getMatchStatusColor(item.MATCH_STATUS),
       }));
 
       return {
-        label: category,
+        label: groupKey,
         segments: segments,
       };
     });
 
-    console.log('Transformed category match data:', this.i2cChartData);
+    console.log(
+      `Transformed ${groupColumn.toLowerCase()} match data:`,
+      chartData
+    );
+    return chartData;
   }
 
   /**
@@ -174,48 +190,11 @@ export class CaseiqI2cComponent implements OnInit {
       case 'MATCHED':
         return '#36A2EB'; // Blue for matched
       case 'NOT MATCHED':
-        return '#FF6384'; // Red for not matched
+        return '#cacacaff'; // Grey for not matched
       case 'ANALYZED':
         return '#FFCE56'; // Yellow for analyzed
       default:
-        return '#E5E5E5'; // Gray for unknown
+        return '#FF6384'; // Red for unknown
     }
-  }
-
-  /**
-   * Transforms core issue match status API data into stacked bar chart format
-   * Groups by CORE_ISSUE and creates segments for each MATCH_STATUS
-   */
-  private transformCoreIssueMatchData(apiData: any[]): void {
-    if (!Array.isArray(apiData)) {
-      console.log('No core issue match data to transform');
-      return;
-    }
-
-    // Group data by CORE_ISSUE
-    const coreIssueGroups = apiData.reduce((groups, item) => {
-      const coreIssue = item.CORE_ISSUE;
-      if (!groups[coreIssue]) {
-        groups[coreIssue] = [];
-      }
-      groups[coreIssue].push(item);
-      return groups;
-    }, {} as Record<string, any[]>);
-
-    // Transform to stacked bar chart format
-    this.i2cSimpleChartData = Object.keys(coreIssueGroups).map((coreIssue) => {
-      const segments = coreIssueGroups[coreIssue].map((item) => ({
-        name: item.MATCH_STATUS,
-        value: item.CORE_ISSUE_COUNT,
-        color: this.getMatchStatusColor(item.MATCH_STATUS),
-      }));
-
-      return {
-        label: coreIssue,
-        segments: segments,
-      };
-    });
-
-    console.log('Transformed core issue match data:', this.i2cSimpleChartData);
   }
 }
