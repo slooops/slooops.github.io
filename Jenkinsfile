@@ -112,6 +112,11 @@ pipeline {
 
                     sonarScan('Sonar')
                 }
+                // Run SonarQube scan for UI codebase as well
+                dir("revenue-monitoring-ui") {
+                    echo "Running SonarQube scan for UI project"
+                    sonarScan('Sonar')
+                }
             }
 
             post {
