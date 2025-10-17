@@ -19,6 +19,30 @@
 	</properties>
 	<repositories>
 		<repository>
+			<id>cisco-spring-release-cache</id>
+			<url>https://repo-art.cisco.com/artifactory/spring-release-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>cisco-spring-milestone-cache</id>
+			<url>https://repo-art.cisco.com/artifactory/spring-milestone-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>cisco-libs-release</id>
+			<url>https://repo-art.cisco.com/artifactory/libs-release</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>cisco-remote-repos</id>
+			<url>https://repo-art.cisco.com/artifactory/remote-repos</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
 			<id>cisco-maven</id>
 			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
 			<releases>
@@ -31,12 +55,6 @@
 		<repository>
 			<id>cisco-public</id>
 			<url>https://repo-art.cisco.com/artifactory/public</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>
-		<repository>
-			<id>central</id>
-			<url>http://repo.maven.apache.org/maven2</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>false</enabled></snapshots>
 		</repository>

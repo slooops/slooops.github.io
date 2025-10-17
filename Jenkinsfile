@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 dir("revenue-monitoring-server") {
-                    sh "mvn -DskipTests -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true clean package"
+                    sh "mvn -DskipTests clean package"
                     dockerBuild()
                     sh "docker tag containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:$GIT_COMMIT containers.cisco.com/it_cvc_order_to_cash/rev-ops-monitoring:server-$GIT_COMMIT"
                 }
@@ -108,7 +108,7 @@ pipeline {
 
                 // Run your unit tests and prepare SonarQube output
                 //sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
-                    sh "mvn -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
+                    sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
 
                     sonarScan('Sonar')
                 }
