@@ -19,42 +19,14 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>cisco-spring-release-cache</id>
-			<url>https://repo-art.cisco.com/artifactory/spring-release-cache</url>
+			<id>jcenter-cache</id>
+			<url>https://repo-art.cisco.com/artifactory/jcenter-cache</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>false</enabled></snapshots>
 		</repository>
 		<repository>
-			<id>cisco-spring-milestone-cache</id>
-			<url>https://repo-art.cisco.com/artifactory/spring-milestone-cache</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>
-		<repository>
-			<id>cisco-libs-release</id>
-			<url>https://repo-art.cisco.com/artifactory/libs-release</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>
-		<repository>
-			<id>cisco-remote-repos</id>
-			<url>https://repo-art.cisco.com/artifactory/remote-repos</url>
-			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>false</enabled></snapshots>
-		</repository>
-		<repository>
-			<id>cisco-maven</id>
-			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>cisco-public</id>
-			<url>https://repo-art.cisco.com/artifactory/public</url>
+			<id>central</id>
+			<url>https://repo1.maven.org/maven2</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>false</enabled></snapshots>
 		</repository>
@@ -92,10 +64,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.cisco.oracle</groupId>
+			<groupId>com.oracle.jdbc.driver</groupId>
 			<artifactId>ojdbc7</artifactId>
-			<version>12.1.0.2</version>
-			<scope>compile</scope>
+			<version>12.1.0.1</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
