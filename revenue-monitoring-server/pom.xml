@@ -34,8 +34,16 @@
 
 	<pluginRepositories>
 		<pluginRepository>
-			<id>cisco-maven</id>
-			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
+			<id>jcenter-cache-plugins</id>
+			<url>https://repo-art.cisco.com/artifactory/jcenter-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>central-plugins</id>
+			<url>https://repo1.maven.org/maven2</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
 		</pluginRepository>
 	</pluginRepositories>
 	<dependencies>
