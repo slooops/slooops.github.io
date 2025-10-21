@@ -51,21 +51,25 @@ public class EspCaseManagerController {
 
     @GetMapping("/vw-i2c-category-match-status")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCategoryMatchStatus() {
+        System.out.println("hit 1");
         return new ResponseEntity<>(service.getVwI2cCategoryMatchStatus(), HttpStatus.OK);
     }
 
     @GetMapping("/vw-i2c-core-issue-match-status")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCoreIssueMatchStatus() {
+        System.out.println("hit 2");
         return new ResponseEntity<>(service.getVwI2cCoreIssueMatchStatus(), HttpStatus.OK);
     }
 
     @GetMapping("/xxcaseiq-validated-cases-accuracy-v")
     public ResponseEntity<List<Map<String, Object>>> getXxcaseiqValidatedCasesAccuracyV() {
+        System.out.println("hit 3");
         return new ResponseEntity<>(service.getXxcaseiqValidatedCasesAccuracyV(), HttpStatus.OK);
     }
 
     @GetMapping("/vw-i2c-case-details")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCaseDetails() {
+        System.out.println("hit 4");
         return new ResponseEntity<>(service.getVwI2cCaseDetails(), HttpStatus.OK);
     }
 }
