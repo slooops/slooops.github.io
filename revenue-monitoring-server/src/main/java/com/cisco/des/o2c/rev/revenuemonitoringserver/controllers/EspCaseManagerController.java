@@ -19,6 +19,7 @@ public class EspCaseManagerController {
 
     @Autowired
     private EspCaseManagerService service;
+
     @GetMapping("/esp-aging-case-summary")
     public ResponseEntity<List<Map<String, Object>>> getEspAgingCaseSummary() {
         return new ResponseEntity<>(service.getEspAgingCaseSummary(), HttpStatus.OK);
@@ -46,30 +47,63 @@ public class EspCaseManagerController {
 
     @GetMapping("/sbp-esp-weekly-comparison-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpEspWeeklyComparisonSummary() {
+        System.out.println("=== ENDPOINT HIT: /api/sbp-esp-weekly-comparison-summary ===");
         return new ResponseEntity<>(service.getSbpEspWeeklyComparisonSummary(), HttpStatus.OK);
     }
 
     @GetMapping("/vw-i2c-category-match-status")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCategoryMatchStatus() {
-        System.out.println("hit 1");
-        return new ResponseEntity<>(service.getVwI2cCategoryMatchStatus(), HttpStatus.OK);
+        System.out.println("=== ENDPOINT HIT: /api/vw-i2c-category-match-status ===");
+        try {
+            List<Map<String, Object>> result = service.getVwI2cCategoryMatchStatus();
+            System.out.println("SUCCESS: Returned " + result.size() + " records");
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("ERROR in vw-i2c-category-match-status: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @GetMapping("/vw-i2c-core-issue-match-status")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCoreIssueMatchStatus() {
-        System.out.println("hit 2");
-        return new ResponseEntity<>(service.getVwI2cCoreIssueMatchStatus(), HttpStatus.OK);
+        System.out.println("=== ENDPOINT HIT: /api/vw-i2c-core-issue-match-status ===");
+        try {
+            List<Map<String, Object>> result = service.getVwI2cCoreIssueMatchStatus();
+            System.out.println("SUCCESS: Returned " + result.size() + " records");
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("ERROR in vw-i2c-core-issue-match-status: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @GetMapping("/xxcaseiq-validated-cases-accuracy-v")
     public ResponseEntity<List<Map<String, Object>>> getXxcaseiqValidatedCasesAccuracyV() {
-        System.out.println("hit 3");
-        return new ResponseEntity<>(service.getXxcaseiqValidatedCasesAccuracyV(), HttpStatus.OK);
+        System.out.println("=== ENDPOINT HIT: /api/xxcaseiq-validated-cases-accuracy-v ===");
+        try {
+            List<Map<String, Object>> result = service.getXxcaseiqValidatedCasesAccuracyV();
+            System.out.println("SUCCESS: Returned " + result.size() + " records");
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("ERROR in xxcaseiq-validated-cases-accuracy-v: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @GetMapping("/vw-i2c-case-details")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCaseDetails() {
-        System.out.println("hit 4");
-        return new ResponseEntity<>(service.getVwI2cCaseDetails(), HttpStatus.OK);
+        System.out.println("=== ENDPOINT HIT: /api/vw-i2c-case-details ===");
+        try {
+            List<Map<String, Object>> result = service.getVwI2cCaseDetails();
+            System.out.println("SUCCESS: Returned " + result.size() + " records");
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("ERROR in vw-i2c-case-details: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }
