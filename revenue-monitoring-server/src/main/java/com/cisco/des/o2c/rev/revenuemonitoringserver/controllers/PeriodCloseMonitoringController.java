@@ -1,6 +1,7 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.models.*;
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.EspCaseManagerService;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.PeriodCloseMonitoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,9 @@ import java.util.*;
 public class PeriodCloseMonitoringController {
     @Autowired
     private PeriodCloseMonitoringService service;
+
+    @Autowired
+    private EspCaseManagerService espCaseManagerService;
 
     @GetMapping("/period-close-invoice-stats")
     public ResponseEntity<List<Map<String, Object>>> getPeriodCloseInvoiceStats() {
@@ -84,6 +88,30 @@ public class PeriodCloseMonitoringController {
     @GetMapping("/estimated-completion-time")
     public ResponseEntity<List<Map<String, Object>>> getEstimatedCompletionTime() {
         return new ResponseEntity<>(service.getEstimatedCompletionTime(), HttpStatus.OK);
+    }
+
+    @GetMapping("/vw-i2c-category-match-status")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCategoryMatchStatus() {
+        System.out.println("hit 1");
+        return new ResponseEntity<>(espCaseManagerService.getVwI2cCategoryMatchStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping("/vw-i2c-core-issue-match-status")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCoreIssueMatchStatus() {
+        System.out.println("hit 2");
+        return new ResponseEntity<>(espCaseManagerService.getVwI2cCoreIssueMatchStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping("/xxcaseiq-validated-cases-accuracy-v")
+    public ResponseEntity<List<Map<String, Object>>> getXxcaseiqValidatedCasesAccuracyV() {
+        System.out.println("hit 3");
+        return new ResponseEntity<>(espCaseManagerService.getXxcaseiqValidatedCasesAccuracyV(), HttpStatus.OK);
+    }
+
+    @GetMapping("/vw-i2c-case-details")
+    public ResponseEntity<List<Map<String, Object>>> getVwI2cCaseDetails() {
+        System.out.println("hit 4");
+        return new ResponseEntity<>(espCaseManagerService.getVwI2cCaseDetails(), HttpStatus.OK);
     }
 
 }

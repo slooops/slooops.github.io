@@ -107,9 +107,7 @@ pipeline {
                 dir("revenue-monitoring-server") {
 
                 // Run your unit tests and prepare SonarQube output
-                //sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
                     sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
-
                     sonarScan('Sonar')
                 }
                 // Run SonarQube scan for UI codebase as well
