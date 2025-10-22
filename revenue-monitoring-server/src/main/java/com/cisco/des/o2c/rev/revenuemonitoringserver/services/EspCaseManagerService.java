@@ -66,26 +66,18 @@ public class EspCaseManagerService {
     }
 
     public List<Map<String, Object>> getVwI2cCategoryMatchStatus() {
-        System.out.println("SERVICE: getVwI2cCategoryMatchStatus called");
-        System.out.println("QUERY: " + vwI2cCategoryMatchStatus);
         return jdbcManager.queryForList(vwI2cCategoryMatchStatus);
     }
 
     public List<Map<String, Object>> getVwI2cCoreIssueMatchStatus() {
-        System.out.println("SERVICE: getVwI2cCoreIssueMatchStatus called");
-        System.out.println("QUERY: " + vwI2cCoreIssueMatchStatus);
         return jdbcManager.queryForList(vwI2cCoreIssueMatchStatus);
     }
 
     public List<Map<String, Object>> getXxcaseiqValidatedCasesAccuracyV() {
-        System.out.println("SERVICE: getXxcaseiqValidatedCasesAccuracyV called");
-        System.out.println("QUERY: " + xxcaseiqValidatedCasesAccuracyV);
         return jdbcManager.queryForList(xxcaseiqValidatedCasesAccuracyV);
     }
 
     public List<Map<String, Object>> getVwI2cCaseDetails() {
-        System.out.println("SERVICE: getVwI2cCaseDetails called");
-        System.out.println("QUERY: " + vwI2cCaseDetails);
         return jdbcManager.queryForList(vwI2cCaseDetails);
     }
 }

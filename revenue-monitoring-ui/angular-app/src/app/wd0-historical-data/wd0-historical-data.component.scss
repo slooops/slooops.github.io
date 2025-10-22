@@ -32,7 +32,7 @@ td {
 }
 
 td.mat-cell {
-  padding: 0px;
+  padding: 4px 0 0 0;
 }
 
 table.mat-table {
@@ -41,7 +41,7 @@ table.mat-table {
 
 tr.mat-row {
   height: 25px;
-  border-bottom: 0px;
+  border-bottom: none;
 }
 
 tr.mat-header-row {

@@ -47,7 +47,6 @@ public class EspCaseManagerController {
 
     @GetMapping("/sbp-esp-weekly-comparison-summary")
     public ResponseEntity<List<Map<String, Object>>> getSbpEspWeeklyComparisonSummary() {
-        System.out.println("=== ENDPOINT HIT: /api/sbp-esp-weekly-comparison-summary ===");
         return new ResponseEntity<>(service.getSbpEspWeeklyComparisonSummary(), HttpStatus.OK);
     }
 

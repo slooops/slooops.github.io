@@ -25,7 +25,7 @@
     <div class="charts-row">
       <div class="chart-section">
         <div class="chart-header-row">
-          <h4>Category - 00%</h4>
+          <h4>Category - {{ categoryAccuracy }}%</h4>
           <div class="flex-row header-metrics">
             <div
               class="metric-box metric-content"
@@ -65,7 +65,7 @@
       </div>
       <div class="chart-section">
         <div class="chart-header-row">
-          <h4>Core Issue - 00%</h4>
+          <h4>Core Issue - {{ coreIssueAccuracy }}%</h4>
           <div class="flex-row header-metrics">
             <div
               class="metric-box metric-content"
@@ -122,7 +122,7 @@
       [exportFileName]="'I2C_Validation_Summary'"
       [extraWideColumns]="['Case Summary - Description']"
       [enablePagination]="true"
-      [pageSize]="5"
+      [pageSize]="10"
       [totalRecords]="totalRecords"
     >
     </app-caseiq-table>

@@ -1,11 +1,89 @@
 <div class="table-header">
-  <p class="section-title">{{ title }}</p>
-  <div class="table-links">
-    <a *ngIf="reportLink" [href]="reportLink" target="_blank" class="dash-link"
-      >All Reports</a
+  <div class="search-and-filters">
+    <div class="search-container">
+      <input
+        class="table-search"
+        type="text"
+        placeholder="Search table..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange($event)"
+      />
+    </div>
+
+    <div class="filters-container">
+      <button class="filters-btn" (click)="toggleFiltersDropdown($event)">
+        <mat-icon style="height: 18px">filter_list</mat-icon> Filters (Coming
+        Soon)
+        <span class="filter-count" *ngIf="activeFilters.length > 0">{{
+          activeFilters.length
+        }}</span>
+      </button>
+
+      <!-- Filter Dropdown -->
+      <div
+        class="filters-dropdown"
+        *ngIf="showFiltersDropdown"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="filter-sections">
+          <div
+            class="filter-section"
+            *ngFor="let filterOption of filterOptions"
+          >
+            <div class="filter-section-title">{{ filterOption.label }}</div>
+            <div class="filter-options">
+              <label
+                class="filter-option"
+                *ngFor="let value of filterOption.values"
+                [class.disabled]="isFilterDisabled(filterOption.id, value)"
+              >
+                <input
+                  type="checkbox"
+                  (change)="
+                    addFilter(filterOption.id, filterOption.label, value)
+                  "
+                  [checked]="isFilterActive(filterOption.id, value)"
+                  [disabled]="isFilterDisabled(filterOption.id, value)"
+                />
+                <span class="checkmark"></span>
+                {{ value }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <span class="results-count"
+      >{{ totalRecords || dataSource?.data?.length || 0 }} results</span
     >
 
-    <i (click)="exportTableToExcel()" class="svg-icon download-icon"></i>
+    <button
+      class="reset-btn"
+      [class.disabled]="activeFilters.length === 0"
+      [class.active]="activeFilters.length > 0"
+      (click)="clearAllFilters()"
+      [disabled]="activeFilters.length === 0"
+    >
+      Reset filters
+    </button>
+
+    <div class="filter-tags" *ngIf="activeFilters.length > 0">
+      <div
+        class="filter-tag"
+        *ngFor="let filter of activeFilters; let i = index"
+      >
+        <span class="filter-label">{{ filter.label }}</span>
+        <span class="filter-value">{{ filter.value }}</span>
+        <button class="remove-filter" (click)="removeFilter(filter.id)">
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-links">
+    <button class="btn-base" (click)="exportTableToExcel()">Download</button>
   </div>
 </div>
 
@@ -13,7 +91,7 @@
   <ng-container *ngIf="dataSource?.data?.length > 0">
     <div style="overflow-x: auto">
       <table mat-table [dataSource]="dataSource" style="width: 100%">
-        <ng-container *ngFor="let column of displayedColumns">
+        <ng-container *ngFor="let column of filteredColumns">
           <ng-container [matColumnDef]="column">
             <th
               mat-header-cell
@@ -39,13 +117,33 @@
               >
                 {{ element[column] | date : "MM/dd/yy" }}
               </ng-container>
-              <ng-template #defaultCell>{{ element[column] }}</ng-template>
+              <ng-template #defaultCell>
+                <!-- Special handling for Category and Core issue columns with stoplight indicators -->
+                <ng-container
+                  *ngIf="
+                    column === 'Category' || column === 'Core issue';
+                    else regularCell
+                  "
+                >
+                  <div class="status-cell">
+                    <span
+                      class="status-circle"
+                      [ngClass]="{
+                        active: getMatchStatus(element, column) === 'Y',
+                        inactive: getMatchStatus(element, column) !== 'Y'
+                      }"
+                    ></span>
+                    {{ element[column] }}
+                  </div>
+                </ng-container>
+                <ng-template #regularCell>{{ element[column] }}</ng-template>
+              </ng-template>
             </td>
           </ng-container>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr mat-header-row *matHeaderRowDef="filteredColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: filteredColumns"></tr>
       </table>
     </div>
 

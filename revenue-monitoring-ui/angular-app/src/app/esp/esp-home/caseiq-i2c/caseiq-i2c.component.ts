@@ -177,10 +177,6 @@ export class CaseiqI2cComponent implements OnInit {
       };
     });
 
-    console.log(
-      `Transformed ${groupColumn.toLowerCase()} match data:`,
-      chartData
-    );
     return chartData;
   }
 
