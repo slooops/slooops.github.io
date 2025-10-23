@@ -1,42 +1,38 @@
-<mat-tab-group>
-  <mat-tab [label]="'AIT  - Case Analyzer Accuracy'">
-    <div class="flex-row">
-      <div class="metric-box metric-content">
-        <h5>82.77%</h5>
-        <p>Category Accuracy</p>
-      </div>
-      <div class="metric-box metric-content">
-        <h5>65.77%</h5>
-        <p>Core Issue Accuracy</p>
-      </div>
-
-      <div class="metric-box metric-content">
-        <h5>2269</h5>
-        <p>Total Cases</p>
-      </div>
-    </div>
-
+<mat-tab-group [selectedIndex]="0">
+  <mat-tab [label]="totalCases + ' Cases - AIT Case Analyzer'">
     <div class="charts-row">
       <div class="chart-section">
-        <h4>Category Distribution (Stacked)</h4>
+        <div class="chart-header-row">
+          <h4>Category - {{ categoryAccuracy }}%</h4>
+          <div class="flex-row header-metrics">
+            <mat-icon>expand_content</mat-icon>
+          </div>
+        </div>
+
         <div class="chart-container">
           <app-bar-chart
             [data]="i2cChartData"
             [stacked]="true"
             [isLoading]="false"
-            canvasId="i2cStackedChart"
+            canvasId="aitStackedChart"
           >
           </app-bar-chart>
         </div>
       </div>
       <div class="chart-section">
-        <h4>Core Issue Distribution</h4>
+        <div class="chart-header-row">
+          <h4>Core Issue - {{ coreIssueAccuracy }}%</h4>
+          <div class="flex-row header-metrics">
+            <mat-icon>expand_content</mat-icon>
+          </div>
+        </div>
+
         <div class="chart-container">
           <app-bar-chart
             [data]="i2cSimpleChartData"
-            [stacked]="false"
+            [stacked]="true"
             [isLoading]="false"
-            canvasId="i2cSimpleChart"
+            canvasId="aitSimpleChart"
           >
           </app-bar-chart>
         </div>
@@ -44,20 +40,24 @@
     </div>
 
     <div class="metric-box">
-      <h4>I2C Classification Summary</h4>
+      <h4>AIT Classification Summary</h4>
 
       <p>
-        Note: Changes made in the table below are not saved automatically.
+        Note: Changes made in the table below are not saved automatically.
         Please download your edits and use the sidebar 'Update Dashboard Data'
         option to persist changes.
       </p>
     </div>
 
     <app-caseiq-table
+      #aitTable
       [dataSource]="i2cTableData"
       [displayedColumns]="i2cTableColumns"
-      [exportFileName]="'I2C_Validation_Summary'"
-      [extraWideColumns]="['category']"
+      [exportFileName]="'AIT_Validation_Summary'"
+      [extraWideColumns]="['Case Summary - Description']"
+      [enablePagination]="true"
+      [pageSize]="10"
+      [totalRecords]="totalRecords"
     >
     </app-caseiq-table>
   </mat-tab>

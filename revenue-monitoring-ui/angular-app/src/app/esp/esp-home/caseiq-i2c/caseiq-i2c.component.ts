@@ -38,35 +38,56 @@ export class CaseiqI2cComponent implements OnInit {
   totalRecords: number = 0;
 
   ngOnInit(): void {
-    this.getVwI2cCategoryMatchStatus();
-    this.getVwI2cCoreIssueMatchStatus();
     this.getXxcaseiqValidatedCasesAccuracyV();
-    this.getVwI2cCaseDetails();
+    this.getXxcaseiqCategoryGraphVI2c();
+    this.getXxcaseiqCoreIssueGraphVI2c();
+    this.getXxcaseiqI2cCaseDetailsV();
   }
 
-  getVwI2cCategoryMatchStatus() {
+  getXxcaseiqCategoryGraphVI2c() {
     this.http
-      .get('vw-i2c-category-match-status', this.destroyManager)
+      .get('xxcaseiq-category-graph-v-i2c', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('vwI2cCategoryMatchStatus:', data);
+        console.log('xxcaseiqCategoryGraphVI2c: new query', data);
+
+        // Filter out data points with count <= 10
+        const filteredData = data.filter(
+          (item: any) => item.CATEGORY_COUNT > 10
+        );
+
         this.i2cChartData = this.transformMatchStatusData(
-          data,
+          filteredData,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
       });
   }
 
-  getVwI2cCoreIssueMatchStatus() {
+  getXxcaseiqCoreIssueGraphVI2c() {
     this.http
-      .get('vw-i2c-core-issue-match-status', this.destroyManager)
+      .get('xxcaseiq-core-issue-graph-v-i2c', this.destroyManager)
       .subscribe((data: any) => {
-        console.log('vwI2cCoreIssueMatchStatus:', data);
+        console.log('xxcaseiqCoreIssueGraphVI2c: new query', data);
+
+        // Filter out data points with count <= 10
+        const filteredData = data.filter(
+          (item: any) => item.CORE_ISSUE_COUNT > 10
+        );
+
         this.i2cSimpleChartData = this.transformMatchStatusData(
-          data,
+          filteredData,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
+      });
+  }
+
+  getXxcaseiqI2cCaseDetailsV() {
+    this.http
+      .get('xxcaseiq-i2c-case-details-v', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('xxcaseiqI2cCaseDetailsV: new query', data);
+        this.updateTableData(data);
       });
   }
 
@@ -76,15 +97,6 @@ export class CaseiqI2cComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqValidatedCasesAccuracyV:', data);
         this.updateI2CMetrics(data);
-      });
-  }
-
-  getVwI2cCaseDetails() {
-    this.http
-      .get('vw-i2c-case-details', this.destroyManager)
-      .subscribe((data: any) => {
-        console.log('vwI2cCaseDetails:', data);
-        this.updateTableData(data);
       });
   }
 
@@ -176,8 +188,6 @@ export class CaseiqI2cComponent implements OnInit {
         segments: segments,
       };
     });
-
-    console.log(chartData);
 
     return chartData;
   }

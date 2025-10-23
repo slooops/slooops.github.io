@@ -10,13 +10,13 @@
         </div>
 
         <div class="chart-container">
-          <app-bar-chartjs
+          <app-bar-chart
             [data]="i2cChartData"
+            [stacked]="true"
             [isLoading]="false"
-            canvasId="i2cStackedChartJS"
-            style="width: 100%"
+            canvasId="i2cStackedChart"
           >
-          </app-bar-chartjs>
+          </app-bar-chart>
         </div>
       </div>
       <div class="chart-section">

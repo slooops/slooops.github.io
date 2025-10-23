@@ -1,24 +1,14 @@
-<mat-tab-group>
-  <mat-tab [label]="'CAP - Case Analyzer Accuracy'">
-    <div class="flex-row">
-      <div class="metric-box metric-content">
-        <h5>82.77%</h5>
-        <p>Category Accuracy</p>
-      </div>
-      <div class="metric-box metric-content">
-        <h5>65.77%</h5>
-        <p>Core Issue Accuracy</p>
-      </div>
-
-      <div class="metric-box metric-content">
-        <h5>2269</h5>
-        <p>Total Cases</p>
-      </div>
-    </div>
-
+<mat-tab-group [selectedIndex]="0">
+  <mat-tab [label]="totalCases + ' Cases - I2C Case Analyzer'">
     <div class="charts-row">
       <div class="chart-section">
-        <h4>Category Distribution (Stacked)</h4>
+        <div class="chart-header-row">
+          <h4>Category - {{ categoryAccuracy }}%</h4>
+          <div class="flex-row header-metrics">
+            <mat-icon>expand_content</mat-icon>
+          </div>
+        </div>
+
         <div class="chart-container">
           <app-bar-chart
             [data]="i2cChartData"
@@ -30,11 +20,17 @@
         </div>
       </div>
       <div class="chart-section">
-        <h4>Core Issue Distribution</h4>
+        <div class="chart-header-row">
+          <h4>Core Issue - {{ coreIssueAccuracy }}%</h4>
+          <div class="flex-row header-metrics">
+            <mat-icon>expand_content</mat-icon>
+          </div>
+        </div>
+
         <div class="chart-container">
           <app-bar-chart
             [data]="i2cSimpleChartData"
-            [stacked]="false"
+            [stacked]="true"
             [isLoading]="false"
             canvasId="i2cSimpleChart"
           >
@@ -54,14 +50,18 @@
     </div>
 
     <app-caseiq-table
+      #i2cTable
       [dataSource]="i2cTableData"
       [displayedColumns]="i2cTableColumns"
       [exportFileName]="'I2C_Validation_Summary'"
-      [extraWideColumns]="['category']"
+      [extraWideColumns]="['Case Summary - Description']"
+      [enablePagination]="true"
+      [pageSize]="10"
+      [totalRecords]="totalRecords"
     >
     </app-caseiq-table>
   </mat-tab>
   <mat-tab [label]="'Update Dashboard Data'">
-    <app-upload-screen [source]="'cap'"> </app-upload-screen>
+    <app-upload-screen [source]="'i2c'"> </app-upload-screen>
   </mat-tab>
 </mat-tab-group>

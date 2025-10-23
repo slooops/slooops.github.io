@@ -1574,4 +1574,130 @@ public class QueryConfigs {
 
     @Bean( name = "vwI2cCaseDetails" )
     public String getVwI2cCaseDetails() {return this.vwI2cCaseDetails; }
+
+    @Value(("${xxcaseiq.category.graph.v.ait.q}"))
+    public String xxcaseiqCategoryGraphVAit;
+
+    @Bean( name = "xxcaseiqCategoryGraphVAit" )
+    public String getXxcaseiqCategoryGraphVAit() {return this.xxcaseiqCategoryGraphVAit; }
+
+    @Value(("${xxcaseiq.category.graph.v.capital.q}"))
+    public String xxcaseiqCategoryGraphVCapital;
+
+    @Bean( name = "xxcaseiqCategoryGraphVCapital" )
+    public String getXxcaseiqCategoryGraphVCapital() {return this.xxcaseiqCategoryGraphVCapital; }
+
+    @Value(("${xxcaseiq.category.graph.v.fpp.q}"))
+    public String xxcaseiqCategoryGraphVFpp;
+
+    @Bean( name = "xxcaseiqCategoryGraphVFpp" )
+    public String getXxcaseiqCategoryGraphVFpp() {return this.xxcaseiqCategoryGraphVFpp; }
+
+    @Value(("${xxcaseiq.category.graph.v.i2c.q}"))
+    public String xxcaseiqCategoryGraphVI2c;
+
+    @Bean( name = "xxcaseiqCategoryGraphVI2c" )
+    public String getXxcaseiqCategoryGraphVI2c() {return this.xxcaseiqCategoryGraphVI2c; }
+
+    @Value(("${xxcaseiq.category.graph.v.om.q}"))
+    public String xxcaseiqCategoryGraphVOm;
+
+    @Bean( name = "xxcaseiqCategoryGraphVOm" )
+    public String getXxcaseiqCategoryGraphVOm() {return this.xxcaseiqCategoryGraphVOm; }
+
+    @Value(("${xxcaseiq.category.graph.v.p2p.q}"))
+    public String xxcaseiqCategoryGraphVP2p;
+
+    @Bean( name = "xxcaseiqCategoryGraphVP2p" )
+    public String getXxcaseiqCategoryGraphVP2p() {return this.xxcaseiqCategoryGraphVP2p; }
+
+    @Value(("${xxcaseiq.category.graph.v.sm.q}"))
+    public String xxcaseiqCategoryGraphVSm;
+
+    @Bean( name = "xxcaseiqCategoryGraphVSm" )
+    public String getXxcaseiqCategoryGraphVSm() {return this.xxcaseiqCategoryGraphVSm; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.ait.q}"))
+    public String xxcaseiqCoreIssueGraphVAit;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVAit" )
+    public String getXxcaseiqCoreIssueGraphVAit() {return this.xxcaseiqCoreIssueGraphVAit; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.capital.q}"))
+    public String xxcaseiqCoreIssueGraphVCapital;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVCapital" )
+    public String getXxcaseiqCoreIssueGraphVCapital() {return this.xxcaseiqCoreIssueGraphVCapital; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.fpp.q}"))
+    public String xxcaseiqCoreIssueGraphVFpp;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVFpp" )
+    public String getXxcaseiqCoreIssueGraphVFpp() {return this.xxcaseiqCoreIssueGraphVFpp; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.i2c.q}"))
+    public String xxcaseiqCoreIssueGraphVI2c;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVI2c" )
+    public String getXxcaseiqCoreIssueGraphVI2c() {return this.xxcaseiqCoreIssueGraphVI2c; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.om.q}"))
+    public String xxcaseiqCoreIssueGraphVOm;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVOm" )
+    public String getXxcaseiqCoreIssueGraphVOm() {return this.xxcaseiqCoreIssueGraphVOm; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.p2p.q}"))
+    public String xxcaseiqCoreIssueGraphVP2p;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVP2p" )
+    public String getXxcaseiqCoreIssueGraphVP2p() {return this.xxcaseiqCoreIssueGraphVP2p; }
+
+    @Value(("${xxcaseiq.core.issue.graph.v.sm.q}"))
+    public String xxcaseiqCoreIssueGraphVSm;
+
+    @Bean( name = "xxcaseiqCoreIssueGraphVSm" )
+    public String getXxcaseiqCoreIssueGraphVSm() {return this.xxcaseiqCoreIssueGraphVSm; }
+
+    @Value(("${xxcaseiq.i2c.case.details.v.q}"))
+    public String xxcaseiqI2cCaseDetailsV;
+
+    @Bean( name = "xxcaseiqI2cCaseDetailsV" )
+    public String getXxcaseiqI2cCaseDetailsV() {return this.xxcaseiqI2cCaseDetailsV; }
+
+    @Value(("${xxcaseiq.ait.case.details.v.q}"))
+    public String xxcaseiqAitCaseDetailsV;
+
+    @Bean( name = "xxcaseiqAitCaseDetailsV" )
+    public String getXxcaseiqAitCaseDetailsV() {return this.xxcaseiqAitCaseDetailsV; }
+
+    @Value(("${xxcaseiq.fpp.case.details.v.q}"))
+    public String xxcaseiqFppCaseDetailsV;
+
+    @Bean( name = "xxcaseiqFppCaseDetailsV" )
+    public String getXxcaseiqFppCaseDetailsV() {return this.xxcaseiqFppCaseDetailsV; }
+
+    @Value(("${xxcaseiq.om.case.details.v.q}"))
+    public String xxcaseiqOmCaseDetailsV;
+
+    @Bean( name = "xxcaseiqOmCaseDetailsV" )
+    public String getXxcaseiqOmCaseDetailsV() {return this.xxcaseiqOmCaseDetailsV; }
+
+    @Value(("${xxcaseiq.sm.case.details.v.q}"))
+    public String xxcaseiqSmCaseDetailsV;
+
+    @Bean( name = "xxcaseiqSmCaseDetailsV" )
+    public String getXxcaseiqSmCaseDetailsV() {return this.xxcaseiqSmCaseDetailsV; }
+
+    @Value(("${xxcaseiq.p2p.case.details.v.q}"))
+    public String xxcaseiqP2pCaseDetailsV;
+
+    @Bean( name = "xxcaseiqP2pCaseDetailsV" )
+    public String getXxcaseiqP2pCaseDetailsV() {return this.xxcaseiqP2pCaseDetailsV; }
+
+    @Value(("${xxcaseiq.capital.case.details.v.q}"))
+    public String xxcaseiqCapitalCaseDetailsV;
+
+    @Bean( name = "xxcaseiqCapitalCaseDetailsV" )
+    public String getXxcaseiqCapitalCaseDetailsV() {return this.xxcaseiqCapitalCaseDetailsV; }
 }

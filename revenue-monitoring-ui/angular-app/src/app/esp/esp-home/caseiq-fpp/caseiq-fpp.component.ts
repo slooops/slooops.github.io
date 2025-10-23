@@ -1,169 +1,169 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import {
-  StackedBarChartDataPoint,
-  BarChartDataPoint,
-} from 'src/app/components/bar-chart/bar-chart.component';
+import { ApiHttpService } from 'src/app/providers/http.service';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
+import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+
+interface FppAccuracyData {
+  TEAM_NAME: string;
+  CATEGORY: number;
+  CORE_ISSUE: number;
+  TOTAL_ACCURACY: number;
+  TOTAL_VALIDATED_CASES: number;
+}
 
 @Component({
   selector: 'app-caseiq-fpp',
   templateUrl: './caseiq-fpp.component.html',
   styleUrl: './caseiq-fpp.component.css',
 })
-export class CaseiqFppComponent {
-  // I2C Chart Data - Similar to the screenshot
-  i2cChartData: StackedBarChartDataPoint[] = [
-    {
-      label: 'Access Management',
-      segments: [
-        { name: 'Validated', value: 23, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 67, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Accounting',
-      segments: [
-        { name: 'Validated', value: 178, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 94, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Cash Apps',
-      segments: [
-        { name: 'Validated', value: 45, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 123, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Credit & Collections',
-      segments: [
-        { name: 'Validated', value: 289, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 156, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Order to Cash',
-      segments: [
-        { name: 'Validated', value: 67, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 234, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Invoicing',
-      segments: [
-        { name: 'Validated', value: 345, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 89, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'VT Customs',
-      segments: [
-        { name: 'Validated', value: 12, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 78, color: '#E5E5E5' },
-      ],
-    },
-  ];
+export class CaseiqFppComponent implements OnInit {
+  @ViewChild('fppTable') fppTable!: CaseiqTableComponent;
 
-  // I2C Simple Chart Data - Monthly totals
-  i2cSimpleChartData: BarChartDataPoint[] = [
-    { label: 'E-Invoicing - Esker', value: 45, color: '#E5E5E5' },
-    { label: 'E-Invoicing - Sovos', value: 678, color: '#E5E5E5' },
-    { label: 'E-Invoicing - Synchro', value: 123, color: '#E5E5E5' },
-    { label: 'E-Invoicing - IRN', value: 456, color: '#E5E5E5' },
-    { label: 'Invoice Amount', value: 234, color: '#E5E5E5' },
-    { label: 'Invoice Amount', value: 789, color: '#E5E5E5' },
-    { label: 'Invoice Enquiry Tax', value: 67, color: '#E5E5E5' },
-    { label: 'Invoice Aging', value: 345, color: '#E5E5E5' },
-    { label: 'Invoice Delivery - Email', value: 156, color: '#E5E5E5' },
-    { label: 'Invoice Delivery B2B', value: 523, color: '#E5E5E5' },
-    { label: 'Invoice Not Generated', value: 298, color: '#E5E5E5' },
-    { label: 'Post Invoice Dispute', value: 89, color: '#E5E5E5' },
-    { label: 'Receipts', value: 612, color: '#E5E5E5' },
-  ];
+  constructor(
+    private readonly http: ApiHttpService,
+    private readonly destroyManager: DestroyManager
+  ) {}
 
-  // Table data combining chart information
-  i2cTableData = new MatTableDataSource([
-    {
-      'Incident Number': 'INC0012345',
-      'Impacted Service': 'Indirect Tax - Global',
-      'Case Description': 'Rebill invoice not yet generated',
-      Category: 'Pre-Invoicing',
-      'Category Actual': 'Tax Inquiry',
-      'Core Issue': 'Process Gap',
-      'Core Actual': 'Process Gap',
-    },
-    {
-      'Incident Number': 'INC0012346',
-      'Impacted Service': 'Order Management - Global',
-      'Case Description': 'Credit memo not processed',
-      Category: 'Order to Cash',
-      'Category Actual': 'Credit Memo',
-      'Core Issue': 'Training',
-      'Core Actual': 'Training',
-    },
-    {
-      'Incident Number': 'INC0012347',
-      'Impacted Service': 'Cash Application - APAC',
-      'Case Description': 'Payment not applied to invoice',
-      Category: 'Invoicing',
-      'Category Actual': 'Payment Application',
-      'Core Issue': 'System Issue',
-      'Core Actual': 'System Issue',
-    },
-    {
-      'Incident Number': 'INC0012348',
-      'Impacted Service': 'Credit & Collections - EMEA',
-      'Case Description': 'Customer dispute unresolved',
-      Category: 'Order to Cash',
-      'Category Actual': 'Dispute Management',
-      'Core Issue': 'Customer Issue',
-      'Core Actual': 'Customer Issue',
-    },
-    {
-      'Incident Number': 'INC0012345',
-      'Impacted Service': 'Indirect Tax - Global',
-      'Case Description': 'Rebill invoice not yet generated',
-      Category: 'Pre-Invoicing',
-      'Category Actual': 'Tax Inquiry',
-      'Core Issue': 'Process Gap',
-      'Core Actual': 'Process Gap',
-    },
-    {
-      'Incident Number': 'INC0012346',
-      'Impacted Service': 'Order Management - Global',
-      'Case Description': 'Credit memo not processed',
-      Category: 'Order to Cash',
-      'Category Actual': 'Credit Memo',
-      'Core Issue': 'Training',
-      'Core Actual': 'Training',
-    },
-    {
-      'Incident Number': 'INC0012347',
-      'Impacted Service': 'Cash Application - APAC',
-      'Case Description': 'Payment not applied to invoice',
-      Category: 'Invoicing',
-      'Category Actual': 'Payment Application',
-      'Core Issue': 'System Issue',
-      'Core Actual': 'System Issue',
-    },
-    {
-      'Incident Number': 'INC0012348',
-      'Impacted Service': 'Credit & Collections - EMEA',
-      'Case Description': 'Customer dispute unresolved',
-      Category: 'Order to Cash',
-      'Category Actual': 'Dispute Management',
-      'Core Issue': 'Customer Issue',
-      'Core Actual': 'Customer Issue',
-    },
-  ]);
+  i2cChartData: StackedBarChartDataPoint[] = [];
+  i2cSimpleChartData: StackedBarChartDataPoint[] = [];
 
-  i2cTableColumns = [
-    'Incident Number',
-    'Impacted Service',
-    'Case Description',
-    'Category',
-    'Category Actual',
-    'Core Issue',
-    'Core Actual',
-  ];
+  categoryAccuracy: number | string = '-';
+  coreIssueAccuracy: number | string = '-';
+  totalCases: number | string = '-';
+
+  i2cTableData = new MatTableDataSource<any>([]);
+  i2cTableColumns: string[] = [];
+  totalRecords: number = 0;
+
+  ngOnInit(): void {
+    this.getXxcaseiqValidatedCasesAccuracyV();
+    this.getXxcaseiqCategoryGraphVFpp();
+    this.getXxcaseiqCoreIssueGraphVFpp();
+    this.getXxcaseiqFppCaseDetailsV();
+  }
+
+  getXxcaseiqCategoryGraphVFpp() {
+    this.http
+      .get('xxcaseiq-category-graph-v-fpp', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('xxcaseiqCategoryGraphVFpp:', data);
+
+        const filteredData = data.filter(
+          (item: any) => item.CATEGORY_COUNT > 10
+        );
+
+        this.i2cChartData = this.transformMatchStatusData(
+          filteredData,
+          'CATEGORY',
+          'CATEGORY_COUNT'
+        );
+      });
+  }
+
+  getXxcaseiqCoreIssueGraphVFpp() {
+    this.http
+      .get('xxcaseiq-core-issue-graph-v-fpp', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log('xxcaseiqCoreIssueGraphVFpp:', data);
+
+        const filteredData = data.filter(
+          (item: any) => item.CORE_ISSUE_COUNT > 10
+        );
+
+        this.i2cSimpleChartData = this.transformMatchStatusData(
+          filteredData,
+          'CORE_ISSUE',
+          'CORE_ISSUE_COUNT'
+        );
+      });
+  }
+
+  getXxcaseiqFppCaseDetailsV() {
+    this.http
+      .get('xxcaseiq-fpp-case-details-v', this.destroyManager)
+      .subscribe((data: any) => {
+        this.updateTableData(data);
+      });
+  }
+
+  getXxcaseiqValidatedCasesAccuracyV() {
+    this.http
+      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+      .subscribe((data: any) => {
+        console.log(data);
+        this.updateFppMetrics(data);
+      });
+  }
+
+  private updateTableData(apiData: any[]): void {
+    if (Array.isArray(apiData) && apiData.length > 0) {
+      this.totalRecords = apiData.length;
+      this.i2cTableData = new MatTableDataSource(apiData);
+      this.i2cTableColumns = Object.keys(apiData[0]);
+    } else {
+      this.totalRecords = 0;
+      this.i2cTableData = new MatTableDataSource([]);
+      this.i2cTableColumns = [];
+    }
+  }
+
+  private updateFppMetrics(apiData: FppAccuracyData[]): void {
+    if (Array.isArray(apiData)) {
+      const fppData = apiData.find(
+        (item) => item.TEAM_NAME && item.TEAM_NAME.toLowerCase() === 'fpp'
+      );
+
+      if (fppData) {
+        this.categoryAccuracy = fppData['Category Accuracy'] ?? '-';
+        this.coreIssueAccuracy = fppData['Core Issue Accuracy'] ?? '-';
+        this.totalCases = fppData['Total Cases'] ?? '-';
+      }
+    }
+  }
+
+  private transformMatchStatusData(
+    apiData: any[],
+    groupColumn: string,
+    countColumn: string
+  ): StackedBarChartDataPoint[] {
+    if (!Array.isArray(apiData)) {
+      return [];
+    }
+
+    const groups = apiData.reduce((acc, item) => {
+      const key = item[groupColumn];
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const chartData = Object.keys(groups).map((groupKey) => {
+      const segments = groups[groupKey].map((item) => ({
+        name: item.MATCH_STATUS,
+        value: item[countColumn],
+        color: this.getMatchStatusColor(item.MATCH_STATUS),
+      }));
+
+      return { label: groupKey, segments };
+    });
+
+    return chartData;
+  }
+
+  private getMatchStatusColor(matchStatus: string): string {
+    switch (matchStatus.toUpperCase()) {
+      case 'MATCHED':
+        return '#36A2EB';
+      case 'NOT MATCHED':
+        return '#cacacaff';
+      case 'ANALYZED':
+        return '#FFCE56';
+      default:
+        return '#E5E5E5';
+    }
+  }
 }
