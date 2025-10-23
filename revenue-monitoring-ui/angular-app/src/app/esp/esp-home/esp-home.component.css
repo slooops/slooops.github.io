@@ -130,18 +130,18 @@ hr {
 }
 
 .chart-section h4 {
-  margin: 0 0 0 1rem;
   font-size: 1rem;
   font-weight: 600;
   color: #333;
   text-align: left;
+  margin: 0;
 }
 
 .chart-header-row {
+  margin: 1rem 1rem 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0;
   padding: 0;
 }
 

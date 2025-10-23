@@ -44,11 +44,7 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
     {
       id: 'priority',
       label: 'Priority',
-      values: [
-        'High Priority',
-        'Medium Priority',
-        'Low Priority PriorityPriorityPriority',
-      ],
+      values: ['High Priority', 'Medium Priority', 'Low Priority'],
     },
     {
       id: 'status',

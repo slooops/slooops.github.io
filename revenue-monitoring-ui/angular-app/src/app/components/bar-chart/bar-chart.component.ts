@@ -1,11 +1,13 @@
 import {
   Component,
+  ViewChild,
+  ElementRef,
   Input,
   OnChanges,
-  ElementRef,
-  ViewChild,
   AfterViewInit,
+  SimpleChanges,
 } from '@angular/core';
+import * as d3 from 'd3';
 
 export interface BarChartDataPoint {
   label: string;
@@ -22,30 +24,52 @@ export interface StackedBarChartDataPoint {
   }[];
 }
 
+interface LegendItem {
+  name: string;
+  color: string;
+  total: number;
+}
+
 @Component({
   selector: 'app-bar-chart',
   templateUrl: './bar-chart.component.html',
   styleUrl: './bar-chart.component.css',
 })
 export class BarChartComponent implements OnChanges, AfterViewInit {
-  @ViewChild('barCanvas', { static: true })
-  canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('barChartContainer', { static: true })
+  containerRef!: ElementRef<HTMLDivElement>;
 
   @Input() data: BarChartDataPoint[] | StackedBarChartDataPoint[] = [];
-  @Input() canvasId: string = 'barCanvas';
+  @Input() canvasId: string = 'barChart';
   @Input() isLoading: boolean = false;
   @Input() stacked: boolean = false;
   @Input() chartWidth: number | string = '100%';
   @Input() chartHeight: number | string = 300;
   @Input() noDataMessage: string = 'No data available';
-  @Input() labelRotation: number = 0; // Rotation angle in degrees (0 = horizontal, 45 = 45°, 90 = vertical)
+  @Input() labelRotation: number = -45;
+  @Input() showLegend: boolean = true;
+  @Input() titleCaseLabels: boolean = true;
+  @Input() titleCaseExceptions: string[] = [
+    'N/A',
+    'NA',
+    'IT',
+    'API',
+    'UI',
+    'ID',
+    'VT',
+    'and',
+    'is',
+    'not',
+  ];
 
-  private canvas!: HTMLCanvasElement;
-  private ctx!: CanvasRenderingContext2D;
+  private svg: any;
+  private container!: HTMLDivElement;
   private actualWidth = 0;
   private actualHeight = 0;
+  private readonly margin = { top: 20, right: 50, bottom: 130, left: 20 };
+  legendItems: LegendItem[] = [];
 
-  // Color palette similar to donut chart
+  // Color palette
   private readonly defaultColors = [
     '#FF6384',
     '#36A2EB',
@@ -53,336 +77,325 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     '#4BC0C0',
     '#9966FF',
     '#FF9F40',
-    '#FF6384',
     '#C9CBCF',
-    '#4BC0C0',
-    '#FF6384',
-    '#36A2EB',
-    '#FFCE56',
   ];
 
   ngAfterViewInit(): void {
-    this.initializeCanvas();
-    if (this.data.length > 0) {
-      this.drawChart();
+    this.container = this.containerRef.nativeElement;
+    this.calculateDimensions();
+    if (this.data.length > 0 && !this.isLoading) {
+      this.createChart();
     }
   }
 
-  ngOnChanges(): void {
-    if (this.canvas && this.ctx) {
-      this.drawChart();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.container && changes['data'] && !changes['data'].firstChange) {
+      this.createChart();
+    }
+    if (
+      this.container &&
+      changes['isLoading'] &&
+      !this.isLoading &&
+      this.data.length > 0
+    ) {
+      this.createChart();
     }
   }
 
-  private initializeCanvas(): void {
-    this.canvas = this.canvasRef.nativeElement;
-    this.canvas.id = this.canvasId;
-
-    // Get the container dimensions for responsive sizing
-    const container = this.canvas.parentElement;
-    if (container) {
-      // Set CSS width/height for responsive behavior
-      if (typeof this.chartWidth === 'string') {
-        this.canvas.style.width = this.chartWidth;
-        this.actualWidth = container.clientWidth || 350;
-      } else {
-        this.canvas.style.width = this.chartWidth + 'px';
-        this.actualWidth = this.chartWidth;
-      }
-
-      if (typeof this.chartHeight === 'string') {
-        this.canvas.style.height = this.chartHeight;
-        this.actualHeight = parseInt(this.chartHeight) || 300;
-      } else {
-        this.canvas.style.height = this.chartHeight + 'px';
-        this.actualHeight = this.chartHeight;
-      }
+  private calculateDimensions(): void {
+    if (typeof this.chartWidth === 'string') {
+      this.actualWidth = this.container.clientWidth || 600;
     } else {
-      // Fallback values if no container
-      this.actualWidth =
-        typeof this.chartWidth === 'number' ? this.chartWidth : 350;
-      this.actualHeight =
-        typeof this.chartHeight === 'number' ? this.chartHeight : 300;
+      this.actualWidth = this.chartWidth;
     }
 
-    // Handle high-DPI displays (Retina, etc.)
-    const devicePixelRatio = window.devicePixelRatio || 1;
-
-    // Set canvas internal dimensions (for drawing) - scaled for high-DPI
-    this.canvas.width = this.actualWidth * devicePixelRatio;
-    this.canvas.height = this.actualHeight * devicePixelRatio;
-
-    // Scale the canvas back down using CSS to maintain proper display size
-    this.canvas.style.width = this.actualWidth + 'px';
-    this.canvas.style.height = this.actualHeight + 'px';
-
-    const context = this.canvas.getContext('2d');
-    if (context) {
-      this.ctx = context;
-      // Scale the drawing context to match the device pixel ratio
-      this.ctx.scale(devicePixelRatio, devicePixelRatio);
+    if (typeof this.chartHeight === 'string') {
+      this.actualHeight = Number.parseInt(this.chartHeight, 10) || 400;
+    } else {
+      this.actualHeight = this.chartHeight;
     }
   }
 
-  private drawChart(): void {
-    if (!this.ctx || this.isLoading) return;
+  private toTitleCase(text: string): string {
+    if (!this.titleCaseLabels) {
+      return text;
+    }
 
-    // Clear canvas
-    this.ctx.clearRect(0, 0, this.actualWidth, this.actualHeight);
+    return text
+      .split(' ')
+      .map((word) => {
+        // Check if word is in exceptions array (case-insensitive check)
+        const matchingException = this.titleCaseExceptions.find(
+          (exception) => exception.toLowerCase() === word.toLowerCase()
+        );
 
-    if (this.data.length === 0) {
-      this.drawNoDataMessage();
+        if (matchingException) {
+          return matchingException; // Return the exception as defined
+        }
+
+        // Otherwise, apply title case
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ');
+  }
+
+  private createChart(): void {
+    if (this.isLoading) return;
+
+    // Clear any existing chart
+    d3.select(this.container).selectAll('*').remove();
+    this.legendItems = [];
+
+    if (!this.data || this.data.length === 0) {
+      this.showNoDataMessage();
       return;
     }
 
     if (this.stacked) {
-      this.drawStackedBarChart();
+      this.createStackedBarChart();
     } else {
-      this.drawSimpleBarChart();
+      this.createSimpleBarChart();
     }
   }
 
-  private drawSimpleBarChart(): void {
-    const data = this.data as BarChartDataPoint[];
-    const maxValue = Math.max(...data.map((d) => d.value));
-    const effectiveRotation = this.shouldRotateLabels();
-    const padding = this.calculateDynamicPadding(effectiveRotation);
+  private showNoDataMessage(): void {
+    const svg = d3
+      .select(this.container)
+      .append('svg')
+      .attr('width', this.actualWidth)
+      .attr('height', this.actualHeight);
 
-    const chartArea = {
-      x: padding.left,
-      y: padding.top,
-      width: this.actualWidth - padding.left - padding.right,
-      height: this.actualHeight - padding.top - padding.bottom,
-    };
-
-    const barWidth = (chartArea.width / data.length) * 0.8;
-    const barSpacing = (chartArea.width / data.length) * 0.2;
-
-    data.forEach((item, index) => {
-      const barHeight = (item.value / maxValue) * chartArea.height;
-      const x = chartArea.x + index * (barWidth + barSpacing) + barSpacing / 2;
-      const y = chartArea.y + chartArea.height - barHeight;
-
-      // Draw bar
-      this.ctx.fillStyle =
-        item.color || this.defaultColors[index % this.defaultColors.length];
-      this.ctx.fillRect(x, y, barWidth, barHeight);
-
-      // Draw value on top of bar
-      this.ctx.fillStyle = '#333';
-      this.ctx.font = '12px Arial';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(item.value.toString(), x + barWidth / 2, y - 5);
-
-      // Draw label below bar with rotation
-      this.ctx.fillStyle = '#333';
-      this.ctx.font = '12px Arial';
-
-      if (effectiveRotation === 0) {
-        // No rotation - standard horizontal text
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(
-          item.label,
-          x + barWidth / 2,
-          chartArea.y + chartArea.height + 20
-        );
-      } else {
-        // Rotated text - adjust text alignment and position based on rotation
-        if (effectiveRotation > 0) {
-          this.ctx.textAlign = 'left';
-        } else {
-          this.ctx.textAlign = 'right';
-        }
-
-        const labelX = x + barWidth / 2;
-        const labelY = chartArea.y + chartArea.height + 15;
-        this.drawRotatedText(item.label, labelX, labelY, effectiveRotation);
-      }
-    });
+    svg
+      .append('text')
+      .attr('x', this.actualWidth / 2)
+      .attr('y', this.actualHeight / 2)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#666')
+      .attr('font-size', '16px')
+      .text(this.noDataMessage);
   }
 
-  private drawStackedBarChart(): void {
-    const data = this.data as StackedBarChartDataPoint[];
-    const maxValue = Math.max(
-      ...data.map((d) =>
-        d.segments.reduce((sum, segment) => sum + segment.value, 0)
+  private createSimpleBarChart(): void {
+    const data = this.data as BarChartDataPoint[];
+
+    // Create SVG
+    this.svg = d3
+      .select(this.container)
+      .append('svg')
+      .attr('width', this.actualWidth)
+      .attr('height', this.actualHeight);
+
+    const width = this.actualWidth - this.margin.left - this.margin.right;
+    const height = this.actualHeight - this.margin.top - this.margin.bottom;
+
+    const g = this.svg
+      .append('g')
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+
+    // Scales
+    const x = d3
+      .scaleBand()
+      .domain(data.map((d) => d.label))
+      .range([0, width])
+      .padding(0.2);
+
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(data, (d) => d.value) || 0])
+      .nice()
+      .range([height, 0]);
+
+    // X-axis (labels only, subtle baseline)
+    const xAxis = g
+      .append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x).tickSize(0));
+
+    // Style the axis line to be subtle
+    xAxis.select('.domain').attr('stroke', '#e0e0e0').attr('stroke-width', 1);
+
+    // Rotate labels to descend to the right (anchor at start of text)
+    xAxis
+      .selectAll('text')
+      .text((d: string) => this.toTitleCase(d))
+      .attr('transform', `rotate(${-this.labelRotation})`)
+      .style('text-anchor', 'start')
+      .attr('dx', '.5em')
+      .attr('dy', '.5em');
+
+    // Bars
+    g.selectAll('.bar')
+      .data(data)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar')
+      .attr('x', (d) => x(d.label) || 0)
+      .attr('y', (d) => y(d.value))
+      .attr('width', x.bandwidth())
+      .attr('height', (d) => height - y(d.value))
+      .attr(
+        'fill',
+        (d, i) => d.color || this.defaultColors[i % this.defaultColors.length]
       )
-    );
-
-    const effectiveRotation = this.shouldRotateLabels();
-    const padding = this.calculateDynamicPadding(effectiveRotation);
-
-    const chartArea = {
-      x: padding.left,
-      y: padding.top,
-      width: this.actualWidth - padding.left - padding.right,
-      height: this.actualHeight - padding.top - padding.bottom,
-    };
-
-    const barWidth = (chartArea.width / data.length) * 0.8;
-    const barSpacing = (chartArea.width / data.length) * 0.2;
-
-    data.forEach((item, index) => {
-      const totalValue = item.segments.reduce(
-        (sum, segment) => sum + segment.value,
-        0
-      );
-      const x = chartArea.x + index * (barWidth + barSpacing) + barSpacing / 2;
-
-      let currentY = chartArea.y + chartArea.height;
-
-      // Draw each segment of the stacked bar
-      item.segments.forEach((segment, segmentIndex) => {
-        const segmentHeight = (segment.value / maxValue) * chartArea.height;
-        currentY -= segmentHeight;
-
-        this.ctx.fillStyle =
-          segment.color ||
-          this.defaultColors[segmentIndex % this.defaultColors.length];
-        this.ctx.fillRect(x, currentY, barWidth, segmentHeight);
-
-        // Draw segment value if segment is large enough
-        if (segmentHeight > 20) {
-          this.ctx.fillStyle = '#fff';
-          this.ctx.font = '10px Arial';
-          this.ctx.textAlign = 'center';
-          this.ctx.fillText(
-            segment.value.toString(),
-            x + barWidth / 2,
-            currentY + segmentHeight / 2 + 3
-          );
-        }
+      // .style('cursor', 'pointer')
+      .on('click', (event, d) => {
+        console.log('Bar clicked:', d);
+        // Future: Add custom click handler
       });
 
-      // Draw total value on top of bar
-      this.ctx.fillStyle = '#333';
-      this.ctx.font = '12px Arial';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(totalValue.toString(), x + barWidth / 2, currentY - 5);
+    // Value labels
+    g.selectAll('.label')
+      .data(data)
+      .enter()
+      .append('text')
+      .attr('class', 'label')
+      .attr('x', (d) => (x(d.label) || 0) + x.bandwidth() / 2)
+      .attr('y', (d) => y(d.value) - 5)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '11px')
+      .attr('fill', '#333')
+      .text((d) => d.value);
+  }
 
-      // Draw label below bar with rotation
-      this.ctx.fillStyle = '#333';
-      this.ctx.font = '12px Arial';
+  private createStackedBarChart(): void {
+    const data = this.data as StackedBarChartDataPoint[];
 
-      if (effectiveRotation === 0) {
-        // No rotation - standard horizontal text
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(
-          item.label,
-          x + barWidth / 2,
-          chartArea.y + chartArea.height + 20
-        );
-      } else {
-        // Rotated text - adjust text alignment and position based on rotation
-        if (effectiveRotation > 0) {
-          this.ctx.textAlign = 'left';
-        } else {
-          this.ctx.textAlign = 'right';
+    // Extract unique segment names for legend and calculate totals
+    const segmentNames = new Set<string>();
+    const colorMap = new Map<string, string>();
+    const totalMap = new Map<string, number>();
+
+    data.forEach((d) => {
+      d.segments.forEach((segment) => {
+        segmentNames.add(segment.name);
+        if (segment.color && !colorMap.has(segment.name)) {
+          colorMap.set(segment.name, segment.color);
+        }
+        // Sum up totals for each segment name
+        const currentTotal = totalMap.get(segment.name) || 0;
+        totalMap.set(segment.name, currentTotal + segment.value);
+      });
+    });
+
+    // Build legend items with totals
+    this.legendItems = Array.from(segmentNames).map((name, index) => ({
+      name,
+      color:
+        colorMap.get(name) ||
+        this.defaultColors[index % this.defaultColors.length],
+      total: totalMap.get(name) || 0,
+    }));
+
+    // Create SVG
+    this.svg = d3
+      .select(this.container)
+      .append('svg')
+      .attr('width', this.actualWidth)
+      .attr('height', this.actualHeight);
+
+    const width = this.actualWidth - this.margin.left - this.margin.right;
+    const height = this.actualHeight - this.margin.top - this.margin.bottom;
+
+    const g = this.svg
+      .append('g')
+      .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+
+    // Calculate max value for y scale
+    const maxValue =
+      d3.max(data, (d) =>
+        d.segments.reduce((sum, seg) => sum + seg.value, 0)
+      ) || 0;
+
+    // Scales
+    const x = d3
+      .scaleBand()
+      .domain(data.map((d) => d.label))
+      .range([0, width])
+      .padding(0.2);
+
+    const y = d3.scaleLinear().domain([0, maxValue]).nice().range([height, 0]);
+
+    // X-axis (labels only, subtle baseline)
+    const xAxis = g
+      .append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x).tickSize(0));
+
+    // Style the axis line to be subtle
+    xAxis.select('.domain').attr('stroke', '#e0e0e0').attr('stroke-width', 0);
+
+    // Rotate labels to descend to the right (anchor at start of text)
+    xAxis
+      .selectAll('text')
+      .text((d: string) => this.toTitleCase(d))
+      .attr('transform', `rotate(${-this.labelRotation})`)
+      .style('text-anchor', 'start')
+      .style('font-size', '10px')
+      .attr('dx', '.5em')
+      .attr('dy', '.5em');
+
+    // Create stacked bars
+    data.forEach((item) => {
+      let yOffset = 0;
+      const xPos = x(item.label) || 0;
+      const barWidth = x.bandwidth();
+
+      item.segments.forEach((segment) => {
+        // Use y-scale for both position and height calculations
+        const yTop = y(yOffset + segment.value);
+        const yBottom = y(yOffset);
+        const segmentHeight = yBottom - yTop;
+
+        // Draw segment
+        g.append('rect')
+          .attr('x', xPos)
+          .attr('y', yTop)
+          .attr('width', barWidth)
+          .attr('height', segmentHeight)
+          .attr(
+            'fill',
+            segment.color ||
+              this.legendItems.find((l) => l.name === segment.name)?.color ||
+              '#ccc'
+          )
+          // .style('cursor', 'pointer')
+          .on('click', () => {
+            console.log('Segment clicked:', { label: item.label, segment });
+            // Future: Add custom click handler
+          })
+          .append('title')
+          .text(`${segment.name}: ${segment.value}`);
+
+        // Add segment value if large enough
+        if (segmentHeight > 20) {
+          g.append('text')
+            .attr('x', xPos + barWidth / 2)
+            .attr('y', yTop + segmentHeight / 2 + 4)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '10px')
+            .attr('fill', '#fff')
+            .attr('font-weight', 'bold')
+            .text(segment.value);
         }
 
-        const labelX = x + barWidth / 2;
-        const labelY = chartArea.y + chartArea.height + 15;
-        this.drawRotatedText(item.label, labelX, labelY, effectiveRotation);
+        yOffset += segment.value;
+      });
+
+      // Add total value on top (only if there are multiple segments)
+      const totalValue = item.segments.reduce((sum, seg) => sum + seg.value, 0);
+      const hasMultipleSegments =
+        item.segments.filter((seg) => seg.value > 0).length > 1;
+
+      if (hasMultipleSegments) {
+        g.append('text')
+          .attr('x', xPos + barWidth / 2)
+          .attr('y', y(totalValue) - 5)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '11px')
+          .attr('fill', '#333')
+          .attr('font-weight', 'bold')
+          .text(totalValue);
       }
     });
-  }
-
-  private drawNoDataMessage(): void {
-    this.ctx.fillStyle = '#666';
-    this.ctx.font = '16px Arial';
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(
-      this.noDataMessage,
-      this.actualWidth / 2,
-      this.actualHeight / 2
-    );
-  }
-
-  private drawRotatedText(
-    text: string,
-    x: number,
-    y: number,
-    rotation: number
-  ): void {
-    this.ctx.save();
-    this.ctx.translate(x, y);
-    this.ctx.rotate((rotation * Math.PI) / 180);
-    this.ctx.fillText(text, 0, 0);
-    this.ctx.restore();
-  }
-
-  private shouldRotateLabels(): number {
-    // If labelRotation is explicitly set, use that
-    if (this.labelRotation !== 0) {
-      return this.labelRotation;
-    }
-
-    // Auto-determine rotation based on data density and label length
-    const dataCount = this.data.length;
-    const availableWidth = this.actualWidth - 80; // Account for padding
-    const avgWidthPerBar = availableWidth / dataCount;
-
-    // Estimate average label width (rough calculation)
-    const avgLabelLength =
-      this.data.reduce(
-        (sum, item) =>
-          sum +
-          (typeof item === 'object' && 'label' in item ? item.label.length : 0),
-        0
-      ) / dataCount;
-    const estimatedLabelWidth = avgLabelLength * 8; // Rough estimate: 8px per character
-
-    // If labels would overlap significantly, rotate them
-    if (estimatedLabelWidth > avgWidthPerBar * 0.8) {
-      if (dataCount > 8) {
-        return 45; // 45-degree rotation for dense data
-      } else if (dataCount > 4) {
-        return 30; // 30-degree rotation for moderately dense data
-      }
-    }
-
-    return 0; // No rotation needed
-  }
-
-  private calculateDynamicPadding(rotation: number): {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-  } {
-    const basePadding = 40;
-
-    // Calculate additional bottom padding needed for rotated labels
-    let bottomPadding = basePadding;
-
-    if (rotation !== 0) {
-      // Estimate the longest label length
-      const maxLabelLength = Math.max(
-        ...this.data.map((item) =>
-          typeof item === 'object' && 'label' in item ? item.label.length : 0
-        )
-      );
-
-      // Calculate approximate label width in pixels
-      const labelWidth = maxLabelLength * 8; // 8px per character estimate
-
-      // Calculate how much extra vertical space rotated text needs
-      const rotationRadians = (Math.abs(rotation) * Math.PI) / 180;
-      const extraHeight = labelWidth * Math.sin(rotationRadians);
-
-      // Add extra padding, with a minimum and maximum
-      bottomPadding = Math.max(
-        basePadding + extraHeight + 10,
-        basePadding + 20
-      );
-      bottomPadding = Math.min(bottomPadding, basePadding + 60); // Cap at reasonable limit
-    }
-
-    return {
-      top: basePadding,
-      bottom: bottomPadding,
-      left: basePadding,
-      right: basePadding,
-    };
   }
 }

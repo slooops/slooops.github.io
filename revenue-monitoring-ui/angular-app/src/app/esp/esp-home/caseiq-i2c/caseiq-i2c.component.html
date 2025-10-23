@@ -1,95 +1,29 @@
 <mat-tab-group [selectedIndex]="0">
   <mat-tab [label]="totalCases + ' Cases - I2C Case Analyzer'">
-    <div class="flex-row">
-      <!-- <div class="metric-box metric-content">
-        <h5>{{ categoryAccuracy === "-" ? "-" : categoryAccuracy + "%" }}</h5>
-        <p>Category Accuracy</p>
-      </div>
-      <div class="metric-box metric-content">
-        <h5>{{ coreIssueAccuracy === "-" ? "-" : coreIssueAccuracy + "%" }}</h5>
-        <p>Core Issue Accuracy</p>
-      </div> -->
-
-      <!-- <div class="metric-box metric-content">
-        <h5>{{ totalCases }}</h5>
-        <p>Total Cases</p>
-      </div> -->
-
-      <!-- 
-      <div class="metric-box metric-content" style="background-color: #e5e5e5">
-        <h5>Unknown</h5>
-        <p>Gray</p>
-      </div> -->
-    </div>
-
     <div class="charts-row">
       <div class="chart-section">
         <div class="chart-header-row">
           <h4>Category - {{ categoryAccuracy }}%</h4>
           <div class="flex-row header-metrics">
-            <div
-              class="metric-box metric-content"
-              style="background-color: #36a2eb; color: white"
-            >
-              <h5 style="color: white">100</h5>
-              <p>Matched</p>
-            </div>
-
-            <div
-              class="metric-box metric-content"
-              style="background-color: #e5e5e5"
-            >
-              <h5>000</h5>
-              <p>Not Matched</p>
-            </div>
-
-            <div
-              class="metric-box metric-content"
-              style="background-color: #ffce56"
-            >
-              <h5>0000</h5>
-              <p>Analyzed</p>
-            </div>
+            <mat-icon>expand_content</mat-icon>
           </div>
         </div>
 
         <div class="chart-container">
-          <app-bar-chart
+          <app-bar-chartjs
             [data]="i2cChartData"
-            [stacked]="true"
             [isLoading]="false"
-            canvasId="i2cStackedChart"
+            canvasId="i2cStackedChartJS"
+            style="width: 100%"
           >
-          </app-bar-chart>
+          </app-bar-chartjs>
         </div>
       </div>
       <div class="chart-section">
         <div class="chart-header-row">
           <h4>Core Issue - {{ coreIssueAccuracy }}%</h4>
           <div class="flex-row header-metrics">
-            <div
-              class="metric-box metric-content"
-              style="background-color: #36a2eb; color: white"
-            >
-              <h5 style="color: white">100</h5>
-              <p>Matched</p>
-            </div>
-
-            <div
-              class="metric-box metric-content"
-              style="background-color: #e5e5e5"
-            >
-              <h5>000</h5>
-              <p>Not Matched</p>
-            </div>
-
-            <div
-              class="metric-box metric-content"
-              style="background-color: #ffce56"
-            >
-              <h5>0000</h5>
-              <p>Analyzed</p>
-            </div>
+            <mat-icon>expand_content</mat-icon>
           </div>
         </div>
 
