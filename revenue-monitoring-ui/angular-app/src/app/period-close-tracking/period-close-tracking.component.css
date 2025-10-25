@@ -112,7 +112,7 @@ table.table.equal-width.table-striped td {
   text-align: center !important;
   font-size: 11px;
   font-weight: 500 !important;
-  padding: 0.4vh !important;
+  padding: 0.5rem 0.3rem 0.3rem 0.3rem !important;
   border: 0px !important;
 }
 table.table.equal-width.table-striped th {
