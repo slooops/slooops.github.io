@@ -1,54 +1,28 @@
+<div class="expand-dialog-header" role="heading" aria-level="2">
+  <span class="expand-dialog-title"> Upload </span>
+  <!-- <mat-icon
+        class="close-icon"
+        (click)="onClose()"
+        tabindex="0"
+        role="button"
+        aria-label="Close dialog"
+        (keydown.enter)="onClose()"
+        (keydown.space)="onClose()"
+        >close</mat-icon
+      > -->
+  <a style="text-decoration: none; cursor: pointer">
+    <i
+      class="fa fa-close"
+      style="font-size: 16px; color: white"
+      (click)="onClose()"
+    ></i>
+  </a>
+</div>
 <div class="upload-container">
-  <!-- Left info box -->
-  <div class="metric-box upload-info-box flex-row">
-    <mat-icon class="note-info-icon">assignment</mat-icon>
-
-    <div class="upload-info-content">
-      <div class="info-section">
-        <h6>NOTE</h6>
-        <p>
-          <strong>Required columns:</strong> INCIDENT_NUMBER,
-          IMPACTED_SERVICE_OFFERING, SUMMARY, DESCRIPTION
-        </p>
-        <p>
-          <strong>Other column names:</strong> CATEGORY, CATEGORY_ACTUAL,
-          CORE_ISSUE, CORE_ISSUE_ACTUAL
-        </p>
-        <div class="info-section">
-          <ol style="margin: 0 0 1rem 0">
-            <li
-              style="font-size: 0.75rem; color: #606162; margin-bottom: 0.25rem"
-            >
-              Writes the ESP case data to database
-            </li>
-            <li
-              style="font-size: 0.75rem; color: #606162; margin-bottom: 0.25rem"
-            >
-              Updates dashboard metrics
-            </li>
-          </ol>
-        </div>
-
-        <div class="info-section">
-          <h6>NOTE</h6>
-          <p>*Existing cases will be updated/overwritten based on NUMBER.</p>
-        </div>
-
-        <button
-          class="btn-base download-template-btn"
-          (click)="downloadTemplate()"
-        >
-          Download Template
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- Right upload area box -->
   <div class="metric-box upload-area-box">
     <div class="flex-row" style="align-items: center">
       <h4>
-        Manual Upload
         <p style="font-size: 0.75rem; color: #606162; font-weight: 400">
           You can upload one file in CSV or XLSX format with the maximum size of
           20 MB. Select the MACD Type and download the template.

@@ -1,8 +1,11 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.ExcelReader;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +43,7 @@ public class EspCaseManagerService {
     private String xxcaseiqSmCaseDetailsV;
     private String xxcaseiqP2pCaseDetailsV;
     private String xxcaseiqCapitalCaseDetailsV;
+    private String xxcaseiqEspCaseAnalyzerTblUpdate;
 
     public EspCaseManagerService(JdbcManager jdbcManager, String espAgingCaseSummary,
             String espCaseServiceMetricSummary,
@@ -69,7 +73,8 @@ public class EspCaseManagerService {
             String xxcaseiqOmCaseDetailsV,
             String xxcaseiqSmCaseDetailsV,
             String xxcaseiqP2pCaseDetailsV,
-            String xxcaseiqCapitalCaseDetailsV) {
+            String xxcaseiqCapitalCaseDetailsV,
+                                 String xxcaseiqEspCaseAnalyzerTblUpdate) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -102,6 +107,7 @@ public class EspCaseManagerService {
         this.xxcaseiqSmCaseDetailsV = xxcaseiqSmCaseDetailsV;
         this.xxcaseiqP2pCaseDetailsV = xxcaseiqP2pCaseDetailsV;
         this.xxcaseiqCapitalCaseDetailsV = xxcaseiqCapitalCaseDetailsV;
+        this.xxcaseiqEspCaseAnalyzerTblUpdate = xxcaseiqEspCaseAnalyzerTblUpdate;
     }
 
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
@@ -227,4 +233,16 @@ public class EspCaseManagerService {
     public List<Map<String, Object>> getXxcaseiqCapitalCaseDetailsV() {
         return jdbcManager.queryForList(xxcaseiqCapitalCaseDetailsV);
     }
+
+    public void updateEspCaseAnalyzerTable(MultipartFile file) throws IOException {
+        try {
+            List<Map<String, String>> data = ExcelReader.readExcel(file.getInputStream());
+            for (Map<String, String> row : data) {
+                jdbcManager.espCaseAnalyzerTableUpdate(xxcaseiqEspCaseAnalyzerTblUpdate, row.get("CATEGORY"), row.get("CATEGORY_ACTUAL"), row.get("CORE_ISSUE"), row.get("CORE_ISSUE_ACTUAL"), row.get("INCIDENT_NUMBER"), row.get("IMPACTED_SERVICE_OFFERING"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -3,11 +3,10 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.EspCaseManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -153,5 +152,19 @@ public class EspCaseManagerController {
     @GetMapping("/xxcaseiq-capital-case-details-v")
     public ResponseEntity<List<Map<String, Object>>> getXxcaseiqCapitalCaseDetailsV() {
         return new ResponseEntity<>(service.getXxcaseiqCapitalCaseDetailsV(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/xxcaseiq-esp-case-analyzer-table-update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> espCaseAnalyzerTableUpdate(@RequestParam("file") MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                service.updateEspCaseAnalyzerTable(file);
+                return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Uploaded file is empty.");
+        }
     }
 }

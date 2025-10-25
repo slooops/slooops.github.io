@@ -83,6 +83,8 @@
   </div>
 
   <div class="table-links">
+    <button class="btn-base" (click)="openUploadDialog()">Upload</button>
+    &nbsp;
     <button class="btn-base" (click)="exportTableToExcel()">Download</button>
   </div>
 </div>
@@ -121,7 +123,7 @@
                 <!-- Special handling for Category and Core issue columns with stoplight indicators -->
                 <ng-container
                   *ngIf="
-                    column === 'Category' || column === 'Core issue';
+                    column === 'CATEGORY' || column === 'CORE_ISSUE';
                     else regularCell
                   "
                 >

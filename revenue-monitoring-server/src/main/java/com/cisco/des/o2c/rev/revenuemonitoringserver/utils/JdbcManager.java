@@ -441,4 +441,8 @@ public class JdbcManager {
             String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
     }
+
+    public int espCaseAnalyzerTableUpdate(String sql, String category, String categoryActual, String coreIssue, String coreIssueActual, String incidentNumber, String impactedServiceOffering){
+        return primaryJdbcTemplate.update(sql, categoryActual, coreIssueActual, category, categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue, coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    }
 }

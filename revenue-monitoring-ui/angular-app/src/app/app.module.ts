@@ -132,6 +132,7 @@ import { CaseiqP2pComponent } from './esp/esp-home/caseiq-p2p/caseiq-p2p.compone
 import { CaseiqSmComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
 import { UploadScreenComponent } from './esp/esp-home/upload-screen/upload-screen.component';
 import { BarChartjsComponent } from './components/bar-chartjs/bar-chartjs.component';
+import { CaseiqI2cExpandDialogComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -230,6 +231,8 @@ export function initApp(authService: AuthenticationService) {
     CaseiqSmComponent,
     UploadScreenComponent,
     BarChartjsComponent,
+    // Dialog for expanded CaseIQ I2C charts
+    CaseiqI2cExpandDialogComponent,
   ],
   imports: [
     BrowserModule,

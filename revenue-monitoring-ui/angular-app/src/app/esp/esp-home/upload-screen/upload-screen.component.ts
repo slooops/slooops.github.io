@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
   selector: 'app-upload-screen',
@@ -11,6 +13,11 @@ export class UploadScreenComponent {
   isDragOver = false;
   selectedFile: File | null = null;
   isUploadSuccess = false;
+
+  constructor(
+    public http: ApiHttpService,
+    private dialogRef: MatDialogRef<UploadScreenComponent>
+  ) {}
 
   // Upload functionality methods
   downloadTemplate(): void {
@@ -78,6 +85,24 @@ export class UploadScreenComponent {
     if (!this.selectedFile) {
       alert('Please select a file first.');
       return;
+    }
+    if (this.selectedFile) {
+      let file = this.selectedFile;
+      const formData: FormData = new FormData();
+      formData.append('file', file, file.name);
+
+      this.http
+        .post('xxcaseiq-esp-case-analyzer-table-update', formData, {
+          responseType: 'text',
+        })
+        .subscribe(
+          (response) => {
+            console.log(response);
+          },
+          (error) => {
+            console.error('Error uploading file:', error);
+          }
+        );
     }
 
     // Here you would typically send the file to a service
@@ -176,5 +201,9 @@ export class UploadScreenComponent {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  onClose() {
+    this.dialogRef.close();
   }
 }

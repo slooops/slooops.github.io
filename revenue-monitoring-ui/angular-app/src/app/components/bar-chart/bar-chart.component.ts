@@ -258,7 +258,14 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
   }
 
   private createStackedBarChart(): void {
-    const data = this.data as StackedBarChartDataPoint[];
+    let data = [...(this.data as StackedBarChartDataPoint[])];
+
+    console.log('chart data', data);
+
+    // Ensure labels are in ascending alphabetical order (A-Z) regardless of input order
+    data.sort((a, b) =>
+      a.label.localeCompare(b.label, undefined, { sensitivity: 'base' })
+    );
 
     // Extract unique segment names for legend and calculate totals
     const segmentNames = new Set<string>();
@@ -278,13 +285,21 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     });
 
     // Build legend items with totals
-    this.legendItems = Array.from(segmentNames).map((name, index) => ({
+    const rawLegend = Array.from(segmentNames).map((name, index) => ({
       name,
       color:
         colorMap.get(name) ||
         this.defaultColors[index % this.defaultColors.length],
       total: totalMap.get(name) || 0,
     }));
+
+    // Desired consistent order for match status legend (adjust as needed)
+    const STATUS_ORDER = ['ANALYZED', 'NOT MATCHED', 'MATCHED'];
+    this.legendItems = rawLegend.sort((a, b) => {
+      const ai = STATUS_ORDER.indexOf(a.name.toUpperCase());
+      const bi = STATUS_ORDER.indexOf(b.name.toUpperCase());
+      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    });
 
     // Create SVG
     this.svg = d3

@@ -7,6 +7,8 @@ import {
   SimpleChanges,
   HostListener,
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { UploadScreenComponent } from 'src/app/esp/esp-home/upload-screen/upload-screen.component';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import * as XLSX from 'xlsx';
@@ -31,8 +33,11 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   @Input() enablePagination: boolean = false; // Enable pagination
   @Input() pageSize: number = 10; // Records per page
   @Input() totalRecords: number = 0; // Total number of records
+  @Input() source: string;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  constructor(private dialog: MatDialog) {}
 
   // Filter properties
   searchTerm: string = '';
@@ -96,7 +101,17 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   }
 
   removeUnderscores(key: string): string {
-    return key.replace(/_/g, ' ');
+    const ACRONYMS = new Set(['LLM']);
+    return key
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .split(' ')
+      .map((w) => {
+        if (!w) return w;
+        if (ACRONYMS.has(w.toUpperCase())) return w.toUpperCase();
+        return w.charAt(0).toUpperCase() + w.slice(1);
+      })
+      .join(' ');
   }
 
   exportTableToExcel(): void {
@@ -107,6 +122,20 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
       SheetNames: [this.exportFileName],
     };
     XLSX.writeFile(workbook, `${this.exportFileName}.xlsx`);
+  }
+
+  openUploadDialog(): void {
+    const dialogRef = this.dialog.open(UploadScreenComponent, {
+      width: '40vw',
+      maxWidth: '500px',
+      panelClass: 'caseiq-upload-dialog',
+      autoFocus: false,
+      data: { source: this.source },
+    });
+    // Provide source input after creation (component has @Input source)
+    if (dialogRef.componentInstance) {
+      (dialogRef.componentInstance as UploadScreenComponent).source = 'i2c';
+    }
   }
 
   // Filter methods
@@ -177,10 +206,10 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
 
   // Method to get match status for Category and Core issue columns
   getMatchStatus(element: any, column: string): string | null {
-    if (column === 'Category') {
-      return element['Category match'];
-    } else if (column === 'Core issue') {
-      return element['Core issue match'];
+    if (column === 'CATEGORY') {
+      return element['CATEGORY_MATCH'];
+    } else if (column === 'CORE_ISSUE') {
+      return element['CORE_ISSUE_MATCH'];
     }
     return null;
   }
@@ -189,9 +218,9 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   get filteredColumns(): string[] {
     return this.displayedColumns.filter(
       (column) =>
-        !column.includes('match') &&
-        column !== 'Category match' &&
-        column !== 'Core issue match'
+        !column.includes('MATCH') &&
+        column !== 'CATEGORY_MATCH' &&
+        column !== 'CORE_ISSUE_MATCH'
     );
   }
 }

@@ -53,6 +53,7 @@ export class EspHomeComponent implements OnInit {
       .subscribe((data: any) => {
         // console.log('xxcaseiqValidatedCasesAccuracyV:', data);
         // Ensure data is an array before processing
+        console.log('case data', data);
         if (Array.isArray(data)) {
           this.updateMetricTiles(data);
         }

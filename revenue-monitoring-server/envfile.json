@@ -212,7 +212,7 @@
   "VW_I2C_CATEGORY_MATCH_STATUS": "select * from ARFINRO.XXCASEIQ_I2C_CATEGORY_MATCH_V where category_count >= 10",
   "VW_I2C_CORE_ISSUE_MATCH_STATUS": "select * from ARFINRO.XXCASEIQ_I2C_CORE_ISSUE_MATCH_V where core_issue_count >= 10",
   "XXCASEIQ_VALIDATED_CASES_ACCURACY_V": "select * from arfinro.XXCASEIQ_CASE_ACCURACY_V",
-  "VW_I2C_CASE_DETAILS": "SELECT * FROM arfinro.XXCASEIQ_I2C_CASE_DETAILS_V WHERE ((\"Category match\" = 'N' OR \"Category match\" IS NULL) OR (\"Core issue match\" = 'N' OR \"Core issue match\" IS NULL)) AND rownum <= 100",
+  "VW_I2C_CASE_DETAILS": "SELECT * FROM arfinro.XXCASEIQ_I2C_CASE_DETAILS_V",
 
   "XXCASEIQ_CATEGORY_GRAPH_V_AIT": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'AIT'",
   "XXCASEIQ_CATEGORY_GRAPH_V_Capital": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'Capital'",
@@ -230,13 +230,14 @@
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_P2P": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'P2P'",
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_SM": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'SM'",
 
-  "XXCASEIQ_I2C_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_I2C_CASE_DETAILS_V",
+  "XXCASEIQ_I2C_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_I2C_CASE_DETAILS_V where category_match <> 'Y' or category_match IS NULL or core_issue_match <> 'Y' or core_issue_match IS NULL",
   "XXCASEIQ_AIT_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_AIT_CASE_DETAILS_V",
   "XXCASEIQ_FPP_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_FPP_CASE_DETAILS_V",
   "XXCASEIQ_OM_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_OM_CASE_DETAILS_V",
   "XXCASEIQ_SM_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_SM_CASE_DETAILS_V",
   "XXCASEIQ_P2P_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_P2P_CASE_DETAILS_V",
   "XXCASEIQ_CAPITAL_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_CAPITAL_CASE_DETAILS_V",
+  "XXCASEIQ_ESP_CASE_ANALYZER_TBL_UPDATE": "UPDATE ARFINRO.XXCASEIQ_ESP_CASE_ANALYZER_TBL SET category_actual=?, core_issue_actual=?, case_analyzer_status = CASE WHEN UPPER(?) = UPPER(?) OR UPPER(?) = UPPER(?) THEN 'VALIDATED' ELSE 'ANALYZED' END, category_match = CASE WHEN UPPER(?) = UPPER(?) THEN 'Y' WHEN ? IS NULL THEN NULL ELSE 'N' END, core_issue_match = CASE WHEN UPPER(?) = UPPER(?) THEN 'Y' WHEN ? IS NULL THEN NULL ELSE 'N' END WHERE INCIDENT_NUMBER=? AND IMPACTED_SERVICE_OFFERING=?",
 
   "REDIS_HOST": "i2c-monitoring-redis-service.i2c-monitoring-redis-prod-int-rcdn.svc.cluster.local",
   "REDIS_PASSWORD": "h=YWHZEzAh",

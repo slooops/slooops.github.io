@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -23,11 +24,14 @@ export class CaseiqI2cComponent implements OnInit {
 
   constructor(
     private readonly http: ApiHttpService,
-    private readonly destroyManager: DestroyManager
+    private readonly destroyManager: DestroyManager,
+    private readonly dialog: MatDialog
   ) {}
 
   i2cChartData: StackedBarChartDataPoint[] = [];
   i2cSimpleChartData: StackedBarChartDataPoint[] = [];
+  completeI2cChartData: StackedBarChartDataPoint[] = [];
+  completeI2cSimpleChartData: StackedBarChartDataPoint[] = [];
 
   categoryAccuracy: number | string = '-';
   coreIssueAccuracy: number | string = '-';
@@ -60,6 +64,12 @@ export class CaseiqI2cComponent implements OnInit {
           'CATEGORY',
           'CATEGORY_COUNT'
         );
+
+        this.completeI2cChartData = this.transformMatchStatusData(
+          data,
+          'CATEGORY',
+          'CATEGORY_COUNT'
+        );
       });
   }
 
@@ -76,6 +86,11 @@ export class CaseiqI2cComponent implements OnInit {
 
         this.i2cSimpleChartData = this.transformMatchStatusData(
           filteredData,
+          'CORE_ISSUE',
+          'CORE_ISSUE_COUNT'
+        );
+        this.completeI2cSimpleChartData = this.transformMatchStatusData(
+          data,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -110,7 +125,9 @@ export class CaseiqI2cComponent implements OnInit {
 
       // Set total records for pagination
       this.totalRecords = apiData.length;
-      this.i2cTableColumns = Object.keys(apiData[0]);
+      this.i2cTableColumns = Object.keys(apiData[0]).filter(
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+      );
 
       // Manually trigger paginator setup after data is loaded
       setTimeout(() => {
@@ -206,5 +223,144 @@ export class CaseiqI2cComponent implements OnInit {
       default:
         return '#FF6384'; // Red for unknown
     }
+  }
+
+  // Open dialog when expand icon clicked
+  onExpandChart(type: 'CATEGORY' | 'CORE_ISSUE') {
+    // Lazy inline component data passed to dialog
+    this.dialog.open(CaseiqI2cExpandDialogComponent, {
+      width: '90vw',
+      maxWidth: '2000px',
+      height: '70vh',
+      data: {
+        type,
+        categoryAccuracy: this.categoryAccuracy,
+        coreIssueAccuracy: this.coreIssueAccuracy,
+        categoryData: this.completeI2cChartData,
+        coreIssueData: this.completeI2cSimpleChartData,
+      },
+      panelClass: 'caseiq-expand-dialog',
+    });
+  }
+}
+
+// Simple dialog component for expanded charts
+import { Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+@Component({
+  selector: 'app-caseiq-i2c-expand-dialog',
+  template: `
+    <div class="expand-dialog-header" role="heading" aria-level="2">
+      <span class="expand-dialog-title">
+        I2C {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
+      </span>
+      <!-- <mat-icon
+        class="close-icon"
+        (click)="onClose()"
+        tabindex="0"
+        role="button"
+        aria-label="Close dialog"
+        (keydown.enter)="onClose()"
+        (keydown.space)="onClose()"
+        >close</mat-icon
+      > -->
+      <a style="text-decoration: none; cursor: pointer">
+        <i
+          class="fa fa-close"
+          style="font-size: 16px; color: white"
+          (click)="onClose()"
+        ></i>
+      </a>
+    </div>
+    <mat-dialog-content class="expand-dialog-content" tabindex="0">
+      <div class="expand-charts-wrapper">
+        <div class="expand-chart-block" *ngIf="data.type === 'CATEGORY'">
+          <h3 class="subheading">Category – {{ data.categoryAccuracy }}%</h3>
+          <div class="chart-frame">
+            <app-bar-chart
+              [data]="data.categoryData"
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="510"
+              canvasId="expandedCategoryChart"
+            ></app-bar-chart>
+          </div>
+        </div>
+        <div class="expand-chart-block" *ngIf="data.type === 'CORE_ISSUE'">
+          <h3 class="subheading">Core Issue – {{ data.coreIssueAccuracy }}%</h3>
+          <div class="chart-frame">
+            <app-bar-chart
+              [data]="data.coreIssueData"
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="510"
+              canvasId="expandedCoreIssueChart"
+            ></app-bar-chart>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+  `,
+  styles: [
+    `
+      .expand-charts-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+      .expand-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px 10px 20px;
+        background-color: #08ace4; /* match navbar color */
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 16px;
+        margin: -24px -24px 0 -24px; /* stretch header edge-to-edge */
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+      }
+      .expand-dialog-title {
+        line-height: 1.2;
+      }
+      .close-icon {
+        cursor: pointer;
+        user-select: none;
+        font-size: 24px;
+      }
+      .close-icon:hover {
+        opacity: 0.85;
+      }
+      .close-icon:focus {
+        outline: 2px solid #ffffff;
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+      .subheading {
+        font-weight: 500;
+        margin: 12px 0 8px;
+      }
+      .chart-frame {
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        padding: 8px 12px 0; /* removed bottom padding to eliminate extra space/scroll */
+        background: #ffffff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .chart-frame:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+    `,
+  ],
+})
+export class CaseiqI2cExpandDialogComponent {
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private dialogRef: MatDialogRef<CaseiqI2cExpandDialogComponent>
+  ) {}
+
+  onClose() {
+    this.dialogRef.close();
   }
 }

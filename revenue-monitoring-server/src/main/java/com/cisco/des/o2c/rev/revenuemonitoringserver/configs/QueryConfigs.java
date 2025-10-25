@@ -1700,4 +1700,10 @@ public class QueryConfigs {
 
     @Bean( name = "xxcaseiqCapitalCaseDetailsV" )
     public String getXxcaseiqCapitalCaseDetailsV() {return this.xxcaseiqCapitalCaseDetailsV; }
+
+    @Value(("${xxcaseiq.esp.case.analyzer.tbl.update}"))
+    public String xxcaseiqEspCaseAnalyzerTblUpdate;
+
+    @Bean( name = "xxcaseiqEspCaseAnalyzerTblUpdate" )
+    public String getXxcaseiqEspCaseAnalyzerTblUpdate() {return this.xxcaseiqEspCaseAnalyzerTblUpdate; }
 }
