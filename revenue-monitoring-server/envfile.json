@@ -241,5 +241,5 @@
 
   "REDIS_HOST": "i2c-monitoring-redis-service.i2c-monitoring-redis-prod-int-rcdn.svc.cluster.local",
   "REDIS_PASSWORD": "h=YWHZEzAh",
-  "CORS_URL": "http://localhost:4200"
+  "CORS_URL": "http://localhost:3000"
 }
