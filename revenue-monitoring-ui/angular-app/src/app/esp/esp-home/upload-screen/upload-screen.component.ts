@@ -98,31 +98,33 @@ export class UploadScreenComponent {
         .subscribe(
           (response) => {
             console.log(response);
+            // Mark success state
+            this.isUploadSuccess = true;
+            // Close dialog passing success payload back to opener
+            this.dialogRef.close({
+              success: true,
+              fileName: file.name,
+              source: this.source,
+              response,
+              timestamp: new Date().toISOString(),
+            });
           },
           (error) => {
             console.error('Error uploading file:', error);
+            alert('Upload failed. Please try again.');
+            this.dialogRef.close({
+              success: false,
+              fileName: file.name,
+              source: this.source,
+              error,
+              timestamp: new Date().toISOString(),
+            });
           }
         );
     }
 
-    // Here you would typically send the file to a service
-    // For now, just show the confirmation alert with source information
-    alert(
-      `File "${
-        this.selectedFile.name
-      }" uploaded successfully from ${this.source.toUpperCase()} component! Processing will begin shortly.`
-    );
-
     // Set success state after alert is dismissed
-    this.isUploadSuccess = true;
-
-    // Log upload details including source for service integration later
-    console.log('Uploading file:', {
-      fileName: this.selectedFile.name,
-      fileSize: this.selectedFile.size,
-      source: this.source,
-      timestamp: new Date().toISOString(),
-    });
+    // (Success state & logging now handled inside subscription callbacks.)
   }
 
   onDragOver(event: DragEvent): void {

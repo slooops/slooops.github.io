@@ -59,7 +59,6 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     'VT',
     'and',
     'is',
-    'not',
   ];
 
   private svg: any;
@@ -293,13 +292,16 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       total: totalMap.get(name) || 0,
     }));
 
-    // Desired consistent order for match status legend (adjust as needed)
-    const STATUS_ORDER = ['ANALYZED', 'NOT MATCHED', 'MATCHED'];
-    this.legendItems = rawLegend.sort((a, b) => {
-      const ai = STATUS_ORDER.indexOf(a.name.toUpperCase());
-      const bi = STATUS_ORDER.indexOf(b.name.toUpperCase());
-      return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-    });
+    // Desired consistent order for match status legend (Title Case)
+    const STATUS_ORDER = ['Analyzed', 'Not Matched', 'Matched'];
+    this.legendItems = rawLegend
+      .sort((a, b) => {
+        const ai = STATUS_ORDER.indexOf(this.toTitleCase(a.name));
+        const bi = STATUS_ORDER.indexOf(this.toTitleCase(b.name));
+        return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+      })
+      // Convert legend names to Title Case for display
+      .map((item) => ({ ...item, name: this.toTitleCase(item.name) }));
 
     // Create SVG
     this.svg = d3
@@ -370,7 +372,9 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
           .attr(
             'fill',
             segment.color ||
-              this.legendItems.find((l) => l.name === segment.name)?.color ||
+              this.legendItems.find(
+                (l) => l.name === this.toTitleCase(segment.name)
+              )?.color ||
               '#ccc'
           )
           // .style('cursor', 'pointer')

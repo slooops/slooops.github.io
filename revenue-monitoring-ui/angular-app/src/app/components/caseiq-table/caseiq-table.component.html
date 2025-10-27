@@ -1,15 +1,5 @@
 <div class="table-header">
   <div class="search-and-filters">
-    <div class="search-container">
-      <input
-        class="table-search"
-        type="text"
-        placeholder="Search table..."
-        [(ngModel)]="searchTerm"
-        (input)="onSearchChange($event)"
-      />
-    </div>
-
     <div class="filters-container">
       <button class="filters-btn" (click)="toggleFiltersDropdown($event)">
         <mat-icon style="height: 18px">filter_list</mat-icon> Filters (Coming

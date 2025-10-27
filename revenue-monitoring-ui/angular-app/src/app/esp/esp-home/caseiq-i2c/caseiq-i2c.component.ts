@@ -106,6 +106,16 @@ export class CaseiqI2cComponent implements OnInit {
       });
   }
 
+  // Handle upload dialog results (emitted from table component)
+  handleUploadResult(result: any) {
+    if (result?.success) {
+      console.log('Refreshing I2C table after successful upload');
+      this.getXxcaseiqI2cCaseDetailsV();
+    } else if (result) {
+      console.warn('Upload did not succeed, no refresh triggered');
+    }
+  }
+
   getXxcaseiqValidatedCasesAccuracyV() {
     this.http
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)

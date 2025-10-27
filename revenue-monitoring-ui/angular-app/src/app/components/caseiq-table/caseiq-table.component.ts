@@ -1,6 +1,8 @@
 import {
   Component,
   Input,
+  Output,
+  EventEmitter,
   ViewChild,
   AfterViewInit,
   OnChanges,
@@ -34,6 +36,7 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   @Input() pageSize: number = 10; // Records per page
   @Input() totalRecords: number = 0; // Total number of records
   @Input() source: string;
+  @Output() uploadResult = new EventEmitter<any>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
@@ -134,8 +137,24 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
     });
     // Provide source input after creation (component has @Input source)
     if (dialogRef.componentInstance) {
-      (dialogRef.componentInstance as UploadScreenComponent).source = 'i2c';
+      (dialogRef.componentInstance as UploadScreenComponent).source =
+        this.source;
     }
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Emit result for parent listeners
+        this.uploadResult.emit(result);
+        if (result.success) {
+          console.log('Upload succeeded:', result);
+          // Future: trigger data refresh here if backend changes reflect immediately
+        } else {
+          console.warn('Upload failed or returned error:', result);
+        }
+      } else {
+        console.log('Upload dialog closed without an upload action');
+      }
+    });
   }
 
   // Filter methods
