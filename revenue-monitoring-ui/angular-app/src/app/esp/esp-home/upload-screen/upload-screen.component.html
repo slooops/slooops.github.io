@@ -32,24 +32,40 @@
       <button
         type="button"
         class="btn-base upload-file-btn"
-        [class.file-ready]="selectedFile && !isUploadSuccess"
+        [class.file-ready]="selectedFile && !isUploadSuccess && !isUploading"
         [class.upload-complete]="isUploadSuccess"
+        [disabled]="isUploading"
         (click)="
           isUploadSuccess
             ? resetUpload()
+            : isUploading
+            ? null
             : selectedFile
             ? uploadFile()
             : triggerFileInput()
         "
-        [disabled]="false"
       >
-        {{
-          isUploadSuccess
-            ? "Upload Complete"
-            : selectedFile
-            ? "Upload File"
-            : "Select File"
-        }}
+        <span
+          class="btn-label"
+          style="display: inline-flex; align-items: center; gap: 6px"
+        >
+          {{
+            isUploadSuccess
+              ? "Upload Complete"
+              : isUploading
+              ? "Uploading..."
+              : selectedFile
+              ? "Upload File"
+              : "Select File"
+          }}
+          <mat-progress-spinner
+            *ngIf="isUploading"
+            diameter="16"
+            mode="indeterminate"
+            class="white-spinner"
+            style="vertical-align: middle"
+          ></mat-progress-spinner>
+        </span>
       </button>
     </div>
 

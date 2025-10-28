@@ -236,9 +236,9 @@ table.mat-table .mat-cell.extra-wide-column {
 .filter-section-title {
   margin-bottom: 0.5rem;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: #666;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   letter-spacing: 0.5px;
 }
 
@@ -246,7 +246,7 @@ table.mat-table .mat-cell.extra-wide-column {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   margin-bottom: 0.5rem;
   font-weight: 400;
 }
@@ -272,7 +272,145 @@ table.mat-table .mat-cell.extra-wide-column {
   flex-direction: row;
   gap: 1.25rem; /* space between Y and N */
 }
+.filter-options.vertical-options {
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
 
+/* Standalone dropdown action area */
+.filter-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  border-top: 1px solid #e5e5e5;
+  padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+}
+.action-btn {
+  flex: 1;
+  font-size: 0.65rem;
+  height: 1.5rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 2px;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.action-btn.clear {
+  background-color: #e6f2fa;
+  color: #666;
+}
+.action-btn.clear:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.action-btn.clear:not(:disabled):hover {
+  background-color: #d2e8f7;
+}
+.action-btn.close {
+  background-color: #08ace4;
+  color: #fff;
+}
+.action-btn.close:hover {
+  background-color: #0693c3;
+}
+
+/* Internal Incident State multi-select inside filters popup */
+.multi-select-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+.multi-select-trigger {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #d0d7de;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.multi-select-trigger:hover {
+  border-color: #08ace4;
+}
+.multi-select-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(8, 172, 228, 0.3);
+}
+.chevron {
+  transition: transform 0.2s ease;
+  font-size: 10px;
+}
+.chevron.open {
+  transform: rotate(180deg);
+}
+.multi-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  background: #fff;
+  border: 1px solid #d0d7de;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+}
+.multi-select-options {
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.multi-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.multi-option:hover {
+  background: #f3f4f6;
+}
+.multi-option.selected {
+  font-weight: 600;
+  background: #eef7ff;
+}
+.multi-option input {
+  pointer-events: none;
+}
+.multi-select-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-top: 1px solid #e5e7eb;
+  gap: 8px;
+}
+.multi-select-actions .clear-btn,
+.multi-select-actions .close-btn {
+  flex: 1;
+  border: none;
+  background: #08ace4;
+  color: #fff;
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.multi-select-actions .clear-btn[disabled] {
+  background: #c8e9f5;
+  cursor: not-allowed;
+}
+.multi-select-actions .clear-btn:hover:not([disabled]),
+.multi-select-actions .close-btn:hover {
+  background: #0692c2;
+}
 .filter-option {
   margin-bottom: 0; /* remove bottom margin when horizontal */
 }

@@ -314,3 +314,13 @@ p {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+.mat-progress-spinner circle,
+.mat-spinner circle {
+  stroke: white !important;
+}
+
+/* Scoped class in case global material styles override */
+.white-spinner.mat-progress-spinner circle {
+  stroke: #ffffff !important;
+}

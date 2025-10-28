@@ -134,6 +134,7 @@ import { UploadScreenComponent } from './esp/esp-home/upload-screen/upload-scree
 import { BarChartjsComponent } from './components/bar-chartjs/bar-chartjs.component';
 import { CaseiqI2cExpandDialogComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -282,6 +283,7 @@ export function initApp(authService: AuthenticationService) {
     O2cAccordionComponent,
     O2cToolbarComponent,
     MatSliderModule,
+    MatProgressSpinnerModule,
   ],
   providers: [
     DatePipe,
@@ -297,10 +299,6 @@ export function initApp(authService: AuthenticationService) {
       multi: true,
     },
     { provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
-    {
-      provide: MatDialogRef,
-      useValue: {},
-    },
     DataService,
   ],
   bootstrap: [AppComponent],

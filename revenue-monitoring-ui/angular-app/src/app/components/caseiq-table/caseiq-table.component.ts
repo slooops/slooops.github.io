@@ -49,6 +49,11 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   showFiltersDropdown: boolean = false;
   activeFilters: FilterTag[] = [];
   private originalData: any[] = []; // Preserve unfiltered data
+  // Local overlay trigger specifically after a successful upload while parent refresh is in progress
+  showFetchingOverlay: boolean = false;
+  // Internal multi-select dropdown state for Incident State inside filters popup
+  showIncidentStateInner: boolean = false;
+  showCancelPredictionInner: boolean = false;
 
   // Dummy filter options (can be made dynamic based on data)
   filterOptions = [
@@ -63,9 +68,20 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
       values: ['Y', 'N'],
     },
     {
-      id: 'cancelMatch',
-      label: 'Cancel',
-      values: ['Y', 'N'],
+      id: 'incidentState',
+      label: 'Incident State',
+      values: [
+        'Closed',
+        'Work In Progress',
+        'Awaiting Assignment',
+        'Resolved',
+        'Cancelled',
+      ],
+    },
+    {
+      id: 'cancelPrediction',
+      label: 'Cancel Prediction',
+      values: ['Recommend Cancel', 'Cancel'],
     },
   ];
 
@@ -87,11 +103,36 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
         this.originalData = this.dataSource.data
           ? [...this.dataSource.data]
           : [];
+        // Populate dynamic Incident State filter values from data
+        const statesSet = new Set(
+          (this.originalData || [])
+            .map((r) => (r['INCIDENT_STATE'] ?? '').toString().trim())
+            .filter((v) => !!v)
+        );
+        const incidentStateOption = this.filterOptions.find(
+          (o) => o.id === 'incidentState'
+        );
+        if (incidentStateOption) {
+          // Keep the original configured order; include 'Cancelled' if either 'Cancelled' or 'Canceled' appears.
+          const hasCancelledVariant =
+            statesSet.has('Cancelled') || statesSet.has('Canceled');
+          incidentStateOption.values = incidentStateOption.values.filter(
+            (v) => {
+              if (v === 'Cancelled') return hasCancelledVariant;
+              return statesSet.has(v);
+            }
+          );
+        }
       }
       // Use setTimeout to ensure the DOM has updated with the new data
       setTimeout(() => {
         this.setupPaginator();
       }, 0);
+    }
+
+    // Sync local fetching overlay with backendLoading input if parent turns it off
+    if (changes['backendLoading'] && !changes['backendLoading'].currentValue) {
+      this.showFetchingOverlay = false;
     }
   }
 
@@ -162,6 +203,14 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
         if (result.success) {
           console.log('Upload succeeded:', result);
           // Future: trigger data refresh here if backend changes reflect immediately
+          // Immediately show a fetching overlay to indicate background data refresh
+          this.showFetchingOverlay = true;
+          // Optional safety timeout: hide after 20s if parent forgets to clear backendLoading
+          setTimeout(() => {
+            if (!this.backendLoading) {
+              this.showFetchingOverlay = false;
+            }
+          }, 20000);
         } else {
           console.warn('Upload failed or returned error:', result);
         }
@@ -171,10 +220,45 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
     });
   }
 
+  // Accessibility: handle key events inside filters dropdown
+  onDropdownKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.showFiltersDropdown = false;
+      (event.target as HTMLElement)?.blur();
+    }
+  }
+
+  // Generic noop for template bindings if required by a11y rules
+  noop() {}
+
   // Filter methods
   toggleFiltersDropdown(event: Event): void {
     event.stopPropagation(); // Prevent the document click listener from firing
     this.showFiltersDropdown = !this.showFiltersDropdown;
+    if (!this.showFiltersDropdown) {
+      this.showIncidentStateInner = false;
+      this.showCancelPredictionInner = false;
+    }
+  }
+
+  // Toggle inner Incident State multi-select dropdown
+  toggleIncidentStateInner(event: Event) {
+    event.stopPropagation();
+    this.showIncidentStateInner = !this.showIncidentStateInner;
+  }
+
+  // Toggle a single incident state value (mimics checkbox add/remove)
+  toggleIncidentStateValue(value: string, label: string) {
+    this.addFilter('incidentState', label, value);
+  }
+
+  // Cancel Prediction inner multi-select
+  toggleCancelPredictionInner(event: Event) {
+    event.stopPropagation();
+    this.showCancelPredictionInner = !this.showCancelPredictionInner;
+  }
+  toggleCancelPredictionValue(value: string, label: string) {
+    this.addFilter('cancelPrediction', label, value);
   }
 
   addFilter(filterId: string, filterLabel: string, value: string): void {
@@ -212,6 +296,20 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
     return !isActive && this.activeFilters.length >= 3;
   }
 
+  getSelectedCount(filterId: string): number {
+    return this.activeFilters.filter((f) => f.filterId === filterId).length;
+  }
+
+  clearFiltersFor(filterId: string) {
+    const before = this.activeFilters.length;
+    this.activeFilters = this.activeFilters.filter(
+      (f) => f.filterId !== filterId
+    );
+    if (before !== this.activeFilters.length) {
+      this.applyFilters();
+    }
+  }
+
   removeFilter(filterId: string): void {
     this.activeFilters = this.activeFilters.filter((f) => f.id !== filterId);
     this.applyFilters();
@@ -239,6 +337,8 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   onDocumentClick(event: Event): void {
     // Close dropdown when clicking outside the filters container
     this.showFiltersDropdown = false;
+    this.showIncidentStateInner = false;
+    this.showCancelPredictionInner = false;
   }
 
   // Method to get match status for Category and Core issue columns
@@ -306,12 +406,16 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
       .filter((f) => f.filterId === 'coreIssueMatch')
       .map((f) => f.value);
     const cancelValues = this.activeFilters
-      .filter((f) => f.filterId === 'cancelMatch')
+      .filter((f) => f.filterId === 'cancelPrediction')
+      .map((f) => f.value);
+    const incidentStateValues = this.activeFilters
+      .filter((f) => f.filterId === 'incidentState')
       .map((f) => f.value);
 
     const categoryHasSingle = categoryValues.length === 1;
     const coreIssueHasSingle = coreIssueValues.length === 1;
-    const cancelHasSingle = cancelValues.length === 1;
+    const cancelHasAny = cancelValues.length > 0;
+    const incidentStateHasAny = incidentStateValues.length > 0;
 
     // Filtering function
     const filtered = this.originalData.filter((row) => {
@@ -342,21 +446,49 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
         }
       }
 
-      // Cancel filter evaluation (assumes CANCEL column or CANCEL_MATCH field exists; treat N as not Y)
+      // Cancel Prediction filter evaluation
+      // Column name provided: "Cancel Prediction". Support alternate key with underscore if backend sends it.
       let cancelOk = true;
-      if (cancelHasSingle) {
-        const cancelField = (row['CANCEL'] || row['CANCEL_MATCH'] || '')
+      if (cancelHasAny) {
+        // Attempt direct access first, then case-insensitive search across keys
+        let rawCancelPrediction: any =
+          row['Cancel Prediction'] ??
+          row['Cancel prediction'] ??
+          row['CANCEL_PREDICTION'];
+        if (rawCancelPrediction === undefined) {
+          // Fallback: iterate keys case-insensitively
+          const matchKey = Object.keys(row).find(
+            (k) => k.toLowerCase().replace(/_/g, ' ') === 'cancel prediction'
+          );
+          if (matchKey) rawCancelPrediction = row[matchKey];
+        }
+        const cancelPredictionValue = (rawCancelPrediction ?? '')
           .toString()
           .trim();
-        const target = cancelValues[0];
-        if (target === 'Y') {
-          cancelOk = cancelField === 'Y';
-        } else if (target === 'N') {
-          cancelOk = cancelField !== 'Y';
+        if (cancelPredictionValue === '') {
+          // Empty/null should not match any selected prediction values
+          cancelOk = false;
+        } else {
+          // Normalize comparisons (exact match among selected values)
+          cancelOk = cancelValues.some(
+            (v) => v.toLowerCase() === cancelPredictionValue.toLowerCase()
+          );
         }
       }
 
-      return categoryOk && coreIssueOk && cancelOk;
+      // Incident State filter evaluation
+      let incidentStateOk = true;
+      if (incidentStateHasAny) {
+        const stateValue = (row['INCIDENT_STATE'] ?? '').toString().trim();
+        // Normalize variant spelling so selecting 'Cancelled' matches 'Canceled'
+        let normalizedStateValue = stateValue;
+        if (stateValue.toLowerCase() === 'canceled') {
+          normalizedStateValue = 'Cancelled';
+        }
+        incidentStateOk = incidentStateValues.includes(normalizedStateValue);
+      }
+
+      return categoryOk && coreIssueOk && cancelOk && incidentStateOk;
     });
 
     this.dataSource.data = filtered;
@@ -374,6 +506,8 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
       this.originalData = [...data];
     }
     this.dataSource.data = data ? [...data] : [];
+    // Data arrived: clear local fetching overlay
+    this.showFetchingOverlay = false;
     if (this.enablePagination && this.paginator) {
       this.paginator.length = this.dataSource.data.length;
       this.paginator.firstPage();

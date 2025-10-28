@@ -757,15 +757,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         gap: 16px;
       }
       .chart-frame {
-        border: 1px solid #d0d7de;
         border-radius: 6px;
         padding: 8px 12px 0; /* removed bottom padding to eliminate extra space/scroll */
         background: #ffffff;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
       }
-      .chart-frame:hover {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      }
+
       /* Dialog filter styles replicate main chart filters */
       .filter-wrapper {
         position: relative;

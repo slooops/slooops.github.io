@@ -5,16 +5,28 @@
         <div class="chart-header-row">
           <div class="chart-title-block">
             <h4>Category Accuracy - {{ categoryAccuracy }}%</h4>
-            <div class="chart-subtotal">Total: {{ visibleCategoryTotal }}</div>
-          </div>
-          <div class="chart-note">
-            <span class="note-line"
-              >Note: Displays only categories with case count greater than
-              {{ categoryMinThreshold }}. Use the expand option to view all
-              categories.</span
-            >
           </div>
           <div class="flex-row header-metrics">
+            <h4>
+              No. of cases visible: {{ visibleCategoryTotal }}/ {{ totalCases }}
+            </h4>
+            &nbsp;
+            <mat-icon
+              style="font-size: 15px; padding-top: 5px"
+              matTooltip="Note: Displays only categories with case count greater than
+                {{ categoryMinThreshold }}. Use the expand option to view all
+                categories."
+              >info_outline</mat-icon
+            >
+            <!-- <div class="chart-note">
+              <span class="note-line"
+                >Note: Displays only categories with case count greater than
+                {{ categoryMinThreshold }}. Use the expand option to view all
+                categories.</span
+              >
+            </div> -->
+            &nbsp; &nbsp;
+
             <div class="filter-wrapper">
               <mat-icon
                 style="cursor: pointer; font-size: 24px"
@@ -135,16 +147,22 @@
         <div class="chart-header-row">
           <div class="chart-title-block">
             <h4>Core Issue Accuracy - {{ coreIssueAccuracy }}%</h4>
-            <div class="chart-subtotal">Total: {{ visibleCoreIssueTotal }}</div>
           </div>
-          <div class="chart-note">
-            <span class="note-line"
-              >Note: Displays only core issues with case count greater than
-              {{ coreIssueMinThreshold }}. Use the expand option to view all
-              core issues.</span
-            >
-          </div>
+
           <div class="flex-row header-metrics">
+            <h4>
+              No. of core issues visible: {{ visibleCoreIssueTotal }}/
+              {{ totalCases }}
+            </h4>
+            &nbsp;
+            <mat-icon
+              style="font-size: 15px; padding-top: 5px"
+              matTooltip="Note: Displays only core issues with case count greater than
+              {{ coreIssueMinThreshold }}. Use the expand option to view all
+              core issues."
+              >info_outline</mat-icon
+            >
+            &nbsp; &nbsp;
             <div class="filter-wrapper">
               <mat-icon
                 style="cursor: pointer; font-size: 24px"
@@ -269,8 +287,8 @@
 
       <p>
         Note: Use the Upload button to submit and validate the data for
-        accuracy. The data only includes cases whose category match or core
-        issue match is N or NULL.
+        accuracy. Default filter applied to display for category match or core
+        issue match is N or NULL
       </p>
     </div>
 

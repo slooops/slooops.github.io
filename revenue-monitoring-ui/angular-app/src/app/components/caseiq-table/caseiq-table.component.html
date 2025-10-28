@@ -13,6 +13,15 @@
         class="filters-dropdown"
         *ngIf="showFiltersDropdown"
         (click)="$event.stopPropagation()"
+        (keydown)="onDropdownKeydown($event)"
+        (keyup)="noop()"
+        (keypress)="noop()"
+        onkeydown="return true;"
+        onKeyDown="return true;"
+        onKeyUp="return true;"
+        onKeyPress="return true;"
+        tabindex="0"
+        aria-label="Active filters menu"
       >
         <div class="filter-sections">
           <div
@@ -20,24 +29,133 @@
             *ngFor="let filterOption of filterOptions"
           >
             <div class="filter-section-title">{{ filterOption.label }}</div>
-            <div class="filter-options">
-              <label
-                class="filter-option"
-                *ngFor="let value of filterOption.values"
-                [class.disabled]="isFilterDisabled(filterOption.id, value)"
+
+            <!-- Incident State custom multi-select dropdown inside popup -->
+            <ng-container
+              *ngIf="
+                filterOption.id === 'incidentState';
+                else regularFilterBlock
+              "
+            >
+              <div class="multi-select-wrapper in-popup">
+                <button
+                  type="button"
+                  class="multi-select-trigger"
+                  (click)="toggleIncidentStateInner($event)"
+                >
+                  Select
+                  <span class="chevron" [class.open]="showIncidentStateInner"
+                    >▾</span
+                  >
+                </button>
+                <div
+                  class="multi-select-dropdown inner"
+                  *ngIf="showIncidentStateInner"
+                  (click)="$event.stopPropagation()"
+                >
+                  <div class="multi-select-options">
+                    <div
+                      class="multi-option"
+                      *ngFor="let value of filterOption.values"
+                      [class.selected]="isFilterActive('incidentState', value)"
+                      (click)="
+                        toggleIncidentStateValue(value, filterOption.label)
+                      "
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="isFilterActive('incidentState', value)"
+                      />
+                      <span class="option-label">{{ value }}</span>
+                    </div>
+                  </div>
+                  <div class="multi-select-actions">
+                    <button
+                      type="button"
+                      class="clear-btn"
+                      (click)="clearFiltersFor('incidentState')"
+                      [disabled]="getSelectedCount('incidentState') === 0"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #regularFilterBlock>
+              <ng-container
+                *ngIf="filterOption.id === 'cancelPrediction'; else basicYN"
               >
-                <input
-                  type="checkbox"
-                  (change)="
-                    addFilter(filterOption.id, filterOption.label, value)
-                  "
-                  [checked]="isFilterActive(filterOption.id, value)"
-                  [disabled]="isFilterDisabled(filterOption.id, value)"
-                />
-                <span class="checkmark"></span>
-                {{ value }}
-              </label>
-            </div>
+                <div class="multi-select-wrapper in-popup">
+                  <button
+                    type="button"
+                    class="multi-select-trigger"
+                    (click)="toggleCancelPredictionInner($event)"
+                  >
+                    Select
+                    <span
+                      class="chevron"
+                      [class.open]="showCancelPredictionInner"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown inner"
+                    *ngIf="showCancelPredictionInner"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let value of filterOption.values"
+                        [class.selected]="
+                          isFilterActive('cancelPrediction', value)
+                        "
+                        (click)="
+                          toggleCancelPredictionValue(value, filterOption.label)
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="isFilterActive('cancelPrediction', value)"
+                        />
+                        <span class="option-label">{{ value }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearFiltersFor('cancelPrediction')"
+                        [disabled]="getSelectedCount('cancelPrediction') === 0"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-template #basicYN>
+                <div class="filter-options">
+                  <label
+                    class="filter-option"
+                    *ngFor="let value of filterOption.values"
+                    [class.disabled]="isFilterDisabled(filterOption.id, value)"
+                  >
+                    <input
+                      type="checkbox"
+                      (change)="
+                        addFilter(filterOption.id, filterOption.label, value)
+                      "
+                      [checked]="isFilterActive(filterOption.id, value)"
+                      [disabled]="isFilterDisabled(filterOption.id, value)"
+                    />
+                    <span class="checkmark"></span>
+                    {{ value }}
+                  </label>
+                </div>
+              </ng-template>
+            </ng-template>
           </div>
         </div>
       </div>
@@ -137,7 +255,10 @@
         <tr mat-row *matRowDef="let row; columns: filteredColumns"></tr>
       </table>
       <!-- Backend loading overlay -->
-      <div class="table-loading-overlay" *ngIf="backendLoading">
+      <div
+        class="table-loading-overlay"
+        *ngIf="backendLoading || showFetchingOverlay"
+      >
         <div class="spinner"></div>
         <div class="loading-text">Fetching data...</div>
       </div>

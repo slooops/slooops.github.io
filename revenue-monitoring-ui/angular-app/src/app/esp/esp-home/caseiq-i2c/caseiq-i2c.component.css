@@ -52,6 +52,7 @@
 /* Chart filter panel styles */
 .filter-wrapper {
   position: relative;
+  padding-top: 2px;
 }
 .chart-filter-panel {
   position: absolute;

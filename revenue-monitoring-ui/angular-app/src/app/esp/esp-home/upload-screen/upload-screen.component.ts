@@ -13,6 +13,7 @@ export class UploadScreenComponent {
   isDragOver = false;
   selectedFile: File | null = null;
   isUploadSuccess = false;
+  isUploading = false; // true while the file is being uploaded
 
   constructor(
     public http: ApiHttpService,
@@ -91,6 +92,9 @@ export class UploadScreenComponent {
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
 
+      // Set uploading state
+      this.isUploading = true;
+
       this.http
         .post('xxcaseiq-esp-case-analyzer-table-update', formData, {
           responseType: 'text',
@@ -100,8 +104,9 @@ export class UploadScreenComponent {
             console.log(response);
             // Mark success state
             this.isUploadSuccess = true;
+            this.isUploading = false;
             // Close dialog passing success payload back to opener
-            this.dialogRef.close({
+            this.safeCloseDialog({
               success: true,
               fileName: file.name,
               source: this.source,
@@ -112,7 +117,8 @@ export class UploadScreenComponent {
           (error) => {
             console.error('Error uploading file:', error);
             alert('Upload failed. Please try again.');
-            this.dialogRef.close({
+            this.isUploading = false;
+            this.safeCloseDialog({
               success: false,
               fileName: file.name,
               source: this.source,
@@ -195,6 +201,7 @@ export class UploadScreenComponent {
     this.selectedFile = null;
     this.isUploadSuccess = false;
     this.isDragOver = false;
+    this.isUploading = false;
   }
 
   formatFileSize(bytes: number): string {
@@ -206,6 +213,16 @@ export class UploadScreenComponent {
   }
 
   onClose() {
-    this.dialogRef.close();
+    this.safeCloseDialog();
+  }
+
+  private safeCloseDialog(payload?: any) {
+    try {
+      if (this.dialogRef && typeof this.dialogRef.close === 'function') {
+        this.dialogRef.close(payload);
+      }
+    } catch (e) {
+      console.warn('Dialog close failed or dialogRef missing', e);
+    }
   }
 }
