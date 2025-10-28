@@ -51,13 +51,14 @@ export class MetricTileComponent {
     }
 
     const value = this.numericPercentage;
-    if (value >= 80) {
-      return 'high';
-    } else if (value >= 50) {
-      return 'medium';
-    } else {
-      return 'low';
-    }
+    // if (value >= 80) {
+    //   return 'high';
+    // } else if (value >= 50) {
+    //   return 'medium';
+    // } else {
+    //   return 'low';
+    // }
+    return 'high';
   }
 
   getStatusClass(): string {

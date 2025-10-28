@@ -223,6 +223,19 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('dy', '.5em');
 
     // Bars
+    const tooltip = d3
+      .select(this.container)
+      .append('div')
+      .attr('class', 'bar-tooltip')
+      .style('position', 'absolute')
+      .style('pointer-events', 'none')
+      .style('background', '#222')
+      .style('color', '#fff')
+      .style('padding', '4px 8px')
+      .style('font-size', '11px')
+      .style('border-radius', '4px')
+      .style('opacity', 0);
+
     g.selectAll('.bar')
       .data(data)
       .enter()
@@ -236,10 +249,25 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
         'fill',
         (d, i) => d.color || this.defaultColors[i % this.defaultColors.length]
       )
-      // .style('cursor', 'pointer')
+      .on('mouseover', (event: MouseEvent, d) => {
+        tooltip
+          .style('opacity', 0.95)
+          .html(
+            `<strong>${this.toTitleCase(d.label)}</strong><br/>Count: ${
+              d.value
+            }`
+          );
+      })
+      .on('mousemove', (event: MouseEvent) => {
+        tooltip
+          .style('left', event.offsetX + 15 + 'px')
+          .style('top', event.offsetY - 25 + 'px');
+      })
+      .on('mouseout', () => {
+        tooltip.style('opacity', 0);
+      })
       .on('click', (event, d) => {
         console.log('Bar clicked:', d);
-        // Future: Add custom click handler
       });
 
     // Value labels
@@ -352,6 +380,20 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .attr('dy', '.5em');
 
     // Create stacked bars
+    // Tooltip for stacked bars
+    const tooltip = d3
+      .select(this.container)
+      .append('div')
+      .attr('class', 'bar-tooltip')
+      .style('position', 'absolute')
+      .style('pointer-events', 'none')
+      .style('background', '#222')
+      .style('color', '#fff')
+      .style('padding', '4px 8px')
+      .style('font-size', '11px')
+      .style('border-radius', '4px')
+      .style('opacity', 0);
+
     data.forEach((item) => {
       let yOffset = 0;
       const xPos = x(item.label) || 0;
@@ -364,7 +406,8 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
         const segmentHeight = yBottom - yTop;
 
         // Draw segment
-        g.append('rect')
+        const segmentRect = g
+          .append('rect')
           .attr('x', xPos)
           .attr('y', yTop)
           .attr('width', barWidth)
@@ -377,44 +420,47 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
               )?.color ||
               '#ccc'
           )
-          // .style('cursor', 'pointer')
           .on('click', () => {
             console.log('Segment clicked:', { label: item.label, segment });
-            // Future: Add custom click handler
           })
-          .append('title')
-          .text(`${segment.name}: ${segment.value}`);
+          .on('mouseover', (event: MouseEvent) => {
+            tooltip
+              .style('opacity', 0.95)
+              .html(
+                `<strong>${this.toTitleCase(
+                  item.label
+                )}</strong><br/>${this.toTitleCase(segment.name)}: ${
+                  segment.value
+                }`
+              );
+          })
+          .on('mousemove', (event: MouseEvent) => {
+            tooltip
+              .style('left', event.offsetX + 15 + 'px')
+              .style('top', event.offsetY - 25 + 'px');
+          })
+          .on('mouseout', () => tooltip.style('opacity', 0));
+        // Keep native title tooltip as fallback
+        segmentRect.append('title').text(`${segment.name}: ${segment.value}`);
 
-        // Add segment value if large enough
-        if (segmentHeight > 20) {
-          g.append('text')
-            .attr('x', xPos + barWidth / 2)
-            .attr('y', yTop + segmentHeight / 2 + 4)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', '10px')
-            .attr('fill', '#fff')
-            .attr('font-weight', 'bold')
-            .text(segment.value);
-        }
+        // (Removed per requirement: no segment counts inside the bar)
 
         yOffset += segment.value;
       });
 
-      // Add total value on top (only if there are multiple segments)
+      // Add total value on top (always show, regardless of segment count)
       const totalValue = item.segments.reduce((sum, seg) => sum + seg.value, 0);
-      const hasMultipleSegments =
-        item.segments.filter((seg) => seg.value > 0).length > 1;
+      const totalLabel = g
+        .append('text')
+        .attr('x', xPos + barWidth / 2)
+        .attr('y', y(totalValue) - 5)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '11px')
+        .attr('fill', '#333')
+        .attr('font-weight', 'bold')
+        .text(totalValue);
 
-      if (hasMultipleSegments) {
-        g.append('text')
-          .attr('x', xPos + barWidth / 2)
-          .attr('y', y(totalValue) - 5)
-          .attr('text-anchor', 'middle')
-          .attr('font-size', '11px')
-          .attr('fill', '#333')
-          .attr('font-weight', 'bold')
-          .text(totalValue);
-      }
+      // Removed full-bar overlay tooltip; segment-level hover now provides individual counts only.
     });
   }
 }

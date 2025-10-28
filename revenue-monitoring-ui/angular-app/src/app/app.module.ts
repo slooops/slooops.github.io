@@ -133,6 +133,7 @@ import { CaseiqSmComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component'
 import { UploadScreenComponent } from './esp/esp-home/upload-screen/upload-screen.component';
 import { BarChartjsComponent } from './components/bar-chartjs/bar-chartjs.component';
 import { CaseiqI2cExpandDialogComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
+import { MatSliderModule } from '@angular/material/slider';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -280,6 +281,7 @@ export function initApp(authService: AuthenticationService) {
     MatDialogModule,
     O2cAccordionComponent,
     O2cToolbarComponent,
+    MatSliderModule,
   ],
   providers: [
     DatePipe,

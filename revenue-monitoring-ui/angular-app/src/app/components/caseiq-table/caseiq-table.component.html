@@ -2,8 +2,7 @@
   <div class="search-and-filters">
     <div class="filters-container">
       <button class="filters-btn" (click)="toggleFiltersDropdown($event)">
-        <mat-icon style="height: 18px">filter_list</mat-icon> Filters (Coming
-        Soon)
+        <mat-icon style="height: 18px">filter_list</mat-icon> Filters
         <span class="filter-count" *ngIf="activeFilters.length > 0">{{
           activeFilters.length
         }}</span>
@@ -81,7 +80,7 @@
 
 <div style="margin-top: 1vh">
   <ng-container *ngIf="dataSource?.data?.length > 0">
-    <div style="overflow-x: auto">
+    <div class="table-scroll-wrapper" style="overflow-x: auto">
       <table mat-table [dataSource]="dataSource" style="width: 100%">
         <ng-container *ngFor="let column of filteredColumns">
           <ng-container [matColumnDef]="column">
@@ -137,6 +136,11 @@
         <tr mat-header-row *matHeaderRowDef="filteredColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: filteredColumns"></tr>
       </table>
+      <!-- Backend loading overlay -->
+      <div class="table-loading-overlay" *ngIf="backendLoading">
+        <div class="spinner"></div>
+        <div class="loading-text">Fetching data...</div>
+      </div>
     </div>
 
     <!-- Paginator -->
@@ -152,8 +156,22 @@
     </mat-paginator>
   </ng-container>
   <ng-container *ngIf="!dataSource?.data?.length">
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-    </div>
+    <ng-container *ngIf="backendLoading; else notLoadingEmpty"></ng-container>
+    <ng-template #notLoadingEmpty>
+      <ng-container *ngIf="activeFilters.length > 0; else baseEmpty">
+        <div class="empty-state-container">
+          <div class="empty-state-graphic"></div>
+          <div class="empty-state-text">No data found</div>
+          <div class="empty-state-subtext">
+            Try adjusting or clearing filters to see more results.
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #baseEmpty>
+        <div class="loading-container">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </ng-template>
+    </ng-template>
   </ng-container>
 </div>

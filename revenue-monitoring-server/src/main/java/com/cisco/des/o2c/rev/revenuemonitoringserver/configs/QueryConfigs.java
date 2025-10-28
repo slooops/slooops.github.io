@@ -1706,4 +1706,10 @@ public class QueryConfigs {
 
     @Bean( name = "xxcaseiqEspCaseAnalyzerTblUpdate" )
     public String getXxcaseiqEspCaseAnalyzerTblUpdate() {return this.xxcaseiqEspCaseAnalyzerTblUpdate; }
+
+    @Value(("${xxcaseiq.i2c.case.details.v.match.y.q}"))
+    public String xxcaseiqI2cCaseDetailsMatchY;
+
+    @Bean( name = "xxcaseiqI2cCaseDetailsMatchY" )
+    public String getXxcaseiqI2cCaseDetailsMatchY() {return this.xxcaseiqI2cCaseDetailsMatchY; }
 }

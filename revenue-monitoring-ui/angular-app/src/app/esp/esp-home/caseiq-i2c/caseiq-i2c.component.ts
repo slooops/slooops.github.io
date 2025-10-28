@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -32,6 +32,23 @@ export class CaseiqI2cComponent implements OnInit {
   i2cSimpleChartData: StackedBarChartDataPoint[] = [];
   completeI2cChartData: StackedBarChartDataPoint[] = [];
   completeI2cSimpleChartData: StackedBarChartDataPoint[] = [];
+  visibleCategoryTotal: number = 0; // Sum of counts for currently shown (filtered) categories
+  visibleCoreIssueTotal: number = 0; // Sum of counts for currently shown (filtered) core issues
+
+  // Chart filter state
+  showCategoryFilters: boolean = false; // controls category chart filter popover
+  showCoreIssueFilters: boolean = false; // controls core issue chart filter popover
+  categoryMinThreshold: number = 10; // default threshold for category chart
+  coreIssueMinThreshold: number = 10; // default threshold for core issue chart
+
+  // Multi-select dropdown filter state for charts
+  allCategoryLabels: string[] = [];
+  selectedCategoryLabels: Set<string> = new Set();
+  showCategorySelect: boolean = false;
+
+  allCoreIssueLabels: string[] = [];
+  selectedCoreIssueLabels: Set<string> = new Set();
+  showCoreIssueSelect: boolean = false;
 
   categoryAccuracy: number | string = '-';
   coreIssueAccuracy: number | string = '-';
@@ -40,6 +57,7 @@ export class CaseiqI2cComponent implements OnInit {
   i2cTableData = new MatTableDataSource<any>([]);
   i2cTableColumns: string[] = [];
   totalRecords: number = 0;
+  backendMatchLoading: boolean = false;
 
   ngOnInit(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
@@ -53,10 +71,20 @@ export class CaseiqI2cComponent implements OnInit {
       .get('xxcaseiq-category-graph-v-i2c', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVI2c: new query', data);
+        this.completeCategoryRaw = data; // cache original raw list for re-filtering
 
-        // Filter out data points with count <= 10
+        // Populate distinct category labels
+        this.allCategoryLabels = Array.from(
+          new Set<string>(
+            data.map((item: any) => (item.CATEGORY || '').toString().trim())
+          )
+        )
+          .map((v) => v)
+          .sort((a: string, b: string) => a.localeCompare(b));
+
+        // Apply dynamic filter (strictly greater than threshold like original >10 logic)
         const filteredData = data.filter(
-          (item: any) => item.CATEGORY_COUNT > 10
+          (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
         );
 
         this.i2cChartData = this.transformMatchStatusData(
@@ -64,6 +92,7 @@ export class CaseiqI2cComponent implements OnInit {
           'CATEGORY',
           'CATEGORY_COUNT'
         );
+        this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
 
         this.completeI2cChartData = this.transformMatchStatusData(
           data,
@@ -78,16 +107,28 @@ export class CaseiqI2cComponent implements OnInit {
       .get('xxcaseiq-core-issue-graph-v-i2c', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVI2c: new query', data);
+        this.completeCoreIssueRaw = data; // cache original raw list
 
-        // Filter out data points with count <= 10
+        // Populate distinct core issue labels
+        this.allCoreIssueLabels = Array.from(
+          new Set<string>(
+            data.map((item: any) => (item.CORE_ISSUE || '').toString().trim())
+          )
+        )
+          .map((v) => v)
+          .sort((a: string, b: string) => a.localeCompare(b));
+
         const filteredData = data.filter(
-          (item: any) => item.CORE_ISSUE_COUNT > 10
+          (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
         );
 
         this.i2cSimpleChartData = this.transformMatchStatusData(
           filteredData,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
+        );
+        this.visibleCoreIssueTotal = this.computeStackedTotal(
+          this.i2cSimpleChartData
         );
         this.completeI2cSimpleChartData = this.transformMatchStatusData(
           data,
@@ -103,6 +144,167 @@ export class CaseiqI2cComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqI2cCaseDetailsV: new query', data);
         this.updateTableData(data);
+      });
+  }
+
+  // Cached raw responses for dynamic threshold re-filtering
+  private completeCategoryRaw: any[] = [];
+  private completeCoreIssueRaw: any[] = [];
+
+  // Toggle filter panel visibility
+  toggleCategoryFilters() {
+    this.showCategoryFilters = !this.showCategoryFilters;
+    if (this.showCategoryFilters) {
+      this.showCoreIssueFilters = false; // only one open at a time
+    }
+  }
+
+  toggleCategorySelect() {
+    this.showCategorySelect = !this.showCategorySelect;
+  }
+
+  toggleCoreIssueFilters() {
+    this.showCoreIssueFilters = !this.showCoreIssueFilters;
+    if (this.showCoreIssueFilters) {
+      this.showCategoryFilters = false;
+    }
+  }
+
+  toggleCoreIssueSelect() {
+    this.showCoreIssueSelect = !this.showCoreIssueSelect;
+  }
+
+  // Adjust category threshold value
+  adjustCategoryThreshold(direction: 1 | -1) {
+    const newValue = this.categoryMinThreshold + direction * 5;
+    if (newValue < 10) return; // enforce minimum 10
+    this.categoryMinThreshold = newValue;
+    this.reapplyCategoryFilter();
+  }
+
+  // Adjust core issue threshold value
+  adjustCoreIssueThreshold(direction: 1 | -1) {
+    const newValue = this.coreIssueMinThreshold + direction * 5;
+    if (newValue < 10) return;
+    this.coreIssueMinThreshold = newValue;
+    this.reapplyCoreIssueFilter();
+  }
+
+  private reapplyCategoryFilter() {
+    if (this.completeCategoryRaw.length) {
+      // If user has selected specific labels, ignore threshold and show those labels (even if below min)
+      // Otherwise apply threshold filtering as default behavior
+      const effectiveData = this.selectedCategoryLabels.size
+        ? this.completeCategoryRaw.filter((item: any) =>
+            this.selectedCategoryLabels.has(item.CATEGORY)
+          )
+        : this.completeCategoryRaw.filter(
+            (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+          );
+
+      this.i2cChartData = this.transformMatchStatusData(
+        effectiveData,
+        'CATEGORY',
+        'CATEGORY_COUNT'
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+    }
+  }
+
+  private reapplyCoreIssueFilter() {
+    if (this.completeCoreIssueRaw.length) {
+      // Selected labels override threshold; show them regardless of count
+      const effectiveData = this.selectedCoreIssueLabels.size
+        ? this.completeCoreIssueRaw.filter((item: any) =>
+            this.selectedCoreIssueLabels.has(item.CORE_ISSUE)
+          )
+        : this.completeCoreIssueRaw.filter(
+            (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+          );
+
+      this.i2cSimpleChartData = this.transformMatchStatusData(
+        effectiveData,
+        'CORE_ISSUE',
+        'CORE_ISSUE_COUNT'
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        this.i2cSimpleChartData
+      );
+    }
+  }
+
+  // Selection handlers
+  toggleCategorySelection(label: string) {
+    if (this.selectedCategoryLabels.has(label)) {
+      this.selectedCategoryLabels.delete(label);
+    } else {
+      this.selectedCategoryLabels.add(label);
+    }
+    this.reapplyCategoryFilter();
+  }
+
+  clearCategorySelection(event?: Event) {
+    if (event) event.stopPropagation();
+    this.selectedCategoryLabels.clear();
+    this.reapplyCategoryFilter();
+  }
+
+  toggleCoreIssueSelection(label: string) {
+    if (this.selectedCoreIssueLabels.has(label)) {
+      this.selectedCoreIssueLabels.delete(label);
+    } else {
+      this.selectedCoreIssueLabels.add(label);
+    }
+    this.reapplyCoreIssueFilter();
+  }
+
+  clearCoreIssueSelection(event?: Event) {
+    if (event) event.stopPropagation();
+    this.selectedCoreIssueLabels.clear();
+    this.reapplyCoreIssueFilter();
+  }
+
+  // Close panels if clicking outside
+  @HostListener('document:click', ['$event']) onDocumentClick(event: Event) {
+    const target = event.target as HTMLElement;
+    // If click inside a filter panel or on filter icon/button, ignore
+    if (
+      target.closest('.chart-filter-panel') ||
+      target.closest('.filter-wrapper')
+    ) {
+      return;
+    }
+    if (this.showCategoryFilters || this.showCoreIssueFilters) {
+      this.showCategoryFilters = false;
+      this.showCoreIssueFilters = false;
+    }
+  }
+
+  // Fetch data where both CATEGORY_MATCH and CORE_ISSUE_MATCH are Y
+  fetchBothYMatchData() {
+    this.backendMatchLoading = true;
+    this.http
+      .get('xxcaseiq-i2c-case-details-match-y', this.destroyManager)
+      .subscribe({
+        next: (data: any) => {
+          console.log('bothY match data fetched', data);
+          // Do not reset columns; assume same shape
+          if (Array.isArray(data)) {
+            if (this.i2cTable) {
+              this.i2cTable.setExternalData(data, false);
+            } else {
+              this.i2cTableData.data = data;
+              this.totalRecords = data.length;
+            }
+          } else {
+            console.warn('Unexpected bothY response format', data);
+          }
+          this.backendMatchLoading = false;
+        },
+        error: (err) => {
+          console.error('Failed to fetch both Y match data', err);
+          this.backendMatchLoading = false;
+        },
       });
   }
 
@@ -219,6 +421,21 @@ export class CaseiqI2cComponent implements OnInit {
     return chartData;
   }
 
+  // Computes total of all segment values across all bars
+  private computeStackedTotal(data: StackedBarChartDataPoint[]): number {
+    if (!Array.isArray(data)) return 0;
+    return data.reduce((sum, dp) => {
+      if (!dp?.segments) return sum;
+      return (
+        sum +
+        dp.segments.reduce(
+          (s: number, seg: any) => s + (Number(seg.value) || 0),
+          0
+        )
+      );
+    }, 0);
+  }
+
   /**
    * Returns color based on match status
    */
@@ -248,6 +465,10 @@ export class CaseiqI2cComponent implements OnInit {
         coreIssueAccuracy: this.coreIssueAccuracy,
         categoryData: this.completeI2cChartData,
         coreIssueData: this.completeI2cSimpleChartData,
+        categoryTotal: this.computeStackedTotal(this.completeI2cChartData),
+        coreIssueTotal: this.computeStackedTotal(
+          this.completeI2cSimpleChartData
+        ),
       },
       panelClass: 'caseiq-expand-dialog',
     });
@@ -285,10 +506,99 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     <mat-dialog-content class="expand-dialog-content" tabindex="0">
       <div class="expand-charts-wrapper">
         <div class="expand-chart-block" *ngIf="data.type === 'CATEGORY'">
-          <h3 class="subheading">Category – {{ data.categoryAccuracy }}%</h3>
+          <div class="expand-chart-header">
+            <h3 class="subheading">
+              Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
+              {{ data.categoryTotal }} )
+            </h3>
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCategoryFiltersInDialog()"
+                (keydown.enter)="toggleCategoryFiltersInDialog()"
+                (keydown.space)="toggleCategoryFiltersInDialog()"
+                tabindex="0"
+                title="Category Chart Filters"
+                aria-label="Category Chart Filters"
+                >filter_list</mat-icon
+              >
+              <div
+                class="chart-filter-panel"
+                *ngIf="showCategoryFiltersInDialog"
+                aria-label="Expanded category chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCategorySelectInDialog()"
+                    type="button"
+                  >
+                    Filter
+                    <span
+                      class="chevron"
+                      [class.open]="showCategorySelectInDialog"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown"
+                    *ngIf="showCategorySelectInDialog"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let label of dialogCategoryLabels"
+                        [class.selected]="
+                          selectedCategoryLabelsInDialog.has(label)
+                        "
+                        (click)="toggleCategorySelectionInDialog(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCategoryLabelsInDialog.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCategorySelectionInDialog($event)"
+                        [disabled]="selectedCategoryLabelsInDialog.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCategorySelectInDialog()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCategoryLabelsInDialog.size === 0"
+                >
+                  Showing all categories.
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCategoryLabelsInDialog.size > 0"
+                >
+                  Showing {{ selectedCategoryLabelsInDialog.size }} selected
+                  category(ies).
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="chart-frame">
             <app-bar-chart
-              [data]="data.categoryData"
+              [data]="filteredCategoryData"
               [stacked]="true"
               [isLoading]="false"
               [chartHeight]="510"
@@ -297,10 +607,99 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
           </div>
         </div>
         <div class="expand-chart-block" *ngIf="data.type === 'CORE_ISSUE'">
-          <h3 class="subheading">Core Issue – {{ data.coreIssueAccuracy }}%</h3>
+          <div class="expand-chart-header">
+            <h3 class="subheading">
+              Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
+              {{ data.coreIssueTotal }} )
+            </h3>
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCoreIssueFiltersInDialog()"
+                (keydown.enter)="toggleCoreIssueFiltersInDialog()"
+                (keydown.space)="toggleCoreIssueFiltersInDialog()"
+                tabindex="0"
+                title="Core Issue Chart Filters"
+                aria-label="Core Issue Chart Filters"
+                >filter_list</mat-icon
+              >
+              <div
+                class="chart-filter-panel"
+                *ngIf="showCoreIssueFiltersInDialog"
+                aria-label="Expanded core issue chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCoreIssueSelectInDialog()"
+                    type="button"
+                  >
+                    Filter
+                    <span
+                      class="chevron"
+                      [class.open]="showCoreIssueSelectInDialog"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown"
+                    *ngIf="showCoreIssueSelectInDialog"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let label of dialogCoreIssueLabels"
+                        [class.selected]="
+                          selectedCoreIssueLabelsInDialog.has(label)
+                        "
+                        (click)="toggleCoreIssueSelectionInDialog(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCoreIssueSelectionInDialog($event)"
+                        [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCoreIssueSelectInDialog()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCoreIssueLabelsInDialog.size === 0"
+                >
+                  Showing all core issues.
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCoreIssueLabelsInDialog.size > 0"
+                >
+                  Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
+                  core issue(s).
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="chart-frame">
             <app-bar-chart
-              [data]="data.coreIssueData"
+              [data]="filteredCoreIssueData"
               [stacked]="true"
               [isLoading]="false"
               [chartHeight]="510"
@@ -351,6 +750,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         font-weight: 500;
         margin: 12px 0 8px;
       }
+      .expand-chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
       .chart-frame {
         border: 1px solid #d0d7de;
         border-radius: 6px;
@@ -360,6 +765,124 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       }
       .chart-frame:hover {
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      }
+      /* Dialog filter styles replicate main chart filters */
+      .filter-wrapper {
+        position: relative;
+        margin-top: 10px;
+      }
+      .chart-filter-panel {
+        position: absolute;
+        top: 32px;
+        right: 0;
+        background: #fff;
+        border: 1px solid #d0d7de;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        padding: 12px 14px 14px;
+        width: 220px;
+        z-index: 60;
+        font-size: 12px;
+      }
+      .multi-select-wrapper {
+        position: relative;
+        margin-bottom: 10px;
+      }
+      .multi-select-trigger {
+        width: 100%;
+        text-align: left;
+        background: #fff;
+        border: 1px solid #d0d7de;
+        padding: 6px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 4px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .multi-select-trigger:hover {
+        border-color: #08ace4;
+      }
+      .multi-select-trigger:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(8, 172, 228, 0.3);
+      }
+      .chevron {
+        transition: transform 0.2s ease;
+        font-size: 10px;
+      }
+      .chevron.open {
+        transform: rotate(180deg);
+      }
+      .multi-select-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 100%;
+        max-height: 200px;
+        background: #fff;
+        border: 1px solid #d0d7de;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 4px;
+        z-index: 70;
+        display: flex;
+        flex-direction: column;
+      }
+      .multi-select-options {
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .multi-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .multi-option:hover {
+        background: #f3f4f6;
+      }
+      .multi-option.selected {
+        font-weight: 600;
+        background: #eef7ff;
+      }
+      .multi-option input {
+        pointer-events: none;
+      }
+      .multi-select-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 8px;
+        border-top: 1px solid #e5e7eb;
+        gap: 8px;
+      }
+      .multi-select-actions .clear-btn,
+      .multi-select-actions .close-btn {
+        flex: 1;
+        border: none;
+        background: #08ace4;
+        color: #fff;
+        font-size: 11px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .multi-select-actions .clear-btn[disabled] {
+        background: #c8e9f5;
+        cursor: not-allowed;
+      }
+      .multi-select-actions .clear-btn:hover:not([disabled]),
+      .multi-select-actions .close-btn:hover {
+        background: #0692c2;
+      }
+      .filter-hint {
+        margin-top: 8px;
+        font-size: 11px;
+        color: #555;
       }
     `,
   ],
@@ -372,5 +895,98 @@ export class CaseiqI2cExpandDialogComponent {
 
   onClose() {
     this.dialogRef.close();
+  }
+
+  // Dialog-specific multi-select state
+  showCategorySelectInDialog: boolean = false;
+  showCoreIssueSelectInDialog: boolean = false;
+  dialogCategoryLabels: string[] = [];
+  dialogCoreIssueLabels: string[] = [];
+  selectedCategoryLabelsInDialog: Set<string> = new Set();
+  selectedCoreIssueLabelsInDialog: Set<string> = new Set();
+  filteredCategoryData: StackedBarChartDataPoint[] = [];
+  filteredCoreIssueData: StackedBarChartDataPoint[] = [];
+  showCategoryFiltersInDialog: boolean = false;
+  showCoreIssueFiltersInDialog: boolean = false;
+  toggleCategoryFiltersInDialog() {
+    this.showCategoryFiltersInDialog = !this.showCategoryFiltersInDialog;
+    if (this.showCategoryFiltersInDialog) {
+      this.showCoreIssueFiltersInDialog = false;
+    }
+  }
+  toggleCoreIssueFiltersInDialog() {
+    this.showCoreIssueFiltersInDialog = !this.showCoreIssueFiltersInDialog;
+    if (this.showCoreIssueFiltersInDialog) {
+      this.showCategoryFiltersInDialog = false;
+    }
+  }
+
+  ngOnInit() {
+    // Initialize labels from passed data
+    if (Array.isArray(this.data?.categoryData)) {
+      this.dialogCategoryLabels = this.data.categoryData
+        .map((d: any) => d.label)
+        .sort((a: string, b: string) => a.localeCompare(b));
+      this.filteredCategoryData = this.data.categoryData;
+    }
+    if (Array.isArray(this.data?.coreIssueData)) {
+      this.dialogCoreIssueLabels = this.data.coreIssueData
+        .map((d: any) => d.label)
+        .sort((a: string, b: string) => a.localeCompare(b));
+      this.filteredCoreIssueData = this.data.coreIssueData;
+    }
+  }
+
+  // Toggle dropdown visibility
+  toggleCategorySelectInDialog() {
+    this.showCategorySelectInDialog = !this.showCategorySelectInDialog;
+  }
+  toggleCoreIssueSelectInDialog() {
+    this.showCoreIssueSelectInDialog = !this.showCoreIssueSelectInDialog;
+  }
+
+  // Selection handlers
+  toggleCategorySelectionInDialog(label: string) {
+    if (this.selectedCategoryLabelsInDialog.has(label)) {
+      this.selectedCategoryLabelsInDialog.delete(label);
+    } else {
+      this.selectedCategoryLabelsInDialog.add(label);
+    }
+    this.applyDialogCategoryFilter();
+  }
+  clearCategorySelectionInDialog(event?: Event) {
+    if (event) event.stopPropagation();
+    this.selectedCategoryLabelsInDialog.clear();
+    this.applyDialogCategoryFilter();
+  }
+  toggleCoreIssueSelectionInDialog(label: string) {
+    if (this.selectedCoreIssueLabelsInDialog.has(label)) {
+      this.selectedCoreIssueLabelsInDialog.delete(label);
+    } else {
+      this.selectedCoreIssueLabelsInDialog.add(label);
+    }
+    this.applyDialogCoreIssueFilter();
+  }
+  clearCoreIssueSelectionInDialog(event?: Event) {
+    if (event) event.stopPropagation();
+    this.selectedCoreIssueLabelsInDialog.clear();
+    this.applyDialogCoreIssueFilter();
+  }
+
+  private applyDialogCategoryFilter() {
+    if (!Array.isArray(this.data?.categoryData)) return;
+    this.filteredCategoryData = this.selectedCategoryLabelsInDialog.size
+      ? this.data.categoryData.filter((d: any) =>
+          this.selectedCategoryLabelsInDialog.has(d.label)
+        )
+      : this.data.categoryData;
+  }
+  private applyDialogCoreIssueFilter() {
+    if (!Array.isArray(this.data?.coreIssueData)) return;
+    this.filteredCoreIssueData = this.selectedCoreIssueLabelsInDialog.size
+      ? this.data.coreIssueData.filter((d: any) =>
+          this.selectedCoreIssueLabelsInDialog.has(d.label)
+        )
+      : this.data.coreIssueData;
   }
 }

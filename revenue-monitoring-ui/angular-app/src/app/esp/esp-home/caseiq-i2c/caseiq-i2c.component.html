@@ -3,17 +3,109 @@
     <div class="charts-row">
       <div class="chart-section">
         <div class="chart-header-row">
-          <h4>Category - {{ categoryAccuracy }}%</h4>
+          <div class="chart-title-block">
+            <h4>Category Accuracy - {{ categoryAccuracy }}%</h4>
+            <div class="chart-subtotal">Total: {{ visibleCategoryTotal }}</div>
+          </div>
           <div class="chart-note">
             <span class="note-line"
-              >Note: Shows only categories with count > 10. Use expand to view
-              all categories.</span
+              >Note: Displays only categories with case count greater than
+              {{ categoryMinThreshold }}. Use the expand option to view all
+              categories.</span
             >
           </div>
           <div class="flex-row header-metrics">
-            <mat-icon style="cursor: pointer; font-size: 24px"
-              >filter_list</mat-icon
-            >
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCategoryFilters()"
+                (keydown.enter)="toggleCategoryFilters()"
+                (keydown.space)="toggleCategoryFilters()"
+                tabindex="0"
+                title="Category Chart Filters"
+                aria-label="Category Chart Filters"
+                >filter_list</mat-icon
+              >
+              <div
+                class="chart-filter-panel"
+                *ngIf="showCategoryFilters"
+                aria-label="Category chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCategorySelect()"
+                    type="button"
+                  >
+                    Filter
+                    <span class="chevron" [class.open]="showCategorySelect"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown"
+                    *ngIf="showCategorySelect"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let label of allCategoryLabels"
+                        [class.selected]="selectedCategoryLabels.has(label)"
+                        (click)="toggleCategorySelection(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCategoryLabels.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCategorySelection($event)"
+                        [disabled]="selectedCategoryLabels.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCategorySelect()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="cf-threshold">
+                  <span class="threshold-label"
+                    >Min Count &gt; {{ categoryMinThreshold }}</span
+                  >
+                  <div class="threshold-buttons">
+                    <button
+                      class="threshold-btn"
+                      (click)="adjustCategoryThreshold(-1)"
+                      aria-label="Decrease category threshold"
+                    >
+                      -5
+                    </button>
+                    <button
+                      class="threshold-btn"
+                      (click)="adjustCategoryThreshold(1)"
+                      aria-label="Increase category threshold"
+                    >
+                      +5
+                    </button>
+                  </div>
+                </div>
+                <div class="filter-hint">
+                  Showing categories with count &gt; {{ categoryMinThreshold }}.
+                </div>
+              </div>
+            </div>
             &nbsp;&nbsp;
             <mat-icon
               (click)="onExpandChart('CATEGORY')"
@@ -41,17 +133,110 @@
       </div>
       <div class="chart-section">
         <div class="chart-header-row">
-          <h4>Core Issue - {{ coreIssueAccuracy }}%</h4>
+          <div class="chart-title-block">
+            <h4>Core Issue Accuracy - {{ coreIssueAccuracy }}%</h4>
+            <div class="chart-subtotal">Total: {{ visibleCoreIssueTotal }}</div>
+          </div>
           <div class="chart-note">
             <span class="note-line"
-              >Note: Shows only core issues with count > 10. Use expand to view
-              all core issues.</span
+              >Note: Displays only core issues with case count greater than
+              {{ coreIssueMinThreshold }}. Use the expand option to view all
+              core issues.</span
             >
           </div>
           <div class="flex-row header-metrics">
-            <mat-icon style="cursor: pointer; font-size: 24px"
-              >filter_list</mat-icon
-            >
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCoreIssueFilters()"
+                (keydown.enter)="toggleCoreIssueFilters()"
+                (keydown.space)="toggleCoreIssueFilters()"
+                tabindex="0"
+                title="Core Issue Chart Filters"
+                aria-label="Core Issue Chart Filters"
+                >filter_list</mat-icon
+              >
+              <div
+                class="chart-filter-panel"
+                *ngIf="showCoreIssueFilters"
+                aria-label="Core issue chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCoreIssueSelect()"
+                    type="button"
+                  >
+                    Filter
+                    <span class="chevron" [class.open]="showCoreIssueSelect"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown"
+                    *ngIf="showCoreIssueSelect"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let label of allCoreIssueLabels"
+                        [class.selected]="selectedCoreIssueLabels.has(label)"
+                        (click)="toggleCoreIssueSelection(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCoreIssueLabels.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCoreIssueSelection($event)"
+                        [disabled]="selectedCoreIssueLabels.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCoreIssueSelect()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="cf-threshold">
+                  <span class="threshold-label"
+                    >Min Count &gt; {{ coreIssueMinThreshold }}</span
+                  >
+                  <div class="threshold-buttons">
+                    <button
+                      class="threshold-btn"
+                      (click)="adjustCoreIssueThreshold(-1)"
+                      aria-label="Decrease core issue threshold"
+                    >
+                      -5
+                    </button>
+                    <button
+                      class="threshold-btn"
+                      (click)="adjustCoreIssueThreshold(1)"
+                      aria-label="Increase core issue threshold"
+                    >
+                      +5
+                    </button>
+                  </div>
+                </div>
+                <div class="filter-hint">
+                  Showing core issues with count &gt;
+                  {{ coreIssueMinThreshold }}.
+                </div>
+              </div>
+            </div>
             &nbsp;&nbsp;
             <mat-icon
               (click)="onExpandChart('CORE_ISSUE')"
@@ -83,10 +268,9 @@
       <h4>I2C Classification Summary</h4>
 
       <p>
-        Note: Changes made in the table below are not saved automatically.
-        Please download your edits and use the Upload button to persist changes.
-        The data only includes cases whose category match or core issue match is
-        N or NULL.
+        Note: Use the Upload button to submit and validate the data for
+        accuracy. The data only includes cases whose category match or core
+        issue match is N or NULL.
       </p>
     </div>
 
@@ -101,6 +285,8 @@
       [totalRecords]="totalRecords"
       [source]="'i2c'"
       (uploadResult)="handleUploadResult($event)"
+      [backendLoading]="backendMatchLoading"
+      (bothYRequested)="fetchBothYMatchData()"
     >
     </app-caseiq-table>
   </mat-tab>

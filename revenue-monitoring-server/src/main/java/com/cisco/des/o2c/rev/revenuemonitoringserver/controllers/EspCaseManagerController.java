@@ -124,6 +124,11 @@ public class EspCaseManagerController {
         return new ResponseEntity<>(service.getXxcaseiqI2cCaseDetailsV(), HttpStatus.OK);
     }
 
+    @GetMapping("/xxcaseiq-i2c-case-details-match-y")
+    public ResponseEntity<List<Map<String, Object>>> getXxcaseiqI2cCaseDetailsMatchY() {
+        return new ResponseEntity<>(service.getXxcaseiqI2cCaseDetailsMatchY(), HttpStatus.OK);
+    }
+
     @GetMapping("/xxcaseiq-ait-case-details-v")
     public ResponseEntity<List<Map<String, Object>>> getXxcaseiqAitCaseDetailsV() {
         return new ResponseEntity<>(service.getXxcaseiqAitCaseDetailsV(), HttpStatus.OK);

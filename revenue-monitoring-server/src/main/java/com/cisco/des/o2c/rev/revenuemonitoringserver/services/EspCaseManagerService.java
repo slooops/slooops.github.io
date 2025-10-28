@@ -44,6 +44,7 @@ public class EspCaseManagerService {
     private String xxcaseiqP2pCaseDetailsV;
     private String xxcaseiqCapitalCaseDetailsV;
     private String xxcaseiqEspCaseAnalyzerTblUpdate;
+    private String xxcaseiqI2cCaseDetailsMatchY;
 
     public EspCaseManagerService(JdbcManager jdbcManager, String espAgingCaseSummary,
             String espCaseServiceMetricSummary,
@@ -74,7 +75,7 @@ public class EspCaseManagerService {
             String xxcaseiqSmCaseDetailsV,
             String xxcaseiqP2pCaseDetailsV,
             String xxcaseiqCapitalCaseDetailsV,
-                                 String xxcaseiqEspCaseAnalyzerTblUpdate) {
+                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -108,6 +109,7 @@ public class EspCaseManagerService {
         this.xxcaseiqP2pCaseDetailsV = xxcaseiqP2pCaseDetailsV;
         this.xxcaseiqCapitalCaseDetailsV = xxcaseiqCapitalCaseDetailsV;
         this.xxcaseiqEspCaseAnalyzerTblUpdate = xxcaseiqEspCaseAnalyzerTblUpdate;
+        this.xxcaseiqI2cCaseDetailsMatchY = xxcaseiqI2cCaseDetailsMatchY;
     }
 
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
@@ -243,6 +245,10 @@ public class EspCaseManagerService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<Map<String, Object>> getXxcaseiqI2cCaseDetailsMatchY() {
+        return jdbcManager.queryForList(xxcaseiqI2cCaseDetailsMatchY);
     }
 
 }
