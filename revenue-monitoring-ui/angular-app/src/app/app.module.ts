@@ -135,6 +135,10 @@ import { BarChartjsComponent } from './components/bar-chartjs/bar-chartjs.compon
 import { CaseiqI2cExpandDialogComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
 import { CaseiqOmExpandDialogComponent } from './esp/esp-home/caseiq-om/caseiq-om.component';
 import { CaseiqCapExpandDialogComponent } from './esp/esp-home/caseiq-cap/caseiq-cap.component';
+import { CaseiqAitExpandDialogComponent } from './esp/esp-home/caseiq-ait/caseiq-ait.component';
+import { CaseiqFppExpandDialogComponent } from './esp/esp-home/caseiq-fpp/caseiq-fpp.component';
+import { CaseiqP2pExpandDialogComponent } from './esp/esp-home/caseiq-p2p/caseiq-p2p.component';
+import { CaseiqSmExpandDialogComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -241,6 +245,14 @@ export function initApp(authService: AuthenticationService) {
     CaseiqOmExpandDialogComponent,
     // Dialog for expanded CaseIQ Capital charts
     CaseiqCapExpandDialogComponent,
+    // Dialog for expanded CaseIQ AIT charts
+    CaseiqAitExpandDialogComponent,
+    // Dialog for expanded CaseIQ FPP charts
+    CaseiqFppExpandDialogComponent,
+    // Dialog for expanded CaseIQ P2P charts
+    CaseiqP2pExpandDialogComponent,
+    // Dialog for expanded CaseIQ SM charts
+    CaseiqSmExpandDialogComponent,
   ],
   imports: [
     BrowserModule,
