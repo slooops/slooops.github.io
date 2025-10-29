@@ -110,8 +110,9 @@ export class CaseiqSmComponent implements OnInit {
 
       // Set total records for pagination
       this.totalRecords = apiData.length;
-      this.i2cTableColumns = Object.keys(apiData[0]);
-
+      this.i2cTableColumns = Object.keys(apiData[0]).filter(
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+      );
       // Manually trigger paginator setup after data is loaded
       setTimeout(() => {
         if (this.smTable) {

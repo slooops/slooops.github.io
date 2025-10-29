@@ -72,19 +72,28 @@ export class CaseiqI2cComponent implements OnInit {
       .get('xxcaseiq-category-graph-v-i2c', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVI2c: new query', data);
-        this.completeCategoryRaw = data; // cache original raw list for re-filtering
+
+        // Merge objects with same CATEGORY into single objects
+        const mergedData = this.mergeByCategoryOrIssue(
+          data,
+          'CATEGORY',
+          'CATEGORY_COUNT'
+        );
+        this.completeCategoryRaw = mergedData; // cache merged data for re-filtering
 
         // Populate distinct category labels
         this.allCategoryLabels = Array.from(
           new Set<string>(
-            data.map((item: any) => (item.CATEGORY || '').toString().trim())
+            mergedData.map((item: any) =>
+              (item.CATEGORY || '').toString().trim()
+            )
           )
         )
           .map((v) => v)
           .sort((a: string, b: string) => a.localeCompare(b));
 
         // Apply dynamic filter (strictly greater than threshold like original >10 logic)
-        const filteredData = data.filter(
+        const filteredData = mergedData.filter(
           (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
         );
 
@@ -96,7 +105,7 @@ export class CaseiqI2cComponent implements OnInit {
         this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
 
         this.completeI2cChartData = this.transformMatchStatusData(
-          data,
+          mergedData,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -108,18 +117,27 @@ export class CaseiqI2cComponent implements OnInit {
       .get('xxcaseiq-core-issue-graph-v-i2c', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVI2c: new query', data);
-        this.completeCoreIssueRaw = data; // cache original raw list
+
+        // Merge objects with same CORE_ISSUE into single objects
+        const mergedData = this.mergeByCategoryOrIssue(
+          data,
+          'CORE_ISSUE',
+          'CORE_ISSUE_COUNT'
+        );
+        this.completeCoreIssueRaw = mergedData; // cache merged data
 
         // Populate distinct core issue labels
         this.allCoreIssueLabels = Array.from(
           new Set<string>(
-            data.map((item: any) => (item.CORE_ISSUE || '').toString().trim())
+            mergedData.map((item: any) =>
+              (item.CORE_ISSUE || '').toString().trim()
+            )
           )
         )
           .map((v) => v)
           .sort((a: string, b: string) => a.localeCompare(b));
 
-        const filteredData = data.filter(
+        const filteredData = mergedData.filter(
           (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
         );
 
@@ -132,7 +150,7 @@ export class CaseiqI2cComponent implements OnInit {
           this.i2cSimpleChartData
         );
         this.completeI2cSimpleChartData = this.transformMatchStatusData(
-          data,
+          mergedData,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -151,6 +169,50 @@ export class CaseiqI2cComponent implements OnInit {
   // Cached raw responses for dynamic threshold re-filtering
   private completeCategoryRaw: any[] = [];
   private completeCoreIssueRaw: any[] = [];
+
+  /**
+   * Restructures data by grouping match statuses under each category/core issue
+   * Returns format: { CATEGORY: "INVOICING", data: [{MATCH_STATUS: "MATCHED", COUNT: 250}, ...] }
+   */
+  private mergeByCategoryOrIssue(
+    data: any[],
+    groupKey: string,
+    countKey: string
+  ): any[] {
+    if (!Array.isArray(data) || data.length === 0) {
+      return [];
+    }
+
+    const grouped = new Map<string, any>();
+
+    data.forEach((item) => {
+      const key = item[groupKey];
+      if (!grouped.has(key)) {
+        // First occurrence: create new grouped object with data array
+        grouped.set(key, {
+          [groupKey]: key,
+          TEAM_NAME: item.TEAM_NAME,
+          data: [
+            {
+              MATCH_STATUS: item.MATCH_STATUS,
+              COUNT: item[countKey],
+            },
+          ],
+          [countKey]: item[countKey], // Keep total count for filtering
+        });
+      } else {
+        // Subsequent occurrence: add to data array and sum total count
+        const existing = grouped.get(key);
+        existing.data.push({
+          MATCH_STATUS: item.MATCH_STATUS,
+          COUNT: item[countKey],
+        });
+        existing[countKey] += item[countKey];
+      }
+    });
+
+    return Array.from(grouped.values());
+  }
 
   // Toggle filter panel visibility
   toggleCategoryFilters() {
@@ -378,14 +440,21 @@ export class CaseiqI2cComponent implements OnInit {
         .subscribe({
           next: (data: any) => {
             console.log('Refreshed category chart data');
-            this.completeCategoryRaw = data;
+            const mergedData = this.mergeByCategoryOrIssue(
+              data,
+              'CATEGORY',
+              'CATEGORY_COUNT'
+            );
+            this.completeCategoryRaw = mergedData;
             this.allCategoryLabels = Array.from(
               new Set<string>(
-                data.map((item: any) => (item.CATEGORY || '').toString().trim())
+                mergedData.map((item: any) =>
+                  (item.CATEGORY || '').toString().trim()
+                )
               )
             ).sort((a: string, b: string) => a.localeCompare(b));
 
-            const filteredData = data.filter(
+            const filteredData = mergedData.filter(
               (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
             );
             this.i2cChartData = this.transformMatchStatusData(
@@ -397,7 +466,7 @@ export class CaseiqI2cComponent implements OnInit {
               this.i2cChartData
             );
             this.completeI2cChartData = this.transformMatchStatusData(
-              data,
+              mergedData,
               'CATEGORY',
               'CATEGORY_COUNT'
             );
@@ -416,16 +485,21 @@ export class CaseiqI2cComponent implements OnInit {
         .subscribe({
           next: (data: any) => {
             console.log('Refreshed core issue chart data');
-            this.completeCoreIssueRaw = data;
+            const mergedData = this.mergeByCategoryOrIssue(
+              data,
+              'CORE_ISSUE',
+              'CORE_ISSUE_COUNT'
+            );
+            this.completeCoreIssueRaw = mergedData;
             this.allCoreIssueLabels = Array.from(
               new Set<string>(
-                data.map((item: any) =>
+                mergedData.map((item: any) =>
                   (item.CORE_ISSUE || '').toString().trim()
                 )
               )
             ).sort((a: string, b: string) => a.localeCompare(b));
 
-            const filteredData = data.filter(
+            const filteredData = mergedData.filter(
               (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
             );
             this.i2cSimpleChartData = this.transformMatchStatusData(
@@ -437,7 +511,7 @@ export class CaseiqI2cComponent implements OnInit {
               this.i2cSimpleChartData
             );
             this.completeI2cSimpleChartData = this.transformMatchStatusData(
-              data,
+              mergedData,
               'CORE_ISSUE',
               'CORE_ISSUE_COUNT'
             );
@@ -532,7 +606,7 @@ export class CaseiqI2cComponent implements OnInit {
 
   /**
    * Generic method to transform match status API data into stacked bar chart format
-   * Groups by specified groupColumn and creates segments for each MATCH_STATUS
+   * Works with merged data structure where match statuses are in nested 'data' array
    */
   private transformMatchStatusData(
     apiData: any[],
@@ -544,26 +618,26 @@ export class CaseiqI2cComponent implements OnInit {
       return [];
     }
 
-    // Group data by the specified column
-    const groups = apiData.reduce((acc, item) => {
-      const groupKey = item[groupColumn];
-      if (!acc[groupKey]) {
-        acc[groupKey] = [];
-      }
-      acc[groupKey].push(item);
-      return acc;
-    }, {} as Record<string, any[]>);
-
     // Transform to stacked bar chart format
-    const chartData = Object.keys(groups).map((groupKey) => {
-      const segments = groups[groupKey].map((item) => ({
-        name: item.MATCH_STATUS,
-        value: item[countColumn],
-        color: this.getMatchStatusColor(item.MATCH_STATUS),
-      }));
+    const chartData = apiData.map((item) => {
+      // Check if data is in the new merged format (with nested 'data' array)
+      const segments = item.data
+        ? item.data.map((statusItem: any) => ({
+            name: statusItem.MATCH_STATUS,
+            value: statusItem.COUNT,
+            color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
+          }))
+        : [
+            // Fallback for old format (direct MATCH_STATUS on item)
+            {
+              name: item.MATCH_STATUS,
+              value: item[countColumn],
+              color: this.getMatchStatusColor(item.MATCH_STATUS),
+            },
+          ];
 
       return {
-        label: groupKey,
+        label: item[groupColumn],
         segments: segments,
       };
     });

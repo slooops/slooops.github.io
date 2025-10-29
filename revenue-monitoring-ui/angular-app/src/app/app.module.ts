@@ -133,6 +133,8 @@ import { CaseiqSmComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component'
 import { UploadScreenComponent } from './esp/esp-home/upload-screen/upload-screen.component';
 import { BarChartjsComponent } from './components/bar-chartjs/bar-chartjs.component';
 import { CaseiqI2cExpandDialogComponent } from './esp/esp-home/caseiq-i2c/caseiq-i2c.component';
+import { CaseiqOmExpandDialogComponent } from './esp/esp-home/caseiq-om/caseiq-om.component';
+import { CaseiqCapExpandDialogComponent } from './esp/esp-home/caseiq-cap/caseiq-cap.component';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
@@ -235,6 +237,10 @@ export function initApp(authService: AuthenticationService) {
     BarChartjsComponent,
     // Dialog for expanded CaseIQ I2C charts
     CaseiqI2cExpandDialogComponent,
+    // Dialog for expanded CaseIQ OM charts
+    CaseiqOmExpandDialogComponent,
+    // Dialog for expanded CaseIQ Capital charts
+    CaseiqCapExpandDialogComponent,
   ],
   imports: [
     BrowserModule,

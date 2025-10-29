@@ -215,7 +215,7 @@
   "VW_I2C_CASE_DETAILS": "SELECT * FROM arfinro.XXCASEIQ_I2C_CASE_DETAILS_V",
 
   "XXCASEIQ_CATEGORY_GRAPH_V_AIT": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'AIT'",
-  "XXCASEIQ_CATEGORY_GRAPH_V_Capital": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'Capital'",
+  "XXCASEIQ_CATEGORY_GRAPH_V_Capital": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'CAPITAL'",
   "XXCASEIQ_CATEGORY_GRAPH_V_FPP": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'FPP'",
   "XXCASEIQ_CATEGORY_GRAPH_V_I2C": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'I2C'",
   "XXCASEIQ_CATEGORY_GRAPH_V_OM": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'OM'",
@@ -223,7 +223,7 @@
   "XXCASEIQ_CATEGORY_GRAPH_V_SM": "select * from arfinro.XXCASEIQ_CATEGORY_GRAPH_V where team_name = 'SM'",
 
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_AIT": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'AIT'",
-  "XXCASEIQ_CORE_ISSUE_GRAPH_V_Capital": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'Capital'",
+  "XXCASEIQ_CORE_ISSUE_GRAPH_V_Capital": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'CAPITAL'",
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_FPP": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'FPP'",
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_I2C": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'I2C'",
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_OM": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'OM'",

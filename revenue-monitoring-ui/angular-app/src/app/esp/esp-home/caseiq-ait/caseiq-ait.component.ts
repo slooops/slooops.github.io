@@ -106,7 +106,9 @@ export class CaseiqAitComponent implements OnInit {
     if (Array.isArray(apiData) && apiData.length > 0) {
       this.totalRecords = apiData.length;
       this.i2cTableData = new MatTableDataSource(apiData);
-      this.i2cTableColumns = Object.keys(apiData[0]);
+      this.i2cTableColumns = Object.keys(apiData[0]).filter(
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+      );
     } else {
       this.totalRecords = 0;
       this.i2cTableData = new MatTableDataSource([]);
