@@ -140,7 +140,6 @@
                   <label
                     class="filter-option"
                     *ngFor="let value of filterOption.values"
-                    [class.disabled]="isFilterDisabled(filterOption.id, value)"
                   >
                     <input
                       type="checkbox"
@@ -255,13 +254,13 @@
         <tr mat-row *matRowDef="let row; columns: filteredColumns"></tr>
       </table>
       <!-- Backend loading overlay -->
-      <div
+      <!-- <div
         class="table-loading-overlay"
         *ngIf="backendLoading || showFetchingOverlay"
       >
         <div class="spinner"></div>
         <div class="loading-text">Fetching data...</div>
-      </div>
+      </div> -->
     </div>
 
     <!-- Paginator -->

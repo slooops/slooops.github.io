@@ -58,6 +58,7 @@ export class CaseiqI2cComponent implements OnInit {
   i2cTableColumns: string[] = [];
   totalRecords: number = 0;
   backendMatchLoading: boolean = false;
+  refreshingData: boolean = false; // Full-screen overlay during post-upload refresh
 
   ngOnInit(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
@@ -311,11 +312,160 @@ export class CaseiqI2cComponent implements OnInit {
   // Handle upload dialog results (emitted from table component)
   handleUploadResult(result: any) {
     if (result?.success) {
-      console.log('Refreshing I2C table after successful upload');
-      this.getXxcaseiqI2cCaseDetailsV();
+      console.log('Upload succeeded, refreshing all I2C data (table + charts)');
+
+      // Show full-screen overlay
+      this.refreshingData = true;
+
+      // Refresh all data sources
+      Promise.all([this.refreshAllData()])
+        .then(() => {
+          console.log('All I2C data refreshed successfully');
+          // Hide overlay after a brief delay to show completion
+          setTimeout(() => {
+            this.refreshingData = false;
+          }, 500);
+        })
+        .catch((error) => {
+          console.error('Error refreshing I2C data:', error);
+          // Hide overlay even on error after delay
+          setTimeout(() => {
+            this.refreshingData = false;
+          }, 1000);
+        });
     } else if (result) {
       console.warn('Upload did not succeed, no refresh triggered');
     }
+  }
+
+  // Centralized method to refresh all data
+  private refreshAllData(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let completedCalls = 0;
+      const totalCalls = 4;
+      let hasError = false;
+
+      const checkComplete = () => {
+        completedCalls++;
+        if (completedCalls === totalCalls) {
+          if (hasError) {
+            reject(new Error('One or more data refresh calls failed'));
+          } else {
+            resolve();
+          }
+        }
+      };
+
+      // Refresh accuracy metrics
+      this.http
+        .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+        .subscribe({
+          next: (data: any) => {
+            console.log('Refreshed accuracy data');
+            this.updateI2CMetrics(data);
+            checkComplete();
+          },
+          error: (err) => {
+            console.error('Failed to refresh accuracy data', err);
+            hasError = true;
+            checkComplete();
+          },
+        });
+
+      // Refresh category chart
+      this.http
+        .get('xxcaseiq-category-graph-v-i2c', this.destroyManager)
+        .subscribe({
+          next: (data: any) => {
+            console.log('Refreshed category chart data');
+            this.completeCategoryRaw = data;
+            this.allCategoryLabels = Array.from(
+              new Set<string>(
+                data.map((item: any) => (item.CATEGORY || '').toString().trim())
+              )
+            ).sort((a: string, b: string) => a.localeCompare(b));
+
+            const filteredData = data.filter(
+              (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+            );
+            this.i2cChartData = this.transformMatchStatusData(
+              filteredData,
+              'CATEGORY',
+              'CATEGORY_COUNT'
+            );
+            this.visibleCategoryTotal = this.computeStackedTotal(
+              this.i2cChartData
+            );
+            this.completeI2cChartData = this.transformMatchStatusData(
+              data,
+              'CATEGORY',
+              'CATEGORY_COUNT'
+            );
+            checkComplete();
+          },
+          error: (err) => {
+            console.error('Failed to refresh category chart', err);
+            hasError = true;
+            checkComplete();
+          },
+        });
+
+      // Refresh core issue chart
+      this.http
+        .get('xxcaseiq-core-issue-graph-v-i2c', this.destroyManager)
+        .subscribe({
+          next: (data: any) => {
+            console.log('Refreshed core issue chart data');
+            this.completeCoreIssueRaw = data;
+            this.allCoreIssueLabels = Array.from(
+              new Set<string>(
+                data.map((item: any) =>
+                  (item.CORE_ISSUE || '').toString().trim()
+                )
+              )
+            ).sort((a: string, b: string) => a.localeCompare(b));
+
+            const filteredData = data.filter(
+              (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+            );
+            this.i2cSimpleChartData = this.transformMatchStatusData(
+              filteredData,
+              'CORE_ISSUE',
+              'CORE_ISSUE_COUNT'
+            );
+            this.visibleCoreIssueTotal = this.computeStackedTotal(
+              this.i2cSimpleChartData
+            );
+            this.completeI2cSimpleChartData = this.transformMatchStatusData(
+              data,
+              'CORE_ISSUE',
+              'CORE_ISSUE_COUNT'
+            );
+            checkComplete();
+          },
+          error: (err) => {
+            console.error('Failed to refresh core issue chart', err);
+            hasError = true;
+            checkComplete();
+          },
+        });
+
+      // Refresh table data
+      this.http
+        .get('xxcaseiq-i2c-case-details-v', this.destroyManager)
+        .subscribe({
+          next: (data: any) => {
+            console.log('Refreshed table data');
+            this.updateTableData(data);
+            checkComplete();
+          },
+          error: (err) => {
+            console.error('Failed to refresh table data', err);
+            hasError = true;
+            checkComplete();
+          },
+        });
+    });
   }
 
   getXxcaseiqValidatedCasesAccuracyV() {

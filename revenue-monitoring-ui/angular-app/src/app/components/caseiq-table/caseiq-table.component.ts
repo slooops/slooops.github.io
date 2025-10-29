@@ -274,9 +274,9 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
       this.activeFilters.splice(existingFilterIndex, 1);
     } else {
       // Check if we already have 3 filters
-      if (this.activeFilters.length >= 3) {
-        return; // Don't add more than 3 filters
-      }
+      // if (this.activeFilters.length >= 3) {
+      //   return; // Don't add more than 3 filters
+      // }
 
       // Add new filter
       const newFilter: FilterTag = {

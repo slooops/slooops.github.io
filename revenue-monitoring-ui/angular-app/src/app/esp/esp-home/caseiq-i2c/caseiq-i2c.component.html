@@ -1,5 +1,11 @@
 <mat-tab-group [selectedIndex]="0">
   <mat-tab [label]="totalCases + ' Cases - I2C Case Analyzer'">
+    <!-- Data refresh overlay - covers only this tab content -->
+    <div class="table-loading-overlay" *ngIf="refreshingData">
+      <div class="spinner"></div>
+      <div class="loading-text">Fetching data...</div>
+    </div>
+
     <div class="charts-row">
       <div class="chart-section">
         <div class="chart-header-row">
