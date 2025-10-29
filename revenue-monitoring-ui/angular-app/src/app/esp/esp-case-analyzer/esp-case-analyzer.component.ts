@@ -249,6 +249,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
         // mode: 'index',
         // intersect: false,
       },
+      datalabels: {
+        display: false, // Disable data point labels
+      },
     },
     scales: {
       x: {
@@ -489,7 +492,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
       const position = item.QTR_RELATIVE_POSITION;
       const fiscalQuarter = item.FISC_QTR;
 
-      if (position !== undefined && fiscalQuarter) {
+      // Only include non-negative positions (negative positions are older data we don't want)
+      if (position !== undefined && position >= 0 && fiscalQuarter) {
         quarterPositionMap.set(position, fiscalQuarter);
       }
     });
@@ -528,8 +532,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
         });
       }
     });
-
-    // console.log('Quarters organized by type:', quartersByType);
 
     // Step 3: Smart assignment based on quarter type
     const result: { quarterIndex: number; fiscalQuarter: string }[] = [];
@@ -577,7 +579,62 @@ export class EspCaseAnalyzerComponent implements OnInit {
     // Sort result by quarterIndex to ensure proper order
     result.sort((a, b) => a.quarterIndex - b.quarterIndex);
 
-    return result;
+    // Step 4: Apply filtering rules based on fiscal year
+    const filteredResult = this.filterQuartersByFiscalYear(result);
+
+    return filteredResult;
+  }
+
+  private filterQuartersByFiscalYear(
+    quarters: { quarterIndex: number; fiscalQuarter: string }[]
+  ): { quarterIndex: number; fiscalQuarter: string }[] {
+    if (quarters.length === 0) return [];
+
+    // Parse all quarters to get fiscal year info
+    const quartersWithYear = quarters.map((q) => {
+      const match = q.fiscalQuarter.match(/Q(\d)FY(\d+)/);
+      return {
+        ...q,
+        fiscalYear: match ? parseInt(match[2], 10) : 0,
+      };
+    });
+
+    // Find the most recent fiscal year (highest FY number)
+    const mostRecentYear = Math.max(
+      ...quartersWithYear.map((q) => q.fiscalYear)
+    );
+
+    // Count quarters in the most recent fiscal year
+    const currentYearQuarters = quartersWithYear.filter(
+      (q) => q.fiscalYear === mostRecentYear
+    );
+
+    console.log(
+      `Most recent fiscal year: FY${mostRecentYear}, quarters: ${currentYearQuarters.length}`
+    );
+
+    // Apply filtering rules:
+    // - If 1 quarter in current year: include all quarters (current + previous year)
+    // - If 2-4 quarters in current year: only include current year quarters
+    if (currentYearQuarters.length === 1) {
+      // Include all quarters (previous year's Q1-Q4 + current year's Q1)
+      console.log(
+        'Only 1 quarter in current year, including previous year quarters'
+      );
+      return quarters;
+    } else if (currentYearQuarters.length >= 2) {
+      // Only include current year quarters
+      console.log(
+        `${currentYearQuarters.length} quarters in current year, filtering to current year only`
+      );
+      return quarters.filter((q) => {
+        const match = q.fiscalQuarter.match(/Q(\d)FY(\d+)/);
+        const fy = match ? parseInt(match[2], 10) : 0;
+        return fy === mostRecentYear;
+      });
+    }
+
+    return quarters;
   }
 
   generateDatasetsForQuarterComparison(

@@ -93,5 +93,8 @@ table.mat-table .mat-cell.extra-wide-column {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: -32px;
+}
+
+.section-title {
+  margin: 0;
 }
