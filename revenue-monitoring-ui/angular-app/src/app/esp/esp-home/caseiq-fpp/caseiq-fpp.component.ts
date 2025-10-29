@@ -1,9 +1,20 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  HostListener,
+  Inject,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 
 interface FppAccuracyData {
   TEAM_NAME: string;
@@ -23,7 +34,8 @@ export class CaseiqFppComponent implements OnInit {
 
   constructor(
     private readonly http: ApiHttpService,
-    private readonly destroyManager: DestroyManager
+    private readonly destroyManager: DestroyManager,
+    private readonly dialog: MatDialog
   ) {}
 
   i2cChartData: StackedBarChartDataPoint[] = [];
@@ -37,11 +49,64 @@ export class CaseiqFppComponent implements OnInit {
   i2cTableColumns: string[] = [];
   totalRecords: number = 0;
 
+  // Filter and threshold state
+  showCategoryFilters = false;
+  showCoreIssueFilters = false;
+  showCategorySelect = false;
+  showCoreIssueSelect = false;
+
+  allCategoryLabels: string[] = [];
+  allCoreIssueLabels: string[] = [];
+  selectedCategoryLabels: Set<string> = new Set();
+  selectedCoreIssueLabels: Set<string> = new Set();
+
+  categoryMinThreshold = 10;
+  coreIssueMinThreshold = 10;
+
+  // Cached full data
+  cachedCategoryData: any[] = [];
+  cachedCoreIssueData: any[] = [];
+
+  // Visible totals
+  visibleCategoryTotal = 0;
+  visibleCoreIssueTotal = 0;
+
+  // Loading state
+  refreshingData = false;
+
   ngOnInit(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVFpp();
     this.getXxcaseiqCoreIssueGraphVFpp();
     this.getXxcaseiqFppCaseDetailsV();
+  }
+
+  // Merge objects by CATEGORY or CORE_ISSUE
+  private mergeByCategoryOrIssue(
+    data: any[],
+    groupKey: string,
+    countKey: string
+  ): any[] {
+    const grouped = new Map<string, any>();
+
+    data.forEach((item) => {
+      const key = item[groupKey];
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          [groupKey]: key,
+          [countKey]: 0,
+          data: [],
+        });
+      }
+      const group = grouped.get(key)!;
+      group[countKey] += item[countKey];
+      group.data.push({
+        MATCH_STATUS: item.MATCH_STATUS,
+        COUNT: item[countKey],
+      });
+    });
+
+    return Array.from(grouped.values());
   }
 
   getXxcaseiqCategoryGraphVFpp() {
@@ -50,15 +115,15 @@ export class CaseiqFppComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVFpp:', data);
 
-        const filteredData = data.filter(
-          (item: any) => item.CATEGORY_COUNT > 10
-        );
-
-        this.i2cChartData = this.transformMatchStatusData(
-          filteredData,
+        // Merge by category
+        const mergedData = this.mergeByCategoryOrIssue(
+          data,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
+        this.cachedCategoryData = mergedData;
+        this.allCategoryLabels = mergedData.map((item) => item.CATEGORY);
+        this.reapplyCategoryFilters();
       });
   }
 
@@ -68,15 +133,15 @@ export class CaseiqFppComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVFpp:', data);
 
-        const filteredData = data.filter(
-          (item: any) => item.CORE_ISSUE_COUNT > 10
-        );
-
-        this.i2cSimpleChartData = this.transformMatchStatusData(
-          filteredData,
+        // Merge by core issue
+        const mergedData = this.mergeByCategoryOrIssue(
+          data,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
+        this.cachedCoreIssueData = mergedData;
+        this.allCoreIssueLabels = mergedData.map((item) => item.CORE_ISSUE);
+        this.reapplyCoreIssueFilters();
       });
   }
 
@@ -95,6 +160,243 @@ export class CaseiqFppComponent implements OnInit {
         console.log(data);
         this.updateFppMetrics(data);
       });
+  }
+
+  // Handle upload result with overlay
+  handleUploadResult(event: { success: boolean; message: string }) {
+    console.log('Upload result:', event);
+    if (event.success) {
+      this.refreshAllData();
+    }
+  }
+
+  // Refresh all data with loading overlay
+  async refreshAllData(): Promise<void> {
+    this.refreshingData = true;
+
+    try {
+      await Promise.all([
+        new Promise<void>((resolve) => {
+          this.http
+            .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+            .subscribe({
+              next: (data: any) => {
+                this.updateFppMetrics(data);
+                resolve();
+              },
+              error: () => resolve(),
+            });
+        }),
+        new Promise<void>((resolve) => {
+          this.http
+            .get('xxcaseiq-category-graph-v-fpp', this.destroyManager)
+            .subscribe({
+              next: (data: any) => {
+                const mergedData = this.mergeByCategoryOrIssue(
+                  data,
+                  'CATEGORY',
+                  'CATEGORY_COUNT'
+                );
+                this.cachedCategoryData = mergedData;
+                this.allCategoryLabels = mergedData.map(
+                  (item) => item.CATEGORY
+                );
+                this.reapplyCategoryFilters();
+                resolve();
+              },
+              error: () => resolve(),
+            });
+        }),
+        new Promise<void>((resolve) => {
+          this.http
+            .get('xxcaseiq-core-issue-graph-v-fpp', this.destroyManager)
+            .subscribe({
+              next: (data: any) => {
+                const mergedData = this.mergeByCategoryOrIssue(
+                  data,
+                  'CORE_ISSUE',
+                  'CORE_ISSUE_COUNT'
+                );
+                this.cachedCoreIssueData = mergedData;
+                this.allCoreIssueLabels = mergedData.map(
+                  (item) => item.CORE_ISSUE
+                );
+                this.reapplyCoreIssueFilters();
+                resolve();
+              },
+              error: () => resolve(),
+            });
+        }),
+        new Promise<void>((resolve) => {
+          this.http
+            .get('xxcaseiq-fpp-case-details-v', this.destroyManager)
+            .subscribe({
+              next: (data: any) => {
+                this.updateTableData(data);
+                resolve();
+              },
+              error: () => resolve(),
+            });
+        }),
+      ]);
+    } finally {
+      this.refreshingData = false;
+    }
+  }
+
+  // Filter toggle methods
+  toggleCategoryFilters() {
+    this.showCategoryFilters = !this.showCategoryFilters;
+    if (!this.showCategoryFilters) {
+      this.showCategorySelect = false;
+    }
+  }
+
+  toggleCoreIssueFilters() {
+    this.showCoreIssueFilters = !this.showCoreIssueFilters;
+    if (!this.showCoreIssueFilters) {
+      this.showCoreIssueSelect = false;
+    }
+  }
+
+  toggleCategorySelect() {
+    this.showCategorySelect = !this.showCategorySelect;
+  }
+
+  toggleCoreIssueSelect() {
+    this.showCoreIssueSelect = !this.showCoreIssueSelect;
+  }
+
+  // Threshold adjustment
+  adjustCategoryThreshold(direction: number) {
+    this.categoryMinThreshold = Math.max(
+      10,
+      this.categoryMinThreshold + direction * 5
+    );
+    this.reapplyCategoryFilters();
+  }
+
+  adjustCoreIssueThreshold(direction: number) {
+    this.coreIssueMinThreshold = Math.max(
+      10,
+      this.coreIssueMinThreshold + direction * 5
+    );
+    this.reapplyCoreIssueFilters();
+  }
+
+  // Reapply filters
+  reapplyCategoryFilters() {
+    let filteredData = this.cachedCategoryData;
+
+    if (this.selectedCategoryLabels.size > 0) {
+      filteredData = filteredData.filter((item) =>
+        this.selectedCategoryLabels.has(item.CATEGORY)
+      );
+    } else {
+      filteredData = filteredData.filter(
+        (item) => item.CATEGORY_COUNT > this.categoryMinThreshold
+      );
+    }
+
+    this.i2cChartData = this.transformMatchStatusData(
+      filteredData,
+      'CATEGORY',
+      'CATEGORY_COUNT'
+    );
+    this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+  }
+
+  reapplyCoreIssueFilters() {
+    let filteredData = this.cachedCoreIssueData;
+
+    if (this.selectedCoreIssueLabels.size > 0) {
+      filteredData = filteredData.filter((item) =>
+        this.selectedCoreIssueLabels.has(item.CORE_ISSUE)
+      );
+    } else {
+      filteredData = filteredData.filter(
+        (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+      );
+    }
+
+    this.i2cSimpleChartData = this.transformMatchStatusData(
+      filteredData,
+      'CORE_ISSUE',
+      'CORE_ISSUE_COUNT'
+    );
+    this.visibleCoreIssueTotal = this.computeStackedTotal(
+      this.i2cSimpleChartData
+    );
+  }
+
+  // Selection handlers
+  toggleCategorySelection(label: string) {
+    if (this.selectedCategoryLabels.has(label)) {
+      this.selectedCategoryLabels.delete(label);
+    } else {
+      this.selectedCategoryLabels.add(label);
+    }
+    this.reapplyCategoryFilters();
+  }
+
+  toggleCoreIssueSelection(label: string) {
+    if (this.selectedCoreIssueLabels.has(label)) {
+      this.selectedCoreIssueLabels.delete(label);
+    } else {
+      this.selectedCoreIssueLabels.add(label);
+    }
+    this.reapplyCoreIssueFilters();
+  }
+
+  clearCategorySelection(event: Event) {
+    event.stopPropagation();
+    this.selectedCategoryLabels.clear();
+    this.reapplyCategoryFilters();
+  }
+
+  clearCoreIssueSelection(event: Event) {
+    event.stopPropagation();
+    this.selectedCoreIssueLabels.clear();
+    this.reapplyCoreIssueFilters();
+  }
+
+  // Close dropdowns when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.filter-wrapper')) {
+      this.showCategorySelect = false;
+      this.showCoreIssueSelect = false;
+    }
+  }
+
+  // Compute stacked total
+  computeStackedTotal(chartData: StackedBarChartDataPoint[]): number {
+    return chartData.reduce((sum, bar) => {
+      const barTotal = bar.segments.reduce(
+        (segSum, seg) => segSum + seg.value,
+        0
+      );
+      return sum + barTotal;
+    }, 0);
+  }
+
+  // Expand chart dialog
+  onExpandChart(chartType: 'CATEGORY' | 'CORE_ISSUE') {
+    this.dialog.open(CaseiqFppExpandDialogComponent, {
+      width: '90vw',
+      height: '70vh',
+      data: {
+        chartType,
+        categoryData: this.i2cChartData,
+        coreIssueData: this.i2cSimpleChartData,
+        categoryAccuracy: this.categoryAccuracy,
+        coreIssueAccuracy: this.coreIssueAccuracy,
+        totalCases: this.totalCases,
+        visibleCategoryTotal: this.visibleCategoryTotal,
+        visibleCoreIssueTotal: this.visibleCoreIssueTotal,
+      },
+    });
   }
 
   private updateTableData(apiData: any[]): void {
@@ -134,23 +436,23 @@ export class CaseiqFppComponent implements OnInit {
       return [];
     }
 
-    const groups = apiData.reduce((acc, item) => {
-      const key = item[groupColumn];
-      if (!acc[key]) {
-        acc[key] = [];
-      }
-      acc[key].push(item);
-      return acc;
-    }, {} as Record<string, any[]>);
+    const chartData = apiData.map((item) => {
+      // Handle nested data structure from merge
+      const segments = item.data
+        ? item.data.map((statusItem: any) => ({
+            name: statusItem.MATCH_STATUS,
+            value: statusItem.COUNT,
+            color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
+          }))
+        : [
+            {
+              name: item.MATCH_STATUS || 'Unknown',
+              value: item[countColumn] || 0,
+              color: this.getMatchStatusColor(item.MATCH_STATUS || 'Unknown'),
+            },
+          ];
 
-    const chartData = Object.keys(groups).map((groupKey) => {
-      const segments = groups[groupKey].map((item) => ({
-        name: item.MATCH_STATUS,
-        value: item[countColumn],
-        color: this.getMatchStatusColor(item.MATCH_STATUS),
-      }));
-
-      return { label: groupKey, segments };
+      return { label: item[groupColumn], segments };
     });
 
     return chartData;
@@ -167,5 +469,199 @@ export class CaseiqFppComponent implements OnInit {
       default:
         return '#E5E5E5';
     }
+  }
+}
+
+// Expand Dialog Component
+@Component({
+  selector: 'app-caseiq-fpp-expand-dialog',
+  template: `
+    <div class="expand-dialog-container">
+      <div class="expand-header">
+        <h2 mat-dialog-title>
+          {{
+            chartType === 'CATEGORY'
+              ? 'Category Analysis'
+              : 'Core Issue Analysis'
+          }}
+          - FPP Team
+        </h2>
+        <button mat-icon-button (click)="onClose()" class="close-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-dialog-content class="expand-content">
+        <div class="expand-chart-section" *ngIf="chartType === 'CATEGORY'">
+          <div class="expand-chart-header">
+            <div class="chart-title-block">
+              <h4>Category Accuracy - {{ data.categoryAccuracy }}%</h4>
+            </div>
+            <div class="flex-row header-metrics">
+              <h4>
+                No. of cases visible: {{ data.visibleCategoryTotal }}/
+                {{ data.totalCases }}
+              </h4>
+              &nbsp;
+              <mat-icon
+                style="font-size: 15px; padding-top: 5px"
+                matTooltip="Full view of category distribution across all match statuses."
+                >info_outline</mat-icon
+              >
+            </div>
+          </div>
+          <div class="expand-chart-container">
+            <app-bar-chart
+              [data]="data.categoryData"
+              [stacked]="true"
+              [isLoading]="false"
+              canvasId="fppExpandCategoryChart"
+            >
+            </app-bar-chart>
+          </div>
+        </div>
+
+        <div class="expand-chart-section" *ngIf="chartType === 'CORE_ISSUE'">
+          <div class="expand-chart-header">
+            <div class="chart-title-block">
+              <h4>Core Issue Accuracy - {{ data.coreIssueAccuracy }}%</h4>
+            </div>
+            <div class="flex-row header-metrics">
+              <h4>
+                No. of core issues visible: {{ data.visibleCoreIssueTotal }}/
+                {{ data.totalCases }}
+              </h4>
+              &nbsp;
+              <mat-icon
+                style="font-size: 15px; padding-top: 5px"
+                matTooltip="Full view of core issue distribution across all match statuses."
+                >info_outline</mat-icon
+              >
+            </div>
+          </div>
+          <div class="expand-chart-container">
+            <app-bar-chart
+              [data]="data.coreIssueData"
+              [stacked]="true"
+              [isLoading]="false"
+              canvasId="fppExpandCoreIssueChart"
+            >
+            </app-bar-chart>
+          </div>
+        </div>
+      </mat-dialog-content>
+    </div>
+  `,
+  styles: [
+    `
+      .expand-dialog-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .expand-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid #e0e0e0;
+        background: #f8f9fa;
+      }
+
+      .expand-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .close-btn {
+        color: #666;
+      }
+
+      .close-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .expand-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+      }
+
+      .expand-chart-section {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .expand-chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        gap: 16px;
+      }
+
+      .chart-title-block h4 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .flex-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .header-metrics h4 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #555;
+      }
+
+      .expand-chart-container {
+        height: 500px;
+        position: relative;
+      }
+
+      @media (max-width: 768px) {
+        .expand-header {
+          padding: 12px 16px;
+        }
+
+        .expand-header h2 {
+          font-size: 18px;
+        }
+
+        .expand-content {
+          padding: 16px;
+        }
+
+        .expand-chart-container {
+          height: 400px;
+        }
+      }
+    `,
+  ],
+})
+export class CaseiqFppExpandDialogComponent {
+  chartType: 'CATEGORY' | 'CORE_ISSUE';
+
+  constructor(
+    public dialogRef: MatDialogRef<CaseiqFppExpandDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.chartType = data.chartType;
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
   }
 }
