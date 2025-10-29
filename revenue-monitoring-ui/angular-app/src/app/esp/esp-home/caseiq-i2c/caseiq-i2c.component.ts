@@ -187,6 +187,11 @@ export class CaseiqI2cComponent implements OnInit {
 
     data.forEach((item) => {
       const key = item[groupKey];
+      // Skip items with null or undefined groupKey values
+      if (key == null || key === '') {
+        return;
+      }
+
       if (!grouped.has(key)) {
         // First occurrence: create new grouped object with data array
         grouped.set(key, {

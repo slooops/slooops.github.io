@@ -91,6 +91,11 @@ export class CaseiqFppComponent implements OnInit {
 
     data.forEach((item) => {
       const key = item[groupKey];
+      // Skip items with null or undefined groupKey values
+      if (key == null || key === '') {
+        return;
+      }
+
       if (!grouped.has(key)) {
         grouped.set(key, {
           [groupKey]: key,
