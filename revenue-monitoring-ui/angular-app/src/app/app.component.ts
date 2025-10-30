@@ -38,6 +38,72 @@ export class AppComponent implements OnInit, OnDestroy {
   isAdmin$: boolean = this.userRoles.includes('ADMIN');
   showMenu: boolean = true;
   menuItems: any[] = [];
+
+  /**
+   * Determine the default route based on user roles
+   * Priority order: ADMIN > PERIOD_CLOSE > EXCEPTION_* > ACCOUNT_RECON > Other roles
+   */
+  getDefaultRouteForRoles(roles: string[]): string {
+    if (!roles || roles.length === 0) {
+      return '/error';
+    }
+
+    // ADMIN gets /period-close-tracking
+    if (roles.includes('ADMIN')) {
+      return '/period-close-tracking';
+    }
+
+    // PERIOD_CLOSE gets /period-close-tracking
+    if (roles.includes('PERIOD_CLOSE')) {
+      return '/period-close-tracking';
+    }
+
+    // EXCEPTION_ADMIN or EXCEPTION_READ_ONLY gets /invoice-to-cash
+    if (
+      roles.includes('EXCEPTION_ADMIN') ||
+      roles.includes('EXCEPTION_READ_ONLY')
+    ) {
+      return '/invoice-to-cash';
+    }
+
+    // ACCOUNT_RECON gets /revenue-accounting
+    if (roles.includes('ACCOUNT_RECON')) {
+      return '/revenue-accounting';
+    }
+
+    // ORDER_MANAGEMENT gets /order-management
+    if (roles.includes('ORDER_MANAGEMENT')) {
+      return '/order-management';
+    }
+
+    // Case IQ roles get /esp-home
+    if (
+      roles.includes('CASE_IQ_MANAGER') ||
+      roles.includes('CASE_IQ_OM') ||
+      roles.includes('CASE_IQ_SBP') ||
+      roles.includes('CASE_IQ_I2C') ||
+      roles.includes('CASE_IQ_AIT') ||
+      roles.includes('CASE_IQ_FPP') ||
+      roles.includes('CASE_IQ_P2P') ||
+      roles.includes('CASE_IQ_CAPITAL')
+    ) {
+      return '/esp-home';
+    }
+
+    // Business Insights roles
+    if (
+      roles.includes('LARGE_DEAL') ||
+      roles.includes('WD0') ||
+      roles.includes('MIDCLOSE_VOLUMES') ||
+      roles.includes('ISSUE_RESOLUTION')
+    ) {
+      return '/business-insights';
+    }
+
+    // Default fallback
+    return '/home';
+  }
+
   ngOnInit(): void {
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
       this.showNavbar = !isVisible;
@@ -73,11 +139,11 @@ export class AppComponent implements OnInit, OnDestroy {
           );
         } else if (event.url.includes('/invoice-to-cash')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Pre-Invoicing'
+            'Continuous Monitoring > Invoice to Cash > Pre-Invoicing'
           );
         } else if (event.url.includes('/revenue-accounting')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Standard Revenue'
+            'Continuous Monitoring > Revenue Accounting > Standard Revenue'
           );
         } else if (event.url.includes('/gl-posting')) {
           this.menuService.updateHeader(
@@ -88,7 +154,11 @@ export class AppComponent implements OnInit, OnDestroy {
             'Business Insights > Large Deal Tracker'
           );
         } else if (event.url.includes('/order-management')) {
-          this.menuService.updateHeader('Order Management > Imports');
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Order Management > Imports'
+          );
+        } else if (event.url.includes('/esp-home')) {
+          this.menuService.updateHeader('ESP Case Manager > Case IQ');
         }
       }
     });

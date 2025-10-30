@@ -27,12 +27,13 @@ import { O2cTsvComponent } from './o2c/o2c-tsv/o2c-tsv.component';
 import { O2cGlComponent } from './o2c/o2c-gl/o2c-gl.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
+import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
-    pathMatch: 'full',
+    canActivate: [RoleBasedRedirectGuard],
+    children: [],
   },
   {
     path: 'home',

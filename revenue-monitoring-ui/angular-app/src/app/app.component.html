@@ -66,7 +66,7 @@
       <span class="navbar">
         <ul class="menu">
           <!-- Home -->
-          <li class="menu-item" [class.disabled]="!isAdmin$">
+          <li class="menu-item" [class.disabled]="true">
             <a [routerLink]="'/home'" class="top-link">
               <i class="svg-icon home-icon" style="font-weight: 900"></i>
             </a>
@@ -306,27 +306,23 @@
   <button
     mat-menu-item
     [routerLink]="'/period-close-tracking'"
-    [disabled]="!(hasRole$(['PERIOD_CLOSE']) || isAdmin$)"
+    *ngIf="hasRole$(['PERIOD_CLOSE']) || isAdmin$"
   >
     Period Close Tracking
   </button>
   <button
     mat-menu-item
     [routerLink]="'/invoice-to-cash'"
-    [disabled]="
-      !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
-    "
+    *ngIf="hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$"
   >
     Invoice to Cash
   </button>
   <button
     mat-menu-item
     [routerLink]="'/revenue-accounting'"
-    [disabled]="
-      !(
-        hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON']) ||
-        isAdmin$
-      )
+    *ngIf="
+      hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON']) ||
+      isAdmin$
     "
   >
     Revenue Accounting
@@ -334,23 +330,21 @@
   <button
     mat-menu-item
     [routerLink]="'/gl-posting'"
-    [disabled]="
-      !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
-    "
+    *ngIf="hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$"
   >
     General Ledger
   </button>
   <button
     mat-menu-item
     [routerLink]="'/order-management'"
-    [disabled]="!(hasRole$(['ORDER_MANAGEMENT']) || isAdmin$)"
+    *ngIf="hasRole$(['ORDER_MANAGEMENT']) || isAdmin$"
   >
     Order Management
   </button>
   <button
     mat-menu-item
     [routerLink]="'/operations-controls'"
-    [disabled]="!(hasRole$(['OPERATION_CTRL']) || isAdmin$)"
+    *ngIf="hasRole$(['OPERATION_CTRL']) || isAdmin$"
   >
     Operations Controls
   </button>
@@ -360,39 +354,32 @@
   <button
     mat-menu-item
     [routerLink]="'/esp-home'"
-    [disabled]="
-      !(
-        hasRole$([
-          'CASE_IQ_MANAGER',
-          'CASE_IQ_OM',
-          'CASE_IQ_SBP',
-          'CASE_IQ_I2C',
-          'CASE_IQ_AIT',
-          'CASE_IQ_FPP',
-          'CASE_IQ_P2P',
-          'CASE_IQ_CAPITAL'
-        ]) || isAdmin$
-      )
+    *ngIf="
+      hasRole$([
+        'CASE_IQ_MANAGER',
+        'CASE_IQ_OM',
+        'CASE_IQ_SBP',
+        'CASE_IQ_I2C',
+        'CASE_IQ_AIT',
+        'CASE_IQ_FPP',
+        'CASE_IQ_P2P',
+        'CASE_IQ_CAPITAL'
+      ]) || isAdmin$
     "
   >
-    CaseIQ
+    Case IQ
   </button>
   <button
     mat-menu-item
     [routerLink]="'/i2c-case-analyzer'"
-    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+    *ngIf="hasRole$(['ADMIN']) || isAdmin$"
   >
     I2C
   </button>
   <button
-    mat-menu-itemselect
-    *
-    from
-    ARFINRO.XXCFI_LARGE_DEAL_DSH_USER_ACCESS
-    where
-    ENABLED_FLAG="Y"
+    mat-menu-item
     [routerLink]="'/sbp-case-analyzer'"
-    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+    *ngIf="hasRole$(['ADMIN']) || isAdmin$"
   >
     SBP
   </button>

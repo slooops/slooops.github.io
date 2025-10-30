@@ -574,7 +574,7 @@ export class InvoicingComponent implements OnInit {
 
   onTabChange(index: number) {
     this.selectedIndex = index;
-    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
+    const newHeader = `Continuous Monitoring > Invoice to Cash > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
   }
 }
