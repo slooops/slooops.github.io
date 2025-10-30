@@ -4,6 +4,8 @@ import {
   ViewChild,
   HostListener,
   Inject,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import {
   MatDialog,
@@ -31,6 +33,7 @@ interface CapitalAccuracyData {
 })
 export class CaseiqCapComponent implements OnInit {
   @ViewChild('capTable') capTable!: CaseiqTableComponent;
+  @Output() uploadSuccess = new EventEmitter<void>();
 
   constructor(
     private readonly http: ApiHttpService,
@@ -243,6 +246,9 @@ export class CaseiqCapComponent implements OnInit {
       console.log(
         'Upload succeeded, refreshing all Capital data (table + charts)'
       );
+
+      // Emit event to parent component to refresh overall accuracy
+      this.uploadSuccess.emit();
 
       // Show full-screen overlay
       this.refreshingData = true;

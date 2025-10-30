@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  HostListener,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -21,6 +28,7 @@ interface I2CAccuracyData {
 })
 export class CaseiqI2cComponent implements OnInit {
   @ViewChild('i2cTable') i2cTable!: CaseiqTableComponent;
+  @Output() uploadSuccess = new EventEmitter<void>();
 
   constructor(
     private readonly http: ApiHttpService,
@@ -380,6 +388,11 @@ export class CaseiqI2cComponent implements OnInit {
   handleUploadResult(result: any) {
     if (result?.success) {
       console.log('Upload succeeded, refreshing all I2C data (table + charts)');
+
+      // Emit event to parent component to refresh overall accuracy
+      console.log('🔴 I2C: About to emit uploadSuccess event to parent');
+      this.uploadSuccess.emit();
+      console.log('🔴 I2C: uploadSuccess event emitted');
 
       // Show full-screen overlay
       this.refreshingData = true;

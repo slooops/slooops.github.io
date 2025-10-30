@@ -146,6 +146,16 @@ export class EspHomeComponent implements OnInit {
     return this.activeTab === tileName;
   }
 
+  roleDefinitions: string[] = [
+    'CASE_IQ_OM',
+    'CASE_IQ_SBP',
+    'CASE_IQ_I2C',
+    'CASE_IQ_AIT',
+    'CASE_IQ_FPP',
+    'CASE_IQ_P2P',
+    'CASE_IQ_CAPITAL',
+  ];
+
   /**
    * Determines if a tile is accessible based on user roles
    * @param tileName - The name of the tile to check
@@ -158,12 +168,31 @@ export class EspHomeComponent implements OnInit {
     }
 
     // ESP_ADMIN has access to all tiles
-    if (this.roles.includes('ESP_ADMIN') || this.roles.includes('ADMIN')) {
+    if (
+      this.roles.includes('CASE_IQ_MANAGER') ||
+      this.roles.includes('ADMIN')
+    ) {
+      return true;
+    }
+
+    // Special mapping: CASE_IQ_SBP role maps to SM tile
+    if (tileName.toUpperCase() === 'SM' && this.roles.includes('CASE_IQ_SBP')) {
       return true;
     }
 
     // Check if user has specific team role
-    // Role names should match tile names (e.g., 'AIT', 'Capital', 'FPP', 'I2C', 'OM', 'P2P', 'SM')
-    return this.roles.includes(tileName.toUpperCase());
+    // Role names should match tile names (e.g., 'AIT', 'Capital', 'FPP', 'I2C', 'OM', 'P2P')
+    return this.roles.includes('CASE_IQ_' + tileName.toUpperCase());
+  }
+
+  /**
+   * Handle upload success event from child components
+   * Refreshes overall accuracy metrics when upload is completed
+   */
+  onUploadSuccess(): void {
+    console.log(
+      '🟢 ESP-HOME: Upload success received in esp-home, refreshing accuracy metrics'
+    );
+    this.getXxcaseiqValidatedCasesAccuracyV();
   }
 }

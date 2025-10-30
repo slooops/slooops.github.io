@@ -4,6 +4,8 @@ import {
   ViewChild,
   HostListener,
   Inject,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -31,6 +33,7 @@ interface FppAccuracyData {
 })
 export class CaseiqFppComponent implements OnInit {
   @ViewChild('fppTable') fppTable!: CaseiqTableComponent;
+  @Output() uploadSuccess = new EventEmitter<void>();
 
   constructor(
     private readonly http: ApiHttpService,
@@ -171,6 +174,8 @@ export class CaseiqFppComponent implements OnInit {
   handleUploadResult(event: { success: boolean; message: string }) {
     console.log('Upload result:', event);
     if (event.success) {
+      // Emit event to parent component to refresh overall accuracy
+      this.uploadSuccess.emit();
       this.refreshAllData();
     }
   }
@@ -504,7 +509,7 @@ export class CaseiqFppComponent implements OnInit {
             </div>
             <div class="flex-row header-metrics">
               <h4>
-                No. of cases visible: {{ data.visibleCategoryTotal }}/
+                No. of cases shown below: {{ data.visibleCategoryTotal }}/
                 {{ data.totalCases }}
               </h4>
               &nbsp;
@@ -533,7 +538,7 @@ export class CaseiqFppComponent implements OnInit {
             </div>
             <div class="flex-row header-metrics">
               <h4>
-                No. of core issues visible: {{ data.visibleCoreIssueTotal }}/
+                No. of cases shown below: {{ data.visibleCoreIssueTotal }}/
                 {{ data.totalCases }}
               </h4>
               &nbsp;

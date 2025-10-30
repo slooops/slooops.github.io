@@ -4,6 +4,8 @@ import {
   ViewChild,
   HostListener,
   Inject,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import {
   MatDialog,
@@ -31,6 +33,7 @@ interface AitAccuracyData {
 })
 export class CaseiqAitComponent implements OnInit {
   @ViewChild('aitTable') aitTable!: CaseiqTableComponent;
+  @Output() uploadSuccess = new EventEmitter<void>();
 
   constructor(
     private readonly http: ApiHttpService,
@@ -240,6 +243,9 @@ export class CaseiqAitComponent implements OnInit {
   handleUploadResult(result: any) {
     if (result?.success) {
       console.log('Upload succeeded, refreshing all AIT data (table + charts)');
+
+      // Emit event to parent component to refresh overall accuracy
+      this.uploadSuccess.emit();
 
       // Show full-screen overlay
       this.refreshingData = true;

@@ -88,16 +88,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   ];
 
   ngOnInit() {
-    console.log('🔵 ngOnInit called');
-    console.log('🔵 dataSource exists?', !!this.dataSource);
-    console.log(
-      '🔵 dataSource.data length:',
-      this.dataSource?.data?.length || 0
-    );
-
     // Filter out (Y,Y) rows on initial load
     if (this.dataSource?.data?.length > 0) {
-      console.log('✅ ngOnInit: Filtering (Y,Y) rows');
       this.fullData = [...this.dataSource.data];
 
       // Filter out (Y,Y) rows for default view
@@ -107,17 +99,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         return !(catMatch === 'Y' && coreMatch === 'Y');
       });
 
-      console.log('🔵 ngOnInit: fullData length:', this.fullData.length);
-      console.log(
-        '🔵 ngOnInit: originalData length (without Y,Y):',
-        this.originalData.length
-      );
-
       // Set filtered data
       this.dataSource.data = [...this.originalData];
       this.dataSource._updateChangeSubscription();
-    } else {
-      console.log('❌ ngOnInit: No data available yet');
     }
   }
 
@@ -145,9 +129,6 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('🟢 ngOnChanges called');
-    console.log('🟢 changes:', Object.keys(changes));
-
     // Check if we need to process data - either dataSource changed OR data length indicates new data
     const hasData = this.dataSource?.data?.length > 0;
     const shouldProcessData =
@@ -156,22 +137,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         changes['totalRecords'] ||
         this.fullData.length === 0); // First time data arrives
 
-    console.log('🟢 hasData:', hasData);
-    console.log('🟢 shouldProcessData:', shouldProcessData);
-    console.log('🟢 fullData.length:', this.fullData.length);
-
     if (shouldProcessData) {
-      console.log(
-        '✅ ngOnChanges: Data available, length:',
-        this.dataSource.data.length
-      );
-
       // Always process if we have data but no fullData stored yet
       if (this.fullData.length === 0 || changes['dataSource']) {
-        console.log(
-          '✅ ngOnChanges: Processing data - storing full and filtered datasets'
-        );
-
         // Store complete dataset including (Y,Y) rows
         this.fullData = this.dataSource.data ? [...this.dataSource.data] : [];
 
@@ -182,12 +150,6 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
           // Exclude rows where both are 'Y'
           return !(catMatch === 'Y' && coreMatch === 'Y');
         });
-
-        console.log('🟢 ngOnChanges: fullData length:', this.fullData.length);
-        console.log(
-          '🟢 ngOnChanges: originalData length (without Y,Y):',
-          this.originalData.length
-        );
 
         // Set the dataSource to show originalData (without Y,Y) by default
         this.dataSource.data = [...this.originalData];
@@ -263,7 +225,30 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   exportTableToExcel(): void {
-    const data = this.dataSource.data;
+    const MAX_CELL_LENGTH = 32767; // Excel cell character limit
+
+    // Use fullData to include ALL rows including (Y,Y) combinations
+    // If fullData is empty, fall back to dataSource.data
+    const sourceData =
+      this.fullData.length > 0 ? this.fullData : this.dataSource.data;
+
+    // Truncate any cell values that exceed Excel's character limit
+    const data = sourceData.map((row) => {
+      const truncatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        const value = row[key];
+        if (typeof value === 'string' && value.length > MAX_CELL_LENGTH) {
+          // Truncate with a note that content was cut off
+          truncatedRow[key] =
+            value.substring(0, MAX_CELL_LENGTH - 50) +
+            '\n\n[Content truncated due to Excel cell limit]';
+        } else {
+          truncatedRow[key] = value;
+        }
+      });
+      return truncatedRow;
+    });
+
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = {
       Sheets: { [this.exportFileName]: worksheet },

@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  HostListener,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -21,6 +28,7 @@ interface OmAccuracyData {
 })
 export class CaseiqOmComponent implements OnInit {
   @ViewChild('omTable') omTable!: CaseiqTableComponent;
+  @Output() uploadSuccess = new EventEmitter<void>();
 
   constructor(
     private readonly http: ApiHttpService,
@@ -232,6 +240,9 @@ export class CaseiqOmComponent implements OnInit {
   handleUploadResult(result: any) {
     if (result?.success) {
       console.log('Upload succeeded, refreshing all OM data (table + charts)');
+
+      // Emit event to parent component to refresh overall accuracy
+      this.uploadSuccess.emit();
 
       // Show full-screen overlay
       this.refreshingData = true;

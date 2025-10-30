@@ -4,6 +4,8 @@ import {
   ViewChild,
   HostListener,
   Inject,
+  Output,
+  EventEmitter,
 } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -31,6 +33,7 @@ interface SmAccuracyData {
 })
 export class CaseiqSmComponent implements OnInit {
   @ViewChild('smTable') smTable!: CaseiqTableComponent;
+  @Output() uploadSuccess = new EventEmitter<void>();
 
   constructor(
     private readonly http: ApiHttpService,
@@ -188,6 +191,8 @@ export class CaseiqSmComponent implements OnInit {
    */
   handleUploadResult(success: boolean): void {
     if (success) {
+      // Emit event to parent component to refresh overall accuracy
+      this.uploadSuccess.emit();
       this.refreshAllData();
     }
   }
@@ -571,7 +576,7 @@ export class CaseiqSmComponent implements OnInit {
             </div>
             <div class="flex-row header-metrics">
               <h4>
-                No. of cases visible: {{ data.visibleCategoryTotal }}/
+                No. of cases shown below: {{ data.visibleCategoryTotal }}/
                 {{ data.totalCases }}
               </h4>
               &nbsp;
@@ -600,7 +605,7 @@ export class CaseiqSmComponent implements OnInit {
             </div>
             <div class="flex-row header-metrics">
               <h4>
-                No. of core issues visible: {{ data.visibleCoreIssueTotal }}/
+                No. of cases shown below: {{ data.visibleCoreIssueTotal }}/
                 {{ data.totalCases }}
               </h4>
               &nbsp;
