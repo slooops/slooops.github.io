@@ -1,6 +1,10 @@
 <div
   class="metric-tile"
-  [ngClass]="getStatusClass() + (isActive ? ' active' : '')"
+  [ngClass]="
+    getStatusClass() +
+    (isActive ? ' active' : '') +
+    (!isClickable ? ' non-clickable' : '')
+  "
   (click)="onTileClick()"
 >
   <div class="metric-content">

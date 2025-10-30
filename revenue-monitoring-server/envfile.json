@@ -230,7 +230,7 @@
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_P2P": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'P2P'",
   "XXCASEIQ_CORE_ISSUE_GRAPH_V_SM": "select * from arfinro.XXCASEIQ_CORE_ISSUE_GRAPH_V where team_name = 'SM'",
 
-  "XXCASEIQ_I2C_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_I2C_CASE_DETAILS_V where category_match <> 'Y' or category_match IS NULL or core_issue_match <> 'Y' or core_issue_match IS NULL",
+  "XXCASEIQ_I2C_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_I2C_CASE_DETAILS_V",
   "XXCASEIQ_I2C_CASE_DETAILS_V_MATCH_Y": "SELECT * FROM arfinro.XXCASEIQ_I2C_CASE_DETAILS_V WHERE CATEGORY_MATCH = 'Y' AND CORE_ISSUE_MATCH = 'Y'",
   "XXCASEIQ_AIT_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_AIT_CASE_DETAILS_V",
   "XXCASEIQ_FPP_CASE_DETAILS_V": "select * from arfinro.XXCASEIQ_FPP_CASE_DETAILS_V",

@@ -20,6 +20,7 @@
       [name]="metric.name"
       [percentage]="metric.percentage"
       [isActive]="isActive(metric.name)"
+      [isAccessible]="isTileAccessible(metric.name)"
       (tileClick)="onTileClick($event)"
     ></app-metric-tile>
   </div>
@@ -29,7 +30,7 @@
   <!-- Content area that displays based on active tile -->
   <ng-container [ngSwitch]="activeTab">
     <div *ngSwitchCase="'Overall'" class="tile-content">
-      <app-caseiq></app-caseiq>
+      <!-- <app-caseiq></app-caseiq> -->
     </div>
 
     <div *ngSwitchCase="'AIT'" class="tile-content">
@@ -62,11 +63,8 @@
 
     <!-- Default case when no tile is selected -->
     <div *ngSwitchDefault class="tile-content default-content">
-      <h3>ESP Case Data Review</h3>
-      <p>
-        Select a metric tile above to view detailed information and
-        functionality for that area.
-      </p>
+      <h3>Not Authorized</h3>
+      <p>Please request for access.</p>
     </div>
   </ng-container>
 </div>

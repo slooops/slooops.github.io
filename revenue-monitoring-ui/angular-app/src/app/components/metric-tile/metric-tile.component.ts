@@ -11,6 +11,7 @@ export class MetricTileComponent {
   @Input() name: string = '';
   @Input() percentage: number | string = 0;
   @Input() isActive: boolean = false;
+  @Input() isAccessible: boolean = true;
   @Output() tileClick = new EventEmitter<string>();
 
   /**
@@ -74,7 +75,13 @@ export class MetricTileComponent {
     }
   }
 
+  get isClickable(): boolean {
+    return this.name !== 'Overall' && this.isAccessible;
+  }
+
   onTileClick(): void {
-    this.tileClick.emit(this.name);
+    if (this.isClickable) {
+      this.tileClick.emit(this.name);
+    }
   }
 }

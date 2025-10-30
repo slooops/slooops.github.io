@@ -6,6 +6,7 @@ import {
   ViewChild,
   AfterViewInit,
   OnChanges,
+  OnInit,
   SimpleChanges,
   HostListener,
 } from '@angular/core';
@@ -27,7 +28,7 @@ interface FilterTag {
   templateUrl: './caseiq-table.component.html',
   styleUrls: ['./caseiq-table.component.css'],
 })
-export class CaseiqTableComponent implements AfterViewInit, OnChanges {
+export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() dataSource!: MatTableDataSource<any>; // Data for the table
   @Input() displayedColumns!: string[]; // Columns to display
   @Input() exportFileName!: string; // File name for export
@@ -49,6 +50,7 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   showFiltersDropdown: boolean = false;
   activeFilters: FilterTag[] = [];
   private originalData: any[] = []; // Preserve unfiltered data
+  private fullData: any[] = []; // Complete dataset including (Y,Y) rows
   // Local overlay trigger specifically after a successful upload while parent refresh is in progress
   showFetchingOverlay: boolean = false;
   // Internal multi-select dropdown state for Incident State inside filters popup
@@ -85,27 +87,115 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
     },
   ];
 
-  ngAfterViewInit() {
-    // Only setup if we have data, otherwise wait for ngOnChanges
+  ngOnInit() {
+    console.log('🔵 ngOnInit called');
+    console.log('🔵 dataSource exists?', !!this.dataSource);
+    console.log(
+      '🔵 dataSource.data length:',
+      this.dataSource?.data?.length || 0
+    );
+
+    // Filter out (Y,Y) rows on initial load
     if (this.dataSource?.data?.length > 0) {
+      console.log('✅ ngOnInit: Filtering (Y,Y) rows');
+      this.fullData = [...this.dataSource.data];
+
+      // Filter out (Y,Y) rows for default view
+      this.originalData = this.fullData.filter((row) => {
+        const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
+        const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
+        return !(catMatch === 'Y' && coreMatch === 'Y');
+      });
+
+      console.log('🔵 ngOnInit: fullData length:', this.fullData.length);
+      console.log(
+        '🔵 ngOnInit: originalData length (without Y,Y):',
+        this.originalData.length
+      );
+
+      // Set filtered data
+      this.dataSource.data = [...this.originalData];
+      this.dataSource._updateChangeSubscription();
+    } else {
+      console.log('❌ ngOnInit: No data available yet');
+    }
+  }
+
+  ngAfterViewInit() {
+    // Filter out (Y,Y) rows on initial load if data exists
+    if (this.dataSource?.data?.length > 0) {
+      // Store full data if not already stored
+      if (this.fullData.length === 0) {
+        this.fullData = [...this.dataSource.data];
+
+        // Filter out (Y,Y) rows for default view
+        this.originalData = this.fullData.filter((row) => {
+          const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
+          const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
+          return !(catMatch === 'Y' && coreMatch === 'Y');
+        });
+
+        // Set filtered data
+        this.dataSource.data = [...this.originalData];
+        this.dataSource._updateChangeSubscription();
+      }
+
       this.setupPaginator();
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Setup paginator when data arrives or pagination settings change
-    if (
-      (changes['dataSource'] || changes['totalRecords']) &&
-      this.dataSource?.data?.length > 0
-    ) {
-      // Capture original data when first set or when input dataSource changes
-      if (changes['dataSource']) {
-        this.originalData = this.dataSource.data
-          ? [...this.dataSource.data]
-          : [];
-        // Populate dynamic Incident State filter values from data
+    console.log('🟢 ngOnChanges called');
+    console.log('🟢 changes:', Object.keys(changes));
+
+    // Check if we need to process data - either dataSource changed OR data length indicates new data
+    const hasData = this.dataSource?.data?.length > 0;
+    const shouldProcessData =
+      hasData &&
+      (changes['dataSource'] ||
+        changes['totalRecords'] ||
+        this.fullData.length === 0); // First time data arrives
+
+    console.log('🟢 hasData:', hasData);
+    console.log('🟢 shouldProcessData:', shouldProcessData);
+    console.log('🟢 fullData.length:', this.fullData.length);
+
+    if (shouldProcessData) {
+      console.log(
+        '✅ ngOnChanges: Data available, length:',
+        this.dataSource.data.length
+      );
+
+      // Always process if we have data but no fullData stored yet
+      if (this.fullData.length === 0 || changes['dataSource']) {
+        console.log(
+          '✅ ngOnChanges: Processing data - storing full and filtered datasets'
+        );
+
+        // Store complete dataset including (Y,Y) rows
+        this.fullData = this.dataSource.data ? [...this.dataSource.data] : [];
+
+        // Filter out (Y,Y) rows for the default view
+        this.originalData = this.fullData.filter((row) => {
+          const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
+          const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
+          // Exclude rows where both are 'Y'
+          return !(catMatch === 'Y' && coreMatch === 'Y');
+        });
+
+        console.log('🟢 ngOnChanges: fullData length:', this.fullData.length);
+        console.log(
+          '🟢 ngOnChanges: originalData length (without Y,Y):',
+          this.originalData.length
+        );
+
+        // Set the dataSource to show originalData (without Y,Y) by default
+        this.dataSource.data = [...this.originalData];
+        this.dataSource._updateChangeSubscription();
+
+        // Populate dynamic Incident State filter values from FULL data
         const statesSet = new Set(
-          (this.originalData || [])
+          (this.fullData || [])
             .map((r) => (r['INCIDENT_STATE'] ?? '').toString().trim())
             .filter((v) => !!v)
         );
@@ -292,8 +382,8 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
   }
 
   isFilterDisabled(filterId: string, value: string): boolean {
-    const isActive = this.isFilterActive(filterId, value);
-    return !isActive && this.activeFilters.length >= 3;
+    // No limit on number of filters - always allow selection
+    return false;
   }
 
   getSelectedCount(filterId: string): number {
@@ -361,27 +451,36 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
     );
   }
 
-  // Determine if both Y filters are selected (Category Match Y and Core Issue Match Y)
-  private bothYSelected(): boolean {
-    const hasCatY = this.activeFilters.some(
-      (f) => f.filterId === 'categoryMatch' && f.value === 'Y'
-    );
-    const hasCoreY = this.activeFilters.some(
-      (f) => f.filterId === 'coreIssueMatch' && f.value === 'Y'
-    );
-    return hasCatY && hasCoreY;
-  }
-
-  // Apply filtering logic based on active filters (client-side) except when both Y selected
+  /**
+   * Apply combination-based filtering across all active filters.
+   *
+   * Rules:
+   * - When no filters are applied: Show all rows EXCEPT (Y,Y) combinations
+   * - (Y,Y) rows are ONLY shown when BOTH categoryMatch='Y' AND coreIssueMatch='Y' are explicitly selected
+   * - In all other cases, (Y,Y) rows are hidden
+   * - Multiple values in one filter create OR logic within that filter
+   * - Multiple different filters create AND logic between filters
+   *
+   * Example:
+   * - categoryMatch=['Y'] only → Shows (Y,N) rows, NOT (Y,Y)
+   * - categoryMatch=['Y'] AND coreIssueMatch=['Y'] → Shows ONLY (Y,Y) rows
+   * - categoryMatch=['Y','N'] AND coreIssueMatch=['Y'] → Shows (Y,Y) AND (N,Y) rows
+   */
   private applyFilters(): void {
     if (!this.dataSource) return;
 
-    // Capture original data lazily if not yet stored
-    if (this.originalData.length === 0 && this.dataSource.data?.length) {
-      this.originalData = [...this.dataSource.data];
+    // Initialize fullData lazily if not yet stored
+    if (this.fullData.length === 0 && this.dataSource.data?.length) {
+      this.fullData = [...this.dataSource.data];
+      // Also initialize originalData (without Y,Y rows)
+      this.originalData = this.fullData.filter((row) => {
+        const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
+        const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
+        return !(catMatch === 'Y' && coreMatch === 'Y');
+      });
     }
 
-    // Restore original when no filters
+    // When no filters are active: restore originalData (excludes Y,Y rows)
     if (this.activeFilters.length === 0) {
       this.dataSource.data = [...this.originalData];
       this.dataSource._updateChangeSubscription();
@@ -392,126 +491,176 @@ export class CaseiqTableComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    // When both Y selected, emit event so parent can fetch backend data; do not modify original baseline
-    if (this.bothYSelected()) {
-      this.bothYRequested.emit();
-      return;
-    }
+    // Build active filter maps grouped by filterId
+    const activeFiltersMap = new Map<string, Set<string>>();
 
-    // Build active value maps per filterId
-    const categoryValues = this.activeFilters
-      .filter((f) => f.filterId === 'categoryMatch')
-      .map((f) => f.value);
-    const coreIssueValues = this.activeFilters
-      .filter((f) => f.filterId === 'coreIssueMatch')
-      .map((f) => f.value);
-    const cancelValues = this.activeFilters
-      .filter((f) => f.filterId === 'cancelPrediction')
-      .map((f) => f.value);
-    const incidentStateValues = this.activeFilters
-      .filter((f) => f.filterId === 'incidentState')
-      .map((f) => f.value);
+    this.activeFilters.forEach((filter) => {
+      if (!activeFiltersMap.has(filter.filterId)) {
+        activeFiltersMap.set(filter.filterId, new Set<string>());
+      }
+      activeFiltersMap.get(filter.filterId)!.add(filter.value);
+    });
 
-    const categoryHasSingle = categoryValues.length === 1;
-    const coreIssueHasSingle = coreIssueValues.length === 1;
-    const cancelHasAny = cancelValues.length > 0;
-    const incidentStateHasAny = incidentStateValues.length > 0;
+    // Check if (Y,Y) rows should be included
+    // Only include (Y,Y) rows if BOTH categoryMatch='Y' AND coreIssueMatch='Y' are selected
+    const categoryHasY =
+      activeFiltersMap.get('categoryMatch')?.has('Y') ?? false;
+    const coreIssueHasY =
+      activeFiltersMap.get('coreIssueMatch')?.has('Y') ?? false;
+    const shouldIncludeYY = categoryHasY && coreIssueHasY;
 
-    // Filtering function
-    const filtered = this.originalData.filter((row) => {
-      // CATEGORY_MATCH and CORE_ISSUE_MATCH can be 'Y', 'N', or null
+    // Apply combination-based filtering
+    const filtered = this.fullData.filter((row) => {
       const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
       const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
 
-      // Category filter evaluation
-      let categoryOk = true;
-      if (categoryHasSingle) {
-        const target = categoryValues[0];
-        if (target === 'Y') {
-          categoryOk = catMatch === 'Y';
-        } else if (target === 'N') {
-          // Treat N as anything not Y (includes 'N' or null/empty)
-          categoryOk = catMatch !== 'Y';
+      // Exclude (Y,Y) rows unless explicitly allowed
+      if (catMatch === 'Y' && coreMatch === 'Y' && !shouldIncludeYY) {
+        return false;
+      }
+
+      // For each filter type, check if the row matches at least one of the selected values
+      let matchesAllFilters = true;
+
+      // Check categoryMatch filter
+      if (activeFiltersMap.has('categoryMatch')) {
+        const selectedValues = activeFiltersMap.get('categoryMatch')!;
+        const rowValue = catMatch;
+        let matches = false;
+
+        for (const value of selectedValues) {
+          if (value === 'Y' && rowValue === 'Y') {
+            matches = true;
+            break;
+          } else if (value === 'N' && rowValue !== 'Y') {
+            // 'N' matches anything that's not 'Y' (including empty/null)
+            matches = true;
+            break;
+          }
+        }
+
+        if (!matches) {
+          matchesAllFilters = false;
         }
       }
 
-      // Core Issue filter evaluation
-      let coreIssueOk = true;
-      if (coreIssueHasSingle) {
-        const target = coreIssueValues[0];
-        if (target === 'Y') {
-          coreIssueOk = coreMatch === 'Y';
-        } else if (target === 'N') {
-          coreIssueOk = coreMatch !== 'Y';
+      // Check coreIssueMatch filter
+      if (matchesAllFilters && activeFiltersMap.has('coreIssueMatch')) {
+        const selectedValues = activeFiltersMap.get('coreIssueMatch')!;
+        const rowValue = coreMatch;
+        let matches = false;
+
+        for (const value of selectedValues) {
+          if (value === 'Y' && rowValue === 'Y') {
+            matches = true;
+            break;
+          } else if (value === 'N' && rowValue !== 'Y') {
+            matches = true;
+            break;
+          }
+        }
+
+        if (!matches) {
+          matchesAllFilters = false;
         }
       }
 
-      // Cancel Prediction filter evaluation
-      // Column name provided: "Cancel Prediction". Support alternate key with underscore if backend sends it.
-      let cancelOk = true;
-      if (cancelHasAny) {
-        // Attempt direct access first, then case-insensitive search across keys
+      // Check incidentState filter
+      if (matchesAllFilters && activeFiltersMap.has('incidentState')) {
+        const selectedValues = activeFiltersMap.get('incidentState')!;
+        const rowValue = (row['INCIDENT_STATE'] ?? '').toString().trim();
+
+        // Normalize 'Canceled' to 'Cancelled' for comparison
+        let normalizedRowValue = rowValue;
+        if (rowValue.toLowerCase() === 'canceled') {
+          normalizedRowValue = 'Cancelled';
+        }
+
+        if (!selectedValues.has(normalizedRowValue)) {
+          matchesAllFilters = false;
+        }
+      }
+
+      // Check cancelPrediction filter
+      if (matchesAllFilters && activeFiltersMap.has('cancelPrediction')) {
+        const selectedValues = activeFiltersMap.get('cancelPrediction')!;
+
+        // Try multiple possible column names
         let rawCancelPrediction: any =
           row['Cancel Prediction'] ??
           row['Cancel prediction'] ??
           row['CANCEL_PREDICTION'];
+
         if (rawCancelPrediction === undefined) {
-          // Fallback: iterate keys case-insensitively
+          // Fallback: case-insensitive search
           const matchKey = Object.keys(row).find(
             (k) => k.toLowerCase().replace(/_/g, ' ') === 'cancel prediction'
           );
-          if (matchKey) rawCancelPrediction = row[matchKey];
+          if (matchKey) {
+            rawCancelPrediction = row[matchKey];
+          }
         }
-        const cancelPredictionValue = (rawCancelPrediction ?? '')
-          .toString()
-          .trim();
-        if (cancelPredictionValue === '') {
-          // Empty/null should not match any selected prediction values
-          cancelOk = false;
+
+        const rowValue = (rawCancelPrediction ?? '').toString().trim();
+
+        // Empty values don't match any selected prediction
+        if (rowValue === '') {
+          matchesAllFilters = false;
         } else {
-          // Normalize comparisons (exact match among selected values)
-          cancelOk = cancelValues.some(
-            (v) => v.toLowerCase() === cancelPredictionValue.toLowerCase()
-          );
+          // Check if rowValue matches any selected value (case-insensitive)
+          let matches = false;
+          for (const value of selectedValues) {
+            if (value.toLowerCase() === rowValue.toLowerCase()) {
+              matches = true;
+              break;
+            }
+          }
+
+          if (!matches) {
+            matchesAllFilters = false;
+          }
         }
       }
 
-      // Incident State filter evaluation
-      let incidentStateOk = true;
-      if (incidentStateHasAny) {
-        const stateValue = (row['INCIDENT_STATE'] ?? '').toString().trim();
-        // Normalize variant spelling so selecting 'Cancelled' matches 'Canceled'
-        let normalizedStateValue = stateValue;
-        if (stateValue.toLowerCase() === 'canceled') {
-          normalizedStateValue = 'Cancelled';
-        }
-        incidentStateOk = incidentStateValues.includes(normalizedStateValue);
-      }
-
-      return categoryOk && coreIssueOk && cancelOk && incidentStateOk;
+      return matchesAllFilters;
     });
 
+    // Update the dataSource with filtered results
     this.dataSource.data = filtered;
-    // Update visible counts & paginator
+
+    // Update pagination
     if (this.enablePagination && this.paginator) {
       this.paginator.length = filtered.length;
       this.paginator.firstPage();
     }
+
     this.dataSource._updateChangeSubscription();
   }
 
   // Allow parent to externally set data (e.g., backend both-Y fetch) without overwriting original baseline unless requested
   public setExternalData(data: any[], replaceOriginal: boolean = false) {
-    if (replaceOriginal || this.originalData.length === 0) {
-      this.originalData = [...data];
+    if (replaceOriginal || this.fullData.length === 0) {
+      // Store complete dataset
+      this.fullData = [...data];
+
+      // Filter out (Y,Y) rows for originalData
+      this.originalData = this.fullData.filter((row) => {
+        const catMatch = (row['CATEGORY_MATCH'] ?? '').toString().trim();
+        const coreMatch = (row['CORE_ISSUE_MATCH'] ?? '').toString().trim();
+        return !(catMatch === 'Y' && coreMatch === 'Y');
+      });
     }
+
     this.dataSource.data = data ? [...data] : [];
+
     // Data arrived: clear local fetching overlay
     this.showFetchingOverlay = false;
+
     if (this.enablePagination && this.paginator) {
       this.paginator.length = this.dataSource.data.length;
       this.paginator.firstPage();
     }
+
     this.dataSource._updateChangeSubscription();
   }
 }

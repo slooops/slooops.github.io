@@ -131,3 +131,30 @@
   background-color: rgba(255, 215, 152, 0.1); /* #FFD798 at 10% */
   outline: 1px solid rgba(255, 215, 152, 0.5); /* #FFD798 at 50% opacity */
 }
+
+/* Non-clickable tile styling */
+.metric-tile.non-clickable {
+  cursor: default;
+  opacity: 0.8;
+}
+
+/* Prevent hover effects on non-clickable tiles while maintaining the outline */
+.metric-tile.non-clickable.status-high:hover {
+  outline: 1px solid rgba(0, 112, 210, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.metric-tile.non-clickable.status-medium:hover {
+  outline: 1px solid rgba(144, 164, 174, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.metric-tile.non-clickable.status-low:hover {
+  outline: 1px solid rgba(255, 215, 152, 0.5) !important;
+  box-shadow: none !important;
+}
+
+.metric-tile.non-clickable:hover .metric-name,
+.metric-tile.non-clickable:hover .metric-percentage {
+  font-weight: 400 !important;
+}
