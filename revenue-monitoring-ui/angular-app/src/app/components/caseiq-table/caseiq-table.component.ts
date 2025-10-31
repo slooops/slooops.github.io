@@ -56,6 +56,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   // Internal multi-select dropdown state for Incident State inside filters popup
   showIncidentStateInner: boolean = false;
   showCancelPredictionInner: boolean = false;
+  showImpactedServiceOfferingInner: boolean = false;
 
   // Dummy filter options (can be made dynamic based on data)
   filterOptions = [
@@ -79,6 +80,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         'Resolved',
         'Cancelled',
       ],
+    },
+    {
+      id: 'impactedServiceOffering',
+      label: 'Impacted Service Offering',
+      values: [], // Will be populated dynamically from data
     },
     {
       id: 'cancelPrediction',
@@ -174,6 +180,23 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
               return statesSet.has(v);
             }
           );
+        }
+
+        // Populate dynamic Impacted Service Offering filter values from FULL data
+        const serviceOfferingsSet = new Set(
+          (this.fullData || [])
+            .map((r) =>
+              (r['IMPACTED_SERVICE_OFFERING'] ?? '').toString().trim()
+            )
+            .filter((v) => !!v)
+        );
+        const impactedServiceOfferingOption = this.filterOptions.find(
+          (o) => o.id === 'impactedServiceOffering'
+        );
+        if (impactedServiceOfferingOption) {
+          // Sort alphabetically for consistent display
+          impactedServiceOfferingOption.values =
+            Array.from(serviceOfferingsSet).sort();
         }
       }
       // Use setTimeout to ensure the DOM has updated with the new data
@@ -272,8 +295,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         }
       });
 
-      // Add COMMENTS column at the end (empty by default for user input)
-      truncatedRow['COMMENTS'] = '';
+      // Add COMMENTS column at the end (empty by default for user input) only if it doesn't exist
+      if (!truncatedRow.hasOwnProperty('COMMENTS')) {
+        truncatedRow['COMMENTS'] = '';
+      }
 
       return truncatedRow;
     });
@@ -342,6 +367,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.showFiltersDropdown) {
       this.showIncidentStateInner = false;
       this.showCancelPredictionInner = false;
+      this.showImpactedServiceOfferingInner = false;
     }
   }
 
@@ -363,6 +389,16 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
   toggleCancelPredictionValue(value: string, label: string) {
     this.addFilter('cancelPrediction', label, value);
+  }
+
+  // Impacted Service Offering inner multi-select
+  toggleImpactedServiceOfferingInner(event: Event) {
+    event.stopPropagation();
+    this.showImpactedServiceOfferingInner =
+      !this.showImpactedServiceOfferingInner;
+  }
+  toggleImpactedServiceOfferingValue(value: string, label: string) {
+    this.addFilter('impactedServiceOffering', label, value);
   }
 
   addFilter(filterId: string, filterLabel: string, value: string): void {
@@ -443,6 +479,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.showFiltersDropdown = false;
     this.showIncidentStateInner = false;
     this.showCancelPredictionInner = false;
+    this.showImpactedServiceOfferingInner = false;
   }
 
   // Method to get match status for Category and Core issue columns
@@ -634,6 +671,20 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
           if (!matches) {
             matchesAllFilters = false;
           }
+        }
+      }
+
+      // Check impactedServiceOffering filter
+      if (
+        matchesAllFilters &&
+        activeFiltersMap.has('impactedServiceOffering')
+      ) {
+        const selectedValues = activeFiltersMap.get('impactedServiceOffering')!;
+        const rowValue = (row['IMPACTED_SERVICE_OFFERING'] ?? '')
+          .toString()
+          .trim();
+        if (!selectedValues.has(rowValue)) {
+          matchesAllFilters = false;
         }
       }
 

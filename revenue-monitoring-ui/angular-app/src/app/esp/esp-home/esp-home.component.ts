@@ -31,6 +31,20 @@ export class EspHomeComponent implements OnInit {
   activeTab: string = ''; // Will be set based on user roles
   overallAccuracy: string = '';
 
+  // Quarter filter properties
+  selectedQuarter: string = 'Q1 FY26';
+  showQuarterDropdown: boolean = false;
+  quarters: { label: string; value: string }[] = [
+    { label: 'Q1 FY26', value: 'Q1 FY26' },
+    { label: 'Q2 FY26', value: 'Q2 FY26' },
+    { label: 'Q3 FY26', value: 'Q3 FY26' },
+    { label: 'Q4 FY26', value: 'Q4 FY26' },
+    { label: 'Q1 FY25', value: 'Q1 FY25' },
+    { label: 'Q2 FY25', value: 'Q2 FY25' },
+    { label: 'Q3 FY25', value: 'Q3 FY25' },
+    { label: 'Q4 FY25', value: 'Q4 FY25' },
+  ];
+
   // Base metric tiles structure - preserving all tile names
   private readonly baseMetricTiles: MetricTile[] = [
     { name: 'Overall', percentage: '-' },
@@ -51,6 +65,40 @@ export class EspHomeComponent implements OnInit {
     this.roles = this.authService.getRoles();
     this.setDefaultActiveTab();
     this.getXxcaseiqValidatedCasesAccuracyV();
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      this.showQuarterDropdown = false;
+    });
+  }
+
+  /**
+   * Toggle quarter dropdown visibility
+   */
+  toggleQuarterDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showQuarterDropdown = !this.showQuarterDropdown;
+  }
+
+  /**
+   * Select a quarter and close dropdown
+   */
+  selectQuarter(quarter: string): void {
+    this.selectedQuarter = quarter;
+    this.showQuarterDropdown = false;
+    console.log(`Quarter changed to: ${this.selectedQuarter}`);
+    // TODO: Add API call with quarter parameter when backend is ready
+    // this.getXxcaseiqValidatedCasesAccuracyV();
+  }
+
+  /**
+   * Handle quarter selection change
+   * Refreshes data based on selected quarter
+   */
+  onQuarterChange(): void {
+    console.log(`Quarter changed to: ${this.selectedQuarter}`);
+    // TODO: Add API call with quarter parameter when backend is ready
+    // this.getXxcaseiqValidatedCasesAccuracyV();
   }
 
   /**

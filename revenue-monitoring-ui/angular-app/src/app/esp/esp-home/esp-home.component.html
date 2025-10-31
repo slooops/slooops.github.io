@@ -1,7 +1,50 @@
 <div class="esp-dashboard">
   <div class="dashboard-header">
     <div class="header-main">
-      <h1>ESP Case Data Review</h1>
+      <div class="header-left">
+        <h1>ESP Case Data Review</h1>
+        <div class="quarter-filter">
+          <label>Quarter:</label>
+          <div
+            class="quarter-dropdown-wrapper"
+            (click)="$event.stopPropagation()"
+          >
+            <button
+              type="button"
+              class="quarter-dropdown-button"
+              (click)="toggleQuarterDropdown($event)"
+            >
+              {{ selectedQuarter }}
+              <span class="dropdown-arrow" [class.open]="showQuarterDropdown"
+                >▾</span
+              >
+            </button>
+            <div
+              class="quarter-dropdown-menu"
+              *ngIf="showQuarterDropdown"
+              (click)="$event.stopPropagation()"
+            >
+              <!-- <div class="quarter-dropdown-header">
+                <span>Select</span>
+              </div> -->
+              <div class="quarter-options">
+                <div
+                  class="quarter-option"
+                  *ngFor="let quarter of quarters"
+                  (click)="selectQuarter(quarter.value)"
+                >
+                  <input
+                    type="radio"
+                    [checked]="selectedQuarter === quarter.value"
+                    readonly
+                  />
+                  <span class="option-label">{{ quarter.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="period-info">
         <!-- <span class="period-details">
           Period name: <strong>SEP-26 (W4)</strong> | Period end date:
