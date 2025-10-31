@@ -66,11 +66,11 @@
       <span class="navbar">
         <ul class="menu">
           <!-- Home -->
-          <li class="menu-item" [class.disabled]="true">
+          <!-- <li class="menu-item" [class.disabled]="true">
             <a [routerLink]="'/home'" class="top-link">
               <i class="svg-icon home-icon" style="font-weight: 900"></i>
             </a>
-          </li>
+          </li> -->
 
           <!-- Period Close Tracking -->
           <li
@@ -353,7 +353,7 @@
 <mat-menu #espMenu="matMenu">
   <button
     mat-menu-item
-    [routerLink]="'/esp-home'"
+    [routerLink]="'/case-iq'"
     *ngIf="
       hasRole$([
         'CASE_IQ_MANAGER',

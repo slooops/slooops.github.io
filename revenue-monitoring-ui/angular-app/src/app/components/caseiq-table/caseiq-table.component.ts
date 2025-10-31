@@ -198,9 +198,34 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
 
+    // Set the paginator length to match the current data length
+    this.paginator.length = this.dataSource.data.length;
+    this.paginator.pageIndex = 0; // Start at first page
     this.dataSource.paginator = this.paginator;
+
     // Force a refresh of the table
     this.dataSource._updateChangeSubscription();
+  }
+
+  /**
+   * Helper method to properly update pagination when data changes
+   * This ensures the paginator is in sync with the data
+   */
+  private updatePagination(dataLength: number) {
+    if (this.enablePagination && this.paginator) {
+      // Temporarily disconnect paginator to avoid issues
+      this.dataSource.paginator = null;
+
+      // Update paginator properties
+      this.paginator.length = dataLength;
+      this.paginator.pageIndex = 0;
+
+      // Reconnect paginator
+      this.dataSource.paginator = this.paginator;
+
+      // Force paginator to first page
+      this.paginator.firstPage();
+    }
   }
 
   // Public method to manually trigger paginator setup from parent component
@@ -246,6 +271,10 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
           truncatedRow[key] = value;
         }
       });
+
+      // Add COMMENTS column at the end (empty by default for user input)
+      truncatedRow['COMMENTS'] = '';
+
       return truncatedRow;
     });
 
@@ -469,10 +498,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     if (this.activeFilters.length === 0) {
       this.dataSource.data = [...this.originalData];
       this.dataSource._updateChangeSubscription();
-      if (this.enablePagination && this.paginator) {
-        this.paginator.length = this.dataSource.data.length;
-        this.paginator.firstPage();
-      }
+
+      // Update pagination after data sync
+      setTimeout(() => {
+        this.updatePagination(this.dataSource.data.length);
+      }, 0);
       return;
     }
 
@@ -613,13 +643,13 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     // Update the dataSource with filtered results
     this.dataSource.data = filtered;
 
-    // Update pagination
-    if (this.enablePagination && this.paginator) {
-      this.paginator.length = filtered.length;
-      this.paginator.firstPage();
-    }
-
+    // Update the table change subscription first
     this.dataSource._updateChangeSubscription();
+
+    // Then update pagination after a micro-task to ensure data is synced
+    setTimeout(() => {
+      this.updatePagination(filtered.length);
+    }, 0);
   }
 
   // Allow parent to externally set data (e.g., backend both-Y fetch) without overwriting original baseline unless requested
@@ -641,11 +671,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     // Data arrived: clear local fetching overlay
     this.showFetchingOverlay = false;
 
-    if (this.enablePagination && this.paginator) {
-      this.paginator.length = this.dataSource.data.length;
-      this.paginator.firstPage();
-    }
-
+    // Update pagination with proper reset
+    this.updatePagination(this.dataSource.data.length);
     this.dataSource._updateChangeSubscription();
   }
 }

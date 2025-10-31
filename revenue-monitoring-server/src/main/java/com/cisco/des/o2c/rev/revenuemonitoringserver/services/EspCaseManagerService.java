@@ -240,7 +240,7 @@ public class EspCaseManagerService {
         try {
             List<Map<String, String>> data = ExcelReader.readExcel(file.getInputStream());
             for (Map<String, String> row : data) {
-                jdbcManager.espCaseAnalyzerTableUpdate(xxcaseiqEspCaseAnalyzerTblUpdate, row.get("CATEGORY"), row.get("CATEGORY_ACTUAL"), row.get("CORE_ISSUE"), row.get("CORE_ISSUE_ACTUAL"), row.get("INCIDENT_NUMBER"), row.get("IMPACTED_SERVICE_OFFERING"));
+                jdbcManager.espCaseAnalyzerTableUpdate(xxcaseiqEspCaseAnalyzerTblUpdate, row.get("CATEGORY"), row.get("CATEGORY_ACTUAL"), row.get("COMMENTS"), row.get("CORE_ISSUE"), row.get("CORE_ISSUE_ACTUAL"), row.get("INCIDENT_NUMBER"), row.get("IMPACTED_SERVICE_OFFERING"));
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -442,7 +442,7 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
     }
 
-    public int espCaseAnalyzerTableUpdate(String sql, String category, String categoryActual, String coreIssue, String coreIssueActual, String incidentNumber, String impactedServiceOffering){
-        return primaryJdbcTemplate.update(sql, categoryActual, coreIssueActual, category, categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue, coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    public int espCaseAnalyzerTableUpdate(String sql, String category, String categoryActual, String comments, String coreIssue, String coreIssueActual, String incidentNumber, String impactedServiceOffering){
+        return primaryJdbcTemplate.update(sql, categoryActual, coreIssueActual, comments, category, categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue, coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
     }
 }

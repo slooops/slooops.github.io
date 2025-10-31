@@ -6,6 +6,7 @@ import {
   OnChanges,
   AfterViewInit,
   SimpleChanges,
+  ChangeDetectorRef,
 } from '@angular/core';
 import * as d3 from 'd3';
 
@@ -79,6 +80,8 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     '#C9CBCF',
   ];
 
+  constructor(private cdr: ChangeDetectorRef) {}
+
   ngAfterViewInit(): void {
     this.container = this.containerRef.nativeElement;
     this.calculateDimensions();
@@ -147,6 +150,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
 
     if (!this.data || this.data.length === 0) {
       this.showNoDataMessage();
+      this.cdr.detectChanges();
       return;
     }
 
@@ -462,5 +466,8 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
 
       // Removed full-bar overlay tooltip; segment-level hover now provides individual counts only.
     });
+
+    // Trigger change detection to avoid ExpressionChangedAfterItHasBeenCheckedError
+    this.cdr.detectChanges();
   }
 }

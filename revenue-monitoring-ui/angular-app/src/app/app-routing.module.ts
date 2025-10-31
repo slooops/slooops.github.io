@@ -98,11 +98,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'esp-home',
+    path: 'case-iq',
     component: EspHomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Case IQ',
+      header: 'ESP Case Manager',
     },
   },
   {
