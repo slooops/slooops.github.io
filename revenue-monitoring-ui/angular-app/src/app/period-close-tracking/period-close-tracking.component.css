@@ -98,8 +98,16 @@
 }
 
 .entity-legend {
-  text-align: center;
-  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: -10px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Table styles for entity tables */
@@ -114,20 +122,12 @@ table.table.equal-width.table-striped td {
   font-weight: 500 !important;
   padding: 0.5rem 0.3rem 0.3rem 0.3rem !important;
   border: 0px !important;
+  background-color: #f0f7fc;
 }
 table.table.equal-width.table-striped th {
   text-align: center !important;
   border-bottom: 0px !important;
   font-size: 12px;
   padding: 0.5vh !important;
-  background-color: #ffffff;
-}
-table.table.equal-width.table-striped tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-table.table.equal-width.table-striped tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-tr.ngprocess-row {
-  height: 60px !important;
+  background-color: #f0f7fc;
 }

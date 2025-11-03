@@ -33,41 +33,31 @@
 <!-- Entity View -->
 <app-card [container]="true" style="margin-bottom: 12px">
   <div class="section-title" style="display: flex; align-items: center">
-    Entity View
+    Midclose Progress
     <span style="flex: 1">
       <div class="card-subtitle entity-legend">
-        Legend: ✓ Completed &nbsp; ⏳ In progress &nbsp; ⚠️ Delayed &nbsp; 🛑
-        Stopped &nbsp; ⏸️ Yet to start
+        <span class="legend-item">
+          <i class="icon-small completed-icon"></i>
+          <span>Completed</span>
+        </span>
+        <span class="legend-item">
+          <i class="icon-small in-progress-icon"></i>
+          <span>In progress</span>
+        </span>
+        <span class="legend-item">
+          <i class="icon-small delayed-icon"></i>
+          <span>Delayed</span>
+        </span>
+        <span class="legend-item">
+          <i class="icon-small stopped-icon"></i>
+          <span>Stopped</span>
+        </span>
+        <span class="legend-item">
+          <i class="icon-small yet-to-start-icon"></i>
+          <span>Yet to start</span>
+        </span>
       </div>
     </span>
-    <div class="entity-controls">
-      <mat-form-field appearance="standard">
-        <mat-label>Select Statuses</mat-label>
-        <mat-select [formControl]="midcloseStatuses" multiple>
-          <mat-option
-            *ngFor="let status of statusList"
-            [value]="status"
-            (onSelectionChange)="statusChange('MIDCLOSE')"
-            [disabled]="status !== 'All' && midcloseAllStatusSelected"
-          >
-            {{ status }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Select Entities</mat-label>
-        <mat-select [formControl]="midcloseEntities" multiple>
-          <mat-option
-            *ngFor="let entity of entityList"
-            [value]="entity"
-            (onSelectionChange)="entityChange('MIDCLOSE')"
-            [disabled]="entity !== 'All' && midcloseAllEntitiesSelected"
-          >
-            {{ entity }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
   </div>
   <div class="periodclosetable">
     <table class="table table-responsive equal-width table-striped">
@@ -77,62 +67,36 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          *ngIf="
-            midcloseSelectedEntities && midcloseSelectedEntities.length > 0
-          "
-        >
-          <td></td>
-          <td
-            *ngFor="
-              let category of templateObject.keys(mCloseProgBarStatusMapping)
-            "
-          >
-            <p class="circle-progress-container">
-              <circle-progress
-                [titleFontSize]="'12'"
-                [unitsFontSize]="'12'"
-                [percent]="mCloseProgBarStatusMapping[category]['value']"
-                [outerStrokeColor]="
-                  getCircleColor(
-                    category,
-                    mcloseSelectedMonthEndStatusTableData
-                  )
-                "
-              >
-              </circle-progress>
-            </p>
-          </td>
-        </tr>
-        <tr
-          *ngIf="
-            midcloseSelectedEntities && midcloseSelectedEntities.length > 0
-          "
-        >
+        <tr *ngIf="mcloseMonthEndStatusTableData.length > 0">
           <td *ngFor="let row of mcloseExecutionWindow">{{ row }}</td>
         </tr>
-        <tr *ngFor="let row of mcloseSelectedMonthEndStatusTableData">
+        <tr *ngFor="let row of mcloseMonthEndStatusTableData">
           <td *ngFor="let category of templateObject.keys(row)">
-            <span *ngIf="row[category].toLowerCase() === 'completed'">✓</span>
+            <i
+              *ngIf="row[category].toLowerCase() === 'completed'"
+              class="icon-small completed-icon"
+            ></i>
             <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
-            <span *ngIf="row[category].toLowerCase() === 'in progress'"
-              >⏳</span
-            >
-            <span *ngIf="row[category].toLowerCase() === 'yet to start'"
-              >⏸️</span
-            >
-            <span
+            <i
+              *ngIf="row[category].toLowerCase() === 'in progress'"
+              class="icon-small in-progress-icon"
+            ></i>
+            <i
+              *ngIf="row[category].toLowerCase() === 'yet to start'"
+              class="icon-small yet-to-start-icon"
+            ></i>
+            <i
               matTooltip="Details included in period close communications."
               matTooltipPosition="right"
               *ngIf="row[category].toLowerCase() === 'delayed'"
-              >⚠️</span
-            >
-            <span
+              class="icon-small delayed-icon"
+            ></i>
+            <i
               matTooltip="Details included in period close communications."
               matTooltipPosition="right"
               *ngIf="row[category].toLowerCase() === 'stopped'"
-              >🛑</span
-            >
+              class="icon-small stopped-icon"
+            ></i>
             <span
               *ngIf="
                 [
@@ -152,7 +116,7 @@
       </tbody>
     </table>
     <span style="display: flex; justify-content: center">
-      <ng-container *ngIf="midcloseSelectedEntities.length == 0">
+      <ng-container *ngIf="mcloseMonthEndStatusTableData.length == 0">
         <tr>
           <td colspan="100%" class="centered">
             <app-loading-symbol></app-loading-symbol>
@@ -208,61 +172,4 @@
   </div>
 </app-card>
 
-<!-- Comments Container -->
-<app-card [container]="false">
-  <div class="card-title" style="display: flex; align-items: center">
-    Comments
-    <span style="flex: 1"></span>
-    <span class="card-subtitle" style="font-size: 13px">
-      For questions, email
-      <a href="mailto:i2c-close-monitoring@cisco.com">
-        i2c-close-monitoring&#64;cisco.com
-      </a>
-    </span>
-  </div>
-  <form *ngIf="showComments">
-    <input
-      name="comments"
-      class="form-control form-control-sm"
-      type="text"
-      placeholder="Add a comment"
-      [(ngModel)]="updatedComments"
-      (focus)="showCommentSave = true"
-      style="width: 40%; height: 60px"
-    />
-    <br />
-    <span *ngIf="showCommentSave">
-      <button
-        mat-raised-button
-        (click)="updateComments()"
-        class="custom-button-primary"
-      >
-        Save
-      </button>
-      &nbsp;
-      <button
-        mat-raised-button
-        (click)="showCommentSave = false"
-        class="custom-button-secondary"
-      >
-        Cancel
-      </button>
-      <br /><br />
-    </span>
-  </form>
-  <div>
-    <div *ngFor="let comment of dashComments">
-      <ul *ngIf="comment.CLOSE_TYPE === 'MIDCLOSE'">
-        <li>
-          <p style="margin-bottom: 10px; color: #454444">
-            <i class="fa fa-user-circle-o" aria-hidden="true"></i> &nbsp;
-            <b>{{ username }}</b> &nbsp;
-            <span style="color: #6b6a6a">{{ comment.CREATION_DATE }}</span>
-          </p>
-          <p>{{ comment.PERIOD_NAME }}: {{ comment.COMMENTS }}</p>
-        </li>
-      </ul>
-    </div>
-  </div>
-</app-card>
 <br /><br /><br />

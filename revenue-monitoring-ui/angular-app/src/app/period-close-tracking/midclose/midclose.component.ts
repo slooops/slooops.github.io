@@ -41,20 +41,4 @@ export class MidcloseComponent extends PeriodCloseTrackingComponent {
   ) {
     super(http, destroyManager, authService, menuService, route, cdr, router);
   }
-
-  username: string = 'Admin';
-
-  showCommentSave: boolean = false;
-  updatedComments: string;
-
-  updateComments() {
-    let comments = this.updatedComments + ',MIDCLOSE';
-    this.http
-      .post('pclose-update-dashboard-comments', comments, this.destroyManager)
-      .subscribe((data: any) => {
-        this.updatedComments = '';
-        this.showCommentSave = false;
-        this.getComments();
-      });
-  }
 }

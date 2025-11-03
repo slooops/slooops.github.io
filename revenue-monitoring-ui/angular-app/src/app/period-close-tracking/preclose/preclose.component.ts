@@ -14,7 +14,6 @@ import { ActivatedRoute, Router } from '@angular/router';
   providers: [DestroyManager],
 })
 export class PrecloseComponent extends PeriodCloseTrackingComponent {
-  username: string = 'Admin';
   constructor(
     http: ApiHttpService,
     destroyManager: DestroyManager,
@@ -25,20 +24,5 @@ export class PrecloseComponent extends PeriodCloseTrackingComponent {
     router: Router
   ) {
     super(http, destroyManager, authService, menuService, route, cdr, router);
-  }
-
-  showCommentSave: boolean = false;
-  updatedComments: string;
-  dataSource: any;
-
-  updateComments() {
-    let comments = this.updatedComments + ',PRECLOSE';
-    this.http
-      .post('pclose-update-dashboard-comments', comments, this.destroyManager)
-      .subscribe((data: any) => {
-        this.updatedComments = '';
-        this.showCommentSave = false;
-        this.getComments();
-      });
   }
 }

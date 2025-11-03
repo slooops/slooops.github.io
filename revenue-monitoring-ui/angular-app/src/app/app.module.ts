@@ -141,6 +141,8 @@ import { CaseiqP2pExpandDialogComponent } from './esp/esp-home/caseiq-p2p/caseiq
 import { CaseiqSmExpandDialogComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AtmfTableComponent } from './components/atmf/atmf-table/atmf-table.component';
+import { AtmfCardComponent } from './components/atmf/atmf-card/atmf-card.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -253,6 +255,8 @@ export function initApp(authService: AuthenticationService) {
     CaseiqP2pExpandDialogComponent,
     // Dialog for expanded CaseIQ SM charts
     CaseiqSmExpandDialogComponent,
+    AtmfTableComponent,
+    AtmfCardComponent,
   ],
   imports: [
     BrowserModule,
