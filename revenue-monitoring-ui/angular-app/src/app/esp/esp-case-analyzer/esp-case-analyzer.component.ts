@@ -5,6 +5,15 @@ import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 Chart.register(...registerables);
 
+// Types for new quarter-pair logic
+type QuarterPairKey = 'Q1-Q2' | 'Q2-Q3' | 'Q3-Q4' | 'Q4-Q1';
+type PairConfig = {
+  key: QuarterPairKey;
+  left: string; // e.g. "Q2FY25"
+  right: string; // e.g. "Q3FY25"
+  yearContext: number; // FY used for the pair (for Q4–Q1, yearContext = FY of Q1)
+};
+
 @Component({
   selector: 'app-esp-case-analyzer',
   templateUrl: './esp-case-analyzer.component.html',
@@ -51,40 +60,73 @@ export class EspCaseAnalyzerComponent implements OnInit {
   q4: string | null = null;
   q5: string | null = null;
 
+  // New pair-based configuration
+  quarterPairs: PairConfig[] = [];
+
   ngOnInit(): void {
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
         responseType: 'json',
       })
       .subscribe((data: any) => {
-        const recentQuarters = this.extractRecentQuarters(data);
+        // NEW: Build quarter pairs using the latest complete pair logic
+        this.quarterPairs = this.buildLatestQuarterPairs(data);
 
-        // Assign quarters based on available data
-        recentQuarters.forEach((quarter, index) => {
-          switch (index) {
-            case 0:
-              this.q1 = quarter.fiscalQuarter;
-              break;
-            case 1:
-              this.q2 = quarter.fiscalQuarter;
-              break;
-            case 2:
-              this.q3 = quarter.fiscalQuarter;
-              break;
-            case 3:
-              this.q4 = quarter.fiscalQuarter;
-              break;
-            case 4:
-              this.q5 = quarter.fiscalQuarter;
-              break;
-          }
+        // Map pairs to q1-q5 for backwards compatibility with existing data loading
+        // This allows existing getEspAgingCaseSummary and getEspCaseServiceMetricSummary to work
+        const allQuarters = new Set<string>();
+        this.quarterPairs.forEach((pair) => {
+          allQuarters.add(pair.left);
+          allQuarters.add(pair.right);
         });
 
-        this.selectedTabIndex = Math.max(0, recentQuarters.length - 2); // last valid pair is at length - 2
+        const sortedQuarters = Array.from(allQuarters).sort((a, b) => {
+          // Sort by position in data (if available) or by parsing
+          const posA =
+            data.find((d: any) => d.FISC_QTR === a)?.QTR_RELATIVE_POSITION ??
+            999;
+          const posB =
+            data.find((d: any) => d.FISC_QTR === b)?.QTR_RELATIVE_POSITION ??
+            999;
+          return posA - posB;
+        });
+
+        // Assign to q1-q5 variables for existing code
+        this.q1 = sortedQuarters[0] || null;
+        this.q2 = sortedQuarters[1] || null;
+        this.q3 = sortedQuarters[2] || null;
+        this.q4 = sortedQuarters[3] || null;
+        this.q5 = sortedQuarters[4] || null;
+
+        // Default to the tab with the highest yearContext (most recent fiscal year)
+        // Stop at the first decrease in yearContext to avoid selecting older Q4-Q1 tabs
+        let maxYearContext = -1;
+        let selectedIndex = 0;
+
+        for (let i = 0; i < this.quarterPairs.length; i++) {
+          const pair = this.quarterPairs[i];
+
+          if (pair.yearContext > maxYearContext) {
+            // Found a higher yearContext, select it
+            maxYearContext = pair.yearContext;
+            selectedIndex = i;
+          } else if (pair.yearContext < maxYearContext) {
+            // YearContext decreased (e.g., Q4-Q1 with older left quarter)
+            // Stop here - we've found the most recent complete pair
+            break;
+          }
+          // If yearContext === maxYearContext, continue to next (prefer later index within same year)
+          else if (pair.yearContext === maxYearContext) {
+            selectedIndex = i;
+          }
+        }
+
+        this.selectedTabIndex = selectedIndex;
 
         this.espWeeklyComparisonSummary = data;
 
-        console.log('Final quarter assignments:', {
+        console.log('Quarter pairs:', this.quarterPairs);
+        console.log('Legacy quarter assignments:', {
           q1: this.q1,
           q2: this.q2,
           q3: this.q3,
@@ -298,29 +340,32 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
     this.destroyCharts();
 
-    if (tabIndex === 0 && this.q5 && this.q2) {
-      this.isQ1Q2Loading = false;
-      setTimeout(() => this.generateChartForPair(this.q5, this.q2, 'Q1Q2'), 0);
-    } else if (tabIndex === 0 && this.q1 && this.q2) {
-      this.isQ1Q2Loading = false;
-      setTimeout(() => this.generateChartForPair(this.q1, this.q2, 'Q1Q2'), 0);
-    }
+    // NEW: Use quarter pairs based on tab index
+    const pair = this.quarterPairs[tabIndex];
+    if (!pair) return;
 
-    if (tabIndex === 1 && this.q2 && this.q3) {
-      this.isQ2Q3Loading = false;
-      setTimeout(() => this.generateChartForPair(this.q2, this.q3, 'Q2Q3'), 0);
-    }
+    const chartNameMap: { [key: string]: string } = {
+      'Q1-Q2': 'Q1Q2',
+      'Q2-Q3': 'Q2Q3',
+      'Q3-Q4': 'Q3Q4',
+      'Q4-Q1': 'Q4Q1',
+    };
 
-    if (tabIndex === 2 && this.q3 && this.q4) {
-      this.isQ3Q4Loading = false;
-      setTimeout(() => this.generateChartForPair(this.q3, this.q4, 'Q3Q4'), 0);
-    }
+    const chartName = chartNameMap[pair.key];
+    const loadingFlag = `is${chartName}Loading` as keyof this;
 
-    if (tabIndex === 3 && this.q4 && this.q1) {
-      this.isQ4Q1Loading = false;
-      setTimeout(() => this.generateChartForPair(this.q4, this.q1, 'Q4Q1'), 0);
-      console.log('Generating Q4 - Q1 chart using:', this.q4, this.q1);
-    }
+    console.log(
+      `Generating ${pair.key} chart using:`,
+      pair.left,
+      'vs',
+      pair.right
+    );
+
+    this[loadingFlag] = false as any;
+    setTimeout(
+      () => this.generateChartForPair(pair.left, pair.right, chartName),
+      0
+    );
   }
 
   destroyCharts(): void {
@@ -482,159 +527,152 @@ export class EspCaseAnalyzerComponent implements OnInit {
     });
   }
 
-  private extractRecentQuarters(
-    data: any[]
-  ): { quarterIndex: number; fiscalQuarter: string }[] {
-    // Step 1: Use QTR_RELATIVE_POSITION to get quarters in chronological order
-    const quarterPositionMap = new Map<number, string>();
+  /**
+   * NEW LOGIC: Build latest complete quarter pairs
+   * Always returns up to 4 PairConfigs (one per tab: Q1-Q2, Q2-Q3, Q3-Q4, Q4-Q1)
+   * Never disables tabs - finds the most recent complete pair for each adjacency
+   *
+   * TEST CASES:
+   *
+   * Example A (sample data):
+   * Input: Q1FY26(pos=1), Q2FY25(pos=4), Q2FY26(pos=0), Q3FY25(pos=3), Q4FY25(pos=2)
+   * Expected:
+   *   - Q1-Q2: Q1FY26 vs Q2FY26 (both in FY26)
+   *   - Q2-Q3: Q2FY25 vs Q3FY25 (both in FY25, don't mix FY26 Q2 with FY25 Q3)
+   *   - Q3-Q4: Q3FY25 vs Q4FY25 (both in FY25)
+   *   - Q4-Q1: Q4FY25 vs Q1FY26 (cross-year)
+   *
+   * Example B (FY26 complete; FY27 Q1 missing):
+   * Expected:
+   *   - Q1-Q2, Q2-Q3, Q3-Q4: all FY26
+   *   - Q4-Q1: Q4FY25 vs Q1FY26 (fallback, can't use Q4FY26 vs Q1FY27)
+   *
+   * Example C (only Q1FY27 exists; others in FY26):
+   * Expected:
+   *   - Q1-Q2, Q2-Q3, Q3-Q4: FY26
+   *   - Q4-Q1: Q4FY26 vs Q1FY27 (complete cross-year)
+   *
+   * Duplicate handling: Two rows for Q2FY26 at pos=2 and pos=0 → Use pos=0 (newest)
+   * Negative positions: Always ignored
+   */
+  private buildLatestQuarterPairs(
+    data: Array<{ FISC_QTR: string; QTR_RELATIVE_POSITION?: number }>
+  ): PairConfig[] {
+    // Step 1: Normalize & dedupe - keep only newest row per (fy, q)
+    const bestByFyQ = new Map<string, { fisc_qtr: string; position: number }>();
 
     data.forEach((item) => {
       const position = item.QTR_RELATIVE_POSITION;
-      const fiscalQuarter = item.FISC_QTR;
+      const fiscQtr = item.FISC_QTR;
 
-      // Only include non-negative positions (negative positions are older data we don't want)
-      if (position !== undefined && position >= 0 && fiscalQuarter) {
-        quarterPositionMap.set(position, fiscalQuarter);
+      // Skip rows with negative or undefined positions
+      if (position === undefined || position < 0 || !fiscQtr) {
+        return;
+      }
+
+      // Parse FISC_QTR: e.g., "Q2FY26" -> q=2, fy=26
+      const match = fiscQtr.match(/Q(\d)FY(\d{2,4})/);
+      if (!match) return;
+
+      const q = parseInt(match[1], 10);
+      const fy = parseInt(match[2], 10);
+      const key = `${fy}-${q}`;
+
+      const existing = bestByFyQ.get(key);
+      if (!existing || position < existing.position) {
+        bestByFyQ.set(key, { fisc_qtr: fiscQtr, position });
       }
     });
 
-    // Get available positions sorted (0 = newest, higher = older)
-    const availablePositions = Array.from(quarterPositionMap.keys()).sort(
-      (a, b) => a - b
-    );
+    // Step 2: Index presence - organize by fiscal year and quarter
+    const byYear = new Map<number, Set<number>>();
+    const bestFiscQtrBy = new Map<string, string>(); // key: "fy-q", value: "Q2FY26"
 
-    // Step 2: Parse quarters and organize by quarter type
-    const quartersByType: {
-      [key: number]: Array<{
-        fiscalQuarter: string;
-        fiscalYear: number;
-        position: number;
-      }>;
-    } = {
-      1: [],
-      2: [],
-      3: [],
-      4: [],
+    bestByFyQ.forEach((value, key) => {
+      const [fyStr, qStr] = key.split('-');
+      const fy = parseInt(fyStr, 10);
+      const q = parseInt(qStr, 10);
+
+      if (!byYear.has(fy)) {
+        byYear.set(fy, new Set());
+      }
+      byYear.get(fy)!.add(q);
+      bestFiscQtrBy.set(key, value.fisc_qtr);
+    });
+
+    // Step 3: Helper to find latest year with both quarters
+    const latestYearWithBoth = (qA: number, qB: number): number | null => {
+      // Get all years sorted descending (newest first)
+      const years = Array.from(byYear.keys()).sort((a, b) => b - a);
+
+      for (const year of years) {
+        const quarters = byYear.get(year)!;
+        if (quarters.has(qA) && quarters.has(qB)) {
+          return year;
+        }
+      }
+      return null;
     };
 
-    availablePositions.forEach((position) => {
-      const fiscalQuarter = quarterPositionMap.get(position)!;
-      const match = fiscalQuarter.match(/Q(\d)FY(\d+)/);
+    // Step 4: Build pairs
+    const pairs: PairConfig[] = [];
 
-      if (match) {
-        const quarterNumber = parseInt(match[1], 10);
-        const fiscalYear = parseInt(match[2], 10);
-
-        quartersByType[quarterNumber].push({
-          fiscalQuarter,
-          fiscalYear,
-          position,
-        });
-      }
-    });
-
-    // Step 3: Smart assignment based on quarter type
-    const result: { quarterIndex: number; fiscalQuarter: string }[] = [];
-
-    // Assign Q1 - use the newest (lowest position number)
-    if (quartersByType[1].length > 0) {
-      const newestQ1 = quartersByType[1].sort(
-        (a, b) => a.position - b.position
-      )[0];
-      result.push({ quarterIndex: 1, fiscalQuarter: newestQ1.fiscalQuarter });
-    }
-
-    // Assign Q2 - use the newest available Q2
-    if (quartersByType[2].length > 0) {
-      const newestQ2 = quartersByType[2].sort(
-        (a, b) => a.position - b.position
-      )[0];
-      result.push({ quarterIndex: 2, fiscalQuarter: newestQ2.fiscalQuarter });
-    }
-
-    // Assign Q3 - use the newest available Q3
-    if (quartersByType[3].length > 0) {
-      const newestQ3 = quartersByType[3].sort(
-        (a, b) => a.position - b.position
-      )[0];
-      result.push({ quarterIndex: 3, fiscalQuarter: newestQ3.fiscalQuarter });
-    }
-
-    // Assign Q4 - use the newest available Q4
-    if (quartersByType[4].length > 0) {
-      const newestQ4 = quartersByType[4].sort(
-        (a, b) => a.position - b.position
-      )[0];
-      result.push({ quarterIndex: 4, fiscalQuarter: newestQ4.fiscalQuarter });
-    }
-
-    // Assign Q5 - use older Q1 if available (for year-end transition)
-    if (quartersByType[1].length > 1) {
-      const olderQ1 = quartersByType[1].sort(
-        (a, b) => a.position - b.position
-      )[1];
-      result.push({ quarterIndex: 5, fiscalQuarter: olderQ1.fiscalQuarter });
-    }
-
-    // Sort result by quarterIndex to ensure proper order
-    result.sort((a, b) => a.quarterIndex - b.quarterIndex);
-
-    // Step 4: Apply filtering rules based on fiscal year
-    const filteredResult = this.filterQuartersByFiscalYear(result);
-
-    return filteredResult;
-  }
-
-  private filterQuartersByFiscalYear(
-    quarters: { quarterIndex: number; fiscalQuarter: string }[]
-  ): { quarterIndex: number; fiscalQuarter: string }[] {
-    if (quarters.length === 0) return [];
-
-    // Parse all quarters to get fiscal year info
-    const quartersWithYear = quarters.map((q) => {
-      const match = q.fiscalQuarter.match(/Q(\d)FY(\d+)/);
-      return {
-        ...q,
-        fiscalYear: match ? parseInt(match[2], 10) : 0,
-      };
-    });
-
-    // Find the most recent fiscal year (highest FY number)
-    const mostRecentYear = Math.max(
-      ...quartersWithYear.map((q) => q.fiscalYear)
-    );
-
-    // Count quarters in the most recent fiscal year
-    const currentYearQuarters = quartersWithYear.filter(
-      (q) => q.fiscalYear === mostRecentYear
-    );
-
-    console.log(
-      `Most recent fiscal year: FY${mostRecentYear}, quarters: ${currentYearQuarters.length}`
-    );
-
-    // Apply filtering rules:
-    // - If 1 quarter in current year: include all quarters (current + previous year)
-    // - If 2-4 quarters in current year: only include current year quarters
-    if (currentYearQuarters.length === 1) {
-      // Include all quarters (previous year's Q1-Q4 + current year's Q1)
-      console.log(
-        'Only 1 quarter in current year, including previous year quarters'
-      );
-      return quarters;
-    } else if (currentYearQuarters.length >= 2) {
-      // Only include current year quarters
-      console.log(
-        `${currentYearQuarters.length} quarters in current year, filtering to current year only`
-      );
-      return quarters.filter((q) => {
-        const match = q.fiscalQuarter.match(/Q(\d)FY(\d+)/);
-        const fy = match ? parseInt(match[2], 10) : 0;
-        return fy === mostRecentYear;
+    // Q1-Q2: latest year with both Q1 and Q2
+    const y12 = latestYearWithBoth(1, 2);
+    if (y12 !== null) {
+      pairs.push({
+        key: 'Q1-Q2',
+        left: bestFiscQtrBy.get(`${y12}-1`)!,
+        right: bestFiscQtrBy.get(`${y12}-2`)!,
+        yearContext: y12,
       });
     }
 
-    return quarters;
+    // Q2-Q3: latest year with both Q2 and Q3
+    const y23 = latestYearWithBoth(2, 3);
+    if (y23 !== null) {
+      pairs.push({
+        key: 'Q2-Q3',
+        left: bestFiscQtrBy.get(`${y23}-2`)!,
+        right: bestFiscQtrBy.get(`${y23}-3`)!,
+        yearContext: y23,
+      });
+    }
+
+    // Q3-Q4: latest year with both Q3 and Q4
+    const y34 = latestYearWithBoth(3, 4);
+    if (y34 !== null) {
+      pairs.push({
+        key: 'Q3-Q4',
+        left: bestFiscQtrBy.get(`${y34}-3`)!,
+        right: bestFiscQtrBy.get(`${y34}-4`)!,
+        yearContext: y34,
+      });
+    }
+
+    // Q4-Q1 (cross-year): latest Y where Q4FY(Y-1) and Q1FY(Y) both exist
+    const years = Array.from(byYear.keys()).sort((a, b) => b - a);
+    let y41: number | null = null;
+    for (const year of years) {
+      const currentYearQuarters = byYear.get(year);
+      const prevYearQuarters = byYear.get(year - 1);
+
+      if (currentYearQuarters?.has(1) && prevYearQuarters?.has(4)) {
+        y41 = year;
+        break;
+      }
+    }
+
+    if (y41 !== null) {
+      pairs.push({
+        key: 'Q4-Q1',
+        left: bestFiscQtrBy.get(`${y41 - 1}-4`)!,
+        right: bestFiscQtrBy.get(`${y41}-1`)!,
+        yearContext: y41,
+      });
+    }
+
+    return pairs;
   }
 
   generateDatasetsForQuarterComparison(

@@ -2,7 +2,7 @@
   (selectedTabChange)="onTabClick($event)"
   [selectedIndex]="selectedTabIndex"
 >
-  <mat-tab *ngIf="q1 && q2" [label]="'Q1 - Q2'" [disabled]="!(q1 && q2)">
+  <mat-tab *ngIf="quarterPairs[0]" [label]="'Q1 - Q2'">
     <p
       class="card-subtitle"
       style="
@@ -14,7 +14,7 @@
         font-size: 12px;
       "
     >
-      Data for {{ q1 }} and {{ q2 }}
+      Data for {{ quarterPairs[0]?.left }} and {{ quarterPairs[0]?.right }}
     </p>
     <div class="grid-2" style="margin: 0 1.2rem">
       <div class="card">
@@ -59,7 +59,7 @@
     <br /><br /><br />
   </mat-tab>
 
-  <mat-tab *ngIf="q2 && q3" [label]="'Q2 - Q3'" [disabled]="!(q2 && q3)">
+  <mat-tab *ngIf="quarterPairs[1]" [label]="'Q2 - Q3'">
     <p
       class="card-subtitle"
       style="
@@ -71,7 +71,7 @@
         font-size: 12px;
       "
     >
-      Data for {{ q2 }} and {{ q3 }}
+      Data for {{ quarterPairs[1]?.left }} and {{ quarterPairs[1]?.right }}
     </p>
     <div class="grid-2" style="margin: 0 1.2rem">
       <div class="card">
@@ -114,7 +114,7 @@
     <br /><br /><br />
   </mat-tab>
 
-  <mat-tab *ngIf="q3 && q4" [label]="'Q3 - Q4'" [disabled]="!(q3 && q4)">
+  <mat-tab *ngIf="quarterPairs[2]" [label]="'Q3 - Q4'">
     <p
       class="card-subtitle"
       style="
@@ -126,7 +126,7 @@
         font-size: 12px;
       "
     >
-      Data for {{ q3 }} and {{ q4 }}
+      Data for {{ quarterPairs[2]?.left }} and {{ quarterPairs[2]?.right }}
     </p>
     <div class="grid-2" style="margin: 0 1.2rem">
       <div class="card">
@@ -167,7 +167,7 @@
     <br /><br /><br />
   </mat-tab>
 
-  <mat-tab *ngIf="q4 && q1" [label]="'Q4 - Q1'" [disabled]="!(q4 && q1)">
+  <mat-tab *ngIf="quarterPairs[3]" [label]="'Q4 - Q1'">
     <p
       class="card-subtitle"
       style="
@@ -178,7 +178,7 @@
         font-size: 12px;
       "
     >
-      Data for {{ q4 }} and {{ q1 }}
+      Data for {{ quarterPairs[3]?.left }} and {{ quarterPairs[3]?.right }}
     </p>
     <div class="grid-2" style="margin: 0 1.2rem">
       <div class="card">
@@ -218,21 +218,4 @@
     </app-card>
     <br /><br /><br />
   </mat-tab>
-
-  <mat-tab *ngIf="!q1 || !q2" [label]="'Q1 - Q2'" [disabled]="true">
-    <div
-      style="
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 400px;
-        width: 100%;
-      "
-    >
-      <app-loading-symbol></app-loading-symbol>
-    </div>
-  </mat-tab>
-  <mat-tab *ngIf="!q2 || !q3" [label]="'Q2 - Q3'" [disabled]="true"> </mat-tab>
-  <mat-tab *ngIf="!q3 || !q4" [label]="'Q3 - Q4'" [disabled]="true"> </mat-tab>
-  <mat-tab *ngIf="!q4 || !q1" [label]="'Q4 - Q1'" [disabled]="true"> </mat-tab>
 </mat-tab-group>
