@@ -123,6 +123,11 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       return text;
     }
 
+    // Handle empty or whitespace-only strings
+    if (!text || text.trim() === '') {
+      return '(empty)';
+    }
+
     return text
       .split(' ')
       .map((word) => {
@@ -181,6 +186,12 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
   private createSimpleBarChart(): void {
     const data = this.data as BarChartDataPoint[];
 
+    // Replace null/undefined labels with empty string
+    const normalizedData = data.map((d) => ({
+      ...d,
+      label: d.label ?? '',
+    }));
+
     // Create SVG
     this.svg = d3
       .select(this.container)
@@ -198,13 +209,13 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
     // Scales
     const x = d3
       .scaleBand()
-      .domain(data.map((d) => d.label))
+      .domain(normalizedData.map((d) => d.label))
       .range([0, width])
       .padding(0.2);
 
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.value) || 0])
+      .domain([0, d3.max(normalizedData, (d) => d.value) || 0])
       .nice()
       .range([height, 0]);
 
@@ -241,7 +252,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       .style('opacity', 0);
 
     g.selectAll('.bar')
-      .data(data)
+      .data(normalizedData)
       .enter()
       .append('rect')
       .attr('class', 'bar')
@@ -257,9 +268,9 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
         tooltip
           .style('opacity', 0.95)
           .html(
-            `<strong>${this.toTitleCase(d.label)}</strong><br/>Count: ${
-              d.value
-            }`
+            `<strong>${this.toTitleCase(
+              d.label || '(empty)'
+            )}</strong><br/>Count: ${d.value}`
           );
       })
       .on('mousemove', (event: MouseEvent) => {
@@ -276,7 +287,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
 
     // Value labels
     g.selectAll('.label')
-      .data(data)
+      .data(normalizedData)
       .enter()
       .append('text')
       .attr('class', 'label')
@@ -290,6 +301,12 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
 
   private createStackedBarChart(): void {
     let data = [...(this.data as StackedBarChartDataPoint[])];
+
+    // Replace null/undefined labels with empty string
+    data = data.map((d) => ({
+      ...d,
+      label: d.label ?? '',
+    }));
 
     console.log('chart data', data);
 

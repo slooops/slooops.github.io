@@ -95,11 +95,7 @@ export class CaseiqSmComponent implements OnInit {
     const groupMap = new Map<string, any>();
 
     data.forEach((item) => {
-      const key = item[groupColumn];
-      // Skip items with null or undefined groupColumn values
-      if (key == null || key === '') {
-        return;
-      }
+      const key = item[groupColumn] ?? ''; // Convert null/undefined to empty string
 
       if (!groupMap.has(key)) {
         groupMap.set(key, {
@@ -517,29 +513,27 @@ export class CaseiqSmComponent implements OnInit {
     }
 
     // Handle merged data structure with nested data array
-    const chartData = apiData
-      .filter((item) => item[groupColumn] != null && item[groupColumn] !== '') // Filter out null/undefined/empty labels
-      .map((item) => {
-        const segments = item.data
-          ? item.data.map((statusItem: any) => ({
-              name: statusItem.MATCH_STATUS,
-              value: statusItem.COUNT,
-              color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
-            }))
-          : [
-              {
-                name: item.MATCH_STATUS,
-                value: item[countColumn],
-                color: this.getMatchStatusColor(item.MATCH_STATUS),
-              },
-            ];
+    const chartData = apiData.map((item) => {
+      const segments = item.data
+        ? item.data.map((statusItem: any) => ({
+            name: statusItem.MATCH_STATUS,
+            value: statusItem.COUNT,
+            color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
+          }))
+        : [
+            {
+              name: item.MATCH_STATUS,
+              value: item[countColumn],
+              color: this.getMatchStatusColor(item.MATCH_STATUS),
+            },
+          ];
 
-        return {
-          label: item[groupColumn],
-          segments: segments,
-        };
-      });
-
+      return {
+        label: item[groupColumn] ?? '', // Convert null/undefined to empty string
+        segments: segments,
+      };
+    });
+    console.log(chartData);
     return chartData;
   }
 

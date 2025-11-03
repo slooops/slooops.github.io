@@ -93,11 +93,7 @@ export class CaseiqFppComponent implements OnInit {
     const grouped = new Map<string, any>();
 
     data.forEach((item) => {
-      const key = item[groupKey];
-      // Skip items with null or undefined groupKey values
-      if (key == null || key === '') {
-        return;
-      }
+      const key = item[groupKey] ?? ''; // Convert null/undefined to empty string
 
       if (!grouped.has(key)) {
         grouped.set(key, {
@@ -479,7 +475,7 @@ export class CaseiqFppComponent implements OnInit {
             },
           ];
 
-      return { label: item[groupColumn], segments };
+      return { label: item[groupColumn] ?? '', segments }; // Convert null/undefined to empty string
     });
 
     return chartData;

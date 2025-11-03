@@ -93,11 +93,7 @@ export class CaseiqP2pComponent implements OnInit {
     const grouped = new Map<string, any>();
 
     data.forEach((item) => {
-      const key = item[groupKey];
-      // Skip items with null or undefined groupKey values
-      if (key == null || key === '') {
-        return;
-      }
+      const key = item[groupKey] ?? ''; // Convert null/undefined to empty string
 
       if (!grouped.has(key)) {
         grouped.set(key, {
@@ -493,26 +489,24 @@ export class CaseiqP2pComponent implements OnInit {
       return [];
     }
 
-    const chartData = apiData
-      .filter((item) => item[groupColumn] != null && item[groupColumn] !== '') // Filter out null/undefined/empty labels
-      .map((item) => {
-        // Handle nested data structure from merge
-        const segments = item.data
-          ? item.data.map((statusItem: any) => ({
-              name: statusItem.MATCH_STATUS,
-              value: statusItem.COUNT,
-              color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
-            }))
-          : [
-              {
-                name: item.MATCH_STATUS || 'Unknown',
-                value: item[countColumn] || 0,
-                color: this.getMatchStatusColor(item.MATCH_STATUS || 'Unknown'),
-              },
-            ];
+    const chartData = apiData.map((item) => {
+      // Handle nested data structure from merge
+      const segments = item.data
+        ? item.data.map((statusItem: any) => ({
+            name: statusItem.MATCH_STATUS,
+            value: statusItem.COUNT,
+            color: this.getMatchStatusColor(statusItem.MATCH_STATUS),
+          }))
+        : [
+            {
+              name: item.MATCH_STATUS || 'Unknown',
+              value: item[countColumn] || 0,
+              color: this.getMatchStatusColor(item.MATCH_STATUS || 'Unknown'),
+            },
+          ];
 
-        return { label: item[groupColumn], segments };
-      });
+      return { label: item[groupColumn] ?? '', segments }; // Convert null/undefined to empty string
+    });
 
     return chartData;
   }

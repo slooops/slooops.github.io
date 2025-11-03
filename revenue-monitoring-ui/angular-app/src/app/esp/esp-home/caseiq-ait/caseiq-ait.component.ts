@@ -99,11 +99,7 @@ export class CaseiqAitComponent implements OnInit {
     const grouped = new Map<string, any>();
 
     data.forEach((item) => {
-      const key = item[groupKey];
-      // Skip items with null or undefined groupKey values
-      if (key == null || key === '') {
-        return;
-      }
+      const key = item[groupKey] ?? ''; // Convert null/undefined to empty string
 
       if (!grouped.has(key)) {
         // First occurrence: create new grouped object with data array
@@ -648,7 +644,7 @@ export class CaseiqAitComponent implements OnInit {
           ];
 
       return {
-        label: item[groupColumn],
+        label: item[groupColumn] ?? '', // Convert null/undefined to empty string
         segments: segments,
       };
     });
