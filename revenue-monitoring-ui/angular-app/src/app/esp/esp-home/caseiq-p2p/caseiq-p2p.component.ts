@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Inject,
@@ -31,7 +34,8 @@ interface P2pAccuracyData {
   templateUrl: './caseiq-p2p.component.html',
   styleUrl: './caseiq-p2p.component.css',
 })
-export class CaseiqP2pComponent implements OnInit {
+export class CaseiqP2pComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('p2pTable') p2pTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -78,6 +82,18 @@ export class CaseiqP2pComponent implements OnInit {
   refreshingData = false;
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('P2P: Quarter changed to', this.selectedQuarter);
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVP2p();
     this.getXxcaseiqCoreIssueGraphVP2p();
@@ -119,9 +135,14 @@ export class CaseiqP2pComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVI2c: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge by category
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -137,9 +158,14 @@ export class CaseiqP2pComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVI2c: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge by core issue
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -154,7 +180,13 @@ export class CaseiqP2pComponent implements OnInit {
       .get('xxcaseiq-p2p-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqI2cCaseDetailsV: new query', data);
-        this.updateTableData(data);
+
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
       });
   }
 
@@ -163,7 +195,17 @@ export class CaseiqP2pComponent implements OnInit {
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqValidatedCasesAccuracyV:', data);
-        this.updateP2pMetrics(data);
+
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME === 'P2P'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'P2P');
+
+        this.updateP2pMetrics(filteredByQuarter);
       });
   }
 
@@ -434,7 +476,7 @@ export class CaseiqP2pComponent implements OnInit {
       // Set total records for pagination
       this.totalRecords = apiData.length;
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
       );
       // Manually trigger paginator setup after data is loaded
       setTimeout(() => {

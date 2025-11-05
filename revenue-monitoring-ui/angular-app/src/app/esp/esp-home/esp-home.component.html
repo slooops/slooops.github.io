@@ -77,31 +77,52 @@
     </div>
 
     <div *ngSwitchCase="'Capital'" class="tile-content">
-      <app-caseiq-cap (uploadSuccess)="onUploadSuccess()"></app-caseiq-cap>
+      <app-caseiq-cap
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-cap>
     </div>
 
     <div *ngSwitchCase="'FPP'" class="tile-content">
-      <app-caseiq-fpp (uploadSuccess)="onUploadSuccess()"></app-caseiq-fpp>
+      <app-caseiq-fpp
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-fpp>
     </div>
 
     <div *ngSwitchCase="'I2C'" class="tile-content">
-      <app-caseiq-i2c (uploadSuccess)="onUploadSuccess()"></app-caseiq-i2c>
+      <app-caseiq-i2c
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-i2c>
     </div>
 
     <div *ngSwitchCase="'OM'" class="tile-content">
-      <app-caseiq-om (uploadSuccess)="onUploadSuccess()"></app-caseiq-om>
+      <app-caseiq-om
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-om>
     </div>
 
     <div *ngSwitchCase="'P2P'" class="tile-content">
-      <app-caseiq-p2p (uploadSuccess)="onUploadSuccess()"></app-caseiq-p2p>
+      <app-caseiq-p2p
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-p2p>
     </div>
 
     <div *ngSwitchCase="'SM'" class="tile-content">
-      <app-caseiq-sm (uploadSuccess)="onUploadSuccess()"></app-caseiq-sm>
+      <app-caseiq-sm
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-sm>
     </div>
 
     <div *ngSwitchCase="'AIT'" class="tile-content">
-      <app-caseiq-ait (uploadSuccess)="onUploadSuccess()"></app-caseiq-ait>
+      <app-caseiq-ait
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-ait>
     </div>
 
     <!-- Default case when no tile is selected -->

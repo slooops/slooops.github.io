@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Inject,
@@ -31,7 +34,8 @@ interface AitAccuracyData {
   templateUrl: './caseiq-ait.component.html',
   styleUrl: './caseiq-ait.component.css',
 })
-export class CaseiqAitComponent implements OnInit {
+export class CaseiqAitComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('aitTable') aitTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -73,6 +77,18 @@ export class CaseiqAitComponent implements OnInit {
   refreshingData: boolean = false; // Full-screen overlay during post-upload refresh
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('AIT: Quarter changed to', this.selectedQuarter);
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVAit();
     this.getXxcaseiqCoreIssueGraphVAit();
@@ -134,9 +150,14 @@ export class CaseiqAitComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVAit:', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge objects with same CATEGORY into single objects
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -179,9 +200,14 @@ export class CaseiqAitComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVAit:', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge objects with same CORE_ISSUE into single objects
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -223,7 +249,12 @@ export class CaseiqAitComponent implements OnInit {
     this.http
       .get('xxcaseiq-ait-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
-        this.updateTableData(data);
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
       });
   }
 
@@ -231,7 +262,16 @@ export class CaseiqAitComponent implements OnInit {
     this.http
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
-        this.updateAitMetrics(data);
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME === 'AIT'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'AIT');
+
+        this.updateAitMetrics(filteredByQuarter);
       });
   }
 
@@ -584,7 +624,7 @@ export class CaseiqAitComponent implements OnInit {
       this.totalRecords = apiData.length;
       this.i2cTableData = new MatTableDataSource(apiData);
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
       );
     } else {
       this.totalRecords = 0;

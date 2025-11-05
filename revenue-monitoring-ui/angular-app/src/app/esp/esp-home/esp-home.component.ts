@@ -10,10 +10,15 @@ interface MetricTile {
 
 interface AccuracyData {
   TEAM_NAME: string;
+  Quarter?: string;
   CATEGORY: number;
   CORE_ISSUE: number;
   TOTAL_ACCURACY: number;
   TOTAL_VALIDATED_CASES: number;
+  'Total Cases'?: number;
+  'Total Accuracy'?: number;
+  'Category Accuracy'?: number;
+  'Core Issue Accuracy'?: number;
 }
 
 @Component({
@@ -32,18 +37,26 @@ export class EspHomeComponent implements OnInit {
   overallAccuracy: string = '';
 
   // Quarter filter properties
-  selectedQuarter: string = 'Q1 FY26';
+  selectedQuarter: string = 'Q1FY26';
   showQuarterDropdown: boolean = false;
-  quarters: { label: string; value: string }[] = [
-    { label: 'Q1 FY26', value: 'Q1 FY26' },
-    { label: 'Q2 FY26', value: 'Q2 FY26' },
-    { label: 'Q3 FY26', value: 'Q3 FY26' },
-    { label: 'Q4 FY26', value: 'Q4 FY26' },
-    { label: 'Q1 FY25', value: 'Q1 FY25' },
-    { label: 'Q2 FY25', value: 'Q2 FY25' },
-    { label: 'Q3 FY25', value: 'Q3 FY25' },
-    { label: 'Q4 FY25', value: 'Q4 FY25' },
+
+  // Store raw API data to extract quarters per team
+  private accuracyData: AccuracyData[] = [];
+
+  // All available quarters (master list)
+  private allQuarters: { label: string; value: string }[] = [
+    { label: 'Q1 FY26', value: 'Q1FY26' },
+    { label: 'Q2 FY26', value: 'Q2FY26' },
+    { label: 'Q3 FY26', value: 'Q3FY26' },
+    { label: 'Q4 FY26', value: 'Q4FY26' },
+    { label: 'Q1 FY25', value: 'Q1FY25' },
+    { label: 'Q2 FY25', value: 'Q2FY25' },
+    { label: 'Q3 FY25', value: 'Q3FY25' },
+    { label: 'Q4 FY25', value: 'Q4FY25' },
   ];
+
+  // Dynamically filtered quarters based on active team
+  quarters: { label: string; value: string }[] = [];
 
   // Base metric tiles structure - preserving all tile names
   private readonly baseMetricTiles: MetricTile[] = [
@@ -86,7 +99,9 @@ export class EspHomeComponent implements OnInit {
   selectQuarter(quarter: string): void {
     this.selectedQuarter = quarter;
     this.showQuarterDropdown = false;
-    console.log(`Quarter changed to: ${this.selectedQuarter}`);
+    console.log(
+      `Quarter changed to: ${this.selectedQuarter} for team: ${this.activeTab}`
+    );
     // TODO: Add API call with quarter parameter when backend is ready
     // this.getXxcaseiqValidatedCasesAccuracyV();
   }
@@ -114,6 +129,10 @@ export class EspHomeComponent implements OnInit {
 
     if (accessibleTile) {
       this.activeTab = accessibleTile.name;
+      // Update quarters for the default tab if data is already loaded
+      if (this.accuracyData.length > 0) {
+        this.updateQuartersForActiveTab();
+      }
     } else {
       // If no accessible tiles, set to empty (will show default content)
       this.activeTab = '';
@@ -124,8 +143,13 @@ export class EspHomeComponent implements OnInit {
     this.http
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
+        console.log(data);
         if (Array.isArray(data)) {
+          // Store raw data for quarter filtering
+          this.accuracyData = data;
           this.updateMetricTiles(data);
+          // Update quarters based on current active tab
+          this.updateQuartersForActiveTab();
         }
       });
   }
@@ -188,6 +212,9 @@ export class EspHomeComponent implements OnInit {
 
     this.activeTab = tileName;
     console.log(`Selected tile: ${tileName}`);
+
+    // Update quarters when tab changes
+    this.updateQuartersForActiveTab();
   }
 
   isActive(tileName: string): boolean {
@@ -242,5 +269,53 @@ export class EspHomeComponent implements OnInit {
       '🟢 ESP-HOME: Upload success received in esp-home, refreshing accuracy metrics'
     );
     this.getXxcaseiqValidatedCasesAccuracyV();
+  }
+
+  /**
+   * Updates the quarters dropdown based on the active team tab
+   * Filters quarters to show only those available for the selected team
+   */
+  private updateQuartersForActiveTab(): void {
+    if (
+      !this.activeTab ||
+      this.activeTab === 'Overall' ||
+      !this.accuracyData.length
+    ) {
+      // If no tab selected or Overall, show all quarters
+      this.quarters = [...this.allQuarters];
+      return;
+    }
+
+    // Get quarters available for the active team
+    const teamData = this.accuracyData.filter(
+      (item) => item.TEAM_NAME.toUpperCase() === this.activeTab.toUpperCase()
+    );
+
+    if (teamData.length === 0) {
+      // No data for this team, show all quarters
+      this.quarters = [...this.allQuarters];
+      return;
+    }
+
+    // Extract unique quarters from team data
+    const availableQuarters = new Set(
+      teamData.map((item) => item.Quarter?.trim()).filter(Boolean)
+    );
+
+    // Filter allQuarters to show only those available for this team
+    this.quarters = this.allQuarters.filter((quarter) =>
+      availableQuarters.has(quarter.value)
+    );
+
+    // If current selected quarter is not available for this team, select the first available
+    if (
+      this.quarters.length > 0 &&
+      !availableQuarters.has(this.selectedQuarter)
+    ) {
+      this.selectedQuarter = this.quarters[0].value;
+      console.log(`Quarter auto-selected to: ${this.selectedQuarter}`);
+    }
+
+    console.log(`Updated quarters for ${this.activeTab}:`, this.quarters);
   }
 }

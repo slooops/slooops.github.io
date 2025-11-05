@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Inject,
@@ -31,7 +34,8 @@ interface FppAccuracyData {
   templateUrl: './caseiq-fpp.component.html',
   styleUrl: './caseiq-fpp.component.css',
 })
-export class CaseiqFppComponent implements OnInit {
+export class CaseiqFppComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('fppTable') fppTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -78,6 +82,18 @@ export class CaseiqFppComponent implements OnInit {
   refreshingData = false;
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('FPP: Quarter changed to', this.selectedQuarter);
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVFpp();
     this.getXxcaseiqCoreIssueGraphVFpp();
@@ -119,9 +135,14 @@ export class CaseiqFppComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVFpp:', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge by category
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -137,9 +158,14 @@ export class CaseiqFppComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVFpp:', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge by core issue
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -153,7 +179,12 @@ export class CaseiqFppComponent implements OnInit {
     this.http
       .get('xxcaseiq-fpp-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
-        this.updateTableData(data);
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
       });
   }
 
@@ -162,7 +193,16 @@ export class CaseiqFppComponent implements OnInit {
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log(data);
-        this.updateFppMetrics(data);
+
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME === 'FPP'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'FPP');
+        this.updateFppMetrics(filteredByQuarter);
       });
   }
 
@@ -427,7 +467,7 @@ export class CaseiqFppComponent implements OnInit {
       this.totalRecords = apiData.length;
       this.i2cTableData = new MatTableDataSource(apiData);
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
       );
     } else {
       this.totalRecords = 0;

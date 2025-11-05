@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Output,
@@ -26,7 +29,8 @@ interface I2CAccuracyData {
   templateUrl: './caseiq-i2c.component.html',
   styleUrl: './caseiq-i2c.component.css',
 })
-export class CaseiqI2cComponent implements OnInit {
+export class CaseiqI2cComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('i2cTable') i2cTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -69,6 +73,18 @@ export class CaseiqI2cComponent implements OnInit {
   refreshingData: boolean = false; // Full-screen overlay during post-upload refresh
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('I2C: Quarter changed to', this.selectedQuarter);
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVI2c();
     this.getXxcaseiqCoreIssueGraphVI2c();
@@ -81,9 +97,14 @@ export class CaseiqI2cComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVI2c: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge objects with same CATEGORY into single objects
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -126,9 +147,14 @@ export class CaseiqI2cComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVI2c: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge objects with same CORE_ISSUE into single objects
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -170,7 +196,13 @@ export class CaseiqI2cComponent implements OnInit {
       .get('xxcaseiq-i2c-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqI2cCaseDetailsV: new query', data);
-        this.updateTableData(data);
+
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
       });
   }
 
@@ -561,7 +593,17 @@ export class CaseiqI2cComponent implements OnInit {
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqValidatedCasesAccuracyV:', data);
-        this.updateI2CMetrics(data);
+
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME === 'I2C'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'I2C');
+
+        this.updateI2CMetrics(filteredByQuarter);
       });
   }
 
@@ -576,7 +618,7 @@ export class CaseiqI2cComponent implements OnInit {
       // Set total records for pagination
       this.totalRecords = apiData.length;
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
       );
 
       // Manually trigger paginator setup after data is loaded

@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Inject,
@@ -31,7 +34,8 @@ interface SmAccuracyData {
   templateUrl: './caseiq-sm.component.html',
   styleUrl: './caseiq-sm.component.css',
 })
-export class CaseiqSmComponent implements OnInit {
+export class CaseiqSmComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('smTable') smTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -78,6 +82,18 @@ export class CaseiqSmComponent implements OnInit {
   refreshingData = false;
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('SM: Quarter changed to', this.selectedQuarter);
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVSm();
     this.getXxcaseiqCoreIssueGraphVSm();
@@ -122,9 +138,14 @@ export class CaseiqSmComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVSm: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge data by category
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -146,9 +167,14 @@ export class CaseiqSmComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVSm: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge data by core issue
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -169,7 +195,13 @@ export class CaseiqSmComponent implements OnInit {
       .get('xxcaseiq-sm-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqI2cCaseDetailsV: new query', data);
-        this.updateTableData(data);
+
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
       });
   }
 
@@ -178,7 +210,16 @@ export class CaseiqSmComponent implements OnInit {
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqValidatedCasesAccuracyV:', data);
-        this.updateSmMetrics(data);
+
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter && item.TEAM_NAME === 'SM'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'SM');
+
+        this.updateSmMetrics(filteredByQuarter);
       });
   }
 
@@ -457,7 +498,7 @@ export class CaseiqSmComponent implements OnInit {
       // Set total records for pagination
       this.totalRecords = apiData.length;
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
       );
       // Manually trigger paginator setup after data is loaded
       setTimeout(() => {

@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Output,
@@ -26,7 +29,8 @@ interface OmAccuracyData {
   templateUrl: './caseiq-om.component.html',
   styleUrl: './caseiq-om.component.css',
 })
-export class CaseiqOmComponent implements OnInit {
+export class CaseiqOmComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('omTable') omTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -69,6 +73,18 @@ export class CaseiqOmComponent implements OnInit {
   refreshingData: boolean = false; // Full-screen overlay during post-upload refresh
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('OM: Quarter changed to', this.selectedQuarter);
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVOm();
     this.getXxcaseiqCoreIssueGraphVOm();
@@ -130,9 +146,14 @@ export class CaseiqOmComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVOm: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge objects with same CATEGORY into single objects
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -175,9 +196,14 @@ export class CaseiqOmComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVOm: new query', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge objects with same CORE_ISSUE into single objects
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -219,7 +245,13 @@ export class CaseiqOmComponent implements OnInit {
       .get('xxcaseiq-om-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqI2cCaseDetailsV: new query', data);
-        this.updateTableData(data);
+
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
       });
   }
 
@@ -228,7 +260,16 @@ export class CaseiqOmComponent implements OnInit {
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log('xxcaseiqValidatedCasesAccuracyV:', data);
-        this.updateOmMetrics(data);
+
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter && item.TEAM_NAME === 'OM'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'OM');
+
+        this.updateOmMetrics(filteredByQuarter);
       });
   }
 
@@ -288,7 +329,14 @@ export class CaseiqOmComponent implements OnInit {
         .subscribe({
           next: (data: any) => {
             console.log('Refreshed accuracy data');
-            this.updateOmMetrics(data);
+            const filteredByQuarter = this.selectedQuarter
+              ? data.filter(
+                  (item: any) =>
+                    item.Quarter === this.selectedQuarter &&
+                    item.TEAM_NAME === 'OM'
+                )
+              : data.filter((item: any) => item.TEAM_NAME === 'OM');
+            this.updateOmMetrics(filteredByQuarter);
             checkComplete();
           },
           error: (err) => {
@@ -304,8 +352,13 @@ export class CaseiqOmComponent implements OnInit {
         .subscribe({
           next: (data: any) => {
             console.log('Refreshed category chart data');
+            const filteredByQuarter = this.selectedQuarter
+              ? data.filter(
+                  (item: any) => item.Quarter === this.selectedQuarter
+                )
+              : data;
             const mergedData = this.mergeByCategoryOrIssue(
-              data,
+              filteredByQuarter,
               'CATEGORY',
               'CATEGORY_COUNT'
             );
@@ -349,8 +402,13 @@ export class CaseiqOmComponent implements OnInit {
         .subscribe({
           next: (data: any) => {
             console.log('Refreshed core issue chart data');
+            const filteredByQuarter = this.selectedQuarter
+              ? data.filter(
+                  (item: any) => item.Quarter === this.selectedQuarter
+                )
+              : data;
             const mergedData = this.mergeByCategoryOrIssue(
-              data,
+              filteredByQuarter,
               'CORE_ISSUE',
               'CORE_ISSUE_COUNT'
             );
@@ -394,7 +452,12 @@ export class CaseiqOmComponent implements OnInit {
         .subscribe({
           next: (data: any) => {
             console.log('Refreshed table data');
-            this.updateTableData(data);
+            const filteredByQuarter = this.selectedQuarter
+              ? data.filter(
+                  (item: any) => item.Quarter === this.selectedQuarter
+                )
+              : data;
+            this.updateTableData(filteredByQuarter);
             checkComplete();
           },
           error: (err) => {
@@ -417,7 +480,7 @@ export class CaseiqOmComponent implements OnInit {
       // Set total records for pagination
       this.totalRecords = apiData.length;
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
       );
 
       // Manually trigger paginator setup after data is loaded

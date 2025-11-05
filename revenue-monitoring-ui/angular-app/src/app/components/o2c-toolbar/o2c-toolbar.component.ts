@@ -3,8 +3,6 @@ import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-o2c-toolbar',
-  standalone: true,
-  imports: [],
   templateUrl: './o2c-toolbar.component.html',
   styleUrl: './o2c-toolbar.component.css',
 })

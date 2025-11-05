@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-o2c-accordion',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './o2c-accordion.component.html',
   styleUrl: './o2c-accordion.component.css',
 })
