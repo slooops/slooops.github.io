@@ -317,58 +317,31 @@ export class EspHomeComponent implements OnInit {
   }
 
   /**
-   * Updates the quarters dropdown based on the active team tab
-   * Filters quarters to show only those available for the selected team
+   * Updates the quarters dropdown based on all available data
+   * Shows all quarters that exist across ANY team (not team-specific)
    */
   private updateQuartersForActiveTab(): void {
-    if (
-      !this.activeTab ||
-      this.activeTab === 'Overall' ||
-      !this.accuracyData.length
-    ) {
-      // If no tab selected or Overall, show all quarters
+    if (!this.accuracyData.length) {
+      // If no data loaded yet, show all quarters
       this.quarters = [...this.allQuarters];
       return;
     }
 
-    // Get quarters available for the active team
-    const teamData = this.accuracyData.filter(
-      (item) => item.TEAM_NAME.toUpperCase() === this.activeTab.toUpperCase()
-    );
-
-    if (teamData.length === 0) {
-      // No data for this team, show all quarters
-      this.quarters = [...this.allQuarters];
-      return;
-    }
-
-    // Extract unique quarters from team data
+    // Extract ALL unique quarters from entire dataset (not team-specific)
     const availableQuarters = new Set(
-      teamData.map((item) => item.Quarter?.trim()).filter(Boolean)
+      this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean)
     );
 
-    // Filter allQuarters to show only those available for this team
+    // Filter allQuarters to show only those that exist in the data
     this.quarters = this.allQuarters.filter((quarter) =>
       availableQuarters.has(quarter.value)
     );
 
-    // If current selected quarter is not available for this team, select the first available
-    if (
-      this.quarters.length > 0 &&
-      !availableQuarters.has(this.selectedQuarter)
-    ) {
-      this.selectedQuarter = this.quarters[0].value;
-      console.log(`Quarter auto-selected to: ${this.selectedQuarter}`);
-
-      // Update metric tiles with the new quarter's data
-      if (this.accuracyData.length > 0) {
-        const filteredData = this.accuracyData.filter(
-          (item) => item.Quarter === this.selectedQuarter
-        );
-        this.updateMetricTiles(filteredData);
-      }
+    // If no quarters found, show all quarters as fallback
+    if (this.quarters.length === 0) {
+      this.quarters = [...this.allQuarters];
     }
 
-    console.log(`Updated quarters for ${this.activeTab}:`, this.quarters);
+    console.log(`Updated quarters (all teams):`, this.quarters);
   }
 }
