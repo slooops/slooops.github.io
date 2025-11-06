@@ -80,6 +80,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
     // React to quarter changes
     if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
       console.log('I2C: Quarter changed to', this.selectedQuarter);
+      this.refreshingData = true; // Show loading overlay
       this.loadAllData();
     }
   }
@@ -203,6 +204,9 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
           : data;
 
         this.updateTableData(filteredByQuarter);
+
+        // Hide loading overlay after data is loaded
+        this.refreshingData = false;
       });
   }
 

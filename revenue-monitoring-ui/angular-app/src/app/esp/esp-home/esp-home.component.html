@@ -1,4 +1,12 @@
 <div class="esp-dashboard">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoadingQuarter">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-message">{{ loadingQuarterMessage }}</p>
+    </div>
+  </div>
+
   <div class="dashboard-header">
     <div class="header-main">
       <div class="header-left">

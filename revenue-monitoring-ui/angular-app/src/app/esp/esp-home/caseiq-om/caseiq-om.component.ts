@@ -80,6 +80,7 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
     // React to quarter changes
     if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
       console.log('OM: Quarter changed to', this.selectedQuarter);
+      this.refreshingData = true; // Show loading overlay
       this.loadAllData();
     }
   }
@@ -252,6 +253,9 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
           : data;
 
         this.updateTableData(filteredByQuarter);
+
+        // Hide loading overlay after data is loaded
+        this.refreshingData = false;
       });
   }
 

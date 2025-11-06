@@ -39,6 +39,8 @@ export class EspHomeComponent implements OnInit {
   // Quarter filter properties
   selectedQuarter: string = 'Q1FY26';
   showQuarterDropdown: boolean = false;
+  isLoadingQuarter: boolean = false;
+  loadingQuarterMessage: string = '';
 
   // Store raw API data to extract quarters per team
   private accuracyData: AccuracyData[] = [];
@@ -97,13 +99,35 @@ export class EspHomeComponent implements OnInit {
    * Select a quarter and close dropdown
    */
   selectQuarter(quarter: string): void {
+    // Get the label for display
+    const quarterLabel =
+      this.allQuarters.find((q) => q.value === quarter)?.label || quarter;
+
+    // Show loading overlay
+    this.isLoadingQuarter = true;
+    this.loadingQuarterMessage = `Loading data for ${this.activeTab}...`;
+
     this.selectedQuarter = quarter;
     this.showQuarterDropdown = false;
     console.log(
       `Quarter changed to: ${this.selectedQuarter} for team: ${this.activeTab}`
     );
-    // TODO: Add API call with quarter parameter when backend is ready
-    // this.getXxcaseiqValidatedCasesAccuracyV();
+
+    // Use setTimeout to allow UI to update with loading overlay
+    setTimeout(() => {
+      // Update metric tiles with quarter-filtered data
+      if (this.accuracyData.length > 0) {
+        const filteredData = this.accuracyData.filter(
+          (item) => item.Quarter === this.selectedQuarter
+        );
+        this.updateMetricTiles(filteredData);
+      }
+
+      // Hide loading overlay after child components have updated (increased delay for chart rendering)
+      setTimeout(() => {
+        this.isLoadingQuarter = false;
+      }, 2000);
+    }, 0);
   }
 
   /**
@@ -147,7 +171,13 @@ export class EspHomeComponent implements OnInit {
         if (Array.isArray(data)) {
           // Store raw data for quarter filtering
           this.accuracyData = data;
-          this.updateMetricTiles(data);
+
+          // Filter by selected quarter
+          const filteredData = data.filter(
+            (item) => item.Quarter === this.selectedQuarter
+          );
+
+          this.updateMetricTiles(filteredData);
           // Update quarters based on current active tab
           this.updateQuartersForActiveTab();
         }
@@ -213,8 +243,23 @@ export class EspHomeComponent implements OnInit {
     this.activeTab = tileName;
     console.log(`Selected tile: ${tileName}`);
 
-    // Update quarters when tab changes
-    this.updateQuartersForActiveTab();
+    // Show loading overlay when switching tabs
+    const quarterLabel =
+      this.allQuarters.find((q) => q.value === this.selectedQuarter)?.label ||
+      this.selectedQuarter;
+    this.isLoadingQuarter = true;
+    this.loadingQuarterMessage = `Loading data for ${tileName}...`;
+
+    // Use setTimeout to allow UI to update
+    setTimeout(() => {
+      // Update quarters when tab changes
+      this.updateQuartersForActiveTab();
+
+      // Hide loading overlay after charts have rendered
+      setTimeout(() => {
+        this.isLoadingQuarter = false;
+      }, 1500);
+    }, 0);
   }
 
   isActive(tileName: string): boolean {
@@ -314,6 +359,14 @@ export class EspHomeComponent implements OnInit {
     ) {
       this.selectedQuarter = this.quarters[0].value;
       console.log(`Quarter auto-selected to: ${this.selectedQuarter}`);
+
+      // Update metric tiles with the new quarter's data
+      if (this.accuracyData.length > 0) {
+        const filteredData = this.accuracyData.filter(
+          (item) => item.Quarter === this.selectedQuarter
+        );
+        this.updateMetricTiles(filteredData);
+      }
     }
 
     console.log(`Updated quarters for ${this.activeTab}:`, this.quarters);
