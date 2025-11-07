@@ -1,16 +1,11 @@
-import { ChangeDetectorRef, Component, OnChanges, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from '../providers/http.service';
-
-import { DatePipe } from '@angular/common';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
-import * as XLSX from 'xlsx';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -21,26 +16,9 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 30000; //ms
   timeNow: any;
-  now: any;
   roles: string[] = [];
 
-  monthMap = {
-    '01': 'January',
-    '02': 'February',
-    '03': 'March',
-    '04': 'April',
-    '05': 'May',
-    '06': 'June',
-    '07': 'July',
-    '08': 'August',
-    '09': 'September',
-    '10': 'October',
-    '11': 'November',
-    '12': 'December',
-  };
-
   templateObject = Object;
-  datePipe: DatePipe = new DatePipe('en-US');
 
   preCloseStartTime: String;
   preCloseEndTime: String;
@@ -48,20 +26,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
   midCloseStartTime: String;
   midCloseEndTime: String;
   midCloseActualEndTime: String;
-  productVolume: Number;
-  serviceVolume: Number;
-
-  // pcloseInvGenTableOptions!: CuiTableOptions;
-  // mcloseInvGenTableOptions!: CuiTableOptions;
 
   preCloseProgramTableData: any[] = [];
   midCloseProgramTableData: any[] = [];
 
-  interfaceLoadHeaders: any[] = [];
   precloseInterfaceLoadData: any[] = [];
   midcloseInterfaceLoadData: any[] = [];
-  precloseInterfaceLoadTableData: any[] = [];
-  midcloseInterfaceLoadTableData: any[] = [];
 
   qeCashCollectedData: any[] = [];
 
@@ -74,13 +44,13 @@ export class PeriodCloseTrackingComponent implements OnInit {
   mcloseEstimatedCompletionTime: string;
 
   meStatusColumns: string[] = [
-    'OPERATING UNIT',
-    'ELIGIBLE FOR INVOICING',
-    'INVOICING',
-    'ACCOUNTING',
-    'INTERCOMPANY',
-    'DEFERRALS',
-    'GL POSTING',
+    'Operating Unit',
+    'Eligible for Invoicing',
+    'Invoicing',
+    'Accounting',
+    'Intercompany',
+    'Deferrals',
+    'GL Posting',
   ];
   meStatusDesiredOrder: string[] = [
     'OPERATING_UNIT',
@@ -91,49 +61,46 @@ export class PeriodCloseTrackingComponent implements OnInit {
     'DEFERRALS',
     'GL_POSTING',
   ];
-  meStatusCategories: string[] = [
-    'ELIGIBLE_FOR_INVOICING',
-    'INVOICING',
-    'ACCOUNTING',
-    'INTERCOMPANY',
-    'DEFERRALS',
-    'GL_POSTING',
-  ];
 
   // 'AR_INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY','NGCCRM', 'GL_POSTING'
   pcloseExecutionWindow: string[] = [
-    'Scheduled time',
-    '07:00 - 08:30 PST',
-    '08:30 - 09:30 PST',
-    '09:30 - 14:30 PST',
-    '12:30 - 14:30 PST',
-    '12:30 - 14:30 PST',
-    '14:30 - 15:00 PST',
-  ];
-  mcloseExecutionWindow: string[] = [
-    'Scheduled time',
-    '00:25 - 01:10 PST',
-    '01:10 - 02:10 PST',
-    '02:10 - 05:40 PST',
-    '03:40 - 05:40 PST',
-    '03:40 - 05:40 PST',
-    '05:40 - 06:40 PST',
+    'Scheduled time PST',
+    '07:00 - 08:30',
+    '08:30 - 09:30',
+    '09:30 - 14:30',
+    '12:30 - 14:30',
+    '12:30 - 14:30',
+    '14:30 - 15:00',
   ];
 
-  pCloseProgBarStatusMapping: any = {};
-  mCloseProgBarStatusMapping: any = {};
+  pcloseActualsTime: string[] = [
+    'Actual time PST',
+    ' - ',
+    ' - ',
+    ' - ',
+    ' - ',
+    ' - ',
+    'Data needed',
+  ];
+  mcloseExecutionWindow: string[] = [
+    'Scheduled time PST',
+    '00:25 - 01:10',
+    '01:10 - 02:10',
+    '02:10 - 05:40',
+    '03:40 - 05:40',
+    '03:40 - 05:40',
+    '05:40 - 06:40',
+  ];
+
   pcloseOuStatusMapping: any = {};
   mcloseOuStatusMapping: any = {};
 
   preclosePeriod: String = '';
   midclosePeriod: String = '';
   isQuarterEnd: boolean = false;
-  // pclose_last_period = 'JUL-23'; // hardcoded for now
-  // mclose_last_period = 'JUL-23'; // hardcoded for now
   precloseQuarter: String = '';
   midcloseQuarter: String = '';
 
-  dynamicInterfaceLoadColumns: string[] = [];
   pcloseInterfaceLoadColumns: string[] = [];
   mcloseInterfaceLoadColumns: string[] = [];
 
@@ -144,10 +111,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     http: ApiHttpService,
     destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private menuService: MenuService,
-    private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-    private router: Router
+    private menuService: MenuService
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
@@ -162,7 +126,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
     this.roles = this.authService.getRoles();
-    this.getDefaultTabIndex();
 
     this.menuService.updateMenuItems([
       {
@@ -190,139 +153,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         route: '',
         role: [''],
       },
-
-      // {
-      //   category: 'Invoice to Cash',
-      //   items: [
-      //     {
-      //       label: 'Pre Invoicing',
-      //       route: '/pre-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Invoicing',
-      //       route: '/invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Post Invoicing',
-      //       route: '/post-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'eInvoicing',
-      //       route: '/einvoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Fusion',
-      //       route: '/fusion',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Revenue Accounting',
-      //   items: [
-      //     {
-      //       label: 'Standard Revenue',
-      //       route: '/standard-revenue',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Rol',
-      //       route: '/rol',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accruals',
-      //       route: '/accruals',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accounts',
-      //       route: '/accounts',
-      //       role: ['ADMIN', 'ACCOUNT_RECON'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'GL Posting',
-      //   items: [
-      //     {
-      //       label: 'General Ledger',
-      //       route: '/general-ledger',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Operations Controls',
-      //   items: [
-      //     {
-      //       label: 'Invoice to Cash',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //     {
-      //       label: 'Revenue',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //   ],
-      // },
     ]);
-    // this.router.events.subscribe((event) => {
-    //   if (event instanceof NavigationEnd) {
-    //     console.log('🔹 Navigated to:', event.url);
-
-    //     if (event.url.includes('/period-close-tracking')) {
-    //       console.log('✅ First load detected for Period Close Tracking');
-    //       this.updateHeaderToPreclose();
-    //     }
-    //   }
-    // });
-  }
-
-  onTabChange(index: number) {
-    this.selectedIndex = index;
-    const newHeader = `Continuous Monitoring > ${this.filteredTabs[index]?.label}`;
-    console.log('🔹 Tab changed, updating header:', newHeader);
-    this.menuService.updateHeader(newHeader);
-  }
-
-  updateHeaderToPreclose() {
-    const newHeader = 'Continuous Monitoring > Preclose';
-    console.log('🔹 Setting initial header:', newHeader);
-    this.menuService.updateHeader(newHeader);
-  }
-
-  menuOpen = false;
-
-  toggleMenu() {
-    console.log('Burger menu clicked!');
-    // Implement menu toggle logic here
-  }
-  visibleTabs: { label: string; component: string; role: string[] }[] = [
-    {
-      label: 'Pre-close (Internal)',
-      component: 'app-preclose',
-      role: ['ADMIN', 'PERIOD_CLOSE'],
-    },
-    {
-      label: 'Mid-close (Internal)',
-      component: 'app-midclose',
-      role: ['ADMIN', 'PERIOD_CLOSE'],
-    },
-  ];
-
-  selectedIndex: number = 0;
-  filteredTabs: { label: string; component: string }[] = [];
-
-  getDefaultTabIndex() {
-    this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
-    );
   }
 
   getIsQuarterEnd(): void {
@@ -340,25 +171,51 @@ export class PeriodCloseTrackingComponent implements OnInit {
     }
   }
 
-  extractDatePrettify(date: string) {
+  // Format for Expected dates: "April 26, 2025 at 07:00:00 PST"
+  extractDatePrettifyFull(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
-    let dateParts = date.split('T')[0].split('-');
-    let year = dateParts[0];
-    let month;
-    for (const ele in this.monthMap) {
-      if (ele === dateParts[1]) {
-        month = this.monthMap[ele];
-      }
+
+    // Parse the ISO date string and convert to PST
+    const utcDate = new Date(date);
+
+    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
+    const pstDate = new Date(
+      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
+    );
+
+    // Format the date
+    const month = pstDate.toLocaleString('en-US', { month: 'long' });
+    const day = pstDate.getDate();
+    const year = pstDate.getFullYear();
+    const hours = String(pstDate.getHours()).padStart(2, '0');
+    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
+    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+
+    return `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+  }
+
+  // Format for Actual dates: "13:05:00 PST"
+  extractDatePrettifyTimeOnly(date: string): string {
+    if (!date || typeof date !== 'string') {
+      return 'N/A';
     }
-    let day = dateParts[2];
 
-    let timeParts = date.split('T')[1].split('.');
-    let time = timeParts[0];
+    // Parse the ISO date string and convert to PST
+    const utcDate = new Date(date);
 
-    let prettyDate = `${month} ${day}, ${year} at ${time} PST`;
-    return prettyDate;
+    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
+    const pstDate = new Date(
+      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
+    );
+
+    // Format time only
+    const hours = String(pstDate.getHours()).padStart(2, '0');
+    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
+    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds} PST`;
   }
 
   getCurrentTime() {
@@ -372,40 +229,34 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getPeriodQuarterStartEndTime() {
     this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
+      console.log('Period Close Start/End Times:', data);
+
       data.forEach((row) => {
-        if (row['CLOSE_TYPE'] == 'PRECLOSE') {
-          this.preclosePeriod = row['PERIOD_NAME'];
-          this.precloseQuarter = row['QUARTER'];
-          this.preCloseStartTime =
-            row['CLOSE_START_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_START_TIME'])
-              : 'N/A';
-          this.preCloseEndTime =
-            row['CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_END_TIME'])
-              : 'N/A';
-          this.preCloseActualEndTime =
-            row['ACTUAL_CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['ACTUAL_CLOSE_END_TIME'])
-              : 'N/A';
-        } else if (row['CLOSE_TYPE'] == 'MIDCLOSE') {
-          this.midclosePeriod = row['PERIOD_NAME'];
-          this.midcloseQuarter = row['QUARTER'];
-          this.midCloseStartTime =
-            row['CLOSE_START_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_START_TIME'])
-              : 'N/A';
-          this.midCloseEndTime =
-            row['CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['CLOSE_END_TIME'])
-              : 'N/A';
-          this.midCloseActualEndTime =
-            row['ACTUAL_CLOSE_END_TIME'] != null
-              ? this.extractDatePrettify(row['ACTUAL_CLOSE_END_TIME'])
-              : 'N/A';
+        const closeType = row['CLOSE_TYPE'];
+        const periodName = row['PERIOD_NAME'];
+        const quarter = row['QUARTER'];
+        const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
+        const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
+        const actualEndTime = this.extractDatePrettifyTimeOnly(
+          row['ACTUAL_CLOSE_END_TIME']
+        );
+
+        if (closeType === 'PRECLOSE') {
+          this.preclosePeriod = periodName;
+          this.precloseQuarter = quarter;
+          this.preCloseStartTime = startTime;
+          this.preCloseEndTime = endTime;
+          this.preCloseActualEndTime = actualEndTime;
+        } else if (closeType === 'MIDCLOSE') {
+          this.midclosePeriod = periodName;
+          this.midcloseQuarter = quarter;
+          this.midCloseStartTime = startTime;
+          this.midCloseEndTime = endTime;
+          this.midCloseActualEndTime = actualEndTime;
         }
-        this.getIsQuarterEnd();
       });
+
+      this.getIsQuarterEnd();
     });
   }
 
@@ -437,10 +288,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.qeCashCollectedData
       );
     });
-  }
-
-  replaceUnderscoreWithDash(column: string): string {
-    return column.replace(/_/g, '-').split(' ').join(' ');
   }
 
   getPrecloseMeStatus() {
@@ -509,17 +356,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
           ] = stepsCompleted;
         }
       });
-
-      // For any operating unit, iterate through all the categories
-      // These categories will be columns for the new table and keys for pCloseProgBarStatusMapping
-      let tempOperatingUnit = data[0]['OPERATING_UNIT'];
-      for (let category of Object.keys(
-        this.pcloseOuStatusMapping[tempOperatingUnit]
-      ).sort(this.customMeStatusCatSort.bind(this))) {
-        // create new object for progress bar category mappings
-        this.pCloseProgBarStatusMapping[category] = {};
-        this.mCloseProgBarStatusMapping[category] = {};
-      }
 
       // Get rows of table by building each row as an object and pushing it to array
       // Preclose
@@ -601,27 +437,26 @@ export class PeriodCloseTrackingComponent implements OnInit {
     );
   }
 
-  replaceUnderscoreWithEmpty(column: string): string {
-    return column.replace(/_/g, ' ');
-  }
-
   getEstimatedCompletionTime() {
     this.getEndpointData('estimated-completion-time').subscribe((data: any) => {
-      const pcloseesttime = data.find((obj) => obj['CLOSE_TYPE'] == 'PRECLOSE');
-      const mcloseesttime = data.find((obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE');
+      const precloseData = data.find((obj) => obj['CLOSE_TYPE'] === 'PRECLOSE');
+      const midcloseData = data.find((obj) => obj['CLOSE_TYPE'] === 'MIDCLOSE');
 
-      this.pcloseEstimatedCompletionTime = this.extractDatePrettify(
-        pcloseesttime['ESTIMATED_COMPLETION_TIME']
-      );
-      this.mcloseEstimatedCompletionTime = this.extractDatePrettify(
-        mcloseesttime['ESTIMATED_COMPLETION_TIME']
-      );
+      this.pcloseEstimatedCompletionTime = precloseData
+        ? this.extractDatePrettifyTimeOnly(
+            precloseData['ESTIMATED_COMPLETION_TIME']
+          )
+        : 'N/A';
+      this.mcloseEstimatedCompletionTime = midcloseData
+        ? this.extractDatePrettifyTimeOnly(
+            midcloseData['ESTIMATED_COMPLETION_TIME']
+          )
+        : 'N/A';
     });
   }
 
   precloseInterfaceLoadDatasource: any;
   midcloseInterfaceLoadDatasource: any;
-  percentageColumn: boolean = false;
   getInterfaceLoad() {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
@@ -652,37 +487,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
     );
   }
 
-  isPercentageColumn(column: string): boolean {
-    return (
-      column === 'QUARTER OVER QUARTER' ||
-      column === 'MONTH OVER MONTH' ||
-      column === 'YEAR OVER YEAR' ||
-      column === 'PRIOR QUARTER MONTH'
-    );
-  }
-
-  getCircleColor(category: string, data: any[]): string {
-    const hasStoppedItem = data.some(
-      (row) => row[category] && row[category].toLowerCase() === 'stopped'
-    );
-    if (hasStoppedItem) {
-      return '#FF0000'; // Red for stopped
-    }
-
-    const hasDelayedItem = data.some(
-      (row) => row[category] && row[category].toLowerCase() === 'delayed'
-    );
-    if (hasDelayedItem) {
-      return '#FFD429'; // Yellow for delayed
-    }
-
-    return '#78C000'; // Default green
-  }
-
-  getAbsoluteValue(number: number) {
-    return Math.abs(number);
-  }
-
   customMeStatusCatSort(a: string, b: string): number {
     const indexA = this.meStatusDesiredOrder.indexOf(a);
     const indexB = this.meStatusDesiredOrder.indexOf(b);
@@ -705,12 +509,5 @@ export class PeriodCloseTrackingComponent implements OnInit {
       switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
     );
     return polling$;
-  }
-
-  exportTableToExcel(data: any[], sheetName: string, filename: string) {
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-    XLSX.writeFile(workbook, `${filename}.xlsx`);
   }
 }

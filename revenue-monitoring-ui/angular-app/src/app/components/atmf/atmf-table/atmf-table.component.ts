@@ -11,7 +11,7 @@ export class AtmfTableComponent {
   @Input() title!: string; // Table Title
   @Input() dataSource!: MatTableDataSource<any>; // Data for the table
   @Input() displayedColumns!: string[]; // Columns to display
-  @Input() exportFileName!: string; // File name for export
+  @Input() exportFileName: string; // File name for export
 
   removeUnderscores(key: string): string {
     return key.replace(/_/g, ' ');

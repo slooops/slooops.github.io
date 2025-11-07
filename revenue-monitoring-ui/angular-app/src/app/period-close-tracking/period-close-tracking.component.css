@@ -1,35 +1,9 @@
-.summary-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  width: 100%;
-}
-.summary-left {
-  flex: 1;
-  text-align: left;
-}
-.summary-right {
-  flex: 3;
-  text-align: right !important;
-  margin-top: 0px !important;
-  display: flex;
-  justify-content: flex-end;
-  gap: 2rem;
-}
-
-.mb-12 {
-  margin-bottom: 12px;
-}
 .entity-view {
   height: 50px;
+  padding: 1rem 1rem 0.74rem 1rem;
+  background: var(--Background-canvas, #fff);
 }
-.entity-controls {
-  display: flex;
-  gap: 1rem;
-}
-.circle-progress-container {
-  margin: -10px 0 -10px 0;
-}
+
 .centered {
   text-align: center;
 }
@@ -46,88 +20,91 @@
   font-weight: 600;
 }
 
-.card-subtitle {
-  font-size: 13px;
-  text-align: center;
-  margin-top: 10px;
-  color: #454444;
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-}
-
-.card-title-stack {
-  display: flex;
-  flex-direction: column;
-}
-
 .periodclosetable {
   overflow: auto;
   max-width: 100%;
   margin-top: 8px;
 }
 
-.action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.custom-button-primary {
-  background-color: gray;
-  color: white;
-}
-.custom-button-secondary {
-  color: #049fd9;
-}
-
-.form-control.form-control-sm {
-  width: 40%;
-  height: 60px;
-}
-
-.comment-user {
-  margin-bottom: 10px;
-  color: #454444;
-}
-
-.comment-date {
-  color: #6b6a6a;
-}
-
 .entity-legend {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 16px;
-  margin-top: -10px;
 }
 
 .legend-item {
+  font-size: 10px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  color: #454444;
+  font-weight: 400;
+  line-height: 16px; /* 160% */
+  letter-spacing: 0.2px;
 }
 
 /* Table styles for entity tables */
+table.table.equal-width.table-striped {
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+
 table.table.equal-width.table-striped tr {
-  height: 30px;
-  border-bottom: 0px;
   vertical-align: middle;
 }
-table.table.equal-width.table-striped td {
-  text-align: center !important;
-  font-size: 11px;
-  font-weight: 500 !important;
-  padding: 0.5rem 0.3rem 0.3rem 0.3rem !important;
-  border: 0px !important;
-  background-color: #f0f7fc;
-}
+
 table.table.equal-width.table-striped th {
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px;
-  padding: 0.5vh !important;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0.2rem 0.3rem;
+  line-height: 1;
   background-color: #f0f7fc;
+  border: 0px;
+  vertical-align: middle;
+}
+
+/* First header column left-aligned with padding */
+table.table.equal-width.table-striped th:first-child {
+  text-align: left;
+  padding-left: 1rem;
+}
+
+table.table.equal-width.table-striped td {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 0.2rem 0.3rem;
+  background-color: #f0f7fc;
+  border: 0px;
+  vertical-align: middle;
+}
+
+/* First data column left-aligned with padding */
+table.table.equal-width.table-striped td:first-child {
+  text-align: left;
+  padding-left: 1rem;
+}
+
+/* Timing rows - shorter and smaller text */
+table.table.equal-width.table-striped td.table-timings {
+  font-size: 10px;
+  font-weight: 400;
+  color: #606162;
+  padding: 0.2rem 0.3rem;
+  line-height: 1;
+}
+
+/* Timing rows first column also gets left padding */
+table.table.equal-width.table-striped td.table-timings:first-child {
+  text-align: left;
+  padding-left: 1rem;
+}
+
+/* Add spacing after the last timing row */
+table.table.equal-width.table-striped
+  tr:has(td.table-timings)
+  + tr:not(:has(td.table-timings))
+  td {
+  padding-top: 1rem;
 }

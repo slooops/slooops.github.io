@@ -9,7 +9,6 @@ import { O2cLandingComponent } from './o2c/o2c-landing/o2c-landing.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
 import { OplComponent } from './opl/opl.component';
-import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
 import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
 import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
@@ -55,14 +54,6 @@ const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
-    },
-  },
-  {
-    path: 'period-close-tracking-midclose',
-    component: MidcloseComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Period Close Tracking',
     },
   },
   {

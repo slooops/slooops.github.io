@@ -15,8 +15,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { MenuComponent } from './menu/menu.component';
-import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
-import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
@@ -156,8 +154,6 @@ export function initApp(authService: AuthenticationService) {
     AppComponent,
     PeriodCloseTrackingComponent,
     MenuComponent,
-    PrecloseComponent,
-    MidcloseComponent,
     BarChartComponent,
     LoadingSymbolComponent,
     OrderLifecycleComponent,

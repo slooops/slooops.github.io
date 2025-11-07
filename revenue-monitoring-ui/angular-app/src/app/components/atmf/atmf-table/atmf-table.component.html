@@ -1,6 +1,6 @@
 <div class="table-header">
   <p class="section-title">{{ title }}</p>
-  <div class="table-links">
+  <div class="table-links" *ngIf="exportFileName">
     <i (click)="exportTableToExcel()" class="svg-icon download-icon"></i>
   </div>
 </div>
