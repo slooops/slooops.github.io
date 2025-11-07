@@ -35,9 +35,11 @@
     <!-- Previous Quarter Table -->
     <app-card [container]="true">
       <app-table
-        title="Case Summary for {{ q2?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[2]"
-        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[2]"
+        title="Case Summary for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[0]?.right]"
+        [displayedColumns]="
+          displayedColumnsForCaseSummaryQuarter[quarterPairs[0]?.right]
+        "
         exportFileName="Previous_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
         "
@@ -48,9 +50,11 @@
 
     <app-card [container]="true">
       <app-table
-        title=" Aging Backlog for {{ q2?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[2]"
-        [displayedColumns]="displayedColumnsForAgingBacklog[2]"
+        title=" Aging Backlog for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceAgingBacklog[quarterPairs[0]?.right]"
+        [displayedColumns]="
+          displayedColumnsForAgingBacklog[quarterPairs[0]?.right]
+        "
         exportFileName="Previous_Quarter_Aging_Backlog"
         [extraWideColumns]="['SERVICE_OFFERING']"
       ></app-table>
@@ -91,9 +95,11 @@
 
     <app-card [container]="true">
       <app-table
-        title="Case Summary for {{ q3?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[3]"
-        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[3]"
+        title="Case Summary for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[1]?.right]"
+        [displayedColumns]="
+          displayedColumnsForCaseSummaryQuarter[quarterPairs[1]?.right]
+        "
         exportFileName="Current_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
       "
@@ -103,9 +109,11 @@
     </app-card>
     <app-card [container]="true">
       <app-table
-        title=" Aging Backlog for {{ q3?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[3]"
-        [displayedColumns]="displayedColumnsForAgingBacklog[3]"
+        title=" Aging Backlog for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceAgingBacklog[quarterPairs[1]?.right]"
+        [displayedColumns]="
+          displayedColumnsForAgingBacklog[quarterPairs[1]?.right]
+        "
         exportFileName="Previous_Quarter_Aging_Backlog"
         [extraWideColumns]="['SERVICE_OFFERING']"
       ></app-table>
@@ -145,9 +153,11 @@
     </div>
     <app-card [container]="true">
       <app-table
-        title="Case Summary for {{ q4?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[4]"
-        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[4]"
+        title="Case Summary for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[2]?.right]"
+        [displayedColumns]="
+          displayedColumnsForCaseSummaryQuarter[quarterPairs[2]?.right]
+        "
         exportFileName="Next_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
       "
@@ -157,9 +167,11 @@
     </app-card>
     <app-card [container]="true">
       <app-table
-        title=" Aging Backlog for {{ q4?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[4]"
-        [displayedColumns]="displayedColumnsForAgingBacklog[4]"
+        title=" Aging Backlog for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceAgingBacklog[quarterPairs[2]?.right]"
+        [displayedColumns]="
+          displayedColumnsForAgingBacklog[quarterPairs[2]?.right]
+        "
         exportFileName="Next_Quarter_Aging_Backlog"
         [extraWideColumns]="['SERVICE_OFFERING']"
       ></app-table>
@@ -198,9 +210,11 @@
     </div>
     <app-card [container]="true">
       <app-table
-        title="Case Summary for {{ q1?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[1]"
-        [displayedColumns]="displayedColumnsForCaseSummaryQuarter[1]"
+        title="Case Summary for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[3]?.right]"
+        [displayedColumns]="
+          displayedColumnsForCaseSummaryQuarter[quarterPairs[3]?.right]
+        "
         exportFileName="Next_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
       "
@@ -210,9 +224,11 @@
     </app-card>
     <app-card [container]="true">
       <app-table
-        title=" Aging Backlog for {{ q1?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[1]"
-        [displayedColumns]="displayedColumnsForAgingBacklog[1]"
+        title=" Aging Backlog for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
+        [dataSource]="dataSourceAgingBacklog[quarterPairs[3]?.right]"
+        [displayedColumns]="
+          displayedColumnsForAgingBacklog[quarterPairs[3]?.right]
+        "
         exportFileName="Next_Quarter_Aging_Backlog"
         [extraWideColumns]="['SERVICE_OFFERING']"
       ></app-table>

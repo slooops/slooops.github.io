@@ -34,11 +34,11 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   quarterComparisons: [string, string][] = [];
 
-  displayedColumnsForAgingBacklog: { [key: number]: string[] } = {};
-  dataSourceAgingBacklog: { [key: number]: MatTableDataSource<any> } = {};
+  displayedColumnsForAgingBacklog: { [key: string]: string[] } = {};
+  dataSourceAgingBacklog: { [key: string]: MatTableDataSource<any> } = {};
 
-  displayedColumnsForCaseSummaryQuarter: { [key: number]: string[] } = {};
-  dataSourceCaseSummaryQuarter: MatTableDataSource<any>[] = [];
+  displayedColumnsForCaseSummaryQuarter: { [key: string]: string[] } = {};
+  dataSourceCaseSummaryQuarter: { [key: string]: MatTableDataSource<any> } = {};
 
   espWeeklyComparisonSummary: any[] = [];
 
@@ -153,9 +153,13 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
             'QTR_RELATIVE_POSITION',
           ];
 
-          // Process available quarter data dynamically
-          for (let i = 1; i <= 5; i++) {
-            const quarterName = this[`q${i}` as keyof this];
+          // Get all unique quarter names from the data
+          const uniqueQuarters = Array.from(
+            new Set(data.map((item: any) => item.FISC_QTR))
+          );
+
+          // Process each quarter dynamically
+          uniqueQuarters.forEach((quarterName: any) => {
             if (quarterName) {
               const quarterData = data.filter(
                 (item: any) => item.FISC_QTR === quarterName
@@ -166,15 +170,13 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
               );
 
               if (cleanedData.length > 0) {
-                this.displayedColumnsForCaseSummaryQuarter[i] = Object.keys(
-                  cleanedData[0]
-                );
-                this.dataSourceCaseSummaryQuarter[i] = new MatTableDataSource(
-                  cleanedData
-                );
+                this.displayedColumnsForCaseSummaryQuarter[quarterName] =
+                  Object.keys(cleanedData[0]);
+                this.dataSourceCaseSummaryQuarter[quarterName] =
+                  new MatTableDataSource(cleanedData);
               }
             }
-          }
+          });
         }
       });
   }
@@ -200,9 +202,13 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
             'GREATER_THAN_15_DAYS',
           ];
 
-          // Process available quarter data dynamically
-          for (let i = 1; i <= 5; i++) {
-            const quarterName = this[`q${i}` as keyof this];
+          // Get all unique quarter names from the data
+          const uniqueQuarters = Array.from(
+            new Set(data.map((item: any) => item.FISC_QTR))
+          );
+
+          // Process each quarter dynamically
+          uniqueQuarters.forEach((quarterName: any) => {
             if (quarterName) {
               const quarterData = data.filter(
                 (item: any) => item.FISC_QTR === quarterName
@@ -219,15 +225,14 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
               );
 
               if (finalData.length > 0) {
-                this.displayedColumnsForAgingBacklog[i] = Object.keys(
+                this.displayedColumnsForAgingBacklog[quarterName] = Object.keys(
                   finalData[0]
                 );
-                this.dataSourceAgingBacklog[i] = new MatTableDataSource(
-                  finalData
-                );
+                this.dataSourceAgingBacklog[quarterName] =
+                  new MatTableDataSource(finalData);
               }
             }
-          }
+          });
         }
       });
   }
