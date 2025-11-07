@@ -1,5 +1,5 @@
 .mat-header-row {
-  border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .mat-header-cell {

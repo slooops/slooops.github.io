@@ -14,7 +14,7 @@ import { MenuService } from '../providers/menu.service';
   providers: [DestroyManager],
 })
 export class PeriodCloseTrackingComponent implements OnInit {
-  refreshInterval = 30000; //ms
+  refreshInterval = 300000; //ms
   timeNow: any;
   roles: string[] = [];
 
@@ -457,34 +457,107 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   precloseInterfaceLoadDatasource: any;
   midcloseInterfaceLoadDatasource: any;
+  precloseChartData: any;
+  midcloseChartData: any;
+
   getInterfaceLoad() {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
+        console.log(data);
+
         this.precloseInterfaceLoadData = data['PRECLOSE'];
         this.midcloseInterfaceLoadData = data['MIDCLOSE'];
-        this.pcloseInterfaceLoadColumns = [];
-        this.mcloseInterfaceLoadColumns = [];
 
-        if (this.precloseInterfaceLoadData.length > 0) {
-          this.pcloseInterfaceLoadColumns = Object.keys(
-            this.precloseInterfaceLoadData[0]
-          );
-        }
+        // Filter table data to only include LINE_TYPE and percentage columns
+        const precloseTableData = this.precloseInterfaceLoadData.map((row) => ({
+          LINE_TYPE: row['LINE_TYPE'],
+          'QUARTER OVER QUARTER': row['QUARTER OVER QUARTER'],
+          'YEAR OVER YEAR': row['YEAR OVER YEAR'],
+        }));
 
-        if (this.midcloseInterfaceLoadData.length > 0) {
-          this.mcloseInterfaceLoadColumns = Object.keys(
-            this.midcloseInterfaceLoadData[0]
-          );
-        }
+        const midcloseTableData = this.midcloseInterfaceLoadData.map((row) => ({
+          LINE_TYPE: row['LINE_TYPE'],
+          'QUARTER OVER QUARTER': row['QUARTER OVER QUARTER'],
+          'YEAR OVER YEAR': row['YEAR OVER YEAR'],
+        }));
+
+        this.pcloseInterfaceLoadColumns = [
+          'LINE_TYPE',
+          'QUARTER OVER QUARTER',
+          'YEAR OVER YEAR',
+        ];
+        this.mcloseInterfaceLoadColumns = [
+          'LINE_TYPE',
+          'QUARTER OVER QUARTER',
+          'YEAR OVER YEAR',
+        ];
 
         this.precloseInterfaceLoadDatasource = new MatTableDataSource<any>(
-          this.precloseInterfaceLoadData
+          precloseTableData
         );
         this.midcloseInterfaceLoadDatasource = new MatTableDataSource<any>(
+          midcloseTableData
+        );
+
+        // Transform data for chart component
+        this.precloseChartData = this.transformInterfaceDataForChart(
+          this.precloseInterfaceLoadData
+        );
+        this.midcloseChartData = this.transformInterfaceDataForChart(
           this.midcloseInterfaceLoadData
         );
       }
     );
+  }
+
+  transformInterfaceDataForChart(data: any[]): any {
+    if (!data || data.length === 0) return null;
+
+    // Extract quarters (exclude LINE_TYPE, QUARTER OVER QUARTER, YEAR OVER YEAR)
+    const quarters = Object.keys(data[0]).filter(
+      (key) =>
+        key !== 'LINE_TYPE' &&
+        key !== 'QUARTER OVER QUARTER' &&
+        key !== 'YEAR OVER YEAR'
+    );
+
+    // Find PRODUCT and SERVICE rows
+    const productRow = data.find((row) => row.LINE_TYPE === 'PRODUCT');
+    const serviceRow = data.find((row) => row.LINE_TYPE === 'SERVICE');
+
+    // Build datasets
+    const productValues = quarters.map((q) => productRow?.[q] || 0);
+    const serviceValues = quarters.map((q) => serviceRow?.[q] || 0);
+
+    // Calculate quarter-over-quarter percent changes for Product
+    const productPercentChanges = quarters.map((q, index) => {
+      if (index === 0) return 0; // No previous quarter for first data point
+
+      const prevValue = productRow?.[quarters[index - 1]] || 0;
+      const currentValue = productRow?.[q] || 0;
+
+      if (prevValue === 0) return 0;
+      return Math.round(((currentValue - prevValue) / prevValue) * 100);
+    });
+
+    // Calculate quarter-over-quarter percent changes for Service
+    const servicePercentChanges = quarters.map((q, index) => {
+      if (index === 0) return 0; // No previous quarter for first data point
+
+      const prevValue = serviceRow?.[quarters[index - 1]] || 0;
+      const currentValue = serviceRow?.[q] || 0;
+
+      if (prevValue === 0) return 0;
+      return Math.round(((currentValue - prevValue) / prevValue) * 100);
+    });
+
+    return {
+      labels: quarters,
+      productValues,
+      serviceValues,
+      productPercentChanges,
+      servicePercentChanges,
+    };
   }
 
   customMeStatusCatSort(a: string, b: string): number {

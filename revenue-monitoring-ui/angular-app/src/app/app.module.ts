@@ -141,6 +141,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AtmfTableComponent } from './components/atmf/atmf-table/atmf-table.component';
 import { AtmfCardComponent } from './components/atmf/atmf-card/atmf-card.component';
+import { AtmfBarLineChartComponent } from './components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -253,6 +254,7 @@ export function initApp(authService: AuthenticationService) {
     CaseiqSmExpandDialogComponent,
     AtmfTableComponent,
     AtmfCardComponent,
+    AtmfBarLineChartComponent,
   ],
   imports: [
     BrowserModule,

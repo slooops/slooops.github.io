@@ -270,85 +270,104 @@
 <div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
   <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
     <app-atmf-card>
-      <ng-container *ngIf="precloseInterfaceLoadDatasource?.data?.length">
-        <app-atmf-table
-          [title]="'Preclose Interface Load'"
-          [dataSource]="precloseInterfaceLoadDatasource"
-          [displayedColumns]="pcloseInterfaceLoadColumns"
-        ></app-atmf-table>
-      </ng-container>
+      <p class="section-title">Preclose Interface Load</p>
+
+      <div style="display: flex; gap: 1rem; align-items: flex-start">
+        <div style="flex: 1; min-width: 0">
+          <app-atmf-bar-line-chart
+            [chartData]="precloseChartData"
+            [title]="'Preclose Interface Load'"
+          >
+          </app-atmf-bar-line-chart>
+        </div>
+        <div style="flex: 0 0 auto; min-width: 250px">
+          <ng-container *ngIf="precloseInterfaceLoadDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="precloseInterfaceLoadDatasource"
+              [displayedColumns]="pcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+          </ng-container>
+        </div>
+      </div>
     </app-atmf-card>
   </div>
   <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
     <app-atmf-card>
-      <ng-container *ngIf="midcloseInterfaceLoadDatasource?.data?.length">
-        <app-atmf-table
-          [title]="'Midclose Interface Load'"
-          [dataSource]="midcloseInterfaceLoadDatasource"
-          [displayedColumns]="mcloseInterfaceLoadColumns"
-        ></app-atmf-table>
-      </ng-container>
-      <div *ngIf="!midcloseInterfaceLoadDatasource?.data?.length">
-        <app-loading-symbol></app-loading-symbol>
+      <p class="section-title">Midclose Interface Load</p>
+      <div style="display: flex; gap: 1rem; align-items: flex-start">
+        <div style="flex: 1; min-width: 0">
+          <app-atmf-bar-line-chart
+            [chartData]="midcloseChartData"
+            [title]="'Midclose Interface Load'"
+          >
+          </app-atmf-bar-line-chart>
+        </div>
+        <div style="flex: 0 0 auto; min-width: 250px">
+          <ng-container *ngIf="midcloseInterfaceLoadDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="midcloseInterfaceLoadDatasource"
+              [displayedColumns]="mcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+          </ng-container>
+          <div *ngIf="!midcloseInterfaceLoadDatasource?.data?.length">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        </div>
       </div>
     </app-atmf-card>
   </div>
 </div>
 
-<!-- Invoices Generated Containers - Side by Side -->
+<!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
 <div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
   <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
     <app-atmf-card>
-      <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
-        <app-atmf-table
-          [title]="'Preclose Invoices Generated'"
-          [dataSource]="precloseInvGenDatasource"
-          [displayedColumns]="pcloseInvGenTableColumns"
-        ></app-atmf-table>
-      </ng-container>
+      <mat-tab-group>
+        <mat-tab label="Invoices Generated">
+          <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="precloseInvGenDatasource"
+              [displayedColumns]="pcloseInvGenTableColumns"
+            ></app-atmf-table>
+          </ng-container>
+        </mat-tab>
+        <mat-tab label="Cash Posted">
+          <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="qeCashCollectedDatasource"
+              [displayedColumns]="qeCashCollectedTableColumns"
+            ></app-atmf-table>
+          </ng-container>
+        </mat-tab>
+      </mat-tab-group>
     </app-atmf-card>
   </div>
   <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
     <app-atmf-card>
-      <ng-container *ngIf="midcloseInvGenDatasource?.data?.length">
-        <app-atmf-table
-          [title]="'Midclose Invoices Generated'"
-          [dataSource]="midcloseInvGenDatasource"
-          [displayedColumns]="mcloseInvGenTableColumns"
-        ></app-atmf-table>
-      </ng-container>
-      <div *ngIf="!midcloseInvGenDatasource?.data?.length">
-        <app-loading-symbol></app-loading-symbol>
-      </div>
-    </app-atmf-card>
-  </div>
-</div>
-
-<!-- Cash Posted Containers - Side by Side -->
-<div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
-  <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
-    <app-atmf-card>
-      <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
-        <app-atmf-table
-          [title]="'Preclose Cash Posted'"
-          [dataSource]="qeCashCollectedDatasource"
-          [displayedColumns]="qeCashCollectedTableColumns"
-        ></app-atmf-table>
-      </ng-container>
-    </app-atmf-card>
-  </div>
-  <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
-    <app-atmf-card>
-      <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
-        <app-atmf-table
-          [title]="'Midclose Cash Posted'"
-          [dataSource]="qeCashCollectedDatasource"
-          [displayedColumns]="qeCashCollectedTableColumns"
-        ></app-atmf-table>
-      </ng-container>
-      <div *ngIf="!qeCashCollectedDatasource?.data?.length">
-        <app-loading-symbol></app-loading-symbol>
-      </div>
+      <mat-tab-group>
+        <mat-tab label="Invoices Generated">
+          <ng-container *ngIf="midcloseInvGenDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="midcloseInvGenDatasource"
+              [displayedColumns]="mcloseInvGenTableColumns"
+            ></app-atmf-table>
+          </ng-container>
+          <div *ngIf="!midcloseInvGenDatasource?.data?.length">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        </mat-tab>
+        <mat-tab label="Cash Posted">
+          <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="qeCashCollectedDatasource"
+              [displayedColumns]="qeCashCollectedTableColumns"
+            ></app-atmf-table>
+          </ng-container>
+          <div *ngIf="!qeCashCollectedDatasource?.data?.length">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
     </app-atmf-card>
   </div>
 </div>
