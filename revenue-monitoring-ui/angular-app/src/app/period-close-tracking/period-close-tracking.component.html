@@ -280,12 +280,80 @@
           >
           </app-atmf-bar-line-chart>
         </div>
-        <div style="flex: 0 0 auto; min-width: 250px">
+        <div
+          style="
+            flex: 0 0 auto;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+          "
+        >
           <ng-container *ngIf="precloseInterfaceLoadDatasource?.data?.length">
             <app-atmf-table
               [dataSource]="precloseInterfaceLoadDatasource"
               [displayedColumns]="pcloseInterfaceLoadColumns"
             ></app-atmf-table>
+
+            <!-- Legend -->
+            <div style="margin-top: auto; padding-top: 0.5rem">
+              <div
+                style="
+                  display: flex;
+                  gap: 1rem;
+                  font-size: 0.75rem;
+                  justify-content: center;
+                "
+              >
+                <div style="display: flex; flex-direction: column; gap: 0.3rem">
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 20px;
+                        height: 3px;
+                        background-color: #e69710ff;
+                        border-style: dashed;
+                        border-width: 0 0 3px 0;
+                        border-color: #e69710ff;
+                      "
+                    ></div>
+                    <span>Product % Change</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 20px;
+                        height: 3px;
+                        background-color: #7d8aff;
+                      "
+                    ></div>
+                    <span>Service % Change</span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.3rem">
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        background-color: #b02863ff;
+                      "
+                    ></div>
+                    <span>Product</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        background-color: #7d8affe4;
+                      "
+                    ></div>
+                    <span>Service</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </ng-container>
         </div>
       </div>
@@ -302,12 +370,80 @@
           >
           </app-atmf-bar-line-chart>
         </div>
-        <div style="flex: 0 0 auto; min-width: 250px">
+        <div
+          style="
+            flex: 0 0 auto;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+          "
+        >
           <ng-container *ngIf="midcloseInterfaceLoadDatasource?.data?.length">
             <app-atmf-table
               [dataSource]="midcloseInterfaceLoadDatasource"
               [displayedColumns]="mcloseInterfaceLoadColumns"
             ></app-atmf-table>
+
+            <!-- Legend -->
+            <div style="margin-top: auto; padding-top: 0.5rem">
+              <div
+                style="
+                  display: flex;
+                  gap: 1rem;
+                  font-size: 0.75rem;
+                  justify-content: center;
+                "
+              >
+                <div style="display: flex; flex-direction: column; gap: 0.3rem">
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 20px;
+                        height: 3px;
+                        background-color: #e69710ff;
+                        border-style: dashed;
+                        border-width: 0 0 3px 0;
+                        border-color: #e69710ff;
+                      "
+                    ></div>
+                    <span>Product % Change</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 20px;
+                        height: 3px;
+                        background-color: #7d8aff;
+                      "
+                    ></div>
+                    <span>Service % Change</span>
+                  </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.3rem">
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        background-color: #b02863ff;
+                      "
+                    ></div>
+                    <span>Product</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.3rem">
+                    <div
+                      style="
+                        width: 12px;
+                        height: 12px;
+                        background-color: #7d8affe4;
+                      "
+                    ></div>
+                    <span>Service</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </ng-container>
           <div *ngIf="!midcloseInterfaceLoadDatasource?.data?.length">
             <app-loading-symbol></app-loading-symbol>
@@ -319,56 +455,52 @@
 </div>
 
 <!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
-<div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
-  <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
-    <app-atmf-card>
-      <mat-tab-group>
-        <mat-tab label="Invoices Generated">
-          <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
-            <app-atmf-table
-              [dataSource]="precloseInvGenDatasource"
-              [displayedColumns]="pcloseInvGenTableColumns"
-            ></app-atmf-table>
-          </ng-container>
-        </mat-tab>
-        <mat-tab label="Cash Posted">
-          <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
-            <app-atmf-table
-              [dataSource]="qeCashCollectedDatasource"
-              [displayedColumns]="qeCashCollectedTableColumns"
-            ></app-atmf-table>
-          </ng-container>
-        </mat-tab>
-      </mat-tab-group>
-    </app-atmf-card>
+<div style="display: flex; margin: -1rem 0; overflow-x: auto">
+  <div style="flex: 1; min-width: 0; margin: 0.2rem 0.5rem 1rem 1rem">
+    <mat-tab-group>
+      <mat-tab label="Invoices Generated">
+        <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="precloseInvGenDatasource"
+            [displayedColumns]="pcloseInvGenTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+      </mat-tab>
+      <mat-tab label="Cash Posted">
+        <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+      </mat-tab>
+    </mat-tab-group>
   </div>
-  <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
-    <app-atmf-card>
-      <mat-tab-group>
-        <mat-tab label="Invoices Generated">
-          <ng-container *ngIf="midcloseInvGenDatasource?.data?.length">
-            <app-atmf-table
-              [dataSource]="midcloseInvGenDatasource"
-              [displayedColumns]="mcloseInvGenTableColumns"
-            ></app-atmf-table>
-          </ng-container>
-          <div *ngIf="!midcloseInvGenDatasource?.data?.length">
-            <app-loading-symbol></app-loading-symbol>
-          </div>
-        </mat-tab>
-        <mat-tab label="Cash Posted">
-          <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
-            <app-atmf-table
-              [dataSource]="qeCashCollectedDatasource"
-              [displayedColumns]="qeCashCollectedTableColumns"
-            ></app-atmf-table>
-          </ng-container>
-          <div *ngIf="!qeCashCollectedDatasource?.data?.length">
-            <app-loading-symbol></app-loading-symbol>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
-    </app-atmf-card>
+  <div style="flex: 1; min-width: 0; margin: 0.2rem 1rem 1rem 0.5rem">
+    <mat-tab-group>
+      <mat-tab label="Invoices Generated">
+        <ng-container *ngIf="midcloseInvGenDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="midcloseInvGenDatasource"
+            [displayedColumns]="mcloseInvGenTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+        <div *ngIf="!midcloseInvGenDatasource?.data?.length">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </mat-tab>
+      <mat-tab label="Cash Posted">
+        <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+        <div *ngIf="!qeCashCollectedDatasource?.data?.length">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </div>
 

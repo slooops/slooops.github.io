@@ -12,18 +12,30 @@
         <ng-container *ngFor="let column of displayedColumns">
           <ng-container [matColumnDef]="column">
             <th mat-header-cell *matHeaderCellDef>
-              {{ removeUnderscores(column) }}
+              {{ column | titleCaseWithExceptions }}
             </th>
             <td mat-cell *matCellDef="let element">
               <ng-container
                 *ngIf="
                   column.includes('TIME') || column.includes('DATE');
-                  else defaultCell
+                  else percentCheck
                 "
               >
-                " >
                 {{ element[column] | date : "MM/dd/yy" }}
               </ng-container>
+              <ng-template #percentCheck>
+                <ng-container *ngIf="column.includes('%'); else defaultCell">
+                  <span
+                    *ngIf="element[column] < 0"
+                    style="color: rgb(216, 19, 19)"
+                  >
+                    ▼ {{ element[column] }}%
+                  </span>
+                  <span *ngIf="element[column] >= 0" style="color: black">
+                    ▲ {{ element[column] }}%
+                  </span>
+                </ng-container>
+              </ng-template>
               <ng-template #defaultCell>{{ element[column] }}</ng-template>
             </td>
           </ng-container>

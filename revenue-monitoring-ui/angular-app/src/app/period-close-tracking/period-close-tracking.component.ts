@@ -468,28 +468,83 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.precloseInterfaceLoadData = data['PRECLOSE'];
         this.midcloseInterfaceLoadData = data['MIDCLOSE'];
 
-        // Filter table data to only include LINE_TYPE and percentage columns
-        const precloseTableData = this.precloseInterfaceLoadData.map((row) => ({
-          LINE_TYPE: row['LINE_TYPE'],
-          'QUARTER OVER QUARTER': row['QUARTER OVER QUARTER'],
-          'YEAR OVER YEAR': row['YEAR OVER YEAR'],
-        }));
+        // Transform table data to include latest quarter and rename headers
+        const precloseTableData = this.precloseInterfaceLoadData.map((row) => {
+          // Get all quarter keys (exclude LINE_TYPE, QUARTER OVER QUARTER, YEAR OVER YEAR)
+          const quarters = Object.keys(row).filter(
+            (key) =>
+              key !== 'LINE_TYPE' &&
+              key !== 'QUARTER OVER QUARTER' &&
+              key !== 'YEAR OVER YEAR'
+          );
 
-        const midcloseTableData = this.midcloseInterfaceLoadData.map((row) => ({
-          LINE_TYPE: row['LINE_TYPE'],
-          'QUARTER OVER QUARTER': row['QUARTER OVER QUARTER'],
-          'YEAR OVER YEAR': row['YEAR OVER YEAR'],
-        }));
+          // Get the latest quarter (last in array)
+          const latestQuarter = quarters[quarters.length - 1];
+          const latestQuarterValue = row[latestQuarter];
+
+          return {
+            LINE_TYPE: row['LINE_TYPE'],
+            [latestQuarter]: latestQuarterValue,
+            'QoQ %': row['QUARTER OVER QUARTER'],
+            'YoY %': row['YEAR OVER YEAR'],
+          };
+        });
+
+        const midcloseTableData = this.midcloseInterfaceLoadData.map((row) => {
+          // Get all quarter keys
+          const quarters = Object.keys(row).filter(
+            (key) =>
+              key !== 'LINE_TYPE' &&
+              key !== 'QUARTER OVER QUARTER' &&
+              key !== 'YEAR OVER YEAR'
+          );
+
+          // Get the latest quarter (last in array)
+          const latestQuarter = quarters[quarters.length - 1];
+          const latestQuarterValue = row[latestQuarter];
+
+          return {
+            LINE_TYPE: row['LINE_TYPE'],
+            [latestQuarter]: latestQuarterValue,
+            'QoQ %': row['QUARTER OVER QUARTER'],
+            'YoY %': row['YEAR OVER YEAR'],
+          };
+        });
+
+        // Get the latest quarter name dynamically for column headers
+        const precloseQuarters = Object.keys(
+          this.precloseInterfaceLoadData[0]
+        ).filter(
+          (key) =>
+            key !== 'LINE_TYPE' &&
+            key !== 'QUARTER OVER QUARTER' &&
+            key !== 'YEAR OVER YEAR'
+        );
+        const latestPcloseQuarter =
+          precloseQuarters[precloseQuarters.length - 1];
+
+        const midcloseQuarters = Object.keys(
+          this.midcloseInterfaceLoadData[0]
+        ).filter(
+          (key) =>
+            key !== 'LINE_TYPE' &&
+            key !== 'QUARTER OVER QUARTER' &&
+            key !== 'YEAR OVER YEAR'
+        );
+        const latestMcloseQuarter =
+          midcloseQuarters[midcloseQuarters.length - 1];
 
         this.pcloseInterfaceLoadColumns = [
           'LINE_TYPE',
-          'QUARTER OVER QUARTER',
-          'YEAR OVER YEAR',
+          latestPcloseQuarter,
+          'QoQ %',
+          'YoY %',
         ];
         this.mcloseInterfaceLoadColumns = [
           'LINE_TYPE',
-          'QUARTER OVER QUARTER',
-          'YEAR OVER YEAR',
+          latestMcloseQuarter,
+          'QoQ %',
+          'YoY %',
         ];
 
         this.precloseInterfaceLoadDatasource = new MatTableDataSource<any>(

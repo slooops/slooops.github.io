@@ -3,20 +3,21 @@
 }
 
 .mat-header-cell {
-  color: rgb(46, 46, 46) !important;
-  text-align: center !important;
-  border-bottom: 0px !important;
-  font-size: 12px !important;
-  padding: 1vh !important;
+  color: rgb(46, 46, 46);
+  text-align: center;
+  border-bottom: 0px;
+  font-size: 12px;
+  padding: 1vh;
 }
 
 .mat-cell {
-  text-align: center !important;
-  font-size: 11px !important;
-  font-weight: 500 !important;
-  padding: 0.4vh !important;
-  border: 0px !important;
-  background-color: white !important;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 0.4vh;
+  border: 0px;
+  background-color: white;
+  border-bottom: 1px solid var(--Border-divider, #ebebeb);
 }
 
 tr.mat-row {
@@ -29,17 +30,17 @@ td {
 }
 
 th {
-  text-align: center !important;
-  border-bottom: 0px !important;
+  text-align: center;
+  border-bottom: 0px;
   font-size: 12px;
-  padding: 0.5vh !important ;
+  padding: 0.5vh;
 }
 
 td {
-  text-align: center !important;
+  text-align: center;
   font-size: 11px;
-  padding: 0.4vh !important ;
-  border: 0px !important;
+  padding: 0.4vh;
+  border: 0px;
 }
 
 tr.mat-header-row {
@@ -52,18 +53,18 @@ table.table.equal-width.table-striped tr {
   vertical-align: middle;
 }
 table.table.equal-width.table-striped td {
-  text-align: center !important;
+  text-align: center;
   font-size: 11px;
-  font-weight: 500 !important;
-  padding: 0.5rem 0.3rem 0.3rem 0.3rem !important;
-  border: 0px !important;
+  font-weight: 400;
+  padding: 0.5rem 0.3rem 0.3rem 0.3rem;
+  border: 0px;
   background-color: #f0f7fc;
 }
 table.table.equal-width.table-striped th {
-  text-align: center !important;
-  border-bottom: 0px !important;
+  text-align: center;
+  border-bottom: 0px;
   font-size: 12px;
-  padding: 0.5vh !important;
+  padding: 0.5vh;
   background-color: #f0f7fc;
 }
 
