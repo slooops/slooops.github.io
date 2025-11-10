@@ -177,9 +177,15 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
           .sort((a: string, b: string) => a.localeCompare(b));
 
         // Apply dynamic filter (strictly greater than threshold like original >10 logic)
-        const filteredData = mergedData.filter(
+        // BUT if ALL items have count <= threshold, show all of them
+        let filteredData = mergedData.filter(
           (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
         );
+
+        // If no data passes threshold, show all data instead
+        if (filteredData.length === 0 && mergedData.length > 0) {
+          filteredData = mergedData;
+        }
 
         this.i2cChartData = this.transformMatchStatusData(
           filteredData,
@@ -227,9 +233,15 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
           .sort((a: string, b: string) => a.localeCompare(b));
 
         // Apply dynamic filter (strictly greater than threshold like original >10 logic)
-        const filteredData = mergedData.filter(
+        // BUT if ALL items have count <= threshold, show all of them
+        let filteredData = mergedData.filter(
           (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
         );
+
+        // If no data passes threshold, show all data instead
+        if (filteredData.length === 0 && mergedData.length > 0) {
+          filteredData = mergedData;
+        }
 
         this.i2cSimpleChartData = this.transformMatchStatusData(
           filteredData,
@@ -272,9 +284,9 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
           ? data.filter(
               (item: any) =>
                 item.Quarter === this.selectedQuarter &&
-                item.TEAM_NAME === 'Capital'
+                item.TEAM_NAME === 'CAPITAL'
             )
-          : data.filter((item: any) => item.TEAM_NAME === 'Capital');
+          : data.filter((item: any) => item.TEAM_NAME === 'CAPITAL');
 
         this.updateCapitalMetrics(filteredByQuarter);
       });
@@ -567,13 +579,22 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
 
   private reapplyCategoryFilter() {
     if (this.completeCategoryRaw.length) {
-      const effectiveData = this.selectedCategoryLabels.size
-        ? this.completeCategoryRaw.filter((item: any) =>
-            this.selectedCategoryLabels.has(item.CATEGORY)
-          )
-        : this.completeCategoryRaw.filter(
-            (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
-          );
+      let effectiveData: any[];
+
+      if (this.selectedCategoryLabels.size) {
+        effectiveData = this.completeCategoryRaw.filter((item: any) =>
+          this.selectedCategoryLabels.has(item.CATEGORY)
+        );
+      } else {
+        effectiveData = this.completeCategoryRaw.filter(
+          (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+        );
+
+        // If no data passes threshold, show all data instead
+        if (effectiveData.length === 0) {
+          effectiveData = this.completeCategoryRaw;
+        }
+      }
 
       this.i2cChartData = this.transformMatchStatusData(
         effectiveData,
@@ -586,13 +607,22 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
 
   private reapplyCoreIssueFilter() {
     if (this.completeCoreIssueRaw.length) {
-      const effectiveData = this.selectedCoreIssueLabels.size
-        ? this.completeCoreIssueRaw.filter((item: any) =>
-            this.selectedCoreIssueLabels.has(item.CORE_ISSUE)
-          )
-        : this.completeCoreIssueRaw.filter(
-            (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
-          );
+      let effectiveData: any[];
+
+      if (this.selectedCoreIssueLabels.size) {
+        effectiveData = this.completeCoreIssueRaw.filter((item: any) =>
+          this.selectedCoreIssueLabels.has(item.CORE_ISSUE)
+        );
+      } else {
+        effectiveData = this.completeCoreIssueRaw.filter(
+          (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+        );
+
+        // If no data passes threshold, show all data instead
+        if (effectiveData.length === 0) {
+          effectiveData = this.completeCoreIssueRaw;
+        }
+      }
 
       this.i2cSimpleChartData = this.transformMatchStatusData(
         effectiveData,

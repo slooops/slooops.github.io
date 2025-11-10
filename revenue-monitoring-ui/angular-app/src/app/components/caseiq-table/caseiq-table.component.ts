@@ -57,17 +57,13 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   showIncidentStateInner: boolean = false;
   showCancelPredictionInner: boolean = false;
   showImpactedServiceOfferingInner: boolean = false;
+  incidentNumberSearch: string = '';
 
   // Dummy filter options (can be made dynamic based on data)
   filterOptions = [
     {
       id: 'categoryMatch',
       label: 'Category Match',
-      values: ['Y', 'N'],
-    },
-    {
-      id: 'coreIssueMatch',
-      label: 'Core Issue Match',
       values: ['Y', 'N'],
     },
     {
@@ -87,9 +83,19 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       values: [], // Will be populated dynamically from data
     },
     {
+      id: 'coreIssueMatch',
+      label: 'Core Issue Match',
+      values: ['Y', 'N'],
+    },
+    {
       id: 'cancelPrediction',
       label: 'Cancel Prediction',
       values: ['Recommend Cancel', 'Cancel'],
+    },
+    {
+      id: 'incidentNumber',
+      label: 'Incident Number',
+      values: [], // Text-based search, no predefined values
     },
   ];
 
@@ -275,10 +281,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   exportTableToExcel(): void {
     const MAX_CELL_LENGTH = 32767; // Excel cell character limit
 
-    // Use fullData to include ALL rows including (Y,Y) combinations
-    // If fullData is empty, fall back to dataSource.data
-    const sourceData =
-      this.fullData.length > 0 ? this.fullData : this.dataSource.data;
+    // Use the current dataSource.data which contains the filtered/displayed data
+    // This ensures we export what the user is actually seeing
+    const sourceData = this.dataSource.data || [];
 
     // Truncate any cell values that exceed Excel's character limit
     const data = sourceData.map((row) => {
@@ -401,6 +406,29 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.addFilter('impactedServiceOffering', label, value);
   }
 
+  // Incident Number search handler
+  onIncidentNumberSearch(value: string) {
+    this.incidentNumberSearch = value.trim();
+
+    // Remove existing incident number filter if any
+    this.activeFilters = this.activeFilters.filter(
+      (f) => f.filterId !== 'incidentNumber'
+    );
+
+    // Add new filter if search term is not empty
+    if (this.incidentNumberSearch) {
+      const newFilter: FilterTag = {
+        id: `incidentNumber-${this.incidentNumberSearch}`,
+        label: 'Incident Number',
+        filterId: 'incidentNumber',
+        value: this.incidentNumberSearch,
+      };
+      this.activeFilters.push(newFilter);
+    }
+
+    this.applyFilters();
+  }
+
   addFilter(filterId: string, filterLabel: string, value: string): void {
     const newFilterId = `${filterId}-${value}`;
 
@@ -452,12 +480,19 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
   removeFilter(filterId: string): void {
     this.activeFilters = this.activeFilters.filter((f) => f.id !== filterId);
+
+    // Clear incident number search if removing that filter
+    if (filterId.startsWith('incidentNumber-')) {
+      this.incidentNumberSearch = '';
+    }
+
     this.applyFilters();
   }
 
   clearAllFilters(): void {
     this.activeFilters = [];
     this.searchTerm = '';
+    this.incidentNumberSearch = '';
     this.applyFilters();
   }
 
@@ -684,6 +719,28 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
           .toString()
           .trim();
         if (!selectedValues.has(rowValue)) {
+          matchesAllFilters = false;
+        }
+      }
+
+      // Check incidentNumber filter (text-based search)
+      if (matchesAllFilters && activeFiltersMap.has('incidentNumber')) {
+        const selectedValues = activeFiltersMap.get('incidentNumber')!;
+        const rowValue = (row['INCIDENT_NUMBER'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+
+        // Check if the incident number contains any of the search terms
+        let matches = false;
+        for (const searchTerm of selectedValues) {
+          if (rowValue.includes(searchTerm.toUpperCase())) {
+            matches = true;
+            break;
+          }
+        }
+
+        if (!matches) {
           matchesAllFilters = false;
         }
       }

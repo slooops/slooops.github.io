@@ -350,6 +350,11 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       (item) => item.CATEGORY_COUNT > this.categoryMinThreshold
     );
 
+    // If no data passes threshold, show all data instead
+    if (filtered.length === 0 && this.cachedCategoryData.length > 0) {
+      filtered = this.cachedCategoryData;
+    }
+
     if (this.selectedCategoryLabels.size > 0) {
       filtered = filtered.filter((item) =>
         this.selectedCategoryLabels.has(item.CATEGORY)
@@ -371,6 +376,11 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     let filtered = this.cachedCoreIssueData.filter(
       (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
     );
+
+    // If no data passes threshold, show all data instead
+    if (filtered.length === 0 && this.cachedCoreIssueData.length > 0) {
+      filtered = this.cachedCoreIssueData;
+    }
 
     if (this.selectedCoreIssueLabels.size > 0) {
       filtered = filtered.filter((item) =>

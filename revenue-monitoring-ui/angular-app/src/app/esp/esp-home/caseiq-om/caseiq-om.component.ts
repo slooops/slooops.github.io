@@ -172,9 +172,15 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
           .sort((a: string, b: string) => a.localeCompare(b));
 
         // Apply dynamic filter (strictly greater than threshold like original >10 logic)
-        const filteredData = mergedData.filter(
+        // BUT if ALL items have count <= threshold, show all of them
+        let filteredData = mergedData.filter(
           (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
         );
+
+        // If no data passes threshold, show all data instead
+        if (filteredData.length === 0 && mergedData.length > 0) {
+          filteredData = mergedData;
+        }
 
         this.i2cChartData = this.transformMatchStatusData(
           filteredData,
@@ -221,9 +227,16 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
           .map((v) => v)
           .sort((a: string, b: string) => a.localeCompare(b));
 
-        const filteredData = mergedData.filter(
+        // Apply dynamic filter
+        // BUT if ALL items have count <= threshold, show all of them
+        let filteredData = mergedData.filter(
           (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
         );
+
+        // If no data passes threshold, show all data instead
+        if (filteredData.length === 0 && mergedData.length > 0) {
+          filteredData = mergedData;
+        }
 
         this.i2cSimpleChartData = this.transformMatchStatusData(
           filteredData,

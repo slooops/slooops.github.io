@@ -346,6 +346,11 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       filteredData = filteredData.filter(
         (item) => item.CATEGORY_COUNT > this.categoryMinThreshold
       );
+
+      // If no data passes threshold, show all data instead
+      if (filteredData.length === 0 && this.cachedCategoryData.length > 0) {
+        filteredData = this.cachedCategoryData;
+      }
     }
 
     this.i2cChartData = this.transformMatchStatusData(
@@ -367,6 +372,11 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       filteredData = filteredData.filter(
         (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
       );
+
+      // If no data passes threshold, show all data instead
+      if (filteredData.length === 0 && this.cachedCoreIssueData.length > 0) {
+        filteredData = this.cachedCoreIssueData;
+      }
     }
 
     this.i2cSimpleChartData = this.transformMatchStatusData(

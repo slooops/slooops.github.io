@@ -142,7 +142,7 @@
                 <ng-container
                   *ngIf="
                     filterOption.id === 'impactedServiceOffering';
-                    else basicYN
+                    else checkIncidentNumber
                   "
                 >
                   <div class="multi-select-wrapper in-popup">
@@ -199,6 +199,22 @@
                         </button>
                       </div>
                     </div>
+                  </div>
+                </ng-container>
+              </ng-template>
+              <ng-template #checkIncidentNumber>
+                <ng-container
+                  *ngIf="filterOption.id === 'incidentNumber'; else basicYN"
+                >
+                  <div class="incident-number-search">
+                    <input
+                      type="text"
+                      class="incident-number-input"
+                      placeholder="e.g., INC10364124"
+                      [(ngModel)]="incidentNumberSearch"
+                      (input)="onIncidentNumberSearch(incidentNumberSearch)"
+                      (click)="$event.stopPropagation()"
+                    />
                   </div>
                 </ng-container>
               </ng-template>

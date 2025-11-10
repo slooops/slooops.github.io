@@ -176,9 +176,18 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
           .sort((a: string, b: string) => a.localeCompare(b));
 
         // Filter out data points with count <= 10
-        const filteredData = mergedData.filter(
+        // BUT if ALL items have count <= threshold, show all of them
+        let filteredData = mergedData.filter(
           (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
         );
+
+        // If no data passes threshold, show all data instead
+        if (filteredData.length === 0 && mergedData.length > 0) {
+          filteredData = mergedData;
+          console.log(
+            `AIT Category: All data has count <= ${this.categoryMinThreshold}, showing all ${mergedData.length} items`
+          );
+        }
 
         this.i2cChartData = this.transformMatchStatusData(
           filteredData,
@@ -226,9 +235,18 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
           .sort((a: string, b: string) => a.localeCompare(b));
 
         // Filter out data points with count <= 10
-        const filteredData = mergedData.filter(
+        // BUT if ALL items have count <= threshold, show all of them
+        let filteredData = mergedData.filter(
           (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
         );
+
+        // If no data passes threshold, show all data instead
+        if (filteredData.length === 0 && mergedData.length > 0) {
+          filteredData = mergedData;
+          console.log(
+            `AIT Core Issue: All data has count <= ${this.coreIssueMinThreshold}, showing all ${mergedData.length} items`
+          );
+        }
 
         this.i2cSimpleChartData = this.transformMatchStatusData(
           filteredData,
