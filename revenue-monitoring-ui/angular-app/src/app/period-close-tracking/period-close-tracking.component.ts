@@ -468,6 +468,24 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.precloseInterfaceLoadData = data['PRECLOSE'];
         this.midcloseInterfaceLoadData = data['MIDCLOSE'];
 
+        // Reorder data: SERVICE first, then PRODUCT
+        const reorderData = (dataArray: any[]) => {
+          const serviceRow = dataArray.find(
+            (row) => row.LINE_TYPE === 'SERVICE'
+          );
+          const productRow = dataArray.find(
+            (row) => row.LINE_TYPE === 'PRODUCT'
+          );
+          return [serviceRow, productRow].filter(Boolean); // filter out undefined
+        };
+
+        this.precloseInterfaceLoadData = reorderData(
+          this.precloseInterfaceLoadData
+        );
+        this.midcloseInterfaceLoadData = reorderData(
+          this.midcloseInterfaceLoadData
+        );
+
         // Transform table data to include latest quarter and rename headers
         const precloseTableData = this.precloseInterfaceLoadData.map((row) => {
           // Get all quarter keys (exclude LINE_TYPE, QUARTER OVER QUARTER, YEAR OVER YEAR)

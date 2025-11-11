@@ -1,6 +1,7 @@
 .chart-container {
   width: 100%;
-  padding: 20px;
+  margin: 1rem 0 0 0;
+  /* padding: 20px; */
 }
 
 .chart-wrapper {

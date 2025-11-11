@@ -3,7 +3,7 @@
   Period Close Tracking (Internal)
 
   <span style="flex: 1"></span>
-  <span class="legend-item" style="margin-right: 2.2rem">
+  <span class="legend-item" style="margin-right: 1.2rem">
     Dashboard updated: Today at {{ timeNow }}
   </span>
 </div>
@@ -296,60 +296,26 @@
             ></app-atmf-table>
 
             <!-- Legend -->
-            <div style="margin-top: auto; padding-top: 0.5rem">
-              <div
-                style="
-                  display: flex;
-                  gap: 1rem;
-                  font-size: 0.75rem;
-                  justify-content: center;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 0.3rem">
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 20px;
-                        height: 3px;
-                        background-color: #e69710ff;
-                        border-style: dashed;
-                        border-width: 0 0 3px 0;
-                        border-color: #e69710ff;
-                      "
-                    ></div>
-                    <span>Product % Change</span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 20px;
-                        height: 3px;
-                        background-color: #7d8aff;
-                      "
-                    ></div>
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
                     <span>Service % Change</span>
                   </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.3rem">
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 12px;
-                        height: 12px;
-                        background-color: #b02863ff;
-                      "
-                    ></div>
-                    <span>Product</span>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 12px;
-                        height: 12px;
-                        background-color: #7d8affe4;
-                      "
-                    ></div>
+                </div>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
                     <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
                   </div>
                 </div>
               </div>
@@ -386,60 +352,26 @@
             ></app-atmf-table>
 
             <!-- Legend -->
-            <div style="margin-top: auto; padding-top: 0.5rem">
-              <div
-                style="
-                  display: flex;
-                  gap: 1rem;
-                  font-size: 0.75rem;
-                  justify-content: center;
-                "
-              >
-                <div style="display: flex; flex-direction: column; gap: 0.3rem">
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 20px;
-                        height: 3px;
-                        background-color: #e69710ff;
-                        border-style: dashed;
-                        border-width: 0 0 3px 0;
-                        border-color: #e69710ff;
-                      "
-                    ></div>
-                    <span>Product % Change</span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 20px;
-                        height: 3px;
-                        background-color: #7d8aff;
-                      "
-                    ></div>
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
                     <span>Service % Change</span>
                   </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0.3rem">
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 12px;
-                        height: 12px;
-                        background-color: #b02863ff;
-                      "
-                    ></div>
-                    <span>Product</span>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
                   </div>
-                  <div style="display: flex; align-items: center; gap: 0.3rem">
-                    <div
-                      style="
-                        width: 12px;
-                        height: 12px;
-                        background-color: #7d8affe4;
-                      "
-                    ></div>
+                </div>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
                     <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
                   </div>
                 </div>
               </div>

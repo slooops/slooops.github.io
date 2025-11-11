@@ -108,3 +108,57 @@ table.table.equal-width.table-striped
   td {
   padding-top: 1rem;
 }
+
+/* Chart legend styles */
+.chart-legend-wrapper {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.chart-legend-container {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  justify-content: center;
+}
+
+.chart-legend-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.legend-line {
+  width: 20px;
+  height: 3px;
+}
+
+.legend-line-product {
+  background-color: #e69710ff;
+  border-style: dashed;
+  border-width: 0 0 3px 0;
+  border-color: #e69710ff;
+}
+
+.legend-line-service {
+  background-color: #7d8aff;
+}
+
+.legend-box {
+  width: 12px;
+  height: 12px;
+}
+
+.legend-box-product {
+  background-color: #b02863ff;
+}
+
+.legend-box-service {
+  background-color: #7d8affe4;
+}

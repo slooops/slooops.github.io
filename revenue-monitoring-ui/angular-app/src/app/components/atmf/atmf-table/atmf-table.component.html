@@ -25,10 +25,7 @@
               </ng-container>
               <ng-template #percentCheck>
                 <ng-container *ngIf="column.includes('%'); else defaultCell">
-                  <span
-                    *ngIf="element[column] < 0"
-                    style="color: rgb(216, 19, 19)"
-                  >
+                  <span *ngIf="element[column] < 0" style="color: #b02863">
                     ▼ {{ element[column] }}%
                   </span>
                   <span *ngIf="element[column] >= 0" style="color: black">
