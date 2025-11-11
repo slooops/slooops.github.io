@@ -1,0 +1,27 @@
+.card,
+.container {
+  margin: 1rem;
+  position: relative;
+  display: block;
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 0px;
+  /* transition: all linear 0.5s; */
+  width: auto;
+}
+
+.container {
+  border: 0px;
+  border-radius: 0px;
+  background-color: #f0f7fc;
+  box-shadow: none;
+}
+
+.cui .container {
+  max-width: none !important;
+}
+
+.card:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}

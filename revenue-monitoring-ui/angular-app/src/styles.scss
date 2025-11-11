@@ -212,7 +212,6 @@ body {
   background-color: #fff;
   border: 2px solid #e1e4e8;
   border-radius: 8px;
-  transition: all linear 0.5s;
   width: auto;
 }
 
@@ -284,6 +283,15 @@ body {
   background-position: center;
 }
 
+.icon-small {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 /* Specific close-icon styling */
 .close-icon {
   background-image: url("assets/icons/close-icon.svg");
@@ -327,6 +335,26 @@ body {
 
 .info-icon {
   background-image: url("assets/icons/info-icon.svg");
+}
+
+.completed-icon {
+  background-image: url("assets/icons/completed-icon.svg");
+}
+
+.in-progress-icon {
+  background-image: url("assets/icons/in-progress-icon.svg");
+}
+
+.delayed-icon {
+  background-image: url("assets/icons/delayed-icon.svg");
+}
+
+.stopped-icon {
+  background-image: url("assets/icons/stopped-icon.svg");
+}
+
+.yet-to-start-icon {
+  background-image: url("assets/icons/yet-to-start-icon.svg");
 }
 
 .custom-button-primary {

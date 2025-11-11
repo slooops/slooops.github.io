@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MidcloseComponent } from './midclose.component';
+import { AtmfCardComponent } from './atmf-card.component';
 
-describe('MidcloseComponent', () => {
-  let component: MidcloseComponent;
-  let fixture: ComponentFixture<MidcloseComponent>;
+describe('AtmfCardComponent', () => {
+  let component: AtmfCardComponent;
+  let fixture: ComponentFixture<AtmfCardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MidcloseComponent ]
+      imports: [AtmfCardComponent]
     })
     .compileComponents();
-
-    fixture = TestBed.createComponent(MidcloseComponent);
+    
+    fixture = TestBed.createComponent(AtmfCardComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

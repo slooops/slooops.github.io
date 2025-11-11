@@ -1,36 +1,439 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab *ngFor="let tab of filteredTabs; let i = index">
-    <ng-template mat-tab-label>
-      <span>{{ tab.label }}</span>
-      <i
-        class="fa fa-bars"
-        *ngIf="tab.label === 'Continuous Monitoring'"
-        style="margin-left: 8px; cursor: pointer"
-        (click)="toggleMenu()"
-      ></i>
-    </ng-template>
-    <ng-container [ngSwitch]="tab.component">
-      <ng-container *ngSwitchCase="'app-preclose'">
-        <app-preclose *ngIf="selectedIndex === i"></app-preclose>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-midclose'">
-        <app-midclose *ngIf="selectedIndex === i"></app-midclose>
-      </ng-container>
-    </ng-container>
-  </mat-tab>
-</mat-tab-group>
+<!-- Page Title Container -->
+<div class="section-title" style="margin: 1rem">
+  Period Close Tracking (Internal)
 
-<div
-  style="display: flex; justify-content: center; align-items: center !important"
->
-  <ng-container *ngIf="!roles.length">
-    <tr>
-      <td colspan="100%" style="text-align: center">
-        <app-loading-symbol></app-loading-symbol>
-      </td>
-    </tr>
-  </ng-container>
+  <span style="flex: 1"></span>
+  <span class="legend-item" style="margin-right: 1.2rem">
+    Dashboard updated: Today at {{ timeNow }}
+  </span>
 </div>
+
+<!-- Entity View - Side by Side -->
+<div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
+  <!-- Preclose Entity Table -->
+  <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
+    <app-atmf-card [container]="true">
+      <div
+        class="legend-item"
+        style="
+          display: flex;
+          justify-content: space-between;
+          margin: -0.3rem 1rem 0.5rem 1rem;
+        "
+      >
+        <div>
+          <div>Expected Start: {{ preCloseStartTime }}</div>
+          <div>Expected End: {{ preCloseEndTime }}</div>
+        </div>
+        <div style="text-align: right">
+          <div>Actual End: {{ preCloseActualEndTime }}</div>
+          <div>Estimated Completion: {{ pcloseEstimatedCompletionTime }}</div>
+        </div>
+      </div>
+
+      <div class="section-title entity-view">
+        Pre-Close Progress
+        <span style="flex: 1">
+          <div class="entity-legend">
+            <span class="legend-item">
+              <i class="icon-small completed-icon"></i>
+              <span>Completed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small in-progress-icon"></i>
+              <span>In progress</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small delayed-icon"></i>
+              <span>Delayed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small stopped-icon"></i>
+              <span>Stopped</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small yet-to-start-icon"></i>
+              <span>Yet to start</span>
+            </span>
+          </div>
+        </span>
+      </div>
+      <div class="periodclosetable">
+        <table class="table table-responsive equal-width table-striped">
+          <thead>
+            <tr>
+              <th *ngFor="let col of meStatusColumns">{{ col }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
+              <td
+                class="table-timings"
+                *ngFor="let row of pcloseExecutionWindow"
+              >
+                {{ row }}
+              </td>
+            </tr>
+            <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
+              <td class="table-timings" *ngFor="let row of pcloseActualsTime">
+                {{ row }}
+              </td>
+            </tr>
+
+            <tr *ngFor="let row of pcloseMonthEndStatusTableData">
+              <td *ngFor="let category of templateObject.keys(row)">
+                <i
+                  *ngIf="row[category].toLowerCase() === 'completed'"
+                  class="icon-small completed-icon"
+                ></i>
+                <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
+                <i
+                  *ngIf="row[category].toLowerCase() === 'in progress'"
+                  class="icon-small in-progress-icon"
+                ></i>
+                <i
+                  *ngIf="row[category].toLowerCase() === 'yet to start'"
+                  class="icon-small yet-to-start-icon"
+                ></i>
+                <i
+                  matTooltip="Details included in period close communications."
+                  matTooltipPosition="right"
+                  *ngIf="row[category].toLowerCase() === 'delayed'"
+                  class="icon-small delayed-icon"
+                ></i>
+                <i
+                  matTooltip="Details included in period close communications."
+                  matTooltipPosition="right"
+                  *ngIf="row[category].toLowerCase() === 'stopped'"
+                  class="icon-small stopped-icon"
+                ></i>
+                <span
+                  *ngIf="
+                    [
+                      'completed',
+                      'na',
+                      'in progress',
+                      'yet to start',
+                      'delayed',
+                      'stopped'
+                    ].indexOf(row[category].toLowerCase()) === -1
+                  "
+                >
+                  {{ row[category] }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <span style="display: flex; justify-content: center">
+          <ng-container *ngIf="pcloseMonthEndStatusTableData.length == 0">
+            <tr>
+              <td colspan="100%" class="centered">
+                <app-loading-symbol></app-loading-symbol>
+              </td>
+            </tr>
+          </ng-container>
+        </span>
+      </div>
+    </app-atmf-card>
+  </div>
+
+  <!-- Midclose Entity Table -->
+  <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
+    <app-atmf-card [container]="true">
+      <div
+        class="legend-item"
+        style="
+          display: flex;
+          justify-content: space-between;
+          margin: -0.3rem 1rem 0.5rem 1rem;
+        "
+      >
+        <div>
+          <div>Expected Start: {{ midCloseStartTime }}</div>
+          <div>Expected End: {{ midCloseEndTime }}</div>
+        </div>
+        <div style="text-align: right">
+          <div>Actual End: {{ midCloseActualEndTime }}</div>
+          <div>Estimated Completion: {{ mcloseEstimatedCompletionTime }}</div>
+        </div>
+      </div>
+      <div class="section-title entity-view">
+        Mid-Close Progress
+        <span style="flex: 1">
+          <div class="entity-legend">
+            <span class="legend-item">
+              <i class="icon-small completed-icon"></i>
+              <span>Completed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small in-progress-icon"></i>
+              <span>In progress</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small delayed-icon"></i>
+              <span>Delayed</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small stopped-icon"></i>
+              <span>Stopped</span>
+            </span>
+            <span class="legend-item">
+              <i class="icon-small yet-to-start-icon"></i>
+              <span>Yet to start</span>
+            </span>
+          </div>
+        </span>
+      </div>
+      <div class="periodclosetable">
+        <table class="table table-responsive equal-width table-striped">
+          <thead>
+            <tr>
+              <th *ngFor="let col of meStatusColumns">{{ col }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="mcloseMonthEndStatusTableData.length > 0">
+              <td
+                class="table-timings"
+                *ngFor="let row of mcloseExecutionWindow"
+              >
+                {{ row }}
+              </td>
+            </tr>
+            <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
+              <td class="table-timings" *ngFor="let row of pcloseActualsTime">
+                {{ row }}
+              </td>
+            </tr>
+
+            <tr *ngFor="let row of mcloseMonthEndStatusTableData">
+              <td *ngFor="let category of templateObject.keys(row)">
+                <i
+                  *ngIf="row[category].toLowerCase() === 'completed'"
+                  class="icon-small completed-icon"
+                ></i>
+                <span *ngIf="row[category].toLowerCase() === 'na'">N/A</span>
+                <i
+                  *ngIf="row[category].toLowerCase() === 'in progress'"
+                  class="icon-small in-progress-icon"
+                ></i>
+                <i
+                  *ngIf="row[category].toLowerCase() === 'yet to start'"
+                  class="icon-small yet-to-start-icon"
+                ></i>
+                <i
+                  matTooltip="Details included in period close communications."
+                  matTooltipPosition="right"
+                  *ngIf="row[category].toLowerCase() === 'delayed'"
+                  class="icon-small delayed-icon"
+                ></i>
+                <i
+                  matTooltip="Details included in period close communications."
+                  matTooltipPosition="right"
+                  *ngIf="row[category].toLowerCase() === 'stopped'"
+                  class="icon-small stopped-icon"
+                ></i>
+                <span
+                  *ngIf="
+                    [
+                      'completed',
+                      'na',
+                      'in progress',
+                      'yet to start',
+                      'delayed',
+                      'stopped'
+                    ].indexOf(row[category].toLowerCase()) === -1
+                  "
+                >
+                  {{ row[category] }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <span style="display: flex; justify-content: center">
+          <ng-container *ngIf="mcloseMonthEndStatusTableData.length == 0">
+            <tr>
+              <td colspan="100%" class="centered">
+                <app-loading-symbol></app-loading-symbol>
+              </td>
+            </tr>
+          </ng-container>
+        </span>
+      </div>
+    </app-atmf-card>
+  </div>
+</div>
+
+<!-- Interface Load Containers - Side by Side -->
+<div style="display: flex; margin: -1.2rem 0; overflow-x: auto">
+  <div style="flex: 1; min-width: 0; margin-right: -0.6rem">
+    <app-atmf-card>
+      <p class="section-title">Preclose Interface Load</p>
+
+      <div style="display: flex; gap: 1rem; align-items: flex-start">
+        <div style="flex: 1; min-width: 0">
+          <app-atmf-bar-line-chart
+            [chartData]="precloseChartData"
+            [title]="'Preclose Interface Load'"
+          >
+          </app-atmf-bar-line-chart>
+        </div>
+        <div
+          style="
+            flex: 0 0 auto;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+          "
+        >
+          <ng-container *ngIf="precloseInterfaceLoadDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="precloseInterfaceLoadDatasource"
+              [displayedColumns]="pcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+
+            <!-- Legend -->
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
+                    <span>Service % Change</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
+                  </div>
+                </div>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
+                    <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </app-atmf-card>
+  </div>
+  <div style="flex: 1; min-width: 0; margin-left: -0.6rem">
+    <app-atmf-card>
+      <p class="section-title">Midclose Interface Load</p>
+      <div style="display: flex; gap: 1rem; align-items: flex-start">
+        <div style="flex: 1; min-width: 0">
+          <app-atmf-bar-line-chart
+            [chartData]="midcloseChartData"
+            [title]="'Midclose Interface Load'"
+          >
+          </app-atmf-bar-line-chart>
+        </div>
+        <div
+          style="
+            flex: 0 0 auto;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+          "
+        >
+          <ng-container *ngIf="midcloseInterfaceLoadDatasource?.data?.length">
+            <app-atmf-table
+              [dataSource]="midcloseInterfaceLoadDatasource"
+              [displayedColumns]="mcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+
+            <!-- Legend -->
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
+                    <span>Service % Change</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
+                  </div>
+                </div>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
+                    <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <div *ngIf="!midcloseInterfaceLoadDatasource?.data?.length">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        </div>
+      </div>
+    </app-atmf-card>
+  </div>
+</div>
+
+<!-- Invoices Generated & Cash Posted - Side by Side with Tabs -->
+<div style="display: flex; margin: -1rem 0; overflow-x: auto">
+  <div style="flex: 1; min-width: 0; margin: 0.2rem 0.5rem 1rem 1rem">
+    <mat-tab-group>
+      <mat-tab label="Invoices Generated">
+        <ng-container *ngIf="precloseInvGenDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="precloseInvGenDatasource"
+            [displayedColumns]="pcloseInvGenTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+      </mat-tab>
+      <mat-tab label="Cash Posted">
+        <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+  <div style="flex: 1; min-width: 0; margin: 0.2rem 1rem 1rem 0.5rem">
+    <mat-tab-group>
+      <mat-tab label="Invoices Generated">
+        <ng-container *ngIf="midcloseInvGenDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="midcloseInvGenDatasource"
+            [displayedColumns]="mcloseInvGenTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+        <div *ngIf="!midcloseInvGenDatasource?.data?.length">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </mat-tab>
+      <mat-tab label="Cash Posted">
+        <ng-container *ngIf="qeCashCollectedDatasource?.data?.length">
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        </ng-container>
+        <div *ngIf="!qeCashCollectedDatasource?.data?.length">
+          <app-loading-symbol></app-loading-symbol>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+<br /><br /><br />

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PrecloseComponent } from './preclose.component';
+import { AtmfTableComponent } from './atmf-table.component';
 
-describe('PrecloseComponent', () => {
-  let component: PrecloseComponent;
-  let fixture: ComponentFixture<PrecloseComponent>;
+describe('AtmfTableComponent', () => {
+  let component: AtmfTableComponent;
+  let fixture: ComponentFixture<AtmfTableComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PrecloseComponent ]
+      imports: [AtmfTableComponent]
     })
     .compileComponents();
-
-    fixture = TestBed.createComponent(PrecloseComponent);
+    
+    fixture = TestBed.createComponent(AtmfTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

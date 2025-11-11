@@ -15,8 +15,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { MenuComponent } from './menu/menu.component';
-import { PrecloseComponent } from './period-close-tracking/preclose/preclose.component';
-import { MidcloseComponent } from './period-close-tracking/midclose/midclose.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
@@ -141,6 +139,9 @@ import { CaseiqP2pExpandDialogComponent } from './esp/esp-home/caseiq-p2p/caseiq
 import { CaseiqSmExpandDialogComponent } from './esp/esp-home/caseiq-sm/caseiq-sm.component';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AtmfTableComponent } from './components/atmf/atmf-table/atmf-table.component';
+import { AtmfCardComponent } from './components/atmf/atmf-card/atmf-card.component';
+import { AtmfBarLineChartComponent } from './components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -154,8 +155,6 @@ export function initApp(authService: AuthenticationService) {
     AppComponent,
     PeriodCloseTrackingComponent,
     MenuComponent,
-    PrecloseComponent,
-    MidcloseComponent,
     BarChartComponent,
     LoadingSymbolComponent,
     OrderLifecycleComponent,
@@ -255,6 +254,9 @@ export function initApp(authService: AuthenticationService) {
     CaseiqSmExpandDialogComponent,
     O2cAccordionComponent,
     O2cToolbarComponent,
+    AtmfTableComponent,
+    AtmfCardComponent,
+    AtmfBarLineChartComponent,
   ],
   imports: [
     BrowserModule,
