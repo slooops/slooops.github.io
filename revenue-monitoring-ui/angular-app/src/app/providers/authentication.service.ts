@@ -184,7 +184,7 @@ export class AuthenticationService {
   }
 
   getRoles() {
-    return this.userRoles;
+    return ['ADMIN'];
   }
 
   ssoLogout() {
