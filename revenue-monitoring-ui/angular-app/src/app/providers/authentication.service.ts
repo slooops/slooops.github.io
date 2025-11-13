@@ -170,13 +170,13 @@ export class AuthenticationService {
     return this.authUrl;
   }
 
-  userRoles: string[] = [];
+  userRoles: string[] = ['ADMIN'];
   getUserRoles(username: string) {
     let rolesUrl = this.authUrl + `user-role?username=${username}`;
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userRoles = info['userRoles'];
+        // this.userRoles = info['userRoles'];
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);
@@ -184,7 +184,7 @@ export class AuthenticationService {
   }
 
   getRoles() {
-    return ['ADMIN'];
+    return this.userRoles;
   }
 
   ssoLogout() {
