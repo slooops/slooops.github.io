@@ -646,7 +646,11 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
       this.totalRecords = apiData.length;
       this.i2cTableData = new MatTableDataSource(apiData);
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
+        (key) =>
+          key !== 'DESCRIPTION' &&
+          key !== 'SUMMARY' &&
+          key !== 'Quarter' &&
+          key !== 'Cancelled reason'
       );
     } else {
       this.totalRecords = 0;

@@ -160,10 +160,12 @@ public class EspCaseManagerController {
     }
 
     @PostMapping(value = "/xxcaseiq-esp-case-analyzer-table-update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> espCaseAnalyzerTableUpdate(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> espCaseAnalyzerTableUpdate(@RequestParam("file") MultipartFile file,
+                                                             @RequestParam("username") String username) {
+        System.out.println(username);
         if (!file.isEmpty()) {
             try {
-                service.updateEspCaseAnalyzerTable(file);
+                service.updateEspCaseAnalyzerTable(file, username);
                 return ResponseEntity.status(HttpStatus.OK).body("File uploaded successfully.");
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file.");
