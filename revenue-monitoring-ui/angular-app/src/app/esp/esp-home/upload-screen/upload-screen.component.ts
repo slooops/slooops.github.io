@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
@@ -14,10 +15,12 @@ export class UploadScreenComponent {
   selectedFile: File | null = null;
   isUploadSuccess = false;
   isUploading = false; // true while the file is being uploaded
+  username: string = this.authService.getUserID();
 
   constructor(
     public http: ApiHttpService,
-    private dialogRef: MatDialogRef<UploadScreenComponent>
+    private dialogRef: MatDialogRef<UploadScreenComponent>,
+    public authService: AuthenticationService
   ) {}
 
   // Upload functionality methods
@@ -91,6 +94,7 @@ export class UploadScreenComponent {
       let file = this.selectedFile;
       const formData: FormData = new FormData();
       formData.append('file', file, file.name);
+      formData.append('username', this.username);
 
       // Set uploading state
       this.isUploading = true;

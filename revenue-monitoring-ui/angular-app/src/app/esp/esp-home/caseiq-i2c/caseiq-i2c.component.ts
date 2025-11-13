@@ -635,7 +635,11 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
       // Set total records for pagination
       this.totalRecords = apiData.length;
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
+        (key) =>
+          key !== 'DESCRIPTION' &&
+          key !== 'SUMMARY' &&
+          key !== 'Quarter' &&
+          key !== 'Cancelled reason'
       );
 
       // Manually trigger paginator setup after data is loaded

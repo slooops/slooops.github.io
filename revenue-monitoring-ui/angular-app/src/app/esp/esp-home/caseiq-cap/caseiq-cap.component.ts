@@ -284,9 +284,11 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
           ? data.filter(
               (item: any) =>
                 item.Quarter === this.selectedQuarter &&
-                item.TEAM_NAME === 'CAPITAL'
+                item.TEAM_NAME.toLowerCase() === 'capital'
             )
-          : data.filter((item: any) => item.TEAM_NAME === 'CAPITAL');
+          : data.filter(
+              (item: any) => item.TEAM_NAME.toLowerCase() === 'capital'
+            );
 
         this.updateCapitalMetrics(filteredByQuarter);
       });
@@ -474,7 +476,11 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
       this.totalRecords = apiData.length;
       this.i2cTableData = new MatTableDataSource(apiData);
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY' && key !== 'Quarter'
+        (key) =>
+          key !== 'DESCRIPTION' &&
+          key !== 'SUMMARY' &&
+          key !== 'Quarter' &&
+          key !== 'Cancelled reason'
       );
     } else {
       this.totalRecords = 0;

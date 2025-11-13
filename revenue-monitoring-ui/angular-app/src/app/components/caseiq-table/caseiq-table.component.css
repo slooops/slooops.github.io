@@ -645,7 +645,9 @@ table.mat-table .mat-cell.extra-wide-column {
 .mat-column-CORE_ISSUE_ACTUAL,
 .mat-column-INCIDENT_STATE,
 .mat-column-Cancel_Prediction,
-.mat-column-Resolution_Response {
+.mat-column-CANCEL_PREDICTION,
+.mat-column-Resolution_Response,
+.mat-column-COMMENTS {
   white-space: nowrap !important;
   overflow: hidden;
   text-overflow: ellipsis;
