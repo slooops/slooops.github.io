@@ -10,10 +10,15 @@ interface MetricTile {
 
 interface AccuracyData {
   TEAM_NAME: string;
+  Quarter?: string;
   CATEGORY: number;
   CORE_ISSUE: number;
   TOTAL_ACCURACY: number;
   TOTAL_VALIDATED_CASES: number;
+  'Total Cases'?: number;
+  'Total Accuracy'?: number;
+  'Category Accuracy'?: number;
+  'Core Issue Accuracy'?: number;
 }
 
 @Component({
@@ -30,6 +35,30 @@ export class EspHomeComponent implements OnInit {
 
   activeTab: string = ''; // Will be set based on user roles
   overallAccuracy: string = '';
+
+  // Quarter filter properties
+  selectedQuarter: string = 'Q1FY26';
+  showQuarterDropdown: boolean = false;
+  isLoadingQuarter: boolean = false;
+  loadingQuarterMessage: string = '';
+
+  // Store raw API data to extract quarters per team
+  private accuracyData: AccuracyData[] = [];
+
+  // All available quarters (master list)
+  private allQuarters: { label: string; value: string }[] = [
+    { label: 'Q1 FY26', value: 'Q1FY26' },
+    { label: 'Q2 FY26', value: 'Q2FY26' },
+    { label: 'Q3 FY26', value: 'Q3FY26' },
+    { label: 'Q4 FY26', value: 'Q4FY26' },
+    { label: 'Q1 FY25', value: 'Q1FY25' },
+    { label: 'Q2 FY25', value: 'Q2FY25' },
+    { label: 'Q3 FY25', value: 'Q3FY25' },
+    { label: 'Q4 FY25', value: 'Q4FY25' },
+  ];
+
+  // Dynamically filtered quarters based on active team
+  quarters: { label: string; value: string }[] = [];
 
   // Base metric tiles structure - preserving all tile names
   private readonly baseMetricTiles: MetricTile[] = [
@@ -51,6 +80,64 @@ export class EspHomeComponent implements OnInit {
     this.roles = this.authService.getRoles();
     this.setDefaultActiveTab();
     this.getXxcaseiqValidatedCasesAccuracyV();
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      this.showQuarterDropdown = false;
+    });
+  }
+
+  /**
+   * Toggle quarter dropdown visibility
+   */
+  toggleQuarterDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showQuarterDropdown = !this.showQuarterDropdown;
+  }
+
+  /**
+   * Select a quarter and close dropdown
+   */
+  selectQuarter(quarter: string): void {
+    // Get the label for display
+    const quarterLabel =
+      this.allQuarters.find((q) => q.value === quarter)?.label || quarter;
+
+    // Show loading overlay
+    this.isLoadingQuarter = true;
+    this.loadingQuarterMessage = `Loading data for ${this.activeTab}...`;
+
+    this.selectedQuarter = quarter;
+    this.showQuarterDropdown = false;
+    console.log(
+      `Quarter changed to: ${this.selectedQuarter} for team: ${this.activeTab}`
+    );
+
+    // Use setTimeout to allow UI to update with loading overlay
+    setTimeout(() => {
+      // Update metric tiles with quarter-filtered data
+      if (this.accuracyData.length > 0) {
+        const filteredData = this.accuracyData.filter(
+          (item) => item.Quarter === this.selectedQuarter
+        );
+        this.updateMetricTiles(filteredData);
+      }
+
+      // Hide loading overlay after child components have updated (increased delay for chart rendering)
+      setTimeout(() => {
+        this.isLoadingQuarter = false;
+      }, 2000);
+    }, 0);
+  }
+
+  /**
+   * Handle quarter selection change
+   * Refreshes data based on selected quarter
+   */
+  onQuarterChange(): void {
+    console.log(`Quarter changed to: ${this.selectedQuarter}`);
+    // TODO: Add API call with quarter parameter when backend is ready
+    // this.getXxcaseiqValidatedCasesAccuracyV();
   }
 
   /**
@@ -66,6 +153,10 @@ export class EspHomeComponent implements OnInit {
 
     if (accessibleTile) {
       this.activeTab = accessibleTile.name;
+      // Update quarters for the default tab if data is already loaded
+      if (this.accuracyData.length > 0) {
+        this.updateQuartersForActiveTab();
+      }
     } else {
       // If no accessible tiles, set to empty (will show default content)
       this.activeTab = '';
@@ -76,8 +167,19 @@ export class EspHomeComponent implements OnInit {
     this.http
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
+        console.log(data);
         if (Array.isArray(data)) {
-          this.updateMetricTiles(data);
+          // Store raw data for quarter filtering
+          this.accuracyData = data;
+
+          // Filter by selected quarter
+          const filteredData = data.filter(
+            (item) => item.Quarter === this.selectedQuarter
+          );
+
+          this.updateMetricTiles(filteredData);
+          // Update quarters based on current active tab
+          this.updateQuartersForActiveTab();
         }
       });
   }
@@ -140,6 +242,24 @@ export class EspHomeComponent implements OnInit {
 
     this.activeTab = tileName;
     console.log(`Selected tile: ${tileName}`);
+
+    // Show loading overlay when switching tabs
+    const quarterLabel =
+      this.allQuarters.find((q) => q.value === this.selectedQuarter)?.label ||
+      this.selectedQuarter;
+    this.isLoadingQuarter = true;
+    this.loadingQuarterMessage = `Loading data for ${tileName}...`;
+
+    // Use setTimeout to allow UI to update
+    setTimeout(() => {
+      // Update quarters when tab changes
+      this.updateQuartersForActiveTab();
+
+      // Hide loading overlay after charts have rendered
+      setTimeout(() => {
+        this.isLoadingQuarter = false;
+      }, 1500);
+    }, 0);
   }
 
   isActive(tileName: string): boolean {
@@ -194,5 +314,34 @@ export class EspHomeComponent implements OnInit {
       '🟢 ESP-HOME: Upload success received in esp-home, refreshing accuracy metrics'
     );
     this.getXxcaseiqValidatedCasesAccuracyV();
+  }
+
+  /**
+   * Updates the quarters dropdown based on all available data
+   * Shows all quarters that exist across ANY team (not team-specific)
+   */
+  private updateQuartersForActiveTab(): void {
+    if (!this.accuracyData.length) {
+      // If no data loaded yet, show all quarters
+      this.quarters = [...this.allQuarters];
+      return;
+    }
+
+    // Extract ALL unique quarters from entire dataset (not team-specific)
+    const availableQuarters = new Set(
+      this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean)
+    );
+
+    // Filter allQuarters to show only those that exist in the data
+    this.quarters = this.allQuarters.filter((quarter) =>
+      availableQuarters.has(quarter.value)
+    );
+
+    // If no quarters found, show all quarters as fallback
+    if (this.quarters.length === 0) {
+      this.quarters = [...this.allQuarters];
+    }
+
+    console.log(`Updated quarters (all teams):`, this.quarters);
   }
 }

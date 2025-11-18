@@ -84,7 +84,10 @@
             </ng-container>
             <ng-template #regularFilterBlock>
               <ng-container
-                *ngIf="filterOption.id === 'cancelPrediction'; else basicYN"
+                *ngIf="
+                  filterOption.id === 'cancelPrediction';
+                  else checkImpactedServiceOffering
+                "
               >
                 <div class="multi-select-wrapper in-popup">
                   <button
@@ -135,6 +138,86 @@
                   </div>
                 </div>
               </ng-container>
+              <ng-template #checkImpactedServiceOffering>
+                <ng-container
+                  *ngIf="
+                    filterOption.id === 'impactedServiceOffering';
+                    else checkIncidentNumber
+                  "
+                >
+                  <div class="multi-select-wrapper in-popup">
+                    <button
+                      type="button"
+                      class="multi-select-trigger"
+                      (click)="toggleImpactedServiceOfferingInner($event)"
+                    >
+                      Select
+                      <span
+                        class="chevron"
+                        [class.open]="showImpactedServiceOfferingInner"
+                        >▾</span
+                      >
+                    </button>
+                    <div
+                      class="multi-select-dropdown inner"
+                      *ngIf="showImpactedServiceOfferingInner"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <div class="multi-select-options">
+                        <div
+                          class="multi-option"
+                          *ngFor="let value of filterOption.values"
+                          [class.selected]="
+                            isFilterActive('impactedServiceOffering', value)
+                          "
+                          (click)="
+                            toggleImpactedServiceOfferingValue(
+                              value,
+                              filterOption.label
+                            )
+                          "
+                        >
+                          <input
+                            type="checkbox"
+                            [checked]="
+                              isFilterActive('impactedServiceOffering', value)
+                            "
+                          />
+                          <span class="option-label">{{ value }}</span>
+                        </div>
+                      </div>
+                      <div class="multi-select-actions">
+                        <button
+                          type="button"
+                          class="clear-btn"
+                          (click)="clearFiltersFor('impactedServiceOffering')"
+                          [disabled]="
+                            getSelectedCount('impactedServiceOffering') === 0
+                          "
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </ng-template>
+              <ng-template #checkIncidentNumber>
+                <ng-container
+                  *ngIf="filterOption.id === 'incidentNumber'; else basicYN"
+                >
+                  <div class="incident-number-search">
+                    <input
+                      type="text"
+                      class="incident-number-input"
+                      placeholder="e.g., INC10364124"
+                      [(ngModel)]="incidentNumberSearch"
+                      (input)="onIncidentNumberSearch(incidentNumberSearch)"
+                      (click)="$event.stopPropagation()"
+                    />
+                  </div>
+                </ng-container>
+              </ng-template>
               <ng-template #basicYN>
                 <div class="filter-options">
                   <label
@@ -161,7 +244,8 @@
     </div>
 
     <span class="results-count"
-      >{{ totalRecords || dataSource?.data?.length || 0 }} results</span
+      >{{ dataSource?.data?.length || 0 }} /
+      {{ totalRecords || 0 }} results</span
     >
 
     <button

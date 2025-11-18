@@ -1,7 +1,58 @@
 <div class="esp-dashboard">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoadingQuarter">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-message">{{ loadingQuarterMessage }}</p>
+    </div>
+  </div>
+
   <div class="dashboard-header">
     <div class="header-main">
-      <h1>ESP Case Data Review</h1>
+      <div class="header-left">
+        <h1>ESP Case Data Review</h1>
+        <div class="quarter-filter">
+          <label>Quarter:</label>
+          <div
+            class="quarter-dropdown-wrapper"
+            (click)="$event.stopPropagation()"
+          >
+            <button
+              type="button"
+              class="quarter-dropdown-button"
+              (click)="toggleQuarterDropdown($event)"
+            >
+              {{ selectedQuarter }}
+              <span class="dropdown-arrow" [class.open]="showQuarterDropdown"
+                >▾</span
+              >
+            </button>
+            <div
+              class="quarter-dropdown-menu"
+              *ngIf="showQuarterDropdown"
+              (click)="$event.stopPropagation()"
+            >
+              <!-- <div class="quarter-dropdown-header">
+                <span>Select</span>
+              </div> -->
+              <div class="quarter-options">
+                <div
+                  class="quarter-option"
+                  *ngFor="let quarter of quarters"
+                  (click)="selectQuarter(quarter.value)"
+                >
+                  <input
+                    type="radio"
+                    [checked]="selectedQuarter === quarter.value"
+                    readonly
+                  />
+                  <span class="option-label">{{ quarter.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="period-info">
         <!-- <span class="period-details">
           Period name: <strong>SEP-26 (W4)</strong> | Period end date:
@@ -34,31 +85,52 @@
     </div>
 
     <div *ngSwitchCase="'Capital'" class="tile-content">
-      <app-caseiq-cap (uploadSuccess)="onUploadSuccess()"></app-caseiq-cap>
+      <app-caseiq-cap
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-cap>
     </div>
 
     <div *ngSwitchCase="'FPP'" class="tile-content">
-      <app-caseiq-fpp (uploadSuccess)="onUploadSuccess()"></app-caseiq-fpp>
+      <app-caseiq-fpp
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-fpp>
     </div>
 
     <div *ngSwitchCase="'I2C'" class="tile-content">
-      <app-caseiq-i2c (uploadSuccess)="onUploadSuccess()"></app-caseiq-i2c>
+      <app-caseiq-i2c
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-i2c>
     </div>
 
     <div *ngSwitchCase="'OM'" class="tile-content">
-      <app-caseiq-om (uploadSuccess)="onUploadSuccess()"></app-caseiq-om>
+      <app-caseiq-om
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-om>
     </div>
 
     <div *ngSwitchCase="'P2P'" class="tile-content">
-      <app-caseiq-p2p (uploadSuccess)="onUploadSuccess()"></app-caseiq-p2p>
+      <app-caseiq-p2p
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-p2p>
     </div>
 
     <div *ngSwitchCase="'SM'" class="tile-content">
-      <app-caseiq-sm (uploadSuccess)="onUploadSuccess()"></app-caseiq-sm>
+      <app-caseiq-sm
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-sm>
     </div>
 
     <div *ngSwitchCase="'AIT'" class="tile-content">
-      <app-caseiq-ait (uploadSuccess)="onUploadSuccess()"></app-caseiq-ait>
+      <app-caseiq-ait
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-ait>
     </div>
 
     <!-- Default case when no tile is selected -->

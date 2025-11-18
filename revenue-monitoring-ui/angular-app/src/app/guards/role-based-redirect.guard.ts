@@ -70,7 +70,6 @@ export class RoleBasedRedirectGuard implements CanActivate {
       return '/order-management';
     }
 
-    // Case IQ roles get /esp-home
     if (
       roles.includes('CASE_IQ_MANAGER') ||
       roles.includes('CASE_IQ_OM') ||
@@ -81,7 +80,7 @@ export class RoleBasedRedirectGuard implements CanActivate {
       roles.includes('CASE_IQ_P2P') ||
       roles.includes('CASE_IQ_CAPITAL')
     ) {
-      return '/esp-home';
+      return '/case-iq';
     }
 
     // Business Insights roles

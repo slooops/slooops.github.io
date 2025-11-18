@@ -66,11 +66,11 @@
       <span class="navbar">
         <ul class="menu">
           <!-- Home -->
-          <li class="menu-item" [class.disabled]="true">
+          <!-- <li class="menu-item" [class.disabled]="true">
             <a [routerLink]="'/home'" class="top-link">
               <i class="svg-icon home-icon" style="font-weight: 900"></i>
             </a>
-          </li>
+          </li> -->
 
           <!-- Period Close Tracking -->
           <li
@@ -224,7 +224,7 @@
       </span>
 
       <span style="display: flex; align-items: center">
-        <div class="custom-search-bar" *ngIf="showNavbar">
+        <!-- <div class="custom-search-bar" *ngIf="showNavbar">
           <input
             type="text"
             placeholder="Search"
@@ -232,7 +232,7 @@
             [disabled]="true"
           />
           <i class="svg-icon search-icon"></i>
-        </div>
+        </div> -->
 
         <app-o2c-search *ngIf="!showNavbar"></app-o2c-search>
         <i
@@ -353,7 +353,7 @@
 <mat-menu #espMenu="matMenu">
   <button
     mat-menu-item
-    [routerLink]="'/esp-home'"
+    [routerLink]="'/case-iq'"
     *ngIf="
       hasRole$([
         'CASE_IQ_MANAGER',

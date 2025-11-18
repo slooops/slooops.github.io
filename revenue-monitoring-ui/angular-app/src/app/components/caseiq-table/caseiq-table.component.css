@@ -187,7 +187,7 @@ table.mat-table .mat-cell.extra-wide-column {
   border: 1px solid #d4d4d4;
   border-radius: 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  min-width: 150px;
+  min-width: 160px;
   z-index: 1000;
   margin-top: 2px;
 }
@@ -221,12 +221,16 @@ table.mat-table .mat-cell.extra-wide-column {
 
 .filter-sections {
   max-height: 400px;
-  overflow-y: auto;
+  overflow-y: visible;
   padding: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  column-gap: 2rem;
 }
 
 .filter-section {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .filter-section:last-child {
@@ -240,6 +244,7 @@ table.mat-table .mat-cell.extra-wide-column {
   color: #666;
   /* text-transform: uppercase; */
   letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
 .filter-option {
@@ -358,7 +363,7 @@ table.mat-table .mat-cell.extra-wide-column {
   border: 1px solid #d0d7de;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   border-radius: 4px;
-  z-index: 30;
+  z-index: 1100;
   display: flex;
   flex-direction: column;
 }
@@ -411,6 +416,31 @@ table.mat-table .mat-cell.extra-wide-column {
 .multi-select-actions .close-btn:hover {
   background: #0692c2;
 }
+
+.incident-number-search {
+  width: 100%;
+}
+
+.incident-number-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.incident-number-input:focus {
+  border-color: #08ace4;
+  box-shadow: 0 0 0 2px rgba(8, 172, 228, 0.1);
+}
+
+.incident-number-input::placeholder {
+  color: #999;
+  font-size: 11px;
+}
+
 .filter-option {
   margin-bottom: 0; /* remove bottom margin when horizontal */
 }
@@ -603,4 +633,22 @@ table.mat-table .mat-cell.extra-wide-column {
   color: #666;
   text-align: center;
   max-width: 240px;
+}
+
+/* Prevent text wrapping for specific columns */
+.mat-column-INCIDENT_NUMBER,
+.mat-column-IMPACTED_SERVICE_OFFERING,
+.mat-column-LLM_SUMMARY,
+.mat-column-CATEGORY,
+.mat-column-CATEGORY_ACTUAL,
+.mat-column-CORE_ISSUE,
+.mat-column-CORE_ISSUE_ACTUAL,
+.mat-column-INCIDENT_STATE,
+.mat-column-Cancel_Prediction,
+.mat-column-CANCEL_PREDICTION,
+.mat-column-Resolution_Response,
+.mat-column-COMMENTS {
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

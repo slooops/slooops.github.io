@@ -56,17 +56,14 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   // Internal multi-select dropdown state for Incident State inside filters popup
   showIncidentStateInner: boolean = false;
   showCancelPredictionInner: boolean = false;
+  showImpactedServiceOfferingInner: boolean = false;
+  incidentNumberSearch: string = '';
 
   // Dummy filter options (can be made dynamic based on data)
   filterOptions = [
     {
       id: 'categoryMatch',
       label: 'Category Match',
-      values: ['Y', 'N'],
-    },
-    {
-      id: 'coreIssueMatch',
-      label: 'Core Issue Match',
       values: ['Y', 'N'],
     },
     {
@@ -81,9 +78,24 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       ],
     },
     {
+      id: 'impactedServiceOffering',
+      label: 'Impacted Service Offering',
+      values: [], // Will be populated dynamically from data
+    },
+    {
+      id: 'coreIssueMatch',
+      label: 'Core Issue Match',
+      values: ['Y', 'N'],
+    },
+    {
       id: 'cancelPrediction',
       label: 'Cancel Prediction',
       values: ['Recommend Cancel', 'Cancel'],
+    },
+    {
+      id: 'incidentNumber',
+      label: 'Incident Number',
+      values: [], // Text-based search, no predefined values
     },
   ];
 
@@ -175,6 +187,23 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
             }
           );
         }
+
+        // Populate dynamic Impacted Service Offering filter values from FULL data
+        const serviceOfferingsSet = new Set(
+          (this.fullData || [])
+            .map((r) =>
+              (r['IMPACTED_SERVICE_OFFERING'] ?? '').toString().trim()
+            )
+            .filter((v) => !!v)
+        );
+        const impactedServiceOfferingOption = this.filterOptions.find(
+          (o) => o.id === 'impactedServiceOffering'
+        );
+        if (impactedServiceOfferingOption) {
+          // Sort alphabetically for consistent display
+          impactedServiceOfferingOption.values =
+            Array.from(serviceOfferingsSet).sort();
+        }
       }
       // Use setTimeout to ensure the DOM has updated with the new data
       setTimeout(() => {
@@ -198,9 +227,34 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
       return;
     }
 
+    // Set the paginator length to match the current data length
+    this.paginator.length = this.dataSource.data.length;
+    this.paginator.pageIndex = 0; // Start at first page
     this.dataSource.paginator = this.paginator;
+
     // Force a refresh of the table
     this.dataSource._updateChangeSubscription();
+  }
+
+  /**
+   * Helper method to properly update pagination when data changes
+   * This ensures the paginator is in sync with the data
+   */
+  private updatePagination(dataLength: number) {
+    if (this.enablePagination && this.paginator) {
+      // Temporarily disconnect paginator to avoid issues
+      this.dataSource.paginator = null;
+
+      // Update paginator properties
+      this.paginator.length = dataLength;
+      this.paginator.pageIndex = 0;
+
+      // Reconnect paginator
+      this.dataSource.paginator = this.paginator;
+
+      // Force paginator to first page
+      this.paginator.firstPage();
+    }
   }
 
   // Public method to manually trigger paginator setup from parent component
@@ -227,10 +281,9 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   exportTableToExcel(): void {
     const MAX_CELL_LENGTH = 32767; // Excel cell character limit
 
-    // Use fullData to include ALL rows including (Y,Y) combinations
-    // If fullData is empty, fall back to dataSource.data
-    const sourceData =
-      this.fullData.length > 0 ? this.fullData : this.dataSource.data;
+    // Use the current dataSource.data which contains the filtered/displayed data
+    // This ensures we export what the user is actually seeing
+    const sourceData = this.dataSource.data || [];
 
     // Truncate any cell values that exceed Excel's character limit
     const data = sourceData.map((row) => {
@@ -246,6 +299,12 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
           truncatedRow[key] = value;
         }
       });
+
+      // Add COMMENTS column at the end (empty by default for user input) only if it doesn't exist
+      if (!truncatedRow.hasOwnProperty('COMMENTS')) {
+        truncatedRow['COMMENTS'] = '';
+      }
+
       return truncatedRow;
     });
 
@@ -313,6 +372,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     if (!this.showFiltersDropdown) {
       this.showIncidentStateInner = false;
       this.showCancelPredictionInner = false;
+      this.showImpactedServiceOfferingInner = false;
     }
   }
 
@@ -334,6 +394,39 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   }
   toggleCancelPredictionValue(value: string, label: string) {
     this.addFilter('cancelPrediction', label, value);
+  }
+
+  // Impacted Service Offering inner multi-select
+  toggleImpactedServiceOfferingInner(event: Event) {
+    event.stopPropagation();
+    this.showImpactedServiceOfferingInner =
+      !this.showImpactedServiceOfferingInner;
+  }
+  toggleImpactedServiceOfferingValue(value: string, label: string) {
+    this.addFilter('impactedServiceOffering', label, value);
+  }
+
+  // Incident Number search handler
+  onIncidentNumberSearch(value: string) {
+    this.incidentNumberSearch = value.trim();
+
+    // Remove existing incident number filter if any
+    this.activeFilters = this.activeFilters.filter(
+      (f) => f.filterId !== 'incidentNumber'
+    );
+
+    // Add new filter if search term is not empty
+    if (this.incidentNumberSearch) {
+      const newFilter: FilterTag = {
+        id: `incidentNumber-${this.incidentNumberSearch}`,
+        label: 'Incident Number',
+        filterId: 'incidentNumber',
+        value: this.incidentNumberSearch,
+      };
+      this.activeFilters.push(newFilter);
+    }
+
+    this.applyFilters();
   }
 
   addFilter(filterId: string, filterLabel: string, value: string): void {
@@ -387,12 +480,19 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
 
   removeFilter(filterId: string): void {
     this.activeFilters = this.activeFilters.filter((f) => f.id !== filterId);
+
+    // Clear incident number search if removing that filter
+    if (filterId.startsWith('incidentNumber-')) {
+      this.incidentNumberSearch = '';
+    }
+
     this.applyFilters();
   }
 
   clearAllFilters(): void {
     this.activeFilters = [];
     this.searchTerm = '';
+    this.incidentNumberSearch = '';
     this.applyFilters();
   }
 
@@ -414,6 +514,7 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     this.showFiltersDropdown = false;
     this.showIncidentStateInner = false;
     this.showCancelPredictionInner = false;
+    this.showImpactedServiceOfferingInner = false;
   }
 
   // Method to get match status for Category and Core issue columns
@@ -469,10 +570,11 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     if (this.activeFilters.length === 0) {
       this.dataSource.data = [...this.originalData];
       this.dataSource._updateChangeSubscription();
-      if (this.enablePagination && this.paginator) {
-        this.paginator.length = this.dataSource.data.length;
-        this.paginator.firstPage();
-      }
+
+      // Update pagination after data sync
+      setTimeout(() => {
+        this.updatePagination(this.dataSource.data.length);
+      }, 0);
       return;
     }
 
@@ -607,19 +709,55 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
         }
       }
 
+      // Check impactedServiceOffering filter
+      if (
+        matchesAllFilters &&
+        activeFiltersMap.has('impactedServiceOffering')
+      ) {
+        const selectedValues = activeFiltersMap.get('impactedServiceOffering')!;
+        const rowValue = (row['IMPACTED_SERVICE_OFFERING'] ?? '')
+          .toString()
+          .trim();
+        if (!selectedValues.has(rowValue)) {
+          matchesAllFilters = false;
+        }
+      }
+
+      // Check incidentNumber filter (text-based search)
+      if (matchesAllFilters && activeFiltersMap.has('incidentNumber')) {
+        const selectedValues = activeFiltersMap.get('incidentNumber')!;
+        const rowValue = (row['INCIDENT_NUMBER'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+
+        // Check if the incident number contains any of the search terms
+        let matches = false;
+        for (const searchTerm of selectedValues) {
+          if (rowValue.includes(searchTerm.toUpperCase())) {
+            matches = true;
+            break;
+          }
+        }
+
+        if (!matches) {
+          matchesAllFilters = false;
+        }
+      }
+
       return matchesAllFilters;
     });
 
     // Update the dataSource with filtered results
     this.dataSource.data = filtered;
 
-    // Update pagination
-    if (this.enablePagination && this.paginator) {
-      this.paginator.length = filtered.length;
-      this.paginator.firstPage();
-    }
-
+    // Update the table change subscription first
     this.dataSource._updateChangeSubscription();
+
+    // Then update pagination after a micro-task to ensure data is synced
+    setTimeout(() => {
+      this.updatePagination(filtered.length);
+    }, 0);
   }
 
   // Allow parent to externally set data (e.g., backend both-Y fetch) without overwriting original baseline unless requested
@@ -641,11 +779,8 @@ export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
     // Data arrived: clear local fetching overlay
     this.showFetchingOverlay = false;
 
-    if (this.enablePagination && this.paginator) {
-      this.paginator.length = this.dataSource.data.length;
-      this.paginator.firstPage();
-    }
-
+    // Update pagination with proper reset
+    this.updatePagination(this.dataSource.data.length);
     this.dataSource._updateChangeSubscription();
   }
 }

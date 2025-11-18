@@ -1,6 +1,9 @@
 import {
   Component,
   OnInit,
+  OnChanges,
+  SimpleChanges,
+  Input,
   ViewChild,
   HostListener,
   Inject,
@@ -31,7 +34,8 @@ interface FppAccuracyData {
   templateUrl: './caseiq-fpp.component.html',
   styleUrl: './caseiq-fpp.component.css',
 })
-export class CaseiqFppComponent implements OnInit {
+export class CaseiqFppComponent implements OnInit, OnChanges {
+  @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('fppTable') fppTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
 
@@ -78,6 +82,19 @@ export class CaseiqFppComponent implements OnInit {
   refreshingData = false;
 
   ngOnInit(): void {
+    this.loadAllData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // React to quarter changes
+    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+      console.log('FPP: Quarter changed to', this.selectedQuarter);
+      this.refreshingData = true; // Show loading overlay
+      this.loadAllData();
+    }
+  }
+
+  private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVFpp();
     this.getXxcaseiqCoreIssueGraphVFpp();
@@ -93,11 +110,7 @@ export class CaseiqFppComponent implements OnInit {
     const grouped = new Map<string, any>();
 
     data.forEach((item) => {
-      const key = item[groupKey];
-      // Skip items with null or undefined groupKey values
-      if (key == null || key === '') {
-        return;
-      }
+      const key = item[groupKey] ?? ''; // Convert null/undefined to empty string
 
       if (!grouped.has(key)) {
         grouped.set(key, {
@@ -123,9 +136,14 @@ export class CaseiqFppComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCategoryGraphVFpp:', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge by category
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CATEGORY',
           'CATEGORY_COUNT'
         );
@@ -141,9 +159,14 @@ export class CaseiqFppComponent implements OnInit {
       .subscribe((data: any) => {
         console.log('xxcaseiqCoreIssueGraphVFpp:', data);
 
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
         // Merge by core issue
         const mergedData = this.mergeByCategoryOrIssue(
-          data,
+          filteredByQuarter,
           'CORE_ISSUE',
           'CORE_ISSUE_COUNT'
         );
@@ -157,7 +180,15 @@ export class CaseiqFppComponent implements OnInit {
     this.http
       .get('xxcaseiq-fpp-case-details-v', this.destroyManager)
       .subscribe((data: any) => {
-        this.updateTableData(data);
+        // Filter data by selected quarter
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter((item: any) => item.Quarter === this.selectedQuarter)
+          : data;
+
+        this.updateTableData(filteredByQuarter);
+
+        // Hide loading overlay after data is loaded
+        this.refreshingData = false;
       });
   }
 
@@ -166,7 +197,16 @@ export class CaseiqFppComponent implements OnInit {
       .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
       .subscribe((data: any) => {
         console.log(data);
-        this.updateFppMetrics(data);
+
+        // Filter data by selected quarter and team
+        const filteredByQuarter = this.selectedQuarter
+          ? data.filter(
+              (item: any) =>
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME === 'FPP'
+            )
+          : data.filter((item: any) => item.TEAM_NAME === 'FPP');
+        this.updateFppMetrics(filteredByQuarter);
       });
   }
 
@@ -306,6 +346,11 @@ export class CaseiqFppComponent implements OnInit {
       filteredData = filteredData.filter(
         (item) => item.CATEGORY_COUNT > this.categoryMinThreshold
       );
+
+      // If no data passes threshold, show all data instead
+      if (filteredData.length === 0 && this.cachedCategoryData.length > 0) {
+        filteredData = this.cachedCategoryData;
+      }
     }
 
     this.i2cChartData = this.transformMatchStatusData(
@@ -327,6 +372,11 @@ export class CaseiqFppComponent implements OnInit {
       filteredData = filteredData.filter(
         (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
       );
+
+      // If no data passes threshold, show all data instead
+      if (filteredData.length === 0 && this.cachedCoreIssueData.length > 0) {
+        filteredData = this.cachedCoreIssueData;
+      }
     }
 
     this.i2cSimpleChartData = this.transformMatchStatusData(
@@ -393,19 +443,36 @@ export class CaseiqFppComponent implements OnInit {
 
   // Expand chart dialog
   onExpandChart(chartType: 'CATEGORY' | 'CORE_ISSUE') {
+    // Transform complete cached data for dialog
+    const completeCategoryData = this.transformMatchStatusData(
+      this.cachedCategoryData,
+      'CATEGORY',
+      'CATEGORY_COUNT'
+    );
+    const completeCoreIssueData = this.transformMatchStatusData(
+      this.cachedCoreIssueData,
+      'CORE_ISSUE',
+      'CORE_ISSUE_COUNT'
+    );
+
+    // Compute totals from complete data
+    const categoryTotal = this.computeStackedTotal(completeCategoryData);
+    const coreIssueTotal = this.computeStackedTotal(completeCoreIssueData);
+
     this.dialog.open(CaseiqFppExpandDialogComponent, {
       width: '90vw',
+      maxWidth: '2000px',
       height: '70vh',
       data: {
         chartType,
-        categoryData: this.i2cChartData,
-        coreIssueData: this.i2cSimpleChartData,
+        categoryData: completeCategoryData,
+        coreIssueData: completeCoreIssueData,
         categoryAccuracy: this.categoryAccuracy,
         coreIssueAccuracy: this.coreIssueAccuracy,
-        totalCases: this.totalCases,
-        visibleCategoryTotal: this.visibleCategoryTotal,
-        visibleCoreIssueTotal: this.visibleCoreIssueTotal,
+        categoryTotal,
+        coreIssueTotal,
       },
+      panelClass: 'caseiq-expand-dialog',
     });
   }
 
@@ -414,7 +481,11 @@ export class CaseiqFppComponent implements OnInit {
       this.totalRecords = apiData.length;
       this.i2cTableData = new MatTableDataSource(apiData);
       this.i2cTableColumns = Object.keys(apiData[0]).filter(
-        (key) => key !== 'DESCRIPTION' && key !== 'SUMMARY'
+        (key) =>
+          key !== 'DESCRIPTION' &&
+          key !== 'SUMMARY' &&
+          key !== 'Quarter' &&
+          key !== 'Cancelled reason'
       );
     } else {
       this.totalRecords = 0;
@@ -462,7 +533,7 @@ export class CaseiqFppComponent implements OnInit {
             },
           ];
 
-      return { label: item[groupColumn], segments };
+      return { label: item[groupColumn] ?? '', segments }; // Convert null/undefined to empty string
     });
 
     return chartData;
@@ -486,182 +557,399 @@ export class CaseiqFppComponent implements OnInit {
 @Component({
   selector: 'app-caseiq-fpp-expand-dialog',
   template: `
-    <div class="expand-dialog-container">
-      <div class="expand-header">
-        <h2 mat-dialog-title>
-          {{
-            chartType === 'CATEGORY'
-              ? 'Category Analysis'
-              : 'Core Issue Analysis'
-          }}
-          - FPP Team
-        </h2>
-        <button mat-icon-button (click)="onClose()" class="close-btn">
-          <mat-icon>close</mat-icon>
-        </button>
-      </div>
-
-      <mat-dialog-content class="expand-content">
-        <div class="expand-chart-section" *ngIf="chartType === 'CATEGORY'">
-          <div class="expand-chart-header">
-            <div class="chart-title-block">
-              <h4>Category Accuracy - {{ data.categoryAccuracy }}%</h4>
-            </div>
-            <div class="flex-row header-metrics">
-              <h4>
-                No. of cases shown below: {{ data.visibleCategoryTotal }}/
-                {{ data.totalCases }}
-              </h4>
-              &nbsp;
-              <mat-icon
-                style="font-size: 15px; padding-top: 5px"
-                matTooltip="Full view of category distribution across all match statuses."
-                >info_outline</mat-icon
-              >
-            </div>
-          </div>
-          <div class="expand-chart-container">
-            <app-bar-chart
-              [data]="data.categoryData"
-              [stacked]="true"
-              [isLoading]="false"
-              canvasId="fppExpandCategoryChart"
-            >
-            </app-bar-chart>
-          </div>
-        </div>
-
-        <div class="expand-chart-section" *ngIf="chartType === 'CORE_ISSUE'">
-          <div class="expand-chart-header">
-            <div class="chart-title-block">
-              <h4>Core Issue Accuracy - {{ data.coreIssueAccuracy }}%</h4>
-            </div>
-            <div class="flex-row header-metrics">
-              <h4>
-                No. of cases shown below: {{ data.visibleCoreIssueTotal }}/
-                {{ data.totalCases }}
-              </h4>
-              &nbsp;
-              <mat-icon
-                style="font-size: 15px; padding-top: 5px"
-                matTooltip="Full view of core issue distribution across all match statuses."
-                >info_outline</mat-icon
-              >
-            </div>
-          </div>
-          <div class="expand-chart-container">
-            <app-bar-chart
-              [data]="data.coreIssueData"
-              [stacked]="true"
-              [isLoading]="false"
-              canvasId="fppExpandCoreIssueChart"
-            >
-            </app-bar-chart>
-          </div>
-        </div>
-      </mat-dialog-content>
+    <div class="expand-dialog-header" role="heading" aria-level="2">
+      <span class="expand-dialog-title">
+        FPP {{ chartType === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
+      </span>
+      <a style="text-decoration: none; cursor: pointer">
+        <i
+          class="fa fa-close"
+          style="font-size: 16px; color: white"
+          (click)="onClose()"
+        ></i>
+      </a>
     </div>
+    <mat-dialog-content class="expand-dialog-content" tabindex="0">
+      <div class="expand-charts-wrapper">
+        <div class="expand-chart-block" *ngIf="chartType === 'CATEGORY'">
+          <div class="expand-chart-header">
+            <h3 class="subheading">
+              Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
+              {{ data.categoryTotal }} )
+            </h3>
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCategoryFiltersInDialog()"
+                (keydown.enter)="toggleCategoryFiltersInDialog()"
+                (keydown.space)="toggleCategoryFiltersInDialog()"
+                tabindex="0"
+                title="Category Chart Filters"
+                aria-label="Category Chart Filters"
+                >filter_list</mat-icon
+              >
+              <div
+                class="chart-filter-panel"
+                *ngIf="showCategoryFiltersInDialog"
+                aria-label="Expanded category chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCategorySelectInDialog()"
+                    type="button"
+                  >
+                    Filter
+                    <span
+                      class="chevron"
+                      [class.open]="showCategorySelectInDialog"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown"
+                    *ngIf="showCategorySelectInDialog"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let label of dialogCategoryLabels"
+                        [class.selected]="
+                          selectedCategoryLabelsInDialog.has(label)
+                        "
+                        (click)="toggleCategorySelectionInDialog(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCategoryLabelsInDialog.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCategorySelectionInDialog($event)"
+                        [disabled]="selectedCategoryLabelsInDialog.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCategorySelectInDialog()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCategoryLabelsInDialog.size === 0"
+                >
+                  Showing all categories.
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCategoryLabelsInDialog.size > 0"
+                >
+                  Showing {{ selectedCategoryLabelsInDialog.size }} selected
+                  category(ies).
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-frame">
+            <app-bar-chart
+              [data]="filteredCategoryData"
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="510"
+              canvasId="expandedCategoryChartFpp"
+            ></app-bar-chart>
+          </div>
+        </div>
+        <div class="expand-chart-block" *ngIf="chartType === 'CORE_ISSUE'">
+          <div class="expand-chart-header">
+            <h3 class="subheading">
+              Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
+              {{ data.coreIssueTotal }} )
+            </h3>
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCoreIssueFiltersInDialog()"
+                (keydown.enter)="toggleCoreIssueFiltersInDialog()"
+                (keydown.space)="toggleCoreIssueFiltersInDialog()"
+                tabindex="0"
+                title="Core Issue Chart Filters"
+                aria-label="Core Issue Chart Filters"
+                >filter_list</mat-icon
+              >
+              <div
+                class="chart-filter-panel"
+                *ngIf="showCoreIssueFiltersInDialog"
+                aria-label="Expanded core issue chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCoreIssueSelectInDialog()"
+                    type="button"
+                  >
+                    Filter
+                    <span
+                      class="chevron"
+                      [class.open]="showCoreIssueSelectInDialog"
+                      >▾</span
+                    >
+                  </button>
+                  <div
+                    class="multi-select-dropdown"
+                    *ngIf="showCoreIssueSelectInDialog"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      <div
+                        class="multi-option"
+                        *ngFor="let label of dialogCoreIssueLabels"
+                        [class.selected]="
+                          selectedCoreIssueLabelsInDialog.has(label)
+                        "
+                        (click)="toggleCoreIssueSelectionInDialog(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCoreIssueSelectionInDialog($event)"
+                        [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCoreIssueSelectInDialog()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCoreIssueLabelsInDialog.size === 0"
+                >
+                  Showing all core issues.
+                </div>
+                <div
+                  class="filter-hint"
+                  *ngIf="selectedCoreIssueLabelsInDialog.size > 0"
+                >
+                  Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
+                  core issue(s).
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-frame">
+            <app-bar-chart
+              [data]="filteredCoreIssueData"
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="510"
+              canvasId="expandedCoreIssueChartFpp"
+            ></app-bar-chart>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
   `,
   styles: [
     `
-      .expand-dialog-container {
+      .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
-        height: 100%;
-        overflow: hidden;
+        gap: 24px;
       }
-
-      .expand-header {
+      .expand-dialog-header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 16px 24px;
-        border-bottom: 1px solid #e0e0e0;
-        background: #f8f9fa;
-      }
-
-      .expand-header h2 {
-        margin: 0;
-        font-size: 20px;
+        justify-content: space-between;
+        padding: 12px 20px 10px 20px;
+        background-color: #08ace4;
+        color: #ffffff;
         font-weight: 600;
-        color: #333;
+        font-size: 16px;
+        margin: -24px -24px 0 -24px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
       }
-
-      .close-btn {
-        color: #666;
+      .expand-dialog-title {
+        line-height: 1.2;
       }
-
-      .close-btn:hover {
-        background: rgba(0, 0, 0, 0.05);
+      .close-icon {
+        cursor: pointer;
+        user-select: none;
+        font-size: 24px;
       }
-
-      .expand-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 24px;
+      .close-icon:hover {
+        opacity: 0.85;
       }
-
-      .expand-chart-section {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      .close-icon:focus {
+        outline: 2px solid #ffffff;
+        outline-offset: 2px;
+        border-radius: 4px;
       }
-
+      .subheading {
+        font-weight: 500;
+        margin: 12px 0 8px;
+      }
       .expand-chart-header {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 20px;
         gap: 16px;
       }
-
-      .chart-title-block h4 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
+      .chart-frame {
+        border-radius: 6px;
+        padding: 8px 12px 0;
+        background: #ffffff;
       }
 
-      .flex-row {
+      /* Dialog filter styles */
+      .filter-wrapper {
+        position: relative;
+        margin-top: 10px;
+      }
+      .chart-filter-panel {
+        position: absolute;
+        top: 32px;
+        right: 0;
+        background: #fff;
+        border: 1px solid #d0d7de;
+        border-radius: 4px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        padding: 12px 14px 14px;
+        width: 220px;
+        z-index: 60;
+        font-size: 12px;
+      }
+      .multi-select-wrapper {
+        position: relative;
+        margin-bottom: 10px;
+      }
+      .multi-select-trigger {
+        width: 100%;
+        text-align: left;
+        background: #fff;
+        border: 1px solid #d0d7de;
+        padding: 6px 10px;
+        font-size: 12px;
+        cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 4px;
+        justify-content: space-between;
+        border-radius: 4px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
       }
-
-      .header-metrics h4 {
-        margin: 0;
-        font-size: 14px;
-        font-weight: 500;
+      .multi-select-trigger:hover {
+        border-color: #08ace4;
+      }
+      .multi-select-trigger:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(8, 172, 228, 0.3);
+      }
+      .chevron {
+        transition: transform 0.2s ease;
+        font-size: 10px;
+      }
+      .chevron.open {
+        transform: rotate(180deg);
+      }
+      .multi-select-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        width: 100%;
+        max-height: 200px;
+        background: #fff;
+        border: 1px solid #d0d7de;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        border-radius: 4px;
+        z-index: 70;
+        display: flex;
+        flex-direction: column;
+      }
+      .multi-select-options {
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .multi-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        font-size: 12px;
+        cursor: pointer;
+      }
+      .multi-option:hover {
+        background: #f3f4f6;
+      }
+      .multi-option.selected {
+        font-weight: 600;
+        background: #eef7ff;
+      }
+      .multi-option input {
+        pointer-events: none;
+      }
+      .multi-select-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 8px;
+        border-top: 1px solid #e5e7eb;
+        gap: 8px;
+      }
+      .multi-select-actions .clear-btn,
+      .multi-select-actions .close-btn {
+        flex: 1;
+        border: none;
+        background: #08ace4;
+        color: #fff;
+        font-size: 11px;
+        padding: 6px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .multi-select-actions .clear-btn[disabled] {
+        background: #c8e9f5;
+        cursor: not-allowed;
+      }
+      .multi-select-actions .clear-btn:hover:not([disabled]),
+      .multi-select-actions .close-btn:hover {
+        background: #0692c2;
+      }
+      .filter-hint {
+        margin-top: 8px;
+        font-size: 11px;
         color: #555;
-      }
-
-      .expand-chart-container {
-        height: 500px;
-        position: relative;
-      }
-
-      @media (max-width: 768px) {
-        .expand-header {
-          padding: 12px 16px;
-        }
-
-        .expand-header h2 {
-          font-size: 18px;
-        }
-
-        .expand-content {
-          padding: 16px;
-        }
-
-        .expand-chart-container {
-          height: 400px;
-        }
       }
     `,
   ],
 })
-export class CaseiqFppExpandDialogComponent {
+export class CaseiqFppExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';
 
   constructor(
@@ -673,5 +961,105 @@ export class CaseiqFppExpandDialogComponent {
 
   onClose(): void {
     this.dialogRef.close();
+  }
+
+  // Dialog-specific multi-select state
+  showCategorySelectInDialog: boolean = false;
+  showCoreIssueSelectInDialog: boolean = false;
+  dialogCategoryLabels: string[] = [];
+  dialogCoreIssueLabels: string[] = [];
+  selectedCategoryLabelsInDialog: Set<string> = new Set();
+  selectedCoreIssueLabelsInDialog: Set<string> = new Set();
+  filteredCategoryData: StackedBarChartDataPoint[] = [];
+  filteredCoreIssueData: StackedBarChartDataPoint[] = [];
+  showCategoryFiltersInDialog: boolean = false;
+  showCoreIssueFiltersInDialog: boolean = false;
+
+  toggleCategoryFiltersInDialog() {
+    this.showCategoryFiltersInDialog = !this.showCategoryFiltersInDialog;
+    if (this.showCategoryFiltersInDialog) {
+      this.showCoreIssueFiltersInDialog = false;
+    }
+  }
+
+  toggleCoreIssueFiltersInDialog() {
+    this.showCoreIssueFiltersInDialog = !this.showCoreIssueFiltersInDialog;
+    if (this.showCoreIssueFiltersInDialog) {
+      this.showCategoryFiltersInDialog = false;
+    }
+  }
+
+  ngOnInit() {
+    // Initialize labels from passed data
+    if (Array.isArray(this.data?.categoryData)) {
+      this.dialogCategoryLabels = this.data.categoryData
+        .map((d: any) => d.label)
+        .sort((a: string, b: string) => a.localeCompare(b));
+      this.filteredCategoryData = this.data.categoryData;
+    }
+    if (Array.isArray(this.data?.coreIssueData)) {
+      this.dialogCoreIssueLabels = this.data.coreIssueData
+        .map((d: any) => d.label)
+        .sort((a: string, b: string) => a.localeCompare(b));
+      this.filteredCoreIssueData = this.data.coreIssueData;
+    }
+  }
+
+  // Toggle dropdown visibility
+  toggleCategorySelectInDialog() {
+    this.showCategorySelectInDialog = !this.showCategorySelectInDialog;
+  }
+
+  toggleCoreIssueSelectInDialog() {
+    this.showCoreIssueSelectInDialog = !this.showCoreIssueSelectInDialog;
+  }
+
+  // Selection handlers
+  toggleCategorySelectionInDialog(label: string) {
+    if (this.selectedCategoryLabelsInDialog.has(label)) {
+      this.selectedCategoryLabelsInDialog.delete(label);
+    } else {
+      this.selectedCategoryLabelsInDialog.add(label);
+    }
+    this.applyDialogCategoryFilter();
+  }
+
+  clearCategorySelectionInDialog(event?: Event) {
+    if (event) event.stopPropagation();
+    this.selectedCategoryLabelsInDialog.clear();
+    this.applyDialogCategoryFilter();
+  }
+
+  toggleCoreIssueSelectionInDialog(label: string) {
+    if (this.selectedCoreIssueLabelsInDialog.has(label)) {
+      this.selectedCoreIssueLabelsInDialog.delete(label);
+    } else {
+      this.selectedCoreIssueLabelsInDialog.add(label);
+    }
+    this.applyDialogCoreIssueFilter();
+  }
+
+  clearCoreIssueSelectionInDialog(event?: Event) {
+    if (event) event.stopPropagation();
+    this.selectedCoreIssueLabelsInDialog.clear();
+    this.applyDialogCoreIssueFilter();
+  }
+
+  private applyDialogCategoryFilter() {
+    if (!Array.isArray(this.data?.categoryData)) return;
+    this.filteredCategoryData = this.selectedCategoryLabelsInDialog.size
+      ? this.data.categoryData.filter((d: any) =>
+          this.selectedCategoryLabelsInDialog.has(d.label)
+        )
+      : this.data.categoryData;
+  }
+
+  private applyDialogCoreIssueFilter() {
+    if (!Array.isArray(this.data?.coreIssueData)) return;
+    this.filteredCoreIssueData = this.selectedCoreIssueLabelsInDialog.size
+      ? this.data.coreIssueData.filter((d: any) =>
+          this.selectedCoreIssueLabelsInDialog.has(d.label)
+        )
+      : this.data.coreIssueData;
   }
 }

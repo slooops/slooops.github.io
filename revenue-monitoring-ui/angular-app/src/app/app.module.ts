@@ -252,6 +252,8 @@ export function initApp(authService: AuthenticationService) {
     CaseiqP2pExpandDialogComponent,
     // Dialog for expanded CaseIQ SM charts
     CaseiqSmExpandDialogComponent,
+    O2cAccordionComponent,
+    O2cToolbarComponent,
     AtmfTableComponent,
     AtmfCardComponent,
     AtmfBarLineChartComponent,
@@ -300,8 +302,6 @@ export function initApp(authService: AuthenticationService) {
     MatStepperModule,
     CommonModule,
     MatDialogModule,
-    O2cAccordionComponent,
-    O2cToolbarComponent,
     MatSliderModule,
     MatProgressSpinnerModule,
   ],

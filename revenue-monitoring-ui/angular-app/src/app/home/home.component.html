@@ -1,122 +1,327 @@
-<div class="page-title">Period Close Tracking</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">Pre-Close</div>
-    <div class="column-content">6/6 Steps</div>
+<div class="dashboard-container" *ngIf="!homeLoading">
+  <!-- Welcome Message Row -->
+  <div class="welcome-row">
+    <h1 class="welcome-msg">
+      Hello <span class="name-highlight">{{ username }}</span
+      >, welcome!
+    </h1>
   </div>
-  <div class="card-column">
-    <div class="column-title">Mid Close</div>
-    <div class="column-content">6/6 Steps</div>
+
+  <!-- Title Bar Row -->
+  <div class="title-row">
+    <span class="page-title">Monitoring Dashboard</span>
+    &nbsp;
+    <button class="icon-btn" aria-label="Settings">
+      <i class="fa fa-gear circle-icon"></i>
+    </button>
+    <button class="icon-btn" aria-label="Notifications">
+      <i class="fa fa-bell bell-icon"></i>
+    </button>
+    &nbsp; &nbsp;
+    <div class="period-info" *ngIf="periodInfo">
+      <span><b>Period name:</b> {{ periodInfo.periodName }}</span>
+      <span class="divider">|</span>
+      <span><b>Period end date:</b> {{ periodInfo.periodEndDate }}</span>
+      <span class="divider">|</span>
+      <span><b>Last Updated:</b> {{ periodInfo.lastUpdated }}</span>
+    </div>
+    <button class="ask-ivan-btn">
+      <i class="svg-icon ivan-icon"></i>
+      <span style="font-size: large; font-weight: bold">Ask Ivan</span>
+    </button>
   </div>
-  <div class="card-column">
-    <div class="column-title">WD-0 Dash</div>
-    <div class="column-content">All entities in progress</div>
+
+  <!-- KPI Metrics Bars (40% / 60%) -->
+  <div class="kpi-bars" *ngIf="kpis">
+    <div class="kpi-bar kpi-bar-primary">
+      <div class="kpi-item first">
+        <div class="kpi-value high">{{ kpis.highPriorityIssues }}</div>
+        <div class="kpi-label">
+          High Priority Issues
+          <mat-icon class="info-tooltip">info_outline</mat-icon>
+        </div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.inProgress }}</div>
+        <div class="kpi-label">In Progress</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.totalAging }}</div>
+        <div class="kpi-label">Total Aging</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.lessThan48Hours }}</div>
+        <div class="kpi-label">&lt;48 Hours</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.moreThan48Hours }}</div>
+        <div class="kpi-label">&gt;48 Hours</div>
+      </div>
+    </div>
+    <div class="kpi-bar kpi-bar-secondary">
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.totalIssues }}</div>
+        <div class="kpi-label">Total Issues</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.openIssues }}</div>
+        <div class="kpi-label">Open Issues</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis.inProgressIssues }}</div>
+        <div class="kpi-label">In Progress Issues</div>
+      </div>
+      <div class="kpi-item last">
+        <div class="kpi-value">{{ kpis.totalUnassignedIssues }}</div>
+        <div class="kpi-label">Total Unassigned Issues</div>
+      </div>
+    </div>
   </div>
-  <div class="card-column">
-    <div class="column-title">Mid Close Volumes</div>
-    <div class="column-content">Status Nominal</div>
+
+  <!-- Charts Row -->
+  <div class="charts-row" *ngIf="charts">
+    <!-- Transaction Failures Chart -->
+    <div class="chart-wrapper">
+      <h3 class="chart-title">Transaction Failures</h3>
+      <div class="chart-content">
+        <canvas
+          #transactionFailuresCanvas
+          aria-label="Transaction Failures Chart"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- ESP Cases Chart -->
+    <div class="chart-wrapper">
+      <h3 class="chart-title">ESP Cases</h3>
+      <div class="chart-content">
+        <canvas #espCasesCanvas aria-label="ESP Cases Chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Issue Distribution Pie Chart -->
+    <div class="chart-wrapper doughnut-wrapper">
+      <h3 class="chart-title">Issue Distribution by Assignee</h3>
+      <div class="doughnut-container">
+        <canvas
+          #issueDistributionCanvas
+          aria-label="Issue Distribution Doughnut"
+        ></canvas>
+      </div>
+      <div class="doughnut-legend">
+        <div
+          class="pie-legend-item"
+          *ngFor="let legend of issueDistributionLegends"
+        >
+          <span class="pie-color" [style.background]="legend.color"></span>
+          <span>{{ legend.label }} - {{ legend.value }}%</span>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="card-column">
-    <div class="column-title">Large Deal</div>
-    <div class="column-content">Deal Totals: $123,456,789.99</div>
+
+  <!-- Issues List Table -->
+  <div class="issues-table-section">
+    <div class="table-header-row metric-box">
+      <h2 class="table-title">Issues List</h2>
+      <button class="collapse-btn" (click)="toggleTableVisibility()">
+        <mat-icon>{{
+          isTableVisible ? "expand_less" : "expand_more"
+        }}</mat-icon>
+      </button>
+    </div>
+    <div *ngIf="isTableVisible">
+      <!-- New Table Toolbar with Filters -->
+      <div class="table-toolbar">
+        <div class="toolbar-left">
+          <div class="search-container">
+            <i class="fa fa-search home-search"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search this table"
+              [(ngModel)]="searchTerm"
+              (input)="applySearch()"
+            />
+          </div>
+          <div class="filters-container">
+            <button class="filter-chip" (click)="toggleFiltersDropdown($event)">
+              <mat-icon style="height: 13px">filter_list</mat-icon>
+              Filters
+              <span class="filter-count" *ngIf="activeFilters.length > 0">{{
+                activeFilters.length
+              }}</span>
+            </button>
+            <!-- Filters Dropdown -->
+            <div
+              class="filters-dropdown"
+              *ngIf="showFiltersDropdown"
+              (click)="$event.stopPropagation()"
+              tabindex="0"
+              aria-label="Active filters menu"
+            >
+              <div class="filter-sections">
+                <div
+                  class="filter-section"
+                  *ngFor="let option of filterOptions"
+                >
+                  <div class="filter-section-title">{{ option.label }}</div>
+                  <div class="filter-options">
+                    <label
+                      class="filter-option"
+                      *ngFor="let val of option.values"
+                    >
+                      <input
+                        type="checkbox"
+                        (change)="addFilter(option.id, option.label, val)"
+                        [checked]="isFilterActive(option.id, val)"
+                      />
+                      <span class="checkmark"></span>
+                      {{ val }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <span class="result-count"
+            >{{ dataSource?.data?.length || 0 }} results</span
+          >
+          <button
+            class="reset-link"
+            [class.disabled]="activeFilters.length === 0"
+            (click)="clearAllFilters()"
+            [disabled]="activeFilters.length === 0"
+          >
+            Reset filters
+          </button>
+          <div class="filter-tags" *ngIf="activeFilters.length > 0">
+            <div class="filter-tag" *ngFor="let filter of activeFilters">
+              <span class="filter-label">{{ filter.key }}</span>
+              <span class="filter-value">{{ filter.value }}</span>
+              <button
+                class="remove-filter"
+                (click)="removeFilter(filter.key, filter.value)"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <button class="action-btn">Assign Users</button>
+          <button class="action-btn">Download</button>
+        </div>
+      </div>
+
+      <!-- Filters Dropdown -->
+      <!-- <div
+        class="filters-dropdown"
+        *ngIf="showFiltersDropdown"
+        (click)="$event.stopPropagation()"
+        tabindex="0"
+        aria-label="Active filters menu"
+      >
+        <div class="filter-sections">
+          <div class="filter-section" *ngFor="let option of filterOptions">
+            <div class="filter-section-title">{{ option.label }}</div>
+            <div class="filter-options">
+              <label class="filter-option" *ngFor="let val of option.values">
+                <input
+                  type="checkbox"
+                  (change)="addFilter(option.id, option.label, val)"
+                  [checked]="isFilterActive(option.id, val)"
+                />
+                <span class="checkmark"></span>
+                {{ val }}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- Mat Table -->
+      <div class="table-container" *ngIf="!dataLoading">
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          class="mat-elevation-z0 full-width-table"
+        >
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef class="checkbox-col">
+              <input type="checkbox" />
+            </th>
+            <td mat-cell *matCellDef="let row" class="checkbox-col">
+              <input type="checkbox" />
+            </td>
+          </ng-container>
+
+          <!-- Dynamic Columns -->
+          <ng-container *ngFor="let column of displayedColumns">
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef>
+                {{ replaceUnderscore(column) }}
+              </th>
+
+              <td mat-cell *matCellDef="let element">
+                <ng-container [ngSwitch]="column">
+                  <!-- ID Column with special formatting -->
+                  <ng-container *ngSwitchCase="'id'">
+                    <div class="issue-id-cell">
+                      <a
+                        class="issue-link"
+                        (click)="viewIssueDetails(element.id)"
+                        [innerHTML]="highlightText(element.id)"
+                      ></a>
+                      <mat-icon *ngIf="element.hasAlert" class="warning-icon"
+                        >warning</mat-icon
+                      >
+                      <i
+                        class="svg-icon ivan-icon"
+                        *ngIf="element.assignedTo === 'AI Agent'"
+                      ></i>
+                    </div>
+                  </ng-container>
+
+                  <!-- Status Column with badge -->
+                  <ng-container *ngSwitchCase="'status'">
+                    <span
+                      class="status-pill"
+                      [ngClass]="getStatusClass(element.status)"
+                      [innerHTML]="highlightText(element.status)"
+                    >
+                    </span>
+                  </ng-container>
+
+                  <!-- Default: display value as is -->
+                  <ng-container *ngSwitchDefault>
+                    <span [innerHTML]="highlightText(element[column])"></span>
+                  </ng-container>
+                </ng-container>
+              </td>
+            </ng-container>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: headerColumns"></tr>
+        </table>
+      </div>
+
+      <!-- Simple Paginator mimic (keeping existing UI for now) -->
+      <mat-paginator
+        [length]="paginatorLength"
+        [pageSize]="rowsPerPage"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        [showFirstLastButtons]="true"
+        (page)="onMatPage($event)"
+      ></mat-paginator>
+    </div>
   </div>
 </div>
 
-<hr />
-
-<div class="page-title">Invoice to Cash</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">Pre-Invoicing</div>
-    <div class="column-content">10 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">4 Level 1 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Invoicing</div>
-    <div class="column-content">11 Errors</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">E-Invoicing</div>
-    <div class="column-content">10 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">2 Level 1 Escalation</div>
-    </div>
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-two-icon"></i>
-      </div>
-      <div class="column-content">4 Level 2 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">CMS</div>
-    <div class="column-content">8 Unprocessed File Streams</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Fusion</div>
-    <div class="column-content">Coming Soon</div>
-  </div>
-</div>
-
-<hr />
-
-<div class="page-title">Revenue Accounting</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">Standard Revenue</div>
-    <div class="column-content">1 Error</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">1 Level 1 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Accruals</div>
-    <div class="column-content">3 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-one-icon"></i>
-      </div>
-      <div class="column-content">1 Level 1 Escalation</div>
-    </div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Meraki</div>
-    <div class="column-content">Coming Soon</div>
-  </div>
-  <div class="card-column">
-    <div class="column-title">Business Controls</div>
-    <div class="column-content">Coming Soon</div>
-  </div>
-</div>
-
-<hr />
-
-<div class="page-title">GL Posting</div>
-<div class="card-container">
-  <div class="card-column">
-    <div class="column-title">GL-Posting</div>
-    <div class="column-content">11 Errors</div>
-
-    <div class="escalation-row">
-      <div class="column-content escalation-item">
-        <i class="svg-icon escalation-two-icon"></i>
-      </div>
-      <div class="column-content">11 Level 2 Escalations</div>
-    </div>
-  </div>
+<!-- Loading Spinner -->
+<div class="loading-screen" *ngIf="homeLoading">
+  <mat-spinner></mat-spinner>
+  <p>Loading dashboard...</p>
 </div>

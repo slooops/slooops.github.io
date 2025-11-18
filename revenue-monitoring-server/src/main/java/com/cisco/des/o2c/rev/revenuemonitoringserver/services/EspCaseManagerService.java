@@ -1,7 +1,9 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.Common;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.ExcelReader;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,6 +47,8 @@ public class EspCaseManagerService {
     private String xxcaseiqCapitalCaseDetailsV;
     private String xxcaseiqEspCaseAnalyzerTblUpdate;
     private String xxcaseiqI2cCaseDetailsMatchY;
+    @Autowired
+    private Common common;
 
     public EspCaseManagerService(JdbcManager jdbcManager, String espAgingCaseSummary,
             String espCaseServiceMetricSummary,
@@ -209,38 +213,73 @@ public class EspCaseManagerService {
     }
 
     public List<Map<String, Object>> getXxcaseiqI2cCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqI2cCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqI2cCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getXxcaseiqAitCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqAitCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqAitCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getXxcaseiqFppCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqFppCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqFppCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getXxcaseiqOmCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqOmCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqOmCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getXxcaseiqSmCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqSmCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqSmCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getXxcaseiqP2pCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqP2pCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqP2pCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
     public List<Map<String, Object>> getXxcaseiqCapitalCaseDetailsV() {
-        return jdbcManager.queryForList(xxcaseiqCapitalCaseDetailsV);
+        List<Map<String, Object>> result = jdbcManager.queryForList(xxcaseiqCapitalCaseDetailsV);
+        result.forEach(data -> {
+            common.renameKey(data,"Cancel prediction", "CANCEL_PREDICTION");
+            common.renameKey(data,"LLM Summary", "LLM_SUMMARY");
+        });
+        return result;
     }
 
-    public void updateEspCaseAnalyzerTable(MultipartFile file) throws IOException {
+    public void updateEspCaseAnalyzerTable(MultipartFile file, String username) throws IOException {
         try {
             List<Map<String, String>> data = ExcelReader.readExcel(file.getInputStream());
             for (Map<String, String> row : data) {
-                jdbcManager.espCaseAnalyzerTableUpdate(xxcaseiqEspCaseAnalyzerTblUpdate, row.get("CATEGORY"), row.get("CATEGORY_ACTUAL"), row.get("CORE_ISSUE"), row.get("CORE_ISSUE_ACTUAL"), row.get("INCIDENT_NUMBER"), row.get("IMPACTED_SERVICE_OFFERING"));
+                jdbcManager.espCaseAnalyzerTableUpdate(xxcaseiqEspCaseAnalyzerTblUpdate, username, row.get("CATEGORY"), row.get("CATEGORY_ACTUAL"), row.get("COMMENTS"), row.get("CORE_ISSUE"), row.get("CORE_ISSUE_ACTUAL"), row.get("INCIDENT_NUMBER"), row.get("IMPACTED_SERVICE_OFFERING"));
             }
         } catch (Exception e) {
             e.printStackTrace();

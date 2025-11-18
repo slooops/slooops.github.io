@@ -105,6 +105,8 @@ public class PeriodCloseMonitoringController {
         return new ResponseEntity<>(espCaseManagerService.getXxcaseiqValidatedCasesAccuracyV(), HttpStatus.OK);
     }
 
+
+    //unused
     @GetMapping("/vw-i2c-case-details")
     public ResponseEntity<List<Map<String, Object>>> getVwI2cCaseDetails() {
         return new ResponseEntity<>(espCaseManagerService.getVwI2cCaseDetails(), HttpStatus.OK);
