@@ -80,7 +80,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     ' - ',
     ' - ',
     ' - ',
-    'Data needed',
+    ' - ',
   ];
   mcloseExecutionWindow: string[] = [
     'Scheduled time PST',
