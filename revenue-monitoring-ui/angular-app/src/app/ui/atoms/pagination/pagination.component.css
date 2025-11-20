@@ -1,0 +1,28 @@
+@import "src/assets/ui.css";
+
+.fit-pagination__page-size {
+  height: var(--fit-control-height);
+  margin-right: var(--fit-space-sm);
+}
+
+.fit-pagination__info {
+  display: flex;
+  align-items: center;
+}
+
+.fit-pagination__text {
+  font-size: var(--fit-font-size-sm);
+  color: var(--fit-color-text-muted);
+}
+
+.fit-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+}
+
+.fit-pagination__page-indicator {
+  font-size: var(--fit-font-size-sm);
+  color: var(--fit-color-text);
+  padding-inline: var(--fit-space-sm);
+}

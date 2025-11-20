@@ -1,0 +1,9 @@
+@import "src/assets/ui.css";
+
+.fit-input__label {
+  display: block;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-color-text);
+  margin-bottom: var(--fit-space-xs);
+}

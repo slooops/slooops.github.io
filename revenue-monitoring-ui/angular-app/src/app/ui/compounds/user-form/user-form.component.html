@@ -1,0 +1,56 @@
+<form class="fit-user-form" (submit)="onSubmit()">
+  <div class="fit-stack-md">
+    <app-text-input
+      [value]="formData.userName"
+      label="Username *"
+      placeholder="Enter username"
+      type="text"
+      [isDisabled]="isEdit"
+      (valueChange)="onUserNameChange($event)"
+    >
+    </app-text-input>
+
+    <app-text-input
+      [value]="formData.email"
+      label="Email *"
+      placeholder="Enter email"
+      type="email"
+      (valueChange)="onEmailChange($event)"
+    >
+    </app-text-input>
+
+    <app-select-dropdown
+      [options]="roleOptions"
+      [value]="formData.roles[0] || ''"
+      label="Role"
+      placeholder="Select a role"
+      (valueChange)="onRoleChange($event)"
+    >
+    </app-select-dropdown>
+
+    <div class="fit-user-form__toggle">
+      <app-toggle-switch
+        [checked]="formData.enabled"
+        label="Enabled"
+        (checkedChange)="onEnabledChange($event)"
+      >
+      </app-toggle-switch>
+    </div>
+
+    <div class="fit-user-form__actions fit-row fit-row--space-between">
+      <app-button
+        label="Cancel"
+        variant="secondary"
+        type="button"
+        (clicked)="onCancel()"
+      >
+      </app-button>
+      <app-button
+        [label]="isEdit ? 'Update User' : 'Create User'"
+        variant="primary"
+        type="submit"
+      >
+      </app-button>
+    </div>
+  </div>
+</form>

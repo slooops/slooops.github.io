@@ -27,8 +27,8 @@ public class CommonService {
     private CacheCommon cacheCommon;
 
     public CommonService(JdbcManager jdbcManager, String invoiceToCashSummary,
-                         String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus,String personaAccessRoles,
-                         String processFlowTotal) {
+            String summaryAssignmentUsers, String rolErrorsSummaryPeriodStatus, String personaAccessRoles,
+            String processFlowTotal) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
@@ -37,8 +37,7 @@ public class CommonService {
         this.processFlowTotal = processFlowTotal;
     }
 
-
-    //Summaries
+    // Summaries
     public List<Map<String, Object>> getInvoiceToCashSummary() {
         List<Map<String, Object>> result = jdbcManager.queryForList(invoiceToCashSummary);
         return result;
@@ -47,7 +46,7 @@ public class CommonService {
     // Common methods
     public List<Map<String, Object>> getMonitoringPeriodStatus() {
         String[] dateColumns = { "END_DATE" };
-        List<Map<String, Object>> result =  jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
+        List<Map<String, Object>> result = jdbcManager.queryForList(rolErrorsSummaryPeriodStatus);
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
         });
@@ -56,6 +55,11 @@ public class CommonService {
 
     public List<Map<String, Object>> getSummaryAssignmentUsers() {
         List<Map<String, Object>> result = jdbcManager.queryForList(summaryAssignmentUsers);
+        return result;
+    }
+
+    public List<Map<String, Object>> getAllUserRoles() {
+        List<Map<String, Object>> result = jdbcManager.queryForList(personaAccessRoles);
         return result;
     }
 

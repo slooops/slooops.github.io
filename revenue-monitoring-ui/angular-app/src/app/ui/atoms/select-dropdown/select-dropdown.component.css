@@ -1,0 +1,10 @@
+@import "src/assets/ui.css";
+
+.fit-select__label {
+  display: block;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-color-text);
+  margin-bottom: -2px;
+  line-height: var(--fit-control-height);
+}

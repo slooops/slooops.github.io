@@ -1,0 +1,13 @@
+<label class="fit-checkbox" [class.fit-checkbox--disabled]="isDisabled">
+  <input
+    type="checkbox"
+    class="fit-checkbox__input"
+    [checked]="checked"
+    [disabled]="isDisabled"
+    (change)="onToggle()"
+  />
+  <span class="fit-checkbox__box">
+    <app-icon *ngIf="checked" name="check" size="0.7rem"></app-icon>
+  </span>
+  <span *ngIf="label" class="fit-checkbox__label">{{ label }}</span>
+</label>

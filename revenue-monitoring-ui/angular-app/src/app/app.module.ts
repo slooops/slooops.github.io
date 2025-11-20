@@ -142,6 +142,29 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AtmfTableComponent } from './components/atmf/atmf-table/atmf-table.component';
 import { AtmfCardComponent } from './components/atmf/atmf-card/atmf-card.component';
 import { AtmfBarLineChartComponent } from './components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
+// import { AccessorModule } from '@harbor/elements-angular';
+import { AdminComponent } from './admin/admin.component';
+
+// UI Atom Components
+import { ButtonComponent } from './ui/atoms/button/button.component';
+import { IconComponent } from './ui/atoms/icon/icon.component';
+import { TextInputComponent } from './ui/atoms/text-input/text-input.component';
+import { CheckboxComponent } from './ui/atoms/checkbox/checkbox.component';
+import { ToggleSwitchComponent } from './ui/atoms/toggle-switch/toggle-switch.component';
+import { SelectDropdownComponent } from './ui/atoms/select-dropdown/select-dropdown.component';
+import { PaginationComponent } from './ui/atoms/pagination/pagination.component';
+import { BadgeComponent } from './ui/atoms/badge/badge.component';
+import { TableCellComponent } from './ui/atoms/table-cell/table-cell.component';
+import { TableHeaderCellComponent } from './ui/atoms/table-header-cell/table-header-cell.component';
+import { ModalShellComponent } from './ui/atoms/modal-shell/modal-shell.component';
+
+// UI Compound Components
+import { DataTableComponent } from './ui/compounds/data-table/data-table.component';
+import { FilterBarComponent } from './ui/compounds/filter-bar/filter-bar.component';
+import { UserFormComponent } from './ui/compounds/user-form/user-form.component';
+
+// Feature Components
+import { AdminUserTableComponent } from './features/admin/admin-user-table/admin-user-table.component';
 
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
@@ -257,6 +280,42 @@ export function initApp(authService: AuthenticationService) {
     AtmfTableComponent,
     AtmfCardComponent,
     AtmfBarLineChartComponent,
+    AdminComponent,
+    // UI Atom Components
+    ButtonComponent,
+    IconComponent,
+    TextInputComponent,
+    CheckboxComponent,
+    ToggleSwitchComponent,
+    SelectDropdownComponent,
+    PaginationComponent,
+    BadgeComponent,
+    TableCellComponent,
+    TableHeaderCellComponent,
+    ModalShellComponent,
+    // UI Compound Components
+    DataTableComponent,
+    FilterBarComponent,
+    UserFormComponent,
+    // Feature Components
+    AdminUserTableComponent,
+  ],
+  exports: [
+    // Export reusable UI components for use in other modules
+    ButtonComponent,
+    IconComponent,
+    TextInputComponent,
+    CheckboxComponent,
+    ToggleSwitchComponent,
+    SelectDropdownComponent,
+    PaginationComponent,
+    BadgeComponent,
+    TableCellComponent,
+    TableHeaderCellComponent,
+    ModalShellComponent,
+    DataTableComponent,
+    FilterBarComponent,
+    UserFormComponent,
   ],
   imports: [
     BrowserModule,

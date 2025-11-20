@@ -1,0 +1,42 @@
+@import "src/assets/ui.css";
+
+.fit-table__search {
+  max-width: 400px;
+}
+
+.fit-table {
+  table-layout: auto;
+  width: 100%;
+}
+
+.fit-table__row {
+  cursor: pointer;
+}
+
+/* Checkbox column should be minimal width */
+.fit-table th:has(app-checkbox),
+.fit-table td:has(app-checkbox) {
+  width: 50px;
+  padding: var(--fit-space-xs);
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.fit-table th:has(app-checkbox) app-checkbox,
+.fit-table td:has(app-checkbox) app-checkbox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fit-table th,
+.fit-table td {
+  white-space: nowrap;
+}
+
+.fit-table__empty {
+  text-align: center;
+  padding: var(--fit-space-xl);
+  color: var(--fit-color-text-muted);
+  font-style: italic;
+}

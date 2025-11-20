@@ -1,0 +1,6 @@
+@import "src/assets/ui.css";
+
+/* Additional button-specific styles if needed */
+.fit-btn__loading {
+  margin-left: var(--fit-space-xs);
+}

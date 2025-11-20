@@ -1,0 +1,87 @@
+<div class="fit-stack-md">
+  <!-- Global search -->
+  <div *ngIf="enableGlobalSearch" class="fit-table__search">
+    <app-text-input
+      [value]="searchTerm"
+      placeholder="Search..."
+      type="search"
+      iconName="search"
+      iconPosition="left"
+      [debounceMs]="300"
+      (valueChange)="onSearchChange($event)"
+    >
+    </app-text-input>
+  </div>
+
+  <!-- Table -->
+  <table class="fit-table">
+    <thead>
+      <tr>
+        <app-table-header-cell *ngIf="enableSelection">
+          <app-checkbox
+            [checked]="allPageRowsSelected"
+            (checkedChange)="onSelectAll($event)"
+          >
+          </app-checkbox>
+        </app-table-header-cell>
+        <app-table-header-cell
+          *ngFor="let column of columns"
+          [isSortable]="column.isSortable || false"
+          [sortDirection]="
+            sortColumn === column.key && sortDirection
+              ? sortDirection
+              : undefined
+          "
+          (sort)="onSort(column)"
+        >
+          {{ column.label }}
+        </app-table-header-cell>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let row of paginatedRows"
+        (click)="onRowClick(row)"
+        class="fit-table__row"
+      >
+        <app-table-cell *ngIf="enableSelection">
+          <app-checkbox
+            [checked]="isRowSelected(row)"
+            (checkedChange)="onRowSelect(row, $event)"
+          >
+          </app-checkbox>
+        </app-table-cell>
+        <app-table-cell *ngFor="let column of columns">
+          <ng-container *ngIf="column.key === 'enabledFlag'; else normalCell">
+            <app-badge
+              [label]="row[column.key] === 'Y' ? 'Enabled' : 'Disabled'"
+              [variant]="row[column.key] === 'Y' ? 'success' : 'default'"
+            >
+            </app-badge>
+          </ng-container>
+          <ng-template #normalCell>
+            {{ row[column.key] }}
+          </ng-template>
+        </app-table-cell>
+      </tr>
+      <tr *ngIf="paginatedRows.length === 0">
+        <td
+          [attr.colspan]="columns.length + (enableSelection ? 1 : 0)"
+          class="fit-table__empty"
+        >
+          No data available
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <app-pagination
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [totalItems]="filteredRows.length"
+    [pageSizeOptions]="pageSizeOptions"
+    (pageChange)="onPageChange($event)"
+  >
+  </app-pagination>
+</div>

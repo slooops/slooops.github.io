@@ -1,0 +1,20 @@
+<div class="fit-select-wrapper">
+  <label *ngIf="label" [for]="'select-' + label" class="fit-select__label">
+    {{ label }}
+  </label>
+  <div class="fit-select-wrapper">
+    <select
+      [id]="'select-' + label"
+      class="fit-select"
+      [value]="value"
+      [disabled]="isDisabled"
+      (change)="onChange($event)"
+    >
+      <option value="" disabled>{{ placeholder }}</option>
+      <option *ngFor="let option of options" [value]="option.value">
+        {{ option.label }}
+      </option>
+    </select>
+    <span class="fit-select__chevron">▾</span>
+  </div>
+</div>

@@ -1,0 +1,538 @@
+/* ui.css — Finance IT (“fit”) design tokens & base styles */
+
+/* ------------------------------
+   Design Tokens
+------------------------------ */
+:root {
+  /* Typography */
+  --fit-font-family-base: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    sans-serif;
+  --fit-font-size-base: 0.8rem; /* dense UI; can change to 1rem later */
+  --fit-font-size-sm: 0.75rem;
+  --fit-font-size-xs: 0.7rem;
+  --fit-font-weight-normal: 400;
+  --fit-font-weight-medium: 500;
+  --fit-font-weight-semibold: 600;
+  --fit-line-height-tight: 1.2;
+  --fit-line-height-normal: 1.4;
+
+  /* Layout / spacing */
+  --fit-control-height: 1.75rem; /* ~28px */
+  --fit-radius-pill: 999px;
+  --fit-radius-sm: 4px;
+  --fit-radius-md: 8px;
+  --fit-radius-lg: 12px;
+
+  --fit-space-2xs: 0.125rem;
+  --fit-space-xs: 0.25rem;
+  --fit-space-sm: 0.5rem;
+  --fit-space-md: 0.75rem;
+  --fit-space-lg: 1rem;
+  --fit-space-xl: 1.5rem;
+
+  /* Colors */
+  --fit-color-bg: #ffffff;
+  --fit-color-bg-subtle: #f5f7fa;
+  --fit-color-bg-muted: #eef1f6;
+
+  --fit-color-border: #d0d7e2;
+  --fit-color-border-strong: #a5afc0;
+
+  --fit-color-text: #1f2933;
+  --fit-color-text-muted: #6b7482;
+  --fit-color-text-inverse: #ffffff;
+
+  --fit-color-primary: #0070d2;
+  --fit-color-primary-soft: #e5f2ff;
+  --fit-color-primary-hover: #005bb0;
+  --fit-color-primary-active: #00458a;
+
+  --fit-color-danger: #c0392b;
+  --fit-color-danger-soft: #fdecea;
+  --fit-color-warning: #f39c12;
+  --fit-color-warning-soft: #fff6e5;
+  --fit-color-success: #1c8c4c;
+  --fit-color-success-soft: #e5f7ee;
+
+  --fit-color-focus-ring: #1a73e8;
+
+  /* Elevation */
+  --fit-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --fit-shadow-md: 0 4px 10px rgba(15, 23, 42, 0.12);
+
+  /* Transitions */
+  --fit-transition-fast: 150ms ease-out;
+  --fit-transition-normal: 250ms ease-out;
+
+  /* Z-index */
+  --fit-z-tooltip: 1000;
+  --fit-z-modal-backdrop: 1030;
+  --fit-z-modal: 1040;
+}
+
+/* ------------------------------
+   Base reset-ish helpers
+------------------------------ */
+
+.fit-root {
+  font-family: var(--fit-font-family-base);
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+}
+
+/* A generic control style for inputs, selects, etc. */
+.fit-control {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: var(--fit-control-height);
+  padding-inline: var(--fit-space-sm);
+  border-radius: var(--fit-radius-pill);
+  border: 1px solid var(--fit-color-border);
+  background-color: var(--fit-color-bg);
+  font-size: var(--fit-font-size-base);
+  font-weight: var(--fit-font-weight-normal);
+  line-height: var(--fit-line-height-tight);
+  color: var(--fit-color-text);
+  outline: none;
+  transition: border-color var(--fit-transition-fast),
+    box-shadow var(--fit-transition-fast),
+    background-color var(--fit-transition-fast),
+    color var(--fit-transition-fast);
+}
+
+.fit-control:hover {
+  border-color: var(--fit-color-border-strong);
+}
+
+.fit-control:focus,
+.fit-control:focus-visible {
+  border-color: var(--fit-color-border-strong);
+  box-shadow: 0 0 0 2px rgba(160, 175, 192, 0.2);
+}
+
+/* Disabled state helper */
+.fit-control--disabled,
+.fit-control[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: var(--fit-color-bg-muted);
+}
+
+.fit-btn[disabled],
+.fit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ------------------------------
+   Buttons
+------------------------------ */
+
+.fit-btn {
+  @apply fit-control; /* If you’re not using Tailwind, ignore this line and keep styles below */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--fit-radius-pill);
+  padding-inline: var(--fit-space-md);
+  border-width: 1px;
+  border-style: solid;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: var(--fit-font-weight-medium);
+  background-color: transparent;
+  border-color: var(--fit-color-primary);
+  color: var(--fit-color-primary);
+}
+
+.fit-btn:hover {
+  background-color: var(--fit-color-primary-soft);
+}
+
+.fit-btn:active {
+  background-color: var(--fit-color-primary-active);
+  color: var(--fit-color-text-inverse);
+}
+
+/* Variants */
+.fit-btn--primary {
+  background-color: var(--fit-color-primary);
+  border-color: var(--fit-color-primary);
+  color: var(--fit-color-text-inverse);
+}
+
+.fit-btn--primary:hover {
+  background-color: var(--fit-color-primary-hover);
+}
+
+.fit-btn--secondary {
+  background-color: var(--fit-color-bg);
+  border-color: var(--fit-color-border-strong);
+  color: var(--fit-color-text);
+}
+
+.fit-btn--ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--fit-color-primary);
+}
+
+.fit-btn--danger {
+  background-color: var(--fit-color-danger);
+  border-color: var(--fit-color-danger);
+  color: var(--fit-color-text-inverse);
+}
+
+.fit-btn--icon-left > .fit-btn__icon {
+  margin-right: var(--fit-space-xs);
+}
+
+.fit-btn--icon-right > .fit-btn__icon {
+  margin-left: var(--fit-space-xs);
+}
+
+/* Loading state */
+.fit-btn--loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ------------------------------
+   Inputs (text, search, email)
+------------------------------ */
+
+.fit-input-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.fit-input {
+  @apply fit-control; /* ignore if not using Tailwind */
+  width: 100%;
+  padding-inline: var(--fit-space-sm);
+  border-radius: var(--fit-radius-pill);
+  border: 1px solid var(--fit-color-border);
+  transition: border-color var(--fit-transition-fast),
+    border-width var(--fit-transition-fast);
+}
+
+.fit-input:hover {
+  border-color: var(--fit-color-border-strong);
+}
+
+.fit-input:focus,
+.fit-input:focus-visible {
+  border: 1px solid var(--fit-color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 112, 210, 0.2);
+}
+
+.fit-input--icon-left {
+  padding-left: calc(var(--fit-space-sm) + 0.1rem);
+}
+
+.fit-input--icon-right {
+  padding-right: calc(var(--fit-space-sm) + 0.5rem);
+}
+
+.fit-input__icon {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  color: var(--fit-color-text-muted);
+}
+
+.fit-input__icon--left {
+  left: var(--fit-space-sm);
+}
+
+.fit-input__icon--right {
+  right: var(--fit-space-sm);
+}
+
+/* ------------------------------
+   Select / Dropdown
+------------------------------ */
+
+.fit-select {
+  @apply fit-control; /* ignore if not using Tailwind */
+  appearance: none;
+  background-color: var(--fit-color-bg);
+  background-image: none;
+  padding-left: var(--fit-space-md);
+  padding-right: calc(var(--fit-space-md) + 1rem);
+  border-radius: var(--fit-radius-pill);
+  cursor: pointer;
+  color: var(--fit-color-text);
+  font-weight: var(--fit-font-weight-normal);
+}
+
+.fit-select option {
+  color: var(--fit-color-text);
+  font-weight: var(--fit-font-weight-normal);
+}
+
+.fit-select option[disabled] {
+  color: var(--fit-color-text-muted);
+}
+
+.fit-select-wrapper {
+  position: relative;
+  display: inline-flex;
+  gap: var(--fit-space-sm);
+}
+
+.fit-select__chevron {
+  position: absolute;
+  right: var(--fit-space-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: var(--fit-font-size-xs);
+  color: var(--fit-color-text-muted);
+}
+
+/* ------------------------------
+   Checkbox
+------------------------------ */
+
+.fit-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fit-space-xs);
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+  cursor: pointer;
+}
+
+.fit-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fit-checkbox__box {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: var(--fit-radius-sm);
+  border: 1px solid var(--fit-color-border-strong);
+  background-color: var(--fit-color-bg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--fit-transition-fast),
+    border-color var(--fit-transition-fast),
+    box-shadow var(--fit-transition-fast);
+}
+
+.fit-checkbox__input:checked + .fit-checkbox__box {
+  background-color: var(--fit-color-primary);
+  border-color: var(--fit-color-primary);
+  color: var(--fit-color-text-inverse);
+}
+
+/* ------------------------------
+   Toggle / Switch
+------------------------------ */
+
+.fit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fit-space-xs);
+  cursor: pointer;
+}
+
+.fit-toggle__track {
+  width: 2.2rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  background-color: var(--fit-color-border);
+  position: relative;
+  transition: background-color var(--fit-transition-fast);
+}
+
+.fit-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 999px;
+  background-color: var(--fit-color-bg);
+  box-shadow: var(--fit-shadow-sm);
+  transition: transform var(--fit-transition-fast);
+}
+
+.fit-toggle--checked .fit-toggle__track {
+  background-color: var(--fit-color-success);
+}
+
+.fit-toggle--checked .fit-toggle__thumb {
+  transform: translateX(1rem);
+}
+
+/* ------------------------------
+   Badges
+------------------------------ */
+
+.fit-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--fit-radius-pill);
+  padding-inline: var(--fit-space-sm);
+  height: 1.25rem;
+  font-size: var(--fit-font-size-xs);
+  font-weight: var(--fit-font-weight-medium);
+  white-space: nowrap;
+}
+
+.fit-badge--default {
+  background-color: var(--fit-color-bg-muted);
+  color: var(--fit-color-text-muted);
+}
+
+.fit-badge--success {
+  background-color: var(--fit-color-success-soft);
+  color: var(--fit-color-success);
+}
+
+.fit-badge--warning {
+  background-color: var(--fit-color-warning-soft);
+  color: var(--fit-color-warning);
+}
+
+.fit-badge--danger {
+  background-color: var(--fit-color-danger-soft);
+  color: var(--fit-color-danger);
+}
+
+/* ------------------------------
+   Table
+------------------------------ */
+
+.fit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fit-font-size-base);
+}
+
+.fit-table thead {
+  background-color: var(--fit-color-bg-subtle);
+}
+
+.fit-table th,
+.fit-table td {
+  padding: var(--fit-space-xs) var(--fit-space-sm);
+  border-bottom: 1px solid var(--fit-color-border);
+  text-align: left;
+}
+
+.fit-table__header-cell {
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text-muted);
+  font-size: var(--fit-font-size-sm);
+  white-space: nowrap;
+}
+
+.fit-table__cell {
+  font-weight: var(--fit-font-weight-normal);
+  color: var(--fit-color-text);
+}
+
+/* Hover row */
+.fit-table tr:hover td {
+  background-color: var(--fit-color-bg-muted);
+}
+
+/* ------------------------------
+   Pagination
+------------------------------ */
+
+.fit-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+  font-size: var(--fit-font-size-sm);
+  color: var(--fit-color-text-muted);
+}
+
+.fit-pagination__button {
+  @apply fit-btn; /* ignore if not using Tailwind */
+  padding-inline: var(--fit-space-sm);
+}
+
+/* ------------------------------
+   Modal
+------------------------------ */
+
+.fit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.45);
+  z-index: var(--fit-z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fit-modal {
+  background-color: var(--fit-color-bg);
+  border-radius: var(--fit-radius-lg);
+  box-shadow: var(--fit-shadow-md);
+  padding: var(--fit-space-lg);
+  max-width: 32rem;
+  width: 100%;
+  z-index: var(--fit-z-modal);
+}
+
+.fit-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--fit-space-md);
+  font-size: var(--fit-font-size-base);
+  font-weight: var(--fit-font-weight-semibold);
+}
+
+.fit-modal__body {
+  margin-bottom: var(--fit-space-md);
+}
+
+.fit-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--fit-space-sm);
+}
+
+/* ------------------------------
+   Layout helpers
+------------------------------ */
+
+.fit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+}
+
+.fit-row--space-between {
+  justify-content: space-between;
+}
+
+.fit-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fit-space-sm);
+}
+
+.fit-stack-md {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fit-space-md);
+}

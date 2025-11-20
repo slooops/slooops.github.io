@@ -1,0 +1,46 @@
+<div class="fit-admin-user-table">
+  <div class="fit-admin-user-table__header">
+    <h1 class="fit-admin-user-table__title">User Access Management</h1>
+    <p class="fit-admin-user-table__description">
+      Manage user access and permissions for the Revenue Operations Dashboard.
+    </p>
+  </div>
+
+  <app-filter-bar
+    [searchValue]="searchValue"
+    [roleOptions]="roleOptions"
+    [selectedRole]="selectedRole"
+    [enabledFilter]="enabledFilter"
+    (searchChange)="onSearchChange($event)"
+    (roleFilterChange)="onRoleFilterChange($event)"
+    (enabledFilterChange)="onEnabledFilterChange($event)"
+    (addUserClick)="onAddUser()"
+  >
+  </app-filter-bar>
+
+  <app-data-table
+    [columns]="columns"
+    [rows]="filteredUsers"
+    [enableGlobalSearch]="false"
+    [enableSelection]="true"
+    [pageSizeOptions]="[25, 50, 100]"
+    (rowClick)="onRowClick($event)"
+    (selectionChange)="onSelectionChange($event)"
+  >
+  </app-data-table>
+
+  <app-modal-shell
+    [title]="isEditMode ? 'Edit User' : 'Add New User'"
+    [isOpen]="isModalOpen"
+    (close)="closeModal()"
+  >
+    <app-user-form
+      [value]="currentUserData"
+      [roleOptions]="roleOptions"
+      [isEdit]="isEditMode"
+      (submit)="onUserFormSubmit($event)"
+      (cancel)="onUserFormCancel()"
+    >
+    </app-user-form>
+  </app-modal-shell>
+</div>

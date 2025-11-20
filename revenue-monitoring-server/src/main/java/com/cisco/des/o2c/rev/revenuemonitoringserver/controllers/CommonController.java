@@ -18,13 +18,13 @@ public class CommonController {
     @Autowired
     CommonService service;
 
-    //Summaries
+    // Summaries
     @GetMapping("/invoice-to-cash-summary")
     public ResponseEntity<List<Map<String, Object>>> getInvoiceoCashSummary() {
         return new ResponseEntity<>(service.getInvoiceToCashSummary(), HttpStatus.OK);
     }
 
-    //Common Methods
+    // Common Methods
     @GetMapping("/summary-assignment-users")
     public ResponseEntity<List<Map<String, Object>>> getSummaryAssignmentUsers() {
         return new ResponseEntity<>(service.getSummaryAssignmentUsers(), HttpStatus.OK);
@@ -33,6 +33,11 @@ public class CommonController {
     @GetMapping("/monitoring-period-status")
     public ResponseEntity<List<Map<String, Object>>> getMonitoringPeriodStatus() {
         return new ResponseEntity<>(service.getMonitoringPeriodStatus(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/user-roles")
+    public ResponseEntity<List<Map<String, Object>>> getAllUserRoles() {
+        return new ResponseEntity<>(service.getAllUserRoles(), HttpStatus.OK);
     }
 
     @GetMapping(value = "/user-role")
