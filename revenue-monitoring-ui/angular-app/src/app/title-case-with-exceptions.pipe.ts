@@ -11,6 +11,8 @@ export class TitleCaseWithExceptionsPipe implements PipeTransform {
     const mixedCaseMap: { [key: string]: string } = {
       QOQ: 'QoQ',
       YOY: 'YoY',
+      MOM: 'MoM',
+      PQM: 'PQM',
     };
 
     // Check if the entire value matches a quarter pattern (e.g., Q1FY26)

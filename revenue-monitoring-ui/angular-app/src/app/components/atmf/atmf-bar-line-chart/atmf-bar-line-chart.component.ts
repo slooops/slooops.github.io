@@ -33,8 +33,8 @@ export class AtmfBarLineChartComponent implements OnChanges {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
 
-            // Format percent change with % symbol
-            if (label.includes('QoQ %')) {
+            // Format any percentage change labels with % symbol
+            if (label.includes('%')) {
               return `${label}: ${value.toFixed(1)}%`;
             }
             // Format numbers with commas
@@ -123,7 +123,7 @@ export class AtmfBarLineChartComponent implements OnChanges {
       datasets: [
         {
           type: 'line',
-          label: 'Product QoQ %',
+          label: 'Product % Change',
           data: productPercentChanges || [],
           borderColor: '#e69710ff', // Product line warning color
           backgroundColor: 'transparent',
@@ -137,7 +137,7 @@ export class AtmfBarLineChartComponent implements OnChanges {
         },
         {
           type: 'line',
-          label: 'Service QoQ %',
+          label: 'Service % Change',
           data: servicePercentChanges || [],
           borderColor: '#7D8AFF', // Service line color
           backgroundColor: 'transparent',

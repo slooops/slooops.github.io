@@ -1,6 +1,6 @@
 <!-- Page Title Container -->
 <div class="section-title" style="margin: 1rem">
-  Period Close Tracking (Internal)
+  Period Close (Internal)
 
   <span style="flex: 1"></span>
   <span class="legend-item" style="margin-right: 1.2rem">
@@ -74,11 +74,11 @@
                 {{ row }}
               </td>
             </tr>
-            <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
+            <!-- <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
               <td class="table-timings" *ngFor="let row of pcloseActualsTime">
                 {{ row }}
               </td>
-            </tr>
+            </tr> -->
 
             <tr *ngFor="let row of pcloseMonthEndStatusTableData">
               <td *ngFor="let category of templateObject.keys(row)">
@@ -201,11 +201,11 @@
                 {{ row }}
               </td>
             </tr>
-            <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
+            <!-- <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
               <td class="table-timings" *ngFor="let row of pcloseActualsTime">
                 {{ row }}
               </td>
-            </tr>
+            </tr> -->
 
             <tr *ngFor="let row of mcloseMonthEndStatusTableData">
               <td *ngFor="let category of templateObject.keys(row)">

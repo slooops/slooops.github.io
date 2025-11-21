@@ -165,7 +165,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (event instanceof NavigationEnd) {
         if (event.url.includes('/period-close-tracking')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Pre-Close (Internal)'
+            'Continuous Monitoring > Period Close (Internal)'
           );
         } else if (event.url.includes('/invoice-to-cash')) {
           this.menuService.updateHeader(

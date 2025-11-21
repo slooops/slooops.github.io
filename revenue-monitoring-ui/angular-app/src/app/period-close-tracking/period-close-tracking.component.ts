@@ -64,7 +64,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   // 'AR_INTERFACE', 'INVOICING', 'ACCOUNTING', 'INTERCOMPANY','NGCCRM', 'GL_POSTING'
   pcloseExecutionWindow: string[] = [
-    'Scheduled time PST',
+    'Estimated time',
     '07:00 - 08:30',
     '08:30 - 09:30',
     '09:30 - 14:30',
@@ -74,7 +74,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   ];
 
   pcloseActualsTime: string[] = [
-    'Actual time PST',
+    'Actual time',
     ' - ',
     ' - ',
     ' - ',
@@ -83,7 +83,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     ' - ',
   ];
   mcloseExecutionWindow: string[] = [
-    'Scheduled time PST',
+    'Estimated time',
     '00:25 - 01:10',
     '01:10 - 02:10',
     '02:10 - 05:40',
@@ -463,7 +463,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getInterfaceLoad() {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
-        console.log(data);
+        console.log('interface load:', data);
 
         this.precloseInterfaceLoadData = data['PRECLOSE'];
         this.midcloseInterfaceLoadData = data['MIDCLOSE'];
@@ -486,84 +486,92 @@ export class PeriodCloseTrackingComponent implements OnInit {
           this.midcloseInterfaceLoadData
         );
 
-        // Transform table data to include latest quarter and rename headers
-        const precloseTableData = this.precloseInterfaceLoadData.map((row) => {
-          // Get all quarter keys (exclude LINE_TYPE, QUARTER OVER QUARTER, YEAR OVER YEAR)
-          const quarters = Object.keys(row).filter(
+        // Helper function to get period keys (exclude LINE_TYPE and percentage columns)
+        const getPeriodKeys = (row: any) => {
+          return Object.keys(row).filter(
             (key) =>
               key !== 'LINE_TYPE' &&
               key !== 'QUARTER OVER QUARTER' &&
-              key !== 'YEAR OVER YEAR'
+              key !== 'YEAR OVER YEAR' &&
+              key !== 'MONTH OVER MONTH' &&
+              key !== 'PRIOR QUARTER MONTH'
           );
+        };
 
-          // Get the latest quarter (last in array)
-          const latestQuarter = quarters[quarters.length - 1];
-          const latestQuarterValue = row[latestQuarter];
+        // Helper function to determine if data has QoQ/YoY or MoM/PQM
+        const hasQuarterlyData = (row: any) => {
+          return 'QUARTER OVER QUARTER' in row || 'YEAR OVER YEAR' in row;
+        };
 
-          return {
-            LINE_TYPE: row['LINE_TYPE'],
-            [latestQuarter]: latestQuarterValue,
-            'QoQ %': row['QUARTER OVER QUARTER'],
-            'YoY %': row['YEAR OVER YEAR'],
-          };
-        });
+        const hasMonthlyData = (row: any) => {
+          return 'MONTH OVER MONTH' in row || 'PRIOR QUARTER MONTH' in row;
+        };
 
-        const midcloseTableData = this.midcloseInterfaceLoadData.map((row) => {
-          // Get all quarter keys
-          const quarters = Object.keys(row).filter(
-            (key) =>
-              key !== 'LINE_TYPE' &&
-              key !== 'QUARTER OVER QUARTER' &&
-              key !== 'YEAR OVER YEAR'
-          );
+        // Transform table data - handle both quarterly and monthly percentages
+        const transformTableData = (dataArray: any[]) => {
+          if (!dataArray || dataArray.length === 0) return [];
 
-          // Get the latest quarter (last in array)
-          const latestQuarter = quarters[quarters.length - 1];
-          const latestQuarterValue = row[latestQuarter];
+          const isQuarterly = hasQuarterlyData(dataArray[0]);
+          const isMonthly = hasMonthlyData(dataArray[0]);
 
-          return {
-            LINE_TYPE: row['LINE_TYPE'],
-            [latestQuarter]: latestQuarterValue,
-            'QoQ %': row['QUARTER OVER QUARTER'],
-            'YoY %': row['YEAR OVER YEAR'],
-          };
-        });
+          return dataArray.map((row) => {
+            const periods = getPeriodKeys(row);
+            const latestPeriod = periods[periods.length - 1];
+            const latestPeriodValue = row[latestPeriod];
 
-        // Get the latest quarter name dynamically for column headers
-        const precloseQuarters = Object.keys(
-          this.precloseInterfaceLoadData[0]
-        ).filter(
-          (key) =>
-            key !== 'LINE_TYPE' &&
-            key !== 'QUARTER OVER QUARTER' &&
-            key !== 'YEAR OVER YEAR'
+            const transformedRow: any = {
+              LINE_TYPE: row['LINE_TYPE'],
+              [latestPeriod]: latestPeriodValue,
+            };
+
+            // Add appropriate percentage columns based on data type
+            if (isQuarterly) {
+              transformedRow['QoQ %'] = row['QUARTER OVER QUARTER'];
+              transformedRow['YoY %'] = row['YEAR OVER YEAR'];
+            }
+            if (isMonthly) {
+              transformedRow['MoM %'] = row['MONTH OVER MONTH'];
+              transformedRow['PQM %'] = row['PRIOR QUARTER MONTH'];
+            }
+
+            return transformedRow;
+          });
+        };
+
+        const precloseTableData = transformTableData(
+          this.precloseInterfaceLoadData
         );
-        const latestPcloseQuarter =
-          precloseQuarters[precloseQuarters.length - 1];
-
-        const midcloseQuarters = Object.keys(
-          this.midcloseInterfaceLoadData[0]
-        ).filter(
-          (key) =>
-            key !== 'LINE_TYPE' &&
-            key !== 'QUARTER OVER QUARTER' &&
-            key !== 'YEAR OVER YEAR'
+        const midcloseTableData = transformTableData(
+          this.midcloseInterfaceLoadData
         );
-        const latestMcloseQuarter =
-          midcloseQuarters[midcloseQuarters.length - 1];
 
-        this.pcloseInterfaceLoadColumns = [
-          'LINE_TYPE',
-          latestPcloseQuarter,
-          'QoQ %',
-          'YoY %',
-        ];
-        this.mcloseInterfaceLoadColumns = [
-          'LINE_TYPE',
-          latestMcloseQuarter,
-          'QoQ %',
-          'YoY %',
-        ];
+        // Build column arrays dynamically based on what's in the data
+        const buildColumns = (dataArray: any[]) => {
+          if (!dataArray || dataArray.length === 0) return ['LINE_TYPE'];
+
+          const periods = getPeriodKeys(dataArray[0]);
+          const latestPeriod = periods[periods.length - 1];
+          const columns = ['LINE_TYPE', latestPeriod];
+
+          const isQuarterly = hasQuarterlyData(dataArray[0]);
+          const isMonthly = hasMonthlyData(dataArray[0]);
+
+          if (isQuarterly) {
+            columns.push('QoQ %', 'YoY %');
+          }
+          if (isMonthly) {
+            columns.push('MoM %', 'PQM %');
+          }
+
+          return columns;
+        };
+
+        this.pcloseInterfaceLoadColumns = buildColumns(
+          this.precloseInterfaceLoadData
+        );
+        this.mcloseInterfaceLoadColumns = buildColumns(
+          this.midcloseInterfaceLoadData
+        );
 
         this.precloseInterfaceLoadDatasource = new MatTableDataSource<any>(
           precloseTableData
@@ -586,12 +594,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
   transformInterfaceDataForChart(data: any[]): any {
     if (!data || data.length === 0) return null;
 
-    // Extract quarters (exclude LINE_TYPE, QUARTER OVER QUARTER, YEAR OVER YEAR)
-    const quarters = Object.keys(data[0]).filter(
+    // Extract periods (exclude LINE_TYPE and all percentage columns)
+    const periods = Object.keys(data[0]).filter(
       (key) =>
         key !== 'LINE_TYPE' &&
         key !== 'QUARTER OVER QUARTER' &&
-        key !== 'YEAR OVER YEAR'
+        key !== 'YEAR OVER YEAR' &&
+        key !== 'MONTH OVER MONTH' &&
+        key !== 'PRIOR QUARTER MONTH'
     );
 
     // Find PRODUCT and SERVICE rows
@@ -599,33 +609,33 @@ export class PeriodCloseTrackingComponent implements OnInit {
     const serviceRow = data.find((row) => row.LINE_TYPE === 'SERVICE');
 
     // Build datasets
-    const productValues = quarters.map((q) => productRow?.[q] || 0);
-    const serviceValues = quarters.map((q) => serviceRow?.[q] || 0);
+    const productValues = periods.map((p) => productRow?.[p] || 0);
+    const serviceValues = periods.map((p) => serviceRow?.[p] || 0);
 
-    // Calculate quarter-over-quarter percent changes for Product
-    const productPercentChanges = quarters.map((q, index) => {
-      if (index === 0) return 0; // No previous quarter for first data point
+    // Calculate period-over-period percent changes for Product
+    const productPercentChanges = periods.map((p, index) => {
+      if (index === 0) return 0; // No previous period for first data point
 
-      const prevValue = productRow?.[quarters[index - 1]] || 0;
-      const currentValue = productRow?.[q] || 0;
+      const prevValue = productRow?.[periods[index - 1]] || 0;
+      const currentValue = productRow?.[p] || 0;
 
       if (prevValue === 0) return 0;
       return Math.round(((currentValue - prevValue) / prevValue) * 100);
     });
 
-    // Calculate quarter-over-quarter percent changes for Service
-    const servicePercentChanges = quarters.map((q, index) => {
-      if (index === 0) return 0; // No previous quarter for first data point
+    // Calculate period-over-period percent changes for Service
+    const servicePercentChanges = periods.map((p, index) => {
+      if (index === 0) return 0; // No previous period for first data point
 
-      const prevValue = serviceRow?.[quarters[index - 1]] || 0;
-      const currentValue = serviceRow?.[q] || 0;
+      const prevValue = serviceRow?.[periods[index - 1]] || 0;
+      const currentValue = serviceRow?.[p] || 0;
 
       if (prevValue === 0) return 0;
       return Math.round(((currentValue - prevValue) / prevValue) * 100);
     });
 
     return {
-      labels: quarters,
+      labels: periods,
       productValues,
       serviceValues,
       productPercentChanges,
