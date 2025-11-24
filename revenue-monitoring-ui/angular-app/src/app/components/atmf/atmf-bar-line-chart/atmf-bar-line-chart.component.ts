@@ -126,27 +126,33 @@ export class AtmfBarLineChartComponent implements OnChanges {
           label: 'Product % Change',
           data: productPercentChanges || [],
           borderColor: '#e69710ff', // Product line warning color
-          backgroundColor: 'transparent',
+          backgroundColor: '#e69710ff',
           borderWidth: 3,
           borderDash: [5, 5],
           fill: false,
           yAxisID: 'y1',
-          pointRadius: 0, // No dots
-          pointHoverRadius: 0, // No dots on hover
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#e69710ff',
+          pointBorderColor: '#e69710ff',
           order: 0, // Draw last (in front)
+          tension: 0.3,
         },
         {
           type: 'line',
           label: 'Service % Change',
           data: servicePercentChanges || [],
           borderColor: '#7D8AFF', // Service line color
-          backgroundColor: 'transparent',
+          backgroundColor: '#7D8AFF',
           borderWidth: 3,
           fill: false,
           yAxisID: 'y1',
-          pointRadius: 0, // No dots
-          pointHoverRadius: 0, // No dots on hover
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#7D8AFF',
+          pointBorderColor: '#7D8AFF',
           order: 0, // Draw last (in front)
+          tension: 0.3,
         },
         {
           type: 'bar',
