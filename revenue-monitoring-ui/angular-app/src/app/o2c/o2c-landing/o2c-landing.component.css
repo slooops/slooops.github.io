@@ -1,0 +1,28 @@
+@import "src/assets/o2c-common-styles.css";
+
+/* Welcome message styling */
+.welcome-message {
+  color: #1990fa;
+}
+
+.o2c-container {
+  display: flex;
+  height: 100%;
+  gap: 6px;
+  margin: 1vh 22px;
+}
+
+.exceptions-tab-group {
+  margin: -20px 0 0 20px;
+}
+
+.full-width-tab-content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hide the tab body content since we're rendering content separately */
+.exceptions-tab-group ::ng-deep .mat-tab-body-wrapper {
+  display: none;
+}

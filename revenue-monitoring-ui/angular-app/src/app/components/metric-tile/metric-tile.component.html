@@ -1,0 +1,14 @@
+<div
+  class="metric-tile"
+  [ngClass]="
+    getStatusClass() +
+    (isActive ? ' active' : '') +
+    (!isClickable ? ' non-clickable' : '')
+  "
+  (click)="onTileClick()"
+>
+  <div class="metric-content">
+    <div class="metric-name">{{ name }}</div>
+    <div class="metric-percentage">{{ displayValue }}</div>
+  </div>
+</div>

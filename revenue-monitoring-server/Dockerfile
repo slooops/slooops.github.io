@@ -1,19 +1,22 @@
-FROM openjdk:11
+FROM eclipse-temurin:11-jre
 
-ENV APP_HOME /server
+# Application directory
+ENV APP_HOME=/server
+WORKDIR $APP_HOME
 
-USER root
+# Create non-root user (system user with no shell)
+RUN useradd -r -u 1001 -g root rev
+
+# Copy pre-built jar produced by CI (ensure 'mvn package' ran before docker build)
+COPY target/revenue-monitoring-server.jar app.jar
+
+# Set ownership for least privilege runtime
+RUN chown rev:root app.jar
+
 EXPOSE 8080
 
-RUN mkdir $APP_HOME
-RUN adduser --system --group rev
+# Switch to non-root user for runtime
+USER rev
 
-COPY package/repo $APP_HOME
-
-RUN chown -R rev:rev $APP_HOME
-RUN chmod -R 777 $APP_HOME
-
-WORKDIR $APP_HOME
-ENTRYPOINT [ "java" , "-jar" , "revenue-monitoring-server.jar", "&" ]
-
-
+# Run the Spring Boot jar in foreground (no trailing ampersand)
+ENTRYPOINT ["java","-jar","app.jar"]

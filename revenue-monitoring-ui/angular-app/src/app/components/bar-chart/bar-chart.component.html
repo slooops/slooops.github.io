@@ -1,0 +1,24 @@
+<div class="bar-chart-wrapper">
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Loading chart...</p>
+  </div>
+
+  <div
+    #barChartContainer
+    [id]="canvasId"
+    class="bar-chart-container"
+    [style.display]="isLoading ? 'none' : 'block'"
+  ></div>
+
+  <!-- Legend -->
+  <div
+    *ngIf="showLegend && legendItems.length > 0 && stacked"
+    class="chart-legend"
+  >
+    <div class="legend-item" *ngFor="let item of legendItems">
+      <span class="legend-color" [style.background-color]="item.color"></span>
+      <span class="legend-label">{{ item.total }} {{ item.name }}</span>
+    </div>
+  </div>
+</div>

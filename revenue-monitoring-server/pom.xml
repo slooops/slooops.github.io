@@ -19,17 +19,33 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>cisco maven</id>
-			<name>Maven Repository Switchboard</name>
-			<layout>default</layout>
-			<url>https://repo-art.cisco.com/artifactory/cisco-shared-libs-local</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</snapshots>
+			<id>jcenter-cache</id>
+			<url>https://repo-art.cisco.com/artifactory/jcenter-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>https://repo1.maven.org/maven2</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>jcenter-cache-plugins</id>
+			<url>https://repo-art.cisco.com/artifactory/jcenter-cache</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>central-plugins</id>
+			<url>https://repo1.maven.org/maven2</url>
+			<releases><enabled>true</enabled></releases>
+			<snapshots><enabled>false</enabled></snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -56,10 +72,8 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.cisco.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-			<version>12.1.0.2</version>
-			<scope>compile</scope>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc8</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -132,7 +146,11 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.2.3</version> <!-- Use the latest version -->
 		</dependency>
-
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>
@@ -160,32 +178,32 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<outputDirectory>${project.build.directory}/../package/repo</outputDirectory>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.0</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.1</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
 				<configuration>
-					<filesets>
-						<fileset>
-							<directory>package</directory>
-							<includes>
-								<include>repo/*.jar</include>
-							</includes>
-							<followSymlinks>false</followSymlinks>
-						</fileset>
-					</filesets>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<encoding>UTF-8</encoding>
+					<!-- Use source/target instead of release for compatibility -->
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version> <!-- Downgraded to be compatible with Maven 3.3.1 -->
 			</plugin>
 		</plugins>
 	</build>

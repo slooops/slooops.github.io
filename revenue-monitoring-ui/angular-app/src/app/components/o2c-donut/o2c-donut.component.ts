@@ -1,28 +1,31 @@
-import { Component, Input } from '@angular/core';
-import { Chart, registerables } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { ChartData, ChartDataset } from 'chart.js/auto';
-import { ChartOptions } from 'chart.js'; // Import ChartOptions for proper typing
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+} from '@angular/core';
+import { Chart } from 'chart.js';
 
 @Component({
   selector: 'app-o2c-donut',
   templateUrl: './o2c-donut.component.html',
   styleUrl: './o2c-donut.component.css',
 })
-export class O2cDonutComponent {
+export class O2cDonutComponent implements OnChanges, OnDestroy {
   @Input() data: {
     INCIDENT_TYPE: string;
     INCIDENT_COUNT: number;
     INCIDENT_VALUE: number;
   }[] = [];
 
-  @Input() canvasId: string = 'donutCanvas'; // fallback if not set
-
+  @Input() canvasId: string = 'donutCanvas';
+  @Input() isLoading?: boolean = false; // Add explicit loading state
   @Input() showCircleBackground?: boolean = true;
-
   @Input() showLegend?: boolean = true;
-
   @Input() chartSize?: string = '125px';
+  @Input() noDataMessage: string = 'No exceptions found';
 
   legendItems: {
     type: string;
@@ -40,11 +43,140 @@ export class O2cDonutComponent {
     }[];
   } = {};
 
-  ngOnInit() {
-    // Make sure chart container styles get applied before rendering
-    setTimeout(() => {
-      this.renderPieChart(this.data, this.canvasId);
-    });
+  hasReceivedData: boolean = false;
+
+  private chart: any = null;
+  private animationFrame: number | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data'] || changes['isLoading']) {
+      // Use the explicit loading state from parent
+      if (this.isLoading) {
+        // Still loading - show loading state
+        this.hasReceivedData = false;
+        return;
+      }
+
+      // Not loading anymore - we have final data (empty or populated)
+      this.hasReceivedData = true;
+
+      if (this.data && this.data.length > 0) {
+        setTimeout(() => {
+          this.renderPieChart(this.data, this.canvasId);
+        }, 0);
+      } else {
+        this.legendItems = [];
+        this.clearCanvas();
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroyChart();
+  }
+
+  private destroyChart(): void {
+    // Cancel any pending animation frames
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+
+    // Properly destroy Chart.js instance
+    if (this.chart) {
+      this.chart.destroy();
+      this.chart = null;
+    }
+
+    // Clear canvas context
+    this.clearCanvas();
+  }
+
+  // Helper method to clear canvas
+  private clearCanvas(): void {
+    const canvas = document.getElementById(this.canvasId) as HTMLCanvasElement;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+  }
+
+  // Getter for template logic
+  get showLoadingState(): boolean {
+    return this.isLoading;
+  }
+
+  get showNoDataState(): boolean {
+    return (
+      !this.isLoading &&
+      this.hasReceivedData &&
+      (!this.data || this.data.length === 0)
+    );
+  }
+
+  get showChartAndLegend(): boolean {
+    return (
+      !this.isLoading &&
+      this.hasReceivedData &&
+      this.data &&
+      this.data.length > 0
+    );
+  }
+
+  private formatValueForDonutCenter(amount: number): string {
+    let value: string;
+    let suffix: string = '';
+
+    if (amount >= 1_000_000_000) {
+      // Billions
+      const billions = amount / 1_000_000_000;
+      if (billions < 10) {
+        value = billions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (billions < 100) {
+        value = billions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = billions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = 'B';
+    } else if (amount >= 1_000_000) {
+      // Millions
+      const millions = amount / 1_000_000;
+      if (millions < 10) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (millions < 100) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else if (millions < 1000) {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = millions.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = 'M';
+    } else if (amount >= 1_000) {
+      // Thousands
+      const thousands = amount / 1_000;
+      if (thousands < 10) {
+        value = thousands.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (thousands < 100) {
+        value = thousands.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = thousands.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = 'K';
+    } else {
+      // Less than 1,000
+      if (amount < 10) {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 2 });
+      } else if (amount < 100) {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 1 });
+      } else {
+        value = amount.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      }
+      suffix = '';
+    }
+
+    return `$${value}${suffix}`;
   }
 
   renderPieChart(
@@ -55,6 +187,15 @@ export class O2cDonutComponent {
     }[],
     canvasId: string
   ): void {
+    // Destroy existing chart first
+    this.destroyChart();
+
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     const pieColors = [
       '#399E20',
       '#FBAB2C',
@@ -86,21 +227,11 @@ export class O2cDonutComponent {
       0
     );
 
-    // Format total value, e.g., $4.2M
-    const formattedTotalValue =
-      totalValue >= 1_000_000
-        ? `$${(totalValue / 1_000_000).toFixed(1)} M`
-        : `$${totalValue.toLocaleString()} M`;
-
-    // Format count, handling empty/undefined values
+    const formattedTotalValue = this.formatValueForDonutCenter(totalValue);
     const formattedTotalCount = totalCount ? `#${totalCount}` : '';
 
-    const ctx = (
-      document.getElementById(canvasId) as HTMLCanvasElement
-    )?.getContext('2d');
-
     if (ctx) {
-      new Chart(ctx, {
+      this.chart = new Chart(ctx, {
         type: 'doughnut',
         data: {
           datasets: [
@@ -120,10 +251,7 @@ export class O2cDonutComponent {
             datalabels: { display: false },
           },
           hover: { mode: null },
-          animation: {
-            animateRotate: false,
-            animateScale: false,
-          },
+          animation: false,
           cutout: '70%',
         },
         plugins: [

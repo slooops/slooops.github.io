@@ -3,6 +3,7 @@
     class="custom-search-dropdown"
     [value]="searchType"
     (change)="onSearchTypeChange($event)"
+    [disabled]="isSearching"
   >
     <option value="order">Order Number</option>
     <option value="subscription">Subscription #</option>
@@ -14,7 +15,44 @@
     [value]="searchValue"
     (input)="onSearchValueChange($event)"
     (keyup.enter)="onSearch()"
+    [disabled]="isSearching"
+    [placeholder]="isSearching ? 'Searching...' : ''"
   />
 
-  <i class="svg-icon search-icon" (click)="onSearch()"></i>
+  <div class="search-icon-container">
+    <div *ngIf="isSearching" class="loading-spinner">
+      <svg width="16" height="16" viewBox="0 0 24 24">
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="#4e4e4e"
+          stroke-width="2"
+          fill="none"
+          stroke-dasharray="31.416"
+          stroke-dashoffset="31.416"
+        >
+          <animate
+            attributeName="stroke-dasharray"
+            dur="2s"
+            values="0 31.416;15.708 15.708;0 31.416;0 31.416"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="stroke-dashoffset"
+            dur="2s"
+            values="0;-15.708;-31.416;-31.416"
+            repeatCount="indefinite"
+          />
+        </circle>
+      </svg>
+    </div>
+
+    <!-- Search icon -->
+    <i
+      *ngIf="!isSearching"
+      class="svg-icon search-icon"
+      (click)="onSearch()"
+    ></i>
+  </div>
 </div>

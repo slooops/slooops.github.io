@@ -1,0 +1,143 @@
+<div class="esp-dashboard">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoadingQuarter">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-message">{{ loadingQuarterMessage }}</p>
+    </div>
+  </div>
+
+  <div class="dashboard-header">
+    <div class="header-main">
+      <div class="header-left">
+        <h1>ESP Case Data Review</h1>
+        <div class="quarter-filter">
+          <label>Quarter:</label>
+          <div
+            class="quarter-dropdown-wrapper"
+            (click)="$event.stopPropagation()"
+          >
+            <button
+              type="button"
+              class="quarter-dropdown-button"
+              (click)="toggleQuarterDropdown($event)"
+            >
+              {{ selectedQuarter }}
+              <span class="dropdown-arrow" [class.open]="showQuarterDropdown"
+                >▾</span
+              >
+            </button>
+            <div
+              class="quarter-dropdown-menu"
+              *ngIf="showQuarterDropdown"
+              (click)="$event.stopPropagation()"
+            >
+              <!-- <div class="quarter-dropdown-header">
+                <span>Select</span>
+              </div> -->
+              <div class="quarter-options">
+                <div
+                  class="quarter-option"
+                  *ngFor="let quarter of quarters"
+                  (click)="selectQuarter(quarter.value)"
+                >
+                  <input
+                    type="radio"
+                    [checked]="selectedQuarter === quarter.value"
+                    readonly
+                  />
+                  <span class="option-label">{{ quarter.label }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="period-info">
+        <!-- <span class="period-details">
+          Period name: <strong>SEP-26 (W4)</strong> | Period end date:
+          <strong>09/20/2025</strong> | Last Updated:
+          <strong>9/9/2025, 4:45:17 PM</strong>
+        </span> -->
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <div class="metrics-container">
+    <app-metric-tile
+      *ngFor="let metric of metricTiles"
+      [name]="metric.name"
+      [percentage]="metric.percentage"
+      [isActive]="isActive(metric.name)"
+      [isAccessible]="isTileAccessible(metric.name)"
+      (tileClick)="onTileClick($event)"
+    ></app-metric-tile>
+  </div>
+
+  <hr />
+
+  <!-- Content area that displays based on active tile -->
+  <ng-container [ngSwitch]="activeTab">
+    <div *ngSwitchCase="'Overall'" class="tile-content">
+      <!-- <app-caseiq></app-caseiq> -->
+    </div>
+
+    <div *ngSwitchCase="'Capital'" class="tile-content">
+      <app-caseiq-cap
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-cap>
+    </div>
+
+    <div *ngSwitchCase="'FPP'" class="tile-content">
+      <app-caseiq-fpp
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-fpp>
+    </div>
+
+    <div *ngSwitchCase="'I2C'" class="tile-content">
+      <app-caseiq-i2c
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-i2c>
+    </div>
+
+    <div *ngSwitchCase="'OM'" class="tile-content">
+      <app-caseiq-om
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-om>
+    </div>
+
+    <div *ngSwitchCase="'P2P'" class="tile-content">
+      <app-caseiq-p2p
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-p2p>
+    </div>
+
+    <div *ngSwitchCase="'SM'" class="tile-content">
+      <app-caseiq-sm
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-sm>
+    </div>
+
+    <div *ngSwitchCase="'AIT'" class="tile-content">
+      <app-caseiq-ait
+        [selectedQuarter]="selectedQuarter"
+        (uploadSuccess)="onUploadSuccess()"
+      ></app-caseiq-ait>
+    </div>
+
+    <!-- Default case when no tile is selected -->
+    <div *ngSwitchDefault class="tile-content default-content">
+      <h3>Not Authorized</h3>
+      <p>Please request for access.</p>
+    </div>
+  </ng-container>
+</div>
+<br /><br />

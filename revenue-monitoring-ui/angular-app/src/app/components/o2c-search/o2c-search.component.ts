@@ -15,6 +15,7 @@ import {
 export class O2cSearchComponent {
   searchValue: string = '';
   searchType: string = 'order'; // Default value
+  isSearching: boolean = false; // Add loading state
 
   o2cConnectorData: any[] = [];
 
@@ -37,7 +38,16 @@ export class O2cSearchComponent {
 
   onSearch(): void {
     const trimmedValue = this.searchValue.trim();
-    if (!trimmedValue) return;
+    if (!trimmedValue || this.isSearching) return; // Prevent duplicate searches
+
+    this.isSearching = true; // Start loading
+
+    // Emit search started payload to clear existing data and show loading states
+    this.searchContextService.emitSearchStarted({
+      searchType: this.searchType,
+      searchValue: trimmedValue,
+      isLoading: true,
+    });
 
     const columnMap: { [key: string]: string } = {
       order: 'WEBORDER_ID',
@@ -54,6 +64,9 @@ export class O2cSearchComponent {
       })
       .subscribe({
         next: (data: any) => {
+          console.log('Search results:', data);
+          this.isSearching = false; // Stop loading
+
           const orderIds: string[] = [
             ...new Set(
               data.map((r: any) => r.WEBORDER_ID).filter(Boolean) as string[]
@@ -66,6 +79,13 @@ export class O2cSearchComponent {
                 .filter(Boolean) as string[]
             ),
           ];
+          const subCodes: string[] = [
+            ...new Set(
+              data
+                .map((r: any) => r.SUBSCRIPTION_CODE)
+                .filter(Boolean) as string[]
+            ),
+          ];
           const trxNumbers: string[] = [
             ...new Set(
               data.map((r: any) => r.TRX_NUMBER).filter(Boolean) as string[]
@@ -74,9 +94,11 @@ export class O2cSearchComponent {
 
           this.searchContextService.emitSearchPayload({
             searchType: this.searchType,
+            searchValue: trimmedValue,
             orderId: orderIds[0] || 'No Results ',
             subRefIds: subRefIds,
             invoiceIds: trxNumbers,
+            subCodes: subCodes,
           });
 
           const isTabbedView = this.router.url.includes('business-insights');
@@ -85,14 +107,19 @@ export class O2cSearchComponent {
             this.router.navigate(['/o2c-360'], {
               queryParams: {
                 searchType: this.searchType,
+                searchValue: trimmedValue,
                 orderId: orderIds[0],
                 subRefIds: subRefIds.join(','),
                 invoiceIds: trxNumbers.join(','),
+                subCodes: subCodes.join(','),
               },
             });
           }
         },
-        error: (err) => console.error('Search error:', err),
+        error: (err) => {
+          console.error('Search error:', err);
+          this.isSearching = false; // Stop loading on error
+        },
       });
   }
 }

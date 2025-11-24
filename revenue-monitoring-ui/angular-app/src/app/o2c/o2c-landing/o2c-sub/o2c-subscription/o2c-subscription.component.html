@@ -1,0 +1,70 @@
+<div *ngIf="!showDetailView">
+  <div class="o2c-container accordion-container">
+    <div class="order-banner accordion-header order-status-banner">
+      <div class="status-dot"></div>
+      <div>Fulfillment to Invoicing</div>
+    </div>
+  </div>
+
+  <div class="o2c-container accordion-container">
+    <div class="o2c-donut-row">
+      <app-o2c-accordion
+        [title]="' Subscription Activation and Billing'"
+        [isOpen]="isOpen[1]"
+        (toggleOpen)="toggleAccordion(1)"
+        linkHref="#"
+        (linkClick)="showDetailTable('sab-order-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderSabPieChartData"
+          [isLoading]="orderSabLoading"
+          [noDataMessage]="getNoDataMessage('sab')"
+          canvasId="donutChart1"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+
+      <app-o2c-accordion
+        [title]="'Others'"
+        [isOpen]="isOpen[2]"
+        (toggleOpen)="toggleAccordion(2)"
+        linkHref="#"
+        (linkClick)="showDetailTable('subot-order-entered')"
+      >
+        <app-o2c-donut
+          [data]="orderSubotPieChartData"
+          [isLoading]="orderSubotLoading"
+          [noDataMessage]="getNoDataMessage('subot')"
+          canvasId="donutChart2"
+        ></app-o2c-donut>
+      </app-o2c-accordion>
+    </div>
+  </div>
+</div>
+
+<!-- Detail View (shown when a "View Details" link is clicked) -->
+<div *ngIf="showDetailView">
+  <div class="order-info" style="margin-top: 20px">
+    <button class="back-btn-floating" (click)="goBack()">
+      <i class="back-icon" style="margin-top: -4px"></i> Back
+    </button>
+    <div class="exception-title">
+      {{ getCurrentTitle() }}
+    </div>
+  </div>
+
+  <div class="accordion-header exceptions-padding">
+    <!-- {{ getCurrentSubtitle() }} -->
+    &nbsp;
+    <app-o2c-toolbar
+      [fileName]="getCurrentFileName()"
+      [data]="getCurrentDataSource()?.data || []"
+    ></app-o2c-toolbar>
+  </div>
+
+  <!-- Use direct method calls instead of config object -->
+  <app-o2c-table
+    [dataSource]="getCurrentDataSource()"
+    [displayedColumns]="getCurrentDisplayedColumns()"
+    [isLoading]="getCurrentLoadingState()"
+  ></app-o2c-table>
+</div>

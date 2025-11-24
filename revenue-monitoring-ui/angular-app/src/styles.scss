@@ -1,21 +1,6 @@
-/* You can add global styles to this file, and also import other style files */
-// @import url("css/cui-standard.min.css");
-
-.periodclosetable .table th {
-  background-color: #f7f7f7;
-  color: rgb(46, 46, 46);
+:root {
+  font-size: clamp(12px, 1vw + 0.5rem, 16px);
 }
-
-/* cui-table with borders is also striped */
-/* .cui .table.table--bordered > tbody > tr:nth-child(odd) {
-  background-color: var(--cui-table-striping-even);
-}
-.cui .table.table--bordered > tbody > tr:nth-child(even) {
-  background-color: var(--cui-table-striping-odd);
-}
-.cui .table.table--bordered > tbody > tr.active td:first-child {
-  border-left: var(--cui-accent-thickness) solid var(--cui-accent-color);
-} */
 
 html,
 body {
@@ -24,6 +9,16 @@ body {
 body {
   margin: 0;
   font-family: "Inter", sans-serif !important;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.flex-row {
+  display: flex;
+  gap: 1rem;
 }
 
 .fa,
@@ -94,6 +89,11 @@ body {
 }
 .test {
   overflow-y: hidden !important;
+}
+
+.periodclosetable .table th {
+  background-color: #f7f7f7;
+  color: rgb(46, 46, 46);
 }
 
 .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
@@ -212,7 +212,6 @@ body {
   background-color: #fff;
   border: 2px solid #e1e4e8;
   border-radius: 8px;
-  transition: all linear 0.5s;
   width: auto;
 }
 
@@ -284,6 +283,15 @@ body {
   background-position: center;
 }
 
+.icon-small {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 /* Specific close-icon styling */
 .close-icon {
   background-image: url("assets/icons/close-icon.svg");
@@ -325,8 +333,32 @@ body {
   background-image: url("assets/icons/home-icon.svg");
 }
 
+.ivan-icon {
+  background-image: url("assets/icons/ivan-icon.svg");
+}
+
 .info-icon {
   background-image: url("assets/icons/info-icon.svg");
+}
+
+.completed-icon {
+  background-image: url("assets/icons/completed-icon.svg");
+}
+
+.in-progress-icon {
+  background-image: url("assets/icons/in-progress-icon.svg");
+}
+
+.delayed-icon {
+  background-image: url("assets/icons/delayed-icon.svg");
+}
+
+.stopped-icon {
+  background-image: url("assets/icons/stopped-icon.svg");
+}
+
+.yet-to-start-icon {
+  background-image: url("assets/icons/yet-to-start-icon.svg");
 }
 
 .custom-button-primary {
@@ -412,10 +444,6 @@ body {
 
 .custom-button-tertiary:active {
   color: #004364;
-}
-
-.cui .container {
-  max-width: none !important;
 }
 
 .mat-drawer-container {

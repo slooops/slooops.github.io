@@ -392,7 +392,7 @@ export class OrderManagementComponent {
 
   onTabChange(index: number) {
     this.selectedIndex = index;
-    const newHeader = `Order Management > ${this.filteredTabs[index]?.label}`;
+    const newHeader = `Continuous Monitoring > Order Management > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
   }
 }

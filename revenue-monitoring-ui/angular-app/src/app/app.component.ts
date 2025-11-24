@@ -37,7 +37,103 @@ export class AppComponent implements OnInit, OnDestroy {
   userRoles!: string[];
   isAdmin$!: boolean;
   showMenu: boolean = true;
-  menuItems: any[] = [];
+
+  /**
+   * Determine the default route based on user roles
+   * Priority order: ADMIN > PERIOD_CLOSE > EXCEPTION_* > ACCOUNT_RECON > Other roles
+   */
+  getDefaultRouteForRoles(roles: string[]): string {
+    if (!roles || roles.length === 0) {
+      return '/error';
+    }
+
+    // ADMIN gets /period-close-tracking
+    if (roles.includes('ADMIN')) {
+      return '/period-close-tracking';
+    }
+
+    // PERIOD_CLOSE gets /period-close-tracking
+    if (roles.includes('PERIOD_CLOSE')) {
+      return '/period-close-tracking';
+    }
+
+    // EXCEPTION_ADMIN or EXCEPTION_READ_ONLY gets /invoice-to-cash
+    if (
+      roles.includes('EXCEPTION_ADMIN') ||
+      roles.includes('EXCEPTION_READ_ONLY')
+    ) {
+      return '/invoice-to-cash';
+    }
+
+    // ACCOUNT_RECON gets /revenue-accounting
+    if (roles.includes('ACCOUNT_RECON')) {
+      return '/revenue-accounting';
+    }
+
+    // ORDER_MANAGEMENT gets /order-management
+    if (roles.includes('ORDER_MANAGEMENT')) {
+      return '/order-management';
+    }
+
+    // Case IQ roles get /esp-home
+    if (
+      roles.includes('CASE_IQ_MANAGER') ||
+      roles.includes('CASE_IQ_OM') ||
+      roles.includes('CASE_IQ_SBP') ||
+      roles.includes('CASE_IQ_I2C') ||
+      roles.includes('CASE_IQ_AIT') ||
+      roles.includes('CASE_IQ_FPP') ||
+      roles.includes('CASE_IQ_P2P') ||
+      roles.includes('CASE_IQ_CAPITAL')
+    ) {
+      return '/case-iq';
+    }
+
+    // Business Insights roles
+    if (
+      roles.includes('LARGE_DEAL') ||
+      roles.includes('WD0') ||
+      roles.includes('MIDCLOSE_VOLUMES') ||
+      roles.includes('ISSUE_RESOLUTION')
+    ) {
+      return '/business-insights';
+    }
+
+    // Default fallback
+    return '/home';
+  }
+
+  /**
+   * Get the Business Insights header based on user's first available role
+   * Returns the header for the first tab the user has access to
+   */
+  getBusinessInsightsHeader(): string {
+    const roles = this.authService.getRoles();
+
+    // Priority order matching the business-insights component tabs
+    if (roles.includes('ADMIN') || roles.includes('LARGE_DEAL')) {
+      return 'Business Insights > Large Deal Tracker';
+    }
+    if (roles.includes('WD0')) {
+      return 'Business Insights > Midclose Status';
+    }
+    if (roles.includes('MIDCLOSE_VOLUMES')) {
+      return 'Business Insights > Midclose Volumes';
+    }
+    if (
+      roles.includes('ISSUE_RESOLUTION') ||
+      roles.includes('ISSUE_APPROVAL')
+    ) {
+      return 'Business Insights > Active Incidents';
+    }
+    if (roles.includes('O360')) {
+      return 'Business Insights > O2C - 360';
+    }
+
+    // Default fallback
+    return 'Business Insights > Large Deal Tracker';
+  }
+
   ngOnInit(): void {
     // Initialize properties that depend on injected services
     this.userName = this.authService.getUserName();
@@ -73,26 +169,38 @@ export class AppComponent implements OnInit, OnDestroy {
       if (event instanceof NavigationEnd) {
         if (event.url.includes('/period-close-tracking')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Pre-Close (Internal)'
+            'Continuous Monitoring > Period Close (Internal)'
           );
         } else if (event.url.includes('/invoice-to-cash')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Pre-Invoicing'
+            'Continuous Monitoring > Invoice to Cash > Pre-Invoicing'
           );
         } else if (event.url.includes('/revenue-accounting')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Standard Revenue'
+            'Continuous Monitoring > Revenue Accounting > Standard Revenue'
           );
         } else if (event.url.includes('/gl-posting')) {
           this.menuService.updateHeader(
             'Continuous Monitoring > General Ledger'
           );
         } else if (event.url.includes('/business-insights')) {
-          this.menuService.updateHeader(
-            'Business Insights > Large Deal Tracker'
-          );
+          // Set dynamic header based on user's Business Insights role
+          const businessInsightsHeader = this.getBusinessInsightsHeader();
+          this.menuService.updateHeader(businessInsightsHeader);
         } else if (event.url.includes('/order-management')) {
-          this.menuService.updateHeader('Order Management > Imports');
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Order Management > Imports'
+          );
+        } else if (event.url.includes('/case-iq')) {
+          this.menuService.updateHeader('ESP Case Manager > Case IQ');
+        } else if (event.url.includes('/i2c-case-analyzer')) {
+          this.menuService.updateHeader(
+            'ESP Case Manager > Case Analyzer - I2C'
+          );
+        } else if (event.url.includes('/sbp-case-analyzer')) {
+          this.menuService.updateHeader(
+            'ESP Case Manager > Case Analyzer - SBP'
+          );
         }
       }
     });
@@ -102,115 +210,6 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         this.dataService.setAssignmentUsers(data);
       });
-
-    this.menuItems = [
-      {
-        label: 'Period Close Tracking',
-        route: '/period-close-tracking',
-        role: ['ADMIN', 'PERIOD_CLOSE'],
-      },
-      {
-        label: 'Invoice to Cash',
-        route: '/invoice-to-cash',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Revenue Accounting',
-        route: '/revenue-accounting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'GL Posting',
-        route: '/gl-posting',
-        role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      },
-      {
-        label: 'Operations Controls',
-        route: '',
-        role: [''],
-      },
-
-      // {
-      //   category: 'Invoice to Cash',
-      //   items: [
-      //     {
-      //       label: 'Pre Invoicing',
-      //       route: '/pre-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Invoicing',
-      //       route: '/invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Post Invoicing',
-      //       route: '/post-invoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'eInvoicing',
-      //       route: '/einvoicing',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Fusion',
-      //       route: '/fusion',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Revenue Accounting',
-      //   items: [
-      //     {
-      //       label: 'Standard Revenue',
-      //       route: '/standard-revenue',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Rol',
-      //       route: '/rol',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accruals',
-      //       route: '/accruals',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //     {
-      //       label: 'Accounts',
-      //       route: '/accounts',
-      //       role: ['ADMIN', 'ACCOUNT_RECON'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'GL Posting',
-      //   items: [
-      //     {
-      //       label: 'General Ledger',
-      //       route: '/general-ledger',
-      //       role: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
-      //     },
-      //   ],
-      // },
-      // {
-      //   category: 'Operations Controls',
-      //   items: [
-      //     {
-      //       label: 'Invoice to Cash',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //     {
-      //       label: 'Revenue',
-      //       route: '',
-      //       role: ['ADMIN'],
-      //     },
-      //   ],
-      // },
-    ];
 
     this.menuService.header$.subscribe((newHeader) => {
       console.log('Header updated in AppComponent:', newHeader);

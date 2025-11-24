@@ -1,4 +1,4 @@
-<div class="row">
+<div>
   <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
     <div
       style="
@@ -66,11 +66,11 @@
       <span class="navbar">
         <ul class="menu">
           <!-- Home -->
-          <li class="menu-item" [class.disabled]="!isAdmin$">
+          <!-- <li class="menu-item" [class.disabled]="true">
             <a [routerLink]="'/home'" class="top-link">
               <i class="svg-icon home-icon" style="font-weight: 900"></i>
             </a>
-          </li>
+          </li> -->
 
           <!-- Period Close Tracking -->
           <li
@@ -81,7 +81,15 @@
                   'LARGE_DEAL',
                   'WD0',
                   'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
+                  'ISSUE_RESOLUTION',
+                  'CASE_IQ_MANAGER',
+                  'CASE_IQ_OM',
+                  'CASE_IQ_SBP',
+                  'CASE_IQ_I2C',
+                  'CASE_IQ_AIT',
+                  'CASE_IQ_FPP',
+                  'CASE_IQ_P2P',
+                  'CASE_IQ_CAPITAL'
                 ]) &&
                 !isAdmin$ &&
                 !hasRole$([
@@ -123,7 +131,15 @@
                   'EXCEPTION_ADMIN',
                   'EXCEPTION_READ_ONLY',
                   'ACCOUNT_RECON',
-                  'ORDER_MANAGEMENT'
+                  'ORDER_MANAGEMENT',
+                  'CASE_IQ_MANAGER',
+                  'CASE_IQ_OM',
+                  'CASE_IQ_SBP',
+                  'CASE_IQ_I2C',
+                  'CASE_IQ_AIT',
+                  'CASE_IQ_FPP',
+                  'CASE_IQ_P2P',
+                  'CASE_IQ_CAPITAL'
                 ]) &&
                 !isAdmin$ &&
                 !hasRole$([
@@ -153,7 +169,49 @@
               Business Insights
             </a>
           </li>
-          <li class="menu-item" *ngIf="isAdmin$">
+          <li
+            class="menu-item"
+            *ngIf="
+              !(
+                hasRole$([
+                  'PERIOD_CLOSE',
+                  'EXCEPTION_ADMIN',
+                  'EXCEPTION_READ_ONLY',
+                  'ACCOUNT_RECON',
+                  'ORDER_MANAGEMENT',
+                  'LARGE_DEAL',
+                  'WD0',
+                  'MIDCLOSE_VOLUMES',
+                  'ISSUE_RESOLUTION'
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  'CASE_IQ_MANAGER',
+                  'CASE_IQ_OM',
+                  'CASE_IQ_SBP',
+                  'CASE_IQ_I2C',
+                  'CASE_IQ_AIT',
+                  'CASE_IQ_FPP',
+                  'CASE_IQ_P2P',
+                  'CASE_IQ_CAPITAL'
+                ])
+              )
+            "
+            [class.disabled]="
+              !(
+                hasRole$([
+                  'CASE_IQ_MANAGER',
+                  'CASE_IQ_OM',
+                  'CASE_IQ_SBP',
+                  'CASE_IQ_I2C',
+                  'CASE_IQ_AIT',
+                  'CASE_IQ_FPP',
+                  'CASE_IQ_P2P',
+                  'CASE_IQ_CAPITAL'
+                ]) || isAdmin$
+              )
+            "
+          >
             <a
               [matMenuTriggerFor]="espMenu"
               class="top-link"
@@ -166,7 +224,7 @@
       </span>
 
       <span style="display: flex; align-items: center">
-        <div class="custom-search-bar" *ngIf="showNavbar">
+        <!-- <div class="custom-search-bar" *ngIf="showNavbar">
           <input
             type="text"
             placeholder="Search"
@@ -174,7 +232,7 @@
             [disabled]="true"
           />
           <i class="svg-icon search-icon"></i>
-        </div>
+        </div> -->
 
         <app-o2c-search *ngIf="!showNavbar"></app-o2c-search>
         <i
@@ -248,27 +306,23 @@
   <button
     mat-menu-item
     [routerLink]="'/period-close-tracking'"
-    [disabled]="!(hasRole$(['PERIOD_CLOSE']) || isAdmin$)"
+    *ngIf="hasRole$(['PERIOD_CLOSE']) || isAdmin$"
   >
     Period Close Tracking
   </button>
   <button
     mat-menu-item
     [routerLink]="'/invoice-to-cash'"
-    [disabled]="
-      !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
-    "
+    *ngIf="hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$"
   >
     Invoice to Cash
   </button>
   <button
     mat-menu-item
     [routerLink]="'/revenue-accounting'"
-    [disabled]="
-      !(
-        hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON']) ||
-        isAdmin$
-      )
+    *ngIf="
+      hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON']) ||
+      isAdmin$
     "
   >
     Revenue Accounting
@@ -276,23 +330,21 @@
   <button
     mat-menu-item
     [routerLink]="'/gl-posting'"
-    [disabled]="
-      !(hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$)
-    "
+    *ngIf="hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$"
   >
     General Ledger
   </button>
   <button
     mat-menu-item
     [routerLink]="'/order-management'"
-    [disabled]="!(hasRole$(['ORDER_MANAGEMENT']) || isAdmin$)"
+    *ngIf="hasRole$(['ORDER_MANAGEMENT']) || isAdmin$"
   >
     Order Management
   </button>
   <button
     mat-menu-item
     [routerLink]="'/operations-controls'"
-    [disabled]="!(hasRole$(['OPERATION_CTRL']) || isAdmin$)"
+    *ngIf="hasRole$(['OPERATION_CTRL']) || isAdmin$"
   >
     Operations Controls
   </button>
@@ -301,15 +353,33 @@
 <mat-menu #espMenu="matMenu">
   <button
     mat-menu-item
+    [routerLink]="'/case-iq'"
+    *ngIf="
+      hasRole$([
+        'CASE_IQ_MANAGER',
+        'CASE_IQ_OM',
+        'CASE_IQ_SBP',
+        'CASE_IQ_I2C',
+        'CASE_IQ_AIT',
+        'CASE_IQ_FPP',
+        'CASE_IQ_P2P',
+        'CASE_IQ_CAPITAL'
+      ]) || isAdmin$
+    "
+  >
+    Case IQ
+  </button>
+  <button
+    mat-menu-item
     [routerLink]="'/i2c-case-analyzer'"
-    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+    *ngIf="hasRole$(['ADMIN']) || isAdmin$"
   >
     I2C
   </button>
   <button
     mat-menu-item
     [routerLink]="'/sbp-case-analyzer'"
-    [disabled]="!(hasRole$(['ADMIN']) || isAdmin$)"
+    *ngIf="hasRole$(['ADMIN']) || isAdmin$"
   >
     SBP
   </button>

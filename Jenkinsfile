@@ -16,23 +16,6 @@ pipeline {
                 notifyBuildStart()
             }
         }
-        
-        stage ('Test/Sonar') {
-            steps {
-                // Run your unit tests and prepare SonarQube output
-                //sh "mvn org.jacoco:jacoco-maven-plugin:prepare-agent test"
-                sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
-
-                sonarScan('Sonar')
-            }
-
-            // Make test results visible in Jenkins UI if the install step completed successfully
-            post {
-                success {
-                    junit testResults: 'target/surefire-reports/**/*.xml', allowEmptyResults: true
-                }
-            }
-        }
 
         stage('Build Server') {
             when {
@@ -116,6 +99,28 @@ pipeline {
         stage('SAST Security Scan') {
             steps {
                 sastSecurityScan()
+            }
+        }
+
+        stage ('Test/Sonar') {
+            steps {
+                dir("revenue-monitoring-server") {
+
+                // Run your unit tests and prepare SonarQube output
+                    sh "mvn org.jacoco:jacoco-maven-plugin:0.8.8:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.8:report"
+                    sonarScan('Sonar')
+                }
+                // Run SonarQube scan for UI codebase as well
+                dir("revenue-monitoring-ui") {
+                    echo "Running SonarQube scan for UI project"
+                    sonarScan('Sonar')
+                }
+            }
+
+            post {
+                success {
+                    junit testResults: 'revenue-monitoring-server/target/surefire-reports/**/*.xml', allowEmptyResults: true
+                }
             }
         }
     }
