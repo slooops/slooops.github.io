@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // User info
   userRoles: any;
-  username: string = this.authService.getUserName();
+  username: string;
 
   // Pagination
   currentPage: number = 1;
@@ -91,6 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userRoles = this.authService.getRoles();
+    this.username = this.authService.getUserName();
     // Initialize header columns (Angular template doesn't support spread syntax inside array literal)
     this.headerColumns = ['select', ...this.displayedColumns];
     this.loadDashboardData();

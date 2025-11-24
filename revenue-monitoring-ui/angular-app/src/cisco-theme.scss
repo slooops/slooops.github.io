@@ -1,0 +1,49 @@
+// Custom Cisco Blue Theme for Angular Material 18
+@use "@angular/material" as mat;
+
+@include mat.core();
+
+// Define the palettes for the theme using Material 3 colors
+$cisco-theme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: (
+      plain-family: "Inter",
+      brand-family: "Inter",
+      bold-weight: 700,
+      medium-weight: 600,
+      regular-weight: 500,
+    ),
+    density: (
+      scale: -2,
+    ),
+  )
+);
+
+// Apply the theme to all Angular Material components
+html {
+  @include mat.all-component-themes($cisco-theme);
+  @include mat.typography-hierarchy($cisco-theme);
+}
+
+// Override specific colors to match Cisco branding
+html {
+  // Primary colors
+  --mat-sys-primary: #049fd9;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #e3f2fd;
+  --mat-sys-on-primary-container: #373c42;
+
+  // Surface colors
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #373c42;
+  --mat-sys-surface-variant: #f7f7f7;
+
+  // Outline colors
+  --mat-sys-outline: #e1e4e8;
+  --mat-sys-outline-variant: #c6c7ca;
+}

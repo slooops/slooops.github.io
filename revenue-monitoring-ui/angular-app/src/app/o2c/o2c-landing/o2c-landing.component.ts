@@ -8,9 +8,11 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
 })
 export class O2cLandingComponent {
   selectedTabIndex = 2;
-  userName: string = this.authService.getUserName();
+  userName: string;
 
-  constructor(private authService: AuthenticationService) {}
+  constructor(private authService: AuthenticationService) {
+    this.userName = this.authService.getUserName();
+  }
 
   onTabChange(event: any): void {
     this.selectedTabIndex = event.index;

@@ -15,13 +15,15 @@ export class UploadScreenComponent {
   selectedFile: File | null = null;
   isUploadSuccess = false;
   isUploading = false; // true while the file is being uploaded
-  username: string = this.authService.getUserID();
+  username: string;
 
   constructor(
     public http: ApiHttpService,
     private dialogRef: MatDialogRef<UploadScreenComponent>,
     public authService: AuthenticationService
-  ) {}
+  ) {
+    this.username = this.authService.getUserID();
+  }
 
   // Upload functionality methods
   downloadTemplate(): void {
