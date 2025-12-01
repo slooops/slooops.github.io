@@ -20,9 +20,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSelectModule } from '@angular/material/select';
 import { MenuComponent } from './menu/menu.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
-import { NgCircleProgressModule } from 'ng-circle-progress';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -274,15 +272,6 @@ export function initApp(authService: AuthenticationService) {
     BrowserAnimationsModule,
     MatSelectModule,
     ReactiveFormsModule,
-    NgbModule,
-    NgCircleProgressModule.forRoot({
-      radius: 20,
-      outerStrokeWidth: 4,
-      innerStrokeWidth: 0,
-      animationDuration: 300,
-      showSubtitle: false,
-      titleFontSize: '14',
-    }),
     MatButtonModule,
     MatTooltipModule,
     MatIconModule,

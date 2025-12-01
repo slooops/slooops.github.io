@@ -42,8 +42,18 @@ html {
   --mat-sys-surface: #ffffff;
   --mat-sys-on-surface: #373c42;
   --mat-sys-surface-variant: #f7f7f7;
+  --mat-sys-background: #ffffff;
+  --mat-sys-on-background: #373c42;
 
   // Outline colors
   --mat-sys-outline: #e1e4e8;
   --mat-sys-outline-variant: #c6c7ca;
+}
+
+// Force white background everywhere
+body,
+html,
+.mat-app-background,
+.mat-drawer-container {
+  background-color: #ffffff !important;
 }
