@@ -9,9 +9,10 @@ import {
 import { Chart } from 'chart.js';
 
 @Component({
-  selector: 'app-o2c-donut',
-  templateUrl: './o2c-donut.component.html',
-  styleUrl: './o2c-donut.component.css',
+    selector: 'app-o2c-donut',
+    templateUrl: './o2c-donut.component.html',
+    styleUrl: './o2c-donut.component.css',
+    standalone: false
 })
 export class O2cDonutComponent implements OnChanges, OnDestroy {
   @Input() data: {

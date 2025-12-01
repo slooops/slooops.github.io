@@ -4,9 +4,10 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-upload-screen',
-  templateUrl: './upload-screen.component.html',
-  styleUrls: ['./upload-screen.component.css'],
+    selector: 'app-upload-screen',
+    templateUrl: './upload-screen.component.html',
+    styleUrls: ['./upload-screen.component.css'],
+    standalone: false
 })
 export class UploadScreenComponent {
   @Input() source: string = '';

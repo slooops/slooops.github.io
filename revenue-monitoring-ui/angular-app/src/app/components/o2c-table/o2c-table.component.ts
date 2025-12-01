@@ -3,9 +3,10 @@ import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
-  selector: 'app-o2c-table',
-  templateUrl: './o2c-table.component.html',
-  styleUrls: ['./o2c-table.component.css'],
+    selector: 'app-o2c-table',
+    templateUrl: './o2c-table.component.html',
+    styleUrls: ['./o2c-table.component.css'],
+    standalone: false
 })
 export class O2cTableComponent {
   @Input() displayedColumns: string[] = [];

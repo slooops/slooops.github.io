@@ -24,9 +24,10 @@ export interface StackedBarChartDataPoint {
 }
 
 @Component({
-  selector: 'app-bar-chartjs',
-  templateUrl: './bar-chartjs.component.html',
-  styleUrl: './bar-chartjs.component.css',
+    selector: 'app-bar-chartjs',
+    templateUrl: './bar-chartjs.component.html',
+    styleUrl: './bar-chartjs.component.css',
+    standalone: false
 })
 export class BarChartjsComponent
   implements OnChanges, AfterViewInit, OnDestroy

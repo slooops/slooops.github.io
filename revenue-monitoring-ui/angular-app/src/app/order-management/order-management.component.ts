@@ -9,10 +9,11 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-order-management',
-  templateUrl: './order-management.component.html',
-  styleUrl: './order-management.component.css',
-  providers: [DestroyManager],
+    selector: 'app-order-management',
+    templateUrl: './order-management.component.html',
+    styleUrl: './order-management.component.css',
+    providers: [DestroyManager],
+    standalone: false
 })
 export class OrderManagementComponent {
   constructor(

@@ -7,9 +7,10 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 @Component({
-  selector: 'app-order-lifecycle-upload',
-  templateUrl: './order-lifecycle-upload.component.html',
-  styleUrls: ['./order-lifecycle-upload.component.css'],
+    selector: 'app-order-lifecycle-upload',
+    templateUrl: './order-lifecycle-upload.component.html',
+    styleUrls: ['./order-lifecycle-upload.component.css'],
+    standalone: false
 })
 export class OrderLifecycleUploadComponent implements OnInit {
   updateForm: FormGroup;

@@ -23,10 +23,11 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({
-  selector: 'app-invoice-status',
-  templateUrl: './order-lifecycle.component.html',
-  styleUrls: ['./order-lifecycle.component.scss'],
-  providers: [DestroyManager],
+    selector: 'app-invoice-status',
+    templateUrl: './order-lifecycle.component.html',
+    styleUrls: ['./order-lifecycle.component.scss'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;

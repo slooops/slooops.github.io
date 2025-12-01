@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'formatNumber',
+    name: 'formatNumber',
+    standalone: false
 })
 export class FormatNumberPipe implements PipeTransform {
   transform(value: any): any {

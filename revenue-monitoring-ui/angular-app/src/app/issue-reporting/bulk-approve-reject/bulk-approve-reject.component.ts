@@ -3,9 +3,10 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-bulk-approve-reject',
-  templateUrl: './bulk-approve-reject.component.html',
-  styleUrl: './bulk-approve-reject.component.css',
+    selector: 'app-bulk-approve-reject',
+    templateUrl: './bulk-approve-reject.component.html',
+    styleUrl: './bulk-approve-reject.component.css',
+    standalone: false
 })
 export class BulkApproveRejectComponent {
   constructor(

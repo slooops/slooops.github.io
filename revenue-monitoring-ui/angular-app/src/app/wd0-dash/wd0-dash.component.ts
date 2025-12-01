@@ -6,10 +6,11 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
 
 @Component({
-  selector: 'app-wd0-dash',
-  templateUrl: './wd0-dash.component.html',
-  styleUrls: ['./wd0-dash.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-wd0-dash',
+    templateUrl: './wd0-dash.component.html',
+    styleUrls: ['./wd0-dash.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class Wd0DashComponent implements OnInit {
   protected http: ApiHttpService;

@@ -9,10 +9,11 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 
 @Component({
-  selector: 'app-o2c-view-all',
-  templateUrl: './o2c-view-all.component.html',
-  styleUrl: './o2c-view-all.component.css',
-  providers: [DestroyManager],
+    selector: 'app-o2c-view-all',
+    templateUrl: './o2c-view-all.component.html',
+    styleUrl: './o2c-view-all.component.css',
+    providers: [DestroyManager],
+    standalone: false
 })
 export class O2cViewAllComponent implements OnInit {
   selectedTab: 'subscriptions' | 'invoices' = 'subscriptions';

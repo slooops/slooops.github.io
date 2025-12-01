@@ -8,10 +8,11 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-o2c-tsv',
-  templateUrl: './o2c-tsv.component.html',
-  styleUrl: './o2c-tsv.component.css',
-  providers: [DestroyManager],
+    selector: 'app-o2c-tsv',
+    templateUrl: './o2c-tsv.component.html',
+    styleUrl: './o2c-tsv.component.css',
+    providers: [DestroyManager],
+    standalone: false
 })
 export class O2cTsvComponent {
   orderId = '28221819418344'; // Placeholder for order ID

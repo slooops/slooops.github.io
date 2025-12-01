@@ -14,10 +14,11 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs';
 
 @Component({
-  selector: 'app-menu',
-  templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-menu',
+    templateUrl: './menu.component.html',
+    styleUrls: ['./menu.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class MenuComponent implements OnInit, OnChanges {
   @Input() showMenu: boolean = true; // Receive menu visibility state from parent

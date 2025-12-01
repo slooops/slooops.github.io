@@ -3,9 +3,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css'],
+    selector: 'app-table',
+    templateUrl: './table.component.html',
+    styleUrls: ['./table.component.css'],
+    standalone: false
 })
 export class TableComponent {
   @Input() title!: string; // Table Title

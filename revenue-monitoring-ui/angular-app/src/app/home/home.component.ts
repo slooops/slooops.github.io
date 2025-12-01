@@ -17,10 +17,11 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Chart, ChartConfiguration, Plugin } from 'chart.js/auto';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class HomeComponent implements OnInit, OnDestroy {
   constructor(

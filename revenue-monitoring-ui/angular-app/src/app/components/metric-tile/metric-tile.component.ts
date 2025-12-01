@@ -3,9 +3,10 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export type MetricStatus = 'high' | 'medium' | 'low';
 
 @Component({
-  selector: 'app-metric-tile',
-  templateUrl: './metric-tile.component.html',
-  styleUrls: ['./metric-tile.component.css'],
+    selector: 'app-metric-tile',
+    templateUrl: './metric-tile.component.html',
+    styleUrls: ['./metric-tile.component.css'],
+    standalone: false
 })
 export class MetricTileComponent {
   @Input() name: string = '';

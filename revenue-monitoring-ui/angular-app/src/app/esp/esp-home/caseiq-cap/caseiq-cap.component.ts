@@ -30,9 +30,10 @@ interface CapitalAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-cap',
-  templateUrl: './caseiq-cap.component.html',
-  styleUrl: './caseiq-cap.component.css',
+    selector: 'app-caseiq-cap',
+    templateUrl: './caseiq-cap.component.html',
+    styleUrl: './caseiq-cap.component.css',
+    standalone: false
 })
 export class CaseiqCapComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -739,8 +740,8 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
 
 // Simple dialog component for expanded charts
 @Component({
-  selector: 'app-caseiq-cap-expand-dialog',
-  template: `
+    selector: 'app-caseiq-cap-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         CAP {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -960,8 +961,8 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -1131,7 +1132,8 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqCapExpandDialogComponent implements OnInit {
   // Dialog-specific multi-select state

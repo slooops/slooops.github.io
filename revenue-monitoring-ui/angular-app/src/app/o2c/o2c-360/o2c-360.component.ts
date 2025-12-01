@@ -18,10 +18,11 @@ import {
 import { FiltersService } from '../../providers/filters.service';
 
 @Component({
-  selector: 'app-o2c-360',
-  templateUrl: './o2c-360.component.html',
-  styleUrls: ['./o2c-360.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-o2c-360',
+    templateUrl: './o2c-360.component.html',
+    styleUrls: ['./o2c-360.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class O2c360Component implements OnInit {
   expanded = {

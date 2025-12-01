@@ -15,10 +15,11 @@ type PairConfig = {
 };
 
 @Component({
-  selector: 'app-esp-case-analyzer',
-  templateUrl: './esp-case-analyzer.component.html',
-  styleUrl: './esp-case-analyzer.component.css',
-  providers: [DestroyManager],
+    selector: 'app-esp-case-analyzer',
+    templateUrl: './esp-case-analyzer.component.html',
+    styleUrl: './esp-case-analyzer.component.css',
+    providers: [DestroyManager],
+    standalone: false
 })
 export class EspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {

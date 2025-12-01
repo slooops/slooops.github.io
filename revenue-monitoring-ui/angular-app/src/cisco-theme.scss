@@ -1,7 +1,8 @@
 // Custom Cisco Blue Theme for Angular Material 18
 @use "@angular/material" as mat;
 
-@include mat.core();
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Define the palettes for the theme using Material 3 colors
 $cisco-theme: mat.define-theme(

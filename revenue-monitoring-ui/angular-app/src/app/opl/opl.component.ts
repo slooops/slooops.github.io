@@ -4,10 +4,11 @@ import { ApiHttpService } from '../providers/http.service';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 
 @Component({
-  selector: 'app-opl',
-  templateUrl: './opl.component.html',
-  styleUrls: ['./opl.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-opl',
+    templateUrl: './opl.component.html',
+    styleUrls: ['./opl.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class OplComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;

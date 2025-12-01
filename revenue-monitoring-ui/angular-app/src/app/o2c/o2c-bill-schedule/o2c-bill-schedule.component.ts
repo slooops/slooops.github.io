@@ -10,9 +10,10 @@ import { offset } from '@popperjs/core';
 import { ro, th } from 'date-fns/locale';
 
 @Component({
-  selector: 'app-o2c-bill-schedule',
-  templateUrl: './o2c-bill-schedule.component.html',
-  styleUrls: ['./o2c-bill-schedule.component.css'],
+    selector: 'app-o2c-bill-schedule',
+    templateUrl: './o2c-bill-schedule.component.html',
+    styleUrls: ['./o2c-bill-schedule.component.css'],
+    standalone: false
 })
 export class O2cBillScheduleComponent {
   orderId: string = ''; // Placeholder for order ID

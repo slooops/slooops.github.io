@@ -7,9 +7,10 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-process-flow-tooltip',
-  templateUrl: './process-flow-tooltip.component.html',
-  styleUrl: './process-flow-tooltip.component.css',
+    selector: 'app-process-flow-tooltip',
+    templateUrl: './process-flow-tooltip.component.html',
+    styleUrl: './process-flow-tooltip.component.css',
+    standalone: false
 })
 export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
   @Input() processFlowTotals: any[] = [];

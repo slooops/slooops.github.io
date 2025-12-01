@@ -8,10 +8,11 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-clo-updates',
-  templateUrl: './clo-updates.component.html',
-  styleUrls: ['./clo-updates.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-clo-updates',
+    templateUrl: './clo-updates.component.html',
+    styleUrls: ['./clo-updates.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;

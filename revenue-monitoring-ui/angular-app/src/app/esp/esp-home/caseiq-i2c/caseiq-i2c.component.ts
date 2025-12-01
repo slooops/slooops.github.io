@@ -25,9 +25,10 @@ interface I2CAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-i2c',
-  templateUrl: './caseiq-i2c.component.html',
-  styleUrl: './caseiq-i2c.component.css',
+    selector: 'app-caseiq-i2c',
+    templateUrl: './caseiq-i2c.component.html',
+    styleUrl: './caseiq-i2c.component.css',
+    standalone: false
 })
 export class CaseiqI2cComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -780,8 +781,8 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
 import { Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
-  selector: 'app-caseiq-i2c-expand-dialog',
-  template: `
+    selector: 'app-caseiq-i2c-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         I2C {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -1011,8 +1012,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -1182,7 +1183,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqI2cExpandDialogComponent {
   constructor(

@@ -30,9 +30,10 @@ interface FppAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-fpp',
-  templateUrl: './caseiq-fpp.component.html',
-  styleUrl: './caseiq-fpp.component.css',
+    selector: 'app-caseiq-fpp',
+    templateUrl: './caseiq-fpp.component.html',
+    styleUrl: './caseiq-fpp.component.css',
+    standalone: false
 })
 export class CaseiqFppComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -555,8 +556,8 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
 
 // Expand Dialog Component
 @Component({
-  selector: 'app-caseiq-fpp-expand-dialog',
-  template: `
+    selector: 'app-caseiq-fpp-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         FPP {{ chartType === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -776,8 +777,8 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -947,7 +948,8 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqFppExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';

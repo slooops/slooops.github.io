@@ -6,10 +6,11 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-order-lifecycle-rev-summary',
-  templateUrl: './order-lifecycle-rev-summary.component.html',
-  styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
-  providers: [DestroyManager],
+    selector: 'app-order-lifecycle-rev-summary',
+    templateUrl: './order-lifecycle-rev-summary.component.html',
+    styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class OrderLifecycleRevSummaryComponent implements OnInit {
   constructor(

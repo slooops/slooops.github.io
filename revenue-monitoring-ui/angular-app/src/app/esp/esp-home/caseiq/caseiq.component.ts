@@ -6,9 +6,10 @@ import {
 } from 'src/app/components/bar-chart/bar-chart.component';
 
 @Component({
-  selector: 'app-caseiq',
-  templateUrl: './caseiq.component.html',
-  styleUrl: './caseiq.component.css',
+    selector: 'app-caseiq',
+    templateUrl: './caseiq.component.html',
+    styleUrl: './caseiq.component.css',
+    standalone: false
 })
 export class CaseiqComponent {
   // I2C Chart Data - Similar to the screenshot

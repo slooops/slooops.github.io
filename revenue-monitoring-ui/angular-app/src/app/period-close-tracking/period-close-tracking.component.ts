@@ -8,10 +8,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
 
 @Component({
-  selector: 'app-period-close-tracking',
-  templateUrl: './period-close-tracking.component.html',
-  styleUrls: ['./period-close-tracking.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-period-close-tracking',
+    templateUrl: './period-close-tracking.component.html',
+    styleUrls: ['./period-close-tracking.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 300000; //ms

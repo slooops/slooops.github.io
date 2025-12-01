@@ -7,10 +7,11 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-invoicing',
-  templateUrl: './invoicing.component.html',
-  styleUrls: ['./invoicing.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-invoicing',
+    templateUrl: './invoicing.component.html',
+    styleUrls: ['./invoicing.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class InvoicingComponent implements OnInit {
   constructor(

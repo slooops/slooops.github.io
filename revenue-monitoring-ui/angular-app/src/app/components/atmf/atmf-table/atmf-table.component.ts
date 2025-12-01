@@ -3,9 +3,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-atmf-table',
-  templateUrl: './atmf-table.component.html',
-  styleUrls: ['./atmf-table.component.css'],
+    selector: 'app-atmf-table',
+    templateUrl: './atmf-table.component.html',
+    styleUrls: ['./atmf-table.component.css'],
+    standalone: false
 })
 export class AtmfTableComponent {
   @Input() title!: string; // Table Title

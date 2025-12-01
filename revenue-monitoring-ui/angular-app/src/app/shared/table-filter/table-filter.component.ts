@@ -9,9 +9,10 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'app-table-filter',
-  templateUrl: './table-filter.component.html',
-  styleUrls: ['./table-filter.component.css'],
+    selector: 'app-table-filter',
+    templateUrl: './table-filter.component.html',
+    styleUrls: ['./table-filter.component.css'],
+    standalone: false
 })
 export class TableFilterComponent implements OnInit, OnChanges {
   @Input() columnLabel = 'USD';

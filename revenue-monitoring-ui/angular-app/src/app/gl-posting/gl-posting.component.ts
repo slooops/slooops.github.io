@@ -6,10 +6,11 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-gl-posting',
-  templateUrl: './gl-posting.component.html',
-  styleUrl: './gl-posting.component.css',
-  providers: [DestroyManager],
+    selector: 'app-gl-posting',
+    templateUrl: './gl-posting.component.html',
+    styleUrl: './gl-posting.component.css',
+    providers: [DestroyManager],
+    standalone: false
 })
 export class GlPostingComponent implements OnInit {
   constructor(

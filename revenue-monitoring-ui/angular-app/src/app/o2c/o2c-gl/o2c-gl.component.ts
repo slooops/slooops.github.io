@@ -5,9 +5,10 @@ import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-o2c-gl',
-  templateUrl: './o2c-gl.component.html',
-  styleUrl: './o2c-gl.component.css',
+    selector: 'app-o2c-gl',
+    templateUrl: './o2c-gl.component.html',
+    styleUrl: './o2c-gl.component.css',
+    standalone: false
 })
 export class O2cGlComponent {
   orderId = '28221819418344'; // Placeholder for order ID

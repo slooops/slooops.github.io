@@ -2,9 +2,10 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-column-select',
-  templateUrl: './column-select.component.html',
-  styleUrls: ['./column-select.component.scss'],
+    selector: 'app-column-select',
+    templateUrl: './column-select.component.html',
+    styleUrls: ['./column-select.component.scss'],
+    standalone: false
 })
 export class ColumnSelectComponent implements OnInit {
   selectedColumns: string[];

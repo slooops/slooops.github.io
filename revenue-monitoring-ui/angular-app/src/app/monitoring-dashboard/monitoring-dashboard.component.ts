@@ -21,9 +21,10 @@ import { BaseComponent } from './shared/base.component';
 import { HttpService } from './providers/http.service';
 
 @Component({
-  selector: 'app-monitoring-dashboard',
-  templateUrl: './monitoring-dashboard.component.html',
-  styleUrl: './monitoring-dashboard.component.css',
+    selector: 'app-monitoring-dashboard',
+    templateUrl: './monitoring-dashboard.component.html',
+    styleUrl: './monitoring-dashboard.component.css',
+    standalone: false
 })
 export class MonitoringDashboardComponent<T>
   extends BaseComponent

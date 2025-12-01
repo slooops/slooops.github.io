@@ -13,9 +13,10 @@ import { DataService } from 'src/app/providers/data.service';
 import { HttpService } from '../providers/http.service';
 
 @Component({
-  selector: 'app-user-assignment',
-  templateUrl: './user-assignment.component.html',
-  styleUrl: './user-assignment.component.css',
+    selector: 'app-user-assignment',
+    templateUrl: './user-assignment.component.html',
+    styleUrl: './user-assignment.component.css',
+    standalone: false
 })
 export class UserAssignmentComponent implements OnInit, OnChanges {
   @Input() submitKeysToMap: string[] = []; // Keys for submitData

@@ -2,9 +2,10 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-cms-modal',
-  templateUrl: './cms-modal.component.html',
-  styleUrls: ['./cms-modal.component.css'],
+    selector: 'app-cms-modal',
+    templateUrl: './cms-modal.component.html',
+    styleUrls: ['./cms-modal.component.css'],
+    standalone: false
 })
 export class CmsModalComponent {
   displayedColumns: string[] = [

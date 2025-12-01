@@ -7,9 +7,10 @@ import {
 } from '../search-context.service';
 
 @Component({
-  selector: 'app-business-insights',
-  templateUrl: './business-insights.component.html',
-  styleUrl: './business-insights.component.css',
+    selector: 'app-business-insights',
+    templateUrl: './business-insights.component.html',
+    styleUrl: './business-insights.component.css',
+    standalone: false
 })
 export class BusinessInsightsComponent implements OnInit {
   constructor(

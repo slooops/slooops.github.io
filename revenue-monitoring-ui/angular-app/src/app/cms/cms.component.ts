@@ -15,10 +15,11 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({
-  selector: 'app-cms',
-  templateUrl: './cms.component.html',
-  styleUrls: ['./cms.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-cms',
+    templateUrl: './cms.component.html',
+    styleUrls: ['./cms.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class CmsComponent implements OnInit {
   protected http: ApiHttpService;

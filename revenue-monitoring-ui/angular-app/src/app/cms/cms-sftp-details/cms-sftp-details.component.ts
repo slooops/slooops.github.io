@@ -4,9 +4,10 @@ import { ExportToExcelService } from 'src/app/providers/export-to-excel.service'
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-cms-sftp-details',
-  templateUrl: './cms-sftp-details.component.html',
-  styleUrls: ['./cms-sftp-details.component.css'],
+    selector: 'app-cms-sftp-details',
+    templateUrl: './cms-sftp-details.component.html',
+    styleUrls: ['./cms-sftp-details.component.css'],
+    standalone: false
 })
 export class CmsSftpDetailsComponent implements OnInit {
   displayedColumns: string[] = [

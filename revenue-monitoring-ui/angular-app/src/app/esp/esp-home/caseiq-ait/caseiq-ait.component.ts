@@ -30,9 +30,10 @@ interface AitAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-ait',
-  templateUrl: './caseiq-ait.component.html',
-  styleUrl: './caseiq-ait.component.css',
+    selector: 'app-caseiq-ait',
+    templateUrl: './caseiq-ait.component.html',
+    styleUrl: './caseiq-ait.component.css',
+    standalone: false
 })
 export class CaseiqAitComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -737,8 +738,8 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
 // Simple dialog component for expanded charts
 @Component({
-  selector: 'app-caseiq-ait-expand-dialog',
-  template: `
+    selector: 'app-caseiq-ait-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         AIT {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -958,8 +959,8 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -1127,7 +1128,8 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqAitExpandDialogComponent {
   constructor(

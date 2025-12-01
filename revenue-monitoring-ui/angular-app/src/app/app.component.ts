@@ -10,10 +10,11 @@ import { MenuService } from './providers/menu.service';
 import { SearchContextService } from './search-context.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

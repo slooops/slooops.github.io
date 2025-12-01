@@ -2,9 +2,10 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartConfiguration, ChartType } from 'chart.js';
 
 @Component({
-  selector: 'app-atmf-bar-line-chart',
-  templateUrl: './atmf-bar-line-chart.component.html',
-  styleUrl: './atmf-bar-line-chart.component.css',
+    selector: 'app-atmf-bar-line-chart',
+    templateUrl: './atmf-bar-line-chart.component.html',
+    styleUrl: './atmf-bar-line-chart.component.css',
+    standalone: false
 })
 export class AtmfBarLineChartComponent implements OnChanges {
   @Input() chartData: any;

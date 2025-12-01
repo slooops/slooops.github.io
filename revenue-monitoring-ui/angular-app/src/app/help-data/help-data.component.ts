@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-help-data',
-  templateUrl: './help-data.component.html',
-  styleUrl: './help-data.component.css',
+    selector: 'app-help-data',
+    templateUrl: './help-data.component.html',
+    styleUrl: './help-data.component.css',
+    standalone: false
 })
 export class HelpDataComponent {
   helpSections = HELP_SECTIONS;

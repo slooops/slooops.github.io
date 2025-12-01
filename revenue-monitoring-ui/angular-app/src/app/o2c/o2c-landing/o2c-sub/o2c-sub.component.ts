@@ -3,9 +3,10 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-o2c-sub',
-  templateUrl: './o2c-sub.component.html',
-  styleUrls: ['./o2c-sub.component.css'],
+    selector: 'app-o2c-sub',
+    templateUrl: './o2c-sub.component.html',
+    styleUrls: ['./o2c-sub.component.css'],
+    standalone: false
 })
 export class O2cSubComponent implements OnInit {
   selectedTabIndex = 0;

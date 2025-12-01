@@ -30,9 +30,10 @@ interface SmAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-sm',
-  templateUrl: './caseiq-sm.component.html',
-  styleUrl: './caseiq-sm.component.css',
+    selector: 'app-caseiq-sm',
+    templateUrl: './caseiq-sm.component.html',
+    styleUrl: './caseiq-sm.component.css',
+    standalone: false
 })
 export class CaseiqSmComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -615,8 +616,8 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
 
 // Expand Dialog Component
 @Component({
-  selector: 'app-caseiq-sm-expand-dialog',
-  template: `
+    selector: 'app-caseiq-sm-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         SM {{ chartType === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -836,8 +837,8 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -1007,7 +1008,8 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqSmExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';

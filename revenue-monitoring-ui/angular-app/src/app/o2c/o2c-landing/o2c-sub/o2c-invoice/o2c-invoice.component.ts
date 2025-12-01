@@ -5,9 +5,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { O2cBaseComponent } from '../../o2c-base.component';
 
 @Component({
-  selector: 'app-o2c-invoice',
-  templateUrl: './o2c-invoice.component.html',
-  styleUrl: './o2c-invoice.component.css',
+    selector: 'app-o2c-invoice',
+    templateUrl: './o2c-invoice.component.html',
+    styleUrl: './o2c-invoice.component.css',
+    standalone: false
 })
 export class O2cInvoiceComponent extends O2cBaseComponent implements OnInit {
   exceptionData = {

@@ -32,9 +32,10 @@ interface LegendItem {
 }
 
 @Component({
-  selector: 'app-bar-chart',
-  templateUrl: './bar-chart.component.html',
-  styleUrl: './bar-chart.component.css',
+    selector: 'app-bar-chart',
+    templateUrl: './bar-chart.component.html',
+    styleUrl: './bar-chart.component.css',
+    standalone: false
 })
 export class BarChartComponent implements OnChanges, AfterViewInit {
   @ViewChild('barChartContainer', { static: true })

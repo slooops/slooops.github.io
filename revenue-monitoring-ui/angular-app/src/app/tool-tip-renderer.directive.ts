@@ -17,7 +17,8 @@ import { CustomToolTipComponent } from './cms/custom-tool-tip/custom-tool-tip.co
 import { ComponentPortal } from '@angular/cdk/portal';
 
 @Directive({
-  selector: '[customToolTip]',
+    selector: '[customToolTip]',
+    standalone: false
 })
 export class ToolTipRendererDirective {
   /**

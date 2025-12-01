@@ -22,9 +22,10 @@ interface AccuracyData {
 }
 
 @Component({
-  selector: 'app-esp-home',
-  templateUrl: './esp-home.component.html',
-  styleUrls: ['./esp-home.component.css'],
+    selector: 'app-esp-home',
+    templateUrl: './esp-home.component.html',
+    styleUrls: ['./esp-home.component.css'],
+    standalone: false
 })
 export class EspHomeComponent implements OnInit {
   constructor(

@@ -8,9 +8,10 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from '../../providers/http.service';
 
 @Component({
-  selector: 'app-o2c-bill-details',
-  templateUrl: './o2c-bill-details.component.html',
-  styleUrls: ['./o2c-bill-details.component.css'],
+    selector: 'app-o2c-bill-details',
+    templateUrl: './o2c-bill-details.component.html',
+    styleUrls: ['./o2c-bill-details.component.css'],
+    standalone: false
 })
 export class O2cBillDetailsComponent {
   orderId: string = ''; // Placeholder for order ID

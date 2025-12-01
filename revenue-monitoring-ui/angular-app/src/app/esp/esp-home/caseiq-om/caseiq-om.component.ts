@@ -25,9 +25,10 @@ interface OmAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-om',
-  templateUrl: './caseiq-om.component.html',
-  styleUrl: './caseiq-om.component.css',
+    selector: 'app-caseiq-om',
+    templateUrl: './caseiq-om.component.html',
+    styleUrl: './caseiq-om.component.css',
+    standalone: false
 })
 export class CaseiqOmComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -771,8 +772,8 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
 import { Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
-  selector: 'app-caseiq-om-expand-dialog',
-  template: `
+    selector: 'app-caseiq-om-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         OM {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -992,8 +993,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -1163,7 +1164,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqOmExpandDialogComponent {
   constructor(

@@ -30,9 +30,10 @@ interface P2pAccuracyData {
 }
 
 @Component({
-  selector: 'app-caseiq-p2p',
-  templateUrl: './caseiq-p2p.component.html',
-  styleUrl: './caseiq-p2p.component.css',
+    selector: 'app-caseiq-p2p',
+    templateUrl: './caseiq-p2p.component.html',
+    styleUrl: './caseiq-p2p.component.css',
+    standalone: false
 })
 export class CaseiqP2pComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -590,8 +591,8 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
 
 // Expand Dialog Component
 @Component({
-  selector: 'app-caseiq-p2p-expand-dialog',
-  template: `
+    selector: 'app-caseiq-p2p-expand-dialog',
+    template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         P2P {{ chartType === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -811,8 +812,8 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
       </div>
     </mat-dialog-content>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -982,7 +983,8 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
         color: #555;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class CaseiqP2pExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';

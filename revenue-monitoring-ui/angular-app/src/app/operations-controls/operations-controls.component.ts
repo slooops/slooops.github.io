@@ -4,9 +4,10 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
-  selector: 'app-operations-controls',
-  templateUrl: './operations-controls.component.html',
-  styleUrl: './operations-controls.component.css',
+    selector: 'app-operations-controls',
+    templateUrl: './operations-controls.component.html',
+    styleUrl: './operations-controls.component.css',
+    standalone: false
 })
 export class OperationsControlsComponent implements OnInit {
   constructor(

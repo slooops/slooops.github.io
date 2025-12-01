@@ -9,10 +9,11 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 
 @Component({
-  selector: 'app-order-lifecycle-summary',
-  templateUrl: './order-lifecycle-summary.component.html',
-  styleUrls: ['./order-lifecycle-summary.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-order-lifecycle-summary',
+    templateUrl: './order-lifecycle-summary.component.html',
+    styleUrls: ['./order-lifecycle-summary.component.css'],
+    providers: [DestroyManager],
+    standalone: false
 })
 export class OrderLifecycleSummaryComponent implements OnInit {
   selectedArr: OrderLifecycleSummaryModel[];

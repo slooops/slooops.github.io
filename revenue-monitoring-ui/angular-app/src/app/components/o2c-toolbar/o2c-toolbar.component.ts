@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-o2c-toolbar',
-  templateUrl: './o2c-toolbar.component.html',
-  styleUrl: './o2c-toolbar.component.css',
+    selector: 'app-o2c-toolbar',
+    templateUrl: './o2c-toolbar.component.html',
+    styleUrl: './o2c-toolbar.component.css',
+    standalone: false
 })
 export class O2cToolbarComponent {
   @Input() data: any[] = [];

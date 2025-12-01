@@ -8,9 +8,10 @@ import {
 } from 'src/app/search-context.service';
 
 @Component({
-  selector: 'app-o2c-search',
-  templateUrl: './o2c-search.component.html',
-  styleUrls: ['./o2c-search.component.css'],
+    selector: 'app-o2c-search',
+    templateUrl: './o2c-search.component.html',
+    styleUrls: ['./o2c-search.component.css'],
+    standalone: false
 })
 export class O2cSearchComponent {
   searchValue: string = '';

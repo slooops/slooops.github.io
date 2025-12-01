@@ -3,9 +3,10 @@ import { Router } from '@angular/router';
 import { ApiHttpService } from '../../providers/http.service';
 
 @Component({
-  selector: 'app-o2c-nav',
-  templateUrl: './o2c-nav.component.html',
-  styleUrls: ['./o2c-nav.component.css'],
+    selector: 'app-o2c-nav',
+    templateUrl: './o2c-nav.component.html',
+    styleUrls: ['./o2c-nav.component.css'],
+    standalone: false
 })
 export class O2cNavComponent {
   searchValue: string = '';

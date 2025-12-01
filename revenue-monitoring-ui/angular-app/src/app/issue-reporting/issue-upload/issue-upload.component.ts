@@ -5,9 +5,10 @@ import { AuthenticationService } from 'src/app/providers/authentication.service'
 import { ApiHttpService } from 'src/app/providers/http.service';
 
 @Component({
-  selector: 'app-issue-upload',
-  templateUrl: './issue-upload.component.html',
-  styleUrl: './issue-upload.component.css',
+    selector: 'app-issue-upload',
+    templateUrl: './issue-upload.component.html',
+    styleUrl: './issue-upload.component.css',
+    standalone: false
 })
 export class IssueUploadComponent {
   updateForm: FormGroup;

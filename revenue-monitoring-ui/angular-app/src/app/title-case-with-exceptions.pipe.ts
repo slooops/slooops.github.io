@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'titleCaseWithExceptions',
+    name: 'titleCaseWithExceptions',
+    standalone: false
 })
 export class TitleCaseWithExceptionsPipe implements PipeTransform {
   transform(value: string, ...exceptions: string[]): string {

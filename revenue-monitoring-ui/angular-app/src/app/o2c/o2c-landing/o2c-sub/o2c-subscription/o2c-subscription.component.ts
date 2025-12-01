@@ -5,9 +5,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { O2cBaseComponent } from '../../o2c-base.component';
 
 @Component({
-  selector: 'app-o2c-subscription',
-  templateUrl: './o2c-subscription.component.html',
-  styleUrls: ['./o2c-subscription.component.css'],
+    selector: 'app-o2c-subscription',
+    templateUrl: './o2c-subscription.component.html',
+    styleUrls: ['./o2c-subscription.component.css'],
+    standalone: false
 })
 export class O2cSubscriptionComponent
   extends O2cBaseComponent

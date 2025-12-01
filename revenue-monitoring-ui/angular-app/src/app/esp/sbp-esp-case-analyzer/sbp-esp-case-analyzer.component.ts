@@ -14,9 +14,10 @@ type PairConfig = {
 };
 
 @Component({
-  selector: 'app-sbp-esp-case-analyzer',
-  templateUrl: './sbp-esp-case-analyzer.component.html',
-  styleUrl: './sbp-esp-case-analyzer.component.css',
+    selector: 'app-sbp-esp-case-analyzer',
+    templateUrl: './sbp-esp-case-analyzer.component.html',
+    styleUrl: './sbp-esp-case-analyzer.component.css',
+    standalone: false
 })
 export class SbpEspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {

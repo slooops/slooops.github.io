@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { SidebarService } from 'src/app/sidebar.service';
 
 @Component({
-  selector: 'app-o2c-sidebar-nav',
-  templateUrl: './o2c-sidebar-nav.component.html',
-  styleUrls: ['./o2c-sidebar-nav.component.css'],
+    selector: 'app-o2c-sidebar-nav',
+    templateUrl: './o2c-sidebar-nav.component.html',
+    styleUrls: ['./o2c-sidebar-nav.component.css'],
+    standalone: false
 })
 export class O2cSidebarNavComponent {
   constructor(private sidebarService: SidebarService) {}

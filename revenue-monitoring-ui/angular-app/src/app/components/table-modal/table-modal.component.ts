@@ -3,9 +3,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 
 @Component({
-  selector: 'app-table-modal',
-  templateUrl: './table-modal.component.html',
-  styleUrls: ['./table-modal.component.css'],
+    selector: 'app-table-modal',
+    templateUrl: './table-modal.component.html',
+    styleUrls: ['./table-modal.component.css'],
+    standalone: false
 })
 export class TableModalComponent implements OnInit {
   @Input() title: string = 'Data Table';

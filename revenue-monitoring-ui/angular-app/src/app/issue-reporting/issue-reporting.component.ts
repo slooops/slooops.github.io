@@ -25,10 +25,11 @@ import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
 
 @Component({
-  selector: 'app-issue-reporting',
-  templateUrl: './issue-reporting.component.html',
-  styleUrl: './issue-reporting.component.css',
-  providers: [DestroyManager],
+    selector: 'app-issue-reporting',
+    templateUrl: './issue-reporting.component.html',
+    styleUrl: './issue-reporting.component.css',
+    providers: [DestroyManager],
+    standalone: false
 })
 export class IssueReportingComponent implements OnInit {
   constructor(
@@ -552,7 +553,7 @@ export interface IssueReportingModel {
 }
 
 @Component({
-  template: `
+    template: `
     <mat-dialog-content>
       <b>Please confirm you want to {{ data.message }} this Incident:</b>
     </mat-dialog-content>
@@ -574,8 +575,8 @@ export interface IssueReportingModel {
       </button>
     </mat-dialog-actions>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .dialog-content {
         font-size: 16px;
         color: #333;
@@ -590,7 +591,8 @@ export interface IssueReportingModel {
         color: white !important;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class DialogBox {
   constructor(
@@ -604,7 +606,7 @@ export class DialogBox {
 }
 
 @Component({
-  template: `
+    template: `
     <div>
       <b>Please confirm you want to change the status as {{ data.status }}:</b>
     </div>
@@ -621,8 +623,8 @@ export class DialogBox {
       </button>
     </div>
   `,
-  styles: [
-    `
+    styles: [
+        `
       .dialog-content {
         font-size: 16px;
         color: #333;
@@ -633,7 +635,8 @@ export class DialogBox {
         color: white !important;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class StatusDialog {
   constructor(
@@ -647,7 +650,7 @@ export class StatusDialog {
 }
 
 @Component({
-  template: `
+    template: `
     <div
       style="display: flex; justify-content: space-between; align-items: center;"
     >
@@ -724,8 +727,8 @@ export class StatusDialog {
       </table>
     </div>
   `,
-  styles: [
-    `
+    styles: [
+        `
       table {
         width: 100%;
         border-collapse: separate; /* Allows spacing between cells */
@@ -755,7 +758,8 @@ export class StatusDialog {
         font-weight: bold;
       }
     `,
-  ],
+    ],
+    standalone: false
 })
 export class SummaryDialog {
   displayedColumns: string[] = [
