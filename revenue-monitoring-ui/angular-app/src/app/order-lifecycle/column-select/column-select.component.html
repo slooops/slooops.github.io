@@ -8,7 +8,7 @@
     justify-content: space-between;
     align-items: center;
   "
->
+  >
   <!-- Title on the left -->
   <h5 style="margin: 0; font-weight: 450">Columns Filter</h5>
   <!-- Close button on the right -->
@@ -31,32 +31,33 @@
         top: 0;
         z-index: 1;
       "
-    >
+      >
       Displayed Columns
     </div>
     <mat-selection-list #column (selectionChange)="logSelectedColumns($event)">
-      <mat-list-option
-        *ngFor="let column of displayedColumns"
-        [value]="column"
+      @for (column of displayedColumns; track column) {
+        <mat-list-option
+          [value]="column"
         [selected]="
           selectedColumns.length > 0
             ? selectedColumns.includes(column.name)
             : column.selected
         "
-        style="font-weight: 500; font-size: small"
-        >{{ column.displayName }}</mat-list-option
-      >
-    </mat-selection-list>
-  </div>
-  <mat-divider></mat-divider>
-  <br />
-  <div style="text-align: center !important">
-    <button
-      mat-raised-button
-      style="background-color: gray; color: white"
-      (click)="save()"
-    >
-      Save
-    </button>
-  </div>
-</mat-dialog-content>
+          style="font-weight: 500; font-size: small"
+          >{{ column.displayName }}</mat-list-option
+          >
+        }
+      </mat-selection-list>
+    </div>
+    <mat-divider></mat-divider>
+    <br />
+    <div style="text-align: center !important">
+      <button
+        mat-raised-button
+        style="background-color: gray; color: white"
+        (click)="save()"
+        >
+        Save
+      </button>
+    </div>
+  </mat-dialog-content>

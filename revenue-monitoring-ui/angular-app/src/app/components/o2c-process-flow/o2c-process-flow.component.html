@@ -1,23 +1,25 @@
 <div class="flowchart-container">
   <div class="slider-bar">
-    <div
-      *ngFor="let step of circleSteps; let i = index"
-      [ngStyle]="getSliderBarStyle(i)"
-      class="slider-bar-item"
-    >
-      <div class="circle-wrapper-loop" (click)="navigateToRoute(step)">
-        <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
-        <p class="circle-caption-loop" [ngClass]="getCaptionClass(step)">
-          {{ removeUnderscores(step) }}
-        </p>
-        <p
-          class="step-value"
-          *ngIf="stepValues && stepValues[step]"
-          [ngClass]="getCaptionClass(step)"
+    @for (step of circleSteps; track step; let i = $index) {
+      <div
+        [ngStyle]="getSliderBarStyle(i)"
+        class="slider-bar-item"
         >
-          {{ stepValues[step] || "$0" }}
-        </p>
+        <div class="circle-wrapper-loop" (click)="navigateToRoute(step)">
+          <p class="circle-loop" [ngClass]="getCircleClass(step)"></p>
+          <p class="circle-caption-loop" [ngClass]="getCaptionClass(step)">
+            {{ removeUnderscores(step) }}
+          </p>
+          @if (stepValues && stepValues[step]) {
+            <p
+              class="step-value"
+              [ngClass]="getCaptionClass(step)"
+              >
+              {{ stepValues[step] || "$0" }}
+            </p>
+          }
+        </div>
       </div>
-    </div>
+    }
   </div>
 </div>

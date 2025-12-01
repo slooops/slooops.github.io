@@ -8,7 +8,7 @@
     justify-content: space-between;
     align-items: center;
   "
->
+  >
   <!-- Title on the left -->
   <h5 style="margin: 0; font-weight: 450">File Upload</h5>
 
@@ -35,7 +35,7 @@
   (drop)="onDrop($event)"
   (dragover)="onDragOver($event)"
   cdkDropList
->
+  >
   <i style="color: gray" class="fa fa-2x fa-cloud-upload"></i>
   <p>Drag and drop your file here</p>
   <p>or</p>
@@ -47,26 +47,30 @@
     #fileInput
     type="file"
     accept=".xlsx, .xls, .csv"
-  />
+    />
   <br />
   <br />
-  <span *ngIf="selectedFile">
-    <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
-    File selected:
-    <a
-      ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
-    >
-    &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
-  </span>
-</div>
-<br />
-<div style="text-align: center" *ngIf="fileSelected">
-  <button
-    class="btn btn-primary"
-    mat-stroked-button
-    style="color: white"
-    (click)="uploadDealsFile()"
-  >
-    Upload
-  </button>
-</div>
+  @if (selectedFile) {
+    <span>
+      <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
+      File selected:
+      <a
+        ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
+        >
+        &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
+      </span>
+    }
+  </div>
+  <br />
+  @if (fileSelected) {
+    <div style="text-align: center">
+      <button
+        class="btn btn-primary"
+        mat-stroked-button
+        style="color: white"
+        (click)="uploadDealsFile()"
+        >
+        Upload
+      </button>
+    </div>
+  }

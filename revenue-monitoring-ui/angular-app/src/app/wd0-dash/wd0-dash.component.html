@@ -11,97 +11,108 @@
           actualStartDate <= expectedStartDate ? 'color-green' : 'color-orange'
         "
         >{{ actualStartTime }}</span
-      >
-      &nbsp;|&nbsp;
-      <label class="labelFont">Actual Mid Close End Time:</label> &nbsp;
-      <span
+        >
+        &nbsp;|&nbsp;
+        <label class="labelFont">Actual Mid Close End Time:</label> &nbsp;
+        <span
         [ngClass]="
           actualEndDate <= expectedEndDate ? 'color-green' : 'color-orange'
         "
-        >{{ actualEndTime }}</span
-      >&nbsp;|&nbsp;
-      <br />
-      <label class="labelFont"
-        >Eliminations, Stat Rules and Consolidations Expected End
-        Time:&nbsp;</label
-      >
-      {{ elimStatConsExpectedEndTime }} &nbsp;|&nbsp;
-      <label class="labelFont"
-        >Eliminations, Stat Rules and Consolidations Actual End
-        Time:&nbsp;</label
-      >
-      {{ elimStatConsActualEndTime }}
-    </span>
-    <span class="col-sm-3">
-      <div style="float: right; margin-right: 5px">
-        Dashboard updated: Today at {{ timeNow }}
-      </div>
-      <div style="float: right; margin-right: 5px">
-        <label class="labelFont">Quarter:</label>
-        {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
-        {{ periodName }}
-      </div>
-    </span>
-  </div>
+          >{{ actualEndTime }}</span
+          >&nbsp;|&nbsp;
+          <br />
+          <label class="labelFont"
+            >Eliminations, Stat Rules and Consolidations Expected End
+            Time:&nbsp;</label
+            >
+            {{ elimStatConsExpectedEndTime }} &nbsp;|&nbsp;
+            <label class="labelFont"
+              >Eliminations, Stat Rules and Consolidations Actual End
+              Time:&nbsp;</label
+              >
+              {{ elimStatConsActualEndTime }}
+            </span>
+            <span class="col-sm-3">
+              <div style="float: right; margin-right: 5px">
+                Dashboard updated: Today at {{ timeNow }}
+              </div>
+              <div style="float: right; margin-right: 5px">
+                <label class="labelFont">Quarter:</label>
+                {{ quarter }} &nbsp;|&nbsp;<label>Period:</label>
+                {{ periodName }}
+              </div>
+            </span>
+          </div>
 
-  <div class="row">
-    <div
-      class="col-sm-12 media"
-      style="font-size: small; margin-top: 4px; margin-right: 5px"
-    >
-      <p class="clearfix">
-        <label class="reduce-space labelFont"
-          >Sequence Infomation: &nbsp;</label
-        >
-        <span class="collapsable float-left">
-          {{
-            info.length > firstCount
-              ? (info | slice : 0 : counter) + "..."
-              : info
-          }}
-          <span
-            class="blueTxt"
-            *ngIf="info.length > 201"
-            (click)="toggleSkil()"
-          >
-            {{ showTxt }}
-          </span>
-        </span>
-      </p>
-    </div>
-  </div>
-</div>
-<mat-divider></mat-divider>
+          <div class="row">
+            <div
+              class="col-sm-12 media"
+              style="font-size: small; margin-top: 4px; margin-right: 5px"
+              >
+              <p class="clearfix">
+                <label class="reduce-space labelFont"
+                  >Sequence Infomation: &nbsp;</label
+                  >
+                  <span class="collapsable float-left">
+                    {{
+                    info.length > firstCount
+                    ? (info | slice : 0 : counter) + "..."
+                    : info
+                    }}
+                    @if (info.length > 201) {
+                      <span
+                        class="blueTxt"
+                        (click)="toggleSkil()"
+                        >
+                        {{ showTxt }}
+                      </span>
+                    }
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
 
-<div class="arclosetable container grid-1">
-  <table class="table table-responsive equal-width media">
-    <thead>
-      <tr>
-        <th *ngFor="let col of displayedColumns">
-          <span style="font-weight: bold">{{ col | uppercase }}</span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let row of wd0ArMidCloseTableData">
-        <td *ngFor="let category of templateObject.keys(row)">
-          <span *ngIf="row[category] === 'Completed'" class="color-green">
-            {{ row[category] }}</span
-          >
-          <!-- <span
-            *ngIf="row[category].toLowerCase() === 'delayed'"
-            class="color-orange"
-          >
-            {{ row[category] }}</span
-          > -->
-          <span *ngIf="['Completed'].indexOf(row[category]) === -1">{{
-            row[category]
-          }}</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+          <div class="arclosetable container grid-1">
+            <table class="table table-responsive equal-width media">
+              <thead>
+                <tr>
+                  @for (col of displayedColumns; track col) {
+                    <th>
+                      <span style="font-weight: bold">{{ col | uppercase }}</span>
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of wd0ArMidCloseTableData; track row) {
+                  <tr>
+                    @for (category of templateObject.keys(row); track category) {
+                      <td>
+                        @if (row[category] === 'Completed') {
+                          <span class="color-green">
+                            {{ row[category] }}</span
+                            >
+                          }
+                          <!-- <span
+                          *ngIf="row[category].toLowerCase() === 'delayed'"
+                          class="color-orange"
+                          >
+                          {{ row[category] }}</span
+                          > -->
+                          @if (['Completed'].indexOf(row[category]) === -1) {
+                            <span>{{
+                              row[category]
+                            }}</span>
+                          }
+                        </td>
+                      }
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
 
-<br />
-<br />
+            <br />
+            <br />

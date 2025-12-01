@@ -788,211 +788,225 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     </div>
     <mat-dialog-content class="expand-dialog-content" tabindex="0">
       <div class="expand-charts-wrapper">
-        <div class="expand-chart-block" *ngIf="data.type === 'CATEGORY'">
-          <div class="expand-chart-header">
-            <h3 class="subheading">
-              Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
-              {{ data.categoryTotal }} )
-            </h3>
-            <div class="filter-wrapper">
-              <mat-icon
-                style="cursor: pointer; font-size: 24px"
-                (click)="toggleCategoryFiltersInDialog()"
-                (keydown.enter)="toggleCategoryFiltersInDialog()"
-                (keydown.space)="toggleCategoryFiltersInDialog()"
-                tabindex="0"
-                title="Category Chart Filters"
-                aria-label="Category Chart Filters"
-                >filter_list</mat-icon
-              >
-              <div
-                class="chart-filter-panel"
-                *ngIf="showCategoryFiltersInDialog"
-                aria-label="Expanded category chart filters panel"
-              >
-                <div class="multi-select-wrapper">
-                  <button
-                    class="multi-select-trigger"
-                    (click)="toggleCategorySelectInDialog()"
-                    type="button"
+        @if (data.type === 'CATEGORY') {
+          <div class="expand-chart-block">
+            <div class="expand-chart-header">
+              <h3 class="subheading">
+                Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
+                {{ data.categoryTotal }} )
+              </h3>
+              <div class="filter-wrapper">
+                <mat-icon
+                  style="cursor: pointer; font-size: 24px"
+                  (click)="toggleCategoryFiltersInDialog()"
+                  (keydown.enter)="toggleCategoryFiltersInDialog()"
+                  (keydown.space)="toggleCategoryFiltersInDialog()"
+                  tabindex="0"
+                  title="Category Chart Filters"
+                  aria-label="Category Chart Filters"
+                  >filter_list</mat-icon
                   >
-                    Filter
-                    <span
-                      class="chevron"
-                      [class.open]="showCategorySelectInDialog"
-                      >▾</span
-                    >
-                  </button>
-                  <div
-                    class="multi-select-dropdown"
-                    *ngIf="showCategorySelectInDialog"
-                    (click)="$event.stopPropagation()"
-                  >
-                    <div class="multi-select-options">
-                      <div
-                        class="multi-option"
-                        *ngFor="let label of dialogCategoryLabels"
+                  @if (showCategoryFiltersInDialog) {
+                    <div
+                      class="chart-filter-panel"
+                      aria-label="Expanded category chart filters panel"
+                      >
+                      <div class="multi-select-wrapper">
+                        <button
+                          class="multi-select-trigger"
+                          (click)="toggleCategorySelectInDialog()"
+                          type="button"
+                          >
+                          Filter
+                          <span
+                            class="chevron"
+                            [class.open]="showCategorySelectInDialog"
+                            >▾</span
+                            >
+                          </button>
+                          @if (showCategorySelectInDialog) {
+                            <div
+                              class="multi-select-dropdown"
+                              (click)="$event.stopPropagation()"
+                              >
+                              <div class="multi-select-options">
+                                @for (label of dialogCategoryLabels; track label) {
+                                  <div
+                                    class="multi-option"
                         [class.selected]="
                           selectedCategoryLabelsInDialog.has(label)
                         "
-                        (click)="toggleCategorySelectionInDialog(label)"
-                      >
-                        <input
-                          type="checkbox"
-                          [checked]="selectedCategoryLabelsInDialog.has(label)"
-                        />
-                        <span class="option-label">{{ label }}</span>
+                                    (click)="toggleCategorySelectionInDialog(label)"
+                                    >
+                                    <input
+                                      type="checkbox"
+                                      [checked]="selectedCategoryLabelsInDialog.has(label)"
+                                      />
+                                    <span class="option-label">{{ label }}</span>
+                                  </div>
+                                }
+                              </div>
+                              <div class="multi-select-actions">
+                                <button
+                                  type="button"
+                                  class="clear-btn"
+                                  (click)="clearCategorySelectionInDialog($event)"
+                                  [disabled]="selectedCategoryLabelsInDialog.size === 0"
+                                  >
+                                  Clear
+                                </button>
+                                <button
+                                  type="button"
+                                  class="close-btn"
+                                  (click)="toggleCategorySelectInDialog()"
+                                  >
+                                  Close
+                                </button>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                        @if (selectedCategoryLabelsInDialog.size === 0) {
+                          <div
+                            class="filter-hint"
+                            >
+                            Showing all categories.
+                          </div>
+                        }
+                        @if (selectedCategoryLabelsInDialog.size > 0) {
+                          <div
+                            class="filter-hint"
+                            >
+                            Showing {{ selectedCategoryLabelsInDialog.size }} selected
+                            category(ies).
+                          </div>
+                        }
                       </div>
-                    </div>
-                    <div class="multi-select-actions">
-                      <button
-                        type="button"
-                        class="clear-btn"
-                        (click)="clearCategorySelectionInDialog($event)"
-                        [disabled]="selectedCategoryLabelsInDialog.size === 0"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        type="button"
-                        class="close-btn"
-                        (click)="toggleCategorySelectInDialog()"
-                      >
-                        Close
-                      </button>
-                    </div>
+                    }
                   </div>
                 </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCategoryLabelsInDialog.size === 0"
-                >
-                  Showing all categories.
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCategoryLabelsInDialog.size > 0"
-                >
-                  Showing {{ selectedCategoryLabelsInDialog.size }} selected
-                  category(ies).
+                <div class="chart-frame">
+                  <app-bar-chart
+                    [data]="filteredCategoryData"
+                    [stacked]="true"
+                    [isLoading]="false"
+                    [chartHeight]="510"
+                    canvasId="expandedCategoryChartOm"
+                  ></app-bar-chart>
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="chart-frame">
-            <app-bar-chart
-              [data]="filteredCategoryData"
-              [stacked]="true"
-              [isLoading]="false"
-              [chartHeight]="510"
-              canvasId="expandedCategoryChartOm"
-            ></app-bar-chart>
-          </div>
-        </div>
-        <div class="expand-chart-block" *ngIf="data.type === 'CORE_ISSUE'">
-          <div class="expand-chart-header">
-            <h3 class="subheading">
-              Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
-              {{ data.coreIssueTotal }} )
-            </h3>
-            <div class="filter-wrapper">
-              <mat-icon
-                style="cursor: pointer; font-size: 24px"
-                (click)="toggleCoreIssueFiltersInDialog()"
-                (keydown.enter)="toggleCoreIssueFiltersInDialog()"
-                (keydown.space)="toggleCoreIssueFiltersInDialog()"
-                tabindex="0"
-                title="Core Issue Chart Filters"
-                aria-label="Core Issue Chart Filters"
-                >filter_list</mat-icon
-              >
-              <div
-                class="chart-filter-panel"
-                *ngIf="showCoreIssueFiltersInDialog"
-                aria-label="Expanded core issue chart filters panel"
-              >
-                <div class="multi-select-wrapper">
-                  <button
-                    class="multi-select-trigger"
-                    (click)="toggleCoreIssueSelectInDialog()"
-                    type="button"
-                  >
-                    Filter
-                    <span
-                      class="chevron"
-                      [class.open]="showCoreIssueSelectInDialog"
-                      >▾</span
-                    >
-                  </button>
-                  <div
-                    class="multi-select-dropdown"
-                    *ngIf="showCoreIssueSelectInDialog"
-                    (click)="$event.stopPropagation()"
-                  >
-                    <div class="multi-select-options">
-                      <div
-                        class="multi-option"
-                        *ngFor="let label of dialogCoreIssueLabels"
+            }
+            @if (data.type === 'CORE_ISSUE') {
+              <div class="expand-chart-block">
+                <div class="expand-chart-header">
+                  <h3 class="subheading">
+                    Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
+                    {{ data.coreIssueTotal }} )
+                  </h3>
+                  <div class="filter-wrapper">
+                    <mat-icon
+                      style="cursor: pointer; font-size: 24px"
+                      (click)="toggleCoreIssueFiltersInDialog()"
+                      (keydown.enter)="toggleCoreIssueFiltersInDialog()"
+                      (keydown.space)="toggleCoreIssueFiltersInDialog()"
+                      tabindex="0"
+                      title="Core Issue Chart Filters"
+                      aria-label="Core Issue Chart Filters"
+                      >filter_list</mat-icon
+                      >
+                      @if (showCoreIssueFiltersInDialog) {
+                        <div
+                          class="chart-filter-panel"
+                          aria-label="Expanded core issue chart filters panel"
+                          >
+                          <div class="multi-select-wrapper">
+                            <button
+                              class="multi-select-trigger"
+                              (click)="toggleCoreIssueSelectInDialog()"
+                              type="button"
+                              >
+                              Filter
+                              <span
+                                class="chevron"
+                                [class.open]="showCoreIssueSelectInDialog"
+                                >▾</span
+                                >
+                              </button>
+                              @if (showCoreIssueSelectInDialog) {
+                                <div
+                                  class="multi-select-dropdown"
+                                  (click)="$event.stopPropagation()"
+                                  >
+                                  <div class="multi-select-options">
+                                    @for (label of dialogCoreIssueLabels; track label) {
+                                      <div
+                                        class="multi-option"
                         [class.selected]="
                           selectedCoreIssueLabelsInDialog.has(label)
                         "
-                        (click)="toggleCoreIssueSelectionInDialog(label)"
-                      >
-                        <input
-                          type="checkbox"
-                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
-                        />
-                        <span class="option-label">{{ label }}</span>
+                                        (click)="toggleCoreIssueSelectionInDialog(label)"
+                                        >
+                                        <input
+                                          type="checkbox"
+                                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
+                                          />
+                                        <span class="option-label">{{ label }}</span>
+                                      </div>
+                                    }
+                                  </div>
+                                  <div class="multi-select-actions">
+                                    <button
+                                      type="button"
+                                      class="clear-btn"
+                                      (click)="clearCoreIssueSelectionInDialog($event)"
+                                      [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
+                                      >
+                                      Clear
+                                    </button>
+                                    <button
+                                      type="button"
+                                      class="close-btn"
+                                      (click)="toggleCoreIssueSelectInDialog()"
+                                      >
+                                      Close
+                                    </button>
+                                  </div>
+                                </div>
+                              }
+                            </div>
+                            @if (selectedCoreIssueLabelsInDialog.size === 0) {
+                              <div
+                                class="filter-hint"
+                                >
+                                Showing all core issues.
+                              </div>
+                            }
+                            @if (selectedCoreIssueLabelsInDialog.size > 0) {
+                              <div
+                                class="filter-hint"
+                                >
+                                Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
+                                core issue(s).
+                              </div>
+                            }
+                          </div>
+                        }
                       </div>
                     </div>
-                    <div class="multi-select-actions">
-                      <button
-                        type="button"
-                        class="clear-btn"
-                        (click)="clearCoreIssueSelectionInDialog($event)"
-                        [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        type="button"
-                        class="close-btn"
-                        (click)="toggleCoreIssueSelectInDialog()"
-                      >
-                        Close
-                      </button>
+                    <div class="chart-frame">
+                      <app-bar-chart
+                        [data]="filteredCoreIssueData"
+                        [stacked]="true"
+                        [isLoading]="false"
+                        [chartHeight]="510"
+                        canvasId="expandedCoreIssueChartOm"
+                      ></app-bar-chart>
                     </div>
                   </div>
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCoreIssueLabelsInDialog.size === 0"
-                >
-                  Showing all core issues.
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCoreIssueLabelsInDialog.size > 0"
-                >
-                  Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
-                  core issue(s).
-                </div>
+                }
               </div>
-            </div>
-          </div>
-          <div class="chart-frame">
-            <app-bar-chart
-              [data]="filteredCoreIssueData"
-              [stacked]="true"
-              [isLoading]="false"
-              [chartHeight]="510"
-              canvasId="expandedCoreIssueChartOm"
-            ></app-bar-chart>
-          </div>
-        </div>
-      </div>
-    </mat-dialog-content>
-  `,
+            </mat-dialog-content>
+    `,
     styles: [
         `
       .expand-charts-wrapper {
