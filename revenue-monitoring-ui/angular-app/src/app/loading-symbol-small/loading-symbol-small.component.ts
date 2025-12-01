@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
     selector: 'app-loading-symbol-small',
     templateUrl: './loading-symbol-small.component.html',
     styleUrls: ['./loading-symbol-small.component.scss'],
-    standalone: false
+    standalone: true
 })
 export class LoadingSymbolSmallComponent implements OnInit {
   constructor() {}

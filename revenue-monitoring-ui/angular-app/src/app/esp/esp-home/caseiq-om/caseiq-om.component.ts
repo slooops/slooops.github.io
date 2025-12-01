@@ -8,13 +8,19 @@ import {
   HostListener,
   Output,
   EventEmitter,
+  Inject,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
+import { StackedBarChartDataPoint, BarChartComponent } from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 
 interface OmAccuracyData {
   TEAM_NAME: string;
@@ -28,7 +34,15 @@ interface OmAccuracyData {
     selector: 'app-caseiq-om',
     templateUrl: './caseiq-om.component.html',
     styleUrl: './caseiq-om.component.css',
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent
+  ],
+  standalone: true
 })
 export class CaseiqOmComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -769,8 +783,6 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
 }
 
 // Simple dialog component for expanded charts
-import { Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
     selector: 'app-caseiq-om-expand-dialog',
     template: `
@@ -1179,7 +1191,16 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class CaseiqOmExpandDialogComponent {
   constructor(

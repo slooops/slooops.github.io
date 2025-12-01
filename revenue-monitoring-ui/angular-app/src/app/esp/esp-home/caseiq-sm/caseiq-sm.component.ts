@@ -19,7 +19,13 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialogModule,
 } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface SmAccuracyData {
   TEAM_NAME: string;
@@ -33,7 +39,15 @@ interface SmAccuracyData {
     selector: 'app-caseiq-sm',
     templateUrl: './caseiq-sm.component.html',
     styleUrl: './caseiq-sm.component.css',
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent
+  ],
+  standalone: true
 })
 export class CaseiqSmComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -1023,7 +1037,16 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class CaseiqSmExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';

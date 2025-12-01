@@ -2,12 +2,22 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
     selector: 'app-cms-sftp-details',
     templateUrl: './cms-sftp-details.component.html',
     styleUrls: ['./cms-sftp-details.component.css'],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class CmsSftpDetailsComponent implements OnInit {
   displayedColumns: string[] = [

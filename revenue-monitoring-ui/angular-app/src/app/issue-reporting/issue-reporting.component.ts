@@ -9,6 +9,7 @@ import {
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogRef,
+  MatDialogModule,
 } from '@angular/material/dialog';
 import { AuthenticationService } from '../providers/authentication.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
@@ -23,13 +24,38 @@ import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-r
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatMenuModule } from '@angular/material/menu';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
     selector: 'app-issue-reporting',
     templateUrl: './issue-reporting.component.html',
     styleUrl: './issue-reporting.component.css',
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class IssueReportingComponent implements OnInit {
   constructor(
@@ -592,7 +618,21 @@ export interface IssueReportingModel {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    LoadingSymbolComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class DialogBox {
   constructor(
@@ -636,7 +676,21 @@ export class DialogBox {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    LoadingSymbolComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class StatusDialog {
   constructor(
@@ -759,7 +813,23 @@ export class StatusDialog {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    LoadingSymbolComponent,
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule
+  ],
+  standalone: true
 })
 export class SummaryDialog {
   displayedColumns: string[] = [

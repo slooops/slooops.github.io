@@ -19,7 +19,13 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialogModule,
 } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface P2pAccuracyData {
   TEAM_NAME: string;
@@ -33,7 +39,15 @@ interface P2pAccuracyData {
     selector: 'app-caseiq-p2p',
     templateUrl: './caseiq-p2p.component.html',
     styleUrl: './caseiq-p2p.component.css',
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent
+  ],
+  standalone: true
 })
 export class CaseiqP2pComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -998,7 +1012,16 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class CaseiqP2pExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';

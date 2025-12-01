@@ -21,13 +21,44 @@ import { CloUpdatesComponent } from './clo-updates/clo-updates.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
     selector: 'app-invoice-status',
     templateUrl: './order-lifecycle.component.html',
     styleUrls: ['./order-lifecycle.component.scss'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    MatTooltipModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    LoadingSymbolComponent,
+    MatDividerModule
+  ],
+  standalone: true
 })
 export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;

@@ -14,12 +14,18 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialogModule,
 } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface CapitalAccuracyData {
   TEAM_NAME: string;
@@ -33,7 +39,15 @@ interface CapitalAccuracyData {
     selector: 'app-caseiq-cap',
     templateUrl: './caseiq-cap.component.html',
     styleUrl: './caseiq-cap.component.css',
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent
+  ],
+  standalone: true
 })
 export class CaseiqCapComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -1147,7 +1161,16 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class CaseiqCapExpandDialogComponent implements OnInit {
   // Dialog-specific multi-select state

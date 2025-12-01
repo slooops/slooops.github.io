@@ -18,7 +18,7 @@ import { ComponentPortal } from '@angular/cdk/portal';
 
 @Directive({
     selector: '[customToolTip]',
-    standalone: false
+    standalone: true
 })
 export class ToolTipRendererDirective {
   /**

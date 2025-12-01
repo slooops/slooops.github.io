@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 export type MetricStatus = 'high' | 'medium' | 'low';
 
@@ -6,7 +7,10 @@ export type MetricStatus = 'high' | 'medium' | 'low';
     selector: 'app-metric-tile',
     templateUrl: './metric-tile.component.html',
     styleUrls: ['./metric-tile.component.css'],
-    standalone: false
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class MetricTileComponent {
   @Input() name: string = '';

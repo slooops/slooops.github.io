@@ -3,6 +3,11 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { CardComponent } from '../../components/card/card.component';
+import { TableComponent } from '../../components/table/table.component';
 Chart.register(...registerables);
 
 // Types for new quarter-pair logic
@@ -19,7 +24,14 @@ type PairConfig = {
     templateUrl: './esp-case-analyzer.component.html',
     styleUrl: './esp-case-analyzer.component.css',
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTabsModule,
+    LoadingSymbolComponent,
+    CardComponent,
+    TableComponent
+  ],
+  standalone: true
 })
 export class EspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {

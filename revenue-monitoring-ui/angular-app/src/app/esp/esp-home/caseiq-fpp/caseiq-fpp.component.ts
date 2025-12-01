@@ -19,7 +19,13 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialogModule,
 } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface FppAccuracyData {
   TEAM_NAME: string;
@@ -33,7 +39,15 @@ interface FppAccuracyData {
     selector: 'app-caseiq-fpp',
     templateUrl: './caseiq-fpp.component.html',
     styleUrl: './caseiq-fpp.component.css',
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent
+  ],
+  standalone: true
 })
 export class CaseiqFppComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -963,7 +977,16 @@ export class CaseiqFppComponent implements OnInit, OnChanges {
       }
     `,
     ],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class CaseiqFppExpandDialogComponent implements OnInit {
   chartType: 'CATEGORY' | 'CORE_ISSUE';

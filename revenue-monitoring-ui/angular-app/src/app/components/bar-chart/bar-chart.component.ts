@@ -9,6 +9,7 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import * as d3 from 'd3';
+import { CommonModule } from '@angular/common';
 
 export interface BarChartDataPoint {
   label: string;
@@ -35,7 +36,10 @@ interface LegendItem {
     selector: 'app-bar-chart',
     templateUrl: './bar-chart.component.html',
     styleUrl: './bar-chart.component.css',
-    standalone: false
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class BarChartComponent implements OnChanges, AfterViewInit {
   @ViewChild('barChartContainer', { static: true })

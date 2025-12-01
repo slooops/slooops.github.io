@@ -6,13 +6,29 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AtmfCardComponent } from '../components/atmf/atmf-card/atmf-card.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
+import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
 
 @Component({
     selector: 'app-period-close-tracking',
     templateUrl: './period-close-tracking.component.html',
     styleUrls: ['./period-close-tracking.component.css'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTabsModule,
+    MatTooltipModule,
+    AtmfCardComponent,
+    LoadingSymbolComponent,
+    AtmfBarLineChartComponent,
+    AtmfTableComponent
+  ],
+  standalone: true
 })
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 300000; //ms

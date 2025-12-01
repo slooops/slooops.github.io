@@ -6,13 +6,23 @@ import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-process-flow.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
     selector: 'app-o2c-tsv',
     templateUrl: './o2c-tsv.component.html',
     styleUrl: './o2c-tsv.component.css',
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule,
+    O2cProcessFlowComponent,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class O2cTsvComponent {
   orderId = '28221819418344'; // Placeholder for order ID

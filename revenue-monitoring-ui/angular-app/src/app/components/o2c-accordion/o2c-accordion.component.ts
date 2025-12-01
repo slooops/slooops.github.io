@@ -1,11 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
     selector: 'app-o2c-accordion',
     templateUrl: './o2c-accordion.component.html',
     styleUrl: './o2c-accordion.component.css',
-    standalone: false
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class O2cAccordionComponent {
   @Input() title: string = '';

@@ -24,6 +24,11 @@ import { MenuService } from '../providers/menu.service';
 import { TableModalComponent } from '../components/table-modal/table-modal.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { ModalComponent } from '../components/modal/modal.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { FormatNumberPipe } from '../format-number.pipe';
 
 Chart.register(...registerables);
 
@@ -32,7 +37,14 @@ Chart.register(...registerables);
     templateUrl: './wd0-historical-data.component.html',
     styleUrls: ['./wd0-historical-data.component.scss'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule,
+    ModalComponent,
+    LoadingSymbolComponent,
+    FormatNumberPipe
+  ],
+  standalone: true
 })
 export class Wd0HistoricalDataComponent
   implements OnInit, OnDestroy, AfterViewInit

@@ -2,13 +2,19 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
     selector: 'app-opl',
     templateUrl: './opl.component.html',
     styleUrls: ['./opl.component.css'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule
+  ],
+  standalone: true
 })
 export class OplComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;

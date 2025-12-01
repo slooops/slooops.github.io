@@ -19,7 +19,7 @@ import { Component, OnInit, Input, TemplateRef } from '@angular/core';
     selector: 'app-custom-tool-tip',
     templateUrl: './custom-tool-tip.component.html',
     styleUrls: ['./custom-tool-tip.component.css'],
-    standalone: false
+    standalone: true
 })
 export class CustomToolTipComponent implements OnInit {
   /**

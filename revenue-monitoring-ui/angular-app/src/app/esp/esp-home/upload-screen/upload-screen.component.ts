@@ -2,12 +2,20 @@ import { Component, Input } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
     selector: 'app-upload-screen',
     templateUrl: './upload-screen.component.html',
     styleUrls: ['./upload-screen.component.css'],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
+  ],
+  standalone: true
 })
 export class UploadScreenComponent {
   @Input() source: string = '';

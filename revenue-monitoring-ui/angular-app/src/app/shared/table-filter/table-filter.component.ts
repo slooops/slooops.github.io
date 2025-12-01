@@ -7,12 +7,18 @@ import {
   OnChanges,
   Output,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-table-filter',
     templateUrl: './table-filter.component.html',
     styleUrls: ['./table-filter.component.css'],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule
+  ],
+  standalone: true
 })
 export class TableFilterComponent implements OnInit, OnChanges {
   @Input() columnLabel = 'USD';
