@@ -8,14 +8,14 @@ import { BarChartComponent } from '../../../components/bar-chart/bar-chart.compo
 import { CaseiqTableComponent } from '../../../components/caseiq-table/caseiq-table.component';
 
 @Component({
-    selector: 'app-caseiq',
-    templateUrl: './caseiq.component.html',
-    styleUrl: './caseiq.component.css',
-    imports: [
-    BarChartComponent,
-    CaseiqTableComponent
+  selector: 'app-caseiq',
+  templateUrl: './caseiq.component.html',
+  styleUrl: './caseiq.component.css',
+  imports: [
+    // BarChartComponent,
+    // CaseiqTableComponent
   ],
-  standalone: true
+  standalone: true,
 })
 export class CaseiqComponent {
   // I2C Chart Data - Similar to the screenshot

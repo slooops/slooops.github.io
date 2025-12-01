@@ -20,11 +20,11 @@ import { HelpDataComponent } from './help-data/help-data.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     RouterModule,
     MatToolbarModule,
@@ -32,11 +32,11 @@ import { ChatbotComponent } from './chatbot/chatbot.component';
     MatMenuModule,
     MatTooltipModule,
     O2cSearchComponent,
-    MenuComponent,
+    // MenuComponent,
     HelpDataComponent,
-    ChatbotComponent
+    // ChatbotComponent
   ],
-  standalone: true
+  standalone: true,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

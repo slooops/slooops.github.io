@@ -18,22 +18,22 @@ import { TableFilterComponent } from '../../shared/table-filter/table-filter.com
 import { ModalComponent } from '../../components/modal/modal.component';
 
 @Component({
-    selector: 'app-o2c-view-all',
-    templateUrl: './o2c-view-all.component.html',
-    styleUrl: './o2c-view-all.component.css',
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-o2c-view-all',
+  templateUrl: './o2c-view-all.component.html',
+  styleUrl: './o2c-view-all.component.css',
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatIconModule,
     MatTabsModule,
     MatTableModule,
-    O2cNavComponent,
+    // O2cNavComponent,
     O2cProcessFlowComponent,
-    LoadingSymbolComponent,
+    // LoadingSymbolComponent,
     TableFilterComponent,
-    ModalComponent
+    ModalComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class O2cViewAllComponent implements OnInit {
   selectedTab: 'subscriptions' | 'invoices' = 'subscriptions';

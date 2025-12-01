@@ -32,22 +32,22 @@ interface AccuracyData {
 }
 
 @Component({
-    selector: 'app-esp-home',
-    templateUrl: './esp-home.component.html',
-    styleUrls: ['./esp-home.component.css'],
-    imports: [
+  selector: 'app-esp-home',
+  templateUrl: './esp-home.component.html',
+  styleUrls: ['./esp-home.component.css'],
+  imports: [
     CommonModule,
     MetricTileComponent,
-    CaseiqComponent,
+    // CaseiqComponent,
     CaseiqCapComponent,
     CaseiqFppComponent,
     CaseiqI2cComponent,
     CaseiqOmComponent,
     CaseiqP2pComponent,
     CaseiqSmComponent,
-    CaseiqAitComponent
+    CaseiqAitComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class EspHomeComponent implements OnInit {
   constructor(

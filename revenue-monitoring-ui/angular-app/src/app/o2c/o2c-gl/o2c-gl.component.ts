@@ -9,16 +9,16 @@ import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-p
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-gl',
-    templateUrl: './o2c-gl.component.html',
-    styleUrl: './o2c-gl.component.css',
-    imports: [
+  selector: 'app-o2c-gl',
+  templateUrl: './o2c-gl.component.html',
+  styleUrl: './o2c-gl.component.css',
+  imports: [
     CommonModule,
     MatTableModule,
     O2cProcessFlowComponent,
-    LoadingSymbolComponent
+    // LoadingSymbolComponent
   ],
-  standalone: true
+  standalone: true,
 })
 export class O2cGlComponent {
   orderId = '28221819418344'; // Placeholder for order ID

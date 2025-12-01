@@ -12,17 +12,17 @@ import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-p
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-tsv',
-    templateUrl: './o2c-tsv.component.html',
-    styleUrl: './o2c-tsv.component.css',
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-o2c-tsv',
+  templateUrl: './o2c-tsv.component.html',
+  styleUrl: './o2c-tsv.component.css',
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatTableModule,
     O2cProcessFlowComponent,
-    LoadingSymbolComponent
+    // LoadingSymbolComponent
   ],
-  standalone: true
+  standalone: true,
 })
 export class O2cTsvComponent {
   orderId = '28221819418344'; // Placeholder for order ID

@@ -11,14 +11,14 @@ import { CommonModule } from '@angular/common';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-donut',
-    templateUrl: './o2c-donut.component.html',
-    styleUrl: './o2c-donut.component.css',
-    imports: [
+  selector: 'app-o2c-donut',
+  templateUrl: './o2c-donut.component.html',
+  styleUrl: './o2c-donut.component.css',
+  imports: [
     CommonModule,
-    LoadingSymbolComponent
+    // LoadingSymbolComponent
   ],
-  standalone: true
+  standalone: true,
 })
 export class O2cDonutComponent implements OnChanges, OnDestroy {
   @Input() data: {
