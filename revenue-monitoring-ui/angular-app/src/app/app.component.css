@@ -152,6 +152,7 @@ h5 {
   font-weight: 400;
   /* padding: 10px 15px; */
   display: block;
+  cursor: pointer;
 }
 
 .top-link:hover {
