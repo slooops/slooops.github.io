@@ -65,6 +65,7 @@ export class AtmfBarLineChartComponent implements OnChanges {
       y: {
         stacked: true,
         position: 'left',
+        display: true,
         title: {
           display: false,
           text: 'Volume',
@@ -83,16 +84,16 @@ export class AtmfBarLineChartComponent implements OnChanges {
       y1: {
         type: 'linear',
         position: 'right',
-        display: false, // Hide y1 axis visually
+        display: true, // Show y1 axis visually
         title: {
-          display: false,
+          display: true,
           text: '% Change',
         },
         grid: {
-          drawOnChartArea: false,
+          drawOnChartArea: true,
         },
         ticks: {
-          display: false,
+          display: true,
           callback: (value) => {
             return value + '%';
           },
