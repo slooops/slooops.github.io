@@ -58,3 +58,65 @@ html,
 .mat-drawer-container {
   background-color: #ffffff !important;
 }
+
+// Override all Material component background colors to white/transparent
+html {
+  // Paginator
+  --mat-paginator-container-background-color: #ffffff;
+
+  // Table
+  --mat-table-background-color: #ffffff;
+  --mat-table-row-item-container-background-color: #ffffff;
+
+  // Card
+  --mat-card-container-color: #ffffff;
+
+  // Toolbar
+  --mat-toolbar-container-background-color: #ffffff;
+
+  // Sidenav
+  --mat-sidenav-container-background-color: #ffffff;
+  --mat-sidenav-content-background-color: #ffffff;
+
+  // Dialog
+  --mat-dialog-container-background-color: #ffffff;
+
+  // Bottom sheet
+  --mat-bottom-sheet-container-background-color: #ffffff;
+
+  // Menu
+  --mat-menu-container-color: #ffffff;
+
+  // Select
+  --mat-select-panel-background-color: #ffffff;
+
+  // Autocomplete
+  --mat-autocomplete-background-color: #ffffff;
+
+  // Tooltip
+  --mat-tooltip-container-color: rgba(97, 97, 97, 0.9);
+
+  // Snackbar
+  --mat-snack-bar-button-color: #ffffff;
+
+  // Expansion panel
+  --mat-expansion-container-background-color: #ffffff;
+
+  // Stepper
+  --mat-stepper-container-color: #ffffff;
+
+  // Tabs
+  --mat-tab-header-background-color: #ffffff;
+
+  // Form field
+  --mat-form-field-container-background-color: transparent;
+
+  // Chips
+  --mat-chip-elevated-container-color: #ffffff;
+
+  // List
+  --mat-list-active-indicator-color: transparent;
+
+  // Grid list
+  --mat-grid-list-tile-background-color: #ffffff;
+}
