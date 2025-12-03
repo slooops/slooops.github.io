@@ -27,16 +27,48 @@
             >
             &nbsp; &nbsp;
 
-            <div class="filter-wrapper">
+            <div
+              class="filter-wrapper"
+              style="display: flex; align-items: center; gap: 4px"
+            >
               <mat-icon
                 style="cursor: pointer; font-size: 24px"
-                (click)="toggleCategoryFilters()"
-                (keydown.enter)="toggleCategoryFilters()"
-                (keydown.space)="toggleCategoryFilters()"
+                [style.opacity]="selectedCoreIssueLabels.size > 0 ? '0.4' : '1'"
+                [style.cursor]="
+                  selectedCoreIssueLabels.size > 0 ? 'not-allowed' : 'pointer'
+                "
+                (click)="
+                  selectedCoreIssueLabels.size > 0
+                    ? null
+                    : toggleCategoryFilters()
+                "
+                (keydown.enter)="
+                  selectedCoreIssueLabels.size > 0
+                    ? null
+                    : toggleCategoryFilters()
+                "
+                (keydown.space)="
+                  selectedCoreIssueLabels.size > 0
+                    ? null
+                    : toggleCategoryFilters()
+                "
                 tabindex="0"
-                title="Category Chart Filters"
-                aria-label="Category Chart Filters"
+                [title]="
+                  selectedCoreIssueLabels.size > 0
+                    ? 'Clear core issue filters first'
+                    : 'Category Chart Filters'
+                "
+                [attr.aria-label]="
+                  selectedCoreIssueLabels.size > 0
+                    ? 'Category filters disabled'
+                    : 'Category Chart Filters'
+                "
                 >filter_list</mat-icon
+              >
+              <span
+                *ngIf="selectedCategoryLabels.size > 0"
+                class="filter-count"
+                >{{ selectedCategoryLabels.size }}</span
               >
               <div
                 class="chart-filter-panel"
@@ -49,7 +81,15 @@
                     (click)="toggleCategorySelect()"
                     type="button"
                   >
-                    Filter
+                    <span *ngIf="selectedCategoryLabels.size === 0"
+                      >Select Category</span
+                    >
+                    <span *ngIf="selectedCategoryLabels.size === 1">{{
+                      getCategoryFilterText()
+                    }}</span>
+                    <span *ngIf="selectedCategoryLabels.size > 1"
+                      >{{ selectedCategoryLabels.size }} selected</span
+                    >
                     <span class="chevron" [class.open]="showCategorySelect"
                       >▾</span
                     >
@@ -163,16 +203,48 @@
               >info_outline</mat-icon
             >
             &nbsp; &nbsp;
-            <div class="filter-wrapper">
+            <div
+              class="filter-wrapper"
+              style="display: flex; align-items: center; gap: 4px"
+            >
               <mat-icon
                 style="cursor: pointer; font-size: 24px"
-                (click)="toggleCoreIssueFilters()"
-                (keydown.enter)="toggleCoreIssueFilters()"
-                (keydown.space)="toggleCoreIssueFilters()"
+                [style.opacity]="selectedCategoryLabels.size > 0 ? '0.4' : '1'"
+                [style.cursor]="
+                  selectedCategoryLabels.size > 0 ? 'not-allowed' : 'pointer'
+                "
+                (click)="
+                  selectedCategoryLabels.size > 0
+                    ? null
+                    : toggleCoreIssueFilters()
+                "
+                (keydown.enter)="
+                  selectedCategoryLabels.size > 0
+                    ? null
+                    : toggleCoreIssueFilters()
+                "
+                (keydown.space)="
+                  selectedCategoryLabels.size > 0
+                    ? null
+                    : toggleCoreIssueFilters()
+                "
                 tabindex="0"
-                title="Core Issue Chart Filters"
-                aria-label="Core Issue Chart Filters"
+                [title]="
+                  selectedCategoryLabels.size > 0
+                    ? 'Clear category filters first'
+                    : 'Core Issue Chart Filters'
+                "
+                [attr.aria-label]="
+                  selectedCategoryLabels.size > 0
+                    ? 'Core Issue filters disabled'
+                    : 'Core Issue Chart Filters'
+                "
                 >filter_list</mat-icon
+              >
+              <span
+                *ngIf="selectedCoreIssueLabels.size > 0"
+                class="filter-count"
+                >{{ selectedCoreIssueLabels.size }}</span
               >
               <div
                 class="chart-filter-panel"
@@ -185,7 +257,15 @@
                     (click)="toggleCoreIssueSelect()"
                     type="button"
                   >
-                    Filter
+                    <span *ngIf="selectedCoreIssueLabels.size === 0"
+                      >Select Core Issue</span
+                    >
+                    <span *ngIf="selectedCoreIssueLabels.size === 1">{{
+                      getCoreIssueFilterText()
+                    }}</span>
+                    <span *ngIf="selectedCoreIssueLabels.size > 1"
+                      >{{ selectedCoreIssueLabels.size }} selected</span
+                    >
                     <span class="chevron" [class.open]="showCoreIssueSelect"
                       >▾</span
                     >

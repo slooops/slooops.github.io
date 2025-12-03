@@ -69,6 +69,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
   i2cTableData = new MatTableDataSource<any>([]);
   i2cTableColumns: string[] = [];
   totalRecords: number = 0;
+  fullTableData: any[] = []; // Store unfiltered table data
   backendMatchLoading: boolean = false;
   refreshingData: boolean = false; // Full-screen overlay during post-upload refresh
 
@@ -330,6 +331,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
       );
       this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
     }
+    this.syncTableFilters();
   }
 
   private reapplyCoreIssueFilter() {
@@ -352,6 +354,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
         this.i2cSimpleChartData
       );
     }
+    this.syncTableFilters();
   }
 
   // Selection handlers
@@ -383,6 +386,195 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
     if (event) event.stopPropagation();
     this.selectedCoreIssueLabels.clear();
     this.reapplyCoreIssueFilter();
+  }
+
+  // Handle category bar click
+  onCategoryBarClick(categoryLabel: string): void {
+    console.log('Category bar clicked:', categoryLabel);
+    // Toggle: if already selected, clear it; otherwise set it as the only selection
+    if (this.selectedCategoryLabels.has(categoryLabel)) {
+      this.selectedCategoryLabels.clear();
+    } else {
+      this.selectedCategoryLabels.clear();
+      if (categoryLabel && categoryLabel.trim()) {
+        this.selectedCategoryLabels.add(categoryLabel);
+      }
+    }
+    this.reapplyCategoryFilter();
+  }
+
+  // Handle core issue bar click
+  onCoreIssueBarClick(coreIssueLabel: string): void {
+    console.log('Core issue bar clicked:', coreIssueLabel);
+    // Toggle: if already selected, clear it; otherwise set it as the only selection
+    if (this.selectedCoreIssueLabels.has(coreIssueLabel)) {
+      this.selectedCoreIssueLabels.clear();
+    } else {
+      this.selectedCoreIssueLabels.clear();
+      if (coreIssueLabel && coreIssueLabel.trim()) {
+        this.selectedCoreIssueLabels.add(coreIssueLabel);
+      }
+    }
+    this.reapplyCoreIssueFilter();
+  }
+
+  // Get filter text for display
+  getCategoryFilterText(): string {
+    if (this.selectedCategoryLabels.size === 1) {
+      const label = Array.from(this.selectedCategoryLabels)[0];
+      return label.length > 20 ? label.substring(0, 20) + '...' : label;
+    }
+    return 'Filter';
+  }
+
+  getCoreIssueFilterText(): string {
+    if (this.selectedCoreIssueLabels.size === 1) {
+      const label = Array.from(this.selectedCoreIssueLabels)[0];
+      return label.length > 20 ? label.substring(0, 20) + '...' : label;
+    }
+    return 'Filter';
+  }
+
+  /**
+   * Sync table filters based on dropdown selections
+   */
+  syncTableFilters(): void {
+    if (!this.i2cTable) return;
+
+    const categoryFilters: string[] = [];
+    const coreIssueFilters: string[] = [];
+
+    if (this.selectedCategoryLabels.size > 0) {
+      categoryFilters.push(...Array.from(this.selectedCategoryLabels));
+    }
+    if (this.selectedCoreIssueLabels.size > 0) {
+      coreIssueFilters.push(...Array.from(this.selectedCoreIssueLabels));
+    }
+
+    // If no filters active, show all data and clear any table filters
+    if (categoryFilters.length === 0 && coreIssueFilters.length === 0) {
+      console.log(
+        'I2C: No filters active, clearing table and resetting both charts to normal'
+      );
+      this.i2cTable.clearAllFilters();
+
+      // Reset both charts to their original filtered state (based on threshold)
+      const categoryEffectiveData = this.completeCategoryRaw.filter(
+        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+      );
+      this.i2cChartData = this.transformMatchStatusData(
+        categoryEffectiveData.length > 0
+          ? categoryEffectiveData
+          : this.completeCategoryRaw,
+        'CATEGORY',
+        'CATEGORY_COUNT'
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+
+      const coreIssueEffectiveData = this.completeCoreIssueRaw.filter(
+        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+      );
+      this.i2cSimpleChartData = this.transformMatchStatusData(
+        coreIssueEffectiveData.length > 0
+          ? coreIssueEffectiveData
+          : this.completeCoreIssueRaw,
+        'CORE_ISSUE',
+        'CORE_ISSUE_COUNT'
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        this.i2cSimpleChartData
+      );
+      return;
+    }
+
+    // Apply filters to table
+    let filteredData = [...this.fullTableData];
+
+    console.log(categoryFilters, coreIssueFilters);
+
+    if (categoryFilters.length > 0) {
+      const categoryFiltersLower = categoryFilters.map((f) => f.toLowerCase());
+      filteredData = filteredData.filter((row) =>
+        categoryFiltersLower.includes((row.CATEGORY || '').toLowerCase())
+      );
+    }
+
+    if (coreIssueFilters.length > 0) {
+      const coreIssueFiltersLower = coreIssueFilters.map((f) =>
+        f.toLowerCase()
+      );
+      filteredData = filteredData.filter((row) =>
+        coreIssueFiltersLower.includes((row.CORE_ISSUE || '').toLowerCase())
+      );
+    }
+
+    console.log('I2C: Filtered table data:', filteredData);
+
+    // Dynamically filter charts based on filtered table data
+    if (categoryFilters.length > 0) {
+      const uniqueCoreIssues = Array.from(
+        new Set(
+          filteredData
+            .map((row) => row.CORE_ISSUE.toLowerCase())
+            .filter((v) => v)
+        )
+      );
+      console.log(
+        'I2C: Filtering Core Issue chart to show only:',
+        uniqueCoreIssues
+      );
+      this.i2cSimpleChartData = this.completeI2cSimpleChartData.filter((item) =>
+        uniqueCoreIssues.includes(item.label.toLowerCase())
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        this.i2cSimpleChartData
+      );
+    } else if (coreIssueFilters.length === 0) {
+      console.log('I2C: Resetting Core Issue chart to normal');
+      const effectiveData = this.completeCoreIssueRaw.filter(
+        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+      );
+      this.i2cSimpleChartData = this.transformMatchStatusData(
+        effectiveData.length > 0 ? effectiveData : this.completeCoreIssueRaw,
+        'CORE_ISSUE',
+        'CORE_ISSUE_COUNT'
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        this.i2cSimpleChartData
+      );
+    }
+
+    if (coreIssueFilters.length > 0) {
+      const uniqueCategories = Array.from(
+        new Set(
+          filteredData.map((row) => row.CATEGORY.toLowerCase()).filter((v) => v)
+        )
+      );
+      console.log(
+        'I2C: Filtering Category chart to show only:',
+        uniqueCategories
+      );
+      this.i2cChartData = this.completeI2cChartData.filter((item) =>
+        uniqueCategories.includes(item.label.toLowerCase())
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+    } else if (categoryFilters.length === 0) {
+      console.log('I2C: Resetting Category chart to normal');
+      const effectiveData = this.completeCategoryRaw.filter(
+        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+      );
+      this.i2cChartData = this.transformMatchStatusData(
+        effectiveData.length > 0 ? effectiveData : this.completeCategoryRaw,
+        'CATEGORY',
+        'CATEGORY_COUNT'
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(this.i2cChartData);
+    }
+
+    this.i2cTable.dataSource.data = filteredData;
+    if (this.i2cTable.paginator) {
+      this.i2cTable.paginator.firstPage();
+    }
   }
 
   // Close panels if clicking outside
@@ -630,6 +822,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
    */
   private updateTableData(apiData: any[]): void {
     if (Array.isArray(apiData) && apiData.length > 0) {
+      this.fullTableData = [...apiData]; // Store full unfiltered data
       this.i2cTableData.data = apiData;
 
       // Set total records for pagination

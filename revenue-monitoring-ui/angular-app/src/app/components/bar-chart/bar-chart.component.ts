@@ -3,6 +3,8 @@ import {
   ViewChild,
   ElementRef,
   Input,
+  Output,
+  EventEmitter,
   OnChanges,
   AfterViewInit,
   SimpleChanges,
@@ -44,6 +46,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
   @Input() canvasId: string = 'barChart';
   @Input() isLoading: boolean = false;
   @Input() stacked: boolean = false;
+  @Output() barClick = new EventEmitter<string>();
   @Input() chartWidth: number | string = '100%';
   @Input() chartHeight: number | string = 300;
   @Input() noDataMessage: string = 'No data available';
@@ -283,6 +286,7 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
       })
       .on('click', (event, d) => {
         console.log('Bar clicked:', d);
+        this.barClick.emit(d.label);
       });
 
     // Value labels
@@ -441,8 +445,11 @@ export class BarChartComponent implements OnChanges, AfterViewInit {
               )?.color ||
               '#ccc'
           )
-          .on('click', () => {
+          .style('cursor', 'pointer')
+          .on('click', (event: MouseEvent) => {
+            event.stopPropagation();
             console.log('Segment clicked:', { label: item.label, segment });
+            this.barClick.emit(item.label);
           })
           .on('mouseover', (event: MouseEvent) => {
             tooltip

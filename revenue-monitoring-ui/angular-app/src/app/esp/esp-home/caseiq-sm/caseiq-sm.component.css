@@ -281,3 +281,25 @@
     transform: rotate(360deg);
   }
 }
+
+.filter-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-count {
+  background-color: gray;
+  color: white;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  position: absolute;
+  top: -9px;
+  right: -12px;
+}
