@@ -98,8 +98,8 @@ body {
   color: rgb(46, 46, 46);
 }
 
-.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
-.mat-checkbox-checked.mat-accent .mat-checkbox-background {
+.mat-mdc-checkbox-indeterminate.mat-accent .mdc-checkbox__background,
+.mat-mdc-checkbox-checked.mat-accent .mdc-checkbox__background {
   background-color: gray;
 }
 
@@ -108,8 +108,8 @@ body {
   background: gray;
 }
 
-.mat-primary .mat-option.mat-selected:not(.mat-option-disabled),
-.mat-form-field.mat-focused .mat-form-field-label {
+.mat-primary .mat-mdc-option.mat-selected:not(.mat-mdc-option-disabled),
+.mat-mdc-form-field.mat-focused .mdc-floating-label {
   color: gray;
 }
 
@@ -117,12 +117,12 @@ body {
   color: white !important;
 }
 
-.mat-tab-group.mat-primary .mat-ink-bar,
-.mat-tab-nav-bar.mat-primary .mat-ink-bar {
+.mat-mdc-tab-group.mat-primary .mdc-tab-indicator__content--underline,
+.mat-mdc-tab-nav-bar.mat-primary .mdc-tab-indicator__content--underline {
   background-color: #373c42 !important;
 }
 
-.mat-form-field.mat-focused .mat-form-field-ripple {
+.mat-mdc-form-field.mat-focused .mdc-line-ripple {
   background-color: black !important;
 }
 
@@ -452,7 +452,7 @@ body {
   background-color: white;
 }
 
-.mat-tab-label {
+.mat-mdc-tab .mat-mdc-tab-link {
   color: black;
 }
 
@@ -462,18 +462,18 @@ body {
 
 /* Tab Group Overrides - Left align tabs and custom styling */
 ::ng-deep .mat-mdc-tab-group,
-::ng-deep .mat-tab-group {
+::ng-deep .mat-mdc-tab-group {
   .mat-mdc-tab-header,
-  .mat-tab-header {
+  .mat-mdc-tab-header {
     .mat-mdc-tab-labels,
-    .mat-tab-labels {
+    .mat-mdc-tab-labels {
       justify-content: flex-start !important; /* Left align tabs */
     }
   }
 
   /* Tab label styling */
   .mat-mdc-tab .mdc-tab__text-label,
-  .mat-tab-label {
+  .mat-mdc-tab .mat-mdc-tab-link {
     color: #373c42 !important;
     font-size: 12px !important;
     font-weight: 500 !important;
@@ -482,14 +482,14 @@ body {
 
   /* Active tab */
   .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
-  .mat-tab-label-active {
+  .mat-mdc-tab .mat-mdc-tab-link-active {
     color: #049fd9 !important;
     font-weight: 600 !important;
   }
 
   /* Ink bar (active indicator) */
   .mat-mdc-tab-header .mat-mdc-tab-header-pagination-chevron,
-  .mat-ink-bar {
+  .mdc-tab-indicator__content--underline {
     background-color: #049fd9 !important;
   }
 
@@ -520,7 +520,7 @@ body {
 
   /* Label styling */
   .mat-mdc-floating-label,
-  .mat-form-field-label {
+  .mdc-floating-label {
     font-size: 12px !important;
     color: #373c42 !important;
   }
@@ -528,12 +528,12 @@ body {
   /* Focused label */
   &.mat-focused {
     .mat-mdc-floating-label,
-    .mat-form-field-label {
+    .mdc-floating-label {
       color: #049fd9 !important;
     }
 
     .mat-mdc-line-ripple,
-    .mat-form-field-ripple {
+    .mdc-line-ripple {
       background-color: #049fd9 !important;
     }
   }
@@ -578,10 +578,10 @@ body {
 
   /* Selected option */
   .mat-mdc-option.mdc-list-item--selected,
-  .mat-option.mat-selected {
+  .mat-mdc-option.mat-selected {
     background-color: rgba(4, 159, 217, 0.12) !important;
 
-    &:not(.mat-option-disabled) {
+    &:not(.mat-mdc-option-disabled) {
       color: #049fd9 !important;
     }
   }
@@ -628,18 +628,18 @@ body {
 
   /* Checked state */
   &.mat-mdc-checkbox-checked,
-  &.mat-checkbox-checked {
+  &.mat-mdc-checkbox-checked {
     .mdc-checkbox__background,
-    .mat-checkbox-background {
+    .mdc-checkbox__background {
       background-color: #049fd9 !important;
     }
   }
 
   /* Indeterminate state */
   &.mat-mdc-checkbox-indeterminate,
-  &.mat-checkbox-indeterminate {
+  &.mat-mdc-checkbox-indeterminate {
     .mdc-checkbox__background,
-    .mat-checkbox-background {
+    .mdc-checkbox__background {
       background-color: #373c42 !important;
     }
   }
@@ -697,22 +697,6 @@ body {
 ::ng-deep .mat-tooltip {
   font-size: 11px !important;
   background-color: #373c42 !important;
-}
-
-/* Menu Overrides */
-::ng-deep .mat-mdc-menu-panel,
-::ng-deep .mat-menu-panel {
-  .mat-mdc-menu-item,
-  .mat-menu-item {
-    font-size: 12px !important;
-    min-height: 36px !important;
-
-    .mat-icon {
-      font-size: 18px !important;
-      width: 18px !important;
-      height: 18px !important;
-    }
-  }
 }
 
 /* Datepicker Overrides */
@@ -777,7 +761,7 @@ body {
 
 /* Divider */
 ::ng-deep .mat-divider {
-  border-top-color: #e1e4e8 !important;
+  border-top-color: #e9ecf1 !important;
 }
 
 /* Ripple effect color */

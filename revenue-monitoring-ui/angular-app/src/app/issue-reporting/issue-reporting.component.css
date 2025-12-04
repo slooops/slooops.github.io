@@ -7,12 +7,12 @@
   font-family: "Inter", sans-serif;
 }
 
-.mat-header-row {
+.mat-mdc-header-row {
   background-color: #ffffff !important;
   border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
 }
 
-.mat-header-cell {
+.mat-mdc-header-cell {
   color: rgb(46, 46, 46) !important;
   text-align: center !important;
   border-bottom: 0px !important;
@@ -20,15 +20,15 @@
   padding: 1vh !important;
 }
 
-.mat-row:nth-child(odd) {
+.mat-mdc-row:nth-child(odd) {
   background-color: #f2f2f2 !important;
 }
 
-.mat-row:nth-child(even) {
+.mat-mdc-row:nth-child(even) {
   background-color: #ffffff !important;
 }
 
-.mat-cell {
+.mat-mdc-cell {
   text-align: center !important;
   font-size: 12px !important;
   font-weight: 500 !important;
@@ -37,7 +37,7 @@
   text-wrap: wrap;
 }
 
-tr.mat-row {
+tr.mat-mdc-row {
   height: 30px;
   border-bottom: 0px;
 }
@@ -56,7 +56,7 @@ td {
   border: 0px !important;
 }
 
-tr.mat-header-row {
+tr.mat-mdc-header-row {
   height: 28px;
 }
 
@@ -408,17 +408,17 @@ tr.mat-header-row {
   content: "↓";
 }
 
-.mat-column-ISSUE_DESCRIPTION {
+.mat-mdc-column-ISSUE_DESCRIPTION {
   min-width: 25vw;
   max-width: 25vw;
 }
 
-.mat-column-FIX_DETAILS {
+.mat-mdc-column-FIX_DETAILS {
   min-width: 15vw;
   max-width: 15vw;
 }
 
-.mat-column-COLUMNS {
+.mat-mdc-column-COLUMNS {
   min-width: 15vw;
   max-width: 15vw;
 }
