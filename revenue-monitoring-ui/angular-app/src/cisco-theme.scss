@@ -20,7 +20,8 @@ $cisco-theme: mat.define-theme(
       regular-weight: 500,
     ),
     density: (
-      scale: -2,
+      scale: -4,
+      // Maximum density for more compact components (was -2)
     ),
   )
 );
@@ -49,6 +50,22 @@ html {
   // Outline colors
   --mat-sys-outline: #e1e4e8;
   --mat-sys-outline-variant: #c6c7ca;
+
+  // Typography size overrides for more compact text
+  --mat-sys-label-large-size: 12px; // Form fields, buttons, menus (was 14px)
+  --mat-sys-label-large-line-height: 20px;
+  --mat-sys-label-medium-size: 11px; // Secondary labels (was 12px)
+  --mat-sys-label-medium-line-height: 16px;
+  --mat-sys-body-large-size: 12px; // Body text (was 16px)
+  --mat-sys-body-large-line-height: 20px;
+  --mat-sys-body-medium-size: 11px; // Secondary body text (was 14px)
+  --mat-sys-body-medium-line-height: 18px;
+
+  // Component-specific height/padding overrides
+  --mat-form-field-container-height: 40px; // Form field height (was 56px)
+  --mat-select-trigger-height: 40px;
+  --mat-menu-item-label-text-size: 12px;
+  --mat-option-label-text-size: 12px;
 }
 
 // Force white background everywhere

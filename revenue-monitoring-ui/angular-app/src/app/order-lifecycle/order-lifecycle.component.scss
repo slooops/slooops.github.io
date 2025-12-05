@@ -288,3 +288,15 @@ input[type="text"] {
 .mat-table {
   border-spacing: 0px; /* Adjust the border-spacing as needed */
 }
+
+// More specific selectors to override Bootstrap/framework label styles
+:host label,
+.mat-mdc-form-field label,
+mat-label {
+  margin-bottom: 0 !important;
+  line-height: 1.8 !important;
+}
+
+:host ::ng-deep label {
+  margin-bottom: 0 !important;
+}
