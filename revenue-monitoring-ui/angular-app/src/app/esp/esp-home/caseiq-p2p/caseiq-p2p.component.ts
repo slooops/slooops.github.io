@@ -841,7 +841,6 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
-        margin: -24px -24px 0 -24px;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
       }

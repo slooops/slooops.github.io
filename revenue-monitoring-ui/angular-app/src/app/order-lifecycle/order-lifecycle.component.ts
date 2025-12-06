@@ -38,11 +38,11 @@ import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.compone
 import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
-    selector: 'app-invoice-status',
-    templateUrl: './order-lifecycle.component.html',
-    styleUrls: ['./order-lifecycle.component.scss'],
-    providers: [DestroyManager, provideNativeDateAdapter()],
-    imports: [
+  selector: 'app-invoice-status',
+  templateUrl: './order-lifecycle.component.html',
+  styleUrls: ['./order-lifecycle.component.scss'],
+  providers: [DestroyManager, provideNativeDateAdapter()],
+  imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -57,9 +57,9 @@ import { MatDividerModule } from '@angular/material/divider';
     MatButtonModule,
     MatDatepickerModule,
     LoadingSymbolComponent,
-    MatDividerModule
+    MatDividerModule,
   ],
-  standalone: true
+  standalone: true,
 })
 export class OrderLifecycleComponent implements OnInit {
   @ViewChild(MatTable) table: MatTable<any>;
@@ -433,9 +433,7 @@ export class OrderLifecycleComponent implements OnInit {
   }
 
   openRevSummaryDialog() {
-    this.dialog.open(OrderLifecycleRevSummaryComponent, {
-      width: '900px',
-    });
+    this.dialog.open(OrderLifecycleRevSummaryComponent, {});
   }
 
   openCloUpdateDialog() {

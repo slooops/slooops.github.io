@@ -706,7 +706,7 @@ export class StatusDialog {
 @Component({
   template: `
     <div
-      style="display: flex; justify-content: space-between; align-items: center;"
+      style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #08ace4; color: white"
     >
       <h5 style="margin: 0; font-weight: bold">Summary</h5>
       <button
@@ -715,11 +715,11 @@ export class StatusDialog {
         aria-label="Close"
         style="margin-left: auto; font-size: 24px; font-weight: bold;"
       >
-        <mat-icon>close</mat-icon>
+        <mat-icon style="color: white">close</mat-icon>
       </button>
     </div>
 
-    <div>
+    <div style="margin: 20px">
       <table mat-table [dataSource]="dataSource">
         <!-- Track Column -->
         <ng-container matColumnDef="Track">
