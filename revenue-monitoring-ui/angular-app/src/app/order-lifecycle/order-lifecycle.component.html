@@ -8,14 +8,14 @@
             class="search__form"
             style="display: flex; align-items: flex-start; height: 30px"
           >
-            <mat-form-field appearance="outline" [style.width.px]="150">
-              <mat-label>Program Name</mat-label>
+            <mat-form-field appearance="fill" [style.width.px]="150">
               <mat-select
                 id="progname"
                 name="progname"
                 formControlName="progName"
                 [(value)]="programNameFilter"
                 panelClass="progPanel"
+                placeholder="Program Name"
                 value
                 multiple
               >
@@ -30,14 +30,14 @@
               </mat-select>
             </mat-form-field>
             &nbsp;
-            <mat-form-field appearance="outline" [style.width.px]="150">
-              <mat-label>Select Account</mat-label>
+            <mat-form-field appearance="fill" [style.width.px]="150">
               <mat-select
                 id="account"
                 name="account"
                 formControlName="account"
                 [(value)]="accountFilter"
                 panelClass="progPanel"
+                placeholder="Select Account"
                 multiple
               >
                 @for (acc of accountOptions; track acc) {
@@ -49,6 +49,7 @@
             </mat-form-field>
             &nbsp;
             <mat-form-field
+              appearance="fill"
               class="filter"
               floatLabel="auto"
               [style.width.px]="150"
@@ -59,16 +60,18 @@
                 (keyup)="filter()"
                 formControlName="dealId"
                 placeholder="Enter Deal ID"
+                style="margin-left: -8px"
               />
               <i
                 matSuffix
                 class="fa fa-search hoverIcon"
-                style="color: gray"
+                style="color: gray; padding-right: 5px"
                 (click)="applyFilter()"
               ></i>
             </mat-form-field>
             &nbsp;
             <mat-form-field
+              appearance="fill"
               class="filter"
               floatLabel="auto"
               [style.width.px]="150"
@@ -83,19 +86,19 @@
               <i
                 matSuffix
                 class="fa fa-search hoverIcon"
-                style="color: gray"
+                style="color: gray; padding-right: 5px"
                 (click)="applyFilter()"
               ></i>
             </mat-form-field>
             &nbsp;
-            <mat-form-field appearance="outline" [style.width.px]="150">
-              <mat-label> Booking Status</mat-label>
+            <mat-form-field appearance="fill" [style.width.px]="150">
               <mat-select
                 id="orderstatus"
                 name="orderstatus"
                 formControlName="orderStats"
                 [(value)]="orderStatusFilter"
                 panelClass="progPanel"
+                placeholder="Booking Status"
                 multiple
               >
                 @for (ordstats of orderStatusOptions; track ordstats) {
@@ -106,14 +109,14 @@
               </mat-select>
             </mat-form-field>
             &nbsp;
-            <mat-form-field appearance="outline" [style.width.px]="150">
-              <mat-label>Invoicing Status</mat-label>
+            <mat-form-field appearance="fill" [style.width.px]="150">
               <mat-select
                 id="invoicestatus"
                 name="invoicestatus"
                 formControlName="invoiceStats"
                 [(value)]="invoiceStatusFilter"
                 panelClass="progPanel"
+                placeholder="Invoicing Status"
                 multiple
               >
                 @for (invStats of invoiceStatusOptions; track invStats) {
@@ -381,7 +384,7 @@
             >
             } @if (updateClo && record.GL_POSTING_STATUS != 'Completed') {
             <span>
-              <mat-form-field floatLabel="auto">
+              <mat-form-field appearance="fill" floatLabel="auto">
                 <input
                   matInput
                   [matDatepicker]="picker"

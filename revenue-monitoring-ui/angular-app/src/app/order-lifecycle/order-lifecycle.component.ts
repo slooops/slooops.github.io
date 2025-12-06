@@ -33,6 +33,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { MatDividerModule } from '@angular/material/divider';
 
@@ -40,7 +41,7 @@ import { MatDividerModule } from '@angular/material/divider';
     selector: 'app-invoice-status',
     templateUrl: './order-lifecycle.component.html',
     styleUrls: ['./order-lifecycle.component.scss'],
-    providers: [DestroyManager],
+    providers: [DestroyManager, provideNativeDateAdapter()],
     imports: [
     CommonModule,
     FormsModule,
