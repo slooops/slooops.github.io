@@ -16,6 +16,7 @@ export class FilterBarComponent {
   @Output() roleFilterChange = new EventEmitter<string>();
   @Output() enabledFilterChange = new EventEmitter<string>();
   @Output() addUserClick = new EventEmitter<void>();
+  @Output() addLineItemClick = new EventEmitter<void>();
 
   enabledOptions: SelectOption[] = [
     { label: 'All', value: '' },
@@ -37,5 +38,9 @@ export class FilterBarComponent {
 
   onAddUser(): void {
     this.addUserClick.emit();
+  }
+
+  onAddLineItem(): void {
+    this.addLineItemClick.emit();
   }
 }

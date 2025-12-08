@@ -7,26 +7,54 @@
 .fit-table {
   table-layout: auto;
   width: 100%;
+  transition: height 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+/* Animate row appearance/disappearance */
+.fit-table tbody tr {
+  transition: width 0.3s ease-in-out, max-width 0.3s ease-in-out,
+    padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
+
+  transition: height 0.3s ease-in-out, max-width 0.3s ease-in-out,
+    padding 0.3s ease-in-out, opacity 0.3s ease-in-out;
+
+  animation: fadeSlideIn 0.3s ease-in-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fit-table__row {
   cursor: pointer;
 }
 
-/* Checkbox column should be minimal width */
-.fit-table th:has(app-checkbox),
-.fit-table td:has(app-checkbox) {
-  width: 50px;
-  padding: var(--fit-space-xs);
-  text-align: center !important;
-  vertical-align: middle !important;
+.fit-table__row--editable {
+  background-color: var(--fit-color-bg-subtle);
+  cursor: default;
 }
 
-.fit-table th:has(app-checkbox) app-checkbox,
-.fit-table td:has(app-checkbox) app-checkbox {
+.fit-table__row--editable:hover td {
+  background-color: var(--fit-color-bg-subtle);
+}
+
+.fit-input--table {
+  width: 100%;
+  min-width: 100px;
+}
+
+.fit-table__actions {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: var(--fit-space-xs);
+  white-space: nowrap;
 }
 
 .fit-table th,
@@ -39,4 +67,34 @@
   padding: var(--fit-space-xl);
   color: var(--fit-color-text-muted);
   font-style: italic;
+}
+
+.fit-table__row--loading {
+  cursor: default;
+}
+
+.fit-table__row--loading:hover td {
+  background-color: transparent;
+}
+
+.fit-table__shimmer {
+  height: 1.5rem;
+  background: linear-gradient(
+    90deg,
+    var(--fit-color-bg-muted) 0%,
+    var(--fit-color-bg-subtle) 50%,
+    var(--fit-color-bg-muted) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 99px;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

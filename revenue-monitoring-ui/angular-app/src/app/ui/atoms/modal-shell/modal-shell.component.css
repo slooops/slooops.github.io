@@ -1,7 +1,7 @@
 @import "src/assets/ui.css";
 
 .fit-modal__title {
-  font-size: var(--fit-font-size-base);
+  font-size: var(--fit-font-size-lg);
   font-weight: var(--fit-font-weight-semibold);
   color: var(--fit-color-text);
   margin: 0;

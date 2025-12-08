@@ -163,9 +163,6 @@ import { DataTableComponent } from './ui/compounds/data-table/data-table.compone
 import { FilterBarComponent } from './ui/compounds/filter-bar/filter-bar.component';
 import { UserFormComponent } from './ui/compounds/user-form/user-form.component';
 
-// Feature Components
-import { AdminUserTableComponent } from './features/admin/admin-user-table/admin-user-table.component';
-
 export function initApp(authService: AuthenticationService) {
   return (): Promise<any> => {
     return authService.getUserId().then(() => {
@@ -297,8 +294,6 @@ export function initApp(authService: AuthenticationService) {
     DataTableComponent,
     FilterBarComponent,
     UserFormComponent,
-    // Feature Components
-    AdminUserTableComponent,
   ],
   exports: [
     // Export reusable UI components for use in other modules

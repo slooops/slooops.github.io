@@ -11,21 +11,23 @@ export class DataTableComponent {
   @Input() rows: any[] = [];
   @Input() enableGlobalSearch: boolean = false;
   @Input() pageSizeOptions: number[] = [25, 50, 100];
-  @Input() enableSelection: boolean = false;
+  @Input() editableRow: any | null = null;
+  @Input() isLoading: boolean = false;
 
   @Output() rowClick = new EventEmitter<any>();
   @Output() filterChange = new EventEmitter<{
     column: string;
     value: string;
   }>();
-  @Output() selectionChange = new EventEmitter<any[]>();
+  @Output() saveRow = new EventEmitter<any>();
+  @Output() cancelEdit = new EventEmitter<void>();
+  @Output() enabledFlagChange = new EventEmitter<{ row: any; enabled: boolean }>();
 
   searchTerm: string = '';
   filteredRows: any[] = [];
   paginatedRows: any[] = [];
   pageIndex: number = 0;
   pageSize: number = 25;
-  selectedRows: Set<any> = new Set();
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' | '' = '';
 
@@ -109,32 +111,28 @@ export class DataTableComponent {
     this.applyFilters();
   }
 
-  onRowSelect(row: any, checked: boolean): void {
-    if (checked) {
-      this.selectedRows.add(row);
-    } else {
-      this.selectedRows.delete(row);
+  onEditableRowChange(key: string, value: any): void {
+    if (this.editableRow) {
+      this.editableRow[key] = value;
     }
-    this.selectionChange.emit(Array.from(this.selectedRows));
   }
 
-  onSelectAll(checked: boolean): void {
-    if (checked) {
-      this.paginatedRows.forEach((row) => this.selectedRows.add(row));
-    } else {
-      this.paginatedRows.forEach((row) => this.selectedRows.delete(row));
+  onSaveRow(): void {
+    if (this.editableRow) {
+      this.saveRow.emit(this.editableRow);
     }
-    this.selectionChange.emit(Array.from(this.selectedRows));
   }
 
-  isRowSelected(row: any): boolean {
-    return this.selectedRows.has(row);
+  onCancelEdit(): void {
+    this.cancelEdit.emit();
   }
 
-  get allPageRowsSelected(): boolean {
-    return (
-      this.paginatedRows.length > 0 &&
-      this.paginatedRows.every((row) => this.selectedRows.has(row))
-    );
+  get shimmerRows(): number[] {
+    // Return an array to create 5 shimmer rows
+    return Array(5).fill(0);
+  }
+
+  onToggleEnabled(row: any, checked: boolean): void {
+    this.enabledFlagChange.emit({ row, enabled: checked });
   }
 }

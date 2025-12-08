@@ -4,8 +4,23 @@
   min-width: 400px;
 }
 
+.fit-user-form__field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--fit-space-md);
+}
+
+.fit-user-form__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fit-color-text);
+  white-space: nowrap;
+  min-width: 80px;
+}
+
 .fit-user-form__toggle {
-  padding: var(--fit-space-md) 0;
+  /* padding: var(--fit-space-md) 0; */
 }
 
 .fit-user-form__actions {

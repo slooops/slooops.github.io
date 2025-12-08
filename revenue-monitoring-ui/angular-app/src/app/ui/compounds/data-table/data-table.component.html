@@ -17,13 +17,6 @@
   <table class="fit-table">
     <thead>
       <tr>
-        <app-table-header-cell *ngIf="enableSelection">
-          <app-checkbox
-            [checked]="allPageRowsSelected"
-            (checkedChange)="onSelectAll($event)"
-          >
-          </app-checkbox>
-        </app-table-header-cell>
         <app-table-header-cell
           *ngFor="let column of columns"
           [isSortable]="column.isSortable || false"
@@ -36,39 +29,88 @@
         >
           {{ column.label }}
         </app-table-header-cell>
+        <app-table-header-cell *ngIf="editableRow">
+          Actions
+        </app-table-header-cell>
       </tr>
     </thead>
     <tbody>
-      <tr
-        *ngFor="let row of paginatedRows"
-        (click)="onRowClick(row)"
-        class="fit-table__row"
-      >
-        <app-table-cell *ngIf="enableSelection">
-          <app-checkbox
-            [checked]="isRowSelected(row)"
-            (checkedChange)="onRowSelect(row, $event)"
-          >
-          </app-checkbox>
-        </app-table-cell>
+      <!-- Editable row at the top -->
+      <tr *ngIf="editableRow" class="fit-table__row fit-table__row--editable">
         <app-table-cell *ngFor="let column of columns">
-          <ng-container *ngIf="column.key === 'enabledFlag'; else normalCell">
-            <app-badge
-              [label]="row[column.key] === 'Y' ? 'Enabled' : 'Disabled'"
-              [variant]="row[column.key] === 'Y' ? 'success' : 'default'"
+          <input
+            *ngIf="column.key !== 'enabledFlag'"
+            class="fit-input fit-input--no-border fit-input--table"
+            type="text"
+            [value]="editableRow[column.key] || ''"
+            (input)="onEditableRowChange(column.key, $any($event.target).value)"
+            [placeholder]="column.label"
+          />
+          <app-toggle-switch
+            *ngIf="column.key === 'enabledFlag'"
+            [checked]="editableRow[column.key] === 'Y'"
+            (checkedChange)="
+              onEditableRowChange(column.key, $event ? 'Y' : 'N')
+            "
+          >
+          </app-toggle-switch>
+        </app-table-cell>
+        <app-table-cell>
+          <div class="fit-table__actions">
+            <app-button label="Save" variant="primary" (clicked)="onSaveRow()">
+            </app-button>
+            <app-button
+              label="Cancel"
+              variant="secondary"
+              (clicked)="onCancelEdit()"
             >
-            </app-badge>
-          </ng-container>
-          <ng-template #normalCell>
-            {{ row[column.key] }}
-          </ng-template>
+            </app-button>
+          </div>
         </app-table-cell>
       </tr>
-      <tr *ngIf="paginatedRows.length === 0">
-        <td
-          [attr.colspan]="columns.length + (enableSelection ? 1 : 0)"
-          class="fit-table__empty"
+
+      <!-- Loading shimmer rows -->
+      <ng-container *ngIf="isLoading">
+        <tr
+          *ngFor="let shimmer of shimmerRows"
+          class="fit-table__row fit-table__row--loading"
         >
+          <app-table-cell *ngFor="let column of columns">
+            <div class="fit-table__shimmer"></div>
+          </app-table-cell>
+          <app-table-cell *ngIf="editableRow">
+            <!-- Empty cell for actions column alignment -->
+          </app-table-cell>
+        </tr>
+      </ng-container>
+
+      <!-- Regular data rows -->
+      <ng-container *ngIf="!isLoading">
+        <tr
+          *ngFor="let row of paginatedRows"
+          (click)="onRowClick(row)"
+          class="fit-table__row"
+        >
+          <app-table-cell *ngFor="let column of columns">
+            <ng-container *ngIf="column.key === 'enabledFlag'; else normalCell">
+              <app-toggle-switch
+                [checked]="row[column.key] === 'Y'"
+                (checkedChange)="onToggleEnabled(row, $event)"
+              >
+              </app-toggle-switch>
+            </ng-container>
+            <ng-template #normalCell>
+              {{ row[column.key] }}
+            </ng-template>
+          </app-table-cell>
+          <app-table-cell *ngIf="editableRow">
+            <!-- Empty cell for actions column alignment -->
+          </app-table-cell>
+        </tr>
+      </ng-container>
+
+      <tr *ngIf="!isLoading && paginatedRows.length === 0 && !editableRow">
+        <td [attr.colspan]="columns.length" class="fit-table__empty">
           No data available
         </td>
       </tr>

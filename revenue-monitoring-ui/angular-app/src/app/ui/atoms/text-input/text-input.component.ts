@@ -21,6 +21,7 @@ export class TextInputComponent implements OnDestroy {
   @Input() iconName?: string;
   @Input() debounceMs: number = 300;
   @Input() isDisabled: boolean = false;
+  @Input() noBorder: boolean = false;
 
   @Output() valueChange = new EventEmitter<string>();
   @Output() submitted = new EventEmitter<string>();
@@ -51,6 +52,10 @@ export class TextInputComponent implements OnDestroy {
 
     if (this.iconName && this.iconPosition === 'right') {
       classes.push('fit-input--icon-right');
+    }
+
+    if (this.noBorder) {
+      classes.push('fit-input--no-border');
     }
 
     return classes.join(' ');

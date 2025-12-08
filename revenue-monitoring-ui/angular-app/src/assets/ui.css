@@ -10,6 +10,8 @@
   --fit-font-size-base: 0.8rem; /* dense UI; can change to 1rem later */
   --fit-font-size-sm: 0.75rem;
   --fit-font-size-xs: 0.7rem;
+  --fit-font-size-lg: 1rem;
+  --fit-font-size-xl: 1.25rem;
   --fit-font-weight-normal: 400;
   --fit-font-weight-medium: 500;
   --fit-font-weight-semibold: 600;
@@ -230,6 +232,21 @@
   box-shadow: 0 0 0 2px rgba(0, 112, 210, 0.2);
 }
 
+.fit-input--no-border {
+  border: 0px;
+  background-color: transparent;
+  box-shadow: none;
+  /* padding-inline: 0 !important; */
+}
+
+.fit-input--no-border:hover,
+.fit-input--no-border:focus,
+.fit-input--no-border:focus-visible {
+  border: 0px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
 .fit-input--icon-left {
   padding-left: calc(var(--fit-space-sm) + 0.1rem);
 }
@@ -349,8 +366,8 @@
 }
 
 .fit-toggle__track {
-  width: 2.2rem;
-  height: 1.1rem;
+  width: 34px;
+  height: 18px;
   border-radius: 999px;
   background-color: var(--fit-color-border);
   position: relative;
@@ -361,8 +378,8 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 0.8rem;
-  height: 0.8rem;
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
   background-color: var(--fit-color-bg);
   box-shadow: var(--fit-shadow-sm);
@@ -374,7 +391,7 @@
 }
 
 .fit-toggle--checked .fit-toggle__thumb {
-  transform: translateX(1rem);
+  transform: translateX(16px);
 }
 
 /* ------------------------------

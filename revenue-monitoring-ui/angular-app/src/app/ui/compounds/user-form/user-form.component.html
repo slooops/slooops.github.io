@@ -1,32 +1,38 @@
 <form class="fit-user-form" (submit)="onSubmit()">
   <div class="fit-stack-md">
-    <app-text-input
-      [value]="formData.userName"
-      label="Username *"
-      placeholder="Enter username"
-      type="text"
-      [isDisabled]="isEdit"
-      (valueChange)="onUserNameChange($event)"
-    >
-    </app-text-input>
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Username *</label>
+      <app-text-input
+        [value]="formData.userName"
+        placeholder="Enter username"
+        type="text"
+        [isDisabled]="isEdit"
+        (valueChange)="onUserNameChange($event)"
+      >
+      </app-text-input>
+    </div>
 
-    <app-text-input
-      [value]="formData.email"
-      label="Email *"
-      placeholder="Enter email"
-      type="email"
-      (valueChange)="onEmailChange($event)"
-    >
-    </app-text-input>
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Email *</label>
+      <app-text-input
+        [value]="formData.email"
+        placeholder="Enter email"
+        type="email"
+        (valueChange)="onEmailChange($event)"
+      >
+      </app-text-input>
+    </div>
 
-    <app-select-dropdown
-      [options]="roleOptions"
-      [value]="formData.roles[0] || ''"
-      label="Role"
-      placeholder="Select a role"
-      (valueChange)="onRoleChange($event)"
-    >
-    </app-select-dropdown>
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Role</label>
+      <app-select-dropdown
+        [options]="roleOptions"
+        [value]="formData.roles[0] || ''"
+        placeholder="Select a role"
+        (valueChange)="onRoleChange($event)"
+      >
+      </app-select-dropdown>
+    </div>
 
     <div class="fit-user-form__toggle">
       <app-toggle-switch
