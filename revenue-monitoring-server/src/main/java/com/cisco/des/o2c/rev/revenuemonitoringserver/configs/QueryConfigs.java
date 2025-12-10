@@ -1712,4 +1712,22 @@ public class QueryConfigs {
 
     @Bean( name = "xxcaseiqI2cCaseDetailsMatchY" )
     public String getXxcaseiqI2cCaseDetailsMatchY() {return this.xxcaseiqI2cCaseDetailsMatchY; }
+
+    @Value(("${admin.table.q}"))
+    public String adminTable;
+
+    @Bean( name = "adminTable" )
+    public String getAdminTable() {return this.adminTable; }
+
+    @Value(("${create.user.role.q}"))
+    public String createUserRole;
+
+    @Bean( name = "createUserRole" )
+    public String getCreateUserRole() {return this.createUserRole; }
+
+    @Value(("${update.user.role.q}"))
+    public String updateUserRole;
+
+    @Bean( name = "updateUserRole" )
+    public String getUpdateUserRole() {return this.updateUserRole; }
 }

@@ -38,14 +38,22 @@
       <!-- Editable row at the top -->
       <tr *ngIf="editableRow" class="fit-table__row fit-table__row--editable">
         <app-table-cell *ngFor="let column of columns">
-          <input
-            *ngIf="column.key !== 'enabledFlag'"
-            class="fit-input fit-input--no-border fit-input--table"
-            type="text"
-            [value]="editableRow[column.key] || ''"
-            (input)="onEditableRowChange(column.key, $any($event.target).value)"
-            [placeholder]="column.label"
-          />
+          <!-- Input field with error state -->
+          <div *ngIf="column.key !== 'enabledFlag'" class="fit-table__input-wrapper">
+            <input
+              class="fit-input fit-input--no-border fit-input--table"
+              [class.fit-input--error]="hasError(column.key)"
+              type="text"
+              [value]="editableRow[column.key] || ''"
+              (input)="onEditableRowChange(column.key, $any($event.target).value)"
+              [placeholder]="column.label"
+            />
+            <!-- Error message tooltip -->
+            <span *ngIf="hasError(column.key)" class="fit-table__error-message">
+              {{ getErrorMessage(column.key) }}
+            </span>
+          </div>
+          <!-- Toggle switch for enabled flag -->
           <app-toggle-switch
             *ngIf="column.key === 'enabledFlag'"
             [checked]="editableRow[column.key] === 'Y'"

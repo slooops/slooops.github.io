@@ -13,6 +13,7 @@ export class DataTableComponent {
   @Input() pageSizeOptions: number[] = [25, 50, 100];
   @Input() editableRow: any | null = null;
   @Input() isLoading: boolean = false;
+  @Input() validationErrors: { [key: string]: string } = {};
 
   @Output() rowClick = new EventEmitter<any>();
   @Output() filterChange = new EventEmitter<{
@@ -130,6 +131,20 @@ export class DataTableComponent {
   get shimmerRows(): number[] {
     // Return an array to create 5 shimmer rows
     return Array(5).fill(0);
+  }
+
+  /**
+   * Check if a field has a validation error
+   */
+  hasError(fieldKey: string): boolean {
+    return !!this.validationErrors[fieldKey];
+  }
+
+  /**
+   * Get the error message for a field
+   */
+  getErrorMessage(fieldKey: string): string {
+    return this.validationErrors[fieldKey] || '';
   }
 
   onToggleEnabled(row: any, checked: boolean): void {

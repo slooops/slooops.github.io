@@ -98,3 +98,55 @@
     background-position: -200% 0;
   }
 }
+
+/* Error state styles for validation feedback */
+.fit-table__input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.fit-input--error {
+  border-color: var(--fit-color-error, #dc2626) !important;
+  background-color: var(--fit-color-error-subtle, #fef2f2) !important;
+  outline: 1px solid var(--fit-color-error, #dc2626) !important;
+}
+
+.fit-input--error:focus {
+  border-color: var(--fit-color-error-dark, #b91c1c) !important;
+  outline: 2px solid var(--fit-color-error, #dc2626) !important;
+}
+
+.fit-table__error-message {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 2px;
+  padding: 4px 8px;
+  background-color: var(--fit-color-error, #dc2626);
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+  animation: errorSlideIn 0.2s ease-out;
+}
+
+.fit-table__error-message::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 12px;
+  border: 4px solid transparent;
+  border-bottom-color: var(--fit-color-error, #dc2626);
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

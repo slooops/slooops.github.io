@@ -49,6 +49,10 @@
   --fit-color-primary-hover: #005bb0;
   --fit-color-primary-active: #00458a;
 
+  --fit-color-error: #dc2626;
+  --fit-color-error-subtle: #fef2f2;
+  --fit-color-error-dark: #b91c1c;
+
   --fit-color-danger: #c0392b;
   --fit-color-danger-soft: #fdecea;
   --fit-color-warning: #f39c12;
