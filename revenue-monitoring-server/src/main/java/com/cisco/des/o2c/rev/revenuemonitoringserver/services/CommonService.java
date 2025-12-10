@@ -33,8 +33,7 @@ public class CommonService {
 
     // Email validation pattern (RFC 5322 simplified)
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
-        "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$"
-    );
+            "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
 
     // Username validation pattern (alphanumeric, underscore, hyphen only)
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
@@ -129,13 +128,13 @@ public class CommonService {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email is required");
         }
-        
+
         String trimmedEmail = email.trim();
-        
+
         if (trimmedEmail.length() > 254) {
             throw new IllegalArgumentException("Email exceeds maximum length of 254 characters");
         }
-        
+
         if (!EMAIL_PATTERN.matcher(trimmedEmail).matches()) {
             throw new IllegalArgumentException("Invalid email format");
         }
@@ -151,17 +150,17 @@ public class CommonService {
         if (userName == null || userName.trim().isEmpty()) {
             throw new IllegalArgumentException("Username is required");
         }
-        
+
         String trimmedUsername = userName.trim();
-        
+
         if (trimmedUsername.length() < 3) {
             throw new IllegalArgumentException("Username must be at least 3 characters");
         }
-        
+
         if (trimmedUsername.length() > 50) {
             throw new IllegalArgumentException("Username exceeds maximum length of 50 characters");
         }
-        
+
         if (!USERNAME_PATTERN.matcher(trimmedUsername).matches()) {
             throw new IllegalArgumentException("Username can only contain letters, numbers, underscores, and hyphens");
         }
@@ -175,13 +174,13 @@ public class CommonService {
         if (userRole == null || userRole.trim().isEmpty()) {
             throw new IllegalArgumentException("Role is required");
         }
-        
+
         String trimmedRole = userRole.trim();
-        
+
         if (trimmedRole.length() > 100) {
             throw new IllegalArgumentException("Role exceeds maximum length of 100 characters");
         }
-        
+
         if (!ROLE_PATTERN.matcher(trimmedRole).matches()) {
             throw new IllegalArgumentException("Role can only contain letters, numbers, spaces, and underscores");
         }
@@ -195,9 +194,9 @@ public class CommonService {
         if (enabledFlag == null || enabledFlag.trim().isEmpty()) {
             throw new IllegalArgumentException("Enabled flag is required");
         }
-        
+
         String trimmed = enabledFlag.trim().toUpperCase();
-        
+
         if (!trimmed.equals("Y") && !trimmed.equals("N")) {
             throw new IllegalArgumentException("Enabled flag must be 'Y' or 'N'");
         }
@@ -211,13 +210,13 @@ public class CommonService {
         if (input == null) {
             return null;
         }
-        
+
         String sanitized = input.trim();
-        
+
         if (sanitized.length() > maxLength) {
             sanitized = sanitized.substring(0, maxLength);
         }
-        
+
         return sanitized;
     }
 
@@ -229,58 +228,57 @@ public class CommonService {
         validateEmail(userEmail);
         validateRole(userRole);
         validateEnabledFlag(enabledFlag);
-        
+
         // Sanitize inputs (trim whitespace, enforce length limits)
         String sanitizedUserName = sanitizeInput(userName, 50);
         String sanitizedEmail = sanitizeInput(userEmail, 254);
         String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
         String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
-        
-//      Return 1 to simulate success
-//      return 1;
+
+        // Return 1 to simulate success
+        // return 1;
         return jdbcManager.insertUserRole(createUserRole, sanitizedUserName, sanitizedEmail,
-                                            roleId, sanitizedRole, sanitizedFlag);
+                roleId, sanitizedRole, sanitizedFlag);
     }
 
     public int updateUserRole(Integer userId, String userName, String userEmail,
             Integer roleId, String userRole, String enabledFlag) {
 
         System.out.println("=== SERVER-SIDE VALIDATION (UPDATE) ===");
-        
+
         // Validate user ID
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("Valid user ID is required");
         }
-        
+
         // Validate all inputs (NEVER TRUST CLIENT INPUT)
         validateUsername(userName);
         validateEmail(userEmail);
         validateRole(userRole);
         validateEnabledFlag(enabledFlag);
-        
+
         // Sanitize inputs
         String sanitizedUserName = sanitizeInput(userName, 50);
         String sanitizedEmail = sanitizeInput(userEmail, 254);
         String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
         String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
-        
 
-//        Print for testing (comment out in production)
-//        System.out.println("====== UPDATE IN DATABASE ======");
-//        System.out.println("User ID: " + userId);
-//        System.out.println("Username: " + sanitizedUserName);
-//        System.out.println("Email: " + sanitizedEmail);
-//        System.out.println("Role ID: " + roleId);
-//        System.out.println("Role: " + sanitizedRole);
-//        System.out.println("Enabled: " + sanitizedFlag);
-//        System.out.println("================================");
-        
+        // Print for testing (comment out in production)
+        // System.out.println("====== UPDATE IN DATABASE ======");
+        // System.out.println("User ID: " + userId);
+        // System.out.println("Username: " + sanitizedUserName);
+        // System.out.println("Email: " + sanitizedEmail);
+        // System.out.println("Role ID: " + roleId);
+        // System.out.println("Role: " + sanitizedRole);
+        // System.out.println("Enabled: " + sanitizedFlag);
+        // System.out.println("================================");
+
         // Return 1 to simulate success
-//        return 1;
-        
-//         Uncomment when ready to update database:
-         return jdbcManager.updateUserRole(updateUserRole, sanitizedUserName, sanitizedEmail,
-                 roleId, sanitizedRole, sanitizedFlag, userId);
+        // return 1;
+
+        // Uncomment when ready to update database:
+        return jdbcManager.updateUserRole(updateUserRole, sanitizedUserName, sanitizedEmail,
+                roleId, sanitizedRole, sanitizedFlag, userId);
     }
 
 }

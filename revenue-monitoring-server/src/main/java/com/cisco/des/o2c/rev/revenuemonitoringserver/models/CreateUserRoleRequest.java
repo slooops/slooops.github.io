@@ -8,15 +8,15 @@ import java.util.Date;
  * 
  * Example JSON:
  * {
- *   "userName": "JSMITH",
- *   "userEmail": "jsmith@cisco.com",
- *   "roleId": 1,
- *   "userRole": "Admin",
- *   "enabledFlag": "Y"
+ * "userName": "JSMITH",
+ * "userEmail": "jsmith@cisco.com",
+ * "roleId": 1,
+ * "userRole": "Admin",
+ * "enabledFlag": "Y"
  * }
  */
 public class CreateUserRoleRequest {
-    
+
     private String userName;
     private String userEmail;
     private Integer roleId;
@@ -28,8 +28,8 @@ public class CreateUserRoleRequest {
     }
 
     // Constructor with all fields (useful for testing)
-    public CreateUserRoleRequest(String userName, String userEmail, Integer roleId, 
-                                  String userRole, String enabledFlag) {
+    public CreateUserRoleRequest(String userName, String userEmail, Integer roleId,
+            String userRole, String enabledFlag) {
         this.userName = userName;
         this.userEmail = userEmail;
         this.roleId = roleId;
@@ -39,7 +39,7 @@ public class CreateUserRoleRequest {
 
     // Getters and Setters
     // Spring uses these to map JSON fields to Java object properties
-    
+
     public String getUserName() {
         return userName;
     }

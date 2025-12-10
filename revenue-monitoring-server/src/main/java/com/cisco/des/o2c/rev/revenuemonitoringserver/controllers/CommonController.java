@@ -67,40 +67,41 @@ public class CommonController {
      * 
      * Request Body Example:
      * {
-     *   "userName": "JSMITH",
-     *   "userEmail": "jsmith@cisco.com",
-     *   "roleId": 1,
-     *   "userRole": "Admin",
-     *   "enabledFlag": "Y"
+     * "userName": "JSMITH",
+     * "userEmail": "jsmith@cisco.com",
+     * "roleId": 1,
+     * "userRole": "Admin",
+     * "enabledFlag": "Y"
      * }
      * 
      * @param request The CreateUserRoleRequest object deserialized from JSON
      * @return ResponseEntity with success/error message and HTTP status code
      * 
-     * How this works:
-     * 1. @PostMapping tells Spring this handles POST requests to "/api/user-role"
-     * 2. @RequestBody tells Spring to deserialize the JSON into CreateUserRoleRequest
-     * 3. Spring automatically calls the setters on CreateUserRoleRequest
-     * 4. We call service.createUserRole() to insert into database
-     * 5. We return HTTP 201 CREATED on success, 500 on error
+     *         How this works:
+     *         1. @PostMapping tells Spring this handles POST requests to
+     *         "/api/user-role"
+     *         2. @RequestBody tells Spring to deserialize the JSON into
+     *         CreateUserRoleRequest
+     *         3. Spring automatically calls the setters on CreateUserRoleRequest
+     *         4. We call service.createUserRole() to insert into database
+     *         5. We return HTTP 201 CREATED on success, 500 on error
      */
     @PostMapping("/user-role")
     public ResponseEntity<Map<String, Object>> createUserRole(@RequestBody CreateUserRoleRequest request) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             // Log the incoming request for debugging
             System.out.println("Received POST request to create user: " + request);
-            
+
             // Call the service layer to insert into database
             int rowsAffected = service.createUserRole(
-                request.getUserName(),
-                request.getUserEmail(),
-                request.getRoleId(),
-                request.getUserRole(),
-                request.getEnabledFlag()
-            );
-            
+                    request.getUserName(),
+                    request.getUserEmail(),
+                    request.getRoleId(),
+                    request.getUserRole(),
+                    request.getEnabledFlag());
+
             // Check if insert was successful
             if (rowsAffected > 0) {
                 response.put("success", true);
@@ -112,12 +113,12 @@ public class CommonController {
                 response.put("message", "Failed to create user role - no rows affected");
                 return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status
             }
-            
+
         } catch (Exception e) {
             // Handle any errors (database errors, validation errors, etc.)
             System.err.println("Error creating user role: " + e.getMessage());
             e.printStackTrace();
-            
+
             response.put("success", false);
             response.put("message", "Error creating user role: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status
@@ -135,46 +136,48 @@ public class CommonController {
      * 
      * Request Body Example:
      * {
-     *   "userName": "JSMITH",
-     *   "userEmail": "jsmith@cisco.com",
-     *   "roleId": 1,
-     *   "userRole": "Admin",
-     *   "enabledFlag": "N"
+     * "userName": "JSMITH",
+     * "userEmail": "jsmith@cisco.com",
+     * "roleId": 1,
+     * "userRole": "Admin",
+     * "enabledFlag": "N"
      * }
      * 
-     * @param userId The user ID from the URL path (e.g., 3312)
+     * @param userId  The user ID from the URL path (e.g., 3312)
      * @param request The CreateUserRoleRequest object with updated data
      * @return ResponseEntity with success/error message and HTTP status code
      * 
-     * How this works:
-     * 1. @PutMapping tells Spring this handles PUT requests to "/api/user-role/{userId}"
-     * 2. @PathVariable extracts userId from the URL (e.g., /user-role/3312 → userId=3312)
-     * 3. @RequestBody deserializes the JSON into CreateUserRoleRequest object
-     * 4. We call service.updateUserRole() to update the database
-     * 5. We return HTTP 200 OK on success, 404 if not found, 500 on error
+     *         How this works:
+     *         1. @PutMapping tells Spring this handles PUT requests to
+     *         "/api/user-role/{userId}"
+     *         2. @PathVariable extracts userId from the URL (e.g., /user-role/3312
+     *         → userId=3312)
+     *         3. @RequestBody deserializes the JSON into CreateUserRoleRequest
+     *         object
+     *         4. We call service.updateUserRole() to update the database
+     *         5. We return HTTP 200 OK on success, 404 if not found, 500 on error
      */
     @PutMapping("/user-role/{userId}")
     public ResponseEntity<Map<String, Object>> updateUserRole(
             @PathVariable Integer userId,
             @RequestBody CreateUserRoleRequest request) {
-        
+
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             // Log the incoming request for debugging
             System.out.println("Received PUT request to update user ID: " + userId);
             System.out.println("Request data: " + request);
-            
+
             // Call the service layer to update the database
             int rowsAffected = service.updateUserRole(
-                userId,
-                request.getUserName(),
-                request.getUserEmail(),
-                request.getRoleId(),
-                request.getUserRole(),
-                request.getEnabledFlag()
-            );
-            
+                    userId,
+                    request.getUserName(),
+                    request.getUserEmail(),
+                    request.getRoleId(),
+                    request.getUserRole(),
+                    request.getEnabledFlag());
+
             // Check if update was successful
             if (rowsAffected > 0) {
                 response.put("success", true);
@@ -187,12 +190,12 @@ public class CommonController {
                 response.put("message", "User not found with ID: " + userId);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 status
             }
-            
+
         } catch (Exception e) {
             // Handle any errors (database errors, validation errors, etc.)
             System.err.println("Error updating user role: " + e.getMessage());
             e.printStackTrace();
-            
+
             response.put("success", false);
             response.put("message", "Error updating user role: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status

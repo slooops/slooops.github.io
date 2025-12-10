@@ -22,7 +22,10 @@ export class DataTableComponent {
   }>();
   @Output() saveRow = new EventEmitter<any>();
   @Output() cancelEdit = new EventEmitter<void>();
-  @Output() enabledFlagChange = new EventEmitter<{ row: any; enabled: boolean }>();
+  @Output() enabledFlagChange = new EventEmitter<{
+    row: any;
+    enabled: boolean;
+  }>();
 
   searchTerm: string = '';
   filteredRows: any[] = [];

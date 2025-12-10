@@ -442,40 +442,44 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
     }
 
-    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual, String comments, String coreIssue, String coreIssueActual, String incidentNumber, String impactedServiceOffering){
-        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category, categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue, coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual,
+            String comments, String coreIssue, String coreIssueActual, String incidentNumber,
+            String impactedServiceOffering) {
+        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category,
+                categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue,
+                coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
     }
 
     /**
      * Inserts a new user role into the database.
      * 
-     * @param sql The INSERT SQL statement with placeholders (?)
-     * @param userName The user's username (e.g., "JSMITH")
-     * @param userEmail The user's email address
-     * @param roleId The role ID from the roles table
-     * @param userRole The role name (e.g., "Admin", "Viewer")
+     * @param sql         The INSERT SQL statement with placeholders (?)
+     * @param userName    The user's username (e.g., "JSMITH")
+     * @param userEmail   The user's email address
+     * @param roleId      The role ID from the roles table
+     * @param userRole    The role name (e.g., "Admin", "Viewer")
      * @param enabledFlag 'Y' for enabled, 'N' for disabled
      * @return Number of rows inserted (should be 1 on success)
      */
-    public int insertUserRole(String sql, String userName, String userEmail, 
-                              Integer roleId, String userRole, String enabledFlag) {
+    public int insertUserRole(String sql, String userName, String userEmail,
+            Integer roleId, String userRole, String enabledFlag) {
         return primaryJdbcTemplate.update(sql, userName, userEmail, roleId, userRole, enabledFlag);
     }
 
     /**
      * Updates an existing user role in the database.
      * 
-     * @param sql The UPDATE SQL statement with placeholders (?)
-     * @param userName The user's username
-     * @param userEmail The user's email address
-     * @param roleId The role ID
-     * @param userRole The role name
+     * @param sql         The UPDATE SQL statement with placeholders (?)
+     * @param userName    The user's username
+     * @param userEmail   The user's email address
+     * @param roleId      The role ID
+     * @param userRole    The role name
      * @param enabledFlag 'Y' for enabled, 'N' for disabled
-     * @param userId The user ID (primary key for WHERE clause)
+     * @param userId      The user ID (primary key for WHERE clause)
      * @return Number of rows updated (should be 1 on success, 0 if user not found)
      */
     public int updateUserRole(String sql, String userName, String userEmail,
-                              Integer roleId, String userRole, String enabledFlag, Integer userId) {
+            Integer roleId, String userRole, String enabledFlag, Integer userId) {
         return primaryJdbcTemplate.update(sql, userName, userEmail, roleId, userRole, enabledFlag, userId);
     }
 }

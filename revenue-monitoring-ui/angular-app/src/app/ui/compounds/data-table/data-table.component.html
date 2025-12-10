@@ -39,13 +39,18 @@
       <tr *ngIf="editableRow" class="fit-table__row fit-table__row--editable">
         <app-table-cell *ngFor="let column of columns">
           <!-- Input field with error state -->
-          <div *ngIf="column.key !== 'enabledFlag'" class="fit-table__input-wrapper">
+          <div
+            *ngIf="column.key !== 'enabledFlag'"
+            class="fit-table__input-wrapper"
+          >
             <input
               class="fit-input fit-input--no-border fit-input--table"
               [class.fit-input--error]="hasError(column.key)"
               type="text"
               [value]="editableRow[column.key] || ''"
-              (input)="onEditableRowChange(column.key, $any($event.target).value)"
+              (input)="
+                onEditableRowChange(column.key, $any($event.target).value)
+              "
               [placeholder]="column.label"
             />
             <!-- Error message tooltip -->
