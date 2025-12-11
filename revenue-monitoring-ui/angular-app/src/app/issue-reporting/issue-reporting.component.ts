@@ -24,6 +24,7 @@ import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-r
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+// Imports needed by inline dialog components that remain standalone
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -33,7 +34,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
-import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -42,20 +42,7 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './issue-reporting.component.html',
   styleUrl: './issue-reporting.component.css',
   providers: [DestroyManager],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatMenuModule,
-    LoadingSymbolComponent,
-  ],
-  standalone: true,
+  standalone: false,
 })
 export class IssueReportingComponent implements OnInit {
   constructor(

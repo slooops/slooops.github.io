@@ -4,19 +4,13 @@ import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
-import { CommonModule } from '@angular/common';
-import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
-    selector: 'app-wd0-dash',
-    templateUrl: './wd0-dash.component.html',
-    styleUrls: ['./wd0-dash.component.css'],
-    providers: [DestroyManager],
-    imports: [
-    CommonModule,
-    MatDividerModule
-  ],
-  standalone: true
+  selector: 'app-wd0-dash',
+  templateUrl: './wd0-dash.component.html',
+  styleUrls: ['./wd0-dash.component.css'],
+  providers: [DestroyManager],
+  standalone: false,
 })
 export class Wd0DashComponent implements OnInit {
   protected http: ApiHttpService;

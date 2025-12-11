@@ -7,26 +7,20 @@ import {
 } from '../search-context.service';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
-import { OrderLifecycleComponent } from '../order-lifecycle/order-lifecycle.component';
-import { Wd0DashComponent } from '../wd0-dash/wd0-dash.component';
-import { Wd0HistoricalDataComponent } from '../wd0-historical-data/wd0-historical-data.component';
-import { IssueReportingComponent } from '../issue-reporting/issue-reporting.component';
+import { BusinessInsightsModule } from './business-insights.module';
 import { O2c360Component } from '../o2c/o2c-360/o2c-360.component';
 
 @Component({
-    selector: 'app-business-insights',
-    templateUrl: './business-insights.component.html',
-    styleUrl: './business-insights.component.css',
-    imports: [
+  selector: 'app-business-insights',
+  templateUrl: './business-insights.component.html',
+  styleUrl: './business-insights.component.css',
+  imports: [
     CommonModule,
     MatTabsModule,
-    OrderLifecycleComponent,
-    Wd0DashComponent,
-    Wd0HistoricalDataComponent,
-    IssueReportingComponent,
-    O2c360Component
+    BusinessInsightsModule,
+    O2c360Component,
   ],
-  standalone: true
+  standalone: true,
 })
 export class BusinessInsightsComponent implements OnInit {
   constructor(
