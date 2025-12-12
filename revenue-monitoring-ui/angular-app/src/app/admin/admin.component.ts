@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AdminUserRow, ColumnConfig, SelectOption, UserFormData } from '../ui';
+import { AuthenticationService } from '../providers/authentication.service';
 
 @Component({
   selector: 'app-admin',
@@ -43,14 +44,19 @@ export class AdminComponent implements OnInit {
     { key: 'userRole', label: 'Role', isSortable: true, isFilterable: true },
     { key: 'enabledFlag', label: 'Status', isSortable: true },
     { key: 'creationDate', label: 'Created Date', isSortable: true },
+    { key: 'actions', label: 'Actions', isSortable: false },
   ];
 
   // Role options for filters and forms
   roleOptions: SelectOption[] = [];
 
+  // username: string = this.authService.getUserName();
+  username: string = 'jasloop'; // For testing purposes
+
   constructor(
     private http: ApiHttpService,
-    private destroyManager: DestroyManager
+    private destroyManager: DestroyManager,
+    private authService: AuthenticationService
   ) {}
 
   ngOnInit(): void {
@@ -70,6 +76,7 @@ export class AdminComponent implements OnInit {
             userRole: user.USER_ROLE,
             enabledFlag: user.ENABLED_FLAG,
             creationDate: new Date(user.CREATION_DATE),
+            creationDateRaw: user.CREATION_DATE, // Store raw DB value for exact matching
             userEmail: user.USER_EMAIL,
           }));
 
@@ -328,35 +335,112 @@ export class AdminComponent implements OnInit {
     };
     console.log('Enabled flag changed, sending PUT request:', updatedRow);
 
-    // Prepare the payload for the PUT request
+    // Prepare the payload with COMPOSITE KEY
+    // userName + userRole uniquely identify which row to update
     const payload = {
       userName: updatedRow.userName,
+      userRole: updatedRow.userRole,
       userEmail: updatedRow.userEmail,
       roleId: updatedRow.roleId,
-      userRole: updatedRow.userRole,
       enabledFlag: updatedRow.enabledFlag,
     };
 
-    // Send PUT request to update the user's enabled flag
+    console.log('PUT with composite key:', payload);
+    console.log(
+      'Will update WHERE userName=' +
+        payload.userName +
+        ' AND userRole=' +
+        payload.userRole
+    );
+
+    // Send PUT request with composite key in body (no userId in URL)
+    this.http.put('user-role', payload, this.destroyManager).subscribe(
+      (response: any) => {
+        console.log('✅ User updated successfully:', response);
+        // Update the local state to reflect the change immediately
+        // Find by userName + userRole combo (not userId)
+        const userIndex = this.users.findIndex(
+          (u) =>
+            u.userName === updatedRow.userName &&
+            u.userRole === updatedRow.userRole
+        );
+        if (userIndex !== -1) {
+          this.users[userIndex].enabledFlag = updatedRow.enabledFlag;
+        }
+        // Reapply filters to update the filtered view
+        this.applyFilters();
+        // TODO: Show success notification
+      },
+      (error) => {
+        console.error('❌ Error updating user:', error);
+        // TODO: Show error notification and revert toggle
+        // Reload data to ensure UI matches database state
+        this.loadUserRoles();
+      }
+    );
+  }
+
+  /**
+   * Soft deletes a user role with forensic tracking.
+   *
+   * SOFT DELETE MECHANISM:
+   * - Does NOT remove row from database
+   * - Sets USER_EMAIL to "deleted by: {current user's username}"
+   * - Sets ENABLED_FLAG to NULL
+   * - GET query filters WHERE ENABLED_FLAG IS NOT NULL, so deleted rows won't appear
+   *
+   * This maintains a forensic audit trail while keeping the UI clean.
+   */
+  onDeleteRow(row: any): void {
+    // Confirm deletion
+    const confirmMessage = `Are you sure you want to delete ${row.userRole} role for ${row.userName}?`;
+    if (!confirm(confirmMessage)) {
+      return; // User cancelled
+    }
+
+    console.log('Soft deleting user role:', row);
+
+    // Prepare payload with composite key, creation date, and deleter username
+    const payload = {
+      userName: row.userName,
+      userRole: row.userRole,
+      creationDate: row.creationDateRaw, // Use raw DB value for exact match
+      deleterUsername: this.username, // Current logged-in user
+    };
+
+    console.log(
+      '🗑️ Deleting:',
+      payload.userName,
+      '/',
+      payload.userRole,
+      'created:',
+      payload.creationDate,
+      'by',
+      payload.deleterUsername
+    );
+
+    // Send DELETE request with composite key and deleter username
+    // ApiHttpService.delete signature: delete(url, destroyManager, options)
     this.http
-      .put(`user-role/${updatedRow.userId}`, payload, this.destroyManager)
+      .delete('user-role', this.destroyManager, { body: payload })
       .subscribe(
         (response: any) => {
-          console.log('✅ User updated successfully:', response);
-          // Update the local state to reflect the change immediately
-          const userIndex = this.users.findIndex(
-            (u) => u.userId === updatedRow.userId
+          console.log('✅ User role soft deleted successfully:', response);
+          console.log('Forensic note:', response.forensicNote);
+
+          // Remove from local state immediately
+          this.users = this.users.filter(
+            (u) => !(u.userName === row.userName && u.userRole === row.userRole)
           );
-          if (userIndex !== -1) {
-            this.users[userIndex].enabledFlag = updatedRow.enabledFlag;
-          }
+
           // Reapply filters to update the filtered view
           this.applyFilters();
-          // TODO: Show success notification
+
+          // TODO: Show success notification with forensic note
         },
         (error) => {
-          console.error('❌ Error updating user:', error);
-          // TODO: Show error notification and revert toggle
+          console.error('❌ Error soft deleting user role:', error);
+          // TODO: Show error notification
           // Reload data to ensure UI matches database state
           this.loadUserRoles();
         }

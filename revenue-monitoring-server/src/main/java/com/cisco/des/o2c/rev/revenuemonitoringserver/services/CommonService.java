@@ -26,6 +26,7 @@ public class CommonService {
     private String adminTable;
     private String createUserRole;
     private String updateUserRole;
+    private String deleteUserRole;
     @Autowired
     private Common common;
     @Autowired
@@ -50,7 +51,8 @@ public class CommonService {
             @Qualifier("processFlowTotal") String processFlowTotal,
             @Qualifier("adminTable") String adminTable,
             @Qualifier("createUserRole") String createUserRole,
-            @Qualifier("updateUserRole") String updateUserRole) {
+            @Qualifier("updateUserRole") String updateUserRole,
+            @Qualifier("deleteUserRole") String deleteUserRole) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
@@ -60,6 +62,7 @@ public class CommonService {
         this.adminTable = adminTable;
         this.createUserRole = createUserRole;
         this.updateUserRole = updateUserRole;
+        this.deleteUserRole = deleteUserRole;
     }
 
     // Summaries
@@ -240,45 +243,85 @@ public class CommonService {
         return jdbcManager.insertUserRole(createUserRole, sanitizedUserName, sanitizedEmail,
                 roleId, sanitizedRole, sanitizedFlag);
     }
-
-    public int updateUserRole(Integer userId, String userName, String userEmail,
-            Integer roleId, String userRole, String enabledFlag) {
-
-        System.out.println("=== SERVER-SIDE VALIDATION (UPDATE) ===");
-
-        // Validate user ID
-        if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("Valid user ID is required");
-        }
+    
+    public int updateUserRole(String userName, String userRole, String userEmail,
+            Integer roleId, String enabledFlag) {
 
         // Validate all inputs (NEVER TRUST CLIENT INPUT)
         validateUsername(userName);
-        validateEmail(userEmail);
         validateRole(userRole);
+        validateEmail(userEmail);
         validateEnabledFlag(enabledFlag);
 
         // Sanitize inputs
         String sanitizedUserName = sanitizeInput(userName, 50);
-        String sanitizedEmail = sanitizeInput(userEmail, 254);
         String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
+        String sanitizedEmail = sanitizeInput(userEmail, 254);
         String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
 
-        // Print for testing (comment out in production)
-        // System.out.println("====== UPDATE IN DATABASE ======");
-        // System.out.println("User ID: " + userId);
-        // System.out.println("Username: " + sanitizedUserName);
-        // System.out.println("Email: " + sanitizedEmail);
-        // System.out.println("Role ID: " + roleId);
-        // System.out.println("Role: " + sanitizedRole);
-        // System.out.println("Enabled: " + sanitizedFlag);
-        // System.out.println("================================");
+        // Update using composite key: userName + userRole
+        return jdbcManager.updateUserRole(updateUserRole, sanitizedEmail, roleId,
+                sanitizedFlag, sanitizedUserName, sanitizedRole);
+    }
 
-        // Return 1 to simulate success
-        // return 1;
+    /**
+     * Soft deletes a user role with forensic tracking.
+     * 
+     * SOFT DELETE MECHANISM:
+     * 1. Sets USER_EMAIL to "deleted by: {deleterUsername}" for forensic tracking
+     * 2. Sets ENABLED_FLAG to NULL to hide row from GET queries
+     * 3. Row remains in database for audit purposes
+     * 
+     * EMAIL VALIDATION SKIPPED: The forensic string does NOT get validated as
+     * email.
+     * This is intentional - we're repurposing the email field as a forensic log.
+     * Since email = username + @cisco.com, we lose no real information.
+     * 
+     * @param userName        The user's username (part of composite key)
+     * @param userRole        The role name (part of composite key)
+     * @param creationDate    Raw creation date string from database (exact format
+     *                        match)
+     * @param deleterUsername The username of person performing deletion
+     * @return Number of rows soft-deleted (1 = success, 0 = not found)
+     * @throws IllegalArgumentException if validation fails
+     */
+    public int deleteUserRole(String userName, String userRole, String creationDate,
+            String deleterUsername) {
 
-        // Uncomment when ready to update database:
-        return jdbcManager.updateUserRole(updateUserRole, sanitizedUserName, sanitizedEmail,
-                roleId, sanitizedRole, sanitizedFlag, userId);
+        System.out.println("\n[SOFT DELETE] userName='" + userName + "', role='" + userRole +
+                "', createdAt='" + creationDate + "', deletedBy='" + deleterUsername + "'");
+
+        // Validate composite key (NEVER TRUST CLIENT INPUT)
+        validateUsername(userName);
+        validateRole(userRole);
+
+        // Validate deleter username
+        if (deleterUsername == null || deleterUsername.trim().isEmpty()) {
+            throw new IllegalArgumentException("Deleter username is required for forensic tracking");
+        }
+
+        // Validate creation date
+        if (creationDate == null || creationDate.trim().isEmpty()) {
+            throw new IllegalArgumentException("Creation date is required for safe deletion");
+        }
+
+        // Sanitize inputs
+        String sanitizedUserName = sanitizeInput(userName, 50);
+        String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
+        String sanitizedDeleter = sanitizeInput(deleterUsername, 50);
+
+        // Create forensic email string (NO EMAIL VALIDATION)
+        String forensicEmail = "deleted by: " + sanitizedDeleter;
+
+        System.out.println("[DELETE] WHERE userName='" + sanitizedUserName + "' AND userRole='" +
+                sanitizedRole + "' AND creationDate='" + creationDate + "'");
+        System.out.println("[DELETE] SET email='" + forensicEmail + "', enabled=NULL");
+
+        // Soft delete: Update email to forensic string, null the enabled flag
+        // Uses userName + userRole + creationDate for precise row targeting
+        return jdbcManager.deleteUserRole(deleteUserRole, forensicEmail,
+                sanitizedUserName, sanitizedRole, creationDate);
+
     }
 
 }

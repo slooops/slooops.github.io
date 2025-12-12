@@ -29,18 +29,37 @@
         >
           {{ column.label }}
         </app-table-header-cell>
-        <app-table-header-cell *ngIf="editableRow">
-          Actions
-        </app-table-header-cell>
       </tr>
     </thead>
     <tbody>
       <!-- Editable row at the top -->
       <tr *ngIf="editableRow" class="fit-table__row fit-table__row--editable">
         <app-table-cell *ngFor="let column of columns">
+          <!-- Actions column for editable row -->
+          <div *ngIf="column.key === 'actions'" class="fit-table__actions">
+            <app-button label="Save" variant="primary" (clicked)="onSaveRow()">
+            </app-button>
+            <app-button
+              label="Cancel"
+              variant="secondary"
+              (clicked)="onCancelEdit()"
+            >
+            </app-button>
+          </div>
+
+          <!-- Toggle switch for enabled flag -->
+          <app-toggle-switch
+            *ngIf="column.key === 'enabledFlag'"
+            [checked]="editableRow[column.key] === 'Y'"
+            (checkedChange)="
+              onEditableRowChange(column.key, $event ? 'Y' : 'N')
+            "
+          >
+          </app-toggle-switch>
+
           <!-- Input field with error state -->
           <div
-            *ngIf="column.key !== 'enabledFlag'"
+            *ngIf="column.key !== 'enabledFlag' && column.key !== 'actions'"
             class="fit-table__input-wrapper"
           >
             <input
@@ -58,27 +77,6 @@
               {{ getErrorMessage(column.key) }}
             </span>
           </div>
-          <!-- Toggle switch for enabled flag -->
-          <app-toggle-switch
-            *ngIf="column.key === 'enabledFlag'"
-            [checked]="editableRow[column.key] === 'Y'"
-            (checkedChange)="
-              onEditableRowChange(column.key, $event ? 'Y' : 'N')
-            "
-          >
-          </app-toggle-switch>
-        </app-table-cell>
-        <app-table-cell>
-          <div class="fit-table__actions">
-            <app-button label="Save" variant="primary" (clicked)="onSaveRow()">
-            </app-button>
-            <app-button
-              label="Cancel"
-              variant="secondary"
-              (clicked)="onCancelEdit()"
-            >
-            </app-button>
-          </div>
         </app-table-cell>
       </tr>
 
@@ -91,9 +89,6 @@
           <app-table-cell *ngFor="let column of columns">
             <div class="fit-table__shimmer"></div>
           </app-table-cell>
-          <app-table-cell *ngIf="editableRow">
-            <!-- Empty cell for actions column alignment -->
-          </app-table-cell>
         </tr>
       </ng-container>
 
@@ -105,19 +100,34 @@
           class="fit-table__row"
         >
           <app-table-cell *ngFor="let column of columns">
-            <ng-container *ngIf="column.key === 'enabledFlag'; else normalCell">
+            <!-- Enabled flag toggle -->
+            <ng-container
+              *ngIf="column.key === 'enabledFlag'; else checkActions"
+            >
               <app-toggle-switch
                 [checked]="row[column.key] === 'Y'"
                 (checkedChange)="onToggleEnabled(row, $event)"
               >
               </app-toggle-switch>
             </ng-container>
+
+            <!-- Actions column with trash icon -->
+            <ng-template #checkActions>
+              <ng-container *ngIf="column.key === 'actions'; else normalCell">
+                <button
+                  class="fit-table__action-button"
+                  (click)="onDeleteRow(row); $event.stopPropagation()"
+                  title="Delete user role"
+                >
+                  <span class="icon-small delete-icon"></span>
+                </button>
+              </ng-container>
+            </ng-template>
+
+            <!-- Normal cell content -->
             <ng-template #normalCell>
               {{ row[column.key] }}
             </ng-template>
-          </app-table-cell>
-          <app-table-cell *ngIf="editableRow">
-            <!-- Empty cell for actions column alignment -->
           </app-table-cell>
         </tr>
       </ng-container>

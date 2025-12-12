@@ -58,34 +58,6 @@ public class CommonController {
         return new ResponseEntity<>(service.getAdminTable(), HttpStatus.OK);
     }
 
-    /**
-     * POST endpoint to create a new user role.
-     * 
-     * HTTP Method: POST
-     * Endpoint: /api/user-role
-     * Content-Type: application/json
-     * 
-     * Request Body Example:
-     * {
-     * "userName": "JSMITH",
-     * "userEmail": "jsmith@cisco.com",
-     * "roleId": 1,
-     * "userRole": "Admin",
-     * "enabledFlag": "Y"
-     * }
-     * 
-     * @param request The CreateUserRoleRequest object deserialized from JSON
-     * @return ResponseEntity with success/error message and HTTP status code
-     * 
-     *         How this works:
-     *         1. @PostMapping tells Spring this handles POST requests to
-     *         "/api/user-role"
-     *         2. @RequestBody tells Spring to deserialize the JSON into
-     *         CreateUserRoleRequest
-     *         3. Spring automatically calls the setters on CreateUserRoleRequest
-     *         4. We call service.createUserRole() to insert into database
-     *         5. We return HTTP 201 CREATED on success, 500 on error
-     */
     @PostMapping("/user-role")
     public ResponseEntity<Map<String, Object>> createUserRole(@RequestBody CreateUserRoleRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -125,58 +97,22 @@ public class CommonController {
         }
     }
 
-    /**
-     * PUT endpoint to update an existing user role.
-     * 
-     * HTTP Method: PUT
-     * Endpoint: /api/user-role/{userId}
-     * Content-Type: application/json
-     * 
-     * URL Example: PUT /api/user-role/3312
-     * 
-     * Request Body Example:
-     * {
-     * "userName": "JSMITH",
-     * "userEmail": "jsmith@cisco.com",
-     * "roleId": 1,
-     * "userRole": "Admin",
-     * "enabledFlag": "N"
-     * }
-     * 
-     * @param userId  The user ID from the URL path (e.g., 3312)
-     * @param request The CreateUserRoleRequest object with updated data
-     * @return ResponseEntity with success/error message and HTTP status code
-     * 
-     *         How this works:
-     *         1. @PutMapping tells Spring this handles PUT requests to
-     *         "/api/user-role/{userId}"
-     *         2. @PathVariable extracts userId from the URL (e.g., /user-role/3312
-     *         → userId=3312)
-     *         3. @RequestBody deserializes the JSON into CreateUserRoleRequest
-     *         object
-     *         4. We call service.updateUserRole() to update the database
-     *         5. We return HTTP 200 OK on success, 404 if not found, 500 on error
-     */
-    @PutMapping("/user-role/{userId}")
+    @PutMapping("/user-role")
     public ResponseEntity<Map<String, Object>> updateUserRole(
-            @PathVariable Integer userId,
             @RequestBody CreateUserRoleRequest request) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Log the incoming request for debugging
-            System.out.println("Received PUT request to update user ID: " + userId);
-            System.out.println("Request data: " + request);
 
-            // Call the service layer to update the database
+            // Call service layer using COMPOSITE KEY (userName + userRole)
+            // Service returns number of rows affected (1 = success, 0 = not found)
             int rowsAffected = service.updateUserRole(
-                    userId,
-                    request.getUserName(),
-                    request.getUserEmail(),
-                    request.getRoleId(),
-                    request.getUserRole(),
-                    request.getEnabledFlag());
+                    request.getUserName(), // WHERE clause (composite key part 1)
+                    request.getUserRole(), // WHERE clause (composite key part 2)
+                    request.getUserEmail(), // SET clause
+                    request.getRoleId(), // SET clause
+                    request.getEnabledFlag()); // SET clause
 
             // Check if update was successful
             if (rowsAffected > 0) {
@@ -185,9 +121,10 @@ public class CommonController {
                 response.put("rowsAffected", rowsAffected);
                 return new ResponseEntity<>(response, HttpStatus.OK); // 200 status
             } else {
-                // No rows affected means user ID wasn't found
+                // No rows affected - combination not found
                 response.put("success", false);
-                response.put("message", "User not found with ID: " + userId);
+                response.put("message", "User role combination not found (userName=" +
+                        request.getUserName() + ", userRole=" + request.getUserRole() + ")");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 status
             }
 
@@ -198,6 +135,91 @@ public class CommonController {
 
             response.put("success", false);
             response.put("message", "Error updating user role: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status
+        }
+    }
+
+    /**
+     * DELETE endpoint to soft delete a user role with forensic tracking.
+     * 
+     * HTTP Method: DELETE
+     * Endpoint: /api/user-role
+     * Content-Type: application/json
+     * 
+     * SOFT DELETE MECHANISM:
+     * - Does NOT remove row from database
+     * - Sets USER_EMAIL to "deleted by: {deleterUsername}"
+     * - Sets ENABLED_FLAG to NULL
+     * - GET queries filter WHERE ENABLED_FLAG IS NOT NULL
+     * 
+     * Request Body Example:
+     * {
+     * "userName": "JASLOOP",
+     * "userRole": "PERIOD_CLOSE",
+     * "deleterUsername": "ADMIN_USER"
+     * }
+     * 
+     * Backend Query:
+     * UPDATE ... SET USER_EMAIL='deleted by: ADMIN_USER', ENABLED_FLAG=NULL
+     * WHERE USER_NAME='JASLOOP' AND USER_ROLE='PERIOD_CLOSE'
+     * 
+     * @param request Must contain userName, userRole (composite key), and
+     *                deleterUsername
+     * @return ResponseEntity with success/error message
+     * 
+     *         Returns:
+     *         - 200 OK: Soft delete successful
+     *         - 404 NOT FOUND: No row matches userName + userRole
+     *         - 500 INTERNAL SERVER ERROR: Validation or database error
+     */
+    @DeleteMapping("/user-role")
+    public ResponseEntity<Map<String, Object>> deleteUserRole(
+            @RequestBody Map<String, Object> request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String userName = (String) request.get("userName");
+            String userRole = (String) request.get("userRole");
+            String creationDateStr = (String) request.get("creationDate");
+            String deleterUsername = (String) request.get("deleterUsername");
+
+            // Validate required fields
+            if (userName == null || userRole == null || creationDateStr == null || deleterUsername == null) {
+                response.put("success", false);
+                response.put("message", "userName, userRole, creationDate, and deleterUsername are required");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            // Pass raw creation date string directly - JDBC will handle the conversion
+            // This ensures exact match with database format (whether "2024-02-23" or
+            // "2024-03-21 09:11:15")
+
+            // Call service layer to perform soft delete
+            int rowsAffected = service.deleteUserRole(userName, userRole, creationDateStr, deleterUsername);
+
+            if (rowsAffected > 0) {
+                // Success - row was soft deleted
+                response.put("success", true);
+                response.put("message", "User role soft deleted successfully");
+                response.put("forensicNote", "Deleted by: " + deleterUsername);
+                response.put("rowsAffected", rowsAffected);
+                return new ResponseEntity<>(response, HttpStatus.OK); // 200 status
+            } else {
+                // No rows affected - combination not found
+                response.put("success", false);
+                response.put("message", "User role combination not found (userName=" +
+                        userName + ", userRole=" + userRole + ")");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND); // 404 status
+            }
+
+        } catch (Exception e) {
+            // Handle any errors (database errors, validation errors, etc.)
+            System.err.println("Error soft deleting user role: " + e.getMessage());
+            e.printStackTrace();
+
+            response.put("success", false);
+            response.put("message", "Error soft deleting user role: " + e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status
         }
     }

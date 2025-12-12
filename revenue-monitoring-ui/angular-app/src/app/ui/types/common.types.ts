@@ -30,6 +30,7 @@ export interface AdminUserRow {
   userRole: string;
   enabledFlag: string;
   creationDate: Date;
+  creationDateRaw: string; // Raw DB format for exact matching in WHERE clause
   userEmail: string;
 }
 

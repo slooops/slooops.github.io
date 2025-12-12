@@ -150,3 +150,31 @@
     transform: translateY(0);
   }
 }
+
+.fit-table__actions {
+  min-width: 180px;
+}
+
+.fit-table__action-button {
+  background: #dc2626;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.fit-table__action-button:hover {
+  background: #b91c1c;
+}
+
+.fit-table__action-button:active {
+  background: #991b1b;
+}
+
+.fit-table__action-button .delete-icon {
+  filter: brightness(0) invert(1);
+}

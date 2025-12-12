@@ -26,6 +26,7 @@ export class DataTableComponent {
     row: any;
     enabled: boolean;
   }>();
+  @Output() deleteRow = new EventEmitter<any>();
 
   searchTerm: string = '';
   filteredRows: any[] = [];
@@ -152,5 +153,9 @@ export class DataTableComponent {
 
   onToggleEnabled(row: any, checked: boolean): void {
     this.enabledFlagChange.emit({ row, enabled: checked });
+  }
+
+  onDeleteRow(row: any): void {
+    this.deleteRow.emit(row);
   }
 }

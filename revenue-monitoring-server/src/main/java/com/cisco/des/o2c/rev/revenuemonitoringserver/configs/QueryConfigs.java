@@ -1790,4 +1790,12 @@ public class QueryConfigs {
     public String getUpdateUserRole() {
         return this.updateUserRole;
     }
+
+    @Value(("${delete.user.role.q}"))
+    public String deleteUserRole;
+
+    @Bean(name = "deleteUserRole")
+    public String getDeleteUserRole() {
+        return this.deleteUserRole;
+    }
 }
