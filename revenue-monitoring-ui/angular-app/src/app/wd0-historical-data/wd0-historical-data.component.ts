@@ -28,11 +28,11 @@ import { ExportToExcelService } from '../providers/export-to-excel.service';
 Chart.register(...registerables);
 
 @Component({
-    selector: 'app-wd0-historical-data',
-    templateUrl: './wd0-historical-data.component.html',
-    styleUrls: ['./wd0-historical-data.component.scss'],
-    providers: [DestroyManager],
-    standalone: false
+  selector: 'app-wd0-historical-data',
+  templateUrl: './wd0-historical-data.component.html',
+  styleUrls: ['./wd0-historical-data.component.scss'],
+  providers: [DestroyManager],
+  standalone: false,
 })
 export class Wd0HistoricalDataComponent
   implements OnInit, OnDestroy, AfterViewInit

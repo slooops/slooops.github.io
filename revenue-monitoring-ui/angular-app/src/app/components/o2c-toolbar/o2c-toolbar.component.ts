@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
     selector: 'app-o2c-toolbar',
     templateUrl: './o2c-toolbar.component.html',
     styleUrl: './o2c-toolbar.component.css',
-    standalone: false
+    standalone: true
 })
 export class O2cToolbarComponent {
   @Input() data: any[] = [];

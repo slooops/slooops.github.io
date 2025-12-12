@@ -288,3 +288,50 @@ input[type="text"] {
 .mat-table {
   border-spacing: 0px; /* Adjust the border-spacing as needed */
 }
+
+// More specific selectors to override Bootstrap/framework label styles
+:host label,
+.mat-mdc-form-field label,
+mat-label {
+  margin-bottom: 0 !important;
+  line-height: 1.8 !important;
+}
+
+:host ::ng-deep label {
+  margin-bottom: 0 !important;
+}
+
+// Placeholder font size for input fields
+:host ::ng-deep .mat-mdc-form-field {
+  input::placeholder {
+    font-size: 11px !important;
+    opacity: 0.7;
+  }
+
+  input:focus::placeholder {
+    opacity: 0.5;
+  }
+}
+
+// Material 3 filled form field styling
+:host ::ng-deep .mat-mdc-form-field {
+  .mdc-text-field--filled {
+    background-color: #ffffff !important;
+
+    &:not(.mdc-text-field--disabled) {
+      background-color: #ffffff !important;
+    }
+
+    // Remove the default bottom border/ripple effect if desired
+    &::before {
+      border-bottom-color: rgba(0, 0, 0, 0.12) !important;
+    }
+  }
+
+  // Style the select trigger background
+  .mat-mdc-select {
+    .mat-mdc-select-trigger {
+      background-color: transparent;
+    }
+  }
+}

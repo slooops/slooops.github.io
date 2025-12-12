@@ -2,12 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
 @Component({
     selector: 'app-operations-controls',
     templateUrl: './operations-controls.component.html',
     styleUrl: './operations-controls.component.css',
-    standalone: false
+    imports: [
+    MatTabsModule,
+    MonitoringDashboardComponent
+  ],
+  standalone: true
 })
 export class OperationsControlsComponent implements OnInit {
   constructor(

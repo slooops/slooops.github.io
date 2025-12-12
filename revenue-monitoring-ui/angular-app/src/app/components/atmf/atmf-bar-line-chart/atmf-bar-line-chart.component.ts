@@ -1,11 +1,13 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ChartConfiguration, ChartType } from 'chart.js';
+import { NgChartsModule } from 'ng2-charts';
 
 @Component({
-    selector: 'app-atmf-bar-line-chart',
-    templateUrl: './atmf-bar-line-chart.component.html',
-    styleUrl: './atmf-bar-line-chart.component.css',
-    standalone: false
+  selector: 'app-atmf-bar-line-chart',
+  templateUrl: './atmf-bar-line-chart.component.html',
+  styleUrl: './atmf-bar-line-chart.component.css',
+  imports: [NgChartsModule],
+  standalone: true,
 })
 export class AtmfBarLineChartComponent implements OnChanges {
   @Input() chartData: any;
@@ -66,6 +68,7 @@ export class AtmfBarLineChartComponent implements OnChanges {
       y: {
         stacked: true,
         position: 'left',
+        display: true,
         title: {
           display: false,
           text: 'Volume',
@@ -84,16 +87,16 @@ export class AtmfBarLineChartComponent implements OnChanges {
       y1: {
         type: 'linear',
         position: 'right',
-        display: false, // Hide y1 axis visually
+        display: true, // Show y1 axis visually
         title: {
-          display: false,
+          display: true,
           text: '% Change',
         },
         grid: {
-          drawOnChartArea: false,
+          drawOnChartArea: true,
         },
         ticks: {
-          display: false,
+          display: true,
           callback: (value) => {
             return value + '%';
           },

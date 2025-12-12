@@ -15,13 +15,27 @@ import { takeUntil } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Chart, ChartConfiguration, Plugin } from 'chart.js/auto';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
     selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule
+  ],
+  standalone: true
 })
 export class HomeComponent implements OnInit, OnDestroy {
   constructor(

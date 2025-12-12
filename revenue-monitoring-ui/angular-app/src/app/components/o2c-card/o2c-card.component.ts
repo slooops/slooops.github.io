@@ -1,10 +1,14 @@
 import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-o2c-card',
     templateUrl: './o2c-card.component.html',
     styleUrl: './o2c-card.component.css',
-    standalone: false
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class O2cCardComponent {
   @Input() title: string = 'Title';

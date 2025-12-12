@@ -1,10 +1,14 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-help-data',
     templateUrl: './help-data.component.html',
     styleUrl: './help-data.component.css',
-    standalone: false
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class HelpDataComponent {
   helpSections = HELP_SECTIONS;

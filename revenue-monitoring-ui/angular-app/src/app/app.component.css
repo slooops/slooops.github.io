@@ -145,6 +145,20 @@ h5 {
   align-items: center;
 }
 
+::ng-deep .mat-mdc-menu-content,
+::ng-deep .mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+::ng-deep .mat-mdc-menu-item {
+  min-height: 34px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
 .top-link {
   color: rgb(255, 255, 255) !important;
   text-decoration: none;
@@ -152,6 +166,7 @@ h5 {
   font-weight: 400;
   /* padding: 10px 15px; */
   display: block;
+  cursor: pointer;
 }
 
 .top-link:hover {

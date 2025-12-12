@@ -14,12 +14,18 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialogModule,
 } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface AitAccuracyData {
   TEAM_NAME: string;
@@ -30,10 +36,18 @@ interface AitAccuracyData {
 }
 
 @Component({
-    selector: 'app-caseiq-ait',
-    templateUrl: './caseiq-ait.component.html',
-    styleUrl: './caseiq-ait.component.css',
-    standalone: false
+  selector: 'app-caseiq-ait',
+  templateUrl: './caseiq-ait.component.html',
+  styleUrl: './caseiq-ait.component.css',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+  ],
+  standalone: true,
 })
 export class CaseiqAitComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -738,8 +752,8 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
 
 // Simple dialog component for expanded charts
 @Component({
-    selector: 'app-caseiq-ait-expand-dialog',
-    template: `
+  selector: 'app-caseiq-ait-expand-dialog',
+  template: `
     <div class="expand-dialog-header" role="heading" aria-level="2">
       <span class="expand-dialog-title">
         AIT {{ data.type === 'CATEGORY' ? 'Category' : 'Core Issue' }} Details
@@ -755,226 +769,211 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     <mat-dialog-content class="expand-dialog-content" tabindex="0">
       <div class="expand-charts-wrapper">
         @if (data.type === 'CATEGORY') {
-          <div class="expand-chart-block">
-            <div class="expand-chart-header">
-              <h3 class="subheading">
-                Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
-                {{ data.categoryTotal }} )
-              </h3>
-              <div class="filter-wrapper">
-                <mat-icon
-                  style="cursor: pointer; font-size: 24px"
-                  (click)="toggleCategoryFiltersInDialog()"
-                  (keydown.enter)="toggleCategoryFiltersInDialog()"
-                  (keydown.space)="toggleCategoryFiltersInDialog()"
-                  tabindex="0"
-                  title="Category Chart Filters"
-                  aria-label="Category Chart Filters"
-                  >filter_list</mat-icon
+        <div class="expand-chart-block">
+          <div class="expand-chart-header">
+            <h3 class="subheading">
+              Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
+              {{ data.categoryTotal }} )
+            </h3>
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCategoryFiltersInDialog()"
+                (keydown.enter)="toggleCategoryFiltersInDialog()"
+                (keydown.space)="toggleCategoryFiltersInDialog()"
+                tabindex="0"
+                title="Category Chart Filters"
+                aria-label="Category Chart Filters"
+                >filter_list</mat-icon
+              >
+              @if (showCategoryFiltersInDialog) {
+              <div
+                class="chart-filter-panel"
+                aria-label="Expanded category chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCategorySelectInDialog()"
+                    type="button"
                   >
-                  @if (showCategoryFiltersInDialog) {
-                    <div
-                      class="chart-filter-panel"
-                      aria-label="Expanded category chart filters panel"
-                      >
-                      <div class="multi-select-wrapper">
-                        <button
-                          class="multi-select-trigger"
-                          (click)="toggleCategorySelectInDialog()"
-                          type="button"
-                          >
-                          Filter
-                          <span
-                            class="chevron"
-                            [class.open]="showCategorySelectInDialog"
-                            >▾</span
-                            >
-                          </button>
-                          @if (showCategorySelectInDialog) {
-                            <div
-                              class="multi-select-dropdown"
-                              (click)="$event.stopPropagation()"
-                              >
-                              <div class="multi-select-options">
-                                @for (label of dialogCategoryLabels; track label) {
-                                  <div
-                                    class="multi-option"
+                    Filter
+                    <span
+                      class="chevron"
+                      [class.open]="showCategorySelectInDialog"
+                      >▾</span
+                    >
+                  </button>
+                  @if (showCategorySelectInDialog) {
+                  <div
+                    class="multi-select-dropdown"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      @for (label of dialogCategoryLabels; track label) {
+                      <div
+                        class="multi-option"
                         [class.selected]="
                           selectedCategoryLabelsInDialog.has(label)
                         "
-                                    (click)="toggleCategorySelectionInDialog(label)"
-                                    >
-                                    <input
-                                      type="checkbox"
-                                      [checked]="selectedCategoryLabelsInDialog.has(label)"
-                                      />
-                                    <span class="option-label">{{ label }}</span>
-                                  </div>
-                                }
-                              </div>
-                              <div class="multi-select-actions">
-                                <button
-                                  type="button"
-                                  class="clear-btn"
-                                  (click)="clearCategorySelectionInDialog($event)"
-                                  [disabled]="selectedCategoryLabelsInDialog.size === 0"
-                                  >
-                                  Clear
-                                </button>
-                                <button
-                                  type="button"
-                                  class="close-btn"
-                                  (click)="toggleCategorySelectInDialog()"
-                                  >
-                                  Close
-                                </button>
-                              </div>
-                            </div>
-                          }
-                        </div>
-                        @if (selectedCategoryLabelsInDialog.size === 0) {
-                          <div
-                            class="filter-hint"
-                            >
-                            Showing all categories.
-                          </div>
-                        }
-                        @if (selectedCategoryLabelsInDialog.size > 0) {
-                          <div
-                            class="filter-hint"
-                            >
-                            Showing {{ selectedCategoryLabelsInDialog.size }} selected
-                            category(ies).
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-                <div class="chart-frame">
-                  <app-bar-chart
-                    [data]="filteredCategoryData"
-                    [stacked]="true"
-                    [isLoading]="false"
-                    [chartHeight]="510"
-                    canvasId="expandedCategoryChart"
-                  ></app-bar-chart>
-                </div>
-              </div>
-            }
-            @if (data.type === 'CORE_ISSUE') {
-              <div class="expand-chart-block">
-                <div class="expand-chart-header">
-                  <h3 class="subheading">
-                    Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
-                    {{ data.coreIssueTotal }} )
-                  </h3>
-                  <div class="filter-wrapper">
-                    <mat-icon
-                      style="cursor: pointer; font-size: 24px"
-                      (click)="toggleCoreIssueFiltersInDialog()"
-                      (keydown.enter)="toggleCoreIssueFiltersInDialog()"
-                      (keydown.space)="toggleCoreIssueFiltersInDialog()"
-                      tabindex="0"
-                      title="Core Issue Chart Filters"
-                      aria-label="Core Issue Chart Filters"
-                      >filter_list</mat-icon
+                        (click)="toggleCategorySelectionInDialog(label)"
                       >
-                      @if (showCoreIssueFiltersInDialog) {
-                        <div
-                          class="chart-filter-panel"
-                          aria-label="Expanded core issue chart filters panel"
-                          >
-                          <div class="multi-select-wrapper">
-                            <button
-                              class="multi-select-trigger"
-                              (click)="toggleCoreIssueSelectInDialog()"
-                              type="button"
-                              >
-                              Filter
-                              <span
-                                class="chevron"
-                                [class.open]="showCoreIssueSelectInDialog"
-                                >▾</span
-                                >
-                              </button>
-                              @if (showCoreIssueSelectInDialog) {
-                                <div
-                                  class="multi-select-dropdown"
-                                  (click)="$event.stopPropagation()"
-                                  >
-                                  <div class="multi-select-options">
-                                    @for (label of dialogCoreIssueLabels; track label) {
-                                      <div
-                                        class="multi-option"
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCategoryLabelsInDialog.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
+                      </div>
+                      }
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCategorySelectionInDialog($event)"
+                        [disabled]="selectedCategoryLabelsInDialog.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCategorySelectInDialog()"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                  }
+                </div>
+                @if (selectedCategoryLabelsInDialog.size === 0) {
+                <div class="filter-hint">Showing all categories.</div>
+                } @if (selectedCategoryLabelsInDialog.size > 0) {
+                <div class="filter-hint">
+                  Showing {{ selectedCategoryLabelsInDialog.size }} selected
+                  category(ies).
+                </div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+          <div class="chart-frame">
+            <app-bar-chart
+              [data]="filteredCategoryData"
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="510"
+              canvasId="expandedCategoryChart"
+            ></app-bar-chart>
+          </div>
+        </div>
+        } @if (data.type === 'CORE_ISSUE') {
+        <div class="expand-chart-block">
+          <div class="expand-chart-header">
+            <h3 class="subheading">
+              Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
+              {{ data.coreIssueTotal }} )
+            </h3>
+            <div class="filter-wrapper">
+              <mat-icon
+                style="cursor: pointer; font-size: 24px"
+                (click)="toggleCoreIssueFiltersInDialog()"
+                (keydown.enter)="toggleCoreIssueFiltersInDialog()"
+                (keydown.space)="toggleCoreIssueFiltersInDialog()"
+                tabindex="0"
+                title="Core Issue Chart Filters"
+                aria-label="Core Issue Chart Filters"
+                >filter_list</mat-icon
+              >
+              @if (showCoreIssueFiltersInDialog) {
+              <div
+                class="chart-filter-panel"
+                aria-label="Expanded core issue chart filters panel"
+              >
+                <div class="multi-select-wrapper">
+                  <button
+                    class="multi-select-trigger"
+                    (click)="toggleCoreIssueSelectInDialog()"
+                    type="button"
+                  >
+                    Filter
+                    <span
+                      class="chevron"
+                      [class.open]="showCoreIssueSelectInDialog"
+                      >▾</span
+                    >
+                  </button>
+                  @if (showCoreIssueSelectInDialog) {
+                  <div
+                    class="multi-select-dropdown"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <div class="multi-select-options">
+                      @for (label of dialogCoreIssueLabels; track label) {
+                      <div
+                        class="multi-option"
                         [class.selected]="
                           selectedCoreIssueLabelsInDialog.has(label)
                         "
-                                        (click)="toggleCoreIssueSelectionInDialog(label)"
-                                        >
-                                        <input
-                                          type="checkbox"
-                                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
-                                          />
-                                        <span class="option-label">{{ label }}</span>
-                                      </div>
-                                    }
-                                  </div>
-                                  <div class="multi-select-actions">
-                                    <button
-                                      type="button"
-                                      class="clear-btn"
-                                      (click)="clearCoreIssueSelectionInDialog($event)"
-                                      [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
-                                      >
-                                      Clear
-                                    </button>
-                                    <button
-                                      type="button"
-                                      class="close-btn"
-                                      (click)="toggleCoreIssueSelectInDialog()"
-                                      >
-                                      Close
-                                    </button>
-                                  </div>
-                                </div>
-                              }
-                            </div>
-                            @if (selectedCoreIssueLabelsInDialog.size === 0) {
-                              <div
-                                class="filter-hint"
-                                >
-                                Showing all core issues.
-                              </div>
-                            }
-                            @if (selectedCoreIssueLabelsInDialog.size > 0) {
-                              <div
-                                class="filter-hint"
-                                >
-                                Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
-                                core issue(s).
-                              </div>
-                            }
-                          </div>
-                        }
+                        (click)="toggleCoreIssueSelectionInDialog(label)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
+                        />
+                        <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
-                    <div class="chart-frame">
-                      <app-bar-chart
-                        [data]="filteredCoreIssueData"
-                        [stacked]="true"
-                        [isLoading]="false"
-                        [chartHeight]="510"
-                        canvasId="expandedCoreIssueChart"
-                      ></app-bar-chart>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCoreIssueSelectionInDialog($event)"
+                        [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCoreIssueSelectInDialog()"
+                      >
+                        Close
+                      </button>
                     </div>
                   </div>
+                  }
+                </div>
+                @if (selectedCoreIssueLabelsInDialog.size === 0) {
+                <div class="filter-hint">Showing all core issues.</div>
+                } @if (selectedCoreIssueLabelsInDialog.size > 0) {
+                <div class="filter-hint">
+                  Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
+                  core issue(s).
+                </div>
                 }
               </div>
-            </mat-dialog-content>
-    `,
-    styles: [
-        `
+              }
+            </div>
+          </div>
+          <div class="chart-frame">
+            <app-bar-chart
+              [data]="filteredCoreIssueData"
+              [stacked]="true"
+              [isLoading]="false"
+              [chartHeight]="510"
+              canvasId="expandedCoreIssueChart"
+            ></app-bar-chart>
+          </div>
+        </div>
+        }
+      </div>
+    </mat-dialog-content>
+  `,
+  styles: [
+    `
       .expand-charts-wrapper {
         display: flex;
         flex-direction: column;
@@ -989,7 +988,6 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
-        margin: -24px -24px 0 -24px;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
       }
@@ -1142,8 +1140,17 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         color: #555;
       }
     `,
-    ],
-    standalone: false
+  ],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    // CaseiqTableComponent,
+    MatDialogModule,
+  ],
+  standalone: true,
 })
 export class CaseiqAitExpandDialogComponent {
   constructor(

@@ -4,13 +4,21 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { MatDialogModule } from '@angular/material/dialog';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
     selector: 'app-order-lifecycle-rev-summary',
     templateUrl: './order-lifecycle-rev-summary.component.html',
     styleUrls: ['./order-lifecycle-rev-summary.component.scss'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatDialogModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class OrderLifecycleRevSummaryComponent implements OnInit {
   constructor(

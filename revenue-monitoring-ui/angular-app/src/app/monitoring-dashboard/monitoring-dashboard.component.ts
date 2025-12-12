@@ -19,12 +19,38 @@ import { MonitoringDataService } from './providers/data.service';
 import { UtilsService } from './providers/utils.service';
 import { BaseComponent } from './shared/base.component';
 import { HttpService } from './providers/http.service';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
+import { UserAssignmentComponent } from './user-assignment/user-assignment.component';
+import { ProcessFlowTooltipComponent } from './process-flow-tooltip/process-flow-tooltip.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 
 @Component({
     selector: 'app-monitoring-dashboard',
     templateUrl: './monitoring-dashboard.component.html',
     styleUrl: './monitoring-dashboard.component.css',
-    standalone: false
+    imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    UserAssignmentComponent,
+    ProcessFlowTooltipComponent,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class MonitoringDashboardComponent<T>
   extends BaseComponent

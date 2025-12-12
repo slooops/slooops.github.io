@@ -3,12 +3,22 @@ import { Location } from '@angular/common';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-process-flow.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-gl',
-    templateUrl: './o2c-gl.component.html',
-    styleUrl: './o2c-gl.component.css',
-    standalone: false
+  selector: 'app-o2c-gl',
+  templateUrl: './o2c-gl.component.html',
+  styleUrl: './o2c-gl.component.css',
+  imports: [
+    CommonModule,
+    MatTableModule,
+    O2cProcessFlowComponent,
+    // LoadingSymbolComponent
+  ],
+  standalone: true,
 })
 export class O2cGlComponent {
   orderId = '28221819418344'; // Placeholder for order ID

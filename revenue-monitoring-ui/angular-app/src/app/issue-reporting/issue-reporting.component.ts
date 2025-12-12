@@ -9,6 +9,7 @@ import {
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogRef,
+  MatDialogModule,
 } from '@angular/material/dialog';
 import { AuthenticationService } from '../providers/authentication.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
@@ -23,13 +24,25 @@ import { BulkApproveRejectComponent } from './bulk-approve-reject/bulk-approve-r
 import { FormGroup, FormControl } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+// Imports needed by inline dialog components that remain standalone
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-    selector: 'app-issue-reporting',
-    templateUrl: './issue-reporting.component.html',
-    styleUrl: './issue-reporting.component.css',
-    providers: [DestroyManager],
-    standalone: false
+  selector: 'app-issue-reporting',
+  templateUrl: './issue-reporting.component.html',
+  styleUrl: './issue-reporting.component.css',
+  providers: [DestroyManager],
+  standalone: false,
 })
 export class IssueReportingComponent implements OnInit {
   constructor(
@@ -553,7 +566,7 @@ export interface IssueReportingModel {
 }
 
 @Component({
-    template: `
+  template: `
     <mat-dialog-content>
       <b>Please confirm you want to {{ data.message }} this Incident:</b>
     </mat-dialog-content>
@@ -575,8 +588,8 @@ export interface IssueReportingModel {
       </button>
     </mat-dialog-actions>
   `,
-    styles: [
-        `
+  styles: [
+    `
       .dialog-content {
         font-size: 16px;
         color: #333;
@@ -591,8 +604,22 @@ export interface IssueReportingModel {
         color: white !important;
       }
     `,
-    ],
-    standalone: false
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    // LoadingSymbolComponent,
+    MatDialogModule,
+  ],
+  standalone: true,
 })
 export class DialogBox {
   constructor(
@@ -606,7 +633,7 @@ export class DialogBox {
 }
 
 @Component({
-    template: `
+  template: `
     <div>
       <b>Please confirm you want to change the status as {{ data.status }}:</b>
     </div>
@@ -623,8 +650,8 @@ export class DialogBox {
       </button>
     </div>
   `,
-    styles: [
-        `
+  styles: [
+    `
       .dialog-content {
         font-size: 16px;
         color: #333;
@@ -635,8 +662,22 @@ export class DialogBox {
         color: white !important;
       }
     `,
-    ],
-    standalone: false
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    // LoadingSymbolComponent,
+    MatDialogModule,
+  ],
+  standalone: true,
 })
 export class StatusDialog {
   constructor(
@@ -650,9 +691,9 @@ export class StatusDialog {
 }
 
 @Component({
-    template: `
+  template: `
     <div
-      style="display: flex; justify-content: space-between; align-items: center;"
+      style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #08ace4; color: white"
     >
       <h5 style="margin: 0; font-weight: bold">Summary</h5>
       <button
@@ -661,11 +702,11 @@ export class StatusDialog {
         aria-label="Close"
         style="margin-left: auto; font-size: 24px; font-weight: bold;"
       >
-        <mat-icon>close</mat-icon>
+        <mat-icon style="color: white">close</mat-icon>
       </button>
     </div>
 
-    <div>
+    <div style="margin: 20px">
       <table mat-table [dataSource]="dataSource">
         <!-- Track Column -->
         <ng-container matColumnDef="Track">
@@ -727,8 +768,8 @@ export class StatusDialog {
       </table>
     </div>
   `,
-    styles: [
-        `
+  styles: [
+    `
       table {
         width: 100%;
         border-collapse: separate; /* Allows spacing between cells */
@@ -758,8 +799,24 @@ export class StatusDialog {
         font-weight: bold;
       }
     `,
-    ],
-    standalone: false
+  ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatMenuModule,
+    // LoadingSymbolComponent,
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
+  standalone: true,
 })
 export class SummaryDialog {
   displayedColumns: string[] = [

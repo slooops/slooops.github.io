@@ -5,12 +5,26 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DataService } from 'src/app/providers/data.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
     selector: 'app-order-lifecycle-upload',
     templateUrl: './order-lifecycle-upload.component.html',
     styleUrls: ['./order-lifecycle-upload.component.css'],
-    standalone: false
+    imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule
+  ],
+  standalone: true
 })
 export class OrderLifecycleUploadComponent implements OnInit {
   updateForm: FormGroup;

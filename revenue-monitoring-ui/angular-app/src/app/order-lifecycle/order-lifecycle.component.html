@@ -6,192 +6,195 @@
           <form
             [formGroup]="searchForm"
             class="search__form"
-            style="
-              display: flex;
-              align-items: flex-start;
-              margin: 8px 0 -12px 0;
-            "
-            >
-            <mat-form-field appearance="outline" [style.width.px]="125">
-              <mat-label>Select Program Name</mat-label>
+            style="display: flex; align-items: flex-start; height: 30px"
+          >
+            <mat-form-field appearance="fill" [style.width.px]="150">
               <mat-select
                 id="progname"
                 name="progname"
                 formControlName="progName"
                 [(value)]="programNameFilter"
                 panelClass="progPanel"
+                placeholder="Program Name"
                 value
                 multiple
-                >
+              >
                 @for (progName of progNameOptions; track progName) {
-                  <mat-option
-                    value="small"
-                    [value]="progName"
-                    (onSelectionChange)="filter()"
-                    >{{ progName }}</mat-option
-                    >
-                  }
-                </mat-select>
-              </mat-form-field>
-              &nbsp;
-              <mat-form-field appearance="outline" [style.width.px]="125">
-                <mat-label>Select Account</mat-label>
-                <mat-select
-                  id="account"
-                  name="account"
-                  formControlName="account"
-                  [(value)]="accountFilter"
-                  panelClass="progPanel"
-                  multiple
-                  >
-                  @for (acc of accountOptions; track acc) {
-                    <mat-option
-                      [value]="acc"
-                      (onSelectionChange)="filter()"
-                      >{{ acc }}</mat-option
-                      >
-                    }
-                  </mat-select>
-                </mat-form-field>
-                &nbsp;
-                <mat-form-field
-                  class="filter"
-                  floatLabel="auto"
-                  [style.width.px]="125"
-                  >
-                  <mat-label>Search Deal ID</mat-label>
-                  <input matInput (keyup)="filter()" formControlName="dealId" />
-                  <i
-                    matSuffix
-                    class="fa fa-search hoverIcon"
-                    style="color: gray"
-                    (click)="applyFilter()"
-                  ></i>
-                </mat-form-field>
-                &nbsp;
-                <mat-form-field
-                  class="filter"
-                  floatLabel="auto"
-                  [style.width.px]="125"
-                  >
-                  <mat-label>Search Order # </mat-label>
-                  <input matInput (keyup)="filter()" formControlName="salesOrdr" />
-                  <i
-                    matSuffix
-                    class="fa fa-search hoverIcon"
-                    style="color: gray"
-                    (click)="applyFilter()"
-                  ></i>
-                </mat-form-field>
-                &nbsp;
-                <mat-form-field appearance="outline" [style.width.px]="125">
-                  <mat-label>Select Booking Status</mat-label>
-                  <mat-select
-                    id="orderstatus"
-                    name="orderstatus"
-                    formControlName="orderStats"
-                    [(value)]="orderStatusFilter"
-                    panelClass="progPanel"
-                    multiple
-                    >
-                    @for (ordstats of orderStatusOptions; track ordstats) {
-                      <mat-option
-                        [value]="ordstats"
-                        (onSelectionChange)="filter()"
-                        >{{ ordstats }}</mat-option
-                        >
-                      }
-                    </mat-select>
-                  </mat-form-field>
-                  &nbsp;
-                  <mat-form-field appearance="outline" [style.width.px]="125">
-                    <mat-label>Select Invoicing Status</mat-label>
-                    <mat-select
-                      id="invoicestatus"
-                      name="invoicestatus"
-                      formControlName="invoiceStats"
-                      [(value)]="invoiceStatusFilter"
-                      panelClass="progPanel"
-                      multiple
-                      >
-                      @for (invStats of invoiceStatusOptions; track invStats) {
-                        <mat-option
-                          [value]="invStats"
-                          (onSelectionChange)="filter()"
-                          >{{ invStats }}</mat-option
-                          >
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                    &nbsp;
-                    <button
-                      mat-stroked-button
-                      type="button"
-                      (click)="clearFilters()"
-                      style="font-size: 12px"
-                      >
-                      Reset
-                    </button>
-                    &nbsp;
-                    @if (selection.hasValue() && dealUploadFlag) {
-                      <button
-                        mat-raised-button
-                        color="warn"
-                        (click)="deleteSelectedRows(dialogConfirmTemplate)"
-                        style="font-size: 12px"
-                        >
-                        Delete
-                      </button>
-                    }
-                  </form>
-                </span>
-              </h5>
+                <mat-option
+                  value="small"
+                  [value]="progName"
+                  (onSelectionChange)="filter()"
+                  >{{ progName }}</mat-option
+                >
+                }
+              </mat-select>
+            </mat-form-field>
+            &nbsp;
+            <mat-form-field appearance="fill" [style.width.px]="150">
+              <mat-select
+                id="account"
+                name="account"
+                formControlName="account"
+                [(value)]="accountFilter"
+                panelClass="progPanel"
+                placeholder="Select Account"
+                multiple
+              >
+                @for (acc of accountOptions; track acc) {
+                <mat-option [value]="acc" (onSelectionChange)="filter()">{{
+                  acc
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            &nbsp;
+            <mat-form-field
+              appearance="fill"
+              class="filter"
+              floatLabel="auto"
+              [style.width.px]="150"
+            >
+              <!-- <mat-label>Search Deal ID</mat-label> -->
+              <input
+                matInput
+                (keyup)="filter()"
+                formControlName="dealId"
+                placeholder="Enter Deal ID"
+                style="margin-left: -8px"
+              />
+              <i
+                matSuffix
+                class="fa fa-search hoverIcon"
+                style="color: gray; padding-right: 5px"
+                (click)="applyFilter()"
+              ></i>
+            </mat-form-field>
+            &nbsp;
+            <mat-form-field
+              appearance="fill"
+              class="filter"
+              floatLabel="auto"
+              [style.width.px]="150"
+            >
+              <!-- <mat-label>Search Order #</mat-label> -->
+              <input
+                matInput
+                (keyup)="filter()"
+                formControlName="salesOrdr"
+                placeholder="Enter Order #"
+              />
+              <i
+                matSuffix
+                class="fa fa-search hoverIcon"
+                style="color: gray; padding-right: 5px"
+                (click)="applyFilter()"
+              ></i>
+            </mat-form-field>
+            &nbsp;
+            <mat-form-field appearance="fill" [style.width.px]="150">
+              <mat-select
+                id="orderstatus"
+                name="orderstatus"
+                formControlName="orderStats"
+                [(value)]="orderStatusFilter"
+                panelClass="progPanel"
+                placeholder="Booking Status"
+                multiple
+              >
+                @for (ordstats of orderStatusOptions; track ordstats) {
+                <mat-option [value]="ordstats" (onSelectionChange)="filter()">{{
+                  ordstats
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            &nbsp;
+            <mat-form-field appearance="fill" [style.width.px]="150">
+              <mat-select
+                id="invoicestatus"
+                name="invoicestatus"
+                formControlName="invoiceStats"
+                [(value)]="invoiceStatusFilter"
+                panelClass="progPanel"
+                placeholder="Invoicing Status"
+                multiple
+              >
+                @for (invStats of invoiceStatusOptions; track invStats) {
+                <mat-option [value]="invStats" (onSelectionChange)="filter()">{{
+                  invStats
+                }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            &nbsp;
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="clearFilters()"
+              style="font-size: 12px"
+            >
+              Reset
+            </button>
+            &nbsp; @if (selection.hasValue() && dealUploadFlag) {
+            <button
+              mat-raised-button
+              color="warn"
+              (click)="deleteSelectedRows(dialogConfirmTemplate)"
+              style="font-size: 12px"
+            >
+              Delete
+            </button>
+            }
+          </form>
+        </span>
+      </h5>
 
-              <div class="action-buttons">
-                <div
+      <div class="action-buttons">
+        <div
           style="
             font-size: 12px;
             padding: 0px 0vw 0 0;
             display: flex;
             flex-direction: column;
           "
-                  >
-                  <div style="display: flex">
-                    <span style="margin-top: -5px">
-                      Dashboard updated: {{ timeNow }} &nbsp;<i
-                      class="fa fa-info-circle"
-                      matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
-                      [matTooltipPosition]="'above'"
-                      style="color: gray"
-                    ></i>
-                  </span>
-                </div>
-                <span
+        >
+          <div style="display: flex">
+            <span style="margin-top: -5px">
+              Dashboard updated: {{ timeNow }} &nbsp;<i
+                class="fa fa-info-circle"
+                matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
+                [matTooltipPosition]="'above'"
+                style="color: gray"
+              ></i>
+            </span>
+          </div>
+          <span
             style="
               float: right !important;
               text-align: right !important;
               margin: -8px 5px 0 0;
               font-size: 12px;
+              cursor: pointer;
             "
-                  >
-                  <a
-                    style="color: black; text-decoration: none"
-                    [matMenuTriggerFor]="dropdownMenu"
-                    >Options&nbsp;&nbsp;
-                    <i
-                      class="fa fa-ellipsis-v"
-                      aria-hidden="true"
+          >
+            <a
+              style="color: black; text-decoration: none"
+              [matMenuTriggerFor]="dropdownMenu"
+              >Options&nbsp;&nbsp;
+              <i
+                class="fa fa-ellipsis-v"
+                aria-hidden="true"
                 style="
                   font-size: large;
                   color: #4f5051;
                   margin-top: 3px;
                   float: right;
                 "
-                    ></i>
-                  </a>
-                </span>
-              </div>
-              <!-- <button
+              ></i>
+            </a>
+          </span>
+        </div>
+        <!-- <button
               mat-icon-button
           (click)="
             exportTableToExcel(
@@ -203,531 +206,501 @@
               >
               <i class="svg-icon download-icon"></i>
             </button> -->
-          </div>
-        </div>
-        <mat-divider></mat-divider>
-        @if (dataSource?.data?.length) {
-          <div class="table-container" style="overflow-y: hidden !important">
-            <table
-              mat-table
-              [dataSource]="dataSource"
-              class="custom-table table-responsive"
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    @if (dataSource?.data?.length) {
+    <div class="table-container" style="overflow-y: hidden !important">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        class="custom-table table-responsive"
+      >
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
+        <!-- PROGRAM_NAME Column -->
+        <ng-container matColumnDef="PROGRAM_NAME">
+          <th mat-header-cell *matHeaderCellDef>Program Name</th>
+          <td
+            mat-cell
+            *matCellDef="let record"
+            [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
+          >
+            {{ record.PROGRAM_NAME }}
+          </td>
+        </ng-container>
+        <!-- ACCOUNT Column -->
+        <ng-container matColumnDef="ACCOUNT">
+          <th mat-header-cell *matHeaderCellDef>Account</th>
+          <td
+            mat-cell
+            *matCellDef="let record"
+            [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
+          >
+            {{ record.ACCOUNT }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="BOOK_DATE">
+          <th mat-header-cell *matHeaderCellDef>Book Date</th>
+          <td mat-cell *matCellDef="let record">
+            {{
+              record.BOOK_DATE == "TBD"
+                ? "TBD"
+                : (record.BOOK_DATE | date : "M/d/yyyy")
+            }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="SALES_ORDER">
+          <th mat-header-cell *matHeaderCellDef>Order (#)</th>
+          <td
+            mat-cell
+            *matCellDef="let record"
+            [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
+          >
+            {{ record.SALES_ORDER }}
+          </td>
+        </ng-container>
+        <!-- ORDER_VALUE Column -->
+        <ng-container matColumnDef="ORDER_VALUE">
+          <th mat-header-cell *matHeaderCellDef>Order Value ($M)</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.ORDER_VALUE }}
+          </td>
+        </ng-container>
+        <!-- ORDER_STATUS Column -->
+        <ng-container matColumnDef="ORDER_STATUS">
+          <th mat-header-cell *matHeaderCellDef>
+            <b style="font-weight: bolder; color: #000000">1.Booking Status</b>
+          </th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.ORDER_STATUS }}
+          </td>
+        </ng-container>
+        <!-- CONTRACT CREATED Column -->
+        <ng-container matColumnDef="CONTRACT_NUMBER">
+          <th mat-header-cell *matHeaderCellDef>
+            <b style="font-weight: bolder; color: #000000">2.Order Status</b>
+          </th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.CONTRACT_NUMBER }}
+          </td>
+        </ng-container>
+        <!-- DEAL UPLOAD DATE Column -->
+        <ng-container matColumnDef="DEAL_UPLOAD_DATE">
+          <th mat-header-cell *matHeaderCellDef>Upload Date</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.DEAL_UPLOAD_DATE | date : "M/d/yyyy" }}
+          </td>
+        </ng-container>
+        <!-- INVOICING_STATUS Column -->
+        <ng-container matColumnDef="INVOICING_STATUS">
+          <th mat-header-cell *matHeaderCellDef>
+            <b style="font-weight: bolder; color: #000000">3.Invoicing</b>
+          </th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.INVOICING_STATUS }}
+          </td>
+        </ng-container>
+        <!-- REV_ACCR_STATUS Column -->
+        <ng-container matColumnDef="REV_ACCR_STATUS">
+          <th mat-header-cell *matHeaderCellDef>
+            <b style="font-weight: bolder; color: #000000">
+              4.Revenue Accruals</b
+            >
+          </th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.REV_ACCR_STATUS }}
+          </td>
+        </ng-container>
+        <!-- GL_POSTING_STATUS Column -->
+        <ng-container matColumnDef="GL_POSTING_STATUS">
+          <th mat-header-cell *matHeaderCellDef>
+            <b style="font-weight: bolder; color: #000000"> 5.Gl Posting</b>
+          </th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.GL_POSTING_STATUS }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="ACCRUALS_EXECUTION_TIME">
+          <th mat-header-cell *matHeaderCellDef>
+            Accruals Execution Time (In Mins)
+          </th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.ACCRUALS_EXECUTION_TIME }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="SUBSCRIPTION_ID">
+          <th mat-header-cell *matHeaderCellDef>Subscription Id</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.SUBSCRIPTION_ID }}
+          </td>
+        </ng-container>
+        <!-- INVOICE_DATE Column -->
+        <ng-container matColumnDef="INVOICE_DATE">
+          <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
+          <td mat-cell *matCellDef="let record">
+            {{
+              record.INVOICE_DATE == "TBD"
+                ? "TBD"
+                : (record.INVOICE_DATE | date : "M/d/yyyy")
+            }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="FLEXIBLE_INVOICE_ELIGIBLE">
+          <th mat-header-cell *matHeaderCellDef>Flexible Invoice Eligible</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.FLEXIBLE_INVOICE_ELIGIBLE }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="INVOICE_ELIGIBLE_DATE">
+          <th mat-header-cell *matHeaderCellDef>Invoice Eligible Date (Clo)</th>
+          <td
+            class="dateInputCell"
+            mat-cell
+            *matCellDef="let record; let i = index"
+          >
+            @if (!updateClo) {
+            <span>
+              {{
+                record.INVOICE_ELIGIBLE_DATE == "TBD"
+                  ? ""
+                  : (record.INVOICE_ELIGIBLE_DATE | date : "M/d/yyyy")
+              }}</span
+            >
+            } @if (updateClo && record.GL_POSTING_STATUS != 'Completed') {
+            <span>
+              <mat-form-field appearance="fill" floatLabel="auto">
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  placeholder="Select Date"
+                  [min]="currentDate"
+                  [readonly]="true"
+                  [(ngModel)]="record.INVOICE_ELIGIBLE_DATE"
+                  class="calendarInput"
+                />
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #picker>
+                  <mat-datepicker-actions>
+                    <button mat-button matDatepickerCancel>Cancel</button>
+                    <button
+                      mat-raised-button
+                      style="background-color: gray; color: white"
+                      matDatepickerApply
+                      (click)="saveInvoiceEligibleDate(record)"
+                    >
+                      Save
+                    </button>
+                  </mat-datepicker-actions>
+                </mat-datepicker>
+              </mat-form-field>
+            </span>
+            }
+          </td>
+        </ng-container>
+        <!-- INVOICE_AMOUNT Column -->
+        <ng-container matColumnDef="INVOICE_AMOUNT">
+          <th mat-header-cell *matHeaderCellDef>Invoice Amount ($M)</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.INVOICE_AMOUNT }}
+          </td>
+        </ng-container>
+        <!-- Term Column -->
+        <ng-container matColumnDef="TERM_IN_YEARS">
+          <th mat-header-cell *matHeaderCellDef>Term</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.TERM_IN_YEARS }} Yrs
+          </td>
+        </ng-container>
+        <!-- DEAL_ID Column -->
+        <ng-container matColumnDef="DEAL_ID">
+          <th mat-header-cell *matHeaderCellDef>Deal Id</th>
+          <td
+            mat-cell
+            *matCellDef="let record"
+            [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
+          >
+            {{ record.DEAL_ID }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="TOTAL_LINE_COUNT">
+          <th mat-header-cell *matHeaderCellDef>Line Count</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.TOTAL_LINE_COUNT }}
+          </td>
+        </ng-container>
+        <!-- ORDER_TOTAL_USD Column -->
+        <ng-container matColumnDef="LINES_ON_HOLD">
+          <th mat-header-cell *matHeaderCellDef>Lines on Hold</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.LINES_ON_HOLD }}
+          </td>
+        </ng-container>
+        <!-- INVOICE_LINES Column -->
+        <ng-container matColumnDef="INVOICE_LINES">
+          <th mat-header-cell *matHeaderCellDef>Invoice Lines</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.INVOICE_LINES }}
+          </td>
+        </ng-container>
+        <!-- INVOICE RELEASE DATE Column -->
+        <ng-container matColumnDef="FUTURE_INVOICE_RELEASE_DATE">
+          <th mat-header-cell *matHeaderCellDef>Future Invoice Release Date</th>
+          <td mat-cell *matCellDef="let record">
+            {{
+              record.FUTURE_INVOICE_RELEASE_DATE == "TBD"
+                ? "NA"
+                : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
+            }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="CLO_COMMENTS">
+          <th mat-header-cell *matHeaderCellDef>Clo Updates</th>
+          <td mat-cell *matCellDef="let record; let i = index">
+            @if (!isEditingCloUpdates(record)) {
+            <div>
+              {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
+              @if ( updateClo && record.CLO_COMMENTS == 'TBD' &&
+              record.GL_POSTING_STATUS != 'Completed' ) {
+              <span class="test">
+                @if (record.CLO_COMMENTS == 'TBD') {
+                <input type="text" placeholder="Click to edit" disabled />
+                }
+                <i
+                  class="fa fa-pencil-square-o hoverIcon"
+                  style="font-weight: bold; color: rgb(79, 78, 78)"
+                  aria-hidden="true"
+                  (click)="startEditing(record, i)"
+                ></i>
+              </span>
+              } @if ( updateClo && record.CLO_COMMENTS != 'TBD' &&
+              record.GL_POSTING_STATUS != 'Completed' ) {
+              <span>
+                <i
+                  class="fa fa-pencil-square-o hoverIcon"
+                  style="font-weight: bold; color: rgb(79, 78, 78)"
+                  aria-hidden="true"
+                  (click)="startEditing(record, i)"
+                ></i>
+              </span>
+              }
+            </div>
+            } @else {
+            <div>
+              <textarea
+                [(ngModel)]="record.CLO_COMMENTS"
+                placeholder="{{ originalValue }}"
+                style="
+                  width: 100% !important;
+                  margin-top: 10px !important;
+                  border-radius: 5px;
+                  font-size: small;
+                "
+              ></textarea>
+              <i
+                class="fa fa-save hoverIcon"
+                (click)="saveCloUpdates(record)"
+                style="color: #00668a; font-weight: bold"
+                >&nbsp;Save</i
               >
-              <ng-container matColumnDef="select">
-                <th mat-header-cell *matHeaderCellDef>
-                  <mat-checkbox
-                    (change)="$event ? masterToggle() : null"
-                    [checked]="selection.hasValue() && isAllSelected()"
-                    [indeterminate]="selection.hasValue() && !isAllSelected()"
-                    >
-                  </mat-checkbox>
-                </th>
-                <td mat-cell *matCellDef="let row">
-                  <mat-checkbox
-                    (click)="$event.stopPropagation()"
-                    (change)="$event ? selection.toggle(row) : null"
-                    [checked]="selection.isSelected(row)"
-                    >
-                  </mat-checkbox>
-                </td>
-              </ng-container>
-              <!-- PROGRAM_NAME Column -->
-              <ng-container matColumnDef="PROGRAM_NAME">
-                <th mat-header-cell *matHeaderCellDef>Program Name</th>
-                <td
-                  mat-cell
-                  *matCellDef="let record"
-                  [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-                  >
-                  {{ record.PROGRAM_NAME }}
-                </td>
-              </ng-container>
-              <!-- ACCOUNT Column -->
-              <ng-container matColumnDef="ACCOUNT">
-                <th mat-header-cell *matHeaderCellDef>Account</th>
-                <td
-                  mat-cell
-                  *matCellDef="let record"
-                  [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-                  >
-                  {{ record.ACCOUNT }}
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="BOOK_DATE">
-                <th mat-header-cell *matHeaderCellDef>Book Date</th>
-                <td mat-cell *matCellDef="let record">
-                  {{
-                  record.BOOK_DATE == "TBD"
-                  ? "TBD"
-                  : (record.BOOK_DATE | date : "M/d/yyyy")
-                  }}
-                </td>
-              </ng-container>
-              <ng-container matColumnDef="SALES_ORDER">
-                <th mat-header-cell *matHeaderCellDef>Order (#)</th>
-                <td
-                  mat-cell
-                  *matCellDef="let record"
-                  [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-                  >
-                  {{ record.SALES_ORDER }}
-                </td>
-              </ng-container>
-              <!-- ORDER_VALUE Column -->
-              <ng-container matColumnDef="ORDER_VALUE">
-                <th mat-header-cell *matHeaderCellDef>Order Value ($M)</th>
-                <td mat-cell *matCellDef="let record">
-                  {{ record.ORDER_VALUE }}
-                </td>
-              </ng-container>
-              <!-- ORDER_STATUS Column -->
-              <ng-container matColumnDef="ORDER_STATUS">
-                <th mat-header-cell *matHeaderCellDef>
-                  <b style="font-weight: bolder; color: #000000"
-                    >1.Booking Status</b
-                    >
-                  </th>
-                  <td mat-cell *matCellDef="let record">
-                    {{ record.ORDER_STATUS }}
-                  </td>
-                </ng-container>
-                <!-- CONTRACT CREATED Column -->
-                <ng-container matColumnDef="CONTRACT_NUMBER">
-                  <th mat-header-cell *matHeaderCellDef>
-                    <b style="font-weight: bolder; color: #000000">2.Order Status</b>
-                  </th>
-                  <td mat-cell *matCellDef="let record">
-                    {{ record.CONTRACT_NUMBER }}
-                  </td>
-                </ng-container>
-                <!-- DEAL UPLOAD DATE Column -->
-                <ng-container matColumnDef="DEAL_UPLOAD_DATE">
-                  <th mat-header-cell *matHeaderCellDef>Upload Date</th>
-                  <td mat-cell *matCellDef="let record">
-                    {{ record.DEAL_UPLOAD_DATE | date : "M/d/yyyy" }}
-                  </td>
-                </ng-container>
-                <!-- INVOICING_STATUS Column -->
-                <ng-container matColumnDef="INVOICING_STATUS">
-                  <th mat-header-cell *matHeaderCellDef>
-                    <b style="font-weight: bolder; color: #000000">3.Invoicing</b>
-                  </th>
-                  <td mat-cell *matCellDef="let record">
-                    {{ record.INVOICING_STATUS }}
-                  </td>
-                </ng-container>
-                <!-- REV_ACCR_STATUS Column -->
-                <ng-container matColumnDef="REV_ACCR_STATUS">
-                  <th mat-header-cell *matHeaderCellDef>
-                    <b style="font-weight: bolder; color: #000000">
-                      4.Revenue Accruals</b
-                      >
-                    </th>
-                    <td mat-cell *matCellDef="let record">
-                      {{ record.REV_ACCR_STATUS }}
-                    </td>
-                  </ng-container>
-                  <!-- GL_POSTING_STATUS Column -->
-                  <ng-container matColumnDef="GL_POSTING_STATUS">
-                    <th mat-header-cell *matHeaderCellDef>
-                      <b style="font-weight: bolder; color: #000000"> 5.Gl Posting</b>
-                    </th>
-                    <td mat-cell *matCellDef="let record">
-                      {{ record.GL_POSTING_STATUS }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="ACCRUALS_EXECUTION_TIME">
-                    <th mat-header-cell *matHeaderCellDef>
-                      Accruals Execution Time (In Mins)
-                    </th>
-                    <td mat-cell *matCellDef="let record">
-                      {{ record.ACCRUALS_EXECUTION_TIME }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="SUBSCRIPTION_ID">
-                    <th mat-header-cell *matHeaderCellDef>Subscription Id</th>
-                    <td mat-cell *matCellDef="let record">
-                      {{ record.SUBSCRIPTION_ID }}
-                    </td>
-                  </ng-container>
-                  <!-- INVOICE_DATE Column -->
-                  <ng-container matColumnDef="INVOICE_DATE">
-                    <th mat-header-cell *matHeaderCellDef>Invoice Date</th>
-                    <td mat-cell *matCellDef="let record">
-                      {{
-                      record.INVOICE_DATE == "TBD"
-                      ? "TBD"
-                      : (record.INVOICE_DATE | date : "M/d/yyyy")
-                      }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="FLEXIBLE_INVOICE_ELIGIBLE">
-                    <th mat-header-cell *matHeaderCellDef>Flexible Invoice Eligible</th>
-                    <td mat-cell *matCellDef="let record">
-                      {{ record.FLEXIBLE_INVOICE_ELIGIBLE }}
-                    </td>
-                  </ng-container>
-                  <ng-container matColumnDef="INVOICE_ELIGIBLE_DATE">
-                    <th mat-header-cell *matHeaderCellDef>
-                      Invoice Eligible Date (Clo)
-                    </th>
-                    <td
-                      class="dateInputCell"
-                      mat-cell
-                      *matCellDef="let record; let i = index"
-                      >
-                      @if (!updateClo) {
-                        <span>
-                          {{
-                          record.INVOICE_ELIGIBLE_DATE == "TBD"
-                          ? ""
-                          : (record.INVOICE_ELIGIBLE_DATE | date : "M/d/yyyy")
-                          }}</span
-                          >
-                        }
-                        @if (updateClo && record.GL_POSTING_STATUS != 'Completed') {
-                          <span
-                            >
-                            <mat-form-field floatLabel="auto">
-                              <input
-                                matInput
-                                [matDatepicker]="picker"
-                                placeholder="Select Date"
-                                [min]="currentDate"
-                                [readonly]="true"
-                                [(ngModel)]="record.INVOICE_ELIGIBLE_DATE"
-                                class="calendarInput"
-                                />
-                              <mat-datepicker-toggle
-                                matSuffix
-                                [for]="picker"
-                              ></mat-datepicker-toggle>
-                              <mat-datepicker #picker>
-                                <mat-datepicker-actions>
-                                  <button mat-button matDatepickerCancel>Cancel</button>
-                                  <button
-                                    mat-raised-button
-                                    style="background-color: gray; color: white"
-                                    matDatepickerApply
-                                    (click)="saveInvoiceEligibleDate(record)"
-                                    >
-                                    Save
-                                  </button>
-                                </mat-datepicker-actions>
-                              </mat-datepicker>
-                            </mat-form-field>
-                          </span>
-                        }
-                      </td>
-                    </ng-container>
-                    <!-- INVOICE_AMOUNT Column -->
-                    <ng-container matColumnDef="INVOICE_AMOUNT">
-                      <th mat-header-cell *matHeaderCellDef>Invoice Amount ($M)</th>
-                      <td mat-cell *matCellDef="let record">
-                        {{ record.INVOICE_AMOUNT }}
-                      </td>
-                    </ng-container>
-                    <!-- Term Column -->
-                    <ng-container matColumnDef="TERM_IN_YEARS">
-                      <th mat-header-cell *matHeaderCellDef>Term</th>
-                      <td mat-cell *matCellDef="let record">
-                        {{ record.TERM_IN_YEARS }} Yrs
-                      </td>
-                    </ng-container>
-                    <!-- DEAL_ID Column -->
-                    <ng-container matColumnDef="DEAL_ID">
-                      <th mat-header-cell *matHeaderCellDef>Deal Id</th>
-                      <td
-                        mat-cell
-                        *matCellDef="let record"
-                        [ngClass]="{ highlight: record.GL_POSTING_STATUS == 'Completed' }"
-                        >
-                        {{ record.DEAL_ID }}
-                      </td>
-                    </ng-container>
-                    <ng-container matColumnDef="TOTAL_LINE_COUNT">
-                      <th mat-header-cell *matHeaderCellDef>Line Count</th>
-                      <td mat-cell *matCellDef="let record">
-                        {{ record.TOTAL_LINE_COUNT }}
-                      </td>
-                    </ng-container>
-                    <!-- ORDER_TOTAL_USD Column -->
-                    <ng-container matColumnDef="LINES_ON_HOLD">
-                      <th mat-header-cell *matHeaderCellDef>Lines on Hold</th>
-                      <td mat-cell *matCellDef="let record">
-                        {{ record.LINES_ON_HOLD }}
-                      </td>
-                    </ng-container>
-                    <!-- INVOICE_LINES Column -->
-                    <ng-container matColumnDef="INVOICE_LINES">
-                      <th mat-header-cell *matHeaderCellDef>Invoice Lines</th>
-                      <td mat-cell *matCellDef="let record">
-                        {{ record.INVOICE_LINES }}
-                      </td>
-                    </ng-container>
-                    <!-- INVOICE RELEASE DATE Column -->
-                    <ng-container matColumnDef="FUTURE_INVOICE_RELEASE_DATE">
-                      <th mat-header-cell *matHeaderCellDef>
-                        Future Invoice Release Date
-                      </th>
-                      <td mat-cell *matCellDef="let record">
-                        {{
-                        record.FUTURE_INVOICE_RELEASE_DATE == "TBD"
-                        ? "NA"
-                        : (record.FUTURE_INVOICE_RELEASE_DATE | date : "M/d/yyyy")
-                        }}
-                      </td>
-                    </ng-container>
-                    <ng-container matColumnDef="CLO_COMMENTS">
-                      <th mat-header-cell *matHeaderCellDef>Clo Updates</th>
-                      <td mat-cell *matCellDef="let record; let i = index">
-                        @if (!isEditingCloUpdates(record)) {
-                          <div>
-                            {{ record.CLO_COMMENTS == "TBD" ? "" : record.CLO_COMMENTS }}
-                            @if (
-                              updateClo &&
-                              record.CLO_COMMENTS == 'TBD' &&
-                              record.GL_POSTING_STATUS != 'Completed'
-                              ) {
-                              <span
-                                class="test"
-                                >
-                                @if (record.CLO_COMMENTS == 'TBD') {
-                                  <input
-                                    type="text"
-                                    placeholder="Click to edit"
-                                    disabled
-                                    />
-                                }
-                                <i
-                                  class="fa fa-pencil-square-o hoverIcon"
-                                  style="font-weight: bold; color: rgb(79, 78, 78)"
-                                  aria-hidden="true"
-                                  (click)="startEditing(record, i)"
-                                ></i>
-                              </span>
-                            }
-                            @if (
-                              updateClo &&
-                              record.CLO_COMMENTS != 'TBD' &&
-                              record.GL_POSTING_STATUS != 'Completed'
-                              ) {
-                              <span
-                                >
-                                <i
-                                  class="fa fa-pencil-square-o hoverIcon"
-                                  style="font-weight: bold; color: rgb(79, 78, 78)"
-                                  aria-hidden="true"
-                                  (click)="startEditing(record, i)"
-                                ></i>
-                              </span>
-                            }
-                          </div>
-                        } @else {
-                          <div>
-                            <textarea
-                              [(ngModel)]="record.CLO_COMMENTS"
-                              placeholder="{{ originalValue }}"
-                    style="
-                      width: 100% !important;
-                      margin-top: 10px !important;
-                      border-radius: 5px;
-                      font-size: small;
-                    "
-                            ></textarea>
-                            <i
-                              class="fa fa-save hoverIcon"
-                              (click)="saveCloUpdates(record)"
-                              style="color: #00668a; font-weight: bold"
-                              >&nbsp;Save</i
-                              >
-                              &nbsp;
-                              <i
-                                class="fa fa-undo hoverIcon"
-                                style="color: #2c2c2c; font-weight: bold"
-                                (click)="rollbackCloUpdatesValue(record, i)"
-                                >&nbsp;Undo</i
-                                >
-                              </div>
-                            }
-                          </td>
-                        </ng-container>
-                        <!-- COMMENTS Column -->
-                        <ng-container matColumnDef="COMMENTS">
-                          <th mat-header-cell *matHeaderCellDef>Comments</th>
-                          <td mat-cell *matCellDef="let record">
-                            {{ record.COMMENTS }}
-                          </td>
-                        </ng-container>
-                        <!-- Table header -->
-                        <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-                        <!-- Table rows -->
-                        <tr
-                          mat-row
-                          *matRowDef="let row; columns: columnsToDisplay; let entry"
-                          [hidden]="!showRecord"
-                        ></tr>
-                      </table>
-                    </div>
-                  }
+              &nbsp;
+              <i
+                class="fa fa-undo hoverIcon"
+                style="color: #2c2c2c; font-weight: bold"
+                (click)="rollbackCloUpdatesValue(record, i)"
+                >&nbsp;Undo</i
+              >
+            </div>
+            }
+          </td>
+        </ng-container>
+        <!-- COMMENTS Column -->
+        <ng-container matColumnDef="COMMENTS">
+          <th mat-header-cell *matHeaderCellDef>Comments</th>
+          <td mat-cell *matCellDef="let record">
+            {{ record.COMMENTS }}
+          </td>
+        </ng-container>
+        <!-- Table header -->
+        <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+        <!-- Table rows -->
+        <tr
+          mat-row
+          *matRowDef="let row; columns: columnsToDisplay; let entry"
+          [hidden]="!showRecord"
+        ></tr>
+      </table>
+    </div>
+    } @if (isLoading) {
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+      <div class="circle-subcaption"></div>
+      <br /><br /><br />
+    </div>
+    } @if ((!dataSource?.data?.length || updatedData) && !isLoading) {
+    <div class="loading-container">
+      <img
+        src="assets/thumbnails/noDataFound.png"
+        alt="No Data Found"
+        class="no-data-image"
+        style="width: 160px; justify-content: center; align-items: center"
+      />
+      <div class="card-subtitle" style="font-weight: 600; color: gray">
+        No Exceptions Found
+      </div>
+      <br /><br />
+    </div>
+    }
 
-                  @if (isLoading) {
-                    <div class="loading-container">
-                      <app-loading-symbol></app-loading-symbol>
-                      <div class="circle-subcaption"></div>
-                      <br /><br /><br />
-                    </div>
-                  }
+    <mat-paginator
+      [pageSize]="100"
+      length="length"
+      [pageSizeOptions]="[]"
+      showFirstLastButtons
+      aria-label="Select page"
+    ></mat-paginator>
+  </div>
+</div>
 
-                  @if ((!dataSource?.data?.length || updatedData) && !isLoading) {
-                    <div class="loading-container">
-                      <img
-                        src="assets/thumbnails/noDataFound.png"
-                        alt="No Data Found"
-                        class="no-data-image"
-                        style="width: 160px; justify-content: center; align-items: center"
-                        />
-                      <div class="card-subtitle" style="font-weight: 600; color: gray">
-                        No Exceptions Found
-                      </div>
-                      <br /><br />
-                    </div>
-                  }
+<br />
+<br />
+<br />
+<mat-menu #dropdownMenu="matMenu" class="custom-menu">
+  <div
+    (click)="openRevSummaryDialog()"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;View Rev Summary
+  </div>
+  <div (click)="openDialog()" class="viewHighlight" style="font-size: small">
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;View Deal Summary
+  </div>
+  @if (updateClo) {
+  <div
+    (click)="openCloUpdateDialog()"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;CLO Updates
+  </div>
+  } @if (dealUploadFlag) {
+  <div
+    (click)="openUploadDialog()"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;Deal Upload
+  </div>
+  }
+  <div
+    (click)="export('Large Deal Tracker', 'large_deal_tracker')"
+    class="viewHighlight"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;Download
+  </div>
+  <div
+    class="viewHighlight"
+    (click)="logSelectedColumns()"
+    style="font-size: small"
+  >
+    <i
+      class="fa fa-angle-right"
+      aria-hidden="true"
+      style="font-size: medium"
+    ></i
+    >&nbsp;&nbsp;Columns Filter
+  </div>
+</mat-menu>
 
-                  <mat-paginator
-                    [pageSize]="100"
-                    length="length"
-                    [pageSizeOptions]="[]"
-                    showFirstLastButtons
-                    aria-label="Select page"
-                  ></mat-paginator>
-                </div>
-              </div>
-
-              <br />
-              <br />
-              <br />
-              <mat-menu #dropdownMenu="matMenu" class="custom-menu">
-                <div
-                  (click)="openRevSummaryDialog()"
-                  class="viewHighlight"
-                  style="font-size: small"
-                  >
-                  <i
-                    class="fa fa-angle-right"
-                    aria-hidden="true"
-                    style="font-size: medium"
-                    ></i
-                    >&nbsp;&nbsp;View Rev Summary
-                  </div>
-                  <div (click)="openDialog()" class="viewHighlight" style="font-size: small">
-                    <i
-                      class="fa fa-angle-right"
-                      aria-hidden="true"
-                      style="font-size: medium"
-                      ></i
-                      >&nbsp;&nbsp;View Deal Summary
-                    </div>
-                    @if (updateClo) {
-                      <div
-                        (click)="openCloUpdateDialog()"
-                        class="viewHighlight"
-                        style="font-size: small"
-                        >
-                        <i
-                          class="fa fa-angle-right"
-                          aria-hidden="true"
-                          style="font-size: medium"
-                          ></i
-                          >&nbsp;&nbsp;CLO Updates
-                        </div>
-                      }
-                      @if (dealUploadFlag) {
-                        <div
-                          (click)="openUploadDialog()"
-                          class="viewHighlight"
-                          style="font-size: small"
-                          >
-                          <i
-                            class="fa fa-angle-right"
-                            aria-hidden="true"
-                            style="font-size: medium"
-                            ></i
-                            >&nbsp;&nbsp;Deal Upload
-                          </div>
-                        }
-                        <div
-                          (click)="export('Large Deal Tracker', 'large_deal_tracker')"
-                          class="viewHighlight"
-                          style="font-size: small"
-                          >
-                          <i
-                            class="fa fa-angle-right"
-                            aria-hidden="true"
-                            style="font-size: medium"
-                            ></i
-                            >&nbsp;&nbsp;Download
-                          </div>
-                          <div
-                            class="viewHighlight"
-                            (click)="logSelectedColumns()"
-                            style="font-size: small"
-                            >
-                            <i
-                              class="fa fa-angle-right"
-                              aria-hidden="true"
-                              style="font-size: medium"
-                              ></i
-                              >&nbsp;&nbsp;Columns Filter
-                            </div>
-                          </mat-menu>
-
-                          <div style="display: flex; justify-content: space-between; align-items: end">
-                            <ng-template #dialogConfirmTemplate>
-                              <br />
-                              @if (!deletedDeals) {
-                                <span>
-                                  <h6>
-                                    <b style="font-weight: 500"
-                                      >&nbsp;Are you sure you want to delete the selected deals?</b
-                                      >
-                                    </h6>
-                                    <br />
-                                    <div style="text-align: center">
-                                      <button class="btn btn-success" (click)="deleteConfirmationDialog()">
-                                        Yes
-                                      </button>
-                                      <button class="btn btn-danger" (click)="closeOkDialog()">No</button>
-                                    </div>
-                                  </span>
-                                }
-
-                                @if (deletedDeals) {
-                                  <span>
-                                    <h6>
-                                      @if (uploadText === 'Delete request failed!') {
-                                        <span
-                                          ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
-                                        ></span>
-                                      }
-                                      @if (uploadText === 'Deals deleted successfully!') {
-                                        <span
-                                          ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
-                                        ></span>
-                                      }
-                                      <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
-                                    </h6>
-                                    <br />
-                                    <div style="text-align: center">
-                                      <button
-                                        class="btn btn-primary"
-                                        mat-stroked-button
-                                        (click)="closeOkDialog()"
-                                        >
-                                        Ok
-                                      </button>
-                                    </div>
-                                  </span>
-                                }
-                              </ng-template>
-                            </div>
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #dialogConfirmTemplate>
+    <br />
+    @if (!deletedDeals) {
+    <span>
+      <h6>
+        <b style="font-weight: 500"
+          >&nbsp;Are you sure you want to delete the selected deals?</b
+        >
+      </h6>
+      <br />
+      <div style="text-align: center">
+        <button class="btn btn-success" (click)="deleteConfirmationDialog()">
+          Yes
+        </button>
+        <button class="btn btn-danger" (click)="closeOkDialog()">No</button>
+      </div>
+    </span>
+    } @if (deletedDeals) {
+    <span>
+      <h6>
+        @if (uploadText === 'Delete request failed!') {
+        <span
+          ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
+        ></span>
+        } @if (uploadText === 'Deals deleted successfully!') {
+        <span
+          ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
+        ></span>
+        }
+        <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
+      </h6>
+      <br />
+      <div style="text-align: center">
+        <button
+          class="btn btn-primary"
+          mat-stroked-button
+          (click)="closeOkDialog()"
+        >
+          Ok
+        </button>
+      </div>
+    </span>
+    }
+  </ng-template>
+</div>

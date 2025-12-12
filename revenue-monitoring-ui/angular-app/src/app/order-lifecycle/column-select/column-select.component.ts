@@ -1,11 +1,23 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
     selector: 'app-column-select',
     templateUrl: './column-select.component.html',
     styleUrls: ['./column-select.component.scss'],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatSelectModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatListModule
+  ],
+  standalone: true
 })
 export class ColumnSelectComponent implements OnInit {
   selectedColumns: string[];

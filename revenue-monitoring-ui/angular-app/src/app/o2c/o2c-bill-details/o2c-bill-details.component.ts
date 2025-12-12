@@ -6,12 +6,24 @@ import * as XLSX from 'xlsx';
 import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from '../../providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { O2cSidebarNavComponent } from '../../shared/o2c-sidebar-nav/o2c-sidebar-nav.component';
+import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-process-flow.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
     selector: 'app-o2c-bill-details',
     templateUrl: './o2c-bill-details.component.html',
     styleUrls: ['./o2c-bill-details.component.css'],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule,
+    O2cSidebarNavComponent,
+    O2cProcessFlowComponent,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class O2cBillDetailsComponent {
   orderId: string = ''; // Placeholder for order ID

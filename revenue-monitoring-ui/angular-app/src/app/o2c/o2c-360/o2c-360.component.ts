@@ -16,13 +16,33 @@ import {
   SearchContextService,
 } from '../../search-context.service';
 import { FiltersService } from '../../providers/filters.service';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { TableFilterComponent } from '../../shared/table-filter/table-filter.component';
+import { O2cSidebarNavComponent } from '../../shared/o2c-sidebar-nav/o2c-sidebar-nav.component';
+import { ModalComponent } from '../../components/modal/modal.component';
+import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-process-flow.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { O2cSearchComponent } from '../../components/o2c-search/o2c-search.component';
 
 @Component({
     selector: 'app-o2c-360',
     templateUrl: './o2c-360.component.html',
     styleUrls: ['./o2c-360.component.css'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatIconModule,
+    MatTableModule,
+    TableFilterComponent,
+    O2cSidebarNavComponent,
+    ModalComponent,
+    O2cProcessFlowComponent,
+    LoadingSymbolComponent,
+    O2cSearchComponent
+  ],
+  standalone: true
 })
 export class O2c360Component implements OnInit {
   expanded = {

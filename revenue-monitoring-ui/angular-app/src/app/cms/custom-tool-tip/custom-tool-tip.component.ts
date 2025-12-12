@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, TemplateRef } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 
 /**
  * This component will be used to show custom tooltip
@@ -16,10 +17,11 @@ import { Component, OnInit, Input, TemplateRef } from '@angular/core';
  * NOTE - ONLY one should be specified; If BOTH are specified then "template" will be rendered and "text" will be ignored
  */
 @Component({
-    selector: 'app-custom-tool-tip',
-    templateUrl: './custom-tool-tip.component.html',
-    styleUrls: ['./custom-tool-tip.component.css'],
-    standalone: false
+  selector: 'app-custom-tool-tip',
+  templateUrl: './custom-tool-tip.component.html',
+  styleUrls: ['./custom-tool-tip.component.css'],
+  imports: [NgTemplateOutlet],
+  standalone: true,
 })
 export class CustomToolTipComponent implements OnInit {
   /**

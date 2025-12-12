@@ -1,12 +1,18 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
     selector: 'app-table-modal',
     templateUrl: './table-modal.component.html',
     styleUrls: ['./table-modal.component.css'],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule
+  ],
+  standalone: true
 })
 export class TableModalComponent implements OnInit {
   @Input() title: string = 'Data Table';

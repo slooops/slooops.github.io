@@ -28,7 +28,7 @@ import { OperationsControlsComponent } from './operations-controls/operations-co
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     canActivate: [RoleBasedRedirectGuard],

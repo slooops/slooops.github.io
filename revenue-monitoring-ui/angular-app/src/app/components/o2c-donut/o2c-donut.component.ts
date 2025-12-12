@@ -7,12 +7,18 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { Chart } from 'chart.js';
+import { CommonModule } from '@angular/common';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-o2c-donut',
-    templateUrl: './o2c-donut.component.html',
-    styleUrl: './o2c-donut.component.css',
-    standalone: false
+  selector: 'app-o2c-donut',
+  templateUrl: './o2c-donut.component.html',
+  styleUrl: './o2c-donut.component.css',
+  imports: [
+    CommonModule,
+    // LoadingSymbolComponent
+  ],
+  standalone: true,
 })
 export class O2cDonutComponent implements OnChanges, OnDestroy {
   @Input() data: {

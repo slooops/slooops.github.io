@@ -6,12 +6,16 @@ import {
   SearchContextService,
   O2cSearchResult,
 } from 'src/app/search-context.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-o2c-search',
     templateUrl: './o2c-search.component.html',
     styleUrls: ['./o2c-search.component.css'],
-    standalone: false
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class O2cSearchComponent {
   searchValue: string = '';

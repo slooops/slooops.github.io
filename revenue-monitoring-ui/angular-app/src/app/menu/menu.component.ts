@@ -12,13 +12,25 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { MenuService } from '../providers/menu.service';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
     selector: 'app-menu',
     templateUrl: './menu.component.html',
     styleUrls: ['./menu.component.css'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    RouterModule,
+    MatIconModule,
+    MatTabsModule,
+    MatMenuModule
+  ],
+  standalone: true
 })
 export class MenuComponent implements OnInit, OnChanges {
   @Input() showMenu: boolean = true; // Receive menu visibility state from parent

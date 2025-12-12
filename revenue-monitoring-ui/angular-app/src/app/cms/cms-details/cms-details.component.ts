@@ -6,13 +6,23 @@ import { Observable } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
     selector: 'app-cms-details',
     templateUrl: './cms-details.component.html',
     styleUrls: ['./cms-details.component.css'],
     providers: [DestroyManager],
-    standalone: false
+    imports: [
+    CommonModule,
+    MatTableModule,
+    MatButtonModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class CmsDetailsComponent implements OnInit {
   protected http: ApiHttpService;

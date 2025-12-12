@@ -50,3 +50,4 @@ revenue-monitoring-ui/src/assets/config/config.json
 revenue-monitoring-ui/angular-app/cypress/screenshots/
 revenue-monitoring-ui/angular-app/cypress/videos/
 revenue-monitoring-ui/angular-app/cypress-warnings.log
+revenue-monitoring-ui/angular-app/agents.md

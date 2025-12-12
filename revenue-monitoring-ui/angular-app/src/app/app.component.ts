@@ -8,13 +8,35 @@ import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
 import { MenuService } from './providers/menu.service';
 import { SearchContextService } from './search-context.service';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
+import { MenuComponent } from './menu/menu.component';
+import { HelpDataComponent } from './help-data/help-data.component';
+import { ChatbotComponent } from './chatbot/chatbot.component';
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css'],
-    providers: [DestroyManager],
-    standalone: false
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  providers: [DestroyManager],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatMenuModule,
+    MatTooltipModule,
+    O2cSearchComponent,
+    // MenuComponent,
+    HelpDataComponent,
+    // ChatbotComponent
+  ],
+  standalone: true,
 })
 export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
