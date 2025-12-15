@@ -1,6 +1,6 @@
-<div class="flowchart-container" [style.width.px]="containerWidth">
+<div class="flowchart-container" [style.width.px]="containerWidth()">
   <div class="slider-bar">
-    <div *ngFor="let step of processSteps; let i = index">
+    <div *ngFor="let step of processSteps(); let i = index">
       <div class="circle-wrapper-loop">
         <p class="circle-caption-loop">{{ formatLabel(step.PROCESS_FLOW) }}</p>
         <p class="circle-loop"></p>
@@ -14,7 +14,7 @@
           </span>
         </p>
       </div>
-      <div *ngIf="i < processSteps.length - 1" class="chevron-wrapper-loop">
+      <div *ngIf="i < processSteps().length - 1" class="chevron-wrapper-loop">
         <div class="chevron"></div>
         <div class="chevron-white"></div>
       </div>

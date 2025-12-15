@@ -1,47 +1,25 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 @Component({
   selector: 'app-process-flow-tooltip',
   templateUrl: './process-flow-tooltip.component.html',
   styleUrl: './process-flow-tooltip.component.css',
 })
-export class ProcessFlowTooltipComponent implements OnInit, OnChanges {
-  @Input() processFlowTotals: any[] = [];
+export class ProcessFlowTooltipComponent {
+  processFlowTotals = input<any[]>([]);
 
-  processSteps: any[] = [];
-  containerWidth: number = 140;
-
-  constructor() {}
-
-  ngOnInit() {
-    this.processSteps = this.sortProcessSteps();
-    this.calculateContainerWidth();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['processFlowTotals']) {
-      this.processSteps = this.sortProcessSteps();
-      this.calculateContainerWidth();
-    }
-  }
-
-  sortProcessSteps(): any[] {
-    if (!this.processFlowTotals || !Array.isArray(this.processFlowTotals)) {
+  processSteps = computed(() => {
+    const totals = this.processFlowTotals();
+    if (!totals || !Array.isArray(totals)) {
       return [];
     }
-    return [...this.processFlowTotals];
-  }
+    return [...totals];
+  });
 
-  calculateContainerWidth(): void {
-    const stepCount = this.processSteps.length || 1;
-    this.containerWidth = 150 + (stepCount - 1) * 140;
-  }
+  containerWidth = computed(() => {
+    const stepCount = this.processSteps().length || 1;
+    return 150 + (stepCount - 1) * 140;
+  });
 
   formatLabel(label: string): string {
     if (!label) return '';

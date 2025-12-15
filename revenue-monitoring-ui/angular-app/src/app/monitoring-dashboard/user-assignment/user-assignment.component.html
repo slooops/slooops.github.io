@@ -24,7 +24,7 @@
     </div>
 
     <div class="modal-body">
-      <form [formGroup]="updateForm" class="form-stack">
+      <form [formGroup]="updateForm" class="form-stack" *ngIf="formReady()">
         <!-- <div class="input-stack" *ngFor="let field of fieldConfig">
           <label>{{ field.label }}</label>
 
@@ -46,13 +46,16 @@
           </ng-container>
         </div> -->
 
-        <div class="input-stack" *ngFor="let field of fieldConfig">
+        <div class="input-stack" *ngFor="let field of fieldConfig()">
           <label>{{ field.label }}</label>
 
           <ng-container *ngIf="field.controlName === 'assignedTo'">
             <select [formControlName]="field.controlName" required>
               <option value="" disabled>Select User</option>
-              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
+              <option
+                *ngFor="let data of assignmentUsers()"
+                [value]="data.NAME"
+              >
                 {{ data.NAME }}
               </option>
             </select>
@@ -88,7 +91,7 @@
       </button>
       <button
         class="custom-button-primary"
-        [disabled]="updateForm.invalid"
+        [disabled]="!formReady() || updateForm.invalid"
         (click)="submitData()"
       >
         Save
