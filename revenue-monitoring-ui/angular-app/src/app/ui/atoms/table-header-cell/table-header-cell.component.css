@@ -1,0 +1,25 @@
+@import "src/assets/ui.css";
+
+:host {
+  display: contents;
+}
+
+.fit-table__header-cell--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.fit-table__header-cell--sortable:hover {
+  background-color: var(--fit-color-bg-muted);
+}
+
+.fit-table__header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-xs);
+}
+
+.fit-table__sort-icon {
+  font-size: var(--fit-font-size-xs);
+  color: var(--fit-color-text-muted);
+}

@@ -1,0 +1,23 @@
+@import "src/assets/ui.css";
+
+.fit-input__label {
+  display: block;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-color-text);
+  margin-bottom: var(--fit-space-xs);
+}
+
+.fit-input--no-border {
+  border: 0px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.fit-input--no-border:hover,
+.fit-input--no-border:focus,
+.fit-input--no-border:focus-visible {
+  border: 0px !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}

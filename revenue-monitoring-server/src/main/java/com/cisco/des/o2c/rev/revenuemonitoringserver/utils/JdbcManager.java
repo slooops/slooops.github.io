@@ -442,7 +442,85 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
     }
 
-    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual, String comments, String coreIssue, String coreIssueActual, String incidentNumber, String impactedServiceOffering){
-        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category, categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue, coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual,
+            String comments, String coreIssue, String coreIssueActual, String incidentNumber,
+            String impactedServiceOffering) {
+        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category,
+                categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue,
+                coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    }
+
+    /**
+     * Inserts a new user role into the database.
+     * 
+     * @param sql         The INSERT SQL statement with placeholders (?)
+     * @param userName    The user's username (e.g., "JSMITH")
+     * @param userEmail   The user's email address
+     * @param roleId      The role ID from the roles table
+     * @param userRole    The role name (e.g., "Admin", "Viewer")
+     * @param enabledFlag 'Y' for enabled, 'N' for disabled
+     * @return Number of rows inserted (should be 1 on success)
+     */
+    public int insertUserRole(String sql, String userName, String userEmail,
+            Integer roleId, String userRole, String enabledFlag) {
+        return primaryJdbcTemplate.update(sql, userName, userEmail, roleId, userRole, enabledFlag);
+    }
+
+    /**
+     * Updates an existing user role in the database using composite key.
+     * 
+     * IMPORTANT: This updates based on USER_NAME + USER_ROLE composite key.
+     * This ensures only the specific role for a specific user is updated,
+     * not all roles for that user.
+     * 
+     * Query: UPDATE ... SET USER_EMAIL=?, ROLE_ID=?, ENABLED_FLAG=? WHERE
+     * USER_NAME=? AND USER_ROLE=?
+     * 
+     * @param sql         The UPDATE SQL statement with placeholders (?)
+     * @param userEmail   The user's email address
+     * @param roleId      The role ID
+     * @param enabledFlag 'Y' for enabled, 'N' for disabled
+     * @param userName    The user's username (WHERE clause)
+     * @param userRole    The role name (WHERE clause)
+     * @return Number of rows updated (should be 1 on success, 0 if not found)
+     */
+    public int updateUserRole(String sql, String userEmail, Integer roleId,
+            String enabledFlag, String userName, String userRole) {
+        return primaryJdbcTemplate.update(sql, userEmail, roleId, enabledFlag, userName, userRole);
+    }
+
+    /**
+     * Soft deletes a user role with forensic tracking.
+     * 
+     * SOFT DELETE: Does NOT remove the row from database.
+     * Instead, it:
+     * 1. Sets USER_EMAIL to "deleted by: {deleterUsername}"
+     * 2. Sets ENABLED_FLAG to NULL
+     * 
+     * This maintains forensic record while hiding the row from normal queries.
+     * GET queries filter WHERE ENABLED_FLAG IS NOT NULL to exclude deleted rows.
+     * 
+     * Query: UPDATE ... SET USER_EMAIL=?, ENABLED_FLAG=NULL WHERE USER_NAME=? AND
+     * USER_ROLE=? AND CREATION_DATE=?
+     * Uses userName + userRole + creationDate for precise row targeting to prevent
+     * accidental deletions.
+     * 
+     * IMPORTANT: creationDate is passed as raw string from database to ensure exact
+     * match.
+     * Database has inconsistent formats: "2024-02-23" vs "2024-03-21 09:11:15"
+     * JDBC PreparedStatement will handle the string-to-date conversion
+     * automatically.
+     * 
+     * @param sql           The soft delete SQL statement
+     * @param forensicEmail Forensic string "deleted by: username"
+     * @param userName      The user's username (WHERE clause)
+     * @param userRole      The role name (WHERE clause)
+     * @param creationDate  Raw creation date string from database (exact format
+     *                      match)
+     * @return Number of rows soft-deleted (1 = success, 0 = not found)
+     */
+    public int deleteUserRole(String sql, String forensicEmail, String userName, String userRole,
+            String creationDate) {
+        return primaryJdbcTemplate.update(sql, forensicEmail, userName, userRole, creationDate);
     }
 }

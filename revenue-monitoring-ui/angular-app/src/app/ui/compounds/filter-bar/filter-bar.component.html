@@ -1,0 +1,50 @@
+<div class="fit-filter-bar">
+  <div class="fit-filter-bar__search">
+    <app-text-input
+      [value]="searchValue"
+      placeholder="Search users..."
+      type="search"
+      iconName="search"
+      iconPosition="left"
+      [debounceMs]="300"
+      (valueChange)="onSearchChange($event)"
+    >
+    </app-text-input>
+  </div>
+
+  <div class="fit-filter-bar__filters">
+    <app-select-dropdown
+      [options]="roleOptions"
+      [value]="selectedRole"
+      placeholder="All Roles"
+      label="Role"
+      (valueChange)="onRoleChange($event)"
+    >
+    </app-select-dropdown>
+
+    <app-select-dropdown
+      [options]="enabledOptions"
+      [value]="enabledFilter"
+      placeholder="All Status"
+      label="Status"
+      (valueChange)="onEnabledChange($event)"
+    >
+    </app-select-dropdown>
+  </div>
+
+  <!-- <div class="fit-filter-bar__actions">
+    <app-button
+      label="Add User"
+      variant="primary"
+      iconName="add"
+      iconPosition="left"
+      (clicked)="onAddUser()"
+    >
+    </app-button>
+  </div> -->
+
+  <div class="fit-filter-bar__actions">
+    <app-button label="Add User" variant="primary" (clicked)="onAddLineItem()">
+    </app-button>
+  </div>
+</div>
