@@ -179,6 +179,18 @@ td.mat-mdc-cell {
   white-space: nowrap;
 }
 
+.mdc-data-table__row:last-child > td.mat-mdc-cell {
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.order-table .mdc-data-table__row:last-child > td.mat-mdc-cell {
+  border-bottom: none;
+}
+
+.mat-mdc-table {
+  background-color: transparent !important;
+}
+
 th.mat-mdc-header-cell {
   font-weight: 700;
   color: #394454;

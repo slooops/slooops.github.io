@@ -202,6 +202,14 @@ tr.mat-mdc-header-row {
   border-bottom: 0;
 }
 
+.mdc-data-table__row:last-child > td.mat-mdc-cell {
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.order-table .mdc-data-table__row:last-child > td.mat-mdc-cell {
+  border-bottom: none;
+}
+
 /* order table styles */
 .order-table th.mat-mdc-header-cell,
 .order-table td.mat-mdc-cell {
@@ -327,7 +335,7 @@ tr.mat-mdc-header-row {
 }
 
 .welcome-card {
-  background: white;
+  background: #fbfbfb;
   border-radius: 2px;
   padding: 5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);

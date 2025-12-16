@@ -295,7 +295,6 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedTab = index === 0 ? 'subscriptions' : 'invoices';
   }
   formatAmount(amount: string): string {
-    console.log('Formatting amount:', amount);
     let formattedAmount = Number(amount).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,

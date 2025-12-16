@@ -51,7 +51,7 @@ public class JdbcManager {
             "WEBORDER_ID", "WEBORDER_ID = :value");
 
     private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile(
-            "(?i)(.*\\b(union|select|from|where|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
+            "(?i)(.*\\b(union|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
 
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
         if (!ALLOWED_FIELD_CLAUSES.containsKey(field)) {
@@ -442,7 +442,11 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, processFlow, entityName, transactionDate);
     }
 
-    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual, String comments, String coreIssue, String coreIssueActual, String incidentNumber, String impactedServiceOffering){
-        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category, categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue, coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
+    public int espCaseAnalyzerTableUpdate(String sql, String username, String category, String categoryActual,
+            String comments, String coreIssue, String coreIssueActual, String incidentNumber,
+            String impactedServiceOffering) {
+        return primaryJdbcTemplate.update(sql, username, categoryActual, coreIssueActual, comments, category,
+                categoryActual, coreIssue, coreIssueActual, category, categoryActual, categoryActual, coreIssue,
+                coreIssueActual, coreIssueActual, incidentNumber, impactedServiceOffering);
     }
 }
