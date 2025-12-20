@@ -14,6 +14,7 @@ export class DataTableComponent {
   @Input() editableRow: any | null = null;
   @Input() isLoading: boolean = false;
   @Input() validationErrors: { [key: string]: string } = {};
+  @Input() roleOptions: any[] = [];
 
   @Output() rowClick = new EventEmitter<any>();
   @Output() filterChange = new EventEmitter<{

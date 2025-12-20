@@ -177,21 +177,28 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return 'N/A';
     }
 
-    // Parse the ISO date string and convert to PST
+    // Parse the ISO date string
     const utcDate = new Date(date);
 
-    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
-    const pstDate = new Date(
-      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
-    );
+    // Use Intl.DateTimeFormat to extract components in PST timezone
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
 
-    // Format the date
-    const month = pstDate.toLocaleString('en-US', { month: 'long' });
-    const day = pstDate.getDate();
-    const year = pstDate.getFullYear();
-    const hours = String(pstDate.getHours()).padStart(2, '0');
-    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
-    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+    const parts = formatter.formatToParts(utcDate);
+    const month = parts.find((p) => p.type === 'month')?.value;
+    const day = parts.find((p) => p.type === 'day')?.value;
+    const year = parts.find((p) => p.type === 'year')?.value;
+    const hours = parts.find((p) => p.type === 'hour')?.value;
+    const minutes = parts.find((p) => p.type === 'minute')?.value;
+    const seconds = parts.find((p) => p.type === 'second')?.value;
 
     return `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
   }
@@ -202,18 +209,22 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return 'N/A';
     }
 
-    // Parse the ISO date string and convert to PST
+    // Parse the ISO date string
     const utcDate = new Date(date);
 
-    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
-    const pstDate = new Date(
-      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
-    );
+    // Use Intl.DateTimeFormat to extract time components in PST timezone
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
 
-    // Format time only
-    const hours = String(pstDate.getHours()).padStart(2, '0');
-    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
-    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+    const parts = formatter.formatToParts(utcDate);
+    const hours = parts.find((p) => p.type === 'hour')?.value;
+    const minutes = parts.find((p) => p.type === 'minute')?.value;
+    const seconds = parts.find((p) => p.type === 'second')?.value;
 
     return `${hours}:${minutes}:${seconds} PST`;
   }
@@ -240,6 +251,15 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const actualEndTime = this.extractDatePrettifyTimeOnly(
           row['ACTUAL_CLOSE_END_TIME']
         );
+
+        console.log('Parsed Times:', {
+          closeType,
+          periodName,
+          quarter,
+          startTime,
+          endTime,
+          actualEndTime,
+        });
 
         if (closeType === 'PRECLOSE') {
           this.preclosePeriod = periodName;

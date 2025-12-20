@@ -229,14 +229,14 @@ const routes: Routes = [
       header: 'Continuous Monitoring',
     },
   },
-  {
-    path: 'admin',
-    component: AdminComponent,
-    data: {
-      title: 'Admin',
-      header: 'Admin',
-    },
-  },
+  // {
+  //   path: 'admin',
+  //   component: AdminComponent,
+  //   data: {
+  //     title: 'Admin',
+  //     header: 'Admin',
+  //   },
+  // },
 ];
 
 @NgModule({

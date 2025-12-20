@@ -1,6 +1,17 @@
 <form class="fit-user-form" (submit)="onSubmit()">
   <div class="fit-stack-md">
     <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Role</label>
+      <app-text-input
+        [value]="formData.roles[0] || ''"
+        placeholder="Enter role"
+        type="text"
+        (valueChange)="onRoleChange($event)"
+      >
+      </app-text-input>
+    </div>
+
+    <div class="fit-user-form__field">
       <label class="fit-user-form__label">Username *</label>
       <app-text-input
         [value]="formData.userName"
@@ -23,17 +34,6 @@
       </app-text-input>
     </div>
 
-    <div class="fit-user-form__field">
-      <label class="fit-user-form__label">Role</label>
-      <app-select-dropdown
-        [options]="roleOptions"
-        [value]="formData.roles[0] || ''"
-        placeholder="Select a role"
-        (valueChange)="onRoleChange($event)"
-      >
-      </app-select-dropdown>
-    </div>
-
     <div class="fit-user-form__toggle">
       <app-toggle-switch
         [checked]="formData.enabled"
@@ -52,7 +52,7 @@
       >
       </app-button>
       <app-button
-        [label]="isEdit ? 'Update User' : 'Create User'"
+        [label]="isEdit ? 'Update User' : 'Create Role'"
         variant="primary"
         type="submit"
       >
