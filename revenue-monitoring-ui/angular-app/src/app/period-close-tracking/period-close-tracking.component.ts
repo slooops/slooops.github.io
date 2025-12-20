@@ -172,61 +172,54 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   // Format for Expected dates: "April 26, 2025 at 07:00:00 PST"
+  // Database times are already in PST, so parse directly without timezone conversion
   extractDatePrettifyFull(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse the ISO date string
-    const utcDate = new Date(date);
+    // Parse ISO string directly (e.g., "2025-12-20T07:00:00.000+00:00")
+    // Extract: 2025-12-20T07:00:00
+    const dateTimePart = date.split('.')[0]; // Remove milliseconds and timezone
+    const [datePart, timePart] = dateTimePart.split('T');
+    const [year, month, day] = datePart.split('-');
+    const [hours, minutes, seconds] = timePart.split(':');
 
-    // Use Intl.DateTimeFormat to extract components in PST timezone
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Los_Angeles',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
+    // Convert month number to name
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const monthName = monthNames[parseInt(month) - 1];
 
-    const parts = formatter.formatToParts(utcDate);
-    const month = parts.find((p) => p.type === 'month')?.value;
-    const day = parts.find((p) => p.type === 'day')?.value;
-    const year = parts.find((p) => p.type === 'year')?.value;
-    const hours = parts.find((p) => p.type === 'hour')?.value;
-    const minutes = parts.find((p) => p.type === 'minute')?.value;
-    const seconds = parts.find((p) => p.type === 'second')?.value;
-
-    return `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    return `${monthName} ${parseInt(
+      day
+    )}, ${year} at ${hours}:${minutes}:${seconds} PST`;
   }
 
   // Format for Actual dates: "13:05:00 PST"
+  // Database times are already in PST, so parse directly without timezone conversion
   extractDatePrettifyTimeOnly(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse the ISO date string
-    const utcDate = new Date(date);
+    // Parse ISO string directly (e.g., "2025-12-20T13:05:00.000+00:00")
+    // Extract time portion: 13:05:00
+    const dateTimePart = date.split('.')[0]; // Remove milliseconds and timezone
+    const timePart = dateTimePart.split('T')[1]; // Get time portion
 
-    // Use Intl.DateTimeFormat to extract time components in PST timezone
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Los_Angeles',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-
-    const parts = formatter.formatToParts(utcDate);
-    const hours = parts.find((p) => p.type === 'hour')?.value;
-    const minutes = parts.find((p) => p.type === 'minute')?.value;
-    const seconds = parts.find((p) => p.type === 'second')?.value;
-
-    return `${hours}:${minutes}:${seconds} PST`;
+    return `${timePart} PST`;
   }
 
   getCurrentTime() {
