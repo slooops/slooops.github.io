@@ -172,20 +172,17 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   // Format for Expected dates: "April 26, 2025 at 07:00:00 PST"
-  // Database times are already in PST, so parse directly without timezone conversion
+  // TEMPORARY HACK: Add 8 hours to fix prod timezone issue until ConfigMap is updated
   extractDatePrettifyFull(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse ISO string directly (e.g., "2025-12-20T07:00:00.000+00:00")
-    // Extract: 2025-12-20T07:00:00
-    const dateTimePart = date.split('.')[0]; // Remove milliseconds and timezone
-    const [datePart, timePart] = dateTimePart.split('T');
-    const [year, month, day] = datePart.split('-');
-    const [hours, minutes, seconds] = timePart.split(':');
+    // Parse as Date object and add 8 hours
+    const dateObj = new Date(date);
+    dateObj.setHours(dateObj.getHours() + 8);
 
-    // Convert month number to name
+    // Format manually
     const monthNames = [
       'January',
       'February',
@@ -200,26 +197,32 @@ export class PeriodCloseTrackingComponent implements OnInit {
       'November',
       'December',
     ];
-    const monthName = monthNames[parseInt(month) - 1];
+    const monthName = monthNames[dateObj.getMonth()];
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
 
-    return `${monthName} ${parseInt(
-      day
-    )}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    return `${monthName} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
   }
 
   // Format for Actual dates: "13:05:00 PST"
-  // Database times are already in PST, so parse directly without timezone conversion
+  // TEMPORARY HACK: Add 8 hours to fix prod timezone issue until ConfigMap is updated
   extractDatePrettifyTimeOnly(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse ISO string directly (e.g., "2025-12-20T13:05:00.000+00:00")
-    // Extract time portion: 13:05:00
-    const dateTimePart = date.split('.')[0]; // Remove milliseconds and timezone
-    const timePart = dateTimePart.split('T')[1]; // Get time portion
+    // Parse as Date object and add 8 hours
+    const dateObj = new Date(date);
+    dateObj.setHours(dateObj.getHours() + 8);
 
-    return `${timePart} PST`;
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds} PST`;
   }
 
   getCurrentTime() {
@@ -240,7 +243,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const periodName = row['PERIOD_NAME'];
         const quarter = row['QUARTER'];
         const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
+        console.log(
+          'Start Time:',
+          startTime,
+          'vs Raw:',
+          row['CLOSE_START_TIME']
+        );
         const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
+        console.log('End Time:', endTime, 'vs Raw:', row['CLOSE_END_TIME']);
         const actualEndTime = this.extractDatePrettifyTimeOnly(
           row['ACTUAL_CLOSE_END_TIME']
         );

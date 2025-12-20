@@ -1,4 +1,5 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
+
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,15 +20,13 @@ public class PeriodCloseMonitoringService {
     private Boolean isQuarterEnd;
     private String periodName;
 
-
     @Autowired
     public PeriodCloseMonitoringService(JdbcManager jdbcManager, String closeInvStats,
             String closeInterfaceLoad, String closeStartEndTime, String closeVolume,
             String closeMEStatus, String closeQECashCollected, String dashboardComments,
             String updateComments,
             String estimatedCompletionTime,
-                                          String periodName
-                                        ) {
+            String periodName) {
         this.jdbcManager = jdbcManager;
         this.closeInvStats = closeInvStats;
         this.closeInterfaceLoad = closeInterfaceLoad;
@@ -48,7 +47,8 @@ public class PeriodCloseMonitoringService {
     public Map<String, List<Map<String, Object>>> getPeriodCloseInterfaceLoad() {
         List<Map<String, Object>> pName = jdbcManager.queryForList(periodName);
         String[] period = pName.get(0).get("PERIOD_NAME").toString().split("-");
-        boolean isQuarterEnd = period[0].equals("JAN") || period[0].equals("APR") || period[0].equals("JUL") || period[0].equals("OCT");
+        boolean isQuarterEnd = period[0].equals("JAN") || period[0].equals("APR") || period[0].equals("JUL")
+                || period[0].equals("OCT");
 
         List<Map<String, Object>> data = jdbcManager.queryForList(closeInterfaceLoad);
 
@@ -76,11 +76,15 @@ public class PeriodCloseMonitoringService {
 
             Map<String, Object> temp = new LinkedHashMap<>();
             if (isQuarterEnd) {
-                if (row.get("QOQ_PERCENTAGE") != null) temp.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
-                if (row.get("YOY_PERCENTAGE") != null) temp.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
+                if (row.get("QOQ_PERCENTAGE") != null)
+                    temp.put("QUARTER OVER QUARTER", row.get("QOQ_PERCENTAGE"));
+                if (row.get("YOY_PERCENTAGE") != null)
+                    temp.put("YEAR OVER YEAR", row.get("YOY_PERCENTAGE"));
             } else {
-                if (row.get("MOM_PERCENTAGE") != null) temp.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
-                if (row.get("PQM_PERCENTAGE") != null) temp.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
+                if (row.get("MOM_PERCENTAGE") != null)
+                    temp.put("MONTH OVER MONTH", row.get("MOM_PERCENTAGE"));
+                if (row.get("PQM_PERCENTAGE") != null)
+                    temp.put("PRIOR QUARTER MONTH", row.get("PQM_PERCENTAGE"));
             }
 
             if (!temp.isEmpty()) {
@@ -115,9 +119,16 @@ public class PeriodCloseMonitoringService {
         return finalResult;
     }
 
-
     public List<Map<String, Object>> getCloseStartEndTime() {
-        return jdbcManager.queryForList(closeStartEndTime);
+        System.out.println("=== PERIOD CLOSE START/END TIME DEBUG ===");
+        System.out.println("Query: " + closeStartEndTime);
+        List<Map<String, Object>> results = jdbcManager.queryForList(closeStartEndTime);
+        System.out.println("Result count: " + (results != null ? results.size() : 0));
+        if (results != null && !results.isEmpty()) {
+            System.out.println("First row sample: " + results.get(0));
+        }
+        System.out.println("=========================================");
+        return results;
     }
 
     public List<Map<String, Object>> getCloseVolume() {
@@ -140,10 +151,8 @@ public class PeriodCloseMonitoringService {
         return jdbcManager.updateComments(updateComments, closeType, comments);
     }
 
-
     public List<Map<String, Object>> getEstimatedCompletionTime() {
         return jdbcManager.queryForList(estimatedCompletionTime);
     }
-
 
 }
