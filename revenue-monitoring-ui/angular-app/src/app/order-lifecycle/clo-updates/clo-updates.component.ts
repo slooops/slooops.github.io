@@ -13,22 +13,23 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
-    selector: 'app-clo-updates',
-    templateUrl: './clo-updates.component.html',
-    styleUrls: ['./clo-updates.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-clo-updates',
+  templateUrl: './clo-updates.component.html',
+  styleUrls: ['./clo-updates.component.css'],
+  providers: [DestroyManager, provideNativeDateAdapter()],
+  imports: [
     CommonModule,
     ReactiveFormsModule,
     MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatDatepickerModule
+    MatDatepickerModule,
   ],
-  standalone: true
+  standalone: true,
 })
 export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;

@@ -7,7 +7,7 @@
     justify-content: space-between;
     align-items: center;
   "
-  >
+>
   <!-- Title on the left -->
   <h5 style="margin: 0; font-weight: 450; font-size: 14px">CLO Upload</h5>
 
@@ -22,7 +22,7 @@
 </div>
 
 <div>
-  <mat-tab-group>
+  <mat-tab-group style="margin: 20px">
     <mat-tab label="File Upload" style="text-align: center">
       <br />
       <div class="download-container">
@@ -30,9 +30,9 @@
           (click)="
             export('CLO Upload Sample Template', 'clo_upload_sample_template')
           "
-          >
-          <i class="svg-icon download-icon" aria-hidden="true"></i>
-          <span>&nbsp;Download Sample Template</span>
+        >
+          <!-- <i class="svg-icon download-icon" aria-hidden="true"></i> -->
+          <span style="font-size: 12px">&nbsp;Download Sample Template</span>
         </a>
       </div>
       <br />
@@ -41,10 +41,10 @@
         (drop)="onDrop($event)"
         (dragover)="onDragOver($event)"
         cdkDropList
-        >
+      >
         <i style="color: gray" class="fa fa-2x fa-cloud-upload"></i>
-        <p>Drag and drop your file here</p>
-        <p>or</p>
+        <p style="font-size: 12px">Drag and drop your file here</p>
+        <p style="font-size: 12px">or</p>
         <button mat-raised-button (click)="fileInput.click()">
           Select File
         </button>
@@ -55,154 +55,149 @@
           #fileInput
           type="file"
           accept=".csv"
-          />
+        />
         <br />
         <br />
         @if (selectedFile) {
-          <span>
-            <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
-            File selected:
-            <a
-              ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
-              >
-              &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
-            </span>
-          }
-
-          @if (validationError) {
-            <mat-error style="text-align: center"
-              ><i class="fa fa-times-circle" style="color: #ff052b">
-              {{ validationError }}</i
-              ></mat-error
-              >
-            }
-          </div>
-          <br />
-          @if (fileSelected) {
-            <div style="text-align: center">
-              <button
-                class="btn btn-primary"
-                mat-stroked-button
-                (click)="uploadCLODataFile(dialogTemplate)"
-                style="color: white"
-                >
-                Upload
-              </button>
-            </div>
-          }
-        </mat-tab>
-        <mat-tab label="Enter CLO Updates">
-          <br />
-          <form [formGroup]="updateForm">
-            <mat-form-field appearance="outline">
-              <mat-label>Program Name</mat-label>
-              <input
-                matInput
-                formControlName="programName"
-                placeholder="Enter Program Name"
-                name="programName"
-                required
-                />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Account</mat-label>
-              <input
-                matInput
-                formControlName="account"
-                placeholder="Enter Account"
-                name="account"
-                required
-                />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>Deal Id</mat-label>
-              <input
-                matInput
-                formControlName="dealIds"
-                placeholder="Enter Deal Ids"
-                name="dealIds"
-                required
-                />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Order/ Subscription number</mat-label>
-              <input
-                matInput
-                formControlName="orderNum"
-                placeholder="Enter Order Number"
-                name="orderNum"
-                />
-            </mat-form-field>
-            <mat-form-field floatLabel="auto">
-              <input
-                matInput
-                formControlName="invoiceDate"
-                [matDatepicker]="picker"
-                placeholder="Invoice Eligible Date"
-                [min]="currentDate"
-                [readonly]="true"
-                class="calendarInput"
-                />
-              <mat-datepicker-toggle
-                matSuffix
-                [for]="picker"
-              ></mat-datepicker-toggle>
-              <mat-datepicker #picker> </mat-datepicker>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>CLO Updates</mat-label>
-              <input
-                matInput
-                formControlName="cloComments"
-                placeholder="Enter Clo Updates"
-                name="cloComments"
-                />
-            </mat-form-field>
-          </form>
-          <br />
-          <div style="text-align: center">
-            <button
-              mat-stroked-button
-              class="btn btn-primary"
-              type="submit"
-              (click)="submitCLOData(dialogTemplate)"
-              style="background-color: gray; color: white"
-              >
-              Upload
-            </button>
-          </div>
-        </mat-tab>
-      </mat-tab-group>
+        <span>
+          <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
+          File selected:
+          <a
+            ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
+          >
+          &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
+        </span>
+        } @if (validationError) {
+        <mat-error style="text-align: center"
+          ><i class="fa fa-times-circle" style="color: #ff052b">
+            {{ validationError }}</i
+          ></mat-error
+        >
+        }
+      </div>
       <br />
-    </div>
+      @if (fileSelected) {
+      <div style="text-align: center">
+        <button
+          class="btn btn-primary"
+          mat-stroked-button
+          (click)="uploadCLODataFile(dialogTemplate)"
+          style="color: white"
+        >
+          Upload
+        </button>
+      </div>
+      }
+    </mat-tab>
+    <mat-tab label="Enter CLO Updates">
+      <br />
+      <form
+        [formGroup]="updateForm"
+        style="display: flex; flex-direction: column; gap: 10px"
+      >
+        <mat-form-field>
+          <input
+            matInput
+            formControlName="programName"
+            placeholder="Enter Program Name"
+            name="programName"
+            required
+          />
+        </mat-form-field>
 
-    <div style="display: flex; justify-content: space-between; align-items: end">
-      <ng-template #dialogTemplate>
-        <br />
-        <h6>
-          @if (uploadText === 'CLO Data upload failed!') {
-            <span
-              ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
-            ></span>
-          }
-          @if (uploadText === 'CLO Data upload successful!') {
-            <span
-              ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
-            ></span>
-          }
-          <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
-        </h6>
-        <br />
-        <div style="text-align: center">
-          <button
-            class="btn btn-primary"
-            mat-stroked-button
-            (click)="closeOkDialog()"
-            >
-            Ok
-          </button>
-        </div>
-      </ng-template>
+        <mat-form-field>
+          <input
+            matInput
+            formControlName="account"
+            placeholder="Enter Account"
+            name="account"
+            required
+          />
+        </mat-form-field>
+
+        <mat-form-field>
+          <input
+            matInput
+            formControlName="dealIds"
+            placeholder="Enter Deal Ids"
+            name="dealIds"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <input
+            matInput
+            formControlName="orderNum"
+            placeholder="Enter Order Number"
+            name="orderNum"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <input
+            matInput
+            formControlName="invoiceDate"
+            [matDatepicker]="picker"
+            placeholder="Invoice Eligible Date"
+            [min]="currentDate"
+            [readonly]="true"
+            class="calendarInput"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="picker"
+          ></mat-datepicker-toggle>
+          <mat-datepicker #picker> </mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <input
+            matInput
+            formControlName="cloComments"
+            placeholder="Enter Clo Updates"
+            name="cloComments"
+          />
+        </mat-form-field>
+      </form>
+      <br />
+      <div style="text-align: center">
+        <button
+          mat-stroked-button
+          class="btn btn-primary"
+          type="submit"
+          (click)="submitCLOData(dialogTemplate)"
+          style="background-color: gray; color: white"
+        >
+          Upload
+        </button>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+  <br />
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: end">
+  <ng-template #dialogTemplate>
+    <br />
+    <h6>
+      @if (uploadText === 'CLO Data upload failed!') {
+      <span
+        ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
+      ></span>
+      } @if (uploadText === 'CLO Data upload successful!') {
+      <span
+        ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
+      ></span>
+      }
+      <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
+    </h6>
+    <br />
+    <div style="text-align: center">
+      <button
+        class="btn btn-primary"
+        mat-stroked-button
+        (click)="closeOkDialog()"
+      >
+        Ok
+      </button>
     </div>
+  </ng-template>
+</div>
