@@ -1,13 +1,26 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AdminUserRow, ColumnConfig, SelectOption, UserFormData } from '../ui';
 import { AuthenticationService } from '../providers/authentication.service';
+import { FilterBarComponent } from '../ui/compounds/filter-bar/filter-bar.component';
+import { DataTableComponent } from '../ui/compounds/data-table/data-table.component';
+import { ModalShellComponent } from '../ui/atoms/modal-shell/modal-shell.component';
+import { UserFormComponent } from '../ui/compounds/user-form/user-form.component';
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FilterBarComponent,
+    DataTableComponent,
+    ModalShellComponent,
+    UserFormComponent,
+  ],
 })
 export class AdminComponent implements OnInit {
   users: AdminUserRow[] = [];

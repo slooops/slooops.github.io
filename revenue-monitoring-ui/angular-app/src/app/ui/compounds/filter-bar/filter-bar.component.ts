@@ -1,10 +1,16 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SelectOption } from '../../types/common.types';
+import { TextInputComponent } from '../../atoms/text-input/text-input.component';
+import { SelectDropdownComponent } from '../../atoms/select-dropdown/select-dropdown.component';
+import { ButtonComponent } from '../../atoms/button/button.component';
 
 @Component({
   selector: 'app-filter-bar',
   templateUrl: './filter-bar.component.html',
   styleUrls: ['./filter-bar.component.css'],
+  standalone: true,
+  imports: [CommonModule, TextInputComponent, SelectDropdownComponent, ButtonComponent],
 })
 export class FilterBarComponent {
   @Input() searchValue: string = '';

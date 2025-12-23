@@ -15,20 +15,20 @@ import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-char
 import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
 
 @Component({
-    selector: 'app-period-close-tracking',
-    templateUrl: './period-close-tracking.component.html',
-    styleUrls: ['./period-close-tracking.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-period-close-tracking',
+  templateUrl: './period-close-tracking.component.html',
+  styleUrls: ['./period-close-tracking.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatTabsModule,
     MatTooltipModule,
     AtmfCardComponent,
     LoadingSymbolComponent,
     AtmfBarLineChartComponent,
-    AtmfTableComponent
+    AtmfTableComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 300000; //ms
@@ -189,57 +189,92 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   // Format for Expected dates: "April 26, 2025 at 07:00:00 PST"
-  // TEMPORARY HACK: Add 8 hours to fix prod timezone issue until ConfigMap is updated
   extractDatePrettifyFull(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse as Date object and add 8 hours
+    // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
+    const plainMatch = date.match(
+      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/
+    );
+
+    if (plainMatch) {
+      // Plain string from TO_CHAR - already in PST, display as-is
+      const [, year, month, day, hours, minutes, seconds] = plainMatch;
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+      const monthName = monthNames[parseInt(month, 10) - 1];
+      return `${monthName} ${parseInt(
+        day,
+        10
+      )}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    }
+
+    // Otherwise, parse as ISO 8601 timestamp (local dev) and convert UTC to PST
     const dateObj = new Date(date);
-    dateObj.setHours(dateObj.getHours() + 8);
+    if (isNaN(dateObj.getTime())) {
+      return 'N/A';
+    }
 
-    // Format manually
-    const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    const monthName = monthNames[dateObj.getMonth()];
-    const day = dateObj.getDate();
-    const year = dateObj.getFullYear();
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+    const pstDate = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(dateObj);
 
-    return `${monthName} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    return pstDate.replace(',', '').replace(/at /, 'at ') + ' PST';
   }
 
   // Format for Actual dates: "13:05:00 PST"
-  // TEMPORARY HACK: Add 8 hours to fix prod timezone issue until ConfigMap is updated
   extractDatePrettifyTimeOnly(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse as Date object and add 8 hours
+    // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
+    const plainMatch = date.match(
+      /^\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}):(\d{2})$/
+    );
+
+    if (plainMatch) {
+      // Plain string from TO_CHAR - already in PST, display as-is
+      const [, hours, minutes, seconds] = plainMatch;
+      return `${hours}:${minutes}:${seconds} PST`;
+    }
+
+    // Otherwise, parse as ISO 8601 timestamp (local dev) and convert UTC to PST
     const dateObj = new Date(date);
-    dateObj.setHours(dateObj.getHours() + 8);
+    if (isNaN(dateObj.getTime())) {
+      return 'N/A';
+    }
 
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+    const pstTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(dateObj);
 
-    return `${hours}:${minutes}:${seconds} PST`;
+    return `${pstTime} PST`;
   }
 
   getCurrentTime() {

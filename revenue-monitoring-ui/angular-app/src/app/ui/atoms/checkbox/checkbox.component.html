@@ -7,7 +7,11 @@
     (change)="onToggle()"
   />
   <span class="fit-checkbox__box">
-    <app-icon *ngIf="checked" name="check" size="0.7rem"></app-icon>
+    @if (checked) {
+      <app-icon name="check" size="0.7rem"></app-icon>
+    }
   </span>
-  <span *ngIf="label" class="fit-checkbox__label">{{ label }}</span>
+  @if (label) {
+    <span class="fit-checkbox__label">{{ label }}</span>
+  }
 </label>

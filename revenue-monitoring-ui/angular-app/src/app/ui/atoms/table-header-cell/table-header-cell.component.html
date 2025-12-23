@@ -6,10 +6,16 @@
 >
   <div class="fit-table__header-content">
     <ng-content></ng-content>
-    <span *ngIf="isSortable" class="fit-table__sort-icon">
-      <span *ngIf="sortDirection === 'asc'">↑</span>
-      <span *ngIf="sortDirection === 'desc'">↓</span>
-      <span *ngIf="!sortDirection">↕</span>
-    </span>
+    @if (isSortable) {
+      <span class="fit-table__sort-icon">
+        @if (sortDirection === 'asc') {
+          <span>↑</span>
+        } @else if (sortDirection === 'desc') {
+          <span>↓</span>
+        } @else {
+          <span>↕</span>
+        }
+      </span>
+    }
   </div>
 </th>

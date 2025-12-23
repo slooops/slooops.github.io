@@ -5,12 +5,16 @@ import {
   EventEmitter,
   OnDestroy,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-text-input',
   templateUrl: './text-input.component.html',
   styleUrls: ['./text-input.component.css'],
+  standalone: true,
+  imports: [CommonModule, IconComponent],
 })
 export class TextInputComponent implements OnDestroy {
   @Input() value: string = '';

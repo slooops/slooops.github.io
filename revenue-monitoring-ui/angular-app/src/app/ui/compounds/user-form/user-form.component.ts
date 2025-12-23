@@ -1,11 +1,17 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { UserFormData } from '../../types/common.types';
 import { SelectOption } from '../../types/common.types';
+import { TextInputComponent } from '../../atoms/text-input/text-input.component';
+import { ToggleSwitchComponent } from '../../atoms/toggle-switch/toggle-switch.component';
+import { ButtonComponent } from '../../atoms/button/button.component';
 
 @Component({
   selector: 'app-user-form',
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css'],
+  standalone: true,
+  imports: [CommonModule, TextInputComponent, ToggleSwitchComponent, ButtonComponent],
 })
 export class UserFormComponent {
   @Input() value: UserFormData = {
