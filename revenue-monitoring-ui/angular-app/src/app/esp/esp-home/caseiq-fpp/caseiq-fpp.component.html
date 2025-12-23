@@ -1,317 +1,313 @@
-<mat-tab-group [selectedIndex]="0">
-  <mat-tab [label]="totalCases + ' Cases - FPP Case Analyzer'">
-    <!-- Data refresh overlay - covers only this tab content -->
-    @if (refreshingData) {
-    <div class="table-loading-overlay">
-      <div class="spinner"></div>
-      <div class="loading-text">Fetching data...</div>
-    </div>
-    }
+<div class="table-header-text">{{ totalCases }} Cases - FPP Case Analyzer</div>
 
-    <div class="charts-row">
-      <div class="chart-section">
-        <div class="chart-header-row">
-          <div class="chart-title-block">
-            <h4>Category Accuracy - {{ categoryAccuracy }}%</h4>
-          </div>
-          <div class="flex-row header-metrics">
-            <h4>
-              No. of cases shown below: {{ visibleCategoryTotal }}/
-              {{ totalCases }}
-            </h4>
-            &nbsp;
-            <mat-icon
-              style="font-size: 15px; padding-top: 5px"
-              matTooltip="Note: Displays only categories with case count greater than
+<!-- Data refresh overlay - covers only this tab content -->
+@if (refreshingData) {
+<div class="table-loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Fetching data...</div>
+</div>
+}
+
+<div class="charts-row">
+  <div class="chart-section">
+    <div class="chart-header-row">
+      <div class="chart-title-block">
+        <h4>Category Accuracy - {{ categoryAccuracy }}%</h4>
+      </div>
+      <div class="flex-row header-metrics">
+        <h4>
+          No. of cases shown below: {{ visibleCategoryTotal }}/
+          {{ totalCases }}
+        </h4>
+        &nbsp;
+        <mat-icon
+          style="font-size: 15px; padding-top: 5px"
+          matTooltip="Note: Displays only categories with case count greater than
                 {{ categoryMinThreshold }}. Use the expand option to view all
                 categories."
-              >info_outline</mat-icon
-            >
-            &nbsp; &nbsp;
+          >info_outline</mat-icon
+        >
+        &nbsp; &nbsp;
 
-            <div class="filter-wrapper">
-              <mat-icon
-                style="cursor: pointer; font-size: 24px"
-                (click)="toggleCategoryFilters()"
-                (keydown.enter)="toggleCategoryFilters()"
-                (keydown.space)="toggleCategoryFilters()"
-                tabindex="0"
-                title="Category Chart Filters"
-                aria-label="Category Chart Filters"
-                >filter_list</mat-icon
+        <div class="filter-wrapper">
+          <mat-icon
+            style="cursor: pointer; font-size: 24px"
+            (click)="toggleCategoryFilters()"
+            (keydown.enter)="toggleCategoryFilters()"
+            (keydown.space)="toggleCategoryFilters()"
+            tabindex="0"
+            title="Category Chart Filters"
+            aria-label="Category Chart Filters"
+            >filter_list</mat-icon
+          >
+          @if (showCategoryFilters) {
+          <div
+            class="chart-filter-panel"
+            aria-label="Category chart filters panel"
+          >
+            <div class="multi-select-wrapper">
+              <button
+                class="multi-select-trigger"
+                (click)="toggleCategorySelect()"
+                type="button"
               >
-              @if (showCategoryFilters) {
+                Filter
+                <span class="chevron" [class.open]="showCategorySelect">▾</span>
+              </button>
+              @if (showCategorySelect) {
               <div
-                class="chart-filter-panel"
-                aria-label="Category chart filters panel"
+                class="multi-select-dropdown"
+                (click)="$event.stopPropagation()"
               >
-                <div class="multi-select-wrapper">
-                  <button
-                    class="multi-select-trigger"
-                    (click)="toggleCategorySelect()"
-                    type="button"
-                  >
-                    Filter
-                    <span class="chevron" [class.open]="showCategorySelect"
-                      >▾</span
-                    >
-                  </button>
-                  @if (showCategorySelect) {
+                <div class="multi-select-options">
+                  @for (label of allCategoryLabels; track label) {
                   <div
-                    class="multi-select-dropdown"
-                    (click)="$event.stopPropagation()"
+                    class="multi-option"
+                    [class.selected]="selectedCategoryLabels.has(label)"
+                    (click)="toggleCategorySelection(label)"
                   >
-                    <div class="multi-select-options">
-                      @for (label of allCategoryLabels; track label) {
-                      <div
-                        class="multi-option"
-                        [class.selected]="selectedCategoryLabels.has(label)"
-                        (click)="toggleCategorySelection(label)"
-                      >
-                        <input
-                          type="checkbox"
-                          [checked]="selectedCategoryLabels.has(label)"
-                        />
-                        <span class="option-label">{{ label }}</span>
-                      </div>
-                      }
-                    </div>
-                    <div class="multi-select-actions">
-                      <button
-                        type="button"
-                        class="clear-btn"
-                        (click)="clearCategorySelection($event)"
-                        [disabled]="selectedCategoryLabels.size === 0"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        type="button"
-                        class="close-btn"
-                        (click)="toggleCategorySelect()"
-                      >
-                        Close
-                      </button>
-                    </div>
+                    <input
+                      type="checkbox"
+                      [checked]="selectedCategoryLabels.has(label)"
+                    />
+                    <span class="option-label">{{ label }}</span>
                   </div>
                   }
                 </div>
-                <div class="cf-threshold">
-                  <span class="threshold-label"
-                    >Min Count &gt; {{ categoryMinThreshold }}</span
+                <div class="multi-select-actions">
+                  <button
+                    type="button"
+                    class="clear-btn"
+                    (click)="clearCategorySelection($event)"
+                    [disabled]="selectedCategoryLabels.size === 0"
                   >
-                  <div class="threshold-buttons">
-                    <button
-                      class="threshold-btn"
-                      (click)="adjustCategoryThreshold(-1)"
-                      aria-label="Decrease category threshold"
-                    >
-                      -5
-                    </button>
-                    <button
-                      class="threshold-btn"
-                      (click)="adjustCategoryThreshold(1)"
-                      aria-label="Increase category threshold"
-                    >
-                      +5
-                    </button>
-                  </div>
-                </div>
-                <div class="filter-hint">
-                  Showing categories with count &gt; {{ categoryMinThreshold }}.
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    class="close-btn"
+                    (click)="toggleCategorySelect()"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
               }
             </div>
-            &nbsp;&nbsp;
-            <mat-icon
-              (click)="onExpandChart('CATEGORY')"
-              (keydown.enter)="onExpandChart('CATEGORY')"
-              (keydown.space)="onExpandChart('CATEGORY')"
-              tabindex="0"
-              class="expand-icon"
-              title="Expand Category Chart"
-              aria-label="Expand Category Chart"
-              style="cursor: pointer"
-              >open_in_full</mat-icon
-            >
+            <div class="cf-threshold">
+              <span class="threshold-label"
+                >Min Count &gt; {{ categoryMinThreshold }}</span
+              >
+              <div class="threshold-buttons">
+                <button
+                  class="threshold-btn"
+                  (click)="adjustCategoryThreshold(-1)"
+                  aria-label="Decrease category threshold"
+                >
+                  -5
+                </button>
+                <button
+                  class="threshold-btn"
+                  (click)="adjustCategoryThreshold(1)"
+                  aria-label="Increase category threshold"
+                >
+                  +5
+                </button>
+              </div>
+            </div>
+            <div class="filter-hint">
+              Showing categories with count &gt; {{ categoryMinThreshold }}.
+            </div>
           </div>
+          }
         </div>
-
-        <div class="chart-container">
-          <app-bar-chart
-            [data]="i2cChartData"
-            [stacked]="true"
-            [isLoading]="false"
-            canvasId="fppStackedChart"
-          >
-          </app-bar-chart>
-        </div>
+        &nbsp;&nbsp;
+        <mat-icon
+          (click)="onExpandChart('CATEGORY')"
+          (keydown.enter)="onExpandChart('CATEGORY')"
+          (keydown.space)="onExpandChart('CATEGORY')"
+          tabindex="0"
+          class="expand-icon"
+          title="Expand Category Chart"
+          aria-label="Expand Category Chart"
+          style="cursor: pointer"
+          >open_in_full</mat-icon
+        >
       </div>
-      <div class="chart-section">
-        <div class="chart-header-row">
-          <div class="chart-title-block">
-            <h4>Core Issue Accuracy - {{ coreIssueAccuracy }}%</h4>
-          </div>
+    </div>
 
-          <div class="flex-row header-metrics">
-            <h4>
-              No. of cases shown below: {{ visibleCoreIssueTotal }}/
-              {{ totalCases }}
-            </h4>
-            &nbsp;
-            <mat-icon
-              style="font-size: 15px; padding-top: 5px"
-              matTooltip="Note: Displays only core issues with case count greater than
+    <div class="chart-container">
+      <app-bar-chart
+        [data]="i2cChartData"
+        [stacked]="true"
+        [isLoading]="false"
+        canvasId="fppStackedChart"
+      >
+      </app-bar-chart>
+    </div>
+  </div>
+  <div class="chart-section">
+    <div class="chart-header-row">
+      <div class="chart-title-block">
+        <h4>Core Issue Accuracy - {{ coreIssueAccuracy }}%</h4>
+      </div>
+
+      <div class="flex-row header-metrics">
+        <h4>
+          No. of cases shown below: {{ visibleCoreIssueTotal }}/
+          {{ totalCases }}
+        </h4>
+        &nbsp;
+        <mat-icon
+          style="font-size: 15px; padding-top: 5px"
+          matTooltip="Note: Displays only core issues with case count greater than
               {{ coreIssueMinThreshold }}. Use the expand option to view all
               core issues."
-              >info_outline</mat-icon
-            >
-            &nbsp; &nbsp;
-            <div class="filter-wrapper">
-              <mat-icon
-                style="cursor: pointer; font-size: 24px"
-                (click)="toggleCoreIssueFilters()"
-                (keydown.enter)="toggleCoreIssueFilters()"
-                (keydown.space)="toggleCoreIssueFilters()"
-                tabindex="0"
-                title="Core Issue Chart Filters"
-                aria-label="Core Issue Chart Filters"
-                >filter_list</mat-icon
+          >info_outline</mat-icon
+        >
+        &nbsp; &nbsp;
+        <div class="filter-wrapper">
+          <mat-icon
+            style="cursor: pointer; font-size: 24px"
+            (click)="toggleCoreIssueFilters()"
+            (keydown.enter)="toggleCoreIssueFilters()"
+            (keydown.space)="toggleCoreIssueFilters()"
+            tabindex="0"
+            title="Core Issue Chart Filters"
+            aria-label="Core Issue Chart Filters"
+            >filter_list</mat-icon
+          >
+          @if (showCoreIssueFilters) {
+          <div
+            class="chart-filter-panel"
+            aria-label="Core issue chart filters panel"
+          >
+            <div class="multi-select-wrapper">
+              <button
+                class="multi-select-trigger"
+                (click)="toggleCoreIssueSelect()"
+                type="button"
               >
-              @if (showCoreIssueFilters) {
+                Filter
+                <span class="chevron" [class.open]="showCoreIssueSelect"
+                  >▾</span
+                >
+              </button>
+              @if (showCoreIssueSelect) {
               <div
-                class="chart-filter-panel"
-                aria-label="Core issue chart filters panel"
+                class="multi-select-dropdown"
+                (click)="$event.stopPropagation()"
               >
-                <div class="multi-select-wrapper">
-                  <button
-                    class="multi-select-trigger"
-                    (click)="toggleCoreIssueSelect()"
-                    type="button"
-                  >
-                    Filter
-                    <span class="chevron" [class.open]="showCoreIssueSelect"
-                      >▾</span
-                    >
-                  </button>
-                  @if (showCoreIssueSelect) {
+                <div class="multi-select-options">
+                  @for (label of allCoreIssueLabels; track label) {
                   <div
-                    class="multi-select-dropdown"
-                    (click)="$event.stopPropagation()"
+                    class="multi-option"
+                    [class.selected]="selectedCoreIssueLabels.has(label)"
+                    (click)="toggleCoreIssueSelection(label)"
                   >
-                    <div class="multi-select-options">
-                      @for (label of allCoreIssueLabels; track label) {
-                      <div
-                        class="multi-option"
-                        [class.selected]="selectedCoreIssueLabels.has(label)"
-                        (click)="toggleCoreIssueSelection(label)"
-                      >
-                        <input
-                          type="checkbox"
-                          [checked]="selectedCoreIssueLabels.has(label)"
-                        />
-                        <span class="option-label">{{ label }}</span>
-                      </div>
-                      }
-                    </div>
-                    <div class="multi-select-actions">
-                      <button
-                        type="button"
-                        class="clear-btn"
-                        (click)="clearCoreIssueSelection($event)"
-                        [disabled]="selectedCoreIssueLabels.size === 0"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        type="button"
-                        class="close-btn"
-                        (click)="toggleCoreIssueSelect()"
-                      >
-                        Close
-                      </button>
-                    </div>
+                    <input
+                      type="checkbox"
+                      [checked]="selectedCoreIssueLabels.has(label)"
+                    />
+                    <span class="option-label">{{ label }}</span>
                   </div>
                   }
                 </div>
-                <div class="cf-threshold">
-                  <span class="threshold-label"
-                    >Min Count &gt; {{ coreIssueMinThreshold }}</span
+                <div class="multi-select-actions">
+                  <button
+                    type="button"
+                    class="clear-btn"
+                    (click)="clearCoreIssueSelection($event)"
+                    [disabled]="selectedCoreIssueLabels.size === 0"
                   >
-                  <div class="threshold-buttons">
-                    <button
-                      class="threshold-btn"
-                      (click)="adjustCoreIssueThreshold(-1)"
-                      aria-label="Decrease core issue threshold"
-                    >
-                      -5
-                    </button>
-                    <button
-                      class="threshold-btn"
-                      (click)="adjustCoreIssueThreshold(1)"
-                      aria-label="Increase core issue threshold"
-                    >
-                      +5
-                    </button>
-                  </div>
-                </div>
-                <div class="filter-hint">
-                  Showing core issues with count &gt;
-                  {{ coreIssueMinThreshold }}.
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    class="close-btn"
+                    (click)="toggleCoreIssueSelect()"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
               }
             </div>
-            &nbsp;&nbsp;
-            <mat-icon
-              (click)="onExpandChart('CORE_ISSUE')"
-              (keydown.enter)="onExpandChart('CORE_ISSUE')"
-              (keydown.space)="onExpandChart('CORE_ISSUE')"
-              tabindex="0"
-              class="expand-icon"
-              title="Expand Core Issue Chart"
-              aria-label="Expand Core Issue Chart"
-              style="cursor: pointer"
-              >open_in_full</mat-icon
-            >
+            <div class="cf-threshold">
+              <span class="threshold-label"
+                >Min Count &gt; {{ coreIssueMinThreshold }}</span
+              >
+              <div class="threshold-buttons">
+                <button
+                  class="threshold-btn"
+                  (click)="adjustCoreIssueThreshold(-1)"
+                  aria-label="Decrease core issue threshold"
+                >
+                  -5
+                </button>
+                <button
+                  class="threshold-btn"
+                  (click)="adjustCoreIssueThreshold(1)"
+                  aria-label="Increase core issue threshold"
+                >
+                  +5
+                </button>
+              </div>
+            </div>
+            <div class="filter-hint">
+              Showing core issues with count &gt;
+              {{ coreIssueMinThreshold }}.
+            </div>
           </div>
+          }
         </div>
-
-        <div class="chart-container">
-          <app-bar-chart
-            [data]="i2cSimpleChartData"
-            [stacked]="true"
-            [isLoading]="false"
-            canvasId="fppSimpleChart"
-          >
-          </app-bar-chart>
-        </div>
+        &nbsp;&nbsp;
+        <mat-icon
+          (click)="onExpandChart('CORE_ISSUE')"
+          (keydown.enter)="onExpandChart('CORE_ISSUE')"
+          (keydown.space)="onExpandChart('CORE_ISSUE')"
+          tabindex="0"
+          class="expand-icon"
+          title="Expand Core Issue Chart"
+          aria-label="Expand Core Issue Chart"
+          style="cursor: pointer"
+          >open_in_full</mat-icon
+        >
       </div>
     </div>
 
-    <div class="metric-box">
-      <h4>FPP Classification Summary</h4>
-
-      <p>
-        Note: Use the Upload button to submit and validate the data for
-        accuracy. Default filter applied to display for category match or core
-        issue match is N or NULL
-      </p>
+    <div class="chart-container">
+      <app-bar-chart
+        [data]="i2cSimpleChartData"
+        [stacked]="true"
+        [isLoading]="false"
+        canvasId="fppSimpleChart"
+      >
+      </app-bar-chart>
     </div>
+  </div>
+</div>
 
-    <app-caseiq-table
-      #fppTable
-      [dataSource]="i2cTableData"
-      [displayedColumns]="i2cTableColumns"
-      [exportFileName]="'FPP_Validation_Summary'"
-      [extraWideColumns]="['Case Summary - Description']"
-      [enablePagination]="true"
-      [pageSize]="10"
-      [totalRecords]="totalRecords"
-      [source]="'fpp'"
-      (uploadResult)="handleUploadResult($event)"
-    >
-    </app-caseiq-table>
-  </mat-tab>
-</mat-tab-group>
+<div class="metric-box">
+  <h4>FPP Classification Summary</h4>
+
+  <p>
+    Note: Use the Upload button to submit and validate the data for accuracy.
+    Default filter applied to display for category match or core issue match is
+    N or NULL
+  </p>
+</div>
+
+<app-caseiq-table
+  #fppTable
+  [dataSource]="i2cTableData"
+  [displayedColumns]="i2cTableColumns"
+  [exportFileName]="'FPP_Validation_Summary'"
+  [extraWideColumns]="['Case Summary - Description']"
+  [enablePagination]="true"
+  [pageSize]="10"
+  [totalRecords]="totalRecords"
+  [source]="'fpp'"
+  (uploadResult)="handleUploadResult($event)"
+>
+</app-caseiq-table>
