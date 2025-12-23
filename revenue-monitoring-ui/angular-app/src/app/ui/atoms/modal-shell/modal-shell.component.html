@@ -1,8 +1,8 @@
-<div
-  class="fit-modal-backdrop"
-  (click)="onBackdropClick($event)"
->
-  @if (isOpen) {
+@if (isOpen) {
+  <div
+    class="fit-modal-backdrop"
+    (click)="onBackdropClick($event)"
+  >
     <div
       class="fit-modal"
       role="dialog"
@@ -26,5 +26,5 @@
         <ng-content select="[slot=footer]"></ng-content>
       </div>
     </div>
-  }
-</div>
+  </div>
+}

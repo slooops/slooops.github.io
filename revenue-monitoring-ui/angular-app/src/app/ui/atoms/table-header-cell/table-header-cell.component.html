@@ -10,11 +10,9 @@
       <span class="fit-table__sort-icon">
         @if (sortDirection === 'asc') {
           <span>↑</span>
-        }
-        @if (sortDirection === 'desc') {
+        } @else if (sortDirection === 'desc') {
           <span>↓</span>
-        }
-        @if (!sortDirection) {
+        } @else {
           <span>↕</span>
         }
       </span>
