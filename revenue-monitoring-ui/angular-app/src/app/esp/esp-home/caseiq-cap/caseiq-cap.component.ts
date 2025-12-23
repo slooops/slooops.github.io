@@ -14,12 +14,18 @@ import {
   MatDialog,
   MatDialogRef,
   MAT_DIALOG_DATA,
+  MatDialogModule,
 } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
 
 interface CapitalAccuracyData {
   TEAM_NAME: string;
@@ -33,6 +39,15 @@ interface CapitalAccuracyData {
   selector: 'app-caseiq-cap',
   templateUrl: './caseiq-cap.component.html',
   styleUrl: './caseiq-cap.component.css',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+  ],
+  standalone: true,
 })
 export class CaseiqCapComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -978,7 +993,8 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
     </div>
     <mat-dialog-content class="expand-dialog-content" tabindex="0">
       <div class="expand-charts-wrapper">
-        <div class="expand-chart-block" *ngIf="data.type === 'CATEGORY'">
+        @if (data.type === 'CATEGORY') {
+        <div class="expand-chart-block">
           <div class="expand-chart-header">
             <h3 class="subheading">
               Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
@@ -995,9 +1011,9 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                 aria-label="Category Chart Filters"
                 >filter_list</mat-icon
               >
+              @if (showCategoryFiltersInDialog) {
               <div
                 class="chart-filter-panel"
-                *ngIf="showCategoryFiltersInDialog"
                 aria-label="Expanded category chart filters panel"
               >
                 <div class="multi-select-wrapper">
@@ -1013,15 +1029,15 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                       >▾</span
                     >
                   </button>
+                  @if (showCategorySelectInDialog) {
                   <div
                     class="multi-select-dropdown"
-                    *ngIf="showCategorySelectInDialog"
                     (click)="$event.stopPropagation()"
                   >
                     <div class="multi-select-options">
+                      @for (label of dialogCategoryLabels; track label) {
                       <div
                         class="multi-option"
-                        *ngFor="let label of dialogCategoryLabels"
                         [class.selected]="
                           selectedCategoryLabelsInDialog.has(label)
                         "
@@ -1033,6 +1049,7 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                         />
                         <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
                     <div class="multi-select-actions">
                       <button
@@ -1052,21 +1069,18 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                       </button>
                     </div>
                   </div>
+                  }
                 </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCategoryLabelsInDialog.size === 0"
-                >
-                  Showing all categories.
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCategoryLabelsInDialog.size > 0"
-                >
+                @if (selectedCategoryLabelsInDialog.size === 0) {
+                <div class="filter-hint">Showing all categories.</div>
+                } @if (selectedCategoryLabelsInDialog.size > 0) {
+                <div class="filter-hint">
                   Showing {{ selectedCategoryLabelsInDialog.size }} selected
                   category(ies).
                 </div>
+                }
               </div>
+              }
             </div>
           </div>
           <div class="chart-frame">
@@ -1079,7 +1093,8 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
             ></app-bar-chart>
           </div>
         </div>
-        <div class="expand-chart-block" *ngIf="data.type === 'CORE_ISSUE'">
+        } @if (data.type === 'CORE_ISSUE') {
+        <div class="expand-chart-block">
           <div class="expand-chart-header">
             <h3 class="subheading">
               Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
@@ -1096,9 +1111,9 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                 aria-label="Core Issue Chart Filters"
                 >filter_list</mat-icon
               >
+              @if (showCoreIssueFiltersInDialog) {
               <div
                 class="chart-filter-panel"
-                *ngIf="showCoreIssueFiltersInDialog"
                 aria-label="Expanded core issue chart filters panel"
               >
                 <div class="multi-select-wrapper">
@@ -1114,15 +1129,15 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                       >▾</span
                     >
                   </button>
+                  @if (showCoreIssueSelectInDialog) {
                   <div
                     class="multi-select-dropdown"
-                    *ngIf="showCoreIssueSelectInDialog"
                     (click)="$event.stopPropagation()"
                   >
                     <div class="multi-select-options">
+                      @for (label of dialogCoreIssueLabels; track label) {
                       <div
                         class="multi-option"
-                        *ngFor="let label of dialogCoreIssueLabels"
                         [class.selected]="
                           selectedCoreIssueLabelsInDialog.has(label)
                         "
@@ -1134,6 +1149,7 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                         />
                         <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
                     <div class="multi-select-actions">
                       <button
@@ -1153,21 +1169,18 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
                       </button>
                     </div>
                   </div>
+                  }
                 </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCoreIssueLabelsInDialog.size === 0"
-                >
-                  Showing all core issues.
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCoreIssueLabelsInDialog.size > 0"
-                >
+                @if (selectedCoreIssueLabelsInDialog.size === 0) {
+                <div class="filter-hint">Showing all core issues.</div>
+                } @if (selectedCoreIssueLabelsInDialog.size > 0) {
+                <div class="filter-hint">
                   Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
                   core issue(s).
                 </div>
+                }
               </div>
+              }
             </div>
           </div>
           <div class="chart-frame">
@@ -1180,6 +1193,7 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
             ></app-bar-chart>
           </div>
         </div>
+        }
       </div>
     </mat-dialog-content>
   `,
@@ -1199,7 +1213,6 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
-        margin: -24px -24px 0 -24px;
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
       }
@@ -1355,6 +1368,16 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
       }
     `,
   ],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    // CaseiqTableComponent,
+    MatDialogModule,
+  ],
+  standalone: true,
 })
 export class CaseiqCapExpandDialogComponent implements OnInit {
   // Dialog-specific multi-select state

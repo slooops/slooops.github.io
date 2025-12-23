@@ -1,35 +1,40 @@
 <div class="chatbot-container" [class.open]="isOpen">
-  <button class="chatbot-toggle" *ngIf="!isOpen" (click)="toggleChat()">
-    <img
-      src="assets/icons/chatbot-icon.svg"
-      alt="Chatbot"
-      style="width: 32px; height: 32px"
-    />
-  </button>
-  <div class="chatbot-dialog" *ngIf="isOpen">
-    <div class="chatbot-header">
-      <span class="chatbot-title"></span>
-      <button class="chatbot-close" (click)="toggleChat()" title="Close">
-        ✖
-      </button>
-    </div>
-    <div class="chatbot-messages" #messagesContainer>
-      <div
-        *ngFor="let msg of messages"
-        [class.user]="msg.isUser"
-        [class.bot]="!msg.isUser"
-      >
-        {{ msg.text }}
+  @if (!isOpen) {
+    <button class="chatbot-toggle" (click)="toggleChat()">
+      <img
+        src="assets/icons/chatbot-icon.svg"
+        alt="Chatbot"
+        style="width: 32px; height: 32px"
+        />
+    </button>
+  }
+  @if (isOpen) {
+    <div class="chatbot-dialog">
+      <div class="chatbot-header">
+        <span class="chatbot-title"></span>
+        <button class="chatbot-close" (click)="toggleChat()" title="Close">
+          ✖
+        </button>
       </div>
+      <div class="chatbot-messages" #messagesContainer>
+        @for (msg of messages; track msg) {
+          <div
+            [class.user]="msg.isUser"
+            [class.bot]="!msg.isUser"
+            >
+            {{ msg.text }}
+          </div>
+        }
+      </div>
+      <form class="chatbot-input" (ngSubmit)="sendMessage()">
+        <input
+          [(ngModel)]="newMessage"
+          name="message"
+          placeholder="Type a message..."
+          autocomplete="off"
+          />
+        <button type="submit">Send</button>
+      </form>
     </div>
-    <form class="chatbot-input" (ngSubmit)="sendMessage()">
-      <input
-        [(ngModel)]="newMessage"
-        name="message"
-        placeholder="Type a message..."
-        autocomplete="off"
-      />
-      <button type="submit">Send</button>
-    </form>
-  </div>
+  }
 </div>

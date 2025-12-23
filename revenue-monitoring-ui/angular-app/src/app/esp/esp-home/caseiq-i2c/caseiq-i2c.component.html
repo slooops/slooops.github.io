@@ -1,10 +1,12 @@
 <mat-tab-group [selectedIndex]="0">
   <mat-tab [label]="totalCases + ' Cases - I2C Case Analyzer'">
     <!-- Data refresh overlay - covers only this tab content -->
-    <div class="table-loading-overlay" *ngIf="refreshingData">
+    @if (refreshingData) {
+    <div class="table-loading-overlay">
       <div class="spinner"></div>
       <div class="loading-text">Fetching data...</div>
     </div>
+    }
 
     <div class="charts-row">
       <div class="chart-section">
@@ -30,56 +32,24 @@
                 >Note: Displays only categories with case count greater than
                 {{ categoryMinThreshold }}. Use the expand option to view all
                 categories.</span
-              >
-            </div> -->
+                >
+              </div> -->
             &nbsp; &nbsp;
 
-            <div
-              class="filter-wrapper"
-              style="display: flex; align-items: center; gap: 4px"
-            >
+            <div class="filter-wrapper">
               <mat-icon
                 style="cursor: pointer; font-size: 24px"
-                [style.opacity]="selectedCoreIssueLabels.size > 0 ? '0.4' : '1'"
-                [style.cursor]="
-                  selectedCoreIssueLabels.size > 0 ? 'not-allowed' : 'pointer'
-                "
-                (click)="
-                  selectedCoreIssueLabels.size > 0
-                    ? null
-                    : toggleCategoryFilters()
-                "
-                (keydown.enter)="
-                  selectedCoreIssueLabels.size > 0
-                    ? null
-                    : toggleCategoryFilters()
-                "
-                (keydown.space)="
-                  selectedCoreIssueLabels.size > 0
-                    ? null
-                    : toggleCategoryFilters()
-                "
+                (click)="toggleCategoryFilters()"
+                (keydown.enter)="toggleCategoryFilters()"
+                (keydown.space)="toggleCategoryFilters()"
                 tabindex="0"
-                [title]="
-                  selectedCoreIssueLabels.size > 0
-                    ? 'Clear core issue filters first'
-                    : 'Category Chart Filters'
-                "
-                [attr.aria-label]="
-                  selectedCoreIssueLabels.size > 0
-                    ? 'Category filters disabled'
-                    : 'Category Chart Filters'
-                "
+                title="Category Chart Filters"
+                aria-label="Category Chart Filters"
                 >filter_list</mat-icon
               >
-              <span
-                *ngIf="selectedCategoryLabels.size > 0"
-                class="filter-count"
-                >{{ selectedCategoryLabels.size }}</span
-              >
+              @if (showCategoryFilters) {
               <div
                 class="chart-filter-panel"
-                *ngIf="showCategoryFilters"
                 aria-label="Category chart filters panel"
               >
                 <div class="multi-select-wrapper">
@@ -88,28 +58,20 @@
                     (click)="toggleCategorySelect()"
                     type="button"
                   >
-                    <span *ngIf="selectedCategoryLabels.size === 0"
-                      >Select Category</span
-                    >
-                    <span *ngIf="selectedCategoryLabels.size === 1">{{
-                      getCategoryFilterText()
-                    }}</span>
-                    <span *ngIf="selectedCategoryLabels.size > 1"
-                      >{{ selectedCategoryLabels.size }} selected</span
-                    >
+                    Filter
                     <span class="chevron" [class.open]="showCategorySelect"
                       >▾</span
                     >
                   </button>
+                  @if (showCategorySelect) {
                   <div
                     class="multi-select-dropdown"
-                    *ngIf="showCategorySelect"
                     (click)="$event.stopPropagation()"
                   >
                     <div class="multi-select-options">
+                      @for (label of allCategoryLabels; track label) {
                       <div
                         class="multi-option"
-                        *ngFor="let label of allCategoryLabels"
                         [class.selected]="selectedCategoryLabels.has(label)"
                         (click)="toggleCategorySelection(label)"
                       >
@@ -119,6 +81,7 @@
                         />
                         <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
                     <div class="multi-select-actions">
                       <button
@@ -138,6 +101,7 @@
                       </button>
                     </div>
                   </div>
+                  }
                 </div>
                 <div class="cf-threshold">
                   <span class="threshold-label"
@@ -164,6 +128,7 @@
                   Showing categories with count &gt; {{ categoryMinThreshold }}.
                 </div>
               </div>
+              }
             </div>
             &nbsp;&nbsp;
             <mat-icon
@@ -210,52 +175,20 @@
               >info_outline</mat-icon
             >
             &nbsp; &nbsp;
-            <div
-              class="filter-wrapper"
-              style="display: flex; align-items: center; gap: 4px"
-            >
+            <div class="filter-wrapper">
               <mat-icon
                 style="cursor: pointer; font-size: 24px"
-                [style.opacity]="selectedCategoryLabels.size > 0 ? '0.4' : '1'"
-                [style.cursor]="
-                  selectedCategoryLabels.size > 0 ? 'not-allowed' : 'pointer'
-                "
-                (click)="
-                  selectedCategoryLabels.size > 0
-                    ? null
-                    : toggleCoreIssueFilters()
-                "
-                (keydown.enter)="
-                  selectedCategoryLabels.size > 0
-                    ? null
-                    : toggleCoreIssueFilters()
-                "
-                (keydown.space)="
-                  selectedCategoryLabels.size > 0
-                    ? null
-                    : toggleCoreIssueFilters()
-                "
+                (click)="toggleCoreIssueFilters()"
+                (keydown.enter)="toggleCoreIssueFilters()"
+                (keydown.space)="toggleCoreIssueFilters()"
                 tabindex="0"
-                [title]="
-                  selectedCategoryLabels.size > 0
-                    ? 'Clear category filters first'
-                    : 'Core Issue Chart Filters'
-                "
-                [attr.aria-label]="
-                  selectedCategoryLabels.size > 0
-                    ? 'Core Issue filters disabled'
-                    : 'Core Issue Chart Filters'
-                "
+                title="Core Issue Chart Filters"
+                aria-label="Core Issue Chart Filters"
                 >filter_list</mat-icon
               >
-              <span
-                *ngIf="selectedCoreIssueLabels.size > 0"
-                class="filter-count"
-                >{{ selectedCoreIssueLabels.size }}</span
-              >
+              @if (showCoreIssueFilters) {
               <div
                 class="chart-filter-panel"
-                *ngIf="showCoreIssueFilters"
                 aria-label="Core issue chart filters panel"
               >
                 <div class="multi-select-wrapper">
@@ -264,28 +197,20 @@
                     (click)="toggleCoreIssueSelect()"
                     type="button"
                   >
-                    <span *ngIf="selectedCoreIssueLabels.size === 0"
-                      >Select Core Issue</span
-                    >
-                    <span *ngIf="selectedCoreIssueLabels.size === 1">{{
-                      getCoreIssueFilterText()
-                    }}</span>
-                    <span *ngIf="selectedCoreIssueLabels.size > 1"
-                      >{{ selectedCoreIssueLabels.size }} selected</span
-                    >
+                    Filter
                     <span class="chevron" [class.open]="showCoreIssueSelect"
                       >▾</span
                     >
                   </button>
+                  @if (showCoreIssueSelect) {
                   <div
                     class="multi-select-dropdown"
-                    *ngIf="showCoreIssueSelect"
                     (click)="$event.stopPropagation()"
                   >
                     <div class="multi-select-options">
+                      @for (label of allCoreIssueLabels; track label) {
                       <div
                         class="multi-option"
-                        *ngFor="let label of allCoreIssueLabels"
                         [class.selected]="selectedCoreIssueLabels.has(label)"
                         (click)="toggleCoreIssueSelection(label)"
                       >
@@ -295,6 +220,7 @@
                         />
                         <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
                     <div class="multi-select-actions">
                       <button
@@ -314,6 +240,7 @@
                       </button>
                     </div>
                   </div>
+                  }
                 </div>
                 <div class="cf-threshold">
                   <span class="threshold-label"
@@ -341,6 +268,7 @@
                   {{ coreIssueMinThreshold }}.
                 </div>
               </div>
+              }
             </div>
             &nbsp;&nbsp;
             <mat-icon

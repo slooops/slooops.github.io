@@ -8,13 +8,26 @@ import {
   HostListener,
   Output,
   EventEmitter,
+  Inject,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import { StackedBarChartDataPoint } from 'src/app/components/bar-chart/bar-chart.component';
+import {
+  StackedBarChartDataPoint,
+  BarChartComponent,
+} from 'src/app/components/bar-chart/bar-chart.component';
 import { CaseiqTableComponent } from 'src/app/components/caseiq-table/caseiq-table.component';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface OmAccuracyData {
   TEAM_NAME: string;
@@ -28,6 +41,15 @@ interface OmAccuracyData {
   selector: 'app-caseiq-om',
   templateUrl: './caseiq-om.component.html',
   styleUrl: './caseiq-om.component.css',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    CaseiqTableComponent,
+  ],
+  standalone: true,
 })
 export class CaseiqOmComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
@@ -965,8 +987,6 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
 }
 
 // Simple dialog component for expanded charts
-import { Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-caseiq-om-expand-dialog',
   template: `
@@ -984,7 +1004,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     </div>
     <mat-dialog-content class="expand-dialog-content" tabindex="0">
       <div class="expand-charts-wrapper">
-        <div class="expand-chart-block" *ngIf="data.type === 'CATEGORY'">
+        @if (data.type === 'CATEGORY') {
+        <div class="expand-chart-block">
           <div class="expand-chart-header">
             <h3 class="subheading">
               Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
@@ -1001,9 +1022,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                 aria-label="Category Chart Filters"
                 >filter_list</mat-icon
               >
+              @if (showCategoryFiltersInDialog) {
               <div
                 class="chart-filter-panel"
-                *ngIf="showCategoryFiltersInDialog"
                 aria-label="Expanded category chart filters panel"
               >
                 <div class="multi-select-wrapper">
@@ -1019,15 +1040,15 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                       >▾</span
                     >
                   </button>
+                  @if (showCategorySelectInDialog) {
                   <div
                     class="multi-select-dropdown"
-                    *ngIf="showCategorySelectInDialog"
                     (click)="$event.stopPropagation()"
                   >
                     <div class="multi-select-options">
+                      @for (label of dialogCategoryLabels; track label) {
                       <div
                         class="multi-option"
-                        *ngFor="let label of dialogCategoryLabels"
                         [class.selected]="
                           selectedCategoryLabelsInDialog.has(label)
                         "
@@ -1039,6 +1060,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                         />
                         <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
                     <div class="multi-select-actions">
                       <button
@@ -1058,21 +1080,18 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                       </button>
                     </div>
                   </div>
+                  }
                 </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCategoryLabelsInDialog.size === 0"
-                >
-                  Showing all categories.
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCategoryLabelsInDialog.size > 0"
-                >
+                @if (selectedCategoryLabelsInDialog.size === 0) {
+                <div class="filter-hint">Showing all categories.</div>
+                } @if (selectedCategoryLabelsInDialog.size > 0) {
+                <div class="filter-hint">
                   Showing {{ selectedCategoryLabelsInDialog.size }} selected
                   category(ies).
                 </div>
+                }
               </div>
+              }
             </div>
           </div>
           <div class="chart-frame">
@@ -1085,7 +1104,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             ></app-bar-chart>
           </div>
         </div>
-        <div class="expand-chart-block" *ngIf="data.type === 'CORE_ISSUE'">
+        } @if (data.type === 'CORE_ISSUE') {
+        <div class="expand-chart-block">
           <div class="expand-chart-header">
             <h3 class="subheading">
               Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
@@ -1102,9 +1122,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                 aria-label="Core Issue Chart Filters"
                 >filter_list</mat-icon
               >
+              @if (showCoreIssueFiltersInDialog) {
               <div
                 class="chart-filter-panel"
-                *ngIf="showCoreIssueFiltersInDialog"
                 aria-label="Expanded core issue chart filters panel"
               >
                 <div class="multi-select-wrapper">
@@ -1120,15 +1140,15 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                       >▾</span
                     >
                   </button>
+                  @if (showCoreIssueSelectInDialog) {
                   <div
                     class="multi-select-dropdown"
-                    *ngIf="showCoreIssueSelectInDialog"
                     (click)="$event.stopPropagation()"
                   >
                     <div class="multi-select-options">
+                      @for (label of dialogCoreIssueLabels; track label) {
                       <div
                         class="multi-option"
-                        *ngFor="let label of dialogCoreIssueLabels"
                         [class.selected]="
                           selectedCoreIssueLabelsInDialog.has(label)
                         "
@@ -1140,6 +1160,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                         />
                         <span class="option-label">{{ label }}</span>
                       </div>
+                      }
                     </div>
                     <div class="multi-select-actions">
                       <button
@@ -1159,21 +1180,18 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
                       </button>
                     </div>
                   </div>
+                  }
                 </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCoreIssueLabelsInDialog.size === 0"
-                >
-                  Showing all core issues.
-                </div>
-                <div
-                  class="filter-hint"
-                  *ngIf="selectedCoreIssueLabelsInDialog.size > 0"
-                >
+                @if (selectedCoreIssueLabelsInDialog.size === 0) {
+                <div class="filter-hint">Showing all core issues.</div>
+                } @if (selectedCoreIssueLabelsInDialog.size > 0) {
+                <div class="filter-hint">
                   Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
                   core issue(s).
                 </div>
+                }
               </div>
+              }
             </div>
           </div>
           <div class="chart-frame">
@@ -1186,6 +1204,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             ></app-bar-chart>
           </div>
         </div>
+        }
       </div>
     </mat-dialog-content>
   `,
@@ -1205,7 +1224,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
-        margin: -24px -24px 0 -24px; /* stretch header edge-to-edge */
         border-top-left-radius: 4px;
         border-top-right-radius: 4px;
       }
@@ -1361,6 +1379,16 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       }
     `,
   ],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTooltipModule,
+    BarChartComponent,
+    // CaseiqTableComponent,
+    MatDialogModule,
+  ],
+  standalone: true,
 })
 export class CaseiqOmExpandDialogComponent {
   constructor(

@@ -6,18 +6,21 @@
     </button>
 
     <nav>
-      <div 
-        class="nav-item"
-        *ngFor="let item of navItems"
-        [class.active]="item.label === activeItem"
-        (click)="selectItem(item.label)"
-      >
-        <i [class]="item.icon"></i>
-        <span>{{ item.label }}</span>
-        <span *ngIf="item.count !== undefined" class="count">
-          {{ item.count }}
-        </span>
-      </div>
+      @for (item of navItems; track item) {
+        <div
+          class="nav-item"
+          [class.active]="item.label === activeItem"
+          (click)="selectItem(item.label)"
+          >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+          @if (item.count !== undefined) {
+            <span class="count">
+              {{ item.count }}
+            </span>
+          }
+        </div>
+      }
     </nav>
   </div>
   <button class="collapse-toggle" (click)="toggleSidebar()">

@@ -51,7 +51,7 @@ public class JdbcManager {
             "WEBORDER_ID", "WEBORDER_ID = :value");
 
     private static final Pattern SQL_INJECTION_PATTERN = Pattern.compile(
-            "(?i)(.*\\b(union|select|from|where|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
+            "(?i)(.*\\b(union|insert|delete|update|drop|execute|exec|alter|truncate|declare|create)\\b.*)");
 
     public List<Map<String, Object>> queryForO2CConnectorData(String sql, String field, String value) {
         if (!ALLOWED_FIELD_CLAUSES.containsKey(field)) {

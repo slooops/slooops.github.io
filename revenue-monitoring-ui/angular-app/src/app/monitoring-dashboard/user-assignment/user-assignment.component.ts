@@ -11,11 +11,18 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { DataService } from 'src/app/providers/data.service';
 import { HttpService } from '../providers/http.service';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-user-assignment',
-  templateUrl: './user-assignment.component.html',
-  styleUrl: './user-assignment.component.css',
+    selector: 'app-user-assignment',
+    templateUrl: './user-assignment.component.html',
+    styleUrl: './user-assignment.component.css',
+    imports: [
+    CommonModule,
+    ReactiveFormsModule
+  ],
+  standalone: true
 })
 export class UserAssignmentComponent implements OnInit, OnChanges {
   @Input() submitKeysToMap: string[] = []; // Keys for submitData

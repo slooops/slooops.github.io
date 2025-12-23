@@ -1,6 +1,5 @@
 <div
   style="
-    margin: -24px -24px 0 -24px; /* Removes default padding */
     background-color: #08ace4;
     padding: 10px;
     color: white;
@@ -10,7 +9,7 @@
   "
 >
   <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450">Revenue Summary</h5>
+  <h5 style="margin: 0; font-weight: 450; font-size: 14px">Revenue Summary</h5>
 
   <!-- Icons on the right (Download and Close) -->
   <a style="text-decoration: none; cursor: pointer; color: white">
@@ -31,227 +30,237 @@
   </a>
 </div>
 
-<mat-dialog-content>
+<mat-dialog-content style="width: 100%">
   <div class="arclosetable" style="max-width: 100%">
     <table class="table table-hover table-responsive-xl">
       <thead>
         <tr>
-          <th
-            *ngFor="let col of displayedColumns"
-            (click)="sortEnable(col.name)"
-          >
+          @for (col of displayedColumns; track col) {
+          <th (click)="sortEnable(col.name)">
             <span>{{ col.name }} </span>
-            <span
-              *ngIf="
-                (!col.sorted && col.sortingOrder == '') ||
-                (col.sorted && col.sortingOrder == 'asc')
-              "
-            >
+            @if ( (!col.sorted && col.sortingOrder == '') || (col.sorted &&
+            col.sortingOrder == 'asc') ) {
+            <span>
               <i
                 [ngClass]="{ noSort: col.sortingOrder == '' }"
                 class="fa fa-thin fa-arrow-up iconSize"
               ></i>
             </span>
-            <span *ngIf="col.sorted && col.sortingOrder == 'desc'">
+            } @if (col.sorted && col.sortingOrder == 'desc') {
+            <span>
               <i class="fa fa-thin fa-arrow-down iconSize"></i>
             </span>
+            }
           </th>
+          }
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let account of grandTotalData">
-          <tr class="grandAccountLevel">
-            <td class="grandFirstColumn">
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ account.account }}
-            </td>
-            <td>
+        @for (account of grandTotalData; track account) {
+        <tr class="grandAccountLevel">
+          <td class="grandFirstColumn">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ account.account }}
+          </td>
+          <td>
+            {{ account.grandTotalSalesOrderCount | number }}
+          </td>
+          <td>
+            {{ account.grandTotalOrderValue / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ account.grandTotalQtrRevEstimate / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ account.grandTotalQtrInvGlRev / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ account.grandTotalQtrAccrualGlRev / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ account.grandTotalQtrRevRecog / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ account.grandTotalRevNotRecog / 1000000 | number : "1.0-3" }}
+          </td>
+        </tr>
+        } @for (account of paginatedData; track account) {
+        <tr
+          (click)="account.expanded = !account.expanded"
+          class="accountLevel"
+          [ngClass]="{ 'completed-row': isAccountCompleted(account) }"
+        >
+          <td class="firstColumn">
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              @if (account.expanded) {
+              <span
+                ><i class="fa fa-chevron-up" style="font-size: 12px"></i
+              ></span>
+              } @if (!account.expanded) {
+              <span
+                ><i class="fa fa-chevron-down" style="font-size: 12px"></i
+              ></span>
+              } &nbsp;
+            </span>
+            }
+            {{ account.account }}
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.salesOrderSum | number }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{ account.grandTotalSalesOrderCount | number }}
-            </td>
-            <td>
+            </span>
+            }
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.totalOrderValueSum / 1000000 | number : "1.0-3" }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{ account.grandTotalOrderValue / 1000000 | number : "1.0-3" }}
-            </td>
-
-            <td>
+            </span>
+            }
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.qtrRevEstimateSum / 1000000 | number : "1.0-3" }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{
                 account.grandTotalQtrRevEstimate / 1000000 | number : "1.0-3"
               }}
-            </td>
-            <td>
+            </span>
+            }
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.qtrInvGlRevSum / 1000000 | number : "1.0-3" }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{ account.grandTotalQtrInvGlRev / 1000000 | number : "1.0-3" }}
-            </td>
-            <td>
+            </span>
+            }
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.qtrAccrualGlRevSum / 1000000 | number : "1.0-3" }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{
                 account.grandTotalQtrAccrualGlRev / 1000000 | number : "1.0-3"
               }}
-            </td>
-            <td>
+            </span>
+            }
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.qtrRevRecogSum / 1000000 | number : "1.0-3" }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{ account.grandTotalQtrRevRecog / 1000000 | number : "1.0-3" }}
-            </td>
-            <td>
+            </span>
+            }
+          </td>
+          <td>
+            @if (account.account !== 'GRAND TOTAL') {
+            <span>
+              {{ account.revNotRecogSum / 1000000 | number : "1.0-3" }}
+            </span>
+            } @if (account.account === 'GRAND TOTAL') {
+            <span>
               {{ account.grandTotalRevNotRecog / 1000000 | number : "1.0-3" }}
-            </td>
-          </tr>
-        </ng-container>
-        <ng-container *ngFor="let account of paginatedData">
-          <tr
-            (click)="account.expanded = !account.expanded"
-            class="accountLevel"
-            [ngClass]="{ 'completed-row': isAccountCompleted(account) }"
-          >
-            <td class="firstColumn">
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                <span *ngIf="account.expanded"
-                  ><i class="fa fa-chevron-up" style="font-size: 12px"></i
-                ></span>
-                <span *ngIf="!account.expanded"
-                  ><i class="fa fa-chevron-down" style="font-size: 12px"></i
-                ></span>
-                &nbsp;
-              </span>
-              {{ account.account }}
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.salesOrderSum | number }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{ account.grandTotalSalesOrderCount | number }}
-              </span>
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.totalOrderValueSum / 1000000 | number : "1.0-3" }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{ account.grandTotalOrderValue / 1000000 | number : "1.0-3" }}
-              </span>
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.qtrRevEstimateSum / 1000000 | number : "1.0-3" }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{
-                  account.grandTotalQtrRevEstimate / 1000000 | number : "1.0-3"
-                }}
-              </span>
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.qtrInvGlRevSum / 1000000 | number : "1.0-3" }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{ account.grandTotalQtrInvGlRev / 1000000 | number : "1.0-3" }}
-              </span>
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.qtrAccrualGlRevSum / 1000000 | number : "1.0-3" }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{
-                  account.grandTotalQtrAccrualGlRev / 1000000 | number : "1.0-3"
-                }}
-              </span>
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.qtrRevRecogSum / 1000000 | number : "1.0-3" }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{ account.grandTotalQtrRevRecog / 1000000 | number : "1.0-3" }}
-              </span>
-            </td>
-            <td>
-              <span *ngIf="account.account !== 'GRAND TOTAL'">
-                {{ account.revNotRecogSum / 1000000 | number : "1.0-3" }}
-              </span>
-              <span *ngIf="account.account === 'GRAND TOTAL'">
-                {{ account.grandTotalRevNotRecog / 1000000 | number : "1.0-3" }}
-              </span>
-            </td>
-          </tr>
-
-          <ng-container *ngIf="account.expanded">
-            <ng-container *ngFor="let deal of account.deals">
-              <tr
-                (click)="deal.expanded = !deal.expanded"
-                class="dealLevel"
-                [ngClass]="{ 'completed-row': isDealCompleted(deal) }"
-              >
-                <td style="padding-left: 20px" class="firstColumn">
-                  {{ deal.expanded ? "&ndash;" : "+" }}&nbsp;{{ deal.dealId }}
-                </td>
-                <td>
-                  {{ deal.salesOrderSum | number }}
-                </td>
-                <td>
-                  {{ deal.totalOrderValueSum / 1000000 | number : "1.0-3" }}
-                </td>
-                <td>
-                  {{ deal.qtrRevEstimateSum / 1000000 | number : "1.0-3" }}
-                </td>
-                <td>
-                  {{ deal.qtrInvGlRevSum / 1000000 | number : "1.0-3" }}
-                </td>
-                <td>
-                  {{ deal.qtrAccrualGlRevSum / 1000000 | number : "1.0-3" }}
-                </td>
-                <td>
-                  {{ deal.qtrRevRecogSum / 1000000 | number : "1.0-3" }}
-                </td>
-                <td>
-                  {{ deal.revNotRecogSum / 1000000 | number : "1.0-3" }}
-                </td>
-              </tr>
-              <ng-container *ngIf="deal.expanded">
-                <tr
-                  *ngFor="let status of deal.orderStatuses"
-                  class="statusLevel"
-                >
-                  <td style="padding-left: 40px" class="firstColumn">
-                    {{ status.status }}
-                  </td>
-                  <td>{{ status.salesOrderCount | number }}</td>
-                  <td>
-                    {{ status.totalOrderValue / 1000000 | number : "1.0-3" }}
-                  </td>
-                  <td>
-                    {{ status.qtrRevEstimate / 1000000 | number : "1.0-3" }}
-                  </td>
-                  <td>
-                    {{ status.qtrInvGlRev / 1000000 | number : "1.0-3" }}
-                  </td>
-                  <td>
-                    {{ status.qtrAccrualGlRev / 1000000 | number : "1.0-3" }}
-                  </td>
-                  <td>
-                    {{ status.qtrRevRecog / 1000000 | number : "1.0-3" }}
-                  </td>
-                  <td>
-                    {{ status.revNotRecog / 1000000 | number : "1.0-3" }}
-                  </td>
-                </tr>
-              </ng-container>
-            </ng-container>
-          </ng-container>
-        </ng-container>
+            </span>
+            }
+          </td>
+        </tr>
+        @if (account.expanded) { @for (deal of account.deals; track deal) {
+        <tr
+          (click)="deal.expanded = !deal.expanded"
+          class="dealLevel"
+          [ngClass]="{ 'completed-row': isDealCompleted(deal) }"
+        >
+          <td style="padding-left: 20px" class="firstColumn">
+            {{ deal.expanded ? "&ndash;" : "+" }}&nbsp;{{ deal.dealId }}
+          </td>
+          <td>
+            {{ deal.salesOrderSum | number }}
+          </td>
+          <td>
+            {{ deal.totalOrderValueSum / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ deal.qtrRevEstimateSum / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ deal.qtrInvGlRevSum / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ deal.qtrAccrualGlRevSum / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ deal.qtrRevRecogSum / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ deal.revNotRecogSum / 1000000 | number : "1.0-3" }}
+          </td>
+        </tr>
+        @if (deal.expanded) { @for (status of deal.orderStatuses; track status)
+        {
+        <tr class="statusLevel">
+          <td style="padding-left: 40px" class="firstColumn">
+            {{ status.status }}
+          </td>
+          <td>{{ status.salesOrderCount | number }}</td>
+          <td>
+            {{ status.totalOrderValue / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ status.qtrRevEstimate / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ status.qtrInvGlRev / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ status.qtrAccrualGlRev / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ status.qtrRevRecog / 1000000 | number : "1.0-3" }}
+          </td>
+          <td>
+            {{ status.revNotRecog / 1000000 | number : "1.0-3" }}
+          </td>
+        </tr>
+        } } } } }
       </tbody>
     </table>
 
     <div style="display: flex; justify-content: center">
-      <ng-container *ngIf="!paginatedData?.length">
-        <tr>
-          <td colspan="100%" style="text-align: center">
-            <app-loading-symbol></app-loading-symbol>
-          </td>
-        </tr>
-      </ng-container>
+      @if (!paginatedData?.length) {
+      <tr>
+        <td colspan="100%" style="text-align: center">
+          <app-loading-symbol></app-loading-symbol>
+        </td>
+      </tr>
+      }
     </div>
 
     <!-- <span>
-      <i class="fa fa-info-circle" style="color: rgb(103, 102, 102)"
-        >&nbsp;Completed Accounts and Deals are marked in green.</i
+    <i class="fa fa-info-circle" style="color: rgb(103, 102, 102)"
+      >&nbsp;Completed Accounts and Deals are marked in green.</i
       >
     </span> -->
 
@@ -263,13 +272,11 @@
           </a>
         </li>
 
-        <li
-          class="page-item"
-          *ngFor="let page of pages"
-          [class.active]="currentPage === page"
-        >
+        @for (page of pages; track page) {
+        <li class="page-item" [class.active]="currentPage === page">
           <a class="page-link" (click)="setPage(page)">{{ page }}</a>
         </li>
+        }
 
         <li class="page-item" [class.disabled]="currentPage === totalPages">
           <a class="page-link" (click)="nextPage()" aria-label="Next">

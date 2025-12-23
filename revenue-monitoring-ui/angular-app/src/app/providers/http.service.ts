@@ -7,12 +7,14 @@ import { AuthenticationService } from './authentication.service';
 
 @Injectable({ providedIn: 'root' })
 export class ApiHttpService {
-  hostUrl: string = this.authService.getHostUrl();
+  hostUrl!: string;
 
   constructor(
     private http: HttpClient,
     private authService: AuthenticationService
-  ) {}
+  ) {
+    this.hostUrl = this.authService.getHostUrl();
+  }
 
   public getHostUrl(): string {
     return this.hostUrl;

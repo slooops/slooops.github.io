@@ -1,13 +1,16 @@
 <div class="fit-input-wrapper">
-  <label *ngIf="label" [for]="'input-' + label" class="fit-input__label">
-    {{ label }}
-  </label>
+  @if (label) {
+    <label [for]="'input-' + label" class="fit-input__label">
+      {{ label }}
+    </label>
+  }
   <div class="fit-input-wrapper">
-    <app-icon
-      *ngIf="iconName && iconPosition === 'left'"
-      [name]="iconName"
-      class="fit-input__icon fit-input__icon--left"
-    ></app-icon>
+    @if (iconName && iconPosition === 'left') {
+      <app-icon
+        [name]="iconName"
+        class="fit-input__icon fit-input__icon--left"
+      ></app-icon>
+    }
     <input
       [id]="'input-' + label"
       [class]="inputClasses"
@@ -18,10 +21,11 @@
       (input)="onInput($event)"
       (keydown)="onKeydown($event)"
     />
-    <app-icon
-      *ngIf="iconName && iconPosition === 'right'"
-      [name]="iconName"
-      class="fit-input__icon fit-input__icon--right"
-    ></app-icon>
+    @if (iconName && iconPosition === 'right') {
+      <app-icon
+        [name]="iconName"
+        class="fit-input__icon fit-input__icon--right"
+      ></app-icon>
+    }
   </div>
 </div>

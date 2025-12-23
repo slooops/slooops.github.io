@@ -1,19 +1,19 @@
 /* table,
 th,
 td,
-.mat-header-row,
-.mat-header-cell,
-.mat-row,
-.mat-cell {
+.mat-mdc-header-row,
+.mat-mdc-header-cell,
+.mat-mdc-row,
+.mat-mdc-cell {
   font-family: "Inter", sans-serif !important;
 } */
 
-.mat-header-row {
+.mat-mdc-header-row {
   background-color: #ffffff !important;
   border-bottom: 1px solid #ebebeb !important; /* Add a bar below the header row */
 }
 
-.mat-header-cell {
+.mat-mdc-header-cell {
   color: rgb(46, 46, 46);
   border-bottom: 0px;
   font-size: 12px;
@@ -23,15 +23,15 @@ td,
 }
 
 /* Styling for table rows */
-.mat-row:nth-child(odd) {
+.mat-mdc-row:nth-child(odd) {
   background-color: #f4f5f6 !important;
 }
 
-.mat-row:nth-child(even) {
+.mat-mdc-row:nth-child(even) {
   background-color: #ffffff !important;
 }
 
-.mat-cell {
+.mat-mdc-cell {
   font-size: 11px !important;
   font-weight: 400;
   border: 0px;
@@ -40,7 +40,7 @@ td,
   padding: 0.1rem 0.5rem;
 }
 
-tr.mat-row {
+tr.mat-mdc-row {
   height: 30px;
   border-bottom: 0px;
 }
@@ -62,7 +62,7 @@ td {
   border: 0px;
 }
 
-tr.mat-header-row {
+tr.mat-mdc-header-row {
   height: 28px;
 }
 
@@ -81,11 +81,11 @@ tr.mat-header-row {
   margin: -3px 10px 0 0;
 }
 
-table.mat-table .mat-header-cell.extra-wide-column {
+table.mat-mdc-table .mat-mdc-header-cell.extra-wide-column {
   min-width: 30rem;
 }
 
-table.mat-table .mat-cell.extra-wide-column {
+table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   white-space: break-spaces;
   min-width: 30rem;
   word-break: break-all;
@@ -95,7 +95,7 @@ table.mat-table .mat-cell.extra-wide-column {
 }
 
 /* Specific handling for very long text content like URLs/emails */
-table.mat-table .mat-cell.extra-wide-column {
+table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   min-width: 30rem;
   word-wrap: break-word;
   overflow-wrap: anywhere;
@@ -453,6 +453,7 @@ table.mat-table .mat-cell.extra-wide-column {
 }
 
 .filter-tag {
+  height: 1.75rem;
   display: flex;
   align-items: center;
   background-color: #f4f5f6;

@@ -7,7 +7,7 @@
         align-items: center;
         width: 100%;
       "
-    >
+      >
       <h4 style="font-weight: 600; padding: 1.7vh 1.5vh 0vh 1.6vh">
         Full Latest Request Status Table
       </h4>
@@ -23,72 +23,67 @@
 
     <mat-dialog-content>
       <div style="display: flex; justify-content: center">
-        <ng-container *ngIf="!data?.length">
+        @if (!data?.length) {
           <div class="loading-container">
             <app-loading-symbol></app-loading-symbol>
             <br /><br /><br />
           </div>
-        </ng-container>
+        }
       </div>
-      <div *ngIf="data?.length">
-        <table
-          mat-table
-          [dataSource]="data"
-          style="width: 100%; overflow-x: auto"
-        >
-          <ng-container matColumnDef="EXTRACT_NAME">
-            <th mat-header-cell *matHeaderCellDef>Extract Name</th>
-            <td mat-cell *matCellDef="let element">
-              {{ replaceUnderscore(element.EXTRACT_NAME) }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="FILE_NAME">
-            <th mat-header-cell *matHeaderCellDef>File Name</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.FILE_NAME }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="FILE_REC_COUNT">
-            <th mat-header-cell *matHeaderCellDef>File Rec Count</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.FILE_REC_COUNT }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="SOURCE_TYPE">
-            <th mat-header-cell *matHeaderCellDef>Source Type</th>
-            <td mat-cell *matCellDef="let element">
-              {{ replaceUnderscore(element.SOURCE_TYPE) }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="STATUS">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let element">
-              {{ replaceUnderscore(element.STATUS) }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="STG_REC_COUNT">
-            <th mat-header-cell *matHeaderCellDef>STG Rec Count</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.STG_REC_COUNT }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="TOTAL_ELIGIBLE_REC_COUNT">
-            <th mat-header-cell *matHeaderCellDef>Total Eligible Rec Count</th>
-            <td mat-cell *matCellDef="let element">
-              {{ element.TOTAL_ELIGIBLE_REC_COUNT }}
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-        </table>
-      </div>
+      @if (data?.length) {
+        <div>
+          <table
+            mat-table
+            [dataSource]="data"
+            style="width: 100%; overflow-x: auto"
+            >
+            <ng-container matColumnDef="EXTRACT_NAME">
+              <th mat-header-cell *matHeaderCellDef>Extract Name</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.EXTRACT_NAME) }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="FILE_NAME">
+              <th mat-header-cell *matHeaderCellDef>File Name</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.FILE_NAME }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="FILE_REC_COUNT">
+              <th mat-header-cell *matHeaderCellDef>File Rec Count</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.FILE_REC_COUNT }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="SOURCE_TYPE">
+              <th mat-header-cell *matHeaderCellDef>Source Type</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.SOURCE_TYPE) }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="STATUS">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let element">
+                {{ replaceUnderscore(element.STATUS) }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="STG_REC_COUNT">
+              <th mat-header-cell *matHeaderCellDef>STG Rec Count</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.STG_REC_COUNT }}
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="TOTAL_ELIGIBLE_REC_COUNT">
+              <th mat-header-cell *matHeaderCellDef>Total Eligible Rec Count</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.TOTAL_ELIGIBLE_REC_COUNT }}
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      }
     </mat-dialog-content>
   </div>
 </div>

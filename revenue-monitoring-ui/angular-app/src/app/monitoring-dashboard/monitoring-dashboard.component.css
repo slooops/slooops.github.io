@@ -7,12 +7,42 @@
   font-family: "Inter", sans-serif;
 }
 
-.mat-header-row {
+/* White background styling for filled form fields */
+:host ::ng-deep .mat-mdc-form-field .mdc-text-field--filled {
+  background-color: #ffffff !important;
+}
+
+:host
+  ::ng-deep
+  .mat-mdc-form-field
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: #ffffff !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field .mdc-text-field--filled::before {
+  border-bottom-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-select .mat-mdc-select-trigger {
+  background-color: transparent;
+}
+
+/* Placeholder styling */
+:host ::ng-deep .mat-mdc-form-field input::placeholder {
+  font-size: 11px !important;
+  opacity: 0.7;
+}
+
+:host ::ng-deep .mat-mdc-form-field input:focus::placeholder {
+  opacity: 0.5;
+}
+
+.mat-mdc-header-row {
   background-color: #ffffff !important;
   border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
 }
 
-.mat-header-cell {
+.mat-mdc-header-cell {
   color: rgb(46, 46, 46) !important;
   text-align: center !important;
   border-bottom: 0px !important;
@@ -20,15 +50,15 @@
   padding: 1vh !important;
 }
 
-.mat-row:nth-child(odd) {
+.mat-mdc-row:nth-child(odd) {
   background-color: #f2f2f2 !important;
 }
 
-.mat-row:nth-child(even) {
+.mat-mdc-row:nth-child(even) {
   background-color: #ffffff !important;
 }
 
-.mat-cell {
+.mat-mdc-cell {
   text-align: center !important;
   font-size: 11px !important;
   font-weight: 500 !important;
@@ -37,8 +67,8 @@
   text-wrap: nowrap;
 }
 
-tr.mat-row {
-  height: 30px;
+tr.mat-mdc-row {
+  height: 30px !important;
   border-bottom: 0px;
 }
 
@@ -60,8 +90,26 @@ td {
   border: 0px !important;
 }
 
-tr.mat-header-row {
+tr.mat-mdc-header-row {
   height: 28px;
+}
+
+/* Ensure summary table (upper table) rows are exactly 30px */
+.rol-error-summary-container tr.mat-mdc-row {
+  height: 30px !important;
+  max-height: 30px !important;
+  min-height: 30px !important;
+}
+
+.rol-error-summary-container .mat-mdc-cell {
+  padding: 0.4vh !important;
+  height: 30px !important;
+  line-height: 30px !important;
+}
+
+.rol-error-summary-container td.mat-mdc-cell {
+  padding: 0 !important;
+  height: 30px !important;
 }
 
 ::ng-deep .mat-sort-header-container {
@@ -279,6 +327,7 @@ tr.mat-header-row {
 .filter-item {
   display: flex;
   gap: 10px; /* Space between form items */
+  height: 30px;
 }
 
 /* .action-buttons {
@@ -445,14 +494,14 @@ tr.mat-header-row {
   content: "↓";
 }
 
-.mat-column-APPLICATION_NAME {
+.mat-mdc-column-APPLICATION_NAME {
   text-wrap: nowrap;
 }
 
-.mat-column-ORG_NAME {
+.mat-mdc-column-ORG_NAME {
   text-wrap: nowrap;
 }
 
-.mat-column-PROCESS_FLOW {
+.mat-mdc-column-PROCESS_FLOW {
   text-wrap: nowrap;
 }

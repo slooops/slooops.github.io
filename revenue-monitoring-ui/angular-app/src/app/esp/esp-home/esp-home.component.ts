@@ -2,6 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
+import { CommonModule } from '@angular/common';
+import { MetricTileComponent } from '../../components/metric-tile/metric-tile.component';
+import { CaseiqComponent } from './caseiq/caseiq.component';
+import { CaseiqCapComponent } from './caseiq-cap/caseiq-cap.component';
+import { CaseiqFppComponent } from './caseiq-fpp/caseiq-fpp.component';
+import { CaseiqI2cComponent } from './caseiq-i2c/caseiq-i2c.component';
+import { CaseiqOmComponent } from './caseiq-om/caseiq-om.component';
+import { CaseiqP2pComponent } from './caseiq-p2p/caseiq-p2p.component';
+import { CaseiqSmComponent } from './caseiq-sm/caseiq-sm.component';
+import { CaseiqAitComponent } from './caseiq-ait/caseiq-ait.component';
 
 interface MetricTile {
   name: string;
@@ -25,6 +35,19 @@ interface AccuracyData {
   selector: 'app-esp-home',
   templateUrl: './esp-home.component.html',
   styleUrls: ['./esp-home.component.css'],
+  imports: [
+    CommonModule,
+    MetricTileComponent,
+    // CaseiqComponent,
+    CaseiqCapComponent,
+    CaseiqFppComponent,
+    CaseiqI2cComponent,
+    CaseiqOmComponent,
+    CaseiqP2pComponent,
+    CaseiqSmComponent,
+    CaseiqAitComponent,
+  ],
+  standalone: true,
 })
 export class EspHomeComponent implements OnInit {
   constructor(

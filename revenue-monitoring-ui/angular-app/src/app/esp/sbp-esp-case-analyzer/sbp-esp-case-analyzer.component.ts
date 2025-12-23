@@ -3,6 +3,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Chart, registerables, ChartOptions } from 'chart.js';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { CardComponent } from '../../components/card/card.component';
+import { TableComponent } from '../../components/table/table.component';
 
 // Types for new quarter-pair logic
 type QuarterPairKey = 'Q1-Q2' | 'Q2-Q3' | 'Q3-Q4' | 'Q4-Q1';
@@ -14,9 +19,17 @@ type PairConfig = {
 };
 
 @Component({
-  selector: 'app-sbp-esp-case-analyzer',
-  templateUrl: './sbp-esp-case-analyzer.component.html',
-  styleUrl: './sbp-esp-case-analyzer.component.css',
+    selector: 'app-sbp-esp-case-analyzer',
+    templateUrl: './sbp-esp-case-analyzer.component.html',
+    styleUrl: './sbp-esp-case-analyzer.component.css',
+    imports: [
+    CommonModule,
+    MatTabsModule,
+    LoadingSymbolComponent,
+    CardComponent,
+    TableComponent
+  ],
+  standalone: true
 })
 export class SbpEspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {

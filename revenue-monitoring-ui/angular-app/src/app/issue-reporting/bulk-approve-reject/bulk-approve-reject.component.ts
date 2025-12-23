@@ -1,11 +1,20 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-bulk-approve-reject',
-  templateUrl: './bulk-approve-reject.component.html',
-  styleUrl: './bulk-approve-reject.component.css',
+    selector: 'app-bulk-approve-reject',
+    templateUrl: './bulk-approve-reject.component.html',
+    styleUrl: './bulk-approve-reject.component.css',
+    imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule
+  ],
+  standalone: true
 })
 export class BulkApproveRejectComponent {
   constructor(

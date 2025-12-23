@@ -1,14 +1,18 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   ButtonVariant,
   ButtonSize,
   IconPosition,
 } from '../../types/common.types';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-button',
   templateUrl: './button.component.html',
   styleUrls: ['./button.component.css'],
+  standalone: true,
+  imports: [CommonModule, IconComponent],
 })
 export class ButtonComponent {
   @Input() label: string = '';

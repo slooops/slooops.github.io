@@ -1,7 +1,9 @@
 <div class="fit-select-wrapper">
-  <label *ngIf="label" [for]="'select-' + label" class="fit-select__label">
-    {{ label }}
-  </label>
+  @if (label) {
+    <label [for]="'select-' + label" class="fit-select__label">
+      {{ label }}
+    </label>
+  }
   <div class="fit-select-wrapper">
     <select
       [id]="'select-' + label"
@@ -11,9 +13,11 @@
       (change)="onChange($event)"
     >
       <option value="" disabled>{{ placeholder }}</option>
-      <option *ngFor="let option of options" [value]="option.value">
-        {{ option.label }}
-      </option>
+      @for (option of options; track option.value) {
+        <option [value]="option.value">
+          {{ option.label }}
+        </option>
+      }
     </select>
     <span class="fit-select__chevron">▾</span>
   </div>

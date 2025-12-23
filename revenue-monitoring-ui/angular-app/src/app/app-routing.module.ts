@@ -29,7 +29,7 @@ import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 import { AdminComponent } from './admin/admin.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     canActivate: [RoleBasedRedirectGuard],

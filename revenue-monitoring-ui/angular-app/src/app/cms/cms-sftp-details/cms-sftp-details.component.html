@@ -22,26 +22,24 @@
     </div>
   </div>
 
-  <div class="table-container" *ngIf="isDataLoaded; else loading">
+  @if (isDataLoaded) {
+  <div class="table-container">
     <table mat-table [dataSource]="data" style="width: 100%; overflow-x: auto">
       <!-- Directory Column -->
       <ng-container matColumnDef="directory">
         <th mat-header-cell *matHeaderCellDef>Directory</th>
         <td mat-cell *matCellDef="let element">{{ element.directory }}</td>
       </ng-container>
-
       <!-- Extract Column -->
       <ng-container matColumnDef="extract">
         <th mat-header-cell *matHeaderCellDef>Extract</th>
         <td mat-cell *matCellDef="let element">{{ element.extract }}</td>
       </ng-container>
-
       <!-- File Name Column -->
       <ng-container matColumnDef="fileName">
         <th mat-header-cell *matHeaderCellDef>File Name</th>
         <td mat-cell *matCellDef="let element">{{ element.fileName }}</td>
       </ng-container>
-
       <!-- Time Stamp Column -->
       <ng-container matColumnDef="timeStamp">
         <th mat-header-cell *matHeaderCellDef>Timestamp</th>
@@ -49,23 +47,20 @@
           {{ formatTimestamp(element.timeStamp) }}
         </td>
       </ng-container>
-
       <!-- Header and Row Declarations -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   </div>
-  <ng-template #loading>
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-      <br /><br /><br />
-    </div>
-  </ng-template>
-
-  <ng-container *ngIf="!this.data?.length && !loading">
-    <div class="loading-container">
-      <div class="card-subtitle">No Data to Display</div>
-      <br /><br /><br />
-    </div>
-  </ng-container>
+  } @else {
+  <div class="loading-container">
+    <app-loading-symbol></app-loading-symbol>
+    <br /><br /><br />
+  </div>
+  } @if (!this.data?.length && isDataLoaded) {
+  <div class="loading-container">
+    <div class="card-subtitle">No Data to Display</div>
+    <br /><br /><br />
+  </div>
+  }
 </div>

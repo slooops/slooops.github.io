@@ -1,6 +1,5 @@
 <div
   style="
-    margin: -24px -24px 0 -24px; /* Removes default padding */
     background-color: #08ace4;
     padding: 10px;
     color: white;
@@ -10,7 +9,7 @@
   "
 >
   <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450">CLO Upload</h5>
+  <h5 style="margin: 0; font-weight: 450; font-size: 14px">CLO Upload</h5>
 
   <!-- Icons on the right (Download and Close) -->
   <a style="text-decoration: none; cursor: pointer">
@@ -23,7 +22,7 @@
 </div>
 
 <div>
-  <mat-tab-group>
+  <mat-tab-group style="margin: 20px">
     <mat-tab label="File Upload" style="text-align: center">
       <br />
       <div class="download-container">
@@ -32,8 +31,8 @@
             export('CLO Upload Sample Template', 'clo_upload_sample_template')
           "
         >
-          <i class="svg-icon download-icon" aria-hidden="true"></i>
-          <span>&nbsp;Download Sample Template</span>
+          <!-- <i class="svg-icon download-icon" aria-hidden="true"></i> -->
+          <span style="font-size: 12px">&nbsp;Download Sample Template</span>
         </a>
       </div>
       <br />
@@ -44,8 +43,8 @@
         cdkDropList
       >
         <i style="color: gray" class="fa fa-2x fa-cloud-upload"></i>
-        <p>Drag and drop your file here</p>
-        <p>or</p>
+        <p style="font-size: 12px">Drag and drop your file here</p>
+        <p style="font-size: 12px">or</p>
         <button mat-raised-button (click)="fileInput.click()">
           Select File
         </button>
@@ -59,7 +58,8 @@
         />
         <br />
         <br />
-        <span *ngIf="selectedFile">
+        @if (selectedFile) {
+        <span>
           <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
           File selected:
           <a
@@ -67,15 +67,17 @@
           >
           &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
         </span>
-
-        <mat-error style="text-align: center" *ngIf="validationError"
+        } @if (validationError) {
+        <mat-error style="text-align: center"
           ><i class="fa fa-times-circle" style="color: #ff052b">
             {{ validationError }}</i
           ></mat-error
         >
+        }
       </div>
       <br />
-      <div style="text-align: center" *ngIf="fileSelected">
+      @if (fileSelected) {
+      <div style="text-align: center">
         <button
           class="btn btn-primary"
           mat-stroked-button
@@ -85,12 +87,15 @@
           Upload
         </button>
       </div>
+      }
     </mat-tab>
     <mat-tab label="Enter CLO Updates">
       <br />
-      <form [formGroup]="updateForm">
-        <mat-form-field appearance="standard">
-          <mat-label>Program Name</mat-label>
+      <form
+        [formGroup]="updateForm"
+        style="display: flex; flex-direction: column; gap: 10px"
+      >
+        <mat-form-field>
           <input
             matInput
             formControlName="programName"
@@ -100,8 +105,7 @@
           />
         </mat-form-field>
 
-        <mat-form-field appearance="standard">
-          <mat-label>Account</mat-label>
+        <mat-form-field>
           <input
             matInput
             formControlName="account"
@@ -111,8 +115,7 @@
           />
         </mat-form-field>
 
-        <mat-form-field appearance="standard">
-          <mat-label>Deal Id</mat-label>
+        <mat-form-field>
           <input
             matInput
             formControlName="dealIds"
@@ -121,8 +124,7 @@
             required
           />
         </mat-form-field>
-        <mat-form-field appearance="standard">
-          <mat-label>Order/ Subscription number</mat-label>
+        <mat-form-field>
           <input
             matInput
             formControlName="orderNum"
@@ -130,7 +132,7 @@
             name="orderNum"
           />
         </mat-form-field>
-        <mat-form-field floatLabel="never">
+        <mat-form-field>
           <input
             matInput
             formControlName="invoiceDate"
@@ -146,8 +148,7 @@
           ></mat-datepicker-toggle>
           <mat-datepicker #picker> </mat-datepicker>
         </mat-form-field>
-        <mat-form-field appearance="standard">
-          <mat-label>CLO Updates</mat-label>
+        <mat-form-field>
           <input
             matInput
             formControlName="cloComments"
@@ -177,12 +178,15 @@
   <ng-template #dialogTemplate>
     <br />
     <h6>
-      <span *ngIf="uploadText === 'CLO Data upload failed!'"
+      @if (uploadText === 'CLO Data upload failed!') {
+      <span
         ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
       ></span>
-      <span *ngIf="uploadText === 'CLO Data upload successful!'"
+      } @if (uploadText === 'CLO Data upload successful!') {
+      <span
         ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
       ></span>
+      }
       <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
     </h6>
     <br />

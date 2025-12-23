@@ -1,6 +1,5 @@
 <div
   style="
-    margin: -24px -24px 0 -24px; /* Removes default padding around the mat dialog */
     background-color: #08ace4;
     padding: 10px;
     color: white;
@@ -10,7 +9,7 @@
   "
 >
   <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450">Columns Filter</h5>
+  <h5 style="margin: 0; font-weight: 450; font-size: 14px">Columns Filter</h5>
   <!-- Close button on the right -->
   <a style="text-decoration: none; cursor: pointer" (click)="closeDialog()">
     <i class="fa fa-close" style="font-size: 16px; color: white"></i>
@@ -35,8 +34,8 @@
       Displayed Columns
     </div>
     <mat-selection-list #column (selectionChange)="logSelectedColumns($event)">
+      @for (column of displayedColumns; track column) {
       <mat-list-option
-        *ngFor="let column of displayedColumns"
         [value]="column"
         [selected]="
           selectedColumns.length > 0
@@ -46,6 +45,7 @@
         style="font-weight: 500; font-size: small"
         >{{ column.displayName }}</mat-list-option
       >
+      }
     </mat-selection-list>
   </div>
   <mat-divider></mat-divider>
@@ -59,4 +59,5 @@
       Save
     </button>
   </div>
+  <br />
 </mat-dialog-content>

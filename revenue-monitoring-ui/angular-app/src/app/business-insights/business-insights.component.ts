@@ -5,11 +5,22 @@ import {
   O2cSearchResult,
   SearchContextService,
 } from '../search-context.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { BusinessInsightsModule } from './business-insights.module';
+import { O2c360Component } from '../o2c/o2c-360/o2c-360.component';
 
 @Component({
   selector: 'app-business-insights',
   templateUrl: './business-insights.component.html',
   styleUrl: './business-insights.component.css',
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    BusinessInsightsModule,
+    O2c360Component,
+  ],
+  standalone: true,
 })
 export class BusinessInsightsComponent implements OnInit {
   constructor(

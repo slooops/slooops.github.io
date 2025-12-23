@@ -1,11 +1,22 @@
 import { Component, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { LoadingSymbolComponent } from '../../../loading-symbol/loading-symbol.component';
+import { TitleCaseWithExceptionsPipe } from '../../../title-case-with-exceptions.pipe';
 
 @Component({
-  selector: 'app-atmf-table',
-  templateUrl: './atmf-table.component.html',
-  styleUrls: ['./atmf-table.component.css'],
+    selector: 'app-atmf-table',
+    templateUrl: './atmf-table.component.html',
+    styleUrls: ['./atmf-table.component.css'],
+    imports: [
+    CommonModule,
+    MatTableModule,
+    LoadingSymbolComponent,
+    TitleCaseWithExceptionsPipe
+  ],
+  standalone: true
 })
 export class AtmfTableComponent {
   @Input() title!: string; // Table Title

@@ -1,11 +1,20 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-  selector: 'app-o2c-table',
-  templateUrl: './o2c-table.component.html',
-  styleUrls: ['./o2c-table.component.css'],
+    selector: 'app-o2c-table',
+    templateUrl: './o2c-table.component.html',
+    styleUrls: ['./o2c-table.component.css'],
+    imports: [
+    CommonModule,
+    MatTableModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class O2cTableComponent {
   @Input() displayedColumns: string[] = [];

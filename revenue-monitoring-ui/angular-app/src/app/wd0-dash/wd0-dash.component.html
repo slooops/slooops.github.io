@@ -59,46 +59,49 @@
               ? (info | slice : 0 : counter) + "..."
               : info
           }}
-          <span
-            class="blueTxt"
-            *ngIf="info.length > 201"
-            (click)="toggleSkil()"
-          >
+          @if (info.length > 201) {
+          <span class="blueTxt" (click)="toggleSkil()">
             {{ showTxt }}
           </span>
+          }
         </span>
       </p>
     </div>
   </div>
 </div>
-<mat-divider></mat-divider>
 
 <div class="arclosetable container grid-1">
   <table class="table table-responsive equal-width media">
     <thead>
       <tr>
-        <th *ngFor="let col of displayedColumns">
+        @for (col of displayedColumns; track col) {
+        <th>
           <span style="font-weight: bold">{{ col | uppercase }}</span>
         </th>
+        }
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of wd0ArMidCloseTableData">
-        <td *ngFor="let category of templateObject.keys(row)">
-          <span *ngIf="row[category] === 'Completed'" class="color-green">
-            {{ row[category] }}</span
-          >
+      @for (row of wd0ArMidCloseTableData; track row) {
+      <tr>
+        @for (category of templateObject.keys(row); track category) {
+        <td>
+          @if (row[category] === 'Completed') {
+          <span class="color-green"> {{ row[category] }}</span>
+          }
           <!-- <span
-            *ngIf="row[category].toLowerCase() === 'delayed'"
-            class="color-orange"
-          >
-            {{ row[category] }}</span
-          > -->
-          <span *ngIf="['Completed'].indexOf(row[category]) === -1">{{
-            row[category]
-          }}</span>
+                          *ngIf="row[category].toLowerCase() === 'delayed'"
+                          class="color-orange"
+                          >
+                          {{ row[category] }}</span
+                          > -->
+          @if (['Completed'].indexOf(row[category]) === -1) {
+          <span>{{ row[category] }}</span>
+          }
         </td>
+        }
       </tr>
+      }
     </tbody>
   </table>
 </div>

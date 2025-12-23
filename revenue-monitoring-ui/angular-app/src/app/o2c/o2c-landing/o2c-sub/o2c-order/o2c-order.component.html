@@ -1,148 +1,143 @@
 <!-- Accordion View (hidden when detail view is shown) -->
-<div *ngIf="!showDetailView">
-  <div class="o2c-container accordion-container">
-    <div class="order-banner accordion-header order-status-banner">
-      <div class="status-dot"></div>
-      <div>Order Entered to Booked</div>
+@if (!showDetailView) {
+  <div>
+    <div class="o2c-container accordion-container">
+      <div class="order-banner accordion-header order-status-banner">
+        <div class="status-dot"></div>
+        <div>Order Entered to Booked</div>
+      </div>
+    </div>
+    <div class="o2c-container accordion-container">
+      <div class="o2c-donut-row">
+        <app-o2c-accordion
+          [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
+          [isOpen]="isOpen[1]"
+          (toggleOpen)="toggleAccordion(1)"
+          linkHref="#"
+          linkText="View Details"
+          (linkClick)="showDetailTable('bie-order-entered')"
+          >
+          <app-o2c-donut
+            [data]="orderBiePieChartData"
+            [isLoading]="orderBieLoading"
+            [noDataMessage]="getNoDataMessage('bie')"
+            canvasId="donutChart1"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Credit Holds'"
+          [isOpen]="isOpen[2]"
+          (toggleOpen)="toggleAccordion(2)"
+          linkHref="#"
+          linkText="View Details"
+          (linkClick)="showDetailTable('credit-holds-entered')"
+          >
+          <app-o2c-donut
+            [data]="orderChPieChartData"
+            [isLoading]="orderChLoading"
+            [noDataMessage]="getNoDataMessage('ch')"
+            canvasId="donutChart2"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Process Exceptions'"
+          [isOpen]="isOpen[3]"
+          (toggleOpen)="toggleAccordion(3)"
+          linkHref="#"
+          linkText="View Details"
+          (linkClick)="showDetailTable('process-exceptions-entered')"
+          >
+          <app-o2c-donut
+            [data]="orderPePieChartData"
+            [isLoading]="orderPeLoading"
+            [noDataMessage]="getNoDataMessage('pe')"
+            canvasId="donutChart3"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Other Exceptions'"
+          [isOpen]="isOpen[4]"
+          (toggleOpen)="toggleAccordion(4)"
+          linkHref="#"
+          linkText="View Details"
+          (linkClick)="showDetailTable('other-exceptions-entered')"
+          >
+          <app-o2c-donut
+            [data]="orderOtPieChartData"
+            [isLoading]="orderOtLoading"
+            [noDataMessage]="getNoDataMessage('ot')"
+            canvasId="donutChart4"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+      </div>
+    </div>
+    <div class="o2c-container accordion-container">
+      <div class="order-banner accordion-header order-status-banner">
+        <div class="status-dot"></div>
+        <div>Order Booked to Fulfillment</div>
+      </div>
+    </div>
+    <div class="o2c-container accordion-container">
+      <div class="o2c-donut-row">
+        <app-o2c-accordion
+          [title]="'Booking Holds'"
+          [isOpen]="isOpen[5]"
+          (toggleOpen)="toggleAccordion(5)"
+          linkHref="#"
+          linkText="View Details"
+          (linkClick)="showDetailTable('booking-holds-entered')"
+          >
+          <app-o2c-donut
+            [data]="orderBhPieChartData"
+            [isLoading]="orderBhLoading"
+            [noDataMessage]="getNoDataMessage('bh')"
+            canvasId="donutChart5"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Export Compliance'"
+          [isOpen]="isOpen[6]"
+          (toggleOpen)="toggleAccordion(6)"
+          linkHref="#"
+          linkText="View Details"
+          (linkClick)="showDetailTable('export-compliance-booked')"
+          >
+          <app-o2c-donut
+            [data]="orderEcPieChartData"
+            [isLoading]="orderEcLoading"
+            [noDataMessage]="getNoDataMessage('ec')"
+            canvasId="donutChart7"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+      </div>
     </div>
   </div>
-
-  <div class="o2c-container accordion-container">
-    <div class="o2c-donut-row">
-      <app-o2c-accordion
-        [title]="'Cisco Business Inclusion and Exclusion (BIE)'"
-        [isOpen]="isOpen[1]"
-        (toggleOpen)="toggleAccordion(1)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('bie-order-entered')"
-      >
-        <app-o2c-donut
-          [data]="orderBiePieChartData"
-          [isLoading]="orderBieLoading"
-          [noDataMessage]="getNoDataMessage('bie')"
-          canvasId="donutChart1"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Credit Holds'"
-        [isOpen]="isOpen[2]"
-        (toggleOpen)="toggleAccordion(2)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('credit-holds-entered')"
-      >
-        <app-o2c-donut
-          [data]="orderChPieChartData"
-          [isLoading]="orderChLoading"
-          [noDataMessage]="getNoDataMessage('ch')"
-          canvasId="donutChart2"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Process Exceptions'"
-        [isOpen]="isOpen[3]"
-        (toggleOpen)="toggleAccordion(3)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('process-exceptions-entered')"
-      >
-        <app-o2c-donut
-          [data]="orderPePieChartData"
-          [isLoading]="orderPeLoading"
-          [noDataMessage]="getNoDataMessage('pe')"
-          canvasId="donutChart3"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Other Exceptions'"
-        [isOpen]="isOpen[4]"
-        (toggleOpen)="toggleAccordion(4)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('other-exceptions-entered')"
-      >
-        <app-o2c-donut
-          [data]="orderOtPieChartData"
-          [isLoading]="orderOtLoading"
-          [noDataMessage]="getNoDataMessage('ot')"
-          canvasId="donutChart4"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-    </div>
-  </div>
-
-  <div class="o2c-container accordion-container">
-    <div class="order-banner accordion-header order-status-banner">
-      <div class="status-dot"></div>
-      <div>Order Booked to Fulfillment</div>
-    </div>
-  </div>
-
-  <div class="o2c-container accordion-container">
-    <div class="o2c-donut-row">
-      <app-o2c-accordion
-        [title]="'Booking Holds'"
-        [isOpen]="isOpen[5]"
-        (toggleOpen)="toggleAccordion(5)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('booking-holds-entered')"
-      >
-        <app-o2c-donut
-          [data]="orderBhPieChartData"
-          [isLoading]="orderBhLoading"
-          [noDataMessage]="getNoDataMessage('bh')"
-          canvasId="donutChart5"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Export Compliance'"
-        [isOpen]="isOpen[6]"
-        (toggleOpen)="toggleAccordion(6)"
-        linkHref="#"
-        linkText="View Details"
-        (linkClick)="showDetailTable('export-compliance-booked')"
-      >
-        <app-o2c-donut
-          [data]="orderEcPieChartData"
-          [isLoading]="orderEcLoading"
-          [noDataMessage]="getNoDataMessage('ec')"
-          canvasId="donutChart7"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-    </div>
-  </div>
-</div>
+}
 
 <!-- Detail View (shown when a "View Details" link is clicked) -->
-<div *ngIf="showDetailView">
-  <div class="order-info" style="margin-top: 20px">
-    <button class="back-btn-floating" (click)="goBack()">
-      <i class="back-icon" style="margin-top: -4px"></i> Back
-    </button>
-    <div class="exception-title">
-      {{ getCurrentTitle() }}
+@if (showDetailView) {
+  <div>
+    <div class="order-info" style="margin-top: 20px">
+      <button class="back-btn-floating" (click)="goBack()">
+        <i class="back-icon" style="margin-top: -4px"></i> Back
+      </button>
+      <div class="exception-title">
+        {{ getCurrentTitle() }}
+      </div>
     </div>
+    <div class="accordion-header exceptions-padding">
+      <!-- {{ getCurrentSubtitle() }} -->
+      &nbsp;
+      <app-o2c-toolbar
+        [fileName]="getCurrentFileName()"
+        [data]="getCurrentDataSource()?.data || []"
+      ></app-o2c-toolbar>
+    </div>
+    <!-- Use direct method calls instead of config object -->
+    <app-o2c-table
+      [dataSource]="getCurrentDataSource()"
+      [displayedColumns]="getCurrentDisplayedColumns()"
+      [isLoading]="getCurrentLoadingState()"
+    ></app-o2c-table>
   </div>
-
-  <div class="accordion-header exceptions-padding">
-    <!-- {{ getCurrentSubtitle() }} -->
-    &nbsp;
-    <app-o2c-toolbar
-      [fileName]="getCurrentFileName()"
-      [data]="getCurrentDataSource()?.data || []"
-    ></app-o2c-toolbar>
-  </div>
-
-  <!-- Use direct method calls instead of config object -->
-  <app-o2c-table
-    [dataSource]="getCurrentDataSource()"
-    [displayedColumns]="getCurrentDisplayedColumns()"
-    [isLoading]="getCurrentLoadingState()"
-  ></app-o2c-table>
-</div>
+}

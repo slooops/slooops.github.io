@@ -1,9 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-toggle-switch',
   templateUrl: './toggle-switch.component.html',
   styleUrls: ['./toggle-switch.component.css'],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class ToggleSwitchComponent {
   @Input() checked: boolean = false;

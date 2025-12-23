@@ -30,10 +30,10 @@ app.get("/user/name", (req, res) => {
   });
 });
 
-app.use(express.static(path.join(__dirname, "../ui/dist")));
+app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../ui/dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../ui/dist/browser", "index.html"));
 });
 
 app.listen(port, () => {
