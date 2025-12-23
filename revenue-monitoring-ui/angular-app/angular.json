@@ -24,7 +24,11 @@
             "polyfills": ["src/polyfills.ts", "@angular/localize/init"],
             "tsConfig": "tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/cisco-theme.scss", "src/styles.scss"],
+            "styles": [
+              "src/cisco-theme.scss",
+              "src/styles.scss",
+              "src/assets/ui.css"
+            ],
             "scripts": [],
             "allowedCommonJsDependencies": ["chart.js"],
             "browser": "src/main.ts"
@@ -117,7 +121,11 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/cisco-theme.scss", "src/styles.scss"],
+            "styles": [
+              "src/cisco-theme.scss",
+              "src/styles.scss",
+              "src/assets/ui.css"
+            ],
             "scripts": []
           }
         }

@@ -1,0 +1,15 @@
+<th
+  class="fit-table__header-cell"
+  [class.fit-table__header-cell--sortable]="isSortable"
+  [style.text-align]="align"
+  (click)="onSort()"
+>
+  <div class="fit-table__header-content">
+    <ng-content></ng-content>
+    <span *ngIf="isSortable" class="fit-table__sort-icon">
+      <span *ngIf="sortDirection === 'asc'">↑</span>
+      <span *ngIf="sortDirection === 'desc'">↓</span>
+      <span *ngIf="!sortDirection">↕</span>
+    </span>
+  </div>
+</th>

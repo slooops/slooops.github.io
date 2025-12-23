@@ -51,3 +51,6 @@ revenue-monitoring-ui/angular-app/cypress/screenshots/
 revenue-monitoring-ui/angular-app/cypress/videos/
 revenue-monitoring-ui/angular-app/cypress-warnings.log
 revenue-monitoring-ui/angular-app/agents.md
+PUT_ENDPOINT_FIX.md
+POST_REQUEST_FLOW.md
+TESTING_GUIDE.md

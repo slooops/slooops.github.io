@@ -1,0 +1,11 @@
+<label
+  class="fit-toggle"
+  [class.fit-toggle--checked]="checked"
+  [class.fit-toggle--disabled]="isDisabled"
+  (click)="onToggle()"
+>
+  <span class="fit-toggle__track">
+    <span class="fit-toggle__thumb"></span>
+  </span>
+  <span *ngIf="label" class="fit-toggle__label">{{ label }}</span>
+</label>

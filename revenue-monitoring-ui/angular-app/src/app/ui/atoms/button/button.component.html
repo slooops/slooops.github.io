@@ -1,0 +1,19 @@
+<button
+  [class]="buttonClasses"
+  [type]="type"
+  [disabled]="isDisabled || isLoading"
+  (click)="handleClick($event)"
+>
+  <app-icon
+    *ngIf="iconName && iconPosition === 'left'"
+    [name]="iconName"
+    class="fit-btn__icon"
+  ></app-icon>
+  <span *ngIf="label">{{ label }}</span>
+  <app-icon
+    *ngIf="iconName && iconPosition === 'right'"
+    [name]="iconName"
+    class="fit-btn__icon"
+  ></app-icon>
+  <span *ngIf="isLoading" class="fit-btn__loading">Loading...</span>
+</button>

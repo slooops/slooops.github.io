@@ -189,48 +189,55 @@ export class PeriodCloseTrackingComponent implements OnInit {
   }
 
   // Format for Expected dates: "April 26, 2025 at 07:00:00 PST"
+  // TEMPORARY HACK: Add 8 hours to fix prod timezone issue until ConfigMap is updated
   extractDatePrettifyFull(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse the ISO date string and convert to PST
-    const utcDate = new Date(date);
+    // Parse as Date object and add 8 hours
+    const dateObj = new Date(date);
+    dateObj.setHours(dateObj.getHours() + 8);
 
-    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
-    const pstDate = new Date(
-      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
-    );
+    // Format manually
+    const monthNames = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    const monthName = monthNames[dateObj.getMonth()];
+    const day = dateObj.getDate();
+    const year = dateObj.getFullYear();
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
 
-    // Format the date
-    const month = pstDate.toLocaleString('en-US', { month: 'long' });
-    const day = pstDate.getDate();
-    const year = pstDate.getFullYear();
-    const hours = String(pstDate.getHours()).padStart(2, '0');
-    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
-    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
-
-    return `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    return `${monthName} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
   }
 
   // Format for Actual dates: "13:05:00 PST"
+  // TEMPORARY HACK: Add 8 hours to fix prod timezone issue until ConfigMap is updated
   extractDatePrettifyTimeOnly(date: string): string {
     if (!date || typeof date !== 'string') {
       return 'N/A';
     }
 
-    // Parse the ISO date string and convert to PST
-    const utcDate = new Date(date);
+    // Parse as Date object and add 8 hours
+    const dateObj = new Date(date);
+    dateObj.setHours(dateObj.getHours() + 8);
 
-    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
-    const pstDate = new Date(
-      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
-    );
-
-    // Format time only
-    const hours = String(pstDate.getHours()).padStart(2, '0');
-    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
-    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const seconds = String(dateObj.getSeconds()).padStart(2, '0');
 
     return `${hours}:${minutes}:${seconds} PST`;
   }
@@ -253,10 +260,26 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const periodName = row['PERIOD_NAME'];
         const quarter = row['QUARTER'];
         const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
+        console.log(
+          'Start Time:',
+          startTime,
+          'vs Raw:',
+          row['CLOSE_START_TIME']
+        );
         const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
+        console.log('End Time:', endTime, 'vs Raw:', row['CLOSE_END_TIME']);
         const actualEndTime = this.extractDatePrettifyTimeOnly(
           row['ACTUAL_CLOSE_END_TIME']
         );
+
+        console.log('Parsed Times:', {
+          closeType,
+          periodName,
+          quarter,
+          startTime,
+          endTime,
+          actualEndTime,
+        });
 
         if (closeType === 'PRECLOSE') {
           this.preclosePeriod = periodName;

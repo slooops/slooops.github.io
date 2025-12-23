@@ -1,0 +1,25 @@
+@import "src/assets/ui.css";
+
+.fit-filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--fit-space-lg);
+  padding: var(--fit-space-md);
+  background-color: var(--fit-color-bg-subtle);
+  border-radius: var(--fit-radius-md);
+  margin-bottom: var(--fit-space-lg);
+}
+
+.fit-filter-bar__search {
+  flex: 1;
+  max-width: 400px;
+}
+
+.fit-filter-bar__filters {
+  display: flex;
+  gap: var(--fit-space-md);
+}
+
+.fit-filter-bar__actions {
+  margin-left: auto;
+}

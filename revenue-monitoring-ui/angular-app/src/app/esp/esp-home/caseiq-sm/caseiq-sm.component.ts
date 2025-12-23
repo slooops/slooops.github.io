@@ -70,6 +70,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   i2cTableData = new MatTableDataSource<any>([]);
   i2cTableColumns: string[] = [];
   totalRecords: number = 0;
+  fullTableData: any[] = []; // Store unfiltered table data
 
   // Filter and threshold state
   showCategoryFilters = false;
@@ -95,6 +96,10 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
 
   // Loading state for refresh
   refreshingData = false;
+
+  // Active chart filter tracking for table integration
+  activeChartCategoryFilter: string | null = null;
+  activeChartCoreIssueFilter: string | null = null;
 
   ngOnInit(): void {
     this.loadAllData();
@@ -382,6 +387,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       'CATEGORY',
       'CATEGORY_COUNT'
     );
+    this.syncTableFilters();
   }
 
   /**
@@ -409,6 +415,242 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       'CORE_ISSUE',
       'CORE_ISSUE_COUNT'
     );
+    this.syncTableFilters();
+  }
+
+  /**
+   * Handle category bar click - filter table by clicked category
+   */
+  onCategoryBarClick(label: string): void {
+    console.log('Category bar clicked:', label);
+    // Toggle filter: if same category clicked, clear filter; otherwise set new filter
+    if (this.activeChartCategoryFilter === label) {
+      this.activeChartCategoryFilter = null;
+      this.selectedCategoryLabels.clear();
+    } else {
+      this.activeChartCategoryFilter = label;
+      // Add to selectedCategoryLabels to filter the chart
+      this.selectedCategoryLabels.clear();
+      this.selectedCategoryLabels.add(label);
+    }
+    this.reapplyCategoryFilters();
+    this.syncTableFilters();
+  }
+
+  /**
+   * Handle core issue bar click - filter table by clicked core issue
+   */
+  onCoreIssueBarClick(label: string): void {
+    console.log('Core issue bar clicked:', label);
+    // Toggle filter: if same core issue clicked, clear filter; otherwise set new filter
+    if (this.activeChartCoreIssueFilter === label) {
+      this.activeChartCoreIssueFilter = null;
+      this.selectedCoreIssueLabels.clear();
+    } else {
+      this.activeChartCoreIssueFilter = label;
+      // Add to selectedCoreIssueLabels to filter the chart
+      this.selectedCoreIssueLabels.clear();
+      this.selectedCoreIssueLabels.add(label);
+    }
+    this.reapplyCoreIssueFilters();
+    this.syncTableFilters();
+  }
+
+  /**
+   * Sync table filters based on active chart filters and dropdown selections
+   */
+  syncTableFilters(): void {
+    console.log('SM syncTableFilters called');
+    console.log('smTable:', this.smTable);
+    console.log('fullTableData length:', this.fullTableData?.length);
+    console.log('activeChartCategoryFilter:', this.activeChartCategoryFilter);
+    console.log('activeChartCoreIssueFilter:', this.activeChartCoreIssueFilter);
+
+    if (!this.smTable) {
+      console.log('smTable is not defined, returning');
+      return;
+    }
+
+    // Build combined filter criteria
+    const categoryFilters: string[] = [];
+    const coreIssueFilters: string[] = [];
+
+    // Add chart click filter (takes precedence if active)
+    if (this.activeChartCategoryFilter) {
+      categoryFilters.push(this.activeChartCategoryFilter);
+    } else if (this.selectedCategoryLabels.size > 0) {
+      // Add dropdown selections if no chart click filter
+      categoryFilters.push(...Array.from(this.selectedCategoryLabels));
+    }
+
+    if (this.activeChartCoreIssueFilter) {
+      coreIssueFilters.push(this.activeChartCoreIssueFilter);
+    } else if (this.selectedCoreIssueLabels.size > 0) {
+      // Add dropdown selections if no chart click filter
+      coreIssueFilters.push(...Array.from(this.selectedCoreIssueLabels));
+    }
+
+    console.log('categoryFilters:', categoryFilters);
+    console.log('coreIssueFilters:', coreIssueFilters);
+
+    // If no filters active, show all data and clear any table filters
+    if (categoryFilters.length === 0 && coreIssueFilters.length === 0) {
+      console.log(
+        'SM: No filters active, clearing table and resetting both charts to normal'
+      );
+      this.smTable.clearAllFilters();
+
+      // Reset both charts to their original filtered state (based on threshold)
+      const categoryEffectiveData = this.cachedCategoryData.filter(
+        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+      );
+      this.i2cChartData = this.transformMatchStatusData(
+        categoryEffectiveData.length > 0
+          ? categoryEffectiveData
+          : this.cachedCategoryData,
+        'CATEGORY',
+        'CATEGORY_COUNT'
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(
+        categoryEffectiveData.length > 0
+          ? categoryEffectiveData
+          : this.cachedCategoryData,
+        'data'
+      );
+
+      const coreIssueEffectiveData = this.cachedCoreIssueData.filter(
+        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+      );
+      this.i2cSimpleChartData = this.transformMatchStatusData(
+        coreIssueEffectiveData.length > 0
+          ? coreIssueEffectiveData
+          : this.cachedCoreIssueData,
+        'CORE_ISSUE',
+        'CORE_ISSUE_COUNT'
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        coreIssueEffectiveData.length > 0
+          ? coreIssueEffectiveData
+          : this.cachedCoreIssueData,
+        'data'
+      );
+      return;
+    }
+
+    // Apply filters to table
+    let filteredData = [...this.fullTableData];
+    console.log('Starting with fullTableData:', filteredData.length);
+
+    if (categoryFilters.length > 0) {
+      const categoryFiltersLower = categoryFilters.map((f) => f.toLowerCase());
+      filteredData = filteredData.filter((row) =>
+        categoryFiltersLower.includes((row.CATEGORY || '').toLowerCase())
+      );
+      console.log('After category filter:', filteredData.length);
+    }
+
+    if (coreIssueFilters.length > 0) {
+      const coreIssueFiltersLower = coreIssueFilters.map((f) =>
+        f.toLowerCase()
+      );
+      filteredData = filteredData.filter((row) =>
+        coreIssueFiltersLower.includes((row.CORE_ISSUE || '').toLowerCase())
+      );
+    }
+
+    console.log('SM: Filtered table data:', filteredData);
+
+    // Dynamically filter charts based on filtered table data
+    if (categoryFilters.length > 0) {
+      const uniqueCoreIssues = Array.from(
+        new Set(
+          filteredData
+            .map((row) => row.CORE_ISSUE.toLowerCase())
+            .filter((v) => v)
+        )
+      );
+      console.log(
+        'SM: Filtering Core Issue chart to show only:',
+        uniqueCoreIssues
+      );
+      const completeCoreIssueChartData = this.transformMatchStatusData(
+        this.cachedCoreIssueData,
+        'CORE_ISSUE',
+        'CORE_ISSUE_COUNT'
+      );
+      this.i2cSimpleChartData = completeCoreIssueChartData.filter((item) =>
+        uniqueCoreIssues.includes(item.label.toLowerCase())
+      );
+      const filteredCoreIssueData = this.cachedCoreIssueData.filter(
+        (item: any) => uniqueCoreIssues.includes(item.CORE_ISSUE.toLowerCase())
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        filteredCoreIssueData,
+        'data'
+      );
+    } else if (coreIssueFilters.length === 0) {
+      console.log('SM: Resetting Core Issue chart to normal');
+      const effectiveData = this.cachedCoreIssueData.filter(
+        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+      );
+      this.i2cSimpleChartData = this.transformMatchStatusData(
+        effectiveData.length > 0 ? effectiveData : this.cachedCoreIssueData,
+        'CORE_ISSUE',
+        'CORE_ISSUE_COUNT'
+      );
+      this.visibleCoreIssueTotal = this.computeStackedTotal(
+        effectiveData.length > 0 ? effectiveData : this.cachedCoreIssueData,
+        'data'
+      );
+    }
+
+    if (coreIssueFilters.length > 0) {
+      const uniqueCategories = Array.from(
+        new Set(
+          filteredData.map((row) => row.CATEGORY.toLowerCase()).filter((v) => v)
+        )
+      );
+      console.log(
+        'SM: Filtering Category chart to show only:',
+        uniqueCategories
+      );
+      const completeCategoryChartData = this.transformMatchStatusData(
+        this.cachedCategoryData,
+        'CATEGORY',
+        'CATEGORY_COUNT'
+      );
+      this.i2cChartData = completeCategoryChartData.filter((item) =>
+        uniqueCategories.includes(item.label.toLowerCase())
+      );
+      const filteredCategoryData = this.cachedCategoryData.filter((item: any) =>
+        uniqueCategories.includes(item.CATEGORY.toLowerCase())
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(
+        filteredCategoryData,
+        'data'
+      );
+    } else if (categoryFilters.length === 0) {
+      console.log('SM: Resetting Category chart to normal');
+      const effectiveData = this.cachedCategoryData.filter(
+        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+      );
+      this.i2cChartData = this.transformMatchStatusData(
+        effectiveData.length > 0 ? effectiveData : this.cachedCategoryData,
+        'CATEGORY',
+        'CATEGORY_COUNT'
+      );
+      this.visibleCategoryTotal = this.computeStackedTotal(
+        effectiveData.length > 0 ? effectiveData : this.cachedCategoryData,
+        'data'
+      );
+    }
+
+    // Update table data source
+    this.smTable.dataSource.data = filteredData;
+    if (this.smTable.paginator) {
+      this.smTable.paginator.firstPage();
+    }
+    console.log('Table updated with filtered data');
   }
 
   /**
@@ -420,13 +662,18 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     } else {
       this.selectedCategoryLabels.add(label);
     }
+    // Clear chart click filter when using dropdown
+    this.activeChartCategoryFilter = null;
     this.reapplyCategoryFilters();
+    this.syncTableFilters();
   }
 
   clearCategorySelection(event: Event): void {
     event.stopPropagation();
     this.selectedCategoryLabels.clear();
+    this.activeChartCategoryFilter = null;
     this.reapplyCategoryFilters();
+    this.syncTableFilters();
   }
 
   /**
@@ -438,13 +685,35 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     } else {
       this.selectedCoreIssueLabels.add(label);
     }
+    // Clear chart click filter when using dropdown
+    this.activeChartCoreIssueFilter = null;
     this.reapplyCoreIssueFilters();
+    this.syncTableFilters();
   }
 
   clearCoreIssueSelection(event: Event): void {
     event.stopPropagation();
     this.selectedCoreIssueLabels.clear();
+    this.activeChartCoreIssueFilter = null;
     this.reapplyCoreIssueFilters();
+    this.syncTableFilters();
+  }
+
+  // Get filter text for display
+  getCategoryFilterText(): string {
+    if (this.selectedCategoryLabels.size === 1) {
+      const label = Array.from(this.selectedCategoryLabels)[0];
+      return label.length > 20 ? label.substring(0, 20) + '...' : label;
+    }
+    return 'Filter';
+  }
+
+  getCoreIssueFilterText(): string {
+    if (this.selectedCoreIssueLabels.size === 1) {
+      const label = Array.from(this.selectedCoreIssueLabels)[0];
+      return label.length > 20 ? label.substring(0, 20) + '...' : label;
+    }
+    return 'Filter';
   }
 
   /**
@@ -522,6 +791,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
    */
   private updateTableData(apiData: any[]): void {
     if (Array.isArray(apiData) && apiData.length > 0) {
+      this.fullTableData = [...apiData]; // Store full unfiltered data
       this.i2cTableData.data = apiData;
 
       // Set total records for pagination

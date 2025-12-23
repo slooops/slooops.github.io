@@ -1,0 +1,174 @@
+<div class="fit-stack-md">
+  <!-- Global search -->
+  <div *ngIf="enableGlobalSearch" class="fit-table__search">
+    <app-text-input
+      [value]="searchTerm"
+      placeholder="Search..."
+      type="search"
+      iconName="search"
+      iconPosition="left"
+      [debounceMs]="300"
+      (valueChange)="onSearchChange($event)"
+    >
+    </app-text-input>
+  </div>
+
+  <!-- Table -->
+  <table class="fit-table">
+    <thead>
+      <tr>
+        <app-table-header-cell
+          *ngFor="let column of columns"
+          [isSortable]="column.isSortable || false"
+          [sortDirection]="
+            sortColumn === column.key && sortDirection
+              ? sortDirection
+              : undefined
+          "
+          (sort)="onSort(column)"
+        >
+          {{ column.label }}
+        </app-table-header-cell>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Editable row at the top -->
+      <tr *ngIf="editableRow" class="fit-table__row fit-table__row--editable">
+        <app-table-cell *ngFor="let column of columns">
+          <!-- Actions column for editable row -->
+          <div *ngIf="column.key === 'actions'" class="fit-table__actions">
+            <app-button label="Save" variant="primary" (clicked)="onSaveRow()">
+            </app-button>
+            <app-button
+              label="Cancel"
+              variant="secondary"
+              (clicked)="onCancelEdit()"
+            >
+            </app-button>
+          </div>
+
+          <!-- Toggle switch for enabled flag -->
+          <app-toggle-switch
+            *ngIf="column.key === 'enabledFlag'"
+            [checked]="editableRow[column.key] === 'Y'"
+            (checkedChange)="
+              onEditableRowChange(column.key, $event ? 'Y' : 'N')
+            "
+          >
+          </app-toggle-switch>
+
+          <!-- Role dropdown for inline editing -->
+          <div
+            *ngIf="column.key === 'userRole'"
+            class="fit-table__input-wrapper"
+          >
+            <app-select-dropdown
+              [options]="roleOptions"
+              [value]="editableRow[column.key] || ''"
+              placeholder="Select a role"
+              (valueChange)="onEditableRowChange(column.key, $event)"
+            >
+            </app-select-dropdown>
+            <!-- Error message tooltip -->
+            <span *ngIf="hasError(column.key)" class="fit-table__error-message">
+              {{ getErrorMessage(column.key) }}
+            </span>
+          </div>
+
+          <!-- Input field with error state for other columns -->
+          <div
+            *ngIf="
+              column.key !== 'enabledFlag' &&
+              column.key !== 'actions' &&
+              column.key !== 'userRole'
+            "
+            class="fit-table__input-wrapper"
+          >
+            <input
+              class="fit-input fit-input--no-border fit-input--table"
+              [class.fit-input--error]="hasError(column.key)"
+              type="text"
+              [value]="editableRow[column.key] || ''"
+              (input)="
+                onEditableRowChange(column.key, $any($event.target).value)
+              "
+              [placeholder]="column.label"
+            />
+            <!-- Error message tooltip -->
+            <span *ngIf="hasError(column.key)" class="fit-table__error-message">
+              {{ getErrorMessage(column.key) }}
+            </span>
+          </div>
+        </app-table-cell>
+      </tr>
+
+      <!-- Loading shimmer rows -->
+      <ng-container *ngIf="isLoading">
+        <tr
+          *ngFor="let shimmer of shimmerRows"
+          class="fit-table__row fit-table__row--loading"
+        >
+          <app-table-cell *ngFor="let column of columns">
+            <div class="fit-table__shimmer"></div>
+          </app-table-cell>
+        </tr>
+      </ng-container>
+
+      <!-- Regular data rows -->
+      <ng-container *ngIf="!isLoading">
+        <tr
+          *ngFor="let row of paginatedRows"
+          (click)="onRowClick(row)"
+          class="fit-table__row"
+        >
+          <app-table-cell *ngFor="let column of columns">
+            <!-- Enabled flag toggle -->
+            <ng-container
+              *ngIf="column.key === 'enabledFlag'; else checkActions"
+            >
+              <app-toggle-switch
+                [checked]="row[column.key] === 'Y'"
+                (checkedChange)="onToggleEnabled(row, $event)"
+              >
+              </app-toggle-switch>
+            </ng-container>
+
+            <!-- Actions column with trash icon -->
+            <ng-template #checkActions>
+              <ng-container *ngIf="column.key === 'actions'; else normalCell">
+                <button
+                  class="fit-table__action-button"
+                  (click)="onDeleteRow(row); $event.stopPropagation()"
+                  title="Delete user role"
+                >
+                  <span class="icon-small delete-icon"></span>
+                </button>
+              </ng-container>
+            </ng-template>
+
+            <!-- Normal cell content -->
+            <ng-template #normalCell>
+              {{ row[column.key] }}
+            </ng-template>
+          </app-table-cell>
+        </tr>
+      </ng-container>
+
+      <tr *ngIf="!isLoading && paginatedRows.length === 0 && !editableRow">
+        <td [attr.colspan]="columns.length" class="fit-table__empty">
+          No data available
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <app-pagination
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [totalItems]="filteredRows.length"
+    [pageSizeOptions]="pageSizeOptions"
+    (pageChange)="onPageChange($event)"
+  >
+  </app-pagination>
+</div>
