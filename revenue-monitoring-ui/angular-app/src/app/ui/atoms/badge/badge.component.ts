@@ -5,6 +5,7 @@ import { BadgeVariant } from '../../types/common.types';
   selector: 'app-badge',
   templateUrl: './badge.component.html',
   styleUrls: ['./badge.component.css'],
+  standalone: true,
 })
 export class BadgeComponent {
   @Input() label: string = '';

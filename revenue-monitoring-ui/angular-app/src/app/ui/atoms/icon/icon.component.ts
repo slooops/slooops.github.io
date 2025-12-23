@@ -4,6 +4,7 @@ import { Component, Input } from '@angular/core';
   selector: 'app-icon',
   templateUrl: './icon.component.html',
   styleUrls: ['./icon.component.css'],
+  standalone: true,
 })
 export class IconComponent {
   @Input() name: string = '';

@@ -1,10 +1,29 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ColumnConfig, PageChangeEvent } from '../../types/common.types';
+import { TextInputComponent } from '../../atoms/text-input/text-input.component';
+import { TableHeaderCellComponent } from '../../atoms/table-header-cell/table-header-cell.component';
+import { TableCellComponent } from '../../atoms/table-cell/table-cell.component';
+import { ToggleSwitchComponent } from '../../atoms/toggle-switch/toggle-switch.component';
+import { SelectDropdownComponent } from '../../atoms/select-dropdown/select-dropdown.component';
+import { ButtonComponent } from '../../atoms/button/button.component';
+import { PaginationComponent } from '../../atoms/pagination/pagination.component';
 
 @Component({
   selector: 'app-data-table',
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.css'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    TextInputComponent,
+    TableHeaderCellComponent,
+    TableCellComponent,
+    ToggleSwitchComponent,
+    SelectDropdownComponent,
+    ButtonComponent,
+    PaginationComponent,
+  ],
 })
 export class DataTableComponent {
   @Input() columns: ColumnConfig[] = [];

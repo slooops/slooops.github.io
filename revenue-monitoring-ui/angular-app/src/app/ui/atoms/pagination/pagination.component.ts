@@ -1,10 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { PageChangeEvent, SelectOption } from '../../types/common.types';
+import { SelectDropdownComponent } from '../select-dropdown/select-dropdown.component';
+import { ButtonComponent } from '../button/button.component';
 
 @Component({
   selector: 'app-pagination',
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.css'],
+  standalone: true,
+  imports: [CommonModule, SelectDropdownComponent, ButtonComponent],
 })
 export class PaginationComponent {
   @Input() pageIndex: number = 0;

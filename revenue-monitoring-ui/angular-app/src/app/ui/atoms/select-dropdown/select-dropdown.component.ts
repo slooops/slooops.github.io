@@ -1,10 +1,13 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { SelectOption } from '../../types/common.types';
 
 @Component({
   selector: 'app-select-dropdown',
   templateUrl: './select-dropdown.component.html',
   styleUrls: ['./select-dropdown.component.css'],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class SelectDropdownComponent {
   @Input() options: SelectOption[] = [];
