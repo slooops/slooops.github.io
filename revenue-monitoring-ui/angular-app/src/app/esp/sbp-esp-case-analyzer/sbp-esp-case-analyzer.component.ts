@@ -19,17 +19,17 @@ type PairConfig = {
 };
 
 @Component({
-    selector: 'app-sbp-esp-case-analyzer',
-    templateUrl: './sbp-esp-case-analyzer.component.html',
-    styleUrl: './sbp-esp-case-analyzer.component.css',
-    imports: [
+  selector: 'app-sbp-esp-case-analyzer',
+  templateUrl: './sbp-esp-case-analyzer.component.html',
+  styleUrl: './sbp-esp-case-analyzer.component.css',
+  imports: [
     CommonModule,
     MatTabsModule,
     LoadingSymbolComponent,
     CardComponent,
-    TableComponent
+    TableComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class SbpEspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
@@ -268,27 +268,52 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
       this.COLORS
     );
 
-    const prmcCanvas = document.getElementById(
-      `sbpPrmcChart${name}`
-    ) as HTMLCanvasElement;
-    const birCanvas = document.getElementById(
-      `sbpBirChart${name}`
-    ) as HTMLCanvasElement;
+    const prmcCanvasId = `sbpPrmcChart${name}`;
+    const birCanvasId = `sbpBirChart${name}`;
 
-    if (prmcCanvas && prmcCanvas.getContext('2d')) {
-      this[`sbpPrmcChart${name}`] = new Chart(prmcCanvas, {
-        type: 'bar',
-        data: { labels, datasets: prmcDatasets },
-        options: this.sharedChartOptions,
-      });
+    const prmcCanvas = document.getElementById(
+      prmcCanvasId
+    ) as HTMLCanvasElement;
+    const birCanvas = document.getElementById(birCanvasId) as HTMLCanvasElement;
+
+    // Validate canvas elements exist before attempting to create charts
+    if (!prmcCanvas) {
+      console.error(`Canvas not found: ${prmcCanvasId}`);
+      return;
+    }
+    if (!birCanvas) {
+      console.error(`Canvas not found: ${birCanvasId}`);
+      return;
     }
 
-    if (birCanvas && birCanvas.getContext('2d')) {
-      this[`sbpBirChart${name}`] = new Chart(birCanvas, {
-        type: 'bar',
-        data: { labels, datasets: birDatasets },
-        options: this.sharedChartOptions,
-      });
+    try {
+      if (prmcCanvas.getContext('2d')) {
+        const existingChart = this[`sbpPrmcChart${name}`];
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        this[`sbpPrmcChart${name}`] = new Chart(prmcCanvas, {
+          type: 'bar',
+          data: { labels, datasets: prmcDatasets },
+          options: this.sharedChartOptions,
+        });
+      }
+
+      if (birCanvas.getContext('2d')) {
+        const existingChart = this[`sbpBirChart${name}`];
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        this[`sbpBirChart${name}`] = new Chart(birCanvas, {
+          type: 'bar',
+          data: { labels, datasets: birDatasets },
+          options: this.sharedChartOptions,
+        });
+      }
+    } catch (error) {
+      console.error(`Error creating charts for ${name}:`, error);
     }
   }
 
@@ -356,7 +381,10 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
     // NEW: Use quarter pairs based on tab index
     const pair = this.quarterPairs[tabIndex];
-    if (!pair) return;
+    if (!pair) {
+      console.error('No quarter pair found for tab index:', tabIndex);
+      return;
+    }
 
     const chartNameMap: { [key: string]: string } = {
       'Q1-Q2': 'Q1Q2',
@@ -368,54 +396,50 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     const chartName = chartNameMap[pair.key];
     const loadingFlag = `is${chartName}Loading` as keyof this;
 
-    console.log(
-      `Generating ${pair.key} chart using:`,
-      pair.left,
-      'vs',
-      pair.right
-    );
-
     this[loadingFlag] = false as any;
-    setTimeout(
-      () => this.generateChartForPair(pair.left, pair.right, chartName),
-      0
-    );
+
+    // Timeout allows Angular's change detection to complete before Chart.js renders
+    setTimeout(() => {
+      this.generateChartForPair(pair.left, pair.right, chartName);
+    }, 100);
   }
 
   destroyCharts(): void {
-    // Destroy charts if they exist
-    if (this.sbpBirChartQ1Q2) {
-      this.sbpBirChartQ1Q2.destroy();
-      this.sbpBirChartQ1Q2 = null;
-    }
-
-    if (this.sbpBirChartQ2Q3) {
-      this.sbpBirChartQ2Q3.destroy();
-      this.sbpBirChartQ2Q3 = null;
-    }
-    if (this.sbpBirChartQ3Q4) {
-      this.sbpBirChartQ3Q4.destroy();
-      this.sbpBirChartQ3Q4 = null;
-    }
-    if (this.sbpBirChartQ4Q1) {
-      this.sbpBirChartQ4Q1.destroy();
-      this.sbpBirChartQ4Q1 = null;
-    }
-    if (this.sbpPrmcChartQ1Q2) {
-      this.sbpPrmcChartQ1Q2.destroy();
-      this.sbpPrmcChartQ1Q2 = null;
-    }
-    if (this.sbpPrmcChartQ2Q3) {
-      this.sbpPrmcChartQ2Q3.destroy();
-      this.sbpPrmcChartQ2Q3 = null;
-    }
-    if (this.sbpPrmcChartQ3Q4) {
-      this.sbpPrmcChartQ3Q4.destroy();
-      this.sbpPrmcChartQ3Q4 = null;
-    }
-    if (this.sbpPrmcChartQ4Q1) {
-      this.sbpPrmcChartQ4Q1.destroy();
-      this.sbpPrmcChartQ4Q1 = null;
+    try {
+      if (this.sbpBirChartQ1Q2) {
+        this.sbpBirChartQ1Q2.destroy();
+        this.sbpBirChartQ1Q2 = null;
+      }
+      if (this.sbpBirChartQ2Q3) {
+        this.sbpBirChartQ2Q3.destroy();
+        this.sbpBirChartQ2Q3 = null;
+      }
+      if (this.sbpBirChartQ3Q4) {
+        this.sbpBirChartQ3Q4.destroy();
+        this.sbpBirChartQ3Q4 = null;
+      }
+      if (this.sbpBirChartQ4Q1) {
+        this.sbpBirChartQ4Q1.destroy();
+        this.sbpBirChartQ4Q1 = null;
+      }
+      if (this.sbpPrmcChartQ1Q2) {
+        this.sbpPrmcChartQ1Q2.destroy();
+        this.sbpPrmcChartQ1Q2 = null;
+      }
+      if (this.sbpPrmcChartQ2Q3) {
+        this.sbpPrmcChartQ2Q3.destroy();
+        this.sbpPrmcChartQ2Q3 = null;
+      }
+      if (this.sbpPrmcChartQ3Q4) {
+        this.sbpPrmcChartQ3Q4.destroy();
+        this.sbpPrmcChartQ3Q4 = null;
+      }
+      if (this.sbpPrmcChartQ4Q1) {
+        this.sbpPrmcChartQ4Q1.destroy();
+        this.sbpPrmcChartQ4Q1 = null;
+      }
+    } catch (error) {
+      console.error('Error destroying charts:', error);
     }
   }
 
