@@ -1,10 +1,23 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-  selector: 'app-cms-modal',
-  templateUrl: './cms-modal.component.html',
-  styleUrls: ['./cms-modal.component.css'],
+    selector: 'app-cms-modal',
+    templateUrl: './cms-modal.component.html',
+    styleUrls: ['./cms-modal.component.css'],
+    imports: [
+    CommonModule,
+    MatTableModule,
+    MatDialogModule,
+    MatButtonModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class CmsModalComponent {
   displayedColumns: string[] = [

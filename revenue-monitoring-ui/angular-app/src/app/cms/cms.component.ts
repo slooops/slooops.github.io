@@ -13,12 +13,29 @@ import { MatDialog } from '@angular/material/dialog';
 import { CmsModalComponent } from './cms-modal/cms-modal.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { ExportToExcelService } from '../providers/export-to-excel.service';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
+import { ToolTipRendererDirective } from '../tool-tip-renderer.directive';
 
 @Component({
-  selector: 'app-cms',
-  templateUrl: './cms.component.html',
-  styleUrls: ['./cms.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-cms',
+    templateUrl: './cms.component.html',
+    styleUrls: ['./cms.component.css'],
+    providers: [DestroyManager],
+    imports: [
+    CommonModule,
+    MatTableModule,
+    MatTooltipModule,
+    MatButtonModule,
+    LoadingSymbolComponent,
+    LoadingSymbolSmallComponent,
+    ToolTipRendererDirective
+  ],
+  standalone: true
 })
 export class CmsComponent implements OnInit {
   protected http: ApiHttpService;

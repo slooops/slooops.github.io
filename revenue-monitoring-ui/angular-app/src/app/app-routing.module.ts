@@ -27,8 +27,9 @@ import { O2cGlComponent } from './o2c/o2c-gl/o2c-gl.component';
 import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
+import { AdminComponent } from './admin/admin.component';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     canActivate: [RoleBasedRedirectGuard],
@@ -228,6 +229,14 @@ const routes: Routes = [
       header: 'Continuous Monitoring',
     },
   },
+  // {
+  //   path: 'admin',
+  //   component: AdminComponent,
+  //   data: {
+  //     title: 'Admin',
+  //     header: 'Admin',
+  //   },
+  // },
 ];
 
 @NgModule({

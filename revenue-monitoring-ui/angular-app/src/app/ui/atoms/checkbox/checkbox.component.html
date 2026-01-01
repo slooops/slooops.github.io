@@ -1,0 +1,17 @@
+<label class="fit-checkbox" [class.fit-checkbox--disabled]="isDisabled">
+  <input
+    type="checkbox"
+    class="fit-checkbox__input"
+    [checked]="checked"
+    [disabled]="isDisabled"
+    (change)="onToggle()"
+  />
+  <span class="fit-checkbox__box">
+    @if (checked) {
+      <app-icon name="check" size="0.7rem"></app-icon>
+    }
+  </span>
+  @if (label) {
+    <span class="fit-checkbox__label">{{ label }}</span>
+  }
+</label>

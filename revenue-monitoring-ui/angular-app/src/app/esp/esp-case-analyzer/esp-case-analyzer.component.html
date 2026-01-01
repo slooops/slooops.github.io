@@ -1,10 +1,11 @@
 <mat-tab-group
   (selectedTabChange)="onTabClick($event)"
   [selectedIndex]="selectedTabIndex"
->
-  <mat-tab *ngIf="quarterPairs[0]" [label]="'Q1 - Q2'">
-    <p
-      class="card-subtitle"
+  >
+  @if (quarterPairs[0]) {
+    <mat-tab [label]="'Q1 - Q2'">
+      <p
+        class="card-subtitle"
       style="
         display: flex;
         justify-content: flex-end;
@@ -13,59 +14,61 @@
         font-weight: 600;
         font-size: 12px;
       "
-    >
-      Data for {{ quarterPairs[0]?.left }} and {{ quarterPairs[0]?.right }}
-    </p>
-    <div class="grid-2" style="margin: 0 1.2rem">
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ1Q2Loading"></app-loading-symbol>
-          <canvas id="birChartQ1Q2"></canvas>
+        >
+        Data for {{ quarterPairs[0]?.left }} and {{ quarterPairs[0]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ1Q2Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="birChartQ1Q2"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ1Q2Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="prmcChartQ1Q2"></canvas>
+          </div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ1Q2Loading"></app-loading-symbol>
-          <canvas id="prmcChartQ1Q2"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Previous Quarter Table -->
-    <app-card [container]="true">
-      <app-table
-        title="Case Summary for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[0]?.right]"
+      <!-- Previous Quarter Table -->
+      <app-card [container]="true">
+        <app-table
+          title="Case Summary for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[0]?.right]"
         [displayedColumns]="
           displayedColumnsForCaseSummaryQuarter[quarterPairs[0]?.right]
         "
-        exportFileName="Previous_Quarter_Case_Summary"
+          exportFileName="Previous_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
         "
-        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
-
-    <app-card [container]="true">
-      <app-table
-        title=" Aging Backlog for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[quarterPairs[0]?.right]"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true">
+        <app-table
+          title=" Aging Backlog for {{ quarterPairs[0]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[0]?.right]"
         [displayedColumns]="
           displayedColumnsForAgingBacklog[quarterPairs[0]?.right]
         "
-        exportFileName="Previous_Quarter_Aging_Backlog"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
+          exportFileName="Previous_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <br /><br /><br />
+    </mat-tab>
+  }
 
-    <br /><br /><br />
-  </mat-tab>
-
-  <mat-tab *ngIf="quarterPairs[1]" [label]="'Q2 - Q3'">
-    <p
-      class="card-subtitle"
+  @if (quarterPairs[1]) {
+    <mat-tab [label]="'Q2 - Q3'">
+      <p
+        class="card-subtitle"
       style="
         display: flex;
         justify-content: flex-end;
@@ -74,57 +77,60 @@
         font-weight: 600;
         font-size: 12px;
       "
-    >
-      Data for {{ quarterPairs[1]?.left }} and {{ quarterPairs[1]?.right }}
-    </p>
-    <div class="grid-2" style="margin: 0 1.2rem">
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ2Q3Loading"></app-loading-symbol>
-          <canvas id="birChartQ2Q3"></canvas>
+        >
+        Data for {{ quarterPairs[1]?.left }} and {{ quarterPairs[1]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ2Q3Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="birChartQ2Q3"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ2Q3Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="prmcChartQ2Q3"></canvas>
+          </div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ2Q3Loading"></app-loading-symbol>
-          <canvas id="prmcChartQ2Q3"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <app-card [container]="true">
-      <app-table
-        title="Case Summary for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[1]?.right]"
+      <app-card [container]="true">
+        <app-table
+          title="Case Summary for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[1]?.right]"
         [displayedColumns]="
           displayedColumnsForCaseSummaryQuarter[quarterPairs[1]?.right]
         "
-        exportFileName="Current_Quarter_Case_Summary"
+          exportFileName="Current_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
       "
-        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
-    <app-card [container]="true">
-      <app-table
-        title=" Aging Backlog for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[quarterPairs[1]?.right]"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true">
+        <app-table
+          title=" Aging Backlog for {{ quarterPairs[1]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[1]?.right]"
         [displayedColumns]="
           displayedColumnsForAgingBacklog[quarterPairs[1]?.right]
         "
-        exportFileName="Previous_Quarter_Aging_Backlog"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
+          exportFileName="Previous_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <br /><br /><br />
+    </mat-tab>
+  }
 
-    <br /><br /><br />
-  </mat-tab>
-
-  <mat-tab *ngIf="quarterPairs[2]" [label]="'Q3 - Q4'">
-    <p
-      class="card-subtitle"
+  @if (quarterPairs[2]) {
+    <mat-tab [label]="'Q3 - Q4'">
+      <p
+        class="card-subtitle"
       style="
         display: flex;
         justify-content: flex-end;
@@ -133,55 +139,60 @@
         font-weight: 600;
         font-size: 12px;
       "
-    >
-      Data for {{ quarterPairs[2]?.left }} and {{ quarterPairs[2]?.right }}
-    </p>
-    <div class="grid-2" style="margin: 0 1.2rem">
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ3Q4Loading"></app-loading-symbol>
-          <canvas id="birChartQ3Q4"></canvas>
+        >
+        Data for {{ quarterPairs[2]?.left }} and {{ quarterPairs[2]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ3Q4Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="birChartQ3Q4"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ3Q4Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="prmcChartQ3Q4"></canvas>
+          </div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ3Q4Loading"></app-loading-symbol>
-          <canvas id="prmcChartQ3Q4"></canvas>
-        </div>
-      </div>
-    </div>
-    <app-card [container]="true">
-      <app-table
-        title="Case Summary for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[2]?.right]"
+      <app-card [container]="true">
+        <app-table
+          title="Case Summary for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[2]?.right]"
         [displayedColumns]="
           displayedColumnsForCaseSummaryQuarter[quarterPairs[2]?.right]
         "
-        exportFileName="Next_Quarter_Case_Summary"
+          exportFileName="Next_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
       "
-        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
-    <app-card [container]="true">
-      <app-table
-        title=" Aging Backlog for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[quarterPairs[2]?.right]"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true">
+        <app-table
+          title=" Aging Backlog for {{ quarterPairs[2]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[2]?.right]"
         [displayedColumns]="
           displayedColumnsForAgingBacklog[quarterPairs[2]?.right]
         "
-        exportFileName="Next_Quarter_Aging_Backlog"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
-    <br /><br /><br />
-  </mat-tab>
+          exportFileName="Next_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <br /><br /><br />
+    </mat-tab>
+  }
 
-  <mat-tab *ngIf="quarterPairs[3]" [label]="'Q4 - Q1'">
-    <p
-      class="card-subtitle"
+  @if (quarterPairs[3]) {
+    <mat-tab [label]="'Q4 - Q1'">
+      <p
+        class="card-subtitle"
       style="
         display: flex;
         justify-content: flex-end;
@@ -190,49 +201,53 @@
         font-weight: 600;
         font-size: 12px;
       "
-    >
-      Data for {{ quarterPairs[3]?.left }} and {{ quarterPairs[3]?.right }}
-    </p>
-    <div class="grid-2" style="margin: 0 1.2rem">
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ4Q1Loading"></app-loading-symbol>
-          <canvas id="birChartQ4Q1"></canvas>
+        >
+        Data for {{ quarterPairs[3]?.left }} and {{ quarterPairs[3]?.right }}
+      </p>
+      <div class="grid-2" style="margin: 0 1.2rem">
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ4Q1Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="birChartQ4Q1"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="chart-canvas">
+            @if (isQ4Q1Loading) {
+              <app-loading-symbol></app-loading-symbol>
+            }
+            <canvas id="prmcChartQ4Q1"></canvas>
+          </div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="chart-canvas">
-          <app-loading-symbol *ngIf="isQ4Q1Loading"></app-loading-symbol>
-          <canvas id="prmcChartQ4Q1"></canvas>
-        </div>
-      </div>
-    </div>
-    <app-card [container]="true">
-      <app-table
-        title="Case Summary for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[3]?.right]"
+      <app-card [container]="true">
+        <app-table
+          title="Case Summary for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceCaseSummaryQuarter[quarterPairs[3]?.right]"
         [displayedColumns]="
           displayedColumnsForCaseSummaryQuarter[quarterPairs[3]?.right]
         "
-        exportFileName="Next_Quarter_Case_Summary"
+          exportFileName="Next_Quarter_Case_Summary"
         reportLink="https://cisco.sharepoint.com/sites/InvoiceToCashITI2C/I2C%20and%20Rev%20Operate%20and%20Maintain/Forms/AllItems.aspx?newTargetListUrl=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain&viewpath=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FForms%2FAllItems%2Easpx&id=%2Fsites%2FInvoiceToCashITI2C%2FI2C%20and%20Rev%20Operate%20and%20Maintain%2FWeekly%20ESP%20Case%20Report&viewid=f061e706%2Dfd9d%2D4b4c%2Da779%2D411e9290e79c
       "
-        serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
-    <app-card [container]="true">
-      <app-table
-        title=" Aging Backlog for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
-        [dataSource]="dataSourceAgingBacklog[quarterPairs[3]?.right]"
+          serviceNowLink="https://cisco.service-now.com/nav_to.do?uri=%2F$pa_dashboard.do%3Fsysparm_dashboard%3D6e2f7f0adbcf3340a89e96f8db96193a"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <app-card [container]="true">
+        <app-table
+          title=" Aging Backlog for {{ quarterPairs[3]?.right?.slice(0, -4) }}"
+          [dataSource]="dataSourceAgingBacklog[quarterPairs[3]?.right]"
         [displayedColumns]="
           displayedColumnsForAgingBacklog[quarterPairs[3]?.right]
         "
-        exportFileName="Next_Quarter_Aging_Backlog"
-        [extraWideColumns]="['SERVICE_OFFERING']"
-      ></app-table>
-    </app-card>
-    <br /><br /><br />
-  </mat-tab>
+          exportFileName="Next_Quarter_Aging_Backlog"
+          [extraWideColumns]="['SERVICE_OFFERING']"
+        ></app-table>
+      </app-card>
+      <br /><br /><br />
+    </mat-tab>
+  }
 </mat-tab-group>

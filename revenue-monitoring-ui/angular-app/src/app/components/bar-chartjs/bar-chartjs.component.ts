@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { CommonModule } from '@angular/common';
 
 // Register Chart.js components
 Chart.register(...registerables, ChartDataLabels);
@@ -24,9 +25,13 @@ export interface StackedBarChartDataPoint {
 }
 
 @Component({
-  selector: 'app-bar-chartjs',
-  templateUrl: './bar-chartjs.component.html',
-  styleUrl: './bar-chartjs.component.css',
+    selector: 'app-bar-chartjs',
+    templateUrl: './bar-chartjs.component.html',
+    styleUrl: './bar-chartjs.component.css',
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class BarChartjsComponent
   implements OnChanges, AfterViewInit, OnDestroy

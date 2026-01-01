@@ -6,12 +6,30 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 @Component({
   selector: 'app-clo-updates',
   templateUrl: './clo-updates.component.html',
   styleUrls: ['./clo-updates.component.css'],
-  providers: [DestroyManager],
+  providers: [DestroyManager, provideNativeDateAdapter()],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatDatepickerModule,
+  ],
+  standalone: true,
 })
 export class CloUpdatesComponent implements OnInit {
   updateForm: FormGroup;

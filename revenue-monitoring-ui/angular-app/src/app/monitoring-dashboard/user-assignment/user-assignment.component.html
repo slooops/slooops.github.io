@@ -26,61 +26,51 @@
     <div class="modal-body">
       <form [formGroup]="updateForm" class="form-stack" *ngIf="formReady()">
         <!-- <div class="input-stack" *ngFor="let field of fieldConfig">
-          <label>{{ field.label }}</label>
+        <label>{{ field.label }}</label>
 
-          <ng-container *ngIf="field.controlName === 'assignedTo'">
-            <select [formControlName]="field.controlName" required>
-              <option value="" disabled>Select User</option>
-              <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
-                {{ data.NAME }}
-              </option>
-            </select>
-          </ng-container>
+        <ng-container *ngIf="field.controlName === 'assignedTo'">
+          <select [formControlName]="field.controlName" required>
+            <option value="" disabled>Select User</option>
+            <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
+              {{ data.NAME }}
+            </option>
+          </select>
+        </ng-container>
 
-          <ng-container *ngIf="field.controlName !== 'assignedTo'">
-            <input
-              type="text"
-              [formControlName]="field.controlName"
-              [placeholder]="'Enter ' + field.label"
+        <ng-container *ngIf="field.controlName !== 'assignedTo'">
+          <input
+            type="text"
+            [formControlName]="field.controlName"
+            [placeholder]="'Enter ' + field.label"
             />
-          </ng-container>
-        </div> -->
+        </ng-container>
+      </div> -->
 
         <div class="input-stack" *ngFor="let field of fieldConfig()">
           <label>{{ field.label }}</label>
-
-          <ng-container *ngIf="field.controlName === 'assignedTo'">
-            <select [formControlName]="field.controlName" required>
-              <option value="" disabled>Select User</option>
-              <option
-                *ngFor="let data of assignmentUsers()"
-                [value]="data.NAME"
-              >
-                {{ data.NAME }}
-              </option>
-            </select>
-          </ng-container>
-
-          <ng-container *ngIf="field.controlName !== 'assignedTo'">
-            <ng-container *ngIf="field.options?.length; else inputField">
-              <select [formControlName]="field.controlName">
-                <option value="" disabled>Select {{ field.label }}</option>
-                <option
-                  *ngFor="let option of field.options"
-                  [value]="option.value"
-                >
-                  {{ option.label }}
-                </option>
-              </select>
-            </ng-container>
-            <ng-template #inputField>
-              <input
-                type="text"
-                [formControlName]="field.controlName"
-                [placeholder]="'Enter ' + field.label"
-              />
-            </ng-template>
-          </ng-container>
+          @if (field.controlName === 'assignedTo') {
+          <select [formControlName]="field.controlName" required>
+            <option value="" disabled>Select User</option>
+            <option *ngFor="let data of assignmentUsers()" [value]="data.NAME">
+              {{ data.NAME }}
+            </option>
+          </select>
+          } @else { @if (field.options?.length) {
+          <select [formControlName]="field.controlName">
+            <option value="" disabled>Select {{ field.label }}</option>
+            @for (option of field.options; track option) {
+            <option [value]="option.value">
+              {{ option.label }}
+            </option>
+            }
+          </select>
+          } @else {
+          <input
+            type="text"
+            [formControlName]="field.controlName"
+            [placeholder]="'Enter ' + field.label"
+          />
+          } }
         </div>
       </form>
     </div>

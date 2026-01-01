@@ -1,0 +1,62 @@
+<form class="fit-user-form" (submit)="onSubmit()">
+  <div class="fit-stack-md">
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Role</label>
+      <app-text-input
+        [value]="formData.roles[0] || ''"
+        placeholder="Enter role"
+        type="text"
+        (valueChange)="onRoleChange($event)"
+      >
+      </app-text-input>
+    </div>
+
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Username *</label>
+      <app-text-input
+        [value]="formData.userName"
+        placeholder="Enter username"
+        type="text"
+        [isDisabled]="isEdit"
+        (valueChange)="onUserNameChange($event)"
+      >
+      </app-text-input>
+    </div>
+
+    <div class="fit-user-form__field">
+      <label class="fit-user-form__label">Email *</label>
+      <app-text-input
+        [value]="formData.email"
+        placeholder="Enter email"
+        type="email"
+        (valueChange)="onEmailChange($event)"
+      >
+      </app-text-input>
+    </div>
+
+    <div class="fit-user-form__toggle">
+      <app-toggle-switch
+        [checked]="formData.enabled"
+        label="Enabled"
+        (checkedChange)="onEnabledChange($event)"
+      >
+      </app-toggle-switch>
+    </div>
+
+    <div class="fit-user-form__actions fit-row fit-row--space-between">
+      <app-button
+        label="Cancel"
+        variant="secondary"
+        type="button"
+        (clicked)="onCancel()"
+      >
+      </app-button>
+      <app-button
+        [label]="isEdit ? 'Update User' : 'Create Role'"
+        variant="primary"
+        type="submit"
+      >
+      </app-button>
+    </div>
+  </div>
+</form>

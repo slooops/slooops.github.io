@@ -1,9 +1,12 @@
 import { Component, computed, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-process-flow-tooltip',
   templateUrl: './process-flow-tooltip.component.html',
   styleUrl: './process-flow-tooltip.component.css',
+  imports: [CommonModule],
+  standalone: true,
 })
 export class ProcessFlowTooltipComponent {
   processFlowTotals = input<any[]>([]);

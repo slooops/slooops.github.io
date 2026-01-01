@@ -15,6 +15,12 @@ import { UploadScreenComponent } from 'src/app/esp/esp-home/upload-screen/upload
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 interface FilterTag {
   id: string;
@@ -24,9 +30,18 @@ interface FilterTag {
 }
 
 @Component({
-  selector: 'app-caseiq-table',
-  templateUrl: './caseiq-table.component.html',
-  styleUrls: ['./caseiq-table.component.css'],
+    selector: 'app-caseiq-table',
+    templateUrl: './caseiq-table.component.html',
+    styleUrls: ['./caseiq-table.component.css'],
+    imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatTableModule,
+    MatPaginatorModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() dataSource!: MatTableDataSource<any>; // Data for the table

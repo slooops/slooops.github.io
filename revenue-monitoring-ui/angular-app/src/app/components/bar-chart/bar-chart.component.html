@@ -1,8 +1,10 @@
 <div class="bar-chart-wrapper">
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="loading-spinner"></div>
-    <p>Loading chart...</p>
-  </div>
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading chart...</p>
+    </div>
+  }
 
   <div
     #barChartContainer
@@ -12,13 +14,16 @@
   ></div>
 
   <!-- Legend -->
-  <div
-    *ngIf="showLegend && legendItems.length > 0 && stacked"
-    class="chart-legend"
-  >
-    <div class="legend-item" *ngFor="let item of legendItems">
-      <span class="legend-color" [style.background-color]="item.color"></span>
-      <span class="legend-label">{{ item.total }} {{ item.name }}</span>
+  @if (showLegend && legendItems.length > 0 && stacked) {
+    <div
+      class="chart-legend"
+      >
+      @for (item of legendItems; track item) {
+        <div class="legend-item">
+          <span class="legend-color" [style.background-color]="item.color"></span>
+          <span class="legend-label">{{ item.total }} {{ item.name }}</span>
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

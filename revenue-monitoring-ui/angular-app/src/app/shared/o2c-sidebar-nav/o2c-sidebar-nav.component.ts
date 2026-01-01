@@ -1,10 +1,15 @@
 import { Component, Input } from '@angular/core';
 import { SidebarService } from 'src/app/sidebar.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-o2c-sidebar-nav',
-  templateUrl: './o2c-sidebar-nav.component.html',
-  styleUrls: ['./o2c-sidebar-nav.component.css'],
+    selector: 'app-o2c-sidebar-nav',
+    templateUrl: './o2c-sidebar-nav.component.html',
+    styleUrls: ['./o2c-sidebar-nav.component.css'],
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class O2cSidebarNavComponent {
   constructor(private sidebarService: SidebarService) {}

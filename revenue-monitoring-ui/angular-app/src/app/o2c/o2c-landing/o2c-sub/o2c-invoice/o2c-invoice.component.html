@@ -1,99 +1,97 @@
-<div *ngIf="!showDetailView">
-  <div class="o2c-container accordion-container">
-    <div class="order-banner accordion-header order-status-banner">
-      <div class="status-dot"></div>
-      <div>Fulfillment to Invoicing</div>
+@if (!showDetailView) {
+  <div>
+    <div class="o2c-container accordion-container">
+      <div class="order-banner accordion-header order-status-banner">
+        <div class="status-dot"></div>
+        <div>Fulfillment to Invoicing</div>
+      </div>
+    </div>
+    <div class="o2c-container accordion-container">
+      <div class="o2c-donut-row">
+        <app-o2c-accordion
+          [title]="'Pre-Invoicing'"
+          [isOpen]="isOpen[1]"
+          (toggleOpen)="toggleAccordion(1)"
+          linkHref="#"
+          (linkClick)="showDetailTable('pre-invoicing')"
+          >
+          <app-o2c-donut
+            [data]="orderPreInvPieChartData"
+            [isLoading]="orderPreInvLoading"
+            [noDataMessage]="getNoDataMessage('pre-invoicing')"
+            canvasId="donutChart1"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Invoice Creation'"
+          [isOpen]="isOpen[2]"
+          (toggleOpen)="toggleAccordion(2)"
+          linkHref="#"
+          (linkClick)="showDetailTable('invoice-creation')"
+          >
+          <app-o2c-donut
+            [data]="orderInvPieChartData"
+            [isLoading]="orderInvLoading"
+            [noDataMessage]="getNoDataMessage('invoice-creation')"
+            canvasId="donutChart2"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Invoice: Print / Image / Delivery'"
+          [isOpen]="isOpen[3]"
+          (toggleOpen)="toggleAccordion(3)"
+          linkHref="#"
+          (linkClick)="showDetailTable('invoice-print-image-delivery')"
+          >
+          <app-o2c-donut
+            [data]="orderInvPidPieChartData"
+            [isLoading]="orderInvPidLoading"
+            [noDataMessage]="getNoDataMessage('invoice-pid')"
+            canvasId="donutChart3"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+        <app-o2c-accordion
+          [title]="'Invoice Others'"
+          [isOpen]="isOpen[4]"
+          (toggleOpen)="toggleAccordion(4)"
+          linkHref="#"
+          (linkClick)="showDetailTable('invoice-others')"
+          >
+          <app-o2c-donut
+            [data]="orderInvOthersPieChartData"
+            [isLoading]="orderInvOthersLoading"
+            [noDataMessage]="getNoDataMessage('invoice-others')"
+            canvasId="donutChart4"
+          ></app-o2c-donut>
+        </app-o2c-accordion>
+      </div>
     </div>
   </div>
+}
 
-  <div class="o2c-container accordion-container">
-    <div class="o2c-donut-row">
-      <app-o2c-accordion
-        [title]="'Pre-Invoicing'"
-        [isOpen]="isOpen[1]"
-        (toggleOpen)="toggleAccordion(1)"
-        linkHref="#"
-        (linkClick)="showDetailTable('pre-invoicing')"
-      >
-        <app-o2c-donut
-          [data]="orderPreInvPieChartData"
-          [isLoading]="orderPreInvLoading"
-          [noDataMessage]="getNoDataMessage('pre-invoicing')"
-          canvasId="donutChart1"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Invoice Creation'"
-        [isOpen]="isOpen[2]"
-        (toggleOpen)="toggleAccordion(2)"
-        linkHref="#"
-        (linkClick)="showDetailTable('invoice-creation')"
-      >
-        <app-o2c-donut
-          [data]="orderInvPieChartData"
-          [isLoading]="orderInvLoading"
-          [noDataMessage]="getNoDataMessage('invoice-creation')"
-          canvasId="donutChart2"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Invoice: Print / Image / Delivery'"
-        [isOpen]="isOpen[3]"
-        (toggleOpen)="toggleAccordion(3)"
-        linkHref="#"
-        (linkClick)="showDetailTable('invoice-print-image-delivery')"
-      >
-        <app-o2c-donut
-          [data]="orderInvPidPieChartData"
-          [isLoading]="orderInvPidLoading"
-          [noDataMessage]="getNoDataMessage('invoice-pid')"
-          canvasId="donutChart3"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
-
-      <app-o2c-accordion
-        [title]="'Invoice Others'"
-        [isOpen]="isOpen[4]"
-        (toggleOpen)="toggleAccordion(4)"
-        linkHref="#"
-        (linkClick)="showDetailTable('invoice-others')"
-      >
-        <app-o2c-donut
-          [data]="orderInvOthersPieChartData"
-          [isLoading]="orderInvOthersLoading"
-          [noDataMessage]="getNoDataMessage('invoice-others')"
-          canvasId="donutChart4"
-        ></app-o2c-donut>
-      </app-o2c-accordion>
+@if (showDetailView) {
+  <div>
+    <div class="order-info" style="margin-top: 20px">
+      <button class="back-btn-floating" (click)="goBack()">
+        <i class="back-icon" style="margin-top: -4px"></i> Back
+      </button>
+      <div class="exception-title">
+        {{ getCurrentTitle() }}
+      </div>
     </div>
-  </div>
-</div>
-
-<div *ngIf="showDetailView">
-  <div class="order-info" style="margin-top: 20px">
-    <button class="back-btn-floating" (click)="goBack()">
-      <i class="back-icon" style="margin-top: -4px"></i> Back
-    </button>
-    <div class="exception-title">
-      {{ getCurrentTitle() }}
+    <div class="accordion-header exceptions-padding">
+      <!-- {{ getCurrentSubtitle() }} -->
+      &nbsp;
+      <app-o2c-toolbar
+        [fileName]="getCurrentFileName()"
+        [data]="getCurrentDataSource()?.data || []"
+      ></app-o2c-toolbar>
     </div>
+    <!-- Use direct method calls instead of config object -->
+    <app-o2c-table
+      [dataSource]="getCurrentDataSource()"
+      [displayedColumns]="getCurrentDisplayedColumns()"
+      [isLoading]="getCurrentLoadingState()"
+    ></app-o2c-table>
   </div>
-
-  <div class="accordion-header exceptions-padding">
-    <!-- {{ getCurrentSubtitle() }} -->
-    &nbsp;
-    <app-o2c-toolbar
-      [fileName]="getCurrentFileName()"
-      [data]="getCurrentDataSource()?.data || []"
-    ></app-o2c-toolbar>
-  </div>
-
-  <!-- Use direct method calls instead of config object -->
-  <app-o2c-table
-    [dataSource]="getCurrentDataSource()"
-    [displayedColumns]="getCurrentDisplayedColumns()"
-    [isLoading]="getCurrentLoadingState()"
-  ></app-o2c-table>
-</div>
+}

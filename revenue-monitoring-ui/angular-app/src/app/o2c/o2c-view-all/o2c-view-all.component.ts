@@ -7,12 +7,33 @@ import { FiltersService } from '../../providers/filters.service';
 import { ro } from 'date-fns/locale';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+import { O2cNavComponent } from '../../shared/o2c-nav/o2c-nav.component';
+import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-process-flow.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { TableFilterComponent } from '../../shared/table-filter/table-filter.component';
+import { ModalComponent } from '../../components/modal/modal.component';
 
 @Component({
   selector: 'app-o2c-view-all',
   templateUrl: './o2c-view-all.component.html',
   styleUrl: './o2c-view-all.component.css',
   providers: [DestroyManager],
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatTabsModule,
+    MatTableModule,
+    // O2cNavComponent,
+    O2cProcessFlowComponent,
+    // LoadingSymbolComponent,
+    TableFilterComponent,
+    ModalComponent,
+  ],
+  standalone: true,
 })
 export class O2cViewAllComponent implements OnInit {
   selectedTab: 'subscriptions' | 'invoices' = 'subscriptions';
@@ -274,7 +295,6 @@ export class O2cViewAllComponent implements OnInit {
     this.selectedTab = index === 0 ? 'subscriptions' : 'invoices';
   }
   formatAmount(amount: string): string {
-    console.log('Formatting amount:', amount);
     let formattedAmount = Number(amount).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,

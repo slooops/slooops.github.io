@@ -5,7 +5,7 @@
     align-items: center;
     width: 100%;
   "
->
+  >
   <h4 style="font-weight: 600; padding: 0.8vh 1.5vh 0vh 1.5vh">
     {{ extractType }} Errors
   </h4>
@@ -19,7 +19,7 @@
           extractType + '_Errors'
         )
       "
-    >
+      >
       <i class="fa fa-download"></i>
     </button>
   </div>
@@ -27,37 +27,35 @@
 
 <div>
   <!-- Dynamic Data Table -->
-  <ng-container *ngIf="currentData?.data?.length">
+  @if (currentData?.data?.length) {
     <table
       mat-table
       [dataSource]="currentData"
       style="width: 100%; overflow-x: auto"
-    >
+      >
       <!-- Dynamic Columns -->
-      <ng-container *ngFor="let column of currentDisplayedColumns">
+      @for (column of currentDisplayedColumns; track column) {
         <ng-container [matColumnDef]="column">
           <th mat-header-cell *matHeaderCellDef>
             {{ replaceUnderscore(column) }}
           </th>
-
           <td mat-cell *matCellDef="let element">
             {{ element[column] }}
           </td>
         </ng-container>
-      </ng-container>
-
+      }
       <!-- Header and Row Declarations -->
       <tr mat-header-row *matHeaderRowDef="currentDisplayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: currentDisplayedColumns"></tr>
     </table>
-  </ng-container>
+  }
 
   <div style="display: flex; justify-content: center"></div>
 
-  <ng-container *ngIf="!currentData?.data?.length">
+  @if (!currentData?.data?.length) {
     <div class="loading-container">
       <app-loading-symbol></app-loading-symbol>
       <br /><br /><br />
     </div>
-  </ng-container>
+  }
 </div>

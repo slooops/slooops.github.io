@@ -1,10 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-o2c-process-flow',
-  templateUrl: './o2c-process-flow.component.html',
-  styleUrls: ['./o2c-process-flow.component.css'],
+    selector: 'app-o2c-process-flow',
+    templateUrl: './o2c-process-flow.component.html',
+    styleUrls: ['./o2c-process-flow.component.css'],
+    imports: [
+    CommonModule
+  ],
+  standalone: true
 })
 export class O2cProcessFlowComponent implements OnInit {
   @Input() circleStatus: { [key: string]: number } = {};

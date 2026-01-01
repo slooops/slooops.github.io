@@ -3,6 +3,11 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
+import { CardComponent } from '../../components/card/card.component';
+import { TableComponent } from '../../components/table/table.component';
 Chart.register(...registerables);
 
 // Types for new quarter-pair logic
@@ -19,6 +24,14 @@ type PairConfig = {
   templateUrl: './esp-case-analyzer.component.html',
   styleUrl: './esp-case-analyzer.component.css',
   providers: [DestroyManager],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    LoadingSymbolComponent,
+    CardComponent,
+    TableComponent,
+  ],
+  standalone: true,
 })
 export class EspCaseAnalyzerComponent implements OnInit {
   constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
@@ -240,9 +253,6 @@ export class EspCaseAnalyzerComponent implements OnInit {
   }
 
   generateChartForPair(qStart: string, qEnd: string, name: string): void {
-    console.log(
-      `Generating chart for ${name} with start: ${qStart}, end: ${qEnd}`
-    );
     const prmcCategories = ['PDF', 'ROUTED OUT', 'MISROUTED', 'CANCELLED'];
     const birCategories = ['BACKLOG', 'INFLOW', 'RESOLVED'];
     const labels = this.getSortedLabels();
@@ -260,27 +270,52 @@ export class EspCaseAnalyzerComponent implements OnInit {
       this.COLORS
     );
 
-    const prmcCanvas = document.getElementById(
-      `prmcChart${name}`
-    ) as HTMLCanvasElement;
-    const birCanvas = document.getElementById(
-      `birChart${name}`
-    ) as HTMLCanvasElement;
+    const prmcCanvasId = `prmcChart${name}`;
+    const birCanvasId = `birChart${name}`;
 
-    if (prmcCanvas && prmcCanvas.getContext('2d')) {
-      this[`prmcChart${name}`] = new Chart(prmcCanvas, {
-        type: 'bar',
-        data: { labels, datasets: prmcDatasets },
-        options: this.sharedChartOptions,
-      });
+    const prmcCanvas = document.getElementById(
+      prmcCanvasId
+    ) as HTMLCanvasElement;
+    const birCanvas = document.getElementById(birCanvasId) as HTMLCanvasElement;
+
+    // Validate canvas elements exist before attempting to create charts
+    if (!prmcCanvas) {
+      console.error(`Canvas not found: ${prmcCanvasId}`);
+      return;
+    }
+    if (!birCanvas) {
+      console.error(`Canvas not found: ${birCanvasId}`);
+      return;
     }
 
-    if (birCanvas && birCanvas.getContext('2d')) {
-      this[`birChart${name}`] = new Chart(birCanvas, {
-        type: 'bar',
-        data: { labels, datasets: birDatasets },
-        options: this.sharedChartOptions,
-      });
+    try {
+      if (prmcCanvas.getContext('2d')) {
+        const existingChart = this[`prmcChart${name}`];
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        this[`prmcChart${name}`] = new Chart(prmcCanvas, {
+          type: 'bar',
+          data: { labels, datasets: prmcDatasets },
+          options: this.sharedChartOptions,
+        });
+      }
+
+      if (birCanvas.getContext('2d')) {
+        const existingChart = this[`birChart${name}`];
+        if (existingChart) {
+          existingChart.destroy();
+        }
+
+        this[`birChart${name}`] = new Chart(birCanvas, {
+          type: 'bar',
+          data: { labels, datasets: birDatasets },
+          options: this.sharedChartOptions,
+        });
+      }
+    } catch (error) {
+      console.error(`Error creating charts for ${name}:`, error);
     }
   }
 
@@ -347,7 +382,10 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
     // NEW: Use quarter pairs based on tab index
     const pair = this.quarterPairs[tabIndex];
-    if (!pair) return;
+    if (!pair) {
+      console.error('No quarter pair found for tab index:', tabIndex);
+      return;
+    }
 
     const chartNameMap: { [key: string]: string } = {
       'Q1-Q2': 'Q1Q2',
@@ -359,53 +397,50 @@ export class EspCaseAnalyzerComponent implements OnInit {
     const chartName = chartNameMap[pair.key];
     const loadingFlag = `is${chartName}Loading` as keyof this;
 
-    console.log(
-      `Generating ${pair.key} chart using:`,
-      pair.left,
-      'vs',
-      pair.right
-    );
-
     this[loadingFlag] = false as any;
-    setTimeout(
-      () => this.generateChartForPair(pair.left, pair.right, chartName),
-      0
-    );
+
+    // Timeout allows Angular's change detection to complete before Chart.js renders
+    setTimeout(() => {
+      this.generateChartForPair(pair.left, pair.right, chartName);
+    }, 100);
   }
 
   destroyCharts(): void {
-    // Destroy charts if they exist
-    if (this.birChartQ1Q2) {
-      this.birChartQ1Q2.destroy();
-      this.birChartQ1Q2 = null;
-    }
-    if (this.birChartQ2Q3) {
-      this.birChartQ2Q3.destroy();
-      this.birChartQ2Q3 = null;
-    }
-    if (this.birChartQ3Q4) {
-      this.birChartQ3Q4.destroy();
-      this.birChartQ3Q4 = null;
-    }
-    if (this.birChartQ4Q1) {
-      this.birChartQ4Q1.destroy();
-      this.birChartQ4Q1 = null;
-    }
-    if (this.prmcChartQ1Q2) {
-      this.prmcChartQ1Q2.destroy();
-      this.prmcChartQ1Q2 = null;
-    }
-    if (this.prmcChartQ2Q3) {
-      this.prmcChartQ2Q3.destroy();
-      this.prmcChartQ2Q3 = null;
-    }
-    if (this.prmcChartQ3Q4) {
-      this.prmcChartQ3Q4.destroy();
-      this.prmcChartQ3Q4 = null;
-    }
-    if (this.prmcChartQ4Q1) {
-      this.prmcChartQ4Q1.destroy();
-      this.prmcChartQ4Q1 = null;
+    try {
+      if (this.birChartQ1Q2) {
+        this.birChartQ1Q2.destroy();
+        this.birChartQ1Q2 = null;
+      }
+      if (this.birChartQ2Q3) {
+        this.birChartQ2Q3.destroy();
+        this.birChartQ2Q3 = null;
+      }
+      if (this.birChartQ3Q4) {
+        this.birChartQ3Q4.destroy();
+        this.birChartQ3Q4 = null;
+      }
+      if (this.birChartQ4Q1) {
+        this.birChartQ4Q1.destroy();
+        this.birChartQ4Q1 = null;
+      }
+      if (this.prmcChartQ1Q2) {
+        this.prmcChartQ1Q2.destroy();
+        this.prmcChartQ1Q2 = null;
+      }
+      if (this.prmcChartQ2Q3) {
+        this.prmcChartQ2Q3.destroy();
+        this.prmcChartQ2Q3 = null;
+      }
+      if (this.prmcChartQ3Q4) {
+        this.prmcChartQ3Q4.destroy();
+        this.prmcChartQ3Q4 = null;
+      }
+      if (this.prmcChartQ4Q1) {
+        this.prmcChartQ4Q1.destroy();
+        this.prmcChartQ4Q1 = null;
+      }
+    } catch (error) {
+      console.error('Error destroying charts:', error);
     }
   }
 

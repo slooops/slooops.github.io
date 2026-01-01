@@ -6,12 +6,29 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AtmfCardComponent } from '../components/atmf/atmf-card/atmf-card.component';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
+import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
 
 @Component({
   selector: 'app-period-close-tracking',
   templateUrl: './period-close-tracking.component.html',
   styleUrls: ['./period-close-tracking.component.css'],
   providers: [DestroyManager],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    MatTooltipModule,
+    AtmfCardComponent,
+    LoadingSymbolComponent,
+    AtmfBarLineChartComponent,
+    AtmfTableComponent,
+  ],
+  standalone: true,
 })
 export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 300000; //ms
@@ -177,23 +194,53 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return 'N/A';
     }
 
-    // Parse the ISO date string and convert to PST
-    const utcDate = new Date(date);
-
-    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
-    const pstDate = new Date(
-      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
+    // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
+    const plainMatch = date.match(
+      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/
     );
 
-    // Format the date
-    const month = pstDate.toLocaleString('en-US', { month: 'long' });
-    const day = pstDate.getDate();
-    const year = pstDate.getFullYear();
-    const hours = String(pstDate.getHours()).padStart(2, '0');
-    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
-    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+    if (plainMatch) {
+      // Plain string from TO_CHAR - already in PST, display as-is
+      const [, year, month, day, hours, minutes, seconds] = plainMatch;
+      const monthNames = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+      const monthName = monthNames[parseInt(month, 10) - 1];
+      return `${monthName} ${parseInt(
+        day,
+        10
+      )}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    }
 
-    return `${month} ${day}, ${year} at ${hours}:${minutes}:${seconds} PST`;
+    // Otherwise, parse as ISO 8601 timestamp (local dev) and convert UTC to PST
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return 'N/A';
+    }
+
+    const pstDate = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(dateObj);
+
+    return pstDate.replace(',', '').replace(/at /, 'at ') + ' PST';
   }
 
   // Format for Actual dates: "13:05:00 PST"
@@ -202,20 +249,32 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return 'N/A';
     }
 
-    // Parse the ISO date string and convert to PST
-    const utcDate = new Date(date);
-
-    // Convert to PST (UTC-8) or PDT (UTC-7) - JavaScript handles DST automatically
-    const pstDate = new Date(
-      utcDate.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })
+    // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
+    const plainMatch = date.match(
+      /^\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}):(\d{2})$/
     );
 
-    // Format time only
-    const hours = String(pstDate.getHours()).padStart(2, '0');
-    const minutes = String(pstDate.getMinutes()).padStart(2, '0');
-    const seconds = String(pstDate.getSeconds()).padStart(2, '0');
+    if (plainMatch) {
+      // Plain string from TO_CHAR - already in PST, display as-is
+      const [, hours, minutes, seconds] = plainMatch;
+      return `${hours}:${minutes}:${seconds} PST`;
+    }
 
-    return `${hours}:${minutes}:${seconds} PST`;
+    // Otherwise, parse as ISO 8601 timestamp (local dev) and convert UTC to PST
+    const dateObj = new Date(date);
+    if (isNaN(dateObj.getTime())) {
+      return 'N/A';
+    }
+
+    const pstTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(dateObj);
+
+    return `${pstTime} PST`;
   }
 
   getCurrentTime() {
@@ -236,10 +295,26 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const periodName = row['PERIOD_NAME'];
         const quarter = row['QUARTER'];
         const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
+        console.log(
+          'Start Time:',
+          startTime,
+          'vs Raw:',
+          row['CLOSE_START_TIME']
+        );
         const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
+        console.log('End Time:', endTime, 'vs Raw:', row['CLOSE_END_TIME']);
         const actualEndTime = this.extractDatePrettifyTimeOnly(
           row['ACTUAL_CLOSE_END_TIME']
         );
+
+        console.log('Parsed Times:', {
+          closeType,
+          periodName,
+          quarter,
+          startTime,
+          endTime,
+          actualEndTime,
+        });
 
         if (closeType === 'PRECLOSE') {
           this.preclosePeriod = periodName;

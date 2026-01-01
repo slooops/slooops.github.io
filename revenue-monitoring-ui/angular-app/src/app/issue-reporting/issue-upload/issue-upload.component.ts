@@ -3,11 +3,18 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-issue-upload',
-  templateUrl: './issue-upload.component.html',
-  styleUrl: './issue-upload.component.css',
+    selector: 'app-issue-upload',
+    templateUrl: './issue-upload.component.html',
+    styleUrl: './issue-upload.component.css',
+    imports: [
+    CommonModule,
+    MatButtonModule
+  ],
+  standalone: true
 })
 export class IssueUploadComponent {
   updateForm: FormGroup;

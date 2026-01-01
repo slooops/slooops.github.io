@@ -7,12 +7,25 @@ import { MatTabChangeEvent } from '@angular/material/tabs';
 import { MatPaginator } from '@angular/material/paginator';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ExportToExcelService } from 'src/app/providers/export-to-excel.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+import { MatDialogModule } from '@angular/material/dialog';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-  selector: 'app-order-lifecycle-summary',
-  templateUrl: './order-lifecycle-summary.component.html',
-  styleUrls: ['./order-lifecycle-summary.component.css'],
-  providers: [DestroyManager],
+    selector: 'app-order-lifecycle-summary',
+    templateUrl: './order-lifecycle-summary.component.html',
+    styleUrls: ['./order-lifecycle-summary.component.css'],
+    providers: [DestroyManager],
+    imports: [
+    CommonModule,
+    MatTabsModule,
+    MatTableModule,
+    MatDialogModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class OrderLifecycleSummaryComponent implements OnInit {
   selectedArr: OrderLifecycleSummaryModel[];

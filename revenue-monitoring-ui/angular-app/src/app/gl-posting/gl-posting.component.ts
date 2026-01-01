@@ -4,12 +4,21 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
 @Component({
-  selector: 'app-gl-posting',
-  templateUrl: './gl-posting.component.html',
-  styleUrl: './gl-posting.component.css',
-  providers: [DestroyManager],
+    selector: 'app-gl-posting',
+    templateUrl: './gl-posting.component.html',
+    styleUrl: './gl-posting.component.css',
+    providers: [DestroyManager],
+    imports: [
+    CommonModule,
+    MatTabsModule,
+    MonitoringDashboardComponent
+  ],
+  standalone: true
 })
 export class GlPostingComponent implements OnInit {
   constructor(

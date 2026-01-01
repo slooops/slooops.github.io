@@ -2,14 +2,15 @@
   <div class="accordion-header" (click)="toggle()">
     <span>{{ title }}</span>
     <div class="accordion-header-right">
-      <a
-        *ngIf="hasLink"
-        [href]="linkHref"
-        class="accordion-link"
-        (click)="onLinkClick($event)"
-      >
-        {{ linkText }}
-      </a>
+      @if (hasLink) {
+        <a
+          [href]="linkHref"
+          class="accordion-link"
+          (click)="onLinkClick($event)"
+          >
+          {{ linkText }}
+        </a>
+      }
       <span class="accordion-icon">{{ isOpen ? "−" : "+" }}</span>
     </div>
   </div>

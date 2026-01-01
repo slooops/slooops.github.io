@@ -1,34 +1,33 @@
 <div class="table-container" style="padding-bottom: 0px; overflow: auto">
   <!-- Loading State -->
-  <div
-    *ngIf="isLoading"
-    class="table-loading-container"
-    [class.fade-out]="!isLoading"
-  >
-    <app-loading-symbol></app-loading-symbol>
-    <p class="loading-text">Loading table data...</p>
-  </div>
+  @if (isLoading) {
+    <div
+      class="table-loading-container"
+      [class.fade-out]="!isLoading"
+      >
+      <app-loading-symbol></app-loading-symbol>
+      <p class="loading-text">Loading table data...</p>
+    </div>
+  }
 
   <!-- Table Content with fade-in animation -->
-  <div *ngIf="shouldShowTable" class="table-content">
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      class="invoice-summary-table main-tabs"
-    >
-      <ng-container
-        *ngFor="let column of displayedColumns; trackBy: trackByColumn"
-      >
-        <ng-container [matColumnDef]="column">
-          <!-- Header Row -->
-          <th mat-header-cell *matHeaderCellDef>
-            {{ formatColumnName(column) }}
-          </th>
-
-          <!-- Data Row -->
-          <td
-            mat-cell
-            *matCellDef="let element"
+  @if (shouldShowTable) {
+    <div class="table-content">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        class="invoice-summary-table main-tabs"
+        >
+        @for (column of displayedColumns; track trackByColumn($index, column)) {
+          <ng-container [matColumnDef]="column">
+            <!-- Header Row -->
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
+            <!-- Data Row -->
+            <td
+              mat-cell
+              *matCellDef="let element"
             [ngClass]="{
               'clickable-cell': isNavigableColumn(column),
             
@@ -38,24 +37,25 @@
                 ? navigateToRoute(column, element[column])
                 : null
             "
-          >
-            {{ getDisplayValue(column, element[column]) }}
-          </td>
-        </ng-container>
-      </ng-container>
-
-      <!-- Conditionally render the header row -->
-      <ng-container *ngIf="showHeaderRow">
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      </ng-container>
-
-      <!-- Always render the data rows -->
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-  </div>
+              >
+              {{ getDisplayValue(column, element[column]) }}
+            </td>
+          </ng-container>
+        }
+        <!-- Conditionally render the header row -->
+        @if (showHeaderRow) {
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        }
+        <!-- Always render the data rows -->
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  }
 
   <!-- No Data State -->
-  <div *ngIf="shouldShowNoData" class="no-data-container">
-    <p class="no-data-text">No data available for this table.</p>
-  </div>
+  @if (shouldShowNoData) {
+    <div class="no-data-container">
+      <p class="no-data-text">No data available for this table.</p>
+    </div>
+  }
 </div>

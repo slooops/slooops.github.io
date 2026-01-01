@@ -1,8 +1,10 @@
 <div class="chart-wrapper">
-  <div *ngIf="isLoading" class="loading-overlay">
-    <div class="loading-spinner"></div>
-    <p>Loading chart...</p>
-  </div>
+  @if (isLoading) {
+    <div class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Loading chart...</p>
+    </div>
+  }
 
   <div class="chart-container">
     <canvas #chartCanvas [id]="canvasId"></canvas>

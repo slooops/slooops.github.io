@@ -1,0 +1,24 @@
+<div class="fit-select-wrapper">
+  @if (label) {
+    <label [for]="'select-' + label" class="fit-select__label">
+      {{ label }}
+    </label>
+  }
+  <div class="fit-select-wrapper">
+    <select
+      [id]="'select-' + label"
+      class="fit-select"
+      [value]="value"
+      [disabled]="isDisabled"
+      (change)="onChange($event)"
+    >
+      <option value="" disabled>{{ placeholder }}</option>
+      @for (option of options; track option.value) {
+        <option [value]="option.value">
+          {{ option.label }}
+        </option>
+      }
+    </select>
+    <span class="fit-select__chevron">▾</span>
+  </div>
+</div>

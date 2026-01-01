@@ -1,11 +1,32 @@
 import { Component, OnInit } from '@angular/core';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
+import { CommonModule } from '@angular/common';
+import { MatTabsModule } from '@angular/material/tabs';
+import { O2cDonutComponent } from '../../../components/o2c-donut/o2c-donut.component';
+import { O2cCardComponent } from '../../../components/o2c-card/o2c-card.component';
+import { O2cOrderComponent } from './o2c-order/o2c-order.component';
+import { O2cSubscriptionComponent } from './o2c-subscription/o2c-subscription.component';
+import { O2cInvoiceComponent } from './o2c-invoice/o2c-invoice.component';
+import { O2cAccountingComponent } from './o2c-accounting/o2c-accounting.component';
+import { O2cCashComponent } from './o2c-cash/o2c-cash.component';
 
 @Component({
-  selector: 'app-o2c-sub',
-  templateUrl: './o2c-sub.component.html',
-  styleUrls: ['./o2c-sub.component.css'],
+    selector: 'app-o2c-sub',
+    templateUrl: './o2c-sub.component.html',
+    styleUrls: ['./o2c-sub.component.css'],
+    imports: [
+    CommonModule,
+    MatTabsModule,
+    O2cDonutComponent,
+    O2cCardComponent,
+    O2cOrderComponent,
+    O2cSubscriptionComponent,
+    O2cInvoiceComponent,
+    O2cAccountingComponent,
+    O2cCashComponent
+  ],
+  standalone: true
 })
 export class O2cSubComponent implements OnInit {
   selectedTabIndex = 0;

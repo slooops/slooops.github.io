@@ -1,15 +1,15 @@
 <div class="expand-dialog-header" role="heading" aria-level="2">
   <span class="expand-dialog-title"> Upload </span>
   <!-- <mat-icon
-        class="close-icon"
-        (click)="onClose()"
-        tabindex="0"
-        role="button"
-        aria-label="Close dialog"
-        (keydown.enter)="onClose()"
-        (keydown.space)="onClose()"
-        >close</mat-icon
-      > -->
+  class="close-icon"
+  (click)="onClose()"
+  tabindex="0"
+  role="button"
+  aria-label="Close dialog"
+  (keydown.enter)="onClose()"
+  (keydown.space)="onClose()"
+  >close</mat-icon
+  > -->
   <a style="text-decoration: none; cursor: pointer">
     <i
       class="fa fa-close"
@@ -44,27 +44,28 @@
             ? uploadFile()
             : triggerFileInput()
         "
-      >
+        >
         <span
           class="btn-label"
           style="display: inline-flex; align-items: center; gap: 6px"
-        >
+          >
           {{
-            isUploadSuccess
-              ? "Upload Complete"
-              : isUploading
-              ? "Uploading..."
-              : selectedFile
-              ? "Upload File"
-              : "Select File"
+          isUploadSuccess
+          ? "Upload Complete"
+          : isUploading
+          ? "Uploading..."
+          : selectedFile
+          ? "Upload File"
+          : "Select File"
           }}
-          <mat-progress-spinner
-            *ngIf="isUploading"
-            diameter="16"
-            mode="indeterminate"
-            class="white-spinner"
-            style="vertical-align: middle"
-          ></mat-progress-spinner>
+          @if (isUploading) {
+            <mat-progress-spinner
+              diameter="16"
+              mode="indeterminate"
+              class="white-spinner"
+              style="vertical-align: middle"
+            ></mat-progress-spinner>
+          }
         </span>
       </button>
     </div>
@@ -78,9 +79,9 @@
       (dragleave)="onDragLeave($event)"
       (drop)="onFileDropped($event)"
       [class.dragover]="isDragOver"
-    >
+      >
       <!-- Upload Success State -->
-      <ng-container *ngIf="isUploadSuccess">
+      @if (isUploadSuccess) {
         <mat-icon class="upload-icon success-icon">check_circle</mat-icon>
         <div class="upload-text-container">
           <p class="upload-title">Upload Complete</p>
@@ -90,10 +91,10 @@
             dashboard.
           </p>
         </div>
-      </ng-container>
+      }
 
       <!-- File Selected State -->
-      <ng-container *ngIf="selectedFile && !isUploadSuccess">
+      @if (selectedFile && !isUploadSuccess) {
         <mat-icon class="upload-icon">description</mat-icon>
         <div class="upload-text-container">
           <p class="upload-title">{{ selectedFile.name }}</p>
@@ -101,13 +102,13 @@
             {{ formatFileSize(selectedFile.size) }}
           </p>
         </div>
-      </ng-container>
+      }
 
       <!-- Default Upload State -->
-      <ng-container *ngIf="!selectedFile && !isUploadSuccess">
+      @if (!selectedFile && !isUploadSuccess) {
         <mat-icon class="upload-icon">folder_open</mat-icon>
         <p class="upload-text">Drag & Drop here limit 200 MB per file</p>
-      </ng-container>
+      }
     </div>
 
     <input
@@ -116,6 +117,6 @@
       (change)="onFileSelected($event)"
       accept=".csv,.xlsx"
       style="display: none"
-    />
+      />
   </div>
 </div>

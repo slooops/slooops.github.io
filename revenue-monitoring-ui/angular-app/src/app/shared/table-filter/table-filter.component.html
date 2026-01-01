@@ -1,12 +1,17 @@
 <div class="filter-wrapper">
-  <div class="dropdown" *ngIf="isOpen">
-    <div
-      class="dropdown-option"
-      *ngFor="let opt of options"
-      (click)="selectOption(opt)"
-    >
-      <mat-icon *ngIf="selectedOption === opt.value">check</mat-icon>
-      {{ opt.label }}
+  @if (isOpen) {
+    <div class="dropdown">
+      @for (opt of options; track opt) {
+        <div
+          class="dropdown-option"
+          (click)="selectOption(opt)"
+          >
+          @if (selectedOption === opt.value) {
+            <mat-icon>check</mat-icon>
+          }
+          {{ opt.label }}
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

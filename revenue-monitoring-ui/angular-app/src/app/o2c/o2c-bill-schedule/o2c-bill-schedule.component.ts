@@ -8,11 +8,24 @@ import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from '../../providers/http.service';
 import { offset } from '@popperjs/core';
 import { ro, th } from 'date-fns/locale';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { O2cSidebarNavComponent } from '../../shared/o2c-sidebar-nav/o2c-sidebar-nav.component';
+import { O2cProcessFlowComponent } from '../../components/o2c-process-flow/o2c-process-flow.component';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-  selector: 'app-o2c-bill-schedule',
-  templateUrl: './o2c-bill-schedule.component.html',
-  styleUrls: ['./o2c-bill-schedule.component.css'],
+    selector: 'app-o2c-bill-schedule',
+    templateUrl: './o2c-bill-schedule.component.html',
+    styleUrls: ['./o2c-bill-schedule.component.css'],
+    imports: [
+    CommonModule,
+    MatTableModule,
+    O2cSidebarNavComponent,
+    O2cProcessFlowComponent,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class O2cBillScheduleComponent {
   orderId: string = ''; // Placeholder for order ID

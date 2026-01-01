@@ -1,37 +1,42 @@
 <mat-tab-group
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab
-    *ngFor="let tab of filteredTabs; let i = index"
-    [label]="tab.label"
-    [disabled]="tab.disabled"
   >
-    <ng-container [ngSwitch]="tab.component">
-      <ng-container *ngSwitchCase="'app-large-deal'">
-        <app-invoice-status *ngIf="selectedIndex === i"></app-invoice-status>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-wd0-status'">
-        <app-wd0-dash *ngIf="selectedIndex === i"></app-wd0-dash>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-wd0-historical-data'">
-        <app-wd0-historical-data
-          *ngIf="selectedIndex === i"
-        ></app-wd0-historical-data>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-issue-reporting'">
-        <app-issue-reporting *ngIf="selectedIndex === i"></app-issue-reporting>
-      </ng-container>
-
-      <ng-container *ngSwitchCase="'app-o2c-360'">
-        <app-o2c-360
-          *ngIf="selectedIndex === i"
-          [searchParams]="o2cSearchParams"
-        ></app-o2c-360>
-      </ng-container>
-    </ng-container>
-  </mat-tab>
+  @for (tab of filteredTabs; track tab; let i = $index) {
+    <mat-tab
+      [label]="tab.label"
+      [disabled]="tab.disabled"
+      >
+      @switch (tab.component) {
+        @case ('app-large-deal') {
+          @if (selectedIndex === i) {
+            <app-invoice-status></app-invoice-status>
+          }
+        }
+        @case ('app-wd0-status') {
+          @if (selectedIndex === i) {
+            <app-wd0-dash></app-wd0-dash>
+          }
+        }
+        @case ('app-wd0-historical-data') {
+          @if (selectedIndex === i) {
+            <app-wd0-historical-data
+            ></app-wd0-historical-data>
+          }
+        }
+        @case ('app-issue-reporting') {
+          @if (selectedIndex === i) {
+            <app-issue-reporting></app-issue-reporting>
+          }
+        }
+        @case ('app-o2c-360') {
+          @if (selectedIndex === i) {
+            <app-o2c-360
+              [searchParams]="o2cSearchParams"
+            ></app-o2c-360>
+          }
+        }
+      }
+    </mat-tab>
+  }
 </mat-tab-group>

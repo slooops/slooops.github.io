@@ -1,0 +1,26 @@
+@import "src/assets/ui.css";
+
+:host {
+  display: contents;
+}
+
+.fit-admin-user-table {
+  padding: var(--fit-space-lg);
+}
+
+.fit-admin-user-table__header {
+  margin-bottom: var(--fit-space-xl);
+}
+
+.fit-admin-user-table__title {
+  font-size: 1.5rem;
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text);
+  margin: 0 0 var(--fit-space-xs) 0;
+}
+
+.fit-admin-user-table__description {
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text-muted);
+  margin: 0;
+}

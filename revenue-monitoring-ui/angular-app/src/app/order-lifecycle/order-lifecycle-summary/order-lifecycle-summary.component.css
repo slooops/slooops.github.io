@@ -1,4 +1,4 @@
-.mat-header-cell {
+.mat-mdc-header-cell {
   font-size: 12px;
   /* padding-left: 25px !important; */
   color: rgb(46, 46, 46) !important;
@@ -20,7 +20,7 @@
   font-family: "Inter", sans-serif;
 }
 
-.mat-header-row {
+.mat-mdc-header-row {
   background-color: #ffffff !important;
   border-bottom: 2px solid #373c42 !important; /* Add a bar below the header row */
   text-wrap: normal !important;
@@ -34,7 +34,7 @@
   box-shadow: 0 3px 8px #00000014;
 } */
 
-.mat-cell {
+.mat-mdc-cell {
   font-size: 11px;
   text-align: center;
   font-weight: 500;
@@ -79,28 +79,28 @@ mat-dialog-content {
   z-index: 1001; /* Above overlay */
 }
 
-/* .mat-column-ACCOUNT {
+/* .mat-mdc-column-ACCOUNT {
   white-space: normal !important;
   max-width: 100px !important;
   min-width: 50px !important;
 } */
 
-.mat-column-PROGRAM_NAME {
+.mat-mdc-column-PROGRAM_NAME {
   white-space: normal !important;
   max-width: 120px !important;
   min-width: 70px !important;
 }
 
-.mat-column-STATUS {
+.mat-mdc-column-STATUS {
   white-space: normal !important;
 }
 
-.mat-column-ORDER_COUNT {
+.mat-mdc-column-ORDER_COUNT {
   white-space: normal !important;
   max-width: 100px !important;
   min-width: 100px !important;
 }
 
-.mat-column-COMPLETION {
+.mat-mdc-column-COMPLETION {
   white-space: normal !important;
 }

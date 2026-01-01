@@ -1,11 +1,20 @@
 import { Component, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import * as XLSX from 'xlsx';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css'],
+    selector: 'app-table',
+    templateUrl: './table.component.html',
+    styleUrls: ['./table.component.css'],
+    imports: [
+    CommonModule,
+    MatTableModule,
+    LoadingSymbolComponent
+  ],
+  standalone: true
 })
 export class TableComponent {
   @Input() title!: string; // Table Title

@@ -3,11 +3,24 @@ import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { O2cBaseComponent } from '../../o2c-base.component';
+import { CommonModule } from '@angular/common';
+import { O2cAccordionComponent } from '../../../../components/o2c-accordion/o2c-accordion.component';
+import { O2cDonutComponent } from '../../../../components/o2c-donut/o2c-donut.component';
+import { O2cToolbarComponent } from '../../../../components/o2c-toolbar/o2c-toolbar.component';
+import { O2cTableComponent } from '../../../../components/o2c-table/o2c-table.component';
 
 @Component({
-  selector: 'app-o2c-subscription',
-  templateUrl: './o2c-subscription.component.html',
-  styleUrls: ['./o2c-subscription.component.css'],
+    selector: 'app-o2c-subscription',
+    templateUrl: './o2c-subscription.component.html',
+    styleUrls: ['./o2c-subscription.component.css'],
+    imports: [
+    CommonModule,
+    O2cAccordionComponent,
+    O2cDonutComponent,
+    O2cToolbarComponent,
+    O2cTableComponent
+  ],
+  standalone: true
 })
 export class O2cSubscriptionComponent
   extends O2cBaseComponent

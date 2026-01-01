@@ -32,6 +32,7 @@ Chart.register(...registerables);
   templateUrl: './wd0-historical-data.component.html',
   styleUrls: ['./wd0-historical-data.component.scss'],
   providers: [DestroyManager],
+  standalone: false,
 })
 export class Wd0HistoricalDataComponent
   implements OnInit, OnDestroy, AfterViewInit

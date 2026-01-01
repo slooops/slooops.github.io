@@ -13,27 +13,27 @@
 
     <!-- Table Body -->
     <tbody>
-      <tr *ngFor="let row of data">
-        <td>{{ row.incidentNumber }}</td>
-
-        <!-- Approve Checkbox -->
-        <td>
-          <input
-            type="checkbox"
-            [(ngModel)]="row.approved"
-            (change)="onCheckboxChange(row, 'approve')"
-          />
-        </td>
-
-        <!-- Reject Checkbox -->
-        <td>
-          <input
-            type="checkbox"
-            [(ngModel)]="row.rejected"
-            (change)="onCheckboxChange(row, 'reject')"
-          />
-        </td>
-      </tr>
+      @for (row of data; track row) {
+        <tr>
+          <td>{{ row.incidentNumber }}</td>
+          <!-- Approve Checkbox -->
+          <td>
+            <input
+              type="checkbox"
+              [(ngModel)]="row.approved"
+              (change)="onCheckboxChange(row, 'approve')"
+              />
+          </td>
+          <!-- Reject Checkbox -->
+          <td>
+            <input
+              type="checkbox"
+              [(ngModel)]="row.rejected"
+              (change)="onCheckboxChange(row, 'reject')"
+              />
+          </td>
+        </tr>
+      }
     </tbody>
   </table>
 </mat-dialog-content>
@@ -43,14 +43,14 @@
     class="btn"
     style="background-color: #185996 !important; color: white !important"
     (click)="onSubmit()"
-  >
+    >
     Submit
   </button>
   <button
     class="btn btn-default"
     style="background-color: white !important"
     (click)="onCancel()"
-  >
+    >
     Cancel
   </button>
 </mat-dialog-actions>

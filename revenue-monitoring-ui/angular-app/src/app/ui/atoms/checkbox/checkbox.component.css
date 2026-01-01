@@ -1,0 +1,21 @@
+@import "src/assets/ui.css";
+
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+
+.fit-checkbox {
+  margin-bottom: 0 !important;
+  font-weight: var(--fit-font-weight-normal) !important;
+}
+
+.fit-checkbox--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fit-checkbox__label {
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+}

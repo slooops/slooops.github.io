@@ -1,0 +1,31 @@
+<div class="fit-input-wrapper">
+  @if (label) {
+    <label [for]="'input-' + label" class="fit-input__label">
+      {{ label }}
+    </label>
+  }
+  <div class="fit-input-wrapper">
+    @if (iconName && iconPosition === 'left') {
+      <app-icon
+        [name]="iconName"
+        class="fit-input__icon fit-input__icon--left"
+      ></app-icon>
+    }
+    <input
+      [id]="'input-' + label"
+      [class]="inputClasses"
+      [type]="type"
+      [value]="value"
+      [placeholder]="placeholder"
+      [disabled]="isDisabled"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+    />
+    @if (iconName && iconPosition === 'right') {
+      <app-icon
+        [name]="iconName"
+        class="fit-input__icon fit-input__icon--right"
+      ></app-icon>
+    }
+  </div>
+</div>

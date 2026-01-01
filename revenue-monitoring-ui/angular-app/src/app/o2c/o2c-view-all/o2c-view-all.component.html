@@ -1,9 +1,11 @@
 <!-- <app-o2c-nav></app-o2c-nav> -->
-<span *ngIf="filteredDataNotFound" class="update-status-modal">
-  <span class="update-status-content">
-    No data found for the selected filters.
+@if (filteredDataNotFound) {
+  <span class="update-status-modal">
+    <span class="update-status-content">
+      No data found for the selected filters.
+    </span>
   </span>
-</span>
+}
 
 <div class="circle-header">
   <button class="back-btn-floating" (click)="goBack()">
@@ -17,40 +19,36 @@
   <div class="summary-title">Order Summary</div>
 
   <div class="order-table" style="margin: 0 -0.5vw">
-    <ng-container
-      *ngIf="orderSummaryDataSource.data.length > 0; else noOrderData"
-    >
+    @if (orderSummaryDataSource.data.length > 0) {
       <table mat-table [dataSource]="orderSummaryDataSource">
-        <ng-container
-          *ngFor="let column of orderSummaryDisplayedColumns1"
-          [matColumnDef]="column"
-        >
-          <th mat-header-cell *matHeaderCellDef>
-            {{ formatColumnName(column) }}
-          </th>
+        @for (column of orderSummaryDisplayedColumns1; track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
 
-          <td mat-cell *matCellDef="let element">
-            <ng-container [ngSwitch]="column">
-              <ng-container *ngSwitchCase="'STATUS'">
-                <span
-                  [ngClass]="{
-                    'status-closed': element[column]?.toLowerCase() === 'closed'
-                  }"
-                >
-                  {{ element[column] }}
-                </span>
-              </ng-container>
-
-              <ng-container *ngSwitchDefault>
-                {{
-                  column === "CREATION_DATE" || column === "ORDER_BOOKED_DATE"
-                    ? (element[column] | date : "MM/dd/yyyy")
-                    : element[column]
-                }}
-              </ng-container>
-            </ng-container>
-          </td>
-        </ng-container>
+            <td mat-cell *matCellDef="let element">
+              @switch (column) {
+                @case ('STATUS') {
+                  <span
+                    [ngClass]="{
+                      'status-closed': element[column]?.toLowerCase() === 'closed'
+                    }"
+                  >
+                    {{ element[column] }}
+                  </span>
+                }
+                @default {
+                  {{
+                    column === "CREATION_DATE" || column === "ORDER_BOOKED_DATE"
+                      ? (element[column] | date : "MM/dd/yyyy")
+                      : element[column]
+                  }}
+                }
+              }
+            </td>
+          </ng-container>
+        }
 
         <tr
           mat-header-row
@@ -66,32 +64,31 @@
         [dataSource]="orderSummaryDataSource"
         class="order-table"
       >
-        <ng-container
-          *ngFor="let column of orderSummaryDisplayedColumns2"
-          [matColumnDef]="column"
-        >
-          <th
-            mat-header-cell
-            *matHeaderCellDef
-            [ngClass]="{
-              'wide-column':
-                column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
-            }"
-          >
-            {{ formatColumnName(column) }}
-          </th>
+        @for (column of orderSummaryDisplayedColumns2; track column) {
+          <ng-container [matColumnDef]="column">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              [ngClass]="{
+                'wide-column':
+                  column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
+              }"
+            >
+              {{ formatColumnName(column) }}
+            </th>
 
-          <td
-            mat-cell
-            *matCellDef="let element"
-            [ngClass]="{
-              'wide-column':
-                column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
-            }"
-          >
-            {{ element[column] }}
-          </td>
-        </ng-container>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [ngClass]="{
+                'wide-column':
+                  column === 'BILL_TO_CUSTOMER' || column === 'END_CUSTOMER'
+              }"
+            >
+              {{ element[column] }}
+            </td>
+          </ng-container>
+        }
 
         <tr
           mat-header-row
@@ -102,12 +99,11 @@
           *matRowDef="let row; columns: orderSummaryDisplayedColumns2"
         ></tr>
       </table>
-    </ng-container>
-    <ng-template #noOrderData>
+    } @else {
       <div class="no-data-container">
         <p>No data available for this order.</p>
       </div>
-    </ng-template>
+    }
   </div>
 
   <div class="summary-title" style="margin-top: -16px">Financial Summary</div>
@@ -118,21 +114,19 @@
           *ngIf="financialSummaryDataSource.data.length > 0; else noData"
         > -->
     <table mat-table [dataSource]="financialSummaryDataSource">
-      <ng-container
-        *ngFor="let column of financialSummaryDisplayedColumns"
-        [matColumnDef]="column"
-      >
-        <!-- Special handling for the actions column -->
-        <th mat-header-cell *matHeaderCellDef>
-          <!-- Empty header for actions column -->
-          <span *ngIf="column !== 'actions'">{{
-            formatColumnName(column)
-          }}</span>
-        </th>
+      @for (column of financialSummaryDisplayedColumns; track column) {
+        <ng-container [matColumnDef]="column">
+          <!-- Special handling for the actions column -->
+          <th mat-header-cell *matHeaderCellDef>
+            <!-- Empty header for actions column -->
+            @if (column !== 'actions') {
+              <span>{{ formatColumnName(column) }}</span>
+            }
+          </th>
 
-        <td mat-cell *matCellDef="let element">
-          <!-- Special handling for the actions column to add a button -->
-          <!-- <ng-container *ngIf="column === 'actions'; else regularCell">
+          <td mat-cell *matCellDef="let element">
+            <!-- Special handling for the actions column to add a button -->
+            <!-- <ng-container *ngIf="column === 'actions'; else regularCell">
             <button class="link-button" (click)="viewInCCW()" disabled>
               <span class="ccw-button-text">View in CCW</span>
               <svg
@@ -154,13 +148,13 @@
             </button>
           </ng-container> -->
 
-          <!-- <ng-template>
+            <!-- <ng-template>
             {{ element[column] }}
           </ng-template> -->
 
-          <ng-container [ngSwitch]="column">
-            <!-- Actions column with CCW button -->
-            <!-- <ng-container *ngSwitchCase="'actions'">
+            @switch (column) {
+              <!-- Actions column with CCW button -->
+              <!-- <ng-container *ngSwitchCase="'actions'">
                 <button class="link-button" (click)="viewInCCW()" disabled>
                   <span class="ccw-button-text">View in CCW</span>
                   <svg
@@ -182,15 +176,16 @@
                 </button>
               </ng-container> -->
 
-            <!-- CASH column with link to invoices view -->
+              <!-- CASH column with link to invoices view -->
 
-            <!-- Default case for all other columns -->
-            <ng-container *ngSwitchDefault>
-              {{ element[column] }}
-            </ng-container>
-          </ng-container>
-        </td>
-      </ng-container>
+              <!-- Default case for all other columns -->
+              @default {
+                {{ element[column] }}
+              }
+            }
+          </td>
+        </ng-container>
+      }
 
       <tr
         mat-header-row
@@ -221,30 +216,31 @@
 
 <!-- Add this OUTSIDE and BEFORE the mat-tab-group -->
 <div class="external-filters-container">
-  <app-table-filter
-    *ngIf="getActiveFilter()"
-    class="external-filter"
-    [style.left.px]="getActiveFilter().position.x"
-    [style.top.px]="getActiveFilter().position.y"
-    [columnLabel]="getActiveFilter().columnLabel"
-    [options]="getActiveFilter().options"
-    [isOpen]="true"
-    [currentValue]="
-      getCurrentFilterValue(
-        getActiveFilter().column,
-        getActiveFilter().dataSource
-      )
-    "
-    (optionSelected)="
-      handleFilter(
-        $event,
-        getActiveFilter().column,
-        getActiveFilter().data,
-        getActiveFilter().dataSource
-      )
-    "
-    (clickOutside)="closeAllFilters()"
-  ></app-table-filter>
+  @if (getActiveFilter()) {
+    <app-table-filter
+      class="external-filter"
+      [style.left.px]="getActiveFilter().position.x"
+      [style.top.px]="getActiveFilter().position.y"
+      [columnLabel]="getActiveFilter().columnLabel"
+      [options]="getActiveFilter().options"
+      [isOpen]="true"
+      [currentValue]="
+        getCurrentFilterValue(
+          getActiveFilter().column,
+          getActiveFilter().dataSource
+        )
+      "
+      (optionSelected)="
+        handleFilter(
+          $event,
+          getActiveFilter().column,
+          getActiveFilter().data,
+          getActiveFilter().dataSource
+        )
+      "
+      (clickOutside)="closeAllFilters()"
+    ></app-table-filter>
+  }
 </div>
 
 <mat-tab-group
@@ -253,468 +249,443 @@
   style="padding: 0 6vw"
 >
   <mat-tab label="Subscriptions">
-    <div class="tool-bar-container" *ngIf="!showSubscriptionLines">
-      <div class="o2c-toolbar">
-        <button class="toolbar-btn" (click)="handlePrint()">
-          <i class="print-icon"></i> Print
-        </button>
-        <button
-          (click)="
-            handleDownload(
-              subscriptionSummaryDataSource.data,
-              'O2C 360 Order-' + orderId + ' - Subscription-' + subscriptionId,
-              'Subscription Data-' + subscriptionId
-            )
-          "
-          class="toolbar-btn"
-        >
-          <i class="download-icon"></i>
-          Download
-        </button>
+    @if (!showSubscriptionLines) {
+      <div class="tool-bar-container">
+        <div class="o2c-toolbar">
+          <button class="toolbar-btn" (click)="handlePrint()">
+            <i class="print-icon"></i> Print
+          </button>
+          <button
+            (click)="
+              handleDownload(
+                subscriptionSummaryDataSource.data,
+                'O2C 360 Order-' + orderId + ' - Subscription-' + subscriptionId,
+                'Subscription Data-' + subscriptionId
+              )
+            "
+            class="toolbar-btn"
+          >
+            <i class="download-icon"></i>
+            Download
+          </button>
 
-        <!-- <button class="toolbar-btn" (click)="handleShare()">
+          <!-- <button class="toolbar-btn" (click)="handleShare()">
           <i class="share-icon"></i> Share
         </button> -->
-      </div>
-    </div>
-
-    <div class="table-container" *ngIf="!showSubscriptionLines">
-      <div class="table-banner">
-        <div class="order-info accordion-header">
-          Subscriptions -
-          {{
-            subscriptionSummaryDataSource.data.length
-              ? subscriptionSummaryDataSource.data.length
-              : null
-          }}
         </div>
       </div>
-      <div class="accordion-content o2c-card">
-        <div class="invoice-summary-table">
-          <ng-container
-            *ngIf="
-              subscriptionSummaryDataSource.data.length > 0;
-              else noSubscriptionData
-            "
-          >
-            <table mat-table [dataSource]="subscriptionSummaryDataSource">
-              <ng-container
-                *ngFor="let column of subscriptionSummaryDisplayedColumns"
-                [matColumnDef]="column"
-              >
-                <th mat-header-cell *matHeaderCellDef>
-                  {{ formatColumnName(column) }}
-                </th>
+    }
 
-                <td mat-cell *matCellDef="let element">
-                  <ng-container [ngSwitch]="column">
-                    <!-- SUBSCRIPTION_ID -->
-                    <ng-container *ngSwitchCase="'SUBSCRIPTION_ID'">
-                      <a
-                        (click)="
-                          toggleSubscriptionLinesTable(element[column]);
-                          $event.preventDefault()
-                        "
-                      >
-                        {{ element[column] }}
-                      </a>
-                    </ng-container>
+    @if (!showSubscriptionLines) {
+      <div class="table-container">
+        <div class="table-banner">
+          <div class="order-info accordion-header">
+            Subscriptions -
+            {{
+              subscriptionSummaryDataSource.data.length
+                ? subscriptionSummaryDataSource.data.length
+                : null
+            }}
+          </div>
+        </div>
+        <div class="accordion-content o2c-card">
+          <div class="invoice-summary-table">
+            @if (subscriptionSummaryDataSource.data.length > 0) {
+              <table mat-table [dataSource]="subscriptionSummaryDataSource">
+                @for (column of subscriptionSummaryDisplayedColumns; track column) {
+                  <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>
+                      {{ formatColumnName(column) }}
+                    </th>
 
-                    <!-- SUBSCRIPTION_STATUS -->
-                    <ng-container *ngSwitchCase="'SUBSCRIPTION_STATUS'">
-                      <span
-                        [ngStyle]="{
-                          color:
-                            element[column]?.toLowerCase() === 'active'
-                              ? '#078a00'
-                              : element[column]?.toLowerCase() === 'inactive'
-                              ? '#d57b00'
-                              : ''
-                        }"
-                      >
-                        {{ element[column] }}
-                      </span>
-                    </ng-container>
-
-                    <!-- BILLING_SCHEDULE -->
-                    <ng-container *ngSwitchCase="'BILLING_SCHEDULE'">
-                      <a
-                        style="text-decoration: none"
-                        (click)="navigateToBillingSchedule(element)"
-                      >
-                        {{ element[column] }}
-                      </a>
-                    </ng-container>
-
-                    <!-- Default case for date columns and other fields -->
-                    <ng-container *ngSwitchDefault>
-                      <span>
-                        {{
-                          column === "LAST_UPDATE_DATE" || column === "RUN_DATE"
-                            ? (element[column] | date : "MM/dd/yyyy")
-                            : element[column]
-                        }}
-                      </span>
-                    </ng-container>
+                    <td mat-cell *matCellDef="let element">
+                      @switch (column) {
+                        <!-- SUBSCRIPTION_ID -->
+                        @case ('SUBSCRIPTION_ID') {
+                          <a
+                            (click)="
+                              toggleSubscriptionLinesTable(element[column]);
+                              $event.preventDefault()
+                            "
+                          >
+                            {{ element[column] }}
+                          </a>
+                        }
+                        <!-- SUBSCRIPTION_STATUS -->
+                        @case ('SUBSCRIPTION_STATUS') {
+                          <span
+                            [ngStyle]="{
+                              color:
+                                element[column]?.toLowerCase() === 'active'
+                                  ? '#078a00'
+                                  : element[column]?.toLowerCase() === 'inactive'
+                                  ? '#d57b00'
+                                  : ''
+                            }"
+                          >
+                            {{ element[column] }}
+                          </span>
+                        }
+                        <!-- BILLING_SCHEDULE -->
+                        @case ('BILLING_SCHEDULE') {
+                          <a
+                            style="text-decoration: none"
+                            (click)="navigateToBillingSchedule(element)"
+                          >
+                            {{ element[column] }}
+                          </a>
+                        }
+                        <!-- Default case for date columns and other fields -->
+                        @default {
+                          <span>
+                            {{
+                              column === "LAST_UPDATE_DATE" || column === "RUN_DATE"
+                                ? (element[column] | date : "MM/dd/yyyy")
+                                : element[column]
+                            }}
+                          </span>
+                        }
+                      }
+                    </td>
                   </ng-container>
-                </td>
-              </ng-container>
+                }
 
-              <tr
-                mat-header-row
-                *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
-              ></tr>
-              <tr
-                mat-row
-                *matRowDef="
-                  let row;
-                  columns: subscriptionSummaryDisplayedColumns
-                "
-              ></tr>
-            </table>
-          </ng-container>
-          <ng-template #noSubscriptionData>
-            <div class="no-data-container">
-              <p>No subscription data available for this order.</p>
-            </div>
-          </ng-template>
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="subscriptionSummaryDisplayedColumns"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="
+                    let row;
+                    columns: subscriptionSummaryDisplayedColumns
+                  "
+                ></tr>
+              </table>
+            } @else {
+              <div class="no-data-container">
+                <p>No subscription data available for this order.</p>
+              </div>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- TOOLBAR for Subscription Lines -->
-    <div
-      class="tool-bar-container"
-      style="flex-direction: row"
-      *ngIf="showSubscriptionLines"
-    >
-      <button
-        class="back-btn"
-        (click)="showSubscriptionLines = false; showInvoiceLines = false"
-      >
-        <i class="back-icon"></i> Summary
-      </button>
-      <div class="o2c-toolbar">
-        <button class="toolbar-btn" (click)="handlePrint()">
-          <i class="print-icon"></i> Print
-        </button>
+    @if (showSubscriptionLines) {
+      <div class="tool-bar-container" style="flex-direction: row">
         <button
-          class="toolbar-btn"
-          (click)="
-            handleDownload(
-              subscriptionLinesFilteredDataSource.data,
-              'O2C 360 Subscription Lines - ' + orderId,
-              'Subscription Lines'
-            )
-          "
+          class="back-btn"
+          (click)="showSubscriptionLines = false; showInvoiceLines = false"
         >
-          <i class="download-icon"></i> Download
+          <i class="back-icon"></i> Summary
         </button>
+        <div class="o2c-toolbar">
+          <button class="toolbar-btn" (click)="handlePrint()">
+            <i class="print-icon"></i> Print
+          </button>
+          <button
+            class="toolbar-btn"
+            (click)="
+              handleDownload(
+                subscriptionLinesFilteredDataSource.data,
+                'O2C 360 Subscription Lines - ' + orderId,
+                'Subscription Lines'
+              )
+            "
+          >
+            <i class="download-icon"></i> Download
+          </button>
 
-        <!-- <button class="toolbar-btn" (click)="handleShare()">
+          <!-- <button class="toolbar-btn" (click)="handleShare()">
           <i class="share-icon"></i> Share
         </button> -->
-      </div>
-    </div>
-
-    <!-- SUBSCRIPTION LINES TABLE -->
-    <div class="table-container" *ngIf="showSubscriptionLines">
-      <div class="table-banner">
-        <div class="order-info accordion-header">
-          Subscription Line Details -
-          {{ subscriptionLinesFilteredDataSource.data.length }}
         </div>
       </div>
-      <div class="accordion-content o2c-card">
-        <ng-container *ngTemplateOutlet="subscriptionLinesTable"></ng-container>
+    }
+
+    <!-- SUBSCRIPTION LINES TABLE -->
+    @if (showSubscriptionLines) {
+      <div class="table-container">
+        <div class="table-banner">
+          <div class="order-info accordion-header">
+            Subscription Line Details -
+            {{ subscriptionLinesFilteredDataSource.data.length }}
+          </div>
+        </div>
+        <div class="accordion-content o2c-card">
+          <ng-container
+            *ngTemplateOutlet="subscriptionLinesTable"
+          ></ng-container>
+        </div>
       </div>
-    </div>
+    }
   </mat-tab>
 
   <mat-tab label="Invoices">
-    <div class="tool-bar-container" *ngIf="!showInvoiceLines">
-      <div class="o2c-toolbar">
-        <button class="toolbar-btn" (click)="handlePrint()">
-          <i class="print-icon"></i> Print
-        </button>
-        <button
-          (click)="
-            handleDownload(
-              invoiceSummaryDataSource.data,
-              'O2C 360 Order-' + orderId + ' - Invoice-' + invoiceId,
-              'Invoice Data-' + invoiceId
-            )
-          "
-          class="toolbar-btn"
-        >
-          <i class="download-icon"></i>
-          Download
-        </button>
+    @if (!showInvoiceLines) {
+      <div class="tool-bar-container">
+        <div class="o2c-toolbar">
+          <button class="toolbar-btn" (click)="handlePrint()">
+            <i class="print-icon"></i> Print
+          </button>
+          <button
+            (click)="
+              handleDownload(
+                invoiceSummaryDataSource.data,
+                'O2C 360 Order-' + orderId + ' - Invoice-' + invoiceId,
+                'Invoice Data-' + invoiceId
+              )
+            "
+            class="toolbar-btn"
+          >
+            <i class="download-icon"></i>
+            Download
+          </button>
 
-        <!-- <button class="toolbar-btn" (click)="handleShare()">
+          <!-- <button class="toolbar-btn" (click)="handleShare()">
           <i class="share-icon"></i> Share
         </button> -->
-      </div>
-    </div>
-
-    <div class="table-container" *ngIf="!showInvoiceLines">
-      <div class="table-banner">
-        <div class="order-info accordion-header">
-          Invoices -
-          {{
-            invoiceSummaryDataSource.data.length
-              ? invoiceSummaryDataSource.data.length
-              : null
-          }}
         </div>
       </div>
-      <div class="accordion-content o2c-card">
-        <div class="invoice-summary-table">
-          <ng-container
-            *ngIf="invoiceSummaryDataSource.data.length > 0; else noInvoiceData"
-          >
-            <table mat-table [dataSource]="invoiceSummaryDataSource">
-              <ng-container
-                *ngFor="let column of invoiceSummaryDisplayedColumns"
-                [matColumnDef]="column"
-              >
-                <th mat-header-cell *matHeaderCellDef>
-                  <div class="header-with-filter">
-                    <span>{{ formatColumnName(column) }}</span>
+    }
 
-                    <ng-container
-                      *ngIf="
-                        column === 'AMOUNT_DUE_ORIGINAL' ||
-                        column === 'AMOUNT_DUE_REMAINING'
-                      "
-                    >
-                      <button
-                        class="filter-trigger-btn"
-                        [class.active]="
-                          isFilterActive(column, 'invoiceSummaryDataSource')
-                        "
-                        (click)="
-                          showFilter(
-                            $event,
-                            column,
-                            'USD',
-                            amountOptions,
-                            originalInvoiceSummaryData,
-                            'invoiceSummaryDataSource'
-                          )
-                        "
-                      >
-                        <mat-icon>filter_list</mat-icon>
-                      </button>
-                    </ng-container>
-                  </div>
-                </th>
+    @if (!showInvoiceLines) {
+      <div class="table-container">
+        <div class="table-banner">
+          <div class="order-info accordion-header">
+            Invoices -
+            {{
+              invoiceSummaryDataSource.data.length
+                ? invoiceSummaryDataSource.data.length
+                : null
+            }}
+          </div>
+        </div>
+        <div class="accordion-content o2c-card">
+          <div class="invoice-summary-table">
+            @if (invoiceSummaryDataSource.data.length > 0) {
+              <table mat-table [dataSource]="invoiceSummaryDataSource">
+                @for (column of invoiceSummaryDisplayedColumns; track column) {
+                  <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>
+                      <div class="header-with-filter">
+                        <span>{{ formatColumnName(column) }}</span>
 
-                <td mat-cell *matCellDef="let element">
-                  <ng-container [ngSwitch]="column">
-                    <ng-container *ngSwitchCase="'OTHER_DETAILS'">
-                      <a
-                        (click)="
-                          openInvoiceModal(element['TRANSACTION_NUMBER']);
-                          $event.preventDefault()
-                        "
-                      >
-                        {{ element[column] }}
-                      </a>
-                    </ng-container>
+                        @if (
+                          column === 'AMOUNT_DUE_ORIGINAL' ||
+                          column === 'AMOUNT_DUE_REMAINING'
+                        ) {
+                          <button
+                            class="filter-trigger-btn"
+                            [class.active]="
+                              isFilterActive(column, 'invoiceSummaryDataSource')
+                            "
+                            (click)="
+                              showFilter(
+                                $event,
+                                column,
+                                'USD',
+                                amountOptions,
+                                originalInvoiceSummaryData,
+                                'invoiceSummaryDataSource'
+                              )
+                            "
+                          >
+                            <mat-icon>filter_list</mat-icon>
+                          </button>
+                        }
+                      </div>
+                    </th>
 
-                    <ng-container *ngSwitchCase="'TRANSACTION_NUMBER'">
-                      <a
-                        (click)="
-                          toggleInvoiceLinesTable(element['TRANSACTION_NUMBER'])
-                        "
-                      >
-                        {{ element[column] }}
-                      </a>
-                    </ng-container>
-
-                    <ng-container
-                      *ngSwitchCase="
-                        column === 'AMOUNT_DUE_ORIGINAL' ||
+                    <td mat-cell *matCellDef="let element">
+                      @switch (column) {
+                        @case ('OTHER_DETAILS') {
+                          <a
+                            (click)="
+                              openInvoiceModal(element['TRANSACTION_NUMBER']);
+                              $event.preventDefault()
+                            "
+                          >
+                            {{ element[column] }}
+                          </a>
+                        }
+                        @case ('TRANSACTION_NUMBER') {
+                          <a
+                            (click)="
+                              toggleInvoiceLinesTable(element['TRANSACTION_NUMBER'])
+                            "
+                          >
+                            {{ element[column] }}
+                          </a>
+                        }
+                        @case (column === 'AMOUNT_DUE_ORIGINAL' ||
                         column === 'AMOUNT_DUE_REMAINING'
                           ? column
-                          : ''
-                      "
-                    >
-                      {{ element[column] | currency : "USD" : "" }}
-                    </ng-container>
-
-                    <ng-container *ngSwitchDefault>
-                      {{
-                        column === "TRANSACTION_DATE" || column === "DUE_DATE"
-                          ? (element[column] | date : "MM/dd/yyyy")
-                          : element[column]
-                      }}
-                    </ng-container>
+                          : '') {
+                          {{ element[column] | currency : "USD" : "" }}
+                        }
+                        @default {
+                          {{
+                            column === "TRANSACTION_DATE" || column === "DUE_DATE"
+                              ? (element[column] | date : "MM/dd/yyyy")
+                              : element[column]
+                          }}
+                        }
+                      }
+                    </td>
                   </ng-container>
-                </td>
-              </ng-container>
+                }
 
-              <tr
-                mat-header-row
-                *matHeaderRowDef="invoiceSummaryDisplayedColumns"
-              ></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
-              ></tr>
-            </table>
-          </ng-container>
-          <ng-template #noInvoiceData>
-            <div class="no-data-container">
-              <p>No invoice data available for this order.</p>
-            </div>
-          </ng-template>
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="invoiceSummaryDisplayedColumns"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: invoiceSummaryDisplayedColumns"
+                ></tr>
+              </table>
+            } @else {
+              <div class="no-data-container">
+                <p>No invoice data available for this order.</p>
+              </div>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
 
     <!-- TOOLBAR for Invoice Lines -->
-    <div
-      class="tool-bar-container"
-      style="flex-direction: row"
-      *ngIf="showInvoiceLines"
-    >
-      <button
-        class="back-btn"
-        (click)="showInvoiceLines = false; showSubscriptionLines = false"
-      >
-        <i class="back-icon"></i> Summary
-      </button>
-      <div class="o2c-toolbar">
-        <button class="toolbar-btn" (click)="handlePrint()">
-          <i class="print-icon"></i> Print
-        </button>
+    @if (showInvoiceLines) {
+      <div class="tool-bar-container" style="flex-direction: row">
         <button
-          class="toolbar-btn"
-          (click)="
-            handleDownload(
-              invoiceLinesFilteredDataSource.data,
-              'O2C 360 Invoice Lines - ' + orderId,
-              'Invoice Lines'
-            )
-          "
+          class="back-btn"
+          (click)="showInvoiceLines = false; showSubscriptionLines = false"
         >
-          <i class="download-icon"></i> Download
+          <i class="back-icon"></i> Summary
         </button>
-
-        <!-- <button class="toolbar-btn" (click)="handleShare()">
-          <i class="share-icon"></i> Share
-        </button> -->
-      </div>
-    </div>
-
-    <!-- INVOICE LINES TABLE -->
-    <div class="table-container" *ngIf="showInvoiceLines">
-      <div class="table-banner">
-        <div class="order-info accordion-header">
-          Invoice Line Details -
-          {{ invoiceLinesFilteredDataSource.data.length }}
-        </div>
-      </div>
-      <div class="accordion-content o2c-card">
-        <div class="invoice-summary-table">
-          <ng-container
-            *ngIf="
-              invoiceLinesFilteredDataSource.data.length > 0;
-              else noInvoiceLineData
+        <div class="o2c-toolbar">
+          <button class="toolbar-btn" (click)="handlePrint()">
+            <i class="print-icon"></i> Print
+          </button>
+          <button
+            class="toolbar-btn"
+            (click)="
+              handleDownload(
+                invoiceLinesFilteredDataSource.data,
+                'O2C 360 Invoice Lines - ' + orderId,
+                'Invoice Lines'
+              )
             "
           >
-            <table mat-table [dataSource]="invoiceLinesFilteredDataSource">
-              <ng-container
-                *ngFor="let column of invoiceLinesDisplayedColumns"
-                [matColumnDef]="column"
-              >
-                <th mat-header-cell *matHeaderCellDef>
-                  <div class="header-with-filter">
-                    <span>{{ formatColumnName(column) }}</span>
+            <i class="download-icon"></i> Download
+          </button>
 
-                    <ng-container *ngIf="column === 'POSTED_TO_GL'">
-                      <button
-                        class="filter-trigger-btn"
-                        [class.active]="
-                          isFilterActive(
-                            column,
-                            invoiceLinesFiltered
-                              ? 'invoiceLinesFilteredDataSource'
-                              : 'invoiceLinesDataSource'
-                          )
-                        "
-                        (click)="
-                          showFilter(
-                            $event,
-                            column,
-                            '',
-                            postedToGLOptions,
-                            invoiceLinesFiltered
-                              ? filteredOriginalInvoiceLinesData
-                              : originalInvoiceLinesData,
-                            invoiceLinesFiltered
-                              ? 'invoiceLinesFilteredDataSource'
-                              : 'invoiceLinesDataSource'
-                          )
-                        "
-                      >
-                        <mat-icon>filter_list</mat-icon>
-                      </button>
-                    </ng-container>
+          <!-- <button class="toolbar-btn" (click)="handleShare()">
+          <i class="share-icon"></i> Share
+        </button> -->
+        </div>
+      </div>
+    }
 
-                    <ng-container
-                      *ngIf="
-                        column === 'EXTENDED_AMOUNT' ||
-                        column === 'LINE_AMOUNT' ||
-                        column === 'TAX_AMOUNT'
-                      "
-                    >
-                      <button
-                        class="filter-trigger-btn"
-                        [class.active]="
-                          isFilterActive(
-                            column,
-                            invoiceLinesFiltered
-                              ? 'invoiceLinesFilteredDataSource'
-                              : 'invoiceLinesDataSource'
-                          )
-                        "
-                        (click)="
-                          showFilter(
-                            $event,
-                            column,
-                            'USD',
-                            amountOptions,
-                            invoiceLinesFiltered
-                              ? filteredOriginalInvoiceLinesData
-                              : originalInvoiceLinesData,
-                            invoiceLinesFiltered
-                              ? 'invoiceLinesFilteredDataSource'
-                              : 'invoiceLinesDataSource'
-                          )
-                        "
-                      >
-                        <mat-icon>filter_list</mat-icon>
-                      </button>
-                    </ng-container>
-                  </div>
-                </th>
+    <!-- INVOICE LINES TABLE -->
+    @if (showInvoiceLines) {
+      <div class="table-container">
+        <div class="table-banner">
+          <div class="order-info accordion-header">
+            Invoice Line Details -
+            {{ invoiceLinesFilteredDataSource.data.length }}
+          </div>
+        </div>
+        <div class="accordion-content o2c-card">
+          <div class="invoice-summary-table">
+            @if (invoiceLinesFilteredDataSource.data.length > 0) {
+              <table mat-table [dataSource]="invoiceLinesFilteredDataSource">
+                @for (column of invoiceLinesDisplayedColumns; track column) {
+                  <ng-container [matColumnDef]="column">
+                    <th mat-header-cell *matHeaderCellDef>
+                      <div class="header-with-filter">
+                        <span>{{ formatColumnName(column) }}</span>
 
-                <td mat-cell *matCellDef="let element">
-                  <ng-container [ngSwitch]="column">
-                    <ng-container
-                      *ngSwitchCase="
-                        column === 'LINE_AMOUNT' ||
+                        @if (column === 'POSTED_TO_GL') {
+                          <button
+                            class="filter-trigger-btn"
+                            [class.active]="
+                              isFilterActive(
+                                column,
+                                invoiceLinesFiltered
+                                  ? 'invoiceLinesFilteredDataSource'
+                                  : 'invoiceLinesDataSource'
+                              )
+                            "
+                            (click)="
+                              showFilter(
+                                $event,
+                                column,
+                                '',
+                                postedToGLOptions,
+                                invoiceLinesFiltered
+                                  ? filteredOriginalInvoiceLinesData
+                                  : originalInvoiceLinesData,
+                                invoiceLinesFiltered
+                                  ? 'invoiceLinesFilteredDataSource'
+                                  : 'invoiceLinesDataSource'
+                              )
+                            "
+                          >
+                            <mat-icon>filter_list</mat-icon>
+                          </button>
+                        }
+
+                        @if (
+                          column === 'EXTENDED_AMOUNT' ||
+                          column === 'LINE_AMOUNT' ||
+                          column === 'TAX_AMOUNT'
+                        ) {
+                          <button
+                            class="filter-trigger-btn"
+                            [class.active]="
+                              isFilterActive(
+                                column,
+                                invoiceLinesFiltered
+                                  ? 'invoiceLinesFilteredDataSource'
+                                  : 'invoiceLinesDataSource'
+                              )
+                            "
+                            (click)="
+                              showFilter(
+                                $event,
+                                column,
+                                'USD',
+                                amountOptions,
+                                invoiceLinesFiltered
+                                  ? filteredOriginalInvoiceLinesData
+                                  : originalInvoiceLinesData,
+                                invoiceLinesFiltered
+                                  ? 'invoiceLinesFilteredDataSource'
+                                  : 'invoiceLinesDataSource'
+                              )
+                            "
+                          >
+                            <mat-icon>filter_list</mat-icon>
+                          </button>
+                        }
+                      </div>
+                    </th>
+
+                    <td mat-cell *matCellDef="let element">
+                      @switch (column) {
+                        @case (column === 'LINE_AMOUNT' ||
                         column === 'TAX_AMOUNT' ||
                         column === 'EXTENDED_AMOUNT' ||
                         column === 'UNIT_SELLING_PRICE'
-                      "
-                    >
-                      {{ element[column] | currency }}
-                    </ng-container>
-                    <!--
+                          ? column
+                          : '') {
+                          {{ formatAmount(element[column]) }}
+                        }
+                        <!--
                     <ng-container *ngSwitchCase="'POSTED_TO_GL'">
                       <button
                         class="link-button"
@@ -723,36 +694,36 @@
                         {{ element[column] }}
                       </button>
                     </ng-container> -->
-
-                    <ng-container *ngSwitchDefault>
-                      {{
-                        column === "GL_DATE"
-                          ? (element[column] | date : "MM/dd/yyyy")
-                          : element[column]
-                      }}
-                    </ng-container>
+                        @default {
+                          {{
+                            column === "GL_DATE"
+                              ? (element[column] | date : "MM/dd/yyyy")
+                              : element[column]
+                          }}
+                        }
+                      }
+                    </td>
                   </ng-container>
-                </td>
-              </ng-container>
+                }
 
-              <tr
-                mat-header-row
-                *matHeaderRowDef="invoiceLinesDisplayedColumns"
-              ></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: invoiceLinesDisplayedColumns"
-              ></tr>
-            </table>
-          </ng-container>
-          <ng-template #noInvoiceLineData>
-            <div class="no-data-container">
-              <p>No invoice line data available for this order.</p>
-            </div>
-          </ng-template>
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="invoiceLinesDisplayedColumns"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: invoiceLinesDisplayedColumns"
+                ></tr>
+              </table>
+            } @else {
+              <div class="no-data-container">
+                <p>No invoice line data available for this order.</p>
+              </div>
+            }
+          </div>
         </div>
       </div>
-    </div>
+    }
   </mat-tab>
 </mat-tab-group>
 
@@ -760,148 +731,136 @@
 
 <ng-template #subscriptionLinesTable>
   <div class="invoice-summary-table">
-    <ng-container
-      *ngIf="
-        subscriptionLinesFilteredDataSource.data.length > 0;
-        else noSubscriptionLineData
-      "
-    >
+    @if (subscriptionLinesFilteredDataSource.data.length > 0) {
       <table mat-table [dataSource]="subscriptionLinesFilteredDataSource">
-        <ng-container
-          *ngFor="let column of subscriptionLinesDisplayedColumns"
-          [matColumnDef]="column"
-        >
-          <th mat-header-cell *matHeaderCellDef>
-            <ng-container [ngSwitch]="column">
-              <span> {{ formatColumnName(column) }} </span>
-              <ng-container *ngIf="column === 'LINE_AMOUNT'">
-                <button
-                  class="filter-trigger-btn"
-                  [class.active]="
-                    isFilterActive(
-                      column,
-                      'subscriptionLinesFilteredDataSource'
-                    )
-                  "
-                  (click)="
-                    showFilter(
-                      $event,
-                      column,
-                      'USD',
-                      amountOptions,
-                      subscriptionLinesFiltered
-                        ? filteredOriginalSubscriptionLinesData
-                        : originalSubscriptionLinesData,
-                      'subscriptionLinesFilteredDataSource'
-                    )
-                  "
-                >
-                  <mat-icon>filter_list</mat-icon>
-                </button>
-              </ng-container>
-              <ng-container *ngIf="column === 'POSTED_TO_GL'">
-                <button
-                  class="filter-trigger-btn"
-                  [class.active]="
-                    isFilterActive(
-                      column,
-                      'subscriptionLinesFilteredDataSource'
-                    )
-                  "
-                  (click)="
-                    showFilter(
-                      $event,
-                      column,
-                      '',
-                      postedToGLOptions,
-                      subscriptionLinesFiltered
-                        ? filteredOriginalSubscriptionLinesData
-                        : originalSubscriptionLinesData,
-                      'subscriptionLinesFilteredDataSource'
-                    )
-                  "
-                >
-                  <mat-icon>filter_list</mat-icon>
-                </button>
-              </ng-container>
-              <ng-container *ngIf="column === 'TSV_CREATED'">
-                <button
-                  class="filter-trigger-btn"
-                  [class.active]="
-                    isFilterActive(
-                      column,
-                      'subscriptionLinesFilteredDataSource'
-                    )
-                  "
-                  (click)="
-                    showFilter(
-                      $event,
-                      column,
-                      '',
-                      postedToGLOptions,
-                      subscriptionLinesFiltered
-                        ? filteredOriginalSubscriptionLinesData
-                        : originalSubscriptionLinesData,
-                      'subscriptionLinesFilteredDataSource'
-                    )
-                  "
-                >
-                  <mat-icon>filter_list</mat-icon>
-                </button>
-              </ng-container>
-            </ng-container>
-          </th>
+        @for (column of subscriptionLinesDisplayedColumns; track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              @switch (column) {
+                @default {
+                  <span> {{ formatColumnName(column) }} </span>
+                  @if (column === 'LINE_AMOUNT') {
+                    <button
+                      class="filter-trigger-btn"
+                      [class.active]="
+                        isFilterActive(
+                          column,
+                          'subscriptionLinesFilteredDataSource'
+                        )
+                      "
+                      (click)="
+                        showFilter(
+                          $event,
+                          column,
+                          'USD',
+                          amountOptions,
+                          subscriptionLinesFiltered
+                            ? filteredOriginalSubscriptionLinesData
+                            : originalSubscriptionLinesData,
+                          'subscriptionLinesFilteredDataSource'
+                        )
+                      "
+                    >
+                      <mat-icon>filter_list</mat-icon>
+                    </button>
+                  }
+                  @if (column === 'POSTED_TO_GL') {
+                    <button
+                      class="filter-trigger-btn"
+                      [class.active]="
+                        isFilterActive(
+                          column,
+                          'subscriptionLinesFilteredDataSource'
+                        )
+                      "
+                      (click)="
+                        showFilter(
+                          $event,
+                          column,
+                          '',
+                          postedToGLOptions,
+                          subscriptionLinesFiltered
+                            ? filteredOriginalSubscriptionLinesData
+                            : originalSubscriptionLinesData,
+                          'subscriptionLinesFilteredDataSource'
+                        )
+                      "
+                    >
+                      <mat-icon>filter_list</mat-icon>
+                    </button>
+                  }
+                  @if (column === 'TSV_CREATED') {
+                    <button
+                      class="filter-trigger-btn"
+                      [class.active]="
+                        isFilterActive(
+                          column,
+                          'subscriptionLinesFilteredDataSource'
+                        )
+                      "
+                      (click)="
+                        showFilter(
+                          $event,
+                          column,
+                          '',
+                          postedToGLOptions,
+                          subscriptionLinesFiltered
+                            ? filteredOriginalSubscriptionLinesData
+                            : originalSubscriptionLinesData,
+                          'subscriptionLinesFilteredDataSource'
+                        )
+                      "
+                    >
+                      <mat-icon>filter_list</mat-icon>
+                    </button>
+                  }
+                }
+              }
+            </th>
 
-          <td mat-cell *matCellDef="let element">
-            <ng-container [ngSwitch]="column">
-              <ng-container *ngSwitchCase="'GL_DATE'">
-                {{ element[column] | date : "MM/dd/yyyy" }}
-              </ng-container>
-              <ng-container *ngSwitchCase="'TSV_CREATED'">
-                <ng-container
-                  *ngIf="
+            <td mat-cell *matCellDef="let element">
+              @switch (column) {
+                @case ('GL_DATE') {
+                  {{ element[column] | date : "MM/dd/yyyy" }}
+                }
+                @case ('TSV_CREATED') {
+                  @if (
                     element[column]?.toLowerCase() === 'y' ||
-                      element[column]?.toLowerCase() === 'yes';
-                    else nonClickableTsv
-                  "
-                >
-                  <button class="link-button" (click)="navigateToTsv(element)">
-                    {{ element[column] }}
-                  </button>
-                </ng-container>
-                <ng-template #nonClickableTsv>
-                  <span>{{ element[column] }}</span>
-                </ng-template>
-              </ng-container>
-
-              <!-- POSTED_TO_GL clickable link -->
-              <!-- <ng-container *ngSwitchCase="'POSTED_TO_GL'">
+                    element[column]?.toLowerCase() === 'yes'
+                  ) {
+                    <button class="link-button" (click)="navigateToTsv(element)">
+                      {{ element[column] }}
+                    </button>
+                  } @else {
+                    <span>{{ element[column] }}</span>
+                  }
+                }
+                <!-- POSTED_TO_GL clickable link -->
+                <!-- <ng-container *ngSwitchCase="'POSTED_TO_GL'">
                 <button class="link-button" (click)="navigateToGl(element)">
                   {{ element[column] }}
                 </button>
               </ng-container> -->
-
-              <ng-container *ngSwitchCase="column === 'UNIT_SELLING_PRICE'">
-                {{ formatAmount(element[column]) }}
-              </ng-container>
-
-              <ng-container *ngSwitchCase="'SUBSCRIPTION_REF_ID'">
-                <a
-                  (click)="
-                    toggleSubscriptionLinesTable(element['SUBSCRIPTION_REF_ID'])
-                  "
-                >
+                @case (column === 'UNIT_SELLING_PRICE' ? column : '') {
+                  {{ formatAmount(element[column]) }}
+                }
+                @case ('SUBSCRIPTION_REF_ID') {
+                  <a
+                    (click)="
+                      toggleSubscriptionLinesTable(element['SUBSCRIPTION_REF_ID'])
+                    "
+                  >
+                    {{ element[column] }}
+                  </a>
+                }
+                <!-- Default case for other columns -->
+                @default {
                   {{ element[column] }}
-                </a>
-              </ng-container>
-
-              <!-- Default case for other columns -->
-              <ng-container *ngSwitchDefault>
-                {{ element[column] }}
-              </ng-container>
-            </ng-container>
-          </td>
-        </ng-container>
+                }
+              }
+            </td>
+          </ng-container>
+        }
 
         <tr
           mat-header-row
@@ -912,125 +871,123 @@
           *matRowDef="let row; columns: subscriptionLinesDisplayedColumns"
         ></tr>
       </table>
-    </ng-container>
-    <ng-template #noSubscriptionLineData>
+    } @else {
       <div class="no-data-container">
         <p>No subscription line data available for this order.</p>
       </div>
-    </ng-template>
+    }
   </div>
 </ng-template>
 
-<app-modal
-  *ngIf="showInvoiceModal"
-  [headerBgColor]="'#def7ff'"
-  [borderRadius]="'0px'"
-  [title]="
-    'Transaction Number  &nbsp; -  &nbsp; ' +
-    selectedTransactionNumber +
-    '  &nbsp;&nbsp; | &nbsp;&nbsp; Web Order ID  &nbsp; -  &nbsp; ' +
-    orderId
-  "
-  (close)="showInvoiceModal = false"
->
-  <!-- PRINT STATUS TABLE -->
-  <div class="invoice-summary-table">
-    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
-      Print Status
-    </div>
-    <table
-      mat-table
-      style="width: 100%"
-      [dataSource]="invoiceSummaryModalDataSource"
-    >
-      <ng-container
-        *ngFor="let column of displayedColumnsInvoicePrintStatus"
-        [matColumnDef]="column"
+@if (showInvoiceModal) {
+  <app-modal
+    [headerBgColor]="'#def7ff'"
+    [borderRadius]="'0px'"
+    [title]="
+      'Transaction Number  &nbsp; -  &nbsp; ' +
+      selectedTransactionNumber +
+      '  &nbsp;&nbsp; | &nbsp;&nbsp; Web Order ID  &nbsp; -  &nbsp; ' +
+      orderId
+    "
+    (close)="showInvoiceModal = false"
+  >
+    <!-- PRINT STATUS TABLE -->
+    <div class="invoice-summary-table">
+      <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+        Print Status
+      </div>
+      <table
+        mat-table
+        style="width: 100%"
+        [dataSource]="invoiceSummaryModalDataSource"
       >
-        <th mat-header-cell *matHeaderCellDef>
-          {{ formatColumnName(column) }}
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <ng-container *ngIf="column === 'PRINT_DATE'; else defaultPrint">
-            {{ element[column] | date : "MM/dd/yyyy" }}
+        @for (column of displayedColumnsInvoicePrintStatus; track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
+            <td mat-cell *matCellDef="let element">
+              @if (column === 'PRINT_DATE') {
+                {{ element[column] | date : "MM/dd/yyyy" }}
+              } @else {
+                {{ element[column] }}
+              }
+            </td>
           </ng-container>
-          <ng-template #defaultPrint>
-            {{ element[column] }}
-          </ng-template>
-        </td>
-      </ng-container>
+        }
 
-      <tr
-        mat-header-row
-        *matHeaderRowDef="displayedColumnsInvoicePrintStatus"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumnsInvoicePrintStatus"
-      ></tr>
-    </table>
-  </div>
-
-  <!-- E-INVOICE STATUS TABLE -->
-  <div class="invoice-summary-table" style="margin-top: 18px">
-    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
-      E-Invoice Status & Collector Info
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumnsInvoicePrintStatus"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumnsInvoicePrintStatus"
+        ></tr>
+      </table>
     </div>
-    <table
-      mat-table
-      style="width: 100%"
-      [dataSource]="invoiceSummaryModalDataSource"
-    >
-      <ng-container
-        *ngFor="let column of displayedColumnsInvoiceStatus"
-        [matColumnDef]="column"
+
+    <!-- E-INVOICE STATUS TABLE -->
+    <div class="invoice-summary-table" style="margin-top: 18px">
+      <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+        E-Invoice Status & Collector Info
+      </div>
+      <table
+        mat-table
+        style="width: 100%"
+        [dataSource]="invoiceSummaryModalDataSource"
       >
-        <th mat-header-cell *matHeaderCellDef>
-          {{ formatColumnName(column) }}
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <ng-container *ngIf="column === 'IRN_UUID_DATE'; else defaultStatus">
-            {{ element[column] | date : "MM/dd/yyyy" }}
+        @for (column of displayedColumnsInvoiceStatus; track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
+            <td mat-cell *matCellDef="let element">
+              @if (column === 'IRN_UUID_DATE') {
+                {{ element[column] | date : "MM/dd/yyyy" }}
+              } @else {
+                {{ element[column] }}
+              }
+            </td>
           </ng-container>
-          <ng-template #defaultStatus>
-            {{ element[column] }}
-          </ng-template>
-        </td>
-      </ng-container>
+        }
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoiceStatus"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumnsInvoiceStatus"
-      ></tr>
-    </table>
-  </div>
-
-  <!-- CASH APPLICATION TABLE -->
-  <div class="invoice-summary-table" style="margin-top: 18px">
-    <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
-      Cash Application
+        <tr
+          mat-header-row
+          *matHeaderRowDef="displayedColumnsInvoiceStatus"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumnsInvoiceStatus"
+        ></tr>
+      </table>
     </div>
-    <table
-      mat-table
-      style="width: 100%"
-      [dataSource]="invoiceSummaryModalDataSource"
-    >
-      <ng-container
-        *ngFor="let column of displayedColumnsInvoiceCash"
-        [matColumnDef]="column"
-      >
-        <th mat-header-cell *matHeaderCellDef>
-          {{ formatColumnName(column) }}
-        </th>
-        <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoiceCash"></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: displayedColumnsInvoiceCash"
-      ></tr>
-    </table>
-  </div>
-</app-modal>
+    <!-- CASH APPLICATION TABLE -->
+    <div class="invoice-summary-table" style="margin-top: 18px">
+      <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px">
+        Cash Application
+      </div>
+      <table
+        mat-table
+        style="width: 100%"
+        [dataSource]="invoiceSummaryModalDataSource"
+      >
+        @for (column of displayedColumnsInvoiceCash; track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ formatColumnName(column) }}
+            </th>
+            <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+          </ng-container>
+        }
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumnsInvoiceCash"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumnsInvoiceCash"
+        ></tr>
+      </table>
+    </div>
+  </app-modal>
+}

@@ -1,11 +1,20 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiHttpService } from '../../providers/http.service';
+import { FormsModule } from '@angular/forms';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'app-o2c-nav',
-  templateUrl: './o2c-nav.component.html',
-  styleUrls: ['./o2c-nav.component.css'],
+    selector: 'app-o2c-nav',
+    templateUrl: './o2c-nav.component.html',
+    styleUrls: ['./o2c-nav.component.css'],
+    imports: [
+    FormsModule,
+    MatToolbarModule,
+    MatTooltipModule
+  ],
+  standalone: true
 })
 export class O2cNavComponent {
   searchValue: string = '';

@@ -6,11 +6,18 @@ import {
   AfterViewChecked,
 } from '@angular/core';
 import { AuthenticationService } from '../providers/authentication.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-chatbot',
-  templateUrl: './chatbot.component.html',
-  styleUrl: './chatbot.component.css',
+    selector: 'app-chatbot',
+    templateUrl: './chatbot.component.html',
+    styleUrl: './chatbot.component.css',
+    imports: [
+    CommonModule,
+    FormsModule
+  ],
+  standalone: true
 })
 export class ChatbotComponent implements OnInit, AfterViewChecked {
   constructor(private authService: AuthenticationService) {}

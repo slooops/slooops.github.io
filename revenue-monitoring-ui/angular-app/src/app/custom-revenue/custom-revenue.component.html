@@ -1,17 +1,18 @@
 <mat-tab-group
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab
-    *ngFor="let tab of filteredTabs; let i = index"
-    [label]="tab.label"
-    [disabled]="tab.disabled"
   >
-    <ng-container [ngSwitch]="tab.component">
-      <ng-container *ngSwitchCase="'app-standard-revenue'">
-        <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
-          [urls]="standardRevenueUrl"
+  @for (tab of filteredTabs; track tab; let i = $index) {
+    <mat-tab
+      [label]="tab.label"
+      [disabled]="tab.disabled"
+      >
+      @switch (tab.component) {
+        @case ('app-standard-revenue') {
+          @if (selectedIndex === i) {
+            <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
+              [urls]="standardRevenueUrl"
           [keysToMap]="[
             'PERIOD_NAME',
             'ORG_NAME',
@@ -19,12 +20,12 @@
             'PROCESS_FLOW',
             'TRANSACTION_DATE'
           ]"
-          [periodStatus]="periodStatus"
-          [componentName]="'Standard Revenue'"
-          [columnsToFilter]="standardRevenueFilters"
-          [detailsColumnsToHide]="['TRANSACTION_DATE']"
-          [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
+              [periodStatus]="periodStatus"
+              [componentName]="'Standard Revenue'"
+              [columnsToFilter]="standardRevenueFilters"
+              [detailsColumnsToHide]="['TRANSACTION_DATE']"
+              [assignmentDialogFieldConfig]="fieldConfig"
+              [assignmentUsersFilter]="'I2C'"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -40,21 +41,22 @@
             'TRANSACTION_DATE',
             'AMOUNT'
           ]"
-          *ngIf="selectedIndex === i"
-        ></app-monitoring-dashboard>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-rol'">
-        <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
-          [urls]="rolUrls"
-          [keysToMap]="rolAndAccrualsKeysToMap"
-          [periodStatus]="periodStatus"
-          [componentName]="'ROL'"
-          [columnsToFilter]="rolFilters"
-          [summaryColumnsToHide]="['SEQUENCE_NUM']"
-          [detailsColumnsToHide]="['SEQUENCE_NUM']"
-          [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
+            ></app-monitoring-dashboard>
+          }
+        }
+        @case ('app-rol') {
+          @if (selectedIndex === i) {
+            <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
+              [urls]="rolUrls"
+              [keysToMap]="rolAndAccrualsKeysToMap"
+              [periodStatus]="periodStatus"
+              [componentName]="'ROL'"
+              [columnsToFilter]="rolFilters"
+              [summaryColumnsToHide]="['SEQUENCE_NUM']"
+              [detailsColumnsToHide]="['SEQUENCE_NUM']"
+              [assignmentDialogFieldConfig]="fieldConfig"
+              [assignmentUsersFilter]="'I2C'"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -70,22 +72,23 @@
             'TRANSACTION_DATE',
             'AMOUNT'
           ]"
-          *ngIf="selectedIndex === i"
-        ></app-monitoring-dashboard>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-accruals'">
-        <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
-          [urls]="accrualsUrls"
-          [keysToMap]="rolAndAccrualsKeysToMap"
-          [periodStatus]="periodStatus"
-          [componentName]="'Accruals'"
-          [columnsToFilter]="accrualsFilters"
-          [summaryColumnsToHide]="['SEQUENCE_NUM']"
-          [detailsColumnsToHide]="['TRANSACTION_DATE']"
-          [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
-          [submitKeysToMap]="['SEQUENCE_NUM']"
+            ></app-monitoring-dashboard>
+          }
+        }
+        @case ('app-accruals') {
+          @if (selectedIndex === i) {
+            <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
+              [urls]="accrualsUrls"
+              [keysToMap]="rolAndAccrualsKeysToMap"
+              [periodStatus]="periodStatus"
+              [componentName]="'Accruals'"
+              [columnsToFilter]="accrualsFilters"
+              [summaryColumnsToHide]="['SEQUENCE_NUM']"
+              [detailsColumnsToHide]="['TRANSACTION_DATE']"
+              [assignmentDialogFieldConfig]="fieldConfig"
+              [assignmentUsersFilter]="'I2C'"
+              [submitKeysToMap]="['SEQUENCE_NUM']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -94,22 +97,23 @@
             'TRANSACTION_DATE',
             'AMOUNT'
           ]"
-          *ngIf="selectedIndex === i"
-        ></app-monitoring-dashboard>
-      </ng-container>
-      <ng-container *ngSwitchCase="'app-accounts'">
-        <app-monitoring-dashboard
-          [apiUrl]="authService.getHostUrl()"
-          [urls]="accountsUrls"
-          [keysToMap]="['SEQUENCE_NUMBER']"
-          [periodStatus]="periodStatus"
-          [componentName]="'Accounts'"
-          [columnsToFilter]="accountsFilters"
-          [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
-          [detailsColumnsToHide]="['TRANSACTION_DATE']"
-          [assignmentDialogFieldConfig]="fieldConfig"
-          [assignmentUsersFilter]="'I2C'"
-          [submitKeysToMap]="['SEQUENCE_NUMBER']"
+            ></app-monitoring-dashboard>
+          }
+        }
+        @case ('app-accounts') {
+          @if (selectedIndex === i) {
+            <app-monitoring-dashboard
+              [apiUrl]="authService.getHostUrl()"
+              [urls]="accountsUrls"
+              [keysToMap]="['SEQUENCE_NUMBER']"
+              [periodStatus]="periodStatus"
+              [componentName]="'Accounts'"
+              [columnsToFilter]="accountsFilters"
+              [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
+              [detailsColumnsToHide]="['TRANSACTION_DATE']"
+              [assignmentDialogFieldConfig]="fieldConfig"
+              [assignmentUsersFilter]="'I2C'"
+              [submitKeysToMap]="['SEQUENCE_NUMBER']"
           [webexKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
@@ -118,21 +122,22 @@
             'TRANSACTION_DATE',
             'AMOUNT'
           ]"
-          *ngIf="selectedIndex === i"
-        ></app-monitoring-dashboard>
-      </ng-container>
-    </ng-container>
-  </mat-tab>
+            ></app-monitoring-dashboard>
+          }
+        }
+      }
+    </mat-tab>
+  }
 </mat-tab-group>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"
->
-  <ng-container *ngIf="!roles.length">
+  >
+  @if (!roles.length) {
     <tr>
       <td colspan="100%" style="text-align: center">
         <app-loading-symbol></app-loading-symbol>
       </td>
     </tr>
-  </ng-container>
+  }
 </div>
