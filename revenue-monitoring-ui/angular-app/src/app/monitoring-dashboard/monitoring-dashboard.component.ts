@@ -33,10 +33,10 @@ import { ProcessFlowTooltipComponent } from './process-flow-tooltip/process-flow
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 
 @Component({
-    selector: 'app-monitoring-dashboard',
-    templateUrl: './monitoring-dashboard.component.html',
-    styleUrl: './monitoring-dashboard.component.css',
-    imports: [
+  selector: 'app-monitoring-dashboard',
+  templateUrl: './monitoring-dashboard.component.html',
+  styleUrl: './monitoring-dashboard.component.css',
+  imports: [
     CommonModule,
     ReactiveFormsModule,
     MatTableModule,
@@ -48,9 +48,9 @@ import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.compone
     MatButtonModule,
     UserAssignmentComponent,
     ProcessFlowTooltipComponent,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class MonitoringDashboardComponent<T>
   extends BaseComponent
@@ -447,7 +447,7 @@ export class MonitoringDashboardComponent<T>
     this.exportService.exportTableToExcel(data, sheetName, filename);
   }
   exportDetails() {
-    if (this.isFiltered) {
+    if (this.isFiltered && this.errorDetailsFiltered?.length) {
       this.exportService.exportTableToExcel(
         this.errorDetailsFiltered,
         this.exportService.generateSheetName(
@@ -455,7 +455,7 @@ export class MonitoringDashboardComponent<T>
         ),
         this.componentName + '_Error_Details_Filtered'
       );
-    } else {
+    } else if (this.errorDetails?.length) {
       this.exportService.exportTableToExcel(
         this.errorDetails,
         this.exportService.generateSheetName(
@@ -463,6 +463,8 @@ export class MonitoringDashboardComponent<T>
         ),
         this.componentName + '_Error_Details'
       );
+    } else {
+      console.warn('No data available to export');
     }
   }
 }
