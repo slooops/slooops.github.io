@@ -504,6 +504,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   }
 
   exportSummary(data: any[], sheetName: string, filename: string) {
+    console.log('Exporting summary data:', sheetName, filename, data);
     this.exportService.exportTableToExcel(data, sheetName, filename);
   }
 
@@ -516,7 +517,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
         ),
         this.componentName() + '_Error_Details_Filtered'
       );
-    } else {
+    } else if (this.errorDetails().length) {
       this.exportService.exportTableToExcel(
         this.errorDetails(),
         this.exportService.generateSheetName(
@@ -524,6 +525,8 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
         ),
         this.componentName() + '_Error_Details'
       );
+    } else {
+      console.warn('No data available to export');
     }
   }
 }

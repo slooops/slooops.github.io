@@ -100,8 +100,8 @@
           (click)="
             exportSummary(
               summaryDatasource.data,
-              componentName + ' Error Summary',
-              componentName + '_Error_Summary'
+              componentName() + ' Error Summary',
+              componentName() + '_Error_Summary'
             )
           "
         >
@@ -316,8 +316,8 @@
       <!-- <button mat-icon-button [disabled]="true">
         <i class="svg-icon chart-icon"></i>
       </button> -->
-      <button mat-icon-button>
-        <i class="svg-icon download-icon" (click)="exportDetails()"></i>
+      <button mat-icon-button (click)="exportDetails()">
+        <i class="svg-icon download-icon"></i>
       </button>
     </div>
   </div>
