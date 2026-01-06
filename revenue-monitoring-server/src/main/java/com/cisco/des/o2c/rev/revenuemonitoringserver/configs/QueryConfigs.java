@@ -1798,4 +1798,12 @@ public class QueryConfigs {
     public String getDeleteUserRole() {
         return this.deleteUserRole;
     }
+
+    @Value(("${landing.page.period.data}"))
+    public String landingPagePeriodData;
+
+    @Bean(name = "landingPagePeriodData")
+    public String getLandingPagePeriodData() {
+        return this.landingPagePeriodData;
+    }
 }

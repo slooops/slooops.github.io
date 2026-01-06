@@ -9,30 +9,48 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  assignmentUsers: any[];
+  apiUrl: string;
+}
+
 @Component({
-    selector: 'app-custom-revenue',
-    templateUrl: './custom-revenue.component.html',
-    styleUrl: './custom-revenue.component.css',
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-custom-revenue',
+  templateUrl: './custom-revenue.component.html',
+  styleUrl: './custom-revenue.component.css',
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatTabsModule,
     MonitoringDashboardComponent,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {
   roles: string[] = [];
+  userContextData: UserContext;
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
     private menuService: MenuService
-  ) {}
+  ) {
+    // Initialize roles and user context in constructor so they're available before template renders
+    this.roles = this.authService.getRoles();
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      assignmentUsers: this.dataService.getAssignmentUsers('I2C'),
+      apiUrl: this.authService.getHostUrl(),
+    };
+  }
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
   }
 

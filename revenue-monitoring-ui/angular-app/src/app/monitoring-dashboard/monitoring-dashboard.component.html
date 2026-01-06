@@ -1,13 +1,13 @@
-@if (isModalOpen) {
+@if (isModalOpen()) {
 <app-user-assignment
-  [data]="selectedSummaryData"
-  [updateUrl]="updateUrl"
-  [webexUrl]="webexUrl"
-  [componentName]="componentName"
-  [submitKeysToMap]="submitKeysToMap"
-  [webexKeysToMap]="webexKeysToMap"
-  [fieldConfig]="assignmentDialogFieldConfig"
-  [assignmentUsersFilter]="assignmentUsersFilter"
+  [data]="selectedSummaryData()"
+  [updateUrl]="updateUrl()"
+  [webexUrl]="webexUrl()"
+  [componentName]="componentName()"
+  [submitKeysToMap]="submitKeysToMap()"
+  [webexKeysToMap]="webexKeysToMap()"
+  [fieldConfig]="assignmentDialogFieldConfig()"
+  [userContext]="userContext()"
   (close)="closeAssignModal($event)"
 ></app-user-assignment>
 }
@@ -37,7 +37,7 @@
       <div class="left-section">
         <h5 class="section-title">Error Summary</h5>
         <div class="process-flow-left">
-          <app-process-flow-tooltip [processFlowTotals]="processFlowTotals">
+          <app-process-flow-tooltip [processFlowTotals]="processFlowTotals()">
           </app-process-flow-tooltip>
         </div>
       </div>
@@ -49,18 +49,22 @@
             mat-stroked-button
             type="button"
             (click)="resetSelection()"
-            style="font-size: 12px; padding: 3px; font-weight: 600; color: gray"
+            style="font-size: 12px; padding: 3px; font-weight: 600"
+            [style.color]="!canResetSelection() ? '#ccc' : '#555'"
+            [style.border-color]="!canResetSelection() ? '#ddd' : '#555'"
             class="mat-small"
-            [disabled]="selection.selected.length === 0"
+            [disabled]="!canResetSelection()"
           >
             Reset
           </button>
           &nbsp;&nbsp;
           <button
             class="custom-button-primary"
-            style="background-color: #aaa8a8"
+            style="color: #555; font-weight: 600"
+            [style.background-color]="!canAssignUser() ? '#e0e0e0' : '#888'"
+            [style.cursor]="!canAssignUser() ? 'not-allowed' : 'pointer'"
             (click)="viewDetails()"
-            [disabled]="selection.selected.length != 1"
+            [disabled]="!canAssignUser()"
           >
             Assign User
           </button>
@@ -75,8 +79,8 @@
           "
         >
           <div style="display: flex">
-            <span><b>Period name:</b> {{ periodName }}</span> &nbsp;|&nbsp;
-            <span><b>Period end date:</b> {{ periodEnd }}</span>
+            <span><b>Period name:</b> {{ periodName() }}</span> &nbsp;|&nbsp;
+            <span><b>Period end date:</b> {{ periodEnd() }}</span>
           </div>
           <p
             class="card-subtitle"
@@ -87,7 +91,7 @@
               justify-content: flex-end;
             "
           >
-            {{ summaryLoadTime }}
+            {{ summaryLoadTime() }}
           </p>
         </div>
         }
@@ -96,8 +100,8 @@
           (click)="
             exportSummary(
               summaryDatasource.data,
-              componentName + ' Error Summary',
-              componentName + '_Error_Summary'
+              componentName() + ' Error Summary',
+              componentName() + '_Error_Summary'
             )
           "
         >
@@ -174,7 +178,7 @@
             <div>
               <span
                 [ngClass]="{
-                  highlight: element.PERIOD_NAME !== periodName
+                  highlight: element.PERIOD_NAME !== periodName()
                 }"
               >
                 {{ element[column] }}
@@ -192,13 +196,13 @@
         <tr mat-row *matRowDef="let row; columns: summaryDisplayedColumns"></tr>
       </table>
     </div>
-    } @if (summaryLoading) {
+    } @if (summaryLoading()) {
     <div class="loading-container">
       <app-loading-symbol></app-loading-symbol>
       <div class="circle-subcaption"></div>
       <br /><br /><br />
     </div>
-    } @if (!summaryDatasource?.data?.length && !summaryLoading) {
+    } @if (!summaryDatasource?.data?.length && !summaryLoading()) {
     <div class="loading-container">
       <img
         src="assets/thumbnails/noDataFound.png"
@@ -228,10 +232,9 @@
   <div class="header-container">
     <div class="details-header">
       <h5 class="section-title">Error Details</h5>
-      @if (componentName !== 'Transactions Processed') {
+      @if (componentName() !== 'Transactions Processed') {
       <span>
-        @if ( isFiltered ? filtereddataSource?.data?.length > 0 :
-        dataSource?.data?.length > 0 ) {
+        @if (dataSource?.data?.length > 0) {
         <form [formGroup]="searchForm" class="form-container">
           <div class="filter-container">
             <div class="filter-item">
@@ -298,7 +301,7 @@
             mat-stroked-button
             type="button"
             (click)="clearFilters()"
-            style="font-size: 12px; padding: 3px"
+            style="font-size: 12px; padding: 3px; color: #555"
             class="mat-small"
           >
             Reset
@@ -319,12 +322,12 @@
     </div>
   </div>
 
-  @if ( !isLoading && (isFiltered ? filtereddataSource?.data?.length > 0 :
+  @if ( !isLoading() && (isFiltered() ? filtereddataSource?.data?.length > 0 :
   dataSource?.data?.length > 0) ) {
   <div class="table-container">
     <table
       mat-table
-      [dataSource]="isFiltered ? filtereddataSource : dataSource"
+      [dataSource]="isFiltered() ? filtereddataSource : dataSource"
       class="custom-table"
     >
       @for (column of detailsDisplayedColumns; track column) {
@@ -423,13 +426,13 @@
       <tr mat-row *matRowDef="let row; columns: detailsDisplayedColumns"></tr>
     </table>
   </div>
-  } @if (isLoading) {
+  } @if (isLoading()) {
   <div class="loading-container">
     <app-loading-symbol></app-loading-symbol>
     <div class="circle-subcaption"></div>
     <br /><br /><br />
   </div>
-  } @if (!dataSource?.data?.length && !isLoading) {
+  } @if (!dataSource?.data?.length && !isLoading()) {
   <div class="loading-container">
     <img
       src="assets/thumbnails/noDataFound.png"
@@ -453,7 +456,3 @@
     aria-label="Select page"
   ></mat-paginator>
 </div>
-
-<br />
-<br />
-<br />

@@ -1,31 +1,80 @@
 <mat-tab-group
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
-  >
+>
   @for (tab of filteredTabs; track tab; let i = $index) {
-    <mat-tab
-      [label]="tab.label"
-      [disabled]="tab.disabled"
-      >
-      @switch (tab.component) {
-        @case ('app-pre-invoicing') {
-          @if (selectedIndex === i) {
-            <app-monitoring-dashboard
-              [apiUrl]="authService.getHostUrl()"
-              [urls]="preInvoicingUrls"
-              [keysToMap]="preAndAutoInvoiceKeysToMap"
-              [periodStatus]="periodStatus"
-              [componentName]="'Pre-Invoicing'"
-              [columnsToFilter]="preInvoicingFilters"
-              [detailsColumnsToHide]="['TRANSACTION_DATE']"
-              [assignmentDialogFieldConfig]="fieldConfig"
-              [assignmentUsersFilter]="'I2C'"
+  <mat-tab [label]="tab.label" [disabled]="tab.disabled">
+    @switch (tab.component) { @case ('app-pre-invoicing') { @if (selectedIndex
+    === i) {
+    <app-monitoring-dashboard
+      [userContext]="userContextData"
+      [urls]="preInvoicingUrls"
+      [keysToMap]="preAndAutoInvoiceKeysToMap"
+      [componentName]="'Pre-Invoicing'"
+      [columnsToFilter]="preInvoicingFilters"
+      [detailsColumnsToHide]="['TRANSACTION_DATE']"
+      [assignmentDialogFieldConfig]="fieldConfig"
+      [submitKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE'
+      ]"
+      [webexKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE',
+        'AMOUNT'
+      ]"
+    ></app-monitoring-dashboard>
+    } } @case ('app-auto-invoicing') {
+    <app-monitoring-dashboard
+      [userContext]="userContextData"
+      [urls]="autoInvoicingUrls"
+      [keysToMap]="preAndAutoInvoiceKeysToMap"
+      \
+      [componentName]="'Auto-Invoicing'"
+      [columnsToFilter]="autoInvoicingFilters"
+      [detailsColumnsToHide]="['TRANSACTION_DATE']"
+      [assignmentDialogFieldConfig]="fieldConfig"
+      [submitKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE'
+      ]"
+      [webexKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE',
+        'AMOUNT'
+      ]"
+    ></app-monitoring-dashboard>
+    } @case ('app-post-invoicing') {
+    <mat-tab-group [selectedIndex]="0">
+      <mat-tab label="CM Amortization">
+        <app-monitoring-dashboard
+          [userContext]="userContextData"
+          [urls]="cmAmortUrls"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
+          \
+          [componentName]="'CM Amortization'"
+          [columnsToFilter]="postInvoicingFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
+          [assignmentDialogFieldConfig]="fieldConfig"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
             'PROCESS_FLOW',
             'ORG_NAME',
-            'TRANSACTION_DATE'
+            'TRANSACTION_DATE',
+            'AMOUNT'
           ]"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -35,26 +84,24 @@
             'TRANSACTION_DATE',
             'AMOUNT'
           ]"
-            ></app-monitoring-dashboard>
-          }
-        }
-        @case ('app-auto-invoicing') {
-          <app-monitoring-dashboard
-            [apiUrl]="authService.getHostUrl()"
-            [urls]="autoInvoicingUrls"
-            [keysToMap]="preAndAutoInvoiceKeysToMap"
-            [periodStatus]="periodStatus"
-            [componentName]="'Auto-Invoicing'"
-            [columnsToFilter]="autoInvoicingFilters"
-            [detailsColumnsToHide]="['TRANSACTION_DATE']"
-            [assignmentDialogFieldConfig]="fieldConfig"
-            [assignmentUsersFilter]="'I2C'"
+        ></app-monitoring-dashboard>
+      </mat-tab>
+      <mat-tab label="Invoice Delivery">
+        <app-monitoring-dashboard
+          [userContext]="userContextData"
+          [urls]="printUrls"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
+          [componentName]="'Print'"
+          [columnsToFilter]="postInvoicingFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
+          [assignmentDialogFieldConfig]="fieldConfig"
           [submitKeysToMap]="[
             'PERIOD_NAME',
             'APPLICATION_NAME',
             'PROCESS_FLOW',
             'ORG_NAME',
-            'TRANSACTION_DATE'
+            'TRANSACTION_DATE',
+            'AMOUNT'
           ]"
           [webexKeysToMap]="[
             'PERIOD_NAME',
@@ -64,158 +111,82 @@
             'TRANSACTION_DATE',
             'AMOUNT'
           ]"
-          ></app-monitoring-dashboard>
-        }
-        @case ('app-post-invoicing') {
-          <mat-tab-group [selectedIndex]="0">
-            <mat-tab label="CM Amortization">
-              <app-monitoring-dashboard
-                [apiUrl]="authService.getHostUrl()"
-                [urls]="cmAmortUrls"
-                [keysToMap]="preAndAutoInvoiceKeysToMap"
-                [periodStatus]="periodStatus"
-                [componentName]="'CM Amortization'"
-                [columnsToFilter]="postInvoicingFilters"
-                [detailsColumnsToHide]="['TRANSACTION_DATE']"
-                [assignmentDialogFieldConfig]="fieldConfig"
-                [assignmentUsersFilter]="'I2C'"
-              [submitKeysToMap]="[
-                'PERIOD_NAME',
-                'APPLICATION_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'TRANSACTION_DATE',
-                'AMOUNT'
-              ]"
-              [webexKeysToMap]="[
-                'PERIOD_NAME',
-                'APPLICATION_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'TRANSACTION_DATE',
-                'AMOUNT'
-              ]"
-              ></app-monitoring-dashboard>
-            </mat-tab>
-            <mat-tab label="Invoice Delivery">
-              <app-monitoring-dashboard
-                [apiUrl]="authService.getHostUrl()"
-                [urls]="printUrls"
-                [keysToMap]="preAndAutoInvoiceKeysToMap"
-                [periodStatus]="periodStatus"
-                [componentName]="'Print'"
-                [columnsToFilter]="postInvoicingFilters"
-                [detailsColumnsToHide]="['TRANSACTION_DATE']"
-                [assignmentDialogFieldConfig]="fieldConfig"
-                [assignmentUsersFilter]="'I2C'"
-              [submitKeysToMap]="[
-                'PERIOD_NAME',
-                'APPLICATION_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'TRANSACTION_DATE',
-                'AMOUNT'
-              ]"
-              [webexKeysToMap]="[
-                'PERIOD_NAME',
-                'APPLICATION_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'TRANSACTION_DATE',
-                'AMOUNT'
-              ]"
-              ></app-monitoring-dashboard>
-            </mat-tab>
-            <mat-tab label="Digital Payments">
-              <app-monitoring-dashboard
-                [apiUrl]="authService.getHostUrl()"
-                [urls]="creditCardUrls"
-                [keysToMap]="preAndAutoInvoiceKeysToMap"
-                [periodStatus]="periodStatus"
-                [componentName]="'Credit Card'"
-                [columnsToFilter]="postInvoicingFilters"
-                [detailsColumnsToHide]="[]"
-                [assignmentDialogFieldConfig]="fieldConfig"
-                [assignmentUsersFilter]="'I2C'"
-                [submitKeysToMap]="[]"
-                [webexKeysToMap]="[]"
-              ></app-monitoring-dashboard>
-            </mat-tab>
-            <mat-tab label="SRT Process">
-              <app-monitoring-dashboard
-                [apiUrl]="authService.getHostUrl()"
-                [urls]="srtProcessUrls"
-              [keysToMap]="[
-                'PERIOD_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'SRT_DATE'
-              ]"
-                [periodStatus]="periodStatus"
-                [componentName]="'SRT Process'"
-                [columnsToFilter]="srtProcessFilters"
-                [detailsColumnsToHide]="[]"
-                [assignmentDialogFieldConfig]="fieldConfig"
-                [assignmentUsersFilter]="'I2C'"
-                [submitKeysToMap]="['PERIOD_NAME', 'ORG_NAME', 'SRT_DATE']"
-              [webexKeysToMap]="[
-                'PERIOD_NAME',
-                'EVENT_TYPE',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'SRT_DATE'
-              ]"
-              ></app-monitoring-dashboard>
-            </mat-tab>
-            <mat-tab label="RPO Extract">
-              <app-monitoring-dashboard
-                [apiUrl]="authService.getHostUrl()"
-                [urls]="rpoExtractUrls"
-                [keysToMap]="preAndAutoInvoiceKeysToMap"
-                [periodStatus]="periodStatus"
-                [componentName]="'RPO Extract'"
-                [columnsToFilter]="rpoExtractFilters"
-                [detailsColumnsToHide]="[]"
-                [assignmentDialogFieldConfig]="fieldConfig"
-                [assignmentUsersFilter]="'I2C'"
-              [submitKeysToMap]="[
-                'PERIOD_NAME',
-                'ORG_NAME',
-                'TRANSACTION_DATE'
-              ]"
-              [webexKeysToMap]="[
-                'PERIOD_NAME',
-                'APPLICATION_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'TRANSACTION_DATE',
-                'AMOUNT'
-              ]"
-              ></app-monitoring-dashboard>
-            </mat-tab>
-            <mat-tab label="PCM Application">
-              <app-monitoring-dashboard
-                [apiUrl]="authService.getHostUrl()"
-                [urls]="pcmApplicationUrls"
-                [keysToMap]="preAndAutoInvoiceKeysToMap"
-                [periodStatus]="periodStatus"
-                [componentName]="'PCM Application'"
-                [columnsToFilter]="pcmFilters"
-                [detailsColumnsToHide]="[]"
-                [assignmentDialogFieldConfig]="fieldConfig"
-                [assignmentUsersFilter]="'I2C'"
-              [submitKeysToMap]="[
-                'PERIOD_NAME',
-                'APPLICATION_NAME',
-                'PROCESS_FLOW',
-                'ORG_NAME',
-                'TRANSACTION_DATE'
-              ]"
-                [webexKeysToMap]="[]"
-              ></app-monitoring-dashboard>
-            </mat-tab>
-            <!-- <mat-tab label="Debit Card Payments">
+        ></app-monitoring-dashboard>
+      </mat-tab>
+      <mat-tab label="Digital Payments">
+        <app-monitoring-dashboard
+          [userContext]="userContextData"
+          [urls]="creditCardUrls"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
+          [componentName]="'Credit Card'"
+          [columnsToFilter]="postInvoicingFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="[]"
+          [webexKeysToMap]="[]"
+        ></app-monitoring-dashboard>
+      </mat-tab>
+      <mat-tab label="SRT Process">
+        <app-monitoring-dashboard
+          [userContext]="userContextData"
+          [urls]="srtProcessUrls"
+          [keysToMap]="['PERIOD_NAME', 'PROCESS_FLOW', 'ORG_NAME', 'SRT_DATE']"
+          [componentName]="'SRT Process'"
+          [columnsToFilter]="srtProcessFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['PERIOD_NAME', 'ORG_NAME', 'SRT_DATE']"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'EVENT_TYPE',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'SRT_DATE'
+          ]"
+        ></app-monitoring-dashboard>
+      </mat-tab>
+      <mat-tab label="RPO Extract">
+        <app-monitoring-dashboard
+          [userContext]="userContextData"
+          [urls]="rpoExtractUrls"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
+          [componentName]="'RPO Extract'"
+          [columnsToFilter]="rpoExtractFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['PERIOD_NAME', 'ORG_NAME', 'TRANSACTION_DATE']"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT'
+          ]"
+        ></app-monitoring-dashboard>
+      </mat-tab>
+      <mat-tab label="PCM Application">
+        <app-monitoring-dashboard
+          [userContext]="userContextData"
+          [urls]="pcmApplicationUrls"
+          [keysToMap]="preAndAutoInvoiceKeysToMap"
+          [componentName]="'PCM Application'"
+          [columnsToFilter]="pcmFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE'
+          ]"
+          [webexKeysToMap]="[]"
+        ></app-monitoring-dashboard>
+      </mat-tab>
+      <!-- <mat-tab label="Debit Card Payments">
             <app-monitoring-dashboard
+      [userContext]="userContextData"
               [urls]="debitCardUrls"
               [keysToMap]=""
               [processFlowKeys]="debitCardTotals"
@@ -231,112 +202,92 @@
               [columnsToFilter]="postInvoicingFilters"
               [detailsColumnsToHide]="['']"
               [assignmentDialogFieldConfig]="fieldConfig"
-              [assignmentUsersFilter]="'I2C'"
               [submitKeysToMap]="[]"
               [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
           </mat-tab> -->
-        </mat-tab-group>
-      }
-      @case ('app-eInvoicing') {
-        @if (selectedIndex === i) {
-          <app-monitoring-dashboard
-            [apiUrl]="authService.getHostUrl()"
-            [urls]="eInvoicingUrls"
-            [keysToMap]="preAndAutoInvoiceKeysToMap"
-            [periodStatus]="periodStatus"
-            [componentName]="'eInvoicing'"
-            [columnsToFilter]="eInvoicingFilters"
-            [detailsColumnsToHide]="['TRANSACTION_DATE']"
-            [assignmentDialogFieldConfig]="fieldConfig"
-            [assignmentUsersFilter]="'I2C'"
-          [submitKeysToMap]="[
-            'PERIOD_NAME',
-            'APPLICATION_NAME',
-            'PROCESS_FLOW',
-            'ORG_NAME',
-            'TRANSACTION_DATE'
-          ]"
-          [webexKeysToMap]="[
-            'PERIOD_NAME',
-            'APPLICATION_NAME',
-            'PROCESS_FLOW',
-            'ORG_NAME',
-            'TRANSACTION_DATE',
-            'AMOUNT'
-          ]"
-          ></app-monitoring-dashboard>
-        }
-      }
-      @case ('app-fusion') {
-        @if (selectedIndex === i) {
-          <app-monitoring-dashboard
-            [apiUrl]="authService.getHostUrl()"
-            [urls]="fusionUrls"
-            [keysToMap]="preAndAutoInvoiceKeysToMap"
-            [periodStatus]="periodStatus"
-            [componentName]="'Fusion'"
-            [columnsToFilter]="fusionFilters"
-            [detailsColumnsToHide]="['TRANSACTION_DATE']"
-            [assignmentDialogFieldConfig]="fieldConfig"
-            [assignmentUsersFilter]="'I2C'"
-          [submitKeysToMap]="[
-            'PERIOD_NAME',
-            'PROCESS_FLOW',
-            'ORG_NAME',
-            'TRANSACTION_DATE'
-          ]"
-          [webexKeysToMap]="[
-            'PERIOD_NAME',
-            'APPLICATION_NAME',
-            'PROCESS_FLOW',
-            'ORG_NAME',
-            'TRANSACTION_DATE',
-            'AMOUNT'
-          ]"
-          ></app-monitoring-dashboard>
-        }
-      }
-      @case ('app-credit-card-check') {
-        @if (selectedIndex === i) {
-          <app-monitoring-dashboard
-            [apiUrl]="authService.getHostUrl()"
-            [urls]="creditCardCheckUrls"
-          [keysToMap]="[
-            'PERIOD_NAME',
-            'ORG_NAME',
-            'HOLD_APPLY_DATE',
-            'PROCESS_FLOW'
-          ]"
-            [periodStatus]="periodStatus"
-            [componentName]="'Credit Check Process'"
-            [columnsToFilter]="creditCardCheckFilters"
-            [detailsColumnsToHide]="[]"
-            [assignmentDialogFieldConfig]="fieldConfig"
-            [assignmentUsersFilter]="'I2C'"
-            [submitKeysToMap]="['ORG_NAME', 'HOLD_APPLY_DATE', 'PROCESS_FLOW']"
-            [webexKeysToMap]="[]"
-          ></app-monitoring-dashboard>
-        }
-      }
-      @case ('app-cms') {
-        @if (selectedIndex === i) {
-          <app-cms></app-cms>
-        }
-      }
-    }
+    </mat-tab-group>
+    } @case ('app-eInvoicing') { @if (selectedIndex === i) {
+    <app-monitoring-dashboard
+      [userContext]="userContextData"
+      [urls]="eInvoicingUrls"
+      [keysToMap]="preAndAutoInvoiceKeysToMap"
+      [componentName]="'eInvoicing'"
+      [columnsToFilter]="eInvoicingFilters"
+      [detailsColumnsToHide]="['TRANSACTION_DATE']"
+      [assignmentDialogFieldConfig]="fieldConfig"
+      [submitKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE'
+      ]"
+      [webexKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE',
+        'AMOUNT'
+      ]"
+    ></app-monitoring-dashboard>
+    } } @case ('app-fusion') { @if (selectedIndex === i) {
+    <app-monitoring-dashboard
+      [userContext]="userContextData"
+      [urls]="fusionUrls"
+      [keysToMap]="preAndAutoInvoiceKeysToMap"
+      [componentName]="'Fusion'"
+      [columnsToFilter]="fusionFilters"
+      [detailsColumnsToHide]="['TRANSACTION_DATE']"
+      [assignmentDialogFieldConfig]="fieldConfig"
+      [submitKeysToMap]="[
+        'PERIOD_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE'
+      ]"
+      [webexKeysToMap]="[
+        'PERIOD_NAME',
+        'APPLICATION_NAME',
+        'PROCESS_FLOW',
+        'ORG_NAME',
+        'TRANSACTION_DATE',
+        'AMOUNT'
+      ]"
+    ></app-monitoring-dashboard>
+    } } @case ('app-credit-card-check') { @if (selectedIndex === i) {
+    <app-monitoring-dashboard
+      [userContext]="userContextData"
+      [urls]="creditCardCheckUrls"
+      [keysToMap]="[
+        'PERIOD_NAME',
+        'ORG_NAME',
+        'HOLD_APPLY_DATE',
+        'PROCESS_FLOW'
+      ]"
+      [componentName]="'Credit Check Process'"
+      [columnsToFilter]="creditCardCheckFilters"
+      [detailsColumnsToHide]="[]"
+      [assignmentDialogFieldConfig]="fieldConfig"
+      [submitKeysToMap]="['ORG_NAME', 'HOLD_APPLY_DATE', 'PROCESS_FLOW']"
+      [webexKeysToMap]="[]"
+    ></app-monitoring-dashboard>
+    } } @case ('app-cms') { @if (selectedIndex === i) {
+    <app-cms></app-cms>
+    } } }
   </mat-tab>
-}
+  }
 </mat-tab-group>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"
-  >
+>
   @if (!roles.length) {
-    <tr>
-      <td colspan="100%" style="text-align: center">
-        <app-loading-symbol></app-loading-symbol>
-      </td>
-    </tr>
+  <tr>
+    <td colspan="100%" style="text-align: center">
+      <app-loading-symbol></app-loading-symbol>
+    </td>
+  </tr>
   }
 </div>

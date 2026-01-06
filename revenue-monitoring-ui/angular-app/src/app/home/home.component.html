@@ -1,232 +1,220 @@
-@if (!homeLoading) {
-  <div class="dashboard-container">
-    <!-- Welcome Message Row -->
-    <div class="welcome-row">
-      <h1 class="welcome-msg">
-        Hello <span class="name-highlight">{{ username }}</span
-        >, welcome!
-      </h1>
+@if (!homeLoading()) {
+<div class="dashboard-container">
+  <!-- Welcome Message Row -->
+  <div class="welcome-row">
+    <h1 class="welcome-msg">
+      Hello <span class="name-highlight">{{ username() }}</span
+      >, welcome!
+    </h1>
+  </div>
+  <!-- Title Bar Row -->
+  <div class="title-row">
+    <span class="page-title">Monitoring Dashboard</span>
+    &nbsp;
+    <button class="icon-btn" aria-label="Settings">
+      <i class="fa fa-gear circle-icon"></i>
+    </button>
+    <button class="icon-btn" aria-label="Notifications">
+      <i class="fa fa-bell bell-icon"></i>
+    </button>
+    &nbsp; &nbsp; @if (periodInfo()) {
+    <div class="period-info">
+      <span><b>Period name:</b> {{ periodInfo().periodName }}</span>
+      <span class="divider">|</span>
+      <span><b>Period end date:</b> {{ periodInfo().periodEndDate }}</span>
+      <span class="divider">|</span>
+      <span><b>Last Updated:</b> {{ periodInfo().lastUpdated }}</span>
     </div>
-    <!-- Title Bar Row -->
-    <div class="title-row">
-      <span class="page-title">Monitoring Dashboard</span>
-      &nbsp;
-      <button class="icon-btn" aria-label="Settings">
-        <i class="fa fa-gear circle-icon"></i>
-      </button>
-      <button class="icon-btn" aria-label="Notifications">
-        <i class="fa fa-bell bell-icon"></i>
-      </button>
-      &nbsp; &nbsp;
-      @if (periodInfo) {
-        <div class="period-info">
-          <span><b>Period name:</b> {{ periodInfo.periodName }}</span>
-          <span class="divider">|</span>
-          <span><b>Period end date:</b> {{ periodInfo.periodEndDate }}</span>
-          <span class="divider">|</span>
-          <span><b>Last Updated:</b> {{ periodInfo.lastUpdated }}</span>
+    }
+    <button class="ask-ivan-btn">
+      <i class="svg-icon ivan-icon"></i>
+      <span style="font-size: large; font-weight: bold">Ask Ivan</span>
+    </button>
+  </div>
+  <!-- KPI Metrics Bars (40% / 60%) -->
+  @if (kpis()) {
+  <div class="kpi-bars">
+    <div class="kpi-bar kpi-bar-primary">
+      <div class="kpi-item first">
+        <div class="kpi-value high">{{ kpis().highPriorityIssues }}</div>
+        <div class="kpi-label">
+          High Priority Issues
+          <mat-icon class="info-tooltip">info_outline</mat-icon>
         </div>
-      }
-      <button class="ask-ivan-btn">
-        <i class="svg-icon ivan-icon"></i>
-        <span style="font-size: large; font-weight: bold">Ask Ivan</span>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().inProgress }}</div>
+        <div class="kpi-label">In Progress</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().totalAging }}</div>
+        <div class="kpi-label">Total Aging</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().lessThan48Hours }}</div>
+        <div class="kpi-label">&lt;48 Hours</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().moreThan48Hours }}</div>
+        <div class="kpi-label">&gt;48 Hours</div>
+      </div>
+    </div>
+    <div class="kpi-bar kpi-bar-secondary">
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().totalIssues }}</div>
+        <div class="kpi-label">Total Issues</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().openIssues }}</div>
+        <div class="kpi-label">Open Issues</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis().inProgressIssues }}</div>
+        <div class="kpi-label">In Progress Issues</div>
+      </div>
+      <div class="kpi-item last">
+        <div class="kpi-value">{{ kpis().totalUnassignedIssues }}</div>
+        <div class="kpi-label">Total Unassigned Issues</div>
+      </div>
+    </div>
+  </div>
+  }
+  <!-- Charts Row -->
+  @if (charts()) {
+  <div class="charts-row">
+    <!-- Transaction Failures Chart -->
+    <div class="chart-wrapper">
+      <h3 class="chart-title">Transaction Failures</h3>
+      <div class="chart-content">
+        <canvas
+          #transactionFailuresCanvas
+          aria-label="Transaction Failures Chart"
+        ></canvas>
+      </div>
+    </div>
+    <!-- ESP Cases Chart -->
+    <div class="chart-wrapper">
+      <h3 class="chart-title">ESP Cases</h3>
+      <div class="chart-content">
+        <canvas #espCasesCanvas aria-label="ESP Cases Chart"></canvas>
+      </div>
+    </div>
+    <!-- Issue Distribution Pie Chart -->
+    <div class="chart-wrapper doughnut-wrapper">
+      <h3 class="chart-title">Issue Distribution by Assignee</h3>
+      <div class="doughnut-container">
+        <canvas
+          #issueDistributionCanvas
+          aria-label="Issue Distribution Doughnut"
+        ></canvas>
+      </div>
+      <div class="doughnut-legend">
+        @for (legend of issueDistributionLegends(); track legend) {
+        <div class="pie-legend-item">
+          <span class="pie-color" [style.background]="legend.color"></span>
+          <span>{{ legend.label }} - {{ legend.value }}%</span>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+  }
+  <!-- Issues List Table -->
+  <div class="issues-table-section">
+    <div class="table-header-row metric-box">
+      <h2 class="table-title">Issues List</h2>
+      <button class="collapse-btn" (click)="toggleTableVisibility()">
+        <mat-icon>{{
+          isTableVisible() ? "expand_less" : "expand_more"
+        }}</mat-icon>
       </button>
     </div>
-    <!-- KPI Metrics Bars (40% / 60%) -->
-    @if (kpis) {
-      <div class="kpi-bars">
-        <div class="kpi-bar kpi-bar-primary">
-          <div class="kpi-item first">
-            <div class="kpi-value high">{{ kpis.highPriorityIssues }}</div>
-            <div class="kpi-label">
-              High Priority Issues
-              <mat-icon class="info-tooltip">info_outline</mat-icon>
-            </div>
+    @if (isTableVisible()) {
+    <div>
+      <!-- New Table Toolbar with Filters -->
+      <div class="table-toolbar">
+        <div class="toolbar-left">
+          <div class="search-container">
+            <i class="fa fa-search home-search"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search this table"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event); applySearch()"
+            />
           </div>
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.inProgress }}</div>
-            <div class="kpi-label">In Progress</div>
-          </div>
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.totalAging }}</div>
-            <div class="kpi-label">Total Aging</div>
-          </div>
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.lessThan48Hours }}</div>
-            <div class="kpi-label">&lt;48 Hours</div>
-          </div>
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.moreThan48Hours }}</div>
-            <div class="kpi-label">&gt;48 Hours</div>
-          </div>
-        </div>
-        <div class="kpi-bar kpi-bar-secondary">
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.totalIssues }}</div>
-            <div class="kpi-label">Total Issues</div>
-          </div>
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.openIssues }}</div>
-            <div class="kpi-label">Open Issues</div>
-          </div>
-          <div class="kpi-item">
-            <div class="kpi-value">{{ kpis.inProgressIssues }}</div>
-            <div class="kpi-label">In Progress Issues</div>
-          </div>
-          <div class="kpi-item last">
-            <div class="kpi-value">{{ kpis.totalUnassignedIssues }}</div>
-            <div class="kpi-label">Total Unassigned Issues</div>
-          </div>
-        </div>
-      </div>
-    }
-    <!-- Charts Row -->
-    @if (charts) {
-      <div class="charts-row">
-        <!-- Transaction Failures Chart -->
-        <div class="chart-wrapper">
-          <h3 class="chart-title">Transaction Failures</h3>
-          <div class="chart-content">
-            <canvas
-              #transactionFailuresCanvas
-              aria-label="Transaction Failures Chart"
-            ></canvas>
-          </div>
-        </div>
-        <!-- ESP Cases Chart -->
-        <div class="chart-wrapper">
-          <h3 class="chart-title">ESP Cases</h3>
-          <div class="chart-content">
-            <canvas #espCasesCanvas aria-label="ESP Cases Chart"></canvas>
-          </div>
-        </div>
-        <!-- Issue Distribution Pie Chart -->
-        <div class="chart-wrapper doughnut-wrapper">
-          <h3 class="chart-title">Issue Distribution by Assignee</h3>
-          <div class="doughnut-container">
-            <canvas
-              #issueDistributionCanvas
-              aria-label="Issue Distribution Doughnut"
-            ></canvas>
-          </div>
-          <div class="doughnut-legend">
-            @for (legend of issueDistributionLegends; track legend) {
-              <div
-                class="pie-legend-item"
-                >
-                <span class="pie-color" [style.background]="legend.color"></span>
-                <span>{{ legend.label }} - {{ legend.value }}%</span>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-    }
-    <!-- Issues List Table -->
-    <div class="issues-table-section">
-      <div class="table-header-row metric-box">
-        <h2 class="table-title">Issues List</h2>
-        <button class="collapse-btn" (click)="toggleTableVisibility()">
-          <mat-icon>{{
-            isTableVisible ? "expand_less" : "expand_more"
-          }}</mat-icon>
-        </button>
-      </div>
-      @if (isTableVisible) {
-        <div>
-          <!-- New Table Toolbar with Filters -->
-          <div class="table-toolbar">
-            <div class="toolbar-left">
-              <div class="search-container">
-                <i class="fa fa-search home-search"></i>
-                <input
-                  type="text"
-                  class="search-input"
-                  placeholder="Search this table"
-                  [(ngModel)]="searchTerm"
-                  (input)="applySearch()"
-                  />
-              </div>
-              <div class="filters-container">
-                <button class="filter-chip" (click)="toggleFiltersDropdown($event)">
-                  <mat-icon style="height: 13px">filter_list</mat-icon>
-                  Filters
-                  @if (activeFilters.length > 0) {
-                    <span class="filter-count">{{
-                      activeFilters.length
-                    }}</span>
-                  }
-                </button>
-                <!-- Filters Dropdown -->
-                @if (showFiltersDropdown) {
-                  <div
-                    class="filters-dropdown"
-                    (click)="$event.stopPropagation()"
-                    tabindex="0"
-                    aria-label="Active filters menu"
-                    >
-                    <div class="filter-sections">
-                      @for (option of filterOptions; track option) {
-                        <div
-                          class="filter-section"
-                          >
-                          <div class="filter-section-title">{{ option.label }}</div>
-                          <div class="filter-options">
-                            @for (val of option.values; track val) {
-                              <label
-                                class="filter-option"
-                                >
-                                <input
-                                  type="checkbox"
-                                  (change)="addFilter(option.id, option.label, val)"
-                                  [checked]="isFilterActive(option.id, val)"
-                                  />
-                                <span class="checkmark"></span>
-                                {{ val }}
-                              </label>
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-              </div>
-              <span class="result-count"
-                >{{ dataSource?.data?.length || 0 }} results</span
-                >
-                <button
-                  class="reset-link"
-                  [class.disabled]="activeFilters.length === 0"
-                  (click)="clearAllFilters()"
-                  [disabled]="activeFilters.length === 0"
-                  >
-                  Reset filters
-                </button>
-                @if (activeFilters.length > 0) {
-                  <div class="filter-tags">
-                    @for (filter of activeFilters; track filter) {
-                      <div class="filter-tag">
-                        <span class="filter-label">{{ filter.key }}</span>
-                        <span class="filter-value">{{ filter.value }}</span>
-                        <button
-                          class="remove-filter"
-                          (click)="removeFilter(filter.key, filter.value)"
-                          >
-                          ✕
-                        </button>
-                      </div>
+          <div class="filters-container">
+            <button class="filter-chip" (click)="toggleFiltersDropdown($event)">
+              <mat-icon style="height: 13px">filter_list</mat-icon>
+              Filters @if (hasActiveFilters()) {
+              <span class="filter-count">{{ activeFilters().length }}</span>
+              }
+            </button>
+            <!-- Filters Dropdown -->
+            @if (showFiltersDropdown()) {
+            <div
+              class="filters-dropdown"
+              (click)="$event.stopPropagation()"
+              tabindex="0"
+              aria-label="Active filters menu"
+            >
+              <div class="filter-sections">
+                @for (option of filterOptions(); track option) {
+                <div class="filter-section">
+                  <div class="filter-section-title">{{ option.label }}</div>
+                  <div class="filter-options">
+                    @for (val of option.values; track val) {
+                    <label class="filter-option">
+                      <input
+                        type="checkbox"
+                        (change)="addFilter(option.id, option.label, val)"
+                        [checked]="isFilterActive(option.id, val)"
+                      />
+                      <span class="checkmark"></span>
+                      {{ val }}
+                    </label>
                     }
                   </div>
+                </div>
                 }
               </div>
-              <div class="toolbar-right">
-                <button class="action-btn">Assign Users</button>
-                <button class="action-btn">Download</button>
-              </div>
             </div>
-            <!-- Filters Dropdown -->
-            <!-- <div
+            }
+          </div>
+          <span class="result-count">{{ resultCount() }} results</span>
+          <button
+            class="reset-link"
+            [class.disabled]="!hasActiveFilters()"
+            (click)="clearAllFilters()"
+            [disabled]="!hasActiveFilters()"
+          >
+            Reset filters
+          </button>
+          @if (hasActiveFilters()) {
+          <div class="filter-tags">
+            @for (filter of activeFilters(); track filter) {
+            <div class="filter-tag">
+              <span class="filter-label">{{ filter.key }}</span>
+              <span class="filter-value">{{ filter.value }}</span>
+              <button
+                class="remove-filter"
+                (click)="removeFilter(filter.key, filter.value)"
+              >
+                ✕
+              </button>
+            </div>
+            }
+          </div>
+          }
+        </div>
+        <div class="toolbar-right">
+          <button class="action-btn">Assign Users</button>
+          <button class="action-btn">Download</button>
+        </div>
+      </div>
+      <!-- Filters Dropdown -->
+      <!-- <div
             class="filters-dropdown"
             *ngIf="showFiltersDropdown"
             (click)="$event.stopPropagation()"
@@ -250,91 +238,85 @@
               </div>
             </div>
           </div> -->
-          <!-- Mat Table -->
-          @if (!dataLoading) {
-            <div class="table-container">
-              <table
-                mat-table
-                [dataSource]="dataSource"
-                class="mat-elevation-z0 full-width-table"
-                >
-                <!-- Checkbox Column -->
-                <ng-container matColumnDef="select">
-                  <th mat-header-cell *matHeaderCellDef class="checkbox-col">
-                    <input type="checkbox" />
-                  </th>
-                  <td mat-cell *matCellDef="let row" class="checkbox-col">
-                    <input type="checkbox" />
-                  </td>
-                </ng-container>
-                <!-- Dynamic Columns -->
-                @for (column of displayedColumns; track column) {
-                  <ng-container [matColumnDef]="column">
-                    <th mat-header-cell *matHeaderCellDef>
-                      {{ replaceUnderscore(column) }}
-                    </th>
-                    <td mat-cell *matCellDef="let element">
-                      @switch (column) {
-                        <!-- ID Column with special formatting -->
-                        @case ('id') {
-                          <div class="issue-id-cell">
-                            <a
-                              class="issue-link"
-                              (click)="viewIssueDetails(element.id)"
-                              [innerHTML]="highlightText(element.id)"
-                            ></a>
-                            @if (element.hasAlert) {
-                              <mat-icon class="warning-icon"
-                                >warning</mat-icon
-                                >
-                              }
-                              @if (element.assignedTo === 'AI Agent') {
-                                <i
-                                  class="svg-icon ivan-icon"
-                                ></i>
-                              }
-                            </div>
-                          }
-                          <!-- Status Column with badge -->
-                          @case ('status') {
-                            <span
-                              class="status-pill"
-                              [ngClass]="getStatusClass(element.status)"
-                              [innerHTML]="highlightText(element.status)"
-                              >
-                            </span>
-                          }
-                          <!-- Default: display value as is -->
-                          @default {
-                            <span [innerHTML]="highlightText(element[column])"></span>
-                          }
-                        }
-                      </td>
-                    </ng-container>
-                  }
-                  <tr mat-header-row *matHeaderRowDef="headerColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: headerColumns"></tr>
-                </table>
+      <!-- Mat Table -->
+      @if (!dataLoading()) {
+      <div class="table-container">
+        <table
+          mat-table
+          [dataSource]="dataSource"
+          class="mat-elevation-z0 full-width-table"
+        >
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef class="checkbox-col">
+              <input type="checkbox" />
+            </th>
+            <td mat-cell *matCellDef="let row" class="checkbox-col">
+              <input type="checkbox" />
+            </td>
+          </ng-container>
+          <!-- Dynamic Columns -->
+          @for (column of displayedColumns(); track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef>
+              {{ replaceUnderscore(column) }}
+            </th>
+            <td mat-cell *matCellDef="let element">
+              @switch (column) {
+              <!-- ID Column with special formatting -->
+              @case ('id') {
+              <div class="issue-id-cell">
+                <a
+                  class="issue-link"
+                  (click)="viewIssueDetails(element.id)"
+                  [innerHTML]="highlightText(element.id)"
+                ></a>
+                @if (element.hasAlert) {
+                <mat-icon class="warning-icon">warning</mat-icon>
+                } @if (element.assignedTo === 'AI Agent') {
+                <i class="svg-icon ivan-icon"></i>
+                }
               </div>
-            }
-            <!-- Simple Paginator mimic (keeping existing UI for now) -->
-            <mat-paginator
-              [length]="paginatorLength"
-              [pageSize]="rowsPerPage"
-              [pageSizeOptions]="[10, 25, 50, 100]"
-              [showFirstLastButtons]="true"
-              (page)="onMatPage($event)"
-            ></mat-paginator>
-          </div>
-        }
+              }
+              <!-- Status Column with badge -->
+              @case ('status') {
+              <span
+                class="status-pill"
+                [ngClass]="getStatusClass(element.status)"
+                [innerHTML]="highlightText(element.status)"
+              >
+              </span>
+              }
+              <!-- Default: display value as is -->
+              @default {
+              <span [innerHTML]="highlightText(element[column])"></span>
+              } }
+            </td>
+          </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="headerColumns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: headerColumns()"></tr>
+        </table>
       </div>
+      }
+      <!-- Simple Paginator mimic (keeping existing UI for now) -->
+      <mat-paginator
+        [length]="paginatorLength()"
+        [pageSize]="rowsPerPage()"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        [showFirstLastButtons]="true"
+        (page)="onMatPage($event)"
+      ></mat-paginator>
     </div>
-  }
+    }
+  </div>
+</div>
+}
 
-  <!-- Loading Spinner -->
-  @if (homeLoading) {
-    <div class="loading-screen">
-      <mat-spinner></mat-spinner>
-      <p>Loading dashboard...</p>
-    </div>
-  }
+<!-- Loading Spinner -->
+@if (homeLoading()) {
+<div class="loading-screen">
+  <mat-spinner></mat-spinner>
+  <p>Loading dashboard...</p>
+</div>
+}

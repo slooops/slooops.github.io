@@ -18,7 +18,7 @@ import java.util.Map;
 public class BusinessInsightsMonitoringController {
 
     @Autowired
-    BusinessInsightsMonitoringService service;
+    private BusinessInsightsMonitoringService service;
 
     @GetMapping("/issue-reporting")
     public ResponseEntity<List<Map<String, Object>>> getIssueReporting() {

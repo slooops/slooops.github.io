@@ -8,17 +8,21 @@ import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  assignmentUsers: any[];
+  apiUrl: string;
+}
+
 @Component({
-    selector: 'app-gl-posting',
-    templateUrl: './gl-posting.component.html',
-    styleUrl: './gl-posting.component.css',
-    providers: [DestroyManager],
-    imports: [
-    CommonModule,
-    MatTabsModule,
-    MonitoringDashboardComponent
-  ],
-  standalone: true
+  selector: 'app-gl-posting',
+  templateUrl: './gl-posting.component.html',
+  styleUrl: './gl-posting.component.css',
+  providers: [DestroyManager],
+  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
+  standalone: true,
 })
 export class GlPostingComponent implements OnInit {
   constructor(
@@ -26,12 +30,22 @@ export class GlPostingComponent implements OnInit {
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
     private menuService: MenuService
-  ) {}
+  ) {
+    // Initialize roles and user context in constructor so they're available before template renders
+    this.roles = this.authService.getRoles();
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      assignmentUsers: this.dataService.getAssignmentUsers('I2C'),
+      apiUrl: this.authService.getHostUrl(),
+    };
+  }
   roles: string[] = [];
+  userContextData: UserContext;
 
   ngOnInit() {
     this.getErrorSummaryPeriodStatus();
-    this.roles = this.authService.getRoles();
   }
 
   glFilters: {
