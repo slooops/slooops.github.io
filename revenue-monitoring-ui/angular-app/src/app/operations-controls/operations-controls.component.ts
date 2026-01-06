@@ -5,22 +5,38 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  assignmentUsers: any[];
+  apiUrl: string;
+}
+
 @Component({
-    selector: 'app-operations-controls',
-    templateUrl: './operations-controls.component.html',
-    styleUrl: './operations-controls.component.css',
-    imports: [
-    MatTabsModule,
-    MonitoringDashboardComponent
-  ],
-  standalone: true
+  selector: 'app-operations-controls',
+  templateUrl: './operations-controls.component.html',
+  styleUrl: './operations-controls.component.css',
+  imports: [MatTabsModule, MonitoringDashboardComponent],
+  standalone: true,
 })
 export class OperationsControlsComponent implements OnInit {
+  userContextData: UserContext;
+
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService
-  ) {}
+  ) {
+    // Initialize user context in constructor so it's available before child components initialize
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.authService.getRoles(),
+      assignmentUsers: this.dataService.getAssignmentUsers(''),
+      apiUrl: this.authService.getHostUrl(),
+    };
+  }
 
   ngOnInit() {
     this.getErrorSummaryPeriodStatus();

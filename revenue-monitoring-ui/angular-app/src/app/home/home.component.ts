@@ -1,9 +1,11 @@
 import {
   Component,
-  OnInit,
   ViewChild,
   ElementRef,
   OnDestroy,
+  signal,
+  computed,
+  effect,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiHttpService } from '../providers/http.service';
@@ -11,7 +13,7 @@ import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MockHomeDataService } from './mock-home-data.service';
-import { takeUntil } from 'rxjs';
+import { HomeDataService } from './home-data.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Chart, ChartConfiguration, Plugin } from 'chart.js/auto';
@@ -23,44 +25,60 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     FormsModule,
     MatIconModule,
     MatTableModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
-  standalone: true
+  standalone: true,
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnDestroy {
   constructor(
     private router: Router,
     private http: ApiHttpService,
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private mockDataService: MockHomeDataService
-  ) {}
+    private mockDataService: MockHomeDataService,
+    private homeDataService: HomeDataService
+  ) {
+    // Initialize user info
+    this.userRoles.set(this.authService.getRoles());
+    this.username.set(this.authService.getUserName());
 
-  // Dashboard data
-  dashboardData: any;
-  periodInfo: any;
-  kpis: any;
-  charts: any;
-  issuesList: any[] = [];
+    // Load dashboard data on initialization
+    this.loadDashboardData();
+
+    // Effect to update header columns when displayed columns change
+    effect(() => {
+      const cols = this.displayedColumns();
+      if (cols.length > 0) {
+        this.headerColumns.set(['select', ...cols]);
+      }
+    });
+  }
+
+  // Dashboard data signals
+  dashboardData = signal<any>(null);
+  periodInfo = signal<any>(null);
+  kpis = signal<any>(null);
+  charts = signal<any>(null);
+  issuesList = signal<any[]>([]);
   // Mat Table integration
-  displayedColumns: string[] = [];
+  displayedColumns = signal<string[]>([]);
   // Combined columns including selection checkbox column for mat-table header/rows
-  headerColumns: string[] = [];
+  headerColumns = signal<string[]>([]);
   // Columns to hide from display
-  columnsToHide: string[] = ['assignedTo'];
+  columnsToHide = signal<string[]>(['assignedTo']);
   dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
-  searchTerm: string = '';
+  searchTerm = signal<string>('');
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('transactionFailuresCanvas')
   transactionFailuresCanvas!: ElementRef<HTMLCanvasElement>;
@@ -74,79 +92,93 @@ export class HomeComponent implements OnInit, OnDestroy {
   private issueDistributionChart?: Chart;
 
   // Issue distribution legends (dynamic)
-  issueDistributionLegends: { label: string; value: number; color: string }[] =
-    [];
+  issueDistributionLegends = signal<
+    { label: string; value: number; color: string }[]
+  >([]);
+
+  // Computed signals
+  hasActiveFilters = computed(() => this.activeFilters().length > 0);
+  resultCount = computed(() => this.dataSource?.data?.length || 0);
 
   // Simple filters (extendable)
-  showFiltersDropdown: boolean = false;
-  activeFilters: { key: string; value: string }[] = [];
-  isTableVisible: boolean = true;
-  filterOptions: { id: string; label: string; values: string[] }[] = [
+  showFiltersDropdown = signal<boolean>(false);
+  activeFilters = signal<{ key: string; value: string }[]>([]);
+  isTableVisible = signal<boolean>(true);
+  filterOptions = signal<{ id: string; label: string; values: string[] }[]>([
     {
       id: 'status',
       label: 'Status',
       values: ['Open', 'In Progress', 'Unassigned'],
     },
-  ];
+  ]);
 
   // Loading states
-  homeLoading: boolean = true;
-  dataLoading: boolean = true;
+  homeLoading = signal<boolean>(true);
+  dataLoading = signal<boolean>(true);
 
   // User info
-  userRoles: any;
-  username: string;
+  userRoles = signal<any>(null);
+  username = signal<string>('');
 
   // Pagination
-  currentPage: number = 1;
-  rowsPerPage: number = 10;
-  totalResults: number = 0;
+  currentPage = signal<number>(1);
+  rowsPerPage = signal<number>(10);
+  totalResults = signal<number>(0);
   // Length bound to paginator: total results (server-side) unless filters applied (then show filtered count for clarity)
-  paginatorLength: number = 0;
-
-  ngOnInit(): void {
-    this.userRoles = this.authService.getRoles();
-    this.username = this.authService.getUserName();
-    // Initialize header columns (Angular template doesn't support spread syntax inside array literal)
-    this.headerColumns = ['select', ...this.displayedColumns];
-    this.loadDashboardData();
-  }
+  paginatorLength = signal<number>(0);
 
   /**
    * Load all dashboard data from mock service
    */
   loadDashboardData(): void {
-    this.dataLoading = true;
-    this.homeLoading = true;
+    this.dataLoading.set(true);
+    this.homeLoading.set(true);
 
-    // Simulate HTTP GET request
+    // Load period info from real backend service
+    this.homeDataService.getPeriodInfo(this.destroyManager).subscribe({
+      next: (periodData) => {
+        this.periodInfo.set(periodData);
+      },
+      error: (error) => {
+        console.error('Error loading period info:', error);
+        // Set default empty period info on error
+        this.periodInfo.set({
+          periodName: '',
+          periodEndDate: '',
+          lastUpdated: new Date().toLocaleString(),
+        });
+      },
+    });
+
+    // Simulate HTTP GET request for other dashboard data
     this.mockDataService.getDashboardData().subscribe({
       next: (data) => {
-        this.dashboardData = data;
-        this.periodInfo = data.periodInfo;
-        this.kpis = data.kpis;
-        this.charts = data.charts;
-        this.issuesList = data.issuesList;
-        this.totalResults = data.pagination.totalResults;
-        this.currentPage = data.pagination.currentPage;
-        this.rowsPerPage = data.pagination.rowsPerPage;
+        this.dashboardData.set(data);
+        // Period info loaded separately from real service above
+        this.kpis.set(data.kpis);
+        this.charts.set(data.charts);
+        this.issuesList.set(data.issuesList);
+        this.totalResults.set(data.pagination.totalResults);
+        this.currentPage.set(data.pagination.currentPage);
+        this.rowsPerPage.set(data.pagination.rowsPerPage);
 
         // Generate columns dynamically from data
-        if (this.issuesList.length > 0) {
-          this.displayedColumns = Object.keys(this.issuesList[0]);
+        if (this.issuesList().length > 0) {
+          this.displayedColumns.set(Object.keys(this.issuesList()[0]));
         }
-        this.displayedColumns = this.displayedColumns.filter(
-          (col) => !this.columnsToHide.includes(col)
+        const filtered = this.displayedColumns().filter(
+          (col) => !this.columnsToHide().includes(col)
         );
-        this.headerColumns = ['select', ...this.displayedColumns];
+        this.displayedColumns.set(filtered);
+        this.headerColumns.set(['select', ...this.displayedColumns()]);
 
         // Calculate issue distribution from issues list
         this.calculateIssueDistribution();
 
         // Initialize MatTable dataSource
-        this.dataSource.data = this.issuesList;
+        this.dataSource.data = this.issuesList();
         // Server-side pagination: do NOT attach paginator to dataSource to prevent double slicing
-        this.paginatorLength = this.totalResults;
+        this.paginatorLength.set(this.totalResults());
         this.applyFilters();
         // Initialize charts once view has updated with canvas elements
         setTimeout(() => this.initCharts(), 0);
@@ -155,12 +187,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
-        this.dataLoading = false;
-        this.homeLoading = false;
+        this.dataLoading.set(false);
+        this.homeLoading.set(false);
       },
       complete: () => {
-        this.dataLoading = false;
-        this.homeLoading = false;
+        this.dataLoading.set(false);
+        this.homeLoading.set(false);
       },
     });
   }
@@ -169,28 +201,28 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Load issues list with pagination
    */
   loadIssues(page: number = 1): void {
-    this.dataLoading = true;
+    this.dataLoading.set(true);
 
-    this.mockDataService.getIssuesList(page, this.rowsPerPage).subscribe({
+    this.mockDataService.getIssuesList(page, this.rowsPerPage()).subscribe({
       next: (data) => {
-        this.issuesList = data.issues;
-        this.totalResults = data.totalResults;
-        this.currentPage = data.currentPage;
-        this.dataSource.data = this.issuesList;
-        this.paginatorLength = this.totalResults;
+        this.issuesList.set(data.issues);
+        this.totalResults.set(data.totalResults);
+        this.currentPage.set(data.currentPage);
+        this.dataSource.data = this.issuesList();
+        this.paginatorLength.set(this.totalResults());
         this.applyFilters();
         // Sync paginator indexes only; length already set
         if (this.paginator) {
-          this.paginator.pageIndex = this.currentPage - 1; // 0-based
-          this.paginator.pageSize = this.rowsPerPage;
+          this.paginator.pageIndex = this.currentPage() - 1; // 0-based
+          this.paginator.pageSize = this.rowsPerPage();
         }
       },
       error: (error) => {
         console.error('Error loading issues:', error);
-        this.dataLoading = false;
+        this.dataLoading.set(false);
       },
       complete: () => {
-        this.dataLoading = false;
+        this.dataLoading.set(false);
       },
     });
   }
@@ -245,34 +277,35 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ------------ Filter Logic (simplified compared to CaseIQ) ------------
   toggleFiltersDropdown(event: Event) {
     event.stopPropagation();
-    this.showFiltersDropdown = !this.showFiltersDropdown;
+    this.showFiltersDropdown.update((v) => !v);
   }
 
   isFilterActive(key: string, value: string): boolean {
-    return this.activeFilters.some((f) => f.key === key && f.value === value);
+    return this.activeFilters().some((f) => f.key === key && f.value === value);
   }
 
   addFilter(key: string, label: string, value: string) {
-    const idx = this.activeFilters.findIndex(
-      (f) => f.key === key && f.value === value
-    );
+    const filters = this.activeFilters();
+    const idx = filters.findIndex((f) => f.key === key && f.value === value);
     if (idx > -1) {
-      this.activeFilters.splice(idx, 1); // toggle off
+      const updated = [...filters];
+      updated.splice(idx, 1); // toggle off
+      this.activeFilters.set(updated);
     } else {
-      this.activeFilters.push({ key, value });
+      this.activeFilters.update((f) => [...f, { key, value }]);
     }
     this.applyFilters();
   }
 
   removeFilter(key: string, value: string) {
-    this.activeFilters = this.activeFilters.filter(
-      (f) => !(f.key === key && f.value === value)
+    this.activeFilters.update((filters) =>
+      filters.filter((f) => !(f.key === key && f.value === value))
     );
     this.applyFilters();
   }
 
   clearAllFilters() {
-    this.activeFilters = [];
+    this.activeFilters.set([]);
     this.applyFilters();
   }
 
@@ -281,9 +314,9 @@ export class HomeComponent implements OnInit, OnDestroy {
    */
   filterByAssignee(category: string): void {
     // Clear existing filters first
-    this.activeFilters = [];
+    this.activeFilters.set([]);
 
-    let filtered = [...this.issuesList];
+    let filtered = [...this.issuesList()];
 
     if (category === 'AI Agent') {
       filtered = filtered.filter(
@@ -312,23 +345,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     this.dataSource.data = filtered;
-    this.paginatorLength = filtered.length;
+    this.paginatorLength.set(filtered.length);
 
     // Add visual indicator that filter is active
-    this.activeFilters.push({ key: 'assignedTo', value: category });
+    this.activeFilters.set([{ key: 'assignedTo', value: category }]);
   }
 
   getSelectedCount(filterId: string): number {
-    return this.activeFilters.filter((f) => f.key === filterId).length;
+    return this.activeFilters().filter((f) => f.key === filterId).length;
   }
 
   applyFilters() {
     if (!this.dataSource) return;
-    let filtered = [...this.issuesList];
+    let filtered = [...this.issuesList()];
 
     // Group filters by key for OR within, AND between groups
     const filterMap = new Map<string, Set<string>>();
-    this.activeFilters.forEach((f) => {
+    this.activeFilters().forEach((f) => {
       if (!filterMap.has(f.key)) filterMap.set(f.key, new Set());
       filterMap.get(f.key)!.add(f.value);
     });
@@ -345,33 +378,36 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.dataSource.data = filtered;
     // Adjust paginator length when filters are active (client-side filtering of current page slice only)
-    const filtersActive = this.activeFilters.length > 0;
-    this.paginatorLength = filtersActive ? filtered.length : this.totalResults;
+    const filtersActive = this.activeFilters().length > 0;
+    this.paginatorLength.set(
+      filtersActive ? filtered.length : this.totalResults()
+    );
   }
 
   // Material paginator event handler
   onMatPage(event: PageEvent) {
-    this.rowsPerPage = event.pageSize;
-    this.currentPage = event.pageIndex + 1; // convert to 1-based for backend
-    this.loadIssues(this.currentPage);
+    this.rowsPerPage.set(event.pageSize);
+    this.currentPage.set(event.pageIndex + 1); // convert to 1-based for backend
+    this.loadIssues(this.currentPage());
   }
 
   toggleTableVisibility(): void {
-    this.isTableVisible = !this.isTableVisible;
+    this.isTableVisible.update((v) => !v);
   }
 
   /**
    * Calculate issue distribution based on issues list data
    */
   calculateIssueDistribution(): void {
-    if (!this.issuesList || this.issuesList.length === 0) return;
+    const issues = this.issuesList();
+    if (!issues || issues.length === 0) return;
 
-    const total = this.issuesList.length;
+    const total = issues.length;
     let aiAgentCount = 0;
     let humanCount = 0;
     let unassignedCount = 0;
 
-    this.issuesList.forEach((issue) => {
+    issues.forEach((issue) => {
       const assignedTo = issue.assignedTo?.trim();
 
       if (!assignedTo || assignedTo === 'Unassigned') {
@@ -392,16 +428,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       100 - aiAgentPercent - humanPercent - unassignedPercent;
 
     // Update charts data
-    if (this.charts && this.charts.issueDistribution) {
-      this.charts.issueDistribution.aiAgent = aiAgentPercent;
-      this.charts.issueDistribution.human = humanPercent;
-      this.charts.issueDistribution.unassigned = unassignedPercent;
-      this.charts.issueDistribution.other = Math.max(0, otherPercent);
+    const currentCharts = this.charts();
+    if (currentCharts && currentCharts.issueDistribution) {
+      currentCharts.issueDistribution.aiAgent = aiAgentPercent;
+      currentCharts.issueDistribution.human = humanPercent;
+      currentCharts.issueDistribution.unassigned = unassignedPercent;
+      currentCharts.issueDistribution.other = Math.max(0, otherPercent);
+      this.charts.set(currentCharts);
     }
 
     // Update KPIs total issues count
-    if (this.kpis) {
-      this.kpis.totalIssues = total;
+    const currentKpis = this.kpis();
+    if (currentKpis) {
+      currentKpis.totalIssues = total;
+      this.kpis.set(currentKpis);
     }
   }
 
@@ -409,7 +449,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Apply search filter across all columns
    */
   applySearch(): void {
-    const searchValue = this.searchTerm.toLowerCase().trim();
+    const searchValue = this.searchTerm().toLowerCase().trim();
 
     if (!searchValue) {
       // If search is empty, apply existing filters or show all data
@@ -418,8 +458,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     // Filter data based on search term matching any visible column value
-    const filteredData = this.issuesList.filter((row) => {
-      return this.displayedColumns.some((key) => {
+    const filteredData = this.issuesList().filter((row) => {
+      return this.displayedColumns().some((key) => {
         const value = row[key];
         if (value === null || value === undefined) return false;
         return value.toString().toLowerCase().includes(searchValue);
@@ -427,7 +467,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
 
     this.dataSource.data = filteredData;
-    this.paginatorLength = filteredData.length;
+    this.paginatorLength.set(filteredData.length);
 
     if (this.paginator) {
       this.paginator.firstPage();
@@ -438,12 +478,12 @@ export class HomeComponent implements OnInit, OnDestroy {
    * Highlight search term in text
    */
   highlightText(text: any): string {
-    if (!text || !this.searchTerm) {
+    if (!text || !this.searchTerm()) {
       return text;
     }
 
     const textStr = text.toString();
-    const searchValue = this.searchTerm.trim();
+    const searchValue = this.searchTerm().trim();
 
     if (!searchValue) {
       return textStr;
@@ -466,7 +506,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ---------------- Chart.js Integration ----------------
   private initCharts(): void {
-    if (!this.charts) return;
+    if (!this.charts()) return;
     this.buildTransactionFailuresChart();
     this.buildEspCasesChart();
     this.buildIssueDistributionChart();
@@ -492,8 +532,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private buildTransactionFailuresChart(): void {
-    const weeks = this.charts.transactionFailures.weeks;
-    const dataObj = this.charts.transactionFailures;
+    const chartsData = this.charts();
+    if (!chartsData) return;
+    const weeks = chartsData.transactionFailures.weeks;
+    const dataObj = chartsData.transactionFailures;
     const ctx = this.transactionFailuresCanvas?.nativeElement.getContext('2d');
     if (!ctx) return;
     // Destroy existing
@@ -582,8 +624,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private buildEspCasesChart(): void {
-    const weeks = this.charts.espCases.weeks;
-    const dataObj = this.charts.espCases;
+    const chartsData = this.charts();
+    if (!chartsData) return;
+    const weeks = chartsData.espCases.weeks;
+    const dataObj = chartsData.espCases;
     const ctx = this.espCasesCanvas?.nativeElement.getContext('2d');
     if (!ctx) return;
     this.espCasesChart?.destroy();
@@ -633,7 +677,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private buildIssueDistributionChart(): void {
-    const dist = this.charts.issueDistribution;
+    const chartsData = this.charts();
+    if (!chartsData) return;
+    const dist = chartsData.issueDistribution;
     const ctx = this.issueDistributionCanvas?.nativeElement.getContext('2d');
     if (!ctx) return;
     this.issueDistributionChart?.destroy();
@@ -646,7 +692,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const filteredLabels: string[] = [];
     const filteredData: number[] = [];
     const filteredColors: string[] = [];
-    this.issueDistributionLegends = [];
+    const legends: { label: string; value: number; color: string }[] = [];
 
     allLabels.forEach((label, index) => {
       if (allData[index] > 0) {
@@ -655,13 +701,15 @@ export class HomeComponent implements OnInit, OnDestroy {
         filteredColors.push(allColors[index]);
 
         // Build legends array
-        this.issueDistributionLegends.push({
+        legends.push({
           label: label,
           value: allData[index],
           color: allColors[index],
         });
       }
     });
+
+    this.issueDistributionLegends.set(legends);
 
     const centerTextPlugin: Plugin = {
       id: 'centerTextPlugin',
@@ -675,8 +723,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         ctx.fillStyle = '#000';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        const kpisData = this.kpis();
         ctx.fillText(
-          this.kpis.totalIssues?.toString() || '',
+          kpisData?.totalIssues?.toString() || '',
           chart.getDatasetMeta(0).data[0].x,
           chart.getDatasetMeta(0).data[0].y - 8
         );

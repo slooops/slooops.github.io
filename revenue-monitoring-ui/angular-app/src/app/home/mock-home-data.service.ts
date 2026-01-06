@@ -12,7 +12,7 @@ export class MockHomeDataService {
     periodInfo: {
       periodName: 'SEP-29 (W4)',
       periodEndDate: '09/20/2025',
-      lastUpdated: '9/9/2025, 4:45:17 PM',
+      lastUpdated: `${new Date().toLocaleString()}`,
       username: 'Sai',
     },
     kpis: {

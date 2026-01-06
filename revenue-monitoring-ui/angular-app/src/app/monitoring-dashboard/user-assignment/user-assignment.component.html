@@ -24,41 +24,24 @@
     </div>
 
     <div class="modal-body">
-      <form [formGroup]="updateForm" class="form-stack" *ngIf="formReady()">
-        <!-- <div class="input-stack" *ngFor="let field of fieldConfig">
-        <label>{{ field.label }}</label>
-
-        <ng-container *ngIf="field.controlName === 'assignedTo'">
-          <select [formControlName]="field.controlName" required>
-            <option value="" disabled>Select User</option>
-            <option *ngFor="let data of assignmentUsers" [value]="data.NAME">
-              {{ data.NAME }}
-            </option>
-          </select>
-        </ng-container>
-
-        <ng-container *ngIf="field.controlName !== 'assignedTo'">
-          <input
-            type="text"
-            [formControlName]="field.controlName"
-            [placeholder]="'Enter ' + field.label"
-            />
-        </ng-container>
-      </div> -->
-
-        <div class="input-stack" *ngFor="let field of fieldConfig()">
+      @if (formReady()) {
+      <form [formGroup]="updateForm" class="form-stack">
+        @for (field of fieldConfig(); track field.controlName) {
+        <div class="input-stack">
           <label>{{ field.label }}</label>
           @if (field.controlName === 'assignedTo') {
           <select [formControlName]="field.controlName" required>
             <option value="" disabled>Select User</option>
-            <option *ngFor="let data of assignmentUsers()" [value]="data.NAME">
+            @for (data of userContext().assignmentUsers; track data.NAME) {
+            <option [value]="data.NAME">
               {{ data.NAME }}
             </option>
+            }
           </select>
           } @else { @if (field.options?.length) {
           <select [formControlName]="field.controlName">
             <option value="" disabled>Select {{ field.label }}</option>
-            @for (option of field.options; track option) {
+            @for (option of field.options; track option.value) {
             <option [value]="option.value">
               {{ option.label }}
             </option>
@@ -72,7 +55,9 @@
           />
           } }
         </div>
+        }
       </form>
+      }
     </div>
 
     <div class="modal-footer">

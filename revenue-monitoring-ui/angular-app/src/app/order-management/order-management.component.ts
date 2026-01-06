@@ -11,17 +11,21 @@ import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  assignmentUsers: any[];
+  apiUrl: string;
+}
+
 @Component({
-    selector: 'app-order-management',
-    templateUrl: './order-management.component.html',
-    styleUrl: './order-management.component.css',
-    providers: [DestroyManager],
-    imports: [
-    CommonModule,
-    MatTabsModule,
-    MonitoringDashboardComponent
-  ],
-  standalone: true
+  selector: 'app-order-management',
+  templateUrl: './order-management.component.html',
+  styleUrl: './order-management.component.css',
+  providers: [DestroyManager],
+  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
+  standalone: true,
 })
 export class OrderManagementComponent {
   constructor(
@@ -33,15 +37,24 @@ export class OrderManagementComponent {
     private menuService: MenuService
   ) {
     this.http = http;
+    // Initialize roles and user context in constructor so they're available before template renders
+    this.roles = this.authService.getRoles();
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      assignmentUsers: this.dataService.getAssignmentUsers('ORDER_MANAGEMENT'),
+      apiUrl: this.authService.getHostUrl(),
+    };
   }
   protected http: ApiHttpService;
   summaryDataSource: any;
   detailsDataSource: any;
   selection = new SelectionModel<any>(true, []);
   roles: string[] = [];
+  userContextData: UserContext;
 
   ngOnInit(): void {
-    this.roles = this.authService.getRoles();
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
   }

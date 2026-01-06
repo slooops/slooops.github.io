@@ -1,27 +1,23 @@
-import {
-  Component,
-  computed,
-  effect,
-  input,
-  output,
-  signal,
-} from '@angular/core';
+import { Component, effect, input, output, signal } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { AuthenticationService } from 'src/app/providers/authentication.service';
-import { DataService } from 'src/app/providers/data.service';
 import { HttpService } from '../providers/http.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  assignmentUsers: any[];
+  apiUrl: string;
+}
+
 @Component({
-    selector: 'app-user-assignment',
-    templateUrl: './user-assignment.component.html',
-    styleUrl: './user-assignment.component.css',
-    imports: [
-    CommonModule,
-    ReactiveFormsModule
-  ],
-  standalone: true
+  selector: 'app-user-assignment',
+  templateUrl: './user-assignment.component.html',
+  styleUrl: './user-assignment.component.css',
+  imports: [CommonModule, ReactiveFormsModule],
+  standalone: true,
 })
 export class UserAssignmentComponent {
   submitKeysToMap = input<string[]>([]);
@@ -31,29 +27,20 @@ export class UserAssignmentComponent {
   webexUrl = input<string>('');
   componentName = input<string>('');
   fieldConfig = input<any[]>([]);
-  assignmentUsersFilter = input<string>('');
+  userContext = input<UserContext>({
+    username: '',
+    userId: '',
+    roles: [],
+    assignmentUsers: [],
+    apiUrl: '',
+  });
 
   close = output<any>();
 
   updateForm!: FormGroup;
   formReady = signal(false);
-  username: any;
-  isAdmin: boolean = false;
-  userRoles: String[] = [];
 
-  assignmentUsers = computed(() =>
-    this.dataService.getAssignmentUsers(this.assignmentUsersFilter())
-  );
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private http: HttpService,
-    private dataService: DataService,
-    private authService: AuthenticationService
-  ) {
-    this.username = this.authService.getUserID();
-    this.userRoles = this.authService.getRoles();
-
+  constructor(private formBuilder: FormBuilder, private http: HttpService) {
     this.updateForm = this.formBuilder.group({});
 
     effect(
@@ -80,7 +67,8 @@ export class UserAssignmentComponent {
               const assignedToValue =
                 currentData[0]?.ASSIGNED_TO ?? currentData[0]?.assigned_to;
               isDisabled =
-                !this.userRoles.includes('ADMIN') && !!assignedToValue;
+                !this.userContext().roles.includes('ADMIN') &&
+                !!assignedToValue;
             }
 
             const controlConfig = [{ value: rawValue, disabled: isDisabled }];
@@ -100,6 +88,11 @@ export class UserAssignmentComponent {
       },
       { allowSignalWrites: true }
     );
+
+    // Test: Log userContext to verify data flow
+    effect(() => {
+      console.log('UserContext received:', this.userContext());
+    });
   }
 
   submitData() {
@@ -141,7 +134,8 @@ export class UserAssignmentComponent {
       ) {
         const assignedToValue =
           this.data()[0]?.ASSIGNED_TO ?? this.data()[0]?.assigned_to;
-        isDisabled = !this.userRoles.includes('ADMIN') && !!assignedToValue;
+        isDisabled =
+          !this.userContext().roles.includes('ADMIN') && !!assignedToValue;
       }
       if (!isDisabled) {
         const originalValue = this.data()[0]?.[field.sourceKey];
@@ -158,8 +152,9 @@ export class UserAssignmentComponent {
   sendWebexMessage() {
     const assigneeName = this.getAssigneeName();
     const assignee =
-      this.assignmentUsers().find((data) => data.NAME === assigneeName)
-        ?.EMAIL || assigneeName;
+      this.userContext().assignmentUsers.find(
+        (data) => data.NAME === assigneeName
+      )?.EMAIL || assigneeName;
 
     const webexMessageData = this.createDynamicObject(
       assignee,
@@ -191,7 +186,7 @@ export class UserAssignmentComponent {
     const originalAssignedTo =
       this.data()[0]?.ASSIGNED_TO ?? this.data()[0]?.assigned_to;
     const currentAssignedTo = this.updateForm.value.assignedTo;
-    return this.userRoles.includes('ADMIN')
+    return this.userContext().roles.includes('ADMIN')
       ? currentAssignedTo !== originalAssignedTo
         ? currentAssignedTo
         : originalAssignedTo
@@ -206,7 +201,7 @@ export class UserAssignmentComponent {
     const result = {
       assignedTo: assigneeName,
       comments: this.getUpdatedComments(),
-      username: this.username,
+      username: this.userContext().username,
     };
 
     if (!update) {

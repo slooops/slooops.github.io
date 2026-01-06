@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
-import { ApiHttpService } from '../providers/http.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
@@ -11,19 +10,27 @@ import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring
 import { CmsComponent } from '../cms/cms.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 
+export interface UserContext {
+  username: string;
+  userId: string;
+  roles: string[];
+  assignmentUsers: any[];
+  apiUrl: string;
+}
+
 @Component({
-    selector: 'app-invoicing',
-    templateUrl: './invoicing.component.html',
-    styleUrls: ['./invoicing.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-invoicing',
+  templateUrl: './invoicing.component.html',
+  styleUrls: ['./invoicing.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatTabsModule,
     MonitoringDashboardComponent,
     CmsComponent,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class InvoicingComponent implements OnInit {
   constructor(
@@ -31,14 +38,42 @@ export class InvoicingComponent implements OnInit {
     private destroyManager: DestroyManager,
     public authService: AuthenticationService,
     private menuService: MenuService
-  ) {}
+  ) {
+    // Initialize roles and user context in constructor so they're available before template renders
+    console.log(
+      'Invoicing Constructor - getRoles():',
+      this.authService.getRoles()
+    );
+    console.log(
+      'Invoicing Constructor - getHostUrl():',
+      this.authService.getHostUrl()
+    );
+    this.roles = this.authService.getRoles();
+    this.userContextData = {
+      username: this.authService.getUserName(),
+      userId: this.authService.getUserID(),
+      roles: this.roles,
+      assignmentUsers: this.dataService.getAssignmentUsers('I2C'),
+      apiUrl: this.authService.getHostUrl(),
+    };
+    console.log(
+      'Invoicing Constructor - userContextData:',
+      this.userContextData
+    );
+  }
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';
   roles: string[] = [];
+  userContextData: UserContext;
+  // userInfo: Map<string, any> = new Map();
+
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
-    this.roles = this.authService.getRoles();
     this.getDefaultTabIndex();
+
+    // this.userInfo.set('username', this.authService.getUserID());
+    // this.userInfo.set('userRoles', this.authService.getRoles());
+    // this.assignmentUsers = this.dataService.getAssignmentUsers('I2C');
   }
 
   fieldConfig = [
@@ -374,6 +409,8 @@ export class InvoicingComponent implements OnInit {
     chartTotalsUrl: '',
     chartDetailsUrl: '',
   };
+
+  // assignmentUsers: string[] = [];
 
   debitCardUrls: { [key: string]: string } = {
     summaryUrl: 'debit-card-error-summary',

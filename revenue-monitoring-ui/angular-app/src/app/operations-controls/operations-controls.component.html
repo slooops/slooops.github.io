@@ -7,7 +7,6 @@
     label="Invoice to Cash"
   >
     <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
       [urls]="preInvoicingUrls"
       [keysToMap]="[
         'PERIOD_NAME',
@@ -16,17 +15,16 @@
         'TRANSACTION_DATE',
         'RULE_NAME'
       ]"
-      [periodStatus]="periodStatus"
       [componentName]="'I2C Controls'"
       [columnsToFilter]="preInvoicingFilters"
       [detailsColumnsToHide]="['']"
       [submitKeysToMap]="[]"
       [webexKeysToMap]="[]"
+      [userContext]="userContextData"
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Revenue Accounting">
     <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
       [urls]="revControlsUrls"
       [keysToMap]="[
         'PERIOD_NAME',
@@ -35,25 +33,24 @@
         'TRANSACTION_DATE',
         'RULE_NAME'
       ]"
-      [periodStatus]="periodStatus"
       [componentName]="'Rev Controls'"
       [columnsToFilter]="revControlsFilters"
       [detailsColumnsToHide]="['']"
       [submitKeysToMap]="[]"
       [webexKeysToMap]="[]"
+      [userContext]="userContextData"
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Tax and Customs">
     <app-monitoring-dashboard
-      [apiUrl]="authService.getHostUrl()"
       [urls]="gtcControlsUrls"
       [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
-      [periodStatus]="periodStatus"
       [componentName]="'Gtc Controls'"
       [columnsToFilter]="GtcControlsFilters"
       [detailsColumnsToHide]="['']"
       [submitKeysToMap]="[]"
       [webexKeysToMap]="[]"
+      [userContext]="userContextData"
     ></app-monitoring-dashboard>
   </mat-tab>
   <mat-tab label="Deferrals" [disabled]="true"> </mat-tab>
