@@ -1,6 +1,7 @@
 import { Component, effect, input, output, signal } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { HttpService } from '../providers/http.service';
+import { MonitoringDataService } from '../providers/data.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -8,8 +9,8 @@ export interface UserContext {
   username: string;
   userId: string;
   roles: string[];
-  assignmentUsers: any[];
   apiUrl: string;
+  assignmentUsersFilterKey: string;
 }
 
 @Component({
@@ -31,8 +32,8 @@ export class UserAssignmentComponent {
     username: '',
     userId: '',
     roles: [],
-    assignmentUsers: [],
     apiUrl: '',
+    assignmentUsersFilterKey: '',
   });
 
   close = output<any>();
@@ -40,7 +41,20 @@ export class UserAssignmentComponent {
   updateForm!: FormGroup;
   formReady = signal(false);
 
-  constructor(private formBuilder: FormBuilder, private http: HttpService) {
+  // Getter method to access assignment users from service
+  getAssignmentUsersForTemplate(): any[] {
+    return (
+      this.dataService.getAssignmentUsers(
+        this.userContext().assignmentUsersFilterKey
+      ) || []
+    );
+  }
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private http: HttpService,
+    private dataService: MonitoringDataService
+  ) {
     this.updateForm = this.formBuilder.group({});
 
     effect(
@@ -88,11 +102,6 @@ export class UserAssignmentComponent {
       },
       { allowSignalWrites: true }
     );
-
-    // Test: Log userContext to verify data flow
-    effect(() => {
-      console.log('UserContext received:', this.userContext());
-    });
   }
 
   submitData() {
@@ -151,10 +160,12 @@ export class UserAssignmentComponent {
   }
   sendWebexMessage() {
     const assigneeName = this.getAssigneeName();
+    const assignmentUsers = this.dataService.getAssignmentUsers(
+      this.userContext().assignmentUsersFilterKey
+    );
     const assignee =
-      this.userContext().assignmentUsers.find(
-        (data) => data.NAME === assigneeName
-      )?.EMAIL || assigneeName;
+      assignmentUsers?.find((data: any) => data.NAME === assigneeName)?.EMAIL ||
+      assigneeName;
 
     const webexMessageData = this.createDynamicObject(
       assignee,

@@ -52,7 +52,6 @@ export class BusinessInsightsComponent implements OnInit {
   menuOpen = false;
 
   toggleMenu() {
-    console.log('Burger menu clicked!');
     // Implement menu toggle logic here
   }
   onTabChange(index: number) {

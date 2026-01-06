@@ -15,8 +15,8 @@ export interface UserContext {
   username: string;
   userId: string;
   roles: string[];
-  assignmentUsers: any[];
   apiUrl: string;
+  assignmentUsersFilterKey: string;
 }
 
 @Component({
@@ -43,8 +43,8 @@ export class OrderManagementComponent {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
       roles: this.roles,
-      assignmentUsers: this.dataService.getAssignmentUsers('ORDER_MANAGEMENT'),
       apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: 'ORDER_MANAGEMENT',
     };
   }
   protected http: ApiHttpService;

@@ -9,8 +9,8 @@ export interface UserContext {
   username: string;
   userId: string;
   roles: string[];
-  assignmentUsers: any[];
   apiUrl: string;
+  assignmentUsersFilterKey: string;
 }
 
 @Component({
@@ -33,8 +33,8 @@ export class OperationsControlsComponent implements OnInit {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
       roles: this.authService.getRoles(),
-      assignmentUsers: this.dataService.getAssignmentUsers(''),
       apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: '',
     };
   }
 

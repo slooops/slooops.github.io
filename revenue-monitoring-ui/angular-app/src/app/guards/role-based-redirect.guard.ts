@@ -18,9 +18,7 @@ export class RoleBasedRedirectGuard implements CanActivate {
     | boolean
     | UrlTree {
     const roles = this.authService.getRoles();
-    console.log('🔵 RoleBasedRedirectGuard - User roles:', roles);
     const defaultRoute = this.getDefaultRouteForRoles(roles);
-    console.log('🔵 RoleBasedRedirectGuard - Redirecting to:', defaultRoute);
 
     // Always redirect to the appropriate default route
     return this.router.createUrlTree([defaultRoute]);
@@ -32,23 +30,16 @@ export class RoleBasedRedirectGuard implements CanActivate {
    */
   private getDefaultRouteForRoles(roles: string[]): string {
     if (!roles || roles.length === 0) {
-      console.log('🔴 No roles found - redirecting to /error');
       return '/error';
     }
 
     // ADMIN gets /period-close-tracking
     if (roles.includes('ADMIN')) {
-      console.log(
-        '✅ ADMIN role detected - redirecting to /period-close-tracking'
-      );
       return '/period-close-tracking';
     }
 
     // PERIOD_CLOSE gets /period-close-tracking
     if (roles.includes('PERIOD_CLOSE')) {
-      console.log(
-        '✅ PERIOD_CLOSE role detected - redirecting to /period-close-tracking'
-      );
       return '/period-close-tracking';
     }
 

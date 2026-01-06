@@ -215,7 +215,6 @@ export class OrderLifecycleComponent implements OnInit {
 
         this.filterData();
         this.length = this.orderLifecycleStatus.length;
-        console.log(this.length);
         this.setSortAndPaginator();
         this.dataSource.filterPredicate = this.filterPredicate;
       },

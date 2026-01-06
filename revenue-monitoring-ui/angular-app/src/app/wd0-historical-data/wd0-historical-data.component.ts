@@ -54,8 +54,8 @@ export class Wd0HistoricalDataComponent
   productActualsLoading: boolean = true;
   serviceActualsLoading: boolean = true;
 
-  servicePieChart: Chart | null = null;
-  productPieChart: Chart | null = null;
+  servicePieChart: Chart<any> | null = null;
+  productPieChart: Chart<any> | null = null;
 
   upperCI: number;
   lowerCI: number;
@@ -76,9 +76,9 @@ export class Wd0HistoricalDataComponent
 
   refreshInterval = 300000; //ms = 5 minutes
 
-  private lineChart: Chart | null = null;
-  private serviceLineChart: Chart | null = null;
-  private productLineChart: Chart | null = null;
+  private lineChart: Chart<any> | null = null;
+  private serviceLineChart: Chart<any> | null = null;
+  private productLineChart: Chart<any> | null = null;
 
   ngOnDestroy(): void {
     // Destroy the chart instance if it exists

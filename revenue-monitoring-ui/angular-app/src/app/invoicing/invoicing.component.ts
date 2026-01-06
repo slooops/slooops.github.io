@@ -14,8 +14,8 @@ export interface UserContext {
   username: string;
   userId: string;
   roles: string[];
-  assignmentUsers: any[];
   apiUrl: string;
+  assignmentUsersFilterKey: string;
 }
 
 @Component({
@@ -40,26 +40,16 @@ export class InvoicingComponent implements OnInit {
     private menuService: MenuService
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
-    console.log(
-      'Invoicing Constructor - getRoles():',
-      this.authService.getRoles()
-    );
-    console.log(
-      'Invoicing Constructor - getHostUrl():',
-      this.authService.getHostUrl()
-    );
     this.roles = this.authService.getRoles();
+
+    // Initialize userContextData with empty assignment users, will be populated in ngOnInit
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
       roles: this.roles,
-      assignmentUsers: this.dataService.getAssignmentUsers('I2C'),
       apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: 'I2C',
     };
-    console.log(
-      'Invoicing Constructor - userContextData:',
-      this.userContextData
-    );
   }
   preInvoicingProcessFlowHtml: string = '';
   preInvoicingProcessFlowcss: string = '';

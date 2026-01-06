@@ -235,7 +235,6 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     this.menuService.header$.subscribe((newHeader) => {
-      console.log('Header updated in AppComponent:', newHeader);
       this.header = newHeader;
     });
   }

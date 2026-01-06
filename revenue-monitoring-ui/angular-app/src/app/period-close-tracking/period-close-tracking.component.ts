@@ -288,33 +288,15 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getPeriodQuarterStartEndTime() {
     this.getEndpointData('preclose-start-end-time').subscribe((data: any) => {
-      console.log('Period Close Start/End Times:', data);
-
       data.forEach((row) => {
         const closeType = row['CLOSE_TYPE'];
         const periodName = row['PERIOD_NAME'];
         const quarter = row['QUARTER'];
         const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
-        console.log(
-          'Start Time:',
-          startTime,
-          'vs Raw:',
-          row['CLOSE_START_TIME']
-        );
         const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
-        console.log('End Time:', endTime, 'vs Raw:', row['CLOSE_END_TIME']);
         const actualEndTime = this.extractDatePrettifyTimeOnly(
           row['ACTUAL_CLOSE_END_TIME']
         );
-
-        console.log('Parsed Times:', {
-          closeType,
-          periodName,
-          quarter,
-          startTime,
-          endTime,
-          actualEndTime,
-        });
 
         if (closeType === 'PRECLOSE') {
           this.preclosePeriod = periodName;
@@ -339,7 +321,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
   qeCashCollectedDatasource: any;
   getQECashCollected() {
     this.getEndpointData('pclose-qe-cash-collected').subscribe((data: any) => {
-      console.log(data);
       data.map((cashData) => {
         cashData.WD_0 = '$' + cashData.WD_0.toLocaleString('en-US');
         cashData.WD_1 = '$' + cashData.WD_1.toLocaleString('en-US');
@@ -367,7 +348,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
   getPrecloseMeStatus() {
     this.getEndpointData('preclose-me-status').subscribe((data: any) => {
-      console.log(data);
       this.pcloseMonthEndStatusTableData = [];
       this.pcloseOuStatusMapping = {};
 
@@ -538,8 +518,6 @@ export class PeriodCloseTrackingComponent implements OnInit {
   getInterfaceLoad() {
     this.getEndpointData('period-close-interface-load').subscribe(
       (data: any) => {
-        console.log('interface load:', data);
-
         this.precloseInterfaceLoadData = data['PRECLOSE'];
         this.midcloseInterfaceLoadData = data['MIDCLOSE'];
 

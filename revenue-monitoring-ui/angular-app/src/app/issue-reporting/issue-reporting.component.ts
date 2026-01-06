@@ -472,7 +472,6 @@ export class IssueReportingComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log('Submitted Data:', result);
         this.selection.clear();
         this.selectedRows = [];
         this.summaryDatasource = null;
@@ -832,7 +831,6 @@ export class SummaryDialog {
     private dialogRef: MatDialogRef<StatusDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log('Data:', data);
     this.dataSource = new MatTableDataSource(this.data);
   }
 

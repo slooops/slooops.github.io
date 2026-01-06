@@ -32,7 +32,7 @@
           @if (field.controlName === 'assignedTo') {
           <select [formControlName]="field.controlName" required>
             <option value="" disabled>Select User</option>
-            @for (data of userContext().assignmentUsers; track data.NAME) {
+            @for (data of getAssignmentUsersForTemplate(); track data.NAME) {
             <option [value]="data.NAME">
               {{ data.NAME }}
             </option>

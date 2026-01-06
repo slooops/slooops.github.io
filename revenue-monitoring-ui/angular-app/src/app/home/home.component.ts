@@ -182,8 +182,6 @@ export class HomeComponent implements OnDestroy {
         this.applyFilters();
         // Initialize charts once view has updated with canvas elements
         setTimeout(() => this.initCharts(), 0);
-
-        console.log('Dashboard data loaded:', data);
       },
       error: (error) => {
         console.error('Error loading dashboard data:', error);
@@ -262,7 +260,6 @@ export class HomeComponent implements OnDestroy {
    * Navigate to issue details
    */
   viewIssueDetails(issueId: string): void {
-    console.log('Viewing issue:', issueId);
     // Add navigation logic here
   }
 
@@ -270,7 +267,6 @@ export class HomeComponent implements OnDestroy {
    * Assign user to issue
    */
   assignUser(issueId: string): void {
-    console.log('Assigning user to issue:', issueId);
     // Add assignment logic here
   }
 

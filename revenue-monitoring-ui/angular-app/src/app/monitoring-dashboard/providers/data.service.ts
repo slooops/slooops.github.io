@@ -3,6 +3,7 @@ import { HttpService } from './http.service';
 import { Observable, Subject, of } from 'rxjs';
 import { DataFormattingService } from './data-formatting.service';
 import { catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { data } from 'node_modules/cypress/types/jquery';
 
 @Injectable({ providedIn: 'root' })
 export class MonitoringDataService implements OnDestroy {
@@ -51,6 +52,29 @@ export class MonitoringDataService implements OnDestroy {
 
   getMonitoringPeriodStatus(): Observable<any> {
     return this.fetchWithCache('monitoring-period-status');
+  }
+
+  getAssignableUsers() {
+    this.fetchWithCache('summary-assignment-users').subscribe((data) => {
+      this.setAssignmentUsers(data);
+    });
+  }
+
+  assignmentUsers: any;
+
+  setAssignmentUsers(assignmentUsers: any) {
+    this.assignmentUsers = assignmentUsers;
+  }
+
+  getAssignmentUsers(componentName: string): any {
+    if (!this.assignmentUsers || !componentName) {
+      return this.assignmentUsers;
+    }
+
+    return this.assignmentUsers.filter(
+      (user: any) =>
+        user.FILTER_KEY === null || user.FILTER_KEY === componentName
+    );
   }
 
   getSummary(url: string): Observable<any> {

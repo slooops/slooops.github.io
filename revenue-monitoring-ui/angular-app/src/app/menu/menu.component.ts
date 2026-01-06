@@ -19,18 +19,18 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
-    selector: 'app-menu',
-    templateUrl: './menu.component.html',
-    styleUrls: ['./menu.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-menu',
+  templateUrl: './menu.component.html',
+  styleUrls: ['./menu.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     RouterModule,
     MatIconModule,
     MatTabsModule,
-    MatMenuModule
+    MatMenuModule,
   ],
-  standalone: true
+  standalone: true,
 })
 export class MenuComponent implements OnInit, OnChanges {
   @Input() showMenu: boolean = true; // Receive menu visibility state from parent
@@ -50,7 +50,6 @@ export class MenuComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit() {
-    console.log('Menu items:', this.menuItems);
     // this.menuService.menuItems$.subscribe((items) => {
     //   this.menuItems = items;
     //   this.cdr.detectChanges();
@@ -75,7 +74,6 @@ export class MenuComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['menuItems']) {
-      console.log('Menu items changed:', changes['menuItems']);
     }
   }
 

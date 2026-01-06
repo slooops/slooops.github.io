@@ -35,8 +35,8 @@ export interface UserContext {
   username: string;
   userId: string;
   roles: string[];
-  assignmentUsers: any[];
   apiUrl: string;
+  assignmentUsersFilterKey: string;
 }
 
 @Component({
@@ -126,6 +126,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
         this.getErrorSummary();
         this.getErrorDetails();
         this.getProcessFlowTotals();
+        this.getSummaryAssignableUsers();
       },
       { allowSignalWrites: true }
     );
@@ -156,6 +157,10 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
           console.error('Error fetching period status', err);
         },
       });
+  }
+
+  getSummaryAssignableUsers() {
+    return this.monitoringDataService.getAssignableUsers();
   }
 
   summaryLoadTime = signal<string>('');
@@ -504,7 +509,6 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   }
 
   exportSummary(data: any[], sheetName: string, filename: string) {
-    console.log('Exporting summary data:', sheetName, filename, data);
     this.exportService.exportTableToExcel(data, sheetName, filename);
   }
 

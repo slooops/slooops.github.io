@@ -11,7 +11,6 @@ export class HttpService {
   constructor(private http: HttpClient) {}
 
   setHostUrl(hostUrl: string): void {
-    console.log('Setting host URL:', hostUrl);
     if (hostUrl) {
       this.hostUrl = hostUrl;
     }

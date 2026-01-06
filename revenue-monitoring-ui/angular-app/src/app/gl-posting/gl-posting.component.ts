@@ -12,8 +12,8 @@ export interface UserContext {
   username: string;
   userId: string;
   roles: string[];
-  assignmentUsers: any[];
   apiUrl: string;
+  assignmentUsersFilterKey: string;
 }
 
 @Component({
@@ -37,8 +37,8 @@ export class GlPostingComponent implements OnInit {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
       roles: this.roles,
-      assignmentUsers: this.dataService.getAssignmentUsers('I2C'),
       apiUrl: this.authService.getHostUrl(),
+      assignmentUsersFilterKey: 'I2C',
     };
   }
   roles: string[] = [];

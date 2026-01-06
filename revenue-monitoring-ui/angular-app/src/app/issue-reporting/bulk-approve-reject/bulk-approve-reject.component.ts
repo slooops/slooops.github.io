@@ -6,15 +6,11 @@ import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 
 @Component({
-    selector: 'app-bulk-approve-reject',
-    templateUrl: './bulk-approve-reject.component.html',
-    styleUrl: './bulk-approve-reject.component.css',
-    imports: [
-    CommonModule,
-    FormsModule,
-    MatDialogModule
-  ],
-  standalone: true
+  selector: 'app-bulk-approve-reject',
+  templateUrl: './bulk-approve-reject.component.html',
+  styleUrl: './bulk-approve-reject.component.css',
+  imports: [CommonModule, FormsModule, MatDialogModule],
+  standalone: true,
 })
 export class BulkApproveRejectComponent {
   constructor(
@@ -25,7 +21,6 @@ export class BulkApproveRejectComponent {
 
   approvedBy: string = ''; // Replace with actual user info if needed
   ngOnInit() {
-    console.log(this.data);
     this.approvedBy = this.data[0].approvedBy; // Assuming all rows have the same approvedBy value
   }
 
@@ -50,7 +45,6 @@ export class BulkApproveRejectComponent {
         approvedBy: this.approvedBy, // Replace with actual user info if needed
       }));
 
-    console.log(typeof selectedData); // Print to console
     this.http
       .post('issue-reporting-approval-bulk', selectedData, {
         headers: { 'Content-Type': 'application/json' }, // Ensure correct content type
