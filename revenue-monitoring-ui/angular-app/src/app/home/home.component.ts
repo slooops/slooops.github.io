@@ -150,12 +150,52 @@ export class HomeComponent implements OnDestroy {
       },
     });
 
+    this.homeDataService.getHighPriorityIssues(this.destroyManager).subscribe({
+      next: (highPriorityIssues) => {
+        console.log('High Priority Issues:', highPriorityIssues);
+
+        // Initialize KPIs with high priority issues data
+        this.kpis.set({
+          highPriorityIssues: highPriorityIssues[0].HIGH_PRIORITY_ISSUES || 0,
+          inProgress: highPriorityIssues[0].IN_PROGRESS || 0,
+          totalAging: highPriorityIssues[0].TOTAL_AGING || 0,
+          lessThan48Hours: highPriorityIssues[0]['<48 Hours'] || 0,
+          moreThan48Hours: highPriorityIssues[0]['>48 Hours'] || 0,
+        });
+      },
+      error: (error) => {
+        console.error('Error loading high priority issues:', error);
+      },
+    });
+
+    this.homeDataService.getIssuesList(this.destroyManager).subscribe({
+      next: (issues) => {
+        console.log('Issues List from real service:', issues);
+
+        // Update KPIs with issues list data
+        const currentKpis = this.kpis();
+        if (currentKpis) {
+          this.kpis.set({
+            ...currentKpis,
+            totalIssues: issues[0].TOTAL_ISSUES || 0,
+            openIssues: issues[0].OPEN_ISSUES || 0,
+            unassignedIssues: issues[0].UNASSIGNED || 0,
+            assignedIssues: issues[0].ASSIGNED || 0,
+            inProgressIssues: issues[0].IN_PROGRESS || 0,
+          });
+        }
+        console.log('Updated KPIs:', this.kpis());
+      },
+      error: (error) => {
+        console.error('Error loading issues list from real service:', error);
+      },
+    });
+
     // Simulate HTTP GET request for other dashboard data
     this.mockDataService.getDashboardData().subscribe({
       next: (data) => {
         this.dashboardData.set(data);
-        // Period info loaded separately from real service above
-        this.kpis.set(data.kpis);
+        // Period info and KPIs loaded separately from real service above
         this.charts.set(data.charts);
         this.issuesList.set(data.issuesList);
         this.totalResults.set(data.pagination.totalResults);
@@ -431,13 +471,6 @@ export class HomeComponent implements OnDestroy {
       currentCharts.issueDistribution.unassigned = unassignedPercent;
       currentCharts.issueDistribution.other = Math.max(0, otherPercent);
       this.charts.set(currentCharts);
-    }
-
-    // Update KPIs total issues count
-    const currentKpis = this.kpis();
-    if (currentKpis) {
-      currentKpis.totalIssues = total;
-      this.kpis.set(currentKpis);
     }
   }
 

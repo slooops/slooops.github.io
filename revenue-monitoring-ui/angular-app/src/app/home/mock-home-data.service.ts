@@ -9,23 +9,6 @@ export class MockHomeDataService {
 
   // Mock data matching the screenshot
   private mockData = {
-    periodInfo: {
-      periodName: 'SEP-29 (W4)',
-      periodEndDate: '09/20/2025',
-      lastUpdated: `${new Date().toLocaleString()}`,
-      username: 'Sai',
-    },
-    kpis: {
-      highPriorityIssues: 100,
-      inProgress: 9,
-      totalAging: 50,
-      lessThan48Hours: 5,
-      moreThan48Hours: 4,
-      totalIssues: 470,
-      openIssues: 110,
-      inProgressIssues: 60,
-      totalUnassignedIssues: 50,
-    },
     charts: {
       transactionFailures: {
         weeks: [
@@ -211,12 +194,12 @@ export class MockHomeDataService {
     }).pipe(delay(500));
   }
 
-  /**
-   * Get KPI metrics
-   */
-  getKPIMetrics(): Observable<any> {
-    return of(this.mockData.kpis).pipe(delay(300));
-  }
+  // /**
+  //  * Get KPI metrics
+  //  */
+  // getKPIMetrics(): Observable<any> {
+  //   return of(this.mockData.kpis).pipe(delay(300));
+  // }
 
   /**
    * Get chart data
@@ -243,12 +226,5 @@ export class MockHomeDataService {
       currentPage: page,
       rowsPerPage: pageSize,
     }).pipe(delay(300));
-  }
-
-  /**
-   * Get period information
-   */
-  getPeriodInfo(): Observable<any> {
-    return of(this.mockData.periodInfo).pipe(delay(200));
   }
 }
