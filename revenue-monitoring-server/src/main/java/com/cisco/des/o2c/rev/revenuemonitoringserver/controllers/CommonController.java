@@ -54,7 +54,24 @@ public class CommonController {
     }
 
     @GetMapping("/admin-table")
-    public ResponseEntity<List<Map<String, Object>>> getAdminTable() {
+    public ResponseEntity<List<Map<String, Object>>> getAdminTable(
+            @RequestParam(required = false) String managedRoles) {
+        // If managedRoles is provided (comma-separated), filter results to only show
+        // users with those roles
+        if (managedRoles != null && !managedRoles.trim().isEmpty()) {
+            // Split comma-separated roles and trim/uppercase each
+            String[] rolesArray = managedRoles.split(",");
+            List<String> rolesList = new java.util.ArrayList<>();
+            for (String role : rolesArray) {
+                String trimmed = role.trim().toUpperCase();
+                if (!trimmed.isEmpty()) {
+                    rolesList.add(trimmed);
+                }
+            }
+            if (!rolesList.isEmpty()) {
+                return new ResponseEntity<>(service.getAdminTableFiltered(rolesList), HttpStatus.OK);
+            }
+        }
         return new ResponseEntity<>(service.getAdminTable(), HttpStatus.OK);
     }
 
@@ -63,8 +80,6 @@ public class CommonController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Log the incoming request for debugging
-            System.out.println("Received POST request to create user: " + request);
 
             // Call the service layer to insert into database
             int rowsAffected = service.createUserRole(
@@ -72,7 +87,8 @@ public class CommonController {
                     request.getUserEmail(),
                     request.getRoleId(),
                     request.getUserRole(),
-                    request.getEnabledFlag());
+                    request.getEnabledFlag(),
+                    request.getCreatedBy());
 
             // Check if insert was successful
             if (rowsAffected > 0) {
@@ -82,7 +98,8 @@ public class CommonController {
                 return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 status
             } else {
                 response.put("success", false);
-                response.put("message", "Failed to create user role - no rows affected");
+                response.put("message",
+                        "Failed to create user role - duplicate active record exists (userName + userRole combination already in use)");
                 return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status
             }
 

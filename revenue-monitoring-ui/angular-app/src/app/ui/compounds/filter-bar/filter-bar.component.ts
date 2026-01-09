@@ -17,12 +17,14 @@ export class FilterBarComponent {
   @Input() roleOptions: SelectOption[] = [];
   @Input() selectedRole: string = '';
   @Input() enabledFilter: string = '';
+  @Input() isFullAdmin: boolean = false; // Only full admins can create sub-admins
 
   @Output() searchChange = new EventEmitter<string>();
   @Output() roleFilterChange = new EventEmitter<string>();
   @Output() enabledFilterChange = new EventEmitter<string>();
   @Output() addUserClick = new EventEmitter<void>();
   @Output() addLineItemClick = new EventEmitter<void>();
+  @Output() createSubAdminClick = new EventEmitter<void>(); // Emit when "Create Sub-Admin" is clicked
 
   enabledOptions: SelectOption[] = [
     { label: 'All', value: '' },
@@ -48,5 +50,9 @@ export class FilterBarComponent {
 
   onAddLineItem(): void {
     this.addLineItemClick.emit();
+  }
+
+  onCreateSubAdmin(): void {
+    this.createSubAdminClick.emit();
   }
 }

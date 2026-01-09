@@ -123,6 +123,28 @@ public class CommonService {
     }
 
     /**
+     * Gets admin table filtered by multiple roles.
+     * Used for sub-admin view: only shows users with any of the managed roles.
+     * 
+     * @param managedRoles List of roles to filter by (e.g., ["CASE_IQ_I2C", "CASE_IQ_SBP"])
+     * @return List of users who have any of the specified roles
+     */
+    public List<Map<String, Object>> getAdminTableFiltered(List<String> managedRoles) {
+        // Validate each role parameter to prevent SQL injection
+        List<String> sanitizedRoles = new java.util.ArrayList<>();
+        for (String role : managedRoles) {
+            validateRole(role);
+            sanitizedRoles.add(sanitizeInput(role, 100).toUpperCase());
+        }
+        
+        // Build IN clause with placeholders: AND UPPER(USER_ROLE) IN (?, ?, ?)
+        String placeholders = String.join(", ", java.util.Collections.nCopies(sanitizedRoles.size(), "?"));
+        String filteredQuery = adminTable + " AND UPPER(USER_ROLE) IN (" + placeholders + ")";
+        
+        return jdbcManager.queryForListWithParams(filteredQuery, sanitizedRoles.toArray());
+    }
+
+    /**
      * SERVER-SIDE VALIDATION METHODS
      * Validates email format using regex pattern.
      * Prevents malformed emails and potential injection attacks.
@@ -224,26 +246,31 @@ public class CommonService {
     }
 
     public int createUserRole(String userName, String userEmail, Integer roleId,
-            String userRole, String enabledFlag) {
+            String userRole, String enabledFlag, String createdBy) {
 
         // Validate all inputs (NEVER TRUST CLIENT INPUT)
         validateUsername(userName);
         validateEmail(userEmail);
         validateRole(userRole);
         validateEnabledFlag(enabledFlag);
+        if (createdBy != null && !createdBy.trim().isEmpty()) {
+            validateUsername(createdBy); // Same validation rules as userName
+        }
 
         // Sanitize inputs (trim whitespace, enforce length limits)
         String sanitizedUserName = sanitizeInput(userName, 50);
         String sanitizedEmail = sanitizeInput(userEmail, 254);
         String sanitizedRole = sanitizeInput(userRole, 100).toUpperCase();
         String sanitizedFlag = sanitizeInput(enabledFlag, 1).toUpperCase();
+        String sanitizedCreatedBy = createdBy != null ? sanitizeInput(createdBy, 50) : null;
 
-        // Return 1 to simulate success
-        // return 1;
+        // Query has duplicate prevention: INSERT ... SELECT ... WHERE NOT EXISTS
+        // Parameters: userName, userEmail, roleId, userRole, enabledFlag, createdBy,
+        // userName (for EXISTS check), userRole (for EXISTS check)
         return jdbcManager.insertUserRole(createUserRole, sanitizedUserName, sanitizedEmail,
-                roleId, sanitizedRole, sanitizedFlag);
+                roleId, sanitizedRole, sanitizedFlag, sanitizedCreatedBy);
     }
-    
+
     public int updateUserRole(String userName, String userRole, String userEmail,
             Integer roleId, String enabledFlag) {
 

@@ -6,49 +6,66 @@
     </p>
   </div>
 
-  <app-filter-bar
-    [searchValue]="searchValue"
-    [roleOptions]="roleOptions"
-    [selectedRole]="selectedRole"
-    [enabledFilter]="enabledFilter"
-    (searchChange)="onSearchChange($event)"
-    (roleFilterChange)="onRoleFilterChange($event)"
-    (enabledFilterChange)="onEnabledFilterChange($event)"
-    (addUserClick)="onAddUser()"
-    (addLineItemClick)="onAddLineItem()"
-  >
-  </app-filter-bar>
-
-  <app-data-table
-    [columns]="columns"
-    [rows]="filteredUsers"
-    [enableGlobalSearch]="false"
-    [pageSizeOptions]="[25, 50, 100]"
-    [editableRow]="editableRow"
-    [isLoading]="isLoading"
-    [validationErrors]="validationErrors"
-    [roleOptions]="roleOptions"
-    (rowClick)="onRowClick($event)"
-    (saveRow)="onSaveRow($event)"
-    (cancelEdit)="onCancelEdit()"
-    (enabledFlagChange)="onEnabledFlagChange($event)"
-    (deleteRow)="onDeleteRow($event)"
-  >
-  </app-data-table>
-
-  <app-modal-shell
-    [title]="isEditMode ? 'Edit User' : 'Add New User'"
-    [isOpen]="isModalOpen"
-    (close)="closeModal()"
-  >
-    <app-user-form
-      [value]="currentUserData"
+  @if (!hasAdminAccess) {
+    <div class="fit-admin-user-table__no-access">
+      <div class="fit-no-access-card">
+        <h2>🔒 Access Denied</h2>
+        <p>You do not have admin privileges to view this page.</p>
+        <p class="fit-no-access-hint">
+          Contact a full admin to request access, or if you believe this is an error,
+          ensure you have a role ending in <code>_ADMIN</code> (e.g., <code>CASE_IQ_I2C_ADMIN</code>).
+        </p>
+      </div>
+    </div>
+  } @else {
+    <app-filter-bar
+      [searchValue]="searchValue"
       [roleOptions]="roleOptions"
-      [isEdit]="isEditMode"
-      (submit)="onUserFormSubmit($event)"
-      (cancel)="onUserFormCancel()"
+      [selectedRole]="selectedRole"
+      [enabledFilter]="enabledFilter"
+      [isFullAdmin]="isFullAdmin"
+      (searchChange)="onSearchChange($event)"
+      (roleFilterChange)="onRoleFilterChange($event)"
+      (enabledFilterChange)="onEnabledFilterChange($event)"
+      (addUserClick)="onAddUser()"
+      (addLineItemClick)="onAddLineItem()"
+      (createSubAdminClick)="onCreateSubAdmin()"
     >
-    </app-user-form>
-  </app-modal-shell>
+    </app-filter-bar>
+
+    <app-data-table
+      [columns]="columns"
+      [rows]="filteredUsers"
+      [enableGlobalSearch]="false"
+      [pageSizeOptions]="[25, 50, 100]"
+      [editableRow]="editableRow"
+      [isLoading]="isLoading"
+      [validationErrors]="validationErrors"
+      [roleOptions]="roleOptions"
+      (rowClick)="onRowClick($event)"
+      (saveRow)="onSaveRow($event)"
+      (cancelEdit)="onCancelEdit()"
+      (enabledFlagChange)="onEnabledFlagChange($event)"
+      (deleteRow)="onDeleteRow($event)"
+    >
+    </app-data-table>
+
+    <app-modal-shell
+      [title]="isEditMode ? 'Edit User' : (isSubAdminCreationMode ? 'Create Sub-Admin' : 'Add New Role')"
+      [isOpen]="isModalOpen"
+      (close)="closeModal()"
+    >
+      <app-user-form
+        [value]="currentUserData"
+        [roleOptions]="isSubAdminCreationMode ? subAdminRoleOptions : roleOptions"
+        [isEdit]="isEditMode"
+        [roleFieldLabel]="isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'"
+        [useRoleDropdown]="isSubAdminCreationMode"
+        (submit)="onUserFormSubmit($event)"
+        (cancel)="onUserFormCancel()"
+      >
+      </app-user-form>
+    </app-modal-shell>
+  }
 </div>
 <br />

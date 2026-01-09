@@ -24,3 +24,44 @@
   color: var(--fit-color-text-muted);
   margin: 0;
 }
+
+/* No access state styling */
+.fit-admin-user-table__no-access {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: var(--fit-space-xl);
+}
+
+.fit-no-access-card {
+  text-align: center;
+  padding: var(--fit-space-xl);
+  background: var(--fit-color-surface);
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-lg);
+  max-width: 500px;
+}
+
+.fit-no-access-card h2 {
+  font-size: 1.5rem;
+  color: var(--fit-color-text);
+  margin: 0 0 var(--fit-space-md) 0;
+}
+
+.fit-no-access-card p {
+  color: var(--fit-color-text-muted);
+  margin: 0 0 var(--fit-space-sm) 0;
+}
+
+.fit-no-access-hint {
+  font-size: var(--fit-font-size-sm);
+}
+
+.fit-no-access-hint code {
+  background: var(--fit-color-surface-alt);
+  padding: 2px 6px;
+  border-radius: var(--fit-radius-sm);
+  font-family: var(--fit-font-mono);
+  font-size: 0.85em;
+}

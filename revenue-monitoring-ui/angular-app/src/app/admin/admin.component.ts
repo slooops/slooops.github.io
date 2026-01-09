@@ -43,6 +43,7 @@ export class AdminComponent implements OnInit {
   // Modal state
   isModalOpen: boolean = false;
   isEditMode: boolean = false;
+  isSubAdminCreationMode: boolean = false; // True when creating a sub-admin
   currentUserData: UserFormData = {
     userName: '',
     email: '',
@@ -63,8 +64,31 @@ export class AdminComponent implements OnInit {
   // Role options for filters and forms
   roleOptions: SelectOption[] = [];
 
+  /**
+   * Returns role options filtered for sub-admin creation.
+   * Excludes:
+   * - "All Roles" (empty value) - can't create admin for "all"
+   * - "ADMIN" - can't create sub-admin of full admin
+   * - Any role ending in "_ADMIN" - can't create admin of admin
+   */
+  get subAdminRoleOptions(): SelectOption[] {
+    return this.roleOptions.filter(
+      (option) =>
+        option.value !== '' && // Exclude "All Roles"
+        option.value !== 'ADMIN' && // Exclude full admin
+        !option.value.endsWith('_ADMIN') // Exclude existing sub-admin roles
+    );
+  }
+
   // username: string = this.authService.getUserName();
   username: string = 'jasloop'; // For testing purposes
+
+  // Sub-admin detection properties
+  currentUserRoles: string[] = [];
+  isFullAdmin: boolean = false;
+  isSubAdminMode: boolean = false;
+  managedRoles: string[] = []; // The roles this sub-admin manages (e.g., ["CASE_IQ_I2C", "CASE_IQ_SBP"])
+  hasAdminAccess: boolean = false; // True if user is either full admin or sub-admin
 
   constructor(
     private http: ApiHttpService,
@@ -73,12 +97,78 @@ export class AdminComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.detectAdminPrivileges();
     this.loadUserRoles();
+    console.log('Current User Roles:', this.currentUserRoles);
+    console.log('Is Full Admin:', this.isFullAdmin);
+    console.log('Is Sub-Admin Mode:', this.isSubAdminMode);
+    console.log('Managed Roles:', this.managedRoles);
+    console.log('username:', this.username);
+  }
+
+  /**
+   * Detects admin privileges based on current user's roles.
+   *
+   * FULL_ADMIN: Has the "ADMIN" role - sees all users, can create sub-admins
+   * SUB_ADMIN: Has a role ending in "_ADMIN" (e.g., "CASE_IQ_I2C_ADMIN")
+   *            - Only sees users with their managed role (e.g., "CASE_IQ_I2C")
+   *            - Can add/remove users for their managed role only
+   *
+   * Priority: FULL_ADMIN > SUB_ADMIN (if user has both, they get full access)
+   */
+  private detectAdminPrivileges(): void {
+    this.currentUserRoles = this.authService.getRoles() || [];
+
+    // Check for full admin first (highest privilege)
+    this.isFullAdmin = this.currentUserRoles.includes('ADMIN');
+
+    if (this.isFullAdmin) {
+      // Full admin sees everything
+      this.isSubAdminMode = false;
+      this.managedRoles = [];
+      this.hasAdminAccess = true; // Don't forget to set this before returning!
+      return;
+    }
+
+    // Find ALL sub-admin roles (pattern: {ROLE}_ADMIN)
+    const subAdminRoles = this.currentUserRoles.filter(
+      (role) => role.endsWith('_ADMIN') && role !== 'ADMIN'
+    );
+
+    if (subAdminRoles.length > 0) {
+      this.isSubAdminMode = true;
+      // Extract managed roles: ["CASE_IQ_I2C_ADMIN", "CASE_IQ_SBP_ADMIN"] -> ["CASE_IQ_I2C", "CASE_IQ_SBP"]
+      this.managedRoles = subAdminRoles.map((role) =>
+        role.replace(/_ADMIN$/, '')
+      );
+    }
+
+    // Set hasAdminAccess flag - true if user is full admin OR sub-admin
+    this.hasAdminAccess = this.isFullAdmin || this.isSubAdminMode;
   }
 
   loadUserRoles(): void {
+    // Guard: Don't load data if user has no admin access
+    if (!this.hasAdminAccess) {
+      this.users = [];
+      this.filteredUsers = [];
+      this.isLoading = false;
+      return;
+    }
+
     this.isLoading = true;
-    this.http.get('admin-table', this.destroyManager).subscribe(
+
+    // Build endpoint URL with optional managedRoles parameter for sub-admins
+    let endpoint = 'admin-table';
+    if (this.isSubAdminMode && this.managedRoles.length > 0) {
+      // Pass comma-separated list of managed roles
+      const rolesParam = this.managedRoles
+        .map((r) => encodeURIComponent(r))
+        .join(',');
+      endpoint = `admin-table?managedRoles=${rolesParam}`;
+    }
+
+    this.http.get(endpoint, this.destroyManager).subscribe(
       (data: any) => {
         this.isLoading = false;
         if (Array.isArray(data)) {
@@ -159,6 +249,23 @@ export class AdminComponent implements OnInit {
 
   onAddUser(): void {
     this.isEditMode = false;
+    this.isSubAdminCreationMode = false;
+    this.currentUserData = {
+      userName: '',
+      email: '',
+      roles: [],
+      enabled: true,
+    };
+    this.isModalOpen = true;
+  }
+
+  /**
+   * Opens modal in sub-admin creation mode.
+   * The role entered will have "_ADMIN" appended automatically.
+   */
+  onCreateSubAdmin(): void {
+    this.isEditMode = false;
+    this.isSubAdminCreationMode = true;
     this.currentUserData = {
       userName: '',
       email: '',
@@ -175,18 +282,49 @@ export class AdminComponent implements OnInit {
 
   onUserFormSubmit(formData: UserFormData): void {
     if (this.isEditMode) {
-      // TODO: Implement update user API call
-      console.log('Update user:', formData);
-      // this.http.put(`user-role/${formData.userId}`, formData, this.destroyManager).subscribe(...)
-    } else {
-      // TODO: Implement create user API call
-      console.log('Create user:', formData);
-      // this.http.post('user-role', formData, this.destroyManager).subscribe(...)
+      this.closeModal();
+      return;
     }
 
-    this.closeModal();
-    // After successful save, reload the data
-    // this.loadUserRoles();
+    // Extract the first role from the roles array (modal form sends array)
+    let newRole =
+      formData.roles && formData.roles.length > 0 ? formData.roles[0] : '';
+
+    if (!newRole || newRole.trim().length === 0) {
+      // TODO: Show validation error in modal
+      return;
+    }
+
+    // If creating a sub-admin, append "_ADMIN" to the role
+    // e.g., "CASE_IQ_I2C" becomes "CASE_IQ_I2C_ADMIN"
+    if (this.isSubAdminCreationMode) {
+      newRole = newRole.toUpperCase().trim() + '_ADMIN';
+    }
+
+    // Reuse the same payload structure as inline form
+    const payload = {
+      userName: formData.userName.toUpperCase().trim(),
+      userEmail: formData.email.trim(),
+      roleId: null,
+      userRole: this.isSubAdminCreationMode
+        ? newRole
+        : newRole.toUpperCase().trim(),
+      enabledFlag: formData.enabled ? 'Y' : 'N',
+      createdBy: this.username.toUpperCase(),
+    };
+
+    // DRY: Reuse the same POST endpoint
+    this.http.post('user-role', payload, this.destroyManager).subscribe(
+      (response: any) => {
+        this.closeModal();
+        this.loadUserRoles();
+        // TODO: Show success notification
+      },
+      (error) => {
+        console.error('Error creating new role:', error);
+        // TODO: Show error notification in modal
+      }
+    );
   }
 
   onUserFormCancel(): void {
@@ -195,6 +333,7 @@ export class AdminComponent implements OnInit {
 
   closeModal(): void {
     this.isModalOpen = false;
+    this.isSubAdminCreationMode = false; // Reset sub-admin mode when closing
   }
 
   onAddLineItem(): void {
@@ -314,6 +453,7 @@ export class AdminComponent implements OnInit {
       roleId: this.editableRow.roleId || null,
       userRole: this.editableRow.userRole, // Already uppercase and sanitized
       enabledFlag: this.editableRow.enabledFlag || 'Y',
+      createdBy: this.username.toUpperCase(), // Current user creating this record (uppercase to match DB convention)
     };
 
     console.log('POST payload:', payload);

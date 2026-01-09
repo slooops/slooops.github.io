@@ -26,6 +26,30 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql);
     }
 
+    /**
+     * Executes a parameterized query with a single string parameter.
+     * Used for filtered queries where one value needs to be bound.
+     * 
+     * @param sql   The SQL query with a single ? placeholder
+     * @param param The parameter value to bind
+     * @return List of result maps
+     */
+    public List<Map<String, Object>> queryForListWithSingleParam(String sql, String param) {
+        return primaryJdbcTemplate.queryForList(sql, param);
+    }
+
+    /**
+     * Executes a parameterized query with multiple parameters.
+     * Used for IN clauses or queries with multiple placeholders.
+     * 
+     * @param sql    The SQL query with ? placeholders
+     * @param params The parameter values to bind (varargs)
+     * @return List of result maps
+     */
+    public List<Map<String, Object>> queryForListWithParams(String sql, Object... params) {
+        return primaryJdbcTemplate.queryForList(sql, params);
+    }
+
     public List<Map<String, Object>> queryForO2CData(String sql) {
         return primaryJdbcTemplate.queryForList(sql);
     }
@@ -451,19 +475,37 @@ public class JdbcManager {
     }
 
     /**
-     * Inserts a new user role into the database.
+     * Inserts a new user role into the database with duplicate prevention and
+     * CREATED_BY tracking.
      * 
-     * @param sql         The INSERT SQL statement with placeholders (?)
-     * @param userName    The user's username (e.g., "JSMITH")
+     * Query: INSERT INTO ... (USER_NAME, USER_EMAIL, ROLE_ID, USER_ROLE,
+     * ENABLED_FLAG, CREATION_DATE, CREATED_BY)
+     * SELECT ?, ?, ?, ?, ?, SYSDATE, ? FROM DUAL
+     * WHERE NOT EXISTS (
+     * SELECT 1 FROM ... WHERE USER_NAME = ? AND USER_ROLE = ? AND ENABLED_FLAG =
+     * 'Y'
+     * )
+     * 
+     * This prevents creating duplicate USER_NAME + USER_ROLE combinations that are
+     * active.
+     * Soft-deleted records (ENABLED_FLAG = NULL) won't interfere with this check.
+     * 
+     * @param sql         The INSERT SELECT SQL statement with NOT EXISTS check
+     * @param userName    The user's username (e.g., "JASLOOP")
      * @param userEmail   The user's email address
-     * @param roleId      The role ID from the roles table
-     * @param userRole    The role name (e.g., "Admin", "Viewer")
+     * @param roleId      The role ID (can be null)
+     * @param userRole    The role name (e.g., "ADMIN", "PERIOD_CLOSE")
      * @param enabledFlag 'Y' for enabled, 'N' for disabled
-     * @return Number of rows inserted (should be 1 on success)
+     * @param createdBy   The username of the person creating this user (can be
+     *                    null)
+     * @return Number of rows inserted (1 = success, 0 = duplicate exists)
      */
     public int insertUserRole(String sql, String userName, String userEmail,
-            Integer roleId, String userRole, String enabledFlag) {
-        return primaryJdbcTemplate.update(sql, userName, userEmail, roleId, userRole, enabledFlag);
+            Integer roleId, String userRole, String enabledFlag, String createdBy) {
+        // Parameters: userName, userEmail, roleId, userRole, enabledFlag, createdBy,
+        // userName (for EXISTS), userRole (for EXISTS)
+        return primaryJdbcTemplate.update(sql, userName, userEmail, roleId, userRole, enabledFlag,
+                createdBy, userName, userRole);
     }
 
     /**

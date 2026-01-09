@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UserFormData } from '../../types/common.types';
 import { SelectOption } from '../../types/common.types';
 import { TextInputComponent } from '../../atoms/text-input/text-input.component';
+import { SelectDropdownComponent } from '../../atoms/select-dropdown/select-dropdown.component';
 import { ToggleSwitchComponent } from '../../atoms/toggle-switch/toggle-switch.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
 
@@ -11,7 +12,7 @@ import { ButtonComponent } from '../../atoms/button/button.component';
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css'],
   standalone: true,
-  imports: [CommonModule, TextInputComponent, ToggleSwitchComponent, ButtonComponent],
+  imports: [CommonModule, TextInputComponent, SelectDropdownComponent, ToggleSwitchComponent, ButtonComponent],
 })
 export class UserFormComponent {
   @Input() value: UserFormData = {
@@ -22,6 +23,8 @@ export class UserFormComponent {
   };
   @Input() roleOptions: SelectOption[] = [];
   @Input() isEdit: boolean = false;
+  @Input() roleFieldLabel: string = 'Role'; // Customizable label for the role field
+  @Input() useRoleDropdown: boolean = false; // When true, show dropdown instead of text input
 
   @Output() submit = new EventEmitter<UserFormData>();
   @Output() cancel = new EventEmitter<void>();

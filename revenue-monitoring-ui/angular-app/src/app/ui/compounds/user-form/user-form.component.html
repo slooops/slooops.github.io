@@ -1,14 +1,24 @@
 <form class="fit-user-form" (submit)="onSubmit()">
   <div class="fit-stack-md">
     <div class="fit-user-form__field">
-      <label class="fit-user-form__label">Role</label>
-      <app-text-input
-        [value]="formData.roles[0] || ''"
-        placeholder="Enter role"
-        type="text"
-        (valueChange)="onRoleChange($event)"
-      >
-      </app-text-input>
+      <label class="fit-user-form__label">{{ roleFieldLabel }}</label>
+      @if (useRoleDropdown) {
+        <app-select-dropdown
+          [options]="roleOptions"
+          [value]="formData.roles[0] || ''"
+          placeholder="Select a role"
+          (valueChange)="onRoleChange($event)"
+        >
+        </app-select-dropdown>
+      } @else {
+        <app-text-input
+          [value]="formData.roles[0] || ''"
+          placeholder="Enter role"
+          type="text"
+          (valueChange)="onRoleChange($event)"
+        >
+        </app-text-input>
+      }
     </div>
 
     <div class="fit-user-form__field">

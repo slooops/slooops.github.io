@@ -12,7 +12,8 @@ import java.util.Date;
  * "userEmail": "jsmith@cisco.com",
  * "roleId": 1,
  * "userRole": "Admin",
- * "enabledFlag": "Y"
+ * "enabledFlag": "Y",
+ * "createdBy": "ADMIN_USER"
  * }
  */
 public class CreateUserRoleRequest {
@@ -22,6 +23,7 @@ public class CreateUserRoleRequest {
     private Integer roleId;
     private String userRole;
     private String enabledFlag;
+    private String createdBy;
 
     // Default constructor (required by Jackson for JSON deserialization)
     public CreateUserRoleRequest() {
@@ -29,12 +31,13 @@ public class CreateUserRoleRequest {
 
     // Constructor with all fields (useful for testing)
     public CreateUserRoleRequest(String userName, String userEmail, Integer roleId,
-            String userRole, String enabledFlag) {
+            String userRole, String enabledFlag, String createdBy) {
         this.userName = userName;
         this.userEmail = userEmail;
         this.roleId = roleId;
         this.userRole = userRole;
         this.enabledFlag = enabledFlag;
+        this.createdBy = createdBy;
     }
 
     // Getters and Setters
@@ -80,6 +83,14 @@ public class CreateUserRoleRequest {
         this.enabledFlag = enabledFlag;
     }
 
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
     @Override
     public String toString() {
         return "CreateUserRoleRequest{" +
@@ -88,6 +99,7 @@ public class CreateUserRoleRequest {
                 ", roleId=" + roleId +
                 ", userRole='" + userRole + '\'' +
                 ", enabledFlag='" + enabledFlag + '\'' +
+                ", createdBy='" + createdBy + '\'' +
                 '}';
     }
 }

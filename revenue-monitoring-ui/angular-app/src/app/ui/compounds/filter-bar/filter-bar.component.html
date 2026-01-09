@@ -33,6 +33,14 @@
   </div>
 
   <div class="fit-filter-bar__actions" style="display: flex; gap: 12px">
+    @if (isFullAdmin) {
+    <app-button
+      label="Create Sub-Admin"
+      variant="secondary"
+      (clicked)="onCreateSubAdmin()"
+    >
+    </app-button>
+    }
     <app-button label="Add Role" variant="primary" (clicked)="onAddUser()">
     </app-button>
 
