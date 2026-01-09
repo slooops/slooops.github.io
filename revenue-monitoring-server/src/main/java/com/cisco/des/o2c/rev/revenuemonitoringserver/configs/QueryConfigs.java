@@ -1806,4 +1806,20 @@ public class QueryConfigs {
     public String getLandingPagePeriodData() {
         return this.landingPagePeriodData;
     }
+
+    @Value(("${landing.page.issues}"))
+    public String landingPageIssues;
+
+    @Bean(name = "landingPageIssues")
+    public String getLandingPageIssues() {
+        return this.landingPageIssues;
+    }
+
+    @Value(("${landing.page.high.priority.issue}"))
+    public String landingPageHighPriorityIssues;
+
+    @Bean(name = "landingPageHighPriorityIssues")
+    public String getLandingPageHighPriorityIssues() {
+        return this.landingPageHighPriorityIssues;
+    }
 }

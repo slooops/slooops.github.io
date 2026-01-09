@@ -36,4 +36,22 @@ export class HomeDataService {
       })
     );
   }
+
+  getIssuesList(destroyManager: DestroyManager): Observable<any[]> {
+    return this.http.get('landing-page-issues', destroyManager).pipe(
+      map((response: any) => {
+        return Array.isArray(response) ? response : [];
+      })
+    );
+  }
+
+  getHighPriorityIssues(destroyManager: DestroyManager): Observable<any[]> {
+    return this.http
+      .get('landing-page-high-priority-issues', destroyManager)
+      .pipe(
+        map((response: any) => {
+          return Array.isArray(response) ? response : [];
+        })
+      );
+  }
 }

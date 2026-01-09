@@ -32,53 +32,57 @@
     </button>
   </div>
   <!-- KPI Metrics Bars (40% / 60%) -->
-  @if (kpis()) {
   <div class="kpi-bars">
     <div class="kpi-bar kpi-bar-primary">
       <div class="kpi-item first">
-        <div class="kpi-value high">{{ kpis().highPriorityIssues }}</div>
+        <div class="kpi-value high">
+          {{ kpis()?.highPriorityIssues ?? "-" }}
+        </div>
         <div class="kpi-label">
           High Priority Issues
           <mat-icon class="info-tooltip">info_outline</mat-icon>
         </div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().inProgress }}</div>
+        <div class="kpi-value">{{ kpis()?.inProgress ?? "-" }}</div>
         <div class="kpi-label">In Progress</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().totalAging }}</div>
+        <div class="kpi-value">{{ kpis()?.totalAging ?? "-" }}</div>
         <div class="kpi-label">Total Aging</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().lessThan48Hours }}</div>
+        <div class="kpi-value">{{ kpis()?.lessThan48Hours ?? "-" }}</div>
         <div class="kpi-label">&lt;48 Hours</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().moreThan48Hours }}</div>
+        <div class="kpi-value">{{ kpis()?.moreThan48Hours ?? "-" }}</div>
         <div class="kpi-label">&gt;48 Hours</div>
       </div>
     </div>
     <div class="kpi-bar kpi-bar-secondary">
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().totalIssues }}</div>
+        <div class="kpi-value">{{ kpis()?.totalIssues ?? "-" }}</div>
         <div class="kpi-label">Total Issues</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().openIssues }}</div>
+        <div class="kpi-value">{{ kpis()?.openIssues ?? "-" }}</div>
         <div class="kpi-label">Open Issues</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ kpis().inProgressIssues }}</div>
+        <div class="kpi-value">{{ kpis()?.assignedIssues ?? "-" }}</div>
+        <div class="kpi-label">Assigned Issues</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-value">{{ kpis()?.inProgressIssues ?? "-" }}</div>
         <div class="kpi-label">In Progress Issues</div>
       </div>
       <div class="kpi-item last">
-        <div class="kpi-value">{{ kpis().totalUnassignedIssues }}</div>
-        <div class="kpi-label">Total Unassigned Issues</div>
+        <div class="kpi-value">{{ kpis()?.unassignedIssues ?? "-" }}</div>
+        <div class="kpi-label">Unassigned Issues</div>
       </div>
     </div>
   </div>
-  }
   <!-- Charts Row -->
   @if (charts()) {
   <div class="charts-row">

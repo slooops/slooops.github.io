@@ -210,6 +210,8 @@
   "GTC_CONTROLS_DETAILS_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V",
   "GTC_CONTROLS_DETAILS_FILTERED_VIEW": "select * from xxcfianr.XXCFI_GTC_CUST_ERROR_DTL_DASHBOARD_V where replace(process_flow,' ','')=replace(?,' ','') and BOOKING_ENTITY_NAME=? and trunc(transaction_date)=to_date(?,'MM/DD/YYYY')",
   "LANDING_PAGE_PERIOD_DATA": "select * from arfinro.ASK_CTL_HOME_LAND_CALENDAR_V",
+  "LANDING_PAGE_ISSUES_V": "select * from arfinro.ASK_CTL_HOME_LAND_ISSUE_V",
+  "LANDING_PAGE_HIGH_PRIORITY_ISSUE_V": "select * from ASK_CTL_HOME_HIGH_PRIORITY_ISSUE_V ",
 
   "VW_I2C_CATEGORY_MATCH_STATUS": "select * from ARFINRO.XXCASEIQ_I2C_CATEGORY_MATCH_V where category_count >= 10",
   "VW_I2C_CORE_ISSUE_MATCH_STATUS": "select * from ARFINRO.XXCASEIQ_I2C_CORE_ISSUE_MATCH_V where core_issue_count >= 10",

@@ -24,4 +24,14 @@ public class LandingPageController {
     public ResponseEntity<List<Map<String, Object>>> getLandingPagePeriodData() {
         return new ResponseEntity<>(service.getLandingPagePeriodData(), HttpStatus.OK);
     }
+
+    @GetMapping("/landing-page-issues")
+    public ResponseEntity<List<Map<String, Object>>> getLandingPageIssues() {
+        return new ResponseEntity<>(service.getLandingPageIssues(), HttpStatus.OK);
+    }
+
+    @GetMapping("/landing-page-high-priority-issues")
+    public ResponseEntity<List<Map<String, Object>>> getLandingPageHighPriorityIssues() {
+        return new ResponseEntity<>(service.getLandingPageHighPriorityIssues(), HttpStatus.OK);
+    }
 }
