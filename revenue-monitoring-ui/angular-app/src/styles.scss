@@ -633,6 +633,39 @@ h6 {
   .mat-option:hover {
     background-color: rgba(55, 60, 66, 0.08) !important;
   }
+
+  /* Fix persistent focus/active state highlight */
+  .mat-mdc-option {
+    &.mat-mdc-option-active,
+    &.mdc-list-item--selected,
+    &:focus {
+      background-color: transparent !important;
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04) !important;
+    }
+
+    &.mat-mdc-option-active:hover {
+      background-color: rgba(0, 0, 0, 0.04) !important;
+    }
+  }
+}
+
+::ng-deep .mat-mdc-option {
+  &.mat-mdc-option-active,
+  &.mdc-list-item--selected,
+  &:focus {
+    background-color: transparent !important;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+
+  &.mat-mdc-option-active:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
 }
 
 /* Button Overrides */
