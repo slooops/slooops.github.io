@@ -20,8 +20,15 @@
     </div>
   </div>
 
-  <!-- Stats Cards -->
-  <div class="stats-row">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <app-loading-symbol></app-loading-symbol>
+    <p>Loading analytics data...</p>
+  </div>
+
+  <!-- Stats + Donut Charts Grid (3x2) -->
+  <div class="overview-grid" *ngIf="!isLoading">
+    <!-- Row 1: Stats Cards -->
     <div class="stat-card blue">
       <div class="stat-icon">👥</div>
       <div class="stat-content">
@@ -43,18 +50,9 @@
         <div class="stat-label">Most Visited Page</div>
       </div>
     </div>
-  </div>
 
-  <!-- Loading State -->
-  <div class="loading-container" *ngIf="isLoading">
-    <app-loading-symbol></app-loading-symbol>
-    <p>Loading analytics data...</p>
-  </div>
-
-  <!-- Charts Grid -->
-  <div class="charts-grid" *ngIf="!isLoading">
-    <!-- Continuous Monitoring Donut -->
-    <div class="chart-card large">
+    <!-- Row 2: Donut Charts -->
+    <div class="chart-card">
       <div class="card-header">
         <span class="card-icon">📈</span>
         <span>Continuous Monitoring Overview</span>
@@ -63,8 +61,6 @@
         <canvas id="continuousMonitoringChart"></canvas>
       </div>
     </div>
-
-    <!-- Case IQ Donut -->
     <div class="chart-card">
       <div class="card-header">
         <span class="card-icon">🔍</span>
@@ -74,8 +70,6 @@
         <canvas id="caseIqChart"></canvas>
       </div>
     </div>
-
-    <!-- Business Insights Donut -->
     <div class="chart-card">
       <div class="card-header">
         <span class="card-icon">💡</span>
@@ -85,9 +79,11 @@
         <canvas id="businessInsightsChart"></canvas>
       </div>
     </div>
+  </div>
 
-    <!-- Top Pages Bar Chart -->
-    <div class="chart-card wide">
+  <!-- Bar Charts (Full Width) -->
+  <div class="bar-charts-section" *ngIf="!isLoading">
+    <div class="chart-card full-width">
       <div class="card-header">
         <span class="card-icon">🔥</span>
         <span>Top 10 Most Visited Pages</span>
@@ -97,8 +93,7 @@
       </div>
     </div>
 
-    <!-- Unique Users Chart -->
-    <div class="chart-card wide">
+    <div class="chart-card full-width">
       <div class="card-header">
         <span class="card-icon">👤</span>
         <span>Pages by Unique Users</span>

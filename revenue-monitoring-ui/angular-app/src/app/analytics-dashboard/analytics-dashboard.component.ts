@@ -128,10 +128,12 @@ export class AnalyticsDashboardComponent
         this.calculateStats();
         this.lastUpdated = new Date().toLocaleString();
 
-        // Initialize charts after data loads and DOM is ready
+        // FIRST: Set isLoading = false so DOM renders the canvas elements
+        this.isLoading = false;
+
+        // THEN: Wait for Angular to render the DOM, then initialize charts
         setTimeout(() => {
           this.initializeCharts();
-          this.isLoading = false;
         }, 100);
       },
       error: (err) => {
@@ -161,18 +163,54 @@ export class AnalyticsDashboardComponent
   }
 
   private initializeCharts(): void {
+    console.log('[CHARTS] initializeCharts() called');
+    console.log('[CHARTS] summaryData length:', this.summaryData.length);
     this.destroyAllCharts();
-    this.createContinuousMonitoringChart();
-    this.createCaseIqChart();
-    this.createBusinessInsightsChart();
-    this.createTopPagesChart();
-    this.createUniqueUsersChart();
+
+    try {
+      this.createContinuousMonitoringChart();
+    } catch (e) {
+      console.error('[CHARTS] Error in createContinuousMonitoringChart:', e);
+    }
+
+    try {
+      this.createCaseIqChart();
+    } catch (e) {
+      console.error('[CHARTS] Error in createCaseIqChart:', e);
+    }
+
+    try {
+      this.createBusinessInsightsChart();
+    } catch (e) {
+      console.error('[CHARTS] Error in createBusinessInsightsChart:', e);
+    }
+
+    try {
+      this.createTopPagesChart();
+    } catch (e) {
+      console.error('[CHARTS] Error in createTopPagesChart:', e);
+    }
+
+    try {
+      this.createUniqueUsersChart();
+    } catch (e) {
+      console.error('[CHARTS] Error in createUniqueUsersChart:', e);
+    }
+
+    console.log('[CHARTS] All chart creation attempts complete');
   }
 
   private filterByPrefix(prefix: string): PageVisitSummary[] {
-    return this.summaryData.filter((item) =>
-      item.PAGE_ROUTE.startsWith(prefix)
+    // Match both exact route (e.g., "/invoice-to-cash") and sub-routes (e.g., "/invoice-to-cash/pre-invoicing")
+    const filtered = this.summaryData.filter(
+      (item) =>
+        item.PAGE_ROUTE === prefix || item.PAGE_ROUTE.startsWith(prefix + '/')
     );
+    console.log(
+      `[CHARTS] filterByPrefix('${prefix}') returned ${filtered.length} items:`,
+      filtered
+    );
+    return filtered;
   }
 
   private extractTabName(route: string): string {
@@ -191,11 +229,26 @@ export class AnalyticsDashboardComponent
     title: string,
     colors: string[]
   ): Chart | null {
+    console.log(
+      `[CHARTS] createDonutChart('${canvasId}') called with ${data.length} data items`
+    );
+
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas || data.length === 0) return null;
+    console.log(`[CHARTS] Canvas element for '${canvasId}':`, canvas);
+
+    if (!canvas) {
+      console.log(`[CHARTS] Canvas element '${canvasId}' NOT FOUND in DOM`);
+      return null;
+    }
+    if (data.length === 0) {
+      console.log(`[CHARTS] No data for chart '${canvasId}', skipping`);
+      return null;
+    }
 
     const labels = data.map((item) => this.extractTabName(item.PAGE_ROUTE));
     const values = data.map((item) => Number(item.TOTAL_VISITS));
+    console.log(`[CHARTS] '${canvasId}' labels:`, labels);
+    console.log(`[CHARTS] '${canvasId}' values:`, values);
 
     return new Chart(canvas, {
       type: 'doughnut',
@@ -244,11 +297,13 @@ export class AnalyticsDashboardComponent
   }
 
   private createContinuousMonitoringChart(): void {
-    // Combine all monitoring-related routes
-    const invoiceData = this.filterByPrefix('/invoice-to-cash/');
-    const revenueData = this.filterByPrefix('/revenue-accounting/');
-    const orderData = this.filterByPrefix('/order-management/');
-    const opsData = this.filterByPrefix('/operations-controls/');
+    console.log('[CHARTS] createContinuousMonitoringChart() called');
+
+    // Combine all monitoring-related routes (include parent route + sub-routes)
+    const invoiceData = this.filterByPrefix('/invoice-to-cash');
+    const revenueData = this.filterByPrefix('/revenue-accounting');
+    const orderData = this.filterByPrefix('/order-management');
+    const opsData = this.filterByPrefix('/operations-controls');
 
     // Aggregate by category
     const aggregated: { label: string; visits: number }[] = [
@@ -270,11 +325,24 @@ export class AnalyticsDashboardComponent
       },
     ].filter((item) => item.visits > 0);
 
+    console.log('[CHARTS] Continuous Monitoring aggregated data:', aggregated);
+
     const canvas = document.getElementById(
       'continuousMonitoringChart'
     ) as HTMLCanvasElement;
-    if (!canvas || aggregated.length === 0) return;
 
+    console.log('[CHARTS] continuousMonitoringChart canvas:', canvas);
+
+    if (!canvas) {
+      console.log('[CHARTS] Canvas continuousMonitoringChart NOT FOUND');
+      return;
+    }
+    if (aggregated.length === 0) {
+      console.log('[CHARTS] No aggregated data for continuousMonitoringChart');
+      return;
+    }
+
+    console.log('[CHARTS] Creating continuousMonitoringChart...');
     this.continuousMonitoringChart = new Chart(canvas, {
       type: 'doughnut',
       data: {
@@ -317,7 +385,7 @@ export class AnalyticsDashboardComponent
   }
 
   private createCaseIqChart(): void {
-    const caseIqData = this.filterByPrefix('/case-iq/');
+    const caseIqData = this.filterByPrefix('/case-iq');
     this.caseIqChart = this.createDonutChart(
       'caseIqChart',
       caseIqData,
@@ -327,7 +395,7 @@ export class AnalyticsDashboardComponent
   }
 
   private createBusinessInsightsChart(): void {
-    const biData = this.filterByPrefix('/business-insights/');
+    const biData = this.filterByPrefix('/business-insights');
     this.businessInsightsChart = this.createDonutChart(
       'businessInsightsChart',
       biData,
@@ -337,6 +405,8 @@ export class AnalyticsDashboardComponent
   }
 
   private createTopPagesChart(): void {
+    console.log('[CHARTS] createTopPagesChart() called');
+
     // Get top 10 pages overall
     const topPages = this.summaryData.slice(0, 10).map((item) => ({
       label: this.extractTabName(item.PAGE_ROUTE),
@@ -344,11 +414,24 @@ export class AnalyticsDashboardComponent
       route: item.PAGE_ROUTE,
     }));
 
+    console.log('[CHARTS] topPages data:', topPages);
+
     const canvas = document.getElementById(
       'topPagesChart'
     ) as HTMLCanvasElement;
-    if (!canvas || topPages.length === 0) return;
 
+    console.log('[CHARTS] topPagesChart canvas:', canvas);
+
+    if (!canvas) {
+      console.log('[CHARTS] Canvas topPagesChart NOT FOUND');
+      return;
+    }
+    if (topPages.length === 0) {
+      console.log('[CHARTS] No data for topPagesChart');
+      return;
+    }
+
+    console.log('[CHARTS] Creating topPagesChart...');
     this.topPagesChart = new Chart(canvas, {
       type: 'bar',
       data: {
@@ -388,17 +471,32 @@ export class AnalyticsDashboardComponent
   }
 
   private createUniqueUsersChart(): void {
+    console.log('[CHARTS] createUniqueUsersChart() called');
+
     // Get pages by unique users
     const byUsers = this.summaryData.slice(0, 8).map((item) => ({
       label: this.extractTabName(item.PAGE_ROUTE),
       users: Number(item.UNIQUE_USERS),
     }));
 
+    console.log('[CHARTS] byUsers data:', byUsers);
+
     const canvas = document.getElementById(
       'uniqueUsersChart'
     ) as HTMLCanvasElement;
-    if (!canvas || byUsers.length === 0) return;
 
+    console.log('[CHARTS] uniqueUsersChart canvas:', canvas);
+
+    if (!canvas) {
+      console.log('[CHARTS] Canvas uniqueUsersChart NOT FOUND');
+      return;
+    }
+    if (byUsers.length === 0) {
+      console.log('[CHARTS] No data for uniqueUsersChart');
+      return;
+    }
+
+    console.log('[CHARTS] Creating uniqueUsersChart...');
     this.uniqueUsersChart = new Chart(canvas, {
       type: 'bar',
       data: {

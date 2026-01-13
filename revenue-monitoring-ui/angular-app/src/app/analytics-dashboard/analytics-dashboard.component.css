@@ -81,12 +81,24 @@
   }
 }
 
-/* Stats Row */
-.stats-row {
+/* Overview Grid (Stats + Donuts in 3x2) */
+.overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) {
+  .overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
@@ -152,12 +164,18 @@
   color: #666;
 }
 
-/* Charts Grid */
-.charts-grid {
+/* Bar Charts Section */
+.bar-charts-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
   margin-bottom: 24px;
+}
+
+@media (max-width: 1200px) {
+  .bar-charts-section {
+    grid-template-columns: 1fr;
+  }
 }
 
 .chart-card {
@@ -173,18 +191,8 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
-.chart-card.large {
-  grid-column: span 1;
-}
-
-.chart-card.wide {
-  grid-column: span 2;
-}
-
-@media (max-width: 900px) {
-  .chart-card.wide {
-    grid-column: span 1;
-  }
+.chart-card.full-width {
+  width: 100%;
 }
 
 .card-header {
