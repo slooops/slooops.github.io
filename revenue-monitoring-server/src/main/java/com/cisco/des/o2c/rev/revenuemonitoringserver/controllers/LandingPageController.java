@@ -34,4 +34,22 @@ public class LandingPageController {
     public ResponseEntity<List<Map<String, Object>>> getLandingPageHighPriorityIssues() {
         return new ResponseEntity<>(service.getLandingPageHighPriorityIssues(), HttpStatus.OK);
     }
+
+    @GetMapping("/landing-page-issues-list")
+    public ResponseEntity<List<Map<String, Object>>> getLandingPageIssuesList() {
+        return new ResponseEntity<>(service.getLandingPageIssuesList(), HttpStatus.OK);
+    }
+    @GetMapping("/landing-page-issues-distribution")
+    public ResponseEntity<List<Map<String, Object>>> getLandingPageIssuesDistribution() {
+        return new ResponseEntity<>(service.getLandingPageIssuesDistribution(), HttpStatus.OK);
+    }
+    @GetMapping("/landing-page-transaction-failures")
+    public ResponseEntity<List<Map<String, Object>>> getLandingPageTransactionFailures() {
+        System.out.println("here");
+        return new ResponseEntity<>(service.getLandingPageTransactionFailures(), HttpStatus.OK);
+    }
+    @GetMapping("/landing-page-esp-cases")
+    public ResponseEntity<List<Map<String, Object>>> getLandingPageEspCases() {
+        return new ResponseEntity<>(service.getLandingPageEspCases(), HttpStatus.OK);
+    }
 }

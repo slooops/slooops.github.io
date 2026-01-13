@@ -1846,4 +1846,36 @@ public class QueryConfigs {
     public String getLandingPageHighPriorityIssues() {
         return this.landingPageHighPriorityIssues;
     }
+
+    @Value(("${landing.page.issues.list}"))
+    public String landingPageIssuesList;
+
+    @Bean(name = "landingPageIssuesList")
+    public String getLandingPageIssuesList() {
+        return this.landingPageIssuesList;
+    }
+
+    @Value(("${landing.page.issues.distribution}"))
+    public String landingPageIssuesDistribution;
+
+    @Bean(name = "landingPageIssuesDistribution")
+    public String getLandingPageIssuesDistribution() {
+        return this.landingPageIssuesDistribution;
+    }
+
+    @Value(("${landing.page.transaction.failures}"))
+    public String landingPageTransactionFailures;
+
+    @Bean(name = "landingPageTransactionFailures")
+    public String getLandingPageTransactionFailures() {
+        return this.landingPageTransactionFailures;
+    }
+
+    @Value(("${landing.page.esp.cases}"))
+    public String landingPageEspCases;
+
+    @Bean(name = "landingPageEspCases")
+    public String getLandingPageEspCases() {
+        return this.landingPageEspCases;
+    }
 }

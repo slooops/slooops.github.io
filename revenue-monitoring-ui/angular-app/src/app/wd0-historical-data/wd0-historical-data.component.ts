@@ -647,10 +647,10 @@ export class Wd0HistoricalDataComponent
   // Update the Q3 Service Line Predictive Model Chart
   updateServiceLineChart(serviceData: any[], serviceActuals: number[]) {
     const labels = serviceData.map((entry: any) => entry.WD).reverse();
-    const lowData = serviceData
+    const lowData: (number | null)[] = serviceData
       .map((entry: any) => Number(entry.RECORD_COUNT_LOW))
       .reverse();
-    const highData = serviceData
+    const highData: (number | null)[] = serviceData
       .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
       .reverse();
 
@@ -749,10 +749,10 @@ export class Wd0HistoricalDataComponent
 
   updateProductLineChart(productData: any[], productActuals: number[]) {
     const labels = productData.map((entry: any) => entry.WD).reverse();
-    const lowData = productData
+    const lowData: (number | null)[] = productData
       .map((entry: any) => Number(entry.RECORD_COUNT_LOW))
       .reverse();
-    const highData = productData
+    const highData: (number | null)[] = productData
       .map((entry: any) => Number(entry.RECORD_COUNT_HIGH))
       .reverse();
 

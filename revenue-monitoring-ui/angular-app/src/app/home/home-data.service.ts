@@ -37,7 +37,7 @@ export class HomeDataService {
     );
   }
 
-  getIssuesList(destroyManager: DestroyManager): Observable<any[]> {
+  getIssues(destroyManager: DestroyManager): Observable<any[]> {
     return this.http.get('landing-page-issues', destroyManager).pipe(
       map((response: any) => {
         return Array.isArray(response) ? response : [];
@@ -53,5 +53,41 @@ export class HomeDataService {
           return Array.isArray(response) ? response : [];
         })
       );
+  }
+
+  getIssuesList(destroyManager: DestroyManager): Observable<any[]> {
+    return this.http.get('landing-page-issues-list', destroyManager).pipe(
+      map((response: any) => {
+        return Array.isArray(response) ? response : [];
+      })
+    );
+  }
+
+  getIssuesDistribution(destroyManager: DestroyManager): Observable<any[]> {
+    return this.http
+      .get('landing-page-issues-distribution', destroyManager)
+      .pipe(
+        map((response: any) => {
+          return Array.isArray(response) ? response : [];
+        })
+      );
+  }
+
+  getTransactionFailures(destroyManager: DestroyManager): Observable<any[]> {
+    return this.http
+      .get('landing-page-transaction-failures', destroyManager)
+      .pipe(
+        map((response: any) => {
+          return Array.isArray(response) ? response : [];
+        })
+      );
+  }
+
+  getEspCases(destroyManager: DestroyManager): Observable<any[]> {
+    return this.http.get('landing-page-esp-cases', destroyManager).pipe(
+      map((response: any) => {
+        return Array.isArray(response) ? response : [];
+      })
+    );
   }
 }

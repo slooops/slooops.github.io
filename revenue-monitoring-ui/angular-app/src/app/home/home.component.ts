@@ -6,14 +6,16 @@ import {
   signal,
   computed,
   effect,
+  afterNextRender,
+  Injector,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiHttpService } from '../providers/http.service';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
-import { MockHomeDataService } from './mock-home-data.service';
 import { HomeDataService } from './home-data.service';
+import { ExportService } from '../monitoring-dashboard/providers/export.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Chart, ChartConfiguration, Plugin } from 'chart.js/auto';
@@ -22,7 +24,10 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
 
 @Component({
   selector: 'app-home',
@@ -35,7 +40,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MatTableModule,
     MatPaginatorModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule,
+    LoadingSymbolComponent,
+    LoadingSymbolSmallComponent,
   ],
   standalone: true,
 })
@@ -46,23 +54,16 @@ export class HomeComponent implements OnDestroy {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private mockDataService: MockHomeDataService,
-    private homeDataService: HomeDataService
+    private homeDataService: HomeDataService,
+    private injector: Injector,
+    private exportService: ExportService
   ) {
     // Initialize user info
     this.userRoles.set(this.authService.getRoles());
     this.username.set(this.authService.getUserName());
 
-    // Load dashboard data on initialization
+    // Load dashboard data
     this.loadDashboardData();
-
-    // Effect to update header columns when displayed columns change
-    effect(() => {
-      const cols = this.displayedColumns();
-      if (cols.length > 0) {
-        this.headerColumns.set(['select', ...cols]);
-      }
-    });
   }
 
   // Dashboard data signals
@@ -72,12 +73,9 @@ export class HomeComponent implements OnDestroy {
   charts = signal<any>(null);
   issuesList = signal<any[]>([]);
   // Mat Table integration
-  displayedColumns = signal<string[]>([]);
-  // Combined columns including selection checkbox column for mat-table header/rows
-  headerColumns = signal<string[]>([]);
-  // Columns to hide from display
-  columnsToHide = signal<string[]>(['assignedTo']);
-  dataSource: MatTableDataSource<any> = new MatTableDataSource<any>([]);
+  displayedColumns: string[] = [];
+  displayedColumnsWithSelect: string[] = [];
+  dataSource: any;
   searchTerm = signal<string>('');
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('transactionFailuresCanvas')
@@ -98,7 +96,13 @@ export class HomeComponent implements OnDestroy {
 
   // Computed signals
   hasActiveFilters = computed(() => this.activeFilters().length > 0);
-  resultCount = computed(() => this.dataSource?.data?.length || 0);
+  resultCount = computed(() => {
+    // Use filteredData if filtering is active, otherwise use full data
+    if (this.dataSource?.filteredData) {
+      return this.dataSource.filteredData.length;
+    }
+    return this.dataSource?.data?.length || 0;
+  });
 
   // Simple filters (extendable)
   showFiltersDropdown = signal<boolean>(false);
@@ -115,33 +119,74 @@ export class HomeComponent implements OnDestroy {
   // Loading states
   homeLoading = signal<boolean>(true);
   dataLoading = signal<boolean>(true);
+  transactionFailuresLoading = signal<boolean>(true);
+  espCasesLoading = signal<boolean>(true);
+  issueDistributionLoading = signal<boolean>(true);
 
   // User info
   userRoles = signal<any>(null);
   username = signal<string>('');
 
-  // Pagination
-  currentPage = signal<number>(1);
-  rowsPerPage = signal<number>(10);
-  totalResults = signal<number>(0);
-  // Length bound to paginator: total results (server-side) unless filters applied (then show filtered count for clarity)
-  paginatorLength = signal<number>(0);
+  /**
+   * Build chart when canvas elements are ready (with retry logic)
+   */
+  private buildChartWhenReady(
+    buildFn: () => void,
+    chart: 'transactionFailures' | 'espCases' | 'issueDistribution',
+    attempt = 0
+  ): void {
+    let canvasEl: HTMLCanvasElement | null | undefined;
+
+    if (chart === 'transactionFailures') {
+      canvasEl = this.transactionFailuresCanvas?.nativeElement;
+    } else if (chart === 'espCases') {
+      canvasEl = this.espCasesCanvas?.nativeElement;
+    } else {
+      canvasEl = this.issueDistributionCanvas?.nativeElement;
+    }
+
+    if (canvasEl) {
+      buildFn();
+      return;
+    }
+
+    if (attempt < 50) {
+      setTimeout(
+        () => this.buildChartWhenReady(buildFn, chart, attempt + 1),
+        100
+      );
+    } else {
+      console.warn('Chart canvas not ready, skipping render for', chart);
+    }
+  }
 
   /**
-   * Load all dashboard data from mock service
+   * Load all dashboard data
    */
   loadDashboardData(): void {
     this.dataLoading.set(true);
     this.homeLoading.set(true);
 
-    // Load period info from real backend service
+    // Load all data
+    this.loadPeriodInfo();
+    this.loadHighPriorityIssues();
+    this.loadIssues();
+    this.loadIssuesDistribution();
+    this.loadTransactionFailures();
+    this.loadEspCases();
+    this.loadIssuesList();
+  }
+
+  /**
+   * Load period information
+   */
+  private loadPeriodInfo(): void {
     this.homeDataService.getPeriodInfo(this.destroyManager).subscribe({
       next: (periodData) => {
         this.periodInfo.set(periodData);
       },
       error: (error) => {
         console.error('Error loading period info:', error);
-        // Set default empty period info on error
         this.periodInfo.set({
           periodName: '',
           periodEndDate: '',
@@ -149,12 +194,15 @@ export class HomeComponent implements OnDestroy {
         });
       },
     });
+  }
 
+  /**
+   * Load high priority issues
+   */
+  private loadHighPriorityIssues(): void {
     this.homeDataService.getHighPriorityIssues(this.destroyManager).subscribe({
       next: (highPriorityIssues) => {
         console.log('High Priority Issues:', highPriorityIssues);
-
-        // Initialize KPIs with high priority issues data
         this.kpis.set({
           highPriorityIssues: highPriorityIssues[0].HIGH_PRIORITY_ISSUES || 0,
           inProgress: highPriorityIssues[0].IN_PROGRESS || 0,
@@ -167,100 +215,256 @@ export class HomeComponent implements OnDestroy {
         console.error('Error loading high priority issues:', error);
       },
     });
+  }
 
-    this.homeDataService.getIssuesList(this.destroyManager).subscribe({
+  /**
+   * Load issues data
+   */
+  private loadIssues(): void {
+    this.homeDataService.getIssues(this.destroyManager).subscribe({
       next: (issues) => {
-        console.log('Issues List from real service:', issues);
-
-        // Update KPIs with issues list data
-        const currentKpis = this.kpis();
-        if (currentKpis) {
-          this.kpis.set({
-            ...currentKpis,
-            totalIssues: issues[0].TOTAL_ISSUES || 0,
-            openIssues: issues[0].OPEN_ISSUES || 0,
-            unassignedIssues: issues[0].UNASSIGNED || 0,
-            assignedIssues: issues[0].ASSIGNED || 0,
-            inProgressIssues: issues[0].IN_PROGRESS || 0,
-          });
-        }
+        console.log('Issues from real service:', issues);
+        const currentKpis = this.kpis() || {};
+        this.kpis.set({
+          ...currentKpis,
+          totalIssues: issues[0]?.TOTAL_ISSUES || 0,
+          openIssues: issues[0]?.OPEN_ISSUES || 0,
+          unassignedIssues: issues[0]?.UNASSIGNED || 0,
+          assignedIssues: issues[0]?.ASSIGNED || 0,
+          inProgressIssues: issues[0]?.IN_PROGRESS || 0,
+        });
         console.log('Updated KPIs:', this.kpis());
       },
       error: (error) => {
-        console.error('Error loading issues list from real service:', error);
-      },
-    });
-
-    // Simulate HTTP GET request for other dashboard data
-    this.mockDataService.getDashboardData().subscribe({
-      next: (data) => {
-        this.dashboardData.set(data);
-        // Period info and KPIs loaded separately from real service above
-        this.charts.set(data.charts);
-        this.issuesList.set(data.issuesList);
-        this.totalResults.set(data.pagination.totalResults);
-        this.currentPage.set(data.pagination.currentPage);
-        this.rowsPerPage.set(data.pagination.rowsPerPage);
-
-        // Generate columns dynamically from data
-        if (this.issuesList().length > 0) {
-          this.displayedColumns.set(Object.keys(this.issuesList()[0]));
-        }
-        const filtered = this.displayedColumns().filter(
-          (col) => !this.columnsToHide().includes(col)
-        );
-        this.displayedColumns.set(filtered);
-        this.headerColumns.set(['select', ...this.displayedColumns()]);
-
-        // Calculate issue distribution from issues list
-        this.calculateIssueDistribution();
-
-        // Initialize MatTable dataSource
-        this.dataSource.data = this.issuesList();
-        // Server-side pagination: do NOT attach paginator to dataSource to prevent double slicing
-        this.paginatorLength.set(this.totalResults());
-        this.applyFilters();
-        // Initialize charts once view has updated with canvas elements
-        setTimeout(() => this.initCharts(), 0);
-      },
-      error: (error) => {
-        console.error('Error loading dashboard data:', error);
-        this.dataLoading.set(false);
-        this.homeLoading.set(false);
-      },
-      complete: () => {
-        this.dataLoading.set(false);
-        this.homeLoading.set(false);
+        console.error('Error loading issues:', error);
       },
     });
   }
 
   /**
-   * Load issues list with pagination
+   * Load transaction failures data
    */
-  loadIssues(page: number = 1): void {
-    this.dataLoading.set(true);
-
-    this.mockDataService.getIssuesList(page, this.rowsPerPage()).subscribe({
+  private loadTransactionFailures(): void {
+    this.homeDataService.getTransactionFailures(this.destroyManager).subscribe({
       next: (data) => {
-        this.issuesList.set(data.issues);
-        this.totalResults.set(data.totalResults);
-        this.currentPage.set(data.currentPage);
-        this.dataSource.data = this.issuesList();
-        this.paginatorLength.set(this.totalResults());
-        this.applyFilters();
-        // Sync paginator indexes only; length already set
-        if (this.paginator) {
-          this.paginator.pageIndex = this.currentPage() - 1; // 0-based
-          this.paginator.pageSize = this.rowsPerPage();
+        console.log('Transaction Failures API Response:', data);
+
+        // Parse API response: Array of {WEEK_NUMBER, COUNT, CATEGORY}
+        const weekMap = new Map<
+          string,
+          { supportTeam: number; inProgress: number; resolved: number }
+        >();
+
+        if (data && data.length > 0) {
+          data.forEach((item: any) => {
+            const weekNum = item.WEEK_NUMBER;
+            const weekLabel = `Week ${weekNum}`;
+            const count = item.COUNT || 0;
+            const category = item.CATEGORY;
+
+            if (!weekMap.has(weekLabel)) {
+              weekMap.set(weekLabel, {
+                supportTeam: 0,
+                inProgress: 0,
+                resolved: 0,
+              });
+            }
+
+            const weekData = weekMap.get(weekLabel)!;
+            if (category === 'Support Team') {
+              weekData.supportTeam = count;
+            } else if (category === 'In Progress') {
+              weekData.inProgress = count;
+            } else if (category === 'Resolved') {
+              weekData.resolved = count;
+            }
+          });
         }
+
+        // Sort weeks (Week1, Week2, etc.)
+        const sortedWeeks = Array.from(weekMap.keys()).sort((a, b) => {
+          const numA = parseInt(a.replace('Week ', ''));
+          const numB = parseInt(b.replace('Week ', ''));
+          return numA - numB;
+        });
+
+        const chartData = {
+          weeks: sortedWeeks,
+          supportTeam: sortedWeeks.map(
+            (week) => weekMap.get(week)!.supportTeam
+          ),
+          inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
+          resolved: sortedWeeks.map((week) => weekMap.get(week)!.resolved),
+        };
+
+        console.log('Parsed Transaction Failures chart data:', chartData);
+        // Show canvas instead of loader, then build chart when canvas is ready
+        this.transactionFailuresLoading.set(false);
+        this.buildChartWhenReady(
+          () => this.buildTransactionFailuresChart(chartData),
+          'transactionFailures'
+        );
       },
       error: (error) => {
-        console.error('Error loading issues:', error);
-        this.dataLoading.set(false);
+        console.error('Error loading transaction failures:', error);
+        this.transactionFailuresLoading.set(false);
       },
-      complete: () => {
+    });
+  }
+
+  /**
+   * Load ESP cases data
+   */
+  private loadEspCases(): void {
+    this.homeDataService.getEspCases(this.destroyManager).subscribe({
+      next: (data) => {
+        console.log('ESP Cases API Response:', data);
+
+        // Parse API response: Array of {WEEK_NUMBER, COUNT, CATEGORY}
+        const weekMap = new Map<
+          string,
+          { resolvedAgent: number; supportTeam: number }
+        >();
+
+        if (data && data.length > 0) {
+          data.forEach((item: any) => {
+            const week = item.WEEK_NUMBER || '';
+            const count = Number(item.COUNT) || 0;
+            const category = (item.CATEGORY || '').trim();
+
+            if (!weekMap.has(week)) {
+              weekMap.set(week, { resolvedAgent: 0, supportTeam: 0 });
+            }
+
+            const weekData = weekMap.get(week)!;
+            if (category === 'Resolved (Agent)') {
+              weekData.resolvedAgent = count;
+            } else if (category === 'Support Team') {
+              weekData.supportTeam = count;
+            }
+          });
+        }
+
+        // Sort weeks (Week1, Week2, etc.)
+        const sortedWeeks = Array.from(weekMap.keys()).sort((a, b) => {
+          const numA = parseInt(a.replace('Week', ''));
+          const numB = parseInt(b.replace('Week', ''));
+          return numA - numB;
+        });
+
+        const chartData = {
+          weeks: sortedWeeks,
+          resolvedAgent: sortedWeeks.map(
+            (week) => weekMap.get(week)!.resolvedAgent
+          ),
+          supportTeam: sortedWeeks.map(
+            (week) => weekMap.get(week)!.supportTeam
+          ),
+        };
+
+        console.log('Parsed ESP Cases chart data:', chartData);
+        // Show canvas instead of loader, then build chart when canvas is ready
+        this.espCasesLoading.set(false);
+        this.buildChartWhenReady(
+          () => this.buildEspCasesChart(chartData),
+          'espCases'
+        );
+      },
+      error: (error) => {
+        console.error('Error loading ESP cases:', error);
+        this.espCasesLoading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Load issues distribution data
+   */
+  private loadIssuesDistribution(): void {
+    this.homeDataService.getIssuesDistribution(this.destroyManager).subscribe({
+      next: (data) => {
+        console.log('Issues Distribution API Response:', data);
+
+        let aiAgent = 0;
+        let human = 0;
+
+        if (data && data.length > 0) {
+          data.forEach((item: any) => {
+            const percentage = Number(item.PERCENTAGE) || 0;
+            const source = (item.SOURCE || '').toLowerCase().trim();
+
+            if (source === 'ai agent') {
+              aiAgent = percentage;
+            } else if (source === 'human') {
+              human = percentage;
+            }
+          });
+        }
+
+        console.log('Parsed distribution:', { aiAgent, human });
+
+        // Build chart when canvas is ready
+        this.issueDistributionLoading.set(false);
+        this.buildChartWhenReady(
+          () => this.buildIssueDistributionChart(aiAgent, human),
+          'issueDistribution'
+        );
+      },
+      error: (error) => {
+        console.error('Error loading issues distribution:', error);
+        this.issueDistributionLoading.set(false);
+      },
+    });
+  }
+
+  /**
+   * Load issues list data
+   */
+  loadIssuesList(): void {
+    this.homeDataService.getIssuesList(this.destroyManager).subscribe({
+      next: (issuesList) => {
+        console.log('Issues list loaded:', issuesList);
+
+        if (issuesList.length === 0) {
+          // this.isLoading = false;
+        }
+        this.issuesList.set(issuesList);
+        if (issuesList.length > 0) {
+          this.displayedColumns = Object.keys(issuesList[0]);
+          this.displayedColumnsWithSelect = [
+            'select',
+            ...this.displayedColumns,
+          ];
+        }
+
+        this.dataSource = new MatTableDataSource<any>(issuesList);
+
+        // Initialize unified filtering (no filters/search applied yet)
+        this.updateTableFilter();
+
+        // Connect paginator after data is set - use longer timeout
+        setTimeout(() => {
+          if (this.paginator) {
+            this.dataSource.paginator = this.paginator;
+            console.log('✅ Paginator connected successfully');
+            console.log('Total records:', issuesList.length);
+            console.log('Page size:', this.paginator.pageSize);
+            console.log(
+              'Total pages:',
+              Math.ceil(issuesList.length / this.paginator.pageSize)
+            );
+          } else {
+            console.error('❌ Paginator not available!');
+          }
+        }, 100);
+
         this.dataLoading.set(false);
+        this.homeLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading issues list:', error);
+        this.dataLoading.set(false);
+        this.homeLoading.set(false);
       },
     });
   }
@@ -268,10 +472,40 @@ export class HomeComponent implements OnDestroy {
   /**
    * Handle page change
    */
-  // Legacy manual pagination handlers removed after MatPaginator integration
+  onMatPage(event: PageEvent) {
+    // Material Table handles pagination automatically
+  }
 
   navigateTo(page: string): void {
     this.router.navigate([page]);
+  }
+
+  exportIssuesToExcel(): void {
+    if (!this.dataSource) {
+      return;
+    }
+
+    const rawData: any[] =
+      this.dataSource.filteredData && this.dataSource.filteredData.length
+        ? this.dataSource.filteredData
+        : this.dataSource.data || [];
+
+    if (!rawData || rawData.length === 0) {
+      return;
+    }
+
+    const exportData = rawData.map((row) => {
+      const mapped: any = {};
+      this.displayedColumns.forEach((col) => {
+        const header = this.replaceUnderscore(col) || col;
+        mapped[header] = row[col];
+      });
+      return mapped;
+    });
+
+    const sheetName = this.exportService.generateSheetName('Issues List');
+    const filename = `issues-list-${new Date().toISOString().slice(0, 10)}`;
+    this.exportService.exportTableToExcel(exportData, sheetName, filename);
   }
 
   formatData(data): any[] {
@@ -284,33 +518,8 @@ export class HomeComponent implements OnDestroy {
     return formattedAmount;
   }
 
-  /**
-   * Get status badge class based on status
-   */
-  getStatusClass(status: string): string {
-    const statusMap: { [key: string]: string } = {
-      Open: 'status-open',
-      'In Progress': 'status-in-progress',
-      Unassigned: 'status-unassigned',
-    };
-    return statusMap[status] || 'status-default';
-  }
+  // ------------ Table filters & search ------------
 
-  /**
-   * Navigate to issue details
-   */
-  viewIssueDetails(issueId: string): void {
-    // Add navigation logic here
-  }
-
-  /**
-   * Assign user to issue
-   */
-  assignUser(issueId: string): void {
-    // Add assignment logic here
-  }
-
-  // ------------ Filter Logic (simplified compared to CaseIQ) ------------
   toggleFiltersDropdown(event: Event) {
     event.stopPropagation();
     this.showFiltersDropdown.update((v) => !v);
@@ -330,101 +539,37 @@ export class HomeComponent implements OnDestroy {
     } else {
       this.activeFilters.update((f) => [...f, { key, value }]);
     }
-    this.applyFilters();
+    this.updateTableFilter();
   }
 
   removeFilter(key: string, value: string) {
     this.activeFilters.update((filters) =>
       filters.filter((f) => !(f.key === key && f.value === value))
     );
-    this.applyFilters();
+    this.updateTableFilter();
   }
 
   clearAllFilters() {
     this.activeFilters.set([]);
-    this.applyFilters();
+    this.updateTableFilter();
   }
 
   /**
    * Filter table by assignee category from pie chart click
    */
   filterByAssignee(category: string): void {
-    // Clear existing filters first
-    this.activeFilters.set([]);
-
-    let filtered = [...this.issuesList()];
-
-    if (category === 'AI Agent') {
-      filtered = filtered.filter(
-        (row) => row.assignedTo?.trim() === 'AI Agent'
-      );
-    } else if (category === 'Human') {
-      filtered = filtered.filter((row) => {
-        const assignedTo = row.assignedTo?.trim();
-        return (
-          assignedTo && assignedTo !== 'AI Agent' && assignedTo !== 'Unassigned'
-        );
-      });
-    } else if (category === 'Unassigned') {
-      filtered = filtered.filter(
-        (row) =>
-          !row.assignedTo?.trim() || row.assignedTo?.trim() === 'Unassigned'
-      );
-    } else if (category === 'Other') {
-      // "Other" category logic (if needed)
-      filtered = filtered.filter((row) => {
-        const assignedTo = row.assignedTo?.trim();
-        return (
-          assignedTo && assignedTo !== 'AI Agent' && assignedTo !== 'Unassigned'
-        );
-      });
-    }
-
-    this.dataSource.data = filtered;
-    this.paginatorLength.set(filtered.length);
-
-    // Add visual indicator that filter is active
     this.activeFilters.set([{ key: 'assignedTo', value: category }]);
+    this.updateTableFilter();
   }
 
-  getSelectedCount(filterId: string): number {
-    return this.activeFilters().filter((f) => f.key === filterId).length;
-  }
-
-  applyFilters() {
-    if (!this.dataSource) return;
-    let filtered = [...this.issuesList()];
-
-    // Group filters by key for OR within, AND between groups
-    const filterMap = new Map<string, Set<string>>();
-    this.activeFilters().forEach((f) => {
-      if (!filterMap.has(f.key)) filterMap.set(f.key, new Set());
-      filterMap.get(f.key)!.add(f.value);
-    });
-
-    if (filterMap.size > 0) {
-      filtered = filtered.filter((row) => {
-        for (const [key, values] of filterMap.entries()) {
-          const rowVal = (row[key] ?? '').toString().trim();
-          if (!values.has(rowVal)) return false; // AND logic between groups
-        }
-        return true;
-      });
+  /**
+   * Apply search filter across all columns
+   */
+  applySearch(): void {
+    if (!this.dataSource) {
+      return;
     }
-
-    this.dataSource.data = filtered;
-    // Adjust paginator length when filters are active (client-side filtering of current page slice only)
-    const filtersActive = this.activeFilters().length > 0;
-    this.paginatorLength.set(
-      filtersActive ? filtered.length : this.totalResults()
-    );
-  }
-
-  // Material paginator event handler
-  onMatPage(event: PageEvent) {
-    this.rowsPerPage.set(event.pageSize);
-    this.currentPage.set(event.pageIndex + 1); // convert to 1-based for backend
-    this.loadIssues(this.currentPage());
+    this.updateTableFilter();
   }
 
   toggleTableVisibility(): void {
@@ -432,71 +577,60 @@ export class HomeComponent implements OnDestroy {
   }
 
   /**
-   * Calculate issue distribution based on issues list data
+   * Unified filtering (status filters + assignee filters + search)
    */
-  calculateIssueDistribution(): void {
-    const issues = this.issuesList();
-    if (!issues || issues.length === 0) return;
+  private updateTableFilter(): void {
+    if (!this.dataSource) return;
 
-    const total = issues.length;
-    let aiAgentCount = 0;
-    let humanCount = 0;
-    let unassignedCount = 0;
-
-    issues.forEach((issue) => {
-      const assignedTo = issue.assignedTo?.trim();
-
-      if (!assignedTo || assignedTo === 'Unassigned') {
-        unassignedCount++;
-      } else if (assignedTo === 'AI Agent') {
-        aiAgentCount++;
-      } else {
-        // All other assignees are mapped to "Human"
-        humanCount++;
-      }
-    });
-
-    // Calculate percentages
-    const aiAgentPercent = Math.round((aiAgentCount / total) * 100);
-    const humanPercent = Math.round((humanCount / total) * 100);
-    const unassignedPercent = Math.round((unassignedCount / total) * 100);
-    const otherPercent =
-      100 - aiAgentPercent - humanPercent - unassignedPercent;
-
-    // Update charts data
-    const currentCharts = this.charts();
-    if (currentCharts && currentCharts.issueDistribution) {
-      currentCharts.issueDistribution.aiAgent = aiAgentPercent;
-      currentCharts.issueDistribution.human = humanPercent;
-      currentCharts.issueDistribution.unassigned = unassignedPercent;
-      currentCharts.issueDistribution.other = Math.max(0, otherPercent);
-      this.charts.set(currentCharts);
-    }
-  }
-
-  /**
-   * Apply search filter across all columns
-   */
-  applySearch(): void {
+    const filtersSnapshot = [...this.activeFilters()];
     const searchValue = this.searchTerm().toLowerCase().trim();
 
-    if (!searchValue) {
-      // If search is empty, apply existing filters or show all data
-      this.applyFilters();
-      return;
-    }
-
-    // Filter data based on search term matching any visible column value
-    const filteredData = this.issuesList().filter((row) => {
-      return this.displayedColumns().some((key) => {
-        const value = row[key];
-        if (value === null || value === undefined) return false;
-        return value.toString().toLowerCase().includes(searchValue);
-      });
+    // Build map of key -> allowed values (lowercased)
+    const filterMap = new Map<string, Set<string>>();
+    filtersSnapshot.forEach(({ key, value }) => {
+      const normalizedKey = key;
+      const val = (value ?? '').toString().toLowerCase();
+      if (!filterMap.has(normalizedKey)) {
+        filterMap.set(normalizedKey, new Set<string>());
+      }
+      filterMap.get(normalizedKey)!.add(val);
     });
 
-    this.dataSource.data = filteredData;
-    this.paginatorLength.set(filteredData.length);
+    this.dataSource.filterPredicate = (row: any, _filter: string) => {
+      // 1) Apply key-based filters
+      if (filterMap.size > 0) {
+        for (const [key, values] of filterMap.entries()) {
+          if (key === 'assignedTo') {
+            const assignedTo = this.getAssignedToValue(row).toLowerCase();
+            const category = this.getAssigneeCategory(assignedTo);
+            if (!values.has(category)) {
+              return false;
+            }
+          } else {
+            const rowVal = this.getRowFieldValue(row, key).toLowerCase();
+            if (!rowVal || !values.has(rowVal)) {
+              return false;
+            }
+          }
+        }
+      }
+
+      // 2) Apply free-text search across all values
+      if (searchValue) {
+        const concatenated = Object.values(row)
+          .join(' ')
+          .toString()
+          .toLowerCase();
+        if (!concatenated.includes(searchValue)) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    // Trigger predicate; filter string content is ignored
+    this.dataSource.filter = 'active';
 
     if (this.paginator) {
       this.paginator.firstPage();
@@ -504,41 +638,98 @@ export class HomeComponent implements OnDestroy {
   }
 
   /**
-   * Highlight search term in text
+   * Safely get a row field by logical key (e.g., 'status')
    */
-  highlightText(text: any): string {
-    if (!text || !this.searchTerm()) {
-      return text;
+  private getRowFieldValue(row: any, key: string): string {
+    if (!row) return '';
+
+    if (row[key] !== undefined && row[key] !== null) {
+      return row[key].toString().trim();
     }
 
-    const textStr = text.toString();
-    const searchValue = this.searchTerm().trim();
+    const lowerKey = key.toLowerCase();
+    const matchKey = Object.keys(row).find((k) => {
+      const lk = k.toLowerCase();
+      return lk === lowerKey || lk.includes(lowerKey);
+    });
 
-    if (!searchValue) {
-      return textStr;
+    if (matchKey && row[matchKey] !== undefined && row[matchKey] !== null) {
+      return row[matchKey].toString().trim();
     }
 
-    const regex = new RegExp(`(${searchValue})`, 'gi');
-    return textStr.replace(regex, '<mark class="search-highlight">$1</mark>');
+    return '';
   }
 
   /**
-   * Replace underscores with spaces and title case, add space before capital letters
+   * Extract assigned-to string from a row, handling different field names
    */
-  replaceUnderscore(str: string): string {
-    return str
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
-      .trim()
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+  private getAssignedToValue(row: any): string {
+    if (!row) return '';
+
+    const keys = Object.keys(row);
+    const assignedKey = keys.find((k) => k.toLowerCase().includes('assigned'));
+    if (assignedKey && row[assignedKey] != null) {
+      return row[assignedKey].toString().trim();
+    }
+    return '';
   }
 
-  // ---------------- Chart.js Integration ----------------
-  private initCharts(): void {
-    if (!this.charts()) return;
-    this.buildTransactionFailuresChart();
-    this.buildEspCasesChart();
-    this.buildIssueDistributionChart();
+  /**
+   * Map an assignee name to a logical category used by filters
+   */
+  private getAssigneeCategory(assignedToLower: string): string {
+    const name = (assignedToLower || '').trim().toLowerCase();
+    if (!name || name === 'unassigned') {
+      return 'unassigned';
+    }
+    if (name === 'ai agent') {
+      return 'ai agent';
+    }
+    // Treat all other names as "human" category
+    return 'human';
+  }
+
+  specialWords: string[] = [
+    'name',
+    'amount',
+    'interface',
+    'error',
+    'number',
+    'total',
+    'hold',
+    'pending',
+    'status',
+    'num',
+    'year',
+    'status',
+    'sub',
+    'staging',
+    'id',
+    'line',
+  ];
+
+  skippedWords: string[] = ['IOL', 'AR', 'ID'];
+
+  replaceUnderscore(value: string | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+
+    return value
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map((word) => {
+        if (!this.skippedWords.includes(word)) {
+          const lowerWord = word.toLowerCase();
+          if (this.specialWords.includes(lowerWord)) {
+            return lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
+          }
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        } else {
+          return word;
+        }
+      })
+      .join(' ');
   }
 
   private commonLineOptions(
@@ -560,144 +751,94 @@ export class HomeComponent implements OnDestroy {
     };
   }
 
-  private buildTransactionFailuresChart(): void {
-    const chartsData = this.charts();
-    if (!chartsData) return;
-    const weeks = chartsData.transactionFailures.weeks;
-    const dataObj = chartsData.transactionFailures;
-    const ctx = this.transactionFailuresCanvas?.nativeElement.getContext('2d');
-    if (!ctx) return;
-    // Destroy existing
+  private buildTransactionFailuresChart(chartData: any): void {
+    console.log('buildTransactionFailuresChart called with:', chartData);
+
+    const ctx = this.transactionFailuresCanvas?.nativeElement?.getContext('2d');
+    if (!ctx) {
+      console.error('Transaction failures canvas not found');
+      return;
+    }
+
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
-        labels: weeks,
+        labels: chartData.weeks,
         datasets: [
           {
-            label: 'AI Agent',
-            data: dataObj.aiAgent,
-            type: 'line',
-            tension: 0.3,
-            fill: false,
-            backgroundColor: 'rgba(124, 26, 71, 0.1)',
-            borderColor: '#7C1A47',
-            borderWidth: 2,
-            pointBackgroundColor: '#7C1A47',
-            pointBorderColor: '#7C1A47',
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            label: 'In Progress',
+            data: chartData.inProgress,
+            backgroundColor: '#E8B959',
+            borderColor: '#E8B959',
+            borderWidth: 1,
+            barPercentage: 0.6,
+            categoryPercentage: 0.8,
+            yAxisID: 'y',
           },
           {
-            label: 'Support Team',
-            data: dataObj.supportTeam,
+            label: 'Resolved',
+            data: chartData.resolved,
+            backgroundColor: '#9B9B9B',
+            borderColor: '#9B9B9B',
+            borderWidth: 1,
+            barPercentage: 0.6,
+            categoryPercentage: 0.8,
+            yAxisID: 'y',
+          },
+          {
             type: 'line',
-            tension: 0.3,
-            fill: false,
-            backgroundColor: 'rgba(91, 143, 215, 0.1)',
+            label: 'Support Team',
+            data: chartData.supportTeam,
             borderColor: '#5B8FD7',
+            backgroundColor: '#5B8FD7',
             borderWidth: 2,
             pointBackgroundColor: '#5B8FD7',
             pointBorderColor: '#5B8FD7',
             pointRadius: 4,
             pointHoverRadius: 6,
-          },
-          {
-            label: 'In Progress',
-            data: dataObj.inProgress,
-            type: 'line',
             tension: 0.3,
             fill: false,
-            backgroundColor: 'rgba(232, 185, 89, 0.1)',
-            borderColor: '#E8B959',
-            borderWidth: 2,
-            borderDash: [5, 5],
-            pointBackgroundColor: '#E8B959',
-            pointBorderColor: '#E8B959',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-          },
-          {
-            label: 'Resolved (Agent)',
-            data: dataObj.resolvedAgent,
-            type: 'line',
-            tension: 0.3,
-            fill: false,
-            backgroundColor: 'rgba(216, 150, 224, 0.1)',
-            borderColor: '#D896E0',
-            borderWidth: 2,
-            pointBackgroundColor: '#D896E0',
-            pointBorderColor: '#D896E0',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-          },
-          {
-            label: 'Resolved (Team)',
-            data: dataObj.resolvedTeam,
-            type: 'line',
-            tension: 0.3,
-            fill: false,
-            backgroundColor: 'rgba(155, 155, 155, 0.1)',
-            borderColor: '#9B9B9B',
-            borderWidth: 2,
-            borderDash: [2, 2],
-            pointBackgroundColor: '#9B9B9B',
-            pointBorderColor: '#9B9B9B',
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            yAxisID: 'y1',
           },
         ],
       },
-      options: this.mixedChartOptions('Transaction Failures'),
+      options: this.mixedChartWithSecondaryAxis('Transaction Failures'),
     });
   }
 
-  private buildEspCasesChart(): void {
-    const chartsData = this.charts();
-    if (!chartsData) return;
-    const weeks = chartsData.espCases.weeks;
-    const dataObj = chartsData.espCases;
-    const ctx = this.espCasesCanvas?.nativeElement.getContext('2d');
-    if (!ctx) return;
+  private buildEspCasesChart(chartData: any): void {
+    console.log('buildEspCasesChart called with:', chartData);
+
+    const ctx = this.espCasesCanvas?.nativeElement?.getContext('2d');
+    if (!ctx) {
+      console.error('ESP cases canvas not found');
+      return;
+    }
+
     this.espCasesChart?.destroy();
     this.espCasesChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: weeks,
+        labels: chartData.weeks,
         datasets: [
           {
-            type: 'bar',
-            label: '',
-            data: dataObj.aiAgent,
-            backgroundColor: '#c9e7e7',
-            borderRadius: 0,
-            barPercentage: 0.5,
-            categoryPercentage: 0.85,
-          },
-          {
-            label: 'AI Agent',
-            data: dataObj.aiAgent,
-            ...this.commonLineOptions('#6C0436'),
-          },
-          {
-            label: 'Suport Team',
-            data: dataObj.supportTeam,
-            ...this.commonLineOptions('#4A64AD'),
-          },
-          {
-            label: 'In Progress',
-            data: dataObj.inProgress,
-            ...this.commonLineOptions('#D4A048', true),
-          },
-          {
             label: 'Resolved (Agent)',
-            data: dataObj.resolvedAgent,
-            ...this.commonLineOptions('#C26CC7'),
+            data: chartData.resolvedAgent,
+            backgroundColor: '#D896E0',
+            borderColor: '#D896E0',
+            borderWidth: 1,
+            barPercentage: 0.6,
+            categoryPercentage: 0.8,
           },
           {
-            label: 'Resolved (Team)',
-            data: dataObj.resolvedTeam,
-            ...this.commonLineOptions('#6C6C6C', false, true),
+            label: 'Support Team',
+            data: chartData.supportTeam,
+            backgroundColor: '#5B8FD7',
+            borderColor: '#5B8FD7',
+            borderWidth: 1,
+            barPercentage: 0.6,
+            categoryPercentage: 0.8,
           },
         ],
       },
@@ -705,38 +846,39 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
-  private buildIssueDistributionChart(): void {
-    const chartsData = this.charts();
-    if (!chartsData) return;
-    const dist = chartsData.issueDistribution;
-    const ctx = this.issueDistributionCanvas?.nativeElement.getContext('2d');
-    if (!ctx) return;
+  private buildIssueDistributionChart(aiAgent: number, human: number): void {
+    console.log('buildIssueDistributionChart called with:', { aiAgent, human });
+
+    if (!aiAgent && !human) {
+      console.log('No data to display');
+      return;
+    }
+
+    const canvas = this.issueDistributionCanvas?.nativeElement;
+    if (!canvas) {
+      console.error('Canvas element not found!');
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Could not get 2d context!');
+      return;
+    }
+
     this.issueDistributionChart?.destroy();
 
-    // Filter out zero values
-    const allLabels = ['AI Agent', 'Human', 'Unassigned', 'Other'];
-    const allData = [dist.aiAgent, dist.human, dist.unassigned, dist.other];
-    const allColors = ['#5A8E39', '#E0A227', '#E0A227', '#7A7A7A'];
+    const labels = ['AI Agent', 'Human'];
+    const data = [aiAgent, human];
+    const colors = ['#5A8E39', '#E0A227'];
 
-    const filteredLabels: string[] = [];
-    const filteredData: number[] = [];
-    const filteredColors: string[] = [];
-    const legends: { label: string; value: number; color: string }[] = [];
+    // Build legends array
+    const legends: { label: string; value: number; color: string }[] = [
+      { label: 'AI Agent', value: aiAgent, color: '#5A8E39' },
+      { label: 'Human', value: human, color: '#E0A227' },
+    ];
 
-    allLabels.forEach((label, index) => {
-      if (allData[index] > 0) {
-        filteredLabels.push(label);
-        filteredData.push(allData[index]);
-        filteredColors.push(allColors[index]);
-
-        // Build legends array
-        legends.push({
-          label: label,
-          value: allData[index],
-          color: allColors[index],
-        });
-      }
-    });
+    console.log('Creating chart with data:', data);
 
     this.issueDistributionLegends.set(legends);
 
@@ -770,11 +912,11 @@ export class HomeComponent implements OnDestroy {
     this.issueDistributionChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: filteredLabels,
+        labels: labels,
         datasets: [
           {
-            data: filteredData,
-            backgroundColor: filteredColors,
+            data: data,
+            backgroundColor: colors,
             borderWidth: 0,
             hoverOffset: 4,
           },
@@ -787,7 +929,7 @@ export class HomeComponent implements OnDestroy {
         onClick: (event, activeElements) => {
           if (activeElements.length > 0) {
             const index = activeElements[0].index;
-            const label = filteredLabels[index];
+            const label = labels[index];
             this.filterByAssignee(label);
           }
         },
@@ -866,6 +1008,83 @@ export class HomeComponent implements OnDestroy {
             font: { family: 'Inter, sans-serif', size: 11 },
             color: '#999',
             stepSize: 10,
+          },
+        },
+      },
+    };
+  }
+
+  private mixedChartWithSecondaryAxis(
+    title: string
+  ): ChartConfiguration['options'] {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'center',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 8,
+            boxHeight: 8,
+            padding: 15,
+            font: { family: 'Inter, sans-serif', size: 12, weight: 'normal' },
+            color: '#4f4f4f',
+          },
+        },
+        title: { display: false },
+        tooltip: {
+          enabled: true,
+          displayColors: false,
+          backgroundColor: '#222',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          padding: 10,
+          cornerRadius: 4,
+        },
+        datalabels: {
+          display: false,
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
+            color: '#666',
+            maxRotation: 0,
+            minRotation: 0,
+            callback: function (value, index) {
+              return 'Week ' + (index + 1);
+            },
+          },
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          beginAtZero: true,
+          grid: { color: '#f0f0f0', lineWidth: 1 },
+          ticks: {
+            font: { family: 'Inter, sans-serif', size: 11 },
+            color: '#999',
+          },
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          beginAtZero: true,
+          grid: {
+            drawOnChartArea: false,
+          },
+          ticks: {
+            font: { family: 'Inter, sans-serif', size: 11 },
+            color: '#5B8FD7',
           },
         },
       },
