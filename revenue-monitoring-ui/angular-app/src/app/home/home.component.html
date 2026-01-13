@@ -253,8 +253,7 @@
               {{ replaceUnderscore(column) }}
             </th>
             <td mat-cell *matCellDef="let element">
-              @if (column === displayedColumns[0]) {
-              <!-- First column (ID) with warning icon if needed -->
+              <!-- @if (column === displayedColumns[0]) {
               <div class="id-cell">
                 @if (element.hasWarning || element.WARNING ||
                 element.HAS_WARNING) {
@@ -263,9 +262,8 @@
                 <span class="id-link">{{ element[column] }}</span>
               </div>
               } @else if (column.includes('ASSIGNED') ||
-              column.includes('ASSIGN')) {
-              <!-- Assigned To column with icons -->
-              @if (element[column] === 'AI Agent') {
+              column.includes('ASSIGN')) { @if (element[column] === 'AI Agent')
+              {
               <div class="assigned-cell">
                 <mat-icon class="robot-icon">smart_toy</mat-icon>
                 <span>AI Agent</span>
@@ -275,7 +273,10 @@
               <a class="assign-link">Assign to</a>
               } @else {
               {{ element[column] }}
-              } } @else {
+            } }  -->
+              @if (column === 'BILL_TOTAL') {
+              {{ formatData(element[column]) }}
+              } @else {
               {{ element[column] }}
               }
             </td>
