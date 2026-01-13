@@ -1799,6 +1799,30 @@ public class QueryConfigs {
         return this.deleteUserRole;
     }
 
+    @Value(("${log.page.visit.q}"))
+    public String logPageVisit;
+
+    @Bean(name = "logPageVisit")
+    public String getLogPageVisit() {
+        return this.logPageVisit;
+    }
+
+    @Value(("${page.visit.analytics.q}"))
+    public String pageVisitAnalytics;
+
+    @Bean(name = "pageVisitAnalytics")
+    public String getPageVisitAnalytics() {
+        return this.pageVisitAnalytics;
+    }
+
+    @Value(("${page.visit.summary.q}"))
+    public String pageVisitSummary;
+
+    @Bean(name = "pageVisitSummary")
+    public String getPageVisitSummary() {
+        return this.pageVisitSummary;
+    }
+
     @Value(("${landing.page.period.data}"))
     public String landingPagePeriodData;
 

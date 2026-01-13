@@ -3,6 +3,7 @@ import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { ApiHttpService } from '../providers/http.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -33,11 +34,14 @@ export interface UserContext {
   standalone: true,
 })
 export class InvoicingComponent implements OnInit {
+  private userName: string = '';
+
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     public authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private http: ApiHttpService
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getRoles();
@@ -58,8 +62,13 @@ export class InvoicingComponent implements OnInit {
   // userInfo: Map<string, any> = new Map();
 
   ngOnInit(): void {
+    this.userName = this.authService.getUserName();
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
+    // Log initial tab visit
+    if (this.filteredTabs.length > 0) {
+      this.logTabVisit(this.filteredTabs[0]?.label);
+    }
 
     // this.userInfo.set('username', this.authService.getUserID());
     // this.userInfo.set('userRoles', this.authService.getRoles());
@@ -616,5 +625,26 @@ export class InvoicingComponent implements OnInit {
     this.selectedIndex = index;
     const newHeader = `Continuous Monitoring > Invoice to Cash > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
+    // Log tab visit for analytics
+    this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/invoice-to-cash/pre-invoicing"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/invoice-to-cash/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
   }
 }

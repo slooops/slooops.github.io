@@ -27,6 +27,9 @@ public class CommonService {
     private String createUserRole;
     private String updateUserRole;
     private String deleteUserRole;
+    private String logPageVisit;
+    private String pageVisitAnalytics;
+    private String pageVisitSummary;
     @Autowired
     private Common common;
     @Autowired
@@ -52,7 +55,10 @@ public class CommonService {
             @Qualifier("adminTable") String adminTable,
             @Qualifier("createUserRole") String createUserRole,
             @Qualifier("updateUserRole") String updateUserRole,
-            @Qualifier("deleteUserRole") String deleteUserRole) {
+            @Qualifier("deleteUserRole") String deleteUserRole,
+            @Qualifier("logPageVisit") String logPageVisit,
+            @Qualifier("pageVisitAnalytics") String pageVisitAnalytics,
+            @Qualifier("pageVisitSummary") String pageVisitSummary) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
@@ -63,6 +69,9 @@ public class CommonService {
         this.createUserRole = createUserRole;
         this.updateUserRole = updateUserRole;
         this.deleteUserRole = deleteUserRole;
+        this.logPageVisit = logPageVisit;
+        this.pageVisitAnalytics = pageVisitAnalytics;
+        this.pageVisitSummary = pageVisitSummary;
     }
 
     // Summaries
@@ -126,7 +135,8 @@ public class CommonService {
      * Gets admin table filtered by multiple roles.
      * Used for sub-admin view: only shows users with any of the managed roles.
      * 
-     * @param managedRoles List of roles to filter by (e.g., ["CASE_IQ_I2C", "CASE_IQ_SBP"])
+     * @param managedRoles List of roles to filter by (e.g., ["CASE_IQ_I2C",
+     *                     "CASE_IQ_SBP"])
      * @return List of users who have any of the specified roles
      */
     public List<Map<String, Object>> getAdminTableFiltered(List<String> managedRoles) {
@@ -136,11 +146,11 @@ public class CommonService {
             validateRole(role);
             sanitizedRoles.add(sanitizeInput(role, 100).toUpperCase());
         }
-        
+
         // Build IN clause with placeholders: AND UPPER(USER_ROLE) IN (?, ?, ?)
         String placeholders = String.join(", ", java.util.Collections.nCopies(sanitizedRoles.size(), "?"));
         String filteredQuery = adminTable + " AND UPPER(USER_ROLE) IN (" + placeholders + ")";
-        
+
         return jdbcManager.queryForListWithParams(filteredQuery, sanitizedRoles.toArray());
     }
 
@@ -349,6 +359,43 @@ public class CommonService {
         return jdbcManager.deleteUserRole(deleteUserRole, forensicEmail,
                 sanitizedUserName, sanitizedRole, creationDate);
 
+    }
+
+    /**
+     * Logs a page visit using MERGE (upsert) pattern.
+     * If user+route+date already exists, updates last_visit_time and increments
+     * count.
+     * Otherwise inserts a new record.
+     * 
+     * @param userName  The username visiting the page
+     * @param pageRoute The route/URL being visited
+     * @return Number of rows affected (should be 1)
+     */
+    public int logPageVisit(String userName, String pageRoute) {
+        // Sanitize inputs
+        String sanitizedUserName = sanitizeInput(userName, 100).toUpperCase();
+        String sanitizedRoute = sanitizeInput(pageRoute, 500);
+
+        // Execute MERGE statement with userName and pageRoute parameters
+        return jdbcManager.executeUpdate(logPageVisit, sanitizedUserName, sanitizedRoute);
+    }
+
+    /**
+     * Retrieves all page visit analytics data.
+     * 
+     * @return List of page visit records
+     */
+    public List<Map<String, Object>> getPageVisitAnalytics() {
+        return jdbcManager.queryForList(pageVisitAnalytics);
+    }
+
+    /**
+     * Retrieves aggregated page visit summary grouped by route.
+     * 
+     * @return List of routes with total visits and unique users
+     */
+    public List<Map<String, Object>> getPageVisitSummary() {
+        return jdbcManager.queryForList(pageVisitSummary);
     }
 
 }

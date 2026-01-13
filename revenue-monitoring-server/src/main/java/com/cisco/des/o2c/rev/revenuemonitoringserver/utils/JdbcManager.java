@@ -565,4 +565,16 @@ public class JdbcManager {
             String creationDate) {
         return primaryJdbcTemplate.update(sql, forensicEmail, userName, userRole, creationDate);
     }
+
+    /**
+     * Executes an update/insert/merge statement with variable parameters.
+     * Used for analytics logging and other generic upsert operations.
+     * 
+     * @param sql    The SQL statement with ? placeholders
+     * @param params The parameter values to bind (varargs)
+     * @return Number of rows affected
+     */
+    public int executeUpdate(String sql, Object... params) {
+        return primaryJdbcTemplate.update(sql, params);
+    }
 }

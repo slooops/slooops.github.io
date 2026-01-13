@@ -1,12 +1,12 @@
 <div class="esp-dashboard">
   <!-- Loading Overlay -->
   @if (isLoadingQuarter) {
-    <div class="loading-overlay">
-      <div class="loading-content">
-        <div class="spinner"></div>
-        <p class="loading-message">{{ loadingQuarterMessage }}</p>
-      </div>
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p class="loading-message">{{ loadingQuarterMessage }}</p>
     </div>
+  </div>
   }
 
   <div class="dashboard-header">
@@ -18,41 +18,41 @@
           <div
             class="quarter-dropdown-wrapper"
             (click)="$event.stopPropagation()"
-            >
+          >
             <button
               type="button"
               class="quarter-dropdown-button"
               (click)="toggleQuarterDropdown($event)"
-              >
+            >
               {{ selectedQuarter }}
               <span class="dropdown-arrow" [class.open]="showQuarterDropdown"
                 >▾</span
-                >
-              </button>
-              @if (showQuarterDropdown) {
-                <div
-                  class="quarter-dropdown-menu"
-                  (click)="$event.stopPropagation()"
-                  >
-                  <!-- <div class="quarter-dropdown-header">
+              >
+            </button>
+            @if (showQuarterDropdown) {
+            <div
+              class="quarter-dropdown-menu"
+              (click)="$event.stopPropagation()"
+            >
+              <!-- <div class="quarter-dropdown-header">
                   <span>Select</span>
                 </div> -->
-                <div class="quarter-options">
-                  @for (quarter of quarters; track quarter) {
-                    <div
-                      class="quarter-option"
-                      (click)="selectQuarter(quarter.value)"
-                      >
-                      <input
-                        type="radio"
-                        [checked]="selectedQuarter === quarter.value"
-                        readonly
-                        />
-                      <span class="option-label">{{ quarter.label }}</span>
-                    </div>
-                  }
+              <div class="quarter-options">
+                @for (quarter of quarters; track quarter) {
+                <div
+                  class="quarter-option"
+                  (click)="selectQuarter(quarter.value)"
+                >
+                  <input
+                    type="radio"
+                    [checked]="selectedQuarter === quarter.value"
+                    readonly
+                  />
+                  <span class="option-label">{{ quarter.label }}</span>
                 </div>
+                }
               </div>
+            </div>
             }
           </div>
         </div>
@@ -63,14 +63,14 @@
         <strong>09/20/2025</strong> | Last Updated:
         <strong>9/9/2025, 4:45:17 PM</strong>
       </span> -->
+      </div>
     </div>
   </div>
-</div>
 
-<hr />
+  <hr />
 
-<div class="metrics-container">
-  @for (metric of metricTiles; track metric) {
+  <div class="metrics-container">
+    @for (metric of metricTiles; track metric.name) {
     <app-metric-tile
       [name]="metric.name"
       [percentage]="metric.percentage"
@@ -78,81 +78,72 @@
       [isAccessible]="isTileAccessible(metric.name)"
       (tileClick)="onTileClick($event)"
     ></app-metric-tile>
-  }
-</div>
+    }
+  </div>
 
-<hr />
+  <hr />
 
-<!-- Content area that displays based on active tile -->
-@switch (activeTab) {
-  @case ('Overall') {
-    <div class="tile-content">
-      <!-- <app-caseiq></app-caseiq> -->
-    </div>
-  }
-  @case ('Capital') {
-    <div class="tile-content">
-      <app-caseiq-cap
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-cap>
-    </div>
-  }
-  @case ('FPP') {
-    <div class="tile-content">
-      <app-caseiq-fpp
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-fpp>
-    </div>
-  }
-  @case ('I2C') {
-    <div class="tile-content">
-      <app-caseiq-i2c
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-i2c>
-    </div>
-  }
-  @case ('OM') {
-    <div class="tile-content">
-      <app-caseiq-om
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-om>
-    </div>
-  }
-  @case ('P2P') {
-    <div class="tile-content">
-      <app-caseiq-p2p
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-p2p>
-    </div>
-  }
-  @case ('SM') {
-    <div class="tile-content">
-      <app-caseiq-sm
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-sm>
-    </div>
-  }
-  @case ('AIT') {
-    <div class="tile-content">
-      <app-caseiq-ait
-        [selectedQuarter]="selectedQuarter"
-        (uploadSuccess)="onUploadSuccess()"
-      ></app-caseiq-ait>
-    </div>
+  <!-- Content area that displays based on active tile -->
+  @switch (activeTab) { @case ('Overall') {
+  <div class="tile-content">
+    <!-- <app-caseiq></app-caseiq> -->
+  </div>
+  } @case ('Capital') {
+  <div class="tile-content">
+    <app-caseiq-cap
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-cap>
+  </div>
+  } @case ('FPP') {
+  <div class="tile-content">
+    <app-caseiq-fpp
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-fpp>
+  </div>
+  } @case ('I2C') {
+  <div class="tile-content">
+    <app-caseiq-i2c
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-i2c>
+  </div>
+  } @case ('OM') {
+  <div class="tile-content">
+    <app-caseiq-om
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-om>
+  </div>
+  } @case ('P2P') {
+  <div class="tile-content">
+    <app-caseiq-p2p
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-p2p>
+  </div>
+  } @case ('SM') {
+  <div class="tile-content">
+    <app-caseiq-sm
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-sm>
+  </div>
+  } @case ('AIT') {
+  <div class="tile-content">
+    <app-caseiq-ait
+      [selectedQuarter]="selectedQuarter"
+      (uploadSuccess)="onUploadSuccess()"
+    ></app-caseiq-ait>
+  </div>
   }
   <!-- Default case when no tile is selected -->
   @default {
-    <div class="tile-content default-content">
-      <h3>Not Authorized</h3>
-      <p>Please request for access.</p>
-    </div>
-  }
-}
+  <div class="tile-content default-content">
+    <h3>Not Authorized</h3>
+    <p>Please request for access.</p>
+  </div>
+  } }
 </div>
 <br /><br />

@@ -28,6 +28,8 @@ export interface UserContext {
   standalone: true,
 })
 export class OrderManagementComponent {
+  private userName: string = '';
+
   constructor(
     http: ApiHttpService,
     private destroyManager: DestroyManager,
@@ -39,6 +41,7 @@ export class OrderManagementComponent {
     this.http = http;
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getRoles();
+    this.userName = this.authService.getUserName();
     this.userContextData = {
       username: this.authService.getUserName(),
       userId: this.authService.getUserID(),
@@ -57,6 +60,10 @@ export class OrderManagementComponent {
   ngOnInit(): void {
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
+    // Log initial tab visit
+    if (this.filteredTabs.length > 0) {
+      this.logTabVisit(this.filteredTabs[0]?.label);
+    }
   }
 
   specialWords: string[] = [
@@ -416,5 +423,26 @@ export class OrderManagementComponent {
     this.selectedIndex = index;
     const newHeader = `Continuous Monitoring > Order Management > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
+    // Log tab visit for analytics
+    this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/order-management/imports"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/order-management/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
   }
 }

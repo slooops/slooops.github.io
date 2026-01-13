@@ -1,0 +1,153 @@
+<div class="analytics-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="title-section">
+      <h1>📊 Analytics Dashboard</h1>
+      <p class="subtitle">Page Visit Analytics & Usage Insights</p>
+    </div>
+    <div class="actions">
+      <span class="last-updated" *ngIf="lastUpdated"
+        >Last updated: {{ lastUpdated }}</span
+      >
+      <button
+        class="refresh-btn"
+        (click)="refreshData()"
+        [disabled]="isLoading"
+      >
+        <span class="refresh-icon" [class.spinning]="isLoading">⟳</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-row">
+    <div class="stat-card blue">
+      <div class="stat-icon">👥</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ totalVisits | number }}</div>
+        <div class="stat-label">Total Page Visits</div>
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ summaryData.length }}</div>
+        <div class="stat-label">Unique Pages Tracked</div>
+      </div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-content">
+        <div class="stat-value top-page">{{ topPage || "N/A" }}</div>
+        <div class="stat-label">Most Visited Page</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <app-loading-symbol></app-loading-symbol>
+    <p>Loading analytics data...</p>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="charts-grid" *ngIf="!isLoading">
+    <!-- Continuous Monitoring Donut -->
+    <div class="chart-card large">
+      <div class="card-header">
+        <span class="card-icon">📈</span>
+        <span>Continuous Monitoring Overview</span>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="continuousMonitoringChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Case IQ Donut -->
+    <div class="chart-card">
+      <div class="card-header">
+        <span class="card-icon">🔍</span>
+        <span>Case IQ Teams</span>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="caseIqChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Business Insights Donut -->
+    <div class="chart-card">
+      <div class="card-header">
+        <span class="card-icon">💡</span>
+        <span>Business Insights</span>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="businessInsightsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Pages Bar Chart -->
+    <div class="chart-card wide">
+      <div class="card-header">
+        <span class="card-icon">🔥</span>
+        <span>Top 10 Most Visited Pages</span>
+      </div>
+      <div class="chart-wrapper tall">
+        <canvas id="topPagesChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Unique Users Chart -->
+    <div class="chart-card wide">
+      <div class="card-header">
+        <span class="card-icon">👤</span>
+        <span>Pages by Unique Users</span>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="uniqueUsersChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="data-table-card" *ngIf="!isLoading && summaryData.length > 0">
+    <div class="card-header">
+      <span class="card-icon">📋</span>
+      <span>Detailed Page Visit Data</span>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Page Route</th>
+            <th>Total Visits</th>
+            <th>Unique Users</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of summaryData; let i = index">
+            <td class="rank">
+              <span
+                class="rank-badge"
+                [ngClass]="{ gold: i === 0, silver: i === 1, bronze: i === 2 }"
+              >
+                {{ i + 1 }}
+              </span>
+            </td>
+            <td class="route">{{ item.PAGE_ROUTE }}</td>
+            <td class="visits">{{ item.TOTAL_VISITS | number }}</td>
+            <td class="users">{{ item.UNIQUE_USERS | number }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && summaryData.length === 0">
+    <div class="empty-icon">📭</div>
+    <h3>No Analytics Data Yet</h3>
+    <p>Start using the application to generate page visit analytics!</p>
+  </div>
+</div>

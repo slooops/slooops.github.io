@@ -28,6 +28,7 @@ import { OperationsControlsComponent } from './operations-controls/operations-co
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 import { AdminComponent } from './admin/admin.component';
+import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
 
 export const routes: Routes = [
   {
@@ -235,6 +236,14 @@ export const routes: Routes = [
     data: {
       title: 'Admin',
       header: 'Admin',
+    },
+  },
+  {
+    path: 'analytics',
+    component: AnalyticsDashboardComponent,
+    data: {
+      title: 'Analytics Dashboard',
+      header: 'Analytics',
     },
   },
 ];

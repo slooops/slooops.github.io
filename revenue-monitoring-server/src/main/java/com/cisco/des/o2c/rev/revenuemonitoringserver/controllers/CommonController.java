@@ -240,4 +240,81 @@ public class CommonController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR); // 500 status
         }
     }
+
+    /**
+     * POST endpoint to log a page visit for analytics.
+     * Uses MERGE pattern to upsert: one record per user+route+day.
+     * 
+     * HTTP Method: POST
+     * Endpoint: /api/log-page-visit
+     * Content-Type: application/json
+     * 
+     * Request Body Example:
+     * {
+     * "userName": "JASLOOP",
+     * "pageRoute": "/period-close-tracking"
+     * }
+     * 
+     * @param request Must contain userName and pageRoute
+     * @return ResponseEntity with success/error message
+     */
+    @PostMapping("/log-page-visit")
+    public ResponseEntity<Map<String, Object>> logPageVisit(
+            @RequestBody Map<String, String> request) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            String userName = request.get("userName");
+            String pageRoute = request.get("pageRoute");
+
+            // Handle empty/null userName for local development
+            if (userName == null || userName.trim().isEmpty()) {
+                userName = "LOCAL_TESTING";
+            }
+
+            if (pageRoute == null || pageRoute.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "pageRoute is required");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            // Call service layer to log the visit
+            int rowsAffected = service.logPageVisit(userName, pageRoute);
+
+            response.put("success", true);
+            response.put("message", "Page visit logged");
+            response.put("rowsAffected", rowsAffected);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // Analytics should fail silently - log error but don't expose details
+            System.err.println("Error logging page visit: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Failed to log page visit");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * GET /api/page-visit-analytics
+     * Retrieves all page visit analytics data for the analytics dashboard.
+     * 
+     * @return List of page visit records with user, route, date, and visit count
+     */
+    @GetMapping("/page-visit-analytics")
+    public ResponseEntity<List<Map<String, Object>>> getPageVisitAnalytics() {
+        return new ResponseEntity<>(service.getPageVisitAnalytics(), HttpStatus.OK);
+    }
+
+    /**
+     * GET /api/page-visit-summary
+     * Retrieves aggregated page visit data grouped by route.
+     * 
+     * @return List of routes with total visits and unique user counts
+     */
+    @GetMapping("/page-visit-summary")
+    public ResponseEntity<List<Map<String, Object>>> getPageVisitSummary() {
+        return new ResponseEntity<>(service.getPageVisitSummary(), HttpStatus.OK);
+    }
 }

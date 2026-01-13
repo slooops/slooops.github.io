@@ -4,6 +4,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter, map, mergeMap, takeUntil } from 'rxjs/operators';
 import { AuthenticationService } from './providers/authentication.service';
 import { DataService } from './providers/data.service';
+import { ApiHttpService } from './providers/http.service';
 import { Subject } from 'rxjs/internal/Subject';
 import { DestroyManager } from './providers/destroy-manager.service';
 import { MenuService } from './providers/menu.service';
@@ -50,7 +51,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     private menuService: MenuService,
-    private searchContextService: SearchContextService
+    private searchContextService: SearchContextService,
+    private http: ApiHttpService
   ) {}
 
   menuOpened = false;
@@ -190,6 +192,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
+        // Log page visit for analytics (fire-and-forget)
+        this.logPageVisit(event.urlAfterRedirects || event.url);
+
         if (event.url.includes('/period-close-tracking')) {
           this.menuService.updateHeader(
             'Continuous Monitoring > Period Close (Internal)'
@@ -267,6 +272,33 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /**
+   * Logs a page visit for analytics.
+   * Fires-and-forgets - doesn't block navigation or show errors to user.
+   * Backend uses MERGE to only create one record per user+route+day.
+   */
+  private logPageVisit(route: string): void {
+    // Skip logging for certain routes (error pages, etc.)
+    const excludedRoutes = ['/error', '/'];
+    if (excludedRoutes.includes(route)) {
+      return;
+    }
+
+    // Fire-and-forget POST request - don't wait for response
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: route,
+      })
+      .subscribe({
+        // Silently handle success - no UI action needed
+        next: () => {},
+        // Silently swallow errors - analytics should never interrupt the user
+        error: (err) =>
+          console.debug('Analytics log failed (non-critical):', err),
+      });
   }
 
   // selectMenu(route: string) {

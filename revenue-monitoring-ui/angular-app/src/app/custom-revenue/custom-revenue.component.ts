@@ -3,6 +3,7 @@ import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { ApiHttpService } from '../providers/http.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -33,11 +34,14 @@ export interface UserContext {
 export class CustomRevenueComponent implements OnInit {
   roles: string[] = [];
   userContextData: UserContext;
+  private userName: string = '';
+
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private http: ApiHttpService
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getRoles();
@@ -50,8 +54,13 @@ export class CustomRevenueComponent implements OnInit {
     };
   }
   ngOnInit(): void {
+    this.userName = this.authService.getUserName();
     this.getErrorSummaryPeriodStatus();
     this.getDefaultTabIndex();
+    // Log initial tab visit
+    if (this.filteredTabs.length > 0) {
+      this.logTabVisit(this.filteredTabs[0]?.label);
+    }
   }
 
   fieldConfig = [
@@ -386,5 +395,26 @@ export class CustomRevenueComponent implements OnInit {
     const newHeader = `Continuous Monitoring > Revenue Accounting > ${this.filteredTabs[index]?.label}`;
     console.log('🔹 Tab changed, updating header:', newHeader);
     this.menuService.updateHeader(newHeader);
+    // Log tab visit for analytics
+    this.logTabVisit(this.filteredTabs[index]?.label);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/revenue-accounting/standard-revenue"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/revenue-accounting/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
   }
 }

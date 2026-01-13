@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
+import { ApiHttpService } from '../providers/http.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
@@ -22,11 +23,19 @@ export interface UserContext {
 })
 export class OperationsControlsComponent implements OnInit {
   userContextData: UserContext;
+  private userName: string = '';
+  selectedTabIndex: number = 0;
+  tabLabels: string[] = [
+    'Invoice to Cash',
+    'Revenue Accounting',
+    'Tax and Customs',
+  ];
 
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
-    protected authService: AuthenticationService
+    protected authService: AuthenticationService,
+    private http: ApiHttpService
   ) {
     // Initialize user context in constructor so it's available before child components initialize
     this.userContextData = {
@@ -39,7 +48,34 @@ export class OperationsControlsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.userName = this.authService.getUserName();
     this.getErrorSummaryPeriodStatus();
+    // Log initial tab visit
+    this.logTabVisit(this.tabLabels[0]);
+  }
+
+  onTabChange(index: number) {
+    this.selectedTabIndex = index;
+    this.logTabVisit(this.tabLabels[index]);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/operations-controls/invoice-to-cash"
+   */
+  private logTabVisit(tabLabel: string): void {
+    if (!tabLabel || !this.userName) return;
+    const tabSlug = tabLabel.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/operations-controls/${tabSlug}`;
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) => console.debug('Tab analytics log failed:', err),
+      });
   }
 
   preInvoicingFilters: {

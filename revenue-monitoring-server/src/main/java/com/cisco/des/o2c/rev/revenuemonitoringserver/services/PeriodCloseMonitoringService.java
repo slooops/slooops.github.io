@@ -120,15 +120,7 @@ public class PeriodCloseMonitoringService {
     }
 
     public List<Map<String, Object>> getCloseStartEndTime() {
-        System.out.println("=== PERIOD CLOSE START/END TIME DEBUG ===");
-        System.out.println("Query: " + closeStartEndTime);
-        List<Map<String, Object>> results = jdbcManager.queryForList(closeStartEndTime);
-        System.out.println("Result count: " + (results != null ? results.size() : 0));
-        if (results != null && !results.isEmpty()) {
-            System.out.println("First row sample: " + results.get(0));
-        }
-        System.out.println("=========================================");
-        return results;
+        return jdbcManager.queryForList(closeStartEndTime);
     }
 
     public List<Map<String, Object>> getCloseVolume() {

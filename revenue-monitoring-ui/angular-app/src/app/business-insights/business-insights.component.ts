@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
+import { ApiHttpService } from '../providers/http.service';
 import {
   O2cSearchResult,
   SearchContextService,
@@ -26,13 +27,23 @@ export class BusinessInsightsComponent implements OnInit {
   constructor(
     private authService: AuthenticationService,
     private menuService: MenuService,
-    private searchContextService: SearchContextService
+    private searchContextService: SearchContextService,
+    private http: ApiHttpService
   ) {}
   roles: string[] = [];
+  private userName: string = '';
 
   ngOnInit() {
     this.roles = this.authService.getRoles();
+    this.userName = this.authService.getUserName();
     this.getDefaultTabIndex();
+
+    // Log initial tab visit after tabs are filtered
+    setTimeout(() => {
+      if (this.filteredTabs.length > 0) {
+        this.logTabVisit(this.selectedIndex);
+      }
+    }, 100);
 
     this.searchContextService.searchPayload$.subscribe((payload) => {
       if (payload) {
@@ -62,6 +73,9 @@ export class BusinessInsightsComponent implements OnInit {
 
       const isO2c = this.filteredTabs[index]?.component === 'app-o2c-360';
       this.searchContextService.setO2cSearchVisible(isO2c);
+
+      // Log tab visit for analytics
+      this.logTabVisit(index);
     }, 50);
   }
   visibleTabs: {
@@ -104,5 +118,31 @@ export class BusinessInsightsComponent implements OnInit {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
       tab.role.some((role) => this.roles.includes(role))
     );
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/business-insights/large-deal-tracker"
+   * to distinguish tab visits from just the parent page.
+   */
+  private logTabVisit(tabIndex: number): void {
+    const tab = this.filteredTabs[tabIndex];
+    if (!tab) return;
+
+    // Convert tab label to URL-friendly slug: "Large Deal Tracker" -> "large-deal-tracker"
+    const tabSlug = tab.label.toLowerCase().replace(/\s+/g, '-');
+    const pseudoRoute = `/business-insights/${tabSlug}`;
+
+    // Fire-and-forget POST request
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () => {},
+        error: (err) =>
+          console.debug('Tab analytics log failed (non-critical):', err),
+      });
   }
 }

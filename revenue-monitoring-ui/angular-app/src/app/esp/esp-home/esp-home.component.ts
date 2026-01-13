@@ -98,9 +98,11 @@ export class EspHomeComponent implements OnInit {
   // Public metricTiles that will be updated with API data
   metricTiles: MetricTile[] = [...this.baseMetricTiles];
   roles: string[] = [];
+  private userName: string = '';
 
   ngOnInit(): void {
     this.roles = this.authService.getRoles();
+    this.userName = this.authService.getUserName();
     this.setDefaultActiveTab();
     this.getXxcaseiqValidatedCasesAccuracyV();
 
@@ -180,6 +182,8 @@ export class EspHomeComponent implements OnInit {
       if (this.accuracyData.length > 0) {
         this.updateQuartersForActiveTab();
       }
+      // Log initial tab visit
+      this.logTabVisit(this.activeTab);
     } else {
       // If no accessible tiles, set to empty (will show default content)
       this.activeTab = '';
@@ -265,6 +269,9 @@ export class EspHomeComponent implements OnInit {
 
     this.activeTab = tileName;
     console.log(`Selected tile: ${tileName}`);
+
+    // Log tab visit for analytics
+    this.logTabVisit(tileName);
 
     // Show loading overlay when switching tabs
     const quarterLabel =
@@ -366,5 +373,32 @@ export class EspHomeComponent implements OnInit {
     }
 
     console.log(`Updated quarters (all teams):`, this.quarters);
+  }
+
+  /**
+   * Logs a tab visit for analytics.
+   * Creates a pseudo-route like "/case-iq/capital" to track tile usage.
+   */
+  private logTabVisit(tileName: string): void {
+    if (!tileName || !this.userName) {
+      return;
+    }
+
+    // Convert tile name to URL-friendly slug: "Capital" -> "capital"
+    const tileSlug = tileName.toLowerCase();
+    const pseudoRoute = `/case-iq/${tileSlug}`;
+
+    // Fire-and-forget POST request
+    this.http
+      .post('log-page-visit', {
+        userName: this.userName,
+        pageRoute: pseudoRoute,
+      })
+      .subscribe({
+        next: () =>
+          console.log('[ANALYTICS-ESP] Successfully logged:', pseudoRoute),
+        error: (err) =>
+          console.error('[ANALYTICS-ESP] Tab analytics log failed:', err),
+      });
   }
 }
