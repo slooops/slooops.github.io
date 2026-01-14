@@ -12,7 +12,13 @@ import { ButtonComponent } from '../../atoms/button/button.component';
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css'],
   standalone: true,
-  imports: [CommonModule, TextInputComponent, SelectDropdownComponent, ToggleSwitchComponent, ButtonComponent],
+  imports: [
+    CommonModule,
+    TextInputComponent,
+    SelectDropdownComponent,
+    ToggleSwitchComponent,
+    ButtonComponent,
+  ],
 })
 export class UserFormComponent {
   @Input() value: UserFormData = {
@@ -30,37 +36,63 @@ export class UserFormComponent {
   @Output() cancel = new EventEmitter<void>();
 
   formData: UserFormData = { ...this.value };
+  private isDirty: boolean = false; // Track if user has interacted with the form
 
   ngOnInit(): void {
     this.formData = { ...this.value };
+    this.isDirty = false;
   }
 
   ngOnChanges(): void {
-    this.formData = { ...this.value };
+    // Only reset formData if user hasn't started editing
+    // Once dirty, never reset until component is destroyed/recreated
+    if (!this.isDirty) {
+      this.formData = { ...this.value };
+    }
   }
 
   onUserNameChange(value: string): void {
+    this.isDirty = true;
     this.formData.userName = value;
   }
 
   onEmailChange(value: string): void {
+    this.isDirty = true;
     this.formData.email = value;
   }
 
   onRoleChange(value: string): void {
-    // TODO: Implement multi-select when ready
-    // For now, single role selection
+    this.isDirty = true;
     this.formData.roles = value ? [value] : [];
   }
 
   onEnabledChange(checked: boolean): void {
+    this.isDirty = true;
     this.formData.enabled = checked;
   }
 
-  onSubmit(): void {
+  onSubmit(event: Event): void {
+    // CRITICAL: Prevent native form submit from bubbling up
+    // This stops the double-submit bug where parent catches both:
+    // 1. Our @Output() submit EventEmitter (correct)
+    // 2. Native form submit event bubbling up (wrong - passes Event object)
+    event.preventDefault();
+    event.stopPropagation();
+
     // Basic validation
     if (!this.formData.userName || !this.formData.email) {
-      alert('Please fill in all required fields');
+      alert('Please fill in all required fields (username and email)');
+      return;
+    }
+
+    // Role validation - required when using dropdown (sub-admin mode)
+    if (
+      this.useRoleDropdown &&
+      (!this.formData.roles ||
+        this.formData.roles.length === 0 ||
+        !this.formData.roles[0])
+    ) {
+      alert('Please select a role to manage');
       return;
     }
 

@@ -277,7 +277,6 @@ export class AdminComponent implements OnInit {
 
   onRowClick(row: AdminUserRow): void {
     // TODO: Implement row click behavior (e.g., edit user)
-    // console.log('Row clicked:', row);
   }
 
   onUserFormSubmit(formData: UserFormData): void {
@@ -291,12 +290,12 @@ export class AdminComponent implements OnInit {
       formData.roles && formData.roles.length > 0 ? formData.roles[0] : '';
 
     if (!newRole || newRole.trim().length === 0) {
-      // TODO: Show validation error in modal
+      // This shouldn't happen if form validation works, but guard anyway
       return;
     }
 
     // If creating a sub-admin, append "_ADMIN" to the role
-    // e.g., "CASE_IQ_I2C" becomes "CASE_IQ_I2C_ADMIN"
+    // e.g., "CASE_IQ_I2C" becomes "CASE_IQ_OM_ADMIN"
     if (this.isSubAdminCreationMode) {
       newRole = newRole.toUpperCase().trim() + '_ADMIN';
     }
@@ -318,11 +317,24 @@ export class AdminComponent implements OnInit {
       (response: any) => {
         this.closeModal();
         this.loadUserRoles();
-        // TODO: Show success notification
+        // Success - could add a toast notification here
       },
       (error) => {
         console.error('Error creating new role:', error);
-        // TODO: Show error notification in modal
+
+        // Extract error message from server response
+        let errorMessage = 'Failed to create user role. Please try again.';
+
+        if (error.error && error.error.message) {
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        // Show user-friendly error alert
+        alert(`Error: ${errorMessage}`);
+
+        // Keep modal open so user can correct the issue
       }
     );
   }

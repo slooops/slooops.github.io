@@ -55,16 +55,18 @@
       [isOpen]="isModalOpen"
       (close)="closeModal()"
     >
-      <app-user-form
-        [value]="currentUserData"
-        [roleOptions]="isSubAdminCreationMode ? subAdminRoleOptions : roleOptions"
-        [isEdit]="isEditMode"
-        [roleFieldLabel]="isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'"
-        [useRoleDropdown]="isSubAdminCreationMode"
-        (submit)="onUserFormSubmit($event)"
-        (cancel)="onUserFormCancel()"
-      >
-      </app-user-form>
+      @if (isModalOpen) {
+        <app-user-form
+          [value]="currentUserData"
+          [roleOptions]="isSubAdminCreationMode ? subAdminRoleOptions : roleOptions"
+          [isEdit]="isEditMode"
+          [roleFieldLabel]="isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'"
+          [useRoleDropdown]="isSubAdminCreationMode"
+          (submit)="onUserFormSubmit($event)"
+          (cancel)="onUserFormCancel()"
+        >
+        </app-user-form>
+      }
     </app-modal-shell>
   }
 </div>
