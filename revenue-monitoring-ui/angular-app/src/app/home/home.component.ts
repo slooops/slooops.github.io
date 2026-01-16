@@ -252,7 +252,12 @@ export class HomeComponent implements OnDestroy {
         // Parse API response: Array of {WEEK_NUMBER, COUNT, CATEGORY}
         const weekMap = new Map<
           string,
-          { supportTeam: number; inProgress: number; resolved: number }
+          {
+            supportTeam: number;
+            inProgress: number;
+            resolved: number;
+            totalIssues: number;
+          }
         >();
 
         if (data && data.length > 0) {
@@ -260,23 +265,32 @@ export class HomeComponent implements OnDestroy {
             const weekNum = item.WEEK_NUMBER;
             const weekLabel = `Week ${weekNum}`;
             const count = item.COUNT || 0;
-            const category = item.CATEGORY;
+            const category = (item.CATEGORY || '')
+              .toString()
+              .toLowerCase()
+              .trim();
 
             if (!weekMap.has(weekLabel)) {
               weekMap.set(weekLabel, {
                 supportTeam: 0,
                 inProgress: 0,
                 resolved: 0,
+                totalIssues: 0,
               });
             }
 
             const weekData = weekMap.get(weekLabel)!;
-            if (category === 'Support Team') {
+            if (category === 'support team') {
               weekData.supportTeam = count;
-            } else if (category === 'In Progress') {
+            } else if (category === 'in progress') {
               weekData.inProgress = count;
-            } else if (category === 'Resolved') {
+            } else if (category === 'resolved') {
               weekData.resolved = count;
+            } else if (
+              category === 'total issue' ||
+              category === 'total issues'
+            ) {
+              weekData.totalIssues = count;
             }
           });
         }
@@ -295,6 +309,9 @@ export class HomeComponent implements OnDestroy {
           ),
           inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
           resolved: sortedWeeks.map((week) => weekMap.get(week)!.resolved),
+          totalIssues: sortedWeeks.map(
+            (week) => weekMap.get(week)!.totalIssues
+          ),
         };
 
         console.log('Parsed Transaction Failures chart data:', chartData);
@@ -762,48 +779,57 @@ export class HomeComponent implements OnDestroy {
 
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: chartData.weeks,
         datasets: [
           {
+            label: 'Total Issues',
+            data: chartData.totalIssues,
+            borderColor: '#c0504d',
+            backgroundColor: '#c0504d',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+          },
+          {
             label: 'In Progress',
             data: chartData.inProgress,
-            backgroundColor: '#E8B959',
-            borderColor: '#E8B959',
-            borderWidth: 1,
-            barPercentage: 0.6,
-            categoryPercentage: 0.8,
-            yAxisID: 'y',
+            borderColor: '#f4a259',
+            backgroundColor: '#f4a259',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+          },
+          {
+            label: 'Support Team',
+            data: chartData.supportTeam,
+            borderColor: '#5a7abf',
+            backgroundColor: '#5a7abf',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
           },
           {
             label: 'Resolved',
             data: chartData.resolved,
-            backgroundColor: '#9B9B9B',
-            borderColor: '#9B9B9B',
-            borderWidth: 1,
-            barPercentage: 0.6,
-            categoryPercentage: 0.8,
-            yAxisID: 'y',
-          },
-          {
-            type: 'line',
-            label: 'Support Team',
-            data: chartData.supportTeam,
-            borderColor: '#5B8FD7',
-            backgroundColor: '#5B8FD7',
+            borderColor: '#5c9e6b',
+            backgroundColor: '#5c9e6b',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
             borderWidth: 2,
-            pointBackgroundColor: '#5B8FD7',
-            pointBorderColor: '#5B8FD7',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            tension: 0.3,
             fill: false,
-            yAxisID: 'y1',
           },
         ],
       },
-      options: this.mixedChartWithSecondaryAxis('Transaction Failures'),
+      options: this.mixedChartOptions('Transaction Failures'),
     });
   }
 
@@ -818,27 +844,31 @@ export class HomeComponent implements OnDestroy {
 
     this.espCasesChart?.destroy();
     this.espCasesChart = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: chartData.weeks,
         datasets: [
           {
             label: 'Resolved (Agent)',
             data: chartData.resolvedAgent,
-            backgroundColor: '#D896E0',
-            borderColor: '#D896E0',
-            borderWidth: 1,
-            barPercentage: 0.6,
-            categoryPercentage: 0.8,
+            borderColor: '#5c9e6b',
+            backgroundColor: '#5c9e6b',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
           },
           {
             label: 'Support Team',
             data: chartData.supportTeam,
-            backgroundColor: '#5B8FD7',
             borderColor: '#5B8FD7',
-            borderWidth: 1,
-            barPercentage: 0.6,
-            categoryPercentage: 0.8,
+            backgroundColor: '#5B8FD7',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
           },
         ],
       },
@@ -993,8 +1023,9 @@ export class HomeComponent implements OnDestroy {
           ticks: {
             font: { family: 'Inter, sans-serif', size: 11, weight: 'normal' },
             color: '#666',
-            maxRotation: 0,
-            minRotation: 0,
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: false,
             callback: function (value, index) {
               return 'Week ' + (index + 1);
             },
@@ -1002,7 +1033,6 @@ export class HomeComponent implements OnDestroy {
         },
         y: {
           beginAtZero: true,
-          max: 100,
           grid: { color: '#f0f0f0', lineWidth: 1 },
           ticks: {
             font: { family: 'Inter, sans-serif', size: 11 },

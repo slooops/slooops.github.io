@@ -112,7 +112,9 @@
     </div>
     <!-- Issue Distribution Pie Chart -->
     <div class="chart-wrapper doughnut-wrapper">
-      <h3 class="chart-title">Issue Distribution by Assignee</h3>
+      <h3 class="chart-title" style="padding-bottom: 25px">
+        Issue Distribution by Assignee
+      </h3>
       <div class="doughnut-container">
         @if (issueDistributionLoading()) {
         <app-loading-symbol-small></app-loading-symbol-small>
@@ -138,7 +140,7 @@
   <!-- Issues List Table -->
   <div class="issues-table-section">
     <div class="table-header-row metric-box">
-      <h2 class="table-title">Issues List</h2>
+      <h2 class="table-title">High Priority Issues List</h2>
       <button class="collapse-btn" (click)="toggleTableVisibility()">
         <mat-icon>{{
           isTableVisible() ? "expand_less" : "expand_more"

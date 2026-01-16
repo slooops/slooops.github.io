@@ -1,13 +1,16 @@
 .charts-row {
   display: flex;
-  gap: 32px;
+  gap: 5px;
   padding: 4px 24px 0 24px;
   box-sizing: border-box;
   margin-bottom: 20px;
+  /* Spread the three cards across the full row */
+  justify-content: space-between;
 }
 
 .chart-wrapper {
-  flex: 1;
+  /* Make the first two charts wider by default */
+  flex: 1.6;
   display: flex;
   flex-direction: column;
   background: white;
@@ -37,8 +40,9 @@
 .chart-content {
   flex: 1;
   position: relative;
-  min-height: 260px;
-  height: 260px;
+  /* Slightly reduce height to keep all three charts balanced */
+  min-height: 240px;
+  height: 240px;
 }
 
 .chart-content canvas {
@@ -47,12 +51,14 @@
 }
 
 .doughnut-wrapper {
-  flex: 0.75;
-  max-width: 504px;
+  /* Make the Issue Distribution card narrower and fixed-width, anchored to the right */
+  flex: 0 0 320px;
+  max-width: 320px;
 }
 
 .doughnut-container {
-  height: 240px;
+  /* Slightly smaller donut height so it uses less vertical space */
+  height: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -427,8 +433,8 @@
   cursor: help;
 }
 
-/* Charts Row */
-.charts-row {
+/* Legacy Charts Row (no longer used) */
+.charts-row-legacy {
   display: grid;
   grid-template-columns: 1fr 1fr 0.75fr;
   gap: 12px;
@@ -492,7 +498,7 @@
   background: #06b6d4;
 }
 
-.chart-content {
+.chart-content-legacy {
   height: 200px;
   display: flex;
   align-items: center;
