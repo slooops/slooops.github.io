@@ -1878,4 +1878,12 @@ public class QueryConfigs {
     public String getLandingPageEspCases() {
         return this.landingPageEspCases;
     }
+
+    @Value(("${xxcaseiq.eso.case.analyzer.global.search}"))
+    public String espCaseAnalyzerGlobalSearch;
+
+    @Bean(name = "espCaseAnalyzerGlobalSearch")
+    public String getEspCaseAnalyzerGlobalSearch() {
+        return this.espCaseAnalyzerGlobalSearch;
+    }
 }

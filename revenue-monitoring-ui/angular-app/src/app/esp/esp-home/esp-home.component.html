@@ -55,14 +55,40 @@
             </div>
             }
           </div>
+          <div class="period-info">
+            <span
+              ><b>Period name:</b>
+              {{ periodInfo()?.periodName || "" }} &nbsp;</span
+            >
+            <span class="divider"> | </span>
+            <span
+              >&nbsp;<b>Period end date:</b>
+              {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
+            >
+            <span class="divider"> | </span>
+            <span
+              >&nbsp;<b>Last Updated:</b>
+              {{ periodInfo()?.lastUpdated || "" }}</span
+            >
+          </div>
         </div>
       </div>
-      <div class="period-info">
-        <!-- <span class="period-details">
-        Period name: <strong>SEP-26 (W4)</strong> | Period end date:
-        <strong>09/20/2025</strong> | Last Updated:
-        <strong>9/9/2025, 4:45:17 PM</strong>
-      </span> -->
+      <div class="header-center">
+        <div class="global-search">
+          <div class="global-search-input-wrapper">
+            <input
+              type="text"
+              class="global-search-input"
+              #globalSearchInput
+              placeholder="Search by Incident Number(s), comma separated"
+            />
+          </div>
+          <span
+            class="global-search-icon"
+            (click)="onGlobalSearchClick(globalSearchInput.value)"
+            >🔍</span
+          >
+        </div>
       </div>
     </div>
   </div>

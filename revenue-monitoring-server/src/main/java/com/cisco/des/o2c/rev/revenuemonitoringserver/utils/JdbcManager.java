@@ -456,6 +456,10 @@ public class JdbcManager {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);
     }
 
+    public List<Map<String, Object>> espCaseAnalyzerGlobalSearch(String sql, String incidentNumber) {
+        return primaryJdbcTemplate.queryForList(sql, incidentNumber);
+    }
+
     public List<Map<String, Object>> filterRevControls(String sql, String periodName, String appName,
             String operatingUnit, String transactionDate) {
         return primaryJdbcTemplate.queryForList(sql, periodName, appName, operatingUnit, transactionDate);

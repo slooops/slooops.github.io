@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,7 @@ public class EspCaseManagerService {
     private String xxcaseiqCapitalCaseDetailsV;
     private String xxcaseiqEspCaseAnalyzerTblUpdate;
     private String xxcaseiqI2cCaseDetailsMatchY;
+    private String espCaseAnalyzerGlobalSearch;
     @Autowired
     private Common common;
 
@@ -79,7 +81,7 @@ public class EspCaseManagerService {
             String xxcaseiqSmCaseDetailsV,
             String xxcaseiqP2pCaseDetailsV,
             String xxcaseiqCapitalCaseDetailsV,
-                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY) {
+                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY, String espCaseAnalyzerGlobalSearch) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -114,6 +116,7 @@ public class EspCaseManagerService {
         this.xxcaseiqCapitalCaseDetailsV = xxcaseiqCapitalCaseDetailsV;
         this.xxcaseiqEspCaseAnalyzerTblUpdate = xxcaseiqEspCaseAnalyzerTblUpdate;
         this.xxcaseiqI2cCaseDetailsMatchY = xxcaseiqI2cCaseDetailsMatchY;
+        this.espCaseAnalyzerGlobalSearch = espCaseAnalyzerGlobalSearch;
     }
 
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
@@ -288,6 +291,28 @@ public class EspCaseManagerService {
 
     public List<Map<String, Object>> getXxcaseiqI2cCaseDetailsMatchY() {
         return jdbcManager.queryForList(xxcaseiqI2cCaseDetailsMatchY);
+    }
+
+    public List<Map<String, Object>> espCaseAnalyzerGlobalSearch(String incidentNumbersRaw) throws IOException {
+        if (incidentNumbersRaw == null || incidentNumbersRaw.trim().isEmpty()) {
+            return List.of();
+        }
+
+        String[] tokens = incidentNumbersRaw.split(",");
+        List<Map<String, Object>> combinedResults = new ArrayList<>();
+
+        for (String token : tokens) {
+            String incidentNumber = token.trim();
+            if (incidentNumber.isEmpty()) {
+                continue;
+            }
+            List<Map<String, Object>> partial = jdbcManager.espCaseAnalyzerGlobalSearch(espCaseAnalyzerGlobalSearch, incidentNumber);
+            if (partial != null && !partial.isEmpty()) {
+                combinedResults.addAll(partial);
+            }
+        }
+
+        return combinedResults;
     }
 
 }

@@ -30,18 +30,18 @@ interface FilterTag {
 }
 
 @Component({
-    selector: 'app-caseiq-table',
-    templateUrl: './caseiq-table.component.html',
-    styleUrls: ['./caseiq-table.component.css'],
-    imports: [
+  selector: 'app-caseiq-table',
+  templateUrl: './caseiq-table.component.html',
+  styleUrls: ['./caseiq-table.component.css'],
+  imports: [
     CommonModule,
     FormsModule,
     MatIconModule,
     MatTableModule,
     MatPaginatorModule,
-    LoadingSymbolComponent
+    LoadingSymbolComponent,
   ],
-  standalone: true
+  standalone: true,
 })
 export class CaseiqTableComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() dataSource!: MatTableDataSource<any>; // Data for the table

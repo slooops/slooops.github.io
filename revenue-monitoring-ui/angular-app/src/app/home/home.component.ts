@@ -955,7 +955,7 @@ export class HomeComponent implements OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '75%',
+        cutout: '82%',
         onClick: (event, activeElements) => {
           if (activeElements.length > 0) {
             const index = activeElements[0].index;

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -173,5 +174,10 @@ public class EspCaseManagerController {
         } else {
             return ResponseEntity.badRequest().body("Uploaded file is empty.");
         }
+    }
+
+    @PostMapping("/xxcaseiq-global-search")
+    public ResponseEntity<List<Map<String, Object>>> espCaseManagerGlobalSearch(@RequestParam("incidentNumber") String incidentNumber) throws IOException {
+        return new ResponseEntity<>(service.espCaseAnalyzerGlobalSearch(incidentNumber), HttpStatus.OK);
     }
 }

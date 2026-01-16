@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
@@ -12,6 +12,10 @@ import { CaseiqOmComponent } from './caseiq-om/caseiq-om.component';
 import { CaseiqP2pComponent } from './caseiq-p2p/caseiq-p2p.component';
 import { CaseiqSmComponent } from './caseiq-sm/caseiq-sm.component';
 import { CaseiqAitComponent } from './caseiq-ait/caseiq-ait.component';
+import { HomeDataService } from 'src/app/home/home-data.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
 
 interface MetricTile {
   name: string;
@@ -53,7 +57,9 @@ export class EspHomeComponent implements OnInit {
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private homeDataService: HomeDataService,
+    private dialog: MatDialog
   ) {}
 
   activeTab: string = ''; // Will be set based on user roles
@@ -64,6 +70,7 @@ export class EspHomeComponent implements OnInit {
   showQuarterDropdown: boolean = false;
   isLoadingQuarter: boolean = false;
   loadingQuarterMessage: string = '';
+  periodInfo = signal<any>(null);
 
   // Store raw API data to extract quarters per team
   private accuracyData: AccuracyData[] = [];
@@ -100,16 +107,112 @@ export class EspHomeComponent implements OnInit {
   roles: string[] = [];
   private userName: string = '';
 
+  // Columns to show in global search results dialog (common keys + TEAM_NAME)
+  private readonly globalSearchColumnsOrder: string[] = [
+    'TEAM_NAME',
+    'INCIDENT_NUMBER',
+    'IMPACTED_SERVICE_OFFERING',
+    'LLM_SUMMARY',
+    'CATEGORY_MATCH',
+    'CATEGORY',
+    'CATEGORY_ACTUAL',
+    'CORE_ISSUE_MATCH',
+    'CORE_ISSUE',
+    'CORE_ISSUE_ACTUAL',
+    'INCIDENT_STATE',
+    'COMMENTS',
+  ];
+
   ngOnInit(): void {
     this.roles = this.authService.getRoles();
     this.userName = this.authService.getUserName();
     this.setDefaultActiveTab();
     this.getXxcaseiqValidatedCasesAccuracyV();
+    this.loadPeriodInfo();
 
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
       this.showQuarterDropdown = false;
     });
+  }
+
+  private loadPeriodInfo(): void {
+    this.homeDataService.getPeriodInfo(this.destroyManager).subscribe({
+      next: (periodData) => {
+        this.periodInfo.set(periodData);
+      },
+      error: (error) => {
+        console.error('Error loading period info:', error);
+        this.periodInfo.set({
+          periodName: '',
+          periodEndDate: '',
+          lastUpdated: new Date().toLocaleString(),
+        });
+      },
+    });
+  }
+
+  onGlobalSearchClick(rawTerm: string): void {
+    const normalized = (rawTerm || '')
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => !!t)
+      .join(',');
+
+    if (!normalized) {
+      return;
+    }
+    this.globalSearch(normalized);
+  }
+
+  globalSearch(incidentNumber: string) {
+    const formData: FormData = new FormData();
+    formData.append('incidentNumber', incidentNumber);
+
+    this.http.post<any[]>('xxcaseiq-global-search', formData).subscribe(
+      (rows: any) => {
+        const resultRows: any[] = Array.isArray(rows) ? rows : [];
+        if (!resultRows.length) {
+          console.log('Global search returned no results');
+          return;
+        }
+
+        // Determine which of the desired columns actually exist in the data
+        const availableColumns = this.globalSearchColumnsOrder.filter((col) =>
+          resultRows.some(
+            (row) => row && Object.prototype.hasOwnProperty.call(row, col)
+          )
+        );
+
+        if (!availableColumns.length) {
+          console.log('Global search results do not contain expected columns');
+          return;
+        }
+
+        // Build a filtered dataset that only contains the common keys + TEAM_NAME
+        const filteredRows = resultRows.map((row) => {
+          const filtered: any = {};
+          availableColumns.forEach((col) => {
+            filtered[col] = row[col];
+          });
+          return filtered;
+        });
+
+        const dataSource = new MatTableDataSource(filteredRows);
+
+        this.dialog.open(GlobalSearchDialogComponent, {
+          width: '90vw',
+          maxWidth: '1200px',
+          data: {
+            dataSource,
+            displayedColumns: availableColumns,
+          },
+        });
+      },
+      (err) => {
+        console.error('Global search error:', err);
+      }
+    );
   }
 
   /**
