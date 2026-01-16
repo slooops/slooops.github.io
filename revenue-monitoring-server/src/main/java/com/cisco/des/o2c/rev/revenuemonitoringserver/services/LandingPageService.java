@@ -82,9 +82,7 @@ public class LandingPageService {
 
     public List<Map<String, Object>> getLandingPageTransactionFailures() {
         String[] dateColumns = { "PERIOD_END_DATE" };
-        System.out.println(landingPageTransactionFailures);
         List<Map<String, Object>> result = jdbcManager.queryForList(landingPageTransactionFailures);
-        System.out.println(result);
 //        result.forEach(data -> {
 //            common.formatDateColumns(data, dateColumns);
 //        });

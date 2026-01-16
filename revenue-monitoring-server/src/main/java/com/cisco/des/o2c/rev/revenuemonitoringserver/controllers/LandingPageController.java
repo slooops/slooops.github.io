@@ -45,7 +45,6 @@ public class LandingPageController {
     }
     @GetMapping("/landing-page-transaction-failures")
     public ResponseEntity<List<Map<String, Object>>> getLandingPageTransactionFailures() {
-        System.out.println("here");
         return new ResponseEntity<>(service.getLandingPageTransactionFailures(), HttpStatus.OK);
     }
     @GetMapping("/landing-page-esp-cases")
