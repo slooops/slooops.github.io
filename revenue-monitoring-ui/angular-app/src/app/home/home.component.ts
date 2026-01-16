@@ -340,7 +340,12 @@ export class HomeComponent implements OnDestroy {
         // Parse API response: Array of {WEEK_NUMBER, COUNT, CATEGORY}
         const weekMap = new Map<
           string,
-          { resolvedAgent: number; supportTeam: number }
+          {
+            inProgress: number;
+            supportTeam: number;
+            totalCases: number;
+            resolvedAgent: number;
+          }
         >();
 
         if (data && data.length > 0) {
@@ -350,14 +355,23 @@ export class HomeComponent implements OnDestroy {
             const category = (item.CATEGORY || '').trim();
 
             if (!weekMap.has(week)) {
-              weekMap.set(week, { resolvedAgent: 0, supportTeam: 0 });
+              weekMap.set(week, {
+                inProgress: 0,
+                supportTeam: 0,
+                totalCases: 0,
+                resolvedAgent: 0,
+              });
             }
 
             const weekData = weekMap.get(week)!;
-            if (category === 'Resolved (Agent)') {
-              weekData.resolvedAgent = count;
+            if (category === 'In Progress') {
+              weekData.inProgress = count;
             } else if (category === 'Support Team') {
               weekData.supportTeam = count;
+            } else if (category === 'Total Cases') {
+              weekData.totalCases = count;
+            } else if (category === 'Resolved (Agent)') {
+              weekData.resolvedAgent = count;
             }
           });
         }
@@ -371,11 +385,13 @@ export class HomeComponent implements OnDestroy {
 
         const chartData = {
           weeks: sortedWeeks,
-          resolvedAgent: sortedWeeks.map(
-            (week) => weekMap.get(week)!.resolvedAgent
-          ),
+          inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
           supportTeam: sortedWeeks.map(
             (week) => weekMap.get(week)!.supportTeam
+          ),
+          totalCases: sortedWeeks.map((week) => weekMap.get(week)!.totalCases),
+          resolvedAgent: sortedWeeks.map(
+            (week) => weekMap.get(week)!.resolvedAgent
           ),
         };
 
@@ -849,10 +865,21 @@ export class HomeComponent implements OnDestroy {
         labels: chartData.weeks,
         datasets: [
           {
-            label: 'Resolved (Agent)',
-            data: chartData.resolvedAgent,
-            borderColor: '#5c9e6b',
-            backgroundColor: '#5c9e6b',
+            label: 'Total Cases',
+            data: chartData.totalCases,
+            borderColor: '#c0504d',
+            backgroundColor: '#c0504d',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+          },
+          {
+            label: 'In Progress',
+            data: chartData.inProgress,
+            borderColor: '#f4a259',
+            backgroundColor: '#f4a259',
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
@@ -864,6 +891,17 @@ export class HomeComponent implements OnDestroy {
             data: chartData.supportTeam,
             borderColor: '#5B8FD7',
             backgroundColor: '#5B8FD7',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+          },
+          {
+            label: 'Resolved (Agent)',
+            data: chartData.resolvedAgent,
+            borderColor: '#5c9e6b',
+            backgroundColor: '#5c9e6b',
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
