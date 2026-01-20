@@ -112,9 +112,7 @@
     </div>
     <!-- Issue Distribution Pie Chart -->
     <div class="chart-wrapper doughnut-wrapper">
-      <h3 class="chart-title" style="padding-bottom: 25px">
-        Issue Distribution by Assignee
-      </h3>
+      <h3 class="chart-title">Issue Distribution by Assignee</h3>
       <div class="doughnut-container">
         @if (issueDistributionLoading()) {
         <app-loading-symbol-small></app-loading-symbol-small>
@@ -140,7 +138,7 @@
   <!-- Issues List Table -->
   <div class="issues-table-section">
     <div class="table-header-row metric-box">
-      <h2 class="table-title">High Priority Issues List</h2>
+      <h2 class="table-title">Issues List</h2>
       <button class="collapse-btn" (click)="toggleTableVisibility()">
         <mat-icon>{{
           isTableVisible() ? "expand_less" : "expand_more"
@@ -255,7 +253,8 @@
               {{ replaceUnderscore(column) }}
             </th>
             <td mat-cell *matCellDef="let element">
-              <!-- @if (column === displayedColumns[0]) {
+              @if (column === displayedColumns[0]) {
+              <!-- First column (ID) with warning icon if needed -->
               <div class="id-cell">
                 @if (element.hasWarning || element.WARNING ||
                 element.HAS_WARNING) {
@@ -264,8 +263,9 @@
                 <span class="id-link">{{ element[column] }}</span>
               </div>
               } @else if (column.includes('ASSIGNED') ||
-              column.includes('ASSIGN')) { @if (element[column] === 'AI Agent')
-              {
+              column.includes('ASSIGN')) {
+              <!-- Assigned To column with icons -->
+              @if (element[column] === 'AI Agent') {
               <div class="assigned-cell">
                 <mat-icon class="robot-icon">smart_toy</mat-icon>
                 <span>AI Agent</span>
@@ -275,10 +275,7 @@
               <a class="assign-link">Assign to</a>
               } @else {
               {{ element[column] }}
-            } }  -->
-              @if (column === 'BILL_TOTAL') {
-              {{ formatData(element[column]) }}
-              } @else {
+              } } @else {
               {{ element[column] }}
               }
             </td>

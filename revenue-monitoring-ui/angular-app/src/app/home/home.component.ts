@@ -5,8 +5,6 @@ import {
   OnDestroy,
   signal,
   computed,
-  effect,
-  afterNextRender,
   Injector,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -302,6 +300,17 @@ export class HomeComponent implements OnDestroy {
           return numA - numB;
         });
 
+        // Compute percentage of In Progress over Total Issues for each week
+        const percentInProgress = sortedWeeks.map((week) => {
+          const weekData = weekMap.get(week)!;
+          const total = weekData.totalIssues || 0;
+          const inProg = weekData.inProgress || 0;
+          if (!total) {
+            return 0;
+          }
+          return +((inProg / total) * 100).toFixed(1);
+        });
+
         const chartData = {
           weeks: sortedWeeks,
           supportTeam: sortedWeeks.map(
@@ -312,6 +321,7 @@ export class HomeComponent implements OnDestroy {
           totalIssues: sortedWeeks.map(
             (week) => weekMap.get(week)!.totalIssues
           ),
+          percentInProgress,
         };
 
         console.log('Parsed Transaction Failures chart data:', chartData);
@@ -793,36 +803,68 @@ export class HomeComponent implements OnDestroy {
       return;
     }
 
+    const totalIssuesSum = (chartData.totalIssues || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const totalIssuesLabel = `Total Issues (${totalIssuesSum.toLocaleString(
+      'en-US'
+    )})`;
+
+    const inProgressSum = (chartData.inProgress || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const inProgressLabel = `In Progress (${inProgressSum.toLocaleString(
+      'en-US'
+    )})`;
+
+    const supportTeamSum = (chartData.supportTeam || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const supportTeamLabel = `Support Team (${supportTeamSum.toLocaleString(
+      'en-US'
+    )})`;
+
+    const resolvedSum = (chartData.resolved || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const resolvedLabel = `Resolved (${resolvedSum.toLocaleString('en-US')})`;
+
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels: chartData.weeks,
         datasets: [
+          // Bar series for absolute counts
           {
-            label: 'Total Issues',
+            type: 'bar',
+            label: totalIssuesLabel,
             data: chartData.totalIssues,
-            borderColor: '#c0504d',
             backgroundColor: '#c0504d',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
+            borderColor: '#c0504d',
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
           },
           {
-            label: 'In Progress',
+            type: 'bar',
+            label: inProgressLabel,
             data: chartData.inProgress,
-            borderColor: '#f4a259',
             backgroundColor: '#f4a259',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
+            borderColor: '#f4a259',
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
           },
+
+          // Line series for other counts
           {
-            label: 'Support Team',
+            type: 'line',
+            label: supportTeamLabel,
             data: chartData.supportTeam,
             borderColor: '#5a7abf',
             backgroundColor: '#5a7abf',
@@ -833,7 +875,8 @@ export class HomeComponent implements OnDestroy {
             fill: false,
           },
           {
-            label: 'Resolved',
+            type: 'line',
+            label: resolvedLabel,
             data: chartData.resolved,
             borderColor: '#5c9e6b',
             backgroundColor: '#5c9e6b',
@@ -842,6 +885,21 @@ export class HomeComponent implements OnDestroy {
             pointHoverRadius: 5,
             borderWidth: 2,
             fill: false,
+          },
+
+          // Dotted line for percentage In Progress / Total Issues
+          {
+            type: 'line',
+            label: 'In Progress % ',
+            data: chartData.percentInProgress,
+            borderColor: '#00bcd4',
+            backgroundColor: '#00bcd4',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+            borderDash: [4, 4],
           },
         ],
       },
@@ -858,6 +916,38 @@ export class HomeComponent implements OnDestroy {
       return;
     }
 
+    const totalCasesSum = (chartData.totalCases || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const totalCasesLabel = `Total Cases (${totalCasesSum.toLocaleString(
+      'en-US'
+    )})`;
+
+    const inProgressSumEsp = (chartData.inProgress || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const inProgressLabelEsp = `In Progress (${inProgressSumEsp.toLocaleString(
+      'en-US'
+    )})`;
+
+    const supportTeamSumEsp = (chartData.supportTeam || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const supportTeamLabelEsp = `Support Team (${supportTeamSumEsp.toLocaleString(
+      'en-US'
+    )})`;
+
+    const resolvedAgentSum = (chartData.resolvedAgent || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0
+    );
+    const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString(
+      'en-US'
+    )})`;
+
     this.espCasesChart?.destroy();
     this.espCasesChart = new Chart(ctx, {
       type: 'line',
@@ -865,7 +955,7 @@ export class HomeComponent implements OnDestroy {
         labels: chartData.weeks,
         datasets: [
           {
-            label: 'Total Cases',
+            label: totalCasesLabel,
             data: chartData.totalCases,
             borderColor: '#c0504d',
             backgroundColor: '#c0504d',
@@ -876,7 +966,7 @@ export class HomeComponent implements OnDestroy {
             fill: false,
           },
           {
-            label: 'In Progress',
+            label: inProgressLabelEsp,
             data: chartData.inProgress,
             borderColor: '#f4a259',
             backgroundColor: '#f4a259',
@@ -887,7 +977,7 @@ export class HomeComponent implements OnDestroy {
             fill: false,
           },
           {
-            label: 'Support Team',
+            label: supportTeamLabelEsp,
             data: chartData.supportTeam,
             borderColor: '#5B8FD7',
             backgroundColor: '#5B8FD7',
@@ -898,7 +988,7 @@ export class HomeComponent implements OnDestroy {
             fill: false,
           },
           {
-            label: 'Resolved (Agent)',
+            label: resolvedAgentLabel,
             data: chartData.resolvedAgent,
             borderColor: '#5c9e6b',
             backgroundColor: '#5c9e6b',
