@@ -1,0 +1,164 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { IconComponent } from './icon.component';
+
+const meta: Meta<IconComponent> = {
+  title: 'Atoms/Icon',
+  component: IconComponent,
+  tags: ['autodocs'],
+  argTypes: {
+    name: {
+      control: 'select',
+      options: [
+        'search',
+        'info',
+        'completed',
+        'delete',
+        'close',
+        'close-white',
+        'download',
+        'download-white',
+        'home',
+        'chart',
+        'chatbot',
+        'delayed',
+        'in-progress',
+        'stopped',
+        'yet-to-start',
+        'refresh',
+        'escalation-one',
+        'escalation-two',
+        'ivan',
+      ],
+      description: 'Name of the icon to display',
+    },
+    size: {
+      control: 'text',
+      description: 'Size of the icon (CSS value)',
+    },
+    ariaLabel: {
+      control: 'text',
+      description: 'Accessible label for screen readers',
+    },
+  },
+  decorators: [
+    (story) => ({
+      ...story,
+      styles: [
+        `
+        :host { display: flex; gap: 1rem; align-items: center; }
+        .icon-showcase { 
+          display: flex; 
+          flex-direction: column; 
+          align-items: center; 
+          gap: 0.5rem;
+          padding: 1rem;
+          border: 1px solid #e0e0e0;
+          border-radius: 4px;
+        }
+        .icon-label { font-size: 12px; color: #666; }
+      `,
+      ],
+    }),
+  ],
+};
+
+export default meta;
+type Story = StoryObj<IconComponent>;
+
+export const Search: Story = {
+  args: {
+    name: 'search',
+    size: '1.5rem',
+    ariaLabel: 'Search',
+  },
+};
+
+export const Info: Story = {
+  args: {
+    name: 'info',
+    size: '1.5rem',
+    ariaLabel: 'Information',
+  },
+};
+
+export const Completed: Story = {
+  args: {
+    name: 'completed',
+    size: '1.5rem',
+    ariaLabel: 'Completed',
+  },
+};
+
+export const Delete: Story = {
+  args: {
+    name: 'delete',
+    size: '1.5rem',
+    ariaLabel: 'Delete',
+  },
+};
+
+export const Download: Story = {
+  args: {
+    name: 'download',
+    size: '1.5rem',
+    ariaLabel: 'Download',
+  },
+};
+
+export const Home: Story = {
+  args: {
+    name: 'home',
+    size: '1.5rem',
+    ariaLabel: 'Home',
+  },
+};
+
+export const Refresh: Story = {
+  args: {
+    name: 'refresh',
+    size: '1.5rem',
+    ariaLabel: 'Refresh',
+  },
+};
+
+// Status icons
+export const InProgress: Story = {
+  args: {
+    name: 'in-progress',
+    size: '1.5rem',
+    ariaLabel: 'In Progress',
+  },
+};
+
+export const Delayed: Story = {
+  args: {
+    name: 'delayed',
+    size: '1.5rem',
+    ariaLabel: 'Delayed',
+  },
+};
+
+export const Stopped: Story = {
+  args: {
+    name: 'stopped',
+    size: '1.5rem',
+    ariaLabel: 'Stopped',
+  },
+};
+
+// Size variations
+export const SmallIcon: Story = {
+  args: {
+    name: 'search',
+    size: '0.75rem',
+    ariaLabel: 'Small search icon',
+  },
+};
+
+export const LargeIcon: Story = {
+  args: {
+    name: 'search',
+    size: '2.5rem',
+    ariaLabel: 'Large search icon',
+  },
+};

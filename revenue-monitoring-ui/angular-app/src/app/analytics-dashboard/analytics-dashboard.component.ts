@@ -119,7 +119,7 @@ export class AnalyticsDashboardComponent
 
   loadAnalyticsData(): void {
     this.isLoading = true;
-    console.log('Fetching analytics data from: page-visit-summary');
+    // console.log('Fetching analytics data from: page-visit-summary');
     this.http.get('page-visit-summary', this.destroyManager).subscribe({
       next: (data: any) => {
         console.log('Raw analytics data received:', data);
@@ -163,8 +163,8 @@ export class AnalyticsDashboardComponent
   }
 
   private initializeCharts(): void {
-    console.log('[CHARTS] initializeCharts() called');
-    console.log('[CHARTS] summaryData length:', this.summaryData.length);
+    // console.log('[CHARTS] initializeCharts() called');
+    // console.log('[CHARTS] summaryData length:', this.summaryData.length);
     this.destroyAllCharts();
 
     try {
