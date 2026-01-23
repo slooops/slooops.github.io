@@ -1,9 +1,9 @@
 .charts-row {
   display: flex;
-  gap: 32px;
+  gap: 8px;
   padding: 4px 24px 0 24px;
   box-sizing: border-box;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   /* Spread the three cards across the full row */
   justify-content: space-between;
 }
@@ -187,8 +187,9 @@
   display: block;
   background: #ffffff;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
 }
 
 .dashboard-container {
@@ -252,7 +253,7 @@
 /* Title Row - Monitoring Dashboard + Icons + Period + Ask Ivan */
 .title-row {
   background: #ffffff;
-  padding: 0px 24px 5px 24px;
+  padding: 10px 24px 5px 24px;
   margin-bottom: 0;
   display: flex;
   align-items: center;
@@ -345,7 +346,7 @@
 .kpi-bars {
   display: flex;
   flex-direction: row;
-  margin: 12px 24px 24px 24px;
+  margin: 8px 24px 8px 24px;
   gap: 12px; /* space between the two groups */
 }
 
@@ -620,7 +621,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 5px;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -821,7 +822,9 @@ table.full-width-table tr.mat-row:hover td.mat-cell {
   font-size: 0.75rem;
   width: 250px;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   background-color: #ffffff;
 }
 
@@ -1019,8 +1022,8 @@ table.full-width-table tr.mat-row:hover td.mat-cell {
   width: 100%;
   border-spacing: 0;
   border-collapse: separate;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: 12px;
   background: #ffffff;
 }
@@ -1253,8 +1256,8 @@ table.full-width-table tr.mat-row:hover td.mat-cell {
 ::ng-deep .mat-paginator {
   background: white;
   border-top: 1px solid #e8e8e8;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 ::ng-deep .mat-mdc-paginator-container,

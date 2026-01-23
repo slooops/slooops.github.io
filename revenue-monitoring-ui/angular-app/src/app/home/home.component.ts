@@ -54,7 +54,7 @@ export class HomeComponent implements OnDestroy {
     private authService: AuthenticationService,
     private homeDataService: HomeDataService,
     private injector: Injector,
-    private exportService: ExportService
+    private exportService: ExportService,
   ) {
     // Initialize user info
     this.userRoles.set(this.authService.getRoles());
@@ -131,7 +131,7 @@ export class HomeComponent implements OnDestroy {
   private buildChartWhenReady(
     buildFn: () => void,
     chart: 'transactionFailures' | 'espCases' | 'issueDistribution',
-    attempt = 0
+    attempt = 0,
   ): void {
     let canvasEl: HTMLCanvasElement | null | undefined;
 
@@ -151,7 +151,7 @@ export class HomeComponent implements OnDestroy {
     if (attempt < 50) {
       setTimeout(
         () => this.buildChartWhenReady(buildFn, chart, attempt + 1),
-        100
+        100,
       );
     } else {
       console.warn('Chart canvas not ready, skipping render for', chart);
@@ -314,12 +314,12 @@ export class HomeComponent implements OnDestroy {
         const chartData = {
           weeks: sortedWeeks,
           supportTeam: sortedWeeks.map(
-            (week) => weekMap.get(week)!.supportTeam
+            (week) => weekMap.get(week)!.supportTeam,
           ),
           inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
           resolved: sortedWeeks.map((week) => weekMap.get(week)!.resolved),
           totalIssues: sortedWeeks.map(
-            (week) => weekMap.get(week)!.totalIssues
+            (week) => weekMap.get(week)!.totalIssues,
           ),
           percentInProgress,
         };
@@ -329,7 +329,7 @@ export class HomeComponent implements OnDestroy {
         this.transactionFailuresLoading.set(false);
         this.buildChartWhenReady(
           () => this.buildTransactionFailuresChart(chartData),
-          'transactionFailures'
+          'transactionFailures',
         );
       },
       error: (error) => {
@@ -397,11 +397,11 @@ export class HomeComponent implements OnDestroy {
           weeks: sortedWeeks,
           inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
           supportTeam: sortedWeeks.map(
-            (week) => weekMap.get(week)!.supportTeam
+            (week) => weekMap.get(week)!.supportTeam,
           ),
           totalCases: sortedWeeks.map((week) => weekMap.get(week)!.totalCases),
           resolvedAgent: sortedWeeks.map(
-            (week) => weekMap.get(week)!.resolvedAgent
+            (week) => weekMap.get(week)!.resolvedAgent,
           ),
         };
 
@@ -410,7 +410,7 @@ export class HomeComponent implements OnDestroy {
         this.espCasesLoading.set(false);
         this.buildChartWhenReady(
           () => this.buildEspCasesChart(chartData),
-          'espCases'
+          'espCases',
         );
       },
       error: (error) => {
@@ -450,7 +450,7 @@ export class HomeComponent implements OnDestroy {
         this.issueDistributionLoading.set(false);
         this.buildChartWhenReady(
           () => this.buildIssueDistributionChart(aiAgent, human),
-          'issueDistribution'
+          'issueDistribution',
         );
       },
       error: (error) => {
@@ -494,7 +494,7 @@ export class HomeComponent implements OnDestroy {
             console.log('Page size:', this.paginator.pageSize);
             console.log(
               'Total pages:',
-              Math.ceil(issuesList.length / this.paginator.pageSize)
+              Math.ceil(issuesList.length / this.paginator.pageSize),
             );
           } else {
             console.error('❌ Paginator not available!');
@@ -587,7 +587,7 @@ export class HomeComponent implements OnDestroy {
 
   removeFilter(key: string, value: string) {
     this.activeFilters.update((filters) =>
-      filters.filter((f) => !(f.key === key && f.value === value))
+      filters.filter((f) => !(f.key === key && f.value === value)),
     );
     this.updateTableFilter();
   }
@@ -778,7 +778,7 @@ export class HomeComponent implements OnDestroy {
   private commonLineOptions(
     color: string,
     dashed: boolean = false,
-    dotted: boolean = false
+    dotted: boolean = false,
   ) {
     return {
       type: 'line' as const,
@@ -805,31 +805,31 @@ export class HomeComponent implements OnDestroy {
 
     const totalIssuesSum = (chartData.totalIssues || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const totalIssuesLabel = `Total Issues (${totalIssuesSum.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     const inProgressSum = (chartData.inProgress || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const inProgressLabel = `In Progress (${inProgressSum.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     const supportTeamSum = (chartData.supportTeam || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const supportTeamLabel = `Support Team (${supportTeamSum.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     const resolvedSum = (chartData.resolved || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const resolvedLabel = `Resolved (${resolvedSum.toLocaleString('en-US')})`;
 
@@ -886,21 +886,6 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 2,
             fill: false,
           },
-
-          // Dotted line for percentage In Progress / Total Issues
-          {
-            type: 'line',
-            label: 'In Progress % ',
-            data: chartData.percentInProgress,
-            borderColor: '#00bcd4',
-            backgroundColor: '#00bcd4',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
-            borderDash: [4, 4],
-          },
         ],
       },
       options: this.mixedChartOptions('Transaction Failures'),
@@ -918,65 +903,64 @@ export class HomeComponent implements OnDestroy {
 
     const totalCasesSum = (chartData.totalCases || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const totalCasesLabel = `Total Cases (${totalCasesSum.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     const inProgressSumEsp = (chartData.inProgress || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const inProgressLabelEsp = `In Progress (${inProgressSumEsp.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     const supportTeamSumEsp = (chartData.supportTeam || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const supportTeamLabelEsp = `Support Team (${supportTeamSumEsp.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     const resolvedAgentSum = (chartData.resolvedAgent || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
-      0
+      0,
     );
     const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString(
-      'en-US'
+      'en-US',
     )})`;
 
     this.espCasesChart?.destroy();
     this.espCasesChart = new Chart(ctx, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels: chartData.weeks,
         datasets: [
           {
+            type: 'bar',
             label: totalCasesLabel,
             data: chartData.totalCases,
             borderColor: '#c0504d',
             backgroundColor: '#c0504d',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
           },
           {
+            type: 'bar',
             label: inProgressLabelEsp,
             data: chartData.inProgress,
             borderColor: '#f4a259',
             backgroundColor: '#f4a259',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
           },
           {
+            type: 'line',
             label: supportTeamLabelEsp,
             data: chartData.supportTeam,
             borderColor: '#5B8FD7',
@@ -988,6 +972,7 @@ export class HomeComponent implements OnDestroy {
             fill: false,
           },
           {
+            type: 'line',
             label: resolvedAgentLabel,
             data: chartData.resolvedAgent,
             borderColor: '#5c9e6b',
@@ -1056,13 +1041,13 @@ export class HomeComponent implements OnDestroy {
         ctx.fillText(
           kpisData?.totalIssues?.toString() || '',
           chart.getDatasetMeta(0).data[0].x,
-          chart.getDatasetMeta(0).data[0].y - 8
+          chart.getDatasetMeta(0).data[0].y - 8,
         );
         ctx.font = '11px Inter, sans-serif';
         ctx.fillText(
           'Total Issues',
           chart.getDatasetMeta(0).data[0].x,
-          chart.getDatasetMeta(0).data[0].y + 12
+          chart.getDatasetMeta(0).data[0].y + 12,
         );
         ctx.restore();
       },
@@ -1173,7 +1158,7 @@ export class HomeComponent implements OnDestroy {
   }
 
   private mixedChartWithSecondaryAxis(
-    title: string
+    title: string,
   ): ChartConfiguration['options'] {
     return {
       responsive: true,
