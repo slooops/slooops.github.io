@@ -23,15 +23,22 @@ import java.util.stream.Collectors;
 public class MongoDBManager {
 
     private final MongoTemplate mongoTemplate;
+    private final MongoTemplate secondaryMongoTemplate;
 
     @Autowired
-    public MongoDBManager(MongoTemplate mongoTemplate) {
+    public MongoDBManager(@Qualifier("primaryMongoTemplate") MongoTemplate mongoTemplate, @Qualifier("secondaryMongoTemplate") MongoTemplate secondaryMongoTemplate) {
         this.mongoTemplate = mongoTemplate;
+        this.secondaryMongoTemplate = secondaryMongoTemplate;
     }
 
     public List<Map<String, Object>> getAllData(String collection) {
         Query query = new Query();
         return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, collection));
+    }
+
+    public List<Map<String, Object>> getWIPSData(String collection) {
+        Query query = new Query();
+        return convertDocumentsToMaps(secondaryMongoTemplate.find(query, Document.class, collection));
     }
 
     public List<Map<String, Object>> getFilteredData(String collection, String timestamp, String scenario) {

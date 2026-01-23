@@ -29,6 +29,7 @@ import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 import { AdminComponent } from './admin/admin.component';
 import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
+import { WipsComponent } from './wips/wips.component';
 
 export const routes: Routes = [
   {
@@ -180,6 +181,14 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Order Management Monitoring',
+    },
+  },
+  {
+    path: 'wips',
+    component: WipsComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'WIPS',
     },
   },
   {

@@ -846,7 +846,7 @@ export class Wd0HistoricalDataComponent
   }
 
   // Common Chart Options
-  getChartOptions(): ChartOptions<'line'> {
+  getChartOptions(): ChartOptions {
     return {
       responsive: true,
       plugins: {
