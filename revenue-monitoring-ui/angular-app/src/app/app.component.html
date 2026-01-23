@@ -269,6 +269,8 @@
   <button mat-menu-item [routerLink]="'/operations-controls'">
     Operations Controls
   </button>
+  } @if ( isAdmin$) {
+  <button mat-menu-item [routerLink]="'/wips'">WIPS</button>
   }
 </mat-menu>
 
