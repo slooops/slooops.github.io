@@ -75,15 +75,9 @@ public class GLPostingMonitoringService{
         String assignedTo = updateData.get("assignedTo");
         String assignedBy = updateData.get("username");
         String comments = updateData.get("comments");
-        String ledgerName = updateData.get("ledgerName");
-        String processFlow = updateData.get("processFlow");
-        String applicationName = updateData.get("applicationName");
-        String journalSource = updateData.get("journalSource");
-        String accountSeg = updateData.get("accountSeg");
-        String transactionDate = updateData.get("transactionDate");
+        String glBatchName = updateData.get("glBatchName");
         int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments,
-                processFlow, ledgerName, applicationName, journalSource, accountSeg, transactionDate);
-        System.out.println(test);
+                glBatchName);
         refreshGlPostingMonitoringCache();
         return 1;
     }

@@ -256,12 +256,8 @@ public class JdbcManager {
                 transactionDate);
     }
 
-    public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
-            String processFlow, String ledgerName, String applicationName, String journalSource, String glbatch,
-            String transactionDate) {
-        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, processFlow, ledgerName,
-                applicationName,
-                journalSource, glbatch, transactionDate);
+    public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String glbatchName) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  glbatchName);
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName,

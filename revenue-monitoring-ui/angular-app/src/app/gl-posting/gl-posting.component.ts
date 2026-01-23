@@ -29,7 +29,7 @@ export class GlPostingComponent implements OnInit {
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getRoles();
@@ -178,7 +178,7 @@ export class GlPostingComponent implements OnInit {
         (word) =>
           acronyms.includes(word.toUpperCase())
             ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+            : word.charAt(0).toUpperCase() + word.slice(1), // Capitalize the first letter otherwise
       )
       .join(' '); // Join words back with spaces
   }

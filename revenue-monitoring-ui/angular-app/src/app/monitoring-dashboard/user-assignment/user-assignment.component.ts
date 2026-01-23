@@ -45,7 +45,7 @@ export class UserAssignmentComponent {
   getAssignmentUsersForTemplate(): any[] {
     return (
       this.dataService.getAssignmentUsers(
-        this.userContext().assignmentUsersFilterKey
+        this.userContext().assignmentUsersFilterKey,
       ) || []
     );
   }
@@ -53,7 +53,7 @@ export class UserAssignmentComponent {
   constructor(
     private formBuilder: FormBuilder,
     private http: HttpService,
-    private dataService: MonitoringDataService
+    private dataService: MonitoringDataService,
   ) {
     this.updateForm = this.formBuilder.group({});
 
@@ -100,7 +100,7 @@ export class UserAssignmentComponent {
           this.formReady.set(false);
         }
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
   }
 
@@ -109,7 +109,7 @@ export class UserAssignmentComponent {
     const updateData = this.createDynamicObject(
       assigneeName,
       this.submitKeysToMap(),
-      true
+      true,
     );
     Object.assign(updateData, this.getChangedFields());
     this.http
@@ -161,7 +161,7 @@ export class UserAssignmentComponent {
   sendWebexMessage() {
     const assigneeName = this.getAssigneeName();
     const assignmentUsers = this.dataService.getAssignmentUsers(
-      this.userContext().assignmentUsersFilterKey
+      this.userContext().assignmentUsersFilterKey,
     );
     const assignee =
       assignmentUsers?.find((data: any) => data.NAME === assigneeName)?.EMAIL ||
@@ -170,7 +170,7 @@ export class UserAssignmentComponent {
     const webexMessageData = this.createDynamicObject(
       assignee,
       this.webexKeysToMap(),
-      false
+      false,
     );
 
     this.http
@@ -207,12 +207,12 @@ export class UserAssignmentComponent {
   private createDynamicObject(
     assigneeName: string,
     keysToMap: string[],
-    update: boolean
+    update: boolean,
   ): any {
     const result = {
       assignedTo: assigneeName,
       comments: this.getUpdatedComments(),
-      username: this.userContext().username,
+      username: this.userContext().userId,
     };
 
     if (!update) {
@@ -250,7 +250,7 @@ export class UserAssignmentComponent {
           optArr.length &&
           typeof optArr[0] === 'object' &&
           'value' in optArr[0] &&
-          'label' in optArr[0]
+          'label' in optArr[0],
       ) || null
     );
   }
