@@ -128,7 +128,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     http: ApiHttpService,
     destroyManager: DestroyManager,
     private authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
@@ -196,7 +196,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
     const plainMatch = date.match(
-      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/
+      /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
     );
 
     if (plainMatch) {
@@ -219,7 +219,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
       const monthName = monthNames[parseInt(month, 10) - 1];
       return `${monthName} ${parseInt(
         day,
-        10
+        10,
       )}, ${year} at ${hours}:${minutes}:${seconds} PST`;
     }
 
@@ -249,32 +249,27 @@ export class PeriodCloseTrackingComponent implements OnInit {
       return 'N/A';
     }
 
-    // Check if it's a plain TO_CHAR string: "YYYY-MM-DD HH24:MI:SS" (production)
-    const plainMatch = date.match(
-      /^\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}):(\d{2})$/
+    // Case 1: Already time-only (HH:mm:ss)
+    const timeOnlyMatch = date.match(/^(\d{2}):(\d{2}):(\d{2})$/);
+    if (timeOnlyMatch) {
+      return `${timeOnlyMatch[1]}:${timeOnlyMatch[2]}:${timeOnlyMatch[3]} PST`;
+    }
+
+    // Case 2: "YYYY-MM-DD HH:mm:ss"
+    const dateTimeMatch = date.match(
+      /^\d{4}-\d{2}-\d{2}\s+(\d{2}):(\d{2}):(\d{2})$/,
     );
-
-    if (plainMatch) {
-      // Plain string from TO_CHAR - already in PST, display as-is
-      const [, hours, minutes, seconds] = plainMatch;
-      return `${hours}:${minutes}:${seconds} PST`;
+    if (dateTimeMatch) {
+      return `${dateTimeMatch[1]}:${dateTimeMatch[2]}:${dateTimeMatch[3]} PST`;
     }
 
-    // Otherwise, parse as ISO 8601 timestamp (local dev) and convert UTC to PST
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) {
-      return 'N/A';
+    // Case 3: ISO 8601 timestamp (e.g. 2025-01-24T15:30:00.000+00:00)
+    const isoMatch = date.match(/T(\d{2}):(\d{2}):(\d{2})/);
+    if (isoMatch) {
+      return `${isoMatch[1]}:${isoMatch[2]}:${isoMatch[3]} PST`;
     }
 
-    const pstTime = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/Los_Angeles',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    }).format(dateObj);
-
-    return `${pstTime} PST`;
+    return 'N/A';
   }
 
   getCurrentTime() {
@@ -295,7 +290,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         const startTime = this.extractDatePrettifyFull(row['CLOSE_START_TIME']);
         const endTime = this.extractDatePrettifyFull(row['CLOSE_END_TIME']);
         const actualEndTime = this.extractDatePrettifyTimeOnly(
-          row['ACTUAL_CLOSE_END_TIME']
+          row['ACTUAL_CLOSE_END_TIME'],
         );
 
         if (closeType === 'PRECLOSE') {
@@ -341,7 +336,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
       this.qeCashCollectedTableColumns = tableColumns;
       this.qeCashCollectedDatasource = new MatTableDataSource<any>(
-        this.qeCashCollectedData
+        this.qeCashCollectedData,
       );
     });
   }
@@ -356,10 +351,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
       // create ou category status mappings { ou -> { category -> status } }
       this.pcloseMonthEndStatusData = data.filter(
-        (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
+        (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE',
       );
       this.mcloseMonthEndStatusData = data.filter(
-        (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+        (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE',
       );
 
       // setup preclose data (pcloseOuStatusMapping)
@@ -419,7 +414,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let ouStatusesObj = this.pcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
         for (let category of Object.keys(ouStatusesObj).sort(
-          this.customMeStatusCatSort.bind(this)
+          this.customMeStatusCatSort.bind(this),
         )) {
           tableRowObj[category] =
             this.pcloseOuStatusMapping[ou][category]['closeStatus'];
@@ -432,7 +427,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         let ouStatusesObj = this.mcloseOuStatusMapping[ou];
         tableRowObj['OPERATING_UNIT'] = ou;
         for (let category of Object.keys(ouStatusesObj).sort(
-          this.customMeStatusCatSort.bind(this)
+          this.customMeStatusCatSort.bind(this),
         )) {
           tableRowObj[category] =
             this.mcloseOuStatusMapping[ou][category]['closeStatus'];
@@ -461,10 +456,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
           return invData;
         });
         this.preCloseProgramTableData = data.filter(
-          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'PRECLOSE',
         );
         this.midCloseProgramTableData = data.filter(
-          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE'
+          (obj) => obj['CLOSE_TYPE'] == 'MIDCLOSE',
         );
         let programColumns: any[] = [];
 
@@ -483,12 +478,12 @@ export class PeriodCloseTrackingComponent implements OnInit {
         this.pcloseInvGenTableColumns = programColumns;
         this.mcloseInvGenTableColumns = programColumns;
         this.precloseInvGenDatasource = new MatTableDataSource<any>(
-          this.preCloseProgramTableData
+          this.preCloseProgramTableData,
         );
         this.midcloseInvGenDatasource = new MatTableDataSource<any>(
-          this.midCloseProgramTableData
+          this.midCloseProgramTableData,
         );
-      }
+      },
     );
   }
 
@@ -497,14 +492,16 @@ export class PeriodCloseTrackingComponent implements OnInit {
       const precloseData = data.find((obj) => obj['CLOSE_TYPE'] === 'PRECLOSE');
       const midcloseData = data.find((obj) => obj['CLOSE_TYPE'] === 'MIDCLOSE');
 
+      console.log('Estimated Completion Time Data:', data);
+
       this.pcloseEstimatedCompletionTime = precloseData
         ? this.extractDatePrettifyTimeOnly(
-            precloseData['ESTIMATED_COMPLETION_TIME']
+            precloseData['ESTIMATED_COMPLETION_TIME'],
           )
         : 'N/A';
       this.mcloseEstimatedCompletionTime = midcloseData
         ? this.extractDatePrettifyTimeOnly(
-            midcloseData['ESTIMATED_COMPLETION_TIME']
+            midcloseData['ESTIMATED_COMPLETION_TIME'],
           )
         : 'N/A';
     });
@@ -524,19 +521,19 @@ export class PeriodCloseTrackingComponent implements OnInit {
         // Reorder data: SERVICE first, then PRODUCT
         const reorderData = (dataArray: any[]) => {
           const serviceRow = dataArray.find(
-            (row) => row.LINE_TYPE === 'SERVICE'
+            (row) => row.LINE_TYPE === 'SERVICE',
           );
           const productRow = dataArray.find(
-            (row) => row.LINE_TYPE === 'PRODUCT'
+            (row) => row.LINE_TYPE === 'PRODUCT',
           );
           return [serviceRow, productRow].filter(Boolean); // filter out undefined
         };
 
         this.precloseInterfaceLoadData = reorderData(
-          this.precloseInterfaceLoadData
+          this.precloseInterfaceLoadData,
         );
         this.midcloseInterfaceLoadData = reorderData(
-          this.midcloseInterfaceLoadData
+          this.midcloseInterfaceLoadData,
         );
 
         // Helper function to get period keys (exclude LINE_TYPE and percentage columns)
@@ -547,7 +544,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
               key !== 'QUARTER OVER QUARTER' &&
               key !== 'YEAR OVER YEAR' &&
               key !== 'MONTH OVER MONTH' &&
-              key !== 'PRIOR QUARTER MONTH'
+              key !== 'PRIOR QUARTER MONTH',
           );
         };
 
@@ -592,10 +589,10 @@ export class PeriodCloseTrackingComponent implements OnInit {
         };
 
         const precloseTableData = transformTableData(
-          this.precloseInterfaceLoadData
+          this.precloseInterfaceLoadData,
         );
         const midcloseTableData = transformTableData(
-          this.midcloseInterfaceLoadData
+          this.midcloseInterfaceLoadData,
         );
 
         // Build column arrays dynamically based on what's in the data
@@ -620,27 +617,27 @@ export class PeriodCloseTrackingComponent implements OnInit {
         };
 
         this.pcloseInterfaceLoadColumns = buildColumns(
-          this.precloseInterfaceLoadData
+          this.precloseInterfaceLoadData,
         );
         this.mcloseInterfaceLoadColumns = buildColumns(
-          this.midcloseInterfaceLoadData
+          this.midcloseInterfaceLoadData,
         );
 
         this.precloseInterfaceLoadDatasource = new MatTableDataSource<any>(
-          precloseTableData
+          precloseTableData,
         );
         this.midcloseInterfaceLoadDatasource = new MatTableDataSource<any>(
-          midcloseTableData
+          midcloseTableData,
         );
 
         // Transform data for chart component
         this.precloseChartData = this.transformInterfaceDataForChart(
-          this.precloseInterfaceLoadData
+          this.precloseInterfaceLoadData,
         );
         this.midcloseChartData = this.transformInterfaceDataForChart(
-          this.midcloseInterfaceLoadData
+          this.midcloseInterfaceLoadData,
         );
-      }
+      },
     );
   }
 
@@ -654,7 +651,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
         key !== 'QUARTER OVER QUARTER' &&
         key !== 'YEAR OVER YEAR' &&
         key !== 'MONTH OVER MONTH' &&
-        key !== 'PRIOR QUARTER MONTH'
+        key !== 'PRIOR QUARTER MONTH',
     );
 
     // Find PRODUCT and SERVICE rows
@@ -715,7 +712,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
 
     const polling$ = interval(this.refreshInterval).pipe(
       startWith(0), // Emit initial value immediately
-      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager))
+      switchMap(() => this.http.get(cacheBustingUrl, this.destroyManager)),
     );
     return polling$;
   }

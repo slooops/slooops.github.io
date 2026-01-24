@@ -3,6 +3,9 @@ package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -144,7 +147,20 @@ public class PeriodCloseMonitoringService {
     }
 
     public List<Map<String, Object>> getEstimatedCompletionTime() {
-        return jdbcManager.queryForList(estimatedCompletionTime);
+        List<Map<String, Object>> results = jdbcManager.queryForList(estimatedCompletionTime);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        for (Map<String, Object> row : results) {
+            Object value = row.get("ESTIMATED_COMPLETION_TIME"); // <-- change key if needed
+
+            if (value instanceof String) {
+                OffsetDateTime dateTime = OffsetDateTime.parse((String) value);
+                row.put("ESTIMATED_COMPLETION_TIME", dateTime.format(timeFormatter));
+            }
+        }
+
+        return results;
     }
 
 }
