@@ -97,7 +97,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
     private dataFormattingService: DataFormattingService,
     private monitoringDataService: MonitoringDataService,
     private utilService: UtilsService,
-    private httpService: HttpService
+    private httpService: HttpService,
   ) {
     super();
 
@@ -108,7 +108,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
         this.httpService.setHostUrl(userContext.apiUrl);
       } else {
         console.warn(
-          'MonitoringDashboard - userContext or apiUrl not available'
+          'MonitoringDashboard - userContext or apiUrl not available',
         );
       }
     });
@@ -128,7 +128,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
         this.getProcessFlowTotals();
         this.getSummaryAssignableUsers();
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
 
     // Effect to handle columnsToFilter changes (replaces ngOnChanges)
@@ -149,7 +149,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
           if (data && data.length > 0) {
             this.periodName.set(data[0].PERIOD_NAME);
             this.periodEnd.set(
-              this.dataFormattingService.dateTransform(data[0].END_DATE)
+              this.dataFormattingService.dateTransform(data[0].END_DATE),
             );
           }
         },
@@ -182,7 +182,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
   hasSummaryData = computed(() => this.summaryData().length > 0);
   hasErrorDetails = computed(() => this.errorDetails().length > 0);
   hasErrorDetailsFiltered = computed(
-    () => this.errorDetailsFiltered().length > 0
+    () => this.errorDetailsFiltered().length > 0,
   );
 
   getErrorSummary() {
@@ -199,12 +199,12 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
             this.summaryColumns = Object.keys(this.summaryData()[0]);
           }
           this.summaryColumns = this.summaryColumns.filter(
-            (data) => !this.summaryColumnsToHide().includes(data)
+            (data) => !this.summaryColumnsToHide().includes(data),
           );
           this.summaryDisplayedColumns = ['select', ...this.summaryColumns];
           this.originalData.set(this.summaryData());
           this.summaryDatasource = new MatTableDataSource<T>(
-            this.summaryData()
+            this.summaryData(),
           );
           if (this.summaryPaginator) {
             if (this.summaryDatasource.paginator !== this.summaryPaginator) {
@@ -213,7 +213,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
             this.totalSummaryRecords = this.summaryData().length;
           }
           this.summaryLoadTime.set(
-            `Last Updated: ${new Date().toLocaleString()}`
+            `Last Updated: ${new Date().toLocaleString()}`,
           );
         },
         error: (err) => {
@@ -248,7 +248,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
     this.sortDirection = this.dataFormattingService.getNextSortDirection(
       this.sortColumn,
       column,
-      this.sortDirection
+      this.sortDirection,
     );
     this.sortColumn = column;
 
@@ -271,7 +271,11 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       dataSetter([...originalArr]);
     } else {
       dataSetter(
-        this.dataFormattingService.sortData(dataArr, column, this.sortDirection)
+        this.dataFormattingService.sortData(
+          dataArr,
+          column,
+          this.sortDirection,
+        ),
       );
     }
   }
@@ -294,7 +298,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       this.selectedRows.update((rows) => [...rows, row]);
     } else {
       this.selectedRows.update((rows) =>
-        rows.filter((selectedRow) => selectedRow !== row)
+        rows.filter((selectedRow) => selectedRow !== row),
       );
     }
 
@@ -332,7 +336,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
     ) {
       console.error(
         'No selectedSummaryData found:',
-        this.selectedSummaryData()
+        this.selectedSummaryData(),
       );
       return;
     }
@@ -382,7 +386,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
             this.detailsDisplayedColumns = Object.keys(details[0]);
           }
           this.detailsDisplayedColumns = this.detailsDisplayedColumns.filter(
-            (data) => !this.detailsColumnsToHide().includes(data)
+            (data) => !this.detailsColumnsToHide().includes(data),
           );
           details.forEach((row) => {
             this.detailsDisplayedColumns.forEach((column) => {
@@ -420,7 +424,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       .getFilteredDetails(
         this.urls()['filteredDetailsUrl'],
         data,
-        this.keysToMap()
+        this.keysToMap(),
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -431,7 +435,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
           this.errorDetailsFiltered.set(filteredDetails);
           this.originalFilteredData.set(this.errorDetailsFiltered());
           this.filtereddataSource = new MatTableDataSource<T>(
-            this.errorDetailsFiltered()
+            this.errorDetailsFiltered(),
           );
           if (this.detailsPaginator) {
             this.filtereddataSource.paginator = this.detailsPaginator;
@@ -460,7 +464,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       this.selectFilters,
       this.errorDetails(),
       this.isFiltered(),
-      this.errorDetailsFiltered()
+      this.errorDetailsFiltered(),
     );
   }
 
@@ -482,7 +486,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       this.selectFilters,
       this.searchForm,
       this.dataSource,
-      this.filtereddataSource
+      this.filtereddataSource,
     );
   }
 
@@ -491,7 +495,7 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       data,
       filter,
       this.selectFilters,
-      this.textFilters
+      this.textFilters,
     );
   };
 
@@ -517,17 +521,17 @@ export class MonitoringDashboardComponent<T> extends BaseComponent {
       this.exportService.exportTableToExcel(
         this.errorDetailsFiltered(),
         this.exportService.generateSheetName(
-          this.componentName() + ' Error Details Filtered'
+          this.componentName() + ' Error Details Filtered',
         ),
-        this.componentName() + '_Error_Details_Filtered'
+        this.componentName() + '_Error_Details_Filtered',
       );
     } else if (this.errorDetails().length) {
       this.exportService.exportTableToExcel(
         this.errorDetails(),
         this.exportService.generateSheetName(
-          this.componentName() + ' Error Details'
+          this.componentName() + ' Error Details',
         ),
-        this.componentName() + '_Error_Details'
+        this.componentName() + '_Error_Details',
       );
     } else {
       console.warn('No data available to export');

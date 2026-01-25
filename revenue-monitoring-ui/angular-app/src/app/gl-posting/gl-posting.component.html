@@ -1,16 +1,49 @@
-<mat-tab-group>
-  @if (roles.includes("ADMIN")) {
-    <mat-tab label="General Ledger">
-      <app-monitoring-dashboard
-        [urls]="glUrls"
-        [keysToMap]="glKeysToMap"
-        [componentName]="'General Ledger'"
-        [columnsToFilter]="glFilters"
-        [assignmentDialogFieldConfig]="fieldConfig"
-        [userContext]="userContextData"
-        [submitKeysToMap]="['GL_BATCH_NAME']"
-        [webexKeysToMap]="['GL_BATCH_NAME']"
-      ></app-monitoring-dashboard>
-    </mat-tab>
-  }
-</mat-tab-group>
+<div class="dashboard-header">
+  <div class="header-main">
+    <h2>General Ledger</h2>
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+
+    <div class="global-search">
+      <div class="global-search-input-wrapper">
+        <input
+          type="text"
+          class="global-search-input"
+          #globalSearchInput
+          placeholder="Search.."
+        />
+      </div>
+      <span class="global-search-icon">🔍</span>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+@if (roles.includes("ADMIN")) {
+  <div class="gl-tiles-container">
+    <button type="button" class="gl-tile active">General Ledger</button>
+  </div>
+
+  <hr />
+
+  <div class="gl-content">
+    <app-monitoring-dashboard
+      [urls]="glUrls"
+      [keysToMap]="glKeysToMap"
+      [componentName]="'General Ledger'"
+      [columnsToFilter]="glFilters"
+      [assignmentDialogFieldConfig]="fieldConfig"
+      [userContext]="userContextData"
+      [submitKeysToMap]="['GL_BATCH_NAME']"
+      [webexKeysToMap]="['GL_BATCH_NAME']"
+    ></app-monitoring-dashboard>
+  </div>
+}

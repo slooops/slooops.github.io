@@ -48,21 +48,24 @@
           style="
             color: white;
             margin-bottom: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: &quot;Inter&quot;, sans-serif;
             font-weight: 400;
           "
         >
           @if (header.length > 0) {
-          <span>
-            <div style="font-size: 12px; line-height: normal">
-              Finance-IT Control Tower
-            </div>
-            <div style="font-size: 14px; line-height: normal">{{ header }}</div>
-          </span>
-          } @if (header.length === 0) {
-          <span>
-            <span>Finance-IT Control Tower</span>
-          </span>
+            <span>
+              <div style="font-size: 12px; line-height: normal">
+                Finance-IT Control Tower
+              </div>
+              <div style="font-size: 14px; line-height: normal">
+                {{ header }}
+              </div>
+            </span>
+          }
+          @if (header.length === 0) {
+            <span>
+              <span>Finance-IT Control Tower</span>
+            </span>
           }
         </h5>
       </span>
@@ -76,92 +79,154 @@
         </li> -->
 
           <!-- Period Close Tracking -->
-          @if ( !( hasRole$([ 'LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES',
-          'ISSUE_RESOLUTION', 'CASE_IQ_MANAGER', 'CASE_IQ_OM', 'CASE_IQ_SBP',
-          'CASE_IQ_I2C', 'CASE_IQ_AIT', 'CASE_IQ_FPP', 'CASE_IQ_P2P',
-          'CASE_IQ_CAPITAL' ]) && !isAdmin$ && !hasRole$([ 'PERIOD_CLOSE',
-          'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON',
-          'ORDER_MANAGEMENT' ]) ) ) {
-          <li
-            class="menu-item"
-            [class.disabled]="
-              !(
-                hasRole$([
-                  'PERIOD_CLOSE',
-                  'EXCEPTION_ADMIN',
-                  'EXCEPTION_READ_ONLY',
-                  'ACCOUNT_RECON',
-                  'ORDER_MANAGEMENT'
-                ]) || isAdmin$
-              )
-            "
-          >
-            <a
-              [matMenuTriggerFor]="menu"
-              class="top-link"
-              style="font-weight: 400"
+          @if (
+            !(
+              hasRole$([
+                "LARGE_DEAL",
+                "WD0",
+                "MIDCLOSE_VOLUMES",
+                "ISSUE_RESOLUTION",
+                "CASE_IQ_MANAGER",
+                "CASE_IQ_OM",
+                "CASE_IQ_SBP",
+                "CASE_IQ_I2C",
+                "CASE_IQ_AIT",
+                "CASE_IQ_FPP",
+                "CASE_IQ_P2P",
+                "CASE_IQ_CAPITAL",
+              ]) &&
+              !isAdmin$ &&
+              !hasRole$([
+                "PERIOD_CLOSE",
+                "EXCEPTION_ADMIN",
+                "EXCEPTION_READ_ONLY",
+                "ACCOUNT_RECON",
+                "ORDER_MANAGEMENT",
+              ])
+            )
+          ) {
+            <li
+              class="menu-item"
+              [class.disabled]="
+                !(
+                  hasRole$([
+                    'PERIOD_CLOSE',
+                    'EXCEPTION_ADMIN',
+                    'EXCEPTION_READ_ONLY',
+                    'ACCOUNT_RECON',
+                    'ORDER_MANAGEMENT',
+                  ]) || isAdmin$
+                )
+              "
             >
-              Continuous Monitoring
-            </a>
-          </li>
-          } @if ( !( hasRole$([ 'PERIOD_CLOSE', 'EXCEPTION_ADMIN',
-          'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON', 'ORDER_MANAGEMENT',
-          'CASE_IQ_MANAGER', 'CASE_IQ_OM', 'CASE_IQ_SBP', 'CASE_IQ_I2C',
-          'CASE_IQ_AIT', 'CASE_IQ_FPP', 'CASE_IQ_P2P', 'CASE_IQ_CAPITAL' ]) &&
-          !isAdmin$ && !hasRole$([ 'LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES',
-          'ISSUE_RESOLUTION' ]) ) ) {
-          <li
-            class="menu-item"
-            [class.disabled]="
-              !(
-                hasRole$([
-                  'LARGE_DEAL',
-                  'WD0',
-                  'MIDCLOSE_VOLUMES',
-                  'ISSUE_RESOLUTION'
-                ]) || isAdmin$
-              )
-            "
-          >
-            <a
-              [routerLink]="'/business-insights'"
-              class="top-link"
-              style="font-weight: 400"
+              <a
+                [matMenuTriggerFor]="menu"
+                class="top-link"
+                style="font-weight: 400"
+              >
+                Continuous Monitoring
+              </a>
+            </li>
+          }
+          @if (
+            !(
+              hasRole$([
+                "PERIOD_CLOSE",
+                "EXCEPTION_ADMIN",
+                "EXCEPTION_READ_ONLY",
+                "ACCOUNT_RECON",
+                "ORDER_MANAGEMENT",
+                "CASE_IQ_MANAGER",
+                "CASE_IQ_OM",
+                "CASE_IQ_SBP",
+                "CASE_IQ_I2C",
+                "CASE_IQ_AIT",
+                "CASE_IQ_FPP",
+                "CASE_IQ_P2P",
+                "CASE_IQ_CAPITAL",
+              ]) &&
+              !isAdmin$ &&
+              !hasRole$([
+                "LARGE_DEAL",
+                "WD0",
+                "MIDCLOSE_VOLUMES",
+                "ISSUE_RESOLUTION",
+              ])
+            )
+          ) {
+            <li
+              class="menu-item"
+              [class.disabled]="
+                !(
+                  hasRole$([
+                    'LARGE_DEAL',
+                    'WD0',
+                    'MIDCLOSE_VOLUMES',
+                    'ISSUE_RESOLUTION',
+                  ]) || isAdmin$
+                )
+              "
             >
-              Business Insights
-            </a>
-          </li>
-          } @if ( !( hasRole$([ 'PERIOD_CLOSE', 'EXCEPTION_ADMIN',
-          'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON', 'ORDER_MANAGEMENT',
-          'LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES', 'ISSUE_RESOLUTION' ]) &&
-          !isAdmin$ && !hasRole$([ 'CASE_IQ_MANAGER', 'CASE_IQ_OM',
-          'CASE_IQ_SBP', 'CASE_IQ_I2C', 'CASE_IQ_AIT', 'CASE_IQ_FPP',
-          'CASE_IQ_P2P', 'CASE_IQ_CAPITAL' ]) ) ) {
-          <li
-            class="menu-item"
-            [class.disabled]="
-              !(
-                hasRole$([
-                  'CASE_IQ_MANAGER',
-                  'CASE_IQ_OM',
-                  'CASE_IQ_SBP',
-                  'CASE_IQ_I2C',
-                  'CASE_IQ_AIT',
-                  'CASE_IQ_FPP',
-                  'CASE_IQ_P2P',
-                  'CASE_IQ_CAPITAL'
-                ]) || isAdmin$
-              )
-            "
-          >
-            <a
-              [matMenuTriggerFor]="espMenu"
-              class="top-link"
-              style="font-weight: 400"
+              <a
+                [routerLink]="'/business-insights'"
+                class="top-link"
+                style="font-weight: 400"
+              >
+                Business Insights
+              </a>
+            </li>
+          }
+          @if (
+            !(
+              hasRole$([
+                "PERIOD_CLOSE",
+                "EXCEPTION_ADMIN",
+                "EXCEPTION_READ_ONLY",
+                "ACCOUNT_RECON",
+                "ORDER_MANAGEMENT",
+                "LARGE_DEAL",
+                "WD0",
+                "MIDCLOSE_VOLUMES",
+                "ISSUE_RESOLUTION",
+              ]) &&
+              !isAdmin$ &&
+              !hasRole$([
+                "CASE_IQ_MANAGER",
+                "CASE_IQ_OM",
+                "CASE_IQ_SBP",
+                "CASE_IQ_I2C",
+                "CASE_IQ_AIT",
+                "CASE_IQ_FPP",
+                "CASE_IQ_P2P",
+                "CASE_IQ_CAPITAL",
+              ])
+            )
+          ) {
+            <li
+              class="menu-item"
+              [class.disabled]="
+                !(
+                  hasRole$([
+                    'CASE_IQ_MANAGER',
+                    'CASE_IQ_OM',
+                    'CASE_IQ_SBP',
+                    'CASE_IQ_I2C',
+                    'CASE_IQ_AIT',
+                    'CASE_IQ_FPP',
+                    'CASE_IQ_P2P',
+                    'CASE_IQ_CAPITAL',
+                  ]) || isAdmin$
+                )
+              "
             >
-              ESP Case Manager
-            </a>
-          </li>
+              <a
+                [matMenuTriggerFor]="espMenu"
+                class="top-link"
+                style="font-weight: 400"
+              >
+                ESP Case Manager
+              </a>
+            </li>
           }
         </ul>
       </span>
@@ -178,7 +243,7 @@
     </div> -->
 
         @if (!showNavbar) {
-        <app-o2c-search></app-o2c-search>
+          <app-o2c-search></app-o2c-search>
         }
 
         <!-- Analytics Dashboard Link -->
@@ -248,49 +313,68 @@
 </mat-menu> -->
 
 @if (isHelpDropdownOpen) {
-<div class="help-dropdown" (click)="stopPropagation($event)">
-  <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
-</div>
+  <div class="help-dropdown" (click)="stopPropagation($event)">
+    <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
+  </div>
 }
 
 <mat-menu #menu="matMenu">
-  @if (hasRole$(['PERIOD_CLOSE']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/period-close-tracking'">
-    Period Close Tracking
-  </button>
-  } @if (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/invoice-to-cash'">
-    Invoice to Cash
-  </button>
-  } @if ( hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY', 'ACCOUNT_RECON'])
-  || isAdmin$ ) {
-  <button mat-menu-item [routerLink]="'/revenue-accounting'">
-    Revenue Accounting
-  </button>
-  } @if (hasRole$(['EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/gl-posting'">General Ledger</button>
-  } @if (hasRole$(['ORDER_MANAGEMENT']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/order-management'">
-    Order Management
-  </button>
-  } @if (hasRole$(['OPERATION_CTRL']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/operations-controls'">
-    Operations Controls
-  </button>
-  } @if ( isAdmin$) {
-  <button mat-menu-item [routerLink]="'/wips'">WIPS</button>
+  @if (hasRole$(["PERIOD_CLOSE"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/period-close-tracking'">
+      Period Close Tracking
+    </button>
+  }
+  @if (hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/invoice-to-cash'">
+      Invoice to Cash
+    </button>
+  }
+  @if (
+    hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY", "ACCOUNT_RECON"]) ||
+    isAdmin$
+  ) {
+    <button mat-menu-item [routerLink]="'/revenue-accounting'">
+      Revenue Accounting
+    </button>
+  }
+  @if (hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/gl-posting'">General Ledger</button>
+  }
+  @if (hasRole$(["ORDER_MANAGEMENT"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/order-management'">
+      Order Management
+    </button>
+  }
+  @if (hasRole$(["OPERATION_CTRL"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/operations-controls'">
+      Operations Controls
+    </button>
+  }
+  @if (isAdmin$) {
+    <button mat-menu-item [routerLink]="'/wips'">WIPS</button>
   }
 </mat-menu>
 
 <mat-menu #espMenu="matMenu">
-  @if ( hasRole$([ 'CASE_IQ_MANAGER', 'CASE_IQ_OM', 'CASE_IQ_SBP',
-  'CASE_IQ_I2C', 'CASE_IQ_AIT', 'CASE_IQ_FPP', 'CASE_IQ_P2P', 'CASE_IQ_CAPITAL'
-  ]) || isAdmin$ ) {
-  <button mat-menu-item [routerLink]="'/case-iq'">Case IQ</button>
-  } @if (hasRole$(['ADMIN']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/i2c-case-analyzer'">I2C</button>
-  } @if (hasRole$(['ADMIN']) || isAdmin$) {
-  <button mat-menu-item [routerLink]="'/sbp-case-analyzer'">SBP</button>
+  @if (
+    hasRole$([
+      "CASE_IQ_MANAGER",
+      "CASE_IQ_OM",
+      "CASE_IQ_SBP",
+      "CASE_IQ_I2C",
+      "CASE_IQ_AIT",
+      "CASE_IQ_FPP",
+      "CASE_IQ_P2P",
+      "CASE_IQ_CAPITAL",
+    ]) || isAdmin$
+  ) {
+    <button mat-menu-item [routerLink]="'/case-iq'">Case IQ</button>
+  }
+  @if (hasRole$(["ADMIN"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/i2c-case-analyzer'">I2C</button>
+  }
+  @if (hasRole$(["ADMIN"]) || isAdmin$) {
+    <button mat-menu-item [routerLink]="'/sbp-case-analyzer'">SBP</button>
   }
 </mat-menu>
 

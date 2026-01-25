@@ -3,7 +3,7 @@
   background: white;
 
   min-height: 100vh; /* Ensure it covers the entire height of the viewport */
-  padding: 1.2rem; /* Add padding to keep spacing from the edges */
+  padding: 5px 1.2rem 1.2rem 1.2rem; /* Add padding to keep spacing from the edges */
   font-family: "Inter", sans-serif;
 }
 
@@ -203,7 +203,7 @@ tr.mat-mdc-header-row {
   margin-bottom: 16px;
   border: 0px;
   border-radius: 12px;
-  box-shadow: 0 3px 8px #00000014;
+  box-shadow: 0 3px 8px #00000040;
 }
 
 .flowchart-container {
@@ -272,7 +272,7 @@ tr.mat-mdc-header-row {
   align-items: center;
   width: 100%;
   padding: 0 10px 0 12px;
-  min-height: 80px;
+  min-height: 50px;
 }
 
 /* .section-title {
@@ -339,7 +339,7 @@ tr.mat-mdc-header-row {
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 20px;
   flex: 0 0 auto;
 }
 .assign-buttons {
@@ -355,8 +355,7 @@ tr.mat-mdc-header-row {
   flex-direction: column;
   justify-content: flex-end;
   height: fit-content;
-  padding-top: 0px;
-  margin-top: -6px;
+  padding-top: 10px;
 }
 
 .callout-box {
@@ -451,7 +450,9 @@ tr.mat-mdc-header-row {
   border-radius: 6px;
   color: #fff !important;
   border: none;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .comments-cell {

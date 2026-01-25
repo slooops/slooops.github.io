@@ -1,120 +1,164 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
+<div class="dashboard-header">
+  <div class="header-main">
+    <h2>Revenue Accounting</h2>
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+
+    <div class="global-search">
+      <div class="global-search-input-wrapper">
+        <input
+          type="text"
+          class="global-search-input"
+          #globalSearchInput
+          placeholder="Search.."
+        />
+      </div>
+      <span class="global-search-icon">🔍</span>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<div class="cr-tiles-container">
   @for (tab of filteredTabs; track tab; let i = $index) {
-  <mat-tab [label]="tab.label" [disabled]="tab.disabled">
-    @switch (tab.component) { @case ('app-standard-revenue') { @if
-    (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="standardRevenueUrl"
-      [keysToMap]="[
-        'PERIOD_NAME',
-        'ORG_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'TRANSACTION_DATE'
-      ]"
-      [componentName]="'Standard Revenue'"
-      [columnsToFilter]="standardRevenueFilters"
-      [detailsColumnsToHide]="['TRANSACTION_DATE']"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [userContext]="userContextData"
-      [submitKeysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'TRANSACTION_DATE'
-      ]"
-      [webexKeysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'AMOUNT'
-      ]"
-    ></app-monitoring-dashboard>
-    } } @case ('app-rol') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="rolUrls"
-      [keysToMap]="rolAndAccrualsKeysToMap"
-      [componentName]="'ROL'"
-      [columnsToFilter]="rolFilters"
-      [summaryColumnsToHide]="['SEQUENCE_NUM']"
-      [detailsColumnsToHide]="['SEQUENCE_NUM']"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [userContext]="userContextData"
-      [submitKeysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'TRANSACTION_DATE'
-      ]"
-      [webexKeysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'AMOUNT'
-      ]"
-    ></app-monitoring-dashboard>
-    } } @case ('app-accruals') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="accrualsUrls"
-      [keysToMap]="rolAndAccrualsKeysToMap"
-      [componentName]="'Accruals'"
-      [columnsToFilter]="accrualsFilters"
-      [summaryColumnsToHide]="['SEQUENCE_NUM']"
-      [detailsColumnsToHide]="['TRANSACTION_DATE']"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [userContext]="userContextData"
-      [submitKeysToMap]="['SEQUENCE_NUM']"
-      [webexKeysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'AMOUNT'
-      ]"
-    ></app-monitoring-dashboard>
-    } } @case ('app-accounts') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="accountsUrls"
-      [keysToMap]="['SEQUENCE_NUMBER']"
-      [componentName]="'Accounts'"
-      [columnsToFilter]="accountsFilters"
-      [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
-      [detailsColumnsToHide]="['TRANSACTION_DATE']"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [userContext]="userContextData"
-      [submitKeysToMap]="['SEQUENCE_NUMBER']"
-      [webexKeysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'PROCESS_FLOW',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'AMOUNT'
-      ]"
-    ></app-monitoring-dashboard>
-    } } }
-  </mat-tab>
+    <button
+      type="button"
+      class="cr-tile"
+      [class.active]="selectedIndex === i"
+      [disabled]="tab.disabled"
+      (click)="onTabChange(i)"
+    >
+      {{ tab.label }}
+    </button>
   }
-</mat-tab-group>
+</div>
+
+<hr />
+
+<div class="cr-content">
+  @if (filteredTabs.length > 0) {
+    @switch (filteredTabs[selectedIndex]?.component) {
+      @case ("app-standard-revenue") {
+        <app-monitoring-dashboard
+          [urls]="standardRevenueUrl"
+          [keysToMap]="[
+            'PERIOD_NAME',
+            'ORG_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'TRANSACTION_DATE',
+          ]"
+          [componentName]="'Standard Revenue'"
+          [columnsToFilter]="standardRevenueFilters"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [userContext]="userContextData"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+          ]"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT',
+          ]"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-rol") {
+        <app-monitoring-dashboard
+          [urls]="rolUrls"
+          [keysToMap]="rolAndAccrualsKeysToMap"
+          [componentName]="'ROL'"
+          [columnsToFilter]="rolFilters"
+          [summaryColumnsToHide]="['SEQUENCE_NUM']"
+          [detailsColumnsToHide]="['SEQUENCE_NUM']"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [userContext]="userContextData"
+          [submitKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+          ]"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT',
+          ]"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-accruals") {
+        <app-monitoring-dashboard
+          [urls]="accrualsUrls"
+          [keysToMap]="rolAndAccrualsKeysToMap"
+          [componentName]="'Accruals'"
+          [columnsToFilter]="accrualsFilters"
+          [summaryColumnsToHide]="['SEQUENCE_NUM']"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [userContext]="userContextData"
+          [submitKeysToMap]="['SEQUENCE_NUM']"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT',
+          ]"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-accounts") {
+        <app-monitoring-dashboard
+          [urls]="accountsUrls"
+          [keysToMap]="['SEQUENCE_NUMBER']"
+          [componentName]="'Accounts'"
+          [columnsToFilter]="accountsFilters"
+          [summaryColumnsToHide]="['SEQUENCE_NUMBER']"
+          [detailsColumnsToHide]="['TRANSACTION_DATE']"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [userContext]="userContextData"
+          [submitKeysToMap]="['SEQUENCE_NUMBER']"
+          [webexKeysToMap]="[
+            'PERIOD_NAME',
+            'APPLICATION_NAME',
+            'PROCESS_FLOW',
+            'ORG_NAME',
+            'TRANSACTION_DATE',
+            'AMOUNT',
+          ]"
+        ></app-monitoring-dashboard>
+      }
+    }
+  }
+</div>
 
 <div
   style="display: flex; justify-content: center; align-items: center !important"
 >
   @if (!roles.length) {
-  <tr>
-    <td colspan="100%" style="text-align: center">
-      <app-loading-symbol></app-loading-symbol>
-    </td>
-  </tr>
+    <tr>
+      <td colspan="100%" style="text-align: center">
+        <app-loading-symbol></app-loading-symbol>
+      </td>
+    </tr>
   }
 </div>

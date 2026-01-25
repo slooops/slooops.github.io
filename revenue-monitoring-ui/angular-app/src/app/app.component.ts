@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private destroyManager: DestroyManager,
     private menuService: MenuService,
     private searchContextService: SearchContextService,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {}
 
   menuOpened = false;
@@ -179,7 +179,7 @@ export class AppComponent implements OnInit, OnDestroy {
           return route;
         }),
         mergeMap((route) => route.data),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((data) => {
         this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
@@ -190,48 +190,48 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        // Log page visit for analytics (fire-and-forget)
-        this.logPageVisit(event.urlAfterRedirects || event.url);
+    // this.router.events.subscribe((event) => {
+    //   if (event instanceof NavigationEnd) {
+    //     // Log page visit for analytics (fire-and-forget)
+    //     this.logPageVisit(event.urlAfterRedirects || event.url);
 
-        if (event.url.includes('/period-close-tracking')) {
-          this.menuService.updateHeader(
-            'Continuous Monitoring > Period Close (Internal)'
-          );
-        } else if (event.url.includes('/invoice-to-cash')) {
-          this.menuService.updateHeader(
-            'Continuous Monitoring > Invoice to Cash > Pre-Invoicing'
-          );
-        } else if (event.url.includes('/revenue-accounting')) {
-          this.menuService.updateHeader(
-            'Continuous Monitoring > Revenue Accounting > Standard Revenue'
-          );
-        } else if (event.url.includes('/gl-posting')) {
-          this.menuService.updateHeader(
-            'Continuous Monitoring > General Ledger'
-          );
-        } else if (event.url.includes('/business-insights')) {
-          // Set dynamic header based on user's Business Insights role
-          const businessInsightsHeader = this.getBusinessInsightsHeader();
-          this.menuService.updateHeader(businessInsightsHeader);
-        } else if (event.url.includes('/order-management')) {
-          this.menuService.updateHeader(
-            'Continuous Monitoring > Order Management > Imports'
-          );
-        } else if (event.url.includes('/case-iq')) {
-          this.menuService.updateHeader('ESP Case Manager > Case IQ');
-        } else if (event.url.includes('/i2c-case-analyzer')) {
-          this.menuService.updateHeader(
-            'ESP Case Manager > Case Analyzer - I2C'
-          );
-        } else if (event.url.includes('/sbp-case-analyzer')) {
-          this.menuService.updateHeader(
-            'ESP Case Manager > Case Analyzer - SBP'
-          );
-        }
-      }
-    });
+    //     if (event.url.includes('/period-close-tracking')) {
+    //       this.menuService.updateHeader(
+    //         'Continuous Monitoring > Period Close (Internal)'
+    //       );
+    //     } else if (event.url.includes('/invoice-to-cash')) {
+    //       this.menuService.updateHeader(
+    //         'Continuous Monitoring > Invoice to Cash > Pre-Invoicing'
+    //       );
+    //     } else if (event.url.includes('/revenue-accounting')) {
+    //       this.menuService.updateHeader(
+    //         'Continuous Monitoring > Revenue Accounting > Standard Revenue'
+    //       );
+    //     } else if (event.url.includes('/gl-posting')) {
+    //       this.menuService.updateHeader(
+    //         'Continuous Monitoring > General Ledger'
+    //       );
+    //     } else if (event.url.includes('/business-insights')) {
+    //       // Set dynamic header based on user's Business Insights role
+    //       const businessInsightsHeader = this.getBusinessInsightsHeader();
+    //       this.menuService.updateHeader(businessInsightsHeader);
+    //     } else if (event.url.includes('/order-management')) {
+    //       this.menuService.updateHeader(
+    //         'Continuous Monitoring > Order Management > Imports'
+    //       );
+    //     } else if (event.url.includes('/case-iq')) {
+    //       this.menuService.updateHeader('ESP Case Manager > Case IQ');
+    //     } else if (event.url.includes('/i2c-case-analyzer')) {
+    //       this.menuService.updateHeader(
+    //         'ESP Case Manager > Case Analyzer - I2C'
+    //       );
+    //     } else if (event.url.includes('/sbp-case-analyzer')) {
+    //       this.menuService.updateHeader(
+    //         'ESP Case Manager > Case Analyzer - SBP'
+    //       );
+    //     }
+    //   }
+    // });
 
     this.dataService
       .getExceptionAssignmentUsers(this.destroyManager)

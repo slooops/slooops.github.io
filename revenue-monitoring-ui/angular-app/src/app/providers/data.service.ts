@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { ApiHttpService } from './http.service';
-import { catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { DestroyManager } from './destroy-manager.service';
 
 @Injectable({
@@ -37,7 +37,7 @@ export class DataService implements OnDestroy {
 
   private fetchWithCache(
     url: string,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
   ): Observable<any> {
     const currentTime = Date.now();
     const cachedData = this.cacheStore.get(url);
@@ -56,13 +56,27 @@ export class DataService implements OnDestroy {
         console.error(`Error fetching data from ${url}:`, error);
         return of(null);
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
     return data$;
   }
 
   getMonitoringPeriodStatus(destroyManager: DestroyManager): Observable<any> {
-    return this.fetchWithCache('monitoring-period-status', destroyManager);
+    return this.fetchWithCache('monitoring-period-status', destroyManager).pipe(
+      map((response: any) => {
+        // Backend returns array, take first element
+        const data =
+          Array.isArray(response) && response.length > 0
+            ? response[0]
+            : response;
+
+        return {
+          periodName: data?.periodName || data?.PERIOD_NAME || '',
+          periodEndDate: data?.periodEndDate || data?.END_DATE || '',
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }),
+    );
   }
 
   getI2CSummary(destroyManager: DestroyManager): Observable<any> {
@@ -111,7 +125,7 @@ export class DataService implements OnDestroy {
     }
     return this.assignmentUsers.filter(
       (user: any) =>
-        user.FILTER_KEY === null || user.FILTER_KEY === componentName
+        user.FILTER_KEY === null || user.FILTER_KEY === componentName,
     );
   }
 
@@ -119,7 +133,7 @@ export class DataService implements OnDestroy {
     if (!this.tabData.has(tabName)) {
       this.tabData.set(
         tabName,
-        new BehaviorSubject<{ [key: string]: string }>({})
+        new BehaviorSubject<{ [key: string]: string }>({}),
       );
     }
   }
