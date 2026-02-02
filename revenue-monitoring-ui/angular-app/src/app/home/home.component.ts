@@ -257,6 +257,7 @@ export class HomeComponent implements OnDestroy {
             inProgress: number;
             resolved: number;
             totalIssues: number;
+            agent: number;
           }
         >();
 
@@ -276,6 +277,7 @@ export class HomeComponent implements OnDestroy {
                 inProgress: 0,
                 resolved: 0,
                 totalIssues: 0,
+                agent: 0,
               });
             }
 
@@ -291,6 +293,8 @@ export class HomeComponent implements OnDestroy {
               category === 'total issues'
             ) {
               weekData.totalIssues = count;
+            } else if (category === 'agent') {
+              weekData.agent = count;
             }
           });
         }
@@ -330,6 +334,9 @@ export class HomeComponent implements OnDestroy {
           ),
           totalIssues: fixedWeeks.map(
             (week) => (weekMap.get(week) || { totalIssues: 0 }).totalIssues,
+          ),
+          agent: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { agent: 0 }).agent,
           ),
           percentInProgress,
         };
@@ -851,6 +858,12 @@ export class HomeComponent implements OnDestroy {
     );
     const resolvedLabel = `Resolved (${resolvedSum.toLocaleString('en-US')})`;
 
+    const agentSum = (chartData.agent || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0,
+    );
+    const agentLabel = `Agent (${agentSum.toLocaleString('en-US')})`;
+
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
       type: 'bar',
@@ -898,6 +911,18 @@ export class HomeComponent implements OnDestroy {
             data: chartData.resolved,
             borderColor: '#5c9e6b',
             backgroundColor: '#5c9e6b',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+          },
+          {
+            type: 'line',
+            label: agentLabel,
+            data: chartData.agent,
+            borderColor: '#9b59b6',
+            backgroundColor: '#9b59b6',
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,
