@@ -62,12 +62,23 @@
 
 ### CI/CD Tasks
 
-| Task                        | Status     | Notes                     |
-| --------------------------- | ---------- | ------------------------- |
-| Add Jenkinsfile stage       | ⏳ Pending | `Build Storybook` stage   |
-| Create Storybook Dockerfile | ⏳ Pending | Static nginx image        |
-| Create deployment YAML      | ⏳ Pending | Separate subdomain config |
-| Test pipeline               | ⏳ Pending | End-to-end deploy test    |
+| Task                        | Status     | Notes                                            |
+| --------------------------- | ---------- | ------------------------------------------------ |
+| Add Jenkinsfile stage       | ✅ Done    | Integrated into existing UI build                |
+| Create Storybook Dockerfile | ✅ Done    | Added `npm run build-storybook` to UI Dockerfile |
+| Configure server.js         | ✅ Done    | Serves `/storybook/` path (no auth)              |
+| Test pipeline               | ⏳ Pending | Push to UI2.0 branch to trigger build            |
+
+### Deployment Details
+
+**URL:** `https://operations-control-tower-dev.cisco.com/storybook/`
+
+**How it works:**
+
+- Storybook is built during the existing UI Docker build
+- Served by the same node proxy server at `/storybook/` path
+- No SSO auth required (open access)
+- Deploys automatically with UI (no separate Spinnaker environment)
 
 ---
 
@@ -104,3 +115,5 @@ npm run build-storybook    # Build static Storybook to storybook-static/
 | 2026-01-21 | Configured styles and static assets                        |
 | 2026-01-21 | Created all 11 atom stories                                |
 | 2026-01-21 | Storybook running at http://localhost:6006                 |
+| 2026-02-02 | Added Storybook build to UI Dockerfile                     |
+| 2026-02-02 | Configured server.js to serve /storybook/ path             |

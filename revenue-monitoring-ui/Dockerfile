@@ -15,6 +15,9 @@ RUN chown -R node:root /ui
 
 RUN npm run build
 
+# Build Storybook (static site served at /storybook/)
+RUN npm run build-storybook
+
 #node build and run
 WORKDIR /proxy-server
 COPY ./node-proxy-server /proxy-server

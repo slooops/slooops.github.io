@@ -30,6 +30,15 @@ app.get("/user/name", (req, res) => {
   });
 });
 
+// Serve Storybook at /storybook/ path (no auth required)
+app.use(
+  "/storybook",
+  express.static(path.join(__dirname, "../ui/storybook-static"))
+);
+app.get("/storybook/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../ui/storybook-static", "index.html"));
+});
+
 app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
 app.get("*", (req, res) => {
