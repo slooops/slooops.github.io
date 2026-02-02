@@ -37,7 +37,7 @@ export class DataService implements OnDestroy {
 
   private fetchWithCache(
     url: string,
-    destroyManager: DestroyManager
+    destroyManager: DestroyManager,
   ): Observable<any> {
     const currentTime = Date.now();
     const cachedData = this.cacheStore.get(url);
@@ -56,7 +56,7 @@ export class DataService implements OnDestroy {
         console.error(`Error fetching data from ${url}:`, error);
         return of(null);
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
     return data$;
   }
@@ -75,6 +75,10 @@ export class DataService implements OnDestroy {
 
   getExceptionAssignmentUsers(destroyManager: DestroyManager): Observable<any> {
     return this.fetchWithCache('summary-assignment-users', destroyManager);
+  }
+
+  getCaseIqMetrics(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('xxcaseiq-metrics', destroyManager);
   }
 
   getUserRoles() {
@@ -111,7 +115,7 @@ export class DataService implements OnDestroy {
     }
     return this.assignmentUsers.filter(
       (user: any) =>
-        user.FILTER_KEY === null || user.FILTER_KEY === componentName
+        user.FILTER_KEY === null || user.FILTER_KEY === componentName,
     );
   }
 
@@ -119,7 +123,7 @@ export class DataService implements OnDestroy {
     if (!this.tabData.has(tabName)) {
       this.tabData.set(
         tabName,
-        new BehaviorSubject<{ [key: string]: string }>({})
+        new BehaviorSubject<{ [key: string]: string }>({}),
       );
     }
   }

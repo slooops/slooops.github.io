@@ -49,6 +49,7 @@ public class EspCaseManagerService {
     private String xxcaseiqEspCaseAnalyzerTblUpdate;
     private String xxcaseiqI2cCaseDetailsMatchY;
     private String espCaseAnalyzerGlobalSearch;
+    private String espCaseAnalyzerMetrics;
     @Autowired
     private Common common;
 
@@ -81,7 +82,8 @@ public class EspCaseManagerService {
             String xxcaseiqSmCaseDetailsV,
             String xxcaseiqP2pCaseDetailsV,
             String xxcaseiqCapitalCaseDetailsV,
-                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY, String espCaseAnalyzerGlobalSearch) {
+                                 String xxcaseiqEspCaseAnalyzerTblUpdate, String xxcaseiqI2cCaseDetailsMatchY, String espCaseAnalyzerGlobalSearch,
+                                 String espCaseAnalyzerMetrics) {
         this.jdbcManager = jdbcManager;
         this.espAgingCaseSummary = espAgingCaseSummary;
         this.espCaseServiceMetricSummary = espCaseServiceMetricSummary;
@@ -117,6 +119,7 @@ public class EspCaseManagerService {
         this.xxcaseiqEspCaseAnalyzerTblUpdate = xxcaseiqEspCaseAnalyzerTblUpdate;
         this.xxcaseiqI2cCaseDetailsMatchY = xxcaseiqI2cCaseDetailsMatchY;
         this.espCaseAnalyzerGlobalSearch = espCaseAnalyzerGlobalSearch;
+        this.espCaseAnalyzerMetrics = espCaseAnalyzerMetrics;
     }
 
     public List<Map<String, Object>> getEspCaseServiceMetricSummary() {
@@ -313,6 +316,10 @@ public class EspCaseManagerService {
         }
 
         return combinedResults;
+    }
+
+    public List<Map<String, Object>> getEspCaseAnalyzerMetrics() {
+        return jdbcManager.queryForList(espCaseAnalyzerMetrics);
     }
 
 }

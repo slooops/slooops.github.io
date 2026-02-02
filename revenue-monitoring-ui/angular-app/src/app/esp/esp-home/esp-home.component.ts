@@ -16,6 +16,8 @@ import { HomeDataService } from 'src/app/home/home-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
+import { Data } from '@angular/router';
+import { DataService } from 'src/app/providers/data.service';
 
 interface MetricTile {
   name: string;
@@ -42,7 +44,7 @@ interface AccuracyData {
   imports: [
     CommonModule,
     MetricTileComponent,
-    // CaseiqComponent,
+    CaseiqComponent,
     CaseiqCapComponent,
     CaseiqFppComponent,
     CaseiqI2cComponent,
@@ -59,14 +61,15 @@ export class EspHomeComponent implements OnInit {
     private readonly destroyManager: DestroyManager,
     private authService: AuthenticationService,
     private homeDataService: HomeDataService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private dataService: DataService,
   ) {}
 
   activeTab: string = ''; // Will be set based on user roles
   overallAccuracy: string = '';
 
   // Quarter filter properties
-  selectedQuarter: string = 'Q1FY26';
+  selectedQuarter: string = '';
   showQuarterDropdown: boolean = false;
   isLoadingQuarter: boolean = false;
   loadingQuarterMessage: string = '';
@@ -76,16 +79,60 @@ export class EspHomeComponent implements OnInit {
   private accuracyData: AccuracyData[] = [];
 
   // All available quarters (master list)
-  private allQuarters: { label: string; value: string }[] = [
-    { label: 'Q1 FY26', value: 'Q1FY26' },
-    { label: 'Q2 FY26', value: 'Q2FY26' },
-    { label: 'Q3 FY26', value: 'Q3FY26' },
-    { label: 'Q4 FY26', value: 'Q4FY26' },
-    { label: 'Q1 FY25', value: 'Q1FY25' },
-    { label: 'Q2 FY25', value: 'Q2FY25' },
-    { label: 'Q3 FY25', value: 'Q3FY25' },
-    { label: 'Q4 FY25', value: 'Q4FY25' },
-  ];
+  private allQuarters: { label: string; value: string }[] = [];
+
+  /**
+   * Build the master quarter list from API data instead of hard-coding.
+   * Also ensures selectedQuarter always points to a valid value.
+   */
+  private buildAllQuartersFromData(data: AccuracyData[]): void {
+    const rawValues = (data || [])
+      .map((item) => item.Quarter?.trim())
+      .filter((q): q is string => !!q);
+
+    const values = Array.from(new Set(rawValues));
+
+    // Sort by fiscal year and quarter, newest first (e.g. Q4FY26 before Q1FY26)
+    values.sort((a, b) => {
+      const parse = (val: string) => {
+        const match = val.match(/Q(\d)FY(\d+)/i);
+        if (!match) {
+          return { q: 0, fy: 0 };
+        }
+        return { q: Number(match[1]), fy: Number(match[2]) };
+      };
+
+      const pa = parse(a);
+      const pb = parse(b);
+
+      if (pa.fy !== pb.fy) {
+        return pb.fy - pa.fy;
+      }
+      return pb.q - pa.q;
+    });
+
+    this.allQuarters = values.map((value) => ({
+      value,
+      label: this.formatQuarterLabel(value),
+    }));
+
+    // Ensure selectedQuarter is valid; default to latest if not set or invalid
+    if (this.allQuarters.length) {
+      const exists = this.allQuarters.some(
+        (quarter) => quarter.value === this.selectedQuarter,
+      );
+      if (!exists) {
+        this.selectedQuarter = this.allQuarters[0].value;
+      }
+    }
+  }
+
+  /**
+   * Convert compact quarter codes like "Q1FY26" into display labels like "Q1 FY26".
+   */
+  private formatQuarterLabel(value: string): string {
+    return value.replace('FY', ' FY');
+  }
 
   // Dynamically filtered quarters based on active team
   quarters: { label: string; value: string }[] = [];
@@ -129,11 +176,31 @@ export class EspHomeComponent implements OnInit {
     this.setDefaultActiveTab();
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.loadPeriodInfo();
+    this.loadCaseAnalyzerMetrics();
 
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
       this.showQuarterDropdown = false;
     });
+  }
+
+  componentLevelMetrics: any;
+  loadCaseAnalyzerMetrics(): void {
+    this.dataService.getCaseIqMetrics(this.destroyManager).subscribe({
+      next: (data) => {
+        console.log('Case Analyzer Metrics:', data);
+        this.componentLevelMetrics = data;
+      },
+      error: (error) => {
+        console.error('Error loading Case Analyzer metrics:', error);
+      },
+    });
+  }
+
+  loadCaseAnalyzerMetricsByComponent(component: string): void {
+    return this.componentLevelMetrics.find(
+      (item: any) => item.TEAM_NAME === component,
+    );
   }
 
   private loadPeriodInfo(): void {
@@ -180,8 +247,8 @@ export class EspHomeComponent implements OnInit {
         // Determine which of the desired columns actually exist in the data
         const availableColumns = this.globalSearchColumnsOrder.filter((col) =>
           resultRows.some(
-            (row) => row && Object.prototype.hasOwnProperty.call(row, col)
-          )
+            (row) => row && Object.prototype.hasOwnProperty.call(row, col),
+          ),
         );
 
         if (!availableColumns.length) {
@@ -211,7 +278,7 @@ export class EspHomeComponent implements OnInit {
       },
       (err) => {
         console.error('Global search error:', err);
-      }
+      },
     );
   }
 
@@ -238,7 +305,7 @@ export class EspHomeComponent implements OnInit {
     this.selectedQuarter = quarter;
     this.showQuarterDropdown = false;
     console.log(
-      `Quarter changed to: ${this.selectedQuarter} for team: ${this.activeTab}`
+      `Quarter changed to: ${this.selectedQuarter} for team: ${this.activeTab}`,
     );
 
     // Use setTimeout to allow UI to update with loading overlay
@@ -246,7 +313,7 @@ export class EspHomeComponent implements OnInit {
       // Update metric tiles with quarter-filtered data
       if (this.accuracyData.length > 0) {
         const filteredData = this.accuracyData.filter(
-          (item) => item.Quarter === this.selectedQuarter
+          (item) => item.Quarter === this.selectedQuarter,
         );
         this.updateMetricTiles(filteredData);
       }
@@ -274,9 +341,9 @@ export class EspHomeComponent implements OnInit {
    * Otherwise, sets to the first accessible team tile
    */
   private setDefaultActiveTab(): void {
-    // Find the first accessible tile (excluding Overall)
-    const accessibleTile = this.baseMetricTiles.find(
-      (tile) => tile.name !== 'Overall' && this.isTileAccessible(tile.name)
+    // Find the first accessible tile (including Overall)
+    const accessibleTile = this.baseMetricTiles.find((tile) =>
+      this.isTileAccessible(tile.name),
     );
 
     if (accessibleTile) {
@@ -302,9 +369,12 @@ export class EspHomeComponent implements OnInit {
           // Store raw data for quarter filtering
           this.accuracyData = data;
 
+          // Build dynamic quarter list and ensure selectedQuarter is valid
+          this.buildAllQuartersFromData(data);
+
           // Filter by selected quarter
           const filteredData = data.filter(
-            (item) => item.Quarter === this.selectedQuarter
+            (item) => item.Quarter === this.selectedQuarter,
           );
 
           this.updateMetricTiles(filteredData);
@@ -325,7 +395,7 @@ export class EspHomeComponent implements OnInit {
     // Update tiles with API data
     this.metricTiles = this.metricTiles.map((tile) => {
       const matchingData = apiData.find(
-        (item) => item.TEAM_NAME.toUpperCase() === tile.name.toUpperCase()
+        (item) => item.TEAM_NAME.toUpperCase() === tile.name.toUpperCase(),
       );
 
       return {
@@ -338,7 +408,7 @@ export class EspHomeComponent implements OnInit {
 
     // Calculate overall accuracy after updating individual tiles
     const validTiles = this.metricTiles.filter(
-      (tile) => tile.name !== 'Overall' && !isNaN(Number(tile.percentage))
+      (tile) => tile.name !== 'Overall' && !isNaN(Number(tile.percentage)),
     );
 
     if (validTiles.length > 0) {
@@ -350,7 +420,7 @@ export class EspHomeComponent implements OnInit {
 
       // Assign overall accuracy to the "Overall" tile
       const overallTileIndex = this.metricTiles.findIndex(
-        (tile) => tile.name === 'Overall'
+        (tile) => tile.name === 'Overall',
       );
       if (overallTileIndex !== -1) {
         this.metricTiles[overallTileIndex].percentage =
@@ -360,11 +430,6 @@ export class EspHomeComponent implements OnInit {
   }
 
   onTileClick(tileName: string): void {
-    // Prevent Overall tile from being clickable
-    if (tileName === 'Overall') {
-      return;
-    }
-
     // Check if user has permission to access this tile
     if (!this.isTileAccessible(tileName)) {
       return;
@@ -415,9 +480,9 @@ export class EspHomeComponent implements OnInit {
    * @returns true if the user has access to this tile
    */
   isTileAccessible(tileName: string): boolean {
-    // Overall tile is never clickable
+    // Overall tile is always accessible
     if (tileName === 'Overall') {
-      return false;
+      return true;
     }
 
     // ESP_ADMIN has access to all tiles
@@ -444,7 +509,7 @@ export class EspHomeComponent implements OnInit {
    */
   onUploadSuccess(): void {
     console.log(
-      '🟢 ESP-HOME: Upload success received in esp-home, refreshing accuracy metrics'
+      '🟢 ESP-HOME: Upload success received in esp-home, refreshing accuracy metrics',
     );
     this.getXxcaseiqValidatedCasesAccuracyV();
   }
@@ -462,12 +527,12 @@ export class EspHomeComponent implements OnInit {
 
     // Extract ALL unique quarters from entire dataset (not team-specific)
     const availableQuarters = new Set(
-      this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean)
+      this.accuracyData.map((item) => item.Quarter?.trim()).filter(Boolean),
     );
 
     // Filter allQuarters to show only those that exist in the data
     this.quarters = this.allQuarters.filter((quarter) =>
-      availableQuarters.has(quarter.value)
+      availableQuarters.has(quarter.value),
     );
 
     // If no quarters found, show all quarters as fallback

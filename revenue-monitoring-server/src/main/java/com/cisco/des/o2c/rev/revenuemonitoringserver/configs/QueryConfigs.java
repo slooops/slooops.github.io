@@ -1886,4 +1886,12 @@ public class QueryConfigs {
     public String getEspCaseAnalyzerGlobalSearch() {
         return this.espCaseAnalyzerGlobalSearch;
     }
+
+    @Value(("${xxcaseiq.esp.case.analyzer.metrics}"))
+    public String espCaseAnalyzerMetrics;
+
+    @Bean(name = "espCaseAnalyzerMetrics")
+    public String getEspCaseAnalyzerMetrics() {
+        return this.espCaseAnalyzerMetrics;
+    }
 }

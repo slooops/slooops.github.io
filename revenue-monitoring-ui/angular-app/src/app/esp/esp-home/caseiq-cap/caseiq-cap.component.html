@@ -1,13 +1,64 @@
-<div class="table-header-text">
-  {{ totalCases }} Cases - Capital Case Analyzer
+<div class="caseiq-header-box">
+  <div class="caseiq-header-segment caseiq-header-segment-green">
+    <div class="caseiq-header-green-half caseiq-header-green-left">
+      Total Cases -
+      {{ caseIqMetrics?.TOTAL_CASES }}
+    </div>
+    <div class="caseiq-header-green-half caseiq-header-green-right">
+      <span>
+        Total Service Requests -
+        <span class="caseiq-value-default">
+          {{ caseIqMetrics?.TOTAL_SERVICE_REQUESTS }}
+        </span>
+      </span>
+      <span>
+        Resolved -
+        <span class="caseiq-value-default">
+          {{ caseIqMetrics?.RESOLVED }} ({{
+            caseIqMetrics?.RESOLVED_PERCENTAGE
+          }}%)
+        </span>
+      </span>
+    </div>
+  </div>
+  <div class="caseiq-header-segment caseiq-header-segment-yellow">
+    <span
+      >Routed Out -
+      <span class="caseiq-value-default">{{ caseIqMetrics?.ROUTED_OUT }}</span>
+    </span>
+    <span
+      >&nbsp; Recommended -
+      <span class="caseiq-value-default">
+        {{ caseIqMetrics?.RECOMMENDED_ROUTE_OUT }} (
+        {{ caseIqMetrics?.ROUTED_OUT_PERCENTAGE }}% )
+      </span>
+    </span>
+    <span
+      >&nbsp; Misrouted -
+      <span class="caseiq-value-default">{{ caseIqMetrics?.MISROUTED }}</span>
+    </span>
+  </div>
+  <div class="caseiq-header-segment caseiq-header-segment-red">
+    <span
+      >Cancelled -
+      <span class="caseiq-value-default">{{ caseIqMetrics?.CANCELLED }}</span>
+    </span>
+    <span
+      >&nbsp; Recommended Cancelled -
+      <span class="caseiq-value-default">
+        {{ caseIqMetrics?.RECOMMENDED_CANCELLED }} (
+        {{ caseIqMetrics?.CANCELLED_PERCENTAGE }}% )
+      </span>
+    </span>
+  </div>
 </div>
 
 <!-- Data refresh overlay - covers only this tab content -->
 @if (refreshingData) {
-<div class="table-loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-text">Fetching data...</div>
-</div>
+  <div class="table-loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Fetching data...</div>
+  </div>
 }
 
 <div class="charts-row">
@@ -43,84 +94,86 @@
             >filter_list</mat-icon
           >
           @if (showCategoryFilters) {
-          <div
-            class="chart-filter-panel"
-            aria-label="Category chart filters panel"
-          >
-            <div class="multi-select-wrapper">
-              <button
-                class="multi-select-trigger"
-                (click)="toggleCategorySelect()"
-                type="button"
-              >
-                Filter
-                <span class="chevron" [class.open]="showCategorySelect">▾</span>
-              </button>
-              @if (showCategorySelect) {
-              <div
-                class="multi-select-dropdown"
-                (click)="$event.stopPropagation()"
-              >
-                <div class="multi-select-options">
-                  @for (label of allCategoryLabels; track label) {
+            <div
+              class="chart-filter-panel"
+              aria-label="Category chart filters panel"
+            >
+              <div class="multi-select-wrapper">
+                <button
+                  class="multi-select-trigger"
+                  (click)="toggleCategorySelect()"
+                  type="button"
+                >
+                  Filter
+                  <span class="chevron" [class.open]="showCategorySelect"
+                    >▾</span
+                  >
+                </button>
+                @if (showCategorySelect) {
                   <div
-                    class="multi-option"
-                    [class.selected]="selectedCategoryLabels.has(label)"
-                    (click)="toggleCategorySelection(label)"
+                    class="multi-select-dropdown"
+                    (click)="$event.stopPropagation()"
                   >
-                    <input
-                      type="checkbox"
-                      [checked]="selectedCategoryLabels.has(label)"
-                    />
-                    <span class="option-label">{{ label }}</span>
+                    <div class="multi-select-options">
+                      @for (label of allCategoryLabels; track label) {
+                        <div
+                          class="multi-option"
+                          [class.selected]="selectedCategoryLabels.has(label)"
+                          (click)="toggleCategorySelection(label)"
+                        >
+                          <input
+                            type="checkbox"
+                            [checked]="selectedCategoryLabels.has(label)"
+                          />
+                          <span class="option-label">{{ label }}</span>
+                        </div>
+                      }
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCategorySelection($event)"
+                        [disabled]="selectedCategoryLabels.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCategorySelect()"
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
-                  }
-                </div>
-                <div class="multi-select-actions">
+                }
+              </div>
+              <div class="cf-threshold">
+                <span class="threshold-label"
+                  >Min Count &gt; {{ categoryMinThreshold }}</span
+                >
+                <div class="threshold-buttons">
                   <button
-                    type="button"
-                    class="clear-btn"
-                    (click)="clearCategorySelection($event)"
-                    [disabled]="selectedCategoryLabels.size === 0"
+                    class="threshold-btn"
+                    (click)="adjustCategoryThreshold(-1)"
+                    aria-label="Decrease category threshold"
                   >
-                    Clear
+                    -5
                   </button>
                   <button
-                    type="button"
-                    class="close-btn"
-                    (click)="toggleCategorySelect()"
+                    class="threshold-btn"
+                    (click)="adjustCategoryThreshold(1)"
+                    aria-label="Increase category threshold"
                   >
-                    Close
+                    +5
                   </button>
                 </div>
               </div>
-              }
-            </div>
-            <div class="cf-threshold">
-              <span class="threshold-label"
-                >Min Count &gt; {{ categoryMinThreshold }}</span
-              >
-              <div class="threshold-buttons">
-                <button
-                  class="threshold-btn"
-                  (click)="adjustCategoryThreshold(-1)"
-                  aria-label="Decrease category threshold"
-                >
-                  -5
-                </button>
-                <button
-                  class="threshold-btn"
-                  (click)="adjustCategoryThreshold(1)"
-                  aria-label="Increase category threshold"
-                >
-                  +5
-                </button>
+              <div class="filter-hint">
+                Showing categories with count &gt; {{ categoryMinThreshold }}.
               </div>
             </div>
-            <div class="filter-hint">
-              Showing categories with count &gt; {{ categoryMinThreshold }}.
-            </div>
-          </div>
           }
         </div>
         &nbsp;&nbsp;
@@ -180,87 +233,87 @@
             >filter_list</mat-icon
           >
           @if (showCoreIssueFilters) {
-          <div
-            class="chart-filter-panel"
-            aria-label="Core issue chart filters panel"
-          >
-            <div class="multi-select-wrapper">
-              <button
-                class="multi-select-trigger"
-                (click)="toggleCoreIssueSelect()"
-                type="button"
-              >
-                Filter
-                <span class="chevron" [class.open]="showCoreIssueSelect"
-                  >▾</span
+            <div
+              class="chart-filter-panel"
+              aria-label="Core issue chart filters panel"
+            >
+              <div class="multi-select-wrapper">
+                <button
+                  class="multi-select-trigger"
+                  (click)="toggleCoreIssueSelect()"
+                  type="button"
                 >
-              </button>
-              @if (showCoreIssueSelect) {
-              <div
-                class="multi-select-dropdown"
-                (click)="$event.stopPropagation()"
-              >
-                <div class="multi-select-options">
-                  @for (label of allCoreIssueLabels; track label) {
+                  Filter
+                  <span class="chevron" [class.open]="showCoreIssueSelect"
+                    >▾</span
+                  >
+                </button>
+                @if (showCoreIssueSelect) {
                   <div
-                    class="multi-option"
-                    [class.selected]="selectedCoreIssueLabels.has(label)"
-                    (click)="toggleCoreIssueSelection(label)"
+                    class="multi-select-dropdown"
+                    (click)="$event.stopPropagation()"
                   >
-                    <input
-                      type="checkbox"
-                      [checked]="selectedCoreIssueLabels.has(label)"
-                    />
-                    <span class="option-label">{{ label }}</span>
+                    <div class="multi-select-options">
+                      @for (label of allCoreIssueLabels; track label) {
+                        <div
+                          class="multi-option"
+                          [class.selected]="selectedCoreIssueLabels.has(label)"
+                          (click)="toggleCoreIssueSelection(label)"
+                        >
+                          <input
+                            type="checkbox"
+                            [checked]="selectedCoreIssueLabels.has(label)"
+                          />
+                          <span class="option-label">{{ label }}</span>
+                        </div>
+                      }
+                    </div>
+                    <div class="multi-select-actions">
+                      <button
+                        type="button"
+                        class="clear-btn"
+                        (click)="clearCoreIssueSelection($event)"
+                        [disabled]="selectedCoreIssueLabels.size === 0"
+                      >
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        class="close-btn"
+                        (click)="toggleCoreIssueSelect()"
+                      >
+                        Close
+                      </button>
+                    </div>
                   </div>
-                  }
-                </div>
-                <div class="multi-select-actions">
+                }
+              </div>
+              <div class="cf-threshold">
+                <span class="threshold-label"
+                  >Min Count &gt; {{ coreIssueMinThreshold }}</span
+                >
+                <div class="threshold-buttons">
                   <button
-                    type="button"
-                    class="clear-btn"
-                    (click)="clearCoreIssueSelection($event)"
-                    [disabled]="selectedCoreIssueLabels.size === 0"
+                    class="threshold-btn"
+                    (click)="adjustCoreIssueThreshold(-1)"
+                    aria-label="Decrease core issue threshold"
                   >
-                    Clear
+                    -5
                   </button>
                   <button
-                    type="button"
-                    class="close-btn"
-                    (click)="toggleCoreIssueSelect()"
+                    class="threshold-btn"
+                    (click)="adjustCoreIssueThreshold(1)"
+                    aria-label="Increase core issue threshold"
                   >
-                    Close
+                    +5
                   </button>
                 </div>
               </div>
-              }
-            </div>
-            <div class="cf-threshold">
-              <span class="threshold-label"
-                >Min Count &gt; {{ coreIssueMinThreshold }}</span
-              >
-              <div class="threshold-buttons">
-                <button
-                  class="threshold-btn"
-                  (click)="adjustCoreIssueThreshold(-1)"
-                  aria-label="Decrease core issue threshold"
-                >
-                  -5
-                </button>
-                <button
-                  class="threshold-btn"
-                  (click)="adjustCoreIssueThreshold(1)"
-                  aria-label="Increase core issue threshold"
-                >
-                  +5
-                </button>
+              <div class="filter-hint">
+                Showing core issues with count &gt;
+                {{ coreIssueMinThreshold }}.
               </div>
             </div>
-            <div class="filter-hint">
-              Showing core issues with count &gt;
-              {{ coreIssueMinThreshold }}.
-            </div>
-          </div>
           }
         </div>
         &nbsp;&nbsp;
@@ -313,3 +366,5 @@
   (uploadResult)="handleUploadResult($event)"
 >
 </app-caseiq-table>
+
+<br />

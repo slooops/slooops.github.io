@@ -1,176 +1,481 @@
-import { Component } from '@angular/core';
-import { MatTableDataSource } from '@angular/material/table';
 import {
-  StackedBarChartDataPoint,
-  BarChartDataPoint,
-} from 'src/app/components/bar-chart/bar-chart.component';
-import { BarChartComponent } from '../../../components/bar-chart/bar-chart.component';
-import { CaseiqTableComponent } from '../../../components/caseiq-table/caseiq-table.component';
+  AfterViewInit,
+  Component,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  signal,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Chart } from 'chart.js/auto';
 
 @Component({
   selector: 'app-caseiq',
   templateUrl: './caseiq.component.html',
   styleUrl: './caseiq.component.css',
-  imports: [
-    // BarChartComponent,
-    // CaseiqTableComponent
-  ],
+  imports: [CommonModule],
   standalone: true,
 })
-export class CaseiqComponent {
-  // I2C Chart Data - Similar to the screenshot
-  i2cChartData: StackedBarChartDataPoint[] = [
-    {
-      label: 'Access Management',
-      segments: [
-        { name: 'Validated', value: 78, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 12, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Accounting',
-      segments: [
-        { name: 'Validated', value: 156, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 23, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Cash Apps',
-      segments: [
-        { name: 'Validated', value: 92, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 37, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Credit & Collections',
-      segments: [
-        { name: 'Validated', value: 234, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 58, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Order to Cash',
-      segments: [
-        { name: 'Validated', value: 187, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 41, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'Invoicing',
-      segments: [
-        { name: 'Validated', value: 145, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 67, color: '#E5E5E5' },
-      ],
-    },
-    {
-      label: 'VT Customs',
-      segments: [
-        { name: 'Validated', value: 89, color: '#36A2EB' },
-        { name: 'Incorrect/Not Validated', value: 6, color: '#E5E5E5' },
-      ],
-    },
-  ];
+export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
+  // Section names are derived dynamically from caseIqMetrics
+  // (e.g. 'Overall' for TEAM_NAME 'ALL', then each TEAM_NAME).
+  sections = signal<string[]>([]);
 
-  // I2C Simple Chart Data - Monthly totals
-  i2cSimpleChartData: BarChartDataPoint[] = [
-    { label: 'E-Invoicing - Esker', value: 247, color: '#E5E5E5' },
-    { label: 'E-Invoicing - Sovos', value: 189, color: '#E5E5E5' },
-    { label: 'E-Invoicing - Synchro', value: 312, color: '#E5E5E5' },
-    { label: 'E-Invoicing - IRN', value: 156, color: '#E5E5E5' },
-    { label: 'Invoice Amount', value: 423, color: '#E5E5E5' },
-    { label: 'Invoice Amount', value: 178, color: '#E5E5E5' },
-    { label: 'Invoice Enquiry Tax', value: 267, color: '#E5E5E5' },
-    { label: 'Invoice Aging', value: 134, color: '#E5E5E5' },
-    { label: 'Invoice Delivery - Email', value: 298, color: '#E5E5E5' },
-    { label: 'Invoice Delivery B2B', value: 345, color: '#E5E5E5' },
-    { label: 'Invoice Not Generated', value: 87, color: '#E5E5E5' },
-    { label: 'Post Invoice Dispute', value: 203, color: '#E5E5E5' },
-    { label: 'Receipts', value: 456, color: '#E5E5E5' },
-  ];
+  private charts: Chart[] = [];
+  private viewInitialized = false;
 
-  // Table data combining chart information
-  i2cTableData = new MatTableDataSource([
-    {
-      'Incident Number': 'INC0012345',
-      'Impacted Service': 'Indirect Tax - Global',
-      'Case Description': 'Rebill invoice not yet generated',
-      Category: 'Pre-Invoicing',
-      'Category Actual': 'Tax Inquiry',
-      'Core Issue': 'Process Gap',
-      'Core Actual': 'Process Gap',
-    },
-    {
-      'Incident Number': 'INC0012346',
-      'Impacted Service': 'Order Management - Global',
-      'Case Description': 'Credit memo not processed',
-      Category: 'Order to Cash',
-      'Category Actual': 'Credit Memo',
-      'Core Issue': 'Training',
-      'Core Actual': 'Training',
-    },
-    {
-      'Incident Number': 'INC0012347',
-      'Impacted Service': 'Cash Application - APAC',
-      'Case Description': 'Payment not applied to invoice',
-      Category: 'Invoicing',
-      'Category Actual': 'Payment Application',
-      'Core Issue': 'System Issue',
-      'Core Actual': 'System Issue',
-    },
-    {
-      'Incident Number': 'INC0012348',
-      'Impacted Service': 'Credit & Collections - EMEA',
-      'Case Description': 'Customer dispute unresolved',
-      Category: 'Order to Cash',
-      'Category Actual': 'Dispute Management',
-      'Core Issue': 'Customer Issue',
-      'Core Actual': 'Customer Issue',
-    },
-    {
-      'Incident Number': 'INC0012345',
-      'Impacted Service': 'Indirect Tax - Global',
-      'Case Description': 'Rebill invoice not yet generated',
-      Category: 'Pre-Invoicing',
-      'Category Actual': 'Tax Inquiry',
-      'Core Issue': 'Process Gap',
-      'Core Actual': 'Process Gap',
-    },
-    {
-      'Incident Number': 'INC0012346',
-      'Impacted Service': 'Order Management - Global',
-      'Case Description': 'Credit memo not processed',
-      Category: 'Order to Cash',
-      'Category Actual': 'Credit Memo',
-      'Core Issue': 'Training',
-      'Core Actual': 'Training',
-    },
-    {
-      'Incident Number': 'INC0012347',
-      'Impacted Service': 'Cash Application - APAC',
-      'Case Description': 'Payment not applied to invoice',
-      Category: 'Invoicing',
-      'Category Actual': 'Payment Application',
-      'Core Issue': 'System Issue',
-      'Core Actual': 'System Issue',
-    },
-    {
-      'Incident Number': 'INC0012348',
-      'Impacted Service': 'Credit & Collections - EMEA',
-      'Case Description': 'Customer dispute unresolved',
-      Category: 'Order to Cash',
-      'Category Actual': 'Dispute Management',
-      'Core Issue': 'Customer Issue',
-      'Core Actual': 'Customer Issue',
-    },
-  ]);
+  @Input() caseIqMetrics: any;
 
-  i2cTableColumns = [
-    'Incident Number',
-    'Impacted Service',
-    'Case Description',
-    'Category',
-    'Category Actual',
-    'Core Issue',
-    'Core Actual',
-  ];
+  ngOnChanges(changes: SimpleChanges): void {
+    if ('caseIqMetrics' in changes) {
+      // Always rebuild section list so template reflects latest metrics
+      this.buildSectionsFromMetrics();
+
+      // If view is already initialized, (re)create charts and update data
+      // Use setTimeout to ensure Angular has updated the DOM with new canvases
+      if (this.viewInitialized) {
+        setTimeout(() => {
+          this.createAllCharts();
+          this.updateOverallBarFromMetrics();
+        }, 0);
+      }
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.viewInitialized = true;
+
+    // Initial build of sections/charts once view is ready
+    // Use setTimeout to ensure Angular has updated the DOM
+    this.buildSectionsFromMetrics();
+    setTimeout(() => {
+      this.createAllCharts();
+      this.updateOverallBarFromMetrics();
+    }, 0);
+  }
+
+  ngOnDestroy(): void {
+    this.charts.forEach((chart) => chart.destroy());
+    this.charts = [];
+  }
+
+  private buildSectionsFromMetrics(): void {
+    if (!Array.isArray(this.caseIqMetrics) || this.caseIqMetrics.length === 0) {
+      this.sections.set([]);
+      return;
+    }
+
+    const names: string[] = [];
+
+    // Overall / ALL first if present
+    const hasAll = this.caseIqMetrics.some(
+      (m: any) =>
+        m &&
+        m.TEAM_NAME &&
+        typeof m.TEAM_NAME === 'string' &&
+        m.TEAM_NAME.toUpperCase() === 'ALL',
+    );
+    if (hasAll) {
+      names.push('Overall');
+    }
+
+    // Then other teams in the order they appear
+    this.caseIqMetrics.forEach((m: any) => {
+      if (
+        m &&
+        m.TEAM_NAME &&
+        typeof m.TEAM_NAME === 'string' &&
+        m.TEAM_NAME.toUpperCase() !== 'ALL'
+      ) {
+        const name = m.TEAM_NAME;
+        if (!names.includes(name)) {
+          names.push(name);
+        }
+      }
+    });
+
+    this.sections.set(names);
+  }
+
+  private createAllCharts(): void {
+    // Clean up any existing charts before recreating
+    this.charts.forEach((chart) => chart.destroy());
+    this.charts = [];
+
+    this.sections().forEach((sectionName, sectionIndex) => {
+      const barId = `overall-bar-${sectionIndex}`;
+      this.createBarChart(barId, sectionName);
+
+      // For now, use three generic pies per section
+      for (let pieIndex = 0; pieIndex < 3; pieIndex++) {
+        const pieId = `overall-pie-${sectionIndex}-${pieIndex}`;
+        this.createPieChart(pieId, sectionName, pieIndex);
+      }
+    });
+  }
+
+  private createBarChart(canvasId: string, sectionName: string): void {
+    const canvas = document.getElementById(
+      canvasId,
+    ) as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let labels: (string | string[])[] = [];
+    let values: number[] = [];
+
+    // Try to find metrics for this section from caseIqMetrics
+    if (Array.isArray(this.caseIqMetrics)) {
+      let teamData: any = null;
+
+      if (sectionName === 'Overall') {
+        // For Overall section, find TEAM_NAME === 'ALL'
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME.toUpperCase() === 'ALL',
+        );
+      } else {
+        // For other sections, find matching TEAM_NAME
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME === sectionName,
+        );
+      }
+
+      if (teamData) {
+        labels = [
+          'Total Cases',
+          ['Total Service', 'Requests'],
+          'Routed Out',
+          'Cancelled',
+        ];
+        values = [
+          Number(teamData.TOTAL_CASES) || 0,
+          Number(teamData.TOTAL_SERVICE_REQUESTS) || 0,
+          Number(teamData.ROUTED_OUT) || 0,
+          Number(teamData.CANCELLED) || 0,
+        ];
+      }
+    }
+
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            data: values,
+            backgroundColor: 'rgb(54, 162, 235)',
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 30,
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: true },
+        },
+        scales: {
+          x: {
+            display: true,
+            grid: { display: false },
+            border: { display: true },
+            ticks: {
+              font: {
+                size: 10,
+              },
+              maxRotation: 0,
+              minRotation: 0,
+              autoSkip: false,
+            },
+          },
+          y: {
+            display: true,
+            grid: { display: true },
+            border: { display: true },
+            beginAtZero: true,
+            ticks: {
+              font: {
+                size: 10,
+              },
+            },
+          },
+        },
+      },
+      plugins: [
+        {
+          id: 'barValueLabels',
+          afterDatasetsDraw: (chart) => {
+            const ctx = chart.ctx;
+            chart.data.datasets.forEach((dataset, i) => {
+              const meta = chart.getDatasetMeta(i);
+              meta.data.forEach((bar, index) => {
+                const data = dataset.data[index] as number;
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(data.toString(), bar.x, bar.y - 5);
+              });
+            });
+          },
+        },
+      ],
+    });
+
+    this.charts.push(chart);
+  }
+
+  /**
+   * Updates the Overall bar chart (section 'Overall', canvas id 'overall-bar-0')
+   * with values from caseIqMetrics where TEAM_NAME === 'ALL'.
+   */
+  private updateOverallBarFromMetrics(): void {
+    if (!Array.isArray(this.caseIqMetrics)) {
+      return;
+    }
+
+    const overall = this.caseIqMetrics.find(
+      (m: any) =>
+        m &&
+        m.TEAM_NAME &&
+        typeof m.TEAM_NAME === 'string' &&
+        m.TEAM_NAME.toUpperCase() === 'ALL',
+    );
+
+    if (!overall) {
+      return;
+    }
+
+    const chart = this.charts.find(
+      (c) => c.canvas && c.canvas.id === 'overall-bar-0',
+    );
+
+    if (!chart) {
+      return;
+    }
+
+    const labels = [
+      'Total Cases',
+      ['Total Service', 'Requests'],
+      'Routed Out',
+      'Cancelled',
+    ];
+    const values = [
+      Number(overall.TOTAL_CASES) || 0,
+      Number(overall.TOTAL_SERVICE_REQUESTS) || 0,
+      Number(overall.ROUTED_OUT) || 0,
+      Number(overall.CANCELLED) || 0,
+    ];
+
+    chart.data.labels = labels;
+    if (chart.data.datasets && chart.data.datasets[0]) {
+      chart.data.datasets[0].data = values;
+    }
+    chart.update();
+  }
+
+  private createPieChart(
+    canvasId: string,
+    sectionName: string,
+    pieIndex: number,
+  ): void {
+    const canvas = document.getElementById(
+      canvasId,
+    ) as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let labels: (string | string[])[] = [];
+    let data: number[] = [];
+    let colors: string[] = [];
+
+    // First doughnut for all sections: Resolved by CaseIQ vs Resolved by Ops
+    if (pieIndex === 0 && Array.isArray(this.caseIqMetrics)) {
+      let teamData: any = null;
+
+      if (sectionName === 'Overall') {
+        // For Overall section, find TEAM_NAME === 'ALL'
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME.toUpperCase() === 'ALL',
+        );
+      } else {
+        // For other sections, find matching TEAM_NAME
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME === sectionName,
+        );
+      }
+
+      if (teamData) {
+        const resolved = Number(teamData.RESOLVED) || 0;
+        const totalServiceRequests =
+          Number(teamData.TOTAL_SERVICE_REQUESTS) || 0;
+        const resolvedByOps = totalServiceRequests - resolved;
+
+        labels = ['Resolved (CaseIQ)', 'Resolved (Ops)'];
+        data = [resolved, resolvedByOps];
+        colors = ['#81C784', '#4CAF50'];
+      }
+    }
+
+    // Second doughnut for all sections: Recommended Routed Out vs Misrouted
+    if (pieIndex === 1 && Array.isArray(this.caseIqMetrics)) {
+      let teamData: any = null;
+
+      if (sectionName === 'Overall') {
+        // For Overall section, find TEAM_NAME === 'ALL'
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME.toUpperCase() === 'ALL',
+        );
+      } else {
+        // For other sections, find matching TEAM_NAME
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME === sectionName,
+        );
+      }
+
+      if (teamData) {
+        const recommendedRoutedOut =
+          Number(teamData.RECOMMENDED_ROUTE_OUT) || 0;
+        const misrouted = Number(teamData.MISROUTED) || 0;
+
+        labels = ['Routed (Recommended)', 'Misrouted'];
+        data = [recommendedRoutedOut, misrouted];
+        colors = ['#FFD54F', '#FFA000'];
+      }
+    }
+
+    // Third doughnut for all sections: Recommended Canceled vs Others
+    if (pieIndex === 2 && Array.isArray(this.caseIqMetrics)) {
+      let teamData: any = null;
+
+      if (sectionName === 'Overall') {
+        // For Overall section, find TEAM_NAME === 'ALL'
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME.toUpperCase() === 'ALL',
+        );
+      } else {
+        // For other sections, find matching TEAM_NAME
+        teamData = this.caseIqMetrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME === sectionName,
+        );
+      }
+
+      if (teamData) {
+        const recommendedCancelled =
+          Number(teamData.RECOMMENDED_CANCELLED) || 0;
+        const cancelled = Number(teamData.CANCELLED) || 0;
+        const others = cancelled - recommendedCancelled;
+
+        labels = ['Recommended Canceled', 'Others'];
+        data = [recommendedCancelled, others];
+        colors = ['#EF9A9A', '#E57373'];
+      }
+    }
+
+    const chart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+            backgroundColor: colors,
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            enabled: false,
+          },
+        },
+      },
+      plugins: [
+        {
+          id: 'doughnutPercentage',
+          afterDatasetsDraw: (chart) => {
+            const ctx = chart.ctx;
+            const chartArea = chart.chartArea;
+            const centerX = (chartArea.left + chartArea.right) / 2;
+            const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+            chart.data.datasets.forEach((dataset, datasetIndex) => {
+              const meta = chart.getDatasetMeta(datasetIndex);
+              const total = (dataset.data as number[]).reduce(
+                (a, b) => a + b,
+                0,
+              );
+
+              meta.data.forEach((arc: any, index) => {
+                const angle = (arc.startAngle + arc.endAngle) / 2;
+                const radius = (arc.outerRadius + arc.innerRadius) / 2;
+                const value = dataset.data[index] as number;
+                const percentage = ((value / total) * 100).toFixed(0);
+
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 9px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${percentage}%`, x, y);
+              });
+            });
+          },
+        },
+      ],
+    });
+
+    this.charts.push(chart);
+  }
 }

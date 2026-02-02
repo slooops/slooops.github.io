@@ -56,6 +56,63 @@
   margin: 0.5rem 0 0 0;
 }
 
+.caseiq-header-box {
+  display: flex;
+  width: 100%;
+  /* border: 1px solid #e2d48a; */
+  margin: 5px 0 5px 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+}
+
+.caseiq-header-segment {
+  /* padding: 0.35rem 0.75rem; */
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.caseiq-header-segment-green {
+  /* Blue (10%) + Green (25%) = 35% total */
+  flex: 0 0 35%;
+  display: flex;
+  padding: 0;
+  /* border-right: 1px solid #e2d48a; */
+}
+
+.caseiq-header-segment-yellow {
+  flex: 0 0 40%;
+  background-color: #fff7c2;
+  /* border-right: 1px solid #e2d48a; */
+}
+
+.caseiq-header-segment-red {
+  /* Reduced from 40% to 25% */
+  flex: 0 0 25%;
+  background-color: #ffbebe;
+}
+
+.caseiq-header-green-half {
+  flex: 1;
+  /* padding: 0.35rem 0.75rem; */
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.caseiq-header-green-left {
+  /* 10% of 35% segment ≈ 2/7 */
+  flex: 2;
+  background-color: #a3d9ff; /* screenshot-like blue */
+}
+
+.caseiq-header-green-right {
+  /* 25% of 35% segment ≈ 5/7 */
+  flex: 5;
+  background-color: #baf7c2;
+}
+
 /* Dashboard Styles */
 .esp-dashboard {
   padding: 0 2rem;
@@ -828,7 +885,9 @@ p {
   align-items: center;
   justify-content: space-between;
   border-radius: 4px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .multi-select-trigger:hover {

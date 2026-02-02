@@ -226,11 +226,13 @@ export class HomeComponent implements OnDestroy {
         this.kpis.set({
           ...currentKpis,
           totalIssues: issues[0]?.TOTAL_ISSUES || 0,
-          openIssues: issues[0]?.OPEN_ISSUES || 0,
-          unassignedIssues: issues[0]?.UNASSIGNED || 0,
-          assignedIssues: issues[0]?.ASSIGNED || 0,
+          resolvedIssues: issues[0]?.RESOLVED || 0,
           inProgressIssues: issues[0]?.IN_PROGRESS || 0,
+          assignedIssues: issues[0]?.ASSIGNED || 0,
+          unassignedIssues: issues[0]?.UNASSIGNED || 0,
         });
+        // Ensure issue distribution center text reflects latest totalIssues
+        this.refreshIssueDistributionCenterText();
         console.log('Updated KPIs:', this.kpis());
       },
       error: (error) => {
@@ -293,16 +295,20 @@ export class HomeComponent implements OnDestroy {
           });
         }
 
-        // Sort weeks (Week1, Week2, etc.)
-        const sortedWeeks = Array.from(weekMap.keys()).sort((a, b) => {
-          const numA = parseInt(a.replace('Week ', ''));
-          const numB = parseInt(b.replace('Week ', ''));
-          return numA - numB;
-        });
+        // Always use a fixed range of weeks: Week 1 to Week 13
+        const fixedWeeks = Array.from(
+          { length: 13 },
+          (_, i) => `Week ${i + 1}`,
+        );
 
         // Compute percentage of In Progress over Total Issues for each week
-        const percentInProgress = sortedWeeks.map((week) => {
-          const weekData = weekMap.get(week)!;
+        const percentInProgress = fixedWeeks.map((week) => {
+          const weekData = weekMap.get(week) || {
+            supportTeam: 0,
+            inProgress: 0,
+            resolved: 0,
+            totalIssues: 0,
+          };
           const total = weekData.totalIssues || 0;
           const inProg = weekData.inProgress || 0;
           if (!total) {
@@ -312,14 +318,18 @@ export class HomeComponent implements OnDestroy {
         });
 
         const chartData = {
-          weeks: sortedWeeks,
-          supportTeam: sortedWeeks.map(
-            (week) => weekMap.get(week)!.supportTeam,
+          weeks: fixedWeeks,
+          supportTeam: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
           ),
-          inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
-          resolved: sortedWeeks.map((week) => weekMap.get(week)!.resolved),
-          totalIssues: sortedWeeks.map(
-            (week) => weekMap.get(week)!.totalIssues,
+          inProgress: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
+          ),
+          resolved: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { resolved: 0 }).resolved,
+          ),
+          totalIssues: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { totalIssues: 0 }).totalIssues,
           ),
           percentInProgress,
         };
@@ -386,22 +396,22 @@ export class HomeComponent implements OnDestroy {
           });
         }
 
-        // Sort weeks (Week1, Week2, etc.)
-        const sortedWeeks = Array.from(weekMap.keys()).sort((a, b) => {
-          const numA = parseInt(a.replace('Week', ''));
-          const numB = parseInt(b.replace('Week', ''));
-          return numA - numB;
-        });
+        // Always use a fixed range of weeks: Week 1 to Week 13
+        const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week${i + 1}`);
 
         const chartData = {
-          weeks: sortedWeeks,
-          inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
-          supportTeam: sortedWeeks.map(
-            (week) => weekMap.get(week)!.supportTeam,
+          weeks: fixedWeeks,
+          inProgress: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
           ),
-          totalCases: sortedWeeks.map((week) => weekMap.get(week)!.totalCases),
-          resolvedAgent: sortedWeeks.map(
-            (week) => weekMap.get(week)!.resolvedAgent,
+          supportTeam: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
+          ),
+          totalCases: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { totalCases: 0 }).totalCases,
+          ),
+          resolvedAgent: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { resolvedAgent: 0 }).resolvedAgent,
           ),
         };
 
@@ -730,6 +740,14 @@ export class HomeComponent implements OnDestroy {
     }
     // Treat all other names as "human" category
     return 'human';
+  }
+
+  /**
+   * Trigger a redraw of the issue distribution chart so the
+   * center text plugin picks up the latest KPI values.
+   */
+  private refreshIssueDistributionCenterText(): void {
+    this.issueDistributionChart?.update();
   }
 
   specialWords: string[] = [
@@ -1068,12 +1086,12 @@ export class HomeComponent implements OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '82%',
+        cutout: '70%',
         onClick: (event, activeElements) => {
           if (activeElements.length > 0) {
             const index = activeElements[0].index;
             const label = labels[index];
-            this.filterByAssignee(label);
+            // this.filterByAssignee(label);
           }
         },
         plugins: {

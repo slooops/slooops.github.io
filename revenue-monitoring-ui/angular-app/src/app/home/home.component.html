@@ -62,16 +62,16 @@
           <div class="kpi-label">Total Issues</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.openIssues ?? "-" }}</div>
-          <div class="kpi-label">Open Issues</div>
-        </div>
-        <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.assignedIssues ?? "-" }}</div>
-          <div class="kpi-label">Assigned Issues</div>
+          <div class="kpi-value">{{ kpis()?.resolvedIssues ?? "-" }}</div>
+          <div class="kpi-label">Resolved Issues</div>
         </div>
         <div class="kpi-item">
           <div class="kpi-value">{{ kpis()?.inProgressIssues ?? "-" }}</div>
           <div class="kpi-label">In Progress Issues</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">{{ kpis()?.assignedIssues ?? "-" }}</div>
+          <div class="kpi-label">Assigned Issues</div>
         </div>
         <div class="kpi-item last">
           <div class="kpi-value">{{ kpis()?.unassignedIssues ?? "-" }}</div>

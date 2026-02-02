@@ -1,62 +1,55 @@
-<p>Coming Soon</p>
-
-<!-- <div class="flex-row">
-  <div class="metric-box metric-content">
-    <h5>82.77%</h5>
-    <p>Category Accuracy</p>
+<div class="overall-legend">
+  <div class="legend-item">
+    <span class="legend-label">Legend: </span>
   </div>
-  <div class="metric-box metric-content">
-    <h5>65.77%</h5>
-    <p>Core Issue Accuracy</p>
+  <div class="legend-item">
+    <span class="legend-color" style="background-color: #81c784"></span>
+    <span class="legend-label">Resolved (CaseIQ)</span>
   </div>
-
-  <div class="metric-box metric-content">
-    <h5>2269</h5>
-    <p>Total Cases</p>
-  </div> -->
-<!-- </div>
-
-<div class="charts-row">
-  <div class="chart-section">
-    <h4>Category Distribution (Stacked)</h4>
-    <div class="chart-container">
-      <app-bar-chart
-        [data]="i2cChartData"
-        [stacked]="true"
-        [isLoading]="false"
-        canvasId="i2cStackedChart"
-      >
-      </app-bar-chart>
-    </div>
+  <div class="legend-item">
+    <span class="legend-color" style="background-color: #4caf50"></span>
+    <span class="legend-label">Resolved (Ops)</span>
   </div>
-  <div class="chart-section">
-    <h4>Core Issue Distribution</h4>
-    <div class="chart-container">
-      <app-bar-chart
-        [data]="i2cSimpleChartData"
-        [stacked]="false"
-        [isLoading]="false"
-        canvasId="i2cSimpleChart"
-      >
-      </app-bar-chart>
-    </div>
+  <div class="legend-item">
+    <span class="legend-color" style="background-color: #ffd54f"></span>
+    <span class="legend-label">Routed (Recommended)</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-color" style="background-color: #ffa000"></span>
+    <span class="legend-label">Misrouted</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-color" style="background-color: #ef9a9a"></span>
+    <span class="legend-label">Recommended Canceled</span>
+  </div>
+  <div class="legend-item">
+    <span class="legend-color" style="background-color: #e57373"></span>
+    <span class="legend-label">Others</span>
   </div>
 </div>
 
-<div class="metric-box">
-  <h4>I2C Classification Summary</h4>
+<div class="overall-grid">
+  @for (sectionName of sections(); track sectionName; let i = $index) {
+    <div class="overall-section">
+      <div class="overall-title">{{ sectionName }}</div>
 
-  <p>
-    Note: Changes made in the table below are not saved automatically. Please
-    download your edits and use the sidebar 'Update Dashboard Data' option to
-    persist changes.
-  </p>
+      <div class="overall-bar">
+        <canvas
+          class="overall-bar-canvas"
+          [attr.id]="'overall-bar-' + i"
+        ></canvas>
+      </div>
+
+      <div class="overall-pies">
+        @for (pieIndex of [0, 1, 2]; track pieIndex; let j = $index) {
+          <div class="overall-pie">
+            <canvas
+              class="overall-pie-canvas"
+              [attr.id]="'overall-pie-' + i + '-' + j"
+            ></canvas>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>
-
-<app-caseiq-table
-  [dataSource]="i2cTableData"
-  [displayedColumns]="i2cTableColumns"
-  [exportFileName]="'I2C_Validation_Summary'"
-  [extraWideColumns]="['category']"
->
-</app-caseiq-table> -->

@@ -179,4 +179,9 @@ public class EspCaseManagerController {
     public ResponseEntity<List<Map<String, Object>>> espCaseManagerGlobalSearch(@RequestParam("incidentNumber") String incidentNumber) throws IOException {
         return new ResponseEntity<>(service.espCaseAnalyzerGlobalSearch(incidentNumber), HttpStatus.OK);
     }
+
+    @GetMapping("/xxcaseiq-metrics")
+    public ResponseEntity<List<Map<String, Object>>> getEspCaseAnalyzerMetrics() {
+        return new ResponseEntity<>(service.getEspCaseAnalyzerMetrics(), HttpStatus.OK);
+    }
 }
