@@ -19,7 +19,7 @@ import { Chart } from 'chart.js/auto';
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // Section names are derived dynamically from caseIqMetrics
-  // (e.g. 'Overall' for TEAM_NAME 'ALL', then each TEAM_NAME).
+  // (e.g. 'Finance IT' for TEAM_NAME 'ALL', then each TEAM_NAME).
   sections = signal<string[]>([]);
 
   private charts: Chart[] = [];
@@ -68,7 +68,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const names: string[] = [];
 
-    // Overall / ALL first if present
+    // Finance IT / ALL first if present
     const hasAll = this.caseIqMetrics.some(
       (m: any) =>
         m &&
@@ -77,10 +77,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         m.TEAM_NAME.toUpperCase() === 'ALL',
     );
     if (hasAll) {
-      names.push('Overall');
+      names.push('Finance IT');
     }
 
-    // Then other teams in the order they appear
+    // Define the desired order for other teams
+    const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
+
+    // Collect available team names from metrics
+    const availableTeams = new Set<string>();
     this.caseIqMetrics.forEach((m: any) => {
       if (
         m &&
@@ -88,10 +92,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         typeof m.TEAM_NAME === 'string' &&
         m.TEAM_NAME.toUpperCase() !== 'ALL'
       ) {
-        const name = m.TEAM_NAME;
-        if (!names.includes(name)) {
-          names.push(name);
-        }
+        availableTeams.add(m.TEAM_NAME);
+      }
+    });
+
+    // Add teams in the specified order if they exist in metrics
+    teamOrder.forEach((teamName) => {
+      if (availableTeams.has(teamName)) {
+        names.push(teamName);
       }
     });
 
@@ -131,8 +139,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (Array.isArray(this.caseIqMetrics)) {
       let teamData: any = null;
 
-      if (sectionName === 'Overall') {
-        // For Overall section, find TEAM_NAME === 'ALL'
+      if (sectionName === 'Finance IT') {
+        // For Finance IT section, find TEAM_NAME === 'ALL'
         teamData = this.caseIqMetrics.find(
           (m: any) =>
             m &&
@@ -243,9 +251,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   /**
-   * Updates the Overall bar chart (section 'Overall', canvas id 'overall-bar-0')
-   * with values from caseIqMetrics where TEAM_NAME === 'ALL'.
-   */
+   * Updates the Finance IT bar chart (section 'Finance IT', canvas id 'overall-bar-0')
+   * with values from caseIqMetrics where TEAM_NAME === 'ALL'.\n   */
   private updateOverallBarFromMetrics(): void {
     if (!Array.isArray(this.caseIqMetrics)) {
       return;
@@ -312,8 +319,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (pieIndex === 0 && Array.isArray(this.caseIqMetrics)) {
       let teamData: any = null;
 
-      if (sectionName === 'Overall') {
-        // For Overall section, find TEAM_NAME === 'ALL'
+      if (sectionName === 'Finance IT') {
+        // For Finance IT section, find TEAM_NAME === 'ALL'
         teamData = this.caseIqMetrics.find(
           (m: any) =>
             m &&
@@ -348,8 +355,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (pieIndex === 1 && Array.isArray(this.caseIqMetrics)) {
       let teamData: any = null;
 
-      if (sectionName === 'Overall') {
-        // For Overall section, find TEAM_NAME === 'ALL'
+      if (sectionName === 'Finance IT') {
+        // For Finance IT section, find TEAM_NAME === 'ALL'
         teamData = this.caseIqMetrics.find(
           (m: any) =>
             m &&
@@ -383,8 +390,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (pieIndex === 2 && Array.isArray(this.caseIqMetrics)) {
       let teamData: any = null;
 
-      if (sectionName === 'Overall') {
-        // For Overall section, find TEAM_NAME === 'ALL'
+      if (sectionName === 'Finance IT') {
+        // For Finance IT section, find TEAM_NAME === 'ALL'
         teamData = this.caseIqMetrics.find(
           (m: any) =>
             m &&
@@ -430,6 +437,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       options: {
         responsive: false,
         maintainAspectRatio: true,
+        cutout: '35%',
         plugins: {
           legend: {
             display: false,
@@ -465,10 +473,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 const y = centerY + Math.sin(angle) * radius;
 
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 9px sans-serif';
+                ctx.font = 'normal 9px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(`${percentage}%`, x, y);
+
+                // Draw percentage
+                ctx.fillText(`${percentage}%`, x, y - 5);
+
+                // Draw actual count in brackets below
+                ctx.fillText(`(${value})`, x, y + 5);
               });
             });
           },

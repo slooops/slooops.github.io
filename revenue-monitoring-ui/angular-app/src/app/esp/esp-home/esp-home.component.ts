@@ -139,7 +139,7 @@ export class EspHomeComponent implements OnInit {
 
   // Base metric tiles structure - preserving all tile names
   private readonly baseMetricTiles: MetricTile[] = [
-    { name: 'Overall', percentage: '-' },
+    { name: 'Finance IT', percentage: '-' },
     { name: 'OM', percentage: '-' },
     { name: 'SM', percentage: '-' },
     { name: 'I2C', percentage: '-' },
@@ -408,7 +408,7 @@ export class EspHomeComponent implements OnInit {
 
     // Calculate overall accuracy after updating individual tiles
     const validTiles = this.metricTiles.filter(
-      (tile) => tile.name !== 'Overall' && !isNaN(Number(tile.percentage)),
+      (tile) => tile.name !== 'Finance IT' && !isNaN(Number(tile.percentage)),
     );
 
     if (validTiles.length > 0) {
@@ -420,7 +420,7 @@ export class EspHomeComponent implements OnInit {
 
       // Assign overall accuracy to the "Overall" tile
       const overallTileIndex = this.metricTiles.findIndex(
-        (tile) => tile.name === 'Overall',
+        (tile) => tile.name === 'Finance IT',
       );
       if (overallTileIndex !== -1) {
         this.metricTiles[overallTileIndex].percentage =
@@ -481,7 +481,7 @@ export class EspHomeComponent implements OnInit {
    */
   isTileAccessible(tileName: string): boolean {
     // Overall tile is always accessible
-    if (tileName === 'Overall') {
+    if (tileName === 'Finance IT') {
       return true;
     }
 
