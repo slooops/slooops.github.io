@@ -1,5 +1,5 @@
 ##### Stage 1: Build Angular UI + Storybook (builder only, not shipped) #####
-FROM node:20.8.1-slim AS ui-builder
+FROM node:20.19.0-slim AS ui-builder
 
 RUN adduser node root
 
@@ -23,7 +23,7 @@ RUN npm run build-storybook
 
 
 ##### Stage 2: Runtime image (no Cypress cache/libvpx layers) #####
-FROM node:20.8.1-slim
+FROM node:20.19.0-slim
 
 # Copy Node proxy server source
 WORKDIR /proxy-server
