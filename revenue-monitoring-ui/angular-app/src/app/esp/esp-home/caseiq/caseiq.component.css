@@ -18,6 +18,10 @@
   min-height: 345px;
 }
 
+.overall-section.p2p-section {
+  /* Keep same minimum height but let bar expand */
+}
+
 .overall-title {
   text-align: center;
   font-weight: 600;
@@ -32,6 +36,11 @@
   position: relative;
   overflow: hidden;
   border: 1px solid #dddddd;
+}
+
+.overall-section.p2p-section .overall-bar {
+  flex: 1;
+  height: auto;
 }
 
 .overall-bar-canvas {

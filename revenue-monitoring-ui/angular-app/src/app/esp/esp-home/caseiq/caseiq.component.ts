@@ -133,7 +133,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (!ctx) return;
 
     let labels: (string | string[])[] = [];
-    let values: number[] = [];
+
+    // Individual values for each bar/segment
+    let totalCases = 0;
+    let serviceResolved = 0;
+    let serviceOthers = 0;
+    let routedOutRecommended = 0;
+    let routedOutMisrouted = 0;
+    let cancelledRecommended = 0;
+    let cancelledOthers = 0;
 
     // Try to find metrics for this section from caseIqMetrics
     if (Array.isArray(this.caseIqMetrics)) {
@@ -166,12 +174,23 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           'Routed Out',
           'Cancelled',
         ];
-        values = [
-          Number(teamData.TOTAL_CASES) || 0,
-          Number(teamData.TOTAL_SERVICE_REQUESTS) || 0,
-          Number(teamData.ROUTED_OUT) || 0,
-          Number(teamData.CANCELLED) || 0,
-        ];
+
+        totalCases = Number(teamData.TOTAL_CASES) || 0;
+
+        const totalServiceRequests =
+          Number(teamData.TOTAL_SERVICE_REQUESTS) || 0;
+        const resolvedFromService = Number(teamData.RESOLVED) || 0;
+        serviceResolved = resolvedFromService;
+        serviceOthers = totalServiceRequests - resolvedFromService;
+
+        routedOutRecommended = Number(teamData.RECOMMENDED_ROUTE_OUT) || 0;
+        routedOutMisrouted = Number(teamData.MISROUTED) || 0;
+
+        const cancelledTotal = Number(teamData.CANCELLED) || 0;
+        const recommendedCancelled =
+          Number(teamData.RECOMMENDED_CANCELLED) || 0;
+        cancelledRecommended = recommendedCancelled;
+        cancelledOthers = cancelledTotal - recommendedCancelled;
       }
     }
 
@@ -181,9 +200,60 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         labels,
         datasets: [
           {
-            data: values,
+            // Total Cases
+            data: [totalCases, 0, 0, 0],
             backgroundColor: 'rgb(54, 162, 235)',
             borderWidth: 0,
+            stack: 'stack1',
+            label: 'Total Cases',
+          },
+          {
+            // Total Service Requests (Resolved)
+            data: [0, serviceResolved, 0, 0],
+            backgroundColor: '#81C784',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Resolved (CaseIQ)',
+          },
+          {
+            // Total Service Requests (Others)
+            data: [0, serviceOthers, 0, 0],
+            backgroundColor: '#4CAF50',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Resolved (Ops)',
+          },
+          {
+            // Routed Out (Recommended)
+            data: [0, 0, routedOutRecommended, 0],
+            backgroundColor: '#FFD54F',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Routed (Recommended)',
+          },
+          {
+            // Routed Out (Misrouted)
+            data: [0, 0, routedOutMisrouted, 0],
+            backgroundColor: '#FFA000',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Misrouted',
+          },
+          {
+            // Cancelled
+            data: [0, 0, 0, cancelledRecommended],
+            backgroundColor: '#EF9A9A',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Recommended Canceled',
+          },
+          {
+            // Cancelled (Others)
+            data: [0, 0, 0, cancelledOthers],
+            backgroundColor: '#E57373',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Others',
           },
         ],
       },
@@ -197,13 +267,35 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: true },
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              label: (context) => {
+                const value = (context.parsed.y as number) || 0;
+                const dataIndex = context.dataIndex;
+                let stackTotal = 0;
+
+                context.chart.data.datasets.forEach((ds) => {
+                  const v = (ds.data?.[dataIndex] as number) || 0;
+                  stackTotal += v;
+                });
+
+                const percent = stackTotal
+                  ? ((value / stackTotal) * 100).toFixed(1)
+                  : '0.0';
+
+                const label = context.dataset.label || '';
+                return `${label}: ${value} (${percent}%)`;
+              },
+            },
+          },
         },
         scales: {
           x: {
             display: true,
             grid: { display: false },
             border: { display: true },
+            stacked: true,
             ticks: {
               font: {
                 size: 10,
@@ -218,6 +310,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             grid: { display: true },
             border: { display: true },
             beginAtZero: true,
+            stacked: true,
             ticks: {
               font: {
                 size: 10,
@@ -231,17 +324,41 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           id: 'barValueLabels',
           afterDatasetsDraw: (chart) => {
             const ctx = chart.ctx;
-            chart.data.datasets.forEach((dataset, i) => {
-              const meta = chart.getDatasetMeta(i);
-              meta.data.forEach((bar, index) => {
-                const data = dataset.data[index] as number;
-                ctx.fillStyle = '#333';
-                ctx.font = 'bold 10px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(data.toString(), bar.x, bar.y - 5);
+            const labelCount = chart.data.labels ? chart.data.labels.length : 0;
+
+            for (let index = 0; index < labelCount; index++) {
+              let stackTotal = 0;
+              let x = 0;
+              let topY = Number.POSITIVE_INFINITY;
+
+              chart.data.datasets.forEach((dataset, dsIndex) => {
+                const meta = chart.getDatasetMeta(dsIndex);
+                const bar: any = meta.data[index];
+                if (!bar) {
+                  return;
+                }
+
+                const value = (dataset.data?.[index] as number) || 0;
+                stackTotal += value;
+
+                if (!x) {
+                  x = bar.x;
+                }
+                if (bar.y < topY) {
+                  topY = bar.y;
+                }
               });
-            });
+
+              if (!stackTotal || !isFinite(topY)) {
+                continue;
+              }
+
+              ctx.fillStyle = '#333';
+              ctx.font = 'bold 10px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'bottom';
+              ctx.fillText(stackTotal.toString(), x, topY - 5);
+            }
           },
         },
       ],
@@ -284,17 +401,68 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       'Routed Out',
       'Cancelled',
     ];
-    const values = [
-      Number(overall.TOTAL_CASES) || 0,
-      Number(overall.TOTAL_SERVICE_REQUESTS) || 0,
-      Number(overall.ROUTED_OUT) || 0,
-      Number(overall.CANCELLED) || 0,
-    ];
+
+    const totalCases = Number(overall.TOTAL_CASES) || 0;
+
+    const totalServiceRequests = Number(overall.TOTAL_SERVICE_REQUESTS) || 0;
+    const resolvedFromService = Number(overall.RESOLVED) || 0;
+    const serviceResolved = resolvedFromService;
+    const serviceOthers = totalServiceRequests - resolvedFromService;
+
+    const routedOutRecommended = Number(overall.RECOMMENDED_ROUTE_OUT) || 0;
+    const routedOutMisrouted = Number(overall.MISROUTED) || 0;
+
+    const cancelledTotal = Number(overall.CANCELLED) || 0;
+    const recommendedCancelled = Number(overall.RECOMMENDED_CANCELLED) || 0;
+    const cancelledRecommended = recommendedCancelled;
+    const cancelledOthers = cancelledTotal - recommendedCancelled;
 
     chart.data.labels = labels;
-    if (chart.data.datasets && chart.data.datasets[0]) {
-      chart.data.datasets[0].data = values;
-    }
+    chart.data.datasets = [
+      {
+        data: [totalCases, 0, 0, 0],
+        backgroundColor: 'rgb(54, 162, 235)',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+      {
+        data: [0, serviceResolved, 0, 0],
+        backgroundColor: '#81C784',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+      {
+        data: [0, serviceOthers, 0, 0],
+        backgroundColor: '#4CAF50',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+      {
+        data: [0, 0, routedOutRecommended, 0],
+        backgroundColor: '#FFD54F',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+      {
+        data: [0, 0, routedOutMisrouted, 0],
+        backgroundColor: '#FFA000',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+      {
+        data: [0, 0, 0, cancelledRecommended],
+        backgroundColor: '#EF9A9A',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+      {
+        data: [0, 0, 0, cancelledOthers],
+        backgroundColor: '#E57373',
+        borderWidth: 0,
+        stack: 'stack1',
+      },
+    ];
+
     chart.update();
   }
 
