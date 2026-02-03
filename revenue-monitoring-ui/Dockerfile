@@ -1,13 +1,14 @@
 ##### Stage 1: Build Angular UI + Storybook (builder only, not shipped) #####
-FROM node:20-slim AS ui-builder
+FROM node:20.8.1-slim AS ui-builder
 
 RUN adduser node root
 
 WORKDIR /ui
 COPY ./angular-app /ui
 
-# Increase memory for Angular build
-ENV NODE_OPTIONS="--max-old-space-size=5120"
+# Increase memory for Angular build and disable Cypress binary download
+ENV NODE_OPTIONS="--max-old-space-size=5120" \
+    CYPRESS_INSTALL_BINARY=0
 
 RUN npm install --legacy-peer-deps \
 	&& npm install esbuild@latest --save-dev --legacy-peer-deps \
@@ -22,7 +23,7 @@ RUN npm run build-storybook
 
 
 ##### Stage 2: Runtime image (no Cypress cache/libvpx layers) #####
-FROM node:20-slim
+FROM node:20.8.1-slim
 
 # Copy Node proxy server source
 WORKDIR /proxy-server
