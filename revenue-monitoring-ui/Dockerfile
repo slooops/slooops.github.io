@@ -18,6 +18,10 @@ RUN npm run build
 # Build Storybook (static site served at /storybook/)
 RUN npm run build-storybook
 
+# Remove Cypress binary cache (which bundles its own Node runtime)
+# so it is not present in the final runtime image and cannot be flagged.
+RUN rm -rf /root/.cache/Cypress /home/node/.cache/Cypress || true
+
 #node build and run
 WORKDIR /proxy-server
 COPY ./node-proxy-server /proxy-server
