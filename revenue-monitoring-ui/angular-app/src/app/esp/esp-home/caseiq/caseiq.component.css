@@ -22,25 +22,33 @@
   /* Keep same minimum height but let bar expand */
 }
 
+.overall-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.overall-header-left {
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+  color: #333;
+}
+
 .overall-title {
   text-align: center;
   font-weight: 600;
-  /* margin-bottom: 0.5rem; */
   font-size: 12px;
 }
 
 .overall-bar {
   background-color: #ffffff;
-  height: 190px;
+  flex: 1;
   border-radius: 2px;
   position: relative;
   overflow: hidden;
   border: 1px solid #dddddd;
-}
-
-.overall-section.p2p-section .overall-bar {
-  flex: 1;
-  height: auto;
 }
 
 .overall-bar-canvas {
@@ -72,27 +80,7 @@
   font-weight: 600;
 }
 
-.overall-pies {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  /* gap: 0.75rem; */
-}
-
-.overall-pie {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100px;
-  /* padding: 10px; */
-}
-
-.overall-pie-canvas {
-  width: 90px;
-  height: 90px;
-  display: block;
-}
+/* Doughnut styles no longer used now that sections show only bar charts */
 
 .overall-legend {
   margin-top: 10px;

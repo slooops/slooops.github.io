@@ -31,27 +31,18 @@
 <div class="overall-grid">
   @for (sectionName of sections(); track sectionName; let i = $index) {
     <div class="overall-section" [class.p2p-section]="sectionName === 'P2P'">
-      <div class="overall-title">{{ sectionName }}</div>
-
+      <div class="overall-header">
+        <div class="overall-header-left">
+          Total Cases: <b>{{ getTotalCases(sectionName) | number }}</b>
+        </div>
+        <div class="overall-title">{{ sectionName }}</div>
+      </div>
       <div class="overall-bar">
         <canvas
           class="overall-bar-canvas"
           [attr.id]="'overall-bar-' + i"
         ></canvas>
       </div>
-
-      @if (sectionName !== "P2P") {
-        <div class="overall-pies">
-          @for (pieIndex of [0, 1, 2]; track pieIndex; let j = $index) {
-            <div class="overall-pie">
-              <canvas
-                class="overall-pie-canvas"
-                [attr.id]="'overall-pie-' + i + '-' + j"
-              ></canvas>
-            </div>
-          }
-        </div>
-      }
     </div>
   }
 </div>
