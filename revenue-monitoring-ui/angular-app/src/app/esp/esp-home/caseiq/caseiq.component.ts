@@ -189,22 +189,26 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
 
       if (teamData) {
-        labels = [['Total Service', 'Requests'], 'Routed Out', 'Cancelled'];
+        labels = ['Resolved', 'Routed Out', 'Cancelled'];
 
-        const totalServiceRequests =
-          Number(teamData.TOTAL_SERVICE_REQUESTS) || 0;
-        const resolvedFromService = Number(teamData.RESOLVED) || 0;
-        serviceResolved = resolvedFromService;
-        serviceOthers = totalServiceRequests - resolvedFromService;
+        // First bar now represents total RESOLVED,
+        // stacked as RESOLVED_AGENT and RESOLVED_OPS.
+        const resolvedAgent = Number(teamData.RESOLVED_AGENT) || 0;
+        const resolvedOps = Number(teamData.RESOLVED_OPS) || 0;
+        serviceResolved = resolvedAgent;
+        serviceOthers = resolvedOps;
 
-        routedOutRecommended = Number(teamData.RECOMMENDED_ROUTE_OUT) || 0;
+        routedOutRecommended =
+          Number(
+            teamData.RECOMMENDED_ROUTE_OUT ?? teamData.RECOMMENDED_ROUTED_OUT,
+          ) || 0;
         routedOutMisrouted = Number(teamData.MISROUTED) || 0;
 
         const cancelledTotal = Number(teamData.CANCELLED) || 0;
         const recommendedCancelled =
           Number(teamData.RECOMMENDED_CANCELLED) || 0;
         cancelledRecommended = recommendedCancelled;
-        cancelledOthers = cancelledTotal - recommendedCancelled;
+        cancelledOthers = Number(teamData.NOT_RECOMMENDED_CANCELLED);
       }
     }
 
@@ -214,15 +218,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         labels,
         datasets: [
           {
-            // Total Service Requests (Resolved)
+            // Total Service Requests (Resolved by Agent)
             data: [serviceResolved, 0, 0],
             backgroundColor: '#81C784',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Resolved (CaseIQ)',
+            label: 'Resolved (Agent)',
           },
           {
-            // Total Service Requests (Others)
+            // Total Service Requests (Resolved by Ops)
             data: [serviceOthers, 0, 0],
             backgroundColor: '#4CAF50',
             borderWidth: 0,
@@ -235,7 +239,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             backgroundColor: '#FFD54F',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Routed (Recommended)',
+            label: 'Recommended Routed Out',
           },
           {
             // Routed Out (Misrouted)
@@ -259,7 +263,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             backgroundColor: '#E57373',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Others',
+            label: 'Not Recommended Canceled',
           },
         ],
       },
