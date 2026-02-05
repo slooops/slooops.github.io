@@ -530,10 +530,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
                 const dsAny: any = dataset;
                 const percentages: number[] = dsAny.segmentPercentages || [];
-                const percentage =
+                const rawPercentage =
                   typeof percentages[index] === 'number'
                     ? percentages[index]
-                    : Math.round((value / stackTotal) * 100);
+                    : (value / stackTotal) * 100;
+                const percentage = Math.round(rawPercentage);
 
                 // Skip if percentage is 15% or less of the bar total
                 if (percentage <= 15) {
