@@ -220,6 +220,28 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Total Service Requests (Resolved by Ops)
             data: [serviceOthers, 0, 0],
+            // Percentages come directly from API fields
+            // RESOLVED_PERCENTAGE_OPS applies to the first bar
+            ...({
+              segmentPercentages: [
+                Number(
+                  (Array.isArray(this.caseIqMetrics)
+                    ? this.caseIqMetrics.find(
+                        (m: any) =>
+                          m &&
+                          m.TEAM_NAME &&
+                          typeof m.TEAM_NAME === 'string' &&
+                          (sectionName === 'Finance IT'
+                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
+                            : m.TEAM_NAME === sectionName),
+                      )
+                    : null
+                  )?.RESOLVED_PERCENTAGE_OPS,
+                ) || 0,
+                0,
+                0,
+              ],
+            } as any),
             backgroundColor: '#4CAF50',
             borderWidth: 0,
             stack: 'stack1',
@@ -228,6 +250,27 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Total Service Requests (Resolved by Agent)
             data: [serviceResolved, 0, 0],
+            // RESOLVED_PERCENTAGE_AGENT applies to the first bar
+            ...({
+              segmentPercentages: [
+                Number(
+                  (Array.isArray(this.caseIqMetrics)
+                    ? this.caseIqMetrics.find(
+                        (m: any) =>
+                          m &&
+                          m.TEAM_NAME &&
+                          typeof m.TEAM_NAME === 'string' &&
+                          (sectionName === 'Finance IT'
+                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
+                            : m.TEAM_NAME === sectionName),
+                      )
+                    : null
+                  )?.RESOLVED_PERCENTAGE_AGENT,
+                ) || 0,
+                0,
+                0,
+              ],
+            } as any),
             backgroundColor: '#81C784',
             borderWidth: 0,
             stack: 'stack1',
@@ -236,6 +279,27 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Routed Out (Misrouted)
             data: [0, routedOutMisrouted, 0],
+            // NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE applies to the second bar
+            ...({
+              segmentPercentages: [
+                0,
+                Number(
+                  (Array.isArray(this.caseIqMetrics)
+                    ? this.caseIqMetrics.find(
+                        (m: any) =>
+                          m &&
+                          m.TEAM_NAME &&
+                          typeof m.TEAM_NAME === 'string' &&
+                          (sectionName === 'Finance IT'
+                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
+                            : m.TEAM_NAME === sectionName),
+                      )
+                    : null
+                  )?.NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE,
+                ) || 0,
+                0,
+              ],
+            } as any),
             backgroundColor: '#FFA000',
             borderWidth: 0,
             stack: 'stack1',
@@ -244,6 +308,27 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Routed Out (Recommended)
             data: [0, routedOutRecommended, 0],
+            // RECOMMENDED_ROUTED_OUT_PERCENTAGE applies to the second bar
+            ...({
+              segmentPercentages: [
+                0,
+                Number(
+                  (Array.isArray(this.caseIqMetrics)
+                    ? this.caseIqMetrics.find(
+                        (m: any) =>
+                          m &&
+                          m.TEAM_NAME &&
+                          typeof m.TEAM_NAME === 'string' &&
+                          (sectionName === 'Finance IT'
+                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
+                            : m.TEAM_NAME === sectionName),
+                      )
+                    : null
+                  )?.RECOMMENDED_ROUTED_OUT_PERCENTAGE,
+                ) || 0,
+                0,
+              ],
+            } as any),
             backgroundColor: '#FFD54F',
             borderWidth: 0,
             stack: 'stack1',
@@ -252,6 +337,27 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Cancelled (Others)
             data: [0, 0, cancelledOthers],
+            // NOT_RECOMMENDED_CANCELLED_PERCENTAGE applies to the third bar
+            ...({
+              segmentPercentages: [
+                0,
+                0,
+                Number(
+                  (Array.isArray(this.caseIqMetrics)
+                    ? this.caseIqMetrics.find(
+                        (m: any) =>
+                          m &&
+                          m.TEAM_NAME &&
+                          typeof m.TEAM_NAME === 'string' &&
+                          (sectionName === 'Finance IT'
+                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
+                            : m.TEAM_NAME === sectionName),
+                      )
+                    : null
+                  )?.NOT_RECOMMENDED_CANCELLED_PERCENTAGE,
+                ) || 0,
+              ],
+            } as any),
             backgroundColor: '#E57373',
             borderWidth: 0,
             stack: 'stack1',
@@ -260,6 +366,27 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Cancelled
             data: [0, 0, cancelledRecommended],
+            // RECOMMENDED_CANCELLED_PERCENTAGE applies to the third bar
+            ...({
+              segmentPercentages: [
+                0,
+                0,
+                Number(
+                  (Array.isArray(this.caseIqMetrics)
+                    ? this.caseIqMetrics.find(
+                        (m: any) =>
+                          m &&
+                          m.TEAM_NAME &&
+                          typeof m.TEAM_NAME === 'string' &&
+                          (sectionName === 'Finance IT'
+                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
+                            : m.TEAM_NAME === sectionName),
+                      )
+                    : null
+                  )?.RECOMMENDED_CANCELLED_PERCENTAGE,
+                ) || 0,
+              ],
+            } as any),
             backgroundColor: '#EF9A9A',
             borderWidth: 0,
             stack: 'stack1',
@@ -387,7 +514,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               ctx.textBaseline = 'bottom';
               ctx.fillText(stackTotal.toString(), x, topY - 5);
 
-              // Second pass: draw percentage labels inside each segment
+              // Second pass: draw labels inside each segment using
+              // precomputed percentages from the API where available.
               chart.data.datasets.forEach((dataset, dsIndex) => {
                 const meta = chart.getDatasetMeta(dsIndex);
                 const bar: any = meta.data[index];
@@ -400,13 +528,17 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                   return;
                 }
 
-                const ratio = value / stackTotal;
-                // Skip if 20% or less of the bar total
-                if (ratio <= 0.15) {
+                const dsAny: any = dataset;
+                const percentages: number[] = dsAny.segmentPercentages || [];
+                const percentage =
+                  typeof percentages[index] === 'number'
+                    ? percentages[index]
+                    : Math.round((value / stackTotal) * 100);
+
+                // Skip if percentage is 15% or less of the bar total
+                if (percentage <= 15) {
                   return;
                 }
-
-                const percentage = Math.round(ratio * 100);
 
                 const centerX = bar.x;
                 const centerY = (bar.y + bar.base) / 2;
