@@ -74,22 +74,24 @@
         </div>
       </div>
       <div class="header-center">
-        <div class="global-search">
-          <div class="global-search-input-wrapper">
-            <input
-              type="text"
-              class="global-search-input"
-              #globalSearchInput
-              placeholder="Search by Incident Number(s), comma separated"
-              (keyup.enter)="onGlobalSearchClick(globalSearchInput.value)"
-            />
+        @if (activeTab !== "Finance IT") {
+          <div class="global-search">
+            <div class="global-search-input-wrapper">
+              <input
+                type="text"
+                class="global-search-input"
+                #globalSearchInput
+                placeholder="Search by Incident Number(s), comma separated"
+                (keyup.enter)="onGlobalSearchClick(globalSearchInput.value)"
+              />
+            </div>
+            <span
+              class="global-search-icon"
+              (click)="onGlobalSearchClick(globalSearchInput.value)"
+              >🔍</span
+            >
           </div>
-          <span
-            class="global-search-icon"
-            (click)="onGlobalSearchClick(globalSearchInput.value)"
-            >🔍</span
-          >
-        </div>
+        }
       </div>
     </div>
   </div>

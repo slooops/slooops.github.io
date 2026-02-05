@@ -189,7 +189,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
 
       if (teamData) {
-        labels = ['Resolved', 'Routed Out', 'Cancelled'];
+        labels = ['Total Service Requests', 'Routed Out', 'Canceled'];
 
         // First bar now represents total RESOLVED,
         // stacked as RESOLVED_AGENT and RESOLVED_OPS.
@@ -202,7 +202,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           Number(
             teamData.RECOMMENDED_ROUTE_OUT ?? teamData.RECOMMENDED_ROUTED_OUT,
           ) || 0;
-        routedOutMisrouted = Number(teamData.MISROUTED) || 0;
+        routedOutMisrouted = Number(teamData.NOT_RECOMMENDED_ROUTED_OUT) || 0;
 
         const cancelledTotal = Number(teamData.CANCELLED) || 0;
         const recommendedCancelled =
@@ -218,6 +218,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         labels,
         datasets: [
           {
+            // Total Service Requests (Resolved by Ops)
+            data: [serviceOthers, 0, 0],
+            backgroundColor: '#4CAF50',
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'Resolved (Ops)',
+          },
+          {
             // Total Service Requests (Resolved by Agent)
             data: [serviceResolved, 0, 0],
             backgroundColor: '#81C784',
@@ -226,12 +234,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             label: 'Resolved (Agent)',
           },
           {
-            // Total Service Requests (Resolved by Ops)
-            data: [serviceOthers, 0, 0],
-            backgroundColor: '#4CAF50',
+            // Routed Out (Misrouted)
+            data: [0, routedOutMisrouted, 0],
+            backgroundColor: '#FFA000',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Resolved (Ops)',
+            label: 'Not Recommended Routed Out',
           },
           {
             // Routed Out (Recommended)
@@ -242,12 +250,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             label: 'Recommended Routed Out',
           },
           {
-            // Routed Out (Misrouted)
-            data: [0, routedOutMisrouted, 0],
-            backgroundColor: '#FFA000',
+            // Cancelled (Others)
+            data: [0, 0, cancelledOthers],
+            backgroundColor: '#E57373',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Misrouted',
+            label: 'Not Recommended Canceled',
           },
           {
             // Cancelled
@@ -256,14 +264,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             borderWidth: 0,
             stack: 'stack1',
             label: 'Recommended Canceled',
-          },
-          {
-            // Cancelled (Others)
-            data: [0, 0, cancelledOthers],
-            backgroundColor: '#E57373',
-            borderWidth: 0,
-            stack: 'stack1',
-            label: 'Not Recommended Canceled',
           },
         ],
       },
@@ -402,7 +402,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
                 const ratio = value / stackTotal;
                 // Skip if 20% or less of the bar total
-                if (ratio <= 0.2) {
+                if (ratio <= 0.15) {
                   return;
                 }
 
@@ -415,7 +415,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 ctx.font = 'bold 10px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(`${value}`, centerX, centerY);
+                ctx.fillText(`${value} (${percentage}%)`, centerX, centerY);
               });
             }
           },
