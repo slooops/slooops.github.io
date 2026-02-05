@@ -32,7 +32,7 @@
       <div class="kpi-bar kpi-bar-primary">
         <div class="kpi-item first">
           <div class="kpi-value high">
-            {{ kpis()?.highPriorityIssues ?? "-" }}
+            {{ highPriorityKpis()?.highPriorityIssues ?? "-" }}
           </div>
           <div class="kpi-label">
             High Priority Issues
@@ -40,41 +40,53 @@
           </div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.inProgress ?? "-" }}</div>
+          <div class="kpi-value">
+            {{ highPriorityKpis()?.inProgress ?? "-" }}
+          </div>
           <div class="kpi-label">In Progress</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.totalAging ?? "-" }}</div>
+          <div class="kpi-value">
+            {{ highPriorityKpis()?.totalAging ?? "-" }}
+          </div>
           <div class="kpi-label">Total Aging</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.lessThan48Hours ?? "-" }}</div>
+          <div class="kpi-value">
+            {{ highPriorityKpis()?.lessThan48Hours ?? "-" }}
+          </div>
           <div class="kpi-label">&lt;48 Hours</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.moreThan48Hours ?? "-" }}</div>
+          <div class="kpi-value">
+            {{ highPriorityKpis()?.moreThan48Hours ?? "-" }}
+          </div>
           <div class="kpi-label">&gt;48 Hours</div>
         </div>
       </div>
       <div class="kpi-bar kpi-bar-secondary">
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.totalIssues ?? "-" }}</div>
+          <div class="kpi-value">{{ issueKpis()?.totalIssues ?? "-" }}</div>
           <div class="kpi-label">Total Issues</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.resolvedIssues ?? "-" }}</div>
+          <div class="kpi-value">{{ issueKpis()?.resolvedIssues ?? "-" }}</div>
           <div class="kpi-label">Resolved Issues</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.inProgressIssues ?? "-" }}</div>
+          <div class="kpi-value">
+            {{ issueKpis()?.inProgressIssues ?? "-" }}
+          </div>
           <div class="kpi-label">In Progress Issues</div>
         </div>
         <div class="kpi-item">
-          <div class="kpi-value">{{ kpis()?.assignedIssues ?? "-" }}</div>
+          <div class="kpi-value">{{ issueKpis()?.assignedIssues ?? "-" }}</div>
           <div class="kpi-label">Assigned Issues</div>
         </div>
         <div class="kpi-item last">
-          <div class="kpi-value">{{ kpis()?.unassignedIssues ?? "-" }}</div>
+          <div class="kpi-value">
+            {{ issueKpis()?.unassignedIssues ?? "-" }}
+          </div>
           <div class="kpi-label">Unassigned Issues</div>
         </div>
       </div>

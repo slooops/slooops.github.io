@@ -67,7 +67,8 @@ export class HomeComponent implements OnDestroy {
   // Dashboard data signals
   dashboardData = signal<any>(null);
   periodInfo = signal<any>(null);
-  kpis = signal<any>(null);
+  highPriorityKpis = signal<any>(null);
+  issueKpis = signal<any>(null);
   charts = signal<any>(null);
   issuesList = signal<any[]>([]);
   // Mat Table integration
@@ -201,7 +202,7 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getHighPriorityIssues(this.destroyManager).subscribe({
       next: (highPriorityIssues) => {
         console.log('High Priority Issues:', highPriorityIssues);
-        this.kpis.set({
+        this.highPriorityKpis.set({
           highPriorityIssues: highPriorityIssues[0].HIGH_PRIORITY_ISSUES || 0,
           inProgress: highPriorityIssues[0].IN_PROGRESS || 0,
           totalAging: highPriorityIssues[0].TOTAL_AGING || 0,
@@ -222,9 +223,7 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getIssues(this.destroyManager).subscribe({
       next: (issues) => {
         console.log('Issues from real service:', issues);
-        const currentKpis = this.kpis() || {};
-        this.kpis.set({
-          ...currentKpis,
+        this.issueKpis.set({
           totalIssues: issues[0]?.TOTAL_ISSUES || 0,
           resolvedIssues: issues[0]?.RESOLVED || 0,
           inProgressIssues: issues[0]?.IN_PROGRESS || 0,
@@ -233,7 +232,7 @@ export class HomeComponent implements OnDestroy {
         });
         // Ensure issue distribution center text reflects latest totalIssues
         this.refreshIssueDistributionCenterText();
-        console.log('Updated KPIs:', this.kpis());
+        console.log('Updated issue KPIs:', this.issueKpis());
       },
       error: (error) => {
         console.error('Error loading issues:', error);
@@ -1080,9 +1079,9 @@ export class HomeComponent implements OnDestroy {
         ctx.fillStyle = '#000';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const kpisData = this.kpis();
+        const issueKpisData = this.issueKpis();
         ctx.fillText(
-          kpisData?.totalIssues?.toString() || '',
+          issueKpisData?.totalIssues?.toString() || '',
           chart.getDatasetMeta(0).data[0].x,
           chart.getDatasetMeta(0).data[0].y - 8,
         );

@@ -22,7 +22,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // (e.g. 'Finance IT' for TEAM_NAME 'ALL', then each TEAM_NAME).
   sections = signal<string[]>([]);
 
-  private charts: Chart[] = [];
+  // Track created Chart.js instances; using `any` here avoids
+  // over-constraining generics for different chart types.
+  private charts: any[] = [];
   private viewInitialized = false;
 
   @Input() caseIqMetrics: any;
@@ -264,6 +266,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'nearest',
+          intersect: true,
+        },
         layout: {
           padding: {
             top: 30,
@@ -273,6 +279,18 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           legend: { display: false },
           tooltip: {
             enabled: true,
+            filter: (context) => {
+              const dataIndex = context.dataIndex;
+              let stackTotal = 0;
+
+              context.chart.data.datasets.forEach((ds) => {
+                const v = (ds.data?.[dataIndex] as number) || 0;
+                stackTotal += v;
+              });
+
+              // Suppress tooltips when there is no data at this x-position
+              return stackTotal > 0;
+            },
             callbacks: {
               label: (context) => {
                 const value = (context.parsed.y as number) || 0;
@@ -335,6 +353,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               let x = 0;
               let topY = Number.POSITIVE_INFINITY;
 
+              // First pass: compute stack total and top of bar for this x index
               chart.data.datasets.forEach((dataset, dsIndex) => {
                 const meta = chart.getDatasetMeta(dsIndex);
                 const bar: any = meta.data[index];
@@ -357,227 +376,44 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 continue;
               }
 
+              // Draw total label above the stacked bar
               ctx.fillStyle = '#333';
               ctx.font = 'bold 10px sans-serif';
               ctx.textAlign = 'center';
               ctx.textBaseline = 'bottom';
               ctx.fillText(stackTotal.toString(), x, topY - 5);
-            }
-          },
-        },
-      ],
-    });
 
-    this.charts.push(chart);
-  }
+              // Second pass: draw percentage labels inside each segment
+              chart.data.datasets.forEach((dataset, dsIndex) => {
+                const meta = chart.getDatasetMeta(dsIndex);
+                const bar: any = meta.data[index];
+                if (!bar) {
+                  return;
+                }
 
-  private createPieChart(
-    canvasId: string,
-    sectionName: string,
-    pieIndex: number,
-  ): void {
-    const canvas = document.getElementById(
-      canvasId,
-    ) as HTMLCanvasElement | null;
-    if (!canvas) return;
+                const value = (dataset.data?.[index] as number) || 0;
+                if (!value || stackTotal <= 0) {
+                  return;
+                }
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+                const ratio = value / stackTotal;
+                // Skip if 20% or less of the bar total
+                if (ratio <= 0.2) {
+                  return;
+                }
 
-    let labels: (string | string[])[] = [];
-    let data: number[] = [];
-    let colors: string[] = [];
-    let centerTotal = 0;
-    let centerLabel = '';
+                const percentage = Math.round(ratio * 100);
 
-    // First doughnut for all sections: Resolved by CaseIQ vs Resolved by Ops
-    if (pieIndex === 0 && Array.isArray(this.caseIqMetrics)) {
-      let teamData: any = null;
+                const centerX = bar.x;
+                const centerY = (bar.y + bar.base) / 2;
 
-      if (sectionName === 'Finance IT') {
-        // For Finance IT section, find TEAM_NAME === 'ALL'
-        teamData = this.caseIqMetrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME.toUpperCase() === 'ALL',
-        );
-      } else {
-        // For other sections, find matching TEAM_NAME
-        teamData = this.caseIqMetrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME === sectionName,
-        );
-      }
-
-      if (teamData) {
-        const resolved = Number(teamData.RESOLVED) || 0;
-        const totalServiceRequests =
-          Number(teamData.TOTAL_SERVICE_REQUESTS) || 0;
-        const resolvedByOps = totalServiceRequests - resolved;
-
-        labels = ['Resolved (CaseIQ)', 'Resolved (Ops)'];
-        data = [resolved, resolvedByOps];
-        colors = ['#81C784', '#4CAF50'];
-        centerTotal = totalServiceRequests;
-        centerLabel = 'Service Requests';
-      }
-    }
-
-    // Second doughnut for all sections: Recommended Routed Out vs Misrouted
-    if (pieIndex === 1 && Array.isArray(this.caseIqMetrics)) {
-      let teamData: any = null;
-
-      if (sectionName === 'Finance IT') {
-        // For Finance IT section, find TEAM_NAME === 'ALL'
-        teamData = this.caseIqMetrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME.toUpperCase() === 'ALL',
-        );
-      } else {
-        // For other sections, find matching TEAM_NAME
-        teamData = this.caseIqMetrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME === sectionName,
-        );
-      }
-
-      if (teamData) {
-        const recommendedRoutedOut =
-          Number(teamData.RECOMMENDED_ROUTE_OUT) || 0;
-        const misrouted = Number(teamData.MISROUTED) || 0;
-        const totalRoutedOut = Number(teamData.ROUTED_OUT) || 0;
-
-        labels = ['Routed (Recommended)', 'Misrouted'];
-        data = [recommendedRoutedOut, misrouted];
-        colors = ['#FFD54F', '#FFA000'];
-        centerTotal = totalRoutedOut;
-        centerLabel = 'Routed Out';
-      }
-    }
-
-    // Third doughnut for all sections: Recommended Canceled vs Others
-    if (pieIndex === 2 && Array.isArray(this.caseIqMetrics)) {
-      let teamData: any = null;
-
-      if (sectionName === 'Finance IT') {
-        // For Finance IT section, find TEAM_NAME === 'ALL'
-        teamData = this.caseIqMetrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME.toUpperCase() === 'ALL',
-        );
-      } else {
-        // For other sections, find matching TEAM_NAME
-        teamData = this.caseIqMetrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME === sectionName,
-        );
-      }
-
-      if (teamData) {
-        const recommendedCancelled =
-          Number(teamData.RECOMMENDED_CANCELLED) || 0;
-        const cancelled = Number(teamData.CANCELLED) || 0;
-        const others = cancelled - recommendedCancelled;
-
-        labels = ['Recommended Canceled', 'Others'];
-        data = [recommendedCancelled, others];
-        colors = ['#EF9A9A', '#E57373'];
-        centerTotal = cancelled;
-        centerLabel = 'Cancelled';
-      }
-    }
-
-    const chart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [
-          {
-            data,
-            backgroundColor: colors,
-            borderWidth: 0,
-          },
-        ],
-      },
-      options: {
-        responsive: false,
-        maintainAspectRatio: true,
-        cutout: '60%',
-        plugins: {
-          legend: {
-            display: false,
-          },
-          tooltip: {
-            enabled: false,
-          },
-        },
-      },
-      plugins: [
-        {
-          id: 'doughnutPercentage',
-          afterDatasetsDraw: (chart) => {
-            const ctx = chart.ctx;
-            const chartArea = chart.chartArea;
-            const centerX = (chartArea.left + chartArea.right) / 2;
-            const centerY = (chartArea.top + chartArea.bottom) / 2;
-
-            chart.data.datasets.forEach((dataset, datasetIndex) => {
-              const meta = chart.getDatasetMeta(datasetIndex);
-              const total = (dataset.data as number[]).reduce(
-                (a, b) => a + b,
-                0,
-              );
-
-              meta.data.forEach((arc: any, index) => {
-                const angle = (arc.startAngle + arc.endAngle) / 2;
-                const radius = (arc.outerRadius + arc.innerRadius) / 2;
-                const value = dataset.data[index] as number;
-                const percentage = ((value / total) * 100).toFixed(0);
-
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
-
-                ctx.fillStyle = '#333333';
-                ctx.font = 'normal 8px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                // Draw percentage
-                ctx.fillText(`${percentage}%`, x, y - 5);
-
-                // Draw actual count in brackets below
-                ctx.fillText(`(${value})`, x, y + 5);
-              });
-
-              // Draw center label and total on two lines
-              if (centerTotal && total > 0 && centerLabel) {
-                ctx.fillStyle = '#333333';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                ctx.font = 'normal 8px sans-serif';
-                ctx.fillText(centerLabel, centerX, centerY - 7);
+                ctx.fillStyle = '#000';
                 ctx.font = 'bold 10px sans-serif';
-                ctx.fillText(centerTotal.toString(), centerX, centerY + 7);
-              }
-            });
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${value}`, centerX, centerY);
+              });
+            }
           },
         },
       ],
