@@ -197,9 +197,13 @@ export class EspHomeComponent implements OnInit {
     });
   }
 
-  loadCaseAnalyzerMetricsByComponent(component: string): void {
+  loadCaseAnalyzerMetricsByComponent(component: string): any {
+    if (!Array.isArray(this.componentLevelMetrics)) {
+      return null;
+    }
+
     return this.componentLevelMetrics.find(
-      (item: any) => item.TEAM_NAME === component,
+      (item: any) => item && item.TEAM_NAME === component,
     );
   }
 

@@ -116,7 +116,10 @@
   @switch (activeTab) {
     @case ("Finance IT") {
       <div class="tile-content">
-        <app-caseiq [caseIqMetrics]="componentLevelMetrics"></app-caseiq>
+        <app-caseiq
+          [selectedQuarter]="selectedQuarter"
+          [caseIqMetrics]="componentLevelMetrics"
+        ></app-caseiq>
       </div>
     }
     @case ("Capital") {

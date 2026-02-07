@@ -1,53 +1,129 @@
 <div class="caseiq-header-box">
   <div class="caseiq-header-segment caseiq-header-segment-green">
     <div class="caseiq-header-green-half caseiq-header-green-left">
-      Total Cases -
-      {{ caseIqMetrics?.TOTAL_CASES }}
+      Total Cases:
+      {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.TOTAL_CASES : "--" }}
     </div>
     <div class="caseiq-header-green-half caseiq-header-green-right">
       <span>
-        Total Service Requests -
+        Total Service Requests:
         <span class="caseiq-value-default">
-          {{ caseIqMetrics?.TOTAL_SERVICE_REQUESTS }}
+          {{
+            filteredCaseIqMetrics
+              ? filteredCaseIqMetrics.TOTAL_SERVICE_REQUESTS
+              : "--"
+          }}
         </span>
       </span>
       <span>
-        Resolved -
+        Resolved (Agent):
         <span class="caseiq-value-default">
-          {{ caseIqMetrics?.RESOLVED }} ({{
-            caseIqMetrics?.RESOLVED_PERCENTAGE
-          }}%)
+          {{
+            filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_AGENT : "--"
+          }}
+          {{
+            filteredCaseIqMetrics
+              ? "(" + filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT + "%)"
+              : "(--%)"
+          }}
+        </span>
+      </span>
+      <span>
+        Resolved (Ops):
+        <span class="caseiq-value-default">
+          {{
+            filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_OPS : "--"
+          }}
+          {{
+            filteredCaseIqMetrics
+              ? "(" + filteredCaseIqMetrics.RESOLVED_PERCENTAGE_OPS + "%)"
+              : "(--%)"
+          }}
         </span>
       </span>
     </div>
   </div>
   <div class="caseiq-header-segment caseiq-header-segment-yellow">
     <span
-      >Routed Out -
-      <span class="caseiq-value-default">{{ caseIqMetrics?.ROUTED_OUT }}</span>
-    </span>
-    <span
-      >&nbsp; Recommended -
+      >Routed Out:
       <span class="caseiq-value-default">
-        {{ caseIqMetrics?.RECOMMENDED_ROUTE_OUT }} (
-        {{ caseIqMetrics?.ROUTED_OUT_PERCENTAGE }}% )
+        {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.ROUTED_OUT : "--" }}
+      </span>
+    </span>
+    <span>
+      Recommended:
+      <span class="caseiq-value-default">
+        {{
+          filteredCaseIqMetrics
+            ? filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT
+            : "--"
+        }}
+        {{
+          filteredCaseIqMetrics
+            ? "(" +
+              filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE +
+              "%)"
+            : "(--%)"
+        }}
       </span>
     </span>
     <span
-      >&nbsp; Misrouted -
-      <span class="caseiq-value-default">{{ caseIqMetrics?.MISROUTED }}</span>
+      >Not Recommended:
+      <span class="caseiq-value-default">
+        {{
+          filteredCaseIqMetrics
+            ? filteredCaseIqMetrics.NOT_RECOMMENDED_ROUTED_OUT
+            : "--"
+        }}
+        {{
+          filteredCaseIqMetrics
+            ? "(" +
+              filteredCaseIqMetrics.NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE +
+              "%)"
+            : "(--%)"
+        }}
+      </span>
     </span>
   </div>
   <div class="caseiq-header-segment caseiq-header-segment-red">
     <span
-      >Cancelled -
-      <span class="caseiq-value-default">{{ caseIqMetrics?.CANCELLED }}</span>
-    </span>
-    <span
-      >&nbsp; Recommended Cancelled -
+      >Cancelled:
       <span class="caseiq-value-default">
-        {{ caseIqMetrics?.RECOMMENDED_CANCELLED }} (
-        {{ caseIqMetrics?.CANCELLED_PERCENTAGE }}% )
+        {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.CANCELLED : "--" }}
+      </span>
+    </span>
+    <span>
+      Recommended:
+      <span class="caseiq-value-default">
+        {{
+          filteredCaseIqMetrics
+            ? filteredCaseIqMetrics.RECOMMENDED_CANCELLED
+            : "--"
+        }}
+        {{
+          filteredCaseIqMetrics
+            ? "(" +
+              filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE +
+              "%)"
+            : "(--%)"
+        }}
+      </span>
+    </span>
+    <span>
+      Not Recommended:
+      <span class="caseiq-value-default">
+        {{
+          filteredCaseIqMetrics
+            ? filteredCaseIqMetrics.NOT_RECOMMENDED_CANCELLED
+            : "--"
+        }}
+        {{
+          filteredCaseIqMetrics
+            ? "(" +
+              filteredCaseIqMetrics.NOT_RECOMMENDED_CANCELLED_PERCENTAGE +
+              "%)"
+            : "(--%)"
+        }}
       </span>
     </span>
   </div>

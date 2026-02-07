@@ -117,6 +117,48 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     this.getXxcaseiqAitCaseDetailsV();
   }
 
+  /**
+   * CaseIQ metrics filtered by selectedQuarter.
+   *
+   * - If selectedQuarter is empty, returns the original input.
+   * - If caseIqMetrics is an array, picks the AIT row whose FISCAL_QTR
+   *   matches selectedQuarter.
+   * - If caseIqMetrics is a single object with FISCAL_QTR, it is returned
+   *   only when its FISCAL_QTR matches selectedQuarter; otherwise null.
+   */
+  get filteredCaseIqMetrics(): any {
+    if (!this.caseIqMetrics) {
+      return null;
+    }
+
+    // No quarter filter applied
+    if (!this.selectedQuarter) {
+      return this.caseIqMetrics;
+    }
+
+    // When parent passes an array of metrics, select the AIT row for the quarter
+    if (Array.isArray(this.caseIqMetrics)) {
+      const row = this.caseIqMetrics.find(
+        (m: any) =>
+          m &&
+          m.FISCAL_QTR === this.selectedQuarter &&
+          m.TEAM_NAME &&
+          m.TEAM_NAME.toString().toUpperCase() === 'AIT',
+      );
+      return row || null;
+    }
+
+    // When parent passes a single object, ensure its FISCAL_QTR matches
+    if (
+      (this.caseIqMetrics as any).FISCAL_QTR &&
+      (this.caseIqMetrics as any).FISCAL_QTR !== this.selectedQuarter
+    ) {
+      return null;
+    }
+
+    return this.caseIqMetrics;
+  }
+
   // Cached raw responses for dynamic threshold re-filtering
   private completeCategoryRaw: any[] = [];
   private completeCoreIssueRaw: any[] = [];

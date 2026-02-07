@@ -13,6 +13,40 @@
         <i class="fa fa-bell bell-icon"></i>
       </button> -->
       &nbsp; &nbsp;
+      <div class="quarter-filter">
+        <label>Quarter:</label>
+        <div
+          class="quarter-dropdown-wrapper"
+          (click)="$event.stopPropagation()"
+        >
+          <button type="button" class="quarter-dropdown-button">
+            Q3FY26
+            <span class="dropdown-arrow">▾</span>
+          </button>
+          <!-- @if (showQuarterDropdown) {
+            <div
+              class="quarter-dropdown-menu"
+              (click)="$event.stopPropagation()"
+            >
+              <div class="quarter-options">
+                @for (quarter of quarters; track quarter) {
+                  <div
+                    class="quarter-option"
+                    (click)="selectQuarter(quarter.value)"
+                  >
+                    <input
+                      type="radio"
+                      [checked]="selectedQuarter === quarter.value"
+                      readonly
+                    />
+                    <span class="option-label">{{ quarter.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          } -->
+        </div>
+      </div>
       @if (periodInfo()) {
         <div class="period-info">
           <span><b>Period name:</b> {{ periodInfo().periodName }}</span>

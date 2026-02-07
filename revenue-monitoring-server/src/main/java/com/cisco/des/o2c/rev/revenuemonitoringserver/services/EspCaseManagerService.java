@@ -319,7 +319,22 @@ public class EspCaseManagerService {
     }
 
     public List<Map<String, Object>> getEspCaseAnalyzerMetrics() {
-        return jdbcManager.queryForList(espCaseAnalyzerMetrics);
+        List<Map<String, Object>> result = jdbcManager.queryForList(espCaseAnalyzerMetrics);
+        result.forEach(data -> {
+            Object val = data.get("FISCAL_QTR");
+            if (val == null) return;
+
+            String fiscalQtr = val.toString();
+
+            if (fiscalQtr.matches("Q\\dFY\\d{4}")) {
+                String converted =
+                        fiscalQtr.substring(0, 4) +  // Q2FY
+                                fiscalQtr.substring(fiscalQtr.length() - 2); // 26
+
+                data.put("FISCAL_QTR", converted);
+            }
+        });
+        return result;
     }
 
 }

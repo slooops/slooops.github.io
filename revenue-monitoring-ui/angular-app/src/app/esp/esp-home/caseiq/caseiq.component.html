@@ -1,48 +1,56 @@
-<div class="overall-legend">
-  <div class="legend-item">
-    <span class="legend-label">Legend: </span>
+@if (isLoading) {
+  <div class="overall-loading">
+    <app-loading-symbol></app-loading-symbol>
   </div>
-  <div class="legend-item">
-    <span class="legend-color" style="background-color: #81c784"></span>
-    <span class="legend-label">Resolved (Agent)</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-color" style="background-color: #4caf50"></span>
-    <span class="legend-label">Resolved (Ops)</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-color" style="background-color: #ffd54f"></span>
-    <span class="legend-label">Recommended Routed Out</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-color" style="background-color: #ffa000"></span>
-    <span class="legend-label">Not Recommended Routed Out</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-color" style="background-color: #ef9a9a"></span>
-    <span class="legend-label">Recommended Canceled</span>
-  </div>
-  <div class="legend-item">
-    <span class="legend-color" style="background-color: #e57373"></span>
-    <span class="legend-label">Not Recommended Canceled</span>
-  </div>
-</div>
+}
 
-<div class="overall-grid">
-  @for (sectionName of sections(); track sectionName; let i = $index) {
-    <div class="overall-section" [class.p2p-section]="sectionName === 'P2P'">
-      <div class="overall-header">
-        <div class="overall-header-left">
-          Total Cases: <b>{{ getTotalCases(sectionName) | number }}</b>
-        </div>
-        <div class="overall-title">{{ sectionName }}</div>
-      </div>
-      <div class="overall-bar">
-        <canvas
-          class="overall-bar-canvas"
-          [attr.id]="'overall-bar-' + i"
-        ></canvas>
-      </div>
+@if (!isLoading) {
+  <div class="overall-legend">
+    <div class="legend-item">
+      <span class="legend-label">Legend: </span>
     </div>
-  }
-</div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #81c784"></span>
+      <span class="legend-label">Resolved (Agent)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #4caf50"></span>
+      <span class="legend-label">Resolved (Ops)</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #ffd54f"></span>
+      <span class="legend-label">Recommended Routed Out</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #ffa000"></span>
+      <span class="legend-label">Not Recommended Routed Out</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #ef9a9a"></span>
+      <span class="legend-label">Recommended Canceled</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #e57373"></span>
+      <span class="legend-label">Not Recommended Canceled</span>
+    </div>
+  </div>
+
+  <div class="overall-grid">
+    @for (sectionName of sections(); track sectionName; let i = $index) {
+      <div class="overall-section" [class.p2p-section]="sectionName === 'P2P'">
+        <div class="overall-header">
+          <div class="overall-header-left">
+            Total Cases: <b>{{ getTotalCases(sectionName) | number }}</b>
+          </div>
+          <div class="overall-title">{{ sectionName }}</div>
+        </div>
+        <div class="overall-bar">
+          <canvas
+            class="overall-bar-canvas"
+            [attr.id]="'overall-bar-' + i"
+          ></canvas>
+        </div>
+      </div>
+    }
+  </div>
+}

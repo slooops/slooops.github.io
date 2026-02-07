@@ -8,13 +8,14 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { Chart } from 'chart.js/auto';
 
 @Component({
   selector: 'app-caseiq',
   templateUrl: './caseiq.component.html',
   styleUrl: './caseiq.component.css',
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingSymbolComponent],
   standalone: true,
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
@@ -27,7 +28,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   private charts: any[] = [];
   private viewInitialized = false;
 
+  // Show a brief loading state when quarter or metrics change
+  isLoading = true;
+
   @Input() caseIqMetrics: any;
+  @Input() selectedQuarter: string = '';
 
   ngOnChanges(changes: SimpleChanges): void {
     if ('caseIqMetrics' in changes) {
@@ -37,9 +42,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       // If view is already initialized, (re)create charts and update data
       // Use setTimeout to ensure Angular has updated the DOM with new canvases
       if (this.viewInitialized) {
-        setTimeout(() => {
-          this.createAllCharts();
-        }, 0);
+        this.showLoadingForMoment();
+      }
+    }
+
+    if ('selectedQuarter' in changes) {
+      // Quarter changed; rebuild charts to reflect the filtered metrics
+      if (this.viewInitialized) {
+        this.showLoadingForMoment();
       }
     }
   }
@@ -50,14 +60,29 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     // Initial build of sections/charts once view is ready
     // Use setTimeout to ensure Angular has updated the DOM
     this.buildSectionsFromMetrics();
-    setTimeout(() => {
-      this.createAllCharts();
-    }, 0);
+    this.showLoadingForMoment();
   }
 
   ngOnDestroy(): void {
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
+  }
+
+  /**
+   * Briefly show the loading spinner while quarter/metrics changes propagate.
+   */
+  private showLoadingForMoment(): void {
+    this.isLoading = true;
+    // Keep the loading symbol visible for a short period to avoid
+    // flashing stale charts while new data is applied.
+    setTimeout(() => {
+      this.isLoading = false;
+      // Once loading finishes and the canvases are rendered (because
+      // !isLoading), create all charts against the live DOM.
+      setTimeout(() => {
+        this.createAllCharts();
+      }, 0);
+    }, 800);
   }
 
   private buildSectionsFromMetrics(): void {
@@ -107,14 +132,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   getTotalCases(sectionName: string): number {
-    if (!Array.isArray(this.caseIqMetrics)) {
+    const metrics = this.getFilteredMetricsByQuarter();
+
+    if (!Array.isArray(metrics)) {
       return 0;
     }
 
     let teamData: any = null;
 
     if (sectionName === 'Finance IT') {
-      teamData = this.caseIqMetrics.find(
+      teamData = metrics.find(
         (m: any) =>
           m &&
           m.TEAM_NAME &&
@@ -122,7 +149,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           m.TEAM_NAME.toUpperCase() === 'ALL',
       );
     } else {
-      teamData = this.caseIqMetrics.find(
+      teamData = metrics.find(
         (m: any) =>
           m &&
           m.TEAM_NAME &&
@@ -145,6 +172,22 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     });
   }
 
+  // Helper to filter metrics by the selected quarter (FISCAL_QTR).
+  // If no quarter is selected, return the full metrics array.
+  private getFilteredMetricsByQuarter(): any[] {
+    if (!Array.isArray(this.caseIqMetrics)) {
+      return [];
+    }
+
+    if (!this.selectedQuarter) {
+      return this.caseIqMetrics;
+    }
+
+    return this.caseIqMetrics.filter(
+      (m: any) => m && m.FISCAL_QTR === this.selectedQuarter,
+    );
+  }
+
   private createBarChart(canvasId: string, sectionName: string): void {
     const canvas = document.getElementById(
       canvasId,
@@ -164,13 +207,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     let cancelledRecommended = 0;
     let cancelledOthers = 0;
 
-    // Try to find metrics for this section from caseIqMetrics
-    if (Array.isArray(this.caseIqMetrics)) {
+    // Use metrics filtered by selectedQuarter (FISCAL_QTR)
+    const metrics = this.getFilteredMetricsByQuarter();
+
+    // Try to find metrics for this section from filtered metrics
+    if (Array.isArray(metrics)) {
       let teamData: any = null;
 
       if (sectionName === 'Finance IT') {
         // For Finance IT section, find TEAM_NAME === 'ALL'
-        teamData = this.caseIqMetrics.find(
+        teamData = metrics.find(
           (m: any) =>
             m &&
             m.TEAM_NAME &&
@@ -179,7 +225,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         );
       } else {
         // For other sections, find matching TEAM_NAME
-        teamData = this.caseIqMetrics.find(
+        teamData = metrics.find(
           (m: any) =>
             m &&
             m.TEAM_NAME &&
@@ -225,8 +271,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             ...({
               segmentPercentages: [
                 Number(
-                  (Array.isArray(this.caseIqMetrics)
-                    ? this.caseIqMetrics.find(
+                  (Array.isArray(metrics)
+                    ? metrics.find(
                         (m: any) =>
                           m &&
                           m.TEAM_NAME &&
@@ -254,8 +300,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             ...({
               segmentPercentages: [
                 Number(
-                  (Array.isArray(this.caseIqMetrics)
-                    ? this.caseIqMetrics.find(
+                  (Array.isArray(metrics)
+                    ? metrics.find(
                         (m: any) =>
                           m &&
                           m.TEAM_NAME &&
@@ -284,8 +330,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               segmentPercentages: [
                 0,
                 Number(
-                  (Array.isArray(this.caseIqMetrics)
-                    ? this.caseIqMetrics.find(
+                  (Array.isArray(metrics)
+                    ? metrics.find(
                         (m: any) =>
                           m &&
                           m.TEAM_NAME &&
@@ -313,8 +359,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               segmentPercentages: [
                 0,
                 Number(
-                  (Array.isArray(this.caseIqMetrics)
-                    ? this.caseIqMetrics.find(
+                  (Array.isArray(metrics)
+                    ? metrics.find(
                         (m: any) =>
                           m &&
                           m.TEAM_NAME &&
@@ -343,8 +389,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 0,
                 0,
                 Number(
-                  (Array.isArray(this.caseIqMetrics)
-                    ? this.caseIqMetrics.find(
+                  (Array.isArray(metrics)
+                    ? metrics.find(
                         (m: any) =>
                           m &&
                           m.TEAM_NAME &&
@@ -372,8 +418,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 0,
                 0,
                 Number(
-                  (Array.isArray(this.caseIqMetrics)
-                    ? this.caseIqMetrics.find(
+                  (Array.isArray(metrics)
+                    ? metrics.find(
                         (m: any) =>
                           m &&
                           m.TEAM_NAME &&

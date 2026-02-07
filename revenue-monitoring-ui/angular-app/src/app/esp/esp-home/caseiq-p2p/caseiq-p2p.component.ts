@@ -117,6 +117,39 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * CaseIQ metrics filtered by selectedQuarter for P2P.
+   */
+  get filteredCaseIqMetrics(): any {
+    if (!this.caseIqMetrics) {
+      return null;
+    }
+
+    if (!this.selectedQuarter) {
+      return this.caseIqMetrics;
+    }
+
+    if (Array.isArray(this.caseIqMetrics)) {
+      const row = this.caseIqMetrics.find(
+        (m: any) =>
+          m &&
+          m.FISCAL_QTR === this.selectedQuarter &&
+          m.TEAM_NAME &&
+          m.TEAM_NAME.toString().toUpperCase() === 'P2P',
+      );
+      return row || null;
+    }
+
+    if (
+      (this.caseIqMetrics as any).FISCAL_QTR &&
+      (this.caseIqMetrics as any).FISCAL_QTR !== this.selectedQuarter
+    ) {
+      return null;
+    }
+
+    return this.caseIqMetrics;
+  }
+
   private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVP2p();

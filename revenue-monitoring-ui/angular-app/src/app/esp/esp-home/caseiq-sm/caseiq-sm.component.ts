@@ -120,6 +120,45 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * CaseIQ metrics filtered by selectedQuarter for SM.
+   *
+   * - If selectedQuarter is empty, returns the original input.
+   * - If caseIqMetrics is an array, picks the SM row whose FISCAL_QTR
+   *   matches selectedQuarter.
+   * - If caseIqMetrics is a single object with FISCAL_QTR, it is returned
+   *   only when its FISCAL_QTR matches selectedQuarter; otherwise null.
+   */
+  get filteredCaseIqMetrics(): any {
+    if (!this.caseIqMetrics) {
+      return null;
+    }
+
+    if (!this.selectedQuarter) {
+      return this.caseIqMetrics;
+    }
+
+    if (Array.isArray(this.caseIqMetrics)) {
+      const row = this.caseIqMetrics.find(
+        (m: any) =>
+          m &&
+          m.FISCAL_QTR === this.selectedQuarter &&
+          m.TEAM_NAME &&
+          m.TEAM_NAME.toString().toUpperCase() === 'SM',
+      );
+      return row || null;
+    }
+
+    if (
+      (this.caseIqMetrics as any).FISCAL_QTR &&
+      (this.caseIqMetrics as any).FISCAL_QTR !== this.selectedQuarter
+    ) {
+      return null;
+    }
+
+    return this.caseIqMetrics;
+  }
+
   private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVSm();

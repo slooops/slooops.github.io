@@ -114,6 +114,39 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * CaseIQ metrics filtered by selectedQuarter for I2C.
+   */
+  get filteredCaseIqMetrics(): any {
+    if (!this.caseIqMetrics) {
+      return null;
+    }
+
+    if (!this.selectedQuarter) {
+      return this.caseIqMetrics;
+    }
+
+    if (Array.isArray(this.caseIqMetrics)) {
+      const row = this.caseIqMetrics.find(
+        (m: any) =>
+          m &&
+          m.FISCAL_QTR === this.selectedQuarter &&
+          m.TEAM_NAME &&
+          m.TEAM_NAME.toString().toUpperCase() === 'I2C',
+      );
+      return row || null;
+    }
+
+    if (
+      (this.caseIqMetrics as any).FISCAL_QTR &&
+      (this.caseIqMetrics as any).FISCAL_QTR !== this.selectedQuarter
+    ) {
+      return null;
+    }
+
+    return this.caseIqMetrics;
+  }
+
   private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.getXxcaseiqCategoryGraphVI2c();

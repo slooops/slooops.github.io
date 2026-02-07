@@ -1981,3 +1981,117 @@ tr.mat-row {
   height: 14px !important;
   border: 1px solid gray !important;
 }
+
+.quarter-filter {
+  display: flex;
+  align-items: center;
+}
+
+.quarter-filter label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.quarter-dropdown-wrapper {
+  position: relative;
+}
+
+.quarter-dropdown-button {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #08ace4;
+  background-color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.quarter-dropdown-button:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-arrow {
+  font-size: 20px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+.quarter-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 110px;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.quarter-dropdown-header {
+  padding: 0.75rem 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+}
+
+.quarter-dropdown-header span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.quarter-dropdown-header span::before {
+  content: "▲";
+  margin-right: 0.5rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.quarter-options {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.quarter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.quarter-option:hover {
+  background-color: #f0f8fc;
+}
+
+.quarter-option input[type="radio"] {
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.quarter-option .option-label {
+  font-size: 12px;
+  color: #333;
+  font-weight: 500;
+}
