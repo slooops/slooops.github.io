@@ -191,6 +191,19 @@
   color: var(--fit-color-text-inverse);
 }
 
+/* Size variants */
+.fit-btn--sm {
+  padding-inline: var(--fit-space-sm);
+  font-size: var(--fit-font-size-sm);
+  height: 28px;
+}
+
+.fit-btn--lg {
+  padding-inline: var(--fit-space-lg);
+  font-size: var(--fit-font-size-lg);
+  height: 44px;
+}
+
 .fit-btn--icon-left > .fit-btn__icon {
   margin-right: var(--fit-space-xs);
 }

@@ -14,7 +14,8 @@
     "../src/polyfills.ts",
     "../src/app/**/*.ts",
     "./preview.ts",
-    "./main.ts"
+    "./main.ts",
+    "../src/app/components/bar-chart/bar-chart.stories.ts.disabled"
   ],
   "files": ["./typings.d.ts"]
 }

@@ -1,0 +1,187 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import {
+  BarChartComponent,
+  BarChartDataPoint,
+  StackedBarChartDataPoint,
+} from './bar-chart.component';
+
+// Simple bar chart data
+const simpleData: BarChartDataPoint[] = [
+  { label: 'Invoice to Cash', value: 245, color: '#049fd9' },
+  { label: 'Revenue Accounting', value: 189, color: '#00bceb' },
+  { label: 'Order Management', value: 156, color: '#64bbe3' },
+  { label: 'Operations Controls', value: 98, color: '#005073' },
+  { label: 'Business Insights', value: 87, color: '#7f7f7f' },
+];
+
+// Stacked bar chart data (e.g., match status by category)
+const stackedData: StackedBarChartDataPoint[] = [
+  {
+    label: 'Q1',
+    segments: [
+      { name: 'Matched', value: 120, color: '#6ebe4a' },
+      { name: 'Not Matched', value: 45, color: '#ff6384' },
+      { name: 'Analyzed', value: 30, color: '#36a2eb' },
+    ],
+  },
+  {
+    label: 'Q2',
+    segments: [
+      { name: 'Matched', value: 150, color: '#6ebe4a' },
+      { name: 'Not Matched', value: 35, color: '#ff6384' },
+      { name: 'Analyzed', value: 25, color: '#36a2eb' },
+    ],
+  },
+  {
+    label: 'Q3',
+    segments: [
+      { name: 'Matched', value: 180, color: '#6ebe4a' },
+      { name: 'Not Matched', value: 28, color: '#ff6384' },
+      { name: 'Analyzed', value: 20, color: '#36a2eb' },
+    ],
+  },
+  {
+    label: 'Q4',
+    segments: [
+      { name: 'Matched', value: 200, color: '#6ebe4a' },
+      { name: 'Not Matched', value: 22, color: '#ff6384' },
+      { name: 'Analyzed', value: 15, color: '#36a2eb' },
+    ],
+  },
+];
+
+// Analytics-style data (page visits)
+const analyticsData: BarChartDataPoint[] = [
+  { label: 'Pre Invoicing', value: 342 },
+  { label: 'Invoicing', value: 287 },
+  { label: 'Collections', value: 198 },
+  { label: 'Cash Application', value: 156 },
+  { label: 'Disputes', value: 89 },
+];
+
+const meta: Meta<BarChartComponent> = {
+  title: 'Shared/BarChart',
+  component: BarChartComponent,
+  tags: ['autodocs'],
+  parameters: {
+    docs: { disable: true },
+  },
+  argTypes: {
+    data: {
+      description: 'Chart data - either simple or stacked format',
+    },
+    stacked: {
+      control: 'boolean',
+      description: 'Whether to render as a stacked bar chart',
+    },
+    chartWidth: {
+      control: 'text',
+      description: 'Chart width (number or percentage string)',
+    },
+    chartHeight: {
+      control: 'number',
+      description: 'Chart height in pixels',
+    },
+    isLoading: {
+      control: 'boolean',
+      description: 'Whether to show loading state',
+    },
+    noDataMessage: {
+      control: 'text',
+      description: 'Message to show when data is empty',
+    },
+    labelRotation: {
+      control: 'number',
+      description: 'Rotation angle for x-axis labels (negative = clockwise)',
+    },
+    showLegend: {
+      control: 'boolean',
+      description: 'Whether to show the legend (stacked charts only)',
+    },
+    titleCaseLabels: {
+      control: 'boolean',
+      description: 'Whether to convert labels to title case',
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<BarChartComponent>;
+
+// Simple bar chart
+export const Simple: Story = {
+  args: {
+    data: simpleData,
+    stacked: false,
+    chartHeight: 350,
+    chartWidth: '100%',
+    labelRotation: -45,
+    titleCaseLabels: true,
+  },
+};
+
+// Stacked bar chart
+export const Stacked: Story = {
+  args: {
+    data: stackedData,
+    stacked: true,
+    chartHeight: 350,
+    chartWidth: '100%',
+    showLegend: true,
+  },
+};
+
+// Analytics dashboard style
+export const AnalyticsDashboard: Story = {
+  args: {
+    data: analyticsData,
+    stacked: false,
+    chartHeight: 300,
+    chartWidth: '100%',
+    titleCaseLabels: true,
+  },
+};
+
+// Loading state
+export const Loading: Story = {
+  args: {
+    data: [],
+    isLoading: true,
+    chartHeight: 300,
+  },
+};
+
+// Empty state
+export const NoData: Story = {
+  args: {
+    data: [],
+    isLoading: false,
+    noDataMessage: 'No analytics data available for this period',
+    chartHeight: 300,
+  },
+};
+
+// Compact chart
+export const Compact: Story = {
+  args: {
+    data: simpleData.slice(0, 3),
+    stacked: false,
+    chartHeight: 200,
+    chartWidth: 400,
+    labelRotation: 0,
+  },
+};
+
+// Without title case conversion
+export const RawLabels: Story = {
+  args: {
+    data: [
+      { label: 'invoice-to-cash', value: 245 },
+      { label: 'revenue-accounting', value: 189 },
+      { label: 'order-management', value: 156 },
+    ],
+    stacked: false,
+    chartHeight: 300,
+    titleCaseLabels: false,
+  },
+};

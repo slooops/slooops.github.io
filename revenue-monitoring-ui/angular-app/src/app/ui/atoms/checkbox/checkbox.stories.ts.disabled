@@ -5,6 +5,11 @@ const meta: Meta<CheckboxComponent> = {
   title: 'Atoms/Checkbox',
   component: CheckboxComponent,
   tags: ['autodocs'],
+  // HIDDEN: Checkbox stories are temporarily hidden because the IconComponent
+  // has rendering issues. Remove this parameter once icons are fixed.
+  parameters: {
+    docs: { disable: true },
+  },
   argTypes: {
     checked: {
       control: 'boolean',

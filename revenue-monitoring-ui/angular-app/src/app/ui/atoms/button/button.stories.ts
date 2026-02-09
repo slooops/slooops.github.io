@@ -85,14 +85,6 @@ export const Danger: Story = {
 };
 
 // Size variations
-export const Small: Story = {
-  args: {
-    label: 'Small Button',
-    variant: 'primary',
-    size: 'sm',
-  },
-};
-
 export const Large: Story = {
   args: {
     label: 'Large Button',
