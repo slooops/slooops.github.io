@@ -506,7 +506,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           },
           y: {
             display: true,
-            grid: { display: true },
+            grid: { display: false }, // Remove horizontal grid lines
             border: { display: true },
             beginAtZero: true,
             stacked: true,
