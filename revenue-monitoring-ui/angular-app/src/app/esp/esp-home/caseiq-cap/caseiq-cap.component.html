@@ -16,7 +16,7 @@
         </span>
       </span>
       <span>
-        Resolved (Agent):
+        Resolved - Agent:
         <span class="caseiq-value-default">
           {{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_AGENT : "--"
@@ -29,7 +29,7 @@
         </span>
       </span>
       <span>
-        Resolved (Ops):
+        Resolved - Ops:
         <span class="caseiq-value-default">
           {{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_OPS : "--"
@@ -45,13 +45,13 @@
   </div>
   <div class="caseiq-header-segment caseiq-header-segment-yellow">
     <span
-      >Routed Out:
+      >Total Routed Out:
       <span class="caseiq-value-default">
         {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.ROUTED_OUT : "--" }}
       </span>
     </span>
     <span>
-      Recommended:
+      Routed - Agent:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -68,7 +68,7 @@
       </span>
     </span>
     <span
-      >Not Recommended:
+      >Routed - Ops:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -87,13 +87,13 @@
   </div>
   <div class="caseiq-header-segment caseiq-header-segment-red">
     <span
-      >Cancelled:
+      >Total Cancelled:
       <span class="caseiq-value-default">
         {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.CANCELLED : "--" }}
       </span>
     </span>
     <span>
-      Recommended:
+      Recommended - Agent:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -110,7 +110,7 @@
       </span>
     </span>
     <span>
-      Not Recommended:
+      Cancelled - Ops:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics

@@ -61,7 +61,7 @@
   width: 100%;
   /* border: 1px solid #e2d48a; */
   margin: 5px 0 5px 0;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #333;
 }
@@ -75,21 +75,21 @@
 
 .caseiq-header-segment-green {
   /* Blue (10%) + Green (25%) = 35% total */
-  flex: 0 0 40%;
+  flex: 0 0 39%;
   display: flex;
   padding: 0;
   /* border-right: 1px solid #e2d48a; */
 }
 
 .caseiq-header-segment-yellow {
-  flex: 0 0 30%;
+  flex: 0 0 29%;
   background-color: #fff7c2;
   /* border-right: 1px solid #e2d48a; */
 }
 
 .caseiq-header-segment-red {
   /* Reduced from 40% to 25% */
-  flex: 0 0 30%;
+  flex: 0 0 32%;
   background-color: #ffbebe;
 }
 

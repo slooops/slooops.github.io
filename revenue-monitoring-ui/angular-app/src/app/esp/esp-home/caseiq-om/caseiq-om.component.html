@@ -15,8 +15,9 @@
           }}
         </span>
       </span>
+      <span class="divider"> | </span>
       <span>
-        Resolved (Agent):
+        Resolved(Agent):
         <span class="caseiq-value-default">
           {{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_AGENT : "--"
@@ -28,8 +29,9 @@
           }}
         </span>
       </span>
+      <span class="divider"> | </span>
       <span>
-        Resolved (Ops):
+        Resolved(Ops):
         <span class="caseiq-value-default">
           {{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_OPS : "--"
@@ -45,13 +47,14 @@
   </div>
   <div class="caseiq-header-segment caseiq-header-segment-yellow">
     <span
-      >Routed Out:
+      >Total Routed Out:
       <span class="caseiq-value-default">
         {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.ROUTED_OUT : "--" }}
       </span>
     </span>
+    <span class="divider"> | </span>
     <span>
-      Recommended:
+      Routed(Agent):
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -67,8 +70,9 @@
         }}
       </span>
     </span>
+    <span class="divider"> | </span>
     <span
-      >Not Recommended:
+      >Routed(Ops):
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -87,13 +91,14 @@
   </div>
   <div class="caseiq-header-segment caseiq-header-segment-red">
     <span
-      >Cancelled:
+      >Total Cancelled:
       <span class="caseiq-value-default">
         {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.CANCELLED : "--" }}
       </span>
     </span>
+    <span class="divider"> | </span>
     <span>
-      Recommended:
+      Recommended(Agent):
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -109,8 +114,9 @@
         }}
       </span>
     </span>
+    <span class="divider"> | </span>
     <span>
-      Not Recommended:
+      Cancelled(Ops):
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -128,7 +134,6 @@
     </span>
   </div>
 </div>
-
 <!-- Data refresh overlay - covers only this tab content -->
 @if (refreshingData) {
   <div class="table-loading-overlay">
