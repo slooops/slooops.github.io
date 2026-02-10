@@ -53,7 +53,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--landing-space-xs) var(--landing-page-px);
+  padding: var(--landing-space-xs) 6rem;
 }
 
 .welcome-text {
@@ -165,7 +165,7 @@
 }
 
 .section-header {
-  margin: 0 0 var(--landing-space-sm);
+  margin: var(--landing-space-sm) 0 !important;
   font-family: var(--landing-heading-font);
   font-size: 1rem;
   font-weight: 700;
@@ -237,9 +237,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.25rem;
   margin-bottom: var(--landing-space-sm);
   border-radius: var(--landing-card-radius);
+  color: var(--landing-accent);
+  font-size: 48px; /* ng-icon inherits font-size for sizing */
 }
 
 .card-title {

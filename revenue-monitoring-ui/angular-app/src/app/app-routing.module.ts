@@ -44,6 +44,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Landing',
+      hideNavbar: true,
     },
   },
   {
@@ -127,18 +128,18 @@ export const routes: Routes = [
   {
     path: 'o2c-landing',
     component: O2cLandingComponent,
-    data: { title: 'O2C Home', header: 'O2C Home', hideNavbar: true },
+    data: { title: 'O2C Home', header: 'O2C Home', showO2cSearch: true },
   },
   {
     path: 'o2c-360',
     component: O2c360Component,
-    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+    data: { title: 'O2C 360', header: 'O2C 360', showO2cSearch: true },
   },
 
   {
     path: 'o2c-view-all',
     component: O2cViewAllComponent,
-    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+    data: { title: 'O2C 360', header: 'O2C 360', showO2cSearch: true },
   },
   {
     path: 'o2c-bill-schedule',
@@ -146,7 +147,7 @@ export const routes: Routes = [
     data: {
       title: 'O2C Bill Schedule',
       header: 'O2C Bill Schedule',
-      hideNavbar: true,
+      showO2cSearch: true,
     },
   },
   {
@@ -155,18 +156,18 @@ export const routes: Routes = [
     data: {
       title: 'O2C Bill Details',
       header: 'O2C Bill Details',
-      hideNavbar: true,
+      showO2cSearch: true,
     },
   },
   {
     path: 'o2c-gl',
     component: O2cGlComponent,
-    data: { title: 'O2C GL', header: 'O2C GL', hideNavbar: true },
+    data: { title: 'O2C GL', header: 'O2C GL', showO2cSearch: true },
   },
   {
     path: 'o2c-tsv',
     component: O2cTsvComponent,
-    data: { title: 'O2C TSV', header: 'O2C TSV', hideNavbar: true },
+    data: { title: 'O2C TSV', header: 'O2C TSV', showO2cSearch: true },
   },
   // {
   //   path: 'gl-posting',

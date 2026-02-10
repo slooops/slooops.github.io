@@ -6,7 +6,7 @@
       >, welcome!
     </p>
     <button class="ask-ivan-btn" type="button">
-      <span class="ask-ivan-icon">✨</span>
+      <ng-icon class="ask-ivan-icon" name="phosphorSparkleBold" size="20" />
       <span class="ask-ivan-label">ASK IVAN</span>
     </button>
   </div>
@@ -16,7 +16,7 @@
     <div class="overview-image">
       <!-- Placeholder for the control tower illustration -->
       <div class="overview-image-placeholder">
-        <span>🏗️</span>
+        <ng-icon name="phosphorRocketLaunchDuotone" size="96" />
       </div>
     </div>
     <div class="overview-content">
@@ -44,21 +44,26 @@
         @for (card of itOpsCards(); track card.title) {
           <div
             class="landing-card"
-            [class.landing-card--disabled]="!card.route"
+            [class.landing-card--disabled]="!card.route && !card.externalUrl"
             [class.landing-card--full]="card.fullWidth"
             (click)="onCardClick(card)"
             (keydown.enter)="onCardClick(card)"
-            [attr.tabindex]="card.route ? 0 : -1"
-            [attr.role]="card.route ? 'link' : 'presentation'"
+            [attr.tabindex]="card.route || card.externalUrl ? 0 : -1"
+            [attr.role]="
+              card.route || card.externalUrl ? 'link' : 'presentation'
+            "
           >
             <div class="card-icon">
-              <span>{{ card.iconEmoji }}</span>
+              <ng-icon [name]="card.icon" size="48" />
             </div>
             <h4 class="card-title">{{ card.title }}</h4>
             <p class="card-description">{{ card.description }}</p>
-            <span class="card-link" [class.card-link--disabled]="!card.route">
+            <span
+              class="card-link"
+              [class.card-link--disabled]="!card.route && !card.externalUrl"
+            >
               View Details
-              @if (card.route) {
+              @if (card.route || card.externalUrl) {
                 <span class="card-link-arrow">↗</span>
               }
             </span>
@@ -74,21 +79,26 @@
         @for (card of finBizOpsCards(); track card.title) {
           <div
             class="landing-card"
-            [class.landing-card--disabled]="!card.route"
+            [class.landing-card--disabled]="!card.route && !card.externalUrl"
             [class.landing-card--full]="card.fullWidth"
             (click)="onCardClick(card)"
             (keydown.enter)="onCardClick(card)"
-            [attr.tabindex]="card.route ? 0 : -1"
-            [attr.role]="card.route ? 'link' : 'presentation'"
+            [attr.tabindex]="card.route || card.externalUrl ? 0 : -1"
+            [attr.role]="
+              card.route || card.externalUrl ? 'link' : 'presentation'
+            "
           >
             <div class="card-icon">
-              <span>{{ card.iconEmoji }}</span>
+              <ng-icon [name]="card.icon" size="48" />
             </div>
             <h4 class="card-title">{{ card.title }}</h4>
             <p class="card-description">{{ card.description }}</p>
-            <span class="card-link" [class.card-link--disabled]="!card.route">
+            <span
+              class="card-link"
+              [class.card-link--disabled]="!card.route && !card.externalUrl"
+            >
               View Details
-              @if (card.route) {
+              @if (card.route || card.externalUrl) {
                 <span class="card-link-arrow">↗</span>
               }
             </span>

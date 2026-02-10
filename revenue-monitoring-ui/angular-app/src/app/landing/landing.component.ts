@@ -1,13 +1,27 @@
 import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorShieldCheckDuotone,
+  phosphorCalendarCheckDuotone,
+  phosphorEyeDuotone,
+  phosphorBrainDuotone,
+  phosphorMoneyDuotone,
+  phosphorChartLineUpDuotone,
+  phosphorPresentationChartDuotone,
+  phosphorGaugeDuotone,
+  phosphorRocketLaunchDuotone,
+} from '@ng-icons/phosphor-icons/duotone';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from '../providers/authentication.service';
 
 export interface LandingCard {
   title: string;
   description: string;
-  iconEmoji: string;
+  icon: string;
   route: string | null; // null = dead link (feature not yet built)
+  externalUrl?: string; // opens in new tab instead of router navigation
   requiredRoles: string[];
   fullWidth?: boolean;
 }
@@ -15,7 +29,21 @@ export interface LandingCard {
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NgIcon],
+  providers: [
+    provideIcons({
+      phosphorShieldCheckDuotone,
+      phosphorCalendarCheckDuotone,
+      phosphorEyeDuotone,
+      phosphorBrainDuotone,
+      phosphorMoneyDuotone,
+      phosphorChartLineUpDuotone,
+      phosphorPresentationChartDuotone,
+      phosphorGaugeDuotone,
+      phosphorRocketLaunchDuotone,
+      phosphorSparkleBold,
+    }),
+  ],
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.css'],
 })
@@ -28,8 +56,8 @@ export class LandingComponent {
     {
       title: 'Continuous Monitoring',
       description:
-        'Real-time monitoring of transaction processing, exception handling, and operational health across finance systems.',
-      iconEmoji: '📊',
+        'Real-time detection of operational and transaction failures for proactive resolution to prevent business impact.',
+      icon: 'phosphorShieldCheckDuotone',
       route: '/invoice-to-cash',
       requiredRoles: [
         'ADMIN',
@@ -44,24 +72,24 @@ export class LandingComponent {
     {
       title: 'Period Close Management',
       description:
-        'Track and manage period close activities, milestones, and key deadlines across the organization.',
-      iconEmoji: '📅',
+        'Predictable, on-time close execution through focused monitoring and control.',
+      icon: 'phosphorCalendarCheckDuotone',
       route: '/period-close-tracking',
       requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
     },
     {
       title: 'Operational Visibility',
       description:
-        'Comprehensive view of operational metrics, system health, and process performance indicators.',
-      iconEmoji: '👁️',
-      route: null,
+        'Single view of all disruptions across jobs, transactions, and ESP cases for effective resource management.',
+      icon: 'phosphorEyeDuotone',
+      route: '/home',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
     },
     {
       title: 'Self-Healing',
       description:
-        'Automated issue detection and resolution capabilities for common operational exceptions.',
-      iconEmoji: '🔧',
+        'AI-enabled intelligent analysis and automated remediation to accelerate issue resolution.',
+      icon: 'phosphorBrainDuotone',
       route: null,
       requiredRoles: ['ADMIN'],
     },
@@ -72,26 +100,34 @@ export class LandingComponent {
     {
       title: 'Large Deal Tracking',
       description:
-        'End-to-end visibility into large deal lifecycle, from order placement through revenue recognition.',
-      iconEmoji: '💰',
-      route: '/large-deal-tracker',
+        'End-to-end visibility into critical order life cycle during quarter-end enables collaboration between commerce and finance operations.',
+      icon: 'phosphorMoneyDuotone',
+      route: '/business-insights',
       requiredRoles: ['ADMIN', 'LARGE_DEAL'],
-      fullWidth: true,
+    },
+    {
+      title: 'Mid-Close Status',
+      description:
+        'Track mid-close processing phases—invoicing, AR posting, revenue, deferrals, and intercompany—across all entities with real-time completion status and FCC load visibility.',
+      icon: 'phosphorGaugeDuotone',
+      route: '/wd0',
+      requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
     },
     {
       title: 'Mid-Close Volume Forecasting',
       description:
-        'Predictive analytics for mid-close transaction volumes and capacity planning.',
-      iconEmoji: '📈',
+        'ML-driven predictions of volume spikes or drops to proactively manage period close.',
+      icon: 'phosphorChartLineUpDuotone',
       route: '/midclose-volumes',
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
     },
     {
       title: 'O2C Financials Visibility',
       description:
-        'Order-to-cash financial tracking with real-time visibility into billing, invoicing, and collections.',
-      iconEmoji: '💎',
-      route: '/o2c-landing',
+        'Real-time insights into Order-to-Cash financials with immediate access to invoice and accounting details in a single view.',
+      icon: 'phosphorPresentationChartDuotone',
+      route: null,
+      externalUrl: 'https://subscription-ai.cisco.com/',
       requiredRoles: ['ADMIN'],
     },
   ];
@@ -108,7 +144,9 @@ export class LandingComponent {
   }
 
   onCardClick(card: LandingCard): void {
-    if (card.route) {
+    if (card.externalUrl) {
+      window.open(card.externalUrl, '_blank', 'noopener,noreferrer');
+    } else if (card.route) {
       this.router.navigate([card.route]);
     }
   }

@@ -41,7 +41,8 @@ import { ChatbotComponent } from './chatbot/chatbot.component';
 })
 export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  showNavbar = true;
+  hideNavbar = false;
+  showO2cSearch = false;
 
   constructor(
     private router: Router,
@@ -165,7 +166,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.userRoles = this.authService.getRoles();
     this.isAdmin$ = this.userRoles.includes('ADMIN');
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
-      this.showNavbar = !isVisible;
+      this.showO2cSearch = isVisible;
     });
 
     this.router.events
@@ -182,7 +183,8 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((data) => {
-        this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
+        this.hideNavbar = data['hideNavbar'] ?? false;
+        this.showO2cSearch = data['showO2cSearch'] ?? false;
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
         this.dataService.setHeader(data['header']);
