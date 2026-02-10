@@ -13,7 +13,10 @@ import {
   phosphorGaugeDuotone,
   phosphorRocketLaunchDuotone,
 } from '@ng-icons/phosphor-icons/duotone';
-import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import {
+  phosphorSparkleBold,
+  phosphorCaretRightBold,
+} from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from '../providers/authentication.service';
 
 export interface LandingCard {
@@ -42,6 +45,7 @@ export interface LandingCard {
       phosphorGaugeDuotone,
       phosphorRocketLaunchDuotone,
       phosphorSparkleBold,
+      phosphorCaretRightBold,
     }),
   ],
   templateUrl: './landing.component.html',

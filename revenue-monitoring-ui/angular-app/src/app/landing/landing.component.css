@@ -269,11 +269,21 @@
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
-  transition: color var(--fit-transition-fast, 150ms);
+  transition:
+    color var(--fit-transition-fast, 150ms),
+    gap var(--fit-transition-fast, 150ms);
+}
+
+.card-link-text {
+  transition: text-decoration var(--fit-transition-fast, 150ms);
+}
+
+.landing-card:hover .card-link:not(.card-link--disabled) .card-link-text {
+  text-decoration: underline;
 }
 
 .card-link:hover {
-  text-decoration: underline;
+  /* hover handled at card level */
 }
 
 .card-link--disabled {
@@ -286,12 +296,16 @@
 }
 
 .card-link-arrow {
-  font-size: 0.85rem;
+  display: inline-flex;
   transition: transform var(--fit-transition-fast, 150ms);
 }
 
 .landing-card:hover .card-link-arrow {
-  transform: translate(2px, -2px);
+  transform: translateX(4px);
+}
+
+.landing-card:hover .card-link:not(.card-link--disabled) {
+  gap: calc(var(--landing-space-xs) + 2px);
 }
 
 /* ==========================================================================

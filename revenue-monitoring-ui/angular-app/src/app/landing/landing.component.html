@@ -62,9 +62,13 @@
               class="card-link"
               [class.card-link--disabled]="!card.route && !card.externalUrl"
             >
-              View Details
+              <span class="card-link-text">View Details</span>
               @if (card.route || card.externalUrl) {
-                <span class="card-link-arrow">↗</span>
+                <ng-icon
+                  class="card-link-arrow"
+                  name="phosphorCaretRightBold"
+                  size="18"
+                />
               }
             </span>
           </div>
@@ -97,9 +101,13 @@
               class="card-link"
               [class.card-link--disabled]="!card.route && !card.externalUrl"
             >
-              View Details
+              <span class="card-link-text">View Details</span>
               @if (card.route || card.externalUrl) {
-                <span class="card-link-arrow">↗</span>
+                <ng-icon
+                  class="card-link-arrow"
+                  name="phosphorCaretRightBold"
+                  size="18"
+                />
               }
             </span>
           </div>
