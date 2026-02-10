@@ -30,12 +30,21 @@ import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 import { AdminComponent } from './admin/admin.component';
 import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
 import { WipsComponent } from './wips/wips.component';
+import { LandingComponent } from './landing/landing.component';
 
 export const routes: Routes = [
   {
     path: '',
     canActivate: [RoleBasedRedirectGuard],
     children: [],
+  },
+  {
+    path: 'landing',
+    component: LandingComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Landing',
+    },
   },
   {
     path: 'home',

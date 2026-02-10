@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Landing Page — Design Tokens (override-friendly)
+   ========================================================================== */
+
+:host {
+  /* Spacing scale — single source of truth for consistent gaps/padding */
+  --landing-space-xs: 0.5rem; /* 8px */
+  --landing-space-sm: 0.75rem; /* 12px */
+  --landing-space-md: 1rem; /* 16px */
+  --landing-space-lg: 1.5rem; /* 24px */
+  --landing-space-xl: 2rem; /* 32px */
+  --landing-space-2xl: 2.5rem; /* 40px */
+
+  /* Horizontal page padding — adjusts via single token */
+  --landing-page-px: 5rem; /* 80px — narrower than Figma's 120px for better real-world fit */
+
+  /* Card tokens */
+  --landing-card-bg: #f4f5f6;
+  --landing-card-border: #d6d6d6;
+  --landing-card-radius: var(--fit-radius-md, 8px);
+  --landing-card-padding: var(--landing-space-lg);
+  --landing-card-gap: var(--landing-space-md);
+
+  /* Colors */
+  --landing-accent: var(--fit-color-primary, #0070d2);
+  --landing-link: #1990fa;
+  --landing-text: #1b1c1d;
+  --landing-text-muted: #555;
+  --landing-overview-bg: #ebebeb;
+
+  /* Typography */
+  --landing-heading-font:
+    "CiscoSansTT", "Inter", var(--fit-font-family-base, sans-serif);
+
+  display: block;
+}
+
+/* ==========================================================================
+   Page Layout
+   ========================================================================== */
+
+.landing-page {
+  width: 100%;
+  min-height: 100%;
+  background: var(--fit-color-bg, #fff);
+}
+
+/* ==========================================================================
+   Welcome Bar
+   ========================================================================== */
+
+.welcome-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--landing-space-xs) var(--landing-page-px);
+}
+
+.welcome-text {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--landing-link);
+  letter-spacing: 0.5px;
+}
+
+.welcome-text strong {
+  font-weight: 700;
+}
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--landing-accent);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   Overview Hero Section
+   ========================================================================== */
+
+.overview-section {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--landing-space-2xl);
+  padding: var(--landing-space-md) var(--landing-page-px);
+  background: var(--landing-overview-bg);
+}
+
+.overview-image {
+  flex-shrink: 0;
+  width: 320px;
+}
+
+.overview-image-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, #00bceb 0%, #0070d2 100%);
+  border-radius: var(--landing-card-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: #fff;
+}
+
+.overview-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.overview-heading {
+  margin: 0 0 var(--landing-space-sm);
+  font-family: var(--landing-heading-font);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--landing-link);
+  line-height: 1.75rem;
+}
+
+.overview-text {
+  margin: 0 0 var(--landing-space-sm);
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--landing-text);
+}
+
+.overview-text:last-child {
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Card Sections — Two Columns
+   ========================================================================== */
+
+.card-sections {
+  display: flex;
+  gap: var(--landing-space-xl);
+  padding: var(--landing-space-md) var(--landing-page-px);
+  align-items: flex-start;
+}
+
+.card-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-header {
+  margin: 0 0 var(--landing-space-sm);
+  font-family: var(--landing-heading-font);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--landing-text);
+  line-height: 1.25rem;
+}
+
+/* ==========================================================================
+   Card Grid — Responsive 2-col within each column
+   ========================================================================== */
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--landing-card-gap);
+}
+
+/* ==========================================================================
+   Individual Card
+   ========================================================================== */
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-card-border);
+  border-radius: var(--landing-card-radius);
+  padding: var(--landing-card-padding);
+  cursor: pointer;
+  transition:
+    box-shadow var(--fit-transition-fast, 150ms),
+    border-color var(--fit-transition-fast, 150ms);
+  min-height: 240px;
+}
+
+.landing-card:hover {
+  box-shadow: var(--fit-shadow-md, 0 4px 12px rgba(0, 0, 0, 0.1));
+  border-color: var(--landing-accent);
+}
+
+.landing-card:focus-visible {
+  outline: 2px solid var(--landing-accent);
+  outline-offset: 2px;
+}
+
+.landing-card--disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.landing-card--disabled:hover {
+  box-shadow: none;
+  border-color: var(--landing-card-border);
+}
+
+/* Full-width card spans both grid columns */
+.landing-card--full {
+  grid-column: 1 / -1;
+  min-height: auto;
+}
+
+/* ==========================================================================
+   Card Internals
+   ========================================================================== */
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.25rem;
+  margin-bottom: var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+}
+
+.card-title {
+  margin: 0 0 var(--landing-space-xs);
+  font-family: var(--landing-heading-font);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--landing-text);
+  line-height: 1.5rem;
+}
+
+.card-description {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5rem;
+  color: var(--landing-text-muted);
+  flex: 1; /* pushes the link to the bottom */
+}
+
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  margin-top: var(--landing-space-md);
+  color: var(--landing-link);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--fit-transition-fast, 150ms);
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+.card-link--disabled {
+  color: var(--landing-text-muted);
+  cursor: default;
+}
+
+.card-link--disabled:hover {
+  text-decoration: none;
+}
+
+.card-link-arrow {
+  font-size: 0.85rem;
+  transition: transform var(--fit-transition-fast, 150ms);
+}
+
+.landing-card:hover .card-link-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  :host {
+    --landing-page-px: 2.5rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .card-sections {
+    flex-direction: column;
+  }
+
+  .overview-section {
+    flex-direction: column;
+  }
+
+  .overview-image {
+    width: 100%;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 640px) {
+  :host {
+    --landing-page-px: 1rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
