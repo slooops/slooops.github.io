@@ -869,7 +869,7 @@ export class HomeComponent implements OnDestroy {
       data: {
         labels: chartData.weeks,
         datasets: [
-          // Bar series for absolute counts
+          // 1. Total Issues (Bar)
           {
             type: 'bar',
             label: totalIssuesLabel,
@@ -880,18 +880,20 @@ export class HomeComponent implements OnDestroy {
             barPercentage: 0.5,
             categoryPercentage: 0.7,
           },
+          // 2. Resolved (Line)
           {
-            type: 'bar',
-            label: inProgressLabel,
-            data: chartData.inProgress,
-            backgroundColor: '#f4a259',
-            borderColor: '#f4a259',
-            borderWidth: 1,
-            barPercentage: 0.5,
-            categoryPercentage: 0.7,
+            type: 'line',
+            label: resolvedLabel,
+            data: chartData.resolved,
+            borderColor: '#9b59b6',
+            backgroundColor: '#9b59b6',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
           },
-
-          // Line series for other counts
+          // 3. Support Team (Line)
           {
             type: 'line',
             label: supportTeamLabel,
@@ -904,10 +906,11 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 2,
             fill: false,
           },
+          // 4. Agent (Line)
           {
             type: 'line',
-            label: resolvedLabel,
-            data: chartData.resolved,
+            label: agentLabel,
+            data: chartData.agent,
             borderColor: '#5c9e6b',
             backgroundColor: '#5c9e6b',
             tension: 0.25,
@@ -916,17 +919,16 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 2,
             fill: false,
           },
+          // 5. In Progress (Bar)
           {
-            type: 'line',
-            label: agentLabel,
-            data: chartData.agent,
-            borderColor: '#9b59b6',
-            backgroundColor: '#9b59b6',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
+            type: 'bar',
+            label: inProgressLabel,
+            data: chartData.inProgress,
+            backgroundColor: '#f4a259',
+            borderColor: '#f4a259',
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
           },
         ],
       },
