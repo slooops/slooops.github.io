@@ -88,14 +88,15 @@
   flex-wrap: nowrap;
   /* justify-content: center; */
   gap: 20px;
-  padding: 0 5px;
+  padding: 5px 5px;
+  border: 1px solid lightgray;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .legend-color {

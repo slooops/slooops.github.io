@@ -498,6 +498,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             ticks: {
               font: {
                 size: 10,
+                weight: 'bold',
               },
               maxRotation: 0,
               minRotation: 0,
@@ -513,6 +514,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             ticks: {
               font: {
                 size: 10,
+                weight: 'bold',
               },
             },
           },

@@ -61,9 +61,23 @@
   width: 100%;
   /* border: 1px solid #e2d48a; */
   margin: 5px 0 5px 0;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   color: #333;
+  height: 40px;
+  align-items: stretch;
+}
+
+.caseiq-header-segment,
+.caseiq-header-segment-green,
+.caseiq-header-segment-yellow,
+.caseiq-header-segment-red,
+.caseiq-header-green-half,
+.caseiq-header-green-left,
+.caseiq-header-green-right {
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .caseiq-header-segment {
