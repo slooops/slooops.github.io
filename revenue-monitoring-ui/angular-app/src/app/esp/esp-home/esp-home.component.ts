@@ -74,7 +74,7 @@ export class EspHomeComponent implements OnInit {
   isLoadingQuarter: boolean = false;
   loadingQuarterMessage: string = '';
   periodInfo = signal<any>(null);
-  overallPage: boolean = false;
+  overallPage: boolean = true;
 
   // Store raw API data to extract quarters per team
   private accuracyData: AccuracyData[] = [];
