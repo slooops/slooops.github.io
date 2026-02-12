@@ -496,6 +496,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             border: { display: true },
             stacked: true,
             ticks: {
+              color: '#000',
               font: {
                 size: 10,
                 weight: 'bold',
@@ -512,6 +513,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             beginAtZero: true,
             stacked: true,
             ticks: {
+              color: '#000',
               font: {
                 size: 10,
                 weight: 'bold',
