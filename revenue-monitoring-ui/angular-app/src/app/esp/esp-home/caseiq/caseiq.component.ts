@@ -586,7 +586,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                     : (value / stackTotal) * 100;
                 const percentage = Math.round(rawPercentage);
 
-                if (value < 3) {
+                if (value == 1) {
                   return;
                 }
 
