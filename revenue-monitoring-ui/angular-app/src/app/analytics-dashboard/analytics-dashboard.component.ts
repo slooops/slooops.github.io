@@ -61,11 +61,11 @@ export class AnalyticsDashboardComponent
   summaryData: PageVisitSummary[] = [];
 
   // Charts
-  private continuousMonitoringChart: Chart | null = null;
-  private caseIqChart: Chart | null = null;
-  private businessInsightsChart: Chart | null = null;
-  private topPagesChart: Chart | null = null;
-  private uniqueUsersChart: Chart | null = null;
+  private continuousMonitoringChart: any = null;
+  private caseIqChart: any = null;
+  private businessInsightsChart: any = null;
+  private topPagesChart: any = null;
+  private uniqueUsersChart: any = null;
 
   // Color palettes
   private readonly COLORS = {
@@ -261,7 +261,7 @@ export class AnalyticsDashboardComponent
     data: PageVisitSummary[],
     title: string,
     colors: string[],
-  ): Chart | null {
+  ): any {
     // console.log(
     //   `[CHARTS] createDonutChart('${canvasId}') called with ${data.length} data items`,
     // );
