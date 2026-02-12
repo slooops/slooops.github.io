@@ -86,7 +86,37 @@
           <div class="overall-header-left">
             Total Cases: <b>{{ getTotalCases(sectionName) | number }}</b>
           </div>
-          <div class="overall-title">{{ sectionName }}</div>
+          <div class="overall-title">
+            {{ sectionName }}
+          </div>
+          <div class="overall-header-right">
+            @switch (sectionName) {
+              @case ("OM") {
+                Resolution Agents - 14/14
+              }
+              @case ("SM") {
+                Resolution Agents - 0/8
+              }
+              @case ("I2C") {
+                Resolution Agents - 14/19
+              }
+              @case ("AIT") {
+                Resolution Agents - 10/10
+              }
+              @case ("FPP") {
+                Resolution Agents - 0/14
+              }
+              @case ("P2P") {
+                Resolution Agents - 5/5
+              }
+              @case ("CAPITAL") {
+                Resolution Agents - 3/8
+              }
+              @case ("Finance IT") {
+                Resolution Agents - 46/78
+              }
+            }
+          </div>
         </div>
         <div class="overall-bar">
           <canvas

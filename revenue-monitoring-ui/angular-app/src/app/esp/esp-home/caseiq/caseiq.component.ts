@@ -577,6 +577,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 if (!value || stackTotal <= 0) {
                   return;
                 }
+                console.log('Value:', value, 'Stack Total:', stackTotal);
 
                 const dsAny: any = dataset;
                 const percentages: number[] = dsAny.segmentPercentages || [];
@@ -585,6 +586,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                     ? percentages[index]
                     : (value / stackTotal) * 100;
                 const percentage = Math.round(rawPercentage);
+
+                if (value < 3) {
+                  return;
+                }
 
                 // Skip if percentage is 15% or less of the bar total
                 if (percentage <= 15) {
