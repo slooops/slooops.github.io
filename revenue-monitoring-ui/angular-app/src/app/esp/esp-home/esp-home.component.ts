@@ -74,6 +74,7 @@ export class EspHomeComponent implements OnInit {
   isLoadingQuarter: boolean = false;
   loadingQuarterMessage: string = '';
   periodInfo = signal<any>(null);
+  overallPage: boolean = false;
 
   // Store raw API data to extract quarters per team
   private accuracyData: AccuracyData[] = [];
@@ -486,7 +487,10 @@ export class EspHomeComponent implements OnInit {
   isTileAccessible(tileName: string): boolean {
     // Overall tile is always accessible
     if (tileName === 'Finance IT') {
-      return true;
+      if (this.overallPage) {
+        return true;
+      }
+      return false;
     }
 
     // ESP_ADMIN has access to all tiles

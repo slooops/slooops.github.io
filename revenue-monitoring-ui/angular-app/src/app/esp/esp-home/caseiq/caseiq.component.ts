@@ -235,7 +235,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
 
       if (teamData) {
-        labels = ['Total Service Requests', 'Routed Out', 'Canceled'];
+        labels = ['Service Requests', 'Routed Out', 'Cancelled'];
 
         // First bar now represents total RESOLVED,
         // stacked as RESOLVED_AGENT and RESOLVED_OPS.
@@ -268,6 +268,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             data: [serviceOthers, 0, 0],
             // Percentages come directly from API fields
             // RESOLVED_PERCENTAGE_OPS applies to the first bar
+            backgroundColor: 'rgba(135, 206, 250, 0.7)',
             ...({
               segmentPercentages: [
                 Number(
@@ -288,7 +289,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 0,
               ],
             } as any),
-            backgroundColor: '#4CAF50',
             borderWidth: 0,
             stack: 'stack1',
             label: 'Resolved (Ops)',
@@ -297,6 +297,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             // Total Service Requests (Resolved by Agent)
             data: [serviceResolved, 0, 0],
             // RESOLVED_PERCENTAGE_AGENT applies to the first bar
+            backgroundColor: 'rgba(144, 238, 144, 0.7)',
             ...({
               segmentPercentages: [
                 Number(
@@ -317,7 +318,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 0,
               ],
             } as any),
-            backgroundColor: '#81C784',
             borderWidth: 0,
             stack: 'stack1',
             label: 'Resolved (Agent)',
@@ -326,6 +326,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             // Routed Out (Misrouted)
             data: [0, routedOutMisrouted, 0],
             // NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE applies to the second bar
+            backgroundColor: 'rgba(255, 179, 102, 0.7)',
             ...({
               segmentPercentages: [
                 0,
@@ -346,7 +347,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 0,
               ],
             } as any),
-            backgroundColor: '#FFA000',
             borderWidth: 0,
             stack: 'stack1',
             label: 'Not Recommended Routed Out',
@@ -355,6 +355,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             // Routed Out (Recommended)
             data: [0, routedOutRecommended, 0],
             // RECOMMENDED_ROUTED_OUT_PERCENTAGE applies to the second bar
+            backgroundColor: 'rgba(255, 214, 102, 0.7)',
             ...({
               segmentPercentages: [
                 0,
@@ -375,7 +376,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 0,
               ],
             } as any),
-            backgroundColor: '#FFD54F',
             borderWidth: 0,
             stack: 'stack1',
             label: 'Recommended Routed Out',
@@ -384,6 +384,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             // Cancelled (Others)
             data: [0, 0, cancelledOthers],
             // NOT_RECOMMENDED_CANCELLED_PERCENTAGE applies to the third bar
+            backgroundColor: 'rgba(144, 220, 210, 0.7)',
             ...({
               segmentPercentages: [
                 0,
@@ -404,15 +405,15 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 ) || 0,
               ],
             } as any),
-            backgroundColor: '#E57373',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Not Recommended Canceled',
+            label: 'Not Recommended Cancelled',
           },
           {
             // Cancelled
             data: [0, 0, cancelledRecommended],
             // RECOMMENDED_CANCELLED_PERCENTAGE applies to the third bar
+            backgroundColor: 'rgba(218, 165, 255, 0.7)',
             ...({
               segmentPercentages: [
                 0,
@@ -433,10 +434,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 ) || 0,
               ],
             } as any),
-            backgroundColor: '#EF9A9A',
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Recommended Canceled',
+            label: 'Recommended Cancelled',
           },
         ],
       },
