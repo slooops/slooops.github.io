@@ -587,6 +587,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 const percentage = Math.round(rawPercentage);
 
                 if (value == 1) {
+                  console.log('Skipping label for single value segment:');
                   return;
                 }
 
