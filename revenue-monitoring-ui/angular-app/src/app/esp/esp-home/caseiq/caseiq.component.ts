@@ -577,7 +577,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 if (!value || stackTotal <= 0) {
                   return;
                 }
-                console.log('Value:', value, 'Stack Total:', stackTotal);
 
                 const dsAny: any = dataset;
                 const percentages: number[] = dsAny.segmentPercentages || [];
