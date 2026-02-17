@@ -19,6 +19,11 @@ import {
 } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from '../providers/authentication.service';
 
+interface RoleRouteMap {
+  roles: string[];
+  route: string;
+}
+
 export interface LandingCard {
   title: string;
   description: string;
@@ -27,6 +32,7 @@ export interface LandingCard {
   externalUrl?: string; // opens in new tab instead of router navigation
   requiredRoles: string[];
   fullWidth?: boolean;
+  roleRoutes?: RoleRouteMap[];
 }
 
 @Component({
@@ -71,6 +77,34 @@ export class LandingComponent {
         'ACCOUNT_RECON',
         'GL_POSTING',
         'OPERATION_CTRL',
+        'ORDER_MANAGEMENT',
+        'WIPS',
+      ],
+      roleRoutes: [
+        {
+          roles: ['ADMIN', 'EXCEPTION_ADMIN', 'EXCEPTION_READ_ONLY'],
+          route: '/invoice-to-cash',
+        },
+        {
+          roles: ['ADMIN', 'ACCOUNT_RECON'],
+          route: '/revenue-accounting',
+        },
+        {
+          roles: ['ADMIN', 'ORDER_MANAGEMENT'],
+          route: '/order-management',
+        },
+        {
+          roles: ['ADMIN', 'GL_POSTING'],
+          route: '/gl-posting',
+        },
+        {
+          roles: ['ADMIN', 'OPERATION_CTRL'],
+          route: '/operations-controls',
+        },
+        {
+          roles: ['ADMIN', 'WIPS'],
+          route: '/wips',
+        },
       ],
     },
     {
@@ -86,7 +120,7 @@ export class LandingComponent {
       description:
         'Single view of all disruptions across jobs, transactions, and ESP cases for effective resource management.',
       icon: 'phosphorEyeDuotone',
-      route: '/home',
+      route: '/operational-visibility',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
     },
     {
@@ -136,8 +170,41 @@ export class LandingComponent {
     },
   ];
 
+  /** ESP 360 cards */
+  private readonly esp360AllCards: LandingCard[] = [
+    {
+      title: 'Case IQ',
+      description:
+        'AI-powered insights and analytics for case resolution with recommended routing and automated escalation based on case complexity and team capacity.',
+      icon: 'phosphorBrainDuotone',
+      route: '/esp/case-iq',
+      requiredRoles: ['ADMIN', 'CASE_IQ'],
+    },
+    {
+      title: 'Case Manager',
+      description:
+        'Centralized case management platform for tracking, prioritizing, and resolving operational exceptions across all processes.',
+      icon: 'phosphorCalendarCheckDuotone',
+      route: '/esp/case-manager',
+      requiredRoles: ['ADMIN', 'CASE_MANAGER'],
+    },
+  ];
+
   itOpsCards = computed(() => this.filterByRole(this.itOpsAllCards));
   finBizOpsCards = computed(() => this.filterByRole(this.finBizOpsAllCards));
+  esp360Cards = computed(() => this.filterByRole(this.esp360AllCards));
+
+  // Organize cards into 3 columns
+  cardColumns = computed(() => {
+    const itCards = this.itOpsCards();
+    const finCards = this.finBizOpsCards();
+    const espCards = this.esp360Cards();
+    return [
+      { header: 'IT Operations 360', cards: itCards },
+      { header: 'Finance Biz Ops 360', cards: finCards },
+      // { header: 'ESP 360', cards: espCards },
+    ];
+  });
 
   constructor(
     private authService: AuthenticationService,
@@ -148,17 +215,60 @@ export class LandingComponent {
   }
 
   onCardClick(card: LandingCard): void {
+    if (!this.isCardInteractive(card)) {
+      return;
+    }
+
     if (card.externalUrl) {
       window.open(card.externalUrl, '_blank', 'noopener,noreferrer');
-    } else if (card.route) {
-      this.router.navigate([card.route]);
+      return;
+    }
+
+    const route = this.resolveCardRoute(card);
+    if (route) {
+      this.router.navigate([route]);
     }
   }
 
-  private filterByRole(cards: LandingCard[]): LandingCard[] {
+  private resolveCardRoute(card: LandingCard): string | null {
+    if (card.roleRoutes?.length) {
+      const roles = this.userRoles();
+      for (const mapping of card.roleRoutes) {
+        const hasRole = mapping.roles.some((role) => roles.includes(role));
+        if (hasRole) {
+          return mapping.route;
+        }
+      }
+    }
+    if (card.route && this.canAccessCard(card)) {
+      return card.route;
+    }
+    return null;
+  }
+
+  isCardInteractive(card: LandingCard): boolean {
+    return this.cardHasDestination(card) && this.canAccessCard(card);
+  }
+
+  private cardHasDestination(card: LandingCard): boolean {
+    return Boolean(card.externalUrl || card.route || card.roleRoutes?.length);
+  }
+
+  private canAccessCard(card: LandingCard): boolean {
     const roles = this.userRoles();
-    // Show all cards if roles haven't loaded yet or user is ADMIN
-    if (!roles.length || roles.includes('ADMIN')) return cards;
-    return cards.filter((c) => c.requiredRoles.some((r) => roles.includes(r)));
+    if (!card.requiredRoles?.length) {
+      return true;
+    }
+    if (!roles.length) {
+      return true;
+    }
+    if (roles.includes('ADMIN')) {
+      return true;
+    }
+    return card.requiredRoles.some((role) => roles.includes(role));
+  }
+
+  private filterByRole(cards: LandingCard[]): LandingCard[] {
+    return cards;
   }
 }

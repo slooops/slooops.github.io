@@ -53,7 +53,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private destroyManager: DestroyManager,
     private menuService: MenuService,
     private searchContextService: SearchContextService,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {}
 
   menuOpened = false;
@@ -126,7 +126,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     // Default fallback
-    return '/home';
+    return '/operational-visibility';
   }
 
   /**
@@ -180,7 +180,7 @@ export class AppComponent implements OnInit, OnDestroy {
           return route;
         }),
         mergeMap((route) => route.data),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((data) => {
         this.hideNavbar = data['hideNavbar'] ?? false;
@@ -188,7 +188,11 @@ export class AppComponent implements OnInit, OnDestroy {
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
         this.dataService.setHeader(data['header']);
-        const hiddenRoutes = ['/home', '/error', '/business-insights']; // Define routes where menu should be hidden
+        const hiddenRoutes = [
+          '/operational-visibility',
+          '/error',
+          '/business-insights',
+        ]; // Define routes where menu should be hidden
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 
@@ -199,19 +203,19 @@ export class AppComponent implements OnInit, OnDestroy {
 
         if (event.url.includes('/period-close-tracking')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Period Close (Internal)'
+            'Continuous Monitoring > Period Close (Internal)',
           );
         } else if (event.url.includes('/invoice-to-cash')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Invoice to Cash > Pre-Invoicing'
+            'Continuous Monitoring > Invoice to Cash > Pre-Invoicing',
           );
         } else if (event.url.includes('/revenue-accounting')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Revenue Accounting > Standard Revenue'
+            'Continuous Monitoring > Revenue Accounting > Standard Revenue',
           );
         } else if (event.url.includes('/gl-posting')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > General Ledger'
+            'Continuous Monitoring > General Ledger',
           );
         } else if (event.url.includes('/business-insights')) {
           // Set dynamic header based on user's Business Insights role
@@ -219,17 +223,17 @@ export class AppComponent implements OnInit, OnDestroy {
           this.menuService.updateHeader(businessInsightsHeader);
         } else if (event.url.includes('/order-management')) {
           this.menuService.updateHeader(
-            'Continuous Monitoring > Order Management > Imports'
+            'Continuous Monitoring > Order Management > Imports',
           );
         } else if (event.url.includes('/case-iq')) {
           this.menuService.updateHeader('ESP Case Manager > Case IQ');
         } else if (event.url.includes('/i2c-case-analyzer')) {
           this.menuService.updateHeader(
-            'ESP Case Manager > Case Analyzer - I2C'
+            'ESP Case Manager > Case Analyzer - I2C',
           );
         } else if (event.url.includes('/sbp-case-analyzer')) {
           this.menuService.updateHeader(
-            'ESP Case Manager > Case Analyzer - SBP'
+            'ESP Case Manager > Case Analyzer - SBP',
           );
         }
       }

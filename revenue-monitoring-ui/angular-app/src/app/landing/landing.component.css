@@ -149,13 +149,13 @@
 }
 
 /* ==========================================================================
-   Card Sections — Two Columns
+   Card Sections — Three Columns
    ========================================================================== */
 
 .card-sections {
   display: flex;
   gap: var(--landing-space-xl);
-  padding: var(--landing-space-md) var(--landing-page-px);
+  padding: var(--landing-space-md) var(--landing-space-lg);
   align-items: flex-start;
 }
 
@@ -174,13 +174,21 @@
 }
 
 /* ==========================================================================
-   Card Grid — Responsive 2-col within each column
+   Card Grid
    ========================================================================== */
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: var(--landing-card-gap);
+  align-items: stretch;
+}
+
+.card-grid--double {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-grid--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* ==========================================================================
@@ -198,7 +206,9 @@
   transition:
     box-shadow var(--fit-transition-fast, 150ms),
     border-color var(--fit-transition-fast, 150ms);
-  min-height: 240px;
+  width: 100%;
+  height: 370px;
+  overflow: hidden;
 }
 
 .landing-card:hover {
@@ -282,10 +292,6 @@
   text-decoration: underline;
 }
 
-.card-link:hover {
-  /* hover handled at card level */
-}
-
 .card-link--disabled {
   color: var(--landing-text-muted);
   cursor: default;
@@ -338,7 +344,8 @@
     --landing-page-px: 1rem;
   }
 
-  .card-grid {
+  .card-grid--double,
+  .card-grid--single {
     grid-template-columns: 1fr;
   }
 }

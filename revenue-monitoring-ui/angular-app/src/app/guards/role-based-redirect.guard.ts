@@ -9,7 +9,7 @@ import { AuthenticationService } from '../providers/authentication.service';
 export class RoleBasedRedirectGuard implements CanActivate {
   constructor(
     private authService: AuthenticationService,
-    private router: Router
+    private router: Router,
   ) {}
 
   canActivate():
@@ -95,6 +95,6 @@ export class RoleBasedRedirectGuard implements CanActivate {
     }
 
     // Default fallback
-    return '/home';
+    return '/landing';
   }
 }

@@ -73,13 +73,21 @@
         </span>
         <span class="navbar">
           <ul class="menu">
-            <!-- Home -->
-            <!-- <li class="menu-item" [class.disabled]="true">
-          <a [routerLink]="'/home'" class="top-link">
-            <i class="svg-icon home-icon" style="font-weight: 900"></i>
-          </a>
-        </li> -->
-
+            @if (isAdmin$) {
+              <li class="menu-item">
+                <a [routerLink]="'/landing'" class="top-link">
+                  <i class="svg-icon home-icon" style="font-weight: 900"></i>
+                </a>
+              </li>
+            }
+            @if (isAdmin$) {
+              <!-- Home -->
+              <li class="menu-item">
+                <a [routerLink]="'/operational-visibility'" class="top-link">
+                  Operational Visibility
+                </a>
+              </li>
+            }
             <!-- Period Close Tracking -->
             @if (
               !(
@@ -353,7 +361,7 @@
       Operations Controls
     </button>
   }
-  @if (isAdmin$) {
+  @if (hasRole$(["WIPS"]) || isAdmin$) {
     <button mat-menu-item [routerLink]="'/wips'">WIPS</button>
   }
 </mat-menu>

@@ -48,11 +48,11 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'home',
+    path: 'operational-visibility',
     component: HomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Home',
+      header: 'Operational Visibility',
     },
   },
   {

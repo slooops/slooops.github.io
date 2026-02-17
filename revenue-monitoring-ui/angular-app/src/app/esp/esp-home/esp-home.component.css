@@ -68,6 +68,18 @@
   align-items: stretch;
 }
 
+@media (max-width: 1600px) {
+  .caseiq-header-box {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .caseiq-header-box {
+    font-size: 9px;
+  }
+}
+
 .caseiq-header-segment,
 .caseiq-header-segment-green,
 .caseiq-header-segment-yellow,

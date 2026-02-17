@@ -37,82 +37,51 @@
 
   <!-- Card Sections -->
   <section class="card-sections">
-    <!-- IT Operations 360 -->
-    <div class="card-column">
-      <h3 class="section-header">IT Operations 360</h3>
-      <div class="card-grid">
-        @for (card of itOpsCards(); track card.title) {
-          <div
-            class="landing-card"
-            [class.landing-card--disabled]="!card.route && !card.externalUrl"
-            [class.landing-card--full]="card.fullWidth"
-            (click)="onCardClick(card)"
-            (keydown.enter)="onCardClick(card)"
-            [attr.tabindex]="card.route || card.externalUrl ? 0 : -1"
-            [attr.role]="
-              card.route || card.externalUrl ? 'link' : 'presentation'
-            "
-          >
-            <div class="card-icon">
-              <ng-icon [name]="card.icon" size="48" />
-            </div>
-            <h4 class="card-title">{{ card.title }}</h4>
-            <p class="card-description">{{ card.description }}</p>
-            <span
-              class="card-link"
-              [class.card-link--disabled]="!card.route && !card.externalUrl"
+    @for (
+      column of cardColumns();
+      track column.header + $index;
+      let idx = $index
+    ) {
+      <div class="card-column">
+        <h3 class="section-header">{{ column.header }}</h3>
+        <div
+          class="card-grid"
+          [class.card-grid--double]="idx < 2"
+          [class.card-grid--single]="idx === 2"
+        >
+          @for (card of column.cards; track card.title) {
+            <div
+              class="landing-card"
+              [class.landing-card--disabled]="!isCardInteractive(card)"
+              [class.landing-card--full]="card.fullWidth"
+              (click)="onCardClick(card)"
+              (keydown.enter)="onCardClick(card)"
+              [attr.tabindex]="isCardInteractive(card) ? 0 : -1"
+              [attr.role]="isCardInteractive(card) ? 'link' : 'presentation'"
+              [attr.aria-disabled]="isCardInteractive(card) ? null : true"
             >
-              <span class="card-link-text">View Details</span>
-              @if (card.route || card.externalUrl) {
-                <ng-icon
-                  class="card-link-arrow"
-                  name="phosphorCaretRightBold"
-                  size="18"
-                />
-              }
-            </span>
-          </div>
-        }
-      </div>
-    </div>
-
-    <!-- Finance Biz Ops 360 -->
-    <div class="card-column">
-      <h3 class="section-header">Finance Biz Ops 360</h3>
-      <div class="card-grid">
-        @for (card of finBizOpsCards(); track card.title) {
-          <div
-            class="landing-card"
-            [class.landing-card--disabled]="!card.route && !card.externalUrl"
-            [class.landing-card--full]="card.fullWidth"
-            (click)="onCardClick(card)"
-            (keydown.enter)="onCardClick(card)"
-            [attr.tabindex]="card.route || card.externalUrl ? 0 : -1"
-            [attr.role]="
-              card.route || card.externalUrl ? 'link' : 'presentation'
-            "
-          >
-            <div class="card-icon">
-              <ng-icon [name]="card.icon" size="48" />
+              <div class="card-icon">
+                <ng-icon [name]="card.icon" size="48" />
+              </div>
+              <h4 class="card-title">{{ card.title }}</h4>
+              <p class="card-description">{{ card.description }}</p>
+              <span
+                class="card-link"
+                [class.card-link--disabled]="!isCardInteractive(card)"
+              >
+                <span class="card-link-text">View Details</span>
+                @if (isCardInteractive(card)) {
+                  <ng-icon
+                    class="card-link-arrow"
+                    name="phosphorCaretRightBold"
+                    size="18"
+                  />
+                }
+              </span>
             </div>
-            <h4 class="card-title">{{ card.title }}</h4>
-            <p class="card-description">{{ card.description }}</p>
-            <span
-              class="card-link"
-              [class.card-link--disabled]="!card.route && !card.externalUrl"
-            >
-              <span class="card-link-text">View Details</span>
-              @if (card.route || card.externalUrl) {
-                <ng-icon
-                  class="card-link-arrow"
-                  name="phosphorCaretRightBold"
-                  size="18"
-                />
-              }
-            </span>
-          </div>
-        }
+          }
+        </div>
       </div>
-    </div>
+    }
   </section>
 </div>
