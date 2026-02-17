@@ -26,7 +26,7 @@ export class MenuService {
       .map((menu) => {
         if (menu.category && menu.items) {
           const filteredItems = menu.items.filter((item) =>
-            item.role.some((role) => userRoles.includes(role))
+            item.role.some((role) => userRoles.includes(role)),
           );
           return filteredItems.length > 0
             ? { ...menu, items: filteredItems }
@@ -46,6 +46,6 @@ export class MenuService {
   header$ = this.headerSubject.asObservable();
 
   updateHeader(newHeader: string) {
-    this.headerSubject.next(newHeader);
+    // this.headerSubject.next(newHeader);
   }
 }
