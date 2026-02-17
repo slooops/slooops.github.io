@@ -207,7 +207,7 @@
     box-shadow var(--fit-transition-fast, 150ms),
     border-color var(--fit-transition-fast, 150ms);
   width: 100%;
-  height: 370px;
+  height: 320px;
   overflow: hidden;
 }
 
