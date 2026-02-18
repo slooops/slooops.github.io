@@ -19,19 +19,23 @@
         <ng-icon name="phosphorRocketLaunchDuotone" size="96" />
       </div>
     </div>
-    <div class="overview-content">
-      <h2 class="overview-heading">Overview</h2>
-      <p class="overview-text">
-        The Finance-IT Control Tower provides a centralized view of operational
-        health, financial processes, and automation capabilities across the
-        organization. Use the dashboards below to monitor key metrics, manage
-        exceptions, and track critical business workflows.
-      </p>
-      <p class="overview-text">
-        Select a dashboard card to navigate directly to the relevant monitoring
-        or management tool. Card availability is based on your assigned role and
-        permissions.
-      </p>
+    <div class="overview-content-stack">
+      <div class="overview-content overview-content--primary">
+        <h2 class="overview-heading">Overview</h2>
+        <p class="overview-text">
+          The Finance-IT Control Tower provides a centralized view of
+          operational health, financial processes, and automation capabilities
+          across the organization. Use the dashboards below to monitor key
+          metrics, manage exceptions, and track critical business workflows.
+        </p>
+      </div>
+      <div class="overview-content overview-content--secondary">
+        <p class="overview-text">
+          Select a dashboard card to navigate directly to the relevant
+          monitoring or management tool. Card availability is based on your
+          assigned role and permissions.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -54,6 +58,21 @@
               class="landing-card"
               [class.landing-card--disabled]="!isCardInteractive(card)"
               [class.landing-card--full]="card.fullWidth"
+              [class.landing-card--gradient-border]="
+                card.variant === 'gradient-border'
+              "
+              [class.landing-card--gradient-bg-1]="
+                card.variant === 'gradient-bg-1'
+              "
+              [class.landing-card--gradient-bg-2]="
+                card.variant === 'gradient-bg-2'
+              "
+              [class.landing-card--gradient-bg-3]="
+                card.variant === 'gradient-bg-3'
+              "
+              [class.landing-card--glass]="card.variant === 'glass'"
+              [class.landing-card--inner-glow]="card.variant === 'inner-glow'"
+              [class.landing-card--soft-glow]="card.variant === 'soft-glow'"
               (click)="onCardClick(card)"
               (keydown.enter)="onCardClick(card)"
               [attr.tabindex]="isCardInteractive(card) ? 0 : -1"

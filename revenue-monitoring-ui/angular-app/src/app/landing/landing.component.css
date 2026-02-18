@@ -42,7 +42,29 @@
 .landing-page {
   width: 100%;
   min-height: 100%;
-  background: var(--fit-color-bg, #fff);
+  /* background: var(--fit-color-bg, #fff); */
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 20% 40%,
+      rgba(0, 188, 235, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 30%,
+      rgba(0, 112, 210, 0.12) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 60% 80%,
+      rgba(255, 144, 0, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 10% 90%,
+      rgba(255, 0, 127, 0.06) 0%,
+      transparent 50%
+    ),
+    linear-gradient(135deg, #f8fafc 0%, #f0f4f8 50%, #e8f0f8 100%);
 }
 
 /* ==========================================================================
@@ -100,32 +122,172 @@
 
 .overview-section {
   display: flex;
-  align-items: flex-start;
-  gap: var(--landing-space-2xl);
-  padding: var(--landing-space-md) var(--landing-page-px);
-  background: var(--landing-overview-bg);
+  align-items: center;
+  padding: var(--landing-space-lg) var(--landing-page-px);
+  position: relative;
 }
 
 .overview-image {
   flex-shrink: 0;
   width: 320px;
+  position: relative;
+  z-index: 10;
 }
 
 .overview-image-placeholder {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, #00bceb 0%, #0070d2 100%);
   border-radius: var(--landing-card-radius);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 4rem;
   color: #fff;
+  position: relative;
+  overflow: hidden;
+  /* Animated mesh gradient background */
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(0, 188, 235, 0.9) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 30%,
+      rgba(0, 112, 210, 0.85) 0%,
+      transparent 50%
+    ),
+    linear-gradient(135deg, #00bceb 0%, #0070d2 100%);
+  box-shadow:
+    0 8px 32px rgba(0, 112, 210, 0.25),
+    0 4px 16px rgba(0, 188, 235, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: mesh-shift 5s ease-in-out infinite;
+}
+
+@keyframes mesh-shift {
+  0%,
+  100% {
+    background-position:
+      0% 0%,
+      100% 0%,
+      0% 100%,
+      100% 100%,
+      0% 0%;
+  }
+  50% {
+    background-position:
+      100% 100%,
+      0% 100%,
+      100% 0%,
+      0% 0%,
+      0% 0%;
+  }
+}
+
+/* Rainbow gradient border */
+.overview-image-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 3px;
+  border-radius: var(--landing-card-radius);
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    #00bceb 0deg,
+    #0070d2 60deg,
+    #ff007f 120deg,
+    #ff9000 180deg,
+    #ffd000 240deg,
+    #00bceb 300deg,
+    #00bceb 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 1;
+  animation: gradient-spin 6s linear infinite;
+}
+
+@keyframes gradient-spin {
+  from {
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      #00bceb 0deg,
+      #0070d2 60deg,
+      #ff007f 120deg,
+      #ff9000 180deg,
+      #ffd000 240deg,
+      #00bceb 300deg,
+      #00bceb 360deg
+    );
+  }
+  to {
+    background: conic-gradient(
+      from 540deg at 50% 50%,
+      #00bceb 0deg,
+      #0070d2 60deg,
+      #ff007f 120deg,
+      #ff9000 180deg,
+      #ffd000 240deg,
+      #00bceb 300deg,
+      #00bceb 360deg
+    );
+  }
+}
+
+.overview-image-placeholder > * {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Content stack for overlapping cards */
+.overview-content-stack {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 .overview-content {
-  flex: 1;
-  min-width: 0;
+  position: relative;
+  /* Subtle glass card effect */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: var(--landing-card-radius);
+  padding: var(--landing-space-lg);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 4px 24px rgba(0, 112, 210, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  z-index: 1;
+}
+
+/* Primary box - sits on top */
+.overview-content--primary {
+  background: rgba(255, 255, 255, 1);
+
+  z-index: 0;
+  margin-left: -10px;
+}
+
+/* Secondary box - overlaps behind/below */
+.overview-content--secondary {
+  margin-top: -10px;
+  margin-right: 40px;
+  margin-left: -4px;
+  z-index: -1;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .overview-heading {
@@ -133,8 +295,24 @@
   font-family: var(--landing-heading-font);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--landing-link);
   line-height: 1.75rem;
+  /* Gradient text effect */
+  background: linear-gradient(135deg, #0070d2 0%, #00bceb 50%, #0070d2 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes text-shimmer {
+  0%,
+  100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
 }
 
 .overview-text {
@@ -348,4 +526,242 @@
   .card-grid--single {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   Card Variants — Cisco Design System Inspired
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Border
+   Uses a pseudo-element with conic-gradient for a rainbow/gradient border effect
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-border {
+  position: relative;
+  background: #fff;
+  border: none;
+  overflow: hidden;
+}
+
+.landing-card--gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: var(--landing-card-radius);
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    #00bceb 0deg,
+    #0070d2 60deg,
+    #ff007f 120deg,
+    #ff9000 180deg,
+    #ffd000 240deg,
+    #00bceb 300deg,
+    #00bceb 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-card--gradient-border > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-card--gradient-border:hover::before {
+  animation: gradient-rotate 3s linear infinite;
+}
+
+@keyframes gradient-rotate {
+  from {
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      #00bceb 0deg,
+      #0070d2 60deg,
+      #ff007f 120deg,
+      #ff9000 180deg,
+      #ffd000 240deg,
+      #00bceb 300deg,
+      #00bceb 360deg
+    );
+  }
+  to {
+    background: conic-gradient(
+      from 540deg at 50% 50%,
+      #00bceb 0deg,
+      #0070d2 60deg,
+      #ff007f 120deg,
+      #ff9000 180deg,
+      #ffd000 240deg,
+      #00bceb 300deg,
+      #00bceb 360deg
+    );
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Background 1 (Pink/Cyan/Orange aurora)
+   Uses SVG gradient as background image
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-bg-1 {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(0, 188, 235, 0.2);
+  overflow: hidden;
+}
+
+.landing-card--gradient-bg-1::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/1.svg") center/cover no-repeat;
+  opacity: 0.2;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card--gradient-bg-1:hover::before {
+  opacity: 0.6;
+}
+
+.landing-card--gradient-bg-1 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Background 2 (Cyan/Orange wave)
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-bg-2 {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(255, 144, 0, 0.2);
+  overflow: hidden;
+}
+
+.landing-card--gradient-bg-2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/2.svg") center/cover no-repeat;
+  opacity: 0.35;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card--gradient-bg-2:hover::before {
+  opacity: 0.55;
+}
+
+.landing-card--gradient-bg-2 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Background 3 (Radial pink/orange glow)
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-bg-3 {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(255, 0, 127, 0.15);
+  overflow: hidden;
+}
+
+.landing-card--gradient-bg-3::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/5.svg") center/cover no-repeat;
+  opacity: 0.1;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card--gradient-bg-3:hover::before {
+  opacity: 0.6;
+}
+
+.landing-card--gradient-bg-3 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Glass (Frosted glass / glassmorphism)
+   Light mode adaptation with subtle blur and transparency
+   -------------------------------------------------------------------------- */
+.landing-card--glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 4px 24px rgba(0, 112, 210, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.landing-card--glass:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 8px 32px rgba(0, 112, 210, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Inner Glow
+   Soft gradient inner shadow creating a gentle glow from edges
+   -------------------------------------------------------------------------- */
+.landing-card--inner-glow {
+  background: #fff;
+  border: 1px solid rgba(0, 188, 235, 0.15);
+  box-shadow:
+    inset 0 0 40px rgba(0, 188, 235, 0.08),
+    inset 0 0 20px rgba(255, 144, 0, 0.05),
+    inset 0 -20px 40px rgba(255, 0, 127, 0.04);
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.15s ease;
+}
+
+.landing-card--inner-glow:hover {
+  box-shadow:
+    inset 0 0 60px rgba(0, 188, 235, 0.12),
+    inset 0 0 30px rgba(255, 144, 0, 0.08),
+    inset 0 -30px 50px rgba(255, 0, 127, 0.07),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 188, 235, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Soft Glow (Outer halo effect)
+   Creates a soft colored glow/halo around the card
+   -------------------------------------------------------------------------- */
+.landing-card--soft-glow {
+  background: #fff;
+  border: 1px solid rgba(0, 112, 210, 0.15);
+  box-shadow:
+    0 0 0 1px rgba(0, 188, 235, 0.1),
+    0 4px 20px rgba(0, 188, 235, 0.12),
+    0 8px 40px rgba(0, 112, 210, 0.08);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
+.landing-card--soft-glow:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 2px rgba(0, 188, 235, 0.2),
+    0 8px 30px rgba(0, 188, 235, 0.18),
+    0 16px 50px rgba(0, 112, 210, 0.12),
+    0 0 60px rgba(255, 144, 0, 0.06);
 }

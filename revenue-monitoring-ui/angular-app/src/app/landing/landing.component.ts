@@ -24,6 +24,25 @@ interface RoleRouteMap {
   route: string;
 }
 
+/**
+ * Card visual variants inspired by Cisco design system:
+ * - gradient-border: Rainbow gradient border effect
+ * - gradient-bg-1/2/3: SVG gradient backgrounds
+ * - glass: Frosted glass effect with backdrop blur
+ * - inner-glow: Soft inner glow shadow
+ * - soft-glow: Outer glow halo effect
+ * - default: Standard card style
+ */
+export type CardVariant =
+  | 'gradient-border'
+  | 'gradient-bg-1'
+  | 'gradient-bg-2'
+  | 'gradient-bg-3'
+  | 'glass'
+  | 'inner-glow'
+  | 'soft-glow'
+  | 'default';
+
 export interface LandingCard {
   title: string;
   description: string;
@@ -33,6 +52,7 @@ export interface LandingCard {
   requiredRoles: string[];
   fullWidth?: boolean;
   roleRoutes?: RoleRouteMap[];
+  variant?: CardVariant; // Visual style variant
 }
 
 @Component({
@@ -106,14 +126,16 @@ export class LandingComponent {
           route: '/wips',
         },
       ],
+      variant: 'soft-glow',
     },
     {
       title: 'Period Close Management',
       description:
-        'Predictable, on-time close execution through focused monitoring and control.',
+        'Predictable, on-time close execution through focused monitoring and control, providing real-time visibility.',
       icon: 'phosphorCalendarCheckDuotone',
       route: '/period-close-tracking',
       requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
+      variant: 'gradient-bg-1',
     },
     {
       title: 'Operational Visibility',
@@ -122,6 +144,7 @@ export class LandingComponent {
       icon: 'phosphorEyeDuotone',
       route: '/operational-visibility',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
+      variant: 'glass',
     },
     {
       title: 'Self-Healing',
@@ -130,6 +153,7 @@ export class LandingComponent {
       icon: 'phosphorBrainDuotone',
       route: null,
       requiredRoles: ['ADMIN'],
+      variant: 'inner-glow',
     },
   ];
 
@@ -138,35 +162,39 @@ export class LandingComponent {
     {
       title: 'Large Deal Tracking',
       description:
-        'End-to-end visibility into critical order life cycle during quarter-end enables collaboration between commerce and finance operations.',
+        'End-to-end visibility into critical order life cycles during quarter-end across commerce and finance operations.',
       icon: 'phosphorMoneyDuotone',
       route: '/business-insights',
       requiredRoles: ['ADMIN', 'LARGE_DEAL'],
+      variant: 'soft-glow',
     },
     {
       title: 'Mid-Close Status',
       description:
-        'Track mid-close processing phases—invoicing, AR posting, revenue, deferrals, and intercompany—across all entities with real-time completion status and FCC load visibility.',
+        'Track mid-close processing across all entities with real-time completion status and FCC load visibility.',
       icon: 'phosphorGaugeDuotone',
       route: '/wd0',
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
+      variant: 'gradient-bg-2',
     },
     {
       title: 'Mid-Close Volume Forecasting',
       description:
-        'ML-driven predictions of volume spikes or drops to proactively manage period close.',
+        'ML-driven predictions of volume spikes or drops to proactively manage period close processing times.',
       icon: 'phosphorChartLineUpDuotone',
       route: '/midclose-volumes',
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
+      variant: 'gradient-bg-3',
     },
     {
       title: 'O2C Financials Visibility',
       description:
-        'Real-time insights into Order-to-Cash financials with immediate access to invoice and accounting details in a single view.',
+        'Real-time Order-to-Cash insights with immediate access to invoice and accounting details.',
       icon: 'phosphorPresentationChartDuotone',
       route: null,
       externalUrl: 'https://subscription-ai.cisco.com/',
       requiredRoles: ['ADMIN'],
+      variant: 'soft-glow',
     },
   ];
 
@@ -179,6 +207,7 @@ export class LandingComponent {
       icon: 'phosphorBrainDuotone',
       route: '/esp/case-iq',
       requiredRoles: ['ADMIN', 'CASE_IQ'],
+      variant: 'soft-glow',
     },
     {
       title: 'Case Manager',
@@ -187,6 +216,7 @@ export class LandingComponent {
       icon: 'phosphorCalendarCheckDuotone',
       route: '/esp/case-manager',
       requiredRoles: ['ADMIN', 'CASE_MANAGER'],
+      variant: 'soft-glow',
     },
   ];
 
