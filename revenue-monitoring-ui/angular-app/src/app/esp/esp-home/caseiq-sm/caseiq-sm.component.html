@@ -8,16 +8,12 @@
       <span>
         Service Requests:
         <span class="caseiq-value-default">
-          {{
-            filteredCaseIqMetrics
-              ? filteredCaseIqMetrics.TOTAL_SERVICE_REQUESTS
-              : "--"
-          }}
+          {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED : "--" }}
         </span>
       </span>
       <span class="divider"> | </span>
       <span>
-        Resolved(Agent):
+        Agent:
         <span class="caseiq-value-default">
           {{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_AGENT : "--"
@@ -31,7 +27,7 @@
       </span>
       <span class="divider"> | </span>
       <span>
-        Resolved(Ops):
+        Ops:
         <span class="caseiq-value-default">
           {{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_OPS : "--"
@@ -45,6 +41,42 @@
       </span>
     </div>
   </div>
+  <div class="caseiq-header-segment caseiq-header-segment-progress">
+    <span>
+      In Progress:
+      <span class="caseiq-value-default">
+        {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.IN_PROGRESS : "--" }}
+      </span>
+    </span>
+    <span class="divider"> | </span>
+    <span>
+      Agent:
+      <span class="caseiq-value-default">
+        {{
+          filteredCaseIqMetrics ? filteredCaseIqMetrics.IN_PROGRESS_AGENT : "--"
+        }}
+        {{
+          filteredCaseIqMetrics
+            ? "(" + filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE + "%)"
+            : "(--%)"
+        }}
+      </span>
+    </span>
+    <span class="divider"> | </span>
+    <span>
+      Ops:
+      <span class="caseiq-value-default">
+        {{
+          filteredCaseIqMetrics ? filteredCaseIqMetrics.IN_PROGRESS_OPS : "--"
+        }}
+        {{
+          filteredCaseIqMetrics
+            ? "(" + filteredCaseIqMetrics.IN_PROGRESS_OPS_PERCENTAGE + "%)"
+            : "(--%)"
+        }}
+      </span>
+    </span>
+  </div>
   <div class="caseiq-header-segment caseiq-header-segment-yellow">
     <span>
       Routed Out:
@@ -54,7 +86,7 @@
     </span>
     <span class="divider"> | </span>
     <span>
-      Routed(Agent):
+      Agent:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -72,7 +104,7 @@
     </span>
     <span class="divider"> | </span>
     <span
-      >Routed(Ops):
+      >Ops:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -98,7 +130,7 @@
     </span>
     <span class="divider"> | </span>
     <span>
-      Recommended(Agent):
+      Agent:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics
@@ -116,7 +148,7 @@
     </span>
     <span class="divider"> | </span>
     <span>
-      Cancelled(Ops):
+      Ops:
       <span class="caseiq-value-default">
         {{
           filteredCaseIqMetrics

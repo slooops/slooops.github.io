@@ -101,22 +101,28 @@
 
 .caseiq-header-segment-green {
   /* Blue (10%) + Green (25%) = 35% total */
-  flex: 0 0 39%;
+  flex: 0 0 31%;
   display: flex;
   padding: 0;
   /* border-right: 1px solid #e2d48a; */
 }
 
+.caseiq-header-segment-progress {
+  flex: 0 0 23%;
+  background-color: #f2e5ff;
+  justify-content: space-around;
+}
+
 .caseiq-header-segment-yellow {
-  flex: 0 0 29%;
+  flex: 0 0 23%;
   background-color: #fff7c2;
   /* border-right: 1px solid #e2d48a; */
 }
 
 .caseiq-header-segment-red {
   /* Reduced from 40% to 25% */
-  flex: 0 0 32%;
-  background-color: #ffbebe;
+  flex: 0 0 23%;
+  background-color: rgba(144, 220, 210, 0.7);
 }
 
 .caseiq-header-green-half {
@@ -129,14 +135,18 @@
 
 .caseiq-header-green-left {
   /* 10% of 35% segment ≈ 2/7 */
-  flex: 0 0 18%;
+  flex: 0 0 23%;
   background-color: #a3d9ff; /* screenshot-like blue */
 }
 
 .caseiq-header-green-right {
   /* 25% of 35% segment ≈ 5/7 */
-  flex: 0 0 82%;
+  flex: 0 0 77%;
   background-color: #baf7c2;
+}
+
+.caseiq-value-default {
+  font-weight: 600;
 }
 
 /* Dashboard Styles */

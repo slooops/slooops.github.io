@@ -292,7 +292,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Total Service Requests (Resolved by Ops)
             data: [serviceOthers, 0, 0, 0],
-            backgroundColor: 'rgba(135, 206, 250, 0.7)',
+            backgroundColor: '#cacacaff',
             ...({
               segmentPercentages: [resolvedOpsPct, 0, 0, 0],
             } as any),
@@ -314,7 +314,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // In Progress (Ops)
             data: [0, inProgressOps, 0, 0],
-            backgroundColor: 'rgba(255, 158, 128, 0.85)',
+            backgroundColor: '#cacacaff',
             ...({
               segmentPercentages: [0, inProgressOpsPct, 0, 0],
             } as any),
@@ -325,7 +325,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // In Progress (Agent)
             data: [0, inProgressAgent, 0, 0],
-            backgroundColor: 'rgba(255, 128, 171, 0.85)',
+            backgroundColor: '#f2e5ff',
             ...({
               segmentPercentages: [0, inProgressAgentPct, 0, 0],
             } as any),
@@ -336,46 +336,46 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Routed Out (Misrouted)
             data: [0, 0, routedOutMisrouted, 0],
-            backgroundColor: 'rgba(255, 179, 102, 0.7)',
+            backgroundColor: '#cacacaff',
             ...({
               segmentPercentages: [0, 0, routedMisroutedPct, 0],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Not Recommended Routed Out',
+            label: 'Routed (Ops)',
           },
           {
             // Routed Out (Recommended)
             data: [0, 0, routedOutRecommended, 0],
-            backgroundColor: 'rgba(255, 214, 102, 0.7)',
+            backgroundColor: '#fff7c2',
             ...({
               segmentPercentages: [0, 0, routedRecommendedPct, 0],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Recommended Routed Out',
+            label: 'Routed (Agent)',
           },
           {
             // Cancelled (Others)
             data: [0, 0, 0, cancelledOthers],
-            backgroundColor: 'rgba(144, 220, 210, 0.7)',
+            backgroundColor: '#cacacaff',
             ...({
               segmentPercentages: [0, 0, 0, cancelledOthersPct],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Not Recommended Cancelled',
+            label: 'Cancelled (Ops)',
           },
           {
             // Cancelled (Recommended)
             data: [0, 0, 0, cancelledRecommended],
-            backgroundColor: 'rgba(218, 165, 255, 0.7)',
+            backgroundColor: 'rgba(144, 220, 210, 0.7)',
             ...({
               segmentPercentages: [0, 0, 0, cancelledRecommendedPct],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
-            label: 'Recommended Cancelled',
+            label: 'Cancelled (Agent)',
           },
         ],
       },
