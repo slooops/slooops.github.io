@@ -122,7 +122,7 @@
 .caseiq-header-segment-red {
   /* Reduced from 40% to 25% */
   flex: 0 0 23%;
-  background-color: rgba(144, 220, 210, 0.7);
+  background-color: rgba(255, 179, 102, 0.7);
 }
 
 .caseiq-header-green-half {

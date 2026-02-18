@@ -292,7 +292,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Total Service Requests (Resolved by Ops)
             data: [serviceOthers, 0, 0, 0],
-            backgroundColor: '#cacacaff',
+            backgroundColor: '#a3d9ff',
             ...({
               segmentPercentages: [resolvedOpsPct, 0, 0, 0],
             } as any),
@@ -314,7 +314,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // In Progress (Ops)
             data: [0, inProgressOps, 0, 0],
-            backgroundColor: '#cacacaff',
+            backgroundColor: '#a3d9ff',
             ...({
               segmentPercentages: [0, inProgressOpsPct, 0, 0],
             } as any),
@@ -336,7 +336,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Routed Out (Misrouted)
             data: [0, 0, routedOutMisrouted, 0],
-            backgroundColor: '#cacacaff',
+            backgroundColor: '#a3d9ff',
             ...({
               segmentPercentages: [0, 0, routedMisroutedPct, 0],
             } as any),
@@ -358,7 +358,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Cancelled (Others)
             data: [0, 0, 0, cancelledOthers],
-            backgroundColor: '#cacacaff',
+            backgroundColor: '#a3d9ff',
             ...({
               segmentPercentages: [0, 0, 0, cancelledOthersPct],
             } as any),
@@ -369,7 +369,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Cancelled (Recommended)
             data: [0, 0, 0, cancelledRecommended],
-            backgroundColor: 'rgba(144, 220, 210, 0.7)',
+            backgroundColor: 'rgba(255, 179, 102, 0.7)',
             ...({
               segmentPercentages: [0, 0, 0, cancelledRecommendedPct],
             } as any),
