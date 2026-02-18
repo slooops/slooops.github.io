@@ -197,15 +197,27 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let labels: (string | string[])[] = [];
+    let labels: string[] = [];
 
     // Individual values for each bar/segment (excluding Total Cases bar)
     let serviceResolved = 0;
     let serviceOthers = 0;
+    let inProgressAgent = 0;
+    let inProgressOps = 0;
     let routedOutRecommended = 0;
     let routedOutMisrouted = 0;
     let cancelledRecommended = 0;
     let cancelledOthers = 0;
+
+    // Percentage annotations supplied by API
+    let resolvedAgentPct = 0;
+    let resolvedOpsPct = 0;
+    let inProgressAgentPct = 0;
+    let inProgressOpsPct = 0;
+    let routedRecommendedPct = 0;
+    let routedMisroutedPct = 0;
+    let cancelledRecommendedPct = 0;
+    let cancelledOthersPct = 0;
 
     // Use metrics filtered by selectedQuarter (FISCAL_QTR)
     const metrics = this.getFilteredMetricsByQuarter();
@@ -235,28 +247,42 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
 
       if (teamData) {
-        labels = ['Service Requests', 'Routed Out', 'Cancelled'];
+        labels = ['Service Requests', 'In Progress', 'Routed Out', 'Cancelled'];
 
         // First bar now represents total RESOLVED,
         // stacked as RESOLVED_AGENT and RESOLVED_OPS.
-        const resolvedAgent = Number(teamData.RESOLVED_AGENT) || 0;
-        const resolvedOps = Number(teamData.RESOLVED_OPS) || 0;
-        serviceResolved = resolvedAgent;
-        serviceOthers = resolvedOps;
+        serviceResolved = Number(teamData.RESOLVED_AGENT) || 0;
+        serviceOthers = Number(teamData.RESOLVED_OPS) || 0;
+        resolvedAgentPct = Number(teamData.RESOLVED_PERCENTAGE_AGENT) || 0;
+        resolvedOpsPct = Number(teamData.RESOLVED_PERCENTAGE_OPS) || 0;
+
+        // New In Progress stacked bar (Agent + Ops)
+        inProgressAgent = Number(teamData.IN_PROGRESS_AGENT) || 0;
+        inProgressOps = Number(teamData.IN_PROGRESS_OPS) || 0;
+        inProgressAgentPct = Number(teamData.IN_PROGRESS_AGENT_PERCENTAGE) || 0;
+        inProgressOpsPct = Number(teamData.IN_PROGRESS_OPS_PERCENTAGE) || 0;
 
         routedOutRecommended =
           Number(
             teamData.RECOMMENDED_ROUTE_OUT ?? teamData.RECOMMENDED_ROUTED_OUT,
           ) || 0;
         routedOutMisrouted = Number(teamData.NOT_RECOMMENDED_ROUTED_OUT) || 0;
+        routedRecommendedPct =
+          Number(teamData.RECOMMENDED_ROUTED_OUT_PERCENTAGE) || 0;
+        routedMisroutedPct =
+          Number(teamData.NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE) || 0;
 
-        const cancelledTotal = Number(teamData.CANCELLED) || 0;
-        const recommendedCancelled =
-          Number(teamData.RECOMMENDED_CANCELLED) || 0;
-        cancelledRecommended = recommendedCancelled;
-        cancelledOthers = Number(teamData.NOT_RECOMMENDED_CANCELLED);
+        cancelledRecommended = Number(teamData.RECOMMENDED_CANCELLED) || 0;
+        cancelledOthers = Number(teamData.NOT_RECOMMENDED_CANCELLED) || 0;
+        cancelledRecommendedPct =
+          Number(teamData.RECOMMENDED_CANCELLED_PERCENTAGE) || 0;
+        cancelledOthersPct =
+          Number(teamData.NOT_RECOMMENDED_CANCELLED_PERCENTAGE) || 0;
       }
     }
+
+    const axisFontSize =
+      window.innerWidth <= 1700 ? (window.innerWidth <= 1500 ? 7.5 : 8.5) : 10;
 
     const chart = new Chart(ctx, {
       type: 'bar',
@@ -265,29 +291,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         datasets: [
           {
             // Total Service Requests (Resolved by Ops)
-            data: [serviceOthers, 0, 0],
-            // Percentages come directly from API fields
-            // RESOLVED_PERCENTAGE_OPS applies to the first bar
+            data: [serviceOthers, 0, 0, 0],
             backgroundColor: 'rgba(135, 206, 250, 0.7)',
             ...({
-              segmentPercentages: [
-                Number(
-                  (Array.isArray(metrics)
-                    ? metrics.find(
-                        (m: any) =>
-                          m &&
-                          m.TEAM_NAME &&
-                          typeof m.TEAM_NAME === 'string' &&
-                          (sectionName === 'Finance IT'
-                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
-                            : m.TEAM_NAME === sectionName),
-                      )
-                    : null
-                  )?.RESOLVED_PERCENTAGE_OPS,
-                ) || 0,
-                0,
-                0,
-              ],
+              segmentPercentages: [resolvedOpsPct, 0, 0, 0],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
@@ -295,57 +302,43 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           },
           {
             // Total Service Requests (Resolved by Agent)
-            data: [serviceResolved, 0, 0],
-            // RESOLVED_PERCENTAGE_AGENT applies to the first bar
+            data: [serviceResolved, 0, 0, 0],
             backgroundColor: 'rgba(144, 238, 144, 0.7)',
             ...({
-              segmentPercentages: [
-                Number(
-                  (Array.isArray(metrics)
-                    ? metrics.find(
-                        (m: any) =>
-                          m &&
-                          m.TEAM_NAME &&
-                          typeof m.TEAM_NAME === 'string' &&
-                          (sectionName === 'Finance IT'
-                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
-                            : m.TEAM_NAME === sectionName),
-                      )
-                    : null
-                  )?.RESOLVED_PERCENTAGE_AGENT,
-                ) || 0,
-                0,
-                0,
-              ],
+              segmentPercentages: [resolvedAgentPct, 0, 0, 0],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
             label: 'Resolved (Agent)',
           },
           {
+            // In Progress (Ops)
+            data: [0, inProgressOps, 0, 0],
+            backgroundColor: 'rgba(255, 158, 128, 0.85)',
+            ...({
+              segmentPercentages: [0, inProgressOpsPct, 0, 0],
+            } as any),
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'In Progress (Ops)',
+          },
+          {
+            // In Progress (Agent)
+            data: [0, inProgressAgent, 0, 0],
+            backgroundColor: 'rgba(255, 128, 171, 0.85)',
+            ...({
+              segmentPercentages: [0, inProgressAgentPct, 0, 0],
+            } as any),
+            borderWidth: 0,
+            stack: 'stack1',
+            label: 'In Progress (Agent)',
+          },
+          {
             // Routed Out (Misrouted)
-            data: [0, routedOutMisrouted, 0],
-            // NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE applies to the second bar
+            data: [0, 0, routedOutMisrouted, 0],
             backgroundColor: 'rgba(255, 179, 102, 0.7)',
             ...({
-              segmentPercentages: [
-                0,
-                Number(
-                  (Array.isArray(metrics)
-                    ? metrics.find(
-                        (m: any) =>
-                          m &&
-                          m.TEAM_NAME &&
-                          typeof m.TEAM_NAME === 'string' &&
-                          (sectionName === 'Finance IT'
-                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
-                            : m.TEAM_NAME === sectionName),
-                      )
-                    : null
-                  )?.NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE,
-                ) || 0,
-                0,
-              ],
+              segmentPercentages: [0, 0, routedMisroutedPct, 0],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
@@ -353,28 +346,10 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           },
           {
             // Routed Out (Recommended)
-            data: [0, routedOutRecommended, 0],
-            // RECOMMENDED_ROUTED_OUT_PERCENTAGE applies to the second bar
+            data: [0, 0, routedOutRecommended, 0],
             backgroundColor: 'rgba(255, 214, 102, 0.7)',
             ...({
-              segmentPercentages: [
-                0,
-                Number(
-                  (Array.isArray(metrics)
-                    ? metrics.find(
-                        (m: any) =>
-                          m &&
-                          m.TEAM_NAME &&
-                          typeof m.TEAM_NAME === 'string' &&
-                          (sectionName === 'Finance IT'
-                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
-                            : m.TEAM_NAME === sectionName),
-                      )
-                    : null
-                  )?.RECOMMENDED_ROUTED_OUT_PERCENTAGE,
-                ) || 0,
-                0,
-              ],
+              segmentPercentages: [0, 0, routedRecommendedPct, 0],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
@@ -382,57 +357,21 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           },
           {
             // Cancelled (Others)
-            data: [0, 0, cancelledOthers],
-            // NOT_RECOMMENDED_CANCELLED_PERCENTAGE applies to the third bar
+            data: [0, 0, 0, cancelledOthers],
             backgroundColor: 'rgba(144, 220, 210, 0.7)',
             ...({
-              segmentPercentages: [
-                0,
-                0,
-                Number(
-                  (Array.isArray(metrics)
-                    ? metrics.find(
-                        (m: any) =>
-                          m &&
-                          m.TEAM_NAME &&
-                          typeof m.TEAM_NAME === 'string' &&
-                          (sectionName === 'Finance IT'
-                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
-                            : m.TEAM_NAME === sectionName),
-                      )
-                    : null
-                  )?.NOT_RECOMMENDED_CANCELLED_PERCENTAGE,
-                ) || 0,
-              ],
+              segmentPercentages: [0, 0, 0, cancelledOthersPct],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
             label: 'Not Recommended Cancelled',
           },
           {
-            // Cancelled
-            data: [0, 0, cancelledRecommended],
-            // RECOMMENDED_CANCELLED_PERCENTAGE applies to the third bar
+            // Cancelled (Recommended)
+            data: [0, 0, 0, cancelledRecommended],
             backgroundColor: 'rgba(218, 165, 255, 0.7)',
             ...({
-              segmentPercentages: [
-                0,
-                0,
-                Number(
-                  (Array.isArray(metrics)
-                    ? metrics.find(
-                        (m: any) =>
-                          m &&
-                          m.TEAM_NAME &&
-                          typeof m.TEAM_NAME === 'string' &&
-                          (sectionName === 'Finance IT'
-                            ? m.TEAM_NAME.toUpperCase() === 'ALL'
-                            : m.TEAM_NAME === sectionName),
-                      )
-                    : null
-                  )?.RECOMMENDED_CANCELLED_PERCENTAGE,
-                ) || 0,
-              ],
+              segmentPercentages: [0, 0, 0, cancelledRecommendedPct],
             } as any),
             borderWidth: 0,
             stack: 'stack1',
@@ -498,7 +437,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             ticks: {
               color: '#000',
               font: {
-                size: 10,
+                size: axisFontSize,
                 weight: 'bold',
               },
               maxRotation: 0,
@@ -515,7 +454,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             ticks: {
               color: '#000',
               font: {
-                size: 10,
+                size: axisFontSize,
                 weight: 'bold',
               },
             },
@@ -559,7 +498,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
               // Draw total label above the stacked bar
               ctx.fillStyle = '#333';
-              ctx.font = 'bold 10px sans-serif';
+              ctx.font = `bold ${axisFontSize}px sans-serif`;
               ctx.textAlign = 'center';
               ctx.textBaseline = 'bottom';
               ctx.fillText(stackTotal.toString(), x, topY - 5);
@@ -600,7 +539,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 const centerY = (bar.y + bar.base) / 2;
 
                 ctx.fillStyle = '#000';
-                ctx.font = 'bold 10px sans-serif';
+                ctx.font = `bold ${axisFontSize}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(`${value} (${percentage}%)`, centerX, centerY);
