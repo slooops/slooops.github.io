@@ -8,14 +8,32 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { Chart } from 'chart.js/auto';
+
+interface CaseIqTableMetric {
+  total: number | null;
+  agent: number | null;
+  agentPct: number | null;
+  ops: number | null;
+  opsPct: number | null;
+}
+
+interface CaseIqTableRow {
+  sectionName: string;
+  totalCases: number | null;
+  service: CaseIqTableMetric;
+  inProgress: CaseIqTableMetric;
+  routed: CaseIqTableMetric;
+  cancelled: CaseIqTableMetric;
+}
 
 @Component({
   selector: 'app-caseiq',
   templateUrl: './caseiq.component.html',
   styleUrl: './caseiq.component.css',
-  imports: [CommonModule, LoadingSymbolComponent],
+  imports: [CommonModule, FormsModule, LoadingSymbolComponent],
   standalone: true,
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
@@ -27,9 +45,35 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // over-constraining generics for different chart types.
   private charts: any[] = [];
   private viewInitialized = false;
+  private readonly integerFormatter = new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 0,
+  });
+  private readonly percentageFormatter = new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 0,
+  });
 
   // Show a brief loading state when quarter or metrics change
   isLoading = true;
+
+  // Selected component for the bar chart (default: Finance IT = ALL)
+  selectedChartComponent: string = 'Finance IT';
+  showChartDropdown: boolean = false;
+  private outsideClickListener = () => {
+    this.showChartDropdown = false;
+  };
+
+  // Resolution Agents Deployed per team
+  resolutionAgents: { team: string; deployed: number; total: number }[] = [
+    { team: 'Finance IT', deployed: 73, total: 80 },
+    { team: 'OM', deployed: 14, total: 14 },
+    { team: 'SM', deployed: 12, total: 14 },
+    { team: 'I2C', deployed: 10, total: 10 },
+    { team: 'AIT', deployed: 8, total: 8 },
+    { team: 'FPP', deployed: 9, total: 10 },
+    { team: 'P2P', deployed: 6, total: 6 },
+    { team: 'CAPITAL', deployed: 5, total: 5 },
+  ];
 
   @Input() caseIqMetrics: any;
   @Input() selectedQuarter: string = '';
@@ -57,6 +101,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   ngAfterViewInit(): void {
     this.viewInitialized = true;
 
+    // Close chart dropdown on outside click
+    document.addEventListener('click', this.outsideClickListener);
+
     // Initial build of sections/charts once view is ready
     // Use setTimeout to ensure Angular has updated the DOM
     this.buildSectionsFromMetrics();
@@ -66,6 +113,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   ngOnDestroy(): void {
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
+    document.removeEventListener('click', this.outsideClickListener);
   }
 
   /**
@@ -93,18 +141,6 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const names: string[] = [];
 
-    // Finance IT / ALL first if present
-    const hasAll = this.caseIqMetrics.some(
-      (m: any) =>
-        m &&
-        m.TEAM_NAME &&
-        typeof m.TEAM_NAME === 'string' &&
-        m.TEAM_NAME.toUpperCase() === 'ALL',
-    );
-    if (hasAll) {
-      names.push('Finance IT');
-    }
-
     // Define the desired order for other teams
     const teamOrder = ['OM', 'SM', 'I2C', 'AIT', 'FPP', 'P2P', 'CAPITAL'];
 
@@ -128,37 +164,89 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
     });
 
+    // Finance IT / ALL last if present
+    const hasAll = this.caseIqMetrics.some(
+      (m: any) =>
+        m &&
+        m.TEAM_NAME &&
+        typeof m.TEAM_NAME === 'string' &&
+        m.TEAM_NAME.toUpperCase() === 'ALL',
+    );
+    if (hasAll) {
+      names.push('Finance IT');
+    }
+
     this.sections.set(names);
   }
 
   getTotalCases(sectionName: string): number {
-    const metrics = this.getFilteredMetricsByQuarter();
+    const teamData = this.getSectionMetrics(sectionName);
+    const total = this.toNumber(teamData?.TOTAL_CASES);
+    return total ?? 0;
+  }
 
-    if (!Array.isArray(metrics)) {
-      return 0;
+  getNonFinanceSections(): string[] {
+    return this.sections();
+  }
+
+  hasFinanceSection(): boolean {
+    return this.sections().includes('Finance IT');
+  }
+
+  getTableRows(): CaseIqTableRow[] {
+    return this.getNonFinanceSections()
+      .map((sectionName) => this.buildTableRow(sectionName))
+      .filter((row): row is CaseIqTableRow => !!row);
+  }
+
+  metricDisplay(value: number | null, percentage?: number | null): string {
+    if (!this.isValidNumber(value)) {
+      return '--';
     }
 
-    let teamData: any = null;
+    const formattedValue = this.integerFormatter.format(value);
 
-    if (sectionName === 'Finance IT') {
-      teamData = metrics.find(
-        (m: any) =>
-          m &&
-          m.TEAM_NAME &&
-          typeof m.TEAM_NAME === 'string' &&
-          m.TEAM_NAME.toUpperCase() === 'ALL',
-      );
-    } else {
-      teamData = metrics.find(
-        (m: any) =>
-          m &&
-          m.TEAM_NAME &&
-          typeof m.TEAM_NAME === 'string' &&
-          m.TEAM_NAME === sectionName,
-      );
+    if (!this.isValidNumber(percentage)) {
+      return formattedValue;
     }
 
-    return Number(teamData?.TOTAL_CASES) || 0;
+    const formattedPercentage = this.percentageFormatter.format(percentage);
+
+    return `${formattedValue} (${formattedPercentage}%)`;
+  }
+
+  valueDisplay(value: number | null): string {
+    if (!this.isValidNumber(value)) {
+      return '--';
+    }
+    return this.integerFormatter.format(value);
+  }
+
+  pctDisplay(percentage: number | null): string {
+    if (!this.isValidNumber(percentage)) {
+      return '';
+    }
+    return `(${this.percentageFormatter.format(percentage)}%)`;
+  }
+
+  getChartComponentOptions(): string[] {
+    return this.sections();
+  }
+
+  toggleChartDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showChartDropdown = !this.showChartDropdown;
+  }
+
+  selectChartComponent(option: string): void {
+    this.selectedChartComponent = option;
+    this.showChartDropdown = false;
+    // Rebuild the chart when the dropdown selection changes
+    this.charts.forEach((chart) => chart.destroy());
+    this.charts = [];
+    setTimeout(() => {
+      this.createAllCharts();
+    }, 0);
   }
 
   private createAllCharts(): void {
@@ -166,10 +254,13 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.charts.forEach((chart) => chart.destroy());
     this.charts = [];
 
-    this.sections().forEach((sectionName, sectionIndex) => {
-      const barId = `overall-bar-${sectionIndex}`;
-      this.createBarChart(barId, sectionName);
-    });
+    // Find the index of Finance IT section (canvas id is based on it)
+    const sections = this.sections();
+    const financeIndex = sections.indexOf('Finance IT');
+    if (financeIndex === -1) return;
+
+    const barId = `overall-bar-${financeIndex}`;
+    this.createBarChart(barId, this.selectedChartComponent);
   }
 
   // Helper to filter metrics by the selected quarter (FISCAL_QTR).
@@ -224,27 +315,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     // Try to find metrics for this section from filtered metrics
     if (Array.isArray(metrics)) {
-      let teamData: any = null;
-
-      if (sectionName === 'Finance IT') {
-        // For Finance IT section, find TEAM_NAME === 'ALL'
-        teamData = metrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME.toUpperCase() === 'ALL',
-        );
-      } else {
-        // For other sections, find matching TEAM_NAME
-        teamData = metrics.find(
-          (m: any) =>
-            m &&
-            m.TEAM_NAME &&
-            typeof m.TEAM_NAME === 'string' &&
-            m.TEAM_NAME === sectionName,
-        );
-      }
+      const teamData = this.getSectionMetrics(sectionName);
 
       if (teamData) {
         labels = ['Service Requests', 'In Progress', 'Routed Out', 'Cancelled'];
@@ -282,7 +353,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
 
     const axisFontSize =
-      window.innerWidth <= 1700 ? (window.innerWidth <= 1500 ? 7.5 : 8.5) : 10;
+      window.innerWidth <= 1700 ? (window.innerWidth <= 1500 ? 10 : 10) : 10;
 
     const chart = new Chart(ctx, {
       type: 'bar',
@@ -292,7 +363,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Total Service Requests (Resolved by Ops)
             data: [serviceOthers, 0, 0, 0],
-            backgroundColor: '#a3d9ff',
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
             ...({
               segmentPercentages: [resolvedOpsPct, 0, 0, 0],
             } as any),
@@ -303,7 +374,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Total Service Requests (Resolved by Agent)
             data: [serviceResolved, 0, 0, 0],
-            backgroundColor: 'rgba(144, 238, 144, 0.7)',
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
             ...({
               segmentPercentages: [resolvedAgentPct, 0, 0, 0],
             } as any),
@@ -314,7 +385,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // In Progress (Ops)
             data: [0, inProgressOps, 0, 0],
-            backgroundColor: '#a3d9ff',
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
             ...({
               segmentPercentages: [0, inProgressOpsPct, 0, 0],
             } as any),
@@ -325,7 +396,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // In Progress (Agent)
             data: [0, inProgressAgent, 0, 0],
-            backgroundColor: '#f2e5ff',
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
             ...({
               segmentPercentages: [0, inProgressAgentPct, 0, 0],
             } as any),
@@ -336,7 +407,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Routed Out (Misrouted)
             data: [0, 0, routedOutMisrouted, 0],
-            backgroundColor: '#a3d9ff',
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
             ...({
               segmentPercentages: [0, 0, routedMisroutedPct, 0],
             } as any),
@@ -347,7 +418,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Routed Out (Recommended)
             data: [0, 0, routedOutRecommended, 0],
-            backgroundColor: '#fff7c2',
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
             ...({
               segmentPercentages: [0, 0, routedRecommendedPct, 0],
             } as any),
@@ -358,7 +429,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Cancelled (Others)
             data: [0, 0, 0, cancelledOthers],
-            backgroundColor: '#a3d9ff',
+            backgroundColor: 'rgba(54, 162, 235, 0.7)',
             ...({
               segmentPercentages: [0, 0, 0, cancelledOthersPct],
             } as any),
@@ -369,7 +440,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
           {
             // Cancelled (Recommended)
             data: [0, 0, 0, cancelledRecommended],
-            backgroundColor: 'rgba(255, 179, 102, 0.7)',
+            backgroundColor: 'rgba(255, 206, 86, 0.7)',
             ...({
               segmentPercentages: [0, 0, 0, cancelledRecommendedPct],
             } as any),
@@ -438,7 +509,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
               color: '#000',
               font: {
                 size: axisFontSize,
-                weight: 'bold',
+                // weight: 'bold',
               },
               maxRotation: 0,
               minRotation: 0,
@@ -446,18 +517,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
             },
           },
           y: {
-            display: true,
-            grid: { display: false }, // Remove horizontal grid lines
-            border: { display: true },
-            beginAtZero: true,
-            stacked: true,
-            ticks: {
-              color: '#000',
-              font: {
-                size: axisFontSize,
-                weight: 'bold',
-              },
-            },
+            display: false,
           },
         },
       },
@@ -551,5 +611,87 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     });
 
     this.charts.push(chart);
+  }
+
+  private getSectionMetrics(sectionName: string): any | null {
+    const metrics = this.getFilteredMetricsByQuarter();
+
+    if (!Array.isArray(metrics) || metrics.length === 0) {
+      return null;
+    }
+
+    if (sectionName === 'Finance IT') {
+      return (
+        metrics.find(
+          (m: any) =>
+            m &&
+            m.TEAM_NAME &&
+            typeof m.TEAM_NAME === 'string' &&
+            m.TEAM_NAME.toUpperCase() === 'ALL',
+        ) || null
+      );
+    }
+
+    return (
+      metrics.find(
+        (m: any) =>
+          m &&
+          m.TEAM_NAME &&
+          typeof m.TEAM_NAME === 'string' &&
+          m.TEAM_NAME === sectionName,
+      ) || null
+    );
+  }
+
+  private buildTableRow(sectionName: string): CaseIqTableRow | null {
+    const teamData = this.getSectionMetrics(sectionName);
+
+    if (!teamData) {
+      return null;
+    }
+
+    return {
+      sectionName,
+      totalCases: this.toNumber(teamData.TOTAL_CASES),
+      service: {
+        total: this.toNumber(teamData.RESOLVED),
+        agent: this.toNumber(teamData.RESOLVED_AGENT),
+        agentPct: this.toNumber(teamData.RESOLVED_PERCENTAGE_AGENT),
+        ops: this.toNumber(teamData.RESOLVED_OPS),
+        opsPct: this.toNumber(teamData.RESOLVED_PERCENTAGE_OPS),
+      },
+      inProgress: {
+        total: this.toNumber(teamData.IN_PROGRESS),
+        agent: this.toNumber(teamData.IN_PROGRESS_AGENT),
+        agentPct: this.toNumber(teamData.IN_PROGRESS_AGENT_PERCENTAGE),
+        ops: this.toNumber(teamData.IN_PROGRESS_OPS),
+        opsPct: this.toNumber(teamData.IN_PROGRESS_OPS_PERCENTAGE),
+      },
+      routed: {
+        total: this.toNumber(teamData.ROUTED_OUT),
+        agent: this.toNumber(
+          teamData.RECOMMENDED_ROUTE_OUT ?? teamData.RECOMMENDED_ROUTED_OUT,
+        ),
+        agentPct: this.toNumber(teamData.RECOMMENDED_ROUTED_OUT_PERCENTAGE),
+        ops: this.toNumber(teamData.NOT_RECOMMENDED_ROUTED_OUT),
+        opsPct: this.toNumber(teamData.NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE),
+      },
+      cancelled: {
+        total: this.toNumber(teamData.CANCELLED),
+        agent: this.toNumber(teamData.RECOMMENDED_CANCELLED),
+        agentPct: this.toNumber(teamData.RECOMMENDED_CANCELLED_PERCENTAGE),
+        ops: this.toNumber(teamData.NOT_RECOMMENDED_CANCELLED),
+        opsPct: this.toNumber(teamData.NOT_RECOMMENDED_CANCELLED_PERCENTAGE),
+      },
+    };
+  }
+
+  private toNumber(value: any): number | null {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private isValidNumber(value: number | null | undefined): value is number {
+    return typeof value === 'number' && !Number.isNaN(value);
   }
 }

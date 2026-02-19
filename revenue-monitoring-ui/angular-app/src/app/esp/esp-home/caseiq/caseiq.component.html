@@ -5,147 +5,291 @@
 }
 
 @if (!isLoading) {
-  <div class="overall-legend">
-    <div class="legend-item">
-      <span class="legend-label">Legend: </span>
-    </div>
-    &nbsp;
-    <div class="legend-item">
-      <div class="legend-item">
-        <span class="legend-label">Service Requests - &nbsp;</span>
-      </div>
-      <div class="legend-item">
-        <span
-          class="legend-color"
-          style="background-color: rgba(144, 238, 144, 0.7)"
-        ></span>
-        <span class="legend-label">Agent &nbsp;</span>
-      </div>
-      <!-- <span class="divider"> &nbsp; | &nbsp;</span> -->
-      <div class="legend-item">
-        <!-- <span
-          class="legend-color"
-          style="background-color: rgba(135, 206, 250, 0.7)"
-        ></span> -->
-        <span class="legend-color" style="background-color: #a3d9ff"></span>
-        <span class="legend-label">Ops</span>
-      </div>
-    </div>
-    <span class="divider"> | </span>
+  @let showFinanceChart = hasFinanceSection();
+  @let tableRows = getTableRows();
 
-    <div class="legend-item">
-      <div class="legend-item">
-        <span class="legend-label">In Progress - &nbsp;</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-color" style="background-color: #f2e5ff"></span>
-        <span class="legend-label">Agent &nbsp;</span>
-      </div>
-      <!-- <span class="divider"> &nbsp; | &nbsp;</span> -->
-      <div class="legend-item">
-        <!-- <span
-          class="legend-color"
-          style="background-color: rgba(255, 158, 128, 0.85)"
-        ></span> -->
-        <span class="legend-color" style="background-color: #a3d9ff"></span>
-        <span class="legend-label">Ops</span>
-      </div>
-    </div>
-    <span class="divider"> | </span>
-
-    <div class="legend-item">
-      <div class="legend-item">
-        <span class="legend-label">Routed - &nbsp;</span>
-      </div>
-
-      <div class="legend-item">
-        <span class="legend-color" style="background-color: #fff7c2"></span>
-        <span class="legend-label">Agent &nbsp;</span>
-      </div>
-      <!-- <span class="divider">&nbsp; | &nbsp;</span> -->
-
-      <div class="legend-item">
-        <!-- <span
-          class="legend-color"
-          style="background-color: rgba(255, 179, 102, 0.7)"
-        ></span> -->
-        <span class="legend-color" style="background-color: #a3d9ff"></span>
-        <span class="legend-label">Ops</span>
-      </div>
-    </div>
-    <span class="divider"> | </span>
-
-    <div class="legend-item">
-      <div class="legend-item">
-        <span class="legend-label">Cancelled - &nbsp;</span>
-      </div>
-
-      <div class="legend-item">
-        <span
-          class="legend-color"
-          style="background-color: rgba(255, 179, 102, 0.7)"
-        ></span>
-        <span class="legend-label">Agent &nbsp;</span>
-      </div>
-      <!-- <span class="divider">&nbsp; | &nbsp;</span> -->
-
-      <div class="legend-item">
-        <!-- <span
-          class="legend-color"
-          style="background-color: rgba(144, 220, 210, 0.7)"
-        ></span> -->
-        <span class="legend-color" style="background-color: #a3d9ff"></span>
-        <span class="legend-label">Ops</span>
-      </div>
+  <div class="agents-deployed-section">
+    <div class="agents-deployed-header">Resolution Agents Deployed</div>
+    <div class="agents-deployed-row">
+      @for (agent of resolutionAgents; track agent.team) {
+        <div
+          class="agent-card"
+          style="
+            background-color: oklab(66.1715% -0.0812987 -0.110544 / 0.05);
+            border-color: oklab(66.1715% -0.0812987 -0.110544 / 0.3);
+          "
+        >
+          <div class="agent-card-title">{{ agent.team }}</div>
+          <div class="agent-card-value">
+            {{ agent.deployed }}/{{ agent.total }}
+          </div>
+        </div>
+      }
     </div>
   </div>
 
-  <div class="overall-grid">
-    @for (sectionName of sections(); track sectionName; let i = $index) {
-      <div class="overall-section" [class.p2p-section]="sectionName === 'P2P'">
-        <div class="overall-header">
-          <div class="overall-header-left">
-            Total Cases: <b>{{ getTotalCases(sectionName) | number }}</b>
+  @if (showFinanceChart || tableRows.length) {
+    <div
+      class="agents-deployed-header"
+      style="margin-top: 15px; font-size: 15px"
+    >
+      Metrics
+    </div>
+    <div class="caseiq-panel-row">
+      @if (tableRows.length) {
+        <div class="caseiq-panel-col caseiq-panel-table">
+          <div class="caseiq-table-card">
+            <div class="caseiq-table-scroll">
+              <table class="caseiq-table table-striped">
+                <thead>
+                  <tr>
+                    <th rowspan="2">Component</th>
+                    <th rowspan="2">Total Cases</th>
+                    <th colspan="3" style="background-color: #baf7c2">
+                      Service Requests
+                    </th>
+                    <th colspan="3" style="background-color: #f2e5ff">
+                      In Progress
+                    </th>
+                    <th colspan="3" style="background-color: #fff7c2">
+                      Routed Out
+                    </th>
+                    <th
+                      colspan="3"
+                      style="background-color: rgba(255, 179, 102, 0.7)"
+                    >
+                      Cancelled
+                    </th>
+                  </tr>
+                  <tr>
+                    <th>Total</th>
+                    <th>Agent</th>
+                    <th>Ops</th>
+                    <th>Total</th>
+                    <th>Agent</th>
+                    <th>Ops</th>
+                    <th>Total</th>
+                    <th>Agent</th>
+                    <th>Ops</th>
+                    <th>Total</th>
+                    <th>Agent</th>
+                    <th>Ops</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of tableRows; track row.sectionName) {
+                    <tr>
+                      <td class="caseiq-table-component">
+                        {{ row.sectionName }}
+                      </td>
+                      <td>{{ valueDisplay(row.totalCases) }}</td>
+                      <td>{{ valueDisplay(row.service.total) }}</td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.service.agent)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.service.agentPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.service.ops)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.service.opsPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>{{ valueDisplay(row.inProgress.total) }}</td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.inProgress.agent)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.inProgress.agentPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.inProgress.ops)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.inProgress.opsPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>{{ valueDisplay(row.routed.total) }}</td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.routed.agent)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.routed.agentPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.routed.ops)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.routed.opsPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>{{ valueDisplay(row.cancelled.total) }}</td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.cancelled.agent)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.cancelled.agentPct)
+                          }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="metric-cell">
+                          <span class="metric-value">{{
+                            valueDisplay(row.cancelled.ops)
+                          }}</span>
+                          <span class="metric-pct">{{
+                            pctDisplay(row.cancelled.opsPct)
+                          }}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div class="overall-title">
-            {{ sectionName }}
-          </div>
-          <div class="overall-header-right">
-            @switch (sectionName) {
-              @case ("OM") {
-                Resolution Agents - 14/14
-              }
-              @case ("SM") {
-                Resolution Agents - 8/10
-              }
-              @case ("I2C") {
-                Resolution Agents - 18/19
-              }
-              @case ("AIT") {
-                Resolution Agents - 10/10
-              }
-              @case ("FPP") {
-                Resolution Agents - 14/14
-              }
-              @case ("P2P") {
-                Resolution Agents - 5/5
-              }
-              @case ("CAPITAL") {
-                Resolution Agents - 4/8
-              }
-              @case ("Finance IT") {
-                Resolution Agents - 73/80
-              }
+        </div>
+      }
+
+      @if (showFinanceChart) {
+        <div class="caseiq-panel-col caseiq-panel-chart">
+          @for (sectionName of sections(); track sectionName; let i = $index) {
+            @if (sectionName === "Finance IT") {
+              <div class="overall-section">
+                <div class="overall-header">
+                  <!-- <div class="overall-header-left">
+                    <div
+                      class="chart-dropdown-wrapper"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <button
+                        type="button"
+                        class="chart-dropdown-button"
+                        (click)="toggleChartDropdown($event)"
+                      >
+                        {{ selectedChartComponent }}
+                        <span
+                          class="chart-dropdown-arrow"
+                          [class.open]="showChartDropdown"
+                          >▾</span
+                        >
+                      </button>
+                      @if (showChartDropdown) {
+                        <div
+                          class="chart-dropdown-menu"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <div class="chart-dropdown-options">
+                            @for (
+                              option of getChartComponentOptions();
+                              track option
+                            ) {
+                              <div
+                                class="chart-dropdown-option"
+                                (click)="selectChartComponent(option)"
+                              >
+                                <input
+                                  type="radio"
+                                  [checked]="selectedChartComponent === option"
+                                  readonly
+                                />
+                                <span class="chart-option-label">{{
+                                  option
+                                }}</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div> -->
+                  <div class="overall-title">
+                    <div
+                      class="chart-dropdown-wrapper"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <button
+                        type="button"
+                        class="chart-dropdown-button"
+                        (click)="toggleChartDropdown($event)"
+                      >
+                        {{ selectedChartComponent }}
+                        <span
+                          class="chart-dropdown-arrow"
+                          [class.open]="showChartDropdown"
+                          >▾</span
+                        >
+                      </button>
+                      @if (showChartDropdown) {
+                        <div
+                          class="chart-dropdown-menu"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <div class="chart-dropdown-options">
+                            @for (
+                              option of getChartComponentOptions();
+                              track option
+                            ) {
+                              <div
+                                class="chart-dropdown-option"
+                                (click)="selectChartComponent(option)"
+                              >
+                                <input
+                                  type="radio"
+                                  [checked]="selectedChartComponent === option"
+                                  readonly
+                                />
+                                <span class="chart-option-label">{{
+                                  option
+                                }}</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  <div class="overall-header-right">
+                    Total Cases:
+                    <b>{{ getTotalCases(selectedChartComponent) | number }}</b>
+                  </div>
+                </div>
+                <div class="overall-bar">
+                  <canvas
+                    class="overall-bar-canvas"
+                    [attr.id]="'overall-bar-' + i"
+                  ></canvas>
+                </div>
+              </div>
             }
-          </div>
+          }
         </div>
-        <div class="overall-bar">
-          <canvas
-            class="overall-bar-canvas"
-            [attr.id]="'overall-bar-' + i"
-          ></canvas>
-        </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  }
 }
