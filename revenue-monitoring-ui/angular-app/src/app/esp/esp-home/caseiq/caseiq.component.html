@@ -182,52 +182,10 @@
             @if (sectionName === "Finance IT") {
               <div class="overall-section">
                 <div class="overall-header">
-                  <!-- <div class="overall-header-left">
-                    <div
-                      class="chart-dropdown-wrapper"
-                      (click)="$event.stopPropagation()"
-                    >
-                      <button
-                        type="button"
-                        class="chart-dropdown-button"
-                        (click)="toggleChartDropdown($event)"
-                      >
-                        {{ selectedChartComponent }}
-                        <span
-                          class="chart-dropdown-arrow"
-                          [class.open]="showChartDropdown"
-                          >▾</span
-                        >
-                      </button>
-                      @if (showChartDropdown) {
-                        <div
-                          class="chart-dropdown-menu"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <div class="chart-dropdown-options">
-                            @for (
-                              option of getChartComponentOptions();
-                              track option
-                            ) {
-                              <div
-                                class="chart-dropdown-option"
-                                (click)="selectChartComponent(option)"
-                              >
-                                <input
-                                  type="radio"
-                                  [checked]="selectedChartComponent === option"
-                                  readonly
-                                />
-                                <span class="chart-option-label">{{
-                                  option
-                                }}</span>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  </div> -->
+                  <div class="overall-header-left">
+                    Total Cases:
+                    <b>{{ getTotalCases(selectedChartComponent) | number }}</b>
+                  </div>
                   <div class="overall-title">
                     <div
                       class="chart-dropdown-wrapper"
@@ -274,10 +232,7 @@
                       }
                     </div>
                   </div>
-                  <div class="overall-header-right">
-                    Total Cases:
-                    <b>{{ getTotalCases(selectedChartComponent) | number }}</b>
-                  </div>
+                  <div class="overall-header-right"></div>
                 </div>
                 <div class="overall-bar">
                   <canvas

@@ -67,12 +67,12 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   resolutionAgents: { team: string; deployed: number; total: number }[] = [
     { team: 'Finance IT', deployed: 73, total: 80 },
     { team: 'OM', deployed: 14, total: 14 },
-    { team: 'SM', deployed: 12, total: 14 },
-    { team: 'I2C', deployed: 10, total: 10 },
-    { team: 'AIT', deployed: 8, total: 8 },
-    { team: 'FPP', deployed: 9, total: 10 },
-    { team: 'P2P', deployed: 6, total: 6 },
-    { team: 'CAPITAL', deployed: 5, total: 5 },
+    { team: 'SM', deployed: 8, total: 11 },
+    { team: 'I2C', deployed: 18, total: 19 },
+    { team: 'AIT', deployed: 10, total: 10 },
+    { team: 'FPP', deployed: 14, total: 14 },
+    { team: 'P2P', deployed: 5, total: 5 },
+    { team: 'CAPITAL', deployed: 4, total: 7 },
   ];
 
   @Input() caseIqMetrics: any;
@@ -226,7 +226,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (!this.isValidNumber(percentage)) {
       return '';
     }
-    return `(${this.percentageFormatter.format(percentage)}%)`;
+    const rounded = Math.round(percentage);
+    return `(${this.integerFormatter.format(rounded)}%)`;
   }
 
   getChartComponentOptions(): string[] {
@@ -352,6 +353,20 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       }
     }
 
+    const agentLegendCount =
+      serviceResolved +
+      inProgressAgent +
+      routedOutRecommended +
+      cancelledRecommended;
+    const agentLegendLabel = `Agent (${this.integerFormatter.format(
+      agentLegendCount,
+    )})`;
+    const opsLegendCount =
+      serviceOthers + inProgressOps + routedOutMisrouted + cancelledOthers;
+    const opsLegendLabel = `Ops (${this.integerFormatter.format(
+      opsLegendCount,
+    )})`;
+
     const axisFontSize =
       window.innerWidth <= 1700 ? (window.innerWidth <= 1500 ? 10 : 10) : 10;
 
@@ -459,7 +474,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
         },
         layout: {
           padding: {
-            top: 30,
+            top: 12,
+            bottom: 48,
           },
         },
         plugins: {
@@ -605,6 +621,54 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
                 ctx.fillText(`${value} (${percentage}%)`, centerX, centerY);
               });
             }
+          },
+        },
+        {
+          id: 'inlineLegend',
+          afterDraw: (chart) => {
+            const ctx = chart.ctx;
+            const chartArea = chart.chartArea;
+
+            const items = [
+              { label: agentLegendLabel, color: 'rgba(255, 206, 86, 0.7)' },
+              { label: opsLegendLabel, color: 'rgba(54, 162, 235, 0.7)' },
+            ];
+
+            const boxSize = 11;
+            const gap = 6;
+            const itemGap = 16;
+            const fontSize = 11;
+
+            ctx.save();
+            ctx.font = `${fontSize}px sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+
+            // Measure total width to center the legend
+            let totalWidth = 0;
+            items.forEach((item, i) => {
+              totalWidth += boxSize + gap + ctx.measureText(item.label).width;
+              if (i < items.length - 1) totalWidth += itemGap;
+            });
+
+            let x = (chartArea.left + chartArea.right) / 2 - totalWidth / 2;
+            const y = chart.height - 20;
+
+            items.forEach((item, i) => {
+              // Draw color box
+              ctx.fillStyle = item.color;
+              ctx.fillRect(x, y - boxSize / 2, boxSize, boxSize);
+
+              // Draw label
+              x += boxSize + gap;
+              ctx.fillStyle = '#333';
+              ctx.fillText(item.label, x, y);
+              x += ctx.measureText(item.label).width;
+
+              if (i < items.length - 1) x += itemGap;
+            });
+
+            ctx.restore();
           },
         },
       ],

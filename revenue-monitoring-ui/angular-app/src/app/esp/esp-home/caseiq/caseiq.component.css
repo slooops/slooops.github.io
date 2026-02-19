@@ -13,11 +13,11 @@
 
 .overall-section {
   background-color: transparent;
-  padding: 5px 10px 10px 10px;
+  padding: 0px 10px 0px 10px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  border: 1px solid #dddddd;
+  /* border: 1px solid #dddddd; */
   border-radius: 4px;
   min-height: 345px;
 }
@@ -446,7 +446,7 @@
 }
 
 .metric-pct {
-  font-size: 12px;
+  font-size: 11px;
   color: #555;
 }
 
@@ -457,7 +457,7 @@
   }
 
   .metric-pct {
-    font-size: 10px;
+    font-size: 9px;
     color: #555;
   }
 }
@@ -484,7 +484,7 @@
   }
 
   .metric-pct {
-    font-size: 9px;
+    font-size: 8.5px;
     color: #555;
   }
 }
