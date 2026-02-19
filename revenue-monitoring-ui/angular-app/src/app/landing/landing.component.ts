@@ -2,6 +2,7 @@ import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ArcProgressComponent } from '../shared/arc-progress/arc-progress.component';
 import {
   phosphorShieldCheckDuotone,
   phosphorCalendarCheckDuotone,
@@ -43,6 +44,16 @@ export type CardVariant =
   | 'soft-glow'
   | 'default';
 
+/** Arc progress data for displaying metrics on cards */
+export interface ArcData {
+  value: number;
+  max: number;
+  suffix?: string; // e.g., 'k', 'M', '%'
+  subtitle?: string; // e.g., 'Transactions', 'Completion'
+  colorStart?: string;
+  colorEnd?: string;
+}
+
 export interface LandingCard {
   title: string;
   description: string;
@@ -53,12 +64,13 @@ export interface LandingCard {
   fullWidth?: boolean;
   roleRoutes?: RoleRouteMap[];
   variant?: CardVariant; // Visual style variant
+  arcData?: ArcData; // Optional arc progress indicator
 }
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, NgIcon],
+  imports: [CommonModule, NgIcon, ArcProgressComponent],
   providers: [
     provideIcons({
       phosphorShieldCheckDuotone,
@@ -127,6 +139,14 @@ export class LandingComponent {
         },
       ],
       variant: 'soft-glow',
+      arcData: {
+        value: 298000,
+        max: 350000,
+        suffix: 'k',
+        subtitle: 'Transactions',
+        colorStart: '#00bceb',
+        colorEnd: '#ff007f',
+      },
     },
     {
       title: 'Period Close Management',
@@ -136,6 +156,14 @@ export class LandingComponent {
       route: '/period-close-tracking',
       requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
       variant: 'gradient-bg-1',
+      arcData: {
+        value: 87,
+        max: 100,
+        suffix: '%',
+        subtitle: 'Complete',
+        colorStart: '#0070d2',
+        colorEnd: '#00bceb',
+      },
     },
     {
       title: 'Operational Visibility',
@@ -145,6 +173,14 @@ export class LandingComponent {
       route: '/operational-visibility',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
       variant: 'glass',
+      arcData: {
+        value: 42,
+        max: 50,
+        suffix: '',
+        subtitle: 'Active Alerts',
+        colorStart: '#ff9000',
+        colorEnd: '#ff007f',
+      },
     },
     {
       title: 'Self-Healing',
@@ -167,6 +203,14 @@ export class LandingComponent {
       route: '/business-insights',
       requiredRoles: ['ADMIN', 'LARGE_DEAL'],
       variant: 'soft-glow',
+      arcData: {
+        value: 1250000,
+        max: 2000000,
+        suffix: 'M',
+        subtitle: 'Revenue',
+        colorStart: '#ffd000',
+        colorEnd: '#ff9000',
+      },
     },
     {
       title: 'Mid-Close Status',
@@ -176,6 +220,14 @@ export class LandingComponent {
       route: '/wd0',
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
       variant: 'gradient-bg-2',
+      arcData: {
+        value: 73,
+        max: 100,
+        suffix: '%',
+        subtitle: 'Entities',
+        colorStart: '#00bceb',
+        colorEnd: '#0070d2',
+      },
     },
     {
       title: 'Mid-Close Volume Forecasting',
@@ -185,6 +237,14 @@ export class LandingComponent {
       route: '/midclose-volumes',
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
       variant: 'gradient-bg-3',
+      arcData: {
+        value: 156000,
+        max: 200000,
+        suffix: 'k',
+        subtitle: 'Forecast',
+        colorStart: '#ff007f',
+        colorEnd: '#9933ff',
+      },
     },
     {
       title: 'O2C Financials Visibility',
@@ -195,6 +255,14 @@ export class LandingComponent {
       externalUrl: 'https://subscription-ai.cisco.com/',
       requiredRoles: ['ADMIN'],
       variant: 'soft-glow',
+      arcData: {
+        value: 94,
+        max: 100,
+        suffix: '%',
+        subtitle: 'Accuracy',
+        colorStart: '#00d084',
+        colorEnd: '#00bceb',
+      },
     },
   ];
 

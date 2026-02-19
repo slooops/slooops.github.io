@@ -79,8 +79,22 @@
               [attr.role]="isCardInteractive(card) ? 'link' : 'presentation'"
               [attr.aria-disabled]="isCardInteractive(card) ? null : true"
             >
-              <div class="card-icon">
-                <ng-icon [name]="card.icon" size="48" />
+              <div class="card-header-row">
+                <div class="card-icon">
+                  <ng-icon [name]="card.icon" size="48" />
+                </div>
+                @if (card.arcData) {
+                  <app-arc-progress
+                    [value]="card.arcData.value"
+                    [max]="card.arcData.max"
+                    [valueSuffix]="card.arcData.suffix ?? ''"
+                    [subtitle]="card.arcData.subtitle ?? ''"
+                    [colorStart]="card.arcData.colorStart ?? '#00bceb'"
+                    [colorEnd]="card.arcData.colorEnd ?? '#ff007f'"
+                    [size]="72"
+                    [strokeWidth]="5"
+                  />
+                }
               </div>
               <h4 class="card-title">{{ card.title }}</h4>
               <p class="card-description">{{ card.description }}</p>
@@ -103,4 +117,5 @@
       </div>
     }
   </section>
+  <br />
 </div>

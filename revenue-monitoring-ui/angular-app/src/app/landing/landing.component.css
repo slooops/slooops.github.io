@@ -17,7 +17,7 @@
   /* Card tokens */
   --landing-card-bg: #f4f5f6;
   --landing-card-border: #d6d6d6;
-  --landing-card-radius: var(--fit-radius-md, 8px);
+  --landing-card-radius: 24px;
   --landing-card-padding: var(--landing-space-lg);
   --landing-card-gap: var(--landing-space-md);
 
@@ -145,7 +145,37 @@
   color: #fff;
   position: relative;
   overflow: hidden;
-  /* Animated mesh gradient background */
+  box-shadow:
+    0 8px 32px rgba(0, 112, 210, 0.25),
+    0 4px 16px rgba(0, 188, 235, 0.2);
+}
+
+/* Rainbow gradient border - spinning */
+.overview-image-placeholder::before {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #00bceb 0deg,
+    #0070d2 60deg,
+    #ff007f 120deg,
+    #ff9000 180deg,
+    #ffd000 240deg,
+    #00bceb 300deg,
+    #00bceb 360deg
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: gradient-spin 8s linear infinite;
+}
+
+/* Inner fill to create border effect */
+.overview-image-placeholder::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: calc(var(--landing-card-radius) - 3px);
   background:
     radial-gradient(
       circle at 20% 20%,
@@ -158,87 +188,16 @@
       transparent 50%
     ),
     linear-gradient(135deg, #00bceb 0%, #0070d2 100%);
-  box-shadow:
-    0 8px 32px rgba(0, 112, 210, 0.25),
-    0 4px 16px rgba(0, 188, 235, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  animation: mesh-shift 5s ease-in-out infinite;
-}
-
-@keyframes mesh-shift {
-  0%,
-  100% {
-    background-position:
-      0% 0%,
-      100% 0%,
-      0% 100%,
-      100% 100%,
-      0% 0%;
-  }
-  50% {
-    background-position:
-      100% 100%,
-      0% 100%,
-      100% 0%,
-      0% 0%,
-      0% 0%;
-  }
-}
-
-/* Rainbow gradient border */
-.overview-image-placeholder::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 3px;
-  border-radius: var(--landing-card-radius);
-  background: conic-gradient(
-    from 180deg at 50% 50%,
-    #00bceb 0deg,
-    #0070d2 60deg,
-    #ff007f 120deg,
-    #ff9000 180deg,
-    #ffd000 240deg,
-    #00bceb 300deg,
-    #00bceb 360deg
-  );
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
   pointer-events: none;
   z-index: 1;
-  animation: gradient-spin 6s linear infinite;
 }
 
 @keyframes gradient-spin {
   from {
-    background: conic-gradient(
-      from 180deg at 50% 50%,
-      #00bceb 0deg,
-      #0070d2 60deg,
-      #ff007f 120deg,
-      #ff9000 180deg,
-      #ffd000 240deg,
-      #00bceb 300deg,
-      #00bceb 360deg
-    );
+    transform: rotate(0deg);
   }
   to {
-    background: conic-gradient(
-      from 540deg at 50% 50%,
-      #00bceb 0deg,
-      #0070d2 60deg,
-      #ff007f 120deg,
-      #ff9000 180deg,
-      #ffd000 240deg,
-      #00bceb 300deg,
-      #00bceb 360deg
-    );
+    transform: rotate(360deg);
   }
 }
 
@@ -278,14 +237,14 @@
   background: rgba(255, 255, 255, 1);
 
   z-index: 0;
-  margin-left: -10px;
+  padding-left: 50px;
+  margin-left: -30px;
 }
 
 /* Secondary box - overlaps behind/below */
 .overview-content--secondary {
-  margin-top: -10px;
-  margin-right: 40px;
-  margin-left: -4px;
+  padding: 36px 1.5rem 1.5rem 60px;
+  margin: -24px 40px 0px -30px;
   z-index: -1;
   background: rgba(255, 255, 255, 0.6);
 }
@@ -418,6 +377,13 @@
 /* ==========================================================================
    Card Internals
    ========================================================================== */
+
+.card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
 
 .card-icon {
   width: 64px;
