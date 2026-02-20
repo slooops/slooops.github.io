@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -19,6 +19,8 @@ import {
   phosphorCaretRightBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { AuthenticationService } from '../providers/authentication.service';
+import { ApiHttpService } from '../providers/http.service';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 interface RoleRouteMap {
   roles: string[];
@@ -67,6 +69,49 @@ export interface LandingCard {
   arcData?: ArcData; // Optional arc progress indicator
 }
 
+/** Raw metric from backend API */
+export interface DashboardMetric {
+  METRIC_KEY: string;
+  METRIC_VALUE: number;
+  METRIC_TOTAL: number | null;
+  TREND_PERCENT: number | null;
+  TREND_DIRECTION: 'UP' | 'DOWN' | null;
+  DISPLAY_FORMAT: 'COUNT' | 'COUNT_K' | 'CURRENCY_M' | 'PERCENT';
+  SECTION: string;
+  DISPLAY_ORDER: number;
+  LABEL: string;
+  SUBTITLE: string | null;
+  NOTES: string | null;
+  LAST_UPDATED: string;
+}
+
+/** Parsed dial metric for arc progress components */
+export interface DialMetric {
+  value: number;
+  max: number;
+  label: string;
+  suffix: string;
+  size: number;
+  strokeWidth: number;
+  colorStart: string;
+  colorEnd: string;
+}
+
+/** Parsed bar metric for health bar components */
+export interface BarMetric {
+  value: number;
+  label: string;
+}
+
+/** Parsed stat metric for stat blocks */
+export interface StatMetric {
+  value: string; // Formatted value string
+  label: string;
+  subtitle: string | null;
+  trendPercent: number | null;
+  trendDirection: 'UP' | 'DOWN' | null;
+}
+
 @Component({
   selector: 'app-landing',
   standalone: true,
@@ -89,9 +134,24 @@ export interface LandingCard {
   templateUrl: './landing.component.html',
   styleUrls: ['./landing.component.css'],
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit, OnDestroy {
+  private destroyManager = new DestroyManager();
   userName = signal('');
   userRoles = signal<string[]>([]);
+  currentTime = new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  // Dashboard metrics signals
+  itOpsDials = signal<DialMetric[]>([]);
+  finOpsDials = signal<DialMetric[]>([]);
+  itOpsBar = signal<BarMetric | null>(null);
+  finOpsBar = signal<BarMetric | null>(null);
+  volumeStats = signal<StatMetric[]>([]);
+  largeDealStats = signal<StatMetric[]>([]);
 
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
@@ -288,28 +348,215 @@ export class LandingComponent {
     },
   ];
 
+  /** Business roles - users with these see only Finance Biz Ops 360 */
+  private readonly BUSINESS_ROLES = [
+    'CLO_UPDATE',
+    'DEAL_UPLOAD',
+    'LARGE_DEAL',
+    'MIDCLOSE_VOLUMES',
+    'PERIOD_CLOSE',
+    'WD0',
+  ];
+
   itOpsCards = computed(() => this.filterByRole(this.itOpsAllCards));
   finBizOpsCards = computed(() => this.filterByRole(this.finBizOpsAllCards));
   esp360Cards = computed(() => this.filterByRole(this.esp360AllCards));
 
-  // Organize cards into 3 columns
+  /** Check if user has admin role */
+  private isAdmin = computed(() => this.userRoles().includes('ADMIN'));
+
+  /** Check if user has any business role (and is not admin) */
+  private isBusinessUser = computed(() => {
+    const roles = this.userRoles();
+    if (roles.includes('ADMIN')) return false;
+    return roles.some((role) => this.BUSINESS_ROLES.includes(role));
+  });
+
+  /** Check if user is IT (has roles that aren't business roles and isn't admin) */
+  private isItUser = computed(() => {
+    const roles = this.userRoles();
+    if (roles.includes('ADMIN')) return false;
+    // IT user if they have any role that's NOT in business roles
+    return roles.some((role) => !this.BUSINESS_ROLES.includes(role));
+  });
+
+  // Organize cards into columns based on user role type
   cardColumns = computed(() => {
     const itCards = this.itOpsCards();
     const finCards = this.finBizOpsCards();
     const espCards = this.esp360Cards();
-    return [
-      { header: 'IT Operations 360', cards: itCards },
-      { header: 'Finance Biz Ops 360', cards: finCards },
-      // { header: 'ESP 360', cards: espCards },
-    ];
+
+    const columns: { header: string; cards: LandingCard[] }[] = [];
+
+    // Admin sees both columns
+    if (this.isAdmin()) {
+      columns.push({ header: 'IT Operations 360', cards: itCards });
+      columns.push({ header: 'Finance Biz Ops 360', cards: finCards });
+    }
+    // Business users see only Finance Biz Ops 360
+    else if (this.isBusinessUser()) {
+      columns.push({ header: 'Finance Biz Ops 360', cards: finCards });
+    }
+    // IT users see only IT Operations 360
+    else if (this.isItUser()) {
+      columns.push({ header: 'IT Operations 360', cards: itCards });
+    }
+    // Fallback: show both if no roles (shouldn't happen in practice)
+    else {
+      columns.push({ header: 'IT Operations 360', cards: itCards });
+      columns.push({ header: 'Finance Biz Ops 360', cards: finCards });
+    }
+
+    return columns;
   });
 
   constructor(
     private authService: AuthenticationService,
     private router: Router,
+    private http: ApiHttpService,
   ) {
     this.userName.set(this.authService.getUserName());
+
+    // In the constructor, replace:
     this.userRoles.set(this.authService.getRoles());
+
+    // With one of these to test:
+
+    // 1. ADMIN - sees both columns
+    // this.userRoles.set(['ADMIN']);
+
+    // 2. Business user - sees only Finance Biz Ops 360
+    // this.userRoles.set(['LARGE_DEAL', 'WD0']);
+
+    // 3. IT user - sees only IT Operations 360
+    // this.userRoles.set(['EXCEPTION_ADMIN', 'GL_POSTING']);
+
+    // 4. Mixed (has both business + IT roles) - currently shows IT Ops only
+    // this.userRoles.set(['LARGE_DEAL', 'EXCEPTION_ADMIN']);
+  }
+
+  ngOnInit(): void {
+    this.http
+      .get('dashboard-metrics', this.destroyManager)
+      .subscribe((metrics: any) => {
+        console.log('📊 Dashboard Metrics:', metrics);
+        this.parseMetrics(metrics as DashboardMetric[]);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroyManager.ngOnDestroy();
+  }
+
+  /** Parse raw metrics from API into section-grouped signals */
+  private parseMetrics(metrics: DashboardMetric[]): void {
+    const bySection = (section: string) =>
+      metrics
+        .filter((m) => m.SECTION === section)
+        .sort((a, b) => a.DISPLAY_ORDER - b.DISPLAY_ORDER);
+
+    // IT Ops Dials - with specific styling per dial
+    const itDialConfigs = [
+      { size: 72, strokeWidth: 6, colorStart: '#00d084', colorEnd: '#00bceb' },
+      {
+        size: 120,
+        strokeWidth: 12,
+        colorStart: '#ff9000',
+        colorEnd: '#ff007f',
+      },
+      { size: 100, strokeWidth: 8, colorStart: '#00bceb', colorEnd: '#0070d2' },
+    ];
+    this.itOpsDials.set(
+      bySection('IT_OPS_DIALS').map((m, i) => ({
+        value: m.METRIC_VALUE,
+        max: m.METRIC_TOTAL ?? 100,
+        label: m.LABEL,
+        suffix: this.getSuffix(m.DISPLAY_FORMAT),
+        ...itDialConfigs[i],
+      })),
+    );
+
+    // Finance Ops Dials
+    const finDialConfigs = [
+      { size: 100, strokeWidth: 8, colorStart: '#ff007f', colorEnd: '#9933ff' },
+      {
+        size: 120,
+        strokeWidth: 12,
+        colorStart: '#00bceb',
+        colorEnd: '#9933ff',
+      },
+      { size: 72, strokeWidth: 6, colorStart: '#ffd000', colorEnd: '#ff9000' },
+    ];
+    this.finOpsDials.set(
+      bySection('FINANCE_OPS_DIALS').map((m, i) => ({
+        value: m.METRIC_VALUE,
+        max: m.METRIC_TOTAL ?? 100,
+        label: m.LABEL,
+        suffix: this.getSuffix(m.DISPLAY_FORMAT),
+        ...finDialConfigs[i],
+      })),
+    );
+
+    // Health Bars
+    const itBar = bySection('IT_OPS_BAR')[0];
+    if (itBar) {
+      this.itOpsBar.set({ value: itBar.METRIC_VALUE, label: itBar.LABEL });
+    }
+
+    const finBar = bySection('FINANCE_OPS_BAR')[0];
+    if (finBar) {
+      this.finOpsBar.set({ value: finBar.METRIC_VALUE, label: finBar.LABEL });
+    }
+
+    // Volume Stats
+    this.volumeStats.set(
+      bySection('VOLUMES').map((m) => ({
+        value: this.formatValue(m.METRIC_VALUE, m.DISPLAY_FORMAT),
+        label: m.LABEL,
+        subtitle: m.SUBTITLE,
+        trendPercent: m.TREND_PERCENT,
+        trendDirection: m.TREND_DIRECTION,
+      })),
+    );
+
+    // Large Deal Stats
+    this.largeDealStats.set(
+      bySection('LARGE_DEAL').map((m) => ({
+        value: this.formatValue(m.METRIC_VALUE, m.DISPLAY_FORMAT),
+        label: m.LABEL,
+        subtitle: m.SUBTITLE,
+        trendPercent: m.TREND_PERCENT,
+        trendDirection: m.TREND_DIRECTION,
+      })),
+    );
+  }
+
+  /** Get suffix for arc progress based on display format */
+  private getSuffix(format: string): string {
+    switch (format) {
+      case 'CURRENCY_M':
+        return 'M';
+      case 'COUNT_K':
+        return 'k';
+      case 'PERCENT':
+        return '%';
+      default:
+        return '';
+    }
+  }
+
+  /** Format value based on display format */
+  private formatValue(value: number, format: string): string {
+    switch (format) {
+      case 'CURRENCY_M':
+        return `$${value.toFixed(value % 1 === 0 ? 0 : 1)}M`;
+      case 'COUNT_K':
+        return `${(value / 1000).toFixed(1)}k`;
+      case 'PERCENT':
+        return `${value}%`;
+      default:
+        return value.toString();
+    }
   }
 
   onCardClick(card: LandingCard): void {

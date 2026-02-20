@@ -1894,4 +1894,12 @@ public class QueryConfigs {
     public String getEspCaseAnalyzerMetrics() {
         return this.espCaseAnalyzerMetrics;
     }
+
+    @Value(("${dashboard.metrics.q}"))
+    public String dashboardMetrics;
+
+    @Bean(name = "dashboardMetrics")
+    public String getDashboardMetrics() {
+        return this.dashboardMetrics;
+    }
 }

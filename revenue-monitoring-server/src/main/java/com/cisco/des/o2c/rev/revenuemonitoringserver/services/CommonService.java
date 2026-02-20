@@ -30,6 +30,7 @@ public class CommonService {
     private String logPageVisit;
     private String pageVisitAnalytics;
     private String pageVisitSummary;
+    private String dashboardMetrics;
     @Autowired
     private Common common;
     @Autowired
@@ -58,7 +59,8 @@ public class CommonService {
             @Qualifier("deleteUserRole") String deleteUserRole,
             @Qualifier("logPageVisit") String logPageVisit,
             @Qualifier("pageVisitAnalytics") String pageVisitAnalytics,
-            @Qualifier("pageVisitSummary") String pageVisitSummary) {
+            @Qualifier("pageVisitSummary") String pageVisitSummary,
+            @Qualifier("dashboardMetrics") String dashboardMetrics) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
@@ -72,6 +74,7 @@ public class CommonService {
         this.logPageVisit = logPageVisit;
         this.pageVisitAnalytics = pageVisitAnalytics;
         this.pageVisitSummary = pageVisitSummary;
+        this.dashboardMetrics = dashboardMetrics;
     }
 
     // Summaries
@@ -396,6 +399,15 @@ public class CommonService {
      */
     public List<Map<String, Object>> getPageVisitSummary() {
         return jdbcManager.queryForList(pageVisitSummary);
+    }
+
+    /**
+     * Retrieves dashboard metrics for the landing page cockpit.
+     * 
+     * @return List of dashboard metrics ordered by section and display order
+     */
+    public List<Map<String, Object>> getDashboardMetrics() {
+        return jdbcManager.queryForList(dashboardMetrics);
     }
 
 }

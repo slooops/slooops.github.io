@@ -11,33 +11,105 @@
     </button>
   </div>
 
-  <!-- Overview Hero Section -->
-  <section class="overview-section">
-    <div class="overview-image">
-      <!-- Placeholder for the control tower illustration -->
-      <div class="overview-image-placeholder">
-        <ng-icon name="phosphorRocketLaunchDuotone" size="96" />
+  <!-- Cockpit Dashboard -->
+  <div class="cockpit-grid">
+    <!-- IT Operations Metrics -->
+    <div class="cockpit-panel cockpit-panel--it">
+      <!-- <h3 class="panel-title">IT Operations</h3> -->
+      <div class="dial-row">
+        @for (dial of itOpsDials(); track dial.label) {
+          <app-arc-progress
+            [value]="dial.value"
+            [max]="dial.max"
+            [size]="dial.size"
+            [strokeWidth]="dial.strokeWidth"
+            [valueSuffix]="dial.suffix"
+            [subtitle]="dial.label"
+            [colorStart]="dial.colorStart"
+            [colorEnd]="dial.colorEnd"
+          />
+        }
+      </div>
+      @if (itOpsBar(); as bar) {
+        <div class="health-bar-container">
+          <span class="health-label">{{ bar.label }}</span>
+          <div class="health-bar">
+            <div class="health-bar-track"></div>
+            <div class="health-bar-indicator" [style.left.%]="bar.value"></div>
+          </div>
+          <span class="health-bar-value">{{ bar.value }}%</span>
+        </div>
+      }
+    </div>
+
+    <!-- Finance Operations Metrics -->
+    <div class="cockpit-panel cockpit-panel--finance">
+      <!-- <h3 class="panel-title">Finance Operations</h3> -->
+      <div class="dial-row">
+        @for (dial of finOpsDials(); track dial.label) {
+          <app-arc-progress
+            [value]="dial.value"
+            [max]="dial.max"
+            [size]="dial.size"
+            [strokeWidth]="dial.strokeWidth"
+            [valueSuffix]="dial.suffix"
+            [subtitle]="dial.label"
+            [colorStart]="dial.colorStart"
+            [colorEnd]="dial.colorEnd"
+          />
+        }
+      </div>
+      @if (finOpsBar(); as bar) {
+        <div class="health-bar-container">
+          <span class="health-label">{{ bar.label }}</span>
+          <div class="health-bar health-bar--colorful">
+            <div class="health-bar-track"></div>
+            <div class="health-bar-indicator" [style.left.%]="bar.value"></div>
+          </div>
+          <span class="health-bar-value">{{ bar.value }}%</span>
+        </div>
+      }
+    </div>
+
+    <!-- Volume Stats Panel -->
+    <div class="cockpit-panel cockpit-panel--volumes">
+      <h3 class="panel-title">Interface Load Volumes</h3>
+      <div class="stat-row">
+        @for (stat of volumeStats(); track stat.label) {
+          <div class="stat-block">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value">{{ stat.value }}</span>
+            @if (stat.trendPercent !== null) {
+              <span
+                class="stat-trend"
+                [class.stat-trend--up]="stat.trendDirection === 'UP'"
+                [class.stat-trend--down]="stat.trendDirection === 'DOWN'"
+              >
+                {{ stat.trendDirection === "UP" ? "▲" : "▼" }}
+                {{ stat.trendPercent }}% QoQ
+              </span>
+            }
+          </div>
+        }
       </div>
     </div>
-    <div class="overview-content-stack">
-      <div class="overview-content overview-content--primary">
-        <h2 class="overview-heading">Overview</h2>
-        <p class="overview-text">
-          The Finance-IT Control Tower provides a centralized view of
-          operational health, financial processes, and automation capabilities
-          across the organization. Use the dashboards below to monitor key
-          metrics, manage exceptions, and track critical business workflows.
-        </p>
-      </div>
-      <div class="overview-content overview-content--secondary">
-        <p class="overview-text">
-          Select a dashboard card to navigate directly to the relevant
-          monitoring or management tool. Card availability is based on your
-          assigned role and permissions.
-        </p>
+
+    <!-- Priority Issues Panel -->
+    <div class="cockpit-panel cockpit-panel--issues">
+      <h3 class="panel-title">Large Deal Stats</h3>
+      <div class="stat-row">
+        @for (stat of largeDealStats(); track stat.label) {
+          <div class="stat-block">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value">{{ stat.value }}</span>
+            @if (stat.subtitle) {
+              <span class="stat-subtitle">{{ stat.subtitle }}</span>
+            }
+          </div>
+        }
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- Card Sections -->
   <section class="card-sections">

@@ -348,7 +348,7 @@
   color: #1d1d1d;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1000px) {
   .agents-deployed-row {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

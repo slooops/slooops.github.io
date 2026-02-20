@@ -286,6 +286,214 @@
 }
 
 /* ==========================================================================
+   Cockpit Dashboard HUD
+   ========================================================================== */
+
+.cockpit-section {
+  padding: var(--landing-space-lg) var(--landing-page-px);
+  background: var(--landing-overview-bg);
+  border-radius: var(--landing-card-radius);
+  margin: 0 var(--landing-space-lg) var(--landing-space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.cockpit-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--landing-space-lg);
+  margin-bottom: var(--landing-space-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.cockpit-status {
+  margin: 0;
+  font-family: var(--landing-heading-font);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #58d68d;
+  text-shadow: 0 0 20px rgba(88, 214, 141, 0.4);
+}
+
+.cockpit-timestamp {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cockpit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  padding: var(--landing-space-md) var(--landing-space-lg);
+  gap: var(--landing-space-xl);
+  position: relative;
+  z-index: 1;
+}
+
+.panel-title {
+  margin: 0 0 var(--landing-space-md);
+  font-family: var(--landing-heading-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--landing-text-muted);
+}
+
+.dial-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6rem;
+  margin-bottom: var(--landing-space-md);
+  justify-content: space-evenly;
+}
+
+/* Health Bar */
+.health-bar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-md);
+}
+
+.health-label {
+  font-size: 0.75rem;
+  color: var(--landing-text-muted);
+  white-space: nowrap;
+}
+
+.health-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.health-bar-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  background: linear-gradient(90deg, #02c8ff 0%, #0a60ff 100%);
+}
+
+.health-bar--colorful .health-bar-track {
+  background: linear-gradient(
+    90deg,
+    #0a60ff 5%,
+    #02c8ff 35%,
+    #02c8ff 45%,
+    #ff007f 75%,
+    #ff9000 95%
+  );
+}
+
+.health-bar-indicator {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+  border: 3px solid #0070d2;
+}
+
+.health-bar-value {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--landing-text);
+  white-space: nowrap;
+}
+
+/* Unified Stats Row — 1x4 → 2x2 responsive */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--landing-space-md);
+}
+
+@media (max-width: 1200px) {
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--landing-space-md);
+  background: rgba(0, 112, 210, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 112, 210, 0.1);
+  min-height: 72px;
+}
+
+.stat-block--alert {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.stat-block--alert .stat-value {
+  color: #dc2626;
+}
+
+.stat-block--warning {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.stat-block--warning .stat-value {
+  color: #ea580c;
+}
+
+.stat-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--landing-text-muted);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--landing-text);
+  font-family: var(--landing-heading-font);
+}
+
+.stat-trend {
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.stat-trend--up {
+  color: #16a34a;
+}
+
+.stat-trend--down {
+  color: #dc2626;
+}
+
+.stat-subtitle {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--landing-text-muted);
+}
+
+/* Volume Stats Panel */
+.cockpit-panel--volumes {
+  grid-column: 1;
+}
+
+/* Issues Panel */
+.cockpit-panel--issues {
+  grid-column: 2;
+}
+
+/* ==========================================================================
    Card Sections — Three Columns
    ========================================================================== */
 
