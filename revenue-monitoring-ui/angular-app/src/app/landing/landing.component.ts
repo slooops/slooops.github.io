@@ -138,12 +138,6 @@ export class LandingComponent implements OnInit, OnDestroy {
   private destroyManager = new DestroyManager();
   userName = signal('');
   userRoles = signal<string[]>([]);
-  currentTime = new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
   // Dashboard metrics signals
   itOpsDials = signal<DialMetric[]>([]);
@@ -326,28 +320,6 @@ export class LandingComponent implements OnInit, OnDestroy {
     },
   ];
 
-  /** ESP 360 cards */
-  private readonly esp360AllCards: LandingCard[] = [
-    {
-      title: 'Case IQ',
-      description:
-        'AI-powered insights and analytics for case resolution with recommended routing and automated escalation based on case complexity and team capacity.',
-      icon: 'phosphorBrainDuotone',
-      route: '/esp/case-iq',
-      requiredRoles: ['ADMIN', 'CASE_IQ'],
-      variant: 'soft-glow',
-    },
-    {
-      title: 'Case Manager',
-      description:
-        'Centralized case management platform for tracking, prioritizing, and resolving operational exceptions across all processes.',
-      icon: 'phosphorCalendarCheckDuotone',
-      route: '/esp/case-manager',
-      requiredRoles: ['ADMIN', 'CASE_MANAGER'],
-      variant: 'soft-glow',
-    },
-  ];
-
   /** Business roles - users with these see only Finance Biz Ops 360 */
   private readonly BUSINESS_ROLES = [
     'CLO_UPDATE',
@@ -360,7 +332,6 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   itOpsCards = computed(() => this.filterByRole(this.itOpsAllCards));
   finBizOpsCards = computed(() => this.filterByRole(this.finBizOpsAllCards));
-  esp360Cards = computed(() => this.filterByRole(this.esp360AllCards));
 
   /** Check if user has admin role */
   private isAdmin = computed(() => this.userRoles().includes('ADMIN'));
@@ -384,7 +355,6 @@ export class LandingComponent implements OnInit, OnDestroy {
   cardColumns = computed(() => {
     const itCards = this.itOpsCards();
     const finCards = this.finBizOpsCards();
-    const espCards = this.esp360Cards();
 
     const columns: { header: string; cards: LandingCard[] }[] = [];
 
