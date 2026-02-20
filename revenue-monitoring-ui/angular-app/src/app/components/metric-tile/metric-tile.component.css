@@ -103,6 +103,14 @@
   text-align: center;
 }
 
+/* Reduce font size for screens less than 1400px */
+@media (max-width: 1399px) {
+  .metric-name,
+  .metric-percentage {
+    font-size: 0.7rem;
+  }
+}
+
 /* Percentage colors based on status */
 .status-high .metric-percentage {
   color: #0070d2; /* Blue at full opacity */

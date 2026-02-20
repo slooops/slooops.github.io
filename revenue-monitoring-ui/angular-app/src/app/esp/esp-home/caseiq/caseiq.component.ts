@@ -358,14 +358,23 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       inProgressAgent +
       routedOutRecommended +
       cancelledRecommended;
-    const agentLegendLabel = `Agent (${this.integerFormatter.format(
-      agentLegendCount,
-    )})`;
     const opsLegendCount =
       serviceOthers + inProgressOps + routedOutMisrouted + cancelledOthers;
+
+    const totalCasesForSection = this.getTotalCases(sectionName);
+    const agentPercent = totalCasesForSection
+      ? (agentLegendCount / totalCasesForSection) * 100
+      : 0;
+    const opsPercent = totalCasesForSection
+      ? (opsLegendCount / totalCasesForSection) * 100
+      : 0;
+
+    const agentLegendLabel = `Agent (${this.integerFormatter.format(
+      agentLegendCount,
+    )} - ${this.percentageFormatter.format(agentPercent)}%)`;
     const opsLegendLabel = `Ops (${this.integerFormatter.format(
       opsLegendCount,
-    )})`;
+    )} - ${this.percentageFormatter.format(opsPercent)}%)`;
 
     const axisFontSize =
       window.innerWidth <= 1700 ? (window.innerWidth <= 1500 ? 10 : 10) : 10;

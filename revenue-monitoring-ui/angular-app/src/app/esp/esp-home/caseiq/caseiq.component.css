@@ -326,6 +326,12 @@
   gap: 12px;
 }
 
+@media (max-width: 1400px) {
+  .agents-deployed-row {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
 .agent-card {
   background: #fff;
   border: 1px solid #e1e1e1;

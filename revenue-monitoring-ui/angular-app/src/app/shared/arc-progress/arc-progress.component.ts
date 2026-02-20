@@ -129,7 +129,7 @@ import { CommonModule } from '@angular/common';
         position: absolute;
         bottom: 4px;
         right: 50%;
-        // transform: translateX(50%);
+        /* transform: translateX(50%); */
         white-space: nowrap;
         text-align: right;
         font-size: 0.65rem;
