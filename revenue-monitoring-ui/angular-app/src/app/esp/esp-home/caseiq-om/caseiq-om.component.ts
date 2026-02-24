@@ -101,12 +101,10 @@ export class CaseiqOmComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // React to quarter changes
+    // React to quarter or metrics changes
     if (
-      changes['selectedQuarter'] &&
-      !changes['selectedQuarter'].firstChange &&
-      changes['caseIqMetrics'] &&
-      !changes['caseIqMetrics'].firstChange
+      (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) ||
+      (changes['caseIqMetrics'] && !changes['caseIqMetrics'].firstChange)
     ) {
       console.log('OM: Quarter changed to', this.selectedQuarter);
       this.refreshingData = true; // Show loading overlay

@@ -43,7 +43,6 @@ interface AccuracyData {
   styleUrls: ['./esp-home.component.css'],
   imports: [
     CommonModule,
-    MetricTileComponent,
     CaseiqComponent,
     CaseiqCapComponent,
     CaseiqFppComponent,
@@ -71,6 +70,7 @@ export class EspHomeComponent implements OnInit {
   // Quarter filter properties
   selectedQuarter: string = '';
   showQuarterDropdown: boolean = false;
+  showGridMenu: boolean = false;
   isLoadingQuarter: boolean = false;
   loadingQuarterMessage: string = '';
   periodInfo = signal<any>(null);
@@ -181,6 +181,7 @@ export class EspHomeComponent implements OnInit {
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
       this.showQuarterDropdown = false;
+      this.showGridMenu = false;
     });
   }
 
@@ -381,7 +382,7 @@ export class EspHomeComponent implements OnInit {
             (item) => item.Quarter === this.selectedQuarter,
           );
 
-          this.updateMetricTiles(filteredData);
+          // this.updateMetricTiles(filteredData);
           // Update quarters based on current active tab
           this.updateQuartersForActiveTab();
         }
@@ -466,6 +467,16 @@ export class EspHomeComponent implements OnInit {
 
   isActive(tileName: string): boolean {
     return this.activeTab === tileName;
+  }
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  onGridMenuItemClick(tileName: string): void {
+    this.showGridMenu = false;
+    this.onTileClick(tileName);
   }
 
   roleDefinitions: string[] = [
