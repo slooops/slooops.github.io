@@ -12,8 +12,37 @@
   <div class="dashboard-header">
     <div class="header-main">
       <div class="header-left">
+        <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+          <img
+            src="assets/icons/grid-menu.svg"
+            alt="menu"
+            class="grid-menu-icon"
+            (click)="toggleGridMenu($event)"
+          />
+          @if (showGridMenu) {
+            <div class="grid-menu-dropdown">
+              @for (metric of metricTiles; track metric.name) {
+                @if (isTileAccessible(metric.name)) {
+                  <div
+                    class="grid-menu-item"
+                    [class.active]="isActive(metric.name)"
+                    (click)="onGridMenuItemClick(metric.name)"
+                  >
+                    <span class="grid-menu-item-name">{{ metric.name }}</span>
+                    @if (metric.percentage !== "-") {
+                      <span class="grid-menu-item-pct"
+                        >{{ metric.percentage }}%</span
+                      >
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
         <!-- <h1>ESP Case Data Review</h1> -->
         <span style="margin-top: 38px; margin-bottom: 25px"></span>
+
         <div class="quarter-filter">
           <label>Quarter:</label>
           <div
@@ -95,20 +124,6 @@
         }
       </div>
     </div>
-  </div>
-
-  <hr />
-
-  <div class="metrics-container">
-    @for (metric of metricTiles; track metric.name) {
-      <app-metric-tile
-        [name]="metric.name"
-        [percentage]="metric.percentage"
-        [isActive]="isActive(metric.name)"
-        [isAccessible]="isTileAccessible(metric.name)"
-        (tileClick)="onTileClick($event)"
-      ></app-metric-tile>
-    }
   </div>
 
   <hr />

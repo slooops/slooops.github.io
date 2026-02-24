@@ -11,6 +11,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { Chart } from 'chart.js/auto';
+import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { ApiHttpService } from 'src/app/providers/http.service';
 
 interface CaseIqTableMetric {
   total: number | null;
@@ -41,6 +43,11 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // (e.g. 'Finance IT' for TEAM_NAME 'ALL', then each TEAM_NAME).
   sections = signal<string[]>([]);
 
+  constructor(
+    private readonly http: ApiHttpService,
+    private readonly destroyManager: DestroyManager,
+  ) {}
+
   // Track created Chart.js instances; using `any` here avoids
   // over-constraining generics for different chart types.
   private charts: any[] = [];
@@ -52,6 +59,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     maximumFractionDigits: 1,
     minimumFractionDigits: 0,
   });
+
+  // Raw accuracy data from xxcaseiq-validated-cases-accuracy-v
+  accuracyData: any[] = [];
 
   // Show a brief loading state when quarter or metrics change
   isLoading = true;
@@ -103,6 +113,9 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     // Close chart dropdown on outside click
     document.addEventListener('click', this.outsideClickListener);
+
+    // Fetch accuracy data
+    this.fetchAccuracyData();
 
     // Initial build of sections/charts once view is ready
     // Use setTimeout to ensure Angular has updated the DOM
@@ -766,5 +779,139 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private isValidNumber(value: number | null | undefined): value is number {
     return typeof value === 'number' && !Number.isNaN(value);
+  }
+
+  // ── Summary view helpers ──────────────────────────────────────
+
+  /** Finance IT (ALL) metrics for summary KPI cards */
+  getFinanceITMetrics(): any | null {
+    return this.getSectionMetrics('Finance IT');
+  }
+
+  /** Ops automation rate = total ops / total cases * 100 */
+  getOpsAutomationRate(): number {
+    const fm = this.getFinanceITMetrics();
+    if (!fm) return 0;
+    const totalCases = Number(fm.TOTAL_CASES) || 0;
+    if (!totalCases) return 0;
+    // Sum of all Ops across categories
+    const totalOps =
+      (Number(fm.RESOLVED_AGENT) || 0) +
+      (Number(fm.IN_PROGRESS_AGENT) || 0) +
+      (Number(fm.RECOMMENDED_ROUTE_OUT) || 0) +
+      (Number(fm.RECOMMENDED_CANCELLED) || 0);
+    return Math.round((totalOps / totalCases) * 1000) / 10; // 1 decimal
+  }
+
+  /** Finance IT active agents info */
+  getFinanceAgents(): { deployed: number; total: number; utilization: number } {
+    const agent = this.resolutionAgents.find((a) => a.team === 'Finance IT');
+    const deployed = agent?.deployed ?? 0;
+    const total = agent?.total ?? 1;
+    return {
+      deployed,
+      total,
+      utilization: Math.round((deployed / total) * 100),
+    };
+  }
+
+  /** Cancelled percentage for a row — used to highlight in red when high */
+  getCancelledPct(row: CaseIqTableRow): number {
+    const total = row.totalCases ?? 0;
+    const cancelled = row.cancelled.total ?? 0;
+    return total ? Math.round((cancelled / total) * 100) : 0;
+  }
+
+  /** Agent percentage of total for ratio bar */
+  getAgentRatio(row: CaseIqTableRow): number {
+    const total = row.totalCases ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (row.service.agent ?? 0) +
+      (row.inProgress.agent ?? 0) +
+      (row.routed.agent ?? 0) +
+      (row.cancelled.agent ?? 0);
+    return Math.round((agentTotal / total) * 100);
+  }
+
+  /** Summary table rows exclude 'Finance IT' */
+  getAgentForRow(row: CaseIqTableRow): { deployed: number; total: number } {
+    const agent = this.resolutionAgents.find((a) => a.team === row.sectionName);
+    return agent
+      ? { deployed: agent.deployed, total: agent.total }
+      : { deployed: 0, total: 0 };
+  }
+
+  getSummaryRows(): CaseIqTableRow[] {
+    return this.getTableRows().filter((r) => r.sectionName !== 'Finance IT');
+  }
+
+  /** Finance IT row built from metrics — used for summary tiles */
+  getFinanceITRow(): CaseIqTableRow | null {
+    return this.buildTableRow('Finance IT');
+  }
+
+  /** Non-Finance IT resolution agents for the track section */
+  getTrackAgents(): { team: string; deployed: number; total: number }[] {
+    return this.resolutionAgents.filter((a) => a.team !== 'Finance IT');
+  }
+
+  /** Agent ratio for Finance IT */
+  getFinanceITAgentRatio(): number {
+    const row = this.getFinanceITRow();
+    return row ? this.getAgentRatio(row) : 0;
+  }
+
+  /** Fetch accuracy data from API and store for template use */
+  private fetchAccuracyData(): void {
+    this.http
+      .get('xxcaseiq-validated-cases-accuracy-v', this.destroyManager)
+      .subscribe((data: any) => {
+        if (Array.isArray(data)) {
+          this.accuracyData = data;
+        }
+      });
+  }
+
+  /** Look up Total Accuracy for a section, filtered by selectedQuarter */
+  getAccuracyForSection(sectionName: string): number | null {
+    if (!this.accuracyData.length) return null;
+
+    // Filter by quarter first
+    const filtered = this.selectedQuarter
+      ? this.accuracyData.filter(
+          (item: any) => item.Quarter === this.selectedQuarter,
+        )
+      : this.accuracyData;
+
+    if (!filtered.length) return null;
+
+    // For Finance IT / ALL: compute weighted average across all teams
+    if (sectionName === 'Finance IT' || sectionName === 'ALL') {
+      let totalCases = 0;
+      let weightedAccuracy = 0;
+      for (const item of filtered) {
+        const cases = Number(item['Total Cases']) || 0;
+        const acc = Number(item['Total Accuracy']);
+        if (Number.isFinite(acc) && cases > 0) {
+          totalCases += cases;
+          weightedAccuracy += acc * cases;
+        }
+      }
+      return totalCases > 0
+        ? Math.round((weightedAccuracy / totalCases) * 10) / 10
+        : null;
+    }
+
+    // Individual team lookup
+    const match = filtered.find(
+      (item: any) =>
+        item.TEAM_NAME &&
+        item.TEAM_NAME.toUpperCase() === sectionName.toUpperCase(),
+    );
+
+    if (!match) return null;
+    const val = Number(match['Total Accuracy']);
+    return Number.isFinite(val) ? val : null;
   }
 }

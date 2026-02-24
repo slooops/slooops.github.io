@@ -5,246 +5,233 @@
 }
 
 @if (!isLoading) {
-  @let showFinanceChart = hasFinanceSection();
-  @let tableRows = getTableRows();
+  @let fm = getFinanceITMetrics();
+  @let agents = getFinanceAgents();
+  @let opsRate = getOpsAutomationRate();
+  @let summaryRows = getSummaryRows();
 
-  <div class="agents-deployed-section">
-    <div class="agents-deployed-header">Resolution Agents Active</div>
-    <div class="agents-deployed-row">
-      @for (agent of resolutionAgents; track agent.team) {
-        <div
-          class="agent-card"
-          style="
-            background-color: oklab(66.1715% -0.0812987 -0.110544 / 0.05);
-            border-color: oklab(66.1715% -0.0812987 -0.110544 / 0.3);
-          "
-        >
-          <div class="agent-card-title">{{ agent.team }}</div>
-          <div class="agent-card-value">
-            {{ agent.deployed }}/{{ agent.total }}
+  <!-- Component Performance Table + Chart Row -->
+  @if (summaryRows.length) {
+    <!-- Finance IT Summary Tiles -->
+    @let fitRow = getFinanceITRow();
+    <div class="tiles-row">
+      <div class="summary-table-title">Finance IT Performance</div>
+      <div class="fit-tiles-row">
+        <div class="fit-tile">
+          <div class="fit-tile-label">Total Cases</div>
+          <div class="fit-tile-value">
+            {{ fm ? (fm.TOTAL_CASES | number) : "--" }}
           </div>
         </div>
-      }
+        <div class="fit-tile">
+          <div class="fit-tile-label">Analyzer Accuracy</div>
+          @if (getAccuracyForSection("Finance IT") != null) {
+            <div class="fit-tile-value">
+              {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
+            </div>
+            <!-- <div class="kpi-bar-track">
+            <div
+              class="kpi-bar-fill"
+              [style.width.%]="getAccuracyForSection('Finance IT')"
+            ></div>
+          </div> -->
+          } @else {
+            <div class="fit-tile-value fit-tile-empty">--</div>
+          }
+        </div>
+        <div class="fit-tile">
+          <div class="fit-tile-label">In Progress</div>
+          <div class="fit-tile-value">
+            {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
+            @if (fitRow?.inProgress?.agentPct != null) {
+              <span class="fit-tile-pct"
+                >({{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%)</span
+              >
+            }
+          </div>
+        </div>
+        <div class="fit-tile">
+          <div class="fit-tile-label">Routed Out</div>
+          <div class="fit-tile-value">
+            {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
+            @if (fitRow?.routed?.agentPct != null) {
+              <span class="fit-tile-pct"
+                >({{ fitRow!.routed.agentPct | number: "1.0-0" }}%)</span
+              >
+            }
+          </div>
+        </div>
+        <div class="fit-tile">
+          <div class="fit-tile-label">Cancelled</div>
+          <div class="fit-tile-value">
+            {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
+            @if (fitRow?.cancelled?.agentPct != null) {
+              <span class="fit-tile-pct"
+                >({{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%)</span
+              >
+            }
+          </div>
+        </div>
+        <div class="fit-tile">
+          <div class="fit-tile-label">Service Requests</div>
+          <div class="fit-tile-value">
+            {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
+            @if (fitRow?.service?.agentPct != null) {
+              <span class="fit-tile-pct"
+                >({{ fitRow!.service.agentPct | number: "1.0-0" }}%)</span
+              >
+            }
+          </div>
+        </div>
+        <div class="fit-tile">
+          <div class="fit-tile-label">Automation Rate</div>
+          <div class="fit-tile-value">{{ opsRate }}%</div>
+          <div class="kpi-bar-track">
+            <div class="kpi-bar-fill" [style.width.%]="opsRate"></div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  @if (showFinanceChart || tableRows.length) {
-    <div
-      class="agents-deployed-header"
-      style="margin-top: 15px; font-size: 15px"
-    >
-      Case IQ Metrics
-    </div>
-    <div class="caseiq-panel-row">
-      @if (tableRows.length) {
-        <div class="caseiq-panel-col caseiq-panel-table">
-          <div class="caseiq-table-card">
-            <div class="caseiq-table-scroll">
-              <table class="caseiq-table table-striped">
-                <thead>
-                  <tr>
-                    <th rowspan="2">Component</th>
-                    <th rowspan="2">Total Cases</th>
-                    <th colspan="3" style="background-color: #baf7c2">
-                      Service Requests
-                    </th>
-                    <th colspan="3" style="background-color: #f2e5ff">
-                      In Progress
-                    </th>
-                    <th colspan="3" style="background-color: #fff7c2">
-                      Routed Out
-                    </th>
-                    <th
-                      colspan="3"
-                      style="background-color: rgba(255, 179, 102, 0.7)"
-                    >
-                      Cancelled
-                    </th>
-                  </tr>
-                  <tr>
-                    <th>Total</th>
-                    <th>Agent</th>
-                    <th>Ops</th>
-                    <th>Total</th>
-                    <th>Agent</th>
-                    <th>Ops</th>
-                    <th>Total</th>
-                    <th>Agent</th>
-                    <th>Ops</th>
-                    <th>Total</th>
-                    <th>Agent</th>
-                    <th>Ops</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (row of tableRows; track row.sectionName) {
-                    <tr>
-                      <td class="caseiq-table-component">
-                        {{ row.sectionName }}
-                      </td>
-                      <td>{{ valueDisplay(row.totalCases) }}</td>
-                      <td>{{ valueDisplay(row.service.total) }}</td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.service.agent)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.service.agentPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.service.ops)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.service.opsPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>{{ valueDisplay(row.inProgress.total) }}</td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.inProgress.agent)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.inProgress.agentPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.inProgress.ops)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.inProgress.opsPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>{{ valueDisplay(row.routed.total) }}</td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.routed.agent)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.routed.agentPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.routed.ops)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.routed.opsPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>{{ valueDisplay(row.cancelled.total) }}</td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.cancelled.agent)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.cancelled.agentPct)
-                          }}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="metric-cell">
-                          <span class="metric-value">{{
-                            valueDisplay(row.cancelled.ops)
-                          }}</span>
-                          <span class="metric-pct">{{
-                            pctDisplay(row.cancelled.opsPct)
-                          }}</span>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+    <div class="summary-row">
+      <div class="summary-row-table">
+        <div class="summary-table-card">
+          <div class="summary-table-header-row">
+            <div class="summary-table-title">Component Performance</div>
+            <div class="summary-table-legend">
+              <span class="legend-text">Legend:</span>
+              <span class="legend-dot agent-dot"></span>
+              <span class="legend-label-text">Agent</span>
+              <span class="legend-dot ops-dot"></span>
+              <span class="legend-label-text">Ops</span>
+            </div>
+          </div>
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Total Cases</th>
+                <th>Case Analyzer Accuracy</th>
+                <th>In Progress</th>
+                <th>Routed Out</th>
+                <th>Cancelled</th>
+                <th>Service Requests</th>
+                <th>(Agent vs Ops %)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of summaryRows; track row.sectionName) {
+                <tr>
+                  <td class="summary-component">{{ row.sectionName }}</td>
+                  <td>
+                    <span class="summary-total-cases">
+                      {{ valueDisplay(row.totalCases) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (getAccuracyForSection(row.sectionName) != null) {
+                      <span
+                        >{{
+                          getAccuracyForSection(row.sectionName)
+                            | number: "1.1-1"
+                        }}%</span
+                      >
+                    } @else {
+                      <span class="summary-empty">--</span>
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.inProgress.agent) }}
+                    @if (row.inProgress.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{
+                          row.inProgress.agentPct | number: "1.0-0"
+                        }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.routed.agent) }}
+                    @if (row.routed.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    <span>
+                      {{ valueDisplay(row.cancelled.agent) }}
+                    </span>
+                    @if (row.cancelled.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.cancelled.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    {{ valueDisplay(row.service.agent) }}
+                    @if (row.service.agentPct != null) {
+                      <span class="summary-pct"
+                        >({{ row.service.agentPct | number: "1.0-0" }}%)</span
+                      >
+                    }
+                  </td>
+                  <td>
+                    <div class="ratio-bar-wrapper">
+                      <div
+                        class="ratio-bar-agent"
+                        [style.width.%]="getAgentRatio(row)"
+                      >
+                        @if (getAgentRatio(row) >= 4) {
+                          <span class="ratio-bar-label"
+                            >{{ getAgentRatio(row) }}%</span
+                          >
+                        }
+                      </div>
+                      <div
+                        class="ratio-bar-ops"
+                        [style.width.%]="100 - getAgentRatio(row)"
+                      >
+                        @if (100 - getAgentRatio(row) >= 4) {
+                          <span class="ratio-bar-label" style="color: white"
+                            >{{ 100 - getAgentRatio(row) }}%</span
+                          >
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+          <!-- Resolution Agent Details by Track -->
+          <div class="track-agents-section">
+            <div class="track-agents-label">
+              Resolution Agent Details by Track
+            </div>
+            <div class="track-agents-row">
+              <div class="track-agent-card">
+                <div class="track-agent-team">Finance IT</div>
+                <div class="track-agent-value">
+                  {{ agents.deployed }}/{{ agents.total }}
+                </div>
+                <div class="track-agent-utilization">
+                  {{ agents.utilization }}% Capacity utilized
+                </div>
+              </div>
+              @for (agent of getTrackAgents(); track agent.team) {
+                <div class="track-agent-card">
+                  <div class="track-agent-team">{{ agent.team }}</div>
+                  <div class="track-agent-value">
+                    {{ agent.deployed }}/{{ agent.total }}
+                  </div>
+                </div>
+              }
             </div>
           </div>
         </div>
-      }
-
-      @if (showFinanceChart) {
-        <div class="caseiq-panel-col caseiq-panel-chart">
-          @for (sectionName of sections(); track sectionName; let i = $index) {
-            @if (sectionName === "Finance IT") {
-              <div class="overall-section">
-                <div class="overall-header">
-                  <div class="overall-header-left">
-                    Total Cases:
-                    <b>{{ getTotalCases(selectedChartComponent) | number }}</b>
-                  </div>
-                  <div class="overall-title">
-                    <div
-                      class="chart-dropdown-wrapper"
-                      (click)="$event.stopPropagation()"
-                    >
-                      <button
-                        type="button"
-                        class="chart-dropdown-button"
-                        (click)="toggleChartDropdown($event)"
-                      >
-                        {{ selectedChartComponent }}
-                        <span
-                          class="chart-dropdown-arrow"
-                          [class.open]="showChartDropdown"
-                          >▾</span
-                        >
-                      </button>
-                      @if (showChartDropdown) {
-                        <div
-                          class="chart-dropdown-menu"
-                          (click)="$event.stopPropagation()"
-                        >
-                          <div class="chart-dropdown-options">
-                            @for (
-                              option of getChartComponentOptions();
-                              track option
-                            ) {
-                              <div
-                                class="chart-dropdown-option"
-                                (click)="selectChartComponent(option)"
-                              >
-                                <input
-                                  type="radio"
-                                  [checked]="selectedChartComponent === option"
-                                  readonly
-                                />
-                                <span class="chart-option-label">{{
-                                  option
-                                }}</span>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                  <div class="overall-header-right"></div>
-                </div>
-                <div class="overall-bar">
-                  <canvas
-                    class="overall-bar-canvas"
-                    [attr.id]="'overall-bar-' + i"
-                  ></canvas>
-                </div>
-              </div>
-            }
-          }
-        </div>
-      }
+      </div>
     </div>
   }
 }
