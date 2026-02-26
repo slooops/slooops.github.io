@@ -54,6 +54,7 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
   @ViewChild('capTable') capTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
   @Input() caseIqMetrics: any;
+  totalAccuracy: any;
 
   constructor(
     private readonly http: ApiHttpService,
@@ -141,6 +142,19 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
     }
 
     return this.caseIqMetrics;
+  }
+
+  getAgentRatio(): number {
+    const m = this.filteredCaseIqMetrics;
+    if (!m) return 0;
+    const total = m.TOTAL_CASES ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (m.RESOLVED_AGENT ?? 0) +
+      (m.IN_PROGRESS_AGENT ?? 0) +
+      (m.RECOMMENDED_ROUTED_OUT ?? 0) +
+      (m.RECOMMENDED_CANCELLED ?? 0);
+    return Math.round((agentTotal / total) * 100);
   }
 
   private loadAllData(): void {
@@ -553,6 +567,7 @@ export class CaseiqCapComponent implements OnInit, OnChanges {
         this.categoryAccuracy = capitalData['Category Accuracy'] ?? '-';
         this.coreIssueAccuracy = capitalData['Core Issue Accuracy'] ?? '-';
         this.totalCases = capitalData['Total Cases'] ?? '-';
+        this.totalAccuracy = capitalData['Total Accuracy'] ?? '-';
       }
     }
   }

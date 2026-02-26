@@ -54,6 +54,7 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
   @ViewChild('p2pTable') p2pTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
   @Input() caseIqMetrics: any;
+  totalAccuracy: any;
 
   constructor(
     private readonly http: ApiHttpService,
@@ -146,6 +147,18 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
     }
 
     return this.caseIqMetrics;
+  }
+  getAgentRatio(): number {
+    const m = this.filteredCaseIqMetrics;
+    if (!m) return 0;
+    const total = m.TOTAL_CASES ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (m.RESOLVED_AGENT ?? 0) +
+      (m.IN_PROGRESS_AGENT ?? 0) +
+      (m.RECOMMENDED_ROUTED_OUT ?? 0) +
+      (m.RECOMMENDED_CANCELLED ?? 0);
+    return Math.round((agentTotal / total) * 100);
   }
 
   private loadAllData(): void {
@@ -784,11 +797,13 @@ export class CaseiqP2pComponent implements OnInit, OnChanges {
         this.coreIssueAccuracy =
           Math.round(p2pData['Core Issue Accuracy'] * 100) / 100;
         this.totalCases = p2pData['Total Cases'];
+        this.totalAccuracy = Math.round(p2pData['Total Accuracy'] * 100) / 100;
       } else {
         // No P2P data found, keep defaults
         this.categoryAccuracy = '-';
         this.coreIssueAccuracy = '-';
         this.totalCases = '-';
+        this.totalAccuracy = '-';
       }
     }
   }

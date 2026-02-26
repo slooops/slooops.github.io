@@ -56,6 +56,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
   @ViewChild('i2cTable') i2cTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
   @Input() caseIqMetrics: any;
+  totalAccuracy: any;
 
   constructor(
     private readonly http: ApiHttpService,
@@ -143,6 +144,18 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
     }
 
     return this.caseIqMetrics;
+  }
+  getAgentRatio(): number {
+    const m = this.filteredCaseIqMetrics;
+    if (!m) return 0;
+    const total = m.TOTAL_CASES ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (m.RESOLVED_AGENT ?? 0) +
+      (m.IN_PROGRESS_AGENT ?? 0) +
+      (m.RECOMMENDED_ROUTED_OUT ?? 0) +
+      (m.RECOMMENDED_CANCELLED ?? 0);
+    return Math.round((agentTotal / total) * 100);
   }
 
   private loadAllData(): void {
@@ -926,11 +939,13 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
         this.coreIssueAccuracy =
           Math.round(i2cData['Core Issue Accuracy'] * 100) / 100;
         this.totalCases = i2cData['Total Cases'];
+        this.totalAccuracy = Math.round(i2cData['Total Accuracy'] * 100) / 100;
       } else {
         // No I2C data found, keep defaults
         this.categoryAccuracy = '-';
         this.coreIssueAccuracy = '-';
         this.totalCases = '-';
+        this.totalAccuracy = '-';
       }
     }
   }
