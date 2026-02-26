@@ -96,10 +96,7 @@
               {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
             >
             <span class="divider"> | </span>
-            <span
-              >&nbsp;<b>Last Updated:</b>
-              {{ periodInfo()?.lastUpdated || "" }}</span
-            >
+            <span>&nbsp;<b>Last Updated:</b> {{ timeNow || "" }}</span>
           </div>
         </div>
       </div>
