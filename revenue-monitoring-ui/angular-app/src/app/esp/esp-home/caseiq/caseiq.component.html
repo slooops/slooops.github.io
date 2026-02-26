@@ -5,7 +5,6 @@
 }
 
 @if (!isLoading) {
-  @let fm = getFinanceITMetrics();
   @let agents = getFinanceAgents();
   @let opsRate = getOpsAutomationRate();
   @let summaryRows = getSummaryRows();
@@ -15,13 +14,17 @@
     <!-- Finance IT Summary Tiles -->
     @let fitRow = getFinanceITRow();
     <div class="tiles-row">
-      <div class="summary-table-title">Finance IT Performance</div>
+      <div class="summary-table-title">Finance IT</div>
       <div class="fit-tiles-row">
         <div class="fit-tile">
           <div class="fit-tile-label">Total Cases</div>
-          <div class="fit-tile-value">
-            {{ fm ? (fm.TOTAL_CASES | number) : "--" }}
-          </div>
+          @if (getTotalCasesFromAccuracy("Finance IT") != null) {
+            <div class="fit-tile-value">
+              {{ getTotalCasesFromAccuracy("Finance IT") | number }}
+            </div>
+          } @else {
+            <div class="fit-tile-value fit-tile-empty">--</div>
+          }
         </div>
         <div class="fit-tile">
           <div class="fit-tile-label">Analyzer Accuracy</div>
@@ -38,6 +41,13 @@
           } @else {
             <div class="fit-tile-value fit-tile-empty">--</div>
           }
+        </div>
+        <div class="fit-tiles-separator"></div>
+        <div class="fit-tile">
+          <div class="fit-tile-label">Total Cases (Agent)</div>
+          <div class="fit-tile-value">
+            {{ getFinanceITAgentTotalCases() | number }}
+          </div>
         </div>
         <div class="fit-tile">
           <div class="fit-tile-label">In Progress</div>
@@ -94,141 +104,175 @@
     </div>
 
     <div class="summary-row">
-      <div class="summary-row-table">
-        <div class="summary-table-card">
-          <div class="summary-table-header-row">
-            <div class="summary-table-title">Component Performance</div>
-            <div class="summary-table-legend">
-              <span class="legend-text">Legend:</span>
-              <span class="legend-dot agent-dot"></span>
-              <span class="legend-label-text">Agent</span>
-              <span class="legend-dot ops-dot"></span>
-              <span class="legend-label-text">Ops</span>
-            </div>
+      <div class="summary-table-card">
+        <div class="summary-table-header-row">
+          <div class="summary-table-title">Components</div>
+          <div class="summary-table-legend">
+            <span class="legend-text">Legend:</span>
+            <span class="legend-dot agent-dot"></span>
+            <span class="legend-label-text">Agent</span>
+            <span class="legend-dot ops-dot"></span>
+            <span class="legend-label-text">Ops</span>
           </div>
-          <table class="summary-table">
-            <thead>
-              <tr>
-                <th>Component</th>
-                <th>Total Cases</th>
-                <th>Case Analyzer Accuracy</th>
-                <th>In Progress</th>
-                <th>Routed Out</th>
-                <th>Cancelled</th>
-                <th>Service Requests</th>
-                <th>(Agent vs Ops %)</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of summaryRows; track row.sectionName) {
-                <tr>
-                  <td class="summary-component">{{ row.sectionName }}</td>
-                  <td>
-                    <span class="summary-total-cases">
-                      {{ valueDisplay(row.totalCases) }}
-                    </span>
-                  </td>
-                  <td>
-                    @if (getAccuracyForSection(row.sectionName) != null) {
-                      <span
-                        >{{
-                          getAccuracyForSection(row.sectionName)
-                            | number: "1.1-1"
-                        }}%</span
-                      >
-                    } @else {
-                      <span class="summary-empty">--</span>
-                    }
-                  </td>
-                  <td>
-                    {{ valueDisplay(row.inProgress.agent) }}
-                    @if (row.inProgress.agentPct != null) {
-                      <span class="summary-pct"
-                        >({{
-                          row.inProgress.agentPct | number: "1.0-0"
-                        }}%)</span
-                      >
-                    }
-                  </td>
-                  <td>
-                    {{ valueDisplay(row.routed.agent) }}
-                    @if (row.routed.agentPct != null) {
-                      <span class="summary-pct"
-                        >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
-                      >
-                    }
-                  </td>
-                  <td>
-                    <span>
-                      {{ valueDisplay(row.cancelled.agent) }}
-                    </span>
-                    @if (row.cancelled.agentPct != null) {
-                      <span class="summary-pct"
-                        >({{ row.cancelled.agentPct | number: "1.0-0" }}%)</span
-                      >
-                    }
-                  </td>
-                  <td>
-                    {{ valueDisplay(row.service.agent) }}
-                    @if (row.service.agentPct != null) {
-                      <span class="summary-pct"
-                        >({{ row.service.agentPct | number: "1.0-0" }}%)</span
-                      >
-                    }
-                  </td>
-                  <td>
-                    <div class="ratio-bar-wrapper">
-                      <div
-                        class="ratio-bar-agent"
-                        [style.width.%]="getAgentRatio(row)"
-                      >
-                        @if (getAgentRatio(row) >= 4) {
-                          <span class="ratio-bar-label"
-                            >{{ getAgentRatio(row) }}%</span
-                          >
-                        }
-                      </div>
-                      <div
-                        class="ratio-bar-ops"
-                        [style.width.%]="100 - getAgentRatio(row)"
-                      >
-                        @if (100 - getAgentRatio(row) >= 4) {
-                          <span class="ratio-bar-label" style="color: white"
-                            >{{ 100 - getAgentRatio(row) }}%</span
-                          >
-                        }
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+        </div>
 
-          <!-- Resolution Agent Details by Track -->
-          <div class="track-agents-section">
-            <div class="track-agents-label">
-              Resolution Agent Details by Track
+        <div class="summary-tables-row">
+          <!-- Left: ESP Overview -->
+          <div class="summary-table-section summary-table-section-esp">
+            <table class="summary-table summary-table-esp">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Total Cases</th>
+                  <th>Case Analyzer Accuracy</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of summaryRows; track row.sectionName) {
+                  <tr>
+                    <td class="summary-component">{{ row.sectionName }}</td>
+                    <td>
+                      @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
+                        <span class="summary-total-cases">
+                          {{
+                            getTotalCasesFromAccuracy(row.sectionName) | number
+                          }}
+                        </span>
+                      } @else {
+                        <span class="summary-empty">--</span>
+                      }
+                    </td>
+                    <td>
+                      @if (getAccuracyForSection(row.sectionName) != null) {
+                        <span
+                          >{{
+                            getAccuracyForSection(row.sectionName)
+                              | number: "1.1-1"
+                          }}%</span
+                        >
+                      } @else {
+                        <span class="summary-empty">--</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Separator -->
+          <div class="summary-table-separator"></div>
+
+          <!-- Right: Agent Performance -->
+          <div class="summary-table-section summary-table-section-agent">
+            <table class="summary-table summary-table-agent">
+              <thead>
+                <tr>
+                  <th>Total Cases (Agent)</th>
+                  <th>In Progress</th>
+                  <th>Routed Out</th>
+                  <th>Cancelled</th>
+                  <th>Service Requests</th>
+                  <th>Agent vs Ops %</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of summaryRows; track row.sectionName) {
+                  <tr>
+                    <td>
+                      <span class="summary-total-cases">
+                        {{ getAgentTotalCases(row) | number }}
+                      </span>
+                    </td>
+                    <td>
+                      {{ valueDisplay(row.inProgress.agent) }}
+                      @if (row.inProgress.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{
+                            row.inProgress.agentPct | number: "1.0-0"
+                          }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      {{ valueDisplay(row.routed.agent) }}
+                      @if (row.routed.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      <span>
+                        {{ valueDisplay(row.cancelled.agent) }}
+                      </span>
+                      @if (row.cancelled.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{
+                            row.cancelled.agentPct | number: "1.0-0"
+                          }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      {{ valueDisplay(row.service.agent) }}
+                      @if (row.service.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{ row.service.agentPct | number: "1.0-0" }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      <div class="ratio-bar-wrapper">
+                        <div
+                          class="ratio-bar-agent"
+                          [style.width.%]="getAgentRatio(row)"
+                        >
+                          @if (getAgentRatio(row) >= 4) {
+                            <span class="ratio-bar-label"
+                              >{{ getAgentRatio(row) }}%</span
+                            >
+                          }
+                        </div>
+                        <div
+                          class="ratio-bar-ops"
+                          [style.width.%]="100 - getAgentRatio(row)"
+                        >
+                          @if (100 - getAgentRatio(row) >= 4) {
+                            <span class="ratio-bar-label" style="color: white"
+                              >{{ 100 - getAgentRatio(row) }}%</span
+                            >
+                          }
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Resolution Agent Details by Track -->
+        <div class="track-agents-section">
+          <div class="track-agents-label">
+            Resolution Agents Active by Track
+          </div>
+          <div class="track-agents-row">
+            <div class="track-agent-card">
+              <div class="track-agent-team">Finance IT</div>
+              <div class="track-agent-value">
+                {{ agents.deployed }}/{{ agents.total }}
+              </div>
             </div>
-            <div class="track-agents-row">
+            @for (agent of getTrackAgents(); track agent.team) {
               <div class="track-agent-card">
-                <div class="track-agent-team">Finance IT</div>
+                <div class="track-agent-team">{{ agent.team }}</div>
                 <div class="track-agent-value">
-                  {{ agents.deployed }}/{{ agents.total }}
-                </div>
-                <div class="track-agent-utilization">
-                  {{ agents.utilization }}% Capacity utilized
+                  {{ agent.deployed }}/{{ agent.total }}
                 </div>
               </div>
-              @for (agent of getTrackAgents(); track agent.team) {
-                <div class="track-agent-card">
-                  <div class="track-agent-team">{{ agent.team }}</div>
-                  <div class="track-agent-value">
-                    {{ agent.deployed }}/{{ agent.total }}
-                  </div>
-                </div>
-              }
-            </div>
+            }
           </div>
         </div>
       </div>

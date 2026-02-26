@@ -86,6 +86,7 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
   categoryAccuracy: number | string = '-';
   coreIssueAccuracy: number | string = '-';
   totalCases: number | string = '-';
+  totalAccuracy: number | string = '-';
 
   i2cTableData = new MatTableDataSource<any>([]);
   i2cTableColumns: string[] = [];
@@ -155,6 +156,20 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
     }
 
     return this.caseIqMetrics;
+  }
+
+  /** Agent percentage of total for ratio bar */
+  getAgentRatio(): number {
+    const m = this.filteredCaseIqMetrics;
+    if (!m) return 0;
+    const total = m.TOTAL_CASES ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (m.RESOLVED_AGENT ?? 0) +
+      (m.IN_PROGRESS_AGENT ?? 0) +
+      (m.RECOMMENDED_ROUTED_OUT ?? 0) +
+      (m.RECOMMENDED_CANCELLED ?? 0);
+    return Math.round((agentTotal / total) * 100);
   }
 
   // Cached raw responses for dynamic threshold re-filtering
@@ -936,6 +951,7 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
         this.categoryAccuracy = aitData['Category Accuracy'] ?? '-';
         this.coreIssueAccuracy = aitData['Core Issue Accuracy'] ?? '-';
         this.totalCases = aitData['Total Cases'] ?? '-';
+        this.totalAccuracy = aitData['Total Accuracy'] ?? '-';
       }
     }
   }

@@ -156,6 +156,18 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
 
     return this.caseIqMetrics;
   }
+  getAgentRatio(): number {
+    const m = this.filteredCaseIqMetrics;
+    if (!m) return 0;
+    const total = m.TOTAL_CASES ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (m.RESOLVED_AGENT ?? 0) +
+      (m.IN_PROGRESS_AGENT ?? 0) +
+      (m.RECOMMENDED_ROUTED_OUT ?? 0) +
+      (m.RECOMMENDED_CANCELLED ?? 0);
+    return Math.round((agentTotal / total) * 100);
+  }
 
   private loadAllData(): void {
     this.getXxcaseiqValidatedCasesAccuracyV();
@@ -863,6 +875,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     }
   }
 
+  totalAccuracy: any;
   /**
    * Updates SM metrics from API data
    * Finds the SM team data and sets the component properties
@@ -879,11 +892,16 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         this.coreIssueAccuracy =
           Math.round(smData['Core Issue Accuracy'] * 100) / 100;
         this.totalCases = smData['Total Cases'];
+        this.totalAccuracy =
+          smData['Total Accuracy'] !== undefined
+            ? Math.round(smData['Total Accuracy'] * 100) / 100
+            : '-';
       } else {
         // No SM data found, keep defaults
         this.categoryAccuracy = '-';
         this.coreIssueAccuracy = '-';
         this.totalCases = '-';
+        this.totalAccuracy = '-';
       }
     }
   }

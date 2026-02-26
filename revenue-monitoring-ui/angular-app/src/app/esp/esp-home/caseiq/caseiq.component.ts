@@ -834,7 +834,29 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     return Math.round((agentTotal / total) * 100);
   }
 
-  /** Summary table rows exclude 'Finance IT' */
+  /** Total Cases (Agent) = inProgress.agent + service.agent + routed.agent + cancelled.agent */
+  getAgentTotalCases(row: CaseIqTableRow): number {
+    return (
+      (row.inProgress.agent ?? 0) +
+      (row.service.agent ?? 0) +
+      (row.routed.agent ?? 0) +
+      (row.cancelled.agent ?? 0)
+    );
+  }
+
+  /** Agent total for Finance IT metrics */
+  getFinanceITAgentTotalCases(): number {
+    const fm = this.getFinanceITMetrics();
+    if (!fm) return 0;
+    return (
+      (Number(fm.IN_PROGRESS_AGENT) || 0) +
+      (Number(fm.RESOLVED_AGENT) || 0) +
+      (Number(fm.RECOMMENDED_ROUTE_OUT) ||
+        Number(fm.RECOMMENDED_ROUTED_OUT) ||
+        0) +
+      (Number(fm.RECOMMENDED_CANCELLED) || 0)
+    );
+  }
   getAgentForRow(row: CaseIqTableRow): { deployed: number; total: number } {
     const agent = this.resolutionAgents.find((a) => a.team === row.sectionName);
     return agent
@@ -912,6 +934,40 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     if (!match) return null;
     const val = Number(match['Total Accuracy']);
+    return Number.isFinite(val) ? val : null;
+  }
+
+  /** Look up Total Cases from accuracyData for a section, filtered by selectedQuarter */
+  getTotalCasesFromAccuracy(sectionName: string): number | null {
+    if (!this.accuracyData.length) return null;
+
+    const filtered = this.selectedQuarter
+      ? this.accuracyData.filter(
+          (item: any) => item.Quarter === this.selectedQuarter,
+        )
+      : this.accuracyData;
+
+    if (!filtered.length) return null;
+
+    // For Finance IT / ALL: sum Total Cases across all teams
+    if (sectionName === 'Finance IT' || sectionName === 'ALL') {
+      let totalCases = 0;
+      for (const item of filtered) {
+        const cases = Number(item['Total Cases']) || 0;
+        totalCases += cases;
+      }
+      return totalCases > 0 ? totalCases : null;
+    }
+
+    // Individual team lookup
+    const match = filtered.find(
+      (item: any) =>
+        item.TEAM_NAME &&
+        item.TEAM_NAME.toUpperCase() === sectionName.toUpperCase(),
+    );
+
+    if (!match) return null;
+    const val = Number(match['Total Cases']);
     return Number.isFinite(val) ? val : null;
   }
 }

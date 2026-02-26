@@ -1,172 +1,123 @@
 <div class="caseiq-header-box">
-  <div class="caseiq-header-segment caseiq-header-segment-green">
-    <div class="caseiq-header-green-half caseiq-header-green-left">
-      Total Cases:
-      {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.TOTAL_CASES : "--" }}
+  <div class="caseiq-header-row">
+    <!-- ESP Group -->
+    <div class="caseiq-header-group caseiq-header-group-esp">
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Total Cases (ESP)</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value">{{
+          totalCases !== "-" ? totalCases : "--"
+        }}</span>
+      </div>
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Case Analyzer Accuracy</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value">{{
+          totalAccuracy !== "-" ? totalAccuracy + "%" : "--"
+        }}</span>
+      </div>
     </div>
-    <div class="caseiq-header-green-half caseiq-header-green-right">
-      <span>
-        Service Requests:
-        <span class="caseiq-value-default">
-          {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED : "--" }}
-        </span>
-      </span>
-      <span class="divider"> | </span>
-      <span>
-        Agent:
-        <span class="caseiq-value-default">
+
+    <!-- Agent Group -->
+    <div class="caseiq-header-group caseiq-header-group-agent">
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Total Cases (Agent)</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value">{{
+          filteredCaseIqMetrics
+            ? filteredCaseIqMetrics.IN_PROGRESS_AGENT +
+              filteredCaseIqMetrics.RESOLVED_AGENT +
+              filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT +
+              filteredCaseIqMetrics.RECOMMENDED_CANCELLED
+            : "--"
+        }}</span>
+      </div>
+
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">In Progress</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value"
+          >{{
+            filteredCaseIqMetrics
+              ? filteredCaseIqMetrics.IN_PROGRESS_AGENT
+              : "--"
+          }}
           {{
+            filteredCaseIqMetrics
+              ? "(" + filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE + "%)"
+              : "(--)"
+          }}</span
+        >
+      </div>
+
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Routed Out</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value"
+          >{{
+            filteredCaseIqMetrics
+              ? filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT
+              : "--"
+          }}
+          {{
+            filteredCaseIqMetrics
+              ? "(" +
+                filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE +
+                "%)"
+              : "(--)"
+          }}</span
+        >
+      </div>
+
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Cancelled</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value"
+          >{{
+            filteredCaseIqMetrics
+              ? filteredCaseIqMetrics.RECOMMENDED_CANCELLED
+              : "--"
+          }}
+          {{
+            filteredCaseIqMetrics
+              ? "(" +
+                filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE +
+                "%)"
+              : "(--)"
+          }}</span
+        >
+      </div>
+
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Service Requests</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value"
+          >{{
             filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_AGENT : "--"
           }}
           {{
             filteredCaseIqMetrics
               ? "(" + filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT + "%)"
-              : "(--%)"
-          }}
-        </span>
-      </span>
-      <span class="divider"> | </span>
-      <span>
-        Ops:
-        <span class="caseiq-value-default">
-          {{
-            filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_OPS : "--"
-          }}
-          {{
-            filteredCaseIqMetrics
-              ? "(" + filteredCaseIqMetrics.RESOLVED_PERCENTAGE_OPS + "%)"
-              : "(--%)"
-          }}
-        </span>
-      </span>
+              : "(--)"
+          }}</span
+        >
+      </div>
+
+      <div class="caseiq-header-cell caseiq-cell-ratio-bar">
+        <span class="caseiq-header-label">Agent vs Ops %</span>
+        <span class="caseiq-header-sep">-</span>
+        <div class="ratio-bar-container">
+          <div class="ratio-bar-agent" [style.width.%]="getAgentRatio()">
+            <span class="ratio-bar-label">{{ getAgentRatio() }}%</span>
+          </div>
+          <div class="ratio-bar-ops" [style.width.%]="100 - getAgentRatio()">
+            <span class="ratio-bar-label">{{ 100 - getAgentRatio() }}%</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="caseiq-header-segment caseiq-header-segment-progress">
-    <span>
-      In Progress:
-      <span class="caseiq-value-default">
-        {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.IN_PROGRESS : "--" }}
-      </span>
-    </span>
-    <span class="divider"> | </span>
-    <span>
-      Agent:
-      <span class="caseiq-value-default">
-        {{
-          filteredCaseIqMetrics ? filteredCaseIqMetrics.IN_PROGRESS_AGENT : "--"
-        }}
-        {{
-          filteredCaseIqMetrics
-            ? "(" + filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE + "%)"
-            : "(--%)"
-        }}
-      </span>
-    </span>
-    <span class="divider"> | </span>
-    <span>
-      Ops:
-      <span class="caseiq-value-default">
-        {{
-          filteredCaseIqMetrics ? filteredCaseIqMetrics.IN_PROGRESS_OPS : "--"
-        }}
-        {{
-          filteredCaseIqMetrics
-            ? "(" + filteredCaseIqMetrics.IN_PROGRESS_OPS_PERCENTAGE + "%)"
-            : "(--%)"
-        }}
-      </span>
-    </span>
-  </div>
-  <div class="caseiq-header-segment caseiq-header-segment-yellow">
-    <span>
-      Routed Out:
-      <span class="caseiq-value-default">
-        {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.ROUTED_OUT : "--" }}
-      </span>
-    </span>
-    <span class="divider"> | </span>
-    <span>
-      Agent:
-      <span class="caseiq-value-default">
-        {{
-          filteredCaseIqMetrics
-            ? filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT
-            : "--"
-        }}
-        {{
-          filteredCaseIqMetrics
-            ? "(" +
-              filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE +
-              "%)"
-            : "(--%)"
-        }}
-      </span>
-    </span>
-    <span class="divider"> | </span>
-    <span
-      >Ops:
-      <span class="caseiq-value-default">
-        {{
-          filteredCaseIqMetrics
-            ? filteredCaseIqMetrics.NOT_RECOMMENDED_ROUTED_OUT
-            : "--"
-        }}
-        {{
-          filteredCaseIqMetrics
-            ? "(" +
-              filteredCaseIqMetrics.NOT_RECOMMENDED_ROUTED_OUT_PERCENTAGE +
-              "%)"
-            : "(--%)"
-        }}
-      </span>
-    </span>
-  </div>
-  <div class="caseiq-header-segment caseiq-header-segment-red">
-    <span>
-      Cancelled:
-      <span class="caseiq-value-default">
-        {{ filteredCaseIqMetrics ? filteredCaseIqMetrics.CANCELLED : "--" }}
-      </span>
-    </span>
-    <span class="divider"> | </span>
-    <span>
-      Agent:
-      <span class="caseiq-value-default">
-        {{
-          filteredCaseIqMetrics
-            ? filteredCaseIqMetrics.RECOMMENDED_CANCELLED
-            : "--"
-        }}
-        {{
-          filteredCaseIqMetrics
-            ? "(" +
-              filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE +
-              "%)"
-            : "(--%)"
-        }}
-      </span>
-    </span>
-    <span class="divider"> | </span>
-    <span>
-      Ops:
-      <span class="caseiq-value-default">
-        {{
-          filteredCaseIqMetrics
-            ? filteredCaseIqMetrics.NOT_RECOMMENDED_CANCELLED
-            : "--"
-        }}
-        {{
-          filteredCaseIqMetrics
-            ? "(" +
-              filteredCaseIqMetrics.NOT_RECOMMENDED_CANCELLED_PERCENTAGE +
-              "%)"
-            : "(--%)"
-        }}
-      </span>
-    </span>
-  </div>
 </div>
-
 <!-- Data refresh overlay - covers only this tab content -->
 @if (refreshingData) {
   <div class="table-loading-overlay">
