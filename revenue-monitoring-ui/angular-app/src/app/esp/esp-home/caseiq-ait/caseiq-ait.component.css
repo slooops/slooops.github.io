@@ -39,16 +39,16 @@
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(2),
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(3),
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(4) {
-  flex: 0.7 1 0;
+  flex: 0.8 1 0;
 }
 
 /* Wider: Service Requests (5th agent cell) */
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(5) {
-  flex: 1.3 1 0;
+  flex: 1.2 1 0;
 }
 
 .caseiq-header-group-agent .caseiq-cell-ratio-bar {
-  flex: 3 1 0;
+  flex: 2 1 0;
 }
 
 /* Rounded corners on first and last cell of each group */
@@ -58,6 +58,10 @@
 
 .caseiq-header-group .caseiq-header-cell:last-child {
   border-radius: 0 20px 20px 0;
+}
+
+.caseiq-header-group .caseiq-header-cell:only-child {
+  border-radius: 20px;
 }
 
 /* Each cell: inline flow – Label - Value */

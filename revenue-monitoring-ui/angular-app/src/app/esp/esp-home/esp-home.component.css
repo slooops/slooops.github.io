@@ -260,15 +260,6 @@
   justify-content: end;
 }
 
-@media (max-width: 1500px) {
-  .global-search-input {
-    border: none;
-    outline: none;
-    font-size: 11px;
-    min-width: 270px;
-  }
-}
-
 .global-search {
   display: inline-flex;
   align-items: center;
@@ -312,6 +303,20 @@
   outline: none;
   font-size: 12px;
   min-width: 300px;
+}
+
+@media (max-width: 1500px) {
+  .global-search-input {
+    font-size: 11px;
+    min-width: 270px;
+  }
+}
+
+@media (max-width: 1300px) {
+  .global-search-input {
+    font-size: 11px;
+    min-width: 160px;
+  }
 }
 
 .dashboard-header h1 {
@@ -935,6 +940,18 @@ p {
 
 .chart-title-block h4 {
   margin: 0 0 0;
+}
+
+@media (max-width: 1500px) {
+  .chart-title-block {
+    font-size: 13px !important;
+  }
+}
+
+@media (max-width: 1300px) {
+  .chart-title-block {
+    font-size: 11px !important;
+  }
 }
 
 .header-metrics {

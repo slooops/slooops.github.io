@@ -140,21 +140,6 @@
 }
 
 @media (max-width: 1400px) {
-  .fit-tiles-row {
-    flex-wrap: wrap;
-  }
-
-  .fit-tiles-row > .fit-tile {
-    flex: 1 1 calc(25% - 12px);
-    min-width: 120px;
-  }
-
-  .fit-tiles-separator {
-    width: 100%;
-    height: 1px;
-    margin: 4px 0;
-  }
-
   .summary-tables-row {
     flex-direction: column;
     gap: 0;
