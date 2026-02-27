@@ -1,6 +1,6 @@
 <div
   style="
-    background-color: #08ace4;
+    background-color: #00bceb;
     padding: 10px;
     color: white;
     display: flex;
@@ -52,34 +52,35 @@
       <br />
       <br />
       @if (selectedFile) {
-      <span>
-        <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
-        File selected:
-        <a
-          ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
+        <span>
+          <i class="fa fa-close" style="color: gray" (click)="removeFile()"></i>
+          File selected:
+          <a
+            ><b style="font-weight: 500">{{ selectedFile.name }}</b></a
+          >
+          &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
+        </span>
+      }
+      @if (validationError) {
+        <mat-error style="text-align: center"
+          ><i class="fa fa-times-circle" style="color: #ff052b">
+            {{ validationError }}</i
+          ></mat-error
         >
-        &nbsp;<i class="fa fa-check-circle" style="color: #32a50f"></i>
-      </span>
-      } @if (validationError) {
-      <mat-error style="text-align: center"
-        ><i class="fa fa-times-circle" style="color: #ff052b">
-          {{ validationError }}</i
-        ></mat-error
-      >
       }
     </div>
     <br />
     @if (fileSelected) {
-    <div style="text-align: center">
-      <button
-        class="btn btn-primary"
-        mat-stroked-button
-        (click)="uploadDealsFile(dialogTemplate)"
-        style="color: white"
-      >
-        Upload
-      </button>
-    </div>
+      <div style="text-align: center">
+        <button
+          class="btn btn-primary"
+          mat-stroked-button
+          (click)="uploadDealsFile(dialogTemplate)"
+          style="color: white"
+        >
+          Upload
+        </button>
+      </div>
     }
     <!-- <mat-error
         style="text-align: center; margin-top: 5px"
@@ -100,13 +101,14 @@
           name="programName"
           required
         />
-        @if (updateForm.get('programName').hasError('required')) {
-        <mat-error>Program Name is required</mat-error>
-        } @if (updateForm.get('programName').hasError('pattern')) {
-        <mat-error
-          >Invalid input. Please enter only one Program Name using alphabets
-          only.</mat-error
-        >
+        @if (updateForm.get("programName").hasError("required")) {
+          <mat-error>Program Name is required</mat-error>
+        }
+        @if (updateForm.get("programName").hasError("pattern")) {
+          <mat-error
+            >Invalid input. Please enter only one Program Name using alphabets
+            only.</mat-error
+          >
         }
       </mat-form-field>
 
@@ -119,13 +121,14 @@
           name="account"
           required
         />
-        @if (updateForm.get('account').hasError('required')) {
-        <mat-error>Account is required</mat-error>
-        } @if (updateForm.get('account').hasError('pattern')) {
-        <mat-error
-          >Invalid input. Please enter only one Account using alphabets
-          only.</mat-error
-        >
+        @if (updateForm.get("account").hasError("required")) {
+          <mat-error>Account is required</mat-error>
+        }
+        @if (updateForm.get("account").hasError("pattern")) {
+          <mat-error
+            >Invalid input. Please enter only one Account using alphabets
+            only.</mat-error
+          >
         }
       </mat-form-field>
 
@@ -141,10 +144,11 @@
           name="dealIds"
           required
         />
-        @if (updateForm.get('dealIds').hasError('required')) {
-        <mat-error>Deal Ids are required</mat-error>
-        } @if (updateForm.get('dealIds').hasError('pattern')) {
-        <mat-error>Invalid input. Please enter only numbers.</mat-error>
+        @if (updateForm.get("dealIds").hasError("required")) {
+          <mat-error>Deal Ids are required</mat-error>
+        }
+        @if (updateForm.get("dealIds").hasError("pattern")) {
+          <mat-error>Invalid input. Please enter only numbers.</mat-error>
         }
       </mat-form-field>
     </form>
@@ -163,11 +167,11 @@
     </div>
 
     @if (validForm) {
-    <mat-error style="text-align: center; margin-top: 5px">
-      <i class="fa fa-times-circle" style="color: #ff052b">
-        Form cannot have empty values</i
-      >
-    </mat-error>
+      <mat-error style="text-align: center; margin-top: 5px">
+        <i class="fa fa-times-circle" style="color: #ff052b">
+          Form cannot have empty values</i
+        >
+      </mat-error>
     }
   </mat-tab>
 </mat-tab-group>
@@ -176,14 +180,15 @@
   <ng-template #dialogTemplate>
     <br />
     <h6>
-      @if (uploadText === 'Deals upload failed!') {
-      <span
-        ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
-      ></span>
-      } @if (uploadText === 'Deals upload successful!') {
-      <span
-        ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
-      ></span>
+      @if (uploadText === "Deals upload failed!") {
+        <span
+          ><i class="fa fa-times-circle fa-lg" style="color: #ff052b"></i
+        ></span>
+      }
+      @if (uploadText === "Deals upload successful!") {
+        <span
+          ><i class="fa fa-check-circle fa-lg" style="color: #32a50f"></i
+        ></span>
       }
       <b style="font-weight: 500">&nbsp;{{ uploadText }}</b>
     </h6>

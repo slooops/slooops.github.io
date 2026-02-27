@@ -101,7 +101,9 @@
         <span class="caseiq-header-sep">-</span>
         <div class="ratio-bar-container">
           <div class="ratio-bar-agent" [style.width.%]="getAgentRatio()">
-            <span class="ratio-bar-label">{{ getAgentRatio() }}%</span>
+            <span class="ratio-bar-label" style="color: white"
+              >{{ getAgentRatio() }}%</span
+            >
           </div>
           <div class="ratio-bar-ops" [style.width.%]="100 - getAgentRatio()">
             <span class="ratio-bar-label">{{ 100 - getAgentRatio() }}%</span>

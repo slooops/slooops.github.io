@@ -7,7 +7,7 @@ import {
 
 // Simple bar chart data
 const simpleData: BarChartDataPoint[] = [
-  { label: 'Invoice to Cash', value: 245, color: '#049fd9' },
+  { label: 'Invoice to Cash', value: 245, color: '#00bceb' },
   { label: 'Revenue Accounting', value: 189, color: '#00bceb' },
   { label: 'Order Management', value: 156, color: '#64bbe3' },
   { label: 'Operations Controls', value: 98, color: '#005073' },

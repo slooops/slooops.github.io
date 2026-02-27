@@ -52,7 +52,7 @@ export class IssueReportingComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private dialog: MatDialog,
     private authService: AuthenticationService,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {}
   ngOnInit() {
     this.username = this.authService.getUserName();
@@ -107,7 +107,7 @@ export class IssueReportingComponent implements OnInit {
           row.REPORTED_DATE = this.dateTransform(row.REPORTED_DATE);
         });
         this.summaryDatasource = new MatTableDataSource<IssueReportingModel>(
-          this.summaryData
+          this.summaryData,
         );
         this.filterData();
         this.summaryDatasource.paginator = this.paginator;
@@ -216,7 +216,7 @@ export class IssueReportingComponent implements OnInit {
 
   areAllRowsApproved(): boolean {
     return this.summaryDatasource?.data?.every(
-      (row: any) => row.STATUS === 'Closed'
+      (row: any) => row.STATUS === 'Closed',
     );
   }
 
@@ -230,7 +230,7 @@ export class IssueReportingComponent implements OnInit {
       this.selectedRows.push(row);
     } else {
       this.selectedRows = this.selectedRows.filter(
-        (selectedRow) => selectedRow !== row
+        (selectedRow) => selectedRow !== row,
       );
     }
   }
@@ -297,7 +297,7 @@ export class IssueReportingComponent implements OnInit {
 
   splitIssueDescription(data: any, incidentNumber: any) {
     const parts = data.split(
-      /(Issue\s*:|Root Cause\s*:|Business Impact\s*:)/gi
+      /(Issue\s*:|Root Cause\s*:|Business Impact\s*:)/gi,
     ); // Split at keywords
     let issue = '';
     let rootCause = '';
@@ -320,7 +320,7 @@ export class IssueReportingComponent implements OnInit {
     issue: any,
     rootCause: any,
     businessImpact: any,
-    incidentNumber: any
+    incidentNumber: any,
   ) {
     const body = {
       incidentNumber: incidentNumber,
@@ -359,7 +359,7 @@ export class IssueReportingComponent implements OnInit {
       .filter((part) => part.trim() !== '') // Remove empty parts
       .map((part, index, array) => {
         const isKeyword = /^(Issue|Root Cause|Business Impact)\s*:$/i.test(
-          part
+          part,
         );
         return {
           text: part.trim(),
@@ -532,7 +532,7 @@ export class IssueReportingComponent implements OnInit {
     this.exportTableToExcel(
       this.summaryData,
       'Active Incidents Summary',
-      'active_incidents_summary'
+      'active_incidents_summary',
     );
   }
 }
@@ -623,7 +623,7 @@ export interface IssueReportingModel {
 export class DialogBox {
   constructor(
     private dialogRef: MatDialogRef<DialogBox>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string }
+    @Inject(MAT_DIALOG_DATA) public data: { message: string },
   ) {}
 
   closeDialog(isConfirmed: boolean) {
@@ -681,7 +681,7 @@ export class DialogBox {
 export class StatusDialog {
   constructor(
     private dialogRef: MatDialogRef<StatusDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {}
 
   closeDialog(isConfirmed: boolean) {
@@ -692,7 +692,7 @@ export class StatusDialog {
 @Component({
   template: `
     <div
-      style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #08ace4; color: white"
+      style="display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #00bceb; color: white"
     >
       <h5 style="margin: 0; font-weight: bold">Summary</h5>
       <button
@@ -761,7 +761,7 @@ export class StatusDialog {
           [ngClass]="{
             'bold-row':
               row['Track']?.toLowerCase()?.includes('sub total') ||
-              row['Track']?.toLowerCase()?.includes('total')
+              row['Track']?.toLowerCase()?.includes('total'),
           }"
         ></tr>
       </table>
@@ -785,7 +785,7 @@ export class StatusDialog {
       th.mat-header-cell {
         white-space: nowrap;
         font-weight: bold;
-        background-color: #08ace4;
+        background-color: #00bceb;
         color: white;
       }
 
@@ -829,7 +829,7 @@ export class SummaryDialog {
   dataSource: MatTableDataSource<any>;
   constructor(
     private dialogRef: MatDialogRef<StatusDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.dataSource = new MatTableDataSource(this.data);
   }

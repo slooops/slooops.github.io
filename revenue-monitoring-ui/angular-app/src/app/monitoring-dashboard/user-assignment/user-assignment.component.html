@@ -5,7 +5,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background-color: #08ace4;
+        background-color: #00bceb;
         margin: -20px -20px 0 -20px;
         padding: 15px;
       "
@@ -25,38 +25,43 @@
 
     <div class="modal-body">
       @if (formReady()) {
-      <form [formGroup]="updateForm" class="form-stack">
-        @for (field of fieldConfig(); track field.controlName) {
-        <div class="input-stack">
-          <label>{{ field.label }}</label>
-          @if (field.controlName === 'assignedTo') {
-          <select [formControlName]="field.controlName" required>
-            <option value="" disabled>Select User</option>
-            @for (data of getAssignmentUsersForTemplate(); track data.NAME) {
-            <option [value]="data.NAME">
-              {{ data.NAME }}
-            </option>
-            }
-          </select>
-          } @else { @if (field.options?.length) {
-          <select [formControlName]="field.controlName">
-            <option value="" disabled>Select {{ field.label }}</option>
-            @for (option of field.options; track option.value) {
-            <option [value]="option.value">
-              {{ option.label }}
-            </option>
-            }
-          </select>
-          } @else {
-          <input
-            type="text"
-            [formControlName]="field.controlName"
-            [placeholder]="'Enter ' + field.label"
-          />
-          } }
-        </div>
-        }
-      </form>
+        <form [formGroup]="updateForm" class="form-stack">
+          @for (field of fieldConfig(); track field.controlName) {
+            <div class="input-stack">
+              <label>{{ field.label }}</label>
+              @if (field.controlName === "assignedTo") {
+                <select [formControlName]="field.controlName" required>
+                  <option value="" disabled>Select User</option>
+                  @for (
+                    data of getAssignmentUsersForTemplate();
+                    track data.NAME
+                  ) {
+                    <option [value]="data.NAME">
+                      {{ data.NAME }}
+                    </option>
+                  }
+                </select>
+              } @else {
+                @if (field.options?.length) {
+                  <select [formControlName]="field.controlName">
+                    <option value="" disabled>Select {{ field.label }}</option>
+                    @for (option of field.options; track option.value) {
+                      <option [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    }
+                  </select>
+                } @else {
+                  <input
+                    type="text"
+                    [formControlName]="field.controlName"
+                    [placeholder]="'Enter ' + field.label"
+                  />
+                }
+              }
+            </div>
+          }
+        </form>
       }
     </div>
 

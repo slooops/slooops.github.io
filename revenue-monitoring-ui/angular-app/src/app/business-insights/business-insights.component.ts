@@ -41,6 +41,9 @@ export class BusinessInsightsComponent implements OnInit {
     // Log initial tab visit after tabs are filtered
     setTimeout(() => {
       if (this.filteredTabs.length > 0) {
+        this.menuService.updateSubHeader(
+          this.filteredTabs[this.selectedIndex]?.label || '',
+        );
         this.logTabVisit(this.selectedIndex);
       }
     }, 100);
@@ -67,9 +70,9 @@ export class BusinessInsightsComponent implements OnInit {
   }
   onTabChange(index: number) {
     setTimeout(() => {
+      const selectedTab = this.filteredTabs[index];
       this.selectedIndex = index; // Switch to the new tab
-      const newHeader = `Business Insights > ${this.filteredTabs[index]?.label}`;
-      this.menuService.updateHeader(newHeader);
+      this.menuService.updateSubHeader(selectedTab?.label || '');
 
       const isO2c = this.filteredTabs[index]?.component === 'app-o2c-360';
       this.searchContextService.setO2cSearchVisible(isO2c);

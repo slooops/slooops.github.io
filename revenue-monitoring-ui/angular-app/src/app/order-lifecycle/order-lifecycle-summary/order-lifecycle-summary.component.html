@@ -1,15 +1,17 @@
 <div
   style="
-    background-color: #08ace4;
+    background-color: #00bceb;
     padding: 10px;
     color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
   "
-  >
+>
   <!-- Title on the left -->
-  <h5 style="margin: 0; font-weight: 450; font-size: 14px">Large Deal Summary</h5>
+  <h5 style="margin: 0; font-weight: 450; font-size: 14px">
+    Large Deal Summary
+  </h5>
 
   <!-- Icons on the right (Download and Close) -->
   <a style="text-decoration: none; cursor: pointer">
@@ -34,7 +36,7 @@
       <div
         class="sortArrow"
         style="width: 100% !important; overflow-x: hidden !important"
-        >
+      >
         <table mat-table [dataSource]="dataSource" class="table-responsive">
           <!-- PROGRAM_NAME Column -->
           <ng-container matColumnDef="PROGRAM_NAME">
@@ -42,14 +44,14 @@
               mat-header-cell
               *matHeaderCellDef
               style="text-wrap: wrap !important"
-              >
+            >
               Program Name
             </th>
             <td
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
-              >
+            >
               {{ record.PROGRAM_NAME }}
             </td>
           </ng-container>
@@ -61,7 +63,7 @@
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
-              >
+            >
               {{ record.STATUS }}
             </td>
           </ng-container>
@@ -72,14 +74,14 @@
               mat-header-cell
               *matHeaderCellDef
               style="text-wrap: wrap !important"
-              >
+            >
               Order count
             </th>
             <td
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
-              >
+            >
               {{ record.ORDER_COUNT }}
             </td>
           </ng-container>
@@ -91,7 +93,7 @@
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.PROGRAM_NAME.includes('Total') }"
-              >
+            >
               {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
             </td>
           </ng-container>
@@ -129,7 +131,7 @@
           mat-table
           [dataSource]="dataSourceByAccount"
           class="table-responsive"
-          >
+        >
           <!-- PROGRAM_NAME Column -->
           <ng-container matColumnDef="ACCOUNT">
             <th mat-header-cell *matHeaderCellDef>Account</th>
@@ -137,7 +139,7 @@
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
-              >
+            >
               {{ record.ACCOUNT }}
             </td>
           </ng-container>
@@ -149,7 +151,7 @@
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
-              >
+            >
               {{ record.STATUS }}
             </td>
           </ng-container>
@@ -161,7 +163,7 @@
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
-              >
+            >
               {{ record.ORDER_COUNT }}
             </td>
           </ng-container>
@@ -173,7 +175,7 @@
               mat-cell
               *matCellDef="let record"
               [ngClass]="{ bold: record.ACCOUNT.includes('Total') }"
-              >
+            >
               {{ record.COMPLETION !== null ? record.COMPLETION + "%" : "" }}
             </td>
           </ng-container>

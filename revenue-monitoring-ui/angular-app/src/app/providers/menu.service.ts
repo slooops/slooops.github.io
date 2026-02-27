@@ -48,4 +48,11 @@ export class MenuService {
   updateHeader(newHeader: string) {
     // this.headerSubject.next(newHeader);
   }
+
+  private subHeaderSubject = new BehaviorSubject<string>('');
+  subHeader$ = this.subHeaderSubject.asObservable();
+
+  updateSubHeader(newSubHeader: string) {
+    this.subHeaderSubject.next(newSubHeader);
+  }
 }

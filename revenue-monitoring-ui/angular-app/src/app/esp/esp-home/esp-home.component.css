@@ -29,7 +29,7 @@
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #08ace4;
+  border-top: 4px solid #00bceb;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -229,7 +229,7 @@
 
 .grid-menu-item.active {
   background: #eff6ff;
-  border-left: 3px solid #049fd9;
+  border-left: 3px solid #00bceb;
 }
 
 .grid-menu-item-name {
@@ -239,14 +239,14 @@
 }
 
 .grid-menu-item.active .grid-menu-item-name {
-  color: #049fd9;
+  color: #00bceb;
   font-weight: 600;
 }
 
 .grid-menu-item-pct {
   font-size: 12px;
   font-weight: 600;
-  color: #049fd9;
+  color: #00bceb;
   margin-left: 12px;
 }
 
@@ -350,7 +350,7 @@
   gap: 5px;
   font-size: 14px;
   font-weight: 600;
-  color: #08ace4;
+  color: #00bceb;
   background-color: #fff;
   border: none;
   border-radius: 4px;
@@ -1041,7 +1041,7 @@ p {
 }
 
 .multi-select-trigger:hover {
-  border-color: #08ace4;
+  border-color: #00bceb;
 }
 
 .multi-select-trigger:focus {
@@ -1112,7 +1112,7 @@ p {
 .multi-select-actions .close-btn {
   flex: 1;
   border: none;
-  background: #08ace4;
+  background: #00bceb;
   color: #fff;
   font-size: 11px;
   padding: 6px 8px;
@@ -1162,9 +1162,9 @@ p {
 }
 
 .threshold-btn:hover {
-  border-color: #08ace4;
+  border-color: #00bceb;
   background: #f0f9ff;
-  color: #08ace4;
+  color: #00bceb;
 }
 
 .threshold-btn:active {
@@ -1206,7 +1206,7 @@ p {
   width: 48px;
   height: 48px;
   border: 4px solid #e0e0e0;
-  border-top: 4px solid #08ace4;
+  border-top: 4px solid #00bceb;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

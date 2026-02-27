@@ -16,10 +16,11 @@
     <div class="tiles-row-wrapper">
       <!-- ESP Overview Card -->
       <div class="tiles-row tiles-row-esp">
+        <div class="tiles-row-header">Case Analyzer</div>
         <div class="fit-tiles-row">
           <div class="fit-tile">
             <div class="fit-tile-label">
-              Total Cases (ESP)
+              Total Cases
               <mat-icon
                 class="fit-tile-info-icon"
                 matTooltip="Total validated cases from ESP"
@@ -38,7 +39,7 @@
           </div>
           <div class="fit-tile">
             <div class="fit-tile-label">
-              Analyzer Accuracy
+              Accuracy
               <mat-icon
                 class="fit-tile-info-icon"
                 matTooltip="Overall analyzer accuracy"
@@ -60,6 +61,7 @@
 
       <!-- Agent Performance Card -->
       <div class="tiles-row tiles-row-agent">
+        <div class="tiles-row-header">Resolution</div>
         <div class="fit-tiles-row">
           <div class="fit-tile">
             <div class="fit-tile-label">
@@ -312,7 +314,7 @@
                           [style.width.%]="100 - getAgentRatio(row)"
                         >
                           @if (100 - getAgentRatio(row) >= 4) {
-                            <span class="ratio-bar-label" style="color: white"
+                            <span class="ratio-bar-label" style="color: black"
                               >{{ 100 - getAgentRatio(row) }}%</span
                             >
                           }
@@ -328,9 +330,7 @@
 
         <!-- Resolution Agent Details by Track -->
         <div class="track-agents-section">
-          <div class="track-agents-label">
-            Resolution Agents Active by Track
-          </div>
+          <div class="track-agents-label">Resolution Agents Active</div>
           <div class="track-agents-row">
             <div class="track-agent-card">
               <div class="track-agent-team">Finance IT</div>

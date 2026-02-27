@@ -53,7 +53,7 @@ export const Open: Story = {
         <p>Are you sure you want to proceed with this action?</p>
         <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
           <button style="padding: 0.5rem 1rem; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">Cancel</button>
-          <button style="padding: 0.5rem 1rem; border: none; background: #049fd9; color: white; border-radius: 4px; cursor: pointer;">Confirm</button>
+          <button style="padding: 0.5rem 1rem; border: none; background: #00bceb; color: white; border-radius: 4px; cursor: pointer;">Confirm</button>
         </div>
       </app-modal-shell>
     `,
@@ -90,7 +90,7 @@ export const WithForm: Story = {
         </div>
         <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
           <button style="padding: 0.5rem 1rem; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">Cancel</button>
-          <button style="padding: 0.5rem 1rem; border: none; background: #049fd9; color: white; border-radius: 4px; cursor: pointer;">Save User</button>
+          <button style="padding: 0.5rem 1rem; border: none; background: #00bceb; color: white; border-radius: 4px; cursor: pointer;">Save User</button>
         </div>
       </app-modal-shell>
     `,
@@ -116,7 +116,7 @@ export const LongContent: Story = {
         </div>
         <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
           <button style="padding: 0.5rem 1rem; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">Decline</button>
-          <button style="padding: 0.5rem 1rem; border: none; background: #049fd9; color: white; border-radius: 4px; cursor: pointer;">Accept</button>
+          <button style="padding: 0.5rem 1rem; border: none; background: #00bceb; color: white; border-radius: 4px; cursor: pointer;">Accept</button>
         </div>
       </app-modal-shell>
     `,

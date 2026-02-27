@@ -37,7 +37,7 @@
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #08ace4;
+  background: #00bceb;
   position: relative;
   margin-top: 0px;
   left: 0px;
@@ -51,7 +51,9 @@
 .current-circle {
   background-color: #078a00;
   border: 3px solid #078a00;
-  box-shadow: 0 0 0 4px white, 0 0 0 6px #078a00; /* halo */
+  box-shadow:
+    0 0 0 4px white,
+    0 0 0 6px #078a00; /* halo */
 }
 
 .uncompleted-circle {
@@ -60,7 +62,9 @@
 
 .in-progress-circle {
   background-color: #d57b00;
-  box-shadow: 0 0 0 4px white, 0 0 0 6px #d57b00; /* halo */
+  box-shadow:
+    0 0 0 4px white,
+    0 0 0 6px #d57b00; /* halo */
 }
 
 .circle-caption-loop {

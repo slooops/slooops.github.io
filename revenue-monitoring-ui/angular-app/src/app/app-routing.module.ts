@@ -67,6 +67,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Period Close Tracking',
     },
   },
   {
@@ -83,6 +84,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Revenue Accounting',
     },
   },
   {
@@ -91,6 +93,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'General Ledger',
     },
   },
   {
@@ -99,6 +102,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+      subHeader: 'I2C',
     },
   },
   {
@@ -107,6 +111,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+      subHeader: 'Case IQ',
     },
   },
   {
@@ -115,6 +120,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+      subHeader: 'SBP',
     },
   },
   {
@@ -123,6 +129,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Invoice to Cash',
     },
   },
   {
@@ -190,7 +197,8 @@ export const routes: Routes = [
     component: OrderManagementComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Order Management Monitoring',
+      header: 'Continuous Monitoring',
+      subHeader: 'Order Management',
     },
   },
   {
@@ -198,7 +206,8 @@ export const routes: Routes = [
     component: WipsComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'WIPS',
+      header: 'Continuous Monitoring',
+      subHeader: 'WIPS',
     },
   },
   {
@@ -247,6 +256,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Operations Controls',
     },
   },
   {

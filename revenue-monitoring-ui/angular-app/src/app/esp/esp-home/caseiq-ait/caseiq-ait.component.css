@@ -113,7 +113,7 @@
 }
 
 .ratio-bar-agent {
-  background: #f5d76e;
+  background: #00bceb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -122,7 +122,7 @@
 }
 
 .ratio-bar-ops {
-  background: #fff;
+  background: #e2e2e2;
   display: flex;
   align-items: center;
   justify-content: center;
