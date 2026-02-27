@@ -13,136 +13,164 @@
   @if (summaryRows.length) {
     <!-- Finance IT Summary Tiles -->
     @let fitRow = getFinanceITRow();
-    <div class="tiles-row">
-      <div class="summary-table-title">Finance IT</div>
-      <div class="fit-tiles-row">
-        <div class="fit-tile">
-          <div class="fit-tile-label">Total Cases (ESP)</div>
-          @if (getTotalCasesFromAccuracy("Finance IT") != null) {
-            <div class="fit-tile-value">
-              {{ getTotalCasesFromAccuracy("Finance IT") | number }}
+    <div class="tiles-row-wrapper">
+      <!-- ESP Overview Card -->
+      <div class="tiles-row tiles-row-esp">
+        <div class="fit-tiles-row">
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Total Cases (ESP)
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Total validated cases from ESP"
+                [matTooltipDisabled]="true"
+              >
+                info_outline
+              </mat-icon>
             </div>
-          } @else {
-            <div class="fit-tile-value fit-tile-empty">--</div>
-          }
-        </div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">Analyzer Accuracy</div>
-          @if (getAccuracyForSection("Finance IT") != null) {
-            <div class="fit-tile-value">
-              {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
+            @if (getTotalCasesFromAccuracy("Finance IT") != null) {
+              <div class="fit-tile-value">
+                {{ getTotalCasesFromAccuracy("Finance IT") | number }}
+              </div>
+            } @else {
+              <div class="fit-tile-value fit-tile-empty">--</div>
+            }
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Analyzer Accuracy
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Overall analyzer accuracy"
+                [matTooltipDisabled]="true"
+              >
+                info_outline
+              </mat-icon>
             </div>
-            <!-- <div class="kpi-bar-track">
-            <div
-              class="kpi-bar-fill"
-              [style.width.%]="getAccuracyForSection('Finance IT')"
-            ></div>
-          </div> -->
-          } @else {
-            <div class="fit-tile-value fit-tile-empty">--</div>
-          }
-        </div>
-        <div class="fit-tiles-separator"></div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">
-            Total Cases (Agent)
-            <mat-icon
-              class="fit-tile-info-icon"
-              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
-              [matTooltipDisabled]="true"
-            >
-              info_outline
-            </mat-icon>
-          </div>
-          <div class="fit-tile-value">
-            {{ getFinanceITAgentTotalCases() | number }}
-          </div>
-        </div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">
-            In Progress
-            <mat-icon
-              class="fit-tile-info-icon"
-              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
-              [matTooltipDisabled]="true"
-            >
-              info_outline
-            </mat-icon>
-          </div>
-          <div class="fit-tile-value">
-            {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
-            @if (fitRow?.inProgress?.agentPct != null) {
-              <span class="fit-tile-pct"
-                >({{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%)</span
-              >
+            @if (getAccuracyForSection("Finance IT") != null) {
+              <div class="fit-tile-value">
+                {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
+              </div>
+            } @else {
+              <div class="fit-tile-value fit-tile-empty">--</div>
             }
           </div>
         </div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">
-            Routed Out
-            <mat-icon
-              class="fit-tile-info-icon"
-              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
-              [matTooltipDisabled]="true"
-            >
-              info_outline
-            </mat-icon>
-          </div>
-          <div class="fit-tile-value">
-            {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
-            @if (fitRow?.routed?.agentPct != null) {
-              <span class="fit-tile-pct"
-                >({{ fitRow!.routed.agentPct | number: "1.0-0" }}%)</span
+      </div>
+
+      <!-- Agent Performance Card -->
+      <div class="tiles-row tiles-row-agent">
+        <div class="fit-tiles-row">
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Total Cases (Agent)
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
+                [matTooltipDisabled]="true"
               >
-            }
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ getFinanceITAgentTotalCases() | number }}
+            </div>
           </div>
-        </div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">
-            Cancelled
-            <mat-icon
-              class="fit-tile-info-icon"
-              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
-              [matTooltipDisabled]="true"
-            >
-              info_outline
-            </mat-icon>
-          </div>
-          <div class="fit-tile-value">
-            {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
-            @if (fitRow?.cancelled?.agentPct != null) {
-              <span class="fit-tile-pct"
-                >({{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%)</span
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              In Progress
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Cases currently in progress by Agent"
+                [matTooltipDisabled]="true"
               >
-            }
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
+              @if (fitRow?.inProgress?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
           </div>
-        </div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">
-            Service Requests
-            <mat-icon
-              class="fit-tile-info-icon"
-              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
-              [matTooltipDisabled]="true"
-            >
-              info_outline
-            </mat-icon>
-          </div>
-          <div class="fit-tile-value">
-            {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
-            @if (fitRow?.service?.agentPct != null) {
-              <span class="fit-tile-pct"
-                >({{ fitRow!.service.agentPct | number: "1.0-0" }}%)</span
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Routed Out
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Cases routed out by Agent"
+                [matTooltipDisabled]="true"
               >
-            }
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
+              @if (fitRow?.routed?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.routed.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
           </div>
-        </div>
-        <div class="fit-tile">
-          <div class="fit-tile-label">Automation Rate</div>
-          <div class="fit-tile-value">{{ opsRate }}%</div>
-          <div class="kpi-bar-track">
-            <div class="kpi-bar-fill" [style.width.%]="opsRate"></div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Cancelled
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Cases cancelled by Agent"
+                [matTooltipDisabled]="true"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
+              @if (fitRow?.cancelled?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Service Requests
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Service requests resolved by Agent"
+                [matTooltipDisabled]="true"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
+              @if (fitRow?.service?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.service.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Automation Rate
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Percentage of cases processed by Agent"
+                [matTooltipDisabled]="true"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">{{ opsRate }}%</div>
+            <div class="kpi-bar-track">
+              <div class="kpi-bar-fill" [style.width.%]="opsRate"></div>
+            </div>
           </div>
         </div>
       </div>
