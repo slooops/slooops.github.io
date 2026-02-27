@@ -72,14 +72,28 @@
 
 /* ═══════ FINANCE IT TILES ═══════ */
 
+.tiles-row-wrapper {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
 .tiles-row {
   background: #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border-radius: 30px;
   padding: 20px 24px;
-  margin-bottom: 16px;
-  margin-top: 16px;
   border: 1px solid #e5e7eb;
+}
+
+.tiles-row-esp {
+  flex: 0 0 22%;
+}
+
+.tiles-row-agent {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .fit-tiles-row {
@@ -92,13 +106,6 @@
 .fit-tiles-row > .fit-tile {
   flex: 1 1 0;
   min-width: 0;
-}
-
-.fit-tiles-separator {
-  width: 1px;
-  background: #bbbbbb;
-  align-self: stretch;
-  margin: 0 4px;
 }
 
 .fit-tile {
