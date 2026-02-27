@@ -18,6 +18,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
 import { Data } from '@angular/router';
 import { DataService } from 'src/app/providers/data.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface MetricTile {
   name: string;
@@ -51,6 +52,7 @@ interface AccuracyData {
     CaseiqP2pComponent,
     CaseiqSmComponent,
     CaseiqAitComponent,
+    MatTooltipModule,
   ],
   standalone: true,
 })

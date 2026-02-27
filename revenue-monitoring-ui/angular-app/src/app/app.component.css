@@ -29,7 +29,7 @@
 }
 
 .onHover:hover {
-  background-color: #08ace4;
+  background-color: #00bceb;
   cursor: pointer;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .onHoverMenu:hover {
-  background-color: #08ace4;
+  background-color: #00bceb;
   cursor: pointer;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .custom-search-bar:focus-within {
-  border-color: #08ace4; /* Accent color when focused */
+  border-color: #00bceb; /* Accent color when focused */
 }
 
 .custom-search-bar:hover {
@@ -108,7 +108,7 @@
 }
 
 .navbar {
-  background-color: #08ace4;
+  background-color: #00bceb;
   display: flex;
   align-items: center;
   box-sizing: border-box; /* Ensures padding doesn’t cause overflow */

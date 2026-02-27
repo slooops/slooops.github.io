@@ -1,6 +1,6 @@
 <div
   style="
-    background-color: #08ace4;
+    background-color: #00bceb;
     padding: 10px;
     color: white;
     display: flex;
@@ -35,16 +35,16 @@
     </div>
     <mat-selection-list #column (selectionChange)="logSelectedColumns($event)">
       @for (column of displayedColumns; track column) {
-      <mat-list-option
-        [value]="column"
-        [selected]="
-          selectedColumns.length > 0
-            ? selectedColumns.includes(column.name)
-            : column.selected
-        "
-        style="font-weight: 500; font-size: small"
-        >{{ column.displayName }}</mat-list-option
-      >
+        <mat-list-option
+          [value]="column"
+          [selected]="
+            selectedColumns.length > 0
+              ? selectedColumns.includes(column.name)
+              : column.selected
+          "
+          style="font-weight: 500; font-size: small"
+          >{{ column.displayName }}</mat-list-option
+        >
       }
     </mat-selection-list>
   </div>

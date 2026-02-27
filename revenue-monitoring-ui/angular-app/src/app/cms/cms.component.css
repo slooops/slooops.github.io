@@ -222,7 +222,7 @@ tr.mat-mdc-header-row {
   width: 36px;
   height: 36px;
   border-radius: 32px;
-  background: #049fd9;
+  background: #00bceb;
   transition: opacity 1.4s ease-in-out;
   z-index: 1;
 }
@@ -450,7 +450,7 @@ tr.mat-mdc-header-row {
   width: 11px;
   height: 11px;
   border-radius: 11px;
-  background: #049fd9;
+  background: #00bceb;
 }
 
 .color-circle {

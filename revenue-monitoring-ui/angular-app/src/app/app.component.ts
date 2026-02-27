@@ -58,6 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   menuOpened = false;
   header: string = '';
+  subHeader: string = '';
   userName!: string;
   isHelpDropdownOpen: boolean = false;
   userRoles!: string[];
@@ -187,6 +188,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.showO2cSearch = data['showO2cSearch'] ?? false;
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
+        this.subHeader = data['subHeader'] || '';
         this.dataService.setHeader(data['header']);
         const hiddenRoutes = [
           '/operational-visibility',
@@ -247,6 +249,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.menuService.header$.subscribe((newHeader) => {
       this.header = newHeader;
+    });
+
+    this.menuService.subHeader$.subscribe((newSubHeader) => {
+      this.subHeader = newSubHeader;
     });
   }
 

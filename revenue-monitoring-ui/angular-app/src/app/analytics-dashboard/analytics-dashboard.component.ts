@@ -75,7 +75,7 @@ export class AnalyticsDashboardComponent
     orange: ['#ff6600', '#ff8833', '#ffaa66', '#ffcc99', '#ffeecc'],
     red: ['#cc0033', '#ff3366', '#ff6699', '#ff99cc', '#ffccdd'],
     cisco: [
-      '#049fd9',
+      '#00bceb',
       '#00bceb',
       '#64bbe3',
       '#005073',

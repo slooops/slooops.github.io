@@ -1304,7 +1304,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
         align-items: center;
         justify-content: space-between;
         padding: 12px 20px 10px 20px;
-        background-color: #08ace4; /* match navbar color */
+        background-color: #00bceb; /* match navbar color */
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
@@ -1382,7 +1382,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
           box-shadow 0.15s ease;
       }
       .multi-select-trigger:hover {
-        border-color: #08ace4;
+        border-color: #00bceb;
       }
       .multi-select-trigger:focus {
         outline: none;
@@ -1442,7 +1442,7 @@ export class CaseiqI2cComponent implements OnInit, OnChanges {
       .multi-select-actions .close-btn {
         flex: 1;
         border: none;
-        background: #08ace4;
+        background: #00bceb;
         color: #fff;
         font-size: 11px;
         padding: 6px 8px;

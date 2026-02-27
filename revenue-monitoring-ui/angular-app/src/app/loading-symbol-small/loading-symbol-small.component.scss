@@ -11,7 +11,7 @@ body {
     height: 8px;
     border-radius: 50%;
     margin: 5px;
-    background-color: #049fd9;
+    background-color: #00bceb;
     animation: colorChange 1.3s ease-in-out infinite; // Apply the smooth easing and duration
 
     &:nth-child(2) {
@@ -28,7 +28,7 @@ body {
 
 @keyframes colorChange {
   0% {
-    background-color: #049fd9;
+    background-color: #00bceb;
   }
   25% {
     background-color: #c6c7ca;
@@ -40,6 +40,6 @@ body {
     background-color: #c6c7ca;
   }
   100% {
-    background-color: #049fd9;
+    background-color: #00bceb;
   }
 }

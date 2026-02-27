@@ -1,6 +1,6 @@
 @if (!hideNavbar) {
   <div>
-    <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
+    <mat-toolbar style="background-color: #00bceb; width: 100%; display: grid">
       <div
         style="
           width: 100%;
@@ -56,17 +56,18 @@
           >
             @if (header.length > 0) {
               <span>
-                <div style="font-size: 12px; line-height: normal">
-                  Finance-IT Control Tower
-                </div>
-                <div style="font-size: 14px; line-height: normal">
-                  {{ header }}
-                </div>
-              </span>
-            }
-            @if (header.length === 0) {
-              <span>
-                <span>Finance-IT Control Tower</span>
+                @if (subHeader.length > 0) {
+                  <div style="font-size: 12px; line-height: normal">
+                    {{ header }}
+                  </div>
+                  <div style="font-size: 14px; line-height: normal">
+                    {{ subHeader }}
+                  </div>
+                } @else {
+                  <div style="font-size: 14px; line-height: normal">
+                    {{ header }}
+                  </div>
+                }
               </span>
             }
           </h5>
