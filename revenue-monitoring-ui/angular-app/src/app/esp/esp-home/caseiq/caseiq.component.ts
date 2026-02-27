@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
 import { Chart } from 'chart.js/auto';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
@@ -35,7 +37,13 @@ interface CaseIqTableRow {
   selector: 'app-caseiq',
   templateUrl: './caseiq.component.html',
   styleUrl: './caseiq.component.css',
-  imports: [CommonModule, FormsModule, LoadingSymbolComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatTooltipModule,
+    LoadingSymbolComponent,
+  ],
   standalone: true,
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {

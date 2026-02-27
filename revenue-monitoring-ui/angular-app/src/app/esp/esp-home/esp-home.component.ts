@@ -174,6 +174,7 @@ export class EspHomeComponent implements OnInit {
     this.roles = this.authService.getRoles();
     this.userName = this.authService.getUserName();
     this.setDefaultActiveTab();
+    this.updateTime();
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.loadPeriodInfo();
     this.loadCaseAnalyzerMetrics();
@@ -183,6 +184,40 @@ export class EspHomeComponent implements OnInit {
       this.showQuarterDropdown = false;
       this.showGridMenu = false;
     });
+  }
+
+  timeNow: string = '';
+
+  updateTime() {
+    const currentDate = new Date();
+    const pstDate = currentDate.toLocaleString('en-US', {
+      timeZone: 'America/Los_Angeles',
+    });
+    const timestamp = Date.parse(pstDate);
+    const currentPstDate = new Date(timestamp);
+
+    const currentHour = currentPstDate.getHours();
+
+    if (
+      currentHour === 0 ||
+      currentHour === 6 ||
+      currentHour === 12 ||
+      currentHour === 18
+    ) {
+      this.getXxcaseiqValidatedCasesAccuracyV();
+      this.loadPeriodInfo();
+      this.loadCaseAnalyzerMetrics();
+    }
+
+    if (currentHour >= 0 && currentHour < 6) {
+      this.timeNow = 'Today at 12 AM PST';
+    } else if (currentHour >= 6 && currentHour < 12) {
+      this.timeNow = 'Today at 6 AM PST';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      this.timeNow = 'Today at 12 PM PST';
+    } else {
+      this.timeNow = 'Today at 6 PM PST';
+    }
   }
 
   componentLevelMetrics: any;

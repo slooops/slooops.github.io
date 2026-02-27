@@ -17,7 +17,7 @@
       <div class="summary-table-title">Finance IT</div>
       <div class="fit-tiles-row">
         <div class="fit-tile">
-          <div class="fit-tile-label">Total Cases</div>
+          <div class="fit-tile-label">Total Cases (ESP)</div>
           @if (getTotalCasesFromAccuracy("Finance IT") != null) {
             <div class="fit-tile-value">
               {{ getTotalCasesFromAccuracy("Finance IT") | number }}
@@ -44,13 +44,31 @@
         </div>
         <div class="fit-tiles-separator"></div>
         <div class="fit-tile">
-          <div class="fit-tile-label">Total Cases (Agent)</div>
+          <div class="fit-tile-label">
+            Total Cases (Agent)
+            <mat-icon
+              class="fit-tile-info-icon"
+              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
+              [matTooltipDisabled]="true"
+            >
+              info_outline
+            </mat-icon>
+          </div>
           <div class="fit-tile-value">
             {{ getFinanceITAgentTotalCases() | number }}
           </div>
         </div>
         <div class="fit-tile">
-          <div class="fit-tile-label">In Progress</div>
+          <div class="fit-tile-label">
+            In Progress
+            <mat-icon
+              class="fit-tile-info-icon"
+              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
+              [matTooltipDisabled]="true"
+            >
+              info_outline
+            </mat-icon>
+          </div>
           <div class="fit-tile-value">
             {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
             @if (fitRow?.inProgress?.agentPct != null) {
@@ -61,7 +79,16 @@
           </div>
         </div>
         <div class="fit-tile">
-          <div class="fit-tile-label">Routed Out</div>
+          <div class="fit-tile-label">
+            Routed Out
+            <mat-icon
+              class="fit-tile-info-icon"
+              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
+              [matTooltipDisabled]="true"
+            >
+              info_outline
+            </mat-icon>
+          </div>
           <div class="fit-tile-value">
             {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
             @if (fitRow?.routed?.agentPct != null) {
@@ -72,7 +99,16 @@
           </div>
         </div>
         <div class="fit-tile">
-          <div class="fit-tile-label">Cancelled</div>
+          <div class="fit-tile-label">
+            Cancelled
+            <mat-icon
+              class="fit-tile-info-icon"
+              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
+              [matTooltipDisabled]="true"
+            >
+              info_outline
+            </mat-icon>
+          </div>
           <div class="fit-tile-value">
             {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
             @if (fitRow?.cancelled?.agentPct != null) {
@@ -83,7 +119,16 @@
           </div>
         </div>
         <div class="fit-tile">
-          <div class="fit-tile-label">Service Requests</div>
+          <div class="fit-tile-label">
+            Service Requests
+            <mat-icon
+              class="fit-tile-info-icon"
+              matTooltip="Sum of In Progress, Routed Out, Cancelled and Service Requests processed by Agent"
+              [matTooltipDisabled]="true"
+            >
+              info_outline
+            </mat-icon>
+          </div>
           <div class="fit-tile-value">
             {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
             @if (fitRow?.service?.agentPct != null) {
