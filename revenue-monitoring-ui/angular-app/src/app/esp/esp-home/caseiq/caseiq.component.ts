@@ -803,12 +803,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     const totalCases = this.getTotalCasesFromAccuracy('Finance IT') ?? 0;
 
     if (!totalCases) return 0;
-    // Sum of all Ops across categories
-    const totalOps =
-      (Number(fm.RESOLVED_AGENT) || 0) +
-      (Number(fm.IN_PROGRESS_AGENT) || 0) +
-      (Number(fm.RECOMMENDED_ROUTE_OUT) || 0) +
-      (Number(fm.RECOMMENDED_CANCELLED) || 0);
+    const totalOps = this.getFinanceITAgentTotalCases();
     return Math.round((totalOps / totalCases) * 1000) / 10; // 1 decimal
   }
 
