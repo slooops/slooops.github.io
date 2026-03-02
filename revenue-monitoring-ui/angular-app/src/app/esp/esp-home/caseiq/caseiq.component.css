@@ -150,7 +150,7 @@
   height: 12px;
   line-height: 12px;
   color: #9ca3af;
-  cursor: help;
+  cursor: default;
   overflow: visible;
   flex-shrink: 0;
 }
