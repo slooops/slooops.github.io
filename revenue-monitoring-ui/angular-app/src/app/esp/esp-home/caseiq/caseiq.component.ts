@@ -800,7 +800,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   getOpsAutomationRate(): number {
     const fm = this.getFinanceITMetrics();
     if (!fm) return 0;
-    const totalCases = Number(fm.TOTAL_CASES) || 0;
+    const totalCases = this.getTotalCasesFromAccuracy('Finance IT') ?? 0;
+
     if (!totalCases) return 0;
     // Sum of all Ops across categories
     const totalOps =

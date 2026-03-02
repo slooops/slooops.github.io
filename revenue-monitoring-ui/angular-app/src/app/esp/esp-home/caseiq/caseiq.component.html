@@ -21,13 +21,7 @@
           <div class="fit-tile">
             <div class="fit-tile-label">
               Total Cases
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="Total validated cases from ESP"
-                [matTooltipDisabled]="true"
-              >
-                info_outline
-              </mat-icon>
+              <mat-icon class="fit-tile-info-icon"> info_outline </mat-icon>
             </div>
             @if (getTotalCasesFromAccuracy("Finance IT") != null) {
               <div class="fit-tile-value">
@@ -155,13 +149,7 @@
           <div class="fit-tile">
             <div class="fit-tile-label">
               Automation Rate
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="Percentage of cases processed by Agent"
-                [matTooltipDisabled]="true"
-              >
-                info_outline
-              </mat-icon>
+              <mat-icon class="fit-tile-info-icon"> info_outline </mat-icon>
             </div>
             <div class="fit-tile-value">{{ opsRate }}%</div>
             <div class="kpi-bar-track">
