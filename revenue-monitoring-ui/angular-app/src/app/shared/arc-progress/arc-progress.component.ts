@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /**
@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
  * - Dual-color gradient stroke (light top → dark bottom)
  * - Formatted value display with optional suffix (k, M, etc.)
  * - Customizable size and stroke width
+ * - Graceful handling of null/undefined values (shows track only)
  */
 @Component({
   selector: 'app-arc-progress',
@@ -32,15 +33,16 @@ import { CommonModule } from '@angular/common';
           </linearGradient>
         </defs>
 
-        <!-- Background track (optional faint arc) -->
-        @if (showTrack) {
+        <!-- Background track (shown when explicitly enabled OR when no data) -->
+        @if (shouldShowTrack) {
           <circle
             class="arc-track"
+            [class.arc-track--no-data]="hasNoData"
             [attr.cx]="center"
             [attr.cy]="center"
             [attr.r]="radius"
             fill="none"
-            [attr.stroke]="trackColor"
+            [attr.stroke]="effectiveTrackColor"
             [attr.stroke-width]="strokeWidth"
             [attr.stroke-dasharray]="arcLength + ' ' + circumference"
             [attr.stroke-dashoffset]="0"
@@ -51,30 +53,36 @@ import { CommonModule } from '@angular/common';
           />
         }
 
-        <!-- Progress arc -->
-        <circle
-          class="arc-progress-bar"
-          [attr.cx]="center"
-          [attr.cy]="center"
-          [attr.r]="radius"
-          fill="none"
-          [attr.stroke]="'url(#' + gradientId + ')'"
-          [attr.stroke-width]="strokeWidth"
-          [attr.stroke-dasharray]="arcLength + ' ' + circumference"
-          [attr.stroke-dashoffset]="progressOffset"
-          stroke-linecap="round"
-          [attr.transform]="
-            'rotate(' + startAngle + ' ' + center + ' ' + center + ')'
-          "
-        />
+        <!-- Progress arc (only shown when we have data) -->
+        @if (!hasNoData) {
+          <circle
+            class="arc-progress-bar"
+            [attr.cx]="center"
+            [attr.cy]="center"
+            [attr.r]="radius"
+            fill="none"
+            [attr.stroke]="'url(#' + gradientId + ')'"
+            [attr.stroke-width]="strokeWidth"
+            [attr.stroke-dasharray]="arcLength + ' ' + circumference"
+            [attr.stroke-dashoffset]="progressOffset"
+            stroke-linecap="round"
+            [attr.transform]="
+              'rotate(' + startAngle + ' ' + center + ' ' + center + ')'
+            "
+          />
+        }
       </svg>
 
       <!-- Value display -->
       @if (showValue) {
-        <div class="arc-value">
-          <span class="arc-value-number">{{ formattedValue }}</span>
-          @if (valueSuffix) {
-            <span class="arc-value-suffix">{{ valueSuffix }}</span>
+        <div class="arc-value" [class.arc-value--no-data]="hasNoData">
+          @if (hasNoData) {
+            <span class="arc-value-number arc-value-number--no-data">—</span>
+          } @else {
+            <span class="arc-value-number">{{ formattedValue }}</span>
+            @if (valueSuffix) {
+              <span class="arc-value-suffix">{{ valueSuffix }}</span>
+            }
           }
         </div>
       }
@@ -100,6 +108,10 @@ import { CommonModule } from '@angular/common';
         opacity: 0.15;
       }
 
+      .arc-track--no-data {
+        opacity: 0.25;
+      }
+
       .arc-progress-bar {
         transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
       }
@@ -112,11 +124,20 @@ import { CommonModule } from '@angular/common';
         gap: 2px;
       }
 
+      .arc-value--no-data {
+        opacity: 0.5;
+      }
+
       .arc-value-number {
         font-size: 1.25rem;
         font-weight: 900;
         color: var(--landing-text, #1b1c1d);
         line-height: 1;
+      }
+
+      .arc-value-number--no-data {
+        font-size: 1.5rem;
+        color: var(--landing-text-muted, #9f9f9f);
       }
 
       .arc-value-suffix {
@@ -142,8 +163,8 @@ import { CommonModule } from '@angular/common';
   ],
 })
 export class ArcProgressComponent {
-  /** Current value to display */
-  @Input() value = 0;
+  /** Current value to display (null = no data available) */
+  @Input() value: number | null = null;
 
   /** Maximum value (100% of arc) */
   @Input() max = 100;
@@ -163,11 +184,14 @@ export class ArcProgressComponent {
   /** Arc span in degrees (270 = 3/4 circle) */
   @Input() arcDegrees = 270;
 
-  /** Show the background track */
-  @Input() showTrack = true;
+  /** Show the background track (default false, but always shown when no data) */
+  @Input() showTrack = false;
 
   /** Track color */
-  @Input() trackColor = '#ffffff00';
+  @Input() trackColor = '#acacac';
+
+  /** Track color to use when showing no-data state */
+  @Input() noDataTrackColor = '#cccccc';
 
   /** Show the value in the center */
   @Input() showValue = true;
@@ -180,6 +204,21 @@ export class ArcProgressComponent {
 
   /** Unique ID for the gradient (needed when multiple instances) */
   gradientId = `arc-gradient-${Math.random().toString(36).substr(2, 9)}`;
+
+  /** Check if we have no data to display */
+  get hasNoData(): boolean {
+    return this.value === null || this.value === undefined;
+  }
+
+  /** Determine if track should be shown */
+  get shouldShowTrack(): boolean {
+    return this.showTrack || this.hasNoData;
+  }
+
+  /** Get effective track color based on data state */
+  get effectiveTrackColor(): string {
+    return this.hasNoData ? this.noDataTrackColor : this.trackColor;
+  }
 
   get center(): number {
     return this.size / 2;
@@ -207,19 +246,26 @@ export class ArcProgressComponent {
 
   /** Calculate the stroke-dashoffset for the current progress */
   get progressOffset(): number {
-    const percentage = Math.min(Math.max(this.value / this.max, 0), 1);
+    if (this.hasNoData) {
+      return this.arcLength; // Full offset = no progress shown
+    }
+    const percentage = Math.min(Math.max(this.value! / this.max, 0), 1);
     const filledLength = percentage * this.arcLength;
     return this.arcLength - filledLength;
   }
 
   /** Format the value for display */
   get formattedValue(): string {
-    if (this.value >= 1_000_000) {
-      return (this.value / 1_000_000).toFixed(1).replace(/\.0$/, '');
+    if (this.hasNoData) {
+      return '—';
     }
-    if (this.value >= 1_000) {
-      return (this.value / 1_000).toFixed(1).replace(/\.0$/, '');
+    const val = this.value!;
+    if (val >= 1_000_000) {
+      return (val / 1_000_000).toFixed(1).replace(/\.0$/, '');
     }
-    return this.value.toString();
+    if (val >= 1_000) {
+      return (val / 1_000).toFixed(1).replace(/\.0$/, '');
+    }
+    return val.toString();
   }
 }

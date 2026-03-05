@@ -48,7 +48,8 @@ export type CardVariant =
 
 /** Arc progress data for displaying metrics on cards */
 export interface ArcData {
-  value: number;
+  metricKey: string; // Key to match with backend data
+  value: number | null; // null = no data yet
   max: number;
   suffix?: string; // e.g., 'k', 'M', '%'
   subtitle?: string; // e.g., 'Transactions', 'Completion'
@@ -147,6 +148,9 @@ export class LandingComponent implements OnInit, OnDestroy {
   volumeStats = signal<StatMetric[]>([]);
   largeDealStats = signal<StatMetric[]>([]);
 
+  // Card metrics - keyed by metricKey for lookup
+  cardMetrics = signal<Map<string, { value: number; max: number }>>(new Map());
+
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
     {
@@ -194,7 +198,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       ],
       variant: 'soft-glow',
       arcData: {
-        value: 298000,
+        metricKey: 'CONTINUOUS_MONITORING',
+        value: null, // fetched from backend
         max: 350000,
         suffix: 'k',
         subtitle: 'Transactions',
@@ -211,7 +216,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
       variant: 'gradient-bg-1',
       arcData: {
-        value: 87,
+        metricKey: 'PERIOD_CLOSE_MGMT',
+        value: null,
         max: 100,
         suffix: '%',
         subtitle: 'Complete',
@@ -228,7 +234,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
       variant: 'glass',
       arcData: {
-        value: 42,
+        metricKey: 'OPERATIONAL_VISIBILITY',
+        value: null,
         max: 50,
         suffix: '',
         subtitle: 'Active Alerts',
@@ -244,6 +251,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       route: null,
       requiredRoles: ['ADMIN'],
       variant: 'inner-glow',
+      // No arcData - feature not yet built
     },
   ];
 
@@ -258,7 +266,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: ['ADMIN', 'LARGE_DEAL'],
       variant: 'soft-glow',
       arcData: {
-        value: 1250000,
+        metricKey: 'LARGE_DEAL_TRACKING',
+        value: null,
         max: 2000000,
         suffix: 'M',
         subtitle: 'Revenue',
@@ -275,7 +284,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
       variant: 'gradient-bg-2',
       arcData: {
-        value: 73,
+        metricKey: 'MIDCLOSE_STATUS',
+        value: null,
         max: 100,
         suffix: '%',
         subtitle: 'Entities',
@@ -292,7 +302,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
       variant: 'gradient-bg-3',
       arcData: {
-        value: 156000,
+        metricKey: 'MIDCLOSE_FORECAST',
+        value: null,
         max: 200000,
         suffix: 'k',
         subtitle: 'Forecast',
@@ -310,7 +321,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       requiredRoles: ['ADMIN'],
       variant: 'soft-glow',
       arcData: {
-        value: 94,
+        metricKey: 'O2C_VISIBILITY',
+        value: null,
         max: 100,
         suffix: '%',
         subtitle: 'Accuracy',
@@ -330,8 +342,34 @@ export class LandingComponent implements OnInit, OnDestroy {
     'WD0',
   ];
 
-  itOpsCards = computed(() => this.filterByRole(this.itOpsAllCards));
-  finBizOpsCards = computed(() => this.filterByRole(this.finBizOpsAllCards));
+  itOpsCards = computed(() =>
+    this.enrichCardsWithMetrics(this.filterByRole(this.itOpsAllCards)),
+  );
+  finBizOpsCards = computed(() =>
+    this.enrichCardsWithMetrics(this.filterByRole(this.finBizOpsAllCards)),
+  );
+
+  /** Merge fetched metrics into card arcData */
+  private enrichCardsWithMetrics(cards: LandingCard[]): LandingCard[] {
+    const metrics = this.cardMetrics();
+    return cards.map((card) => {
+      if (!card.arcData) return card;
+
+      const metric = metrics.get(card.arcData.metricKey);
+      if (metric) {
+        return {
+          ...card,
+          arcData: {
+            ...card.arcData,
+            value: metric.value,
+            max: metric.max || card.arcData.max, // Use fetched max or fallback to default
+          },
+        };
+      }
+      // No metric found - keep null value (shows no-data state)
+      return card;
+    });
+  }
 
   /** Check if user has admin role */
   private isAdmin = computed(() => this.userRoles().includes('ADMIN'));
@@ -406,6 +444,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Fetch all dashboard metrics (including card metrics) from single endpoint
     this.http
       .get('dashboard-metrics', this.destroyManager)
       .subscribe((metrics: any) => {
@@ -499,6 +538,23 @@ export class LandingComponent implements OnInit, OnDestroy {
         trendDirection: m.TREND_DIRECTION,
       })),
     );
+
+    // Card metrics for arc progress indicators
+    this.parseCardMetrics(bySection('CARD_METRICS'));
+  }
+
+  /** Parse card metrics from API into the cardMetrics signal */
+  private parseCardMetrics(metrics: DashboardMetric[]): void {
+    const metricsMap = new Map<string, { value: number; max: number }>();
+
+    for (const m of metrics) {
+      metricsMap.set(m.METRIC_KEY, {
+        value: m.METRIC_VALUE,
+        max: m.METRIC_TOTAL ?? 100,
+      });
+    }
+
+    this.cardMetrics.set(metricsMap);
   }
 
   /** Get suffix for arc progress based on display format */
