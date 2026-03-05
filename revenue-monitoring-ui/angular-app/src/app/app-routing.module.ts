@@ -44,7 +44,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Landing',
-      hideNavbar: true,
+      // hideNavbar: true,
     },
   },
   {

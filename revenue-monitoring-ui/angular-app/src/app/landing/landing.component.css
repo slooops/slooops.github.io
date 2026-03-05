@@ -75,7 +75,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--landing-space-xs) 6rem;
+  padding: var(--landing-space-xs) 3rem;
+  margin-bottom: -3rem;
 }
 
 .welcome-text {

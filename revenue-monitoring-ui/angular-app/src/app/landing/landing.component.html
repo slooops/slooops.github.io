@@ -2,8 +2,10 @@
   <!-- Welcome Bar -->
   <div class="welcome-bar">
     <p class="welcome-text">
-      Hello <strong>{{ userName() }}</strong
-      >, welcome!
+      <strong>
+        <!-- {{ userName() }} -->
+        Q3FY26
+      </strong>
     </p>
     <button class="ask-ivan-btn" type="button">
       <ng-icon class="ask-ivan-icon" name="phosphorSparkleBold" size="20" />
@@ -155,7 +157,7 @@
                 <div class="card-icon">
                   <ng-icon [name]="card.icon" size="48" />
                 </div>
-                @if (card.arcData) {
+                <!-- @if (card.arcData) {
                   <app-arc-progress
                     [value]="card.arcData.value"
                     [max]="card.arcData.max"
@@ -166,7 +168,7 @@
                     [size]="72"
                     [strokeWidth]="5"
                   />
-                }
+                } -->
               </div>
               <h4 class="card-title">{{ card.title }}</h4>
               <p class="card-description">{{ card.description }}</p>

@@ -3,223 +3,231 @@
     <mat-toolbar class="toolbar">
       <div class="toolbar-inner">
         <div class="toolbar-left">
-          <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
-            <img
-              src="assets/icons/grid-menu.svg"
-              alt="menu"
-              class="toolbar-nav-icon"
-              (click)="toggleNavMenu($event)"
-            />
-            @if (showNavMenu) {
-              <div class="toolbar-nav-dropdown">
-                <!-- Home -->
-                @if (isAdmin$) {
-                  <div
-                    class="toolbar-nav-dropdown-item"
-                    [class.active]="router.url.includes('/landing')"
-                    (click)="navigateTo('/landing')"
-                  >
-                    <span class="toolbar-nav-dropdown-item-name">Home</span>
-                  </div>
-                }
-                <!-- Operational Visibility -->
-                @if (isAdmin$) {
-                  <div
-                    class="toolbar-nav-dropdown-item"
-                    [class.active]="
-                      router.url.includes('/operational-visibility')
-                    "
-                    (click)="navigateTo('/operational-visibility')"
-                  >
-                    <span class="toolbar-nav-dropdown-item-name"
-                      >Operational Visibility</span
-                    >
-                  </div>
-                }
-
-                <!-- ── Continuous Monitoring section ── -->
-                <div
-                  class="toolbar-nav-section-header toolbar-nav-section-toggle"
-                  (click)="toggleCmMenu($event)"
-                >
-                  <span>Continuous Monitoring</span>
-                  <i
-                    class="fa fa-chevron-down toolbar-nav-section-caret"
-                    [class.expanded]="showCmMenu"
-                  ></i>
-                </div>
-                @if (showCmMenu) {
-                  @if (hasRole$(["PERIOD_CLOSE"]) || isAdmin$) {
+          @if (!router.url.includes("/landing")) {
+            <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
+              <img
+                src="assets/icons/grid-menu.svg"
+                alt="menu"
+                class="toolbar-nav-icon"
+                (click)="toggleNavMenu($event)"
+              />
+              @if (showNavMenu) {
+                <div class="toolbar-nav-dropdown">
+                  <!-- Home -->
+                  @if (isAdmin$) {
                     <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                      class="toolbar-nav-dropdown-item"
+                      [class.active]="router.url.includes('/landing')"
+                      (click)="navigateTo('/landing')"
+                    >
+                      <span class="toolbar-nav-dropdown-item-name">Home</span>
+                    </div>
+                  }
+                  <!-- Operational Visibility -->
+                  @if (isAdmin$) {
+                    <div
+                      class="toolbar-nav-dropdown-item"
                       [class.active]="
-                        router.url.includes('/period-close-tracking')
+                        router.url.includes('/operational-visibility')
                       "
-                      (click)="navigateTo('/period-close-tracking')"
+                      (click)="navigateTo('/operational-visibility')"
                     >
                       <span class="toolbar-nav-dropdown-item-name"
-                        >Period Close Tracking</span
+                        >Operational Visibility</span
                       >
                     </div>
                   }
-                  @if (
-                    hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY"]) ||
-                    isAdmin$
-                  ) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/invoice-to-cash')"
-                      (click)="navigateTo('/invoice-to-cash')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >Invoice to Cash</span
+
+                  <!-- ── Continuous Monitoring section ── -->
+                  <div
+                    class="toolbar-nav-section-header toolbar-nav-section-toggle"
+                    (click)="toggleCmMenu($event)"
+                  >
+                    <span>Continuous Monitoring</span>
+                    <i
+                      class="fa fa-chevron-down toolbar-nav-section-caret"
+                      [class.expanded]="showCmMenu"
+                    ></i>
+                  </div>
+                  @if (showCmMenu) {
+                    @if (hasRole$(["PERIOD_CLOSE"]) || isAdmin$) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/period-close-tracking')
+                        "
+                        (click)="navigateTo('/period-close-tracking')"
                       >
-                    </div>
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >Period Close Tracking</span
+                        >
+                      </div>
+                    }
+                    @if (
+                      hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY"]) ||
+                      isAdmin$
+                    ) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="router.url.includes('/invoice-to-cash')"
+                        (click)="navigateTo('/invoice-to-cash')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >Invoice to Cash</span
+                        >
+                      </div>
+                    }
+                    @if (
+                      hasRole$([
+                        "EXCEPTION_ADMIN",
+                        "EXCEPTION_READ_ONLY",
+                        "ACCOUNT_RECON",
+                      ]) || isAdmin$
+                    ) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/revenue-accounting')
+                        "
+                        (click)="navigateTo('/revenue-accounting')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >Revenue Accounting</span
+                        >
+                      </div>
+                    }
+                    @if (
+                      hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY"]) ||
+                      isAdmin$
+                    ) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="router.url.includes('/gl-posting')"
+                        (click)="navigateTo('/gl-posting')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >General Ledger</span
+                        >
+                      </div>
+                    }
+                    @if (hasRole$(["ORDER_MANAGEMENT"]) || isAdmin$) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/order-management')
+                        "
+                        (click)="navigateTo('/order-management')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >Order Management</span
+                        >
+                      </div>
+                    }
+                    @if (hasRole$(["OPERATION_CTRL"]) || isAdmin$) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/operations-controls')
+                        "
+                        (click)="navigateTo('/operations-controls')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >Operations Controls</span
+                        >
+                      </div>
+                    }
+                    @if (hasRole$(["WIPS"]) || isAdmin$) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="router.url.includes('/wips')"
+                        (click)="navigateTo('/wips')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name">WIPS</span>
+                      </div>
+                    }
                   }
+
+                  <!-- ── Business Insights ── -->
                   @if (
                     hasRole$([
-                      "EXCEPTION_ADMIN",
-                      "EXCEPTION_READ_ONLY",
-                      "ACCOUNT_RECON",
+                      "LARGE_DEAL",
+                      "WD0",
+                      "MIDCLOSE_VOLUMES",
+                      "ISSUE_RESOLUTION",
                     ]) || isAdmin$
                   ) {
                     <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="
-                        router.url.includes('/revenue-accounting')
-                      "
-                      (click)="navigateTo('/revenue-accounting')"
+                      class="toolbar-nav-dropdown-item"
+                      [class.active]="router.url.includes('/business-insights')"
+                      (click)="navigateTo('/business-insights')"
                     >
                       <span class="toolbar-nav-dropdown-item-name"
-                        >Revenue Accounting</span
+                        >Business Insights</span
                       >
                     </div>
                   }
-                  @if (
-                    hasRole$(["EXCEPTION_ADMIN", "EXCEPTION_READ_ONLY"]) ||
-                    isAdmin$
-                  ) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/gl-posting')"
-                      (click)="navigateTo('/gl-posting')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >General Ledger</span
-                      >
-                    </div>
-                  }
-                  @if (hasRole$(["ORDER_MANAGEMENT"]) || isAdmin$) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/order-management')"
-                      (click)="navigateTo('/order-management')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >Order Management</span
-                      >
-                    </div>
-                  }
-                  @if (hasRole$(["OPERATION_CTRL"]) || isAdmin$) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="
-                        router.url.includes('/operations-controls')
-                      "
-                      (click)="navigateTo('/operations-controls')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >Operations Controls</span
-                      >
-                    </div>
-                  }
-                  @if (hasRole$(["WIPS"]) || isAdmin$) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/wips')"
-                      (click)="navigateTo('/wips')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name">WIPS</span>
-                    </div>
-                  }
-                }
 
-                <!-- ── Business Insights ── -->
-                @if (
-                  hasRole$([
-                    "LARGE_DEAL",
-                    "WD0",
-                    "MIDCLOSE_VOLUMES",
-                    "ISSUE_RESOLUTION",
-                  ]) || isAdmin$
-                ) {
+                  <!-- ── ESP Case Manager section ── -->
                   <div
-                    class="toolbar-nav-dropdown-item"
-                    [class.active]="router.url.includes('/business-insights')"
-                    (click)="navigateTo('/business-insights')"
+                    class="toolbar-nav-section-header toolbar-nav-section-toggle"
+                    (click)="toggleEspMenu($event)"
                   >
-                    <span class="toolbar-nav-dropdown-item-name"
-                      >Business Insights</span
-                    >
+                    <span>ESP Case Manager</span>
+                    <i
+                      class="fa fa-chevron-down toolbar-nav-section-caret"
+                      [class.expanded]="showEspMenu"
+                    ></i>
                   </div>
-                }
-
-                <!-- ── ESP Case Manager section ── -->
-                <div
-                  class="toolbar-nav-section-header toolbar-nav-section-toggle"
-                  (click)="toggleEspMenu($event)"
-                >
-                  <span>ESP Case Manager</span>
-                  <i
-                    class="fa fa-chevron-down toolbar-nav-section-caret"
-                    [class.expanded]="showEspMenu"
-                  ></i>
-                </div>
-                @if (showEspMenu) {
-                  @if (
-                    hasRole$([
-                      "CASE_IQ_MANAGER",
-                      "CASE_IQ_OM",
-                      "CASE_IQ_SBP",
-                      "CASE_IQ_I2C",
-                      "CASE_IQ_AIT",
-                      "CASE_IQ_FPP",
-                      "CASE_IQ_P2P",
-                      "CASE_IQ_CAPITAL",
-                    ]) || isAdmin$
-                  ) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/case-iq')"
-                      (click)="navigateTo('/case-iq')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >Case IQ</span
+                  @if (showEspMenu) {
+                    @if (
+                      hasRole$([
+                        "CASE_IQ_MANAGER",
+                        "CASE_IQ_OM",
+                        "CASE_IQ_SBP",
+                        "CASE_IQ_I2C",
+                        "CASE_IQ_AIT",
+                        "CASE_IQ_FPP",
+                        "CASE_IQ_P2P",
+                        "CASE_IQ_CAPITAL",
+                      ]) || isAdmin$
+                    ) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="router.url.includes('/case-iq')"
+                        (click)="navigateTo('/case-iq')"
                       >
-                    </div>
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >Case IQ</span
+                        >
+                      </div>
+                    }
+                    @if (hasRole$(["ADMIN"]) || isAdmin$) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/i2c-case-analyzer')
+                        "
+                        (click)="navigateTo('/i2c-case-analyzer')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name">I2C</span>
+                      </div>
+                    }
+                    @if (hasRole$(["ADMIN"]) || isAdmin$) {
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/sbp-case-analyzer')
+                        "
+                        (click)="navigateTo('/sbp-case-analyzer')"
+                      >
+                        <span class="toolbar-nav-dropdown-item-name">SBP</span>
+                      </div>
+                    }
                   }
-                  @if (hasRole$(["ADMIN"]) || isAdmin$) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/i2c-case-analyzer')"
-                      (click)="navigateTo('/i2c-case-analyzer')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name">I2C</span>
-                    </div>
-                  }
-                  @if (hasRole$(["ADMIN"]) || isAdmin$) {
-                    <div
-                      class="toolbar-nav-dropdown-item toolbar-nav-subitem"
-                      [class.active]="router.url.includes('/sbp-case-analyzer')"
-                      (click)="navigateTo('/sbp-case-analyzer')"
-                    >
-                      <span class="toolbar-nav-dropdown-item-name">SBP</span>
-                    </div>
-                  }
-                }
-              </div>
-            }
-          </div>
+                </div>
+              }
+            </div>
+          }
           <span class="toolbar-brand" routerLink="/landing">
             <span style="display: flex; align-items: center; padding: 0 15px">
               <svg class="toolbar-logo" viewBox="0 0 40 21">
