@@ -1,60 +1,110 @@
-<mat-tab-group
-  [selectedIndex]="selectedTabIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  <mat-tab
-    mat-stretch-tabs
-    backgroundColor="primary"
-    color="primary"
-    class="mat-elevation-z8"
-    label="Invoice to Cash"
-  >
-    <app-monitoring-dashboard
-      [urls]="preInvoicingUrls"
-      [keysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'RULE_NAME'
-      ]"
-      [componentName]="'I2C Controls'"
-      [columnsToFilter]="preInvoicingFilters"
-      [detailsColumnsToHide]="['']"
-      [submitKeysToMap]="[]"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="Revenue Accounting">
-    <app-monitoring-dashboard
-      [urls]="revControlsUrls"
-      [keysToMap]="[
-        'PERIOD_NAME',
-        'APPLICATION_NAME',
-        'ORG_NAME',
-        'TRANSACTION_DATE',
-        'RULE_NAME'
-      ]"
-      [componentName]="'Rev Controls'"
-      [columnsToFilter]="revControlsFilters"
-      [detailsColumnsToHide]="['']"
-      [submitKeysToMap]="[]"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="Tax and Customs">
-    <app-monitoring-dashboard
-      [urls]="gtcControlsUrls"
-      [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
-      [componentName]="'Gtc Controls'"
-      [columnsToFilter]="GtcControlsFilters"
-      [detailsColumnsToHide]="['']"
-      [submitKeysToMap]="[]"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-  </mat-tab>
-  <mat-tab label="Deferrals" [disabled]="true"> </mat-tab>
-</mat-tab-group>
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (tab of tabLabels; track tab; let i = $index) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedTabIndex === i"
+                (click)="onGridMenuItemClick(i)"
+              >
+                <span class="grid-menu-item-name">{{ tab }}</span>
+              </div>
+            }
+            <div class="grid-menu-item" style="opacity: 0.5; cursor: default">
+              <span class="grid-menu-item-name">Deferrals</span>
+            </div>
+          </div>
+        }
+      </div>
+      <h2>{{ tabLabels[selectedTabIndex] || "Operations Controls" }}</h2>
+    </div>
+
+    <div class="period-info">
+      <span><b>Period name:</b> {{ periodInfo().periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b>
+        {{ periodInfo().periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Last Updated:</b> {{ periodInfo().lastUpdated }} &nbsp;</span
+      >
+    </div>
+
+    <div class="global-search">
+      <div class="global-search-input-wrapper">
+        <input
+          type="text"
+          class="global-search-input"
+          #globalSearchInput
+          placeholder="Search.."
+        />
+      </div>
+      <span class="global-search-icon">🔍</span>
+    </div>
+  </div>
+</div>
+<hr />
+
+<div class="oc-content">
+  @switch (selectedTabIndex) {
+    @case (0) {
+      <app-monitoring-dashboard
+        [urls]="preInvoicingUrls"
+        [keysToMap]="[
+          'PERIOD_NAME',
+          'APPLICATION_NAME',
+          'ORG_NAME',
+          'TRANSACTION_DATE',
+          'RULE_NAME',
+        ]"
+        [componentName]="'I2C Controls'"
+        [columnsToFilter]="preInvoicingFilters"
+        [detailsColumnsToHide]="['']"
+        [submitKeysToMap]="[]"
+        [webexKeysToMap]="[]"
+        [userContext]="userContextData"
+      ></app-monitoring-dashboard>
+    }
+    @case (1) {
+      <app-monitoring-dashboard
+        [urls]="revControlsUrls"
+        [keysToMap]="[
+          'PERIOD_NAME',
+          'APPLICATION_NAME',
+          'ORG_NAME',
+          'TRANSACTION_DATE',
+          'RULE_NAME',
+        ]"
+        [componentName]="'Rev Controls'"
+        [columnsToFilter]="revControlsFilters"
+        [detailsColumnsToHide]="['']"
+        [submitKeysToMap]="[]"
+        [webexKeysToMap]="[]"
+        [userContext]="userContextData"
+      ></app-monitoring-dashboard>
+    }
+    @case (2) {
+      <app-monitoring-dashboard
+        [urls]="gtcControlsUrls"
+        [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"
+        [componentName]="'Gtc Controls'"
+        [columnsToFilter]="GtcControlsFilters"
+        [detailsColumnsToHide]="['']"
+        [submitKeysToMap]="[]"
+        [webexKeysToMap]="[]"
+        [userContext]="userContextData"
+      ></app-monitoring-dashboard>
+    }
+  }
+</div>

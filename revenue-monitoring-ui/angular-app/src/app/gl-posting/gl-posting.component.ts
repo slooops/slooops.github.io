@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 
 export interface UserContext {
@@ -21,7 +20,7 @@ export interface UserContext {
   templateUrl: './gl-posting.component.html',
   styleUrl: './gl-posting.component.css',
   providers: [DestroyManager],
-  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
+  imports: [CommonModule, MonitoringDashboardComponent],
   standalone: true,
 })
 export class GlPostingComponent implements OnInit {
@@ -184,6 +183,18 @@ export class GlPostingComponent implements OnInit {
   }
 
   periodStatus: any;
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
+  }
 
   getErrorSummaryPeriodStatus() {
     this.dataService

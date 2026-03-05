@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -41,7 +41,7 @@ export class InvoicingComponent implements OnInit {
     private destroyManager: DestroyManager,
     public authService: AuthenticationService,
     private menuService: MenuService,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getRoles();
@@ -556,7 +556,7 @@ export class InvoicingComponent implements OnInit {
         (word) =>
           acronyms.includes(word.toUpperCase())
             ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+            : word.charAt(0).toUpperCase() + word.slice(1), // Capitalize the first letter otherwise
       )
       .join(' '); // Join words back with spaces
   }
@@ -615,10 +615,37 @@ export class InvoicingComponent implements OnInit {
   selectedIndex: number = 0;
   filteredTabs: { label: string; component: string; disabled?: boolean }[] = [];
 
+  postInvoicingSubIndex: number = 0;
+  postInvoicingSubTabs: string[] = [
+    'CM Amortization',
+    'Invoice Delivery',
+    'Digital Payments',
+    'SRT Process',
+    'RPO Extract',
+    'PCM Application',
+  ];
+
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
+      tab.role.some((role) => this.roles.includes(role)),
     );
+  }
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.showGridMenu = false;
+    this.onTabChange(index);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
   }
 
   onTabChange(index: number) {

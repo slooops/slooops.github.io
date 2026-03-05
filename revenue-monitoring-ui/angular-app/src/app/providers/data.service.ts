@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { ApiHttpService } from './http.service';
-import { catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { DestroyManager } from './destroy-manager.service';
 
 @Injectable({
@@ -62,7 +62,21 @@ export class DataService implements OnDestroy {
   }
 
   getMonitoringPeriodStatus(destroyManager: DestroyManager): Observable<any> {
-    return this.fetchWithCache('monitoring-period-status', destroyManager);
+    return this.fetchWithCache('monitoring-period-status', destroyManager).pipe(
+      map((response: any) => {
+        // Backend returns array, take first element
+        const data =
+          Array.isArray(response) && response.length > 0
+            ? response[0]
+            : response;
+
+        return {
+          periodName: data?.periodName || data?.PERIOD_NAME || '',
+          periodEndDate: data?.periodEndDate || data?.END_DATE || '',
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }),
+    );
   }
 
   getI2CSummary(destroyManager: DestroyManager): Observable<any> {

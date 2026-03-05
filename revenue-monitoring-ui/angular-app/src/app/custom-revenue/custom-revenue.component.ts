@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -6,7 +6,6 @@ import { MenuService } from '../providers/menu.service';
 import { ApiHttpService } from '../providers/http.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 
@@ -23,12 +22,7 @@ export interface UserContext {
   templateUrl: './custom-revenue.component.html',
   styleUrl: './custom-revenue.component.css',
   providers: [DestroyManager],
-  imports: [
-    CommonModule,
-    MatTabsModule,
-    MonitoringDashboardComponent,
-    LoadingSymbolComponent,
-  ],
+  imports: [CommonModule, MonitoringDashboardComponent, LoadingSymbolComponent],
   standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {
@@ -41,7 +35,7 @@ export class CustomRevenueComponent implements OnInit {
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
     private menuService: MenuService,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {
     // Initialize roles and user context in constructor so they're available before template renders
     this.roles = this.authService.getRoles();
@@ -284,7 +278,7 @@ export class CustomRevenueComponent implements OnInit {
         (word) =>
           acronyms.includes(word.toUpperCase())
             ? word.toUpperCase() // Keep the word in uppercase if it's in skippedWords
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+            : word.charAt(0).toUpperCase() + word.slice(1), // Capitalize the first letter otherwise
       )
       .join(' '); // Join words back with spaces
   }
@@ -382,12 +376,29 @@ export class CustomRevenueComponent implements OnInit {
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
+      tab.role.some((role) => this.roles.includes(role)),
     );
 
     if (this.filteredTabs.length <= 1) {
       this.selectedIndex = 0;
     }
+  }
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.showGridMenu = false;
+    this.onTabChange(index);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
   }
 
   onTabChange(index: number) {

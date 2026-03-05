@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { ApiHttpService } from '../providers/http.service';
@@ -38,9 +38,9 @@ export class BusinessInsightsComponent implements OnInit {
     // Set initial subHeader based on the default tab
     setTimeout(() => {
       if (this.filteredTabs.length > 0) {
-        this.menuService.updateSubHeader(
-          this.filteredTabs[this.selectedIndex]?.label || '',
-        );
+        // this.menuService.updateSubHeader(
+        //   this.filteredTabs[this.selectedIndex]?.label || '',
+        // );
         this.logTabVisit(this.selectedIndex);
       }
     }, 100);
@@ -69,7 +69,7 @@ export class BusinessInsightsComponent implements OnInit {
     setTimeout(() => {
       const selectedTab = this.filteredTabs[index];
       this.selectedIndex = index; // Switch to the new tab
-      this.menuService.updateSubHeader(selectedTab?.label || '');
+      // this.menuService.updateSubHeader(selectedTab?.label || '');
 
       this.searchContextService.setO2cSearchVisible(false);
 
@@ -117,6 +117,23 @@ export class BusinessInsightsComponent implements OnInit {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
       tab.role.some((role) => this.roles.includes(role)),
     );
+  }
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.showGridMenu = false;
+    this.onTabChange(index);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
   }
 
   /**

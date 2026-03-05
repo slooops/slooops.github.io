@@ -1,15 +1,15 @@
 @if (isModalOpen()) {
-<app-user-assignment
-  [data]="selectedSummaryData()"
-  [updateUrl]="updateUrl()"
-  [webexUrl]="webexUrl()"
-  [componentName]="componentName()"
-  [submitKeysToMap]="submitKeysToMap()"
-  [webexKeysToMap]="webexKeysToMap()"
-  [fieldConfig]="assignmentDialogFieldConfig()"
-  [userContext]="userContext()"
-  (close)="closeAssignModal($event)"
-></app-user-assignment>
+  <app-user-assignment
+    [data]="selectedSummaryData()"
+    [updateUrl]="updateUrl()"
+    [webexUrl]="webexUrl()"
+    [componentName]="componentName()"
+    [submitKeysToMap]="submitKeysToMap()"
+    [webexKeysToMap]="webexKeysToMap()"
+    [fieldConfig]="assignmentDialogFieldConfig()"
+    [userContext]="userContext()"
+    (close)="closeAssignModal($event)"
+  ></app-user-assignment>
 }
 
 <!-- <ng-template #warningToolTip>
@@ -36,6 +36,7 @@
     <div class="header-container">
       <div class="left-section">
         <h5 class="section-title">Error Summary</h5>
+        &nbsp;
         <div class="process-flow-left">
           <app-process-flow-tooltip [processFlowTotals]="processFlowTotals()">
           </app-process-flow-tooltip>
@@ -44,32 +45,34 @@
 
       <div class="action-buttons">
         @if (summaryDatasource?.data?.length) {
-        <div>
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="resetSelection()"
-            style="font-size: 12px; padding: 3px; font-weight: 600"
-            [style.color]="!canResetSelection() ? '#ccc' : '#555'"
-            [style.border-color]="!canResetSelection() ? '#ddd' : '#555'"
-            class="mat-small"
-            [disabled]="!canResetSelection()"
-          >
-            Reset
-          </button>
-          &nbsp;&nbsp;
-          <button
-            class="custom-button-primary"
-            style="color: #555; font-weight: 600"
-            [style.background-color]="!canAssignUser() ? '#e0e0e0' : '#888'"
-            [style.cursor]="!canAssignUser() ? 'not-allowed' : 'pointer'"
-            (click)="viewDetails()"
-            [disabled]="!canAssignUser()"
-          >
-            Assign User
-          </button>
-        </div>
-        } &nbsp; @if (summaryDatasource?.data?.length) {
+          <div>
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="resetSelection()"
+              style="font-size: 12px; padding: 3px; font-weight: 600"
+              [style.color]="!canResetSelection() ? '#ccc' : '#555'"
+              [style.border-color]="!canResetSelection() ? '#ddd' : '#555'"
+              class="mat-small"
+              [disabled]="!canResetSelection()"
+            >
+              Reset
+            </button>
+            &nbsp;&nbsp;
+            <button
+              class="custom-button-primary"
+              style="color: #555; font-weight: 600"
+              [style.background-color]="!canAssignUser() ? '#e0e0e0' : '#888'"
+              [style.cursor]="!canAssignUser() ? 'not-allowed' : 'pointer'"
+              (click)="viewDetails()"
+              [disabled]="!canAssignUser()"
+            >
+              Assign User
+            </button>
+          </div>
+        }
+        &nbsp; &nbsp;
+        <!-- &nbsp; @if (summaryDatasource?.data?.length) {
         <div
           style="
             font-size: 12px;
@@ -94,7 +97,7 @@
             {{ summaryLoadTime() }}
           </p>
         </div>
-        }
+        } -->
         <button
           mat-icon-button
           (click)="
@@ -111,110 +114,128 @@
     </div>
 
     @if (summaryDatasource?.data?.length) {
-    <div class="table-container" style="overflow-y: hidden !important">
-      <table
-        mat-table
-        [dataSource]="summaryDatasource"
-        class="custom-table table-responsive"
-      >
-        <ng-container
-          matColumnDef="select"
-          style="padding-top: 10px !important"
+      <div class="table-container" style="overflow-y: hidden !important">
+        <table
+          mat-table
+          [dataSource]="summaryDatasource"
+          class="custom-table table-responsive"
         >
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let row">
-            <mat-checkbox
-              (click)="$event.stopPropagation()"
-              (change)="onRowSelectionChange($event, row)"
-              [checked]="selection.isSelected(row)"
-            >
-            </mat-checkbox>
-          </td>
-        </ng-container>
-        @for (column of summaryColumns; track column) {
-        <ng-container [matColumnDef]="column">
-          <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
-            @switch (column) { @case ('AGING') {
-            <span (click)="sortData(column, 'summary')">
-              {{ replaceUnderscore(column) }}
-              @if (isSortedColumn('AGING')) {
-              <i [ngClass]="getSortIcon()"></i>
-              }
-            </span>
-            } @case ('AMOUNT') {
-            <span (click)="sortData(column, 'summary')">
-              {{ replaceUnderscore(column) }}
-              @if (isSortedColumn('AMOUNT')) {
-              <i [ngClass]="getSortIcon()"></i>
-              }
-            </span>
-            } @case ('BALANCE') {
-            <span (click)="sortData(column, 'summary')">
-              {{ replaceUnderscore(column) }}
-              @if (isSortedColumn('BALANCE')) {
-              <i [ngClass]="getSortIcon()"></i>
-              }
-            </span>
-            } @default {
-            {{ replaceUnderscore(column) }}
-            } }
-          </th>
-          <td
-            mat-cell
-            *matCellDef="let element"
-            [class.comments-cell]="
-              column === 'COMMENTS' || column === 'comments'
-            "
+          <ng-container
+            matColumnDef="select"
+            style="padding-top: 10px !important"
           >
-            @switch (column) { @case ('PROCESS_FLOW') { @if (isSubAppMapping) {
-            <span>
-              {{ element[column] }}
-            </span>
-            } @if (!isSubAppMapping) {
-            <span>
-              {{ element[column] }}
-            </span>
-            } } @case ('PERIOD_NAME') {
-            <div>
-              <span
-                [ngClass]="{
-                  highlight: element.PERIOD_NAME !== periodName()
-                }"
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="onRowSelectionChange($event, row)"
+                [checked]="selection.isSelected(row)"
               >
-                {{ element[column] }}
-              </span>
-            </div>
-            } @case ('APPLICATION_NAME') {
-            {{ element[column] }}
-            } @default {
-            {{ element[column] }}
-            } }
-          </td>
-        </ng-container>
-        }
-        <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: summaryDisplayedColumns"></tr>
-      </table>
-    </div>
-    } @if (summaryLoading()) {
-    <div class="loading-container">
-      <app-loading-symbol></app-loading-symbol>
-      <div class="circle-subcaption"></div>
-      <br /><br /><br />
-    </div>
-    } @if (!summaryDatasource?.data?.length && !summaryLoading()) {
-    <div class="loading-container">
-      <img
-        src="assets/thumbnails/noDataFound.png"
-        alt="No Data Found"
-        class="no-data-image"
-        style="width: 160px; justify-content: center; align-items: center"
-      />
-      <div class="card-subtitle" style="font-weight: 600; color: gray">
-        No Exceptions Found
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          @for (column of summaryColumns; track column) {
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef class="nowrap no-wrap">
+                @switch (column) {
+                  @case ("AGING") {
+                    <span (click)="sortData(column, 'summary')">
+                      {{ replaceUnderscore(column) }}
+                      @if (isSortedColumn("AGING")) {
+                        <i [ngClass]="getSortIcon()"></i>
+                      }
+                    </span>
+                  }
+                  @case ("AMOUNT") {
+                    <span (click)="sortData(column, 'summary')">
+                      {{ replaceUnderscore(column) }}
+                      @if (isSortedColumn("AMOUNT")) {
+                        <i [ngClass]="getSortIcon()"></i>
+                      }
+                    </span>
+                  }
+                  @case ("BALANCE") {
+                    <span (click)="sortData(column, 'summary')">
+                      {{ replaceUnderscore(column) }}
+                      @if (isSortedColumn("BALANCE")) {
+                        <i [ngClass]="getSortIcon()"></i>
+                      }
+                    </span>
+                  }
+                  @default {
+                    {{ replaceUnderscore(column) }}
+                  }
+                }
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element"
+                [class.comments-cell]="
+                  column === 'COMMENTS' || column === 'comments'
+                "
+              >
+                @switch (column) {
+                  @case ("PROCESS_FLOW") {
+                    @if (isSubAppMapping) {
+                      <span>
+                        {{ element[column] }}
+                      </span>
+                    }
+                    @if (!isSubAppMapping) {
+                      <span>
+                        {{ element[column] }}
+                      </span>
+                    }
+                  }
+                  @case ("PERIOD_NAME") {
+                    <div>
+                      <span
+                        [ngClass]="{
+                          highlight: element.PERIOD_NAME !== periodName(),
+                        }"
+                      >
+                        {{ element[column] }}
+                      </span>
+                    </div>
+                  }
+                  @case ("APPLICATION_NAME") {
+                    {{ element[column] }}
+                  }
+                  @default {
+                    {{ element[column] }}
+                  }
+                }
+              </td>
+            </ng-container>
+          }
+          <tr mat-header-row *matHeaderRowDef="summaryDisplayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: summaryDisplayedColumns"
+          ></tr>
+        </table>
       </div>
-      <br /><br />
-    </div>
+    }
+    @if (summaryLoading()) {
+      <div class="loading-container">
+        <app-loading-symbol></app-loading-symbol>
+        <div class="circle-subcaption"></div>
+        <br /><br /><br />
+      </div>
+    }
+    @if (!summaryDatasource?.data?.length && !summaryLoading()) {
+      <div class="loading-container">
+        <img
+          src="assets/thumbnails/noDataFound.png"
+          alt="No Data Found"
+          class="no-data-image"
+          style="width: 160px; justify-content: center; align-items: center"
+        />
+        <div class="card-subtitle" style="font-weight: 600; color: gray">
+          No Exceptions Found
+        </div>
+        <br /><br />
+      </div>
     }
 
     <mat-paginator
@@ -232,83 +253,90 @@
   <div class="header-container">
     <div class="details-header">
       <h5 class="section-title">Error Details</h5>
-      @if (componentName() !== 'Transactions Processed') {
-      <span>
-        @if (dataSource?.data?.length > 0) {
-        <form [formGroup]="searchForm" class="form-container">
-          <div class="filter-container">
-            <div class="filter-item">
-              @for (column of selectFilters; track column) {
-              <span>
-                <mat-form-field
-                  appearance="fill"
-                  [style.width.px]="175"
-                  style="font-size: smaller; margin-top: 1px !important"
-                >
-                  <mat-select
-                    [formControlName]="column.formControlName"
-                    [placeholder]="
-                      'Select ' + replaceUnderscore(column.columnName)
-                    "
-                    multiple
-                  >
-                    @for ( option of filterOptions[column.formControlName] ;
-                    track option) {
-                    <mat-option [value]="option" (onSelectionChange)="filter()">
-                      @if (column.subAppMapping) {
-                      <span>
-                        {{ option }}
-                      </span>
-                      } @if (!column.subAppMapping) {
-                      <span>
-                        {{ option }}
-                      </span>
-                      }
-                    </mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-              </span>
-              } @for (column of textFilters; track column) {
-              <span>
-                <mat-form-field
-                  class="filter"
-                  appearance="fill"
-                  floatLabel="auto"
-                  [style.width.px]="175"
-                  style="font-size: smaller"
-                >
-                  <input
-                    matInput
-                    [placeholder]="
-                      'Search ' + replaceUnderscore(column.columnName)
-                    "
-                    (keyup)="filter()"
-                    [formControlName]="column.formControlName"
-                  />
-                  <i
-                    matSuffix
-                    class="fa fa-search hoverIcon"
-                    style="color: gray"
-                    (click)="applyFilter()"
-                  ></i>
-                </mat-form-field>
-              </span>
-              }
-            </div>
-          </div>
-          <button
-            mat-stroked-button
-            type="button"
-            (click)="clearFilters()"
-            style="font-size: 12px; padding: 3px; color: #555"
-            class="mat-small"
-          >
-            Reset
-          </button>
-        </form>
-        }
-      </span>
+      @if (componentName() !== "Transactions Processed") {
+        <span>
+          @if (dataSource?.data?.length > 0) {
+            <form [formGroup]="searchForm" class="form-container">
+              <div class="filter-container">
+                <div class="filter-item">
+                  @for (column of selectFilters; track column) {
+                    <span>
+                      <mat-form-field
+                        appearance="fill"
+                        [style.width.px]="175"
+                        style="font-size: smaller; margin-top: 1px !important"
+                      >
+                        <mat-select
+                          [formControlName]="column.formControlName"
+                          [placeholder]="
+                            'Select ' + replaceUnderscore(column.columnName)
+                          "
+                          multiple
+                        >
+                          @for (
+                            option of filterOptions[column.formControlName];
+                            track option
+                          ) {
+                            <mat-option
+                              [value]="option"
+                              (onSelectionChange)="filter()"
+                            >
+                              @if (column.subAppMapping) {
+                                <span>
+                                  {{ option }}
+                                </span>
+                              }
+                              @if (!column.subAppMapping) {
+                                <span>
+                                  {{ option }}
+                                </span>
+                              }
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </span>
+                  }
+                  @for (column of textFilters; track column) {
+                    <span>
+                      <mat-form-field
+                        class="filter"
+                        appearance="fill"
+                        floatLabel="auto"
+                        [style.width.px]="175"
+                        style="font-size: smaller"
+                      >
+                        <input
+                          matInput
+                          [placeholder]="
+                            'Search ' + replaceUnderscore(column.columnName)
+                          "
+                          (keyup)="filter()"
+                          [formControlName]="column.formControlName"
+                        />
+                        <i
+                          matSuffix
+                          class="fa fa-search hoverIcon"
+                          style="color: gray"
+                          (click)="applyFilter()"
+                        ></i>
+                      </mat-form-field>
+                    </span>
+                  }
+                </div>
+              </div>
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="clearFilters()"
+                style="font-size: 12px; padding: 3px; color: #555"
+                class="mat-small"
+              >
+                Reset
+              </button>
+            </form>
+          }
+        </span>
       }
     </div>
 
@@ -322,129 +350,167 @@
     </div>
   </div>
 
-  @if ( !isLoading() && (isFiltered() ? filtereddataSource?.data?.length > 0 :
-  dataSource?.data?.length > 0) ) {
-  <div class="table-container">
-    <table
-      mat-table
-      [dataSource]="isFiltered() ? filtereddataSource : dataSource"
-      class="custom-table"
-    >
-      @for (column of detailsDisplayedColumns; track column) {
-      <ng-container [matColumnDef]="column">
-        <th mat-header-cell *matHeaderCellDef class="no-wrap">
-          @switch (column) { @case ('AMOUNT') {
-          <span
-            (click)="
-              sortData(column, isFiltered ? 'filteredDetails' : 'details')
-            "
-          >
-            {{ replaceUnderscore(column) }}
-            @if (isSortedColumn('AMOUNT')) {
-            <i [ngClass]="getSortIcon()"></i>
-            }
-          </span>
-          } @case ('BILL_TOTAL') {
-          <span
-            (click)="
-              sortData(column, isFiltered ? 'filteredDetails' : 'details')
-            "
-          >
-            {{ replaceUnderscore(column) }}
-            @if (isSortedColumn('BILL_TOTAL')) {
-            <i [ngClass]="getSortIcon()"></i>
-            }
-          </span>
-          } @case ('PROCESS_FLOW') {
-          <span
-            (click)="
-              sortData(column, isFiltered ? 'filteredDetails' : 'details')
-            "
-          >
-            {{ replaceUnderscore(column) }}
-            @if (isSortedColumn('PROCESS_FLOW')) {
-            <i [ngClass]="getSortIcon()"></i>
-            }
-          </span>
-          } @case ('ORG_NAME') {
-          <span
-            (click)="
-              sortData(column, isFiltered ? 'filteredDetails' : 'details')
-            "
-          >
-            {{ replaceUnderscore(column) }}
-            @if (isSortedColumn('ORG_NAME')) {
-            <i [ngClass]="getSortIcon()"></i>
-            }
-          </span>
-          } @case ('LEDGER_NAME') {
-          <span
-            (click)="
-              sortData(column, isFiltered ? 'filteredDetails' : 'details')
-            "
-          >
-            {{ replaceUnderscore(column) }}
-            @if (isSortedColumn('LEDGER_NAME')) {
-            <i [ngClass]="getSortIcon()"></i>
-            }
-          </span>
-          } @case ('ERROR_MESSAGE') {
-          <span
-            (click)="
-              sortData(column, isFiltered ? 'filteredDetails' : 'details')
-            "
-          >
-            {{ replaceUnderscore(column) }}
-            @if (isSortedColumn('ERROR_MESSAGE')) {
-            <i [ngClass]="getSortIcon()"></i>
-            }
-          </span>
-          } @default {
-          {{ replaceUnderscore(column) }}
-          } }
-        </th>
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [class.error-message-cell]="column === 'ERROR_MESSAGE'"
-        >
-          @switch (column) { @case ('PROCESS_FLOW') { @if (isSubAppMapping) {
-          <span>
-            {{ element[column] }}
-          </span>
-          } @if (!isSubAppMapping) {
-          <span>
-            {{ element[column] }}
-          </span>
-          } } @default {
-          {{ element[column] }}
-          } }
-        </td>
-      </ng-container>
-      }
-      <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: detailsDisplayedColumns"></tr>
-    </table>
-  </div>
-  } @if (isLoading()) {
-  <div class="loading-container">
-    <app-loading-symbol></app-loading-symbol>
-    <div class="circle-subcaption"></div>
-    <br /><br /><br />
-  </div>
-  } @if (!dataSource?.data?.length && !isLoading()) {
-  <div class="loading-container">
-    <img
-      src="assets/thumbnails/noDataFound.png"
-      alt="No Data Found"
-      class="no-data-image"
-      style="width: 160px; justify-content: center; align-items: center"
-    />
-    <div class="card-subtitle" style="font-weight: 600; color: gray">
-      No Exceptions Found
+  @if (
+    !isLoading() &&
+    (isFiltered()
+      ? filtereddataSource?.data?.length > 0
+      : dataSource?.data?.length > 0)
+  ) {
+    <div class="table-container">
+      <table
+        mat-table
+        [dataSource]="isFiltered() ? filtereddataSource : dataSource"
+        class="custom-table"
+      >
+        @for (column of detailsDisplayedColumns; track column) {
+          <ng-container [matColumnDef]="column">
+            <th mat-header-cell *matHeaderCellDef class="no-wrap">
+              @switch (column) {
+                @case ("AMOUNT") {
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    @if (isSortedColumn("AMOUNT")) {
+                      <i [ngClass]="getSortIcon()"></i>
+                    }
+                  </span>
+                }
+                @case ("BILL_TOTAL") {
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    @if (isSortedColumn("BILL_TOTAL")) {
+                      <i [ngClass]="getSortIcon()"></i>
+                    }
+                  </span>
+                }
+                @case ("PROCESS_FLOW") {
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    @if (isSortedColumn("PROCESS_FLOW")) {
+                      <i [ngClass]="getSortIcon()"></i>
+                    }
+                  </span>
+                }
+                @case ("ORG_NAME") {
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    @if (isSortedColumn("ORG_NAME")) {
+                      <i [ngClass]="getSortIcon()"></i>
+                    }
+                  </span>
+                }
+                @case ("LEDGER_NAME") {
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    @if (isSortedColumn("LEDGER_NAME")) {
+                      <i [ngClass]="getSortIcon()"></i>
+                    }
+                  </span>
+                }
+                @case ("ERROR_MESSAGE") {
+                  <span
+                    (click)="
+                      sortData(
+                        column,
+                        isFiltered ? 'filteredDetails' : 'details'
+                      )
+                    "
+                  >
+                    {{ replaceUnderscore(column) }}
+                    @if (isSortedColumn("ERROR_MESSAGE")) {
+                      <i [ngClass]="getSortIcon()"></i>
+                    }
+                  </span>
+                }
+                @default {
+                  {{ replaceUnderscore(column) }}
+                }
+              }
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [class.error-message-cell]="column === 'ERROR_MESSAGE'"
+            >
+              @switch (column) {
+                @case ("PROCESS_FLOW") {
+                  @if (isSubAppMapping) {
+                    <span>
+                      {{ element[column] }}
+                    </span>
+                  }
+                  @if (!isSubAppMapping) {
+                    <span>
+                      {{ element[column] }}
+                    </span>
+                  }
+                }
+                @default {
+                  {{ element[column] }}
+                }
+              }
+            </td>
+          </ng-container>
+        }
+        <tr mat-header-row *matHeaderRowDef="detailsDisplayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: detailsDisplayedColumns"></tr>
+      </table>
     </div>
-    <br /><br />
-  </div>
+  }
+  @if (isLoading()) {
+    <div class="loading-container">
+      <app-loading-symbol></app-loading-symbol>
+      <div class="circle-subcaption"></div>
+      <br /><br /><br />
+    </div>
+  }
+  @if (!dataSource?.data?.length && !isLoading()) {
+    <div class="loading-container">
+      <img
+        src="assets/thumbnails/noDataFound.png"
+        alt="No Data Found"
+        class="no-data-image"
+        style="width: 160px; justify-content: center; align-items: center"
+      />
+      <div class="card-subtitle" style="font-weight: 600; color: gray">
+        No Exceptions Found
+      </div>
+      <br /><br />
+    </div>
   }
 
   <mat-paginator

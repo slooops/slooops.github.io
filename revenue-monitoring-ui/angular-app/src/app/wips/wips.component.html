@@ -1,11 +1,50 @@
-<app-monitoring-dashboard
-  [urls]="wipsUrls"
-  [keysToMap]="[]"
-  [componentName]="'WIPS'"
-  [columnsToFilter]="wipsFilters"
-  [detailsColumnsToHide]="[]"
-  [assignmentDialogFieldConfig]=""
-  [submitKeysToMap]="[]"
-  [webexKeysToMap]="[]"
-  [userContext]="userContextData"
-></app-monitoring-dashboard>
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            <div class="grid-menu-item active" (click)="showGridMenu = false">
+              <span class="grid-menu-item-name">WIPS</span>
+            </div>
+          </div>
+        }
+      </div>
+      <h2>WIPS</h2>
+    </div>
+
+    <div class="global-search">
+      <div class="global-search-input-wrapper">
+        <input
+          type="text"
+          class="global-search-input"
+          #globalSearchInput
+          placeholder="Search.."
+        />
+      </div>
+      <span class="global-search-icon">🔍</span>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<div class="wips-content">
+  <app-monitoring-dashboard
+    [urls]="wipsUrls"
+    [keysToMap]="[]"
+    [componentName]="'WIPS'"
+    [columnsToFilter]="wipsFilters"
+    [detailsColumnsToHide]="[]"
+    [assignmentDialogFieldConfig]=""
+    [submitKeysToMap]="[]"
+    [webexKeysToMap]="[]"
+    [userContext]="userContextData"
+  ></app-monitoring-dashboard>
+</div>

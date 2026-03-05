@@ -1,36 +1,53 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  @for (tab of filteredTabs; track tab; let i = $index) {
-    <mat-tab [label]="tab.label" [disabled]="tab.disabled">
-      @switch (tab.component) {
-        @case ("app-large-deal") {
-          @if (selectedIndex === i) {
-            <app-invoice-status></app-invoice-status>
-          }
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (tab of filteredTabs; track tab; let i = $index) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedIndex === i"
+                [class.disabled]="tab.disabled"
+                (click)="!tab.disabled && onGridMenuItemClick(i)"
+              >
+                <span class="grid-menu-item-name">{{ tab.label }}</span>
+              </div>
+            }
+          </div>
         }
-        @case ("app-wd0-status") {
-          @if (selectedIndex === i) {
-            <app-wd0-dash></app-wd0-dash>
-          }
-        }
-        @case ("app-wd0-historical-data") {
-          @if (selectedIndex === i) {
-            <app-wd0-historical-data></app-wd0-historical-data>
-          }
-        }
-        @case ("app-issue-reporting") {
-          @if (selectedIndex === i) {
-            <app-issue-reporting></app-issue-reporting>
-          }
-        }
-        @case ("external-o2c") {
-          @if (selectedIndex === i) {
-            <app-o2c-embed></app-o2c-embed>
-          }
-        }
+      </div>
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Business Insights" }}</h2>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<div class="bi-content">
+  @if (filteredTabs.length > 0) {
+    @switch (filteredTabs[selectedIndex]?.component) {
+      @case ("app-large-deal") {
+        <app-invoice-status></app-invoice-status>
       }
-    </mat-tab>
+      @case ("app-wd0-status") {
+        <app-wd0-dash></app-wd0-dash>
+      }
+      @case ("app-wd0-historical-data") {
+        <app-wd0-historical-data></app-wd0-historical-data>
+      }
+      @case ("app-issue-reporting") {
+        <app-issue-reporting></app-issue-reporting>
+      }
+      @case ("external-o2c") {
+        <app-o2c-embed></app-o2c-embed>
+      }
+    }
   }
-</mat-tab-group>
+</div>

@@ -1,107 +1,163 @@
-<mat-tab-group
-  [selectedIndex]="selectedIndex"
-  (selectedIndexChange)="onTabChange($event)"
->
-  @for (tab of filteredTabs; track tab; let i = $index) {
-  <mat-tab [label]="tab.label" [disabled]="tab.disabled">
-    @switch (tab.component) { @case ('app-imports') { @if (selectedIndex === i)
-    {
-    <app-monitoring-dashboard
-      [urls]="omImportUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Imports'"
-      [columnsToFilter]="omImportFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-holds') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omHoldsUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Holds'"
-      [columnsToFilter]="omHoldsFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-bookings') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omBookingsUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Bookings'"
-      [columnsToFilter]="omBookingsFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-workflow') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omWorkflowUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Workflow'"
-      [columnsToFilter]="omWorkflowFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-processing') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omProcessingUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Processing'"
-      [columnsToFilter]="omProcessingFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-distribution') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omDistributionUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Distribution'"
-      [columnsToFilter]="omDistributionFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-attribution') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omAttributionUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Attribution'"
-      [columnsToFilter]="omAttributionFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } @case ('app-jobs') { @if (selectedIndex === i) {
-    <app-monitoring-dashboard
-      [urls]="omJobsUrls"
-      [keysToMap]="['timestamp', 'scenario']"
-      [componentName]="'Order Management Jobs'"
-      [columnsToFilter]="omJobsFilters"
-      [detailsColumnsToHide]="[]"
-      [assignmentDialogFieldConfig]="fieldConfig"
-      [submitKeysToMap]="['timestamp', 'scenario']"
-      [webexKeysToMap]="[]"
-      [userContext]="userContextData"
-    ></app-monitoring-dashboard>
-    } } }
-  </mat-tab>
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (tab of filteredTabs; track tab; let i = $index) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedIndex === i"
+                (click)="onGridMenuItemClick(i)"
+              >
+                <span class="grid-menu-item-name">{{ tab.label }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Order Management" }}</h2>
+    </div>
+
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+
+    <div class="global-search">
+      <div class="global-search-input-wrapper">
+        <input
+          type="text"
+          class="global-search-input"
+          #globalSearchInput
+          placeholder="Search.."
+        />
+      </div>
+      <span class="global-search-icon">🔍</span>
+    </div>
+  </div>
+</div>
+
+<hr />
+
+<div class="om-content">
+  @if (filteredTabs.length > 0) {
+    @switch (filteredTabs[selectedIndex]?.component) {
+      @case ("app-imports") {
+        <app-monitoring-dashboard
+          [urls]="omImportUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Imports'"
+          [columnsToFilter]="omImportFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-holds") {
+        <app-monitoring-dashboard
+          [urls]="omHoldsUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Holds'"
+          [columnsToFilter]="omHoldsFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-bookings") {
+        <app-monitoring-dashboard
+          [urls]="omBookingsUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Bookings'"
+          [columnsToFilter]="omBookingsFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-workflow") {
+        <app-monitoring-dashboard
+          [urls]="omWorkflowUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Workflow'"
+          [columnsToFilter]="omWorkflowFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-processing") {
+        <app-monitoring-dashboard
+          [urls]="omProcessingUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Processing'"
+          [columnsToFilter]="omProcessingFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-distribution") {
+        <app-monitoring-dashboard
+          [urls]="omDistributionUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Distribution'"
+          [columnsToFilter]="omDistributionFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-attribution") {
+        <app-monitoring-dashboard
+          [urls]="omAttributionUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Attribution'"
+          [columnsToFilter]="omAttributionFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+      @case ("app-jobs") {
+        <app-monitoring-dashboard
+          [urls]="omJobsUrls"
+          [keysToMap]="['timestamp', 'scenario']"
+          [componentName]="'Order Management Jobs'"
+          [columnsToFilter]="omJobsFilters"
+          [detailsColumnsToHide]="[]"
+          [assignmentDialogFieldConfig]="fieldConfig"
+          [submitKeysToMap]="['timestamp', 'scenario']"
+          [webexKeysToMap]="[]"
+          [userContext]="userContextData"
+        ></app-monitoring-dashboard>
+      }
+    }
   }
-</mat-tab-group>
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -30,12 +30,13 @@ export class OperationsControlsComponent implements OnInit {
     'Revenue Accounting',
     'Tax and Customs',
   ];
+  periodInfo = signal<any>(null);
 
   constructor(
     private dataService: DataService,
     private destroyManager: DestroyManager,
     protected authService: AuthenticationService,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {
     // Initialize user context in constructor so it's available before child components initialize
     this.userContextData = {
@@ -52,6 +53,23 @@ export class OperationsControlsComponent implements OnInit {
     this.getErrorSummaryPeriodStatus();
     // Log initial tab visit
     this.logTabVisit(this.tabLabels[0]);
+  }
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.showGridMenu = false;
+    this.onTabChange(index);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
   }
 
   onTabChange(index: number) {
@@ -211,16 +229,24 @@ export class OperationsControlsComponent implements OnInit {
         (word) =>
           acronyms.includes(word.toUpperCase())
             ? word.toUpperCase()
-            : word.charAt(0).toUpperCase() + word.slice(1) // Capitalize the first letter otherwise
+            : word.charAt(0).toUpperCase() + word.slice(1), // Capitalize the first letter otherwise
       )
       .join(' '); // Join words back with spaces
   }
 
   getErrorSummaryPeriodStatus() {
-    this.dataService
-      .getMonitoringPeriodStatus(this.destroyManager)
-      .subscribe((data: any) => {
-        this.periodStatus = data;
-      });
+    this.dataService.getMonitoringPeriodStatus(this.destroyManager).subscribe({
+      next: (periodData) => {
+        this.periodInfo.set(periodData);
+      },
+      error: (error) => {
+        console.error('Error loading period info:', error);
+        this.periodInfo.set({
+          periodName: '',
+          periodEndDate: '',
+          lastUpdated: new Date().toLocaleString(),
+        });
+      },
+    });
   }
 }
