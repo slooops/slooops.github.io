@@ -50,8 +50,8 @@ export type CardVariant =
 export interface ArcData {
   metricKey: string; // Key to match with backend data
   value: number | null; // null = no data yet
-  max: number;
-  suffix?: string; // e.g., 'k', 'M', '%'
+  max: number | null; // null = open-ended
+  displayFormat?: 'COUNT' | 'COUNT_K' | 'CURRENCY_M' | 'PERCENT' | '' | null;
   subtitle?: string; // e.g., 'Transactions', 'Completion'
   colorStart?: string;
   colorEnd?: string;
@@ -77,7 +77,7 @@ export interface DashboardMetric {
   METRIC_TOTAL: number | null;
   TREND_PERCENT: number | null;
   TREND_DIRECTION: 'UP' | 'DOWN' | null;
-  DISPLAY_FORMAT: 'COUNT' | 'COUNT_K' | 'CURRENCY_M' | 'PERCENT';
+  DISPLAY_FORMAT: 'COUNT' | 'COUNT_K' | 'CURRENCY_M' | 'PERCENT' | '' | null;
   SECTION: string;
   DISPLAY_ORDER: number;
   LABEL: string;
@@ -89,9 +89,9 @@ export interface DashboardMetric {
 /** Parsed dial metric for arc progress components */
 export interface DialMetric {
   value: number;
-  max: number;
+  max: number | null; // null = open-ended (renders at ~80%)
   label: string;
-  suffix: string;
+  displayFormat: 'COUNT' | 'COUNT_K' | 'CURRENCY_M' | 'PERCENT' | '' | null;
   size: number;
   strokeWidth: number;
   colorStart: string;
@@ -149,7 +149,22 @@ export class LandingComponent implements OnInit, OnDestroy {
   largeDealStats = signal<StatMetric[]>([]);
 
   // Card metrics - keyed by metricKey for lookup
-  cardMetrics = signal<Map<string, { value: number; max: number }>>(new Map());
+  cardMetrics = signal<
+    Map<
+      string,
+      {
+        value: number;
+        max: number | null;
+        displayFormat:
+          | 'COUNT'
+          | 'COUNT_K'
+          | 'CURRENCY_M'
+          | 'PERCENT'
+          | ''
+          | null;
+      }
+    >
+  >(new Map());
 
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
@@ -200,8 +215,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'CONTINUOUS_MONITORING',
         value: null, // fetched from backend
-        max: 350000,
-        suffix: 'k',
+        max: null, // fetched from backend
         subtitle: 'Transactions',
         colorStart: '#00bceb',
         colorEnd: '#ff007f',
@@ -218,8 +232,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'PERIOD_CLOSE_MGMT',
         value: null,
-        max: 100,
-        suffix: '%',
+        max: null,
         subtitle: 'Complete',
         colorStart: '#0070d2',
         colorEnd: '#00bceb',
@@ -236,8 +249,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'OPERATIONAL_VISIBILITY',
         value: null,
-        max: 50,
-        suffix: '',
+        max: null,
         subtitle: 'Active Alerts',
         colorStart: '#ff9000',
         colorEnd: '#ff007f',
@@ -268,8 +280,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'LARGE_DEAL_TRACKING',
         value: null,
-        max: 2000000,
-        suffix: 'M',
+        max: null,
         subtitle: 'Revenue',
         colorStart: '#ffd000',
         colorEnd: '#ff9000',
@@ -286,8 +297,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'MIDCLOSE_STATUS',
         value: null,
-        max: 100,
-        suffix: '%',
+        max: null,
         subtitle: 'Entities',
         colorStart: '#00bceb',
         colorEnd: '#0070d2',
@@ -304,8 +314,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'MIDCLOSE_FORECAST',
         value: null,
-        max: 200000,
-        suffix: 'k',
+        max: null,
         subtitle: 'Forecast',
         colorStart: '#ff007f',
         colorEnd: '#9933ff',
@@ -323,8 +332,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       arcData: {
         metricKey: 'O2C_VISIBILITY',
         value: null,
-        max: 100,
-        suffix: '%',
+        max: null,
         subtitle: 'Accuracy',
         colorStart: '#00d084',
         colorEnd: '#00bceb',
@@ -362,7 +370,8 @@ export class LandingComponent implements OnInit, OnDestroy {
           arcData: {
             ...card.arcData,
             value: metric.value,
-            max: metric.max || card.arcData.max, // Use fetched max or fallback to default
+            max: metric.max ?? card.arcData.max, // Use fetched max or fallback
+            displayFormat: metric.displayFormat,
           },
         };
       }
@@ -478,9 +487,9 @@ export class LandingComponent implements OnInit, OnDestroy {
     this.itOpsDials.set(
       bySection('IT_OPS_DIALS').map((m, i) => ({
         value: m.METRIC_VALUE,
-        max: m.METRIC_TOTAL ?? 100,
+        max: m.METRIC_TOTAL, // null = open-ended (renders at 80%)
         label: m.LABEL,
-        suffix: this.getSuffix(m.DISPLAY_FORMAT),
+        displayFormat: m.DISPLAY_FORMAT,
         ...itDialConfigs[i],
       })),
     );
@@ -499,9 +508,9 @@ export class LandingComponent implements OnInit, OnDestroy {
     this.finOpsDials.set(
       bySection('FINANCE_OPS_DIALS').map((m, i) => ({
         value: m.METRIC_VALUE,
-        max: m.METRIC_TOTAL ?? 100,
+        max: m.METRIC_TOTAL, // null = open-ended (renders at 80%)
         label: m.LABEL,
-        suffix: this.getSuffix(m.DISPLAY_FORMAT),
+        displayFormat: m.DISPLAY_FORMAT,
         ...finDialConfigs[i],
       })),
     );
@@ -545,44 +554,93 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   /** Parse card metrics from API into the cardMetrics signal */
   private parseCardMetrics(metrics: DashboardMetric[]): void {
-    const metricsMap = new Map<string, { value: number; max: number }>();
+    const metricsMap = new Map<
+      string,
+      {
+        value: number;
+        max: number | null;
+        displayFormat:
+          | 'COUNT'
+          | 'COUNT_K'
+          | 'CURRENCY_M'
+          | 'PERCENT'
+          | ''
+          | null;
+      }
+    >();
 
     for (const m of metrics) {
       metricsMap.set(m.METRIC_KEY, {
         value: m.METRIC_VALUE,
-        max: m.METRIC_TOTAL ?? 100,
+        max: m.METRIC_TOTAL, // null = open-ended
+        displayFormat: m.DISPLAY_FORMAT,
       });
     }
 
     this.cardMetrics.set(metricsMap);
   }
 
-  /** Get suffix for arc progress based on display format */
-  private getSuffix(format: string): string {
-    switch (format) {
-      case 'CURRENCY_M':
-        return 'M';
-      case 'COUNT_K':
-        return 'k';
-      case 'PERCENT':
-        return '%';
-      default:
-        return '';
+  /**
+   * Format value based on display format with auto-scaling.
+   * - PERCENT: shows value as-is with % suffix
+   * - CURRENCY_M: always $ prefix, auto-scales K/M/B
+   * - COUNT/COUNT_K: no $ prefix, auto-scales K/M/B
+   * - null/empty: auto-scales K/M/B, $ prefix if value >= 1M
+   */
+  private formatValue(
+    value: number,
+    format: 'COUNT' | 'COUNT_K' | 'CURRENCY_M' | 'PERCENT' | '' | null,
+  ): string {
+    // PERCENT: show value as-is with % suffix
+    if (format === 'PERCENT') {
+      if (value % 1 === 0) return `${value}%`;
+      return `${value.toFixed(1).replace(/\.0$/, '')}%`;
     }
+
+    // Determine $ prefix
+    let prefix = '';
+    if (format === 'CURRENCY_M') {
+      prefix = '$';
+    } else if (!format && value >= 1_000_000) {
+      prefix = '$';
+    }
+
+    // Auto-scale based on magnitude
+    let scaled: number;
+    let suffix: string;
+    if (value >= 1_000_000_000) {
+      scaled = value / 1_000_000_000;
+      suffix = 'B';
+    } else if (value >= 1_000_000) {
+      scaled = value / 1_000_000;
+      suffix = 'M';
+    } else if (value >= 1_000) {
+      scaled = value / 1_000;
+      suffix = 'K';
+    } else {
+      scaled = value;
+      suffix = '';
+    }
+
+    // Format with appropriate precision
+    const formatted = this.formatWithPrecision(scaled);
+    return `${prefix}${formatted}${suffix}`;
   }
 
-  /** Format value based on display format */
-  private formatValue(value: number, format: string): string {
-    switch (format) {
-      case 'CURRENCY_M':
-        return `$${value.toFixed(value % 1 === 0 ? 0 : 1)}M`;
-      case 'COUNT_K':
-        return `${(value / 1000).toFixed(1)}k`;
-      case 'PERCENT':
-        return `${value}%`;
-      default:
-        return value.toString();
+  /** Format number with appropriate precision based on magnitude */
+  private formatWithPrecision(num: number): string {
+    if (num < 10) {
+      return num
+        .toLocaleString('en-US', { maximumFractionDigits: 2 })
+        .replace(/\.00$/, '')
+        .replace(/(\.\d)0$/, '$1');
     }
+    if (num < 100) {
+      return num
+        .toLocaleString('en-US', { maximumFractionDigits: 1 })
+        .replace(/\.0$/, '');
+    }
+    return num.toLocaleString('en-US', { maximumFractionDigits: 0 });
   }
 
   onCardClick(card: LandingCard): void {

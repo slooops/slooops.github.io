@@ -79,9 +79,12 @@ import { CommonModule } from '@angular/common';
           @if (hasNoData) {
             <span class="arc-value-number arc-value-number--no-data">—</span>
           } @else {
+            @if (isCurrency) {
+              <span class="arc-value-prefix">$</span>
+            }
             <span class="arc-value-number">{{ formattedValue }}</span>
-            @if (valueSuffix) {
-              <span class="arc-value-suffix">{{ valueSuffix }}</span>
+            @if (computedSuffix) {
+              <span class="arc-value-suffix">{{ computedSuffix }}</span>
             }
           }
         </div>
@@ -146,6 +149,12 @@ import { CommonModule } from '@angular/common';
         color: var(--landing-text-muted, #555);
       }
 
+      .arc-value-prefix {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--landing-text-muted, #555);
+      }
+
       .arc-subtitle {
         position: absolute;
         bottom: 4px;
@@ -166,8 +175,27 @@ export class ArcProgressComponent {
   /** Current value to display (null = no data available) */
   @Input() value: number | null = null;
 
-  /** Maximum value (100% of arc) */
-  @Input() max = 100;
+  /** Maximum value (100% of arc). If null, arc renders at ~80% as decorative. */
+  @Input() max: number | null = 100;
+
+  /** Default fill percentage when max is null (open-ended metric) */
+  @Input() openEndedFillPercent = 0.91;
+
+  /**
+   * Display format from backend. Controls how value is formatted:
+   * - null/empty: Auto-scale (K/M/B), $ prefix if value >= 1M
+   * - 'PERCENT': Show value as-is with % suffix, no $
+   * - 'CURRENCY_M': Auto-scale + always show $ prefix
+   * - 'COUNT', 'COUNT_K': Auto-scale, no $ prefix
+   */
+  @Input() displayFormat:
+    | 'COUNT'
+    | 'COUNT_K'
+    | 'CURRENCY_M'
+    | 'PERCENT'
+    | ''
+    | null
+    | undefined;
 
   /** Size of the component in pixels */
   @Input() size = 80;
@@ -195,9 +223,6 @@ export class ArcProgressComponent {
 
   /** Show the value in the center */
   @Input() showValue = true;
-
-  /** Suffix for the value (e.g., 'k', 'M', '%') */
-  @Input() valueSuffix = '';
 
   /** Subtitle text displayed below the value, right-aligned extending left */
   @Input() subtitle = '';
@@ -244,28 +269,101 @@ export class ArcProgressComponent {
     return 115;
   }
 
+  /** Check if this is an open-ended metric (no max defined) */
+  get isOpenEnded(): boolean {
+    return this.max === null || this.max === undefined;
+  }
+
   /** Calculate the stroke-dashoffset for the current progress */
   get progressOffset(): number {
     if (this.hasNoData) {
       return this.arcLength; // Full offset = no progress shown
     }
-    const percentage = Math.min(Math.max(this.value! / this.max, 0), 1);
+    // Open-ended metrics render at fixed percentage (decorative)
+    if (this.isOpenEnded) {
+      const filledLength = this.openEndedFillPercent * this.arcLength;
+      return this.arcLength - filledLength;
+    }
+    const percentage = Math.min(Math.max(this.value! / this.max!, 0), 1);
     const filledLength = percentage * this.arcLength;
     return this.arcLength - filledLength;
   }
 
-  /** Format the value for display */
+  /** Check if this is a currency format (should show $ prefix) */
+  get isCurrency(): boolean {
+    if (this.hasNoData) return false;
+
+    // CURRENCY_M explicitly requests $ prefix
+    if (this.displayFormat === 'CURRENCY_M') return true;
+
+    // Auto-scale mode (null/empty): $ prefix for values >= 1M
+    const format = this.displayFormat as string | null | undefined;
+    if (!format) {
+      return this.value! >= 1_000_000;
+    }
+
+    // COUNT, COUNT_K, PERCENT: no $ prefix
+    return false;
+  }
+
+  /** Compute suffix dynamically based on value magnitude */
+  get computedSuffix(): string {
+    if (this.hasNoData) return '';
+
+    // PERCENT: always use % suffix, no scaling
+    if (this.displayFormat === 'PERCENT') {
+      return '%';
+    }
+
+    // All other formats: auto-scale suffix based on magnitude
+    const val = this.value!;
+    if (val >= 1_000_000_000) return 'B';
+    if (val >= 1_000_000) return 'M';
+    if (val >= 1_000) return 'K';
+    return '';
+  }
+
+  /** Format the value for display (auto-scales for all non-PERCENT formats) */
   get formattedValue(): string {
     if (this.hasNoData) {
       return '—';
     }
     const val = this.value!;
+
+    // PERCENT: show value as-is (no scaling)
+    if (this.displayFormat === 'PERCENT') {
+      if (val % 1 === 0) return val.toString();
+      return val.toFixed(1).replace(/\.0$/, '');
+    }
+
+    // All other formats: auto-scale based on magnitude
+    if (val >= 1_000_000_000) {
+      return this.formatWithPrecision(val / 1_000_000_000);
+    }
     if (val >= 1_000_000) {
-      return (val / 1_000_000).toFixed(1).replace(/\.0$/, '');
+      return this.formatWithPrecision(val / 1_000_000);
     }
     if (val >= 1_000) {
-      return (val / 1_000).toFixed(1).replace(/\.0$/, '');
+      return this.formatWithPrecision(val / 1_000);
     }
-    return val.toString();
+
+    // Small values
+    return this.formatWithPrecision(val);
+  }
+
+  /** Format number with appropriate precision based on magnitude */
+  private formatWithPrecision(num: number): string {
+    if (num < 10) {
+      return num
+        .toLocaleString('en-US', { maximumFractionDigits: 2 })
+        .replace(/\.00$/, '')
+        .replace(/(\.\d)0$/, '$1');
+    }
+    if (num < 100) {
+      return num
+        .toLocaleString('en-US', { maximumFractionDigits: 1 })
+        .replace(/\.0$/, '');
+    }
+    return num.toLocaleString('en-US', { maximumFractionDigits: 0 });
   }
 }
