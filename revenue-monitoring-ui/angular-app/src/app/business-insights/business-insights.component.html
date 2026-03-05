@@ -1,39 +1,33 @@
 <mat-tab-group
   [selectedIndex]="selectedIndex"
   (selectedIndexChange)="onTabChange($event)"
-  >
+>
   @for (tab of filteredTabs; track tab; let i = $index) {
-    <mat-tab
-      [label]="tab.label"
-      [disabled]="tab.disabled"
-      >
+    <mat-tab [label]="tab.label" [disabled]="tab.disabled">
       @switch (tab.component) {
-        @case ('app-large-deal') {
+        @case ("app-large-deal") {
           @if (selectedIndex === i) {
             <app-invoice-status></app-invoice-status>
           }
         }
-        @case ('app-wd0-status') {
+        @case ("app-wd0-status") {
           @if (selectedIndex === i) {
             <app-wd0-dash></app-wd0-dash>
           }
         }
-        @case ('app-wd0-historical-data') {
+        @case ("app-wd0-historical-data") {
           @if (selectedIndex === i) {
-            <app-wd0-historical-data
-            ></app-wd0-historical-data>
+            <app-wd0-historical-data></app-wd0-historical-data>
           }
         }
-        @case ('app-issue-reporting') {
+        @case ("app-issue-reporting") {
           @if (selectedIndex === i) {
             <app-issue-reporting></app-issue-reporting>
           }
         }
-        @case ('app-o2c-360') {
+        @case ("external-o2c") {
           @if (selectedIndex === i) {
-            <app-o2c-360
-              [searchParams]="o2cSearchParams"
-            ></app-o2c-360>
+            <app-o2c-embed></app-o2c-embed>
           }
         }
       }
