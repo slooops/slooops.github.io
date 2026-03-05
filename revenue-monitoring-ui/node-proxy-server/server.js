@@ -8,6 +8,8 @@ const authClientSecret =
   process.env.AUTH_CLIENT_SECRET ||
   "SeCUzxUXA-rgxBw8wWBkL8bOlViFg_0l-EdUkRoZgQwWmO-XkG-SVw_LNNVYBcj2";
 const authUrl = process.env.AUTH_URL || "http://localhost:8080/api/";
+const o2cRedirectTarget =
+  process.env.O2C_REDIRECT_TARGET || "http://localhost:3500";
 
 app.use(express.json());
 
@@ -33,11 +35,30 @@ app.get("/user/name", (req, res) => {
 // Serve Storybook at /storybook/ path (no auth required)
 app.use(
   "/storybook",
-  express.static(path.join(__dirname, "../ui/storybook-static"))
+  express.static(path.join(__dirname, "../ui/storybook-static")),
 );
 app.get("/storybook/*", (req, res) => {
   res.sendFile(path.join(__dirname, "../ui/storybook-static", "index.html"));
 });
+
+// Prevent Angular fallback from hijacking /o2c traffic which is served by the React app.
+// In production, OpenShift Routes handle this. Locally, proxy to the React dev server.
+if (o2cRedirectTarget) {
+  app.use(
+    "/o2c",
+    createProxyMiddleware({
+      target: o2cRedirectTarget,
+      changeOrigin: true,
+    }),
+  );
+} else {
+  app.use((req, res, next) => {
+    if (req.path === "/o2c" || req.path.startsWith("/o2c/")) {
+      return res.status(404).send("/o2c is served by the O2C UI deployment");
+    }
+    next();
+  });
+}
 
 app.use(express.static(path.join(__dirname, "../ui/dist/browser")));
 
