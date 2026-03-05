@@ -43,7 +43,7 @@
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #049fd9 0%, #00bceb 100%);
+  background: linear-gradient(135deg, #00bceb 0%, #00bceb 100%);
   border: none;
   border-radius: 8px;
   color: white;
@@ -109,7 +109,9 @@
   background: white;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .stat-card:hover {
@@ -118,7 +120,7 @@
 }
 
 .stat-card.blue {
-  border-left: 4px solid #049fd9;
+  border-left: 4px solid #00bceb;
 }
 .stat-card.green {
   border-left: 4px solid #6ebe4a;
@@ -183,7 +185,9 @@
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .chart-card:hover {
@@ -305,7 +309,7 @@
 
 .route {
   font-family: "Monaco", "Menlo", monospace;
-  color: #049fd9;
+  color: #00bceb;
   font-size: 13px;
 }
 

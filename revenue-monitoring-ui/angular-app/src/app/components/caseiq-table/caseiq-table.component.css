@@ -129,7 +129,9 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   font-size: 0.75rem;
   width: 250px;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
   background-color: #ffffff;
 }
 
@@ -299,7 +301,9 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   border: none;
   border-radius: 2px;
   font-weight: 500;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 .action-btn.clear {
   background-color: #e6f2fa;
@@ -313,7 +317,7 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   background-color: #d2e8f7;
 }
 .action-btn.close {
-  background-color: #08ace4;
+  background-color: #00bceb;
   color: #fff;
 }
 .action-btn.close:hover {
@@ -337,10 +341,12 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   align-items: center;
   justify-content: space-between;
   border-radius: 4px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .multi-select-trigger:hover {
-  border-color: #08ace4;
+  border-color: #00bceb;
 }
 .multi-select-trigger:focus {
   outline: none;
@@ -400,7 +406,7 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
 .multi-select-actions .close-btn {
   flex: 1;
   border: none;
-  background: #08ace4;
+  background: #00bceb;
   color: #fff;
   font-size: 11px;
   padding: 6px 8px;
@@ -432,7 +438,7 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
 }
 
 .incident-number-input:focus {
-  border-color: #08ace4;
+  border-color: #00bceb;
   box-shadow: 0 0 0 2px rgba(8, 172, 228, 0.1);
 }
 
@@ -570,7 +576,7 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   width: 28px;
   height: 28px;
   border: 3px solid #e0e0e0;
-  border-top: 3px solid #08ace4;
+  border-top: 3px solid #00bceb;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -600,7 +606,7 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
 .empty-state-graphic {
   width: 72px;
   height: 72px;
-  background: linear-gradient(135deg, #08ace4 0%, #36a2eb 60%);
+  background: linear-gradient(135deg, #00bceb 0%, #36a2eb 60%);
   border-radius: 8px;
   position: relative;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);

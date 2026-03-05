@@ -91,6 +91,10 @@ export class DataService implements OnDestroy {
     return this.fetchWithCache('summary-assignment-users', destroyManager);
   }
 
+  getCaseIqMetrics(destroyManager: DestroyManager): Observable<any> {
+    return this.fetchWithCache('xxcaseiq-metrics', destroyManager);
+  }
+
   getUserRoles() {
     return this.userRoles;
   }

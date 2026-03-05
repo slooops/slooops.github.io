@@ -67,7 +67,8 @@ export class HomeComponent implements OnDestroy {
   // Dashboard data signals
   dashboardData = signal<any>(null);
   periodInfo = signal<any>(null);
-  kpis = signal<any>(null);
+  highPriorityKpis = signal<any>(null);
+  issueKpis = signal<any>(null);
   charts = signal<any>(null);
   issuesList = signal<any[]>([]);
   // Mat Table integration
@@ -201,7 +202,7 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getHighPriorityIssues(this.destroyManager).subscribe({
       next: (highPriorityIssues) => {
         console.log('High Priority Issues:', highPriorityIssues);
-        this.kpis.set({
+        this.highPriorityKpis.set({
           highPriorityIssues: highPriorityIssues[0].HIGH_PRIORITY_ISSUES || 0,
           inProgress: highPriorityIssues[0].IN_PROGRESS || 0,
           totalAging: highPriorityIssues[0].TOTAL_AGING || 0,
@@ -222,16 +223,16 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getIssues(this.destroyManager).subscribe({
       next: (issues) => {
         console.log('Issues from real service:', issues);
-        const currentKpis = this.kpis() || {};
-        this.kpis.set({
-          ...currentKpis,
+        this.issueKpis.set({
           totalIssues: issues[0]?.TOTAL_ISSUES || 0,
-          openIssues: issues[0]?.OPEN_ISSUES || 0,
-          unassignedIssues: issues[0]?.UNASSIGNED || 0,
-          assignedIssues: issues[0]?.ASSIGNED || 0,
+          resolvedIssues: issues[0]?.RESOLVED || 0,
           inProgressIssues: issues[0]?.IN_PROGRESS || 0,
+          assignedIssues: issues[0]?.ASSIGNED || 0,
+          unassignedIssues: issues[0]?.UNASSIGNED || 0,
         });
-        console.log('Updated KPIs:', this.kpis());
+        // Ensure issue distribution center text reflects latest totalIssues
+        this.refreshIssueDistributionCenterText();
+        console.log('Updated issue KPIs:', this.issueKpis());
       },
       error: (error) => {
         console.error('Error loading issues:', error);
@@ -255,6 +256,7 @@ export class HomeComponent implements OnDestroy {
             inProgress: number;
             resolved: number;
             totalIssues: number;
+            agent: number;
           }
         >();
 
@@ -274,6 +276,7 @@ export class HomeComponent implements OnDestroy {
                 inProgress: 0,
                 resolved: 0,
                 totalIssues: 0,
+                agent: 0,
               });
             }
 
@@ -289,20 +292,26 @@ export class HomeComponent implements OnDestroy {
               category === 'total issues'
             ) {
               weekData.totalIssues = count;
+            } else if (category === 'agent') {
+              weekData.agent = count;
             }
           });
         }
 
-        // Sort weeks (Week1, Week2, etc.)
-        const sortedWeeks = Array.from(weekMap.keys()).sort((a, b) => {
-          const numA = parseInt(a.replace('Week ', ''));
-          const numB = parseInt(b.replace('Week ', ''));
-          return numA - numB;
-        });
+        // Always use a fixed range of weeks: Week 1 to Week 13
+        const fixedWeeks = Array.from(
+          { length: 13 },
+          (_, i) => `Week ${i + 1}`,
+        );
 
         // Compute percentage of In Progress over Total Issues for each week
-        const percentInProgress = sortedWeeks.map((week) => {
-          const weekData = weekMap.get(week)!;
+        const percentInProgress = fixedWeeks.map((week) => {
+          const weekData = weekMap.get(week) || {
+            supportTeam: 0,
+            inProgress: 0,
+            resolved: 0,
+            totalIssues: 0,
+          };
           const total = weekData.totalIssues || 0;
           const inProg = weekData.inProgress || 0;
           if (!total) {
@@ -312,14 +321,21 @@ export class HomeComponent implements OnDestroy {
         });
 
         const chartData = {
-          weeks: sortedWeeks,
-          supportTeam: sortedWeeks.map(
-            (week) => weekMap.get(week)!.supportTeam,
+          weeks: fixedWeeks,
+          supportTeam: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
           ),
-          inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
-          resolved: sortedWeeks.map((week) => weekMap.get(week)!.resolved),
-          totalIssues: sortedWeeks.map(
-            (week) => weekMap.get(week)!.totalIssues,
+          inProgress: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
+          ),
+          resolved: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { resolved: 0 }).resolved,
+          ),
+          totalIssues: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { totalIssues: 0 }).totalIssues,
+          ),
+          agent: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { agent: 0 }).agent,
           ),
           percentInProgress,
         };
@@ -386,22 +402,22 @@ export class HomeComponent implements OnDestroy {
           });
         }
 
-        // Sort weeks (Week1, Week2, etc.)
-        const sortedWeeks = Array.from(weekMap.keys()).sort((a, b) => {
-          const numA = parseInt(a.replace('Week', ''));
-          const numB = parseInt(b.replace('Week', ''));
-          return numA - numB;
-        });
+        // Always use a fixed range of weeks: Week 1 to Week 13
+        const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week${i + 1}`);
 
         const chartData = {
-          weeks: sortedWeeks,
-          inProgress: sortedWeeks.map((week) => weekMap.get(week)!.inProgress),
-          supportTeam: sortedWeeks.map(
-            (week) => weekMap.get(week)!.supportTeam,
+          weeks: fixedWeeks,
+          inProgress: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
           ),
-          totalCases: sortedWeeks.map((week) => weekMap.get(week)!.totalCases),
-          resolvedAgent: sortedWeeks.map(
-            (week) => weekMap.get(week)!.resolvedAgent,
+          supportTeam: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
+          ),
+          totalCases: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { totalCases: 0 }).totalCases,
+          ),
+          resolvedAgent: fixedWeeks.map(
+            (week) => (weekMap.get(week) || { resolvedAgent: 0 }).resolvedAgent,
           ),
         };
 
@@ -732,6 +748,14 @@ export class HomeComponent implements OnDestroy {
     return 'human';
   }
 
+  /**
+   * Trigger a redraw of the issue distribution chart so the
+   * center text plugin picks up the latest KPI values.
+   */
+  private refreshIssueDistributionCenterText(): void {
+    this.issueDistributionChart?.update();
+  }
+
   specialWords: string[] = [
     'name',
     'amount',
@@ -833,13 +857,19 @@ export class HomeComponent implements OnDestroy {
     );
     const resolvedLabel = `Resolved (${resolvedSum.toLocaleString('en-US')})`;
 
+    const agentSum = (chartData.agent || []).reduce(
+      (sum: number, value: number) => sum + (Number(value) || 0),
+      0,
+    );
+    const agentLabel = `Agent (${agentSum.toLocaleString('en-US')})`;
+
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: chartData.weeks,
         datasets: [
-          // Bar series for absolute counts
+          // 1. Total Issues (Bar)
           {
             type: 'bar',
             label: totalIssuesLabel,
@@ -850,18 +880,20 @@ export class HomeComponent implements OnDestroy {
             barPercentage: 0.5,
             categoryPercentage: 0.7,
           },
+          // 2. Resolved (Line)
           {
-            type: 'bar',
-            label: inProgressLabel,
-            data: chartData.inProgress,
-            backgroundColor: '#f4a259',
-            borderColor: '#f4a259',
-            borderWidth: 1,
-            barPercentage: 0.5,
-            categoryPercentage: 0.7,
+            type: 'line',
+            label: resolvedLabel,
+            data: chartData.resolved,
+            borderColor: '#9b59b6',
+            backgroundColor: '#9b59b6',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
           },
-
-          // Line series for other counts
+          // 3. Support Team (Line)
           {
             type: 'line',
             label: supportTeamLabel,
@@ -874,10 +906,11 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 2,
             fill: false,
           },
+          // 4. Agent (Line)
           {
             type: 'line',
-            label: resolvedLabel,
-            data: chartData.resolved,
+            label: agentLabel,
+            data: chartData.agent,
             borderColor: '#5c9e6b',
             backgroundColor: '#5c9e6b',
             tension: 0.25,
@@ -885,6 +918,17 @@ export class HomeComponent implements OnDestroy {
             pointHoverRadius: 5,
             borderWidth: 2,
             fill: false,
+          },
+          // 5. In Progress (Bar)
+          {
+            type: 'bar',
+            label: inProgressLabel,
+            data: chartData.inProgress,
+            backgroundColor: '#f4a259',
+            borderColor: '#f4a259',
+            borderWidth: 1,
+            barPercentage: 0.5,
+            categoryPercentage: 0.7,
           },
         ],
       },
@@ -1037,9 +1081,9 @@ export class HomeComponent implements OnDestroy {
         ctx.fillStyle = '#000';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const kpisData = this.kpis();
+        const issueKpisData = this.issueKpis();
         ctx.fillText(
-          kpisData?.totalIssues?.toString() || '',
+          issueKpisData?.totalIssues?.toString() || '',
           chart.getDatasetMeta(0).data[0].x,
           chart.getDatasetMeta(0).data[0].y - 8,
         );
@@ -1068,12 +1112,12 @@ export class HomeComponent implements OnDestroy {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '82%',
+        cutout: '70%',
         onClick: (event, activeElements) => {
           if (activeElements.length > 0) {
             const index = activeElements[0].index;
             const label = labels[index];
-            this.filterByAssignee(label);
+            // this.filterByAssignee(label);
           }
         },
         plugins: {

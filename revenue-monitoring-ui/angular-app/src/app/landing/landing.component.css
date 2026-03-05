@@ -1,0 +1,713 @@
+/* ==========================================================================
+   Landing Page — Design Tokens (override-friendly)
+   ========================================================================== */
+
+:host {
+  /* Spacing scale — single source of truth for consistent gaps/padding */
+  --landing-space-xs: 0.5rem; /* 8px */
+  --landing-space-sm: 0.75rem; /* 12px */
+  --landing-space-md: 1rem; /* 16px */
+  --landing-space-lg: 1.5rem; /* 24px */
+  --landing-space-xl: 2rem; /* 32px */
+  --landing-space-2xl: 2.5rem; /* 40px */
+
+  /* Horizontal page padding — adjusts via single token */
+  --landing-page-px: 5rem; /* 80px — narrower than Figma's 120px for better real-world fit */
+
+  /* Card tokens */
+  --landing-card-bg: #f4f5f6;
+  --landing-card-border: #d6d6d6;
+  --landing-card-radius: 24px;
+  --landing-card-padding: var(--landing-space-lg);
+  --landing-card-gap: var(--landing-space-md);
+
+  /* Colors */
+  --landing-accent: var(--fit-color-primary, #0070d2);
+  --landing-link: #1990fa;
+  --landing-text: #1b1c1d;
+  --landing-text-muted: #555;
+  --landing-overview-bg: #ebebeb;
+
+  /* Typography */
+  --landing-heading-font:
+    "CiscoSansTT", "Inter", var(--fit-font-family-base, sans-serif);
+
+  display: block;
+}
+
+/* ==========================================================================
+   Page Layout
+   ========================================================================== */
+
+.landing-page {
+  width: 100%;
+  min-height: 100%;
+  /* background: var(--fit-color-bg, #fff); */
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 20% 40%,
+      rgba(0, 188, 235, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 30%,
+      rgba(0, 112, 210, 0.12) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 60% 80%,
+      rgba(255, 144, 0, 0.08) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 10% 90%,
+      rgba(255, 0, 127, 0.06) 0%,
+      transparent 50%
+    ),
+    linear-gradient(135deg, #f8fafc 0%, #f0f4f8 50%, #e8f0f8 100%);
+}
+
+/* ==========================================================================
+   Welcome Bar
+   ========================================================================== */
+
+.welcome-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--landing-space-xs) 6rem;
+}
+
+.welcome-text {
+  margin: 0;
+  font-size: 1.125rem;
+  color: var(--landing-link);
+  letter-spacing: 0.5px;
+}
+
+.welcome-text strong {
+  font-weight: 700;
+}
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--landing-accent);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   Cockpit Dashboard HUD
+   ========================================================================== */
+
+.cockpit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  padding: var(--landing-space-md) var(--landing-space-lg);
+  gap: var(--landing-space-xl);
+  position: relative;
+  z-index: 1;
+}
+
+.panel-title {
+  margin: 0 0 var(--landing-space-md);
+  font-family: var(--landing-heading-font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--landing-text-muted);
+}
+
+.dial-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6rem;
+  margin-bottom: var(--landing-space-md);
+  justify-content: space-evenly;
+}
+
+/* Health Bar */
+.health-bar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-md);
+}
+
+.health-label {
+  font-size: 0.75rem;
+  color: var(--landing-text-muted);
+  white-space: nowrap;
+}
+
+.health-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.health-bar-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  background: linear-gradient(90deg, #02c8ff 0%, #0a60ff 100%);
+}
+
+.health-bar--colorful .health-bar-track {
+  background: linear-gradient(
+    90deg,
+    #0a60ff 5%,
+    #02c8ff 35%,
+    #02c8ff 45%,
+    #ff007f 75%,
+    #ff9000 95%
+  );
+}
+
+.health-bar-indicator {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+  border: 3px solid #0070d2;
+}
+
+.health-bar-value {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--landing-text);
+  white-space: nowrap;
+}
+
+/* Unified Stats Row — 1x4 → 2x2 responsive */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--landing-space-md);
+}
+
+@media (max-width: 1200px) {
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--landing-space-md);
+  background: rgba(0, 112, 210, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 112, 210, 0.1);
+  min-height: 72px;
+}
+
+.stat-label {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--landing-text-muted);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--landing-text);
+  font-family: var(--landing-heading-font);
+}
+
+.stat-trend {
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.stat-trend--up {
+  color: #16a34a;
+}
+
+.stat-trend--down {
+  color: #dc2626;
+}
+
+.stat-subtitle {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--landing-text-muted);
+}
+
+/* Volume Stats Panel */
+.cockpit-panel--volumes {
+  grid-column: 1;
+}
+
+/* Issues Panel */
+.cockpit-panel--issues {
+  grid-column: 2;
+}
+
+/* ==========================================================================
+   Card Sections — Three Columns
+   ========================================================================== */
+
+.card-sections {
+  display: flex;
+  gap: var(--landing-space-xl);
+  padding: var(--landing-space-md) var(--landing-space-lg);
+  align-items: flex-start;
+}
+
+.card-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-header {
+  margin: var(--landing-space-sm) 0 !important;
+  font-family: var(--landing-heading-font);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--landing-text);
+  line-height: 1.25rem;
+}
+
+/* ==========================================================================
+   Card Grid
+   ========================================================================== */
+
+.card-grid {
+  display: grid;
+  gap: var(--landing-card-gap);
+  align-items: stretch;
+}
+
+.card-grid--double {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* ==========================================================================
+   Individual Card
+   ========================================================================== */
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--landing-card-bg);
+  border: 1px solid var(--landing-card-border);
+  border-radius: var(--landing-card-radius);
+  padding: var(--landing-card-padding);
+  cursor: pointer;
+  transition:
+    box-shadow var(--fit-transition-fast, 150ms),
+    border-color var(--fit-transition-fast, 150ms);
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+}
+
+.landing-card:hover {
+  box-shadow: var(--fit-shadow-md, 0 4px 12px rgba(0, 0, 0, 0.1));
+  border-color: var(--landing-accent);
+}
+
+.landing-card:focus-visible {
+  outline: 2px solid var(--landing-accent);
+  outline-offset: 2px;
+}
+
+.landing-card--disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.landing-card--disabled:hover {
+  box-shadow: none;
+  border-color: var(--landing-card-border);
+}
+
+/* Full-width card spans both grid columns */
+.landing-card--full {
+  grid-column: 1 / -1;
+  min-height: auto;
+}
+
+/* ==========================================================================
+   Card Internals
+   ========================================================================== */
+
+.card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.card-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  color: var(--landing-accent);
+  font-size: 48px; /* ng-icon inherits font-size for sizing */
+}
+
+.card-title {
+  margin: 0 0 var(--landing-space-xs);
+  font-family: var(--landing-heading-font);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--landing-text);
+  line-height: 1.5rem;
+}
+
+.card-description {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5rem;
+  color: var(--landing-text-muted);
+  flex: 1; /* pushes the link to the bottom */
+}
+
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  margin-top: var(--landing-space-md);
+  color: var(--landing-link);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    color var(--fit-transition-fast, 150ms),
+    gap var(--fit-transition-fast, 150ms);
+}
+
+.card-link-text {
+  transition: text-decoration var(--fit-transition-fast, 150ms);
+}
+
+.landing-card:hover .card-link:not(.card-link--disabled) .card-link-text {
+  text-decoration: underline;
+}
+
+.card-link--disabled {
+  color: var(--landing-text-muted);
+  cursor: default;
+}
+
+.card-link--disabled:hover {
+  text-decoration: none;
+}
+
+.card-link-arrow {
+  display: inline-flex;
+  transition: transform var(--fit-transition-fast, 150ms);
+}
+
+.landing-card:hover .card-link-arrow {
+  transform: translateX(4px);
+}
+
+.landing-card:hover .card-link:not(.card-link--disabled) {
+  gap: calc(var(--landing-space-xs) + 2px);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  :host {
+    --landing-page-px: 2.5rem;
+  }
+}
+
+@media (max-width: 960px) {
+  .card-sections {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  :host {
+    --landing-page-px: 1rem;
+  }
+
+  .card-grid--double,
+  .card-grid--single {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Card Variants — Cisco Design System Inspired
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Border
+   Uses a pseudo-element with conic-gradient for a rainbow/gradient border effect
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-border {
+  position: relative;
+  background: #fff;
+  border: none;
+  overflow: hidden;
+}
+
+.landing-card--gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: var(--landing-card-radius);
+  background: conic-gradient(
+    from 180deg at 50% 50%,
+    #00bceb 0deg,
+    #0070d2 60deg,
+    #ff007f 120deg,
+    #ff9000 180deg,
+    #ffd000 240deg,
+    #00bceb 300deg,
+    #00bceb 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-card--gradient-border > * {
+  position: relative;
+  z-index: 1;
+}
+
+.landing-card--gradient-border:hover::before {
+  animation: gradient-rotate 3s linear infinite;
+}
+
+@keyframes gradient-rotate {
+  from {
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      #00bceb 0deg,
+      #0070d2 60deg,
+      #ff007f 120deg,
+      #ff9000 180deg,
+      #ffd000 240deg,
+      #00bceb 300deg,
+      #00bceb 360deg
+    );
+  }
+  to {
+    background: conic-gradient(
+      from 540deg at 50% 50%,
+      #00bceb 0deg,
+      #0070d2 60deg,
+      #ff007f 120deg,
+      #ff9000 180deg,
+      #ffd000 240deg,
+      #00bceb 300deg,
+      #00bceb 360deg
+    );
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Background 1 (Pink/Cyan/Orange aurora)
+   Uses SVG gradient as background image
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-bg-1 {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(0, 188, 235, 0.2);
+  overflow: hidden;
+}
+
+.landing-card--gradient-bg-1::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/1.svg") center/cover no-repeat;
+  opacity: 0.2;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card--gradient-bg-1:hover::before {
+  opacity: 0.6;
+}
+
+.landing-card--gradient-bg-1 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Background 2 (Cyan/Orange wave)
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-bg-2 {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(255, 144, 0, 0.2);
+  overflow: hidden;
+}
+
+.landing-card--gradient-bg-2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/2.svg") center/cover no-repeat;
+  opacity: 0.35;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card--gradient-bg-2:hover::before {
+  opacity: 0.55;
+}
+
+.landing-card--gradient-bg-2 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Gradient Background 3 (Radial pink/orange glow)
+   -------------------------------------------------------------------------- */
+.landing-card--gradient-bg-3 {
+  position: relative;
+  background: #fff;
+  border: 1px solid rgba(255, 0, 127, 0.15);
+  overflow: hidden;
+}
+
+.landing-card--gradient-bg-3::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/5.svg") center/cover no-repeat;
+  opacity: 0.1;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing-card--gradient-bg-3:hover::before {
+  opacity: 0.6;
+}
+
+.landing-card--gradient-bg-3 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Glass (Frosted glass / glassmorphism)
+   Light mode adaptation with subtle blur and transparency
+   -------------------------------------------------------------------------- */
+.landing-card--glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 4px 24px rgba(0, 112, 210, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.landing-card--glass:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 8px 32px rgba(0, 112, 210, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Inner Glow
+   Soft gradient inner shadow creating a gentle glow from edges
+   -------------------------------------------------------------------------- */
+.landing-card--inner-glow {
+  background: #fff;
+  border: 1px solid rgba(0, 188, 235, 0.15);
+  box-shadow:
+    inset 0 0 40px rgba(0, 188, 235, 0.08),
+    inset 0 0 20px rgba(255, 144, 0, 0.05),
+    inset 0 -20px 40px rgba(255, 0, 127, 0.04);
+  transition:
+    box-shadow 0.3s ease,
+    border-color 0.15s ease;
+}
+
+.landing-card--inner-glow:hover {
+  box-shadow:
+    inset 0 0 60px rgba(0, 188, 235, 0.12),
+    inset 0 0 30px rgba(255, 144, 0, 0.08),
+    inset 0 -30px 50px rgba(255, 0, 127, 0.07),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 188, 235, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Variant: Soft Glow (Outer halo effect)
+   Creates a soft colored glow/halo around the card
+   -------------------------------------------------------------------------- */
+.landing-card--soft-glow {
+  background: #fff;
+  border: 1px solid rgba(0, 112, 210, 0.15);
+  box-shadow:
+    0 0 0 1px rgba(0, 188, 235, 0.1),
+    0 4px 20px rgba(0, 188, 235, 0.12),
+    0 8px 40px rgba(0, 112, 210, 0.08);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
+.landing-card--soft-glow:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 0 0 2px rgba(0, 188, 235, 0.2),
+    0 8px 30px rgba(0, 188, 235, 0.18),
+    0 16px 50px rgba(0, 112, 210, 0.12),
+    0 0 60px rgba(255, 144, 0, 0.06);
+}

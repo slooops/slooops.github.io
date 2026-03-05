@@ -22,20 +22,20 @@ import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-sym
 import { ToolTipRendererDirective } from '../tool-tip-renderer.directive';
 
 @Component({
-    selector: 'app-cms',
-    templateUrl: './cms.component.html',
-    styleUrls: ['./cms.component.css'],
-    providers: [DestroyManager],
-    imports: [
+  selector: 'app-cms',
+  templateUrl: './cms.component.html',
+  styleUrls: ['./cms.component.css'],
+  providers: [DestroyManager],
+  imports: [
     CommonModule,
     MatTableModule,
     MatTooltipModule,
     MatButtonModule,
     LoadingSymbolComponent,
     LoadingSymbolSmallComponent,
-    ToolTipRendererDirective
+    ToolTipRendererDirective,
   ],
-  standalone: true
+  standalone: true,
 })
 export class CmsComponent implements OnInit {
   protected http: ApiHttpService;
@@ -48,10 +48,10 @@ export class CmsComponent implements OnInit {
   @ViewChild('scrollableContainer') scrollableContainer!: ElementRef; // Ref to the scrollable div
 
   collectionsErrorSummaryData: MatTableDataSource<any> = new MatTableDataSource(
-    []
+    [],
   );
   reconciliationErrorExtract: MatTableDataSource<any> = new MatTableDataSource(
-    []
+    [],
   );
   latestRequestStatus: MatTableDataSource<any> = new MatTableDataSource([]);
 
@@ -85,7 +85,7 @@ export class CmsComponent implements OnInit {
   } | null = null;
 
   colorMapping: { [key: string]: string } = {
-    BLUE: '#049fd9',
+    BLUE: '#00bceb',
     RED: '#ef2828',
     YELLOW: '#efc920',
     GREEN: '#12e370',
@@ -138,7 +138,7 @@ export class CmsComponent implements OnInit {
     http: ApiHttpService,
     public dialog: MatDialog,
     private destroyManager: DestroyManager,
-    private exportToExcelService: ExportToExcelService
+    private exportToExcelService: ExportToExcelService,
   ) {
     this.http = http;
   }
@@ -276,7 +276,7 @@ export class CmsComponent implements OnInit {
       },
       (error) => {
         console.error('Error loading SFTP status:', error);
-      }
+      },
     );
   }
 

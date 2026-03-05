@@ -1,238 +1,249 @@
-<div>
-  <mat-toolbar style="background-color: #08ace4; width: 100%; display: grid">
-    <div
-      style="
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        height: 50px;
-      "
-    >
-      <span style="display: flex; align-items: center; padding: 0px 0 0px">
+@if (!hideNavbar) {
+  <div>
+    <mat-toolbar style="background-color: #00bceb; width: 100%; display: grid">
+      <div
+        style="
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          height: 50px;
+        "
+      >
         <span
           style="
             display: flex;
             align-items: center;
-            padding: 0 15px;
+            padding: 0px 0 0px;
             cursor: pointer;
           "
+          routerLink="/landing"
         >
-          <svg width="40px" height="21px">
-            <g transform="matrix(1,0,0,1,-503.306,-139.064)">
-              <g
-                transform="matrix(2.53893e-17,0.414639,-0.777449,4.7605e-17,626.97,1.08905)"
-              >
-                <rect
-                  x="332.759"
-                  y="110.882"
-                  width="48.182"
-                  height="48.182"
-                  style="fill: none"
-                />
+          <span style="display: flex; align-items: center; padding: 0 15px">
+            <svg width="40px" height="21px">
+              <g transform="matrix(1,0,0,1,-503.306,-139.064)">
                 <g
-                  id="g53688"
-                  transform="matrix(2.55249e-17,-0.222322,-0.416853,-1.36133e-17,347.84,110.962)"
+                  transform="matrix(2.53893e-17,0.414639,-0.777449,4.7605e-17,626.97,1.08905)"
                 >
-                  <path
-                    id="path53690"
-                    d="M0,0C0,2.587 -2.104,4.684 -4.687,4.684C-7.277,4.684 -9.381,2.587 -9.381,0L-9.381,-9.853C-9.381,-12.454 -7.277,-14.552 -4.687,-14.552C-2.104,-14.552 0,-12.454 0,-9.853L0,0ZM-25.787,12.932C-25.787,15.518 -27.885,17.619 -30.533,17.619C-33.123,17.619 -35.221,15.518 -35.221,12.932L-35.221,-9.853C-35.221,-12.454 -33.123,-14.552 -30.533,-14.552C-27.885,-14.552 -25.787,-12.454 -25.787,-9.853L-25.787,12.932ZM-51.627,30.624C-51.627,33.211 -53.725,35.309 -56.314,35.309C-58.904,35.309 -61.002,33.211 -61.002,30.624L-61.002,-19.216C-61.002,-21.818 -58.904,-23.915 -56.314,-23.915C-53.725,-23.915 -51.627,-21.818 -51.627,-19.216L-51.627,30.624ZM-77.473,12.932C-77.473,15.518 -79.57,17.619 -82.16,17.619C-84.744,17.619 -86.848,15.518 -86.848,12.932L-86.848,-9.853C-86.848,-12.454 -84.744,-14.552 -82.16,-14.552C-79.57,-14.552 -77.473,-12.454 -77.473,-9.853L-77.473,12.932ZM-103.313,0C-103.313,2.587 -105.41,4.684 -107.985,4.684C-110.575,4.684 -112.687,2.587 -112.687,0L-112.687,-9.853C-112.687,-12.454 -110.575,-14.552 -107.985,-14.552C-105.41,-14.552 -103.313,-12.454 -103.313,-9.853L-103.313,0ZM-129.111,12.932C-129.111,15.518 -131.224,17.619 -133.813,17.619C-136.403,17.619 -138.516,15.518 -138.516,12.932L-138.516,-9.853C-138.516,-12.454 -136.403,-14.552 -133.813,-14.552C-131.224,-14.552 -129.111,-12.454 -129.111,-9.853L-129.111,12.932ZM-154.939,30.624C-154.939,33.211 -157.052,35.309 -159.642,35.309C-162.231,35.309 -164.344,33.211 -164.344,30.624L-164.344,-19.216C-164.344,-21.818 -162.231,-23.915 -159.642,-23.915C-157.052,-23.915 -154.939,-21.818 -154.939,-19.216L-154.939,30.624ZM-180.768,12.932C-180.768,15.518 -182.88,17.619 -185.47,17.619C-188.06,17.619 -190.172,15.518 -190.172,12.932L-190.172,-9.853C-190.172,-12.454 -188.06,-14.552 -185.47,-14.552C-182.88,-14.552 -180.768,-12.454 -180.768,-9.853L-180.768,12.932ZM-206.596,0C-206.596,2.587 -208.708,4.684 -211.298,4.684C-213.885,4.684 -216,2.587 -216,0L-216,-9.853C-216,-12.454 -213.885,-14.552 -211.298,-14.552C-208.708,-14.552 -206.596,-12.454 -206.596,-9.853L-206.596,0ZM-109.52,-40.855C-109.802,-40.778 -114.141,-39.659 -118.752,-39.659C-127.482,-39.659 -132.738,-44.373 -132.738,-51.393C-132.738,-57.607 -128.341,-60.706 -123.064,-62.373C-122.479,-62.566 -121.617,-62.836 -121.043,-63.026C-118.694,-63.765 -116.819,-64.863 -116.819,-66.765C-116.819,-68.892 -118.986,-70.269 -123.697,-70.269C-127.837,-70.269 -131.806,-69.085 -132.642,-68.874L-132.642,-77.511C-132.176,-77.61 -127.459,-78.536 -122.42,-78.536C-115.172,-78.536 -106.881,-75.369 -106.881,-65.941C-106.881,-61.368 -109.681,-57.158 -115.828,-55.204L-118.441,-54.372C-120,-53.88 -122.783,-53.083 -122.783,-50.798C-122.783,-48.993 -120.721,-47.722 -116.924,-47.722C-113.648,-47.722 -109.661,-48.823 -109.52,-48.867L-109.52,-40.855ZM-29.479,-59.098C-29.479,-64.559 -33.662,-68.977 -39.275,-68.977C-44.894,-68.977 -49.066,-64.559 -49.066,-59.098C-49.066,-53.648 -44.894,-49.228 -39.275,-49.228C-33.662,-49.228 -29.479,-53.648 -29.479,-59.098M-39.275,-39.671C-50.819,-39.671 -59.098,-48.378 -59.098,-59.098C-59.098,-69.835 -50.819,-78.536 -39.275,-78.536C-27.732,-78.536 -19.441,-69.835 -19.441,-59.098C-19.441,-48.378 -27.732,-39.671 -39.275,-39.671M-167.93,-41.016C-168.82,-40.752 -172.11,-39.671 -176.566,-39.671C-188.092,-39.671 -196.553,-47.889 -196.553,-59.098C-196.553,-71.191 -187.213,-78.536 -176.566,-78.536C-172.336,-78.536 -169.107,-77.534 -167.93,-77.2L-167.93,-67.125C-168.337,-67.351 -171.433,-69.117 -175.887,-69.117C-182.197,-69.117 -186.267,-64.676 -186.267,-59.098C-186.267,-53.35 -182.021,-49.087 -175.887,-49.087C-171.357,-49.087 -168.311,-50.892 -167.93,-51.091L-167.93,-41.016ZM-69.07,-41.016C-69.967,-40.752 -73.26,-39.671 -77.701,-39.671C-89.244,-39.671 -97.705,-47.889 -97.705,-59.098C-97.705,-71.191 -88.354,-78.536 -77.701,-78.536C-73.494,-78.536 -70.26,-77.534 -69.07,-77.2L-69.07,-67.125C-69.486,-67.351 -72.586,-69.117 -77.039,-69.117C-83.344,-69.117 -87.41,-64.676 -87.41,-59.098C-87.41,-53.35 -83.162,-49.087 -77.039,-49.087C-72.51,-49.087 -69.457,-50.892 -69.07,-51.091L-69.07,-41.016ZM-145.439,-77.868L-154.911,-77.868L-154.911,-40.336L-145.439,-40.336L-145.439,-77.868Z"
-                    style="fill: white; fill-rule: nonzero"
+                  <rect
+                    x="332.759"
+                    y="110.882"
+                    width="48.182"
+                    height="48.182"
+                    style="fill: none"
                   />
+                  <g
+                    id="g53688"
+                    transform="matrix(2.55249e-17,-0.222322,-0.416853,-1.36133e-17,347.84,110.962)"
+                  >
+                    <path
+                      id="path53690"
+                      d="M0,0C0,2.587 -2.104,4.684 -4.687,4.684C-7.277,4.684 -9.381,2.587 -9.381,0L-9.381,-9.853C-9.381,-12.454 -7.277,-14.552 -4.687,-14.552C-2.104,-14.552 0,-12.454 0,-9.853L0,0ZM-25.787,12.932C-25.787,15.518 -27.885,17.619 -30.533,17.619C-33.123,17.619 -35.221,15.518 -35.221,12.932L-35.221,-9.853C-35.221,-12.454 -33.123,-14.552 -30.533,-14.552C-27.885,-14.552 -25.787,-12.454 -25.787,-9.853L-25.787,12.932ZM-51.627,30.624C-51.627,33.211 -53.725,35.309 -56.314,35.309C-58.904,35.309 -61.002,33.211 -61.002,30.624L-61.002,-19.216C-61.002,-21.818 -58.904,-23.915 -56.314,-23.915C-53.725,-23.915 -51.627,-21.818 -51.627,-19.216L-51.627,30.624ZM-77.473,12.932C-77.473,15.518 -79.57,17.619 -82.16,17.619C-84.744,17.619 -86.848,15.518 -86.848,12.932L-86.848,-9.853C-86.848,-12.454 -84.744,-14.552 -82.16,-14.552C-79.57,-14.552 -77.473,-12.454 -77.473,-9.853L-77.473,12.932ZM-103.313,0C-103.313,2.587 -105.41,4.684 -107.985,4.684C-110.575,4.684 -112.687,2.587 -112.687,0L-112.687,-9.853C-112.687,-12.454 -110.575,-14.552 -107.985,-14.552C-105.41,-14.552 -103.313,-12.454 -103.313,-9.853L-103.313,0ZM-129.111,12.932C-129.111,15.518 -131.224,17.619 -133.813,17.619C-136.403,17.619 -138.516,15.518 -138.516,12.932L-138.516,-9.853C-138.516,-12.454 -136.403,-14.552 -133.813,-14.552C-131.224,-14.552 -129.111,-12.454 -129.111,-9.853L-129.111,12.932ZM-154.939,30.624C-154.939,33.211 -157.052,35.309 -159.642,35.309C-162.231,35.309 -164.344,33.211 -164.344,30.624L-164.344,-19.216C-164.344,-21.818 -162.231,-23.915 -159.642,-23.915C-157.052,-23.915 -154.939,-21.818 -154.939,-19.216L-154.939,30.624ZM-180.768,12.932C-180.768,15.518 -182.88,17.619 -185.47,17.619C-188.06,17.619 -190.172,15.518 -190.172,12.932L-190.172,-9.853C-190.172,-12.454 -188.06,-14.552 -185.47,-14.552C-182.88,-14.552 -180.768,-12.454 -180.768,-9.853L-180.768,12.932ZM-206.596,0C-206.596,2.587 -208.708,4.684 -211.298,4.684C-213.885,4.684 -216,2.587 -216,0L-216,-9.853C-216,-12.454 -213.885,-14.552 -211.298,-14.552C-208.708,-14.552 -206.596,-12.454 -206.596,-9.853L-206.596,0ZM-109.52,-40.855C-109.802,-40.778 -114.141,-39.659 -118.752,-39.659C-127.482,-39.659 -132.738,-44.373 -132.738,-51.393C-132.738,-57.607 -128.341,-60.706 -123.064,-62.373C-122.479,-62.566 -121.617,-62.836 -121.043,-63.026C-118.694,-63.765 -116.819,-64.863 -116.819,-66.765C-116.819,-68.892 -118.986,-70.269 -123.697,-70.269C-127.837,-70.269 -131.806,-69.085 -132.642,-68.874L-132.642,-77.511C-132.176,-77.61 -127.459,-78.536 -122.42,-78.536C-115.172,-78.536 -106.881,-75.369 -106.881,-65.941C-106.881,-61.368 -109.681,-57.158 -115.828,-55.204L-118.441,-54.372C-120,-53.88 -122.783,-53.083 -122.783,-50.798C-122.783,-48.993 -120.721,-47.722 -116.924,-47.722C-113.648,-47.722 -109.661,-48.823 -109.52,-48.867L-109.52,-40.855ZM-29.479,-59.098C-29.479,-64.559 -33.662,-68.977 -39.275,-68.977C-44.894,-68.977 -49.066,-64.559 -49.066,-59.098C-49.066,-53.648 -44.894,-49.228 -39.275,-49.228C-33.662,-49.228 -29.479,-53.648 -29.479,-59.098M-39.275,-39.671C-50.819,-39.671 -59.098,-48.378 -59.098,-59.098C-59.098,-69.835 -50.819,-78.536 -39.275,-78.536C-27.732,-78.536 -19.441,-69.835 -19.441,-59.098C-19.441,-48.378 -27.732,-39.671 -39.275,-39.671M-167.93,-41.016C-168.82,-40.752 -172.11,-39.671 -176.566,-39.671C-188.092,-39.671 -196.553,-47.889 -196.553,-59.098C-196.553,-71.191 -187.213,-78.536 -176.566,-78.536C-172.336,-78.536 -169.107,-77.534 -167.93,-77.2L-167.93,-67.125C-168.337,-67.351 -171.433,-69.117 -175.887,-69.117C-182.197,-69.117 -186.267,-64.676 -186.267,-59.098C-186.267,-53.35 -182.021,-49.087 -175.887,-49.087C-171.357,-49.087 -168.311,-50.892 -167.93,-51.091L-167.93,-41.016ZM-69.07,-41.016C-69.967,-40.752 -73.26,-39.671 -77.701,-39.671C-89.244,-39.671 -97.705,-47.889 -97.705,-59.098C-97.705,-71.191 -88.354,-78.536 -77.701,-78.536C-73.494,-78.536 -70.26,-77.534 -69.07,-77.2L-69.07,-67.125C-69.486,-67.351 -72.586,-69.117 -77.039,-69.117C-83.344,-69.117 -87.41,-64.676 -87.41,-59.098C-87.41,-53.35 -83.162,-49.087 -77.039,-49.087C-72.51,-49.087 -69.457,-50.892 -69.07,-51.091L-69.07,-41.016ZM-145.439,-77.868L-154.911,-77.868L-154.911,-40.336L-145.439,-40.336L-145.439,-77.868Z"
+                      style="fill: white; fill-rule: nonzero"
+                    />
+                  </g>
                 </g>
               </g>
-            </g>
-          </svg>
+            </svg>
+          </span>
+
+          <h5
+            style="
+              color: white;
+              margin-bottom: 0;
+              font-family: &quot;Inter&quot;, sans-serif;
+              font-weight: 400;
+            "
+          >
+            @if (header.length > 0) {
+              <span>
+                @if (subHeader.length > 0) {
+                  <div style="font-size: 12px; line-height: normal">
+                    {{ header }}
+                  </div>
+                  <div style="font-size: 14px; line-height: normal">
+                    {{ subHeader }}
+                  </div>
+                } @else {
+                  <div style="font-size: 14px; line-height: normal">
+                    {{ header }}
+                  </div>
+                }
+              </span>
+            }
+          </h5>
+        </span>
+        <span class="navbar">
+          <ul class="menu">
+            @if (isAdmin$) {
+              <li class="menu-item">
+                <a [routerLink]="'/landing'" class="top-link">
+                  <i class="svg-icon home-icon" style="font-weight: 900"></i>
+                </a>
+              </li>
+            }
+            @if (isAdmin$) {
+              <!-- Home -->
+              <li class="menu-item">
+                <a [routerLink]="'/operational-visibility'" class="top-link">
+                  Operational Visibility
+                </a>
+              </li>
+            }
+            <!-- Period Close Tracking -->
+            @if (
+              !(
+                hasRole$([
+                  "LARGE_DEAL",
+                  "WD0",
+                  "MIDCLOSE_VOLUMES",
+                  "ISSUE_RESOLUTION",
+                  "CASE_IQ_MANAGER",
+                  "CASE_IQ_OM",
+                  "CASE_IQ_SBP",
+                  "CASE_IQ_I2C",
+                  "CASE_IQ_AIT",
+                  "CASE_IQ_FPP",
+                  "CASE_IQ_P2P",
+                  "CASE_IQ_CAPITAL",
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  "PERIOD_CLOSE",
+                  "EXCEPTION_ADMIN",
+                  "EXCEPTION_READ_ONLY",
+                  "ACCOUNT_RECON",
+                  "ORDER_MANAGEMENT",
+                ])
+              )
+            ) {
+              <li
+                class="menu-item"
+                [class.disabled]="
+                  !(
+                    hasRole$([
+                      'PERIOD_CLOSE',
+                      'EXCEPTION_ADMIN',
+                      'EXCEPTION_READ_ONLY',
+                      'ACCOUNT_RECON',
+                      'ORDER_MANAGEMENT',
+                    ]) || isAdmin$
+                  )
+                "
+              >
+                <a
+                  [matMenuTriggerFor]="menu"
+                  class="top-link"
+                  style="font-weight: 400"
+                >
+                  Continuous Monitoring
+                </a>
+              </li>
+            }
+            @if (
+              !(
+                hasRole$([
+                  "PERIOD_CLOSE",
+                  "EXCEPTION_ADMIN",
+                  "EXCEPTION_READ_ONLY",
+                  "ACCOUNT_RECON",
+                  "ORDER_MANAGEMENT",
+                  "CASE_IQ_MANAGER",
+                  "CASE_IQ_OM",
+                  "CASE_IQ_SBP",
+                  "CASE_IQ_I2C",
+                  "CASE_IQ_AIT",
+                  "CASE_IQ_FPP",
+                  "CASE_IQ_P2P",
+                  "CASE_IQ_CAPITAL",
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  "LARGE_DEAL",
+                  "WD0",
+                  "MIDCLOSE_VOLUMES",
+                  "ISSUE_RESOLUTION",
+                ])
+              )
+            ) {
+              <li
+                class="menu-item"
+                [class.disabled]="
+                  !(
+                    hasRole$([
+                      'LARGE_DEAL',
+                      'WD0',
+                      'MIDCLOSE_VOLUMES',
+                      'ISSUE_RESOLUTION',
+                    ]) || isAdmin$
+                  )
+                "
+              >
+                <a
+                  [routerLink]="'/business-insights'"
+                  class="top-link"
+                  style="font-weight: 400"
+                >
+                  Business Insights
+                </a>
+              </li>
+            }
+            @if (
+              !(
+                hasRole$([
+                  "PERIOD_CLOSE",
+                  "EXCEPTION_ADMIN",
+                  "EXCEPTION_READ_ONLY",
+                  "ACCOUNT_RECON",
+                  "ORDER_MANAGEMENT",
+                  "LARGE_DEAL",
+                  "WD0",
+                  "MIDCLOSE_VOLUMES",
+                  "ISSUE_RESOLUTION",
+                ]) &&
+                !isAdmin$ &&
+                !hasRole$([
+                  "CASE_IQ_MANAGER",
+                  "CASE_IQ_OM",
+                  "CASE_IQ_SBP",
+                  "CASE_IQ_I2C",
+                  "CASE_IQ_AIT",
+                  "CASE_IQ_FPP",
+                  "CASE_IQ_P2P",
+                  "CASE_IQ_CAPITAL",
+                ])
+              )
+            ) {
+              <li
+                class="menu-item"
+                [class.disabled]="
+                  !(
+                    hasRole$([
+                      'CASE_IQ_MANAGER',
+                      'CASE_IQ_OM',
+                      'CASE_IQ_SBP',
+                      'CASE_IQ_I2C',
+                      'CASE_IQ_AIT',
+                      'CASE_IQ_FPP',
+                      'CASE_IQ_P2P',
+                      'CASE_IQ_CAPITAL',
+                    ]) || isAdmin$
+                  )
+                "
+              >
+                <a
+                  [matMenuTriggerFor]="espMenu"
+                  class="top-link"
+                  style="font-weight: 400"
+                >
+                  ESP Case Manager
+                </a>
+              </li>
+            }
+          </ul>
         </span>
 
-        <h5
-          style="
-            color: white;
-            margin-bottom: 0;
-            font-family: &quot;Inter&quot;, sans-serif;
-            font-weight: 400;
-          "
-        >
-          @if (header.length > 0) {
-            <span>
-              <div style="font-size: 12px; line-height: normal">
-                Finance-IT Control Tower
-              </div>
-              <div style="font-size: 14px; line-height: normal">
-                {{ header }}
-              </div>
-            </span>
-          }
-          @if (header.length === 0) {
-            <span>
-              <span>Finance-IT Control Tower</span>
-            </span>
-          }
-        </h5>
-      </span>
-      <span class="navbar">
-        <ul class="menu">
-          <!-- Home -->
-          <!-- <li class="menu-item" [class.disabled]="true">
-          <a [routerLink]="'/home'" class="top-link">
-            <i class="svg-icon home-icon" style="font-weight: 900"></i>
-          </a>
-        </li> -->
-
-          <!-- Period Close Tracking -->
-          @if (
-            !(
-              hasRole$([
-                "LARGE_DEAL",
-                "WD0",
-                "MIDCLOSE_VOLUMES",
-                "ISSUE_RESOLUTION",
-                "CASE_IQ_MANAGER",
-                "CASE_IQ_OM",
-                "CASE_IQ_SBP",
-                "CASE_IQ_I2C",
-                "CASE_IQ_AIT",
-                "CASE_IQ_FPP",
-                "CASE_IQ_P2P",
-                "CASE_IQ_CAPITAL",
-              ]) &&
-              !isAdmin$ &&
-              !hasRole$([
-                "PERIOD_CLOSE",
-                "EXCEPTION_ADMIN",
-                "EXCEPTION_READ_ONLY",
-                "ACCOUNT_RECON",
-                "ORDER_MANAGEMENT",
-              ])
-            )
-          ) {
-            <li
-              class="menu-item"
-              [class.disabled]="
-                !(
-                  hasRole$([
-                    'PERIOD_CLOSE',
-                    'EXCEPTION_ADMIN',
-                    'EXCEPTION_READ_ONLY',
-                    'ACCOUNT_RECON',
-                    'ORDER_MANAGEMENT',
-                  ]) || isAdmin$
-                )
-              "
-            >
-              <a
-                [matMenuTriggerFor]="menu"
-                class="top-link"
-                style="font-weight: 400"
-              >
-                Continuous Monitoring
-              </a>
-            </li>
-          }
-          @if (
-            !(
-              hasRole$([
-                "PERIOD_CLOSE",
-                "EXCEPTION_ADMIN",
-                "EXCEPTION_READ_ONLY",
-                "ACCOUNT_RECON",
-                "ORDER_MANAGEMENT",
-                "CASE_IQ_MANAGER",
-                "CASE_IQ_OM",
-                "CASE_IQ_SBP",
-                "CASE_IQ_I2C",
-                "CASE_IQ_AIT",
-                "CASE_IQ_FPP",
-                "CASE_IQ_P2P",
-                "CASE_IQ_CAPITAL",
-              ]) &&
-              !isAdmin$ &&
-              !hasRole$([
-                "LARGE_DEAL",
-                "WD0",
-                "MIDCLOSE_VOLUMES",
-                "ISSUE_RESOLUTION",
-              ])
-            )
-          ) {
-            <li
-              class="menu-item"
-              [class.disabled]="
-                !(
-                  hasRole$([
-                    'LARGE_DEAL',
-                    'WD0',
-                    'MIDCLOSE_VOLUMES',
-                    'ISSUE_RESOLUTION',
-                  ]) || isAdmin$
-                )
-              "
-            >
-              <a
-                [routerLink]="'/business-insights'"
-                class="top-link"
-                style="font-weight: 400"
-              >
-                Business Insights
-              </a>
-            </li>
-          }
-          @if (
-            !(
-              hasRole$([
-                "PERIOD_CLOSE",
-                "EXCEPTION_ADMIN",
-                "EXCEPTION_READ_ONLY",
-                "ACCOUNT_RECON",
-                "ORDER_MANAGEMENT",
-                "LARGE_DEAL",
-                "WD0",
-                "MIDCLOSE_VOLUMES",
-                "ISSUE_RESOLUTION",
-              ]) &&
-              !isAdmin$ &&
-              !hasRole$([
-                "CASE_IQ_MANAGER",
-                "CASE_IQ_OM",
-                "CASE_IQ_SBP",
-                "CASE_IQ_I2C",
-                "CASE_IQ_AIT",
-                "CASE_IQ_FPP",
-                "CASE_IQ_P2P",
-                "CASE_IQ_CAPITAL",
-              ])
-            )
-          ) {
-            <li
-              class="menu-item"
-              [class.disabled]="
-                !(
-                  hasRole$([
-                    'CASE_IQ_MANAGER',
-                    'CASE_IQ_OM',
-                    'CASE_IQ_SBP',
-                    'CASE_IQ_I2C',
-                    'CASE_IQ_AIT',
-                    'CASE_IQ_FPP',
-                    'CASE_IQ_P2P',
-                    'CASE_IQ_CAPITAL',
-                  ]) || isAdmin$
-                )
-              "
-            >
-              <a
-                [matMenuTriggerFor]="espMenu"
-                class="top-link"
-                style="font-weight: 400"
-              >
-                ESP Case Manager
-              </a>
-            </li>
-          }
-        </ul>
-      </span>
-
-      <span style="display: flex; align-items: center">
-        <!-- <div class="custom-search-bar" *ngIf="showNavbar">
+        <span style="display: flex; align-items: center">
+          <!-- <div class="custom-search-bar" *ngIf="showNavbar">
       <input
         type="text"
         placeholder="Search"
@@ -242,51 +253,52 @@
       <i class="svg-icon search-icon"></i>
     </div> -->
 
-        @if (!showNavbar) {
-          <app-o2c-search></app-o2c-search>
-        }
+          @if (showO2cSearch) {
+            <app-o2c-search></app-o2c-search>
+          }
 
-        <!-- Analytics Dashboard Link -->
-        <!-- @if (isAdmin$) {
+          <!-- Analytics Dashboard Link -->
+          <!-- @if (isAdmin$) {
         <a [routerLink]="'/analytics'" style="margin-right: 12px; color: white; display: flex; align-items: center;" matTooltip="Analytics Dashboard">
           <i class="fa fa-bar-chart" aria-hidden="true" style="font-size: x-large; cursor: pointer;"></i>
         </a>
         } -->
 
-        <i
-          class="fa fa-question-circle"
-          aria-hidden="true"
-          style="
-            color: white;
-            margin-right: 10px;
-            font-size: x-large;
-            cursor: pointer;
-          "
-          matTooltip="Help"
-        ></i>
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="25"
-          height="25"
-          fill="#ffffff"
-          viewBox="0 0 256 256"
-        >
-          <path
-            d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"
-          ></path>
-        </svg>
-        <span style="margin: 0 10px 0 5px" class="onHover">
-          <span class="user-title">Welcome, {{ userName }}</span>
           <i
-            class="fa fa-angle-down"
-            style="color: white; font-size: medium; margin-left: 5px"
+            class="fa fa-question-circle"
+            aria-hidden="true"
+            style="
+              color: white;
+              margin-right: 10px;
+              font-size: x-large;
+              cursor: pointer;
+            "
+            matTooltip="Help"
           ></i>
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            fill="#ffffff"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"
+            ></path>
+          </svg>
+          <span style="margin: 0 10px 0 5px" class="onHover">
+            <span class="user-title">Welcome, {{ userName }}</span>
+            <i
+              class="fa fa-angle-down"
+              style="color: white; font-size: medium; margin-left: 5px"
+            ></i>
+          </span>
         </span>
-      </span>
-    </div>
-  </mat-toolbar>
-</div>
+      </div>
+    </mat-toolbar>
+  </div>
+}
 
 <mat-sidenav-container class="example-container">
   <mat-sidenav-content>
@@ -350,7 +362,7 @@
       Operations Controls
     </button>
   }
-  @if (isAdmin$) {
+  @if (hasRole$(["WIPS"]) || isAdmin$) {
     <button mat-menu-item [routerLink]="'/wips'">WIPS</button>
   }
 </mat-menu>

@@ -9,6 +9,13 @@ const config: StorybookConfig = {
   ],
   framework: '@storybook/angular',
   staticDirs: ['../src/assets'],
+  core: {
+    disableTelemetry: true,
+  },
+  typescript: {
+    // Suppress "unused file" warnings - we're in a large app, not all files have stories
+    skipCompiler: false,
+  },
 };
 
 export default config;

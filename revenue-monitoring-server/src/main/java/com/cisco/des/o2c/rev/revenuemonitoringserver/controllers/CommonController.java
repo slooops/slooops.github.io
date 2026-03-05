@@ -317,4 +317,15 @@ public class CommonController {
     public ResponseEntity<List<Map<String, Object>>> getPageVisitSummary() {
         return new ResponseEntity<>(service.getPageVisitSummary(), HttpStatus.OK);
     }
+
+    /**
+     * GET /api/dashboard-metrics
+     * Retrieves dashboard metrics for the landing page cockpit.
+     * 
+     * @return List of dashboard metrics ordered by section and display order
+     */
+    @GetMapping("/dashboard-metrics")
+    public ResponseEntity<List<Map<String, Object>>> getDashboardMetrics() {
+        return new ResponseEntity<>(service.getDashboardMetrics(), HttpStatus.OK);
+    }
 }

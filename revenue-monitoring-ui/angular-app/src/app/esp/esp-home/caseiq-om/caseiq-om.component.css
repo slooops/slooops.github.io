@@ -1,1 +1,161 @@
 @import "../esp-home.component.css";
+
+.caseiq-header-box {
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  margin: 5px 0;
+}
+
+/* ── Header row with two groups ── */
+.caseiq-header-row {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  align-items: stretch;
+}
+
+.caseiq-header-group {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.caseiq-header-group-esp {
+  flex: 0 0 auto;
+}
+
+.caseiq-header-group-agent {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.caseiq-header-group-agent .caseiq-header-cell {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Narrower: In Progress, Routed Out, Cancelled (2nd–4th agent cells) */
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(2),
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(3),
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(4) {
+  flex: 0.8 1 0;
+}
+
+/* Wider: Service Requests (5th agent cell) */
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(5) {
+  flex: 1.2 1 0;
+}
+
+.caseiq-header-group-agent .caseiq-cell-ratio-bar {
+  flex: 2 1 0;
+}
+
+/* Rounded corners on first and last cell of each group */
+.caseiq-header-group .caseiq-header-cell:first-child {
+  border-radius: 20px 0 0 20px;
+}
+
+.caseiq-header-group .caseiq-header-cell:last-child {
+  border-radius: 0 20px 20px 0;
+}
+
+.caseiq-header-group .caseiq-header-cell:only-child {
+  border-radius: 20px;
+}
+
+/* Each cell: inline flow – Label - Value */
+.caseiq-header-cell {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8px;
+  min-height: 36px;
+  background: #3b6fa0;
+  gap: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.caseiq-header-group .caseiq-header-cell:last-child {
+  border-right: none;
+}
+
+.caseiq-header-label {
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.caseiq-header-sep {
+  color: #fff;
+  padding: 0 4px;
+  font-weight: 400;
+}
+
+.caseiq-header-value {
+  color: #fff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Ratio bar cell: allow wrapping for the bar */
+.caseiq-cell-ratio-bar {
+  flex-wrap: wrap;
+}
+
+.ratio-bar-container {
+  display: flex;
+  flex: 1;
+  height: 22px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  margin-left: 6px;
+}
+
+.ratio-bar-agent {
+  background: #00bceb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  transition: width 0.4s ease;
+}
+
+.ratio-bar-ops {
+  background: #e2e2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  transition: width 0.4s ease;
+}
+
+.ratio-bar-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+}
+
+@media (max-width: 1600px) {
+  .caseiq-header-single-row {
+    font-size: 10px;
+  }
+  .caseiq-header-label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .caseiq-header-single-row {
+    font-size: 9px;
+  }
+  .caseiq-header-label {
+    font-size: 8px;
+  }
+}

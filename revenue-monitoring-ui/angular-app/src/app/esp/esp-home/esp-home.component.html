@@ -12,7 +12,36 @@
   <div class="dashboard-header">
     <div class="header-main">
       <div class="header-left">
-        <h1>ESP Case Data Review</h1>
+        <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+          <img
+            src="assets/icons/grid-menu.svg"
+            alt="menu"
+            class="grid-menu-icon"
+            (click)="toggleGridMenu($event)"
+          />
+          @if (showGridMenu) {
+            <div class="grid-menu-dropdown">
+              @for (metric of metricTiles; track metric.name) {
+                @if (isTileAccessible(metric.name)) {
+                  <div
+                    class="grid-menu-item"
+                    [class.active]="isActive(metric.name)"
+                    (click)="onGridMenuItemClick(metric.name)"
+                  >
+                    <span class="grid-menu-item-name">{{ metric.name }}</span>
+                    @if (metric.percentage !== "-") {
+                      <span class="grid-menu-item-pct"
+                        >{{ metric.percentage }}%</span
+                      >
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+        <h2>{{ activeTab }}</h2>
+
         <div class="quarter-filter">
           <label>Quarter:</label>
           <div
@@ -67,54 +96,49 @@
             >
             <span class="divider"> | </span>
             <span
-              >&nbsp;<b>Last Updated:</b>
-              {{ periodInfo()?.lastUpdated || "" }}</span
-            >
+              >&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} &nbsp;<i
+                class="fa fa-info-circle"
+                matTooltip="Dashboard data is updated at 12 AM, 6 AM, 12 PM and 6 PM PST everyday. "
+                [matTooltipPosition]="'right'"
+                style="color: gray"
+              ></i
+            ></span>
           </div>
         </div>
       </div>
       <div class="header-center">
-        <div class="global-search">
-          <div class="global-search-input-wrapper">
-            <input
-              type="text"
-              class="global-search-input"
-              #globalSearchInput
-              placeholder="Search by Incident Number(s), comma separated"
-              (keyup.enter)="onGlobalSearchClick(globalSearchInput.value)"
-            />
+        @if (activeTab !== "Finance IT") {
+          <div class="global-search">
+            <div class="global-search-input-wrapper">
+              <input
+                type="text"
+                class="global-search-input"
+                #globalSearchInput
+                placeholder="Search by Incident Number(s), comma separated"
+                (keyup.enter)="onGlobalSearchClick(globalSearchInput.value)"
+              />
+            </div>
+            <span
+              class="global-search-icon"
+              (click)="onGlobalSearchClick(globalSearchInput.value)"
+              >🔍</span
+            >
           </div>
-          <span
-            class="global-search-icon"
-            (click)="onGlobalSearchClick(globalSearchInput.value)"
-            >🔍</span
-          >
-        </div>
+        }
       </div>
     </div>
   </div>
 
   <hr />
 
-  <div class="metrics-container">
-    @for (metric of metricTiles; track metric.name) {
-      <app-metric-tile
-        [name]="metric.name"
-        [percentage]="metric.percentage"
-        [isActive]="isActive(metric.name)"
-        [isAccessible]="isTileAccessible(metric.name)"
-        (tileClick)="onTileClick($event)"
-      ></app-metric-tile>
-    }
-  </div>
-
-  <hr />
-
   <!-- Content area that displays based on active tile -->
   @switch (activeTab) {
-    @case ("Overall") {
+    @case ("Finance IT") {
       <div class="tile-content">
-        <!-- <app-caseiq></app-caseiq> -->
+        <app-caseiq
+          [selectedQuarter]="selectedQuarter"
+          [caseIqMetrics]="componentLevelMetrics"
+        ></app-caseiq>
       </div>
     }
     @case ("Capital") {
@@ -122,6 +146,7 @@
         <app-caseiq-cap
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('CAPITAL')"
         ></app-caseiq-cap>
       </div>
     }
@@ -130,6 +155,7 @@
         <app-caseiq-fpp
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('FPP')"
         ></app-caseiq-fpp>
       </div>
     }
@@ -138,6 +164,7 @@
         <app-caseiq-i2c
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('I2C')"
         ></app-caseiq-i2c>
       </div>
     }
@@ -146,6 +173,7 @@
         <app-caseiq-om
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('OM')"
         ></app-caseiq-om>
       </div>
     }
@@ -154,6 +182,7 @@
         <app-caseiq-p2p
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('P2P')"
         ></app-caseiq-p2p>
       </div>
     }
@@ -162,6 +191,7 @@
         <app-caseiq-sm
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('SM')"
         ></app-caseiq-sm>
       </div>
     }
@@ -170,6 +200,7 @@
         <app-caseiq-ait
           [selectedQuarter]="selectedQuarter"
           (uploadSuccess)="onUploadSuccess()"
+          [caseIqMetrics]="loadCaseAnalyzerMetricsByComponent('AIT')"
         ></app-caseiq-ait>
       </div>
     }
@@ -182,4 +213,3 @@
     }
   }
 </div>
-<br /><br />

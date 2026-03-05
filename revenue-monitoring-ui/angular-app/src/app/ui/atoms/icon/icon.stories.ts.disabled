@@ -5,6 +5,9 @@ const meta: Meta<IconComponent> = {
   title: 'Atoms/Icon',
   component: IconComponent,
   tags: ['autodocs'],
+  parameters: {
+    docs: { disable: true },
+  },
   argTypes: {
     name: {
       control: 'select',

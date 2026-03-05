@@ -413,10 +413,12 @@ h6 {
   line-height: 20px;
   cursor: pointer;
   border-radius: 6px;
-  background-color: #049fd9;
+  background-color: #00bceb;
   color: #fff !important;
   border: none;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .custom-button-primary:hover {
@@ -445,7 +447,10 @@ h6 {
   background-color: transparent;
   color: #373c42;
   border: 1px solid #373c42;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .custom-button-secondary:hover {
@@ -525,23 +530,23 @@ h6 {
   /* Active tab */
   .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
   .mat-mdc-tab .mat-mdc-tab-link-active {
-    color: #049fd9 !important;
+    color: #00bceb !important;
     font-weight: 600 !important;
   }
 
   /* Ink bar (active indicator) */
   .mat-mdc-tab-header .mat-mdc-tab-header-pagination-chevron,
   .mdc-tab-indicator__content--underline {
-    background-color: #049fd9 !important;
+    background-color: #00bceb !important;
   }
 
   .mdc-tab-indicator__content--underline {
-    border-color: #049fd9 !important;
+    border-color: #00bceb !important;
   }
 }
 
 .mat-mdc-tab .mdc-tab-indicator__content--underline {
-  border-color: #08ace4 !important;
+  border-color: #00bceb !important;
 }
 
 /* Form Field Overrides - Smaller, compact form fields */
@@ -571,12 +576,12 @@ h6 {
   &.mat-focused {
     .mat-mdc-floating-label,
     .mdc-floating-label {
-      color: #049fd9 !important;
+      color: #00bceb !important;
     }
 
     .mat-mdc-line-ripple,
     .mdc-line-ripple {
-      background-color: #049fd9 !important;
+      background-color: #00bceb !important;
     }
   }
 
@@ -624,7 +629,7 @@ h6 {
     background-color: rgba(4, 159, 217, 0.12) !important;
 
     &:not(.mat-mdc-option-disabled) {
-      color: #049fd9 !important;
+      color: #00bceb !important;
     }
   }
 
@@ -706,7 +711,7 @@ h6 {
   &.mat-mdc-checkbox-checked {
     .mdc-checkbox__background,
     .mdc-checkbox__background {
-      background-color: #049fd9 !important;
+      background-color: #00bceb !important;
     }
   }
 
@@ -757,8 +762,10 @@ h6 {
   padding: 0 !important;
   background-color: #ffffff !important;
   border-radius: 2px !important;
-  box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.2),
-    0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12) !important;
+  box-shadow:
+    0 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0 9px 46px 8px rgba(0, 0, 0, 0.12) !important;
 
   .mat-mdc-dialog-title,
   .mat-dialog-title {
@@ -782,8 +789,10 @@ h6 {
   padding: 0 !important;
   background-color: #ffffff !important;
   border-radius: 2px !important;
-  box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.2),
-    0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12) !important;
+  box-shadow:
+    0 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0 24px 38px 3px rgba(0, 0, 0, 0.14),
+    0 9px 46px 8px rgba(0, 0, 0, 0.12) !important;
 }
 
 .cdk-overlay-pane.mat-mdc-dialog-panel {
@@ -828,7 +837,7 @@ h6 {
   }
 
   .mat-calendar-body-selected {
-    background-color: #049fd9 !important;
+    background-color: #00bceb !important;
     color: white !important;
   }
 }
@@ -850,7 +859,7 @@ h6 {
 
     .mdc-switch__handle-track .mdc-switch__handle::after,
     .mat-slide-toggle-thumb {
-      background-color: #049fd9 !important;
+      background-color: #00bceb !important;
     }
   }
 }

@@ -1,0 +1,193 @@
+<div class="landing-page">
+  <!-- Welcome Bar -->
+  <div class="welcome-bar">
+    <p class="welcome-text">
+      Hello <strong>{{ userName() }}</strong
+      >, welcome!
+    </p>
+    <button class="ask-ivan-btn" type="button">
+      <ng-icon class="ask-ivan-icon" name="phosphorSparkleBold" size="20" />
+      <span class="ask-ivan-label">ASK IVAN</span>
+    </button>
+  </div>
+
+  <!-- Cockpit Dashboard -->
+  <div class="cockpit-grid">
+    <!-- IT Operations Metrics -->
+    <div class="cockpit-panel cockpit-panel--it">
+      <!-- <h3 class="panel-title">IT Operations</h3> -->
+      <div class="dial-row">
+        @for (dial of itOpsDials(); track dial.label) {
+          <app-arc-progress
+            [value]="dial.value"
+            [max]="dial.max"
+            [size]="dial.size"
+            [strokeWidth]="dial.strokeWidth"
+            [valueSuffix]="dial.suffix"
+            [subtitle]="dial.label"
+            [colorStart]="dial.colorStart"
+            [colorEnd]="dial.colorEnd"
+          />
+        }
+      </div>
+      @if (itOpsBar(); as bar) {
+        <div class="health-bar-container">
+          <span class="health-label">{{ bar.label }}</span>
+          <div class="health-bar">
+            <div class="health-bar-track"></div>
+            <div class="health-bar-indicator" [style.left.%]="bar.value"></div>
+          </div>
+          <span class="health-bar-value">{{ bar.value }}%</span>
+        </div>
+      }
+    </div>
+
+    <!-- Finance Operations Metrics -->
+    <div class="cockpit-panel cockpit-panel--finance">
+      <!-- <h3 class="panel-title">Finance Operations</h3> -->
+      <div class="dial-row">
+        @for (dial of finOpsDials(); track dial.label) {
+          <app-arc-progress
+            [value]="dial.value"
+            [max]="dial.max"
+            [size]="dial.size"
+            [strokeWidth]="dial.strokeWidth"
+            [valueSuffix]="dial.suffix"
+            [subtitle]="dial.label"
+            [colorStart]="dial.colorStart"
+            [colorEnd]="dial.colorEnd"
+          />
+        }
+      </div>
+      @if (finOpsBar(); as bar) {
+        <div class="health-bar-container">
+          <span class="health-label">{{ bar.label }}</span>
+          <div class="health-bar health-bar--colorful">
+            <div class="health-bar-track"></div>
+            <div class="health-bar-indicator" [style.left.%]="bar.value"></div>
+          </div>
+          <span class="health-bar-value">{{ bar.value }}%</span>
+        </div>
+      }
+    </div>
+
+    <!-- Volume Stats Panel -->
+    <div class="cockpit-panel cockpit-panel--volumes">
+      <h3 class="panel-title">Interface Load Volumes</h3>
+      <div class="stat-row">
+        @for (stat of volumeStats(); track stat.label) {
+          <div class="stat-block">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value">{{ stat.value }}</span>
+            @if (stat.trendPercent !== null) {
+              <span
+                class="stat-trend"
+                [class.stat-trend--up]="stat.trendDirection === 'UP'"
+                [class.stat-trend--down]="stat.trendDirection === 'DOWN'"
+              >
+                {{ stat.trendDirection === "UP" ? "▲" : "▼" }}
+                {{ stat.trendPercent }}% QoQ
+              </span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Priority Issues Panel -->
+    <div class="cockpit-panel cockpit-panel--issues">
+      <h3 class="panel-title">Large Deal Stats</h3>
+      <div class="stat-row">
+        @for (stat of largeDealStats(); track stat.label) {
+          <div class="stat-block">
+            <span class="stat-label">{{ stat.label }}</span>
+            <span class="stat-value">{{ stat.value }}</span>
+            @if (stat.subtitle) {
+              <span class="stat-subtitle">{{ stat.subtitle }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Sections -->
+  <section class="card-sections">
+    @for (
+      column of cardColumns();
+      track column.header + $index;
+      let idx = $index
+    ) {
+      <div class="card-column">
+        <h3 class="section-header">{{ column.header }}</h3>
+        <div
+          class="card-grid"
+          [class.card-grid--double]="idx < 2"
+          [class.card-grid--single]="idx === 2"
+        >
+          @for (card of column.cards; track card.title) {
+            <div
+              class="landing-card"
+              [class.landing-card--disabled]="!isCardInteractive(card)"
+              [class.landing-card--full]="card.fullWidth"
+              [class.landing-card--gradient-border]="
+                card.variant === 'gradient-border'
+              "
+              [class.landing-card--gradient-bg-1]="
+                card.variant === 'gradient-bg-1'
+              "
+              [class.landing-card--gradient-bg-2]="
+                card.variant === 'gradient-bg-2'
+              "
+              [class.landing-card--gradient-bg-3]="
+                card.variant === 'gradient-bg-3'
+              "
+              [class.landing-card--glass]="card.variant === 'glass'"
+              [class.landing-card--inner-glow]="card.variant === 'inner-glow'"
+              [class.landing-card--soft-glow]="card.variant === 'soft-glow'"
+              (click)="onCardClick(card)"
+              (keydown.enter)="onCardClick(card)"
+              [attr.tabindex]="isCardInteractive(card) ? 0 : -1"
+              [attr.role]="isCardInteractive(card) ? 'link' : 'presentation'"
+              [attr.aria-disabled]="isCardInteractive(card) ? null : true"
+            >
+              <div class="card-header-row">
+                <div class="card-icon">
+                  <ng-icon [name]="card.icon" size="48" />
+                </div>
+                @if (card.arcData) {
+                  <app-arc-progress
+                    [value]="card.arcData.value"
+                    [max]="card.arcData.max"
+                    [valueSuffix]="card.arcData.suffix ?? ''"
+                    [subtitle]="card.arcData.subtitle ?? ''"
+                    [colorStart]="card.arcData.colorStart ?? '#00bceb'"
+                    [colorEnd]="card.arcData.colorEnd ?? '#ff007f'"
+                    [size]="72"
+                    [strokeWidth]="5"
+                  />
+                }
+              </div>
+              <h4 class="card-title">{{ card.title }}</h4>
+              <p class="card-description">{{ card.description }}</p>
+              <span
+                class="card-link"
+                [class.card-link--disabled]="!isCardInteractive(card)"
+              >
+                <span class="card-link-text">View Details</span>
+                @if (isCardInteractive(card)) {
+                  <ng-icon
+                    class="card-link-arrow"
+                    name="phosphorCaretRightBold"
+                    size="18"
+                  />
+                }
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </section>
+  <br />
+</div>

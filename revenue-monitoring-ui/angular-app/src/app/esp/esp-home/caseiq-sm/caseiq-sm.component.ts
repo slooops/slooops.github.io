@@ -53,11 +53,12 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   @Input() selectedQuarter!: string; // Quarter filter from parent
   @ViewChild('smTable') smTable!: CaseiqTableComponent;
   @Output() uploadSuccess = new EventEmitter<void>();
+  @Input() caseIqMetrics: any;
 
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
-    private dialog: MatDialog
+    private dialog: MatDialog,
   ) {}
 
   i2cChartData: StackedBarChartDataPoint[] = [];
@@ -106,12 +107,66 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // React to quarter changes
-    if (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) {
+    // React to quarter or metrics changes
+    if (
+      (changes['selectedQuarter'] && !changes['selectedQuarter'].firstChange) ||
+      (changes['caseIqMetrics'] && !changes['caseIqMetrics'].firstChange)
+    ) {
       console.log('SM: Quarter changed to', this.selectedQuarter);
       this.refreshingData = true; // Show loading overlay
       this.loadAllData();
     }
+  }
+
+  /**
+   * CaseIQ metrics filtered by selectedQuarter for SM.
+   *
+   * - If selectedQuarter is empty, returns the original input.
+   * - If caseIqMetrics is an array, picks the SM row whose FISCAL_QTR
+   *   matches selectedQuarter.
+   * - If caseIqMetrics is a single object with FISCAL_QTR, it is returned
+   *   only when its FISCAL_QTR matches selectedQuarter; otherwise null.
+   */
+  get filteredCaseIqMetrics(): any {
+    if (!this.caseIqMetrics) {
+      return null;
+    }
+
+    if (!this.selectedQuarter) {
+      return this.caseIqMetrics;
+    }
+
+    if (Array.isArray(this.caseIqMetrics)) {
+      const row = this.caseIqMetrics.find(
+        (m: any) =>
+          m &&
+          m.FISCAL_QTR === this.selectedQuarter &&
+          m.TEAM_NAME &&
+          m.TEAM_NAME.toString().toUpperCase() === 'SM',
+      );
+      return row || null;
+    }
+
+    if (
+      (this.caseIqMetrics as any).FISCAL_QTR &&
+      (this.caseIqMetrics as any).FISCAL_QTR !== this.selectedQuarter
+    ) {
+      return null;
+    }
+
+    return this.caseIqMetrics;
+  }
+  getAgentRatio(): number {
+    const m = this.filteredCaseIqMetrics;
+    if (!m) return 0;
+    const total = m.TOTAL_CASES ?? 0;
+    if (!total) return 0;
+    const agentTotal =
+      (m.RESOLVED_AGENT ?? 0) +
+      (m.IN_PROGRESS_AGENT ?? 0) +
+      (m.RECOMMENDED_ROUTED_OUT ?? 0) +
+      (m.RECOMMENDED_CANCELLED ?? 0);
+    return Math.round((agentTotal / total) * 100);
   }
 
   private loadAllData(): void {
@@ -127,7 +182,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   private mergeByCategoryOrIssue(
     data: any[],
     groupColumn: string,
-    countColumn: string
+    countColumn: string,
   ): any[] {
     const groupMap = new Map<string, any>();
 
@@ -168,7 +223,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         const mergedData = this.mergeByCategoryOrIssue(
           filteredByQuarter,
           'CATEGORY',
-          'CATEGORY_COUNT'
+          'CATEGORY_COUNT',
         );
 
         // Cache for reapplying filters
@@ -197,7 +252,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         const mergedData = this.mergeByCategoryOrIssue(
           filteredByQuarter,
           'CORE_ISSUE',
-          'CORE_ISSUE_COUNT'
+          'CORE_ISSUE_COUNT',
         );
 
         // Cache for reapplying filters
@@ -239,7 +294,8 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         const filteredByQuarter = this.selectedQuarter
           ? data.filter(
               (item: any) =>
-                item.Quarter === this.selectedQuarter && item.TEAM_NAME === 'SM'
+                item.Quarter === this.selectedQuarter &&
+                item.TEAM_NAME === 'SM',
             )
           : data.filter((item: any) => item.TEAM_NAME === 'SM');
 
@@ -280,7 +336,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
           const mergedData = this.mergeByCategoryOrIssue(
             data,
             'CATEGORY',
-            'CATEGORY_COUNT'
+            'CATEGORY_COUNT',
           );
           this.cachedCategoryData = mergedData;
           this.allCategoryLabels = mergedData.map((item) => item.CATEGORY);
@@ -294,7 +350,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
           const mergedData = this.mergeByCategoryOrIssue(
             data,
             'CORE_ISSUE',
-            'CORE_ISSUE_COUNT'
+            'CORE_ISSUE_COUNT',
           );
           this.cachedCoreIssueData = mergedData;
           this.allCoreIssueLabels = mergedData.map((item) => item.CORE_ISSUE);
@@ -349,7 +405,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   adjustCategoryThreshold(direction: number): void {
     this.categoryMinThreshold = Math.max(
       10,
-      this.categoryMinThreshold + direction * 5
+      this.categoryMinThreshold + direction * 5,
     );
     this.reapplyCategoryFilters();
   }
@@ -357,7 +413,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   adjustCoreIssueThreshold(direction: number): void {
     this.coreIssueMinThreshold = Math.max(
       10,
-      this.coreIssueMinThreshold + direction * 5
+      this.coreIssueMinThreshold + direction * 5,
     );
     this.reapplyCoreIssueFilters();
   }
@@ -367,7 +423,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
    */
   reapplyCategoryFilters(): void {
     let filtered = this.cachedCategoryData.filter(
-      (item) => item.CATEGORY_COUNT > this.categoryMinThreshold
+      (item) => item.CATEGORY_COUNT > this.categoryMinThreshold,
     );
 
     // If no data passes threshold, show all data instead
@@ -377,7 +433,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
 
     if (this.selectedCategoryLabels.size > 0) {
       filtered = filtered.filter((item) =>
-        this.selectedCategoryLabels.has(item.CATEGORY)
+        this.selectedCategoryLabels.has(item.CATEGORY),
       );
     }
 
@@ -385,7 +441,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     this.i2cChartData = this.transformMatchStatusData(
       filtered,
       'CATEGORY',
-      'CATEGORY_COUNT'
+      'CATEGORY_COUNT',
     );
     this.syncTableFilters();
   }
@@ -395,7 +451,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
    */
   reapplyCoreIssueFilters(): void {
     let filtered = this.cachedCoreIssueData.filter(
-      (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+      (item) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
     );
 
     // If no data passes threshold, show all data instead
@@ -405,7 +461,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
 
     if (this.selectedCoreIssueLabels.size > 0) {
       filtered = filtered.filter((item) =>
-        this.selectedCoreIssueLabels.has(item.CORE_ISSUE)
+        this.selectedCoreIssueLabels.has(item.CORE_ISSUE),
       );
     }
 
@@ -413,7 +469,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     this.i2cSimpleChartData = this.transformMatchStatusData(
       filtered,
       'CORE_ISSUE',
-      'CORE_ISSUE_COUNT'
+      'CORE_ISSUE_COUNT',
     );
     this.syncTableFilters();
   }
@@ -496,43 +552,43 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     // If no filters active, show all data and clear any table filters
     if (categoryFilters.length === 0 && coreIssueFilters.length === 0) {
       console.log(
-        'SM: No filters active, clearing table and resetting both charts to normal'
+        'SM: No filters active, clearing table and resetting both charts to normal',
       );
       this.smTable.clearAllFilters();
 
       // Reset both charts to their original filtered state (based on threshold)
       const categoryEffectiveData = this.cachedCategoryData.filter(
-        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold,
       );
       this.i2cChartData = this.transformMatchStatusData(
         categoryEffectiveData.length > 0
           ? categoryEffectiveData
           : this.cachedCategoryData,
         'CATEGORY',
-        'CATEGORY_COUNT'
+        'CATEGORY_COUNT',
       );
       this.visibleCategoryTotal = this.computeStackedTotal(
         categoryEffectiveData.length > 0
           ? categoryEffectiveData
           : this.cachedCategoryData,
-        'data'
+        'data',
       );
 
       const coreIssueEffectiveData = this.cachedCoreIssueData.filter(
-        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
       );
       this.i2cSimpleChartData = this.transformMatchStatusData(
         coreIssueEffectiveData.length > 0
           ? coreIssueEffectiveData
           : this.cachedCoreIssueData,
         'CORE_ISSUE',
-        'CORE_ISSUE_COUNT'
+        'CORE_ISSUE_COUNT',
       );
       this.visibleCoreIssueTotal = this.computeStackedTotal(
         coreIssueEffectiveData.length > 0
           ? coreIssueEffectiveData
           : this.cachedCoreIssueData,
-        'data'
+        'data',
       );
       return;
     }
@@ -544,17 +600,17 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     if (categoryFilters.length > 0) {
       const categoryFiltersLower = categoryFilters.map((f) => f.toLowerCase());
       filteredData = filteredData.filter((row) =>
-        categoryFiltersLower.includes((row.CATEGORY || '').toLowerCase())
+        categoryFiltersLower.includes((row.CATEGORY || '').toLowerCase()),
       );
       console.log('After category filter:', filteredData.length);
     }
 
     if (coreIssueFilters.length > 0) {
       const coreIssueFiltersLower = coreIssueFilters.map((f) =>
-        f.toLowerCase()
+        f.toLowerCase(),
       );
       filteredData = filteredData.filter((row) =>
-        coreIssueFiltersLower.includes((row.CORE_ISSUE || '').toLowerCase())
+        coreIssueFiltersLower.includes((row.CORE_ISSUE || '').toLowerCase()),
       );
     }
 
@@ -566,82 +622,84 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         new Set(
           filteredData
             .map((row) => row.CORE_ISSUE.toLowerCase())
-            .filter((v) => v)
-        )
+            .filter((v) => v),
+        ),
       );
       console.log(
         'SM: Filtering Core Issue chart to show only:',
-        uniqueCoreIssues
+        uniqueCoreIssues,
       );
       const completeCoreIssueChartData = this.transformMatchStatusData(
         this.cachedCoreIssueData,
         'CORE_ISSUE',
-        'CORE_ISSUE_COUNT'
+        'CORE_ISSUE_COUNT',
       );
       this.i2cSimpleChartData = completeCoreIssueChartData.filter((item) =>
-        uniqueCoreIssues.includes(item.label.toLowerCase())
+        uniqueCoreIssues.includes(item.label.toLowerCase()),
       );
       const filteredCoreIssueData = this.cachedCoreIssueData.filter(
-        (item: any) => uniqueCoreIssues.includes(item.CORE_ISSUE.toLowerCase())
+        (item: any) => uniqueCoreIssues.includes(item.CORE_ISSUE.toLowerCase()),
       );
       this.visibleCoreIssueTotal = this.computeStackedTotal(
         filteredCoreIssueData,
-        'data'
+        'data',
       );
     } else if (coreIssueFilters.length === 0) {
       console.log('SM: Resetting Core Issue chart to normal');
       const effectiveData = this.cachedCoreIssueData.filter(
-        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold
+        (item: any) => item.CORE_ISSUE_COUNT > this.coreIssueMinThreshold,
       );
       this.i2cSimpleChartData = this.transformMatchStatusData(
         effectiveData.length > 0 ? effectiveData : this.cachedCoreIssueData,
         'CORE_ISSUE',
-        'CORE_ISSUE_COUNT'
+        'CORE_ISSUE_COUNT',
       );
       this.visibleCoreIssueTotal = this.computeStackedTotal(
         effectiveData.length > 0 ? effectiveData : this.cachedCoreIssueData,
-        'data'
+        'data',
       );
     }
 
     if (coreIssueFilters.length > 0) {
       const uniqueCategories = Array.from(
         new Set(
-          filteredData.map((row) => row.CATEGORY.toLowerCase()).filter((v) => v)
-        )
+          filteredData
+            .map((row) => row.CATEGORY.toLowerCase())
+            .filter((v) => v),
+        ),
       );
       console.log(
         'SM: Filtering Category chart to show only:',
-        uniqueCategories
+        uniqueCategories,
       );
       const completeCategoryChartData = this.transformMatchStatusData(
         this.cachedCategoryData,
         'CATEGORY',
-        'CATEGORY_COUNT'
+        'CATEGORY_COUNT',
       );
       this.i2cChartData = completeCategoryChartData.filter((item) =>
-        uniqueCategories.includes(item.label.toLowerCase())
+        uniqueCategories.includes(item.label.toLowerCase()),
       );
       const filteredCategoryData = this.cachedCategoryData.filter((item: any) =>
-        uniqueCategories.includes(item.CATEGORY.toLowerCase())
+        uniqueCategories.includes(item.CATEGORY.toLowerCase()),
       );
       this.visibleCategoryTotal = this.computeStackedTotal(
         filteredCategoryData,
-        'data'
+        'data',
       );
     } else if (categoryFilters.length === 0) {
       console.log('SM: Resetting Category chart to normal');
       const effectiveData = this.cachedCategoryData.filter(
-        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold
+        (item: any) => item.CATEGORY_COUNT > this.categoryMinThreshold,
       );
       this.i2cChartData = this.transformMatchStatusData(
         effectiveData.length > 0 ? effectiveData : this.cachedCategoryData,
         'CATEGORY',
-        'CATEGORY_COUNT'
+        'CATEGORY_COUNT',
       );
       this.visibleCategoryTotal = this.computeStackedTotal(
         effectiveData.length > 0 ? effectiveData : this.cachedCategoryData,
-        'data'
+        'data',
       );
     }
 
@@ -738,7 +796,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       if (item[dataKey] && Array.isArray(item[dataKey])) {
         const itemSum = item[dataKey].reduce(
           (s: number, d: any) => s + (d.COUNT || 0),
-          0
+          0,
         );
         return sum + itemSum;
       }
@@ -753,11 +811,11 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     // Compute totals from cached complete data
     const categoryTotal = this.computeStackedTotal(
       this.cachedCategoryData,
-      'data'
+      'data',
     );
     const coreIssueTotal = this.computeStackedTotal(
       this.cachedCoreIssueData,
-      'data'
+      'data',
     );
 
     this.dialog.open(CaseiqSmExpandDialogComponent, {
@@ -771,12 +829,12 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         categoryData: this.transformMatchStatusData(
           this.cachedCategoryData,
           'CATEGORY',
-          'CATEGORY_COUNT'
+          'CATEGORY_COUNT',
         ),
         coreIssueData: this.transformMatchStatusData(
           this.cachedCoreIssueData,
           'CORE_ISSUE',
-          'CORE_ISSUE_COUNT'
+          'CORE_ISSUE_COUNT',
         ),
         categoryTotal,
         coreIssueTotal,
@@ -801,7 +859,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
           key !== 'DESCRIPTION' &&
           key !== 'SUMMARY' &&
           key !== 'Quarter' &&
-          key !== 'Cancelled reason'
+          key !== 'Cancelled reason',
       );
       // Manually trigger paginator setup after data is loaded
       setTimeout(() => {
@@ -817,6 +875,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     }
   }
 
+  totalAccuracy: any;
   /**
    * Updates SM metrics from API data
    * Finds the SM team data and sets the component properties
@@ -824,7 +883,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   private updateSmMetrics(apiData: SmAccuracyData[]): void {
     if (Array.isArray(apiData)) {
       const smData = apiData.find(
-        (item) => item.TEAM_NAME && item.TEAM_NAME.toUpperCase() === 'SM'
+        (item) => item.TEAM_NAME && item.TEAM_NAME.toUpperCase() === 'SM',
       );
 
       if (smData) {
@@ -833,11 +892,16 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         this.coreIssueAccuracy =
           Math.round(smData['Core Issue Accuracy'] * 100) / 100;
         this.totalCases = smData['Total Cases'];
+        this.totalAccuracy =
+          smData['Total Accuracy'] !== undefined
+            ? Math.round(smData['Total Accuracy'] * 100) / 100
+            : '-';
       } else {
         // No SM data found, keep defaults
         this.categoryAccuracy = '-';
         this.coreIssueAccuracy = '-';
         this.totalCases = '-';
+        this.totalAccuracy = '-';
       }
     }
   }
@@ -849,7 +913,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
   private transformMatchStatusData(
     apiData: any[],
     groupColumn: string,
-    countColumn: string
+    countColumn: string,
   ): StackedBarChartDataPoint[] {
     if (!Array.isArray(apiData)) {
       console.log(`No ${groupColumn.toLowerCase()} match data to transform`);
@@ -917,205 +981,220 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
     <mat-dialog-content class="expand-dialog-content" tabindex="0">
       <div class="expand-charts-wrapper">
         @if (chartType === 'CATEGORY') {
-        <div class="expand-chart-block">
-          <div class="expand-chart-header">
-            <h3 class="subheading">
-              Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
-              {{ data.categoryTotal }} )
-            </h3>
-            <div class="filter-wrapper">
-              <mat-icon
-                style="cursor: pointer; font-size: 24px"
-                (click)="toggleCategoryFiltersInDialog()"
-                (keydown.enter)="toggleCategoryFiltersInDialog()"
-                (keydown.space)="toggleCategoryFiltersInDialog()"
-                tabindex="0"
-                title="Category Chart Filters"
-                aria-label="Category Chart Filters"
-                >filter_list</mat-icon
-              >
-              @if (showCategoryFiltersInDialog) {
-              <div
-                class="chart-filter-panel"
-                aria-label="Expanded category chart filters panel"
-              >
-                <div class="multi-select-wrapper">
-                  <button
-                    class="multi-select-trigger"
-                    (click)="toggleCategorySelectInDialog()"
-                    type="button"
-                  >
-                    Filter
-                    <span
-                      class="chevron"
-                      [class.open]="showCategorySelectInDialog"
-                      >▾</span
-                    >
-                  </button>
-                  @if (showCategorySelectInDialog) {
+          <div class="expand-chart-block">
+            <div class="expand-chart-header">
+              <h3 class="subheading">
+                Category Accuracy – {{ data.categoryAccuracy }}% ( Total:
+                {{ data.categoryTotal }} )
+              </h3>
+              <div class="filter-wrapper">
+                <mat-icon
+                  style="cursor: pointer; font-size: 24px"
+                  (click)="toggleCategoryFiltersInDialog()"
+                  (keydown.enter)="toggleCategoryFiltersInDialog()"
+                  (keydown.space)="toggleCategoryFiltersInDialog()"
+                  tabindex="0"
+                  title="Category Chart Filters"
+                  aria-label="Category Chart Filters"
+                  >filter_list</mat-icon
+                >
+                @if (showCategoryFiltersInDialog) {
                   <div
-                    class="multi-select-dropdown"
-                    (click)="$event.stopPropagation()"
+                    class="chart-filter-panel"
+                    aria-label="Expanded category chart filters panel"
                   >
-                    <div class="multi-select-options">
-                      @for (label of dialogCategoryLabels; track label) {
-                      <div
-                        class="multi-option"
-                        [class.selected]="
-                          selectedCategoryLabelsInDialog.has(label)
-                        "
-                        (click)="toggleCategorySelectionInDialog(label)"
-                      >
-                        <input
-                          type="checkbox"
-                          [checked]="selectedCategoryLabelsInDialog.has(label)"
-                        />
-                        <span class="option-label">{{ label }}</span>
-                      </div>
-                      }
-                    </div>
-                    <div class="multi-select-actions">
+                    <div class="multi-select-wrapper">
                       <button
-                        type="button"
-                        class="clear-btn"
-                        (click)="clearCategorySelectionInDialog($event)"
-                        [disabled]="selectedCategoryLabelsInDialog.size === 0"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        type="button"
-                        class="close-btn"
+                        class="multi-select-trigger"
                         (click)="toggleCategorySelectInDialog()"
+                        type="button"
                       >
-                        Close
+                        Filter
+                        <span
+                          class="chevron"
+                          [class.open]="showCategorySelectInDialog"
+                          >▾</span
+                        >
                       </button>
-                    </div>
-                  </div>
-                  }
-                </div>
-                @if (selectedCategoryLabelsInDialog.size === 0) {
-                <div class="filter-hint">Showing all categories.</div>
-                } @if (selectedCategoryLabelsInDialog.size > 0) {
-                <div class="filter-hint">
-                  Showing {{ selectedCategoryLabelsInDialog.size }} selected
-                  category(ies).
-                </div>
-                }
-              </div>
-              }
-            </div>
-          </div>
-          <div class="chart-frame">
-            <app-bar-chart
-              [data]="filteredCategoryData"
-              [stacked]="true"
-              [isLoading]="false"
-              [chartHeight]="510"
-              canvasId="expandedCategoryChartSm"
-            ></app-bar-chart>
-          </div>
-        </div>
-        } @if (chartType === 'CORE_ISSUE') {
-        <div class="expand-chart-block">
-          <div class="expand-chart-header">
-            <h3 class="subheading">
-              Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
-              {{ data.coreIssueTotal }} )
-            </h3>
-            <div class="filter-wrapper">
-              <mat-icon
-                style="cursor: pointer; font-size: 24px"
-                (click)="toggleCoreIssueFiltersInDialog()"
-                (keydown.enter)="toggleCoreIssueFiltersInDialog()"
-                (keydown.space)="toggleCoreIssueFiltersInDialog()"
-                tabindex="0"
-                title="Core Issue Chart Filters"
-                aria-label="Core Issue Chart Filters"
-                >filter_list</mat-icon
-              >
-              @if (showCoreIssueFiltersInDialog) {
-              <div
-                class="chart-filter-panel"
-                aria-label="Expanded core issue chart filters panel"
-              >
-                <div class="multi-select-wrapper">
-                  <button
-                    class="multi-select-trigger"
-                    (click)="toggleCoreIssueSelectInDialog()"
-                    type="button"
-                  >
-                    Filter
-                    <span
-                      class="chevron"
-                      [class.open]="showCoreIssueSelectInDialog"
-                      >▾</span
-                    >
-                  </button>
-                  @if (showCoreIssueSelectInDialog) {
-                  <div
-                    class="multi-select-dropdown"
-                    (click)="$event.stopPropagation()"
-                  >
-                    <div class="multi-select-options">
-                      @for (label of dialogCoreIssueLabels; track label) {
-                      <div
-                        class="multi-option"
-                        [class.selected]="
-                          selectedCoreIssueLabelsInDialog.has(label)
-                        "
-                        (click)="toggleCoreIssueSelectionInDialog(label)"
-                      >
-                        <input
-                          type="checkbox"
-                          [checked]="selectedCoreIssueLabelsInDialog.has(label)"
-                        />
-                        <span class="option-label">{{ label }}</span>
-                      </div>
+                      @if (showCategorySelectInDialog) {
+                        <div
+                          class="multi-select-dropdown"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <div class="multi-select-options">
+                            @for (label of dialogCategoryLabels; track label) {
+                              <div
+                                class="multi-option"
+                                [class.selected]="
+                                  selectedCategoryLabelsInDialog.has(label)
+                                "
+                                (click)="toggleCategorySelectionInDialog(label)"
+                              >
+                                <input
+                                  type="checkbox"
+                                  [checked]="
+                                    selectedCategoryLabelsInDialog.has(label)
+                                  "
+                                />
+                                <span class="option-label">{{ label }}</span>
+                              </div>
+                            }
+                          </div>
+                          <div class="multi-select-actions">
+                            <button
+                              type="button"
+                              class="clear-btn"
+                              (click)="clearCategorySelectionInDialog($event)"
+                              [disabled]="
+                                selectedCategoryLabelsInDialog.size === 0
+                              "
+                            >
+                              Clear
+                            </button>
+                            <button
+                              type="button"
+                              class="close-btn"
+                              (click)="toggleCategorySelectInDialog()"
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
                       }
                     </div>
-                    <div class="multi-select-actions">
-                      <button
-                        type="button"
-                        class="clear-btn"
-                        (click)="clearCoreIssueSelectionInDialog($event)"
-                        [disabled]="selectedCoreIssueLabelsInDialog.size === 0"
-                      >
-                        Clear
-                      </button>
-                      <button
-                        type="button"
-                        class="close-btn"
-                        (click)="toggleCoreIssueSelectInDialog()"
-                      >
-                        Close
-                      </button>
-                    </div>
+                    @if (selectedCategoryLabelsInDialog.size === 0) {
+                      <div class="filter-hint">Showing all categories.</div>
+                    }
+                    @if (selectedCategoryLabelsInDialog.size > 0) {
+                      <div class="filter-hint">
+                        Showing
+                        {{ selectedCategoryLabelsInDialog.size }} selected
+                        category(ies).
+                      </div>
+                    }
                   </div>
-                  }
-                </div>
-                @if (selectedCoreIssueLabelsInDialog.size === 0) {
-                <div class="filter-hint">Showing all core issues.</div>
-                } @if (selectedCoreIssueLabelsInDialog.size > 0) {
-                <div class="filter-hint">
-                  Showing {{ selectedCoreIssueLabelsInDialog.size }} selected
-                  core issue(s).
-                </div>
                 }
               </div>
-              }
+            </div>
+            <div class="chart-frame">
+              <app-bar-chart
+                [data]="filteredCategoryData"
+                [stacked]="true"
+                [isLoading]="false"
+                [chartHeight]="510"
+                canvasId="expandedCategoryChartSm"
+              ></app-bar-chart>
             </div>
           </div>
-          <div class="chart-frame">
-            <app-bar-chart
-              [data]="filteredCoreIssueData"
-              [stacked]="true"
-              [isLoading]="false"
-              [chartHeight]="510"
-              canvasId="expandedCoreIssueChartSm"
-            ></app-bar-chart>
+        }
+        @if (chartType === 'CORE_ISSUE') {
+          <div class="expand-chart-block">
+            <div class="expand-chart-header">
+              <h3 class="subheading">
+                Core Issue Accuracy – {{ data.coreIssueAccuracy }}% ( Total:
+                {{ data.coreIssueTotal }} )
+              </h3>
+              <div class="filter-wrapper">
+                <mat-icon
+                  style="cursor: pointer; font-size: 24px"
+                  (click)="toggleCoreIssueFiltersInDialog()"
+                  (keydown.enter)="toggleCoreIssueFiltersInDialog()"
+                  (keydown.space)="toggleCoreIssueFiltersInDialog()"
+                  tabindex="0"
+                  title="Core Issue Chart Filters"
+                  aria-label="Core Issue Chart Filters"
+                  >filter_list</mat-icon
+                >
+                @if (showCoreIssueFiltersInDialog) {
+                  <div
+                    class="chart-filter-panel"
+                    aria-label="Expanded core issue chart filters panel"
+                  >
+                    <div class="multi-select-wrapper">
+                      <button
+                        class="multi-select-trigger"
+                        (click)="toggleCoreIssueSelectInDialog()"
+                        type="button"
+                      >
+                        Filter
+                        <span
+                          class="chevron"
+                          [class.open]="showCoreIssueSelectInDialog"
+                          >▾</span
+                        >
+                      </button>
+                      @if (showCoreIssueSelectInDialog) {
+                        <div
+                          class="multi-select-dropdown"
+                          (click)="$event.stopPropagation()"
+                        >
+                          <div class="multi-select-options">
+                            @for (label of dialogCoreIssueLabels; track label) {
+                              <div
+                                class="multi-option"
+                                [class.selected]="
+                                  selectedCoreIssueLabelsInDialog.has(label)
+                                "
+                                (click)="
+                                  toggleCoreIssueSelectionInDialog(label)
+                                "
+                              >
+                                <input
+                                  type="checkbox"
+                                  [checked]="
+                                    selectedCoreIssueLabelsInDialog.has(label)
+                                  "
+                                />
+                                <span class="option-label">{{ label }}</span>
+                              </div>
+                            }
+                          </div>
+                          <div class="multi-select-actions">
+                            <button
+                              type="button"
+                              class="clear-btn"
+                              (click)="clearCoreIssueSelectionInDialog($event)"
+                              [disabled]="
+                                selectedCoreIssueLabelsInDialog.size === 0
+                              "
+                            >
+                              Clear
+                            </button>
+                            <button
+                              type="button"
+                              class="close-btn"
+                              (click)="toggleCoreIssueSelectInDialog()"
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                    @if (selectedCoreIssueLabelsInDialog.size === 0) {
+                      <div class="filter-hint">Showing all core issues.</div>
+                    }
+                    @if (selectedCoreIssueLabelsInDialog.size > 0) {
+                      <div class="filter-hint">
+                        Showing
+                        {{ selectedCoreIssueLabelsInDialog.size }} selected core
+                        issue(s).
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="chart-frame">
+              <app-bar-chart
+                [data]="filteredCoreIssueData"
+                [stacked]="true"
+                [isLoading]="false"
+                [chartHeight]="510"
+                canvasId="expandedCoreIssueChartSm"
+              ></app-bar-chart>
+            </div>
           </div>
-        </div>
         }
       </div>
     </mat-dialog-content>
@@ -1132,7 +1211,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         align-items: center;
         justify-content: space-between;
         padding: 12px 20px 10px 20px;
-        background-color: #08ace4;
+        background-color: #00bceb;
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
@@ -1205,10 +1284,12 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
         align-items: center;
         justify-content: space-between;
         border-radius: 4px;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease;
       }
       .multi-select-trigger:hover {
-        border-color: #08ace4;
+        border-color: #00bceb;
       }
       .multi-select-trigger:focus {
         outline: none;
@@ -1268,7 +1349,7 @@ export class CaseiqSmComponent implements OnInit, OnChanges {
       .multi-select-actions .close-btn {
         flex: 1;
         border: none;
-        background: #08ace4;
+        background: #00bceb;
         color: #fff;
         font-size: 11px;
         padding: 6px 8px;
@@ -1307,7 +1388,7 @@ export class CaseiqSmExpandDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<CaseiqSmExpandDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.chartType = data.chartType;
   }
@@ -1402,7 +1483,7 @@ export class CaseiqSmExpandDialogComponent implements OnInit {
     if (!Array.isArray(this.data?.categoryData)) return;
     this.filteredCategoryData = this.selectedCategoryLabelsInDialog.size
       ? this.data.categoryData.filter((d: any) =>
-          this.selectedCategoryLabelsInDialog.has(d.label)
+          this.selectedCategoryLabelsInDialog.has(d.label),
         )
       : this.data.categoryData;
   }
@@ -1411,7 +1492,7 @@ export class CaseiqSmExpandDialogComponent implements OnInit {
     if (!Array.isArray(this.data?.coreIssueData)) return;
     this.filteredCoreIssueData = this.selectedCoreIssueLabelsInDialog.size
       ? this.data.coreIssueData.filter((d: any) =>
-          this.selectedCoreIssueLabelsInDialog.has(d.label)
+          this.selectedCoreIssueLabelsInDialog.has(d.label),
         )
       : this.data.coreIssueData;
   }

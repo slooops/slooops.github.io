@@ -30,6 +30,7 @@ import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 import { AdminComponent } from './admin/admin.component';
 import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
 import { WipsComponent } from './wips/wips.component';
+import { LandingComponent } from './landing/landing.component';
 
 export const routes: Routes = [
   {
@@ -38,11 +39,20 @@ export const routes: Routes = [
     children: [],
   },
   {
-    path: 'home',
+    path: 'landing',
+    component: LandingComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Landing',
+      hideNavbar: true,
+    },
+  },
+  {
+    path: 'operational-visibility',
     component: HomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Home',
+      header: 'Operational Visibility',
     },
   },
   {
@@ -57,6 +67,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Period Close Tracking',
     },
   },
   {
@@ -73,6 +84,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Revenue Accounting',
     },
   },
   {
@@ -81,6 +93,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'General Ledger',
     },
   },
   {
@@ -89,6 +102,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+      subHeader: 'I2C',
     },
   },
   {
@@ -97,6 +111,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+      subHeader: 'Case IQ',
     },
   },
   {
@@ -105,6 +120,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
+      subHeader: 'SBP',
     },
   },
   {
@@ -113,23 +129,24 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Invoice to Cash',
     },
   },
   {
     path: 'o2c-landing',
     component: O2cLandingComponent,
-    data: { title: 'O2C Home', header: 'O2C Home', hideNavbar: true },
+    data: { title: 'O2C Home', header: 'O2C Home', showO2cSearch: true },
   },
   {
     path: 'o2c-360',
     component: O2c360Component,
-    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+    data: { title: 'O2C 360', header: 'O2C 360', showO2cSearch: true },
   },
 
   {
     path: 'o2c-view-all',
     component: O2cViewAllComponent,
-    data: { title: 'O2C 360', header: 'O2C 360', hideNavbar: true },
+    data: { title: 'O2C 360', header: 'O2C 360', showO2cSearch: true },
   },
   {
     path: 'o2c-bill-schedule',
@@ -137,7 +154,7 @@ export const routes: Routes = [
     data: {
       title: 'O2C Bill Schedule',
       header: 'O2C Bill Schedule',
-      hideNavbar: true,
+      showO2cSearch: true,
     },
   },
   {
@@ -146,18 +163,18 @@ export const routes: Routes = [
     data: {
       title: 'O2C Bill Details',
       header: 'O2C Bill Details',
-      hideNavbar: true,
+      showO2cSearch: true,
     },
   },
   {
     path: 'o2c-gl',
     component: O2cGlComponent,
-    data: { title: 'O2C GL', header: 'O2C GL', hideNavbar: true },
+    data: { title: 'O2C GL', header: 'O2C GL', showO2cSearch: true },
   },
   {
     path: 'o2c-tsv',
     component: O2cTsvComponent,
-    data: { title: 'O2C TSV', header: 'O2C TSV', hideNavbar: true },
+    data: { title: 'O2C TSV', header: 'O2C TSV', showO2cSearch: true },
   },
   // {
   //   path: 'gl-posting',
@@ -180,7 +197,8 @@ export const routes: Routes = [
     component: OrderManagementComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Order Management Monitoring',
+      header: 'Continuous Monitoring',
+      subHeader: 'Order Management',
     },
   },
   {
@@ -188,7 +206,8 @@ export const routes: Routes = [
     component: WipsComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'WIPS',
+      header: 'Continuous Monitoring',
+      subHeader: 'WIPS',
     },
   },
   {
@@ -237,6 +256,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Continuous Monitoring',
+      subHeader: 'Operations Controls',
     },
   },
   {

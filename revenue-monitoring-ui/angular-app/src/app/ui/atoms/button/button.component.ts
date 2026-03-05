@@ -33,6 +33,10 @@ export class ButtonComponent {
       classes.push(`fit-btn--${this.variant}`);
     }
 
+    if (this.size !== 'md') {
+      classes.push(`fit-btn--${this.size}`);
+    }
+
     if (this.isLoading) {
       classes.push('fit-btn--loading');
     }

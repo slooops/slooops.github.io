@@ -41,7 +41,8 @@ import { ChatbotComponent } from './chatbot/chatbot.component';
 })
 export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  showNavbar = true;
+  hideNavbar = false;
+  showO2cSearch = false;
 
   constructor(
     private router: Router,
@@ -57,6 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   menuOpened = false;
   header: string = '';
+  subHeader: string = '';
   userName!: string;
   isHelpDropdownOpen: boolean = false;
   userRoles!: string[];
@@ -125,7 +127,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     // Default fallback
-    return '/home';
+    return '/operational-visibility';
   }
 
   /**
@@ -165,7 +167,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.userRoles = this.authService.getRoles();
     this.isAdmin$ = this.userRoles.includes('ADMIN');
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
-      this.showNavbar = !isVisible;
+      this.showO2cSearch = isVisible;
     });
 
     this.router.events
@@ -182,56 +184,62 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((data) => {
-        this.showNavbar = !data['hideNavbar']; // Hide navbar based on route data
+        this.hideNavbar = data['hideNavbar'] ?? false;
+        this.showO2cSearch = data['showO2cSearch'] ?? false;
         this.titleService.setTitle(data['title']);
         this.header = data['header'];
+        this.subHeader = data['subHeader'] || '';
         this.dataService.setHeader(data['header']);
-        const hiddenRoutes = ['/home', '/error', '/business-insights']; // Define routes where menu should be hidden
+        const hiddenRoutes = [
+          '/operational-visibility',
+          '/error',
+          '/business-insights',
+        ]; // Define routes where menu should be hidden
         this.showMenu = !hiddenRoutes.includes(this.router.url);
       });
 
-    // this.router.events.subscribe((event) => {
-    //   if (event instanceof NavigationEnd) {
-    //     // Log page visit for analytics (fire-and-forget)
-    //     this.logPageVisit(event.urlAfterRedirects || event.url);
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        // Log page visit for analytics (fire-and-forget)
+        this.logPageVisit(event.urlAfterRedirects || event.url);
 
-    //     if (event.url.includes('/period-close-tracking')) {
-    //       this.menuService.updateHeader(
-    //         'Continuous Monitoring > Period Close (Internal)'
-    //       );
-    //     } else if (event.url.includes('/invoice-to-cash')) {
-    //       this.menuService.updateHeader(
-    //         'Continuous Monitoring > Invoice to Cash > Pre-Invoicing'
-    //       );
-    //     } else if (event.url.includes('/revenue-accounting')) {
-    //       this.menuService.updateHeader(
-    //         'Continuous Monitoring > Revenue Accounting > Standard Revenue'
-    //       );
-    //     } else if (event.url.includes('/gl-posting')) {
-    //       this.menuService.updateHeader(
-    //         'Continuous Monitoring > General Ledger'
-    //       );
-    //     } else if (event.url.includes('/business-insights')) {
-    //       // Set dynamic header based on user's Business Insights role
-    //       const businessInsightsHeader = this.getBusinessInsightsHeader();
-    //       this.menuService.updateHeader(businessInsightsHeader);
-    //     } else if (event.url.includes('/order-management')) {
-    //       this.menuService.updateHeader(
-    //         'Continuous Monitoring > Order Management > Imports'
-    //       );
-    //     } else if (event.url.includes('/case-iq')) {
-    //       this.menuService.updateHeader('ESP Case Manager > Case IQ');
-    //     } else if (event.url.includes('/i2c-case-analyzer')) {
-    //       this.menuService.updateHeader(
-    //         'ESP Case Manager > Case Analyzer - I2C'
-    //       );
-    //     } else if (event.url.includes('/sbp-case-analyzer')) {
-    //       this.menuService.updateHeader(
-    //         'ESP Case Manager > Case Analyzer - SBP'
-    //       );
-    //     }
-    //   }
-    // });
+        if (event.url.includes('/period-close-tracking')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Period Close (Internal)',
+          );
+        } else if (event.url.includes('/invoice-to-cash')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Invoice to Cash > Pre-Invoicing',
+          );
+        } else if (event.url.includes('/revenue-accounting')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Revenue Accounting > Standard Revenue',
+          );
+        } else if (event.url.includes('/gl-posting')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > General Ledger',
+          );
+        } else if (event.url.includes('/business-insights')) {
+          // Set dynamic header based on user's Business Insights role
+          const businessInsightsHeader = this.getBusinessInsightsHeader();
+          this.menuService.updateHeader(businessInsightsHeader);
+        } else if (event.url.includes('/order-management')) {
+          this.menuService.updateHeader(
+            'Continuous Monitoring > Order Management > Imports',
+          );
+        } else if (event.url.includes('/case-iq')) {
+          this.menuService.updateHeader('ESP Case Manager > Case IQ');
+        } else if (event.url.includes('/i2c-case-analyzer')) {
+          this.menuService.updateHeader(
+            'ESP Case Manager > Case Analyzer - I2C',
+          );
+        } else if (event.url.includes('/sbp-case-analyzer')) {
+          this.menuService.updateHeader(
+            'ESP Case Manager > Case Analyzer - SBP',
+          );
+        }
+      }
+    });
 
     this.dataService
       .getExceptionAssignmentUsers(this.destroyManager)
@@ -241,6 +249,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.menuService.header$.subscribe((newHeader) => {
       this.header = newHeader;
+    });
+
+    this.menuService.subHeader$.subscribe((newSubHeader) => {
+      this.subHeader = newSubHeader;
     });
   }
 

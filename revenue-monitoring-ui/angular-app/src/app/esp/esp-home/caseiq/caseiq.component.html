@@ -1,62 +1,345 @@
-<p>Coming Soon</p>
-
-<!-- <div class="flex-row">
-  <div class="metric-box metric-content">
-    <h5>82.77%</h5>
-    <p>Category Accuracy</p>
+@if (isLoading) {
+  <div class="overall-loading">
+    <app-loading-symbol></app-loading-symbol>
   </div>
-  <div class="metric-box metric-content">
-    <h5>65.77%</h5>
-    <p>Core Issue Accuracy</p>
-  </div>
+}
 
-  <div class="metric-box metric-content">
-    <h5>2269</h5>
-    <p>Total Cases</p>
-  </div> -->
-<!-- </div>
+@if (!isLoading) {
+  @let agents = getFinanceAgents();
+  @let opsRate = getOpsAutomationRate();
+  @let summaryRows = getSummaryRows();
 
-<div class="charts-row">
-  <div class="chart-section">
-    <h4>Category Distribution (Stacked)</h4>
-    <div class="chart-container">
-      <app-bar-chart
-        [data]="i2cChartData"
-        [stacked]="true"
-        [isLoading]="false"
-        canvasId="i2cStackedChart"
-      >
-      </app-bar-chart>
+  <!-- Component Performance Table + Chart Row -->
+  @if (summaryRows.length) {
+    <!-- Finance IT Summary Tiles -->
+    @let fitRow = getFinanceITRow();
+    <div class="tiles-row-wrapper">
+      <!-- ESP Overview Card -->
+      <div class="tiles-row tiles-row-esp">
+        <div class="tiles-row-header">Case Analyzer</div>
+        <div class="fit-tiles-row">
+          <div class="fit-tile">
+            <div class="fit-tile-label">Total Cases</div>
+            @if (getTotalCasesFromAccuracy("Finance IT") != null) {
+              <div class="fit-tile-value">
+                {{ getTotalCasesFromAccuracy("Finance IT") | number }}
+              </div>
+            } @else {
+              <div class="fit-tile-value fit-tile-empty">--</div>
+            }
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Accuracy
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Accuracy of correctly identifying the appropriate category and core issue, calculated weekly based on team inputs. "
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            @if (getAccuracyForSection("Finance IT") != null) {
+              <div class="fit-tile-value">
+                {{ getAccuracyForSection("Finance IT") | number: "1.1-1" }}%
+              </div>
+            } @else {
+              <div class="fit-tile-value fit-tile-empty">--</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Performance Card -->
+      <div class="tiles-row tiles-row-agent">
+        <div class="tiles-row-header">Resolution</div>
+        <div class="fit-tiles-row">
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Total Cases (Agent)
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Total cases handled by  CaseIQ agent for resolution, including recommendation for route out and cancellation."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ getFinanceITAgentTotalCases() | number }}
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              In Progress
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Number and percentage of Cases handled by CaseIQ Agent with case status in ESP as “Work in progress”."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
+              @if (fitRow?.inProgress?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Routed Out
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Number of cases recommended and the accuracy as compared to the total cases routed out in ESP."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
+              @if (fitRow?.routed?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.routed.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Cancelled
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip=" Number of cases recommended and the accuracy as compared to the total cases cancelled in ESP."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
+              @if (fitRow?.cancelled?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Service Requests
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Number of service request cases handled by CaseIQ and their percentage of the total cases."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
+              @if (fitRow?.service?.agentPct != null) {
+                <span class="fit-tile-pct"
+                  >({{ fitRow!.service.agentPct | number: "1.0-0" }}%)</span
+                >
+              }
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
+              Automation Rate
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="% of total cases handled by agents."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">{{ opsRate }}%</div>
+            <div class="kpi-bar-track">
+              <div class="kpi-bar-fill" [style.width.%]="opsRate"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="chart-section">
-    <h4>Core Issue Distribution</h4>
-    <div class="chart-container">
-      <app-bar-chart
-        [data]="i2cSimpleChartData"
-        [stacked]="false"
-        [isLoading]="false"
-        canvasId="i2cSimpleChart"
-      >
-      </app-bar-chart>
+
+    <div class="summary-row">
+      <div class="summary-table-card">
+        <div class="summary-table-header-row">
+          <div class="summary-table-title">Components</div>
+          <div class="summary-table-legend">
+            <span class="legend-text">Legend:</span>
+            <span class="legend-dot agent-dot"></span>
+            <span class="legend-label-text">Agent</span>
+            <span class="legend-dot ops-dot"></span>
+            <span class="legend-label-text">Ops</span>
+          </div>
+        </div>
+
+        <div class="summary-tables-row">
+          <!-- Left: ESP Overview -->
+          <div class="summary-table-section summary-table-section-esp">
+            <table class="summary-table summary-table-esp">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Total Cases</th>
+                  <th>Case Analyzer Accuracy</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of summaryRows; track row.sectionName) {
+                  <tr>
+                    <td class="summary-component">{{ row.sectionName }}</td>
+                    <td>
+                      @if (getTotalCasesFromAccuracy(row.sectionName) != null) {
+                        <span class="summary-total-cases">
+                          {{
+                            getTotalCasesFromAccuracy(row.sectionName) | number
+                          }}
+                        </span>
+                      } @else {
+                        <span class="summary-empty">--</span>
+                      }
+                    </td>
+                    <td>
+                      @if (getAccuracyForSection(row.sectionName) != null) {
+                        <span
+                          >{{
+                            getAccuracyForSection(row.sectionName)
+                              | number: "1.1-1"
+                          }}%</span
+                        >
+                      } @else {
+                        <span class="summary-empty">--</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Separator -->
+          <div class="summary-table-separator"></div>
+
+          <!-- Right: Agent Performance -->
+          <div class="summary-table-section summary-table-section-agent">
+            <table class="summary-table summary-table-agent">
+              <thead>
+                <tr>
+                  <th>Total Cases (Agent)</th>
+                  <th>In Progress</th>
+                  <th>Routed Out</th>
+                  <th>Cancelled</th>
+                  <th>Service Requests</th>
+                  <th>Agent vs Ops %</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of summaryRows; track row.sectionName) {
+                  <tr>
+                    <td>
+                      <span class="summary-total-cases">
+                        {{ getAgentTotalCases(row) | number }}
+                      </span>
+                    </td>
+                    <td>
+                      {{ valueDisplay(row.inProgress.agent) }}
+                      @if (row.inProgress.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{
+                            row.inProgress.agentPct | number: "1.0-0"
+                          }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      {{ valueDisplay(row.routed.agent) }}
+                      @if (row.routed.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      <span>
+                        {{ valueDisplay(row.cancelled.agent) }}
+                      </span>
+                      @if (row.cancelled.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{
+                            row.cancelled.agentPct | number: "1.0-0"
+                          }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      {{ valueDisplay(row.service.agent) }}
+                      @if (row.service.agentPct != null) {
+                        <span class="summary-pct"
+                          >({{ row.service.agentPct | number: "1.0-0" }}%)</span
+                        >
+                      }
+                    </td>
+                    <td>
+                      <div class="ratio-bar-wrapper">
+                        <div
+                          class="ratio-bar-agent"
+                          [style.width.%]="getAgentRatio(row)"
+                        >
+                          @if (getAgentRatio(row) >= 4) {
+                            <span class="ratio-bar-label"
+                              >{{ getAgentRatio(row) }}%</span
+                            >
+                          }
+                        </div>
+                        <div
+                          class="ratio-bar-ops"
+                          [style.width.%]="100 - getAgentRatio(row)"
+                        >
+                          @if (100 - getAgentRatio(row) >= 4) {
+                            <span class="ratio-bar-label" style="color: black"
+                              >{{ 100 - getAgentRatio(row) }}%</span
+                            >
+                          }
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Resolution Agent Details by Track -->
+        <div class="track-agents-section">
+          <div class="track-agents-label">Resolution Agents Active</div>
+          <div class="track-agents-row">
+            <div class="track-agent-card">
+              <div class="track-agent-team">Finance IT</div>
+              <div class="track-agent-value">
+                {{ agents.deployed }}/{{ agents.total }}
+              </div>
+            </div>
+            @for (agent of getTrackAgents(); track agent.team) {
+              <div class="track-agent-card">
+                <div class="track-agent-team">{{ agent.team }}</div>
+                <div class="track-agent-value">
+                  {{ agent.deployed }}/{{ agent.total }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-
-<div class="metric-box">
-  <h4>I2C Classification Summary</h4>
-
-  <p>
-    Note: Changes made in the table below are not saved automatically. Please
-    download your edits and use the sidebar 'Update Dashboard Data' option to
-    persist changes.
-  </p>
-</div>
-
-<app-caseiq-table
-  [dataSource]="i2cTableData"
-  [displayedColumns]="i2cTableColumns"
-  [exportFileName]="'I2C_Validation_Summary'"
-  [extraWideColumns]="['category']"
->
-</app-caseiq-table> -->
+  }
+}

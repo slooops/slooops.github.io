@@ -1,0 +1,66 @@
+<svg width="378" height="237" viewBox="0 0 378 237" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_165_15226)">
+<rect width="377.695" height="236.059" fill="white"/>
+<g filter="url(#filter0_f_165_15226)">
+<ellipse cx="175.94" cy="269.022" rx="213.051" ry="213.259" fill="#FF9000"/>
+</g>
+<g filter="url(#filter1_f_165_15226)">
+<ellipse cx="313.742" cy="302.23" rx="162.463" ry="112.988" fill="#3193F9"/>
+</g>
+<g filter="url(#filter2_f_165_15226)">
+<ellipse cx="251.423" cy="249.119" rx="169.134" ry="130.429" fill="#FF007F"/>
+</g>
+<g filter="url(#filter3_f_165_15226)">
+<ellipse cx="19.4913" cy="151.337" rx="35.9601" ry="35.9601" fill="#FF9000"/>
+</g>
+<g filter="url(#filter4_f_165_15226)">
+<circle cx="138.942" cy="182.19" r="56.5981" fill="#FF007F"/>
+</g>
+<g filter="url(#filter5_f_165_15226)">
+<path d="M69.1329 153.767C30.384 131.394 -13.9749 232.636 -13.9749 232.636C-13.9749 232.636 -36.94 297.281 -13.9749 325.195C13.9384 359.122 65.613 354.297 98.5263 325.195C135.749 292.281 118.655 243.389 98.5263 197.962C90.1293 179.011 87.0833 164.132 69.1329 153.767Z" fill="#3070E7"/>
+</g>
+<g filter="url(#filter6_f_165_15226)">
+<ellipse cx="125.269" cy="201.82" rx="112.223" ry="65.1798" transform="rotate(-15 125.269 201.82)" fill="#16BDEB"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_165_15226" x="-168.254" y="-75.3808" width="688.389" height="688.806" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="65.572" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<filter id="filter1_f_165_15226" x="20.1353" y="58.0988" width="587.214" height="488.263" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="65.572" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<filter id="filter2_f_165_15226" x="-48.8549" y="-12.4539" width="600.556" height="523.146" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="65.572" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<filter id="filter3_f_165_15226" x="-95.1552" y="36.6905" width="229.293" height="229.293" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="39.3432" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<filter id="filter4_f_165_15226" x="3.65734" y="46.9054" width="270.569" height="270.569" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="39.3432" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<filter id="filter5_f_165_15226" x="-129.097" y="45.6239" width="354.504" height="408.157" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="52.4576" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<filter id="filter6_f_165_15226" x="-89.3659" y="27.5523" width="429.27" height="348.536" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="52.4576" result="effect1_foregroundBlur_165_15226"/>
+</filter>
+<clipPath id="clip0_165_15226">
+<rect width="377.695" height="236.059" fill="white"/>
+</clipPath>
+</defs>
+</svg>

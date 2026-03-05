@@ -1,0 +1,116 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { MetricTileComponent } from './metric-tile.component';
+
+const meta: Meta<MetricTileComponent> = {
+  title: 'Shared/MetricTile',
+  component: MetricTileComponent,
+  tags: ['autodocs'],
+  parameters: {
+    docs: { disable: true },
+  },
+  argTypes: {
+    name: {
+      control: 'text',
+      description: 'Name/label of the metric',
+    },
+    percentage: {
+      control: 'text',
+      description:
+        'Percentage value to display (number or "-" for missing data)',
+    },
+    isActive: {
+      control: 'boolean',
+      description: 'Whether the tile is in active/selected state',
+    },
+    isAccessible: {
+      control: 'boolean',
+      description: 'Whether the tile is clickable',
+    },
+  },
+  decorators: [
+    (story) => ({
+      template: `<div style="display: flex; gap: 16px; flex-wrap: wrap;"><story /></div>`,
+    }),
+  ],
+};
+
+export default meta;
+type Story = StoryObj<MetricTileComponent>;
+
+// High percentage (80%+)
+export const HighPercentage: Story = {
+  args: {
+    name: 'Overall',
+    percentage: 95,
+    isActive: false,
+    isAccessible: true,
+  },
+};
+
+// Medium percentage (50-79%)
+export const MediumPercentage: Story = {
+  args: {
+    name: 'I2C',
+    percentage: 67,
+    isActive: false,
+    isAccessible: true,
+  },
+};
+
+// Low percentage (below 50%)
+export const LowPercentage: Story = {
+  args: {
+    name: 'P2P',
+    percentage: 32,
+    isActive: false,
+    isAccessible: true,
+  },
+};
+
+// Missing data
+export const MissingData: Story = {
+  args: {
+    name: 'Capital',
+    percentage: '-',
+    isActive: false,
+    isAccessible: true,
+  },
+};
+
+// Active/selected state
+export const ActiveTile: Story = {
+  args: {
+    name: 'FPP',
+    percentage: 88,
+    isActive: true,
+    isAccessible: true,
+  },
+};
+
+// Non-clickable (not accessible)
+export const NotAccessible: Story = {
+  args: {
+    name: 'Restricted',
+    percentage: 75,
+    isActive: false,
+    isAccessible: false,
+  },
+};
+
+// ESP Dashboard example - multiple tiles
+export const ESPDashboardExample: Story = {
+  render: () => ({
+    template: `
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <app-metric-tile name="Overall" [percentage]="92" [isActive]="true"></app-metric-tile>
+        <app-metric-tile name="Capital" [percentage]="'-'"></app-metric-tile>
+        <app-metric-tile name="FPP" [percentage]="88"></app-metric-tile>
+        <app-metric-tile name="I2C" [percentage]="76"></app-metric-tile>
+        <app-metric-tile name="OM" [percentage]="95"></app-metric-tile>
+        <app-metric-tile name="P2P" [percentage]="82"></app-metric-tile>
+        <app-metric-tile name="SM" [percentage]="91"></app-metric-tile>
+        <app-metric-tile name="AIT" [percentage]="67"></app-metric-tile>
+      </div>
+    `,
+  }),
+};
