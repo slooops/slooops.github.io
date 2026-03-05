@@ -2,14 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { ApiHttpService } from '../providers/http.service';
-import {
-  O2cSearchResult,
-  SearchContextService,
-} from '../search-context.service';
+import { SearchContextService } from '../search-context.service';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BusinessInsightsModule } from './business-insights.module';
-import { O2c360Component } from '../o2c/o2c-360/o2c-360.component';
+import { O2cEmbedComponent } from './o2c-embed.component';
 
 @Component({
   selector: 'app-business-insights',
@@ -19,7 +16,7 @@ import { O2c360Component } from '../o2c/o2c-360/o2c-360.component';
     CommonModule,
     MatTabsModule,
     BusinessInsightsModule,
-    O2c360Component,
+    O2cEmbedComponent,
   ],
   standalone: true,
 })
@@ -28,7 +25,7 @@ export class BusinessInsightsComponent implements OnInit {
     private authService: AuthenticationService,
     private menuService: MenuService,
     private searchContextService: SearchContextService,
-    private http: ApiHttpService
+    private http: ApiHttpService,
   ) {}
   roles: string[] = [];
   private userName: string = '';
@@ -38,7 +35,7 @@ export class BusinessInsightsComponent implements OnInit {
     this.userName = this.authService.getUserName();
     this.getDefaultTabIndex();
 
-    // Log initial tab visit after tabs are filtered
+    // Set initial subHeader based on the default tab
     setTimeout(() => {
       if (this.filteredTabs.length > 0) {
         this.menuService.updateSubHeader(
@@ -49,20 +46,20 @@ export class BusinessInsightsComponent implements OnInit {
     }, 100);
 
     this.searchContextService.searchPayload$.subscribe((payload) => {
-      if (payload) {
-        const o2cTabIndex = this.filteredTabs.findIndex(
-          (tab) => tab.component === 'app-o2c-360'
-        );
-        if (o2cTabIndex >= 0) {
-          this.selectedIndex = o2cTabIndex;
-          this.searchContextService.setO2cSearchVisible(true);
-          this.o2cSearchParams = payload; // store it for passing to child
-        }
+      if (!payload) {
+        return;
+      }
+
+      const o2cTabIndex = this.filteredTabs.findIndex(
+        (tab) => tab.component === 'external-o2c',
+      );
+      if (o2cTabIndex >= 0) {
+        this.selectedIndex = o2cTabIndex;
+        this.onTabChange(o2cTabIndex);
       }
     });
   }
 
-  o2cSearchParams: O2cSearchResult | null = null;
   menuOpen = false;
 
   toggleMenu() {
@@ -74,8 +71,7 @@ export class BusinessInsightsComponent implements OnInit {
       this.selectedIndex = index; // Switch to the new tab
       this.menuService.updateSubHeader(selectedTab?.label || '');
 
-      const isO2c = this.filteredTabs[index]?.component === 'app-o2c-360';
-      this.searchContextService.setO2cSearchVisible(isO2c);
+      this.searchContextService.setO2cSearchVisible(false);
 
       // Log tab visit for analytics
       this.logTabVisit(index);
@@ -108,9 +104,9 @@ export class BusinessInsightsComponent implements OnInit {
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
     {
-      label: 'O2C - 360',
-      component: 'app-o2c-360',
-      role: ['O360'],
+      label: 'Subscription O2C Insights - Financials',
+      component: 'external-o2c',
+      role: ['ADMIN'],
     },
   ];
 
@@ -119,7 +115,7 @@ export class BusinessInsightsComponent implements OnInit {
 
   getDefaultTabIndex() {
     this.filteredTabs = this.visibleTabs.filter((tab) =>
-      tab.role.some((role) => this.roles.includes(role))
+      tab.role.some((role) => this.roles.includes(role)),
     );
   }
 

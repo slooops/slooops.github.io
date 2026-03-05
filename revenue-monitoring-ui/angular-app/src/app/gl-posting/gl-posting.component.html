@@ -1,5 +1,5 @@
 <mat-tab-group>
-  @if (roles.includes("ADMIN")) {
+  @if (roles.includes("ADMIN") || roles.includes("EXCEPTION_READ_ONLY")) {
     <mat-tab label="General Ledger">
       <app-monitoring-dashboard
         [urls]="glUrls"
