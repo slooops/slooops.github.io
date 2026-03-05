@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -382,6 +382,23 @@ export class CustomRevenueComponent implements OnInit {
     if (this.filteredTabs.length <= 1) {
       this.selectedIndex = 0;
     }
+  }
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  onGridMenuItemClick(index: number): void {
+    this.showGridMenu = false;
+    this.onTabChange(index);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
   }
 
   onTabChange(index: number) {

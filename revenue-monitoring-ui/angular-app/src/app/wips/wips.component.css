@@ -1,0 +1,135 @@
+/* Header & search styling aligned with other components */
+
+.dashboard-header {
+  margin-bottom: 0;
+  text-align: left;
+  padding: 0 2rem;
+}
+
+.header-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-main h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.global-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 999px;
+  padding: 4px 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  margin-left: auto;
+}
+
+.global-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 4px;
+}
+
+.global-search-icon {
+  font-size: 12px;
+  color: #888;
+  cursor: pointer;
+}
+
+.global-search-input {
+  border: none;
+  outline: none;
+  font-size: 12px;
+  min-width: 200px;
+}
+
+hr {
+  margin: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-right: auto;
+}
+
+.grid-menu-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.grid-menu-wrapper {
+  position: relative;
+}
+
+.grid-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 220px;
+  z-index: 1000;
+  padding: 6px 0;
+  animation: gridMenuFadeIn 0.15s ease;
+}
+
+@keyframes gridMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.grid-menu-item:hover {
+  background: #f3f4f6;
+}
+
+.grid-menu-item.active {
+  background: #eff6ff;
+  border-left: 3px solid #00bceb;
+}
+
+.grid-menu-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1d;
+}
+
+.grid-menu-item.active .grid-menu-item-name {
+  color: #00bceb;
+  font-weight: 600;
+}
+
+.wips-content {
+  margin-top: 5px;
+}

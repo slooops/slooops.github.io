@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatMenuModule } from '@angular/material/menu';
+
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
 import { MenuComponent } from './menu/menu.component';
@@ -30,7 +30,6 @@ import { ChatbotComponent } from './chatbot/chatbot.component';
     RouterModule,
     MatToolbarModule,
     MatSidenavModule,
-    MatMenuModule,
     MatTooltipModule,
     O2cSearchComponent,
     // MenuComponent,
@@ -45,7 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
   showO2cSearch = false;
 
   constructor(
-    private router: Router,
+    public router: Router,
     private activatedRoute: ActivatedRoute,
     private titleService: Title,
     private authService: AuthenticationService,
@@ -64,6 +63,10 @@ export class AppComponent implements OnInit, OnDestroy {
   userRoles!: string[];
   isAdmin$!: boolean;
   showMenu: boolean = true;
+  showCmMenu = false;
+  showEspMenu = false;
+  showMobileMenu = false;
+  showNavMenu = false;
 
   /**
    * Determine the default route based on user roles
@@ -269,8 +272,48 @@ export class AppComponent implements OnInit, OnDestroy {
   handleClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
     if (!target.closest('.help-dropdown') && !target.closest('.help-button')) {
-      this.isHelpDropdownOpen = false; // Close dropdown if click is outside
+      this.isHelpDropdownOpen = false;
     }
+    if (!target.closest('.nav-dropdown') && !target.closest('.menu-item')) {
+      this.showCmMenu = false;
+      this.showEspMenu = false;
+    }
+    if (!target.closest('.navbar') && !target.closest('.hamburger')) {
+      this.showMobileMenu = false;
+    }
+    if (!target.closest('.toolbar-nav-menu')) {
+      this.showNavMenu = false;
+    }
+  }
+
+  toggleCmMenu(event: Event) {
+    event.stopPropagation();
+    this.showCmMenu = !this.showCmMenu;
+    this.showEspMenu = false;
+  }
+
+  toggleEspMenu(event: Event) {
+    event.stopPropagation();
+    this.showEspMenu = !this.showEspMenu;
+    this.showCmMenu = false;
+  }
+
+  toggleMobileMenu(event: Event) {
+    event.stopPropagation();
+    this.showMobileMenu = !this.showMobileMenu;
+  }
+
+  toggleNavMenu(event: Event) {
+    event.stopPropagation();
+    this.showNavMenu = !this.showNavMenu;
+  }
+
+  navigateTo(route: string) {
+    this.router.navigate([route]);
+    this.showCmMenu = false;
+    this.showEspMenu = false;
+    this.showMobileMenu = false;
+    this.showNavMenu = false;
   }
 
   logout() {

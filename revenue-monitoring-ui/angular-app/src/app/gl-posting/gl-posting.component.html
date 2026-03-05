@@ -1,6 +1,24 @@
 <div class="dashboard-header">
   <div class="header-main">
-    <h2>General Ledger</h2>
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            <div class="grid-menu-item active" (click)="showGridMenu = false">
+              <span class="grid-menu-item-name">General Ledger</span>
+            </div>
+          </div>
+        }
+      </div>
+      <h2>General Ledger</h2>
+    </div>
+
     <div class="period-info" *ngIf="periodStatus as period">
       <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
       <span class="divider"> | </span>
@@ -28,12 +46,6 @@
 <hr />
 
 @if (roles.includes("ADMIN")) {
-  <div class="gl-tiles-container">
-    <button type="button" class="gl-tile active">General Ledger</button>
-  </div>
-
-  <hr />
-
   <div class="gl-content">
     <app-monitoring-dashboard
       [urls]="glUrls"

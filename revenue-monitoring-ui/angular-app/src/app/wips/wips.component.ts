@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { DestroyManager } from '../providers/destroy-manager.service';
@@ -32,7 +32,7 @@ export class WipsComponent implements OnInit {
     private dataService: DataService,
     private datePipe: DatePipe,
     protected authService: AuthenticationService,
-    private menuService: MenuService
+    private menuService: MenuService,
   ) {
     this.http = http;
     this.roles = this.authService.getRoles();
@@ -73,6 +73,18 @@ export class WipsComponent implements OnInit {
   skippedWords: string[] = ['IOL', 'AR', 'ID'];
 
   ngOnInit(): void {}
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
+  }
 
   wipsUrls: { [key: string]: string } = {
     summaryUrl: 'wips-summary',

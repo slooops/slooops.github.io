@@ -1,6 +1,30 @@
 <div class="dashboard-header">
   <div class="header-main">
-    <h2>Invoice to Cash</h2>
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (tab of filteredTabs; track tab; let i = $index) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedIndex === i"
+                (click)="onGridMenuItemClick(i)"
+              >
+                <span class="grid-menu-item-name">{{ tab.label }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Invoice to Cash" }}</h2>
+    </div>
+
     <div class="period-info" *ngIf="periodStatus as period">
       <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
       <span class="divider"> | </span>
@@ -23,22 +47,6 @@
       <span class="global-search-icon">🔍</span>
     </div>
   </div>
-</div>
-
-<hr />
-
-<div class="inv-tiles-container">
-  @for (tab of filteredTabs; track tab; let i = $index) {
-    <button
-      type="button"
-      class="inv-tile"
-      [class.active]="selectedIndex === i"
-      [disabled]="tab.disabled"
-      (click)="onTabChange(i)"
-    >
-      {{ tab.label }}
-    </button>
-  }
 </div>
 
 <hr />
@@ -99,8 +107,20 @@
         ></app-monitoring-dashboard>
       }
       @case ("app-post-invoicing") {
-        <mat-tab-group [selectedIndex]="0">
-          <mat-tab label="CM Amortization">
+        <div class="pill-tabs">
+          @for (pill of postInvoicingSubTabs; track pill; let j = $index) {
+            <button
+              class="pill-tab"
+              [class.active]="postInvoicingSubIndex === j"
+              (click)="postInvoicingSubIndex = j"
+            >
+              {{ pill }}
+            </button>
+          }
+        </div>
+        <hr />
+        @switch (postInvoicingSubIndex) {
+          @case (0) {
             <app-monitoring-dashboard
               [userContext]="userContextData"
               [urls]="cmAmortUrls"
@@ -126,8 +146,8 @@
                 'AMOUNT',
               ]"
             ></app-monitoring-dashboard>
-          </mat-tab>
-          <mat-tab label="Invoice Delivery">
+          }
+          @case (1) {
             <app-monitoring-dashboard
               [userContext]="userContextData"
               [urls]="printUrls"
@@ -153,8 +173,8 @@
                 'AMOUNT',
               ]"
             ></app-monitoring-dashboard>
-          </mat-tab>
-          <mat-tab label="Digital Payments">
+          }
+          @case (2) {
             <app-monitoring-dashboard
               [userContext]="userContextData"
               [urls]="creditCardUrls"
@@ -166,8 +186,8 @@
               [submitKeysToMap]="[]"
               [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
-          </mat-tab>
-          <mat-tab label="SRT Process">
+          }
+          @case (3) {
             <app-monitoring-dashboard
               [userContext]="userContextData"
               [urls]="srtProcessUrls"
@@ -190,8 +210,8 @@
                 'SRT_DATE',
               ]"
             ></app-monitoring-dashboard>
-          </mat-tab>
-          <mat-tab label="RPO Extract">
+          }
+          @case (4) {
             <app-monitoring-dashboard
               [userContext]="userContextData"
               [urls]="rpoExtractUrls"
@@ -214,8 +234,8 @@
                 'AMOUNT',
               ]"
             ></app-monitoring-dashboard>
-          </mat-tab>
-          <mat-tab label="PCM Application">
+          }
+          @case (5) {
             <app-monitoring-dashboard
               [userContext]="userContextData"
               [urls]="pcmApplicationUrls"
@@ -233,30 +253,8 @@
               ]"
               [webexKeysToMap]="[]"
             ></app-monitoring-dashboard>
-          </mat-tab>
-          <!-- <mat-tab label="Debit Card Payments">
-                <app-monitoring-dashboard
-          [userContext]="userContextData"
-                  [urls]="debitCardUrls"
-                  [keysToMap]=""
-                  [processFlowKeys]="debitCardTotals"
-                  [periodStatus]="periodStatus"
-                  [componentName]="'Debit Card'"
-                  [processFlowTabsToDisplay]="[]"
-                  [specialWords]="specialWords"
-                  [skippedWords]="skippedWords"
-                  [dynamicTemplate]="dynamicTemplate"
-                  [dynamicCss]="invoicingprocessflowCss"
-                  [isSubAppMapping]="false"
-                  [warningMessage]="'Invoice processing is delayed '"
-                  [columnsToFilter]="postInvoicingFilters"
-                  [detailsColumnsToHide]="['']"
-                  [assignmentDialogFieldConfig]="fieldConfig"
-                  [submitKeysToMap]="[]"
-                  [webexKeysToMap]="[]"
-                ></app-monitoring-dashboard>
-              </mat-tab> -->
-        </mat-tab-group>
+          }
+        }
       }
       @case ("app-eInvoicing") {
         <app-monitoring-dashboard

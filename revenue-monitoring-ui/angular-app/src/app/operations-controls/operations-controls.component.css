@@ -1,85 +1,25 @@
-/* Tile strip for Operations Controls - aligned with Business Insights tiles */
-
-.oc-tiles-container {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 1rem;
-  padding: 0.7rem 0.5rem;
-}
-
-hr {
-  margin: 0;
-}
-
-/* h2 {
-  padding: 0px 10px 0px 10px;
-} */
-
-.oc-tile {
-  position: relative;
-  height: 3rem;
-  min-width: 250px;
-  padding: 0 1.25rem;
-  border-radius: 2px;
-  border: none;
-  outline: 1px solid rgba(0, 112, 210, 0.5);
-  background-color: rgba(0, 112, 210, 0.06);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 400;
-  color: #606162;
-  transition: all 0.1s ease;
-}
-
-.oc-tile:hover {
-  outline-color: #0070d2;
-  box-shadow: 0 2px 8px rgba(0, 112, 210, 0.2);
-}
-
-.oc-tile.active {
-  font-weight: 700;
-}
-
-.oc-tile.active::after {
-  content: "";
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-top: 8px solid #0070d2;
-}
-
-.oc-tile:disabled {
-  cursor: default;
-  opacity: 0.7;
-  box-shadow: none;
-}
-
-.oc-content {
-  margin-top: 5px;
-}
-
 /* Header & search styling aligned with ESP Home header */
 
 .dashboard-header {
   margin-bottom: 0;
   text-align: left;
-  padding: 0px 10px 0px 10px;
+  padding: 0 2rem;
 }
 
 .header-main {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.header-main h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .header-left {
@@ -93,12 +33,6 @@ hr {
   font-size: 13px;
 }
 
-.header-center {
-  flex: 1;
-  display: flex;
-  justify-content: end;
-}
-
 .global-search {
   display: inline-flex;
   align-items: center;
@@ -108,6 +42,7 @@ hr {
   border-radius: 999px;
   padding: 4px 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  margin-left: auto;
 }
 
 .global-search-input-wrapper {
@@ -130,10 +65,75 @@ hr {
   min-width: 200px;
 }
 
-/* .dashboard-header h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #000000;
+hr {
   margin: 0;
-  white-space: nowrap;
-} */
+}
+
+.grid-menu-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.grid-menu-wrapper {
+  position: relative;
+}
+
+.grid-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 220px;
+  z-index: 1000;
+  padding: 6px 0;
+  animation: gridMenuFadeIn 0.15s ease;
+}
+
+@keyframes gridMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.grid-menu-item:hover {
+  background: #f3f4f6;
+}
+
+.grid-menu-item.active {
+  background: #eff6ff;
+  border-left: 3px solid #00bceb;
+}
+
+.grid-menu-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1d;
+}
+
+.grid-menu-item.active .grid-menu-item-name {
+  color: #00bceb;
+  font-weight: 600;
+}
+
+.oc-content {
+  margin-top: 5px;
+}

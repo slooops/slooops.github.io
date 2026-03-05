@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { DataService } from '../providers/data.service';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
@@ -183,6 +183,18 @@ export class GlPostingComponent implements OnInit {
   }
 
   periodStatus: any;
+
+  showGridMenu: boolean = false;
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
+  }
 
   getErrorSummaryPeriodStatus() {
     this.dataService

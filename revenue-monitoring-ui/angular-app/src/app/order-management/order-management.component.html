@@ -1,6 +1,30 @@
 <div class="dashboard-header">
   <div class="header-main">
-    <h2>Order Management</h2>
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (tab of filteredTabs; track tab; let i = $index) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedIndex === i"
+                (click)="onGridMenuItemClick(i)"
+              >
+                <span class="grid-menu-item-name">{{ tab.label }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <h2>{{ filteredTabs[selectedIndex]?.label || "Order Management" }}</h2>
+    </div>
+
     <div class="period-info" *ngIf="periodStatus as period">
       <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
       <span class="divider"> | </span>
@@ -23,22 +47,6 @@
       <span class="global-search-icon">🔍</span>
     </div>
   </div>
-</div>
-
-<hr />
-
-<div class="om-tiles-container">
-  @for (tab of filteredTabs; track tab; let i = $index) {
-    <button
-      type="button"
-      class="om-tile"
-      [class.active]="selectedIndex === i"
-      [disabled]="tab.disabled"
-      (click)="onTabChange(i)"
-    >
-      {{ tab.label }}
-    </button>
-  }
 </div>
 
 <hr />
