@@ -1,12 +1,15 @@
 <div class="landing-page">
   <!-- Welcome Bar -->
   <div class="welcome-bar">
-    <p class="welcome-text">
-      <strong>
-        <!-- {{ userName() }} -->
-        Q3FY26
-      </strong>
-    </p>
+    @if (periodName()) {
+      <div class="period-info">
+        <span>Period name: <b>{{ periodName() }}</b></span>
+        <span class="divider"> | </span>
+        <span>Period end date: <b>{{ periodEndDate() }}</b></span>
+        <span class="divider"> | </span>
+        <span>Last Updated: <b>{{ lastUpdated() }}</b></span>
+      </div>
+    }
     <button class="ask-ivan-btn" type="button">
       <ng-icon class="ask-ivan-icon" name="phosphorSparkleBold" size="20" />
       <span class="ask-ivan-label">ASK IVAN</span>

@@ -140,6 +140,11 @@ export class LandingComponent implements OnInit, OnDestroy {
   userName = signal('');
   userRoles = signal<string[]>([]);
 
+  // Period info signals
+  periodName = signal<string | null>(null);
+  periodEndDate = signal<string | null>(null);
+  lastUpdated = signal<string>('');
+
   // Dashboard metrics signals
   itOpsDials = signal<DialMetric[]>([]);
   finOpsDials = signal<DialMetric[]>([]);
@@ -550,6 +555,16 @@ export class LandingComponent implements OnInit, OnDestroy {
 
     // Card metrics for arc progress indicators
     this.parseCardMetrics(bySection('CARD_METRICS'));
+
+    // Period info
+    const periodInfo = bySection('PERIOD_INFO')[0];
+    if (periodInfo) {
+      this.periodName.set(periodInfo.LABEL);
+      this.periodEndDate.set(periodInfo.SUBTITLE);
+    }
+
+    // Set last updated to current timestamp (page load time)
+    this.lastUpdated.set(new Date().toLocaleString());
   }
 
   /** Parse card metrics from API into the cardMetrics signal */

@@ -43,7 +43,7 @@ export const routes: Routes = [
     component: LandingComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Landing',
+      header: 'Finance-IT Control Tower',
       // hideNavbar: true,
     },
   },

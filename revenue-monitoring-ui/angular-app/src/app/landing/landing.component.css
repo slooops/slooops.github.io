@@ -75,8 +75,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--landing-space-xs) 3rem;
-  margin-bottom: -3rem;
+  padding: var(--landing-space-xs) 2rem;
+  margin-bottom: -1rem;
 }
 
 .welcome-text {
@@ -115,6 +115,25 @@
 
 .ask-ivan-label {
   letter-spacing: 0.5px;
+}
+
+/* Period Info Display */
+.period-info {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 0.95rem;
+  color: var(--landing-dimmed, #6b7c93);
+}
+
+.period-info b {
+  color: var(--landing-link, #0d274d);
+  font-weight: 600;
+}
+
+.period-info .divider {
+  color: var(--landing-border, #d0d8e1);
+  margin: 0 0.75rem;
 }
 
 /* ==========================================================================
