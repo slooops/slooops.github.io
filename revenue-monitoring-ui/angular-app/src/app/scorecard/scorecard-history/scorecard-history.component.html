@@ -1,0 +1,114 @@
+<div class="history-page">
+  <!-- Header -->
+  <div class="history-header">
+    <div class="header-left">
+      <button class="btn btn-ghost" (click)="goBack()">
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Current
+      </button>
+      <h1 class="history-title">Scorecard — Version History</h1>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="history-loading">
+      <div class="shimmer-block"></div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading && versions.length === 0) {
+    <div class="history-empty">
+      <p>No version history available yet.</p>
+      <button class="btn btn-ghost" (click)="goBack()">
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return to Scorecard
+      </button>
+    </div>
+  }
+
+  <!-- Version browser -->
+  @if (!isLoading && versions.length > 0) {
+    <!-- Paginator bar -->
+    <div class="version-paginator">
+      <button class="paginator-btn" [disabled]="!hasPrev" (click)="prev()">
+        <ng-icon name="phosphorCaretLeftBold" size="14" /> Older
+      </button>
+
+      @if (selectedVersion) {
+        <div class="paginator-info">
+          <span class="sprint-badge">{{ selectedVersion.sprintName }}</span>
+          <span class="paginator-meta">
+            Saved by <strong>{{ selectedVersion.createdBy }}</strong>
+          </span>
+          <span class="paginator-date">{{
+            formatTimestamp(selectedVersion.createdAt)
+          }}</span>
+          @if (selectedVersion.notes) {
+            <span class="paginator-note">— {{ selectedVersion.notes }}</span>
+          }
+        </div>
+      }
+
+      <button class="paginator-btn" [disabled]="!hasNext" (click)="next()">
+        Newer <ng-icon name="phosphorCaretRightBold" size="14" />
+      </button>
+    </div>
+
+    <!-- Table (read-only) -->
+    <div class="scorecard-table-wrap" [class.table-loading]="isLoadingData">
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th class="col-workstream">Workstream</th>
+            <th class="col-criteria">Success Criteria</th>
+            <th class="col-baseline">Baseline</th>
+            <th class="col-owner">Owner(s)</th>
+            <th class="col-target">EOCY26</th>
+            <th class="col-measure">How Do We Measure</th>
+            <th class="col-metric">Metric</th>
+          </tr>
+        </thead>
+        @for (group of groups; track group.workstream) {
+          <tbody>
+            @for (row of group.rows; track row.sortOrder; let i = $index) {
+              <tr
+                class="data-row"
+                [style.--group-accent]="getGroupColor(group.workstream).accent"
+                [style.--group-bg]="getGroupColor(group.workstream).bg"
+              >
+                @if (i === 0) {
+                  <td
+                    class="cell cell-workstream"
+                    [attr.rowspan]="group.rows.length"
+                  >
+                    <div class="workstream-content">
+                      <span class="group-indicator"></span>
+                      <span class="group-label">{{ group.workstream }}</span>
+                    </div>
+                  </td>
+                }
+                <td class="cell">
+                  <span class="cell-bullet">•</span> {{ row.successCriteria }}
+                </td>
+                <td class="cell">{{ row.baseline }}</td>
+                <td class="cell cell-owner">{{ row.owners }}</td>
+                <td class="cell cell-target">
+                  <strong>{{ row.eocy26Target }}</strong>
+                </td>
+                <td class="cell">{{ row.howWeMeasure }}</td>
+                <td class="cell cell-metric">{{ row.metric || "—" }}</td>
+              </tr>
+            }
+          </tbody>
+        }
+      </table>
+
+      <!-- Loading overlay -->
+      @if (isLoadingData) {
+        <div class="table-overlay">
+          <div class="spinner"></div>
+        </div>
+      }
+    </div>
+  }
+</div>

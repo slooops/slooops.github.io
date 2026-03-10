@@ -76,12 +76,11 @@ export class AdminComponent implements OnInit {
       (option) =>
         option.value !== '' && // Exclude "All Roles"
         option.value !== 'ADMIN' && // Exclude full admin
-        !option.value.endsWith('_ADMIN') // Exclude existing sub-admin roles
+        !option.value.endsWith('_ADMIN'), // Exclude existing sub-admin roles
     );
   }
 
-  // username: string = this.authService.getUserName();
-  username: string = 'jasloop'; // For testing purposes
+  username: string;
 
   // Sub-admin detection properties
   currentUserRoles: string[] = [];
@@ -93,12 +92,13 @@ export class AdminComponent implements OnInit {
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
   ) {}
 
   ngOnInit(): void {
     this.detectAdminPrivileges();
     this.loadUserRoles();
+    this.username = this.authService.getUserName();
     console.log('Current User Roles:', this.currentUserRoles);
     console.log('Is Full Admin:', this.isFullAdmin);
     console.log('Is Sub-Admin Mode:', this.isSubAdminMode);
@@ -132,14 +132,14 @@ export class AdminComponent implements OnInit {
 
     // Find ALL sub-admin roles (pattern: {ROLE}_ADMIN)
     const subAdminRoles = this.currentUserRoles.filter(
-      (role) => role.endsWith('_ADMIN') && role !== 'ADMIN'
+      (role) => role.endsWith('_ADMIN') && role !== 'ADMIN',
     );
 
     if (subAdminRoles.length > 0) {
       this.isSubAdminMode = true;
       // Extract managed roles: ["CASE_IQ_I2C_ADMIN", "CASE_IQ_SBP_ADMIN"] -> ["CASE_IQ_I2C", "CASE_IQ_SBP"]
       this.managedRoles = subAdminRoles.map((role) =>
-        role.replace(/_ADMIN$/, '')
+        role.replace(/_ADMIN$/, ''),
       );
     }
 
@@ -199,7 +199,7 @@ export class AdminComponent implements OnInit {
         this.isLoading = false;
         console.error('Error loading user roles:', error);
         // TODO: Show error notification
-      }
+      },
     );
   }
 
@@ -213,7 +213,7 @@ export class AdminComponent implements OnInit {
         (user) =>
           user.userName.toLowerCase().includes(searchLower) ||
           user.userEmail.toLowerCase().includes(searchLower) ||
-          user.userRole.toLowerCase().includes(searchLower)
+          user.userRole.toLowerCase().includes(searchLower),
       );
     }
 
@@ -225,7 +225,7 @@ export class AdminComponent implements OnInit {
     // Apply enabled filter
     if (this.enabledFilter) {
       filtered = filtered.filter(
-        (user) => user.enabledFlag === this.enabledFilter
+        (user) => user.enabledFlag === this.enabledFilter,
       );
     }
 
@@ -335,7 +335,7 @@ export class AdminComponent implements OnInit {
         alert(`Error: ${errorMessage}`);
 
         // Keep modal open so user can correct the issue
-      }
+      },
     );
   }
 
@@ -484,7 +484,7 @@ export class AdminComponent implements OnInit {
         console.error('❌ Error creating user:', error);
         // TODO: Show error notification to user
         // Keep the editable row open so user can correct errors
-      }
+      },
     );
   }
 
@@ -515,7 +515,7 @@ export class AdminComponent implements OnInit {
       'Will update WHERE userName=' +
         payload.userName +
         ' AND userRole=' +
-        payload.userRole
+        payload.userRole,
     );
 
     // Send PUT request with composite key in body (no userId in URL)
@@ -527,7 +527,7 @@ export class AdminComponent implements OnInit {
         const userIndex = this.users.findIndex(
           (u) =>
             u.userName === updatedRow.userName &&
-            u.userRole === updatedRow.userRole
+            u.userRole === updatedRow.userRole,
         );
         if (userIndex !== -1) {
           this.users[userIndex].enabledFlag = updatedRow.enabledFlag;
@@ -541,7 +541,7 @@ export class AdminComponent implements OnInit {
         // TODO: Show error notification and revert toggle
         // Reload data to ensure UI matches database state
         this.loadUserRoles();
-      }
+      },
     );
   }
 
@@ -581,7 +581,7 @@ export class AdminComponent implements OnInit {
       'created:',
       payload.creationDate,
       'by',
-      payload.deleterUsername
+      payload.deleterUsername,
     );
 
     // Send DELETE request with composite key and deleter username
@@ -595,7 +595,8 @@ export class AdminComponent implements OnInit {
 
           // Remove from local state immediately
           this.users = this.users.filter(
-            (u) => !(u.userName === row.userName && u.userRole === row.userRole)
+            (u) =>
+              !(u.userName === row.userName && u.userRole === row.userRole),
           );
 
           // Reapply filters to update the filtered view
@@ -608,7 +609,7 @@ export class AdminComponent implements OnInit {
           // TODO: Show error notification
           // Reload data to ensure UI matches database state
           this.loadUserRoles();
-        }
+        },
       );
   }
 }

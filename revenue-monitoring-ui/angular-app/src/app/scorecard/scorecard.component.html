@@ -1,0 +1,228 @@
+<div class="scorecard-page">
+  <!-- Header -->
+  <div class="scorecard-header">
+    <div class="header-left">
+      <h1 class="scorecard-title">Monthly Performance Scorecard</h1>
+      @if (version) {
+        <div class="version-meta">
+          <span class="sprint-badge">{{ version.sprintName }}</span>
+          <span class="meta-sep">·</span>
+          <span class="meta-text"
+            >Last edited by <strong>{{ version.createdBy }}</strong> on
+            {{ formatTimestamp(version.createdAt) }}</span
+          >
+        </div>
+      }
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" (click)="goToHistory()">
+        <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
+        History
+      </button>
+      @if (canEdit && !isEditing) {
+        <button class="btn btn-primary" (click)="startEditing()">
+          <ng-icon name="phosphorPencilSimpleBold" size="16" /> Edit
+        </button>
+      }
+      @if (isEditing) {
+        <button
+          class="btn btn-ghost"
+          (click)="cancelEditing()"
+          [disabled]="isSaving"
+        >
+          Cancel
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="saveChanges()"
+          [disabled]="isSaving"
+        >
+          {{ isSaving ? "Saving..." : "Save Changes" }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Save notes (shown when editing) -->
+  @if (isEditing) {
+    <div class="save-notes-bar" [@fadeSlide]>
+      <label class="notes-label" for="saveNotes">Save note (optional):</label>
+      <input
+        id="saveNotes"
+        type="text"
+        class="notes-input"
+        [(ngModel)]="saveNotes"
+        placeholder="e.g., Updated Q2 targets"
+        maxlength="500"
+      />
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading) {
+    <div class="scorecard-loading">
+      <div class="shimmer-table">
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+          <div class="shimmer-row">
+            @for (j of [1, 2, 3, 4, 5, 6]; track j) {
+              <div class="shimmer-cell"></div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Table -->
+  @if (!isLoading) {
+    <div class="scorecard-table-wrap">
+      <table class="scorecard-table">
+        <thead>
+          <tr>
+            <th class="col-workstream">Workstream</th>
+            <th class="col-criteria">Success Criteria</th>
+            <th class="col-baseline">Baseline</th>
+            <th class="col-owner">Owner(s)</th>
+            <th class="col-target">EOCY26</th>
+            <th class="col-measure">How Do We Measure</th>
+            <th class="col-metric">Metric</th>
+          </tr>
+        </thead>
+        @for (group of groups; track group.workstream) {
+          <tbody>
+            @for (row of group.rows; track row.sortOrder; let i = $index) {
+              <tr
+                class="data-row"
+                [class.editable-row]="canEditRow(row)"
+                [style.--group-accent]="getGroupColor(group.workstream).accent"
+                [style.--group-bg]="getGroupColor(group.workstream).bg"
+              >
+                <!-- Workstream (merged cell on first row) -->
+                @if (i === 0) {
+                  <td
+                    class="cell cell-workstream"
+                    [attr.rowspan]="group.rows.length"
+                  >
+                    <div class="workstream-content">
+                      <span class="group-indicator"></span>
+                      <span class="group-label">{{ group.workstream }}</span>
+                    </div>
+                    @if (isEditing && isAdmin) {
+                      <button
+                        class="btn-add-row"
+                        (click)="addRow(group)"
+                        title="Add row"
+                      >
+                        +
+                      </button>
+                    }
+                  </td>
+                }
+
+                <!-- Success Criteria -->
+                <td
+                  class="cell cell-criteria"
+                  [class.cell-editing]="canEditCell(row, 'successCriteria')"
+                >
+                  @if (!canEditCell(row, "successCriteria")) {
+                    <span class="cell-bullet">•</span> {{ row.successCriteria }}
+                  } @else {
+                    <textarea
+                      class="cell-input cell-input-textarea"
+                      [(ngModel)]="row.successCriteria"
+                      rows="2"
+                    ></textarea>
+                  }
+                </td>
+
+                <!-- Baseline -->
+                <td
+                  class="cell cell-baseline"
+                  [class.cell-editing]="canEditCell(row, 'baseline')"
+                >
+                  @if (!canEditCell(row, "baseline")) {
+                    {{ row.baseline }}
+                  } @else {
+                    <input class="cell-input" [(ngModel)]="row.baseline" />
+                  }
+                </td>
+
+                <!-- Owner(s) -->
+                <td
+                  class="cell cell-owner"
+                  [class.cell-editing]="canEditCell(row, 'owners')"
+                >
+                  @if (!canEditCell(row, "owners")) {
+                    {{ row.owners }}
+                  } @else {
+                    <input class="cell-input" [(ngModel)]="row.owners" />
+                  }
+                </td>
+
+                <!-- EOCY26 -->
+                <td
+                  class="cell cell-target"
+                  [class.cell-editing]="canEditCell(row, 'eocy26Target')"
+                >
+                  @if (!canEditCell(row, "eocy26Target")) {
+                    <strong>{{ row.eocy26Target }}</strong>
+                  } @else {
+                    <input
+                      class="cell-input cell-input-bold"
+                      [(ngModel)]="row.eocy26Target"
+                    />
+                  }
+                </td>
+
+                <!-- How We Measure -->
+                <td
+                  class="cell cell-measure"
+                  [class.cell-editing]="canEditCell(row, 'howWeMeasure')"
+                >
+                  @if (!canEditCell(row, "howWeMeasure")) {
+                    {{ row.howWeMeasure }}
+                  } @else {
+                    <textarea
+                      class="cell-input cell-input-textarea"
+                      [(ngModel)]="row.howWeMeasure"
+                      rows="2"
+                    ></textarea>
+                  }
+                </td>
+
+                <!-- Metric -->
+                <td
+                  class="cell cell-metric"
+                  [class.cell-editing]="canEditCell(row, 'metric')"
+                >
+                  @if (!canEditCell(row, "metric")) {
+                    {{ row.metric || "—" }}
+                  } @else {
+                    <input
+                      class="cell-input"
+                      [(ngModel)]="row.metric"
+                      placeholder="Enter metric"
+                    />
+                  }
+                </td>
+
+                <!-- Remove button (admin edit mode) -->
+                @if (isEditing && isAdmin) {
+                  <td class="cell cell-actions">
+                    <button
+                      class="btn-remove"
+                      (click)="removeRow(group, i)"
+                      title="Remove row"
+                    >
+                      ×
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        }
+      </table>
+    </div>
+  }
+</div>

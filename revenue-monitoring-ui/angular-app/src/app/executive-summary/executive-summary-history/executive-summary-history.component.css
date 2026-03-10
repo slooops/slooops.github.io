@@ -1,0 +1,298 @@
+/* ==========================================================================
+   Executive Summary History Page
+   ========================================================================== */
+
+:host {
+  --es-font: 'Inter', var(--fit-font-family-base, sans-serif);
+  --es-accent: var(--fit-color-primary, #0070d2);
+  --es-accent-soft: #e5f2ff;
+  --es-text: #1f2933;
+  --es-text-muted: #6b7482;
+  --es-bg: #ffffff;
+  --es-page-bg:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(0, 188, 235, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 30%, rgba(0, 112, 210, 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #f8fafc 0%, #f0f4f8 50%, #e8f0f8 100%);
+  --es-border: #e1e4e8;
+  --es-card-radius: 16px;
+  --es-transition: 200ms ease;
+  --es-shadow-lg: 0 4px 20px rgba(0, 112, 210, 0.08), 0 8px 40px rgba(0, 112, 210, 0.04);
+
+  display: block;
+  font-family: var(--es-font);
+}
+
+.history-page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--es-page-bg);
+  padding: 2rem 3rem 4rem;
+}
+
+/* Header */
+.history-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.history-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--es-text);
+  margin: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--es-font);
+  border: none;
+  cursor: pointer;
+  transition: all var(--es-transition);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--es-accent);
+  border: 1px solid var(--es-border);
+}
+
+.btn-ghost:hover {
+  background: var(--es-accent-soft);
+  border-color: var(--es-accent);
+}
+
+/* Paginator */
+.version-paginator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  background: var(--es-bg);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--es-border);
+}
+
+.paginator-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 6px;
+  border: 1px solid var(--es-border);
+  background: transparent;
+  color: var(--es-accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--es-font);
+  cursor: pointer;
+  transition: all var(--es-transition);
+}
+
+.paginator-btn:hover:not(:disabled) {
+  background: var(--es-accent-soft);
+  border-color: var(--es-accent);
+}
+
+.paginator-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.paginator-arrow {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.paginator-info {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--es-text-muted);
+}
+
+.sprint-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  background: var(--es-accent-soft);
+  color: var(--es-accent);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.paginator-meta strong {
+  color: var(--es-text);
+  font-weight: 600;
+}
+
+.paginator-date {
+  color: var(--es-text-muted);
+}
+
+.paginator-note {
+  color: var(--es-text-muted);
+  font-style: italic;
+}
+
+/* Table */
+.exec-table-wrap {
+  background: var(--es-bg);
+  border-radius: var(--es-card-radius);
+  box-shadow: var(--es-shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--es-border);
+  position: relative;
+  transition: opacity var(--es-transition);
+}
+
+.exec-table-wrap.table-loading {
+  opacity: 0.5;
+}
+
+.table-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+  z-index: 10;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--es-border);
+  border-top-color: var(--es-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.exec-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.col-track      { width: 14%; }
+.col-highlights { width: 43%; }
+.col-watch      { width: 43%; }
+
+thead th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--es-text-muted);
+  background: #f7f8fa;
+  border-bottom: 2px solid var(--es-border);
+}
+
+.data-row {
+  transition: background var(--es-transition);
+}
+
+.data-row:hover {
+  background: rgba(0, 112, 210, 0.02);
+}
+
+.cell {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--es-border);
+  vertical-align: top;
+  color: var(--es-text);
+}
+
+.cell-track {
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.track-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.track-indicator {
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--track-accent, var(--es-accent));
+  flex-shrink: 0;
+}
+
+.bullet-list {
+  margin: 0;
+  padding: 0 0 0 1.125rem;
+  list-style: disc;
+}
+
+.bullet-list li {
+  margin-bottom: 0.375rem;
+  line-height: 1.5;
+}
+
+.bullet-list li::marker {
+  color: var(--track-accent, var(--es-accent));
+}
+
+.bullet-list li:last-child {
+  margin-bottom: 0;
+}
+
+.empty-dash {
+  color: var(--es-text-muted);
+}
+
+/* Loading / Empty */
+.history-loading {
+  padding: 2rem 0;
+}
+
+.shimmer-block {
+  height: 400px;
+  border-radius: var(--es-card-radius);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.history-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--es-text-muted);
+  font-size: 0.9375rem;
+}

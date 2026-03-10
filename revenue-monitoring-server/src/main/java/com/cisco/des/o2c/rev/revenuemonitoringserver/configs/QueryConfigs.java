@@ -1902,4 +1902,144 @@ public class QueryConfigs {
     public String getDashboardMetrics() {
         return this.dashboardMetrics;
     }
+
+    // ── Scorecard queries ──
+
+    @Value(("${sc.get.current.version.q}"))
+    public String scGetCurrentVersion;
+
+    @Bean(name = "scGetCurrentVersion")
+    public String getScGetCurrentVersion() {
+        return this.scGetCurrentVersion;
+    }
+
+    @Value(("${sc.get.version.data.q}"))
+    public String scGetVersionData;
+
+    @Bean(name = "scGetVersionData")
+    public String getScGetVersionData() {
+        return this.scGetVersionData;
+    }
+
+    @Value(("${sc.get.versions.page.q}"))
+    public String scGetVersionsPage;
+
+    @Bean(name = "scGetVersionsPage")
+    public String getScGetVersionsPage() {
+        return this.scGetVersionsPage;
+    }
+
+    @Value(("${sc.get.versions.count.q}"))
+    public String scGetVersionsCount;
+
+    @Bean(name = "scGetVersionsCount")
+    public String getScGetVersionsCount() {
+        return this.scGetVersionsCount;
+    }
+
+    @Value(("${sc.insert.version.q}"))
+    public String scInsertVersion;
+
+    @Bean(name = "scInsertVersion")
+    public String getScInsertVersion() {
+        return this.scInsertVersion;
+    }
+
+    @Value(("${sc.get.last.version.id.q}"))
+    public String scGetLastVersionId;
+
+    @Bean(name = "scGetLastVersionId")
+    public String getScGetLastVersionId() {
+        return this.scGetLastVersionId;
+    }
+
+    @Value(("${sc.insert.data.row.q}"))
+    public String scInsertDataRow;
+
+    @Bean(name = "scInsertDataRow")
+    public String getScInsertDataRow() {
+        return this.scInsertDataRow;
+    }
+
+    @Value(("${sc.get.editor.info.q}"))
+    public String scGetEditorInfo;
+
+    @Bean(name = "scGetEditorInfo")
+    public String getScGetEditorInfo() {
+        return this.scGetEditorInfo;
+    }
+
+    @Value(("${sc.get.version.by.id.q}"))
+    public String scGetVersionById;
+
+    @Bean(name = "scGetVersionById")
+    public String getScGetVersionById() {
+        return this.scGetVersionById;
+    }
+
+    // ── Executive Summary queries ──
+
+    @Value(("${es.get.current.version.q}"))
+    public String esGetCurrentVersion;
+
+    @Bean(name = "esGetCurrentVersion")
+    public String getEsGetCurrentVersion() {
+        return this.esGetCurrentVersion;
+    }
+
+    @Value(("${es.get.version.data.q}"))
+    public String esGetVersionData;
+
+    @Bean(name = "esGetVersionData")
+    public String getEsGetVersionData() {
+        return this.esGetVersionData;
+    }
+
+    @Value(("${es.get.versions.page.q}"))
+    public String esGetVersionsPage;
+
+    @Bean(name = "esGetVersionsPage")
+    public String getEsGetVersionsPage() {
+        return this.esGetVersionsPage;
+    }
+
+    @Value(("${es.get.versions.count.q}"))
+    public String esGetVersionsCount;
+
+    @Bean(name = "esGetVersionsCount")
+    public String getEsGetVersionsCount() {
+        return this.esGetVersionsCount;
+    }
+
+    @Value(("${es.insert.version.q}"))
+    public String esInsertVersion;
+
+    @Bean(name = "esInsertVersion")
+    public String getEsInsertVersion() {
+        return this.esInsertVersion;
+    }
+
+    @Value(("${es.get.last.version.id.q}"))
+    public String esGetLastVersionId;
+
+    @Bean(name = "esGetLastVersionId")
+    public String getEsGetLastVersionId() {
+        return this.esGetLastVersionId;
+    }
+
+    @Value(("${es.insert.data.row.q}"))
+    public String esInsertDataRow;
+
+    @Bean(name = "esInsertDataRow")
+    public String getEsInsertDataRow() {
+        return this.esInsertDataRow;
+    }
+
+    @Value(("${es.get.version.by.id.q}"))
+    public String esGetVersionById;
+
+    @Bean(name = "esGetVersionById")
+    public String getEsGetVersionById() {
+        return this.esGetVersionById;
+    }
 }

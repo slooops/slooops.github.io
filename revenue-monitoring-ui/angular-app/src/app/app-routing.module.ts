@@ -31,6 +31,9 @@ import { AdminComponent } from './admin/admin.component';
 import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
 import { WipsComponent } from './wips/wips.component';
 import { LandingComponent } from './landing/landing.component';
+import { ScorecardHistoryComponent } from './scorecard/scorecard-history/scorecard-history.component';
+import { ExecutiveSummaryHistoryComponent } from './executive-summary/executive-summary-history/executive-summary-history.component';
+import { PerformanceHubComponent } from './performance-hub/performance-hub.component';
 
 export const routes: Routes = [
   {
@@ -273,6 +276,30 @@ export const routes: Routes = [
     data: {
       title: 'Analytics Dashboard',
       header: 'Analytics',
+    },
+  },
+  {
+    path: 'scorecard',
+    component: PerformanceHubComponent,
+    data: {
+      title: 'Performance Hub',
+      header: 'Performance Hub',
+    },
+  },
+  {
+    path: 'scorecard/history',
+    component: ScorecardHistoryComponent,
+    data: {
+      title: 'Scorecard History',
+      header: 'Scorecard History',
+    },
+  },
+  {
+    path: 'executive-summary/history',
+    component: ExecutiveSummaryHistoryComponent,
+    data: {
+      title: 'Executive Summary History',
+      header: 'Executive Summary History',
     },
   },
 ];
