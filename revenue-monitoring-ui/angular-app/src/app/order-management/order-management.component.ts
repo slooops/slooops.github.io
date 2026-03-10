@@ -351,11 +351,14 @@ export class OrderManagementComponent {
   periodStatus: any;
 
   getErrorSummaryPeriodStatus() {
-    this.dataService
-      .getMonitoringPeriodStatus(this.destroyManager)
-      .subscribe((data: any) => {
-        this.periodStatus = data;
-      });
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
   }
 
   dateTransform(dateString: string): string {
@@ -440,6 +443,13 @@ export class OrderManagementComponent {
     this.selectedIndex = index;
     const newHeader = `Continuous Monitoring > Order Management > ${this.filteredTabs[index]?.label}`;
     this.menuService.updateHeader(newHeader);
+    // Update last updated timestamp on tab switch
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
     // Log tab visit for analytics
     this.logTabVisit(this.filteredTabs[index]?.label);
   }

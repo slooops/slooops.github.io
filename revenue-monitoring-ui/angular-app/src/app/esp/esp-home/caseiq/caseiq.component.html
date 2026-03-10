@@ -19,7 +19,12 @@
         <div class="tiles-row-header">Case Analyzer</div>
         <div class="fit-tiles-row">
           <div class="fit-tile">
-            <div class="fit-tile-label">Total Cases</div>
+            <div class="fit-tile-label">
+              Total Cases
+              <span style="font-size: 7px; color: #9e9e9e">
+                - Core Issue Identification</span
+              >
+            </div>
             @if (getTotalCasesFromAccuracy("Finance IT") != null) {
               <div class="fit-tile-value">
                 {{ getTotalCasesFromAccuracy("Finance IT") | number }}
@@ -66,7 +71,15 @@
               </mat-icon>
             </div>
             <div class="fit-tile-value">
-              {{ getFinanceITAgentTotalCases() | number }}
+              {{ getFinanceITAgentTotalCases() | number
+              }}<span
+                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
+              >
+                /
+                {{
+                  getFinanceITAgentTotalCases() + getOpsTotalCases() | number
+                }}</span
+              >
             </div>
           </div>
           <div class="fit-tile">
@@ -81,7 +94,12 @@
               </mat-icon>
             </div>
             <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--" }}
+              {{ fitRow ? valueDisplay(fitRow.inProgress.agent) : "--"
+              }}<span
+                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
+              >
+                / {{ getSumMetricTotal("inProgress") | number }}</span
+              >
               @if (fitRow?.inProgress?.agentPct != null) {
                 <span class="fit-tile-pct"
                   >({{ fitRow!.inProgress.agentPct | number: "1.0-0" }}%)</span
@@ -101,7 +119,12 @@
               </mat-icon>
             </div>
             <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--" }}
+              {{ fitRow ? valueDisplay(fitRow.routed.agent) : "--"
+              }}<span
+                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
+              >
+                / {{ getSumMetricTotal("routed") | number }}</span
+              >
               @if (fitRow?.routed?.agentPct != null) {
                 <span class="fit-tile-pct"
                   >({{ fitRow!.routed.agentPct | number: "1.0-0" }}%)</span
@@ -121,7 +144,12 @@
               </mat-icon>
             </div>
             <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--" }}
+              {{ fitRow ? valueDisplay(fitRow.cancelled.agent) : "--"
+              }}<span
+                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
+              >
+                / {{ getSumMetricTotal("cancelled") | number }}</span
+              >
               @if (fitRow?.cancelled?.agentPct != null) {
                 <span class="fit-tile-pct"
                   >({{ fitRow!.cancelled.agentPct | number: "1.0-0" }}%)</span
@@ -141,7 +169,12 @@
               </mat-icon>
             </div>
             <div class="fit-tile-value">
-              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--" }}
+              {{ fitRow ? valueDisplay(fitRow.service.agent) : "--"
+              }}<span
+                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
+              >
+                / {{ getSumMetricTotal("service") | number }}</span
+              >
               @if (fitRow?.service?.agentPct != null) {
                 <span class="fit-tile-pct"
                   >({{ fitRow!.service.agentPct | number: "1.0-0" }}%)</span
@@ -247,11 +280,16 @@
                   <tr>
                     <td>
                       <span class="summary-total-cases">
-                        {{ getAgentTotalCases(row) | number }}
-                      </span>
+                        {{ getAgentTotalCases(row) | number }} </span
+                      ><span style="font-size: 0.75em; color: #b0b0b0">
+                        / {{ row.totalCases || 0 | number }}</span
+                      >
                     </td>
                     <td>
-                      {{ valueDisplay(row.inProgress.agent) }}
+                      {{ valueDisplay(row.inProgress.agent)
+                      }}<span style="font-size: 0.75em; color: #b0b0b0">
+                        / {{ row.inProgress.total || 0 | number }}</span
+                      >
                       @if (row.inProgress.agentPct != null) {
                         <span class="summary-pct"
                           >({{
@@ -261,7 +299,10 @@
                       }
                     </td>
                     <td>
-                      {{ valueDisplay(row.routed.agent) }}
+                      {{ valueDisplay(row.routed.agent)
+                      }}<span style="font-size: 0.75em; color: #b0b0b0">
+                        / {{ row.routed.total || 0 | number }}</span
+                      >
                       @if (row.routed.agentPct != null) {
                         <span class="summary-pct"
                           >({{ row.routed.agentPct | number: "1.0-0" }}%)</span
@@ -269,9 +310,10 @@
                       }
                     </td>
                     <td>
-                      <span>
-                        {{ valueDisplay(row.cancelled.agent) }}
-                      </span>
+                      <span> {{ valueDisplay(row.cancelled.agent) }} </span
+                      ><span style="font-size: 0.75em; color: #b0b0b0">
+                        / {{ row.cancelled.total || 0 | number }}</span
+                      >
                       @if (row.cancelled.agentPct != null) {
                         <span class="summary-pct"
                           >({{
@@ -281,7 +323,10 @@
                       }
                     </td>
                     <td>
-                      {{ valueDisplay(row.service.agent) }}
+                      {{ valueDisplay(row.service.agent)
+                      }}<span style="font-size: 0.75em; color: #b0b0b0">
+                        / {{ row.service.total || 0 | number }}</span
+                      >
                       @if (row.service.agentPct != null) {
                         <span class="summary-pct"
                           >({{ row.service.agentPct | number: "1.0-0" }}%)</span

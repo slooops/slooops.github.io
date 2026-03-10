@@ -26,12 +26,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  providers: [DestroyManager],
+  providers: [DestroyManager, provideIcons({ phosphorSparkleBold })],
   imports: [
     CommonModule,
     FormsModule,
@@ -42,6 +44,7 @@ import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-sym
     MatProgressSpinnerModule,
     LoadingSymbolComponent,
     LoadingSymbolSmallComponent,
+    NgIcon,
   ],
   standalone: true,
 })
@@ -224,11 +227,11 @@ export class HomeComponent implements OnDestroy {
       next: (issues) => {
         console.log('Issues from real service:', issues);
         this.issueKpis.set({
-          totalIssues: issues[0]?.TOTAL_ISSUES || 0,
-          resolvedIssues: issues[0]?.RESOLVED || 0,
-          inProgressIssues: issues[0]?.IN_PROGRESS || 0,
-          assignedIssues: issues[0]?.ASSIGNED || 0,
-          unassignedIssues: issues[0]?.UNASSIGNED || 0,
+          totalIssues: issues[1]?.TOTAL_ISSUES || 0,
+          resolvedIssues: issues[1]?.RESOLVED || 0,
+          inProgressIssues: issues[1]?.IN_PROGRESS || 0,
+          assignedIssues: issues[1]?.ASSIGNED || 0,
+          unassignedIssues: issues[1]?.UNASSIGNED || 0,
         });
         // Ensure issue distribution center text reflects latest totalIssues
         this.refreshIssueDistributionCenterText();
@@ -363,61 +366,54 @@ export class HomeComponent implements OnDestroy {
       next: (data) => {
         console.log('ESP Cases API Response:', data);
 
-        // Parse API response: Array of {WEEK_NUMBER, COUNT, CATEGORY}
+        // Parse API response: Array of {FISCAL_QTR, WEEK_NUMBER, TOTAL_CASES, RESOLVED_AGENT, RESOLVED_OPS, IN_PROGRESS}
         const weekMap = new Map<
-          string,
+          number,
           {
-            inProgress: number;
-            supportTeam: number;
             totalCases: number;
             resolvedAgent: number;
+            resolvedOps: number;
+            inProgress: number;
           }
         >();
 
         if (data && data.length > 0) {
           data.forEach((item: any) => {
-            const week = item.WEEK_NUMBER || '';
-            const count = Number(item.COUNT) || 0;
-            const category = (item.CATEGORY || '').trim();
-
-            if (!weekMap.has(week)) {
-              weekMap.set(week, {
-                inProgress: 0,
-                supportTeam: 0,
-                totalCases: 0,
-                resolvedAgent: 0,
-              });
-            }
-
-            const weekData = weekMap.get(week)!;
-            if (category === 'In Progress') {
-              weekData.inProgress = count;
-            } else if (category === 'Support Team') {
-              weekData.supportTeam = count;
-            } else if (category === 'Total Cases') {
-              weekData.totalCases = count;
-            } else if (category === 'Resolved (Agent)') {
-              weekData.resolvedAgent = count;
-            }
+            const weekNum = Number(item.WEEK_NUMBER) || 0;
+            weekMap.set(weekNum, {
+              totalCases: Number(item.TOTAL_CASES) || 0,
+              resolvedAgent: Number(item.RESOLVED_AGENT) || 0,
+              resolvedOps: Number(item.RESOLVED_OPS) || 0,
+              inProgress: Number(item.IN_PROGRESS) || 0,
+            });
           });
         }
 
         // Always use a fixed range of weeks: Week 1 to Week 13
-        const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week${i + 1}`);
+        const fixedWeeks = Array.from(
+          { length: 13 },
+          (_, i) => `Week ${i + 1}`,
+        );
+        const defaultWeek = {
+          totalCases: 0,
+          resolvedAgent: 0,
+          resolvedOps: 0,
+          inProgress: 0,
+        };
 
         const chartData = {
           weeks: fixedWeeks,
-          inProgress: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
-          ),
-          supportTeam: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
-          ),
           totalCases: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { totalCases: 0 }).totalCases,
+            (_, i) => (weekMap.get(i + 1) || defaultWeek).totalCases,
           ),
           resolvedAgent: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { resolvedAgent: 0 }).resolvedAgent,
+            (_, i) => (weekMap.get(i + 1) || defaultWeek).resolvedAgent,
+          ),
+          resolvedOps: fixedWeeks.map(
+            (_, i) => (weekMap.get(i + 1) || defaultWeek).resolvedOps,
+          ),
+          inProgress: fixedWeeks.map(
+            (_, i) => (weekMap.get(i + 1) || defaultWeek).inProgress,
           ),
         };
 
@@ -961,11 +957,11 @@ export class HomeComponent implements OnDestroy {
       'en-US',
     )})`;
 
-    const supportTeamSumEsp = (chartData.supportTeam || []).reduce(
+    const resolvedOpsSum = (chartData.resolvedOps || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const supportTeamLabelEsp = `Support Team (${supportTeamSumEsp.toLocaleString(
+    const resolvedOpsLabel = `Resolved (Ops) (${resolvedOpsSum.toLocaleString(
       'en-US',
     )})`;
 
@@ -1005,10 +1001,10 @@ export class HomeComponent implements OnDestroy {
           },
           {
             type: 'line',
-            label: supportTeamLabelEsp,
-            data: chartData.supportTeam,
-            borderColor: '#5B8FD7',
-            backgroundColor: '#5B8FD7',
+            label: resolvedOpsLabel,
+            data: chartData.resolvedOps,
+            borderColor: '#9b59b6',
+            backgroundColor: '#9b59b6',
             tension: 0.25,
             pointRadius: 3,
             pointHoverRadius: 5,

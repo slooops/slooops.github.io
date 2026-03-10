@@ -4,6 +4,12 @@ import { ApiHttpService } from './http.service';
 import { catchError, map, shareReplay, takeUntil, tap } from 'rxjs/operators';
 import { DestroyManager } from './destroy-manager.service';
 
+export interface PeriodStatus {
+  periodName: string;
+  periodEndDate: string;
+  lastUpdated: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -16,6 +22,9 @@ export class DataService implements OnDestroy {
   username: any;
   assignmentUsers: any;
   header: string = '';
+
+  private periodStatusSubject = new BehaviorSubject<PeriodStatus | null>(null);
+  periodStatus$ = this.periodStatusSubject.asObservable();
 
   constructor(private http: ApiHttpService) {}
 
@@ -77,6 +86,13 @@ export class DataService implements OnDestroy {
         };
       }),
     );
+  }
+
+  /** Fetch period status and update the shared BehaviorSubject */
+  loadPeriodStatus(destroyManager: DestroyManager): void {
+    this.getMonitoringPeriodStatus(destroyManager).subscribe((data) => {
+      this.periodStatusSubject.next(data);
+    });
   }
 
   getI2CSummary(destroyManager: DestroyManager): Observable<any> {

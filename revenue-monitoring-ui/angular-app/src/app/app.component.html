@@ -14,7 +14,7 @@
               @if (showNavMenu) {
                 <div class="toolbar-nav-dropdown">
                   <!-- Home -->
-                  @if (isAdmin$) {
+                  <!-- @if (isAdmin$) {
                     <div
                       class="toolbar-nav-dropdown-item"
                       [class.active]="router.url.includes('/landing')"
@@ -22,7 +22,7 @@
                     >
                       <span class="toolbar-nav-dropdown-item-name">Home</span>
                     </div>
-                  }
+                  } -->
                   <!-- Operational Visibility -->
                   @if (isAdmin$) {
                     <div
@@ -228,8 +228,11 @@
               }
             </div>
           }
-          <span class="toolbar-brand" routerLink="/landing">
-            <span style="display: flex; align-items: center; padding: 0 15px">
+          <span class="toolbar-brand">
+            <span
+              style="display: flex; align-items: center; padding: 0 15px"
+              routerLink="/landing"
+            >
               <svg class="toolbar-logo" viewBox="0 0 40 21">
                 <g transform="matrix(1,0,0,1,-503.306,-139.064)">
                   <g
@@ -263,6 +266,7 @@
                 margin-bottom: 0;
                 font-family: &quot;Inter&quot;, sans-serif;
                 font-weight: 400;
+                cursor: default;
               "
             >
               @if (header.length > 0) {
@@ -330,7 +334,7 @@
             ></path>
           </svg>
           <span style="margin: 0 10px 0 5px" class="onHover">
-            <span class="user-title">{{ userName }}</span>
+            <span class="user-title">Welcome, {{ userName }}</span>
             <i class="fa fa-angle-down toolbar-caret"></i>
           </span>
         </span>

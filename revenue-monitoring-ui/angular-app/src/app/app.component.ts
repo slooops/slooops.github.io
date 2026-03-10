@@ -250,6 +250,9 @@ export class AppComponent implements OnInit, OnDestroy {
         this.dataService.setAssignmentUsers(data);
       });
 
+    // Load shared period status on init
+    this.dataService.loadPeriodStatus(this.destroyManager);
+
     this.menuService.header$.subscribe((newHeader) => {
       this.header = newHeader;
     });

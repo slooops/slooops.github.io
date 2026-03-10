@@ -74,6 +74,14 @@ export class OperationsControlsComponent implements OnInit {
 
   onTabChange(index: number) {
     this.selectedTabIndex = index;
+    // Update last updated timestamp on tab switch
+    const current = this.periodInfo();
+    if (current) {
+      this.periodInfo.set({
+        ...current,
+        lastUpdated: new Date().toLocaleString(),
+      });
+    }
     this.logTabVisit(this.tabLabels[index]);
   }
 
@@ -235,9 +243,14 @@ export class OperationsControlsComponent implements OnInit {
   }
 
   getErrorSummaryPeriodStatus() {
-    this.dataService.getMonitoringPeriodStatus(this.destroyManager).subscribe({
+    this.dataService.periodStatus$.subscribe({
       next: (periodData) => {
-        this.periodInfo.set(periodData);
+        if (periodData) {
+          this.periodInfo.set({
+            ...periodData,
+            lastUpdated: new Date().toLocaleString(),
+          });
+        }
       },
       error: (error) => {
         console.error('Error loading period info:', error);

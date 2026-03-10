@@ -72,7 +72,18 @@ export class WipsComponent implements OnInit {
 
   skippedWords: string[] = ['IOL', 'AR', 'ID'];
 
-  ngOnInit(): void {}
+  periodStatus: any;
+
+  ngOnInit(): void {
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
+  }
 
   showGridMenu: boolean = false;
 

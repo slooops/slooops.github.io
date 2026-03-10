@@ -196,11 +196,24 @@ export class GlPostingComponent implements OnInit {
     this.showGridMenu = false;
   }
 
+  onTabChange(index: number) {
+    // Update last updated timestamp on tab switch
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
+  }
+
   getErrorSummaryPeriodStatus() {
-    this.dataService
-      .getMonitoringPeriodStatus(this.destroyManager)
-      .subscribe((data: any) => {
-        this.periodStatus = data;
-      });
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
   }
 }

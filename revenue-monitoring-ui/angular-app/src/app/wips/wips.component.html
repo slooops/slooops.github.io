@@ -19,6 +19,16 @@
       <h2>WIPS</h2>
     </div>
 
+    <div class="period-info" *ngIf="periodStatus as period">
+      <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span>&nbsp;<b>Last Updated:</b> {{ period.lastUpdated }} &nbsp;</span>
+    </div>
+
     <div class="global-search">
       <div class="global-search-input-wrapper">
         <input

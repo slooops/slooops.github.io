@@ -32,7 +32,6 @@ export class IconComponent {
       refresh: 'ph-refresh-icon',
       'escalation-one': 'escalation-one-icon',
       'escalation-two': 'escalation-two-icon',
-      ivan: 'ivan-icon',
     };
 
     return iconMap[this.name] || 'fit-icon';

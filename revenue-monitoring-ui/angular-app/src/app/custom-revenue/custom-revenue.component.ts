@@ -329,11 +329,14 @@ export class CustomRevenueComponent implements OnInit {
   };
 
   getErrorSummaryPeriodStatus() {
-    this.dataService
-      .getMonitoringPeriodStatus(this.destroyManager)
-      .subscribe((data: any) => {
-        this.periodStatus = data;
-      });
+    this.dataService.periodStatus$.subscribe((data: any) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
   }
 
   visibleTabs: {
@@ -406,6 +409,13 @@ export class CustomRevenueComponent implements OnInit {
     const newHeader = `Continuous Monitoring > Revenue Accounting > ${this.filteredTabs[index]?.label}`;
     console.log('🔹 Tab changed, updating header:', newHeader);
     this.menuService.updateHeader(newHeader);
+    // Update last updated timestamp on tab switch
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
     // Log tab visit for analytics
     this.logTabVisit(this.filteredTabs[index]?.label);
   }

@@ -862,6 +862,19 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
       (Number(fm.RECOMMENDED_CANCELLED) || 0)
     );
   }
+
+  getOpsTotalCases(): number {
+    const fm = this.getFinanceITMetrics();
+    if (!fm) return 0;
+    return (
+      (Number(fm.IN_PROGRESS_OPS) || 0) +
+      (Number(fm.RESOLVED_OPS) || 0) +
+      (Number(fm.NOT_RECOMMENDED_ROUTE_OUT) ||
+        Number(fm.NOT_RECOMMENDED_ROUTED_OUT) ||
+        0) +
+      (Number(fm.NOT_RECOMMENDED_CANCELLED) || 0)
+    );
+  }
   getAgentForRow(row: CaseIqTableRow): { deployed: number; total: number } {
     const agent = this.resolutionAgents.find((a) => a.team === row.sectionName);
     return agent
@@ -871,6 +884,16 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   getSummaryRows(): CaseIqTableRow[] {
     return this.getTableRows().filter((r) => r.sectionName !== 'Finance IT');
+  }
+
+  /** Sum of a specific metric's total across all component (non-Finance IT) rows */
+  getSumMetricTotal(
+    metric: 'inProgress' | 'routed' | 'cancelled' | 'service',
+  ): number {
+    return this.getSummaryRows().reduce(
+      (sum, row) => sum + (row[metric].total ?? 0),
+      0,
+    );
   }
 
   /** Finance IT row built from metrics — used for summary tiles */

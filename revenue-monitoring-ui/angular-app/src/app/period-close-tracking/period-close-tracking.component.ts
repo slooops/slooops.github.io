@@ -3,6 +3,7 @@ import { ApiHttpService } from '../providers/http.service';
 import { switchMap, startWith } from 'rxjs/operators';
 import { Observable, interval } from 'rxjs';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { DataService } from '../providers/data.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MenuService } from '../providers/menu.service';
@@ -34,6 +35,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
   refreshInterval = 300000; //ms
   timeNow: any;
   roles: string[] = [];
+  periodStatus: any;
 
   templateObject = Object;
 
@@ -129,6 +131,7 @@ export class PeriodCloseTrackingComponent implements OnInit {
     destroyManager: DestroyManager,
     private authService: AuthenticationService,
     private menuService: MenuService,
+    private dataService: DataService,
   ) {
     this.http = http;
     this.destroyManager = destroyManager;
@@ -143,6 +146,14 @@ export class PeriodCloseTrackingComponent implements OnInit {
     this.getCurrentTime();
     this.getEstimatedCompletionTime();
     this.roles = this.authService.getRoles();
+    this.dataService.periodStatus$.subscribe((data) => {
+      if (data) {
+        this.periodStatus = {
+          ...data,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
 
     this.menuService.updateMenuItems([
       {

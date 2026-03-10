@@ -2,8 +2,16 @@
 <div class="section-title" style="margin: 1rem">
   Period Close (Internal)
 
-  <span style="flex: 1"></span>
-  <span class="legend-item" style="margin-right: 1.2rem">
+  <div class="period-info" *ngIf="periodStatus as period">
+    <span><b>Period name:</b> {{ period.periodName }} &nbsp;</span>
+    <span class="divider"> | </span>
+    <span>&nbsp;<b>Period end date:</b> {{ period.periodEndDate }} &nbsp;</span>
+  </div>
+
+  <span
+    class="legend-item-header"
+    style="margin-left: auto; margin-right: 1.2rem"
+  >
     Dashboard updated: Today at {{ timeNow }}
   </span>
 </div>
@@ -63,19 +71,19 @@
           <thead>
             <tr>
               @for (col of meStatusColumns; track col) {
-              <th>{{ col }}</th>
+                <th>{{ col }}</th>
               }
             </tr>
           </thead>
           <tbody>
             @if (pcloseMonthEndStatusTableData.length > 0) {
-            <tr>
-              @for (row of pcloseExecutionWindow; track $index) {
-              <td class="table-timings">
-                {{ row }}
-              </td>
-              }
-            </tr>
+              <tr>
+                @for (row of pcloseExecutionWindow; track $index) {
+                  <td class="table-timings">
+                    {{ row }}
+                  </td>
+                }
+              </tr>
             }
             <!-- <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
             <td class="table-timings" *ngFor="let row of pcloseActualsTime">
@@ -84,49 +92,62 @@
           </tr> -->
 
             @for (row of pcloseMonthEndStatusTableData; track row) {
-            <tr>
-              @for (category of templateObject.keys(row); track category) {
-              <td>
-                @if (row[category].toLowerCase() === 'completed') {
-                <i class="icon-small completed-icon"></i>
-                } @if (row[category].toLowerCase() === 'na') {
-                <span>N/A</span>
-                } @if (row[category].toLowerCase() === 'in progress') {
-                <i class="icon-small in-progress-icon"></i>
-                } @if (row[category].toLowerCase() === 'yet to start') {
-                <i class="icon-small yet-to-start-icon"></i>
-                } @if (row[category].toLowerCase() === 'delayed') {
-                <i
-                  matTooltip="Details included in period close communications."
-                  matTooltipPosition="right"
-                  class="icon-small delayed-icon"
-                ></i>
-                } @if (row[category].toLowerCase() === 'stopped') {
-                <i
-                  matTooltip="Details included in period close communications."
-                  matTooltipPosition="right"
-                  class="icon-small stopped-icon"
-                ></i>
-                } @if ( [ 'completed', 'na', 'in progress', 'yet to start',
-                'delayed', 'stopped' ].indexOf(row[category].toLowerCase()) ===
-                -1 ) {
-                <span>
-                  {{ row[category] }}
-                </span>
+              <tr>
+                @for (category of templateObject.keys(row); track category) {
+                  <td>
+                    @if (row[category].toLowerCase() === "completed") {
+                      <i class="icon-small completed-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "na") {
+                      <span>N/A</span>
+                    }
+                    @if (row[category].toLowerCase() === "in progress") {
+                      <i class="icon-small in-progress-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "yet to start") {
+                      <i class="icon-small yet-to-start-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "delayed") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small delayed-icon"
+                      ></i>
+                    }
+                    @if (row[category].toLowerCase() === "stopped") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small stopped-icon"
+                      ></i>
+                    }
+                    @if (
+                      [
+                        "completed",
+                        "na",
+                        "in progress",
+                        "yet to start",
+                        "delayed",
+                        "stopped",
+                      ].indexOf(row[category].toLowerCase()) === -1
+                    ) {
+                      <span>
+                        {{ row[category] }}
+                      </span>
+                    }
+                  </td>
                 }
-              </td>
-              }
-            </tr>
+              </tr>
             }
           </tbody>
         </table>
         <span style="display: flex; justify-content: center">
           @if (pcloseMonthEndStatusTableData.length == 0) {
-          <tr>
-            <td colspan="100%" class="centered">
-              <app-loading-symbol></app-loading-symbol>
-            </td>
-          </tr>
+            <tr>
+              <td colspan="100%" class="centered">
+                <app-loading-symbol></app-loading-symbol>
+              </td>
+            </tr>
           }
         </span>
       </div>
@@ -185,19 +206,19 @@
           <thead>
             <tr>
               @for (col of meStatusColumns; track col) {
-              <th>{{ col }}</th>
+                <th>{{ col }}</th>
               }
             </tr>
           </thead>
           <tbody>
             @if (mcloseMonthEndStatusTableData.length > 0) {
-            <tr>
-              @for (row of mcloseExecutionWindow; track $index) {
-              <td class="table-timings">
-                {{ row }}
-              </td>
-              }
-            </tr>
+              <tr>
+                @for (row of mcloseExecutionWindow; track $index) {
+                  <td class="table-timings">
+                    {{ row }}
+                  </td>
+                }
+              </tr>
             }
             <!-- <tr *ngIf="pcloseMonthEndStatusTableData.length > 0">
           <td class="table-timings" *ngFor="let row of pcloseActualsTime">
@@ -206,49 +227,62 @@
         </tr> -->
 
             @for (row of mcloseMonthEndStatusTableData; track row) {
-            <tr>
-              @for (category of templateObject.keys(row); track category) {
-              <td>
-                @if (row[category].toLowerCase() === 'completed') {
-                <i class="icon-small completed-icon"></i>
-                } @if (row[category].toLowerCase() === 'na') {
-                <span>N/A</span>
-                } @if (row[category].toLowerCase() === 'in progress') {
-                <i class="icon-small in-progress-icon"></i>
-                } @if (row[category].toLowerCase() === 'yet to start') {
-                <i class="icon-small yet-to-start-icon"></i>
-                } @if (row[category].toLowerCase() === 'delayed') {
-                <i
-                  matTooltip="Details included in period close communications."
-                  matTooltipPosition="right"
-                  class="icon-small delayed-icon"
-                ></i>
-                } @if (row[category].toLowerCase() === 'stopped') {
-                <i
-                  matTooltip="Details included in period close communications."
-                  matTooltipPosition="right"
-                  class="icon-small stopped-icon"
-                ></i>
-                } @if ( [ 'completed', 'na', 'in progress', 'yet to start',
-                'delayed', 'stopped' ].indexOf(row[category].toLowerCase()) ===
-                -1 ) {
-                <span>
-                  {{ row[category] }}
-                </span>
+              <tr>
+                @for (category of templateObject.keys(row); track category) {
+                  <td>
+                    @if (row[category].toLowerCase() === "completed") {
+                      <i class="icon-small completed-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "na") {
+                      <span>N/A</span>
+                    }
+                    @if (row[category].toLowerCase() === "in progress") {
+                      <i class="icon-small in-progress-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "yet to start") {
+                      <i class="icon-small yet-to-start-icon"></i>
+                    }
+                    @if (row[category].toLowerCase() === "delayed") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small delayed-icon"
+                      ></i>
+                    }
+                    @if (row[category].toLowerCase() === "stopped") {
+                      <i
+                        matTooltip="Details included in period close communications."
+                        matTooltipPosition="right"
+                        class="icon-small stopped-icon"
+                      ></i>
+                    }
+                    @if (
+                      [
+                        "completed",
+                        "na",
+                        "in progress",
+                        "yet to start",
+                        "delayed",
+                        "stopped",
+                      ].indexOf(row[category].toLowerCase()) === -1
+                    ) {
+                      <span>
+                        {{ row[category] }}
+                      </span>
+                    }
+                  </td>
                 }
-              </td>
-              }
-            </tr>
+              </tr>
             }
           </tbody>
         </table>
         <span style="display: flex; justify-content: center">
           @if (mcloseMonthEndStatusTableData.length == 0) {
-          <tr>
-            <td colspan="100%" class="centered">
-              <app-loading-symbol></app-loading-symbol>
-            </td>
-          </tr>
+            <tr>
+              <td colspan="100%" class="centered">
+                <app-loading-symbol></app-loading-symbol>
+              </td>
+            </tr>
           }
         </span>
       </div>
@@ -280,35 +314,35 @@
           "
         >
           @if (precloseInterfaceLoadDatasource?.data?.length) {
-          <app-atmf-table
-            [dataSource]="precloseInterfaceLoadDatasource"
-            [displayedColumns]="pcloseInterfaceLoadColumns"
-          ></app-atmf-table>
-          <!-- Legend -->
-          <div class="chart-legend-wrapper">
-            <div class="chart-legend-container">
-              <div class="chart-legend-column">
-                <div class="chart-legend-item">
-                  <div class="legend-line legend-line-service"></div>
-                  <span>Service % Change</span>
+            <app-atmf-table
+              [dataSource]="precloseInterfaceLoadDatasource"
+              [displayedColumns]="pcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+            <!-- Legend -->
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
+                    <span>Service % Change</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
+                  </div>
                 </div>
-                <div class="chart-legend-item">
-                  <div class="legend-line legend-line-product"></div>
-                  <span>Product % Change</span>
-                </div>
-              </div>
-              <div class="chart-legend-column">
-                <div class="chart-legend-item">
-                  <div class="legend-box legend-box-service"></div>
-                  <span>Service</span>
-                </div>
-                <div class="chart-legend-item">
-                  <div class="legend-box legend-box-product"></div>
-                  <span>Product</span>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
+                    <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           }
         </div>
       </div>
@@ -335,39 +369,40 @@
           "
         >
           @if (midcloseInterfaceLoadDatasource?.data?.length) {
-          <app-atmf-table
-            [dataSource]="midcloseInterfaceLoadDatasource"
-            [displayedColumns]="mcloseInterfaceLoadColumns"
-          ></app-atmf-table>
-          <!-- Legend -->
-          <div class="chart-legend-wrapper">
-            <div class="chart-legend-container">
-              <div class="chart-legend-column">
-                <div class="chart-legend-item">
-                  <div class="legend-line legend-line-service"></div>
-                  <span>Service % Change</span>
+            <app-atmf-table
+              [dataSource]="midcloseInterfaceLoadDatasource"
+              [displayedColumns]="mcloseInterfaceLoadColumns"
+            ></app-atmf-table>
+            <!-- Legend -->
+            <div class="chart-legend-wrapper">
+              <div class="chart-legend-container">
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-service"></div>
+                    <span>Service % Change</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-line legend-line-product"></div>
+                    <span>Product % Change</span>
+                  </div>
                 </div>
-                <div class="chart-legend-item">
-                  <div class="legend-line legend-line-product"></div>
-                  <span>Product % Change</span>
-                </div>
-              </div>
-              <div class="chart-legend-column">
-                <div class="chart-legend-item">
-                  <div class="legend-box legend-box-service"></div>
-                  <span>Service</span>
-                </div>
-                <div class="chart-legend-item">
-                  <div class="legend-box legend-box-product"></div>
-                  <span>Product</span>
+                <div class="chart-legend-column">
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-service"></div>
+                    <span>Service</span>
+                  </div>
+                  <div class="chart-legend-item">
+                    <div class="legend-box legend-box-product"></div>
+                    <span>Product</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          } @if (!midcloseInterfaceLoadDatasource?.data?.length) {
-          <div>
-            <app-loading-symbol></app-loading-symbol>
-          </div>
+          }
+          @if (!midcloseInterfaceLoadDatasource?.data?.length) {
+            <div>
+              <app-loading-symbol></app-loading-symbol>
+            </div>
           }
         </div>
       </div>
@@ -381,18 +416,18 @@
     <mat-tab-group>
       <mat-tab label="Invoices Generated">
         @if (precloseInvGenDatasource?.data?.length) {
-        <app-atmf-table
-          [dataSource]="precloseInvGenDatasource"
-          [displayedColumns]="pcloseInvGenTableColumns"
-        ></app-atmf-table>
+          <app-atmf-table
+            [dataSource]="precloseInvGenDatasource"
+            [displayedColumns]="pcloseInvGenTableColumns"
+          ></app-atmf-table>
         }
       </mat-tab>
       <mat-tab label="Cash Posted">
         @if (qeCashCollectedDatasource?.data?.length) {
-        <app-atmf-table
-          [dataSource]="qeCashCollectedDatasource"
-          [displayedColumns]="qeCashCollectedTableColumns"
-        ></app-atmf-table>
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
         }
       </mat-tab>
     </mat-tab-group>
@@ -401,26 +436,28 @@
     <mat-tab-group>
       <mat-tab label="Invoices Generated">
         @if (midcloseInvGenDatasource?.data?.length) {
-        <app-atmf-table
-          [dataSource]="midcloseInvGenDatasource"
-          [displayedColumns]="mcloseInvGenTableColumns"
-        ></app-atmf-table>
-        } @if (!midcloseInvGenDatasource?.data?.length) {
-        <div>
-          <app-loading-symbol></app-loading-symbol>
-        </div>
+          <app-atmf-table
+            [dataSource]="midcloseInvGenDatasource"
+            [displayedColumns]="mcloseInvGenTableColumns"
+          ></app-atmf-table>
+        }
+        @if (!midcloseInvGenDatasource?.data?.length) {
+          <div>
+            <app-loading-symbol></app-loading-symbol>
+          </div>
         }
       </mat-tab>
       <mat-tab label="Cash Posted">
         @if (qeCashCollectedDatasource?.data?.length) {
-        <app-atmf-table
-          [dataSource]="qeCashCollectedDatasource"
-          [displayedColumns]="qeCashCollectedTableColumns"
-        ></app-atmf-table>
-        } @if (!qeCashCollectedDatasource?.data?.length) {
-        <div>
-          <app-loading-symbol></app-loading-symbol>
-        </div>
+          <app-atmf-table
+            [dataSource]="qeCashCollectedDatasource"
+            [displayedColumns]="qeCashCollectedTableColumns"
+          ></app-atmf-table>
+        }
+        @if (!qeCashCollectedDatasource?.data?.length) {
+          <div>
+            <app-loading-symbol></app-loading-symbol>
+          </div>
         }
       </mat-tab>
     </mat-tab-group>
