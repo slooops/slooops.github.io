@@ -378,15 +378,17 @@ export class HomeComponent implements OnDestroy {
         >();
 
         if (data && data.length > 0) {
-          data.forEach((item: any) => {
-            const weekNum = Number(item.WEEK_NUMBER) || 0;
-            weekMap.set(weekNum, {
-              totalCases: Number(item.TOTAL_CASES) || 0,
-              resolvedAgent: Number(item.RESOLVED_AGENT) || 0,
-              resolvedOps: Number(item.RESOLVED_OPS) || 0,
-              inProgress: Number(item.IN_PROGRESS) || 0,
+          data
+            .filter((item: any) => item.FISCAL_QTR === 'Q3FY26')
+            .forEach((item: any) => {
+              const weekNum = Number(item.WEEK_NUMBER) || 0;
+              weekMap.set(weekNum, {
+                totalCases: Number(item.TOTAL_CASES) || 0,
+                resolvedAgent: Number(item.RESOLVED_AGENT) || 0,
+                resolvedOps: Number(item.RESOLVED_OPS) || 0,
+                inProgress: Number(item.IN_PROGRESS) || 0,
+              });
             });
-          });
         }
 
         // Always use a fixed range of weeks: Week 1 to Week 13
