@@ -1,30 +1,65 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
-import { AdminUserRow, ColumnConfig, SelectOption, UserFormData } from '../ui';
+import {
+  AdminUserRow,
+  ColumnConfig,
+  PageChangeEvent,
+  SelectOption,
+  UserFormData,
+} from '../ui';
+import { PaginationComponent } from '../ui/atoms/pagination/pagination.component';
 import { AuthenticationService } from '../providers/authentication.service';
 import { FilterBarComponent } from '../ui/compounds/filter-bar/filter-bar.component';
-import { DataTableComponent } from '../ui/compounds/data-table/data-table.component';
 import { ModalShellComponent } from '../ui/atoms/modal-shell/modal-shell.component';
 import { UserFormComponent } from '../ui/compounds/user-form/user-form.component';
+import { ToggleSwitchComponent } from '../ui/atoms/toggle-switch/toggle-switch.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorCaretDownBold,
+  phosphorTrashBold,
+} from '@ng-icons/phosphor-icons/bold';
+
+/** Grouped user: one row per unique userName, with all their role rows inside */
+export interface GroupedUser {
+  userName: string;
+  userEmail: string;
+  roles: AdminUserRow[]; // all role rows for this user
+  allRoleNames: string[]; // e.g. ["ADMIN", "PERIOD_CLOSE", "LARGE_DEAL"]
+  enabledRoleNames: string[]; // only roles with enabledFlag === 'Y'
+  isAnyEnabled: boolean; // true if at least one role has enabledFlag === 'Y'
+  latestDate: Date; // most recent creationDate across all roles
+  isExpanded: boolean; // UI state for expand/collapse
+}
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css'],
   standalone: true,
+  providers: [
+    provideIcons({ phosphorCaretDownBold, phosphorTrashBold }),
+    DatePipe,
+  ],
   imports: [
     CommonModule,
     FilterBarComponent,
-    DataTableComponent,
     ModalShellComponent,
     UserFormComponent,
+    ToggleSwitchComponent,
+    NgIcon,
+    PaginationComponent,
   ],
 })
 export class AdminComponent implements OnInit {
   users: AdminUserRow[] = [];
   filteredUsers: AdminUserRow[] = [];
+  groupedUsers: GroupedUser[] = [];
+  filteredGroupedUsers: GroupedUser[] = [];
+  paginatedGroupedUsers: GroupedUser[] = [];
+  currentPage: number = 0;
+  pageSize: number = 10;
   editableRow: any | null = null;
   isLoading: boolean = false;
 
@@ -37,8 +72,8 @@ export class AdminComponent implements OnInit {
 
   // Filters
   searchValue: string = '';
-  selectedRole: string = '';
-  enabledFilter: string = '';
+  selectedRoles: string[] = [];
+  selectedStatuses: string[] = [];
 
   // Modal state
   isModalOpen: boolean = false;
@@ -55,7 +90,7 @@ export class AdminComponent implements OnInit {
   columns: ColumnConfig[] = [
     { key: 'userName', label: 'Username', isSortable: true },
     { key: 'userEmail', label: 'Email', isSortable: true },
-    { key: 'userRole', label: 'Role', isSortable: true, isFilterable: true },
+    { key: 'userRole', label: 'Roles', isSortable: true, isFilterable: true },
     { key: 'enabledFlag', label: 'Status', isSortable: true },
     { key: 'creationDate', label: 'Created Date', isSortable: true },
     { key: 'actions', label: 'Actions', isSortable: false },
@@ -66,12 +101,20 @@ export class AdminComponent implements OnInit {
 
   /**
    * Returns role options filtered for sub-admin creation.
-   * Excludes:
-   * - "All Roles" (empty value) - can't create admin for "all"
-   * - "ADMIN" - can't create sub-admin of full admin
-   * - Any role ending in "_ADMIN" - can't create admin of admin
+   *
+   * FULL_ADMIN: Can create sub-admin for any role except ADMIN and existing _ADMIN roles.
+   * SUB_ADMIN: Can only create sub-admin for their own managed roles.
+   *   e.g., WIPS_ADMIN can create another WIPS_ADMIN (not CASE_IQ_ADMIN)
    */
   get subAdminRoleOptions(): SelectOption[] {
+    if (this.isSubAdminMode) {
+      // Sub-admins can only create sub-admins for their own managed roles
+      return this.managedRoles.map((role) => ({
+        label: role,
+        value: role,
+      }));
+    }
+    // Full admin: all roles except "All Roles", "ADMIN", and existing _ADMIN roles
     return this.roleOptions.filter(
       (option) =>
         option.value !== '' && // Exclude "All Roles"
@@ -81,6 +124,22 @@ export class AdminComponent implements OnInit {
   }
 
   username: string;
+
+  /**
+   * Returns role options available for inline "Add User" row.
+   * FULL_ADMIN: All roles (from roleOptions, excluding 'All Roles')
+   * SUB_ADMIN: Only their managed roles (base roles, not _ADMIN variants)
+   */
+  get inlineRoleOptions(): SelectOption[] {
+    if (this.isSubAdminMode) {
+      return this.managedRoles.map((role) => ({
+        label: role,
+        value: role,
+      }));
+    }
+    // Full admin: all roles except the blank "All Roles" option
+    return this.roleOptions.filter((option) => option.value !== '');
+  }
 
   // Sub-admin detection properties
   currentUserRoles: string[] = [];
@@ -93,6 +152,7 @@ export class AdminComponent implements OnInit {
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
+    private datePipe: DatePipe,
   ) {}
 
   ngOnInit(): void {
@@ -161,10 +221,10 @@ export class AdminComponent implements OnInit {
     // Build endpoint URL with optional managedRoles parameter for sub-admins
     let endpoint = 'admin-table';
     if (this.isSubAdminMode && this.managedRoles.length > 0) {
-      // Pass comma-separated list of managed roles
-      const rolesParam = this.managedRoles
-        .map((r) => encodeURIComponent(r))
-        .join(',');
+      // Include both base roles AND their _ADMIN variants for self-visibility
+      // e.g., managedRoles=["WIPS"] -> send WIPS,WIPS_ADMIN
+      const allRoles = this.managedRoles.flatMap((r) => [r, `${r}_ADMIN`]);
+      const rolesParam = allRoles.map((r) => encodeURIComponent(r)).join(',');
       endpoint = `admin-table?managedRoles=${rolesParam}`;
     }
 
@@ -183,12 +243,12 @@ export class AdminComponent implements OnInit {
             userEmail: user.USER_EMAIL,
           }));
 
-          // Extract unique roles for filter dropdown
+          // Extract unique roles for filter dropdown (no "All" option needed for multi-select)
           const uniqueRoles = [...new Set(this.users.map((u) => u.userRole))];
-          this.roleOptions = [
-            { label: 'All Roles', value: '' },
-            ...uniqueRoles.map((role) => ({ label: role, value: role })),
-          ];
+          this.roleOptions = uniqueRoles.map((role) => ({
+            label: role,
+            value: role,
+          }));
 
           this.applyFilters();
         } else {
@@ -217,19 +277,114 @@ export class AdminComponent implements OnInit {
       );
     }
 
-    // Apply role filter
-    if (this.selectedRole) {
-      filtered = filtered.filter((user) => user.userRole === this.selectedRole);
+    // Apply role filter (multi-select: match any selected role)
+    if (this.selectedRoles.length > 0) {
+      filtered = filtered.filter((user) =>
+        this.selectedRoles.includes(user.userRole),
+      );
     }
 
-    // Apply enabled filter
-    if (this.enabledFilter) {
-      filtered = filtered.filter(
-        (user) => user.enabledFlag === this.enabledFilter,
+    // Apply enabled filter (multi-select: match any selected status)
+    if (this.selectedStatuses.length > 0) {
+      filtered = filtered.filter((user) =>
+        this.selectedStatuses.includes(user.enabledFlag),
       );
     }
 
     this.filteredUsers = filtered;
+    this.filteredGroupedUsers = this.groupUsers(filtered);
+    this.currentPage = 0;
+    this.paginateGroups();
+  }
+
+  /**
+   * Slices filteredGroupedUsers for the current page.
+   */
+  private paginateGroups(): void {
+    const start = this.currentPage * this.pageSize;
+    this.paginatedGroupedUsers = this.filteredGroupedUsers.slice(
+      start,
+      start + this.pageSize,
+    );
+  }
+
+  /**
+   * Handles page change from the pagination component.
+   */
+  onPageChange(event: PageChangeEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.paginateGroups();
+  }
+
+  /**
+   * Groups flat user-role rows into one GroupedUser per unique userName.
+   * Computes aggregate status, latest date, and role list.
+   */
+  private groupUsers(rows: AdminUserRow[]): GroupedUser[] {
+    const map = new Map<string, AdminUserRow[]>();
+
+    rows.forEach((row) => {
+      const key = row.userName;
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(row);
+    });
+
+    // Preserve expand state from previous groupedUsers
+    const prevExpandState = new Map<string, boolean>();
+    this.filteredGroupedUsers.forEach((g) => {
+      prevExpandState.set(g.userName, g.isExpanded);
+    });
+
+    return Array.from(map.entries()).map(([userName, roles]) => ({
+      userName,
+      userEmail: roles[0].userEmail,
+      roles,
+      allRoleNames: roles.map((r) => r.userRole),
+      enabledRoleNames: roles
+        .filter((r) => r.enabledFlag === 'Y')
+        .map((r) => r.userRole),
+      isAnyEnabled: roles.some((r) => r.enabledFlag === 'Y'),
+      latestDate: new Date(
+        Math.max(...roles.map((r) => r.creationDate.getTime())),
+      ),
+      isExpanded: prevExpandState.get(userName) || false,
+    }));
+  }
+
+  /**
+   * Toggles expand/collapse for a grouped user row.
+   */
+  toggleExpand(group: GroupedUser): void {
+    group.isExpanded = !group.isExpanded;
+  }
+
+  /**
+   * Handles the aggregate toggle on a collapsed parent row.
+   * OFF → disables all roles for this user.
+   * ON  → expands the group so the user can enable roles individually.
+   */
+  onGroupToggleChange(group: GroupedUser, enabled: boolean): void {
+    if (!enabled) {
+      // Disable every currently-enabled role
+      group.roles.forEach((role) => {
+        if (role.enabledFlag === 'Y') {
+          this.onEnabledFlagChange({ row: role, enabled: false });
+        }
+      });
+    } else {
+      // Don't bulk-enable — expand so user picks which roles to turn on
+      group.isExpanded = true;
+    }
+  }
+
+  /**
+   * Formats a Date to "MMM dd, yyyy" (e.g., "Feb 23, 2024")
+   */
+  formatDate(date: Date): string {
+    return this.datePipe.transform(date, 'MMM dd, yyyy') || '';
   }
 
   onSearchChange(value: string): void {
@@ -237,13 +392,13 @@ export class AdminComponent implements OnInit {
     this.applyFilters();
   }
 
-  onRoleFilterChange(role: string): void {
-    this.selectedRole = role;
+  onRoleFilterChange(roles: string[]): void {
+    this.selectedRoles = roles;
     this.applyFilters();
   }
 
-  onEnabledFilterChange(enabled: string): void {
-    this.enabledFilter = enabled;
+  onEnabledFilterChange(statuses: string[]): void {
+    this.selectedStatuses = statuses;
     this.applyFilters();
   }
 

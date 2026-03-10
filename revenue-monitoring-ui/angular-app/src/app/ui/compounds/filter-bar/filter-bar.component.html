@@ -12,39 +12,50 @@
     </app-text-input>
   </div>
 
+  <span class="fit-filter-bar__divider"></span>
+
   <div class="fit-filter-bar__filters">
-    <app-select-dropdown
+    <app-multi-select-dropdown
       [options]="roleOptions"
-      [value]="selectedRole"
+      [selected]="selectedRoles"
       placeholder="All Roles"
       label="Role"
-      (valueChange)="onRoleChange($event)"
-    >
-    </app-select-dropdown>
+      (selectionChange)="onRoleChange($event)"
+    ></app-multi-select-dropdown>
 
-    <app-select-dropdown
-      [options]="enabledOptions"
-      [value]="enabledFilter"
+    <app-multi-select-dropdown
+      [options]="statusOptions"
+      [selected]="selectedStatuses"
       placeholder="All Status"
       label="Status"
-      (valueChange)="onEnabledChange($event)"
-    >
-    </app-select-dropdown>
+      [showSearch]="false"
+      (selectionChange)="onStatusChange($event)"
+    ></app-multi-select-dropdown>
   </div>
 
-  <div class="fit-filter-bar__actions" style="display: flex; gap: 12px">
-    @if (isFullAdmin) {
-    <app-button
-      label="Create Sub-Admin"
-      variant="secondary"
-      (clicked)="onCreateSubAdmin()"
-    >
-    </app-button>
-    }
-    <app-button label="Add Role" variant="primary" (clicked)="onAddUser()">
-    </app-button>
+  <span class="fit-filter-bar__count">{{ totalCount }} users</span>
 
-    <app-button label="Add User" variant="primary" (clicked)="onAddLineItem()">
+  <span class="fit-filter-bar__divider"></span>
+
+  <div class="fit-filter-bar__actions">
+    @if (canCreateSubAdmin) {
+      <app-button
+        label="Create Sub-Admin"
+        variant="secondary"
+        (clicked)="onCreateSubAdmin()"
+      >
+      </app-button>
+    }
+    @if (isFullAdmin) {
+      <app-button label="Add Role" variant="secondary" (clicked)="onAddUser()">
+      </app-button>
+    }
+
+    <app-button
+      label="Add User"
+      variant="secondary"
+      (clicked)="onAddLineItem()"
+    >
     </app-button>
   </div>
 </div>

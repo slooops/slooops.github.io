@@ -25,6 +25,13 @@
       </div>
       <h2>{{ filteredTabs[selectedIndex]?.label || "Business Insights" }}</h2>
     </div>
+    @if (periodInfo && !isO2cTab) {
+      <div class="period-info">
+        <span><b>Period name:</b> {{ periodInfo.periodName }}</span>
+        <span class="period-divider">|</span>
+        <span><b>Period end date:</b> {{ periodInfo.periodEndDate }}</span>
+      </div>
+    }
   </div>
 </div>
 
@@ -45,7 +52,7 @@
       @case ("app-issue-reporting") {
         <app-issue-reporting></app-issue-reporting>
       }
-      @case ("external-o2c") {
+      @case ("subscription-o2c-insights") {
         <app-o2c-embed></app-o2c-embed>
       }
     }

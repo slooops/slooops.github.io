@@ -347,7 +347,7 @@
   display: flex;
   flex-direction: row;
   margin: 8px 24px 8px 24px;
-  gap: 12px; /* space between the two groups */
+  gap: 8px; /* match charts-row gap for alignment */
 }
 
 .kpi-bar {
@@ -356,18 +356,19 @@
   padding: 14px 8px 10px 8px; /* top padding slightly larger */
   border-top: 1px solid #e2e2e3;
   border-bottom: 1px solid #e2e2e3;
+  border-radius: 8px;
   gap: 0;
   font-size: 0; /* remove inline-gap from whitespace */
   flex-wrap: nowrap;
 }
 
 .kpi-bar-primary {
-  flex: 0 0 40%;
+  flex: 0 0 calc((100% - 286px) / 2); /* match Transaction Failures chart: (full - doughnut 270px - 2×8px gaps) / 2 */
   border-left: 1px solid #e2e2e3;
   border-right: 1px solid #e2e2e3;
 }
 .kpi-bar-secondary {
-  flex: 1 1 60%;
+  flex: 1;
   border-left: 1px solid #e2e2e3;
   border-right: 1px solid #e2e2e3;
 }
@@ -1972,8 +1973,9 @@ tr.mat-row {
 }
 
 .metric-box {
-  padding: 6px;
+  padding: 0 0 0 6px;
   background-color: #f4f5f6;
+  border-radius: 8px;
 }
 
 ::ng-deep .mdc-checkbox__background {

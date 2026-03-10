@@ -138,24 +138,36 @@ export const routes: Routes = [
   {
     path: 'o2c-landing',
     component: O2cLandingComponent,
-    data: { title: 'O2C Home', header: 'O2C Home', showO2cSearch: true },
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'O2C Home',
+      showO2cSearch: true,
+    },
   },
   {
     path: 'o2c-360',
     component: O2c360Component,
-    data: { title: 'O2C 360', header: 'O2C 360', showO2cSearch: true },
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'O2C 360',
+      showO2cSearch: true,
+    },
   },
 
   {
     path: 'o2c-view-all',
     component: O2cViewAllComponent,
-    data: { title: 'O2C 360', header: 'O2C 360', showO2cSearch: true },
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'O2C 360',
+      showO2cSearch: true,
+    },
   },
   {
     path: 'o2c-bill-schedule',
     component: O2cBillScheduleComponent,
     data: {
-      title: 'O2C Bill Schedule',
+      title: 'Finance-IT Control Tower',
       header: 'O2C Bill Schedule',
       showO2cSearch: true,
     },
@@ -164,7 +176,7 @@ export const routes: Routes = [
     path: 'o2c-bill-details',
     component: O2cBillDetailsComponent,
     data: {
-      title: 'O2C Bill Details',
+      title: 'Finance-IT Control Tower',
       header: 'O2C Bill Details',
       showO2cSearch: true,
     },
@@ -172,12 +184,20 @@ export const routes: Routes = [
   {
     path: 'o2c-gl',
     component: O2cGlComponent,
-    data: { title: 'O2C GL', header: 'O2C GL', showO2cSearch: true },
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'O2C GL',
+      showO2cSearch: true,
+    },
   },
   {
     path: 'o2c-tsv',
     component: O2cTsvComponent,
-    data: { title: 'O2C TSV', header: 'O2C TSV', showO2cSearch: true },
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'O2C TSV',
+      showO2cSearch: true,
+    },
   },
   // {
   //   path: 'gl-posting',
@@ -266,15 +286,15 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminComponent,
     data: {
-      title: 'Admin',
-      header: 'Admin',
+      title: 'Finance-IT Control Tower',
+      header: 'Identity and Access Management',
     },
   },
   {
     path: 'analytics',
     component: AnalyticsDashboardComponent,
     data: {
-      title: 'Analytics Dashboard',
+      title: 'Finance-IT Control Tower',
       header: 'Analytics',
     },
   },
@@ -282,7 +302,7 @@ export const routes: Routes = [
     path: 'scorecard',
     component: PerformanceHubComponent,
     data: {
-      title: 'Performance Hub',
+      title: 'Finance-IT Control Tower',
       header: 'Performance Hub',
     },
   },
@@ -290,7 +310,7 @@ export const routes: Routes = [
     path: 'scorecard/history',
     component: ScorecardHistoryComponent,
     data: {
-      title: 'Scorecard History',
+      title: 'Finance-IT Control Tower',
       header: 'Scorecard History',
     },
   },
@@ -298,7 +318,7 @@ export const routes: Routes = [
     path: 'executive-summary/history',
     component: ExecutiveSummaryHistoryComponent,
     data: {
-      title: 'Executive Summary History',
+      title: 'Finance-IT Control Tower',
       header: 'Executive Summary History',
     },
   },

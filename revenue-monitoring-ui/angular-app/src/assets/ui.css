@@ -5,8 +5,8 @@
 ------------------------------ */
 :root {
   /* Typography */
-  --fit-font-family-base: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
-    sans-serif;
+  --fit-font-family-base:
+    "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --fit-font-size-base: 0.8rem; /* dense UI; can change to 1rem later */
   --fit-font-size-sm: 0.75rem;
   --fit-font-size-xs: 0.7rem;
@@ -101,7 +101,8 @@
   line-height: var(--fit-line-height-tight);
   color: var(--fit-color-text);
   outline: none;
-  transition: border-color var(--fit-transition-fast),
+  transition:
+    border-color var(--fit-transition-fast),
     box-shadow var(--fit-transition-fast),
     background-color var(--fit-transition-fast),
     color var(--fit-transition-fast);
@@ -235,7 +236,8 @@
   padding-inline: var(--fit-space-sm);
   border-radius: var(--fit-radius-pill);
   border: 1px solid var(--fit-color-border);
-  transition: border-color var(--fit-transition-fast),
+  transition:
+    border-color var(--fit-transition-fast),
     border-width var(--fit-transition-fast);
 }
 
@@ -360,7 +362,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color var(--fit-transition-fast),
+  transition:
+    background-color var(--fit-transition-fast),
     border-color var(--fit-transition-fast),
     box-shadow var(--fit-transition-fast);
 }

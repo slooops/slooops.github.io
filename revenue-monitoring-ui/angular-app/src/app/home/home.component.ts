@@ -489,7 +489,7 @@ export class HomeComponent implements OnDestroy {
         if (issuesList.length > 0) {
           this.displayedColumns = Object.keys(issuesList[0]);
           this.displayedColumnsWithSelect = [
-            'select',
+            // 'select',
             ...this.displayedColumns,
           ];
         }

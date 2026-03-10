@@ -65,3 +65,205 @@
   font-family: var(--fit-font-mono);
   font-size: 0.85em;
 }
+
+/* ==============================
+   Grouped Table
+   ============================== */
+
+.fit-grouped-table-container {
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-lg);
+  overflow: hidden;
+}
+
+.fit-grouped-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+/* Header */
+.fit-grouped-table__th {
+  text-align: left;
+  padding: var(--fit-space-sm) var(--fit-space-md);
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text-muted);
+  background: var(--fit-color-bg-subtle);
+  border-bottom: 1px solid var(--fit-color-border);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fit-grouped-table__th--actions {
+  text-align: center;
+  width: 80px;
+}
+
+/* Cells */
+.fit-grouped-table__td {
+  padding: var(--fit-space-sm) var(--fit-space-md);
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+  vertical-align: middle;
+}
+
+.fit-grouped-table__td--actions {
+  text-align: center;
+  width: 80px;
+}
+
+/* Parent row */
+.fit-grouped-table__row--parent {
+  cursor: pointer;
+  border-bottom: 1px solid var(--fit-color-border);
+  transition: background-color var(--fit-transition-fast);
+}
+
+.fit-grouped-table__row--parent:hover {
+  background-color: var(--fit-color-bg-subtle);
+}
+
+/* Username cell with caret */
+.fit-grouped-table__td--username {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+  font-weight: var(--fit-font-weight-medium);
+  white-space: nowrap;
+}
+
+/* Caret icon */
+.fit-caret {
+  display: inline-flex;
+  color: var(--fit-color-text-muted);
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+
+.fit-caret--expanded {
+  transform: rotate(0deg);
+}
+
+/* Role chips – wrap after 5 per row */
+.fit-role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: calc(5 * 6rem);
+}
+
+.fit-role-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-color-primary);
+  background: var(--fit-color-primary-soft);
+  border: 1px solid var(--fit-color-primary);
+  border-radius: var(--fit-radius-pill);
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Trash button base */
+.fit-trash-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--fit-radius-sm);
+  cursor: pointer;
+  color: gray;
+  padding: 4px;
+  transition:
+    opacity var(--fit-transition-fast),
+    color var(--fit-transition-fast),
+    background-color var(--fit-transition-fast);
+}
+
+.fit-trash-btn:not(:disabled):hover {
+  color: var(--fit-color-error);
+  background-color: var(--fit-color-error-subtle);
+}
+
+/* Parent row trash — always visible but disabled */
+.fit-trash-btn--parent {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Sub-row trash — subtle, full on hover */
+.fit-trash-btn--sub {
+  opacity: 0.5;
+}
+
+.fit-grouped-table__row--child:hover .fit-trash-btn--sub {
+  opacity: 1;
+}
+
+/* Sub-header row */
+.fit-grouped-table__row--sub-header {
+  background: var(--fit-color-bg-subtle);
+}
+
+.fit-sub-label {
+  font-size: var(--fit-font-size-xs);
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Child (expanded) rows */
+.fit-grouped-table__row--child {
+  background: var(--fit-color-bg-subtle);
+  border-bottom: 1px solid var(--fit-color-bg-muted);
+  transition: background-color var(--fit-transition-fast);
+}
+
+.fit-grouped-table__row--child:hover {
+  background: var(--fit-color-bg-muted);
+}
+
+.fit-grouped-table__row--child:last-of-type {
+  border-bottom: 1px solid var(--fit-color-border);
+}
+
+/* Empty state */
+.fit-grouped-table__empty {
+  text-align: center;
+  padding: var(--fit-space-xl);
+  color: var(--fit-color-text-muted);
+  font-style: italic;
+}
+
+/* Loading shimmer */
+.fit-grouped-table__row--shimmer {
+  cursor: default;
+}
+
+.fit-shimmer {
+  height: 1.2rem;
+  background: linear-gradient(
+    90deg,
+    var(--fit-color-bg-muted) 0%,
+    var(--fit-color-bg-subtle) 50%,
+    var(--fit-color-bg-muted) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--fit-radius-pill);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

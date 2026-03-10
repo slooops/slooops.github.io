@@ -102,6 +102,20 @@ hr {
   pointer-events: none;
 }
 
+.period-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.period-divider {
+  color: #999;
+  margin: 0 2px;
+}
+
 .bi-content {
   margin-top: 5px;
 }

@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SelectOption } from '../../types/common.types';
 import { TextInputComponent } from '../../atoms/text-input/text-input.component';
-import { SelectDropdownComponent } from '../../atoms/select-dropdown/select-dropdown.component';
+import { MultiSelectDropdownComponent } from '../../atoms/multi-select-dropdown/multi-select-dropdown.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
 
 @Component({
@@ -10,24 +10,30 @@ import { ButtonComponent } from '../../atoms/button/button.component';
   templateUrl: './filter-bar.component.html',
   styleUrls: ['./filter-bar.component.css'],
   standalone: true,
-  imports: [CommonModule, TextInputComponent, SelectDropdownComponent, ButtonComponent],
+  imports: [
+    CommonModule,
+    TextInputComponent,
+    MultiSelectDropdownComponent,
+    ButtonComponent,
+  ],
 })
 export class FilterBarComponent {
   @Input() searchValue: string = '';
   @Input() roleOptions: SelectOption[] = [];
-  @Input() selectedRole: string = '';
-  @Input() enabledFilter: string = '';
-  @Input() isFullAdmin: boolean = false; // Only full admins can create sub-admins
+  @Input() selectedRoles: string[] = [];
+  @Input() selectedStatuses: string[] = [];
+  @Input() isFullAdmin: boolean = false;
+  @Input() canCreateSubAdmin: boolean = false;
+  @Input() totalCount: number = 0;
 
   @Output() searchChange = new EventEmitter<string>();
-  @Output() roleFilterChange = new EventEmitter<string>();
-  @Output() enabledFilterChange = new EventEmitter<string>();
+  @Output() roleFilterChange = new EventEmitter<string[]>();
+  @Output() enabledFilterChange = new EventEmitter<string[]>();
   @Output() addUserClick = new EventEmitter<void>();
   @Output() addLineItemClick = new EventEmitter<void>();
-  @Output() createSubAdminClick = new EventEmitter<void>(); // Emit when "Create Sub-Admin" is clicked
+  @Output() createSubAdminClick = new EventEmitter<void>();
 
-  enabledOptions: SelectOption[] = [
-    { label: 'All', value: '' },
+  statusOptions: SelectOption[] = [
     { label: 'Enabled', value: 'Y' },
     { label: 'Disabled', value: 'N' },
   ];
@@ -36,12 +42,12 @@ export class FilterBarComponent {
     this.searchChange.emit(value);
   }
 
-  onRoleChange(value: string): void {
-    this.roleFilterChange.emit(value);
+  onRoleChange(values: string[]): void {
+    this.roleFilterChange.emit(values);
   }
 
-  onEnabledChange(value: string): void {
-    this.enabledFilterChange.emit(value);
+  onStatusChange(values: string[]): void {
+    this.enabledFilterChange.emit(values);
   }
 
   onAddUser(): void {

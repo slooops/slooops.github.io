@@ -1,10 +1,16 @@
 <div class="fit-admin-user-table">
-  <div class="fit-admin-user-table__header">
-    <h1 class="fit-admin-user-table__title">User Access Management</h1>
-    <p class="fit-admin-user-table__description">
-      Manage user access and permissions for the Revenue Operations Dashboard.
-    </p>
-  </div>
+  <!-- <div class="fit-admin-user-table__header">
+    <h1 class="fit-admin-user-table__title">Welcome,</h1>
+    @if (isSubAdminMode) {
+      <p class="fit-admin-user-table__description">
+        Managing: {{ managedRoles.join(", ") }}
+      </p>
+    } @else {
+      <p class="fit-admin-user-table__description">
+        Manage user access and permissions for the Revenue Operations Dashboard.
+      </p>
+    }
+  </div> -->
 
   @if (!hasAdminAccess) {
     <div class="fit-admin-user-table__no-access">
@@ -12,8 +18,9 @@
         <h2>🔒 Access Denied</h2>
         <p>You do not have admin privileges to view this page.</p>
         <p class="fit-no-access-hint">
-          Contact a full admin to request access, or if you believe this is an error,
-          ensure you have a role ending in <code>_ADMIN</code> (e.g., <code>CASE_IQ_I2C_ADMIN</code>).
+          Contact a full admin to request access, or if you believe this is an
+          error, ensure you have a role ending in <code>_ADMIN</code> (e.g.,
+          <code>CASE_IQ_I2C_ADMIN</code>).
         </p>
       </div>
     </div>
@@ -21,9 +28,11 @@
     <app-filter-bar
       [searchValue]="searchValue"
       [roleOptions]="roleOptions"
-      [selectedRole]="selectedRole"
-      [enabledFilter]="enabledFilter"
+      [selectedRoles]="selectedRoles"
+      [selectedStatuses]="selectedStatuses"
       [isFullAdmin]="isFullAdmin"
+      [canCreateSubAdmin]="hasAdminAccess"
+      [totalCount]="filteredGroupedUsers.length"
       (searchChange)="onSearchChange($event)"
       (roleFilterChange)="onRoleFilterChange($event)"
       (enabledFilterChange)="onEnabledFilterChange($event)"
@@ -33,34 +42,197 @@
     >
     </app-filter-bar>
 
-    <app-data-table
-      [columns]="columns"
-      [rows]="filteredUsers"
-      [enableGlobalSearch]="false"
-      [pageSizeOptions]="[25, 50, 100]"
-      [editableRow]="editableRow"
-      [isLoading]="isLoading"
-      [validationErrors]="validationErrors"
-      [roleOptions]="roleOptions"
-      (rowClick)="onRowClick($event)"
-      (saveRow)="onSaveRow($event)"
-      (cancelEdit)="onCancelEdit()"
-      (enabledFlagChange)="onEnabledFlagChange($event)"
-      (deleteRow)="onDeleteRow($event)"
-    >
-    </app-data-table>
+    <!-- Grouped User Table -->
+    <div class="fit-grouped-table-container">
+      <table class="fit-grouped-table">
+        <thead>
+          <tr>
+            <th class="fit-grouped-table__th">Username</th>
+            <th class="fit-grouped-table__th">Email</th>
+            <th class="fit-grouped-table__th">Role(s)</th>
+            <th class="fit-grouped-table__th">Status</th>
+            <th class="fit-grouped-table__th">Updated Date</th>
+            <th class="fit-grouped-table__th fit-grouped-table__th--actions">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loading shimmer -->
+          @if (isLoading) {
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <tr
+                class="fit-grouped-table__row fit-grouped-table__row--shimmer"
+              >
+                @for (j of [1, 2, 3, 4, 5, 6]; track j) {
+                  <td class="fit-grouped-table__td">
+                    <div class="fit-shimmer"></div>
+                  </td>
+                }
+              </tr>
+            }
+          }
+
+          @if (!isLoading) {
+            @for (group of paginatedGroupedUsers; track group.userName) {
+              <!-- Collapsed parent row -->
+              <tr
+                class="fit-grouped-table__row fit-grouped-table__row--parent"
+                (click)="toggleExpand(group)"
+              >
+                <!-- Username with caret -->
+                <td
+                  class="fit-grouped-table__td fit-grouped-table__td--username"
+                >
+                  <ng-icon
+                    name="phosphorCaretDownBold"
+                    class="fit-caret"
+                    [class.fit-caret--expanded]="group.isExpanded"
+                  ></ng-icon>
+                  {{ group.userName | lowercase }}
+                </td>
+
+                <!-- Email -->
+                <td class="fit-grouped-table__td">
+                  {{ group.userEmail | lowercase }}
+                </td>
+
+                <!-- Role chips (only enabled roles) -->
+                <td class="fit-grouped-table__td">
+                  <div class="fit-role-chips">
+                    @for (role of group.enabledRoleNames; track role) {
+                      <span class="fit-role-chip">{{ role | lowercase }}</span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Aggregate status toggle (disabled when collapsed) -->
+                <td class="fit-grouped-table__td">
+                  <app-toggle-switch
+                    [checked]="group.isAnyEnabled"
+                    [isDisabled]="true"
+                  ></app-toggle-switch>
+                </td>
+
+                <!-- Latest date -->
+                <td class="fit-grouped-table__td">
+                  {{ formatDate(group.latestDate) }}
+                </td>
+
+                <!-- Actions (visible but disabled) -->
+                <td
+                  class="fit-grouped-table__td fit-grouped-table__td--actions"
+                  (click)="$event.stopPropagation()"
+                >
+                  <button
+                    class="fit-trash-btn fit-trash-btn--parent"
+                    disabled
+                    title="Expand to manage individual roles"
+                  >
+                    <ng-icon name="phosphorTrashBold" size="16"></ng-icon>
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Expanded sub-rows -->
+              @if (group.isExpanded) {
+                @for (role of group.roles; track role.userRole) {
+                  <tr
+                    class="fit-grouped-table__row fit-grouped-table__row--child"
+                  >
+                    <!-- Username -->
+                    <td class="fit-grouped-table__td">
+                      {{ group.userName | lowercase }}
+                    </td>
+
+                    <!-- Email -->
+                    <td class="fit-grouped-table__td">
+                      {{ group.userEmail | lowercase }}
+                    </td>
+
+                    <!-- Role name -->
+                    <td class="fit-grouped-table__td">
+                      <span class="fit-role-chip">{{
+                        role.userRole | lowercase
+                      }}</span>
+                    </td>
+
+                    <!-- Individual toggle -->
+                    <td class="fit-grouped-table__td">
+                      <app-toggle-switch
+                        [checked]="role.enabledFlag === 'Y'"
+                        (checkedChange)="
+                          onEnabledFlagChange({ row: role, enabled: $event })
+                        "
+                      ></app-toggle-switch>
+                    </td>
+
+                    <!-- Per-role created date -->
+                    <td class="fit-grouped-table__td">
+                      {{ formatDate(role.creationDate) }}
+                    </td>
+
+                    <!-- Per-role delete -->
+                    <td
+                      class="fit-grouped-table__td fit-grouped-table__td--actions"
+                    >
+                      <button
+                        class="fit-trash-btn fit-trash-btn--sub"
+                        (click)="onDeleteRow(role); $event.stopPropagation()"
+                        title="Delete {{ role.userRole }} role"
+                      >
+                        <ng-icon name="phosphorTrashBold" size="14"></ng-icon>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            }
+
+            @if (filteredGroupedUsers.length === 0) {
+              <tr>
+                <td colspan="6" class="fit-grouped-table__empty">
+                  No users found
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div style="padding-bottom: 10px"></div>
+    @if (filteredGroupedUsers.length > 0) {
+      <app-pagination
+        [pageIndex]="currentPage"
+        [pageSize]="pageSize"
+        [totalItems]="filteredGroupedUsers.length"
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        (pageChange)="onPageChange($event)"
+      ></app-pagination>
+    }
 
     <app-modal-shell
-      [title]="isEditMode ? 'Edit User' : (isSubAdminCreationMode ? 'Create Sub-Admin' : 'Add New Role')"
+      [title]="
+        isEditMode
+          ? 'Edit User'
+          : isSubAdminCreationMode
+            ? 'Create Sub-Admin'
+            : 'Add New Role'
+      "
       [isOpen]="isModalOpen"
       (close)="closeModal()"
     >
       @if (isModalOpen) {
         <app-user-form
           [value]="currentUserData"
-          [roleOptions]="isSubAdminCreationMode ? subAdminRoleOptions : roleOptions"
+          [roleOptions]="
+            isSubAdminCreationMode ? subAdminRoleOptions : roleOptions
+          "
           [isEdit]="isEditMode"
-          [roleFieldLabel]="isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'"
+          [roleFieldLabel]="
+            isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'
+          "
           [useRoleDropdown]="isSubAdminCreationMode"
           (submit)="onUserFormSubmit($event)"
           (cancel)="onUserFormCancel()"
@@ -70,4 +242,3 @@
     </app-modal-shell>
   }
 </div>
-<br />

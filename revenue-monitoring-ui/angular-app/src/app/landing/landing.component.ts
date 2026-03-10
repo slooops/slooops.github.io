@@ -63,6 +63,7 @@ export interface LandingCard {
   icon: string;
   route: string | null; // null = dead link (feature not yet built)
   externalUrl?: string; // opens in new tab instead of router navigation
+  queryParams?: Record<string, string>; // optional query params for navigation
   requiredRoles: string[];
   fullWidth?: boolean;
   roleRoutes?: RoleRouteMap[];
@@ -280,6 +281,7 @@ export class LandingComponent implements OnInit, OnDestroy {
         'End-to-end visibility into critical order life cycles during quarter-end across commerce and finance operations.',
       icon: 'phosphorMoneyDuotone',
       route: '/business-insights',
+      queryParams: { tab: 'app-large-deal' },
       requiredRoles: ['ADMIN', 'LARGE_DEAL'],
       variant: 'soft-glow',
       arcData: {
@@ -296,7 +298,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       description:
         'Track mid-close processing across all entities with real-time completion status and FCC load visibility.',
       icon: 'phosphorGaugeDuotone',
-      route: '/wd0',
+      route: '/business-insights',
+      queryParams: { tab: 'app-wd0-status' },
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
       variant: 'gradient-bg-2',
       arcData: {
@@ -313,7 +316,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       description:
         'ML-driven predictions of volume spikes or drops to proactively manage period close processing times.',
       icon: 'phosphorChartLineUpDuotone',
-      route: '/midclose-volumes',
+      route: '/business-insights',
+      queryParams: { tab: 'app-wd0-historical-data' },
       requiredRoles: ['ADMIN', 'MIDCLOSE_VOLUMES', 'WD0'],
       variant: 'gradient-bg-3',
       arcData: {
@@ -326,13 +330,13 @@ export class LandingComponent implements OnInit, OnDestroy {
       },
     },
     {
-      title: 'O2C Financials Visibility',
+      title: 'Subscription O2C Insights',
       description:
         'Real-time Order-to-Cash insights with immediate access to invoice and accounting details.',
       icon: 'phosphorPresentationChartDuotone',
-      route: null,
-      externalUrl: 'https://subscription-ai.cisco.com/',
-      requiredRoles: ['ADMIN'],
+      route: '/business-insights',
+      queryParams: { tab: 'subscription-o2c-insights' },
+      requiredRoles: ['ADMIN', 'O360'],
       variant: 'soft-glow',
       arcData: {
         metricKey: 'O2C_VISIBILITY',
@@ -670,7 +674,9 @@ export class LandingComponent implements OnInit, OnDestroy {
 
     const route = this.resolveCardRoute(card);
     if (route) {
-      this.router.navigate([route]);
+      this.router.navigate([route], {
+        queryParams: card.queryParams ?? {},
+      });
     }
   }
 

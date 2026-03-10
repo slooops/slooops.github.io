@@ -1,12 +1,15 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AuthenticationService } from '../providers/authentication.service';
 import { MenuService } from '../providers/menu.service';
 import { ApiHttpService } from '../providers/http.service';
 import { SearchContextService } from '../search-context.service';
+import { DataService, PeriodStatus } from '../providers/data.service';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { BusinessInsightsModule } from './business-insights.module';
 import { O2cEmbedComponent } from './o2c-embed.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-business-insights',
@@ -20,20 +23,53 @@ import { O2cEmbedComponent } from './o2c-embed.component';
   ],
   standalone: true,
 })
-export class BusinessInsightsComponent implements OnInit {
+export class BusinessInsightsComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthenticationService,
     private menuService: MenuService,
     private searchContextService: SearchContextService,
     private http: ApiHttpService,
+    private dataService: DataService,
+    private route: ActivatedRoute,
   ) {}
   roles: string[] = [];
   private userName: string = '';
+  periodInfo: PeriodStatus | null = null;
+  private destroy$ = new Subject<void>();
+
+  get isO2cTab(): boolean {
+    return (
+      this.filteredTabs[this.selectedIndex]?.component ===
+      'subscription-o2c-insights'
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   ngOnInit() {
     this.roles = this.authService.getRoles();
     this.userName = this.authService.getUserName();
     this.getDefaultTabIndex();
+
+    // Select tab from query param (e.g. ?tab=app-large-deal)
+    const tabParam = this.route.snapshot.queryParamMap.get('tab');
+    if (tabParam) {
+      const tabIndex = this.filteredTabs.findIndex(
+        (t) => t.component === tabParam,
+      );
+      if (tabIndex >= 0) {
+        this.selectedIndex = tabIndex;
+      }
+    }
+
+    this.dataService.periodStatus$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((status) => {
+        this.periodInfo = status;
+      });
 
     // Set initial subHeader based on the default tab
     setTimeout(() => {
@@ -51,7 +87,7 @@ export class BusinessInsightsComponent implements OnInit {
       }
 
       const o2cTabIndex = this.filteredTabs.findIndex(
-        (tab) => tab.component === 'external-o2c',
+        (tab) => tab.component === 'subscription-o2c-insights',
       );
       if (o2cTabIndex >= 0) {
         this.selectedIndex = o2cTabIndex;
@@ -104,8 +140,8 @@ export class BusinessInsightsComponent implements OnInit {
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
     {
-      label: 'Subscription O2C Insights - Financials',
-      component: 'external-o2c',
+      label: 'Subscription O2C Insights',
+      component: 'subscription-o2c-insights',
       role: ['ADMIN'],
     },
   ];

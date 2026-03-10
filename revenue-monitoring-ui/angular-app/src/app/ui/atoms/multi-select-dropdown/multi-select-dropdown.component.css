@@ -1,0 +1,182 @@
+@import "src/assets/ui.css";
+
+.fit-multiselect {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+}
+
+.fit-multiselect__label {
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-medium);
+  color: var(--fit-color-text);
+  white-space: nowrap;
+}
+
+/* Trigger button */
+.fit-multiselect__control {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+  height: var(--fit-control-height);
+  padding: 0 var(--fit-space-md);
+  background: var(--fit-color-bg);
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-pill);
+  cursor: pointer;
+  min-width: 140px;
+  user-select: none;
+  transition: border-color var(--fit-transition-fast);
+}
+
+.fit-multiselect__control:hover {
+  border-color: var(--fit-color-primary);
+}
+
+.fit-multiselect__display {
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fit-multiselect__display--placeholder {
+  color: var(--fit-color-text-muted);
+}
+
+.fit-multiselect__chevron {
+  margin-left: auto;
+  font-size: var(--fit-font-size-xs);
+  color: var(--fit-color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.fit-multiselect__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown panel */
+.fit-multiselect__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-height: 320px;
+  background: var(--fit-color-bg);
+  border: 1px solid var(--fit-color-border);
+  border-radius: 15px;
+  box-shadow: var(--fit-shadow-md);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Search inside dropdown */
+.fit-multiselect__search-wrap {
+  padding: var(--fit-space-sm);
+  border-bottom: 1px solid var(--fit-color-border);
+}
+
+.fit-multiselect__search {
+  width: 100%;
+  padding: 6px var(--fit-space-sm);
+  font-size: var(--fit-font-size-sm);
+  border: 1px solid var(--fit-color-border);
+  border-radius: 15px;
+  outline: none;
+  color: var(--fit-color-text);
+  background: var(--fit-color-bg);
+}
+
+.fit-multiselect__search:focus {
+  border-color: var(--fit-color-primary);
+}
+
+/* Clear all link */
+.fit-multiselect__clear {
+  display: block;
+  width: 100%;
+  padding: 4px var(--fit-space-sm);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--fit-color-border);
+  font-size: var(--fit-font-size-xs);
+  color: var(--fit-color-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.fit-multiselect__clear:hover {
+  background: var(--fit-color-bg-subtle);
+}
+
+/* Option list */
+.fit-multiselect__list {
+  list-style: none;
+  margin: 0;
+  padding: var(--fit-space-xs) 0;
+  overflow-y: auto;
+  max-height: 240px;
+}
+
+/* Individual item */
+.fit-multiselect__item {
+  display: flex;
+  align-items: center;
+  gap: var(--fit-space-sm);
+  padding: 8px var(--fit-space-md);
+  cursor: pointer;
+  font-size: var(--fit-font-size-base);
+  color: var(--fit-color-text);
+  transition: background-color var(--fit-transition-fast);
+}
+
+.fit-multiselect__item:hover {
+  background: var(--fit-color-bg-subtle);
+}
+
+.fit-multiselect__item--selected {
+  font-weight: var(--fit-font-weight-medium);
+}
+
+/* Custom checkbox square */
+.fit-multiselect__checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--fit-color-border);
+  border-radius: 3px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: white;
+  background: var(--fit-color-bg);
+  transition: all var(--fit-transition-fast);
+}
+
+.fit-multiselect__item--selected .fit-multiselect__checkbox {
+  background: var(--fit-color-primary);
+  border-color: var(--fit-color-primary);
+}
+
+.fit-multiselect__check {
+  line-height: 1;
+}
+
+.fit-multiselect__item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fit-multiselect__no-results {
+  padding: var(--fit-space-md);
+  color: var(--fit-color-text-muted);
+  font-size: var(--fit-font-size-sm);
+  text-align: center;
+  font-style: italic;
+}

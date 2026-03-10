@@ -11,6 +11,7 @@ export { TextInputComponent } from './atoms/text-input/text-input.component';
 export { CheckboxComponent } from './atoms/checkbox/checkbox.component';
 export { ToggleSwitchComponent } from './atoms/toggle-switch/toggle-switch.component';
 export { SelectDropdownComponent } from './atoms/select-dropdown/select-dropdown.component';
+export { MultiSelectDropdownComponent } from './atoms/multi-select-dropdown/multi-select-dropdown.component';
 export { PaginationComponent } from './atoms/pagination/pagination.component';
 export { BadgeComponent } from './atoms/badge/badge.component';
 export { TableCellComponent } from './atoms/table-cell/table-cell.component';
