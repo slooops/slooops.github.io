@@ -3,17 +3,17 @@
     <div class="fit-user-form__field">
       <label class="fit-user-form__label">{{ roleFieldLabel }}</label>
       @if (useRoleDropdown) {
-        <app-select-dropdown
+        <app-multi-select-dropdown
           [options]="roleOptions"
-          [value]="formData.roles[0] || ''"
-          placeholder="Select a role"
-          (valueChange)="onRoleChange($event)"
+          [selected]="formData.roles"
+          placeholder="Select roles"
+          (selectionChange)="onMultiRoleChange($event)"
         >
-        </app-select-dropdown>
+        </app-multi-select-dropdown>
       } @else {
         <app-text-input
           [value]="formData.roles[0] || ''"
-          placeholder="Enter role"
+          placeholder="Enter role name"
           type="text"
           (valueChange)="onRoleChange($event)"
         >
@@ -25,7 +25,7 @@
       <label class="fit-user-form__label">Username *</label>
       <app-text-input
         [value]="formData.userName"
-        placeholder="Enter username"
+        placeholder="Enter username (e.g. jdoe)"
         type="text"
         [isDisabled]="isEdit"
         (valueChange)="onUserNameChange($event)"
@@ -37,36 +37,37 @@
       <label class="fit-user-form__label">Email *</label>
       <app-text-input
         [value]="formData.email"
-        placeholder="Enter email"
+        placeholder="Enter email address"
         type="email"
         (valueChange)="onEmailChange($event)"
       >
       </app-text-input>
     </div>
 
-    <div class="fit-user-form__toggle">
-      <app-toggle-switch
-        [checked]="formData.enabled"
-        label="Enabled"
-        (checkedChange)="onEnabledChange($event)"
-      >
-      </app-toggle-switch>
-    </div>
-
-    <div class="fit-user-form__actions fit-row fit-row--space-between">
-      <app-button
-        label="Cancel"
-        variant="secondary"
-        type="button"
-        (clicked)="onCancel()"
-      >
-      </app-button>
-      <app-button
-        [label]="isEdit ? 'Update User' : 'Create Role'"
-        variant="primary"
-        type="submit"
-      >
-      </app-button>
+    <div class="fit-user-form__footer">
+      <div class="fit-user-form__toggle">
+        <app-toggle-switch
+          [checked]="formData.enabled"
+          label="Enabled"
+          (checkedChange)="onEnabledChange($event)"
+        >
+        </app-toggle-switch>
+      </div>
+      <div class="fit-user-form__actions">
+        <app-button
+          label="Cancel"
+          variant="secondary"
+          type="button"
+          (clicked)="onCancel()"
+        >
+        </app-button>
+        <app-button
+          [label]="isEdit ? 'Save Changes' : 'Create'"
+          variant="primary"
+          type="submit"
+        >
+        </app-button>
+      </div>
     </div>
   </div>
 </form>

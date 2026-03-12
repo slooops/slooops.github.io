@@ -82,7 +82,7 @@
 .tiles-row {
   background: #fff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  border-radius: 30px;
+  border-radius: 10px;
   padding: 20px 24px;
   border: 1px solid #e5e7eb;
   display: flex;
@@ -249,7 +249,7 @@
 .summary-table-card {
   background: #fff;
   border: none;
-  border-radius: 30px;
+  border-radius: 10px;
   padding: 20px 24px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
@@ -320,11 +320,11 @@
 }
 
 .summary-table thead tr th:first-child {
-  border-radius: 20px 0 0 20px;
+  border-radius: 10px 0 0 10px;
 }
 
 .summary-table thead tr th:last-child {
-  border-radius: 0 20px 20px 0;
+  border-radius: 0 10px 10px 0;
 }
 
 .summary-table td {
@@ -360,23 +360,23 @@
 /* Component */
 .summary-table-agent th:nth-child(1),
 .summary-table-agent td:nth-child(1) {
-  width: 7%;
+  width: 4%;
 } /* Total Cases (Agent) */
 .summary-table-agent th:nth-child(2),
 .summary-table-agent td:nth-child(2) {
-  width: 3%;
+  width: 5%;
 } /* In Progress */
 .summary-table-agent th:nth-child(3),
 .summary-table-agent td:nth-child(3) {
-  width: 5%;
+  width: 3%;
 } /* Routed Out */
 .summary-table-agent th:nth-child(4),
 .summary-table-agent td:nth-child(4) {
-  width: 3%;
+  width: 5%;
 } /* Cancelled */
 .summary-table-agent th:nth-child(5),
 .summary-table-agent td:nth-child(5) {
-  width: 5%;
+  width: 6%;
 } /* Service Requests */
 .summary-table-agent th:nth-child(6),
 .summary-table-agent td:nth-child(6) {
@@ -405,6 +405,26 @@
   color: #3b6fa0;
   letter-spacing: 0.6px;
   margin-bottom: 10px;
+}
+
+.track-agents-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.track-agents-link:hover {
+  color: #1a4f7a;
+  text-decoration: underline;
+}
+
+.track-agents-link-icon {
+  display: inline-flex;
+  vertical-align: middle;
 }
 
 .track-agents-row {

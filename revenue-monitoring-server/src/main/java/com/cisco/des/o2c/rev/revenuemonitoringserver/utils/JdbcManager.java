@@ -16,10 +16,12 @@ import java.util.regex.Pattern;
 public class JdbcManager {
 
     private final JdbcTemplate primaryJdbcTemplate;
+    private final JdbcTemplate secondaryJdbcTemplate;
 
     @Autowired
-    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate) {
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate, @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
+        this.secondaryJdbcTemplate = secondaryJdbcTemplate;
     }
 
     public List<Map<String, Object>> queryForList(String sql) {
@@ -577,4 +579,9 @@ public class JdbcManager {
     public int executeUpdate(String sql, Object... params) {
         return primaryJdbcTemplate.update(sql, params);
     }
+
+    public List<Map<String, Object>> queryForListAIT(String sql) {
+        return secondaryJdbcTemplate.queryForList(sql);
+    }
+
 }

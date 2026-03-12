@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { Chart, ChartOptions, registerables } from 'chart.js';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { CommonModule } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 import { CardComponent } from '../../components/card/card.component';
 import { TableComponent } from '../../components/table/table.component';
+import { HomeDataService } from 'src/app/home/home-data.service';
 Chart.register(...registerables);
 
 // Types for new quarter-pair logic
@@ -26,7 +27,7 @@ type PairConfig = {
   providers: [DestroyManager],
   imports: [
     CommonModule,
-    MatTabsModule,
+    MatTooltipModule,
     LoadingSymbolComponent,
     CardComponent,
     TableComponent,
@@ -34,13 +35,20 @@ type PairConfig = {
   standalone: true,
 })
 export class EspCaseAnalyzerComponent implements OnInit {
-  constructor(http: ApiHttpService, private destroyManager: DestroyManager) {
+  constructor(
+    http: ApiHttpService,
+    private destroyManager: DestroyManager,
+    private homeDataService: HomeDataService,
+  ) {
     this.http = http;
     Chart.register(...registerables);
   }
   protected http: ApiHttpService;
 
   selectedTabIndex = 0;
+  showGridMenu = false;
+  periodInfo = signal<any>(null);
+  timeNow: string = '';
 
   isQ1Q2Loading = true;
   isQ2Q3Loading = true;
@@ -77,6 +85,9 @@ export class EspCaseAnalyzerComponent implements OnInit {
   quarterPairs: PairConfig[] = [];
 
   ngOnInit(): void {
+    this.updateTime();
+    this.loadPeriodInfo();
+
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
         responseType: 'json',
@@ -149,7 +160,46 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
         this.getEspAgingCaseSummary();
         this.getEspCaseServiceMetricSummary();
+
+        // Render charts for the default selected tab
+        this.onTabClick({ index: this.selectedTabIndex });
       });
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
+  }
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  selectTab(index: number): void {
+    this.selectedTabIndex = index;
+    this.showGridMenu = false;
+    this.onTabClick({ index });
+  }
+
+  updateTime(): void {
+    this.timeNow = new Date().toLocaleString();
+  }
+
+  private loadPeriodInfo(): void {
+    this.homeDataService.getPeriodInfo(this.destroyManager).subscribe({
+      next: (periodData) => {
+        this.periodInfo.set(periodData);
+      },
+      error: (error) => {
+        console.error('Error loading period info:', error);
+        this.periodInfo.set({
+          periodName: '',
+          periodEndDate: '',
+          lastUpdated: new Date().toLocaleString(),
+        });
+      },
+    });
   }
 
   getEspCaseServiceMetricSummary() {
@@ -170,18 +220,18 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
           // Get all unique quarter names from the data
           const uniqueQuarters = Array.from(
-            new Set(data.map((item: any) => item.FISC_QTR))
+            new Set(data.map((item: any) => item.FISC_QTR)),
           );
 
           // Process each quarter dynamically
           uniqueQuarters.forEach((quarterName: any) => {
             if (quarterName) {
               const quarterData = data.filter(
-                (item: any) => item.FISC_QTR === quarterName
+                (item: any) => item.FISC_QTR === quarterName,
               );
               const cleanedData = this.removeColumns(
                 quarterData,
-                columnsToRemove
+                columnsToRemove,
               );
 
               if (cleanedData.length > 0) {
@@ -219,29 +269,29 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
           // Get all unique quarter names from the data
           const uniqueQuarters = Array.from(
-            new Set(data.map((item: any) => item.FISC_QTR))
+            new Set(data.map((item: any) => item.FISC_QTR)),
           );
 
           // Process each quarter dynamically
           uniqueQuarters.forEach((quarterName: any) => {
             if (quarterName) {
               const quarterData = data.filter(
-                (item: any) => item.FISC_QTR === quarterName
+                (item: any) => item.FISC_QTR === quarterName,
               );
 
               const cleanedData = this.removeColumns(
                 quarterData,
-                columnsToRemove
+                columnsToRemove,
               );
               const renamedData = this.renameColumns(cleanedData);
               const finalData = this.filterNonZeroRows(
                 renamedData,
-                columnsToCheck
+                columnsToCheck,
               );
 
               if (finalData.length > 0) {
                 this.displayedColumnsForAgingBacklog[quarterName] = Object.keys(
-                  finalData[0]
+                  finalData[0],
                 );
                 this.dataSourceAgingBacklog[quarterName] =
                   new MatTableDataSource(finalData);
@@ -261,20 +311,20 @@ export class EspCaseAnalyzerComponent implements OnInit {
       qStart,
       qEnd,
       prmcCategories,
-      this.COLORS
+      this.COLORS,
     );
     const birDatasets = this.generateDatasetsForQuarterComparison(
       qStart,
       qEnd,
       birCategories,
-      this.COLORS
+      this.COLORS,
     );
 
     const prmcCanvasId = `prmcChart${name}`;
     const birCanvasId = `birChart${name}`;
 
     const prmcCanvas = document.getElementById(
-      prmcCanvasId
+      prmcCanvasId,
     ) as HTMLCanvasElement;
     const birCanvas = document.getElementById(birCanvasId) as HTMLCanvasElement;
 
@@ -356,7 +406,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
         (item) =>
           item.WEEK_NUM === weekNum &&
           item.FISC_QTR === fiscalQuarter &&
-          item.CATEGORY === category
+          item.CATEGORY === category,
       );
 
       return entry ? entry.COUNT : 0;
@@ -366,8 +416,8 @@ export class EspCaseAnalyzerComponent implements OnInit {
   getSortedLabels(): string[] {
     return Array.from(
       new Set(
-        this.espWeeklyComparisonSummary.map((item) => `WEEK ${item.WEEK_NUM}`)
-      )
+        this.espWeeklyComparisonSummary.map((item) => `WEEK ${item.WEEK_NUM}`),
+      ),
     ).sort((a, b) => {
       const numA = parseInt(a.split(' ')[1], 10);
       const numB = parseInt(b.split(' ')[1], 10);
@@ -552,7 +602,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   private filterNonZeroRows(data: any[], columnsToCheck: string[]): any[] {
     return data.filter((item) =>
-      columnsToCheck.some((column) => item[column] !== 0)
+      columnsToCheck.some((column) => item[column] !== 0),
     );
   }
 
@@ -596,7 +646,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
    * Negative positions: Always ignored
    */
   private buildLatestQuarterPairs(
-    data: Array<{ FISC_QTR: string; QTR_RELATIVE_POSITION?: number }>
+    data: Array<{ FISC_QTR: string; QTR_RELATIVE_POSITION?: number }>,
   ): PairConfig[] {
     // Step 1: Normalize & dedupe - keep only newest row per (fy, q)
     const bestByFyQ = new Map<string, { fisc_qtr: string; position: number }>();
@@ -719,7 +769,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
     firstQuarter: string | null,
     secondQuarter: string | null,
     categories: string[],
-    colors: any
+    colors: any,
   ) {
     if (!firstQuarter || !secondQuarter) {
       console.warn('One of the quarters is null, skipping dataset generation.');

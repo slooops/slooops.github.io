@@ -164,7 +164,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
   gap: 1rem;
 }
 
@@ -172,10 +171,7 @@
   display: flex;
   align-items: center;
   gap: 2rem;
-}
-
-.header-left {
-  margin-right: auto;
+  flex: 1;
 }
 
 .grid-menu-icon {
@@ -248,10 +244,6 @@
   font-weight: 600;
   color: #00bceb;
   margin-left: 12px;
-}
-
-.period-info {
-  margin-left: auto;
 }
 
 .header-center {
@@ -562,6 +554,7 @@ hr {
   flex: 1;
   min-width: 0; /* Allows flex items to shrink below their content size */
   border: 1px solid #e0e0e0;
+  border-radius: 10px;
 }
 
 .chart-section h4 {
@@ -607,6 +600,7 @@ hr {
   padding: 1rem;
   gap: 0.6rem;
   background-color: #f4f5f6;
+  border-radius: 10px;
 }
 
 .metric-box h4 {

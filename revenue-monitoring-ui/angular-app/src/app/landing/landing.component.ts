@@ -188,8 +188,8 @@ export class LandingComponent implements OnInit, OnDestroy {
         'ACCOUNT_RECON',
         'GL_POSTING',
         'OPERATION_CTRL',
-        'ORDER_MANAGEMENT',
-        'WIPS',
+        'MONITORING_OM',
+        'MONITORING_WIPS',
       ],
       roleRoutes: [
         {
@@ -201,7 +201,7 @@ export class LandingComponent implements OnInit, OnDestroy {
           route: '/revenue-accounting',
         },
         {
-          roles: ['ADMIN', 'ORDER_MANAGEMENT'],
+          roles: ['ADMIN', 'MONITORING_OM'],
           route: '/order-management',
         },
         {
@@ -213,7 +213,7 @@ export class LandingComponent implements OnInit, OnDestroy {
           route: '/operations-controls',
         },
         {
-          roles: ['ADMIN', 'WIPS'],
+          roles: ['ADMIN', 'MONITORING_WIPS'],
           route: '/wips',
         },
       ],
@@ -262,12 +262,21 @@ export class LandingComponent implements OnInit, OnDestroy {
       },
     },
     {
-      title: 'Self-Healing',
-      description:
-        'AI-enabled intelligent analysis and automated remediation to accelerate issue resolution.',
+      title: 'Case-IQ',
+      description: '',
       icon: 'phosphorBrainDuotone',
-      route: null,
-      requiredRoles: ['ADMIN'],
+      route: '/case-iq',
+      requiredRoles: [
+        'ADMIN',
+        'CASE_IQ_FINANCE_IT',
+        'CASE_IQ_OM',
+        'CASE_IQ_SM',
+        'CASE_IQ_I2C',
+        'CASE_IQ_AIT',
+        'CASE_IQ_FPP',
+        'CASE_IQ_P2P',
+        'CASE_IQ_CAPITAL',
+      ],
       variant: 'inner-glow',
       // No arcData - feature not yet built
     },

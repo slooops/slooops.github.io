@@ -18,10 +18,10 @@
         <span class="caseiq-header-sep">-</span>
         <span class="caseiq-header-value">{{
           filteredCaseIqMetrics
-            ? filteredCaseIqMetrics.IN_PROGRESS_AGENT +
-              filteredCaseIqMetrics.RESOLVED_AGENT +
-              filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT +
-              filteredCaseIqMetrics.RECOMMENDED_CANCELLED
+            ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
+              (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
+              (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
+              (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
             : "--"
         }}</span>
       </div>
@@ -32,12 +32,14 @@
         <span class="caseiq-header-value"
           >{{
             filteredCaseIqMetrics
-              ? filteredCaseIqMetrics.IN_PROGRESS_AGENT
+              ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0)
               : "--"
           }}
           {{
             filteredCaseIqMetrics
-              ? "(" + filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE + "%)"
+              ? "(" +
+                (filteredCaseIqMetrics.IN_PROGRESS_AGENT_PERCENTAGE ?? 0) +
+                "%)"
               : "(--)"
           }}</span
         >
@@ -49,13 +51,13 @@
         <span class="caseiq-header-value"
           >{{
             filteredCaseIqMetrics
-              ? filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT
+              ? (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0)
               : "--"
           }}
           {{
             filteredCaseIqMetrics
               ? "(" +
-                filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE +
+                (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT_PERCENTAGE ?? 0) +
                 "%)"
               : "(--)"
           }}</span
@@ -68,13 +70,13 @@
         <span class="caseiq-header-value"
           >{{
             filteredCaseIqMetrics
-              ? filteredCaseIqMetrics.RECOMMENDED_CANCELLED
+              ? (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
               : "--"
           }}
           {{
             filteredCaseIqMetrics
               ? "(" +
-                filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE +
+                (filteredCaseIqMetrics.RECOMMENDED_CANCELLED_PERCENTAGE ?? 0) +
                 "%)"
               : "(--)"
           }}</span
@@ -86,11 +88,15 @@
         <span class="caseiq-header-sep">-</span>
         <span class="caseiq-header-value"
           >{{
-            filteredCaseIqMetrics ? filteredCaseIqMetrics.RESOLVED_AGENT : "--"
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0)
+              : "--"
           }}
           {{
             filteredCaseIqMetrics
-              ? "(" + filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT + "%)"
+              ? "(" +
+                (filteredCaseIqMetrics.RESOLVED_PERCENTAGE_AGENT ?? 0) +
+                "%)"
               : "(--)"
           }}</span
         >

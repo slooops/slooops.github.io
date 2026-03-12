@@ -36,6 +36,7 @@ public class WIPSMonitoringService {
         result.forEach(data -> {
             common.formatDateColumns(data, dateColumns);
             data.remove("_id");
+            data.remove("closed_date");
         });
         return result;
     }

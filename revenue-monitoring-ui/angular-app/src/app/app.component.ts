@@ -100,8 +100,8 @@ export class AppComponent implements OnInit, OnDestroy {
       return '/revenue-accounting';
     }
 
-    // ORDER_MANAGEMENT gets /order-management
-    if (roles.includes('ORDER_MANAGEMENT')) {
+    // MONITORING_OM gets /order-management
+    if (roles.includes('MONITORING_OM')) {
       return '/order-management';
     }
 

@@ -42,7 +42,7 @@ Added a helper method for determining default routes (can be used elsewhere in t
 | 2        | `PERIOD_CLOSE`                                              | `/period-close-tracking` |
 | 3        | `EXCEPTION_ADMIN`, `EXCEPTION_READ_ONLY`                    | `/invoice-to-cash`       |
 | 4        | `ACCOUNT_RECON`                                             | `/revenue-accounting`    |
-| 5        | `ORDER_MANAGEMENT`                                          | `/order-management`      |
+| 5        | `MONITORING_OM`                                             | `/order-management`      |
 | 6        | `CASE_IQ_*` (all Case IQ roles)                             | `/esp-home`              |
 | 7        | `LARGE_DEAL`, `WD0`, `MIDCLOSE_VOLUMES`, `ISSUE_RESOLUTION` | `/business-insights`     |
 | 8        | `GL_POSTING`                                                | `/gl-posting`            |
@@ -89,27 +89,21 @@ The guard uses a priority-based approach:
 ### Manual Testing Steps:
 
 1. **Test with ADMIN role**
-
    - Access root `/` → Should land on `/home`
 
 2. **Test with PERIOD_CLOSE role**
-
    - Access root `/` → Should land on `/period-close-tracking`
 
 3. **Test with EXCEPTION_ADMIN or EXCEPTION_READ_ONLY role**
-
    - Access root `/` → Should land on `/invoice-to-cash`
 
 4. **Test with ACCOUNT_RECON role**
-
    - Access root `/` → Should land on `/revenue-accounting`
 
 5. **Test with Case IQ roles** (e.g., CASE_IQ_I2C)
-
    - Access root `/` → Should land on `/esp-home`
 
 6. **Test with Business Insights roles** (e.g., LARGE_DEAL)
-
    - Access root `/` → Should land on `/business-insights`
 
 7. **Test with multiple roles**

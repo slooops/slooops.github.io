@@ -30,8 +30,22 @@
         <span><b>Period name:</b> {{ periodInfo.periodName }}</span>
         <span class="period-divider">|</span>
         <span><b>Period end date:</b> {{ periodInfo.periodEndDate }}</span>
+        <span class="period-divider">|</span>
+        @if (isLargeDealTab) {
+          <span
+            ><b>Last Updated:</b> {{ timeNow || "" }} &nbsp;<i
+              class="fa fa-info-circle"
+              matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
+              [matTooltipPosition]="'above'"
+              style="color: gray"
+            ></i
+          ></span>
+        } @else {
+          <span><b>Last Updated:</b> {{ timeNow || "" }}</span>
+        }
       </div>
     }
+    <div class="header-right"></div>
   </div>
 </div>
 

@@ -38,6 +38,14 @@
   <span class="fit-filter-bar__divider"></span>
 
   <div class="fit-filter-bar__actions">
+    @if (selectedCount > 1) {
+      <app-button
+        label="Bulk Update Roles ({{ selectedCount }})"
+        variant="secondary"
+        (clicked)="onBulkUpdate()"
+      >
+      </app-button>
+    }
     @if (canCreateSubAdmin) {
       <app-button
         label="Create Sub-Admin"
@@ -47,7 +55,11 @@
       </app-button>
     }
     @if (isFullAdmin) {
-      <app-button label="Add Role" variant="secondary" (clicked)="onAddUser()">
+      <app-button
+        label="Create Role"
+        variant="secondary"
+        (clicked)="onAddUser()"
+      >
       </app-button>
     }
 

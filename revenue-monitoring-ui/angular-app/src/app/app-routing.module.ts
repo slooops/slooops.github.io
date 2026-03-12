@@ -34,6 +34,7 @@ import { LandingComponent } from './landing/landing.component';
 import { ScorecardHistoryComponent } from './scorecard/scorecard-history/scorecard-history.component';
 import { ExecutiveSummaryHistoryComponent } from './executive-summary/executive-summary-history/executive-summary-history.component';
 import { PerformanceHubComponent } from './performance-hub/performance-hub.component';
+import { AitComponent } from './ait/ait.component';
 
 export const routes: Routes = [
   {
@@ -105,7 +106,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
-      subHeader: 'I2C',
+      subHeader: 'I2C Case Analyzer',
     },
   },
   {
@@ -123,7 +124,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'ESP Case Manager',
-      subHeader: 'SBP',
+      subHeader: 'SBP Case Analyzer',
     },
   },
   {
@@ -283,7 +284,7 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'admin',
+    path: 'identity-access-management',
     component: AdminComponent,
     data: {
       title: 'Finance-IT Control Tower',
@@ -320,6 +321,15 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Executive Summary History',
+    },
+  },
+  {
+    path: 'ait',
+    component: AitComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Continuous Monitoring',
+      subHeader: 'AIT',
     },
   },
 ];

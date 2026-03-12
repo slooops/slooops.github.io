@@ -17,6 +17,10 @@ public class GLPostingMonitoringService{
     private String glErrorDetails;
     private String glPostingDetailsFiltered;
     private String glPostingSummaryUpdate;
+    private String glInterfaceSummary;
+    private String glInterfaceDetails;
+    private String glInterfaceDetailsFiltered;
+    private String glInterfaceSummaryUpdate;
     @Autowired
     private Common common;
     @Autowired
@@ -26,12 +30,17 @@ public class GLPostingMonitoringService{
 
 
     public GLPostingMonitoringService(JdbcManager jdbcManager, String glErrorSummary, String glErrorDetails,
-                                      String glPostingDetailsFiltered, String glPostingSummaryUpdate) {
+                                      String glPostingDetailsFiltered, String glPostingSummaryUpdate, String glInterfaceSummary,
+                                      String glInterfaceDetails, String glInterfaceDetailsFiltered, String glInterfaceSummaryUpdate) {
         this.jdbcManager = jdbcManager;
         this.glErrorSummary = glErrorSummary;
         this.glErrorDetails = glErrorDetails;
         this.glPostingDetailsFiltered = glPostingDetailsFiltered;
         this.glPostingSummaryUpdate = glPostingSummaryUpdate;
+        this.glInterfaceSummary = glInterfaceSummary;
+        this.glInterfaceDetails = glInterfaceDetails;
+        this.glInterfaceDetailsFiltered = glInterfaceDetailsFiltered;
+        this.glInterfaceSummaryUpdate = glInterfaceSummaryUpdate;
     }
 
     // General Ledger
@@ -92,6 +101,39 @@ public class GLPostingMonitoringService{
             cacheCommon.refreshExceptionMonitoringCache(glErrorDetailsMap);
         }
     }
+
+    //AIT
+    public List<Map<String, Object>> getGlInterfaceErrorSummary() {
+        List<Map<String, Object>> result = jdbcManager.queryForListAIT(glInterfaceSummary);
+        String[] dateColumns = { "DATE_CREATED" };
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getGlInterfaceErrorDetails() {
+        List<Map<String, Object>> result = jdbcManager.queryForListAIT(glInterfaceDetails);
+        return result;
+    }
+
+//    public List<Map<String, Object>> getGlDetailsFilter(String periodName, String applicationName, String processFlow, String ledgerName,
+//                                                        String glbatch, String transactionDate) {
+//        List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, periodName, applicationName, processFlow, ledgerName,
+//                glbatch, transactionDate);
+//        return result;
+//    }
+//
+//    public int updateGlErrorSummary(Map<String, String> updateData) {
+//        String assignedTo = updateData.get("assignedTo");
+//        String assignedBy = updateData.get("username");
+//        String comments = updateData.get("comments");
+//        String glBatchName = updateData.get("glBatchName");
+//        int test = jdbcManager.updateGlErrorsSummaryData(glPostingSummaryUpdate, assignedTo, assignedBy, comments,
+//                glBatchName);
+//        refreshGlPostingMonitoringCache();
+//        return 1;
+//    }
 
 }
 

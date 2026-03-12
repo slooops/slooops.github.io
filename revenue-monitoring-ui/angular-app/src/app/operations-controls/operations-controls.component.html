@@ -57,8 +57,8 @@
 <hr />
 
 <div class="oc-content">
-  @switch (selectedTabIndex) {
-    @case (0) {
+  @switch (activeTabKey) {
+    @case ("i2c") {
       <app-monitoring-dashboard
         [urls]="preInvoicingUrls"
         [keysToMap]="[
@@ -76,7 +76,7 @@
         [userContext]="userContextData"
       ></app-monitoring-dashboard>
     }
-    @case (1) {
+    @case ("rev") {
       <app-monitoring-dashboard
         [urls]="revControlsUrls"
         [keysToMap]="[
@@ -94,7 +94,7 @@
         [userContext]="userContextData"
       ></app-monitoring-dashboard>
     }
-    @case (2) {
+    @case ("gtc") {
       <app-monitoring-dashboard
         [urls]="gtcControlsUrls"
         [keysToMap]="['PROCESS_FLOW', 'BOOKING_ENTITY', 'TRANSACTION_DATE']"

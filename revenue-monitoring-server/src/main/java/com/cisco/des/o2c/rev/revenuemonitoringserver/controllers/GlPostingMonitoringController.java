@@ -63,4 +63,14 @@ public class GlPostingMonitoringController {
         int test = service.updateGlErrorSummary(updateData);
         return ResponseEntity.status(HttpStatus.OK).body("User assignment successful.");
     }
+
+    @GetMapping("/ait-error-summary")
+    public ResponseEntity<List<Map<String, Object>>> getGlInterfaceErrorSummary() {
+        return new ResponseEntity<>(service.getGlInterfaceErrorSummary(), HttpStatus.OK);
+    }
+
+    @GetMapping("/ait-error-details")
+    public ResponseEntity<List<Map<String, Object>>> getGlInterfaceErrorDetails() {
+        return new ResponseEntity<>(service.getGlInterfaceErrorDetails(), HttpStatus.OK);
+    }
 }

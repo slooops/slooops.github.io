@@ -1,30 +1,78 @@
 @import "src/assets/ui.css";
 
 .fit-user-form {
-  min-width: 400px;
+  min-width: 100%;
 }
 
 .fit-user-form__field {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: var(--fit-space-md);
 }
 
 .fit-user-form__label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--fit-font-size-base);
+  font-weight: var(--fit-font-weight-semibold);
   color: var(--fit-color-text);
   white-space: nowrap;
-  min-width: 80px;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+/* Ensure child components stretch to fill remaining space */
+:host ::ng-deep app-text-input,
+:host ::ng-deep app-multi-select-dropdown,
+:host ::ng-deep app-select-dropdown {
+  flex: 1;
+  min-width: 0;
+}
+
+:host ::ng-deep .fit-multiselect {
+  width: 100%;
+}
+
+.fit-user-form__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--fit-space-md);
+  border-top: 1px solid var(--fit-color-border);
+  margin-top: var(--fit-space-xs);
 }
 
 .fit-user-form__toggle {
-  /* padding: var(--fit-space-md) 0; */
+  display: flex;
+  align-items: center;
 }
 
 .fit-user-form__actions {
-  padding-top: var(--fit-space-lg);
-  border-top: 1px solid var(--fit-color-border);
-  margin-top: var(--fit-space-md);
+  display: flex;
+  gap: var(--fit-space-sm);
+}
+
+/* Make inputs fill remaining space */
+:host ::ng-deep .fit-input-wrapper {
+  width: 100%;
+  flex: 1;
+}
+
+:host ::ng-deep .fit-input {
+  width: 100%;
+}
+
+:host ::ng-deep .fit-select-wrapper {
+  width: 100%;
+}
+
+:host ::ng-deep .fit-select {
+  width: 100%;
+}
+
+:host ::ng-deep .fit-input::placeholder {
+  font-size: var(--fit-font-size-sm);
+  color: var(--fit-color-text-muted);
+}
+
+:host ::ng-deep .fit-multiselect__display--placeholder {
+  font-size: var(--fit-font-size-sm);
 }

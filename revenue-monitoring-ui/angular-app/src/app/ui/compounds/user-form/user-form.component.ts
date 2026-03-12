@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { UserFormData } from '../../types/common.types';
 import { SelectOption } from '../../types/common.types';
 import { TextInputComponent } from '../../atoms/text-input/text-input.component';
-import { SelectDropdownComponent } from '../../atoms/select-dropdown/select-dropdown.component';
+import { MultiSelectDropdownComponent } from '../../atoms/multi-select-dropdown/multi-select-dropdown.component';
 import { ToggleSwitchComponent } from '../../atoms/toggle-switch/toggle-switch.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
 
@@ -15,7 +15,7 @@ import { ButtonComponent } from '../../atoms/button/button.component';
   imports: [
     CommonModule,
     TextInputComponent,
-    SelectDropdownComponent,
+    MultiSelectDropdownComponent,
     ToggleSwitchComponent,
     ButtonComponent,
   ],
@@ -64,6 +64,11 @@ export class UserFormComponent {
   onRoleChange(value: string): void {
     this.isDirty = true;
     this.formData.roles = value ? [value] : [];
+  }
+
+  onMultiRoleChange(values: string[]): void {
+    this.isDirty = true;
+    this.formData.roles = values;
   }
 
   onEnabledChange(checked: boolean): void {

@@ -12,6 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorLinkBold } from '@ng-icons/phosphor-icons/bold';
 import { Chart } from 'chart.js/auto';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
@@ -43,13 +45,18 @@ interface CaseIqTableRow {
     MatIconModule,
     MatTooltipModule,
     LoadingSymbolComponent,
+    NgIcon,
   ],
+  providers: [provideIcons({ phosphorLinkBold })],
   standalone: true,
 })
 export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   // Section names are derived dynamically from caseIqMetrics
   // (e.g. 'Finance IT' for TEAM_NAME 'ALL', then each TEAM_NAME).
   sections = signal<string[]>([]);
+
+  /** External URL for Resolution Agents Active link (update when available) */
+  resolutionAgentsUrl: string = '';
 
   constructor(
     private readonly http: ApiHttpService,

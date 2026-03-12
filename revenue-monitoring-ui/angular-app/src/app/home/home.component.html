@@ -4,44 +4,15 @@
 
   <!-- Title Bar Row -->
   <div class="title-row">
-    <!-- <span class="page-title">Monitoring Dashboard</span> -->
-    <!-- &nbsp;
-      <button class="icon-btn" aria-label="Settings">
-        <i class="fa fa-gear circle-icon"></i>
-      </button>
-      <button class="icon-btn" aria-label="Notifications">
-        <i class="fa fa-bell bell-icon"></i>
-      </button> -->
-    &nbsp; &nbsp;
-    <div class="quarter-filter">
-      <label>Quarter:</label>
-      <div class="quarter-dropdown-wrapper" (click)="$event.stopPropagation()">
-        <button type="button" class="quarter-dropdown-button">
-          Q3FY26
-          <!-- <span class="dropdown-arrow">▾</span> -->
-        </button>
-        <!-- @if (showQuarterDropdown) {
-            <div
-              class="quarter-dropdown-menu"
-              (click)="$event.stopPropagation()"
-            >
-              <div class="quarter-options">
-                @for (quarter of quarters; track quarter) {
-                  <div
-                    class="quarter-option"
-                    (click)="selectQuarter(quarter.value)"
-                  >
-                    <input
-                      type="radio"
-                      [checked]="selectedQuarter === quarter.value"
-                      readonly
-                    />
-                    <span class="option-label">{{ quarter.label }}</span>
-                  </div>
-                }
-              </div>
-            </div>
-          } -->
+    <div class="title-left">
+      <div class="quarter-filter">
+        <label>Quarter:</label>
+        <div
+          class="quarter-dropdown-wrapper"
+          (click)="$event.stopPropagation()"
+        >
+          <button type="button" class="quarter-dropdown-button">Q3FY26</button>
+        </div>
       </div>
     </div>
     @if (periodInfo()) {
@@ -53,10 +24,12 @@
         <span><b>Last Updated:</b> {{ periodInfo().lastUpdated }}</span>
       </div>
     }
-    <button class="ask-ivan-btn">
-      <ng-icon name="phosphorSparkleBold" size="20" />
-      <span style="font-size: large; font-weight: bold">Ask Ivan</span>
-    </button>
+    <div class="title-right">
+      <button class="ask-ivan-btn">
+        <ng-icon name="phosphorSparkleBold" size="20" />
+        <span style="font-size: large; font-weight: bold">Ask Ivan</span>
+      </button>
+    </div>
   </div>
   <!-- KPI Metrics Bars (40% / 60%) -->
   <div class="kpi-bars">

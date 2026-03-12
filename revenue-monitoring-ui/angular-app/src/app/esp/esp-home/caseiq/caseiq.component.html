@@ -16,15 +16,15 @@
     <div class="tiles-row-wrapper">
       <!-- ESP Overview Card -->
       <div class="tiles-row tiles-row-esp">
-        <div class="tiles-row-header">Case Analyzer</div>
+        <div class="tiles-row-header">
+          Case Analyzer
+          <span style="font-size: 11px; color: #9e9e9e">
+            - Core Issue Identification</span
+          >
+        </div>
         <div class="fit-tiles-row">
           <div class="fit-tile">
-            <div class="fit-tile-label">
-              Total Cases
-              <span style="font-size: 7px; color: #9e9e9e">
-                - Core Issue Identification</span
-              >
-            </div>
+            <div class="fit-tile-label">Total Cases</div>
             @if (getTotalCasesFromAccuracy("Finance IT") != null) {
               <div class="fit-tile-value">
                 {{ getTotalCasesFromAccuracy("Finance IT") | number }}
@@ -57,31 +57,14 @@
 
       <!-- Agent Performance Card -->
       <div class="tiles-row tiles-row-agent">
-        <div class="tiles-row-header">Resolution</div>
+        <div class="tiles-row-header">
+          Resolution
+          <span style="font-size: 11px; color: #9e9e9e">
+            - Cases processed by agent, including service requests, route outs,
+            cancel recommendations, and WIP status.</span
+          >
+        </div>
         <div class="fit-tiles-row">
-          <div class="fit-tile">
-            <div class="fit-tile-label">
-              Total Cases (Agent)
-              <mat-icon
-                class="fit-tile-info-icon"
-                matTooltip="Total cases handled by  CaseIQ agent for resolution, including recommendation for route out and cancellation."
-                matTooltipPosition="above"
-              >
-                info_outline
-              </mat-icon>
-            </div>
-            <div class="fit-tile-value">
-              {{ getFinanceITAgentTotalCases() | number
-              }}<span
-                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
-              >
-                /
-                {{
-                  getFinanceITAgentTotalCases() + getOpsTotalCases() | number
-                }}</span
-              >
-            </div>
-          </div>
           <div class="fit-tile">
             <div class="fit-tile-label">
               In Progress
@@ -184,6 +167,29 @@
           </div>
           <div class="fit-tile">
             <div class="fit-tile-label">
+              Total Cases (Agent)
+              <mat-icon
+                class="fit-tile-info-icon"
+                matTooltip="Total cases handled by  CaseIQ agent for resolution, including recommendation for route out and cancellation."
+                matTooltipPosition="above"
+              >
+                info_outline
+              </mat-icon>
+            </div>
+            <div class="fit-tile-value">
+              {{ getFinanceITAgentTotalCases() | number
+              }}<span
+                style="font-size: 0.5em; color: #b0b0b0; font-weight: 400"
+              >
+                /
+                {{
+                  getFinanceITAgentTotalCases() + getOpsTotalCases() | number
+                }}</span
+              >
+            </div>
+          </div>
+          <div class="fit-tile">
+            <div class="fit-tile-label">
               Automation Rate
               <mat-icon
                 class="fit-tile-info-icon"
@@ -267,24 +273,17 @@
             <table class="summary-table summary-table-agent">
               <thead>
                 <tr>
-                  <th>Total Cases (Agent)</th>
                   <th>In Progress</th>
                   <th>Routed Out</th>
                   <th>Cancelled</th>
                   <th>Service Requests</th>
+                  <th>Total Cases (Agent)</th>
                   <th>Agent vs Ops %</th>
                 </tr>
               </thead>
               <tbody>
                 @for (row of summaryRows; track row.sectionName) {
                   <tr>
-                    <td>
-                      <span class="summary-total-cases">
-                        {{ getAgentTotalCases(row) | number }} </span
-                      ><span style="font-size: 0.75em; color: #b0b0b0">
-                        / {{ row.totalCases || 0 | number }}</span
-                      >
-                    </td>
                     <td>
                       {{ valueDisplay(row.inProgress.agent)
                       }}<span style="font-size: 0.75em; color: #b0b0b0">
@@ -334,6 +333,13 @@
                       }
                     </td>
                     <td>
+                      <span class="summary-total-cases">
+                        {{ getAgentTotalCases(row) | number }} </span
+                      ><span style="font-size: 0.75em; color: #b0b0b0">
+                        / {{ row.totalCases || 0 | number }}</span
+                      >
+                    </td>
+                    <td>
                       <div class="ratio-bar-wrapper">
                         <div
                           class="ratio-bar-agent"
@@ -366,7 +372,22 @@
 
         <!-- Resolution Agent Details by Track -->
         <div class="track-agents-section">
-          <div class="track-agents-label">Resolution Agents Active</div>
+          <div class="track-agents-label">
+            <a
+              class="track-agents-link"
+              [href]="resolutionAgentsUrl || '#'"
+              target="_blank"
+              rel="noopener noreferrer"
+              (click)="!resolutionAgentsUrl && $event.preventDefault()"
+            >
+              Resolution Agents Active
+              <ng-icon
+                name="phosphorLinkBold"
+                size="14"
+                class="track-agents-link-icon"
+              ></ng-icon>
+            </a>
+          </div>
           <div class="track-agents-row">
             <div class="track-agent-card">
               <div class="track-agent-team">Finance IT</div>

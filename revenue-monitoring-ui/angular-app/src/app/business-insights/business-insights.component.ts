@@ -7,6 +7,7 @@ import { SearchContextService } from '../search-context.service';
 import { DataService, PeriodStatus } from '../providers/data.service';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { BusinessInsightsModule } from './business-insights.module';
 import { O2cEmbedComponent } from './o2c-embed.component';
 import { Subject, takeUntil } from 'rxjs';
@@ -18,6 +19,7 @@ import { Subject, takeUntil } from 'rxjs';
   imports: [
     CommonModule,
     MatTabsModule,
+    MatTooltipModule,
     BusinessInsightsModule,
     O2cEmbedComponent,
   ],
@@ -35,6 +37,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   roles: string[] = [];
   private userName: string = '';
   periodInfo: PeriodStatus | null = null;
+  timeNow: string = '';
   private destroy$ = new Subject<void>();
 
   get isO2cTab(): boolean {
@@ -42,6 +45,49 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       this.filteredTabs[this.selectedIndex]?.component ===
       'subscription-o2c-insights'
     );
+  }
+
+  get isLargeDealTab(): boolean {
+    return (
+      this.filteredTabs[this.selectedIndex]?.component === 'app-large-deal'
+    );
+  }
+
+  updateTime() {
+    if (this.isLargeDealTab) {
+      const currentDate = new Date();
+      const pstDate = currentDate.toLocaleString('en-US', {
+        timeZone: 'America/Los_Angeles',
+      });
+      const timestamp = Date.parse(pstDate);
+      const currentPstDate = new Date(timestamp);
+      const currentHour = currentPstDate.getHours();
+
+      if (currentHour >= 0 && currentHour < 8) {
+        this.timeNow = 'Yesterday at 11 PM PST';
+      } else if (currentHour >= 8 && currentHour < 12) {
+        this.timeNow = 'Today at 8 AM PST';
+      } else if (currentHour >= 12 && currentHour < 16) {
+        this.timeNow = 'Today at 12 PM PST';
+      } else if (currentHour >= 16 && currentHour < 23) {
+        this.timeNow = 'Today at 4 PM PST';
+      } else {
+        if (currentHour !== 0) {
+          this.timeNow = 'Today at 11 PM PST';
+        }
+      }
+    } else {
+      const now = new Date();
+      this.timeNow = now.toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -52,6 +98,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.roles = this.authService.getRoles();
     this.userName = this.authService.getUserName();
+    this.updateTime();
     this.getDefaultTabIndex();
 
     // Select tab from query param (e.g. ?tab=app-large-deal)
@@ -108,6 +155,9 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       // this.menuService.updateSubHeader(selectedTab?.label || '');
 
       this.searchContextService.setO2cSearchVisible(false);
+
+      // Refresh last updated time
+      this.updateTime();
 
       // Log tab visit for analytics
       this.logTabVisit(index);

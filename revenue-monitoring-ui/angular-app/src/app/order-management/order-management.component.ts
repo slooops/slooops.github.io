@@ -374,42 +374,42 @@ export class OrderManagementComponent {
     {
       label: 'Imports',
       component: 'app-imports',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Holds',
       component: 'app-holds',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Bookings',
       component: 'app-bookings',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Workflow',
       component: 'app-workflow',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Processing',
       component: 'app-processing',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Distribution',
       component: 'app-distribution',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Attribution',
       component: 'app-attribution',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
     {
       label: 'Jobs',
       component: 'app-jobs',
-      role: ['ADMIN', 'ORDER_MANAGEMENT'],
+      role: ['ADMIN', 'MONITORING_OM'],
     },
   ];
 

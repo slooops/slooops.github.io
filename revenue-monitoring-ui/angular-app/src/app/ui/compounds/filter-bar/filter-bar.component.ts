@@ -25,6 +25,7 @@ export class FilterBarComponent {
   @Input() isFullAdmin: boolean = false;
   @Input() canCreateSubAdmin: boolean = false;
   @Input() totalCount: number = 0;
+  @Input() selectedCount: number = 0;
 
   @Output() searchChange = new EventEmitter<string>();
   @Output() roleFilterChange = new EventEmitter<string[]>();
@@ -32,6 +33,7 @@ export class FilterBarComponent {
   @Output() addUserClick = new EventEmitter<void>();
   @Output() addLineItemClick = new EventEmitter<void>();
   @Output() createSubAdminClick = new EventEmitter<void>();
+  @Output() bulkUpdateClick = new EventEmitter<void>();
 
   statusOptions: SelectOption[] = [
     { label: 'Enabled', value: 'Y' },
@@ -60,5 +62,9 @@ export class FilterBarComponent {
 
   onCreateSubAdmin(): void {
     this.createSubAdminClick.emit();
+  }
+
+  onBulkUpdate(): void {
+    this.bulkUpdateClick.emit();
   }
 }

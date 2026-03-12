@@ -14,6 +14,12 @@ export interface UserContext {
   assignmentUsersFilterKey: string;
 }
 
+interface TabDef {
+  label: string;
+  key: string;
+  role: string;
+}
+
 @Component({
   selector: 'app-operations-controls',
   templateUrl: './operations-controls.component.html',
@@ -25,11 +31,28 @@ export class OperationsControlsComponent implements OnInit {
   userContextData: UserContext;
   private userName: string = '';
   selectedTabIndex: number = 0;
-  tabLabels: string[] = [
-    'Invoice to Cash',
-    'Revenue Accounting',
-    'Tax and Customs',
+
+  private allTabs: TabDef[] = [
+    {
+      label: 'Invoice to Cash',
+      key: 'i2c',
+      role: 'MONITORING_OPS_CONTROLS_I2C',
+    },
+    {
+      label: 'Revenue Accounting',
+      key: 'rev',
+      role: 'MONITORING_OPS_CONTROLS_REVENUE',
+    },
+    {
+      label: 'Tax and Customs',
+      key: 'gtc',
+      role: 'MONITORING_OPS_CONTROLS_GTC',
+    },
   ];
+
+  visibleTabs: TabDef[] = [];
+  tabLabels: string[] = [];
+  private isAdmin: boolean = false;
   periodInfo = signal<any>(null);
 
   constructor(
@@ -50,9 +73,25 @@ export class OperationsControlsComponent implements OnInit {
 
   ngOnInit() {
     this.userName = this.authService.getUserName();
+    const userRoles: string[] = this.authService.getRoles() || [];
+    this.isAdmin = userRoles.includes('ADMIN');
+
+    // Filter tabs based on user roles
+    this.visibleTabs = this.isAdmin
+      ? [...this.allTabs]
+      : this.allTabs.filter((t) => userRoles.includes(t.role));
+    this.tabLabels = this.visibleTabs.map((t) => t.label);
+
     this.getErrorSummaryPeriodStatus();
     // Log initial tab visit
-    this.logTabVisit(this.tabLabels[0]);
+    if (this.tabLabels.length > 0) {
+      this.logTabVisit(this.tabLabels[0]);
+    }
+  }
+
+  /** Returns the key of the currently selected visible tab */
+  get activeTabKey(): string {
+    return this.visibleTabs[this.selectedTabIndex]?.key || '';
   }
 
   showGridMenu: boolean = false;

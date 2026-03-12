@@ -53,15 +53,15 @@
 
 /* Rounded corners on first and last cell of each group */
 .caseiq-header-group .caseiq-header-cell:first-child {
-  border-radius: 20px 0 0 20px;
+  border-radius: 10px 0 0 10px;
 }
 
 .caseiq-header-group .caseiq-header-cell:last-child {
-  border-radius: 0 20px 20px 0;
+  border-radius: 0 10px 10px 0;
 }
 
 .caseiq-header-group .caseiq-header-cell:only-child {
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 /* Each cell: inline flow – Label - Value */

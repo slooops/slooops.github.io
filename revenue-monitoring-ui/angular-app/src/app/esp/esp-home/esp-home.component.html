@@ -84,27 +84,26 @@
               </div>
             }
           </div>
-          <div class="period-info">
-            <span
-              ><b>Period name:</b>
-              {{ periodInfo()?.periodName || "" }} &nbsp;</span
-            >
-            <span class="divider"> | </span>
-            <span
-              >&nbsp;<b>Period end date:</b>
-              {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
-            >
-            <span class="divider"> | </span>
-            <span
-              >&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} &nbsp;<i
-                class="fa fa-info-circle"
-                matTooltip="Dashboard data is updated at 12 AM, 6 AM, 12 PM and 6 PM PST everyday. "
-                [matTooltipPosition]="'right'"
-                style="color: gray"
-              ></i
-            ></span>
-          </div>
         </div>
+      </div>
+      <div class="period-info">
+        <span
+          ><b>Period name:</b> {{ periodInfo()?.periodName || "" }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span
+          >&nbsp;<b>Period end date:</b>
+          {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
+        >
+        <span class="divider"> | </span>
+        <span
+          >&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} &nbsp;<i
+            class="fa fa-info-circle"
+            matTooltip="Dashboard data is updated at 12 AM, 6 AM, 12 PM and 6 PM PST everyday. "
+            [matTooltipPosition]="'right'"
+            style="color: gray"
+          ></i
+        ></span>
       </div>
       <div class="header-center">
         @if (activeTab !== "Finance IT") {

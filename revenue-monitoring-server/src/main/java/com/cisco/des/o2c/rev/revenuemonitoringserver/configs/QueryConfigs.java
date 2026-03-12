@@ -2042,4 +2042,36 @@ public class QueryConfigs {
     public String getEsGetVersionById() {
         return this.esGetVersionById;
     }
+
+    @Value(("${gl.interface.summary.q}"))
+    public String glInterfaceSummary;
+
+    @Bean(name = "glInterfaceSummary")
+    public String getGlInterfaceSummary() {
+        return this.glInterfaceSummary;
+    }
+
+    @Value(("${gl.interface.details.q}"))
+    public String glInterfaceDetails;
+
+    @Bean(name = "glInterfaceDetails")
+    public String getGlInterfaceDetails() {
+        return this.glInterfaceDetails;
+    }
+
+    @Value(("${gl.interface.details.filtered.q}"))
+    public String glInterfaceDetailsFiltered;
+
+    @Bean(name = "glInterfaceDetailsFiltered")
+    public String getGlInterfaceDetailsFiltered() {
+        return this.glInterfaceDetailsFiltered;
+    }
+
+    @Value(("${gl.interface.summary.update.q}"))
+    public String glInterfaceSummaryUpdate;
+
+    @Bean(name = "glInterfaceSummaryUpdate")
+    public String getGlInterfaceSummaryUpdate() {
+        return this.glInterfaceSummaryUpdate;
+    }
 }

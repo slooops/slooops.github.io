@@ -73,7 +73,7 @@
 .fit-grouped-table-container {
   border: 1px solid var(--fit-color-border);
   border-radius: var(--fit-radius-lg);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .fit-grouped-table {
@@ -92,13 +92,30 @@
   background: var(--fit-color-bg-subtle);
   border-bottom: 1px solid var(--fit-color-border);
   white-space: nowrap;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.03em;
 }
 
 .fit-grouped-table__th--actions {
   text-align: center;
   width: 80px;
+}
+
+.fit-grouped-table__th--checkbox {
+  width: 40px;
+  text-align: center;
+}
+
+.fit-grouped-table__td--checkbox {
+  width: 40px;
+  text-align: center;
+}
+
+.fit-bulk-checkbox {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--fit-color-primary);
 }
 
 /* Cells */
@@ -127,9 +144,6 @@
 
 /* Username cell with caret */
 .fit-grouped-table__td--username {
-  display: flex;
-  align-items: center;
-  gap: var(--fit-space-sm);
   font-weight: var(--fit-font-weight-medium);
   white-space: nowrap;
 }
@@ -137,10 +151,12 @@
 /* Caret icon */
 .fit-caret {
   display: inline-flex;
+  vertical-align: middle;
   color: var(--fit-color-text-muted);
   transition: transform 0.2s ease;
   transform: rotate(-90deg);
   flex-shrink: 0;
+  margin-right: var(--fit-space-sm);
 }
 
 .fit-caret--expanded {
@@ -194,6 +210,27 @@
 .fit-trash-btn--parent {
   opacity: 0.35;
   cursor: not-allowed;
+}
+
+/* Plus button (add role to existing user) */
+.fit-plus-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--fit-radius-sm);
+  cursor: pointer;
+  color: var(--fit-color-text-muted);
+  padding: 4px;
+  transition:
+    color var(--fit-transition-fast),
+    background-color var(--fit-transition-fast);
+}
+
+.fit-plus-btn:hover {
+  color: var(--fit-color-primary);
+  background-color: var(--fit-color-primary-subtle, rgba(0, 115, 187, 0.08));
 }
 
 /* Sub-row trash — subtle, full on hover */
@@ -266,4 +303,239 @@
   100% {
     background-position: -200% 0;
   }
+}
+
+/* ==============================
+   Inline Add-User Row
+   ============================== */
+
+.fit-grouped-table__row--inline-add {
+  background: #fffbe6;
+  border-bottom: 2px solid var(--fit-color-primary);
+}
+
+.fit-grouped-table__row--inline-add .fit-grouped-table__td {
+  vertical-align: top;
+  padding-top: var(--fit-space-sm);
+  padding-bottom: var(--fit-space-sm);
+}
+
+.fit-inline-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: var(--fit-font-size-sm);
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-md);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.fit-inline-input:focus {
+  border-color: var(--fit-color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.15);
+}
+
+.fit-inline-input--error {
+  border-color: var(--fit-color-error);
+}
+
+.fit-inline-input--readonly {
+  background: var(--fit-color-bg-subtle, #f5f5f5);
+  color: var(--fit-color-text-muted);
+  cursor: default;
+  border-color: transparent;
+}
+
+.fit-inline-input--readonly:focus {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* Inline add-role row highlight */
+.fit-grouped-table__row--inline-add-role {
+  background: var(--fit-color-bg-subtle);
+  border-bottom: 1px solid var(--fit-color-border);
+}
+
+.fit-inline-error {
+  display: block;
+  font-size: 11px;
+  color: var(--fit-color-error);
+  margin-top: 2px;
+}
+
+.fit-inline-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.fit-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--fit-radius-sm);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.fit-inline-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fit-inline-btn--save {
+  background: #e6f9ed;
+  color: #15803d;
+}
+
+.fit-inline-btn--save:not(:disabled):hover {
+  background: #bbf7d0;
+}
+
+.fit-inline-btn--cancel {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.fit-inline-btn--cancel:not(:disabled):hover {
+  background: #fecaca;
+}
+
+/* ==============================
+   Bulk Update Modal
+   ============================== */
+
+/* Override modal-shell sizing for the wider bulk dialog */
+:host ::ng-deep app-modal-shell:last-of-type .fit-modal {
+  max-width: 720px;
+  width: 90vw;
+}
+
+.fit-bulk-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fit-space-lg);
+  padding: 0 0 var(--fit-space-md) 0;
+}
+
+.fit-bulk-modal__label {
+  display: block;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text-muted);
+  margin-bottom: var(--fit-space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.fit-bulk-modal__dropdowns {
+  display: flex;
+  gap: var(--fit-space-lg);
+}
+
+.fit-bulk-modal__dropdown-col {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Selected users preview */
+.fit-bulk-modal__preview {
+  display: flex;
+  flex-direction: column;
+}
+
+.fit-bulk-modal__preview-table-wrap {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--fit-color-border);
+  border-radius: var(--fit-radius-md);
+}
+
+.fit-bulk-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.fit-bulk-preview-table__th {
+  text-align: left;
+  padding: var(--fit-space-xs) var(--fit-space-md);
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-semibold);
+  color: var(--fit-color-text-muted);
+  background: var(--fit-color-bg-subtle);
+  border-bottom: 1px solid var(--fit-color-border);
+  white-space: nowrap;
+  text-transform: capitalize;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.fit-bulk-preview-table__row {
+  border-bottom: 1px solid var(--fit-color-bg-muted);
+}
+
+.fit-bulk-preview-table__row:last-child {
+  border-bottom: none;
+}
+
+.fit-bulk-preview-table__td {
+  padding: var(--fit-space-xs) var(--fit-space-md);
+  font-size: var(--fit-font-size-sm);
+  color: var(--fit-color-text);
+  vertical-align: middle;
+}
+
+/* Bulk modal actions */
+.fit-bulk-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--fit-space-sm);
+  padding-top: var(--fit-space-sm);
+  border-top: 1px solid var(--fit-color-border);
+}
+
+.fit-bulk-modal__btn {
+  padding: 8px 20px;
+  font-size: var(--fit-font-size-sm);
+  font-weight: var(--fit-font-weight-semibold);
+  border-radius: var(--fit-radius-md);
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color var(--fit-transition-fast),
+    opacity var(--fit-transition-fast);
+}
+
+.fit-bulk-modal__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fit-bulk-modal__btn--cancel {
+  background: var(--fit-color-bg-subtle);
+  color: var(--fit-color-text-muted);
+}
+
+.fit-bulk-modal__btn--cancel:not(:disabled):hover {
+  background: var(--fit-color-bg-muted);
+}
+
+.fit-bulk-modal__btn--submit {
+  background: var(--fit-color-primary);
+  color: #fff;
+}
+
+.fit-bulk-modal__btn--submit:not(:disabled):hover {
+  opacity: 0.9;
 }

@@ -15,9 +15,12 @@ import { FilterBarComponent } from '../ui/compounds/filter-bar/filter-bar.compon
 import { ModalShellComponent } from '../ui/atoms/modal-shell/modal-shell.component';
 import { UserFormComponent } from '../ui/compounds/user-form/user-form.component';
 import { ToggleSwitchComponent } from '../ui/atoms/toggle-switch/toggle-switch.component';
+import { MultiSelectDropdownComponent } from '../ui/atoms/multi-select-dropdown/multi-select-dropdown.component';
+import { FormsModule } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorCaretDownBold,
+  phosphorPlusBold,
   phosphorTrashBold,
 } from '@ng-icons/phosphor-icons/bold';
 
@@ -39,15 +42,21 @@ export interface GroupedUser {
   styleUrls: ['./admin.component.css'],
   standalone: true,
   providers: [
-    provideIcons({ phosphorCaretDownBold, phosphorTrashBold }),
+    provideIcons({
+      phosphorCaretDownBold,
+      phosphorPlusBold,
+      phosphorTrashBold,
+    }),
     DatePipe,
   ],
   imports: [
     CommonModule,
+    FormsModule,
     FilterBarComponent,
     ModalShellComponent,
     UserFormComponent,
     ToggleSwitchComponent,
+    MultiSelectDropdownComponent,
     NgIcon,
     PaginationComponent,
   ],
@@ -61,7 +70,23 @@ export class AdminComponent implements OnInit {
   currentPage: number = 0;
   pageSize: number = 10;
   editableRow: any | null = null;
+  showInlineRow: boolean = false;
+  selectedInlineRoles: string[] = [];
+  inlineSaving: boolean = false;
   isLoading: boolean = false;
+
+  // Inline add-role for existing user (per-group)
+  addRoleForGroup: string | null = null; // userName of group with active inline add-role
+  selectedGroupAddRoles: string[] = [];
+  groupAddRoleSaving: boolean = false;
+  groupAddValidationError: string = '';
+
+  // Bulk selection & update state
+  selectedGroupUserNames: Set<string> = new Set();
+  isBulkModalOpen: boolean = false;
+  bulkRolesToDelete: string[] = [];
+  bulkRolesToAdd: string[] = [];
+  bulkSaving: boolean = false;
 
   // Validation state for editable row
   validationErrors: {
@@ -138,7 +163,227 @@ export class AdminComponent implements OnInit {
       }));
     }
     // Full admin: all roles except the blank "All Roles" option
-    return this.roleOptions.filter((option) => option.value !== '');
+    return this.roleOptions
+      .filter((option) => option.value !== '')
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  // ── Bulk selection helpers ──
+
+  /** Currently selected GroupedUser objects (from paginated view) */
+  get selectedGroups(): GroupedUser[] {
+    return this.filteredGroupedUsers.filter((g) =>
+      this.selectedGroupUserNames.has(g.userName),
+    );
+  }
+
+  /** True when all paginated rows are selected */
+  get isAllSelected(): boolean {
+    return (
+      this.paginatedGroupedUsers.length > 0 &&
+      this.paginatedGroupedUsers.every((g) =>
+        this.selectedGroupUserNames.has(g.userName),
+      )
+    );
+  }
+
+  /** Union of all role names across selected users (for "delete" dropdown) */
+  get uniqueSelectedRoles(): SelectOption[] {
+    const roleSet = new Set<string>();
+    for (const g of this.selectedGroups) {
+      for (const r of g.allRoleNames) {
+        roleSet.add(r);
+      }
+    }
+    return Array.from(roleSet)
+      .sort((a, b) => a.localeCompare(b))
+      .map((r) => ({ label: r, value: r }));
+  }
+
+  /** Roles available to add (admin vs sub-admin aware, excludes roles marked for deletion) */
+  get bulkAddableRoles(): SelectOption[] {
+    const deleteSet = new Set(
+      this.bulkRolesToDelete.map((r) => r.toUpperCase()),
+    );
+    let base: SelectOption[];
+    if (this.isSubAdminMode) {
+      base = this.managedRoles.map((role) => ({ label: role, value: role }));
+    } else {
+      base = this.roleOptions
+        .filter((o) => o.value !== '')
+        .sort((a, b) => a.label.localeCompare(b.label));
+    }
+    return base.filter((o) => !deleteSet.has(o.value.toUpperCase()));
+  }
+
+  toggleSelectGroup(group: GroupedUser): void {
+    if (this.selectedGroupUserNames.has(group.userName)) {
+      this.selectedGroupUserNames.delete(group.userName);
+    } else {
+      this.selectedGroupUserNames.add(group.userName);
+    }
+    // Force change detection for Set
+    this.selectedGroupUserNames = new Set(this.selectedGroupUserNames);
+  }
+
+  toggleSelectAll(): void {
+    if (this.isAllSelected) {
+      // Deselect all on current page
+      for (const g of this.paginatedGroupedUsers) {
+        this.selectedGroupUserNames.delete(g.userName);
+      }
+    } else {
+      // Select all on current page
+      for (const g of this.paginatedGroupedUsers) {
+        this.selectedGroupUserNames.add(g.userName);
+      }
+    }
+    this.selectedGroupUserNames = new Set(this.selectedGroupUserNames);
+  }
+
+  isGroupSelected(group: GroupedUser): boolean {
+    return this.selectedGroupUserNames.has(group.userName);
+  }
+
+  // ── Bulk modal ──
+
+  onBulkUpdateClick(): void {
+    this.bulkRolesToDelete = [];
+    this.bulkRolesToAdd = [];
+    this.bulkSaving = false;
+    this.isBulkModalOpen = true;
+  }
+
+  onBulkRolesToDeleteChange(roles: string[]): void {
+    this.bulkRolesToDelete = roles;
+  }
+
+  onBulkRolesToAddChange(roles: string[]): void {
+    this.bulkRolesToAdd = roles;
+  }
+
+  closeBulkModal(): void {
+    this.isBulkModalOpen = false;
+    this.bulkRolesToDelete = [];
+    this.bulkRolesToAdd = [];
+    this.bulkSaving = false;
+  }
+
+  onBulkSubmit(): void {
+    if (this.bulkSaving) return;
+    if (
+      this.bulkRolesToDelete.length === 0 &&
+      this.bulkRolesToAdd.length === 0
+    ) {
+      return;
+    }
+
+    this.bulkSaving = true;
+    const targets = this.selectedGroups;
+    let pendingOps = 0;
+    let hasError = false;
+
+    // Count total operations
+    for (const group of targets) {
+      pendingOps += this.bulkRolesToDelete.filter((role) =>
+        group.allRoleNames
+          .map((r) => r.toUpperCase())
+          .includes(role.toUpperCase()),
+      ).length;
+      pendingOps += this.bulkRolesToAdd.filter(
+        (role) =>
+          !group.allRoleNames
+            .map((r) => r.toUpperCase())
+            .includes(role.toUpperCase()),
+      ).length;
+    }
+
+    if (pendingOps === 0) {
+      this.bulkSaving = false;
+      this.closeBulkModal();
+      return;
+    }
+
+    let completed = 0;
+    const onComplete = () => {
+      completed++;
+      if (completed === pendingOps) {
+        this.bulkSaving = false;
+        this.selectedGroupUserNames = new Set();
+        this.closeBulkModal();
+        if (hasError) {
+          alert('Some bulk operations failed. Check the console for details.');
+        }
+        this.loadUserRoles();
+      }
+    };
+
+    // DELETE: soft-delete roles that the user actually has
+    for (const group of targets) {
+      const userRolesUpper = group.allRoleNames.map((r) => r.toUpperCase());
+      for (const role of this.bulkRolesToDelete) {
+        if (!userRolesUpper.includes(role.toUpperCase())) continue;
+        // Find the matching AdminUserRow for the exact role
+        const matchedRole = group.roles.find(
+          (r) => r.userRole.toUpperCase() === role.toUpperCase(),
+        );
+        if (!matchedRole) {
+          completed++;
+          continue;
+        }
+
+        const payload = {
+          userName: group.userName,
+          userRole: matchedRole.userRole,
+          creationDate:
+            (matchedRole as any).creationDateRaw || matchedRole.creationDate,
+          deleterUsername: this.username,
+        };
+
+        this.http
+          .delete('user-role', this.destroyManager, { body: payload })
+          .subscribe(
+            () => onComplete(),
+            (error) => {
+              hasError = true;
+              console.error(
+                `Error bulk-deleting ${role} for ${group.userName}:`,
+                error,
+              );
+              onComplete();
+            },
+          );
+      }
+    }
+
+    // ADD: create roles the user doesn't already have
+    for (const group of targets) {
+      const userRolesUpper = group.allRoleNames.map((r) => r.toUpperCase());
+      for (const role of this.bulkRolesToAdd) {
+        if (userRolesUpper.includes(role.toUpperCase())) continue;
+
+        const payload = {
+          userName: group.userName,
+          userEmail: group.userEmail,
+          roleId: null,
+          userRole: role.toUpperCase().trim(),
+          enabledFlag: 'Y',
+          createdBy: this.username.toUpperCase(),
+        };
+
+        this.http.post('user-role', payload, this.destroyManager).subscribe(
+          () => onComplete(),
+          (error) => {
+            hasError = true;
+            console.error(
+              `Error bulk-adding ${role} for ${group.userName}:`,
+              error,
+            );
+            onComplete();
+          },
+        );
+      }
+    }
   }
 
   // Sub-admin detection properties
@@ -159,11 +404,6 @@ export class AdminComponent implements OnInit {
     this.detectAdminPrivileges();
     this.loadUserRoles();
     this.username = this.authService.getUserName();
-    console.log('Current User Roles:', this.currentUserRoles);
-    console.log('Is Full Admin:', this.isFullAdmin);
-    console.log('Is Sub-Admin Mode:', this.isSubAdminMode);
-    console.log('Managed Roles:', this.managedRoles);
-    console.log('username:', this.username);
   }
 
   /**
@@ -249,6 +489,7 @@ export class AdminComponent implements OnInit {
             label: role,
             value: role,
           }));
+          this.roleOptions.sort((a, b) => a.label.localeCompare(b.label));
 
           this.applyFilters();
         } else {
@@ -440,19 +681,20 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    // Extract the first role from the roles array (modal form sends array)
-    let newRole =
-      formData.roles && formData.roles.length > 0 ? formData.roles[0] : '';
-
-    if (!newRole || newRole.trim().length === 0) {
-      // This shouldn't happen if form validation works, but guard anyway
+    // Extract roles from form data
+    const roles = formData.roles?.filter((r) => r.trim().length > 0) || [];
+    if (roles.length === 0) {
       return;
     }
 
-    // If creating a sub-admin, append "_ADMIN" to the role
-    // e.g., "CASE_IQ_I2C" becomes "CASE_IQ_OM_ADMIN"
+    let newRole: string;
+
     if (this.isSubAdminCreationMode) {
-      newRole = newRole.toUpperCase().trim() + '_ADMIN';
+      // Combine selected roles into a single admin role name
+      // e.g., ["CASE_IQ_I2C", "CASE_IQ_SBP"] → "I2C_SBP_CASE_IQ_ADMIN"
+      newRole = this.generateCombinedAdminRole(roles);
+    } else {
+      newRole = roles[0].toUpperCase().trim();
     }
 
     // Reuse the same payload structure as inline form
@@ -460,9 +702,7 @@ export class AdminComponent implements OnInit {
       userName: formData.userName.toUpperCase().trim(),
       userEmail: formData.email.trim(),
       roleId: null,
-      userRole: this.isSubAdminCreationMode
-        ? newRole
-        : newRole.toUpperCase().trim(),
+      userRole: newRole,
       enabledFlag: formData.enabled ? 'Y' : 'N',
       createdBy: this.username.toUpperCase(),
     };
@@ -503,8 +743,48 @@ export class AdminComponent implements OnInit {
     this.isSubAdminCreationMode = false; // Reset sub-admin mode when closing
   }
 
+  /**
+   * Generates a combined admin role name from multiple selected roles.
+   * Extracts unique words (per role) and common words (shared by all roles),
+   * then combines them as: UNIQUE_WORDS + COMMON_WORDS + ADMIN.
+   *
+   * Examples:
+   *   ["CASE_IQ_I2C", "CASE_IQ_SBP"]       → "I2C_SBP_CASE_IQ_ADMIN"
+   *   ["I2C_CASE_ANALYZER", "SBP_CASE_ANALYZER"] → "I2C_SBP_CASE_ANALYZER_ADMIN"
+   *   ["CASE_IQ_I2C"]                       → "CASE_IQ_I2C_ADMIN"
+   */
+  private generateCombinedAdminRole(roles: string[]): string {
+    const normalized = roles.map((r) => r.toUpperCase().trim());
+
+    if (normalized.length === 1) {
+      return normalized[0] + '_ADMIN';
+    }
+
+    const wordArrays = normalized.map((r) => r.split('_'));
+
+    // Find words common to ALL roles
+    const commonWords = wordArrays[0].filter((word) =>
+      wordArrays.every((arr) => arr.includes(word)),
+    );
+
+    // Collect unique words from each role (preserving order)
+    const uniqueWords: string[] = [];
+    for (const words of wordArrays) {
+      for (const word of words) {
+        if (!commonWords.includes(word) && !uniqueWords.includes(word)) {
+          uniqueWords.push(word);
+        }
+      }
+    }
+
+    // Combine: unique parts + common parts + ADMIN
+    return [...uniqueWords, ...commonWords, 'ADMIN'].join('_');
+  }
+
   onAddLineItem(): void {
-    // Initialize a new editable row with empty values
+    this.showInlineRow = true;
+    this.selectedInlineRoles = [];
+    this.validationErrors = {};
     this.editableRow = {
       userId: null,
       userName: '',
@@ -514,8 +794,191 @@ export class AdminComponent implements OnInit {
       creationDate: new Date(),
       userEmail: '',
     };
-    // Reset validation errors
+  }
+
+  onInlineRoleChange(roles: string[]): void {
+    this.selectedInlineRoles = roles;
+  }
+
+  onCancelInlineRow(): void {
+    this.showInlineRow = false;
+    this.editableRow = null;
+    this.selectedInlineRoles = [];
     this.validationErrors = {};
+  }
+
+  // ── Inline add-role for existing user ──
+
+  /**
+   * Returns role options for adding a role to an existing group/user.
+   * Filters out roles the user already has.
+   * Respects admin vs sub-admin restrictions.
+   */
+  getGroupAddRoleOptions(group: GroupedUser): SelectOption[] {
+    const existingRoles = new Set(
+      group.allRoleNames.map((r) => r.toUpperCase()),
+    );
+    const baseOptions = this.isSubAdminMode
+      ? this.managedRoles.map((role) => ({ label: role, value: role }))
+      : this.roleOptions
+          .filter((o) => o.value !== '')
+          .sort((a, b) => a.label.localeCompare(b.label));
+    return baseOptions.filter((o) => !existingRoles.has(o.value.toUpperCase()));
+  }
+
+  onAddRoleToGroup(group: GroupedUser): void {
+    // Expand the group
+    group.isExpanded = true;
+    // Activate inline add-role row for this group
+    this.addRoleForGroup = group.userName;
+    this.selectedGroupAddRoles = [];
+    this.groupAddRoleSaving = false;
+    this.groupAddValidationError = '';
+  }
+
+  onGroupAddRoleChange(roles: string[]): void {
+    this.selectedGroupAddRoles = roles;
+  }
+
+  onCancelGroupAddRole(): void {
+    this.addRoleForGroup = null;
+    this.selectedGroupAddRoles = [];
+    this.groupAddRoleSaving = false;
+    this.groupAddValidationError = '';
+  }
+
+  onSaveGroupAddRole(group: GroupedUser): void {
+    if (this.groupAddRoleSaving) return;
+
+    if (this.selectedGroupAddRoles.length === 0) {
+      this.groupAddValidationError = 'Select at least one role';
+      return;
+    }
+
+    this.groupAddRoleSaving = true;
+    this.groupAddValidationError = '';
+    let completed = 0;
+    let hasError = false;
+    const total = this.selectedGroupAddRoles.length;
+
+    for (const role of this.selectedGroupAddRoles) {
+      const payload = {
+        userName: group.userName,
+        userEmail: group.userEmail,
+        roleId: null,
+        userRole: role.toUpperCase().trim(),
+        enabledFlag: 'Y',
+        createdBy: this.username.toUpperCase(),
+      };
+
+      this.http.post('user-role', payload, this.destroyManager).subscribe(
+        () => {
+          completed++;
+          if (completed === total) {
+            this.groupAddRoleSaving = false;
+            this.addRoleForGroup = null;
+            this.selectedGroupAddRoles = [];
+            this.groupAddValidationError = '';
+            this.loadUserRoles();
+          }
+        },
+        (error) => {
+          completed++;
+          hasError = true;
+          console.error('Error adding role ' + role + ':', error);
+          if (completed === total) {
+            this.groupAddRoleSaving = false;
+            if (hasError) {
+              alert(
+                'Some roles failed to save. Check the console for details.',
+              );
+            }
+            this.loadUserRoles();
+          }
+        },
+      );
+    }
+  }
+
+  onSaveInlineRow(): void {
+    if (this.inlineSaving) return;
+
+    // Validate
+    this.validationErrors = {};
+    let isValid = true;
+
+    const usernameValidation = this.validateUsername(this.editableRow.userName);
+    if (!usernameValidation.valid) {
+      this.validationErrors.userName =
+        this.editableRow.userName.trim().length === 0
+          ? 'Username is required'
+          : 'Username must be one word (no spaces)';
+      isValid = false;
+    } else {
+      this.editableRow.userName = usernameValidation.sanitized;
+    }
+
+    if (
+      !this.editableRow.userEmail ||
+      this.editableRow.userEmail.trim().length === 0
+    ) {
+      this.validationErrors.userEmail = 'Email is required';
+      isValid = false;
+    } else if (!this.validateEmail(this.editableRow.userEmail)) {
+      this.validationErrors.userEmail = 'Invalid email format';
+      isValid = false;
+    }
+
+    if (this.selectedInlineRoles.length === 0) {
+      this.validationErrors.userRole = 'Select at least one role';
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    this.inlineSaving = true;
+    let completed = 0;
+    let hasError = false;
+    const total = this.selectedInlineRoles.length;
+
+    for (const role of this.selectedInlineRoles) {
+      const payload = {
+        userName: this.editableRow.userName,
+        userEmail: this.editableRow.userEmail.trim(),
+        roleId: null,
+        userRole: role.toUpperCase().trim(),
+        enabledFlag: 'Y',
+        createdBy: this.username.toUpperCase(),
+      };
+
+      this.http.post('user-role', payload, this.destroyManager).subscribe(
+        () => {
+          completed++;
+          if (completed === total) {
+            this.inlineSaving = false;
+            this.showInlineRow = false;
+            this.editableRow = null;
+            this.selectedInlineRoles = [];
+            this.validationErrors = {};
+            this.loadUserRoles();
+          }
+        },
+        (error) => {
+          completed++;
+          hasError = true;
+          console.error('Error creating role ' + role + ':', error);
+          if (completed === total) {
+            this.inlineSaving = false;
+            if (hasError) {
+              alert(
+                'Some roles failed to save. Check the console for details.',
+              );
+            }
+            this.loadUserRoles();
+          }
+        },
+      );
+    }
   }
 
   /**
