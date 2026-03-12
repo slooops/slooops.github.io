@@ -2,7 +2,12 @@
   <!-- Header -->
   <div class="scorecard-header">
     <div class="header-left">
-      <h1 class="scorecard-title">Monthly Performance Scorecard</h1>
+      <h1 class="scorecard-title">
+        Monthly Performance Scorecard:
+        <span class="scorecard-subtitle"
+          >Elevating Product Quality and Service Excellence
+        </span>
+      </h1>
       @if (version) {
         <div class="version-meta">
           <span class="sprint-badge">{{ version.sprintName }}</span>
@@ -18,6 +23,9 @@
       <button class="btn btn-ghost" (click)="goToHistory()">
         <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
         History
+      </button>
+      <button class="btn btn-ghost" (click)="exportToEmail()">
+        <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email Table
       </button>
       @if (canEdit && !isEditing) {
         <button class="btn btn-primary" (click)="startEditing()">
@@ -43,18 +51,18 @@
     </div>
   </div>
 
-  <!-- Save notes (shown when editing) -->
-  @if (isEditing) {
-    <div class="save-notes-bar" [@fadeSlide]>
-      <label class="notes-label" for="saveNotes">Save note (optional):</label>
-      <input
-        id="saveNotes"
-        type="text"
-        class="notes-input"
-        [(ngModel)]="saveNotes"
-        placeholder="e.g., Updated Q2 targets"
-        maxlength="500"
-      />
+  <!-- Draft banner -->
+  @if (hasDraftAvailable && !isEditing && !isLoading) {
+    <div class="draft-banner">
+      <span class="draft-banner-text"
+        >You have unsaved edits from a previous session.</span
+      >
+      <button class="btn btn-primary btn-sm" (click)="startEditing()">
+        Resume Editing
+      </button>
+      <button class="btn btn-ghost btn-sm" (click)="discardDraft()">
+        Discard
+      </button>
     </div>
   }
 
@@ -130,7 +138,7 @@
                     <textarea
                       class="cell-input cell-input-textarea"
                       [(ngModel)]="row.successCriteria"
-                      rows="2"
+                      (input)="onCellInput($event)"
                     ></textarea>
                   }
                 </td>
@@ -143,7 +151,11 @@
                   @if (!canEditCell(row, "baseline")) {
                     {{ row.baseline }}
                   } @else {
-                    <input class="cell-input" [(ngModel)]="row.baseline" />
+                    <input
+                      class="cell-input"
+                      [(ngModel)]="row.baseline"
+                      (input)="onFieldInput()"
+                    />
                   }
                 </td>
 
@@ -155,7 +167,11 @@
                   @if (!canEditCell(row, "owners")) {
                     {{ row.owners }}
                   } @else {
-                    <input class="cell-input" [(ngModel)]="row.owners" />
+                    <input
+                      class="cell-input"
+                      [(ngModel)]="row.owners"
+                      (input)="onFieldInput()"
+                    />
                   }
                 </td>
 
@@ -170,6 +186,7 @@
                     <input
                       class="cell-input cell-input-bold"
                       [(ngModel)]="row.eocy26Target"
+                      (input)="onFieldInput()"
                     />
                   }
                 </td>
@@ -185,7 +202,7 @@
                     <textarea
                       class="cell-input cell-input-textarea"
                       [(ngModel)]="row.howWeMeasure"
-                      rows="2"
+                      (input)="onCellInput($event)"
                     ></textarea>
                   }
                 </td>
@@ -202,6 +219,7 @@
                       class="cell-input"
                       [(ngModel)]="row.metric"
                       placeholder="Enter metric"
+                      (input)="onFieldInput()"
                     />
                   }
                 </td>
@@ -224,5 +242,25 @@
         }
       </table>
     </div>
+
+    <!-- Save notes (shown when editing) -->
+    @if (isEditing) {
+      <div class="save-notes-bar">
+        <label class="notes-label" for="saveNotes">Save note (optional):</label>
+        <input
+          id="saveNotes"
+          type="text"
+          class="notes-input"
+          [(ngModel)]="saveNotes"
+          placeholder="e.g., Updated Q2 targets"
+          maxlength="500"
+        />
+      </div>
+    }
+  }
+
+  <!-- Toast -->
+  @if (toastMessage) {
+    <div class="toast">{{ toastMessage }}</div>
   }
 </div>

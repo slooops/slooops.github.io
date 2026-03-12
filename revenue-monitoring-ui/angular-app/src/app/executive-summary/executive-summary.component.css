@@ -69,6 +69,10 @@
   line-height: 2rem;
 }
 
+.exec-subtitle {
+  font-weight: 400;
+}
+
 .version-meta {
   display: flex;
   align-items: center;

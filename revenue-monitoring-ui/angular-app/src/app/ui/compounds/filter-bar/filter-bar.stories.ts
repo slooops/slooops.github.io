@@ -23,18 +23,30 @@ const meta: Meta<FilterBarComponent> = {
     roleOptions: {
       description: 'Options for the role filter dropdown',
     },
-    selectedRole: {
-      control: 'text',
-      description: 'Currently selected role filter value',
+    selectedRoles: {
+      control: 'object',
+      description: 'Currently selected role filter values',
     },
-    enabledFilter: {
-      control: 'select',
-      options: ['', 'Y', 'N'],
+    selectedStatuses: {
+      control: 'object',
       description: 'Filter by enabled/disabled status',
     },
     isFullAdmin: {
       control: 'boolean',
       description: 'Whether to show the "Create Sub-Admin" button',
+    },
+    canCreateSubAdmin: {
+      control: 'boolean',
+      description:
+        'Whether to show the "Create Sub-Admin" button separately from full admin',
+    },
+    totalCount: {
+      control: 'number',
+      description: 'Total number of items',
+    },
+    selectedCount: {
+      control: 'number',
+      description: 'Number of selected items',
     },
   },
 };
@@ -47,8 +59,8 @@ export const Default: Story = {
   args: {
     searchValue: '',
     roleOptions: mockRoleOptions,
-    selectedRole: '',
-    enabledFilter: '',
+    selectedRoles: [],
+    selectedStatuses: [],
     isFullAdmin: false,
   },
 };
@@ -58,8 +70,8 @@ export const WithSearch: Story = {
   args: {
     searchValue: 'john',
     roleOptions: mockRoleOptions,
-    selectedRole: '',
-    enabledFilter: '',
+    selectedRoles: [],
+    selectedStatuses: [],
     isFullAdmin: false,
   },
 };
@@ -69,8 +81,8 @@ export const WithFilters: Story = {
   args: {
     searchValue: '',
     roleOptions: mockRoleOptions,
-    selectedRole: 'admin',
-    enabledFilter: 'Y',
+    selectedRoles: ['admin'],
+    selectedStatuses: ['Y'],
     isFullAdmin: false,
   },
 };
@@ -80,8 +92,8 @@ export const FullAdminView: Story = {
   args: {
     searchValue: '',
     roleOptions: mockRoleOptions,
-    selectedRole: '',
-    enabledFilter: '',
+    selectedRoles: [],
+    selectedStatuses: [],
     isFullAdmin: true,
   },
 };
@@ -91,8 +103,8 @@ export const AllFiltersActive: Story = {
   args: {
     searchValue: 'cisco',
     roleOptions: mockRoleOptions,
-    selectedRole: 'editor',
-    enabledFilter: 'N',
+    selectedRoles: ['editor'],
+    selectedStatuses: ['N'],
     isFullAdmin: true,
   },
 };

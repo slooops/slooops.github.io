@@ -72,6 +72,10 @@
   line-height: 2rem;
 }
 
+.scorecard-subtitle {
+  font-weight: 400;
+}
+
 .version-meta {
   display: flex;
   align-items: center;
@@ -171,7 +175,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 1rem;
-  margin-bottom: 1rem;
+  margin-top: 1rem;
   background: var(--sc-accent-soft);
   border-radius: 10px;
   border: 1px solid rgba(0, 112, 210, 0.15);
@@ -247,9 +251,22 @@
 .scorecard-table-wrap {
   background: var(--sc-bg);
   border-radius: var(--sc-card-radius);
-  box-shadow: var(--sc-shadow-lg);
   overflow: hidden;
-  border: 1px solid var(--sc-border);
+  outline: 1px solid rgba(0, 112, 210, 0.15);
+  position: relative;
+  box-shadow:
+    0 4px 20px rgba(0, 188, 235, 0.12),
+    0 8px 40px rgba(0, 112, 210, 0.08);
+}
+
+.scorecard-table-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/assets/gradients/11.svg") center/cover no-repeat;
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .scorecard-table {
@@ -258,6 +275,8 @@
   table-layout: fixed;
   font-size: 0.8125rem;
   line-height: 1.45;
+  position: relative;
+  z-index: 1;
 }
 
 /* Column widths */
@@ -292,7 +311,7 @@ thead th {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--sc-text-muted);
-  background: #f7f8fa;
+  background: rgba(255, 255, 255, 0.85);
   border-bottom: 2px solid var(--sc-border);
   position: sticky;
   top: 0;
@@ -304,11 +323,16 @@ thead th {
    ========================================================================== */
 
 .cell-workstream {
-  background: var(--group-bg, #f4f5f6);
+  background: rgba(255, 255, 255, 0.85);
   vertical-align: middle;
   padding: 0.75rem 0.875rem;
   border-bottom: 1px solid var(--sc-border);
   border-right: 2px solid var(--group-accent, var(--sc-accent));
+  transition: background 0.3s ease;
+}
+
+.cell-workstream:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .workstream-content {
@@ -360,12 +384,16 @@ thead th {
    ========================================================================== */
 
 .data-row {
-  transition: background var(--sc-transition);
+  transition: background 0.3s ease;
   animation: fadeSlideIn 250ms ease;
 }
 
 .data-row:hover {
-  background: rgba(0, 112, 210, 0.02);
+  background: transparent;
+}
+
+.data-row:hover .cell {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .data-row.editable-row {
@@ -375,7 +403,7 @@ thead th {
 @keyframes fadeSlideIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(0px);
   }
   to {
     opacity: 1;
@@ -389,10 +417,10 @@ thead th {
   border-bottom: 1px solid var(--sc-border);
   vertical-align: middle;
   color: var(--sc-text);
+  background: rgba(255, 255, 255, 0.85);
+  transition: background 0.3s ease;
   min-height: var(--sc-row-height);
-  transition:
-    background var(--sc-transition),
-    padding var(--sc-transition);
+  transition: background var(--sc-transition);
 }
 
 .cell-bullet {
@@ -421,14 +449,15 @@ thead th {
    ========================================================================== */
 
 .cell-editing {
-  padding: 0.375rem 0.5rem;
+  padding: 0;
   background: rgba(0, 112, 210, 0.03);
 }
 
 .cell-input {
   width: 100%;
-  padding: 0.375rem 0.5rem;
-  border: 1.5px solid transparent;
+  padding: 0.75rem 1rem;
+  /* border: 1.5px solid transparent; */
+  border: none;
   border-radius: 4px;
   font-size: 0.8125rem;
   font-family: var(--sc-font);
@@ -440,23 +469,26 @@ thead th {
     background var(--sc-transition);
   box-sizing: border-box;
   line-height: 1.45;
+  margin-bottom: -0.33rem;
+  transition: all var(--sc-transition);
 }
 
 .cell-input:hover {
-  border-color: var(--sc-border);
-  background: var(--sc-bg);
+  /* border-color: var(--sc-border); */
+  /* background: var(--sc-bg); */
 }
 
 .cell-input:focus {
   outline: none;
-  border-color: var(--sc-accent);
+  /* border-color: var(--sc-accent);
   background: var(--sc-bg);
-  box-shadow: 0 0 0 2px rgba(0, 112, 210, 0.12);
+  box-shadow: 0 0 0 2px rgba(0, 112, 210, 0.12); */
 }
 
 .cell-input-textarea {
   resize: vertical;
   min-height: 2.5rem;
+  overflow: hidden;
 }
 
 .cell-input-bold {
@@ -506,6 +538,70 @@ thead th {
   border-top: 1px dashed var(--sc-border);
   background: #fafbfc;
   border-radius: 0 0 var(--sc-card-radius) var(--sc-card-radius);
+}
+
+/* ==========================================================================
+   Toast Notification
+   ========================================================================== */
+
+/* ==========================================================================
+   Draft Banner
+   ========================================================================== */
+
+.draft-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  margin-bottom: 1rem;
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  border-radius: 10px;
+  font-family: var(--sc-font);
+  font-size: 0.8125rem;
+  color: #7c6a00;
+  animation: toastIn 300ms ease;
+}
+
+.draft-banner-text {
+  flex: 1;
+}
+
+.btn-sm {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+/* ==========================================================================
+   Toast
+   ========================================================================== */
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  background: var(--sc-text);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--sc-font);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: toastIn 300ms ease;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ==========================================================================

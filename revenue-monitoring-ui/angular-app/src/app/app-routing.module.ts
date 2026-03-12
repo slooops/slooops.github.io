@@ -303,8 +303,8 @@ export const routes: Routes = [
     path: 'scorecard',
     component: PerformanceHubComponent,
     data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Performance Hub',
+      title: 'AI in Software Development across Finance',
+      header: 'AI in Software Development across Finance',
     },
   },
   {

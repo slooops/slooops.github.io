@@ -589,13 +589,13 @@
   position: absolute;
   inset: 0;
   background: url("/assets/gradients/1.svg") center/cover no-repeat;
-  opacity: 0.2;
+  opacity: 0.6;
   z-index: 0;
   transition: opacity 0.3s ease;
 }
 
 .landing-card--gradient-bg-1:hover::before {
-  opacity: 0.6;
+  opacity: 0.2;
 }
 
 .landing-card--gradient-bg-1 > * {

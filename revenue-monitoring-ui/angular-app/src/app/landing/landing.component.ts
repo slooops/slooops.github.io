@@ -263,21 +263,23 @@ export class LandingComponent implements OnInit, OnDestroy {
     },
     {
       title: 'Case-IQ',
-      description: '',
+      description:
+        'Enterprise Service Platform resolution tracking, showing AI enabled resolutions and insights into case management.',
       icon: 'phosphorBrainDuotone',
       route: '/case-iq',
       requiredRoles: [
         'ADMIN',
-        'CASE_IQ_FINANCE_IT',
-        'CASE_IQ_OM',
-        'CASE_IQ_SM',
-        'CASE_IQ_I2C',
         'CASE_IQ_AIT',
-        'CASE_IQ_FPP',
-        'CASE_IQ_P2P',
         'CASE_IQ_CAPITAL',
+        'CASE_IQ_FINANCE_IT',
+        'CASE_IQ_FPP',
+        'CASE_IQ_12C',
+        'CASE_IQ_MANAGER',
+        'CASE_IQ_OM',
+        'CASE_IQ_P2P',
+        'CASE_IQ_SBP',
       ],
-      variant: 'inner-glow',
+      variant: 'glass',
       // No arcData - feature not yet built
     },
   ];
