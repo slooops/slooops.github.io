@@ -24,13 +24,6 @@ export interface ExecSummaryCurrent {
   rows: ExecSummaryRow[];
 }
 
-export interface ExecEditorInfo {
-  cecUsername: string;
-  displayName: string;
-  roleLevel: 'ADMIN' | 'OWNER';
-  tableScope: string;
-}
-
 @Injectable({ providedIn: 'root' })
 export class ExecSummaryDataService {
   constructor(private http: ApiHttpService) {}
@@ -63,28 +56,6 @@ export class ExecSummaryDataService {
     return this.http
       .get(`exec-summary/version/${versionId}`, dm)
       .pipe(map((res: any) => this.mapCurrentResponse(res)));
-  }
-
-  getEditorInfo(
-    dm: DestroyManager,
-    username: string,
-  ): Observable<ExecEditorInfo | null> {
-    return this.http
-      .get(
-        `scorecard/editors?username=${encodeURIComponent(username)}&scope=EXEC_SUMMARY`,
-        dm,
-      )
-      .pipe(
-        map((res: any) => {
-          if (!res || !res.cecUsername) return null;
-          return {
-            cecUsername: res.cecUsername || res.CEC_USERNAME,
-            displayName: res.displayName || res.DISPLAY_NAME,
-            roleLevel: res.roleLevel || res.ROLE_LEVEL,
-            tableScope: res.tableScope || res.TABLE_SCOPE,
-          } as ExecEditorInfo;
-        }),
-      );
   }
 
   save(data: {

@@ -1961,14 +1961,6 @@ public class QueryConfigs {
         return this.scInsertDataRow;
     }
 
-    @Value(("${sc.get.editor.info.q}"))
-    public String scGetEditorInfo;
-
-    @Bean(name = "scGetEditorInfo")
-    public String getScGetEditorInfo() {
-        return this.scGetEditorInfo;
-    }
-
     @Value(("${sc.get.version.by.id.q}"))
     public String scGetVersionById;
 

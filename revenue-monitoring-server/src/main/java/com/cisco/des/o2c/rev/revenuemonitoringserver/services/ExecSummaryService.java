@@ -20,7 +20,6 @@ public class ExecSummaryService {
     private final String esInsertVersion;
     private final String esGetLastVersionId;
     private final String esInsertDataRow;
-    private final String scGetEditorInfo;
     private final String esGetVersionById;
 
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
@@ -34,7 +33,6 @@ public class ExecSummaryService {
             @Qualifier("esInsertVersion") String esInsertVersion,
             @Qualifier("esGetLastVersionId") String esGetLastVersionId,
             @Qualifier("esInsertDataRow") String esInsertDataRow,
-            @Qualifier("scGetEditorInfo") String scGetEditorInfo,
             @Qualifier("esGetVersionById") String esGetVersionById) {
         this.jdbcManager = jdbcManager;
         this.esGetCurrentVersion = esGetCurrentVersion;
@@ -44,7 +42,6 @@ public class ExecSummaryService {
         this.esInsertVersion = esInsertVersion;
         this.esGetLastVersionId = esGetLastVersionId;
         this.esInsertDataRow = esInsertDataRow;
-        this.scGetEditorInfo = scGetEditorInfo;
         this.esGetVersionById = esGetVersionById;
     }
 
@@ -62,11 +59,6 @@ public class ExecSummaryService {
 
     public List<Map<String, Object>> getVersionsCount() {
         return jdbcManager.queryForList(esGetVersionsCount);
-    }
-
-    public List<Map<String, Object>> getEditorInfo(String cecUsername) {
-        validateUsername(cecUsername);
-        return jdbcManager.queryForListWithParams(scGetEditorInfo, cecUsername, "EXEC_SUMMARY");
     }
 
     public List<Map<String, Object>> getVersionById(int versionId) {

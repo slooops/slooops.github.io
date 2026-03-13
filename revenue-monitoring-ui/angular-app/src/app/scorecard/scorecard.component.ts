@@ -13,7 +13,6 @@ import {
   ScorecardDataService,
   ScorecardRow,
   ScorecardVersion,
-  EditorInfo,
   WorkstreamGroup,
 } from './scorecard-data.service';
 
@@ -35,8 +34,8 @@ import {
 export class ScorecardComponent implements OnInit, OnDestroy {
   groups: WorkstreamGroup[] = [];
   version: ScorecardVersion | null = null;
-  editorInfo: EditorInfo | null = null;
   userId = '';
+  userRoles: string[] = [];
   isEditing = false;
   isSaving = false;
   isLoading = true;
@@ -68,7 +67,10 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.userId = this.authService.getUserName() || '';
+    this.userId = this.authService.getUserID() || '';
+    this.userRoles = this.authService.getRoles() || [];
+    console.log('User ID:', this.userId);
+    console.log('User Roles:', this.userRoles);
     // this.userId = 'jasloop'; // For local testing
     this.hasDraftAvailable = this.hasDraft();
     this.loadData();
@@ -85,7 +87,6 @@ export class ScorecardComponent implements OnInit, OnDestroy {
         this.version = data.version;
         this.groups = this.dataService.groupByWorkstream(data.rows);
         this.isLoading = false;
-        this.loadEditorInfo();
       },
       error: () => {
         this.isLoading = false;
@@ -93,25 +94,18 @@ export class ScorecardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadEditorInfo(): void {
-    if (!this.userId) return;
-    this.dataService.getEditorInfo(this.dm, this.userId).subscribe({
-      next: (info) => {
-        this.editorInfo = info;
-      },
-    });
-  }
-
   get canEdit(): boolean {
-    return !!this.editorInfo;
+    return this.userRoles.some((r) =>
+      ['ADMIN', 'SCORECARD_ADMIN', 'SCORECARD'].includes(r),
+    );
   }
 
   get isAdmin(): boolean {
-    return this.editorInfo?.roleLevel === 'ADMIN';
+    return this.userRoles.some((r) => ['ADMIN', 'SCORECARD_ADMIN'].includes(r));
   }
 
   canEditCell(row: ScorecardRow, column: string): boolean {
-    if (!this.isEditing || !this.editorInfo) return false;
+    if (!this.isEditing || !this.canEdit) return false;
     if (this.isAdmin) return true;
     /* Owners can only edit their own rows */
     if (!this.isOwnerOfRow(row)) return false;
@@ -120,19 +114,14 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   }
 
   isOwnerOfRow(row: ScorecardRow): boolean {
-    if (!this.editorInfo) return false;
-    /* Match display name against the Owners cell (case-insensitive partial match) */
-    const displayName = this.editorInfo.displayName.toLowerCase();
+    if (!this.canEdit) return false;
+    const cec = this.userId.toLowerCase();
     const ownerCell = (row.owners || '').toLowerCase();
-    /* Also check CEC username */
-    const cec = this.editorInfo.cecUsername.toLowerCase();
-    return (
-      ownerCell.includes(displayName.split(' ')[0]) || ownerCell.includes(cec)
-    );
+    return ownerCell.includes(cec);
   }
 
   canEditRow(row: ScorecardRow): boolean {
-    if (!this.isEditing || !this.editorInfo) return false;
+    if (!this.isEditing || !this.canEdit) return false;
     if (this.isAdmin) return true;
     return this.isOwnerOfRow(row);
   }
@@ -175,7 +164,7 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   }
 
   saveChanges(): void {
-    if (!this.editorInfo || this.isSaving) return;
+    if (!this.canEdit || this.isSaving) return;
     this.isSaving = true;
     const rows = this.allRows();
     const sprintName = this.version?.sprintName || 'Sprint 1';
@@ -287,8 +276,9 @@ export class ScorecardComponent implements OnInit, OnDestroy {
       }
     }
     const thStyle =
-      'style="background:#f7f8fa;border:1px solid #e1e4e8;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#6b7482;font-weight:700;"';
-    return `<table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
+      'style="background:#f7f8fa;border:1px solid #e1e4e8;padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#6b7482;font-weight:700;"';
+    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:inline-block;background:#fff;">
+<table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
 <thead><tr>
 <th ${thStyle}>Workstream</th>
 <th ${thStyle}>Success Criteria</th>
@@ -299,7 +289,8 @@ export class ScorecardComponent implements OnInit, OnDestroy {
 <th ${thStyle}>Metric</th>
 </tr></thead>
 <tbody>${rows.join('')}</tbody>
-</table>`;
+</table>
+</div>`;
   }
 
   private buildPlainText(): string {

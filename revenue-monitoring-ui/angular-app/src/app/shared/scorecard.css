@@ -139,6 +139,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  z-index: 1;
 }
 
 .meta-sep {
@@ -325,7 +326,8 @@
    Scorecard Table Wrap  (rainbow background glow)
    ========================================================================== */
 
-.scorecard-table-wrap {
+.scorecard-table-wrap,
+.exec-table-wrap {
   background: var(--sc-bg);
   border-radius: var(--sc-card-radius);
   overflow: hidden;
@@ -334,40 +336,16 @@
     /* thin inner ring */
     0 0 0 1px rgba(0, 188, 235, 0.08),
     /* rainbow directional glows — each corner a different hue */ -20px -16px
-      50px rgba(0, 188, 235, 0.18),
-    20px -16px 50px rgba(0, 112, 210, 0.16),
-    24px 18px 50px rgba(255, 0, 127, 0.14),
-    -24px 18px 50px rgba(255, 144, 0, 0.14),
+      50px rgba(0, 188, 235, 0.08),
+    20px -16px 50px rgba(0, 112, 210, 0.06),
+    24px 18px 50px rgba(255, 0, 128, 0.07),
+    -24px 18px 50px rgba(255, 144, 0, 0.04),
     0px -20px 60px rgba(255, 208, 0, 0.08),
-    0px 20px 60px rgba(0, 188, 235, 0.08),
-    /* wide ambient wash */ 0px 0px 100px rgba(0, 188, 235, 0.05);
+    0px 20px 60px rgba(0, 188, 235, 0.01),
+    /* wide ambient wash */ 0px 0px 100px rgba(0, 188, 235, 0.03);
 }
 
-.scorecard-table-wrap.table-loading {
-  opacity: 0.5;
-}
-
-/* ==========================================================================
-   Exec Summary Table Wrap  (standard border + shadow)
-   ========================================================================== */
-
-.exec-table-wrap {
-  background: var(--sc-bg);
-  border-radius: var(--sc-card-radius);
-  overflow: hidden;
-  position: relative;
-  transition: opacity var(--sc-transition);
-  box-shadow:
-    0 0 0 1px rgba(0, 188, 235, 0.08),
-    -20px -16px 50px rgba(0, 188, 235, 0.18),
-    20px -16px 50px rgba(0, 112, 210, 0.16),
-    24px 18px 50px rgba(255, 0, 127, 0.14),
-    -24px 18px 50px rgba(255, 144, 0, 0.14),
-    0px -20px 60px rgba(255, 208, 0, 0.08),
-    0px 20px 60px rgba(0, 188, 235, 0.08),
-    0px 0px 100px rgba(0, 188, 235, 0.05);
-}
-
+.scorecard-table-wrap.table-loading,
 .exec-table-wrap.table-loading {
   opacity: 0.5;
 }

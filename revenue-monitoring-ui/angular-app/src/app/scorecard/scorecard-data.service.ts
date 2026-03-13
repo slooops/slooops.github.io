@@ -28,13 +28,6 @@ export interface ScorecardCurrent {
   rows: ScorecardRow[];
 }
 
-export interface EditorInfo {
-  cecUsername: string;
-  displayName: string;
-  roleLevel: 'ADMIN' | 'OWNER';
-  tableScope: string;
-}
-
 export interface WorkstreamGroup {
   workstream: string;
   rows: ScorecardRow[];
@@ -72,25 +65,6 @@ export class ScorecardDataService {
     return this.http
       .get(`scorecard/version/${versionId}`, dm)
       .pipe(map((res: any) => this.mapCurrentResponse(res)));
-  }
-
-  getEditorInfo(
-    dm: DestroyManager,
-    username: string,
-  ): Observable<EditorInfo | null> {
-    return this.http
-      .get(`scorecard/editors?username=${encodeURIComponent(username)}`, dm)
-      .pipe(
-        map((res: any) => {
-          if (!res || !res.cecUsername) return null;
-          return {
-            cecUsername: res.cecUsername || res.CEC_USERNAME,
-            displayName: res.displayName || res.DISPLAY_NAME,
-            roleLevel: res.roleLevel || res.ROLE_LEVEL,
-            tableScope: res.tableScope || res.TABLE_SCOPE,
-          } as EditorInfo;
-        }),
-      );
   }
 
   save(data: {

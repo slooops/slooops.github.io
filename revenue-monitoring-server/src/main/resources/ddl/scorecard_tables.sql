@@ -1,12 +1,11 @@
 -- ============================================================================
 -- Sprint Scorecard & Executive Summary — Oracle DDL
 -- ============================================================================
--- 5 tables:
+-- 4 tables:
 --   1. SCORECARD_VERSION        – version metadata (who saved, when, sprint name)
 --   2. SCORECARD_DATA           – row data per version
 --   3. EXEC_SUMMARY_VERSION     – version metadata for SDLC executive summary
 --   4. EXEC_SUMMARY_DATA        – row data per version
---   5. SCORECARD_EDITORS        – authorization allowlist
 -- ============================================================================
 
 
@@ -78,41 +77,6 @@ CREATE TABLE EXEC_SUMMARY_DATA (
 );
 
 CREATE INDEX IDX_ES_DATA_VERSION ON EXEC_SUMMARY_DATA (VERSION_ID);
-
-
--- --------------------------------------------------------------------------
--- 5. SCORECARD_EDITORS  (shared across both tables)
--- --------------------------------------------------------------------------
-CREATE SEQUENCE SCORECARD_EDITORS_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
-
-CREATE TABLE SCORECARD_EDITORS (
-    EDITOR_ID    NUMBER        DEFAULT SCORECARD_EDITORS_SEQ.NEXTVAL PRIMARY KEY,
-    CEC_USERNAME VARCHAR2(100) NOT NULL,
-    DISPLAY_NAME VARCHAR2(200) NOT NULL,
-    ROLE_LEVEL   VARCHAR2(20)  NOT NULL,   -- 'ADMIN' or 'OWNER'
-    TABLE_SCOPE  VARCHAR2(20)  NOT NULL,   -- 'SCORECARD', 'EXEC_SUMMARY', or 'ALL'
-    ENABLED_FLAG VARCHAR2(1)   DEFAULT 'Y' NOT NULL,
-    CONSTRAINT CHK_ROLE_LEVEL  CHECK (ROLE_LEVEL  IN ('ADMIN', 'OWNER')),
-    CONSTRAINT CHK_TABLE_SCOPE CHECK (TABLE_SCOPE IN ('SCORECARD', 'EXEC_SUMMARY', 'ALL')),
-    CONSTRAINT CHK_ENABLED     CHECK (ENABLED_FLAG IN ('Y', 'N')),
-    CONSTRAINT UQ_EDITOR_SCOPE UNIQUE (CEC_USERNAME, TABLE_SCOPE)
-);
-
-
--- ============================================================================
--- SEED DATA — Scorecard Editors (known CECs)
--- ============================================================================
-
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('ngopalan', 'Nirmala Gopalan',    'ADMIN', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('gbhakta',  'Geetha Bhakta',      'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('raappann', 'Raghu Appannagari',  'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('rjalapat', 'Raghu Jalapati',     'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('ssreepat', 'Sai Sreepathi',      'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('sujoshi',  'Sujata Joshi',       'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('apillai',  'Ajith Pillai',       'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('vgurumoo', 'Vidhya Gurumoorthy', 'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('asnigam',  'Ashish Nigam',       'OWNER', 'ALL');
-INSERT INTO SCORECARD_EDITORS (CEC_USERNAME, DISPLAY_NAME, ROLE_LEVEL, TABLE_SCOPE) VALUES ('sgunda',   'Srini Gunda',        'OWNER', 'ALL');
 
 
 -- ============================================================================

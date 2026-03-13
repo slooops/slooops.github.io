@@ -20,7 +20,6 @@ public class ScorecardService {
     private final String scInsertVersion;
     private final String scGetLastVersionId;
     private final String scInsertDataRow;
-    private final String scGetEditorInfo;
     private final String scGetVersionById;
 
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
@@ -34,7 +33,6 @@ public class ScorecardService {
             @Qualifier("scInsertVersion") String scInsertVersion,
             @Qualifier("scGetLastVersionId") String scGetLastVersionId,
             @Qualifier("scInsertDataRow") String scInsertDataRow,
-            @Qualifier("scGetEditorInfo") String scGetEditorInfo,
             @Qualifier("scGetVersionById") String scGetVersionById) {
         this.jdbcManager = jdbcManager;
         this.scGetCurrentVersion = scGetCurrentVersion;
@@ -44,7 +42,6 @@ public class ScorecardService {
         this.scInsertVersion = scInsertVersion;
         this.scGetLastVersionId = scGetLastVersionId;
         this.scInsertDataRow = scInsertDataRow;
-        this.scGetEditorInfo = scGetEditorInfo;
         this.scGetVersionById = scGetVersionById;
     }
 
@@ -62,11 +59,6 @@ public class ScorecardService {
 
     public List<Map<String, Object>> getVersionsCount() {
         return jdbcManager.queryForList(scGetVersionsCount);
-    }
-
-    public List<Map<String, Object>> getEditorInfo(String cecUsername, String tableScope) {
-        validateUsername(cecUsername);
-        return jdbcManager.queryForListWithParams(scGetEditorInfo, cecUsername, tableScope);
     }
 
     public List<Map<String, Object>> getVersionById(int versionId) {

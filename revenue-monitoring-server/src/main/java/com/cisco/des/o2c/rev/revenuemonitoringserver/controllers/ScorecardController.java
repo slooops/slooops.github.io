@@ -61,23 +61,6 @@ public class ScorecardController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/editors")
-    public ResponseEntity<Map<String, Object>> getEditorInfo(
-            @RequestParam String username,
-            @RequestParam(defaultValue = "SCORECARD") String scope) {
-        List<Map<String, Object>> editors = service.getEditorInfo(username, scope);
-        if (editors.isEmpty()) {
-            return new ResponseEntity<>(new HashMap<>(), HttpStatus.OK);
-        }
-        Map<String, Object> editor = editors.get(0);
-        Map<String, Object> response = new HashMap<>();
-        response.put("cecUsername", editor.get("CEC_USERNAME"));
-        response.put("displayName", editor.get("DISPLAY_NAME"));
-        response.put("roleLevel", editor.get("ROLE_LEVEL"));
-        response.put("tableScope", editor.get("TABLE_SCOPE"));
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> save(@RequestBody SaveScorecardRequest request) {
         Map<String, Object> response = new HashMap<>();
