@@ -8,7 +8,8 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 export interface UserContext {
   username: string;
   userId: string;
@@ -21,8 +22,18 @@ export interface UserContext {
   selector: 'app-custom-revenue',
   templateUrl: './custom-revenue.component.html',
   styleUrl: './custom-revenue.component.css',
-  providers: [DestroyManager],
-  imports: [CommonModule, MonitoringDashboardComponent, LoadingSymbolComponent],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [
+    CommonModule,
+    MonitoringDashboardComponent,
+    LoadingSymbolComponent,
+    NgIcon,
+  ],
   standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {

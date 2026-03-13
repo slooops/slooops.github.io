@@ -74,7 +74,8 @@
 .welcome-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  position: relative;
   padding: var(--landing-space-xs) 2rem;
   margin-bottom: -1rem;
 }
@@ -119,11 +120,15 @@
 
 /* Period Info Display */
 .period-info {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 0;
   font-size: 0.95rem;
   color: var(--landing-dimmed, #6b7c93);
+  pointer-events: none;
 }
 
 .period-info b {

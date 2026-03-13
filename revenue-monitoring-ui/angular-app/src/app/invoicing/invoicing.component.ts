@@ -10,6 +10,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { CmsComponent } from '../cms/cms.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -23,13 +25,19 @@ export interface UserContext {
   selector: 'app-invoicing',
   templateUrl: './invoicing.component.html',
   styleUrls: ['./invoicing.component.css'],
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
   imports: [
     CommonModule,
     MatTabsModule,
     MonitoringDashboardComponent,
     CmsComponent,
     LoadingSymbolComponent,
+    NgIcon,
   ],
   standalone: true,
 })

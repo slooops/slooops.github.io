@@ -40,18 +40,23 @@
         >&nbsp;<b>Last Updated:</b> {{ periodInfo().lastUpdated }} &nbsp;</span
       >
     </div>
-
-    <div class="global-search">
-      <div class="global-search-input-wrapper">
-        <input
-          type="text"
-          class="global-search-input"
-          #globalSearchInput
-          placeholder="Search.."
-        />
-      </div>
-      <span class="global-search-icon">🔍</span>
-    </div>
+    @if (roles.includes("ADMIN")) {
+      <!-- <div class="global-search">
+        <div class="global-search-input-wrapper">
+          <input
+            type="text"
+            class="global-search-input"
+            #globalSearchInput
+            placeholder="Search.."
+          />
+        </div>
+        <span class="global-search-icon">🔍</span>
+      </div> -->
+      <button class="ask-ivan-btn" type="button">
+        <ng-icon class="ask-ivan-icon" name="phosphorSparkleBold" size="20" />
+        <span class="ask-ivan-label">Ask Ivan</span>
+      </button>
+    }
   </div>
 </div>
 <hr />

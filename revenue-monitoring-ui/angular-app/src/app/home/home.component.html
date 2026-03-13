@@ -11,7 +11,37 @@
           class="quarter-dropdown-wrapper"
           (click)="$event.stopPropagation()"
         >
-          <button type="button" class="quarter-dropdown-button">Q3FY26</button>
+          <button
+            type="button"
+            class="quarter-dropdown-button"
+            (click)="toggleQuarterDropdown($event)"
+          >
+            {{ selectedQuarterLabel }}
+            <span class="dropdown-arrow" [class.open]="showQuarterDropdown()"
+              >▾</span
+            >
+          </button>
+
+          @if (showQuarterDropdown()) {
+            <div class="quarter-dropdown-menu">
+              <div class="quarter-options">
+                @for (q of availableQuarters(); track q.value) {
+                  <div
+                    class="quarter-option"
+                    [class.selected]="q.value === selectedQuarter()"
+                    (click)="selectQuarter(q.value)"
+                  >
+                    <input
+                      type="radio"
+                      [checked]="q.value === selectedQuarter()"
+                      name="quarterRadio"
+                    />
+                    <span class="option-label">{{ q.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
       </div>
     </div>

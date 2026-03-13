@@ -32,6 +32,8 @@
 
 .header-right {
   flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .period-info {
@@ -234,4 +236,31 @@ table.mat-mdc-table .mat-mdc-cell.extra-wide-column {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0070d2;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
 }

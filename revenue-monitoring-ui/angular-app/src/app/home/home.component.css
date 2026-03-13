@@ -2097,6 +2097,11 @@ tr.mat-row {
   background-color: #f0f8fc;
 }
 
+.quarter-option.selected {
+  background-color: #e8f4fd;
+  font-weight: 600;
+}
+
 .quarter-option input[type="radio"] {
   width: 12px;
   height: 12px;

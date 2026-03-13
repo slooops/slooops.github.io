@@ -14,12 +14,19 @@ import { AtmfCardComponent } from '../components/atmf/atmf-card/atmf-card.compon
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
 import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 
 @Component({
   selector: 'app-period-close-tracking',
   templateUrl: './period-close-tracking.component.html',
   styleUrls: ['./period-close-tracking.component.css'],
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
   imports: [
     CommonModule,
     MatTabsModule,
@@ -28,6 +35,7 @@ import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.com
     LoadingSymbolComponent,
     AtmfBarLineChartComponent,
     AtmfTableComponent,
+    NgIcon,
   ],
   standalone: true,
 })

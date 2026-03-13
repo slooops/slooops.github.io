@@ -19,6 +19,8 @@ import { GlobalSearchDialogComponent } from '../global-search-dialog/global-sear
 import { Data } from '@angular/router';
 import { DataService } from 'src/app/providers/data.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 interface MetricTile {
   name: string;
@@ -42,8 +44,15 @@ interface AccuracyData {
   selector: 'app-esp-home',
   templateUrl: './esp-home.component.html',
   styleUrls: ['./esp-home.component.css'],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
   imports: [
     CommonModule,
+    NgIcon,
     CaseiqComponent,
     CaseiqCapComponent,
     CaseiqFppComponent,

@@ -6,6 +6,8 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { DataService } from '../providers/data.service';
 import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -19,8 +21,13 @@ export interface UserContext {
   selector: 'app-ait',
   templateUrl: './ait.component.html',
   styleUrls: ['./ait.component.css'],
-  providers: [DestroyManager],
-  imports: [CommonModule, MonitoringDashboardComponent],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [CommonModule, MonitoringDashboardComponent, NgIcon],
   standalone: true,
 })
 export class AitComponent implements OnInit {

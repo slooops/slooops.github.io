@@ -9,6 +9,9 @@ import { CommonModule } from '@angular/common';
 import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.component';
 import { CardComponent } from '../../components/card/card.component';
 import { TableComponent } from '../../components/table/table.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 
 // Types for new quarter-pair logic
 type QuarterPairKey = 'Q1-Q2' | 'Q2-Q3' | 'Q3-Q4' | 'Q4-Q1';
@@ -29,6 +32,13 @@ type PairConfig = {
     LoadingSymbolComponent,
     CardComponent,
     TableComponent,
+    NgIcon,
+  ],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
   ],
   standalone: true,
 })
@@ -37,6 +47,7 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
     http: ApiHttpService,
     private destroyManager: DestroyManager,
     private homeDataService: HomeDataService,
+    private authService: AuthenticationService,
   ) {
     this.http = http;
     Chart.register(...registerables);
@@ -81,10 +92,11 @@ export class SbpEspCaseAnalyzerComponent implements OnInit {
 
   // New pair-based configuration
   quarterPairs: PairConfig[] = [];
-
+  roles: string[] = [];
   ngOnInit(): void {
     this.updateTime();
     this.loadPeriodInfo();
+    this.roles = this.authService.getRoles();
 
     this.http
       .get('sbp-esp-weekly-comparison-summary', this.destroyManager, {

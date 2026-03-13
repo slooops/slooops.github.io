@@ -35,15 +35,15 @@
   min-width: 0;
 }
 
-/* Narrower: In Progress, Routed Out, Cancelled (2nd–4th agent cells) */
+/* Narrower: In Progress, Routed Out, Cancelled (1st–3rd agent cells) */
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(1),
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(2),
-.caseiq-header-group-agent .caseiq-header-cell:nth-child(3),
-.caseiq-header-group-agent .caseiq-header-cell:nth-child(4) {
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(3) {
   flex: 0.8 1 0;
 }
 
-/* Wider: Service Requests (5th agent cell) */
-.caseiq-header-group-agent .caseiq-header-cell:nth-child(5) {
+/* Wider: Service Requests (4th agent cell) */
+.caseiq-header-group-agent .caseiq-header-cell:nth-child(4) {
   flex: 1.2 1 0;
 }
 

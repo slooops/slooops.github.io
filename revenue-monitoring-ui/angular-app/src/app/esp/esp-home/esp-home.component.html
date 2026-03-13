@@ -106,7 +106,7 @@
         ></span>
       </div>
       <div class="header-center">
-        @if (activeTab !== "Finance IT") {
+        <!-- @if (activeTab !== "Finance IT" && roles.includes("ADMIN")) {
           <div class="global-search">
             <div class="global-search-input-wrapper">
               <input
@@ -123,6 +123,16 @@
               >🔍</span
             >
           </div>
+        } -->
+        @if (roles.includes("ADMIN")) {
+          <button class="ask-ivan-btn" type="button">
+            <ng-icon
+              class="ask-ivan-icon"
+              name="phosphorSparkleBold"
+              size="20"
+            />
+            <span class="ask-ivan-label">Ask Ivan</span>
+          </button>
         }
       </div>
     </div>

@@ -2,6 +2,7 @@ import {
   Component,
   ViewChild,
   ElementRef,
+  HostListener,
   OnDestroy,
   signal,
   computed,
@@ -129,6 +130,49 @@ export class HomeComponent implements OnDestroy {
   userRoles = signal<any>(null);
   username = signal<string>('');
 
+  // ── Quarter filter state ──
+  selectedQuarter = signal<string>('');
+  showQuarterDropdown = signal<boolean>(false);
+  availableQuarters = signal<{ label: string; value: string }[]>([]);
+  private rawEspCasesData: any[] = [];
+  private rawHighPriorityData: any[] = [];
+  private rawTransactionFailuresData: any[] = [];
+  private rawIssuesListData: any[] = [];
+  private rawIssuesData: any[] = [];
+  private rawIssuesDistributionData: any[] = [];
+
+  /** Close the quarter dropdown when clicking outside */
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.showQuarterDropdown()) {
+      this.showQuarterDropdown.set(false);
+    }
+  }
+
+  /** Get the display label for the current quarter */
+  get selectedQuarterLabel(): string {
+    const q = this.selectedQuarter();
+    const match = this.availableQuarters().find((item) => item.value === q);
+    return match ? match.label : q || '—';
+  }
+
+  /** Toggle the quarter dropdown */
+  toggleQuarterDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showQuarterDropdown.update((v) => !v);
+  }
+
+  /** Select a quarter, close dropdown, and re-filter all datasets */
+  selectQuarter(quarter: string): void {
+    this.selectedQuarter.set(quarter);
+    this.showQuarterDropdown.set(false);
+    this.applyHighPriorityQuarterFilter();
+    this.applyTransactionFailuresQuarterFilter();
+    this.applyEspCasesQuarterFilter();
+    this.applyIssuesQuarterFilter();
+    this.applyIssuesDistributionQuarterFilter();
+    this.applyIssuesListQuarterFilter();
+  }
   /**
    * Build chart when canvas elements are ready (with retry logic)
    */
@@ -205,13 +249,12 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getHighPriorityIssues(this.destroyManager).subscribe({
       next: (highPriorityIssues) => {
         console.log('High Priority Issues:', highPriorityIssues);
-        this.highPriorityKpis.set({
-          highPriorityIssues: highPriorityIssues[0].HIGH_PRIORITY_ISSUES || 0,
-          inProgress: highPriorityIssues[0].IN_PROGRESS || 0,
-          totalAging: highPriorityIssues[0].TOTAL_AGING || 0,
-          lessThan48Hours: highPriorityIssues[0]['<48 Hours'] || 0,
-          moreThan48Hours: highPriorityIssues[0]['>48 Hours'] || 0,
-        });
+        this.rawHighPriorityData =
+          highPriorityIssues && highPriorityIssues.length > 0
+            ? highPriorityIssues
+            : [];
+        this.rebuildAvailableQuarters();
+        this.applyHighPriorityQuarterFilter();
       },
       error: (error) => {
         console.error('Error loading high priority issues:', error);
@@ -226,16 +269,9 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getIssues(this.destroyManager).subscribe({
       next: (issues) => {
         console.log('Issues from real service:', issues);
-        this.issueKpis.set({
-          totalIssues: issues[1]?.TOTAL_ISSUES || 0,
-          resolvedIssues: issues[1]?.RESOLVED || 0,
-          inProgressIssues: issues[1]?.IN_PROGRESS || 0,
-          assignedIssues: issues[1]?.ASSIGNED || 0,
-          unassignedIssues: issues[1]?.UNASSIGNED || 0,
-        });
-        // Ensure issue distribution center text reflects latest totalIssues
-        this.refreshIssueDistributionCenterText();
-        console.log('Updated issue KPIs:', this.issueKpis());
+        this.rawIssuesData = issues && issues.length > 0 ? issues : [];
+        this.rebuildAvailableQuarters();
+        this.applyIssuesQuarterFilter();
       },
       error: (error) => {
         console.error('Error loading issues:', error);
@@ -250,106 +286,9 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getTransactionFailures(this.destroyManager).subscribe({
       next: (data) => {
         console.log('Transaction Failures API Response:', data);
-
-        // Parse API response: Array of {WEEK_NUMBER, COUNT, CATEGORY}
-        const weekMap = new Map<
-          string,
-          {
-            supportTeam: number;
-            inProgress: number;
-            resolved: number;
-            totalIssues: number;
-            agent: number;
-          }
-        >();
-
-        if (data && data.length > 0) {
-          data.forEach((item: any) => {
-            const weekNum = item.WEEK_NUMBER;
-            const weekLabel = `Week ${weekNum}`;
-            const count = item.COUNT || 0;
-            const category = (item.CATEGORY || '')
-              .toString()
-              .toLowerCase()
-              .trim();
-
-            if (!weekMap.has(weekLabel)) {
-              weekMap.set(weekLabel, {
-                supportTeam: 0,
-                inProgress: 0,
-                resolved: 0,
-                totalIssues: 0,
-                agent: 0,
-              });
-            }
-
-            const weekData = weekMap.get(weekLabel)!;
-            if (category === 'support team') {
-              weekData.supportTeam = count;
-            } else if (category === 'in progress') {
-              weekData.inProgress = count;
-            } else if (category === 'resolved') {
-              weekData.resolved = count;
-            } else if (
-              category === 'total issue' ||
-              category === 'total issues'
-            ) {
-              weekData.totalIssues = count;
-            } else if (category === 'agent') {
-              weekData.agent = count;
-            }
-          });
-        }
-
-        // Always use a fixed range of weeks: Week 1 to Week 13
-        const fixedWeeks = Array.from(
-          { length: 13 },
-          (_, i) => `Week ${i + 1}`,
-        );
-
-        // Compute percentage of In Progress over Total Issues for each week
-        const percentInProgress = fixedWeeks.map((week) => {
-          const weekData = weekMap.get(week) || {
-            supportTeam: 0,
-            inProgress: 0,
-            resolved: 0,
-            totalIssues: 0,
-          };
-          const total = weekData.totalIssues || 0;
-          const inProg = weekData.inProgress || 0;
-          if (!total) {
-            return 0;
-          }
-          return +((inProg / total) * 100).toFixed(1);
-        });
-
-        const chartData = {
-          weeks: fixedWeeks,
-          supportTeam: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
-          ),
-          inProgress: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
-          ),
-          resolved: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { resolved: 0 }).resolved,
-          ),
-          totalIssues: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { totalIssues: 0 }).totalIssues,
-          ),
-          agent: fixedWeeks.map(
-            (week) => (weekMap.get(week) || { agent: 0 }).agent,
-          ),
-          percentInProgress,
-        };
-
-        console.log('Parsed Transaction Failures chart data:', chartData);
-        // Show canvas instead of loader, then build chart when canvas is ready
-        this.transactionFailuresLoading.set(false);
-        this.buildChartWhenReady(
-          () => this.buildTransactionFailuresChart(chartData),
-          'transactionFailures',
-        );
+        this.rawTransactionFailuresData = data && data.length > 0 ? data : [];
+        this.rebuildAvailableQuarters();
+        this.applyTransactionFailuresQuarterFilter();
       },
       error: (error) => {
         console.error('Error loading transaction failures:', error);
@@ -366,66 +305,14 @@ export class HomeComponent implements OnDestroy {
       next: (data) => {
         console.log('ESP Cases API Response:', data);
 
-        // Parse API response: Array of {FISCAL_QTR, WEEK_NUMBER, TOTAL_CASES, RESOLVED_AGENT, RESOLVED_OPS, IN_PROGRESS}
-        const weekMap = new Map<
-          number,
-          {
-            totalCases: number;
-            resolvedAgent: number;
-            resolvedOps: number;
-            inProgress: number;
-          }
-        >();
+        // Store raw data for re-filtering on quarter change
+        this.rawEspCasesData = data && data.length > 0 ? data : [];
 
-        if (data && data.length > 0) {
-          data
-            .filter((item: any) => item.FISCAL_QTR === 'Q3FY26')
-            .forEach((item: any) => {
-              const weekNum = Number(item.WEEK_NUMBER) || 0;
-              weekMap.set(weekNum, {
-                totalCases: Number(item.TOTAL_CASES) || 0,
-                resolvedAgent: Number(item.RESOLVED_AGENT) || 0,
-                resolvedOps: Number(item.RESOLVED_OPS) || 0,
-                inProgress: Number(item.IN_PROGRESS) || 0,
-              });
-            });
-        }
+        // ── Rebuild available quarters from all datasets ──
+        this.rebuildAvailableQuarters();
 
-        // Always use a fixed range of weeks: Week 1 to Week 13
-        const fixedWeeks = Array.from(
-          { length: 13 },
-          (_, i) => `Week ${i + 1}`,
-        );
-        const defaultWeek = {
-          totalCases: 0,
-          resolvedAgent: 0,
-          resolvedOps: 0,
-          inProgress: 0,
-        };
-
-        const chartData = {
-          weeks: fixedWeeks,
-          totalCases: fixedWeeks.map(
-            (_, i) => (weekMap.get(i + 1) || defaultWeek).totalCases,
-          ),
-          resolvedAgent: fixedWeeks.map(
-            (_, i) => (weekMap.get(i + 1) || defaultWeek).resolvedAgent,
-          ),
-          resolvedOps: fixedWeeks.map(
-            (_, i) => (weekMap.get(i + 1) || defaultWeek).resolvedOps,
-          ),
-          inProgress: fixedWeeks.map(
-            (_, i) => (weekMap.get(i + 1) || defaultWeek).inProgress,
-          ),
-        };
-
-        console.log('Parsed ESP Cases chart data:', chartData);
-        // Show canvas instead of loader, then build chart when canvas is ready
-        this.espCasesLoading.set(false);
-        this.buildChartWhenReady(
-          () => this.buildEspCasesChart(chartData),
-          'espCases',
-        );
+        // Render chart with the selected quarter
+        this.applyEspCasesQuarterFilter();
       },
       error: (error) => {
         console.error('Error loading ESP cases:', error);
@@ -435,37 +322,365 @@ export class HomeComponent implements OnDestroy {
   }
 
   /**
+   * Merge quarters from ALL raw datasets (ESP → FISCAL_QTR, others → QUARTER),
+   * sort newest-first, and default selectedQuarter to the latest.
+   */
+  private rebuildAvailableQuarters(): void {
+    const extract = (data: any[], field: string): string[] =>
+      (data || [])
+        .map((item: any) => ((item[field] || '') as string).trim())
+        .filter((q: string) => !!q);
+
+    const allValues = [
+      ...extract(this.rawEspCasesData, 'FISCAL_QTR'),
+      ...extract(this.rawHighPriorityData, 'QUARTER'),
+      ...extract(this.rawTransactionFailuresData, 'QUARTER'),
+      ...extract(this.rawIssuesData, 'QUARTER'),
+      ...extract(this.rawIssuesDistributionData, 'QUARTER'),
+      ...extract(this.rawIssuesListData, 'QUARTER'),
+    ];
+
+    const unique = Array.from(new Set(allValues));
+
+    // Sort newest first (e.g. Q4FY26 before Q1FY26)
+    unique.sort((a, b) => {
+      const parse = (val: string) => {
+        const m = val.match(/Q(\d)FY(\d+)/i);
+        return m ? { q: Number(m[1]), fy: Number(m[2]) } : { q: 0, fy: 0 };
+      };
+      const pa = parse(a);
+      const pb = parse(b);
+      return pa.fy !== pb.fy ? pb.fy - pa.fy : pb.q - pa.q;
+    });
+
+    this.availableQuarters.set(
+      unique.map((v) => ({ value: v, label: v.replace('FY', ' FY') })),
+    );
+
+    // Default to the latest quarter if nothing is selected yet
+    const current = this.selectedQuarter();
+    if (!current || !unique.includes(current)) {
+      this.selectedQuarter.set(unique[0] || '');
+    }
+  }
+
+  /**
+   * Re-filter raw ESP data by the currently selected quarter
+   * and rebuild the ESP Cases chart.
+   */
+  private applyEspCasesQuarterFilter(): void {
+    const quarter = this.selectedQuarter();
+    const data = this.rawEspCasesData;
+
+    const weekMap = new Map<
+      number,
+      {
+        totalCases: number;
+        resolvedAgent: number;
+        resolvedOps: number;
+        inProgress: number;
+      }
+    >();
+
+    if (data && data.length > 0) {
+      data
+        .filter((item: any) => item.FISCAL_QTR === quarter)
+        .forEach((item: any) => {
+          const weekNum = Number(item.WEEK_NUMBER) || 0;
+          weekMap.set(weekNum, {
+            totalCases: Number(item.TOTAL_CASES) || 0,
+            resolvedAgent: Number(item.RESOLVED_AGENT) || 0,
+            resolvedOps: Number(item.RESOLVED_OPS) || 0,
+            inProgress: Number(item.IN_PROGRESS) || 0,
+          });
+        });
+    }
+
+    // Always use a fixed range of weeks: Week 1 to Week 13
+    const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week ${i + 1}`);
+    const defaultWeek = {
+      totalCases: 0,
+      resolvedAgent: 0,
+      resolvedOps: 0,
+      inProgress: 0,
+    };
+
+    const chartData = {
+      weeks: fixedWeeks,
+      totalCases: fixedWeeks.map(
+        (_, i) => (weekMap.get(i + 1) || defaultWeek).totalCases,
+      ),
+      resolvedAgent: fixedWeeks.map(
+        (_, i) => (weekMap.get(i + 1) || defaultWeek).resolvedAgent,
+      ),
+      resolvedOps: fixedWeeks.map(
+        (_, i) => (weekMap.get(i + 1) || defaultWeek).resolvedOps,
+      ),
+      inProgress: fixedWeeks.map(
+        (_, i) => (weekMap.get(i + 1) || defaultWeek).inProgress,
+      ),
+    };
+
+    console.log('Parsed ESP Cases chart data:', chartData);
+    // Show canvas instead of loader, then build chart when canvas is ready
+    this.espCasesLoading.set(false);
+    this.buildChartWhenReady(
+      () => this.buildEspCasesChart(chartData),
+      'espCases',
+    );
+  }
+
+  /**
+   * Re-filter raw High Priority data by the currently selected quarter
+   * and rebuild the KPI bar.
+   */
+  private applyHighPriorityQuarterFilter(): void {
+    const quarter = this.selectedQuarter();
+    const data = this.rawHighPriorityData;
+
+    if (!data || data.length === 0) return;
+
+    const filtered = quarter
+      ? data.filter((item: any) => item.QUARTER === quarter)
+      : data;
+
+    if (filtered.length > 0) {
+      this.highPriorityKpis.set({
+        highPriorityIssues: filtered[0].HIGH_PRIORITY_ISSUES || 0,
+        inProgress: filtered[0].IN_PROGRESS || 0,
+        totalAging: filtered[0].TOTAL_AGING || 0,
+        lessThan48Hours: filtered[0]['<48 Hours'] || 0,
+        moreThan48Hours: filtered[0]['>48 Hours'] || 0,
+      });
+    } else {
+      this.highPriorityKpis.set({
+        highPriorityIssues: 0,
+        inProgress: 0,
+        totalAging: 0,
+        lessThan48Hours: 0,
+        moreThan48Hours: 0,
+      });
+    }
+  }
+
+  /**
+   * Re-filter raw Transaction Failures data by the currently selected quarter
+   * and rebuild the Transaction Failures chart.
+   */
+  private applyTransactionFailuresQuarterFilter(): void {
+    const quarter = this.selectedQuarter();
+    const data = this.rawTransactionFailuresData;
+
+    const weekMap = new Map<
+      string,
+      {
+        supportTeam: number;
+        inProgress: number;
+        resolved: number;
+        totalIssues: number;
+        agent: number;
+      }
+    >();
+
+    if (data && data.length > 0) {
+      const filtered = quarter
+        ? data.filter((item: any) => item.QUARTER === quarter)
+        : data;
+
+      filtered.forEach((item: any) => {
+        const weekNum = item.WEEK_NUMBER;
+        const weekLabel = `Week ${weekNum}`;
+        const count = item.COUNT || 0;
+        const category = (item.CATEGORY || '').toString().toLowerCase().trim();
+
+        if (!weekMap.has(weekLabel)) {
+          weekMap.set(weekLabel, {
+            supportTeam: 0,
+            inProgress: 0,
+            resolved: 0,
+            totalIssues: 0,
+            agent: 0,
+          });
+        }
+
+        const weekData = weekMap.get(weekLabel)!;
+        if (category === 'support team') {
+          weekData.supportTeam = count;
+        } else if (category === 'in progress') {
+          weekData.inProgress = count;
+        } else if (category === 'resolved') {
+          weekData.resolved = count;
+        } else if (category === 'total issue' || category === 'total issues') {
+          weekData.totalIssues = count;
+        } else if (category === 'agent') {
+          weekData.agent = count;
+        }
+      });
+    }
+
+    // Always use a fixed range of weeks: Week 1 to Week 13
+    const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week ${i + 1}`);
+
+    // Compute percentage of In Progress over Total Issues for each week
+    const percentInProgress = fixedWeeks.map((week) => {
+      const weekData = weekMap.get(week) || {
+        supportTeam: 0,
+        inProgress: 0,
+        resolved: 0,
+        totalIssues: 0,
+      };
+      const total = weekData.totalIssues || 0;
+      const inProg = weekData.inProgress || 0;
+      if (!total) {
+        return 0;
+      }
+      return +((inProg / total) * 100).toFixed(1);
+    });
+
+    const chartData = {
+      weeks: fixedWeeks,
+      supportTeam: fixedWeeks.map(
+        (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
+      ),
+      inProgress: fixedWeeks.map(
+        (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
+      ),
+      resolved: fixedWeeks.map(
+        (week) => (weekMap.get(week) || { resolved: 0 }).resolved,
+      ),
+      totalIssues: fixedWeeks.map(
+        (week) => (weekMap.get(week) || { totalIssues: 0 }).totalIssues,
+      ),
+      agent: fixedWeeks.map(
+        (week) => (weekMap.get(week) || { agent: 0 }).agent,
+      ),
+      percentInProgress,
+    };
+
+    console.log('Parsed Transaction Failures chart data:', chartData);
+    this.transactionFailuresLoading.set(false);
+    this.buildChartWhenReady(
+      () => this.buildTransactionFailuresChart(chartData),
+      'transactionFailures',
+    );
+  }
+
+  /**
+   * Re-filter raw Issues data by the currently selected quarter
+   * and rebuild the issue KPI bar.
+   */
+  private applyIssuesQuarterFilter(): void {
+    const quarter = this.selectedQuarter();
+    const data = this.rawIssuesData;
+
+    if (!data || data.length === 0) return;
+
+    const filtered = quarter
+      ? data.filter((item: any) => item.FISCAL_QTR === quarter)
+      : data;
+
+    if (filtered.length > 0) {
+      // Use the second element (index 1) as original logic did
+      const row = filtered.length > 1 ? filtered[1] : filtered[0];
+      this.issueKpis.set({
+        totalIssues: row?.TOTAL_ISSUES || 0,
+        resolvedIssues: row?.RESOLVED || 0,
+        inProgressIssues: row?.IN_PROGRESS || 0,
+        assignedIssues: row?.ASSIGNED || 0,
+        unassignedIssues: row?.UNASSIGNED || 0,
+      });
+    } else {
+      this.issueKpis.set({
+        totalIssues: 0,
+        resolvedIssues: 0,
+        inProgressIssues: 0,
+        assignedIssues: 0,
+        unassignedIssues: 0,
+      });
+    }
+    this.refreshIssueDistributionCenterText();
+    console.log('Updated issue KPIs:', this.issueKpis());
+  }
+
+  /**
+   * Re-filter raw Issues Distribution data by the currently selected quarter
+   * and rebuild the doughnut chart.
+   */
+  private applyIssuesDistributionQuarterFilter(): void {
+    const quarter = this.selectedQuarter();
+    const data = this.rawIssuesDistributionData;
+
+    let aiAgent = 0;
+    let human = 0;
+
+    if (data && data.length > 0) {
+      const filtered = quarter
+        ? data.filter((item: any) => item.QUARTER === quarter)
+        : data;
+
+      filtered.forEach((item: any) => {
+        const percentage = Number(item.PERCENTAGE) || 0;
+        const source = (item.SOURCE || '').toLowerCase().trim();
+
+        if (source === 'ai agent') {
+          aiAgent = percentage;
+        } else if (source === 'human') {
+          human = percentage;
+        }
+      });
+    }
+
+    console.log('Parsed distribution:', { aiAgent, human });
+    this.issueDistributionLoading.set(false);
+    this.buildChartWhenReady(
+      () => this.buildIssueDistributionChart(aiAgent, human),
+      'issueDistribution',
+    );
+  }
+
+  /**
+   * Re-filter raw Issues List data by the currently selected quarter
+   * and rebuild the issues table.
+   */
+  private applyIssuesListQuarterFilter(): void {
+    const quarter = this.selectedQuarter();
+    const data = this.rawIssuesListData;
+
+    if (!data || data.length === 0) return;
+
+    const filtered = quarter
+      ? data.filter((item: any) => item.QUARTER === quarter)
+      : data;
+
+    this.issuesList.set(filtered);
+    if (filtered.length > 0) {
+      // Hide FISCAL_QTR and QUARTER columns from the table
+      this.displayedColumns = Object.keys(filtered[0]).filter(
+        (col) => col !== 'FISCAL_QTR' && col !== 'QUARTER',
+      );
+      this.displayedColumnsWithSelect = [...this.displayedColumns];
+    }
+
+    this.dataSource = new MatTableDataSource<any>(filtered);
+    this.updateTableFilter();
+
+    setTimeout(() => {
+      if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+    }, 100);
+  }
+
+  /**
    * Load issues distribution data
    */
   private loadIssuesDistribution(): void {
     this.homeDataService.getIssuesDistribution(this.destroyManager).subscribe({
       next: (data) => {
         console.log('Issues Distribution API Response:', data);
-
-        let aiAgent = 0;
-        let human = 0;
-
-        if (data && data.length > 0) {
-          data.forEach((item: any) => {
-            const percentage = Number(item.PERCENTAGE) || 0;
-            const source = (item.SOURCE || '').toLowerCase().trim();
-
-            if (source === 'ai agent') {
-              aiAgent = percentage;
-            } else if (source === 'human') {
-              human = percentage;
-            }
-          });
-        }
-
-        console.log('Parsed distribution:', { aiAgent, human });
-
-        // Build chart when canvas is ready
-        this.issueDistributionLoading.set(false);
-        this.buildChartWhenReady(
-          () => this.buildIssueDistributionChart(aiAgent, human),
-          'issueDistribution',
-        );
+        this.rawIssuesDistributionData = data && data.length > 0 ? data : [];
+        this.rebuildAvailableQuarters();
+        this.applyIssuesDistributionQuarterFilter();
       },
       error: (error) => {
         console.error('Error loading issues distribution:', error);
@@ -481,39 +696,10 @@ export class HomeComponent implements OnDestroy {
     this.homeDataService.getIssuesList(this.destroyManager).subscribe({
       next: (issuesList) => {
         console.log('Issues list loaded:', issuesList);
-
-        if (issuesList.length === 0) {
-          // this.isLoading = false;
-        }
-        this.issuesList.set(issuesList);
-        if (issuesList.length > 0) {
-          this.displayedColumns = Object.keys(issuesList[0]);
-          this.displayedColumnsWithSelect = [
-            // 'select',
-            ...this.displayedColumns,
-          ];
-        }
-
-        this.dataSource = new MatTableDataSource<any>(issuesList);
-
-        // Initialize unified filtering (no filters/search applied yet)
-        this.updateTableFilter();
-
-        // Connect paginator after data is set - use longer timeout
-        setTimeout(() => {
-          if (this.paginator) {
-            this.dataSource.paginator = this.paginator;
-            console.log('✅ Paginator connected successfully');
-            console.log('Total records:', issuesList.length);
-            console.log('Page size:', this.paginator.pageSize);
-            console.log(
-              'Total pages:',
-              Math.ceil(issuesList.length / this.paginator.pageSize),
-            );
-          } else {
-            console.error('❌ Paginator not available!');
-          }
-        }, 100);
+        this.rawIssuesListData =
+          issuesList && issuesList.length > 0 ? issuesList : [];
+        this.rebuildAvailableQuarters();
+        this.applyIssuesListQuarterFilter();
 
         this.dataLoading.set(false);
         this.homeLoading.set(false);

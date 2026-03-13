@@ -5,6 +5,8 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -24,8 +26,14 @@ interface TabDef {
   selector: 'app-operations-controls',
   templateUrl: './operations-controls.component.html',
   styleUrl: './operations-controls.component.css',
-  imports: [MatTabsModule, MonitoringDashboardComponent],
   standalone: true,
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [MatTabsModule, MonitoringDashboardComponent, NgIcon],
 })
 export class OperationsControlsComponent implements OnInit {
   userContextData: UserContext;
@@ -54,6 +62,7 @@ export class OperationsControlsComponent implements OnInit {
   tabLabels: string[] = [];
   private isAdmin: boolean = false;
   periodInfo = signal<any>(null);
+  roles: string[] = [];
 
   constructor(
     private dataService: DataService,
@@ -74,6 +83,7 @@ export class OperationsControlsComponent implements OnInit {
   ngOnInit() {
     this.userName = this.authService.getUserName();
     const userRoles: string[] = this.authService.getRoles() || [];
+    this.roles = userRoles;
     this.isAdmin = userRoles.includes('ADMIN');
 
     // Filter tabs based on user roles

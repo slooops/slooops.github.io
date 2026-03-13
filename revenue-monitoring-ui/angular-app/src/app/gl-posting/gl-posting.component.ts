@@ -6,6 +6,8 @@ import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -19,8 +21,13 @@ export interface UserContext {
   selector: 'app-gl-posting',
   templateUrl: './gl-posting.component.html',
   styleUrl: './gl-posting.component.css',
-  providers: [DestroyManager],
-  imports: [CommonModule, MonitoringDashboardComponent],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [CommonModule, MonitoringDashboardComponent, NgIcon],
   standalone: true,
 })
 export class GlPostingComponent implements OnInit {

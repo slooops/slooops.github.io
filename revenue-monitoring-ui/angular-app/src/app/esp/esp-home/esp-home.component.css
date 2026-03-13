@@ -1235,3 +1235,57 @@ p {
   top: -9px;
   right: -12px;
 }
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--landing-accent);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}
+
+.ask-ivan-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--landing-space-xs);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0070d2;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: var(--landing-space-xs) var(--landing-space-sm);
+  border-radius: var(--landing-card-radius);
+  transition: background var(--fit-transition-fast, 150ms);
+}
+
+.ask-ivan-btn:hover {
+  background: var(--fit-color-primary-soft, #e6f0fa);
+}
+
+.ask-ivan-icon {
+  font-size: 1.25rem;
+}
+
+.ask-ivan-label {
+  letter-spacing: 0.5px;
+}

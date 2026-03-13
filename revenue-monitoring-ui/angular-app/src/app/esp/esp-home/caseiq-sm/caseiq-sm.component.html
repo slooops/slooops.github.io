@@ -14,19 +14,6 @@
     <!-- Agent Group -->
     <div class="caseiq-header-group caseiq-header-group-agent">
       <div class="caseiq-header-cell">
-        <span class="caseiq-header-label">Total Cases (Agent)</span>
-        <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value">{{
-          filteredCaseIqMetrics
-            ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
-              (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
-              (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
-              (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
-            : "--"
-        }}</span>
-      </div>
-
-      <div class="caseiq-header-cell">
         <span class="caseiq-header-label">In Progress</span>
         <span class="caseiq-header-sep">-</span>
         <span class="caseiq-header-value"
@@ -100,6 +87,19 @@
               : "(--)"
           }}</span
         >
+      </div>
+
+      <div class="caseiq-header-cell">
+        <span class="caseiq-header-label">Total Cases (Agent)</span>
+        <span class="caseiq-header-sep">-</span>
+        <span class="caseiq-header-value">{{
+          filteredCaseIqMetrics
+            ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
+              (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
+              (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
+              (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
+            : "--"
+        }}</span>
       </div>
 
       <div class="caseiq-header-cell caseiq-cell-ratio-bar">

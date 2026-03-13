@@ -11,6 +11,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { BusinessInsightsModule } from './business-insights.module';
 import { O2cEmbedComponent } from './o2c-embed.component';
 import { Subject, takeUntil } from 'rxjs';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { DestroyManager } from '../providers/destroy-manager.service';
 
 @Component({
   selector: 'app-business-insights',
@@ -22,6 +25,13 @@ import { Subject, takeUntil } from 'rxjs';
     MatTooltipModule,
     BusinessInsightsModule,
     O2cEmbedComponent,
+    NgIcon,
+  ],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
   ],
   standalone: true,
 })
@@ -98,7 +108,6 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.roles = this.authService.getRoles();
     this.userName = this.authService.getUserName();
-    this.updateTime();
     this.getDefaultTabIndex();
 
     // Select tab from query param (e.g. ?tab=app-large-deal)
@@ -111,6 +120,8 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
         this.selectedIndex = tabIndex;
       }
     }
+
+    this.updateTime();
 
     this.dataService.periodStatus$
       .pipe(takeUntil(this.destroy$))

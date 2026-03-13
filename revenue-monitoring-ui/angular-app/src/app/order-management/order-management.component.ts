@@ -10,6 +10,8 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -23,8 +25,13 @@ export interface UserContext {
   selector: 'app-order-management',
   templateUrl: './order-management.component.html',
   styleUrl: './order-management.component.css',
-  providers: [DestroyManager],
-  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent, NgIcon],
   standalone: true,
 })
 export class OrderManagementComponent {

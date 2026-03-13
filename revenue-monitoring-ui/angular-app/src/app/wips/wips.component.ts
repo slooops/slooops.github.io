@@ -8,6 +8,8 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { DataService } from '../providers/data.service';
 import { ApiHttpService } from '../providers/http.service';
 import { MenuService } from '../providers/menu.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
   username: string;
@@ -21,8 +23,13 @@ export interface UserContext {
   selector: 'app-wips',
   templateUrl: './wips.component.html',
   styleUrls: ['./wips.component.css'],
-  providers: [DestroyManager],
-  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
+  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent, NgIcon],
   standalone: true,
 })
 export class WipsComponent implements OnInit {

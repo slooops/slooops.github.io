@@ -9,6 +9,9 @@ import { LoadingSymbolComponent } from '../../loading-symbol/loading-symbol.comp
 import { CardComponent } from '../../components/card/card.component';
 import { TableComponent } from '../../components/table/table.component';
 import { HomeDataService } from 'src/app/home/home-data.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { AuthenticationService } from 'src/app/providers/authentication.service';
 Chart.register(...registerables);
 
 // Types for new quarter-pair logic
@@ -24,13 +27,19 @@ type PairConfig = {
   selector: 'app-esp-case-analyzer',
   templateUrl: './esp-case-analyzer.component.html',
   styleUrl: './esp-case-analyzer.component.css',
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorSparkleBold,
+    }),
+  ],
   imports: [
     CommonModule,
     MatTooltipModule,
     LoadingSymbolComponent,
     CardComponent,
     TableComponent,
+    NgIcon,
   ],
   standalone: true,
 })
@@ -39,6 +48,7 @@ export class EspCaseAnalyzerComponent implements OnInit {
     http: ApiHttpService,
     private destroyManager: DestroyManager,
     private homeDataService: HomeDataService,
+    private authService: AuthenticationService,
   ) {
     this.http = http;
     Chart.register(...registerables);
@@ -83,10 +93,12 @@ export class EspCaseAnalyzerComponent implements OnInit {
 
   // New pair-based configuration
   quarterPairs: PairConfig[] = [];
+  roles: string[] = [];
 
   ngOnInit(): void {
     this.updateTime();
     this.loadPeriodInfo();
+    this.roles = this.authService.getRoles();
 
     this.http
       .get('esp-weekly-comparison-summary', this.destroyManager, {
