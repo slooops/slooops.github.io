@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorClockCounterClockwiseBold,
+  phosphorEnvelopeSimpleBold,
   phosphorPencilSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { DestroyManager } from '../providers/destroy-manager.service';
@@ -23,11 +24,12 @@ import {
     DestroyManager,
     provideIcons({
       phosphorClockCounterClockwiseBold,
+      phosphorEnvelopeSimpleBold,
       phosphorPencilSimpleBold,
     }),
   ],
   templateUrl: './executive-summary.component.html',
-  styleUrls: ['./executive-summary.component.css'],
+  styleUrls: ['../shared/scorecard.css', './executive-summary.component.css'],
 })
 export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
   rows: ExecSummaryRow[] = [];
@@ -38,6 +40,7 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
   isSaving = false;
   isLoading = true;
   saveNotes = '';
+  toastMessage = '';
 
   private rowsSnapshot: ExecSummaryRow[] = [];
 
@@ -60,8 +63,8 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // this.userId = this.authService.getUserID() || '';
-    this.userId = 'jasloop'; // For local testing
+    this.userId = this.authService.getUserName() || '';
+    // this.userId = 'jasloop'; // For local testing
     this.loadData();
   }
 
@@ -109,12 +112,27 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
     this.rowsSnapshot = this.rows.map((r) => ({ ...r }));
     this.isEditing = true;
     this.saveNotes = '';
+
+    setTimeout(() => {
+      document
+        .querySelectorAll<HTMLTextAreaElement>('.cell-input-textarea')
+        .forEach((el) => {
+          el.style.height = 'auto';
+          el.style.height = el.scrollHeight + 'px';
+        });
+    });
   }
 
   cancelEditing(): void {
     this.rows = this.rowsSnapshot.map((r) => ({ ...r }));
     this.isEditing = false;
     this.saveNotes = '';
+  }
+
+  onCellInput(event: Event): void {
+    const el = event.target as HTMLTextAreaElement;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
   }
 
   saveChanges(): void {
@@ -183,5 +201,88 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
 
   trackByRow(index: number, row: ExecSummaryRow): number {
     return row.dataId ?? index;
+  }
+
+  async exportToEmail(): Promise<void> {
+    const html = this.buildEmailHtml();
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([this.buildPlainText()], {
+            type: 'text/plain',
+          }),
+        }),
+      ]);
+    } catch {
+      await navigator.clipboard.writeText(this.buildPlainText());
+    }
+    const subject = encodeURIComponent(
+      `SDLC Executive Summary — ${this.version?.sprintName || 'Current'}`,
+    );
+    window.open(`mailto:?subject=${subject}`, '_self');
+    this.showToast('Table copied — paste into your email body (Cmd+V)');
+  }
+
+  private showToast(msg: string): void {
+    this.toastMessage = msg;
+    setTimeout(() => (this.toastMessage = ''), 5000);
+  }
+
+  private buildEmailHtml(): string {
+    const thStyle =
+      'style="background:#f7f8fa;border:1px solid #e1e4e8;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#6b7482;font-weight:700;"';
+    const rows: string[] = [];
+    for (let i = 0; i < this.rows.length; i++) {
+      const r = this.rows[i];
+      const color = this.getTrackColor(i);
+      const highlights = this.getBullets(r.highlights)
+        .map((b) => `• ${this.esc(b.replace(/^[•\-]\s*/, ''))}`)
+        .join('<br>');
+      const watchAreas = this.getBullets(r.watchAreas)
+        .map((b) => `• ${this.esc(b.replace(/^[•\-]\s*/, ''))}`)
+        .join('<br>');
+      rows.push(
+        `<tr>` +
+          `<td style="background:${color.bg};border:1px solid #e1e4e8;padding:8px 12px;vertical-align:top;font-weight:700;color:${color.accent};border-right:3px solid ${color.accent};font-size:13px;">${this.esc(r.sdlcTrack)}</td>` +
+          `<td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;vertical-align:top;">${highlights || '—'}</td>` +
+          `<td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;vertical-align:top;">${watchAreas || '—'}</td>` +
+          `</tr>`,
+      );
+    }
+    return `<table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
+<thead><tr>
+<th ${thStyle}>SDLC Track</th>
+<th ${thStyle}>Highlights</th>
+<th ${thStyle}>Watch Areas / Action Items</th>
+</tr></thead>
+<tbody>${rows.join('')}</tbody>
+</table>`;
+  }
+
+  private buildPlainText(): string {
+    const lines: string[] = [
+      `SDLC Executive Summary — ${this.version?.sprintName || 'Current'}`,
+    ];
+    for (const r of this.rows) {
+      lines.push(`\n${r.sdlcTrack}`);
+      lines.push('—'.repeat(40));
+      const highlights = this.getBullets(r.highlights)
+        .map((b) => `  • ${b.replace(/^[•\-]\s*/, '')}`)
+        .join('\n');
+      const watchAreas = this.getBullets(r.watchAreas)
+        .map((b) => `  • ${b.replace(/^[•\-]\s*/, '')}`)
+        .join('\n');
+      if (highlights) lines.push(`  Highlights:\n${highlights}`);
+      if (watchAreas) lines.push(`  Watch Areas:\n${watchAreas}`);
+    }
+    return lines.join('\n');
+  }
+
+  private esc(s: string): string {
+    return (s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 }

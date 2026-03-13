@@ -3,10 +3,11 @@
   <div class="scorecard-header">
     <div class="header-left">
       <h1 class="scorecard-title">
-        Monthly Performance Scorecard:
+        Monthly Performance Scorecard
+        <!-- :
         <span class="scorecard-subtitle"
           >Elevating Product Quality and Service Excellence
-        </span>
+        </span> -->
       </h1>
       @if (version) {
         <div class="version-meta">
@@ -93,7 +94,7 @@
             <th class="col-owner">Owner(s)</th>
             <th class="col-target">EOCY26</th>
             <th class="col-measure">How Do We Measure</th>
-            <th class="col-metric">Metric</th>
+            <th class="col-metric">{{ version?.sprintName || "" }} Metric</th>
           </tr>
         </thead>
         @for (group of groups; track group.workstream) {

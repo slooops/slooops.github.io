@@ -303,8 +303,8 @@ export const routes: Routes = [
     path: 'scorecard',
     component: PerformanceHubComponent,
     data: {
-      title: 'AI in Software Development across Finance',
-      header: 'AI in Software Development across Finance',
+      title: 'AI in SDLC performance Dashboard',
+      header: 'AI in SDLC performance Dashboard',
     },
   },
   {

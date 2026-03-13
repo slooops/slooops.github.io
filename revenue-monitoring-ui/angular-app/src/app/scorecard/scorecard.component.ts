@@ -30,7 +30,7 @@ import {
     }),
   ],
   templateUrl: './scorecard.component.html',
-  styleUrls: ['./scorecard.component.css'],
+  styleUrls: ['../shared/scorecard.css', './scorecard.component.css'],
 })
 export class ScorecardComponent implements OnInit, OnDestroy {
   groups: WorkstreamGroup[] = [];
@@ -50,14 +50,14 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   private static readonly DRAFT_KEY = 'scorecard_draft';
   private draftDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-  /* Workstream palette */
+  /* Workstream palette — complements liquid glass glow */
   workstreamColors: Record<string, { bg: string; accent: string }> = {
-    '1. Improve Cycle time': { bg: '#e8edf543', accent: '#171d22ce' },
-    '2. Improve Productivity': { bg: '#e8edf543', accent: '#171d22ce' },
-    '3. Improve Quality': { bg: '#e8edf543', accent: '#171d22ce' },
+    '1. Improve Cycle time': { bg: '#e6f7fa30', accent: '#0891b2' },
+    '2. Improve Productivity': { bg: '#f3eefa30', accent: '#7c3aed' },
+    '3. Improve Quality': { bg: '#fef0e630', accent: '#ea580c' },
   };
 
-  defaultColor = { bg: '#fff5e5', accent: '#ff9000' };
+  defaultColor = { bg: '#f0f4f830', accent: '#0070d2' };
 
   constructor(
     private dataService: ScorecardDataService,
@@ -68,8 +68,8 @@ export class ScorecardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // this.userId = this.authService.getUserID() || '';
-    this.userId = 'jasloop'; // For local testing
+    this.userId = this.authService.getUserName() || '';
+    // this.userId = 'jasloop'; // For local testing
     this.hasDraftAvailable = this.hasDraft();
     this.loadData();
   }
@@ -374,10 +374,7 @@ export class ScorecardComponent implements OnInit, OnDestroy {
       savedAt: new Date().toISOString(),
     };
     try {
-      localStorage.setItem(
-        ScorecardComponent.DRAFT_KEY,
-        JSON.stringify(draft),
-      );
+      localStorage.setItem(ScorecardComponent.DRAFT_KEY, JSON.stringify(draft));
     } catch {
       /* Storage full or unavailable — silently ignore */
     }

@@ -26,7 +26,10 @@ import {
     }),
   ],
   templateUrl: './executive-summary-history.component.html',
-  styleUrls: ['./executive-summary-history.component.css'],
+  styleUrls: [
+    '../../shared/scorecard.css',
+    './executive-summary-history.component.css',
+  ],
 })
 export class ExecutiveSummaryHistoryComponent implements OnInit {
   versions: ExecSummaryVersion[] = [];

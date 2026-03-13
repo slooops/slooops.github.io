@@ -4,9 +4,7 @@
     <div class="header-left">
       <h1 class="exec-title">
         SDLC Executive Summary:
-        <span class="exec-subtitle"
-          >AI in Software Development across Finance</span
-        >
+        <span class="exec-subtitle">AI in FinanceIT</span>
       </h1>
       @if (version) {
         <div class="version-meta">
@@ -23,6 +21,9 @@
       <button class="btn btn-ghost" (click)="goToHistory()">
         <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
         History
+      </button>
+      <button class="btn btn-ghost" (click)="exportToEmail()">
+        <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email Table
       </button>
       @if (canEdit && !isEditing) {
         <button class="btn btn-primary" (click)="startEditing()">
@@ -47,21 +48,6 @@
       }
     </div>
   </div>
-
-  <!-- Save notes bar -->
-  @if (isEditing) {
-    <div class="save-notes-bar">
-      <label class="notes-label" for="saveNotes">Save note (optional):</label>
-      <input
-        id="saveNotes"
-        type="text"
-        class="notes-input"
-        [(ngModel)]="saveNotes"
-        placeholder="e.g., Updated Build track highlights"
-        maxlength="500"
-      />
-    </div>
-  }
 
   <!-- Loading -->
   @if (isLoading) {
@@ -93,7 +79,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (row of rows; track row.sortOrder; let i = $index) {
+          @for (row of rows; track row.dataId ?? $index; let i = $index) {
             <tr
               class="data-row"
               [style.--track-accent]="getTrackColor(i).accent"
@@ -140,8 +126,8 @@
                   <textarea
                     class="cell-input cell-input-textarea"
                     [(ngModel)]="row.highlights"
-                    rows="4"
                     placeholder="• Enter highlights (one bullet per line)"
+                    (input)="onCellInput($event)"
                   ></textarea>
                 }
               </td>
@@ -168,8 +154,8 @@
                   <textarea
                     class="cell-input cell-input-textarea"
                     [(ngModel)]="row.watchAreas"
-                    rows="4"
                     placeholder="• Enter watch areas (one bullet per line)"
+                    (input)="onCellInput($event)"
                   ></textarea>
                 }
               </td>
@@ -200,5 +186,25 @@
         </div>
       }
     </div>
+
+    <!-- Save notes bar -->
+    @if (isEditing) {
+      <div class="save-notes-bar">
+        <label class="notes-label" for="saveNotes">Save note (optional):</label>
+        <input
+          id="saveNotes"
+          type="text"
+          class="notes-input"
+          [(ngModel)]="saveNotes"
+          placeholder="e.g., Updated Build track highlights"
+          maxlength="500"
+        />
+      </div>
+    }
+  }
+
+  <!-- Toast -->
+  @if (toastMessage) {
+    <div class="toast">{{ toastMessage }}</div>
   }
 </div>

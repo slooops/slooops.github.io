@@ -1,27 +1,4 @@
 <div class="hub-page">
-  <!-- Tab bar -->
-  <div class="tab-bar">
-    <button
-      class="tab"
-      [class.tab-active]="activeTab === 'exec-summary'"
-      (click)="activeTab = 'exec-summary'"
-    >
-      SDLC Executive Summary
-    </button>
-    <button
-      class="tab"
-      [class.tab-active]="activeTab === 'scorecard'"
-      (click)="activeTab = 'scorecard'"
-    >
-      Performance Scorecard
-    </button>
-  </div>
-
-  <!-- Tab content -->
-  @if (activeTab === "exec-summary") {
-    <app-executive-summary />
-  }
-  @if (activeTab === "scorecard") {
-    <app-scorecard />
-  }
+  <app-executive-summary />
+  <app-scorecard />
 </div>

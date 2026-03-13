@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component } from '@angular/core';
 import { ScorecardComponent } from '../scorecard/scorecard.component';
 import { ExecutiveSummaryComponent } from '../executive-summary/executive-summary.component';
 
@@ -10,16 +9,4 @@ import { ExecutiveSummaryComponent } from '../executive-summary/executive-summar
   templateUrl: './performance-hub.component.html',
   styleUrls: ['./performance-hub.component.css'],
 })
-export class PerformanceHubComponent implements OnInit {
-  activeTab: 'scorecard' | 'exec-summary' = 'scorecard';
-
-  constructor(private route: ActivatedRoute) {}
-
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
-      if (params['tab'] === 'exec-summary') {
-        this.activeTab = 'exec-summary';
-      }
-    });
-  }
-}
+export class PerformanceHubComponent {}

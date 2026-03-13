@@ -27,7 +27,10 @@ import {
     }),
   ],
   templateUrl: './scorecard-history.component.html',
-  styleUrls: ['./scorecard-history.component.css'],
+  styleUrls: [
+    '../../shared/scorecard.css',
+    './scorecard-history.component.css',
+  ],
 })
 export class ScorecardHistoryComponent implements OnInit {
   versions: ScorecardVersion[] = [];
