@@ -47,6 +47,29 @@ public class MongoDBManager {
         return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, collection));
     }
 
+    public List<Map<String, Object>> getWipsFilteredData(String collection, String timestamp, String scenario) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("timestamp").is(timestamp).and("scenario").is(scenario));
+        return convertDocumentsToMaps(secondaryMongoTemplate.find(query, Document.class, collection));
+    }
+
+    public long updateWipsSummaryData(String collection, String timestamp, String scenario, String assignedTo, String comments, String status) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("timestamp").is(timestamp).and("scenario").is(scenario));
+        Update update = new Update()
+                .set("assigned_to", assignedTo)
+                .set("comments", comments)
+                .set("status", status);
+
+        if ("In Progress".equals(status)) {
+            update.set("assigned_date", new Date());
+        } else if ("Closed".equals(status)) {
+            update.set("closed_date", new Date());
+        }
+        UpdateResult result = secondaryMongoTemplate.updateMulti(query, update, collection);
+        return result.getModifiedCount();
+    }
+
     public long updateSummaryData(String collection, String timestamp, String scenario, String assignedTo, String comments, String status) {
         Query query = new Query();
         query.addCriteria(Criteria.where("timestamp").is(timestamp).and("scenario").is(scenario));
@@ -64,30 +87,17 @@ public class MongoDBManager {
         return result.getModifiedCount();
     }
 
-    public List<Map<String, Object>> getOmControlTowerSummary() {
-        Query query = new Query();
-
-        query.with(PageRequest.of(0, 20));
-        List<Document> documents = mongoTemplate.find(query, Document.class, "om_control_tower_attribution_summary_view");
-
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Document doc : documents) {
-            result.add(doc);
-        }
-        return result;
-    }
-
     public static List<Map<String, Object>> convertDocumentsToMaps(List<Document> documents) {
         if (documents == null) {
             return new ArrayList<>();
         }
-        
+
         return documents.stream()
                 .map(doc -> {
                     if (doc == null) {
                         return new LinkedHashMap<String, Object>();
                     }
-                    
+
                     LinkedHashMap<String, Object> map = new LinkedHashMap<>();
                     for (Map.Entry<String, Object> entry : doc.entrySet()) {
                         map.put(entry.getKey(), entry.getValue());

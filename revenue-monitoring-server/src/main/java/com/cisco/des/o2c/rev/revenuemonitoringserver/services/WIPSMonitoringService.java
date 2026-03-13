@@ -40,4 +40,24 @@ public class WIPSMonitoringService {
         });
         return result;
     }
+
+    public long updateWIPSSummary(String collection, Map<String, String> updateData) {
+        String assignedTo = updateData.get("assignedTo");
+        String comments = updateData.get("comments");
+        String timestamp = updateData.get("timestamp");
+        String scenario = updateData.get("scenario");
+        String status = updateData.get("status");
+        long test = mongoDBManager.updateWipsSummaryData(collection, timestamp, scenario, assignedTo, comments, status);
+        return 1;
+    }
+
+    public List<Map<String, Object>> getWIPSDetailsDataFiltered(String collection, String timestamp, String scenario) {
+        String[] dateColumns = { "assigned_date"};
+        List<Map<String, Object>> result = mongoDBManager.getWipsFilteredData(collection, timestamp, scenario);
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+            data.remove("assigned_data");
+        });
+        return result;
+    }
 }

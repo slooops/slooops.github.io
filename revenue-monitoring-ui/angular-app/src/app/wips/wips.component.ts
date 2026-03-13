@@ -8,8 +8,9 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { DataService } from '../providers/data.service';
 import { ApiHttpService } from '../providers/http.service';
 import { MenuService } from '../providers/menu.service';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { Validators } from '@angular/forms';
 
 export interface UserContext {
   username: string;
@@ -29,17 +30,14 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent, NgIcon],
+  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent],
   standalone: true,
 })
 export class WipsComponent implements OnInit {
   constructor(
     http: ApiHttpService,
-    private destroyManager: DestroyManager,
     private dataService: DataService,
-    private datePipe: DatePipe,
     protected authService: AuthenticationService,
-    private menuService: MenuService,
   ) {
     this.http = http;
     this.roles = this.authService.getRoles();
@@ -48,7 +46,7 @@ export class WipsComponent implements OnInit {
       userId: this.authService.getUserID(),
       roles: this.roles,
       apiUrl: this.authService.getHostUrl(),
-      assignmentUsersFilterKey: '',
+      assignmentUsersFilterKey: 'ORDER_MANAGEMENT',
     };
   }
   protected http: ApiHttpService;
@@ -92,6 +90,16 @@ export class WipsComponent implements OnInit {
     });
   }
 
+  wipsUrls: { [key: string]: string } = {
+    summaryUrl: 'wips-summary',
+    detailsUrl: 'wips-details',
+    filteredDetailsUrl: 'wips-jobs-details-filtered',
+    summaryUpdateUrl: 'wips-summary-update',
+    webexMessageUrl: 'send-message-wips',
+    chartTotalsUrl: '',
+    chartDetailsUrl: '',
+  };
+
   showGridMenu: boolean = false;
 
   toggleGridMenu(event: Event): void {
@@ -104,20 +112,62 @@ export class WipsComponent implements OnInit {
     this.showGridMenu = false;
   }
 
-  wipsUrls: { [key: string]: string } = {
-    summaryUrl: 'wips-summary',
-    detailsUrl: 'wips-details',
-    filteredDetailsUrl: '',
-    summaryUpdateUrl: '',
-    webexMessageUrl: '',
-    chartTotalsUrl: '',
-    chartDetailsUrl: '',
-  };
-
   wipsFilters: {
     formControlName: string;
     columnName: string;
     type: string;
     subAppMapping: boolean;
-  }[] = [];
+  }[] = [
+    {
+      columnName: 'sub_category',
+      formControlName: 'subCategory',
+      type: 'select',
+      subAppMapping: false,
+    },
+  ];
+
+  fieldConfig = [
+    {
+      controlName: 'timeStamp',
+      label: 'Timestamp',
+      sourceKey: 'timestamp',
+      disabled: true,
+    },
+    {
+      controlName: 'scneario',
+      label: 'Scenario',
+      sourceKey: 'scenario',
+      disabled: true,
+    },
+    {
+      controlName: 'dataSource',
+      label: 'Data Source',
+      sourceKey: 'data_source',
+      disabled: true,
+    },
+    {
+      controlName: 'totalCount',
+      label: 'Total Count',
+      sourceKey: 'total_count',
+      disabled: true,
+    },
+    {
+      controlName: 'assignedTo',
+      label: 'Assigned To',
+      sourceKey: 'assigned_to',
+      disabled: 'dynamic',
+      validators: [Validators.required],
+    },
+    {
+      controlName: 'status',
+      label: 'Status',
+      sourceKey: 'status',
+      options: [
+        { value: 'In Progress', label: 'In Progress' },
+        { value: 'Closed', label: 'Closed' },
+      ],
+      validators: [Validators.required],
+    },
+    { controlName: 'comments', label: 'Comments', sourceKey: 'comments' },
+  ];
 }

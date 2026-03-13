@@ -12,6 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { WipsComponent } from '../wips/wips.component';
 
 export interface UserContext {
   username: string;
@@ -31,7 +32,13 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MatTabsModule, MonitoringDashboardComponent, NgIcon],
+  imports: [
+    CommonModule,
+    MatTabsModule,
+    MonitoringDashboardComponent,
+    NgIcon,
+    WipsComponent,
+  ],
   standalone: true,
 })
 export class OrderManagementComponent {
@@ -417,6 +424,12 @@ export class OrderManagementComponent {
       label: 'Jobs',
       component: 'app-jobs',
       role: ['ADMIN', 'MONITORING_OM'],
+    },
+    {
+      label: 'DFM',
+      component: 'app-wips',
+      role: ['ADMIN', 'MONITORING_OM', 'MONITORING_WIPS'],
+      disabled: true,
     },
   ];
 

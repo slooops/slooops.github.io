@@ -111,4 +111,30 @@ public class WebexMessagingService {
                                 .bodyToMono(String.class)
                                 .block();
         }
+
+        public String sendWebexMessageWIPSNprd(Map<String, String> updateData) {
+                String message = "Hi <@personEmail:" + updateData.get("assignedTo") + ">, "
+                        + updateData.get("componentName") + " error has been assigned to you by <@personEmail:"
+                        + updateData.get("username") + "@cisco.com>. Following are the details of the error:\n"
+                        +
+                        "Scenario: " + updateData.get("scenario") + "\nData Source: "
+                        + updateData.get("dataSource") + "\nStatus: "
+                        + updateData.get("status") + "\n Comments: " + updateData.get("comments");
+
+                MessageRequestModel messageRequestModel = new MessageRequestModel();
+                messageRequestModel.setRoomId(
+                        "Y2lzY29zcGFyazovL3VzL1JPT00vYjU0NDY3ZTAtZDVjOC0xMWYwLTllMTQtNzc1NGQ2ZmMwN2M0");
+                messageRequestModel.setMarkdown(message);
+
+                return webClientBuilder.build()
+                        .post()
+                        .uri(webexUrl)
+                        .header(HttpHeaders.AUTHORIZATION,
+                                "Bearer MDFhNzE2M2EtZGQ5Ni00MDQ1LWJlMmUtZjJiZTE4YmYzOTU2ZmM5NDQzMGMtNjM2_PF84_1eb65fdf-9643-417f-9974-ad72cae0e10f")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(messageRequestModel)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+        }
 }
