@@ -74,6 +74,11 @@
   min-height: 36px;
   background: #3b6fa0;
   gap: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.caseiq-header-group .caseiq-header-cell:last-child {
+  border-right: none;
 }
 
 .caseiq-header-label {
