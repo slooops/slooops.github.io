@@ -4,6 +4,7 @@
   "DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com",
   "STG_DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/TS1CG1,cn=OracleContext,dc=cisco,dc=com",
   "TS3_DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldprd:5000/cn=OracleContext,dc=cisco,dc=com/TS3CG1_SRVC_OMF",
+  "CFN_DATABASE_URL": "jdbc:oracle:thin:@ldap://ldap-ldstg3:5000/CFNPRD,cn=OracleContext,dc=cisco,dc=com",
   "RDAC_OSUSER": "",
   "ASK_QE_ME_DASH_BOARD_STATUS_Q": "SELECT period_name, close_type, comments, creation_date FROM ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS",
   "UPDATE_COMMENTS_Q": "INSERT INTO ARFINRO.ASK_QE_ME_DASH_BOARD_STATUS (QUARTER, PERIOD_NAME, PERIOD_YEAR, PERIOD_NUM, CLOSE_TYPE, COMMENTS, CREATION_DATE) VALUES ('Q4FY2023','JUN-23',2023,10,?,?,SYSDATE)",
@@ -277,6 +278,10 @@
   "ES_GET_LAST_VERSION_ID": "SELECT ARFINRO.EXEC_SUMMARY_VERSION_SEQ.CURRVAL AS VERSION_ID FROM DUAL",
   "ES_INSERT_DATA_ROW": "INSERT INTO ARFINRO.EXEC_SUMMARY_DATA (DATA_ID, VERSION_ID, SDLC_TRACK, HIGHLIGHTS, WATCH_AREAS, SORT_ORDER) VALUES (ARFINRO.EXEC_SUMMARY_DATA_SEQ.NEXTVAL, ?, ?, ?, ?, ?)",
   "ES_GET_VERSION_BY_ID": "SELECT VERSION_ID, SPRINT_NAME, CREATED_BY, TO_CHAR(CREATED_AT, 'YYYY-MM-DD HH24:MI:SS') AS CREATED_AT, NOTES FROM ARFINRO.EXEC_SUMMARY_VERSION WHERE VERSION_ID = ?",
+  "GL_INTERFACE_SUMMARY_QUERY": "select * from finisro.xxcfi_gl_intf_summary_v",
+  "GL_INTERFACE_DETAILS_QUERY": "select * from finisro.xxcfi_gl_intf_detail_v",
+  "GL_INTERFACE_DETAILS_FILTERED_QUERY": "SELECT * FROM finisro.xxcfi_gl_intf_detail_v WHERE source = ? AND ledger = ? AND period = ? AND batch_name = ? AND TRUNC(date_created) = ?",
+  "GL_INTERFACE_SUMMARY_UPDATE_QUERY": "UPDATE finisro.xxcfi_gl_interface_audit SET assigned_to=?,assigned_date=SYSDATE,comments=? and (aud.reference1=? or aud.reference4=?)",
 
   "REDIS_HOST": "i2c-monitoring-redis-service.i2c-monitoring-redis-prod-int-rcdn.svc.cluster.local",
   "REDIS_PASSWORD": "h=YWHZEzAh",
