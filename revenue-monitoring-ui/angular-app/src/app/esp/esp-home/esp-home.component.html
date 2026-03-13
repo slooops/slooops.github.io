@@ -96,14 +96,31 @@
           {{ periodInfo()?.periodEndDate || "" }} &nbsp;</span
         >
         <span class="divider"> | </span>
+        <span>&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} &nbsp;</span>
         <span
-          >&nbsp;<b>Last Updated:</b> {{ timeNow || "" }} &nbsp;<i
-            class="fa fa-info-circle"
-            matTooltip="Dashboard data is updated at 12 AM, 6 AM, 12 PM and 6 PM PST everyday. "
-            [matTooltipPosition]="'right'"
-            style="color: gray"
-          ></i
-        ></span>
+          matTooltip="Data refreshed at 12 AM, 6 AM, 12 PM and 6 PM PST everyday."
+          matTooltipPosition="right"
+          style="
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px;
+            vertical-align: middle;
+          "
+        >
+          <mat-icon
+            style="
+              color: gray;
+              font-size: 15px;
+              width: 15px;
+              height: 15px;
+              line-height: 15px;
+              overflow: visible;
+            "
+          >
+            info_outline
+          </mat-icon>
+        </span>
       </div>
       <div class="header-center">
         <!-- @if (activeTab !== "Finance IT" && roles.includes("ADMIN")) {

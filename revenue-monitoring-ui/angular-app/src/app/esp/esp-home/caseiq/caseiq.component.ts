@@ -56,7 +56,8 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   sections = signal<string[]>([]);
 
   /** External URL for Resolution Agents Active link (update when available) */
-  resolutionAgentsUrl: string = '';
+  resolutionAgentsUrl: string =
+    'https://cisco.sharepoint.com/:x:/r/sites/ManagementandFinance/Shared%20Documents/Transformation%20Programs/Active%20Programs/AI%20in%20SDLC/Normalization%20%26%20Support%20Pillar/CaseIQ%20Agent%20status/CaseIQ%20Agent%20deployment%20status.xlsx?d=w39991f3a78824847a66383ad1c9db4d3&csf=1&web=1&e=sWPQgd';
 
   constructor(
     private readonly http: ApiHttpService,
@@ -911,6 +912,14 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   /** Non-Finance IT resolution agents for the track section */
   getTrackAgents(): { team: string; deployed: number; total: number }[] {
     return this.resolutionAgents.filter((a) => a.team !== 'Finance IT');
+  }
+
+  /** Open resolution agents URL in a new tab */
+  openResolutionAgents(event: Event): void {
+    event.preventDefault();
+    if (this.resolutionAgentsUrl) {
+      window.open(this.resolutionAgentsUrl, '_blank', 'noopener,noreferrer');
+    }
   }
 
   /** Agent ratio for Finance IT */

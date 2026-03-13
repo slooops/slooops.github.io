@@ -21,6 +21,7 @@ import { DataService } from 'src/app/providers/data.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
+import { MatIconModule } from '@angular/material/icon';
 
 interface MetricTile {
   name: string;
@@ -62,6 +63,7 @@ interface AccuracyData {
     CaseiqSmComponent,
     CaseiqAitComponent,
     MatTooltipModule,
+    MatIconModule,
   ],
   standalone: true,
 })

@@ -38,7 +38,7 @@
               Accuracy
               <mat-icon
                 class="fit-tile-info-icon"
-                matTooltip="Accuracy of correctly identifying the appropriate category and core issue, calculated weekly based on team inputs. "
+                matTooltip="Category and core issue identification, calculated weekly based on team validation."
                 matTooltipPosition="above"
               >
                 info_outline
@@ -70,7 +70,7 @@
               In Progress
               <mat-icon
                 class="fit-tile-info-icon"
-                matTooltip="Number and percentage of Cases handled by CaseIQ Agent with case status in ESP as “Work in progress”."
+                matTooltip="# of cases processed by agent with case status in ESP as “Work in progress”"
                 matTooltipPosition="above"
               >
                 info_outline
@@ -95,7 +95,7 @@
               Routed Out
               <mat-icon
                 class="fit-tile-info-icon"
-                matTooltip="Number of cases recommended and the accuracy as compared to the total cases routed out in ESP."
+                matTooltip="# of cases recommended and the accuracy against the total cases routed out."
                 matTooltipPosition="above"
               >
                 info_outline
@@ -120,7 +120,7 @@
               Cancelled
               <mat-icon
                 class="fit-tile-info-icon"
-                matTooltip=" Number of cases recommended and the accuracy as compared to the total cases cancelled in ESP."
+                matTooltip="# of cases recommended and the accuracy against the total cases cancelled."
                 matTooltipPosition="above"
               >
                 info_outline
@@ -145,7 +145,7 @@
               Service Requests
               <mat-icon
                 class="fit-tile-info-icon"
-                matTooltip="Number of service request cases handled by CaseIQ and their percentage of the total cases."
+                matTooltip="# of service request cases handled by agent against the total service request cases."
                 matTooltipPosition="above"
               >
                 info_outline
@@ -385,10 +385,8 @@
           <div class="track-agents-label">
             <a
               class="track-agents-link"
-              [href]="resolutionAgentsUrl || '#'"
-              target="_blank"
-              rel="noopener noreferrer"
-              (click)="!resolutionAgentsUrl && $event.preventDefault()"
+              (click)="openResolutionAgents($event)"
+              style="cursor: pointer"
             >
               Resolution Agents Active
               <ng-icon

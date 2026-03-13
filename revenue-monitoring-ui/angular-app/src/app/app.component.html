@@ -23,7 +23,18 @@
                       <span class="toolbar-nav-dropdown-item-name">Home</span>
                     </div>
                   } -->
-                  @if (isAdmin$) {
+                  @if (
+                    isAdmin$ ||
+                    hasRole$([
+                      "MONITORING_I2C_ADMIN",
+                      "MONITORING_GL_ADMIN",
+                      "MONITORING_AIT_ADMIN",
+                      "MONITORING_OM_ADMIN",
+                      "MONITORING_WIPS_ADMIN",
+                      "MONITORING_REVENUE_ACCOUNTING_ADMIN",
+                      "EXCEPTION_ADMIN",
+                    ])
+                  ) {
                     <div
                       class="toolbar-nav-dropdown-item"
                       [class.active]="

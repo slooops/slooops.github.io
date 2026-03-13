@@ -14,6 +14,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { DestroyManager } from '../providers/destroy-manager.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-business-insights',
@@ -26,6 +27,7 @@ import { DestroyManager } from '../providers/destroy-manager.service';
     BusinessInsightsModule,
     O2cEmbedComponent,
     NgIcon,
+    MatIconModule,
   ],
   providers: [
     DestroyManager,

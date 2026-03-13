@@ -32,14 +32,31 @@
         <span><b>Period end date:</b> {{ periodInfo.periodEndDate }}</span>
         <span class="period-divider">|</span>
         @if (isLargeDealTab) {
+          <span><b>Last Updated:</b> {{ timeNow || "" }} &nbsp;</span>
           <span
-            ><b>Last Updated:</b> {{ timeNow || "" }} &nbsp;<i
-              class="fa fa-info-circle"
-              matTooltip="Dashboard data is updated at 8 AM, 12 PM, 4 PM and 11 PM PST everyday. "
-              [matTooltipPosition]="'above'"
-              style="color: gray"
-            ></i
-          ></span>
+            matTooltip="Data is refreshed at 8 AM, 12 PM, 4 PM and 11 PM PST everyday."
+            matTooltipPosition="right"
+            style="
+              cursor: pointer;
+              display: inline-flex;
+              align-items: center;
+              padding: 4px;
+              vertical-align: middle;
+            "
+          >
+            <mat-icon
+              style="
+                color: gray;
+                font-size: 15px;
+                width: 15px;
+                height: 15px;
+                line-height: 15px;
+                overflow: visible;
+              "
+            >
+              info_outline
+            </mat-icon>
+          </span>
         } @else {
           <span><b>Last Updated:</b> {{ timeNow || "" }}</span>
         }
