@@ -114,6 +114,10 @@ public class GLPostingMonitoringService{
 
     public List<Map<String, Object>> getGlInterfaceErrorDetails() {
         List<Map<String, Object>> result = jdbcManager.queryForListAIT(glInterfaceDetails);
+        String[] dateColumns = { "DATE_CREATED", "ACCOUNTING_DATE", "FIRST_SEEN", "LAST_REFRESHED" };
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
         return result;
     }
 
