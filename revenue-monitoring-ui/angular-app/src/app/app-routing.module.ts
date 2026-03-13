@@ -225,15 +225,15 @@ export const routes: Routes = [
       subHeader: 'Order Management',
     },
   },
-  {
-    path: 'wips',
-    component: WipsComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'WIPS',
-    },
-  },
+  // {
+  //   path: 'wips',
+  //   component: WipsComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'Continuous Monitoring',
+  //     subHeader: 'WIPS',
+  //   },
+  // },
   {
     path: 'wd0',
     component: Wd0DashComponent,
