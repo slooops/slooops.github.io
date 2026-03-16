@@ -493,45 +493,37 @@ export class LandingComponent implements OnInit, OnDestroy {
         .filter((m) => m.SECTION === section)
         .sort((a, b) => a.DISPLAY_ORDER - b.DISPLAY_ORDER);
 
-    // IT Ops Dials - with specific styling per dial
-    const itDialConfigs = [
-      { size: 72, strokeWidth: 6, colorStart: '#00d084', colorEnd: '#00bceb' },
-      {
-        size: 120,
-        strokeWidth: 12,
-        colorStart: '#ff9000',
-        colorEnd: '#ff007f',
-      },
-      { size: 100, strokeWidth: 8, colorStart: '#00bceb', colorEnd: '#0070d2' },
+    // Pre-Close Dials (left panel)
+    const preCloseDialConfigs = [
+      { size: 80, strokeWidth: 7, colorStart: '#00d084', colorEnd: '#00bceb' },
+      { size: 100, strokeWidth: 9, colorStart: '#00bceb', colorEnd: '#0070d2' },
+      { size: 100, strokeWidth: 9, colorStart: '#0070d2', colorEnd: '#9933ff' },
+      { size: 80, strokeWidth: 7, colorStart: '#9933ff', colorEnd: '#ff007f' },
     ];
     this.itOpsDials.set(
-      bySection('IT_OPS_DIALS').map((m, i) => ({
+      bySection('PRECLOSE').map((m, i) => ({
         value: m.METRIC_VALUE,
-        max: m.METRIC_TOTAL, // null = open-ended (renders at 80%)
+        max: m.METRIC_TOTAL,
         label: m.LABEL,
         displayFormat: m.DISPLAY_FORMAT,
-        ...itDialConfigs[i],
+        ...preCloseDialConfigs[i],
       })),
     );
 
-    // Finance Ops Dials
-    const finDialConfigs = [
-      { size: 100, strokeWidth: 8, colorStart: '#ff007f', colorEnd: '#9933ff' },
-      {
-        size: 120,
-        strokeWidth: 12,
-        colorStart: '#00bceb',
-        colorEnd: '#9933ff',
-      },
-      { size: 72, strokeWidth: 6, colorStart: '#ffd000', colorEnd: '#ff9000' },
+    // Mid-Close Dials (right panel)
+    const midCloseDialConfigs = [
+      { size: 80, strokeWidth: 7, colorStart: '#00bceb', colorEnd: '#9933ff' },
+      { size: 100, strokeWidth: 9, colorStart: '#9933ff', colorEnd: '#ff007f' },
+      { size: 100, strokeWidth: 9, colorStart: '#ff007f', colorEnd: '#ff3366' },
+      { size: 80, strokeWidth: 7, colorStart: '#ff3366', colorEnd: '#ff0040' },
     ];
     this.finOpsDials.set(
-      bySection('FINANCE_OPS_DIALS').map((m, i) => ({
+      bySection('MIDCLOSE').map((m, i) => ({
         value: m.METRIC_VALUE,
-        max: m.METRIC_TOTAL, // null = open-ended (renders at 80%)
+        max: m.METRIC_TOTAL,
         label: m.LABEL,
         displayFormat: m.DISPLAY_FORMAT,
-        ...finDialConfigs[i],
+        ...midCloseDialConfigs[i],
       })),
     );
 

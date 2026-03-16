@@ -24,9 +24,9 @@
 
   <!-- Cockpit Dashboard -->
   <div class="cockpit-grid">
-    <!-- IT Operations Metrics -->
+    <!-- Pre-Close Metrics -->
     <div class="cockpit-panel cockpit-panel--it">
-      <!-- <h3 class="panel-title">IT Operations</h3> -->
+      <!-- <h3 class="panel-title">Pre-Close</h3> -->
       <div class="dial-row">
         @for (dial of itOpsDials(); track dial.label) {
           <app-arc-progress
@@ -53,9 +53,9 @@
       }
     </div>
 
-    <!-- Finance Operations Metrics -->
+    <!-- Mid-Close Metrics -->
     <div class="cockpit-panel cockpit-panel--finance">
-      <!-- <h3 class="panel-title">Finance Operations</h3> -->
+      <!-- <h3 class="panel-title">Mid-Close</h3> -->
       <div class="dial-row">
         @for (dial of finOpsDials(); track dial.label) {
           <app-arc-progress

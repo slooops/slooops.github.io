@@ -125,10 +125,21 @@
   transform: translateX(-50%);
   display: flex;
   align-items: center;
+  cursor: default;
   gap: 0;
-  font-size: 0.95rem;
-  color: var(--landing-dimmed, #6b7c93);
-  pointer-events: none;
+  font-size: 0.8rem;
+  color: #888;
+  background: rgba(255, 255, 255, 0.317);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(0, 188, 235, 0.1),
+    0 4px 20px rgba(0, 188, 235, 0.08),
+    0 8px 40px rgba(0, 112, 210, 0.08);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
 }
 
 .period-info b {
@@ -594,7 +605,7 @@
   position: absolute;
   inset: 0;
   background: url("/assets/gradients/1.svg") center/cover no-repeat;
-  opacity: 0.6;
+  opacity: 0.3;
   z-index: 0;
   transition: opacity 0.3s ease;
 }
@@ -623,7 +634,7 @@
   position: absolute;
   inset: 0;
   background: url("/assets/gradients/2.svg") center/cover no-repeat;
-  opacity: 0.35;
+  opacity: 0.25;
   z-index: 0;
   transition: opacity 0.3s ease;
 }
@@ -658,7 +669,7 @@
 }
 
 .landing-card--gradient-bg-3:hover::before {
-  opacity: 0.6;
+  opacity: 0.3;
 }
 
 .landing-card--gradient-bg-3 > * {
