@@ -441,9 +441,30 @@
 
 /* Responsive: Reduce size for screens < 1440px */
 @media (max-width: 1500px) {
-  .period-info {
-    font-size: 12px;
+  .header-main {
     gap: 0.5rem;
+  }
+
+  .header-left {
+    gap: 1rem;
+  }
+
+  .header-left h2 {
+    font-size: 0.95rem;
+  }
+
+  .quarter-filter label {
+    font-size: 12px;
+  }
+
+  .quarter-dropdown-button {
+    font-size: 12px;
+    min-width: 100px;
+  }
+
+  .period-info {
+    font-size: 11px;
+    gap: 0.25rem;
   }
 
   .period-info span {
@@ -452,6 +473,33 @@
 
   .period-info .divider {
     display: none;
+  }
+}
+
+@media (max-width: 1300px) {
+  .header-main {
+    gap: 0.25rem;
+  }
+
+  .header-left {
+    gap: 0.5rem;
+  }
+
+  .header-left h2 {
+    font-size: 0.85rem;
+  }
+
+  .quarter-filter label {
+    font-size: 11px;
+  }
+
+  .quarter-dropdown-button {
+    font-size: 11px;
+    min-width: 90px;
+  }
+
+  .period-info {
+    font-size: 10px;
   }
 }
 

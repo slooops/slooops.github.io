@@ -204,8 +204,15 @@
               <div class="kpi-bar-fill" [style.width.%]="opsRate"></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Service Incidents Card -->
+      <div class="tiles-row tiles-row-incidents">
+        <div class="tiles-row-header">Service Incidents</div>
+        <div class="fit-tiles-row">
           <div class="fit-tile">
-            <div class="fit-tile-label">Service Incidents</div>
+            <div class="fit-tile-label">Total Cases</div>
             @if (getFinanceITMetrics()?.SERVICE_INCIDENTS != null) {
               <div class="fit-tile-value">
                 {{ getFinanceITMetrics()?.SERVICE_INCIDENTS | number }}
@@ -289,7 +296,6 @@
                   <th>Service Requests</th>
                   <th>Total Cases (Agent)</th>
                   <th>Agent vs Ops %</th>
-                  <th>Service Incidents</th>
                 </tr>
               </thead>
               <tbody>
@@ -377,6 +383,26 @@
                         </div>
                       </div>
                     </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Separator -->
+          <div class="summary-table-separator"></div>
+
+          <!-- Right: Service Incidents -->
+          <div class="summary-table-section summary-table-section-incidents">
+            <table class="summary-table summary-table-incidents">
+              <thead>
+                <tr>
+                  <th>Service Incidents</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of summaryRows; track row.sectionName) {
+                  <tr>
                     <td>
                       @if (row.serviceIncidents != null) {
                         {{ row.serviceIncidents | number }}

@@ -97,12 +97,17 @@
 }
 
 .tiles-row-esp {
-  flex: 2 1 0;
+  flex: 1.8 1 0;
   min-width: 0;
 }
 
 .tiles-row-agent {
-  flex: 7 1 0;
+  flex: 6 1 0;
+  min-width: 0;
+}
+
+.tiles-row-incidents {
+  flex: 0.9 1 0;
   min-width: 0;
 }
 
@@ -198,6 +203,11 @@
     width: 100%;
   }
 
+  .summary-table-section-incidents {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
   .track-agents-row {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -242,7 +252,12 @@
 }
 
 .summary-table-section-agent {
-  flex: 6.9 1 0;
+  flex: 6.1 1 0;
+  min-width: 0;
+}
+
+.summary-table-section-incidents {
+  flex: 0.8 1 0;
   min-width: 0;
 }
 
@@ -328,6 +343,12 @@
   border-radius: 0 10px 10px 0;
 }
 
+.summary-table-incidents thead tr th:first-child,
+.summary-table-incidents thead tr th:last-child,
+.summary-table-incidents thead tr th {
+  border-radius: 10px;
+}
+
 .summary-table td {
   padding: clamp(8px, 0.75vw, 14px) clamp(4px, 0.4vw, 8px);
   font-size: clamp(10px, 0.75vw, 14px);
@@ -381,12 +402,8 @@
 } /* Service Requests */
 .summary-table-agent th:nth-child(6),
 .summary-table-agent td:nth-child(6) {
-  width: 12%;
+  width: 17%;
 } /* Agent vs Ops Ratio */
-.summary-table-agent th:nth-child(7),
-.summary-table-agent td:nth-child(7) {
-  width: 5%;
-} /* Service Incidents */
 
 .summary-table tbody tr:last-child td {
   border-bottom: none;
