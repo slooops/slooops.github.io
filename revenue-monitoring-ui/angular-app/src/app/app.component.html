@@ -42,6 +42,10 @@
                       "
                       (click)="navigateTo('/identity-access-management')"
                     >
+                      <ng-icon
+                        name="phosphorIdentificationCardBold"
+                        class="nav-item-icon"
+                      />
                       <span class="toolbar-nav-dropdown-item-name"
                         >Identity & Access Management</span
                       >
@@ -56,6 +60,7 @@
                       "
                       (click)="navigateTo('/operational-visibility')"
                     >
+                      <ng-icon name="phosphorEyeBold" class="nav-item-icon" />
                       <span class="toolbar-nav-dropdown-item-name"
                         >Operational Visibility</span
                       >
@@ -91,7 +96,14 @@
                       class="toolbar-nav-section-header toolbar-nav-section-toggle"
                       (click)="toggleCmMenu($event)"
                     >
-                      <span>Continuous Monitoring</span>
+                      <span class="nav-section-label">
+                        <ng-icon
+                          name="phosphorBinocularsBold"
+                          class="nav-section-icon"
+                          size="15"
+                        />
+                        Continuous Monitoring
+                      </span>
                       <i
                         class="fa fa-chevron-down toolbar-nav-section-caret"
                         [class.expanded]="showCmMenu"
@@ -106,6 +118,10 @@
                           "
                           (click)="navigateTo('/period-close-tracking')"
                         >
+                          <ng-icon
+                            name="phosphorCalendarCheckBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >Period Close Tracking</span
                           >
@@ -126,6 +142,10 @@
                           "
                           (click)="navigateTo('/invoice-to-cash')"
                         >
+                          <ng-icon
+                            name="phosphorInvoiceBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >Invoice to Cash</span
                           >
@@ -147,6 +167,10 @@
                           "
                           (click)="navigateTo('/revenue-accounting')"
                         >
+                          <ng-icon
+                            name="phosphorChartLineUpBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >Revenue Accounting</span
                           >
@@ -161,6 +185,10 @@
                           [class.active]="router.url.includes('/gl-posting')"
                           (click)="navigateTo('/gl-posting')"
                         >
+                          <ng-icon
+                            name="phosphorBookOpenBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >General Ledger</span
                           >
@@ -175,6 +203,10 @@
                           [class.active]="router.url.includes('/ait')"
                           (click)="navigateTo('/ait')"
                         >
+                          <ng-icon
+                            name="phosphorPulseBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >AIT</span
                           >
@@ -191,6 +223,10 @@
                           "
                           (click)="navigateTo('/order-management')"
                         >
+                          <ng-icon
+                            name="phosphorPackageBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >Order Management</span
                           >
@@ -210,6 +246,10 @@
                           "
                           (click)="navigateTo('/operations-controls')"
                         >
+                          <ng-icon
+                            name="phosphorSlidersHorizontalBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >Operations Controls</span
                           >
@@ -248,6 +288,10 @@
                       [class.active]="router.url.includes('/business-insights')"
                       (click)="navigateTo('/business-insights')"
                     >
+                      <ng-icon
+                        name="phosphorLightbulbBold"
+                        class="nav-item-icon"
+                      />
                       <span class="toolbar-nav-dropdown-item-name"
                         >Business Insights</span
                       >
@@ -272,7 +316,14 @@
                       class="toolbar-nav-section-header toolbar-nav-section-toggle"
                       (click)="toggleEspMenu($event)"
                     >
-                      <span>ESP Case Manager</span>
+                      <span class="nav-section-label">
+                        <ng-icon
+                          name="phosphorFolderOpenBold"
+                          class="nav-section-icon"
+                          size="15"
+                        />
+                        ESP Case Manager
+                      </span>
                       <i
                         class="fa fa-chevron-down toolbar-nav-section-caret"
                         [class.expanded]="showEspMenu"
@@ -296,6 +347,10 @@
                           [class.active]="router.url.includes('/case-iq')"
                           (click)="navigateTo('/case-iq')"
                         >
+                          <ng-icon
+                            name="phosphorBrainBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >Case IQ</span
                           >
@@ -309,6 +364,10 @@
                           "
                           (click)="navigateTo('/i2c-case-analyzer')"
                         >
+                          <ng-icon
+                            name="phosphorReceiptBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >I2C</span
                           >
@@ -322,6 +381,10 @@
                           "
                           (click)="navigateTo('/sbp-case-analyzer')"
                         >
+                          <ng-icon
+                            name="phosphorRepeatBold"
+                            class="nav-item-icon"
+                          />
                           <span class="toolbar-nav-dropdown-item-name"
                             >SBP</span
                           >

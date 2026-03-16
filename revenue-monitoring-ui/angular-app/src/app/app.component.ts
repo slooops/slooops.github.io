@@ -19,18 +19,56 @@ import { O2cSearchComponent } from './components/o2c-search/o2c-search.component
 import { MenuComponent } from './menu/menu.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorIdentificationCardBold,
+  phosphorEyeBold,
+  phosphorBinocularsBold,
+  phosphorFolderOpenBold,
+  phosphorCalendarCheckBold,
+  phosphorInvoiceBold,
+  phosphorChartLineUpBold,
+  phosphorBookOpenBold,
+  phosphorPulseBold,
+  phosphorPackageBold,
+  phosphorSlidersHorizontalBold,
+  phosphorBrainBold,
+  phosphorReceiptBold,
+  phosphorRepeatBold,
+  phosphorLightbulbBold,
+} from '@ng-icons/phosphor-icons/bold';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [DestroyManager],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorIdentificationCardBold,
+      phosphorEyeBold,
+      phosphorBinocularsBold,
+      phosphorFolderOpenBold,
+      phosphorCalendarCheckBold,
+      phosphorInvoiceBold,
+      phosphorChartLineUpBold,
+      phosphorBookOpenBold,
+      phosphorPulseBold,
+      phosphorPackageBold,
+      phosphorSlidersHorizontalBold,
+      phosphorBrainBold,
+      phosphorReceiptBold,
+      phosphorRepeatBold,
+      phosphorLightbulbBold,
+    }),
+  ],
   imports: [
     CommonModule,
     RouterModule,
     MatToolbarModule,
     MatSidenavModule,
     MatTooltipModule,
+    NgIcon,
     O2cSearchComponent,
     // MenuComponent,
     HelpDataComponent,

@@ -5,6 +5,20 @@ import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import { Chart, registerables } from 'chart.js';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import {
+  phosphorPresentationChartDuotone,
+  phosphorUsersDuotone,
+  phosphorChartDonutDuotone,
+  phosphorTrophyDuotone,
+  phosphorShieldCheckDuotone,
+  phosphorBrainDuotone,
+  phosphorLightbulbDuotone,
+  phosphorFireDuotone,
+  phosphorTableDuotone,
+  phosphorChartBarDuotone,
+} from '@ng-icons/phosphor-icons/duotone';
+import { phosphorArrowClockwiseBold } from '@ng-icons/phosphor-icons/bold';
 
 Chart.register(...registerables);
 
@@ -44,6 +58,7 @@ const ACRONYMS: Record<string, string> = {
   o2c: 'O2C',
   wd0: 'WD0',
   esp: 'ESP',
+  'finance it': 'Finance IT',
 };
 
 @Component({
@@ -51,8 +66,23 @@ const ACRONYMS: Record<string, string> = {
   templateUrl: './analytics-dashboard.component.html',
   styleUrls: ['./analytics-dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, LoadingSymbolComponent],
-  providers: [DestroyManager],
+  imports: [CommonModule, LoadingSymbolComponent, NgIcon],
+  providers: [
+    DestroyManager,
+    provideIcons({
+      phosphorPresentationChartDuotone,
+      phosphorUsersDuotone,
+      phosphorChartDonutDuotone,
+      phosphorTrophyDuotone,
+      phosphorShieldCheckDuotone,
+      phosphorBrainDuotone,
+      phosphorLightbulbDuotone,
+      phosphorFireDuotone,
+      phosphorTableDuotone,
+      phosphorChartBarDuotone,
+      phosphorArrowClockwiseBold,
+    }),
+  ],
 })
 export class AnalyticsDashboardComponent
   implements OnInit, AfterViewInit, OnDestroy
