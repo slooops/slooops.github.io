@@ -55,10 +55,10 @@
   <div class="gl-content">
     <app-monitoring-dashboard
       [urls]="aitUrls"
-      [keysToMap]=""
+      [keysToMap]="aitKeysToMap"
       [componentName]="'AIT'"
       [columnsToFilter]="aitFilters"
-      [assignmentDialogFieldConfig]=""
+      [assignmentDialogFieldConfig]="fieldConfig"
       [userContext]="userContextData"
       [submitKeysToMap]="['']"
       [webexKeysToMap]="['']"

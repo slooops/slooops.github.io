@@ -288,7 +288,8 @@ export const routes: Routes = [
     component: AdminComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Identity and Access Management',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Identity and Access Management',
     },
   },
   {

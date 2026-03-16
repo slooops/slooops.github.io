@@ -73,4 +73,31 @@ public class GlPostingMonitoringController {
     public ResponseEntity<List<Map<String, Object>>> getGlInterfaceErrorDetails() {
         return new ResponseEntity<>(service.getGlInterfaceErrorDetails(), HttpStatus.OK);
     }
+
+    @GetMapping("/ait-details-filtered")
+    public ResponseEntity<Map<String, Object>> getAITGlInterfaceDetailsFilter(@RequestParam List<String> sources,
+                                                                    @RequestParam List<String> ledgers,
+                                                                    @RequestParam List<String> periods,
+                                                                    @RequestParam List<String> batchNames,
+                                                                    @RequestParam List<String> dateCreateds) {
+        try {
+            List<Map<String, Object>> errorDetailsFiltered = new ArrayList<>();
+            int minLength = Math.min(sources.size(), Math.min(ledgers.size(), Math.min(periods.size(), Math.min(batchNames.size(),  dateCreateds.size()))));
+            for (int i = 0; i < minLength; i++) {
+                String source = sources.get(i);
+                String ledger = ledgers.get(i);
+                String period = periods.get(i);
+                String batchName = batchNames.get(i);
+                String dateCreated = dateCreateds.get(i);
+                List<Map<String, Object>> result = service.getAITGlInterfaceDetailsFilter(source, ledger, period, batchName,
+                        dateCreated);
+                errorDetailsFiltered.addAll(result);
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("errorDetailsFiltered", errorDetailsFiltered);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

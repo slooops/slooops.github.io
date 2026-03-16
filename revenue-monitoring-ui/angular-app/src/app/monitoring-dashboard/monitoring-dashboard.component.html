@@ -498,7 +498,10 @@
       <br /><br /><br />
     </div>
   }
-  @if (!dataSource?.data?.length && !isLoading()) {
+  @if (
+    (!dataSource?.data?.length || !filtereddataSource?.data?.length) &&
+    !isLoading()
+  ) {
     <div class="loading-container">
       <img
         src="assets/thumbnails/noDataFound.png"

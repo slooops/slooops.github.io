@@ -21,7 +21,14 @@
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0)
               : "--"
-          }}
+          }}<span style="font-size: calc(1em - 1px)">
+            /
+            {{
+              filteredCaseIqMetrics
+                ? (filteredCaseIqMetrics.IN_PROGRESS ?? 0)
+                : "--"
+            }}</span
+          >
           {{
             filteredCaseIqMetrics
               ? "(" +
@@ -40,7 +47,14 @@
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0)
               : "--"
-          }}
+          }}<span style="font-size: calc(1em - 1px)">
+            /
+            {{
+              filteredCaseIqMetrics
+                ? (filteredCaseIqMetrics.ROUTED_OUT ?? 0)
+                : "--"
+            }}</span
+          >
           {{
             filteredCaseIqMetrics
               ? "(" +
@@ -59,7 +73,14 @@
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
               : "--"
-          }}
+          }}<span style="font-size: calc(1em - 1px)">
+            /
+            {{
+              filteredCaseIqMetrics
+                ? (filteredCaseIqMetrics.CANCELLED ?? 0)
+                : "--"
+            }}</span
+          >
           {{
             filteredCaseIqMetrics
               ? "(" +
@@ -78,7 +99,14 @@
             filteredCaseIqMetrics
               ? (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0)
               : "--"
-          }}
+          }}<span style="font-size: calc(1em - 1px)">
+            /
+            {{
+              filteredCaseIqMetrics
+                ? (filteredCaseIqMetrics.RESOLVED ?? 0)
+                : "--"
+            }}</span
+          >
           {{
             filteredCaseIqMetrics
               ? "(" +
@@ -92,14 +120,23 @@
       <div class="caseiq-header-cell">
         <span class="caseiq-header-label">Total Cases (Agent)</span>
         <span class="caseiq-header-sep">-</span>
-        <span class="caseiq-header-value">{{
-          filteredCaseIqMetrics
-            ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
-              (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
-              (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
-              (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
-            : "--"
-        }}</span>
+        <span class="caseiq-header-value"
+          >{{
+            filteredCaseIqMetrics
+              ? (filteredCaseIqMetrics.IN_PROGRESS_AGENT ?? 0) +
+                (filteredCaseIqMetrics.RESOLVED_AGENT ?? 0) +
+                (filteredCaseIqMetrics.RECOMMENDED_ROUTED_OUT ?? 0) +
+                (filteredCaseIqMetrics.RECOMMENDED_CANCELLED ?? 0)
+              : "--"
+          }}<span style="font-size: calc(1em - 1px)">
+            /
+            {{
+              filteredCaseIqMetrics
+                ? (filteredCaseIqMetrics.TOTAL_CASES ?? 0)
+                : "--"
+            }}</span
+          ></span
+        >
       </div>
 
       <div class="caseiq-header-cell caseiq-cell-ratio-bar">
@@ -107,12 +144,16 @@
         <span class="caseiq-header-sep">-</span>
         <div class="ratio-bar-container">
           <div class="ratio-bar-agent" [style.width.%]="getAgentRatio()">
-            <span class="ratio-bar-label" style="color: white"
-              >{{ getAgentRatio() }}%</span
-            >
+            @if (getAgentRatio() >= 10) {
+              <span class="ratio-bar-label" style="color: white"
+                >{{ getAgentRatio() }}%</span
+              >
+            }
           </div>
           <div class="ratio-bar-ops" [style.width.%]="100 - getAgentRatio()">
-            <span class="ratio-bar-label">{{ 100 - getAgentRatio() }}%</span>
+            @if (100 - getAgentRatio() >= 10) {
+              <span class="ratio-bar-label">{{ 100 - getAgentRatio() }}%</span>
+            }
           </div>
         </div>
       </div>

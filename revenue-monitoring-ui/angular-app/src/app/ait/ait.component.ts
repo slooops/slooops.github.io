@@ -58,15 +58,33 @@ export class AitComponent implements OnInit {
     columnName: string;
     type: string;
     subAppMapping: boolean;
-  }[] = [];
+  }[] = [
+    {
+      columnName: 'SOURCE',
+      formControlName: 'source',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      columnName: 'CATEGORY',
+      formControlName: 'category',
+      type: 'select',
+      subAppMapping: false,
+    },
+    {
+      formControlName: 'batchName',
+      columnName: 'BATCH_NAME',
+      type: 'text',
+      subAppMapping: false,
+    },
+  ];
 
   aitKeysToMap: string[] = [
-    'PERIOD_NAME',
-    'APPLICATION_NAME',
-    'PROCESS_FLOW',
-    'LEDGER_NAME',
-    'GL_BATCH_NAME',
-    'TRANSACTION_DATE',
+    'SOURCE',
+    'LEDGER',
+    'PERIOD',
+    'BATCH_NAME',
+    'DATE_CREATED',
   ];
 
   specialWords: string[] = [
@@ -90,33 +108,33 @@ export class AitComponent implements OnInit {
 
   fieldConfig = [
     {
-      controlName: 'periodName',
-      label: 'Period Name',
-      sourceKey: 'PERIOD_NAME',
+      controlName: 'period',
+      label: 'Period',
+      sourceKey: 'PERIOD',
       disabled: true,
     },
     {
-      controlName: 'appName',
-      label: 'Application Name',
-      sourceKey: 'APPLICATION_NAME',
+      controlName: 'source',
+      label: 'Source',
+      sourceKey: 'SOURCE',
       disabled: true,
     },
     {
-      controlName: 'processFlow',
-      label: 'Process Flow',
-      sourceKey: 'PROCESS_FLOW',
+      controlName: 'ledger',
+      label: 'Ledger',
+      sourceKey: 'LEDGER',
       disabled: true,
     },
     {
-      controlName: 'orgName',
-      label: 'Ledger Name',
-      sourceKey: 'LEDGER_NAME',
+      controlName: 'batchName',
+      label: 'Batch Name',
+      sourceKey: 'BATCH_NAME',
       disabled: true,
     },
     {
-      controlName: 'creationDate',
-      label: 'Transaction Date',
-      sourceKey: 'TRANSACTION_DATE',
+      controlName: 'journalEntryName',
+      label: 'Journal Entry Name',
+      sourceKey: 'JOURNAL_ENTRY_NAME',
       disabled: true,
     },
     {
@@ -140,7 +158,7 @@ export class AitComponent implements OnInit {
   aitUrls: { [key: string]: string } = {
     summaryUrl: 'ait-error-summary',
     detailsUrl: 'ait-error-details',
-    filteredDetailsUrl: '',
+    filteredDetailsUrl: 'ait-details-filtered',
     summaryUpdateUrl: '',
     webexMessageUrl: '',
     chartTotalsUrl: '',

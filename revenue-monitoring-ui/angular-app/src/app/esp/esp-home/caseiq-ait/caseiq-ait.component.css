@@ -39,7 +39,7 @@
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(1),
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(2),
 .caseiq-header-group-agent .caseiq-header-cell:nth-child(3) {
-  flex: 0.8 1 0;
+  flex: 1 1 0;
 }
 
 /* Wider: Service Requests (4th agent cell) */
@@ -48,7 +48,7 @@
 }
 
 .caseiq-header-group-agent .caseiq-cell-ratio-bar {
-  flex: 2 1 0;
+  flex: 1.8 1 0;
 }
 
 /* Rounded corners on first and last cell of each group */
@@ -142,6 +142,10 @@
   white-space: nowrap;
 }
 
+.caseiq-header-denominator {
+  font-size: 9px;
+}
+
 @media (max-width: 1600px) {
   .caseiq-header-single-row {
     font-size: 10px;
@@ -151,11 +155,20 @@
   }
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1500px) {
   .caseiq-header-single-row {
     font-size: 9px;
   }
   .caseiq-header-label {
     font-size: 8px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .caseiq-header-single-row {
+    font-size: 8px;
+  }
+  .caseiq-header-label {
+    font-size: 7px;
   }
 }

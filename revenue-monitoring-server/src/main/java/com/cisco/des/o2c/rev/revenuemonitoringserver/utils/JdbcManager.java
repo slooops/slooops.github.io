@@ -584,4 +584,13 @@ public class JdbcManager {
         return secondaryJdbcTemplate.queryForList(sql);
     }
 
+    public List<Map<String, Object>> getAITGlInterfaceDetailsFilter(String sql, String source, String ledger,
+                                                        String period, String batchName,
+                                                        String dateCreated) {
+        return secondaryJdbcTemplate.queryForList(sql, source, ledger, period, batchName, dateCreated);
+    }
+
+//    public int updateGlInterfaceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String glbatchName) {
+//        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  glbatchName);
+//    }
 }

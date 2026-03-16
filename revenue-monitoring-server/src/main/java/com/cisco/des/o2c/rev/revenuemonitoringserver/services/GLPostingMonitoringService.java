@@ -121,12 +121,17 @@ public class GLPostingMonitoringService{
         return result;
     }
 
-//    public List<Map<String, Object>> getGlDetailsFilter(String periodName, String applicationName, String processFlow, String ledgerName,
-//                                                        String glbatch, String transactionDate) {
-//        List<Map<String, Object>> result = jdbcManager.getGlDetailsFilter(glPostingDetailsFiltered, periodName, applicationName, processFlow, ledgerName,
-//                glbatch, transactionDate);
-//        return result;
-//    }
+    public List<Map<String, Object>> getAITGlInterfaceDetailsFilter(String source, String ledger,
+                                                                    String period, String batchName,
+                                                                    String dateCreated) {
+        List<Map<String, Object>> result = jdbcManager.getAITGlInterfaceDetailsFilter(glInterfaceDetailsFiltered, source, ledger, period, batchName,
+                dateCreated);
+        String[] dateColumns = { "DATE_CREATED", "ACCOUNTING_DATE", "FIRST_SEEN", "LAST_REFRESHED" };
+        result.forEach(data -> {
+            common.formatDateColumns(data, dateColumns);
+        });
+        return result;
+    }
 //
 //    public int updateGlErrorSummary(Map<String, String> updateData) {
 //        String assignedTo = updateData.get("assignedTo");
