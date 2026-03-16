@@ -29,6 +29,7 @@ interface CaseIqTableMetric {
 interface CaseIqTableRow {
   sectionName: string;
   totalCases: number | null;
+  serviceIncidents: number | null;
   service: CaseIqTableMetric;
   inProgress: CaseIqTableMetric;
   routed: CaseIqTableMetric;
@@ -755,6 +756,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
     return {
       sectionName,
       totalCases: this.toNumber(teamData.TOTAL_CASES),
+      serviceIncidents: this.toNumber(teamData.SERVICE_INCIDENTS),
       service: {
         total: this.toNumber(teamData.RESOLVED),
         agent: this.toNumber(teamData.RESOLVED_AGENT),
@@ -849,6 +851,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** Total Cases (Agent) = inProgress.agent + service.agent + routed.agent + cancelled.agent */
   getAgentTotalCases(row: CaseIqTableRow): number {
+    console.log(row);
     return (
       (row.inProgress.agent ?? 0) +
       (row.service.agent ?? 0) +

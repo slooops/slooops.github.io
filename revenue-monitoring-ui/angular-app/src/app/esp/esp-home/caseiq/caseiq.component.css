@@ -381,8 +381,12 @@
 } /* Service Requests */
 .summary-table-agent th:nth-child(6),
 .summary-table-agent td:nth-child(6) {
-  width: 17%;
+  width: 12%;
 } /* Agent vs Ops Ratio */
+.summary-table-agent th:nth-child(7),
+.summary-table-agent td:nth-child(7) {
+  width: 5%;
+} /* Service Incidents */
 
 .summary-table tbody tr:last-child td {
   border-bottom: none;

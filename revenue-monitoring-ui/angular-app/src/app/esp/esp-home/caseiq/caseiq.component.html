@@ -289,6 +289,7 @@
                   <th>Service Requests</th>
                   <th>Total Cases (Agent)</th>
                   <th>Agent vs Ops %</th>
+                  <th>Service Incidents</th>
                 </tr>
               </thead>
               <tbody>
@@ -346,7 +347,10 @@
                       <span class="summary-total-cases">
                         {{ getAgentTotalCases(row) | number }} </span
                       ><span style="font-size: 0.75em; color: #b0b0b0">
-                        / {{ row.totalCases || 0 | number }}</span
+                        /
+                        {{
+                          row.totalCases - row.serviceIncidents | number
+                        }}</span
                       >
                     </td>
                     <td>
@@ -372,6 +376,13 @@
                           }
                         </div>
                       </div>
+                    </td>
+                    <td>
+                      @if (row.serviceIncidents != null) {
+                        {{ row.serviceIncidents | number }}
+                      } @else {
+                        <span class="summary-empty">--</span>
+                      }
                     </td>
                   </tr>
                 }
