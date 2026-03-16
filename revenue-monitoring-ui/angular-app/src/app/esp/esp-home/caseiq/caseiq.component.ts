@@ -841,7 +841,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   /** Agent percentage of total for ratio bar */
   getAgentRatio(row: CaseIqTableRow): number {
     const total =
-      this.getTotalCasesFromAccuracy(row.sectionName) ?? row.totalCases ?? 0;
+      this.getAgentTotalCases(row) + this.getComponentOpsTotalCases(row);
     if (!total) return 0;
     const agentTotal =
       (row.service.agent ?? 0) +
@@ -853,12 +853,20 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   /** Total Cases (Agent) = inProgress.agent + service.agent + routed.agent + cancelled.agent */
   getAgentTotalCases(row: CaseIqTableRow): number {
-    console.log(row);
     return (
       (row.inProgress.agent ?? 0) +
       (row.service.agent ?? 0) +
       (row.routed.agent ?? 0) +
       (row.cancelled.agent ?? 0)
+    );
+  }
+
+  getComponentOpsTotalCases(row: CaseIqTableRow): number {
+    return (
+      (row.inProgress.ops ?? 0) +
+      (row.service.ops ?? 0) +
+      (row.routed.ops ?? 0) +
+      (row.cancelled.ops ?? 0)
     );
   }
 

@@ -162,7 +162,7 @@ export class CaseiqAitComponent implements OnInit, OnChanges {
   getAgentRatio(): number {
     const m = this.filteredCaseIqMetrics;
     if (!m) return 0;
-    const total = m.TOTAL_CASES ?? 0;
+    const total = m.TOTAL_CASES - m.SERVICE_INCIDENTS;
     if (!total) return 0;
     const agentTotal =
       (m.RESOLVED_AGENT ?? 0) +
