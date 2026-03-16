@@ -499,8 +499,10 @@
     </div>
   }
   @if (
-    (!dataSource?.data?.length || !filtereddataSource?.data?.length) &&
-    !isLoading()
+    !isLoading() &&
+    (isFiltered()
+      ? !filtereddataSource?.data?.length
+      : !dataSource?.data?.length)
   ) {
     <div class="loading-container">
       <img
