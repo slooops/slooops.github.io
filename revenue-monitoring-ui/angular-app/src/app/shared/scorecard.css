@@ -142,6 +142,21 @@
   z-index: 1;
 }
 
+.sprint-edit-input {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border: 1px solid #00bceb;
+  border-radius: 12px;
+  background: #fff;
+  color: #0070d2;
+  width: 80px;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 188, 235, 0.15);
+}
+
 .meta-sep {
   color: var(--sc-border-strong);
 }

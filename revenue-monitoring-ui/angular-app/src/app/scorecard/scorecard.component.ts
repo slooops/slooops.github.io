@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorClockCounterClockwiseBold,
@@ -10,9 +11,13 @@ import {
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import {
+  EditableTableBase,
+  TableVersion,
+  ColorPair,
+} from '../shared/editable-table-base';
+import {
   ScorecardDataService,
   ScorecardRow,
-  ScorecardVersion,
   WorkstreamGroup,
 } from './scorecard-data.service';
 
@@ -31,78 +36,67 @@ import {
   templateUrl: './scorecard.component.html',
   styleUrls: ['../shared/scorecard.css', './scorecard.component.css'],
 })
-export class ScorecardComponent implements OnInit, OnDestroy {
+export class ScorecardComponent
+  extends EditableTableBase<ScorecardRow>
+  implements OnInit, OnDestroy
+{
   groups: WorkstreamGroup[] = [];
-  version: ScorecardVersion | null = null;
-  userId = '';
-  userRoles: string[] = [];
-  isEditing = false;
-  isSaving = false;
-  isLoading = true;
-  saveNotes = '';
-  toastMessage = '';
-  hasDraftAvailable = false;
-
-  /* Snapshot of rows before editing — for cancel */
-  private rowsSnapshot: ScorecardRow[] = [];
-
-  private static readonly DRAFT_KEY = 'scorecard_draft';
-  private draftDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   /* Workstream palette — complements liquid glass glow */
-  workstreamColors: Record<string, { bg: string; accent: string }> = {
+  workstreamColors: Record<string, ColorPair> = {
     '1. Improve Cycle time': { bg: '#e6f7fa30', accent: '#0891b2' },
     '2. Improve Productivity': { bg: '#f3eefa30', accent: '#7c3aed' },
     '3. Improve Quality': { bg: '#fef0e630', accent: '#ea580c' },
   };
 
-  defaultColor = { bg: '#f0f4f830', accent: '#0070d2' };
+  defaultColor: ColorPair = { bg: '#f0f4f830', accent: '#0070d2' };
 
   constructor(
     private dataService: ScorecardDataService,
-    private authService: AuthenticationService,
+    authService: AuthenticationService,
     private dm: DestroyManager,
-    private router: Router,
-    private zone: NgZone,
-  ) {}
-
-  ngOnInit(): void {
-    this.userId = this.authService.getUserID() || '';
-    this.userRoles = this.authService.getRoles() || [];
-    console.log('User ID:', this.userId);
-    console.log('User Roles:', this.userRoles);
-    // this.userId = 'jasloop'; // For local testing
-    this.hasDraftAvailable = this.hasDraft();
-    this.loadData();
-  }
-
-  ngOnDestroy(): void {
-    if (this.draftDebounceTimer) clearTimeout(this.draftDebounceTimer);
-  }
-
-  private loadData(): void {
-    this.isLoading = true;
-    this.dataService.getCurrent(this.dm).subscribe({
-      next: (data) => {
-        this.version = data.version;
-        this.groups = this.dataService.groupByWorkstream(data.rows);
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      },
+    router: Router,
+  ) {
+    super(authService, router, {
+      editRoles: ['ADMIN', 'SCORECARD_ADMIN', 'SCORECARD'],
+      adminRoles: ['ADMIN', 'SCORECARD_ADMIN'],
+      draftKey: 'scorecard_draft',
+      historyRoute: '/scorecard/history',
+      emailSubjectPrefix: 'Monthly Performance Scorecard',
     });
   }
 
-  get canEdit(): boolean {
-    return this.userRoles.some((r) =>
-      ['ADMIN', 'SCORECARD_ADMIN', 'SCORECARD'].includes(r),
-    );
+  /* ====== Abstract implementations ====================================== */
+
+  getAllRows(): ScorecardRow[] {
+    const rows: ScorecardRow[] = [];
+    for (const g of this.groups) {
+      for (const r of g.rows) rows.push(r);
+    }
+    return rows;
   }
 
-  get isAdmin(): boolean {
-    return this.userRoles.some((r) => ['ADMIN', 'SCORECARD_ADMIN'].includes(r));
+  restoreRows(rows: ScorecardRow[]): void {
+    this.groups = this.dataService.groupByWorkstream(rows);
   }
+
+  loadRemoteData(): Observable<{
+    version: TableVersion;
+    rows: ScorecardRow[];
+  }> {
+    return this.dataService.getCurrent(this.dm);
+  }
+
+  saveRemoteData(payload: {
+    username: string;
+    sprintName: string;
+    notes: string;
+    rows: ScorecardRow[];
+  }): Observable<any> {
+    return this.dataService.save(payload);
+  }
+
+  /* ====== Scorecard-specific methods ==================================== */
 
   canEditCell(row: ScorecardRow, column: string): boolean {
     if (!this.isEditing || !this.canEdit) return false;
@@ -126,71 +120,8 @@ export class ScorecardComponent implements OnInit, OnDestroy {
     return this.isOwnerOfRow(row);
   }
 
-  startEditing(): void {
-    /* Deep clone the current rows as snapshot */
-    this.rowsSnapshot = this.allRows().map((r) => ({ ...r }));
-    this.isEditing = true;
-    this.saveNotes = '';
-
-    /* Restore draft if one exists */
-    const draft = this.loadDraft();
-    if (draft) {
-      this.groups = this.dataService.groupByWorkstream(draft.rows);
-      this.saveNotes = draft.saveNotes || '';
-      this.hasDraftAvailable = false;
-      this.showToast('Draft restored — your previous edits have been loaded');
-    }
-
-    /* Auto-size textareas once Angular renders them */
-    setTimeout(() => {
-      document
-        .querySelectorAll<HTMLTextAreaElement>('.cell-input-textarea')
-        .forEach((el) => {
-          el.style.height = 'auto';
-          el.style.height = el.scrollHeight + 'px';
-        });
-    });
-  }
-
-  cancelEditing(): void {
-    /* Restore from snapshot and discard draft */
-    const snapshotGroups = this.dataService.groupByWorkstream(
-      this.rowsSnapshot,
-    );
-    this.groups = snapshotGroups;
-    this.isEditing = false;
-    this.saveNotes = '';
-    this.clearDraft();
-  }
-
-  saveChanges(): void {
-    if (!this.canEdit || this.isSaving) return;
-    this.isSaving = true;
-    const rows = this.allRows();
-    const sprintName = this.version?.sprintName || 'Sprint 1';
-    this.dataService
-      .save({
-        username: this.userId,
-        sprintName,
-        notes: this.saveNotes,
-        rows,
-      })
-      .subscribe({
-        next: () => {
-          this.isSaving = false;
-          this.isEditing = false;
-          this.saveNotes = '';
-          this.clearDraft();
-          this.loadData();
-        },
-        error: () => {
-          this.isSaving = false;
-        },
-      });
-  }
-
   addRow(group: WorkstreamGroup): void {
-    const maxSort = Math.max(...this.allRows().map((r) => r.sortOrder), 0);
+    const maxSort = Math.max(...this.getAllRows().map((r) => r.sortOrder), 0);
     group.rows.push({
       workstream: group.workstream,
       successCriteria: '',
@@ -207,55 +138,7 @@ export class ScorecardComponent implements OnInit, OnDestroy {
     group.rows.splice(index, 1);
   }
 
-  onCellInput(event: Event): void {
-    const el = event.target as HTMLTextAreaElement;
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-    this.saveDraftDebounced();
-  }
-
-  onFieldInput(): void {
-    this.saveDraftDebounced();
-  }
-
-  autoResize(event: Event): void {
-    const el = event.target as HTMLTextAreaElement;
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-  }
-
-  goToHistory(): void {
-    this.router.navigate(['/scorecard/history']);
-  }
-
-  async exportToEmail(): Promise<void> {
-    const html = this.buildEmailHtml();
-    try {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          'text/html': new Blob([html], { type: 'text/html' }),
-          'text/plain': new Blob([this.buildPlainText()], {
-            type: 'text/plain',
-          }),
-        }),
-      ]);
-    } catch {
-      /* Fallback: copy plain text */
-      await navigator.clipboard.writeText(this.buildPlainText());
-    }
-    const subject = encodeURIComponent(
-      `Monthly Performance Scorecard — ${this.version?.sprintName || 'Current'}`,
-    );
-    window.open(`mailto:?subject=${subject}`, '_self');
-    this.showToast('Table copied — paste into your email body (Cmd+V)');
-  }
-
-  private showToast(msg: string): void {
-    this.toastMessage = msg;
-    setTimeout(() => (this.toastMessage = ''), 5000);
-  }
-
-  private buildEmailHtml(): string {
+  buildEmailHtml(): string {
     const rows: string[] = [];
     for (const g of this.groups) {
       const color = this.getGroupColor(g.workstream);
@@ -293,7 +176,7 @@ export class ScorecardComponent implements OnInit, OnDestroy {
 </div>`;
   }
 
-  private buildPlainText(): string {
+  buildPlainText(): string {
     const lines: string[] = [];
     for (const g of this.groups) {
       lines.push(`\n${g.workstream}`);
@@ -307,14 +190,7 @@ export class ScorecardComponent implements OnInit, OnDestroy {
     return `Monthly Performance Scorecard — ${this.version?.sprintName || 'Current'}\n${lines.join('\n')}`;
   }
 
-  private esc(s: string): string {
-    return (s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
-  getGroupColor(workstream: string): { bg: string; accent: string } {
+  getGroupColor(workstream: string): ColorPair {
     return this.workstreamColors[workstream] || this.defaultColor;
   }
 
@@ -325,73 +201,6 @@ export class ScorecardComponent implements OnInit, OnDestroy {
       '3. Improve Quality': '3',
     };
     return map[workstream] || '1';
-  }
-
-  formatTimestamp(ts: string): string {
-    if (!ts) return '';
-    const d = new Date(ts);
-    return (
-      d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }) +
-      ' at ' +
-      d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-    );
-  }
-
-  private allRows(): ScorecardRow[] {
-    const rows: ScorecardRow[] = [];
-    for (const g of this.groups) {
-      for (const r of g.rows) {
-        rows.push(r);
-      }
-    }
-    return rows;
-  }
-
-  /* ——— Draft persistence (localStorage) ——— */
-
-  private saveDraftDebounced(): void {
-    if (this.draftDebounceTimer) clearTimeout(this.draftDebounceTimer);
-    this.draftDebounceTimer = setTimeout(() => this.saveDraft(), 400);
-  }
-
-  private saveDraft(): void {
-    const draft = {
-      rows: this.allRows(),
-      saveNotes: this.saveNotes,
-      savedAt: new Date().toISOString(),
-    };
-    try {
-      localStorage.setItem(ScorecardComponent.DRAFT_KEY, JSON.stringify(draft));
-    } catch {
-      /* Storage full or unavailable — silently ignore */
-    }
-  }
-
-  private loadDraft(): { rows: ScorecardRow[]; saveNotes: string } | null {
-    try {
-      const raw = localStorage.getItem(ScorecardComponent.DRAFT_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  }
-
-  private hasDraft(): boolean {
-    return localStorage.getItem(ScorecardComponent.DRAFT_KEY) !== null;
-  }
-
-  private clearDraft(): void {
-    localStorage.removeItem(ScorecardComponent.DRAFT_KEY);
-    this.hasDraftAvailable = false;
-  }
-
-  discardDraft(): void {
-    this.clearDraft();
   }
 
   trackByGroup(_: number, group: WorkstreamGroup): string {

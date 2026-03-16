@@ -1,0 +1,118 @@
+<div class="history-page">
+  <!-- Header -->
+  <div class="history-header">
+    <div class="header-left">
+      <button class="btn btn-ghost" (click)="goBack()">
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Current
+      </button>
+      <h1 class="history-title">SDLC Execution Update — Version History</h1>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="history-loading">
+      <div class="shimmer-block"></div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading && versions.length === 0) {
+    <div class="history-empty">
+      <p>No version history available yet.</p>
+      <button class="btn btn-ghost" (click)="goBack()">
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return
+      </button>
+    </div>
+  }
+
+  <!-- Version browser -->
+  @if (!isLoading && versions.length > 0) {
+    <div class="version-paginator">
+      <button class="paginator-btn" [disabled]="!hasPrev" (click)="prev()">
+        <ng-icon name="phosphorCaretLeftBold" size="14" /> Older
+      </button>
+      @if (selectedVersion) {
+        <div class="paginator-info">
+          <span class="sprint-badge">{{ selectedVersion.sprintName }}</span>
+          <span class="paginator-meta">
+            Saved by <strong>{{ selectedVersion.createdBy }}</strong>
+          </span>
+          <span class="paginator-date">{{
+            formatTimestamp(selectedVersion.createdAt)
+          }}</span>
+          @if (selectedVersion.notes) {
+            <span class="paginator-note">— {{ selectedVersion.notes }}</span>
+          }
+        </div>
+      }
+      <button class="paginator-btn" [disabled]="!hasNext" (click)="next()">
+        Newer <ng-icon name="phosphorCaretRightBold" size="14" />
+      </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="status-legend">
+      @for (opt of statusOptions; track opt.value) {
+        @if (opt.icon) {
+          <span class="legend-item">
+            <i class="icon-small" [ngClass]="opt.icon"></i>
+            <span>{{ opt.label }}</span>
+          </span>
+        }
+      }
+    </div>
+
+    <!-- Table (read-only) -->
+    <div
+      class="scorecard-table-wrap sdlc-table-wrap"
+      [class.table-loading]="isLoadingData"
+    >
+      <table class="scorecard-table sdlc-exec-table">
+        <thead>
+          <tr>
+            <th class="col-scope">Scope & Deliverables</th>
+            <th class="col-update">Current Sprint update</th>
+            <th class="col-status">Status</th>
+          </tr>
+        </thead>
+        @for (group of groups; track trackByGroup($index, group)) {
+          <tbody>
+            <!-- Workstream header row -->
+            <tr
+              class="workstream-header-row"
+              [style.--group-accent]="getGroupColor(group.workstream).accent"
+              [style.--group-bg]="getGroupColor(group.workstream).bg"
+            >
+              <td colspan="3" class="workstream-header-cell">
+                <span class="workstream-header-label">{{
+                  group.workstream
+                }}</span>
+              </td>
+            </tr>
+            @for (row of group.rows; track row.sortOrder) {
+              <tr class="data-row">
+                <td class="cell">{{ row.scope }}</td>
+                <td class="cell">{{ row.sprintUpdate }}</td>
+                <td class="cell cell-status">
+                  @if (getStatusIcon(row.status)) {
+                    <i
+                      class="icon-small"
+                      [ngClass]="getStatusIcon(row.status)"
+                    ></i>
+                  } @else {
+                    <span class="na-text">N/A</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        }
+      </table>
+    </div>
+
+    @if (isLoadingData) {
+      <div class="history-overlay"><div class="spinner"></div></div>
+    }
+  }
+</div>

@@ -35,6 +35,8 @@ import { ScorecardHistoryComponent } from './scorecard/scorecard-history/scoreca
 import { ExecutiveSummaryHistoryComponent } from './executive-summary/executive-summary-history/executive-summary-history.component';
 import { PerformanceHubComponent } from './performance-hub/performance-hub.component';
 import { AitComponent } from './ait/ait.component';
+import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-exec-history.component';
+import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
 
 export const routes: Routes = [
   {
@@ -322,6 +324,22 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Executive Summary History',
+    },
+  },
+  {
+    path: 'sdlc-exec/history',
+    component: SdlcExecHistoryComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'SDLC Execution Update History',
+    },
+  },
+  {
+    path: 'sdlc-adopt/history',
+    component: SdlcAdoptHistoryComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'SDLC Component Adoption History',
     },
   },
   {

@@ -2035,6 +2035,138 @@ public class QueryConfigs {
         return this.esGetVersionById;
     }
 
+    // ── SDLC Execution Update queries ──
+
+    @Value(("${se.get.current.version.q}"))
+    public String seGetCurrentVersion;
+
+    @Bean(name = "seGetCurrentVersion")
+    public String getSeGetCurrentVersion() {
+        return this.seGetCurrentVersion;
+    }
+
+    @Value(("${se.get.version.data.q}"))
+    public String seGetVersionData;
+
+    @Bean(name = "seGetVersionData")
+    public String getSeGetVersionData() {
+        return this.seGetVersionData;
+    }
+
+    @Value(("${se.get.versions.page.q}"))
+    public String seGetVersionsPage;
+
+    @Bean(name = "seGetVersionsPage")
+    public String getSeGetVersionsPage() {
+        return this.seGetVersionsPage;
+    }
+
+    @Value(("${se.get.versions.count.q}"))
+    public String seGetVersionsCount;
+
+    @Bean(name = "seGetVersionsCount")
+    public String getSeGetVersionsCount() {
+        return this.seGetVersionsCount;
+    }
+
+    @Value(("${se.insert.version.q}"))
+    public String seInsertVersion;
+
+    @Bean(name = "seInsertVersion")
+    public String getSeInsertVersion() {
+        return this.seInsertVersion;
+    }
+
+    @Value(("${se.get.last.version.id.q}"))
+    public String seGetLastVersionId;
+
+    @Bean(name = "seGetLastVersionId")
+    public String getSeGetLastVersionId() {
+        return this.seGetLastVersionId;
+    }
+
+    @Value(("${se.insert.data.row.q}"))
+    public String seInsertDataRow;
+
+    @Bean(name = "seInsertDataRow")
+    public String getSeInsertDataRow() {
+        return this.seInsertDataRow;
+    }
+
+    @Value(("${se.get.version.by.id.q}"))
+    public String seGetVersionById;
+
+    @Bean(name = "seGetVersionById")
+    public String getSeGetVersionById() {
+        return this.seGetVersionById;
+    }
+
+    // ── SDLC Component Adoption queries ──
+
+    @Value(("${sa.get.current.version.q}"))
+    public String saGetCurrentVersion;
+
+    @Bean(name = "saGetCurrentVersion")
+    public String getSaGetCurrentVersion() {
+        return this.saGetCurrentVersion;
+    }
+
+    @Value(("${sa.get.version.data.q}"))
+    public String saGetVersionData;
+
+    @Bean(name = "saGetVersionData")
+    public String getSaGetVersionData() {
+        return this.saGetVersionData;
+    }
+
+    @Value(("${sa.get.versions.page.q}"))
+    public String saGetVersionsPage;
+
+    @Bean(name = "saGetVersionsPage")
+    public String getSaGetVersionsPage() {
+        return this.saGetVersionsPage;
+    }
+
+    @Value(("${sa.get.versions.count.q}"))
+    public String saGetVersionsCount;
+
+    @Bean(name = "saGetVersionsCount")
+    public String getSaGetVersionsCount() {
+        return this.saGetVersionsCount;
+    }
+
+    @Value(("${sa.insert.version.q}"))
+    public String saInsertVersion;
+
+    @Bean(name = "saInsertVersion")
+    public String getSaInsertVersion() {
+        return this.saInsertVersion;
+    }
+
+    @Value(("${sa.get.last.version.id.q}"))
+    public String saGetLastVersionId;
+
+    @Bean(name = "saGetLastVersionId")
+    public String getSaGetLastVersionId() {
+        return this.saGetLastVersionId;
+    }
+
+    @Value(("${sa.insert.data.row.q}"))
+    public String saInsertDataRow;
+
+    @Bean(name = "saInsertDataRow")
+    public String getSaInsertDataRow() {
+        return this.saInsertDataRow;
+    }
+
+    @Value(("${sa.get.version.by.id.q}"))
+    public String saGetVersionById;
+
+    @Bean(name = "saGetVersionById")
+    public String getSaGetVersionById() {
+        return this.saGetVersionById;
+    }
+
     @Value(("${gl.interface.summary.q}"))
     public String glInterfaceSummary;
 

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorClockCounterClockwiseBold,
@@ -10,9 +11,13 @@ import {
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { AuthenticationService } from '../providers/authentication.service';
 import {
+  EditableTableBase,
+  TableVersion,
+  ColorPair,
+} from '../shared/editable-table-base';
+import {
   ExecSummaryDataService,
   ExecSummaryRow,
-  ExecSummaryVersion,
 } from './executive-summary-data.service';
 
 @Component({
@@ -30,25 +35,14 @@ import {
   templateUrl: './executive-summary.component.html',
   styleUrls: ['../shared/scorecard.css', './executive-summary.component.css'],
 })
-export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
+export class ExecutiveSummaryComponent
+  extends EditableTableBase<ExecSummaryRow>
+  implements OnInit, OnDestroy
+{
   rows: ExecSummaryRow[] = [];
-  version: ExecSummaryVersion | null = null;
-  userId = '';
-  userRoles: string[] = [];
-  isEditing = false;
-  isSaving = false;
-  isLoading = true;
-  saveNotes = '';
-  toastMessage = '';
-  hasDraftAvailable = false;
-
-  private rowsSnapshot: ExecSummaryRow[] = [];
-
-  private static readonly DRAFT_KEY = 'exec_summary_draft';
-  private draftDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   /* Alternating color palette for SDLC tracks */
-  trackColors = [
+  trackColors: ColorPair[] = [
     { bg: '#e5f2ff', accent: '#0070d2' },
     { bg: '#e5f7ee', accent: '#1c8c4c' },
     { bg: '#fff6e5', accent: '#d97706' },
@@ -60,120 +54,48 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
 
   constructor(
     private dataService: ExecSummaryDataService,
-    private authService: AuthenticationService,
+    authService: AuthenticationService,
     private dm: DestroyManager,
-    private router: Router,
-  ) {}
-
-  ngOnInit(): void {
-    this.userId = this.authService.getUserID() || '';
-    this.userRoles = this.authService.getRoles() || [];
-    console.log('User ID:', this.userId);
-    // this.userId = 'jasloop'; // For local testing
-    this.hasDraftAvailable = this.hasDraft();
-    this.loadData();
-  }
-
-  ngOnDestroy(): void {
-    if (this.draftDebounceTimer) clearTimeout(this.draftDebounceTimer);
-  }
-
-  private loadData(): void {
-    this.isLoading = true;
-    this.dataService.getCurrent(this.dm).subscribe({
-      next: (data) => {
-        this.version = data.version;
-        this.rows = data.rows;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-      },
+    router: Router,
+  ) {
+    super(authService, router, {
+      editRoles: ['ADMIN', 'EXEC_SUMMARY_ADMIN', 'EXEC_SUMMARY'],
+      adminRoles: ['ADMIN', 'EXEC_SUMMARY_ADMIN'],
+      draftKey: 'exec_summary_draft',
+      historyRoute: '/executive-summary/history',
+      emailSubjectPrefix: 'SDLC Executive Summary',
     });
   }
 
-  get canEdit(): boolean {
-    return this.userRoles.some((r) =>
-      ['ADMIN', 'EXEC_SUMMARY_ADMIN', 'EXEC_SUMMARY'].includes(r),
-    );
+  /* ====== Abstract implementations ====================================== */
+
+  getAllRows(): ExecSummaryRow[] {
+    return this.rows;
   }
 
-  get isAdmin(): boolean {
-    return this.userRoles.some((r) =>
-      ['ADMIN', 'EXEC_SUMMARY_ADMIN'].includes(r),
-    );
+  restoreRows(rows: ExecSummaryRow[]): void {
+    this.rows = rows;
   }
+
+  loadRemoteData(): Observable<{ version: TableVersion; rows: ExecSummaryRow[] }> {
+    return this.dataService.getCurrent(this.dm);
+  }
+
+  saveRemoteData(payload: {
+    username: string;
+    sprintName: string;
+    notes: string;
+    rows: ExecSummaryRow[];
+  }): Observable<any> {
+    return this.dataService.save(payload);
+  }
+
+  /* ====== Exec-summary-specific methods ================================= */
 
   canEditCell(column: string): boolean {
     if (!this.isEditing || !this.canEdit) return false;
     if (this.isAdmin) return true;
     return column === 'highlights' || column === 'watchAreas';
-  }
-
-  startEditing(): void {
-    this.rowsSnapshot = this.rows.map((r) => ({ ...r }));
-    this.isEditing = true;
-    this.saveNotes = '';
-
-    const draft = this.loadDraft();
-    if (draft) {
-      this.rows = draft.rows;
-      this.saveNotes = draft.saveNotes || '';
-      this.hasDraftAvailable = false;
-      this.showToast('Draft restored — your previous edits have been loaded');
-    }
-
-    setTimeout(() => {
-      document
-        .querySelectorAll<HTMLTextAreaElement>('.cell-input-textarea')
-        .forEach((el) => {
-          el.style.height = 'auto';
-          el.style.height = el.scrollHeight + 'px';
-        });
-    });
-  }
-
-  cancelEditing(): void {
-    this.rows = this.rowsSnapshot.map((r) => ({ ...r }));
-    this.isEditing = false;
-    this.saveNotes = '';
-    this.clearDraft();
-  }
-
-  onCellInput(event: Event): void {
-    const el = event.target as HTMLTextAreaElement;
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-    this.saveDraftDebounced();
-  }
-
-  onFieldInput(): void {
-    this.saveDraftDebounced();
-  }
-
-  saveChanges(): void {
-    if (!this.canEdit || this.isSaving) return;
-    this.isSaving = true;
-    const sprintName = this.version?.sprintName || 'Sprint 1';
-    this.dataService
-      .save({
-        username: this.userId,
-        sprintName,
-        notes: this.saveNotes,
-        rows: this.rows,
-      })
-      .subscribe({
-        next: () => {
-          this.isSaving = false;
-          this.isEditing = false;
-          this.saveNotes = '';
-          this.clearDraft();
-          this.loadData();
-        },
-        error: () => {
-          this.isSaving = false;
-        },
-      });
   }
 
   addRow(): void {
@@ -190,63 +112,19 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
     this.rows.splice(index, 1);
   }
 
-  goToHistory(): void {
-    this.router.navigate(['/executive-summary/history']);
-  }
-
   getBullets(text: string): string[] {
     return this.dataService.splitBullets(text);
   }
 
-  getTrackColor(index: number): { bg: string; accent: string } {
+  getTrackColor(index: number): ColorPair {
     return this.trackColors[index % this.trackColors.length];
-  }
-
-  formatTimestamp(ts: string): string {
-    if (!ts) return '';
-    const d = new Date(ts);
-    return (
-      d.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }) +
-      ' at ' +
-      d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-    );
   }
 
   trackByRow(index: number, row: ExecSummaryRow): number {
     return row.dataId ?? index;
   }
 
-  async exportToEmail(): Promise<void> {
-    const html = this.buildEmailHtml();
-    try {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          'text/html': new Blob([html], { type: 'text/html' }),
-          'text/plain': new Blob([this.buildPlainText()], {
-            type: 'text/plain',
-          }),
-        }),
-      ]);
-    } catch {
-      await navigator.clipboard.writeText(this.buildPlainText());
-    }
-    const subject = encodeURIComponent(
-      `SDLC Executive Summary — ${this.version?.sprintName || 'Current'}`,
-    );
-    window.open(`mailto:?subject=${subject}`, '_self');
-    this.showToast('Table copied — paste into your email body (Cmd+V)');
-  }
-
-  private showToast(msg: string): void {
-    this.toastMessage = msg;
-    setTimeout(() => (this.toastMessage = ''), 5000);
-  }
-
-  private buildEmailHtml(): string {
+  buildEmailHtml(): string {
     const thStyle =
       'style="background:#f7f8fa;border:1px solid #e1e4e8;padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#6b7482;font-weight:700;"';
     const rows: string[] = [];
@@ -279,7 +157,7 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
 </div>`;
   }
 
-  private buildPlainText(): string {
+  buildPlainText(): string {
     const lines: string[] = [
       `SDLC Executive Summary — ${this.version?.sprintName || 'Current'}`,
     ];
@@ -296,65 +174,5 @@ export class ExecutiveSummaryComponent implements OnInit, OnDestroy {
       if (watchAreas) lines.push(`  Watch Areas:\n${watchAreas}`);
     }
     return lines.join('\n');
-  }
-
-  private esc(s: string): string {
-    return (s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
-  /* ——— Draft persistence (localStorage) ——— */
-
-  private saveDraftDebounced(): void {
-    if (this.draftDebounceTimer) clearTimeout(this.draftDebounceTimer);
-    this.draftDebounceTimer = setTimeout(() => this.saveDraft(), 400);
-  }
-
-  private saveDraft(): void {
-    const draft = {
-      rows: this.rows,
-      saveNotes: this.saveNotes,
-      savedAt: new Date().toISOString(),
-    };
-    try {
-      localStorage.setItem(
-        ExecutiveSummaryComponent.DRAFT_KEY,
-        JSON.stringify(draft),
-      );
-    } catch {
-      /* Storage full or unavailable — silently ignore */
-    }
-  }
-
-  private loadDraft(): {
-    rows: ExecSummaryRow[];
-    saveNotes: string;
-  } | null {
-    try {
-      const raw = localStorage.getItem(
-        ExecutiveSummaryComponent.DRAFT_KEY,
-      );
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch {
-      return null;
-    }
-  }
-
-  private hasDraft(): boolean {
-    return (
-      localStorage.getItem(ExecutiveSummaryComponent.DRAFT_KEY) !== null
-    );
-  }
-
-  private clearDraft(): void {
-    localStorage.removeItem(ExecutiveSummaryComponent.DRAFT_KEY);
-    this.hasDraftAvailable = false;
-  }
-
-  discardDraft(): void {
-    this.clearDraft();
   }
 }

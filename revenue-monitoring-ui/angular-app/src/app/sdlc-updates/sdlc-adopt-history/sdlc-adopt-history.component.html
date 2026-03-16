@@ -1,0 +1,132 @@
+<div class="history-page">
+  <!-- Header -->
+  <div class="history-header">
+    <div class="header-left">
+      <button class="btn btn-ghost" (click)="goBack()">
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Current
+      </button>
+      <h1 class="history-title">SDLC Component Adoption — Version History</h1>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="history-loading">
+      <div class="shimmer-block"></div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!isLoading && versions.length === 0) {
+    <div class="history-empty">
+      <p>No version history available yet.</p>
+      <button class="btn btn-ghost" (click)="goBack()">
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return
+      </button>
+    </div>
+  }
+
+  <!-- Version browser -->
+  @if (!isLoading && versions.length > 0) {
+    <div class="version-paginator">
+      <button class="paginator-btn" [disabled]="!hasPrev" (click)="prev()">
+        <ng-icon name="phosphorCaretLeftBold" size="14" /> Older
+      </button>
+      @if (selectedVersion) {
+        <div class="paginator-info">
+          <span class="sprint-badge">{{ selectedVersion.sprintName }}</span>
+          <span class="paginator-meta">
+            Saved by <strong>{{ selectedVersion.createdBy }}</strong>
+          </span>
+          <span class="paginator-date">{{
+            formatTimestamp(selectedVersion.createdAt)
+          }}</span>
+          @if (selectedVersion.notes) {
+            <span class="paginator-note">— {{ selectedVersion.notes }}</span>
+          }
+        </div>
+      }
+      <button class="paginator-btn" [disabled]="!hasNext" (click)="next()">
+        Newer <ng-icon name="phosphorCaretRightBold" size="14" />
+      </button>
+    </div>
+
+    <!-- Legend -->
+    <div class="status-legend">
+      @for (opt of statusOptions; track opt.value) {
+        @if (opt.icon) {
+          <span class="legend-item">
+            <i class="icon-small" [ngClass]="opt.icon"></i>
+            <span>{{ opt.label }}</span>
+          </span>
+        }
+      }
+    </div>
+
+    <!-- Table (read-only) -->
+    <div
+      class="scorecard-table-wrap sdlc-table-wrap"
+      [class.table-loading]="isLoadingData"
+    >
+      <table class="scorecard-table sdlc-adopt-table">
+        <thead>
+          <tr>
+            <th class="col-component">Component-level adoption</th>
+            @for (col of entityColumns; track col.key) {
+              <th class="col-entity">{{ col.label }}</th>
+            }
+          </tr>
+        </thead>
+        @for (group of groups; track trackByGroup($index, group)) {
+          <tbody>
+            <!-- Workstream header row -->
+            <tr
+              class="workstream-header-row"
+              [style.--group-accent]="getGroupColor(group.workstream).accent"
+              [style.--group-bg]="getGroupColor(group.workstream).bg"
+            >
+              <td
+                [attr.colspan]="entityColumns.length + 1"
+                class="workstream-header-cell"
+              >
+                <span class="workstream-header-label">{{
+                  group.workstream
+                }}</span>
+              </td>
+            </tr>
+            @for (row of group.rows; track row.sortOrder) {
+              <tr class="data-row">
+                <td class="cell">{{ row.component }}</td>
+                @for (col of entityColumns; track col.key) {
+                  <td class="cell cell-entity">
+                    <div class="entity-display">
+                      @if (getStatusIcon(getEntityCell(row, col.key).status)) {
+                        <i
+                          class="icon-small"
+                          [ngClass]="
+                            getStatusIcon(getEntityCell(row, col.key).status)
+                          "
+                        ></i>
+                      } @else {
+                        <span class="na-text">N/A</span>
+                      }
+                      @if (getEntityCell(row, col.key).pct) {
+                        <span class="pct-text">{{
+                          getEntityCell(row, col.key).pct
+                        }}</span>
+                      }
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        }
+      </table>
+    </div>
+
+    @if (isLoadingData) {
+      <div class="history-overlay"><div class="spinner"></div></div>
+    }
+  }
+</div>
