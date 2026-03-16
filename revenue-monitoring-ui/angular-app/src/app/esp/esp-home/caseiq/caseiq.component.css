@@ -74,7 +74,7 @@
 
 .tiles-row-wrapper {
   display: flex;
-  gap: 16px;
+  gap: 17px;
   margin-bottom: 16px;
   margin-top: 16px;
 }
@@ -90,24 +90,24 @@
 }
 
 .tiles-row-header {
-  font-size: clamp(13px, 0.9vw, 16px);
+  font-size: clamp(11px, 0.75vw, 14px);
   font-weight: 700;
   color: #1d1d1d;
   letter-spacing: 0.5px;
 }
 
 .tiles-row-esp {
-  flex: 1.8 1 0;
+  flex: 2.1 1 0;
   min-width: 0;
 }
 
 .tiles-row-agent {
-  flex: 6 1 0;
+  flex: 6.1 1 0;
   min-width: 0;
 }
 
 .tiles-row-incidents {
-  flex: 0.9 1 0;
+  flex: 0.8 1 0;
   min-width: 0;
 }
 
@@ -252,12 +252,12 @@
 }
 
 .summary-table-section-agent {
-  flex: 6.1 1 0;
+  flex: 6 1 0;
   min-width: 0;
 }
 
 .summary-table-section-incidents {
-  flex: 0.8 1 0;
+  flex: 0.9 1 0;
   min-width: 0;
 }
 
