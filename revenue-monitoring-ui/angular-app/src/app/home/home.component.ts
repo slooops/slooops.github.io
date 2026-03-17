@@ -27,7 +27,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -45,7 +45,6 @@ import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
     MatProgressSpinnerModule,
     LoadingSymbolComponent,
     LoadingSymbolSmallComponent,
-    NgIcon,
   ],
   standalone: true,
 })

@@ -15,7 +15,7 @@ import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.compone
 import { AtmfBarLineChartComponent } from '../components/atmf/atmf-bar-line-chart/atmf-bar-line-chart.component';
 import { AtmfTableComponent } from '../components/atmf/atmf-table/atmf-table.component';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 
 @Component({
   selector: 'app-period-close-tracking',
@@ -35,7 +35,6 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
     LoadingSymbolComponent,
     AtmfBarLineChartComponent,
     AtmfTableComponent,
-    NgIcon,
   ],
   standalone: true,
 })

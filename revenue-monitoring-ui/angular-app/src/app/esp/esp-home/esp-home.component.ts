@@ -16,10 +16,9 @@ import { HomeDataService } from 'src/app/home/home-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { GlobalSearchDialogComponent } from '../global-search-dialog/global-search-dialog.component';
-import { Data } from '@angular/router';
 import { DataService } from 'src/app/providers/data.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -53,7 +52,6 @@ interface AccuracyData {
   ],
   imports: [
     CommonModule,
-    NgIcon,
     CaseiqComponent,
     CaseiqCapComponent,
     CaseiqFppComponent,

@@ -5,13 +5,14 @@ import { MenuService } from '../providers/menu.service';
 import { ApiHttpService } from '../providers/http.service';
 import { SearchContextService } from '../search-context.service';
 import { DataService, PeriodStatus } from '../providers/data.service';
+import { ChatbotService } from '../chatbot/chatbot.service';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BusinessInsightsModule } from './business-insights.module';
 import { O2cEmbedComponent } from './o2c-embed.component';
 import { Subject, takeUntil } from 'rxjs';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { DestroyManager } from '../providers/destroy-manager.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +27,6 @@ import { MatIconModule } from '@angular/material/icon';
     MatTooltipModule,
     BusinessInsightsModule,
     O2cEmbedComponent,
-    NgIcon,
     MatIconModule,
   ],
   providers: [
@@ -45,6 +45,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     private http: ApiHttpService,
     private dataService: DataService,
     private route: ActivatedRoute,
+    private chatbotService: ChatbotService,
   ) {}
   roles: string[] = [];
   private userName: string = '';
@@ -103,6 +104,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.chatbotService.show();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -124,6 +126,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
     }
 
     this.updateTime();
+    this.updateChatbotVisibility();
 
     this.dataService.periodStatus$
       .pipe(takeUntil(this.destroy$))
@@ -172,9 +175,20 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       // Refresh last updated time
       this.updateTime();
 
+      // Update chatbot visibility based on current tab
+      this.updateChatbotVisibility();
+
       // Log tab visit for analytics
       this.logTabVisit(index);
     }, 50);
+  }
+
+  private updateChatbotVisibility(): void {
+    if (this.isO2cTab) {
+      this.chatbotService.hide();
+    } else {
+      this.chatbotService.show();
+    }
   }
   visibleTabs: {
     label: string;

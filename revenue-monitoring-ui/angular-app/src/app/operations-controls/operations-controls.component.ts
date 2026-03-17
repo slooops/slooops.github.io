@@ -5,7 +5,7 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { ApiHttpService } from '../providers/http.service';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
@@ -33,7 +33,7 @@ interface TabDef {
       phosphorSparkleBold,
     }),
   ],
-  imports: [MatTabsModule, MonitoringDashboardComponent, NgIcon],
+  imports: [MatTabsModule, MonitoringDashboardComponent],
 })
 export class OperationsControlsComponent implements OnInit {
   userContextData: UserContext;

@@ -6,7 +6,7 @@ import { AuthenticationService } from '../providers/authentication.service';
 import { DataService } from '../providers/data.service';
 import { MenuService } from '../providers/menu.service';
 import { Validators } from '@angular/forms';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
@@ -27,7 +27,7 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [CommonModule, MonitoringDashboardComponent, NgIcon],
+  imports: [CommonModule, MonitoringDashboardComponent],
   standalone: true,
 })
 export class AitComponent implements OnInit {

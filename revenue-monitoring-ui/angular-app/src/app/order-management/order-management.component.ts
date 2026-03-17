@@ -10,7 +10,7 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 import { WipsComponent } from '../wips/wips.component';
 
@@ -36,7 +36,6 @@ export interface UserContext {
     CommonModule,
     MatTabsModule,
     MonitoringDashboardComponent,
-    NgIcon,
     WipsComponent,
   ],
   standalone: true,

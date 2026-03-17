@@ -19,6 +19,7 @@ import { O2cSearchComponent } from './components/o2c-search/o2c-search.component
 import { MenuComponent } from './menu/menu.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
+import { ChatbotService } from './chatbot/chatbot.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorIdentificationCardBold,
@@ -72,7 +73,7 @@ import {
     O2cSearchComponent,
     // MenuComponent,
     HelpDataComponent,
-    // ChatbotComponent
+    ChatbotComponent,
   ],
   standalone: true,
 })
@@ -91,6 +92,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private menuService: MenuService,
     private searchContextService: SearchContextService,
     private http: ApiHttpService,
+    private chatbotService: ChatbotService,
   ) {}
 
   menuOpened = false;
@@ -105,6 +107,8 @@ export class AppComponent implements OnInit, OnDestroy {
   showEspMenu = false;
   showMobileMenu = false;
   showNavMenu = false;
+  isChatOpen = false;
+  chatbotHidden = false;
 
   /**
    * Determine the default route based on user roles
@@ -209,6 +213,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isAdmin$ = this.userRoles.includes('ADMIN');
     this.searchContextService.o2cSearchVisible$.subscribe((isVisible) => {
       this.showO2cSearch = isVisible;
+    });
+
+    this.chatbotService.hidden$.subscribe((hidden) => {
+      this.chatbotHidden = hidden;
     });
 
     this.router.events
@@ -347,6 +355,10 @@ export class AppComponent implements OnInit, OnDestroy {
   toggleNavMenu(event: Event) {
     event.stopPropagation();
     this.showNavMenu = !this.showNavMenu;
+  }
+
+  toggleChat() {
+    this.isChatOpen = !this.isChatOpen;
   }
 
   navigateTo(route: string) {

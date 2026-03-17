@@ -10,7 +10,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { CmsComponent } from '../cms/cms.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 
 export interface UserContext {
@@ -37,7 +37,6 @@ export interface UserContext {
     MonitoringDashboardComponent,
     CmsComponent,
     LoadingSymbolComponent,
-    NgIcon,
   ],
   standalone: true,
 })

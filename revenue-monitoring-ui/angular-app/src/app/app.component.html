@@ -46,8 +46,8 @@
                         name="phosphorIdentificationCardBold"
                         class="nav-item-icon"
                       />
-                      <span class="toolbar-nav-dropdown-item-name"
-                        >Identity & Access Management</span
+                      <span class="toolbar-nav-dropdown-item-name">
+                        &nbsp;Identity & Access Management</span
                       >
                     </div>
                   }
@@ -62,7 +62,7 @@
                     >
                       <ng-icon name="phosphorEyeBold" class="nav-item-icon" />
                       <span class="toolbar-nav-dropdown-item-name"
-                        >Operational Visibility</span
+                        >&nbsp;Operational Visibility</span
                       >
                     </div>
                   }
@@ -102,7 +102,7 @@
                           class="nav-section-icon"
                           size="15"
                         />
-                        Continuous Monitoring
+                        &nbsp;Continuous Monitoring
                       </span>
                       <i
                         class="fa fa-chevron-down toolbar-nav-section-caret"
@@ -123,7 +123,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >Period Close Tracking</span
+                            >&nbsp;Period Close Tracking</span
                           >
                         </div>
                       }
@@ -147,7 +147,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >Invoice to Cash</span
+                            >&nbsp;Invoice to Cash</span
                           >
                         </div>
                       }
@@ -172,7 +172,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >Revenue Accounting</span
+                            >&nbsp;Revenue Accounting</span
                           >
                         </div>
                       }
@@ -190,7 +190,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >General Ledger</span
+                            >&nbsp;General Ledger</span
                           >
                         </div>
                       }
@@ -208,7 +208,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >AIT</span
+                            >&nbsp;AIT</span
                           >
                         </div>
                       }
@@ -228,7 +228,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >Order Management</span
+                            >&nbsp;Order Management</span
                           >
                         </div>
                       }
@@ -251,7 +251,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >Operations Controls</span
+                            >&nbsp;Operations Controls</span
                           >
                         </div>
                       }
@@ -293,7 +293,7 @@
                         class="nav-item-icon"
                       />
                       <span class="toolbar-nav-dropdown-item-name"
-                        >Business Insights</span
+                        >&nbsp;Business Insights</span
                       >
                     </div>
                   }
@@ -322,7 +322,7 @@
                           class="nav-section-icon"
                           size="15"
                         />
-                        ESP Case Manager
+                        &nbsp;ESP Case Manager
                       </span>
                       <i
                         class="fa fa-chevron-down toolbar-nav-section-caret"
@@ -352,7 +352,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >Case IQ</span
+                            >&nbsp;Case IQ</span
                           >
                         </div>
                       }
@@ -369,7 +369,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >I2C</span
+                            >&nbsp;I2C</span
                           >
                         </div>
                       }
@@ -386,7 +386,7 @@
                             class="nav-item-icon"
                           />
                           <span class="toolbar-nav-dropdown-item-name"
-                            >SBP</span
+                            >&nbsp;SBP</span
                           >
                         </div>
                       }
@@ -522,6 +522,13 @@
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
+@if (isAdmin$ && !chatbotHidden) {
+  <app-chatbot
+    [currentRoute]="router.url"
+    [isOpen]="isChatOpen"
+    (togglePanel)="toggleChat()"
+  ></app-chatbot>
+}
 
 <!-- <mat-menu #menu="matMenu" class="custom-menu">
 <app-menu></app-menu>
@@ -541,5 +548,3 @@
     <app-help-data (closeDropdown)="isHelpDropdownOpen = false"></app-help-data>
   </div>
 }
-
-<!-- <app-chatbot></app-chatbot> -->

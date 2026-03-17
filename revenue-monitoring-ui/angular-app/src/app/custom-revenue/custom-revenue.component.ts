@@ -8,7 +8,7 @@ import { Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MonitoringDashboardComponent } from '../monitoring-dashboard/monitoring-dashboard.component';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
 export interface UserContext {
   username: string;
@@ -28,12 +28,7 @@ export interface UserContext {
       phosphorSparkleBold,
     }),
   ],
-  imports: [
-    CommonModule,
-    MonitoringDashboardComponent,
-    LoadingSymbolComponent,
-    NgIcon,
-  ],
+  imports: [CommonModule, MonitoringDashboardComponent, LoadingSymbolComponent],
   standalone: true,
 })
 export class CustomRevenueComponent implements OnInit {

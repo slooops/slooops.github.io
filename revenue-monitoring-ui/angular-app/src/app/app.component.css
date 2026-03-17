@@ -40,6 +40,12 @@
   opacity: 0.8;
 }
 
+.toolbar-nav-icon--disabled {
+  cursor: default;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .toolbar-nav-dropdown {
   position: absolute;
   top: 100%;
@@ -49,8 +55,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  width: 272px;
-  overflow: hidden;
+  min-width: 260px;
   z-index: 1000;
   padding: 6px 0;
   animation: toolbarNavFadeIn 0.15s ease;
@@ -89,8 +94,6 @@
   font-size: 14px;
   font-weight: 600;
   color: #1d1d1d;
-  flex: 1;
-  min-width: 0;
 }
 
 .toolbar-nav-dropdown-item.active .toolbar-nav-dropdown-item-name {
@@ -145,45 +148,6 @@
 
 .toolbar-nav-subitem.active .toolbar-nav-dropdown-item-name {
   color: #00bceb;
-}
-
-/* ── Nav item icons (right-aligned) ── */
-.nav-item-icon {
-  margin-right: 8px;
-  flex-shrink: 0;
-  color: #9ca3af;
-  opacity: 0.6;
-  transition:
-    color 0.15s ease,
-    opacity 0.15s ease;
-  font-size: 14px;
-}
-
-.toolbar-nav-dropdown-item:hover .nav-item-icon {
-  color: #374151;
-  opacity: 0.9;
-}
-
-.toolbar-nav-dropdown-item.active .nav-item-icon {
-  color: #00bceb;
-  opacity: 1;
-}
-
-/* ── Section header icons (left-side, grouped with label text) ── */
-.nav-section-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav-section-icon {
-  color: #6b7280;
-  flex-shrink: 0;
-  transition: color 0.15s ease;
-}
-
-.toolbar-nav-section-toggle:hover .nav-section-icon {
-  color: #374151;
 }
 
 .toolbar-brand {
