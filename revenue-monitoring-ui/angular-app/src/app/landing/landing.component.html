@@ -133,8 +133,9 @@
         <h3 class="section-header">{{ column.header }}</h3>
         <div
           class="card-grid"
-          [class.card-grid--double]="idx < 2"
-          [class.card-grid--single]="idx === 2"
+          [class.card-grid--quad]="cardColumns().length === 1"
+          [class.card-grid--double]="cardColumns().length > 1 && idx < 2"
+          [class.card-grid--single]="cardColumns().length > 1 && idx === 2"
         >
           @for (card of column.cards; track card.title) {
             <div

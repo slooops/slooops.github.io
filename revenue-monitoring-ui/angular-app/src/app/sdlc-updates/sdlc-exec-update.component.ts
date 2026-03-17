@@ -25,8 +25,8 @@ import {
 export const STATUS_OPTIONS = [
   { value: 'COMPLETED', label: 'Completed', icon: 'completed-icon' },
   { value: 'ON_TRACK', label: 'On Track', icon: 'in-progress-icon' },
-  { value: 'ON_WATCH', label: 'On Watch', icon: 'stopped-icon' },
-  { value: 'DELAYED', label: 'Delayed', icon: 'delayed-icon' },
+  { value: 'ON_WATCH', label: 'On Watch', icon: 'delayed-icon' },
+  { value: 'DELAYED', label: 'Delayed', icon: 'warning-icon' },
   { value: 'YET_TO_START', label: 'Yet to Start', icon: 'yet-to-start-icon' },
   { value: 'NA', label: 'N/A', icon: '' },
 ];
@@ -160,9 +160,13 @@ export class SdlcExecUpdateComponent
     const rows: string[] = [];
     for (const g of this.groups) {
       const color = this.getGroupColor(g.workstream);
-      rows.push(`<tr><td colspan="3" style="background:${color.bg};border:1px solid #e1e4e8;padding:8px 12px;font-weight:700;color:${color.accent};font-size:13px;border-left:3px solid ${color.accent};">${this.esc(g.workstream)}</td></tr>`);
+      rows.push(
+        `<tr><td colspan="3" style="background:${color.bg};border:1px solid #e1e4e8;padding:8px 12px;font-weight:700;color:${color.accent};font-size:13px;border-left:3px solid ${color.accent};">${this.esc(g.workstream)}</td></tr>`,
+      );
       for (const r of g.rows) {
-        rows.push(`<tr><td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;">${this.esc(r.scope)}</td><td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;">${this.esc(r.sprintUpdate)}</td><td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;text-align:center;">${this.getStatusLabel(r.status)}</td></tr>`);
+        rows.push(
+          `<tr><td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;">${this.esc(r.scope)}</td><td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;">${this.esc(r.sprintUpdate)}</td><td style="border:1px solid #e1e4e8;padding:8px 12px;font-size:13px;text-align:center;">${this.getStatusLabel(r.status)}</td></tr>`,
+        );
       }
     }
     const thStyle =
