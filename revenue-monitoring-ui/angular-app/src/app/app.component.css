@@ -3,7 +3,7 @@
   background-color: #00bceb;
   width: 100%;
   display: grid;
-  padding: 0 8px;
+  padding: 0 1rem;
 }
 
 .toolbar-inner {
@@ -79,6 +79,8 @@
   cursor: pointer;
   transition: background 0.15s ease;
   border-left: 3px solid transparent;
+  font-size: 16px;
+  gap: 0.3rem;
 }
 
 .toolbar-nav-dropdown-item:hover {

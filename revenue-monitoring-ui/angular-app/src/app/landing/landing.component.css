@@ -68,63 +68,24 @@
 }
 
 /* ==========================================================================
-   Welcome Bar
+   Top Bar
    ========================================================================== */
 
-.welcome-bar {
+.top-bar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-evenly;
   position: relative;
   padding: var(--landing-space-xs) 2rem;
   margin-bottom: -1rem;
-}
-
-.welcome-text {
-  margin: 0;
-  font-size: 1.125rem;
-  color: var(--landing-link);
-  letter-spacing: 0.5px;
-}
-
-.welcome-text strong {
-  font-weight: 700;
-}
-
-.ask-ivan-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--landing-space-xs);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--landing-accent);
-  font-weight: 700;
-  font-size: 0.95rem;
-  padding: var(--landing-space-xs) var(--landing-space-sm);
-  border-radius: var(--landing-card-radius);
-  transition: background var(--fit-transition-fast, 150ms);
-}
-
-.ask-ivan-btn:hover {
-  background: var(--fit-color-primary-soft, #e6f0fa);
-}
-
-.ask-ivan-icon {
-  font-size: 1.25rem;
-}
-
-.ask-ivan-label {
-  letter-spacing: 0.5px;
+  height: 3.5rem;
 }
 
 /* Period Info Display */
 .period-info {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
+
   cursor: default;
   gap: 0;
   font-size: 0.8rem;
@@ -140,6 +101,7 @@
   transition:
     box-shadow 0.3s ease,
     transform 0.2s ease;
+  margin-bottom: -0.5rem;
 }
 
 .period-info b {
@@ -161,7 +123,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
   padding: var(--landing-space-md) var(--landing-space-lg);
-  gap: var(--landing-space-xl);
+  gap: var(--landing-space-xs) var(--landing-space-xl);
   position: relative;
   z-index: 1;
 }
@@ -171,6 +133,7 @@
   font-family: var(--landing-heading-font);
   font-size: 0.75rem;
   font-weight: 600;
+  /* line-height: normal; */
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--landing-text-muted);
@@ -179,9 +142,9 @@
 .dial-row {
   display: flex;
   align-items: flex-end;
-  gap: 6rem;
+  /* gap: 6rem; */
   margin-bottom: var(--landing-space-md);
-  justify-content: space-evenly;
+  justify-content: space-around;
 }
 
 /* Health Bar */
@@ -214,6 +177,10 @@
 }
 
 .health-bar--colorful .health-bar-track {
+  background: linear-gradient(90deg, #0a60ff 0%, #02c8ff 100%);
+}
+
+/* .health-bar--colorful .health-bar-track {
   background: linear-gradient(
     90deg,
     #0a60ff 5%,
@@ -222,7 +189,7 @@
     #ff007f 75%,
     #ff9000 95%
   );
-}
+} */
 
 .health-bar-indicator {
   position: absolute;
@@ -317,7 +284,7 @@
 .card-sections {
   display: flex;
   gap: var(--landing-space-xl);
-  padding: var(--landing-space-md) var(--landing-space-lg);
+  padding: 0 var(--landing-space-lg) var(--landing-space-md);
   align-items: flex-start;
 }
 

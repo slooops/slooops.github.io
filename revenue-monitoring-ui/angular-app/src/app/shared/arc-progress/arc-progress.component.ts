@@ -86,6 +86,9 @@ import { CommonModule } from '@angular/common';
             @if (computedSuffix) {
               <span class="arc-value-suffix">{{ computedSuffix }}</span>
             }
+            @if (showTotal && max !== null) {
+              <span class="arc-value-total">/{{ formattedMax }}</span>
+            }
           }
         </div>
       }
@@ -153,6 +156,15 @@ import { CommonModule } from '@angular/common';
         font-size: 0.75rem;
         font-weight: 600;
         color: var(--landing-text-muted, #555);
+      }
+
+      .arc-value-total {
+        font-size: 0.6rem;
+        font-weight: 500;
+        color: var(--landing-text-muted, #aaa);
+        align-self: flex-end;
+        padding-bottom: 1px;
+        margin-left: 1px;
       }
 
       .arc-subtitle {
@@ -223,6 +235,9 @@ export class ArcProgressComponent {
 
   /** Show the value in the center */
   @Input() showValue = true;
+
+  /** Show the max/total alongside the value as "value/total" */
+  @Input() showTotal = false;
 
   /** Subtitle text displayed below the value, right-aligned extending left */
   @Input() subtitle = '';
@@ -321,6 +336,18 @@ export class ArcProgressComponent {
     if (val >= 1_000_000) return 'M';
     if (val >= 1_000) return 'K';
     return '';
+  }
+
+  /** Format the max/total for display alongside the value */
+  get formattedMax(): string {
+    if (this.max === null || this.max === undefined) return '';
+    const val = this.max;
+    if (val >= 1_000_000_000)
+      return this.formatWithPrecision(val / 1_000_000_000) + 'B';
+    if (val >= 1_000_000)
+      return this.formatWithPrecision(val / 1_000_000) + 'M';
+    if (val >= 1_000) return this.formatWithPrecision(val / 1_000) + 'K';
+    return this.formatWithPrecision(val);
   }
 
   /** Format the value for display (auto-scales for all non-PERCENT formats) */

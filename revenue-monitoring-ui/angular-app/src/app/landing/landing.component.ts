@@ -234,7 +234,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       icon: 'phosphorCalendarCheckDuotone',
       route: '/period-close-tracking',
       requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
-      variant: 'gradient-bg-1',
+      variant: 'gradient-bg-2',
       arcData: {
         metricKey: 'PERIOD_CLOSE_MGMT',
         value: null,
@@ -251,7 +251,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       icon: 'phosphorEyeDuotone',
       route: '/operational-visibility',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
-      variant: 'glass',
+      variant: 'gradient-bg-1',
       arcData: {
         metricKey: 'OPERATIONAL_VISIBILITY',
         value: null,
@@ -495,10 +495,15 @@ export class LandingComponent implements OnInit, OnDestroy {
 
     // Pre-Close Dials (left panel)
     const preCloseDialConfigs = [
-      { size: 80, strokeWidth: 7, colorStart: '#00d084', colorEnd: '#00bceb' },
-      { size: 100, strokeWidth: 9, colorStart: '#00bceb', colorEnd: '#0070d2' },
-      { size: 100, strokeWidth: 9, colorStart: '#0070d2', colorEnd: '#9933ff' },
-      { size: 80, strokeWidth: 7, colorStart: '#9933ff', colorEnd: '#ff007f' },
+      {
+        size: 120,
+        strokeWidth: 10,
+        colorStart: '#00d084',
+        colorEnd: '#00bceb',
+      },
+      { size: 110, strokeWidth: 9, colorStart: '#00bceb', colorEnd: '#0070d2' },
+      { size: 100, strokeWidth: 8, colorStart: '#0070d2', colorEnd: '#9933ff' },
+      { size: 90, strokeWidth: 8, colorStart: '#9933ff', colorEnd: '#00bceb' },
     ];
     this.itOpsDials.set(
       bySection('PRECLOSE').map((m, i) => ({
@@ -512,11 +517,25 @@ export class LandingComponent implements OnInit, OnDestroy {
 
     // Mid-Close Dials (right panel)
     const midCloseDialConfigs = [
-      { size: 80, strokeWidth: 7, colorStart: '#00bceb', colorEnd: '#9933ff' },
-      { size: 100, strokeWidth: 9, colorStart: '#9933ff', colorEnd: '#ff007f' },
-      { size: 100, strokeWidth: 9, colorStart: '#ff007f', colorEnd: '#ff3366' },
-      { size: 80, strokeWidth: 7, colorStart: '#ff3366', colorEnd: '#ff0040' },
+      { size: 90, strokeWidth: 8, colorStart: '#00bceb', colorEnd: '#9933ff' },
+      { size: 100, strokeWidth: 8, colorStart: '#9933ff', colorEnd: '#0070d2' },
+      { size: 110, strokeWidth: 9, colorStart: '#0070d2', colorEnd: '#00bceb' },
+      {
+        size: 120,
+        strokeWidth: 10,
+        colorStart: '#00bceb',
+        colorEnd: '#00d084',
+      },
     ];
+
+    // // Mid-Close Dials (right panel)
+    // const midCloseDialConfigs = [
+    //   { size: 100, strokeWidth: 9, colorStart: '#00bceb', colorEnd: '#9933ff' },
+    //   { size: 100, strokeWidth: 9, colorStart: '#9933ff', colorEnd: '#00d084' },
+    //   { size: 100, strokeWidth: 9, colorStart: '#00d084', colorEnd: '#00bceb' },
+    //   { size: 100, strokeWidth: 9, colorStart: '#0070d2', colorEnd: '#ff007f' },
+    // ];
+
     this.finOpsDials.set(
       bySection('MIDCLOSE').map((m, i) => ({
         value: m.METRIC_VALUE,

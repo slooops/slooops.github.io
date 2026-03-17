@@ -1,6 +1,8 @@
 <div class="landing-page">
-  <!-- Welcome Bar -->
-  <div class="welcome-bar">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <h3 class="panel-title">Pre-Close Entities</h3>
+
     @if (periodName()) {
       <div class="period-info">
         <span
@@ -16,13 +18,14 @@
         >
       </div>
     }
+
+    <h3 class="panel-title">Mid-Close Entities</h3>
   </div>
 
   <!-- Cockpit Dashboard -->
   <div class="cockpit-grid">
     <!-- Pre-Close Metrics -->
     <div class="cockpit-panel cockpit-panel--it">
-      <!-- <h3 class="panel-title">Pre-Close</h3> -->
       <div class="dial-row">
         @for (dial of itOpsDials(); track dial.label) {
           <app-arc-progress
@@ -34,6 +37,7 @@
             [subtitle]="dial.label"
             [colorStart]="dial.colorStart"
             [colorEnd]="dial.colorEnd"
+            [showTotal]="true"
           />
         }
       </div>
@@ -51,7 +55,6 @@
 
     <!-- Mid-Close Metrics -->
     <div class="cockpit-panel cockpit-panel--finance">
-      <!-- <h3 class="panel-title">Mid-Close</h3> -->
       <div class="dial-row">
         @for (dial of finOpsDials(); track dial.label) {
           <app-arc-progress
@@ -63,6 +66,7 @@
             [subtitle]="dial.label"
             [colorStart]="dial.colorStart"
             [colorEnd]="dial.colorEnd"
+            [showTotal]="true"
           />
         }
       </div>
