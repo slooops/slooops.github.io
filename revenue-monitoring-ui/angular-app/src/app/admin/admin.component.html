@@ -1,5 +1,49 @@
-<div class="fit-admin-user-table">
-  <!-- <div class="fit-admin-user-table__header">
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (tab of filteredAdminTabs; track tab.key) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedTab === tab.key"
+                (click)="switchTab(tab.key)"
+              >
+                <span class="grid-menu-item-name">{{ tab.label }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <h2>{{ currentTabLabel }}</h2>
+    </div>
+
+    @if (periodStatus) {
+      <div class="period-info">
+        <span><b>Period name:</b> {{ periodStatus.periodName }}</span>
+        <span class="period-divider">|</span>
+        <span><b>Period end date:</b> {{ periodStatus.periodEndDate }}</span>
+        <span class="period-divider">|</span>
+        <span><b>Last Updated:</b> {{ periodStatus.lastUpdated }}</span>
+      </div>
+    }
+
+    <div class="header-right"></div>
+  </div>
+</div>
+
+<hr />
+
+@if (selectedTab === "admin") {
+  <div class="fit-admin-user-table">
+    <!-- <div class="fit-admin-user-table__header">
     <h1 class="fit-admin-user-table__title">Welcome,</h1>
     @if (isSubAdminMode) {
       <p class="fit-admin-user-table__description">
@@ -12,504 +56,516 @@
     }
   </div> -->
 
-  @if (!hasAdminAccess) {
-    <div class="fit-admin-user-table__no-access">
-      <div class="fit-no-access-card">
-        <h2>🔒 Access Denied</h2>
-        <p>You do not have admin privileges to view this page.</p>
-        <p class="fit-no-access-hint">
-          Contact a full admin to request access, or if you believe this is an
-          error, ensure you have a role ending in <code>_ADMIN</code> (e.g.,
-          <code>CASE_IQ_I2C_ADMIN</code>).
-        </p>
+    @if (!hasAdminAccess) {
+      <div class="fit-admin-user-table__no-access">
+        <div class="fit-no-access-card">
+          <h2>🔒 Access Denied</h2>
+          <p>You do not have admin privileges to view this page.</p>
+          <p class="fit-no-access-hint">
+            Contact a full admin to request access, or if you believe this is an
+            error, ensure you have a role ending in <code>_ADMIN</code> (e.g.,
+            <code>CASE_IQ_I2C_ADMIN</code>).
+          </p>
+        </div>
       </div>
-    </div>
-  } @else {
-    <app-filter-bar
-      [searchValue]="searchValue"
-      [roleOptions]="roleOptions"
-      [selectedRoles]="selectedRoles"
-      [selectedStatuses]="selectedStatuses"
-      [isFullAdmin]="isFullAdmin"
-      [canCreateSubAdmin]="hasAdminAccess"
-      [totalCount]="filteredGroupedUsers.length"
-      [selectedCount]="selectedGroupUserNames.size"
-      (searchChange)="onSearchChange($event)"
-      (roleFilterChange)="onRoleFilterChange($event)"
-      (enabledFilterChange)="onEnabledFilterChange($event)"
-      (addUserClick)="onAddUser()"
-      (addLineItemClick)="onAddLineItem()"
-      (createSubAdminClick)="onCreateSubAdmin()"
-      (bulkUpdateClick)="onBulkUpdateClick()"
-    >
-    </app-filter-bar>
+    } @else {
+      <app-filter-bar
+        [searchValue]="searchValue"
+        [roleOptions]="roleOptions"
+        [selectedRoles]="selectedRoles"
+        [selectedStatuses]="selectedStatuses"
+        [isFullAdmin]="isFullAdmin"
+        [canCreateSubAdmin]="hasAdminAccess"
+        [totalCount]="filteredGroupedUsers.length"
+        [selectedCount]="selectedGroupUserNames.size"
+        (searchChange)="onSearchChange($event)"
+        (roleFilterChange)="onRoleFilterChange($event)"
+        (enabledFilterChange)="onEnabledFilterChange($event)"
+        (addUserClick)="onAddUser()"
+        (addLineItemClick)="onAddLineItem()"
+        (createSubAdminClick)="onCreateSubAdmin()"
+        (bulkUpdateClick)="onBulkUpdateClick()"
+      >
+      </app-filter-bar>
 
-    <!-- Grouped User Table -->
-    <div class="fit-grouped-table-container">
-      <table class="fit-grouped-table">
-        <thead>
-          <tr>
-            <th class="fit-grouped-table__th fit-grouped-table__th--checkbox">
-              <input
-                type="checkbox"
-                class="fit-bulk-checkbox"
-                [checked]="isAllSelected"
-                (change)="toggleSelectAll()"
-                title="Select all"
-              />
-            </th>
-            <th class="fit-grouped-table__th">Username</th>
-            <th class="fit-grouped-table__th">Email</th>
-            <th class="fit-grouped-table__th">Roles</th>
-            <th class="fit-grouped-table__th">Status</th>
-            <th class="fit-grouped-table__th">Updated Date</th>
-            <th class="fit-grouped-table__th fit-grouped-table__th--actions">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Loading shimmer -->
-          @if (isLoading) {
-            @for (i of [1, 2, 3, 4, 5]; track i) {
-              <tr
-                class="fit-grouped-table__row fit-grouped-table__row--shimmer"
-              >
-                @for (j of [1, 2, 3, 4, 5, 6, 7]; track j) {
-                  <td class="fit-grouped-table__td">
-                    <div class="fit-shimmer"></div>
-                  </td>
-                }
-              </tr>
-            }
-          }
-
-          @if (!isLoading) {
-            <!-- Inline add-user row -->
-            @if (showInlineRow && editableRow) {
-              <tr
-                class="fit-grouped-table__row fit-grouped-table__row--inline-add"
-              >
-                <td class="fit-grouped-table__td"></td>
-                <td class="fit-grouped-table__td">
-                  <input
-                    type="text"
-                    class="fit-inline-input"
-                    [class.fit-inline-input--error]="validationErrors.userName"
-                    placeholder="Username"
-                    [(ngModel)]="editableRow.userName"
-                  />
-                  @if (validationErrors.userName) {
-                    <span class="fit-inline-error">{{
-                      validationErrors.userName
-                    }}</span>
+      <!-- Grouped User Table -->
+      <div class="fit-grouped-table-container">
+        <table class="fit-grouped-table">
+          <thead>
+            <tr>
+              <th class="fit-grouped-table__th fit-grouped-table__th--checkbox">
+                <input
+                  type="checkbox"
+                  class="fit-bulk-checkbox"
+                  [checked]="isAllSelected"
+                  (change)="toggleSelectAll()"
+                  title="Select all"
+                />
+              </th>
+              <th class="fit-grouped-table__th">Username</th>
+              <th class="fit-grouped-table__th">Email</th>
+              <th class="fit-grouped-table__th">Roles</th>
+              <th class="fit-grouped-table__th">Status</th>
+              <th class="fit-grouped-table__th">Updated Date</th>
+              <th class="fit-grouped-table__th fit-grouped-table__th--actions">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Loading shimmer -->
+            @if (isLoading) {
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <tr
+                  class="fit-grouped-table__row fit-grouped-table__row--shimmer"
+                >
+                  @for (j of [1, 2, 3, 4, 5, 6, 7]; track j) {
+                    <td class="fit-grouped-table__td">
+                      <div class="fit-shimmer"></div>
+                    </td>
                   }
-                </td>
-                <td class="fit-grouped-table__td">
-                  <input
-                    type="email"
-                    class="fit-inline-input"
-                    [class.fit-inline-input--error]="validationErrors.userEmail"
-                    placeholder="Email"
-                    [(ngModel)]="editableRow.userEmail"
-                  />
-                  @if (validationErrors.userEmail) {
-                    <span class="fit-inline-error">{{
-                      validationErrors.userEmail
-                    }}</span>
-                  }
-                </td>
-                <td class="fit-grouped-table__td">
-                  <app-multi-select-dropdown
-                    [options]="inlineRoleOptions"
-                    [selected]="selectedInlineRoles"
-                    placeholder="Select roles"
-                    (selectionChange)="onInlineRoleChange($event)"
-                  ></app-multi-select-dropdown>
-                  @if (validationErrors.userRole) {
-                    <span class="fit-inline-error">{{
-                      validationErrors.userRole
-                    }}</span>
-                  }
-                </td>
-                <td class="fit-grouped-table__td">
-                  <span class="fit-role-chip">enabled</span>
-                </td>
-                <td class="fit-grouped-table__td">—</td>
-                <td
-                  class="fit-grouped-table__td fit-grouped-table__td--actions"
-                >
-                  <div class="fit-inline-actions">
-                    <button
-                      class="fit-inline-btn fit-inline-btn--save"
-                      (click)="onSaveInlineRow()"
-                      [disabled]="inlineSaving"
-                      title="Save user"
-                    >
-                      {{ inlineSaving ? "..." : "✓" }}
-                    </button>
-                    <button
-                      class="fit-inline-btn fit-inline-btn--cancel"
-                      (click)="onCancelInlineRow()"
-                      [disabled]="inlineSaving"
-                      title="Cancel"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-
-            @for (group of paginatedGroupedUsers; track group.userName) {
-              <!-- Collapsed parent row -->
-              <tr
-                class="fit-grouped-table__row fit-grouped-table__row--parent"
-                (click)="toggleExpand(group)"
-              >
-                <!-- Checkbox -->
-                <td
-                  class="fit-grouped-table__td fit-grouped-table__td--checkbox"
-                  (click)="$event.stopPropagation()"
-                >
-                  <input
-                    type="checkbox"
-                    class="fit-bulk-checkbox"
-                    [checked]="isGroupSelected(group)"
-                    (change)="toggleSelectGroup(group)"
-                  />
-                </td>
-
-                <!-- Username with caret -->
-                <td
-                  class="fit-grouped-table__td fit-grouped-table__td--username"
-                >
-                  <ng-icon
-                    name="phosphorCaretDownBold"
-                    class="fit-caret"
-                    [class.fit-caret--expanded]="group.isExpanded"
-                  ></ng-icon>
-                  {{ group.userName | lowercase }}
-                </td>
-
-                <!-- Email -->
-                <td class="fit-grouped-table__td">
-                  {{ group.userEmail | lowercase }}
-                </td>
-
-                <!-- Role chips (only enabled roles) -->
-                <td class="fit-grouped-table__td">
-                  <div class="fit-role-chips">
-                    @for (role of group.enabledRoleNames; track role) {
-                      <span class="fit-role-chip">{{ role | lowercase }}</span>
-                    }
-                  </div>
-                </td>
-
-                <!-- Aggregate status toggle (disabled when collapsed) -->
-                <td class="fit-grouped-table__td">
-                  <app-toggle-switch
-                    [checked]="group.isAnyEnabled"
-                    [isDisabled]="true"
-                  ></app-toggle-switch>
-                </td>
-
-                <!-- Latest date -->
-                <td class="fit-grouped-table__td">
-                  {{ formatDate(group.latestDate) }}
-                </td>
-
-                <!-- Actions: plus icon to add role -->
-                <td
-                  class="fit-grouped-table__td fit-grouped-table__td--actions"
-                  (click)="$event.stopPropagation()"
-                >
-                  <button
-                    class="fit-plus-btn"
-                    (click)="onAddRoleToGroup(group)"
-                    title="Add role to {{ group.userName }}"
-                  >
-                    <ng-icon name="phosphorPlusBold" size="16"></ng-icon>
-                  </button>
-                </td>
-              </tr>
-
-              <!-- Expanded sub-rows -->
-              @if (group.isExpanded) {
-                @for (role of group.roles; track role.userRole) {
-                  <tr
-                    class="fit-grouped-table__row fit-grouped-table__row--child"
-                  >
-                    <!-- Empty checkbox cell -->
-                    <td class="fit-grouped-table__td"></td>
-
-                    <!-- Username -->
-                    <td class="fit-grouped-table__td">
-                      {{ group.userName | lowercase }}
-                    </td>
-
-                    <!-- Email -->
-                    <td class="fit-grouped-table__td">
-                      {{ group.userEmail | lowercase }}
-                    </td>
-
-                    <!-- Role name -->
-                    <td class="fit-grouped-table__td">
-                      <span class="fit-role-chip">{{
-                        role.userRole | lowercase
-                      }}</span>
-                    </td>
-
-                    <!-- Individual toggle -->
-                    <td class="fit-grouped-table__td">
-                      <app-toggle-switch
-                        [checked]="role.enabledFlag === 'Y'"
-                        (checkedChange)="
-                          onEnabledFlagChange({ row: role, enabled: $event })
-                        "
-                      ></app-toggle-switch>
-                    </td>
-
-                    <!-- Per-role created date -->
-                    <td class="fit-grouped-table__td">
-                      {{ formatDate(role.creationDate) }}
-                    </td>
-
-                    <!-- Per-role delete -->
-                    <td
-                      class="fit-grouped-table__td fit-grouped-table__td--actions"
-                    >
-                      <button
-                        class="fit-trash-btn fit-trash-btn--sub"
-                        (click)="onDeleteRow(role); $event.stopPropagation()"
-                        title="Delete {{ role.userRole }} role"
-                      >
-                        <ng-icon name="phosphorTrashBold" size="14"></ng-icon>
-                      </button>
-                    </td>
-                  </tr>
-                }
-
-                <!-- Inline add-role row for this group -->
-                @if (addRoleForGroup === group.userName) {
-                  <tr
-                    class="fit-grouped-table__row fit-grouped-table__row--child fit-grouped-table__row--inline-add-role"
-                  >
-                    <!-- Empty checkbox cell -->
-                    <td class="fit-grouped-table__td"></td>
-
-                    <!-- Username (auto-populated, read-only) -->
-                    <td class="fit-grouped-table__td">
-                      <input
-                        type="text"
-                        class="fit-inline-input fit-inline-input--readonly"
-                        [value]="group.userName | lowercase"
-                        readonly
-                      />
-                    </td>
-
-                    <!-- Email (auto-populated, read-only) -->
-                    <td class="fit-grouped-table__td">
-                      <input
-                        type="email"
-                        class="fit-inline-input fit-inline-input--readonly"
-                        [value]="group.userEmail | lowercase"
-                        readonly
-                      />
-                    </td>
-
-                    <!-- Role multi-select -->
-                    <td class="fit-grouped-table__td">
-                      <app-multi-select-dropdown
-                        [options]="getGroupAddRoleOptions(group)"
-                        [selected]="selectedGroupAddRoles"
-                        placeholder="Select roles"
-                        (selectionChange)="onGroupAddRoleChange($event)"
-                      ></app-multi-select-dropdown>
-                      @if (groupAddValidationError) {
-                        <span class="fit-inline-error">{{
-                          groupAddValidationError
-                        }}</span>
-                      }
-                    </td>
-
-                    <!-- Status -->
-                    <td class="fit-grouped-table__td">
-                      <span class="fit-role-chip">enabled</span>
-                    </td>
-
-                    <!-- Date -->
-                    <td class="fit-grouped-table__td">—</td>
-
-                    <!-- Save / Cancel actions -->
-                    <td
-                      class="fit-grouped-table__td fit-grouped-table__td--actions"
-                    >
-                      <div class="fit-inline-actions">
-                        <button
-                          class="fit-inline-btn fit-inline-btn--save"
-                          (click)="onSaveGroupAddRole(group)"
-                          [disabled]="groupAddRoleSaving"
-                          title="Save role"
-                        >
-                          {{ groupAddRoleSaving ? "..." : "✓" }}
-                        </button>
-                        <button
-                          class="fit-inline-btn fit-inline-btn--cancel"
-                          (click)="onCancelGroupAddRole()"
-                          [disabled]="groupAddRoleSaving"
-                          title="Cancel"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                }
+                </tr>
               }
             }
 
-            @if (filteredGroupedUsers.length === 0) {
-              <tr>
-                <td colspan="7" class="fit-grouped-table__empty">
-                  No users found
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </table>
-    </div>
+            @if (!isLoading) {
+              <!-- Inline add-user row -->
+              @if (showInlineRow && editableRow) {
+                <tr
+                  class="fit-grouped-table__row fit-grouped-table__row--inline-add"
+                >
+                  <td class="fit-grouped-table__td"></td>
+                  <td class="fit-grouped-table__td">
+                    <input
+                      type="text"
+                      class="fit-inline-input"
+                      [class.fit-inline-input--error]="
+                        validationErrors.userName
+                      "
+                      placeholder="Username"
+                      [(ngModel)]="editableRow.userName"
+                    />
+                    @if (validationErrors.userName) {
+                      <span class="fit-inline-error">{{
+                        validationErrors.userName
+                      }}</span>
+                    }
+                  </td>
+                  <td class="fit-grouped-table__td">
+                    <input
+                      type="email"
+                      class="fit-inline-input"
+                      [class.fit-inline-input--error]="
+                        validationErrors.userEmail
+                      "
+                      placeholder="Email"
+                      [(ngModel)]="editableRow.userEmail"
+                    />
+                    @if (validationErrors.userEmail) {
+                      <span class="fit-inline-error">{{
+                        validationErrors.userEmail
+                      }}</span>
+                    }
+                  </td>
+                  <td class="fit-grouped-table__td">
+                    <app-multi-select-dropdown
+                      [options]="inlineRoleOptions"
+                      [selected]="selectedInlineRoles"
+                      placeholder="Select roles"
+                      (selectionChange)="onInlineRoleChange($event)"
+                    ></app-multi-select-dropdown>
+                    @if (validationErrors.userRole) {
+                      <span class="fit-inline-error">{{
+                        validationErrors.userRole
+                      }}</span>
+                    }
+                  </td>
+                  <td class="fit-grouped-table__td">
+                    <span class="fit-role-chip">enabled</span>
+                  </td>
+                  <td class="fit-grouped-table__td">—</td>
+                  <td
+                    class="fit-grouped-table__td fit-grouped-table__td--actions"
+                  >
+                    <div class="fit-inline-actions">
+                      <button
+                        class="fit-inline-btn fit-inline-btn--save"
+                        (click)="onSaveInlineRow()"
+                        [disabled]="inlineSaving"
+                        title="Save user"
+                      >
+                        {{ inlineSaving ? "..." : "✓" }}
+                      </button>
+                      <button
+                        class="fit-inline-btn fit-inline-btn--cancel"
+                        (click)="onCancelInlineRow()"
+                        [disabled]="inlineSaving"
+                        title="Cancel"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
 
-    <div style="padding-bottom: 10px"></div>
-    @if (filteredGroupedUsers.length > 0) {
-      <app-pagination
-        [pageIndex]="currentPage"
-        [pageSize]="pageSize"
-        [totalItems]="filteredGroupedUsers.length"
-        [pageSizeOptions]="[10, 25, 50, 100]"
-        (pageChange)="onPageChange($event)"
-      ></app-pagination>
-    }
+              @for (group of paginatedGroupedUsers; track group.userName) {
+                <!-- Collapsed parent row -->
+                <tr
+                  class="fit-grouped-table__row fit-grouped-table__row--parent"
+                  (click)="toggleExpand(group)"
+                >
+                  <!-- Checkbox -->
+                  <td
+                    class="fit-grouped-table__td fit-grouped-table__td--checkbox"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <input
+                      type="checkbox"
+                      class="fit-bulk-checkbox"
+                      [checked]="isGroupSelected(group)"
+                      (change)="toggleSelectGroup(group)"
+                    />
+                  </td>
 
-    <app-modal-shell
-      [title]="
-        isEditMode
-          ? 'Edit User'
-          : isSubAdminCreationMode
-            ? 'Create Sub-Admin'
-            : 'Create Role'
-      "
-      [isOpen]="isModalOpen"
-      (close)="closeModal()"
-    >
-      @if (isModalOpen) {
-        <app-user-form
-          [value]="currentUserData"
-          [roleOptions]="
-            isSubAdminCreationMode ? subAdminRoleOptions : roleOptions
-          "
-          [isEdit]="isEditMode"
-          [roleFieldLabel]="
-            isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'
-          "
-          [useRoleDropdown]="isSubAdminCreationMode"
-          (submit)="onUserFormSubmit($event)"
-          (cancel)="onUserFormCancel()"
-        >
-        </app-user-form>
-      }
-    </app-modal-shell>
+                  <!-- Username with caret -->
+                  <td
+                    class="fit-grouped-table__td fit-grouped-table__td--username"
+                  >
+                    <ng-icon
+                      name="phosphorCaretDownBold"
+                      class="fit-caret"
+                      [class.fit-caret--expanded]="group.isExpanded"
+                    ></ng-icon>
+                    {{ group.userName | lowercase }}
+                  </td>
 
-    <!-- Bulk Update Roles Modal -->
-    <app-modal-shell
-      title="Bulk Update Roles ({{ selectedGroupUserNames.size }} users)"
-      [isOpen]="isBulkModalOpen"
-      (close)="closeBulkModal()"
-    >
-      @if (isBulkModalOpen) {
-        <div class="fit-bulk-modal">
-          <!-- Dropdowns row -->
-          <div class="fit-bulk-modal__dropdowns">
-            <div class="fit-bulk-modal__dropdown-col">
-              <label class="fit-bulk-modal__label">Roles to remove</label>
-              <app-multi-select-dropdown
-                [options]="uniqueSelectedRoles"
-                [selected]="bulkRolesToDelete"
-                placeholder="Select roles to delete"
-                (selectionChange)="onBulkRolesToDeleteChange($event)"
-              ></app-multi-select-dropdown>
-            </div>
-            <div class="fit-bulk-modal__dropdown-col">
-              <label class="fit-bulk-modal__label">Roles to add</label>
-              <app-multi-select-dropdown
-                [options]="bulkAddableRoles"
-                [selected]="bulkRolesToAdd"
-                placeholder="Select roles to add"
-                (selectionChange)="onBulkRolesToAddChange($event)"
-              ></app-multi-select-dropdown>
-            </div>
-          </div>
+                  <!-- Email -->
+                  <td class="fit-grouped-table__td">
+                    {{ group.userEmail | lowercase }}
+                  </td>
 
-          <!-- Selected users preview -->
-          <div class="fit-bulk-modal__preview">
-            <label class="fit-bulk-modal__label">Selected users</label>
-            <div class="fit-bulk-modal__preview-table-wrap">
-              <table class="fit-bulk-preview-table">
-                <thead>
-                  <tr>
-                    <th class="fit-bulk-preview-table__th">Username</th>
-                    <th class="fit-bulk-preview-table__th">Email</th>
-                    <th class="fit-bulk-preview-table__th">Roles</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (group of selectedGroups; track group.userName) {
-                    <tr class="fit-bulk-preview-table__row">
-                      <td class="fit-bulk-preview-table__td">
+                  <!-- Role chips (only enabled roles) -->
+                  <td class="fit-grouped-table__td">
+                    <div class="fit-role-chips">
+                      @for (role of group.enabledRoleNames; track role) {
+                        <span class="fit-role-chip">{{
+                          role | lowercase
+                        }}</span>
+                      }
+                    </div>
+                  </td>
+
+                  <!-- Aggregate status toggle (disabled when collapsed) -->
+                  <td class="fit-grouped-table__td">
+                    <app-toggle-switch
+                      [checked]="group.isAnyEnabled"
+                      [isDisabled]="true"
+                    ></app-toggle-switch>
+                  </td>
+
+                  <!-- Latest date -->
+                  <td class="fit-grouped-table__td">
+                    {{ formatDate(group.latestDate) }}
+                  </td>
+
+                  <!-- Actions: plus icon to add role -->
+                  <td
+                    class="fit-grouped-table__td fit-grouped-table__td--actions"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <button
+                      class="fit-plus-btn"
+                      (click)="onAddRoleToGroup(group)"
+                      title="Add role to {{ group.userName }}"
+                    >
+                      <ng-icon name="phosphorPlusBold" size="16"></ng-icon>
+                    </button>
+                  </td>
+                </tr>
+
+                <!-- Expanded sub-rows -->
+                @if (group.isExpanded) {
+                  @for (role of group.roles; track role.userRole) {
+                    <tr
+                      class="fit-grouped-table__row fit-grouped-table__row--child"
+                    >
+                      <!-- Empty checkbox cell -->
+                      <td class="fit-grouped-table__td"></td>
+
+                      <!-- Username -->
+                      <td class="fit-grouped-table__td">
                         {{ group.userName | lowercase }}
                       </td>
-                      <td class="fit-bulk-preview-table__td">
+
+                      <!-- Email -->
+                      <td class="fit-grouped-table__td">
                         {{ group.userEmail | lowercase }}
                       </td>
-                      <td class="fit-bulk-preview-table__td">
-                        <div class="fit-role-chips">
-                          @for (role of group.allRoleNames; track role) {
-                            <span class="fit-role-chip">{{
-                              role | lowercase
-                            }}</span>
-                          }
+
+                      <!-- Role name -->
+                      <td class="fit-grouped-table__td">
+                        <span class="fit-role-chip">{{
+                          role.userRole | lowercase
+                        }}</span>
+                      </td>
+
+                      <!-- Individual toggle -->
+                      <td class="fit-grouped-table__td">
+                        <app-toggle-switch
+                          [checked]="role.enabledFlag === 'Y'"
+                          (checkedChange)="
+                            onEnabledFlagChange({ row: role, enabled: $event })
+                          "
+                        ></app-toggle-switch>
+                      </td>
+
+                      <!-- Per-role created date -->
+                      <td class="fit-grouped-table__td">
+                        {{ formatDate(role.creationDate) }}
+                      </td>
+
+                      <!-- Per-role delete -->
+                      <td
+                        class="fit-grouped-table__td fit-grouped-table__td--actions"
+                      >
+                        <button
+                          class="fit-trash-btn fit-trash-btn--sub"
+                          (click)="onDeleteRow(role); $event.stopPropagation()"
+                          title="Delete {{ role.userRole }} role"
+                        >
+                          <ng-icon name="phosphorTrashBold" size="14"></ng-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+
+                  <!-- Inline add-role row for this group -->
+                  @if (addRoleForGroup === group.userName) {
+                    <tr
+                      class="fit-grouped-table__row fit-grouped-table__row--child fit-grouped-table__row--inline-add-role"
+                    >
+                      <!-- Empty checkbox cell -->
+                      <td class="fit-grouped-table__td"></td>
+
+                      <!-- Username (auto-populated, read-only) -->
+                      <td class="fit-grouped-table__td">
+                        <input
+                          type="text"
+                          class="fit-inline-input fit-inline-input--readonly"
+                          [value]="group.userName | lowercase"
+                          readonly
+                        />
+                      </td>
+
+                      <!-- Email (auto-populated, read-only) -->
+                      <td class="fit-grouped-table__td">
+                        <input
+                          type="email"
+                          class="fit-inline-input fit-inline-input--readonly"
+                          [value]="group.userEmail | lowercase"
+                          readonly
+                        />
+                      </td>
+
+                      <!-- Role multi-select -->
+                      <td class="fit-grouped-table__td">
+                        <app-multi-select-dropdown
+                          [options]="getGroupAddRoleOptions(group)"
+                          [selected]="selectedGroupAddRoles"
+                          placeholder="Select roles"
+                          (selectionChange)="onGroupAddRoleChange($event)"
+                        ></app-multi-select-dropdown>
+                        @if (groupAddValidationError) {
+                          <span class="fit-inline-error">{{
+                            groupAddValidationError
+                          }}</span>
+                        }
+                      </td>
+
+                      <!-- Status -->
+                      <td class="fit-grouped-table__td">
+                        <span class="fit-role-chip">enabled</span>
+                      </td>
+
+                      <!-- Date -->
+                      <td class="fit-grouped-table__td">—</td>
+
+                      <!-- Save / Cancel actions -->
+                      <td
+                        class="fit-grouped-table__td fit-grouped-table__td--actions"
+                      >
+                        <div class="fit-inline-actions">
+                          <button
+                            class="fit-inline-btn fit-inline-btn--save"
+                            (click)="onSaveGroupAddRole(group)"
+                            [disabled]="groupAddRoleSaving"
+                            title="Save role"
+                          >
+                            {{ groupAddRoleSaving ? "..." : "✓" }}
+                          </button>
+                          <button
+                            class="fit-inline-btn fit-inline-btn--cancel"
+                            (click)="onCancelGroupAddRole()"
+                            [disabled]="groupAddRoleSaving"
+                            title="Cancel"
+                          >
+                            ✕
+                          </button>
                         </div>
                       </td>
                     </tr>
                   }
-                </tbody>
-              </table>
+                }
+              }
+
+              @if (filteredGroupedUsers.length === 0) {
+                <tr>
+                  <td colspan="7" class="fit-grouped-table__empty">
+                    No users found
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div style="padding-bottom: 10px"></div>
+      @if (filteredGroupedUsers.length > 0) {
+        <app-pagination
+          [pageIndex]="currentPage"
+          [pageSize]="pageSize"
+          [totalItems]="filteredGroupedUsers.length"
+          [pageSizeOptions]="[10, 25, 50, 100]"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      }
+
+      <app-modal-shell
+        [title]="
+          isEditMode
+            ? 'Edit User'
+            : isSubAdminCreationMode
+              ? 'Create Sub-Admin'
+              : 'Create Role'
+        "
+        [isOpen]="isModalOpen"
+        (close)="closeModal()"
+      >
+        @if (isModalOpen) {
+          <app-user-form
+            [value]="currentUserData"
+            [roleOptions]="
+              isSubAdminCreationMode ? subAdminRoleOptions : roleOptions
+            "
+            [isEdit]="isEditMode"
+            [roleFieldLabel]="
+              isSubAdminCreationMode ? 'Role to Manage' : 'Role Name'
+            "
+            [useRoleDropdown]="isSubAdminCreationMode"
+            (submit)="onUserFormSubmit($event)"
+            (cancel)="onUserFormCancel()"
+          >
+          </app-user-form>
+        }
+      </app-modal-shell>
+
+      <!-- Bulk Update Roles Modal -->
+      <app-modal-shell
+        title="Bulk Update Roles ({{ selectedGroupUserNames.size }} users)"
+        [isOpen]="isBulkModalOpen"
+        (close)="closeBulkModal()"
+      >
+        @if (isBulkModalOpen) {
+          <div class="fit-bulk-modal">
+            <!-- Dropdowns row -->
+            <div class="fit-bulk-modal__dropdowns">
+              <div class="fit-bulk-modal__dropdown-col">
+                <label class="fit-bulk-modal__label">Roles to remove</label>
+                <app-multi-select-dropdown
+                  [options]="uniqueSelectedRoles"
+                  [selected]="bulkRolesToDelete"
+                  placeholder="Select roles to delete"
+                  (selectionChange)="onBulkRolesToDeleteChange($event)"
+                ></app-multi-select-dropdown>
+              </div>
+              <div class="fit-bulk-modal__dropdown-col">
+                <label class="fit-bulk-modal__label">Roles to add</label>
+                <app-multi-select-dropdown
+                  [options]="bulkAddableRoles"
+                  [selected]="bulkRolesToAdd"
+                  placeholder="Select roles to add"
+                  (selectionChange)="onBulkRolesToAddChange($event)"
+                ></app-multi-select-dropdown>
+              </div>
+            </div>
+
+            <!-- Selected users preview -->
+            <div class="fit-bulk-modal__preview">
+              <label class="fit-bulk-modal__label">Selected users</label>
+              <div class="fit-bulk-modal__preview-table-wrap">
+                <table class="fit-bulk-preview-table">
+                  <thead>
+                    <tr>
+                      <th class="fit-bulk-preview-table__th">Username</th>
+                      <th class="fit-bulk-preview-table__th">Email</th>
+                      <th class="fit-bulk-preview-table__th">Roles</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (group of selectedGroups; track group.userName) {
+                      <tr class="fit-bulk-preview-table__row">
+                        <td class="fit-bulk-preview-table__td">
+                          {{ group.userName | lowercase }}
+                        </td>
+                        <td class="fit-bulk-preview-table__td">
+                          {{ group.userEmail | lowercase }}
+                        </td>
+                        <td class="fit-bulk-preview-table__td">
+                          <div class="fit-role-chips">
+                            @for (role of group.allRoleNames; track role) {
+                              <span class="fit-role-chip">{{
+                                role | lowercase
+                              }}</span>
+                            }
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="fit-bulk-modal__actions">
+              <button
+                class="fit-bulk-modal__btn fit-bulk-modal__btn--cancel"
+                (click)="closeBulkModal()"
+                [disabled]="bulkSaving"
+              >
+                Cancel
+              </button>
+              <button
+                class="fit-bulk-modal__btn fit-bulk-modal__btn--submit"
+                (click)="onBulkSubmit()"
+                [disabled]="
+                  bulkSaving ||
+                  (bulkRolesToDelete.length === 0 &&
+                    bulkRolesToAdd.length === 0)
+                "
+              >
+                {{ bulkSaving ? "Saving..." : "Apply Changes" }}
+              </button>
             </div>
           </div>
+        }
+      </app-modal-shell>
+    }
+  </div>
+}
 
-          <!-- Actions -->
-          <div class="fit-bulk-modal__actions">
-            <button
-              class="fit-bulk-modal__btn fit-bulk-modal__btn--cancel"
-              (click)="closeBulkModal()"
-              [disabled]="bulkSaving"
-            >
-              Cancel
-            </button>
-            <button
-              class="fit-bulk-modal__btn fit-bulk-modal__btn--submit"
-              (click)="onBulkSubmit()"
-              [disabled]="
-                bulkSaving ||
-                (bulkRolesToDelete.length === 0 && bulkRolesToAdd.length === 0)
-              "
-            >
-              {{ bulkSaving ? "Saving..." : "Apply Changes" }}
-            </button>
-          </div>
-        </div>
-      }
-    </app-modal-shell>
-  }
-</div>
+@if (selectedTab === "analytics") {
+  <app-analytics-dashboard></app-analytics-dashboard>
+}

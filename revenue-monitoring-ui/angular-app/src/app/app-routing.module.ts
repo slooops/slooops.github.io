@@ -286,12 +286,12 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'identity-access-management',
+    path: 'access-management-and-analytics',
     component: AdminComponent,
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
-      subHeader: 'Identity and Access Management',
+      subHeader: 'Access Management & Analytics',
     },
   },
   {

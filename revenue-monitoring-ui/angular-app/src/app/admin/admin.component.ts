@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
+import { DataService, PeriodStatus } from 'src/app/providers/data.service';
 import {
   AdminUserRow,
   ColumnConfig,
@@ -23,6 +24,7 @@ import {
   phosphorPlusBold,
   phosphorTrashBold,
 } from '@ng-icons/phosphor-icons/bold';
+import { AnalyticsDashboardComponent } from '../analytics-dashboard/analytics-dashboard.component';
 
 /** Grouped user: one row per unique userName, with all their role rows inside */
 export interface GroupedUser {
@@ -59,6 +61,7 @@ export interface GroupedUser {
     MultiSelectDropdownComponent,
     NgIcon,
     PaginationComponent,
+    AnalyticsDashboardComponent,
   ],
 })
 export class AdminComponent implements OnInit {
@@ -393,17 +396,76 @@ export class AdminComponent implements OnInit {
   managedRoles: string[] = []; // The roles this sub-admin manages (e.g., ["CASE_IQ_I2C", "CASE_IQ_SBP"])
   hasAdminAccess: boolean = false; // True if user is either full admin or sub-admin
 
+  // Dashboard header
+  showGridMenu = false;
+  periodStatus: PeriodStatus | null = null;
+  roles: string[] = [];
+  selectedTab: 'admin' | 'analytics' = 'admin';
+
+  adminTabs = [
+    { key: 'admin', label: 'Identity & Access Management', requiredRole: null },
+    {
+      key: 'analytics',
+      label: 'Control Tower Analytics',
+      requiredRole: 'ADMIN',
+    },
+  ];
+
+  get filteredAdminTabs() {
+    return this.adminTabs.filter(
+      (tab) => !tab.requiredRole || this.roles.includes(tab.requiredRole),
+    );
+  }
+
   constructor(
     private http: ApiHttpService,
     private destroyManager: DestroyManager,
     private authService: AuthenticationService,
     private datePipe: DatePipe,
+    private dataService: DataService,
   ) {}
 
   ngOnInit(): void {
     this.detectAdminPrivileges();
     this.loadUserRoles();
     this.username = this.authService.getUserName();
+    this.roles = this.authService.getRoles();
+
+    this.dataService.periodStatus$.subscribe((status) => {
+      if (status) {
+        this.periodStatus = {
+          ...status,
+          lastUpdated: new Date().toLocaleString(),
+        };
+      }
+    });
+  }
+
+  toggleGridMenu(event: Event): void {
+    event.stopPropagation();
+    this.showGridMenu = !this.showGridMenu;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showGridMenu = false;
+  }
+
+  switchTab(tabKey: string): void {
+    this.selectedTab = tabKey as 'admin' | 'analytics';
+    this.showGridMenu = false;
+    if (this.periodStatus) {
+      this.periodStatus = {
+        ...this.periodStatus,
+        lastUpdated: new Date().toLocaleString(),
+      };
+    }
+  }
+
+  get currentTabLabel(): string {
+    return (
+      this.adminTabs.find((t) => t.key === this.selectedTab)?.label || 'Admin'
+    );
   }
 
   /**
