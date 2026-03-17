@@ -127,26 +127,28 @@
                 "
                 class="workstream-header-cell"
               >
-                @if (isEditing && isAdmin) {
-                  <input
-                    class="cell-input workstream-header-input"
-                    [(ngModel)]="group.workstream"
-                    (input)="onFieldInput()"
-                  />
-                } @else {
-                  <span class="workstream-header-label">{{
-                    group.workstream
-                  }}</span>
-                }
-                @if (isEditing && isAdmin) {
-                  <button
-                    class="btn-add-row"
-                    (click)="addRow(group)"
-                    title="Add row"
-                  >
-                    +
-                  </button>
-                }
+                <div class="workstream-header-inner">
+                  @if (isEditing && isAdmin) {
+                    <input
+                      class="cell-input workstream-header-input"
+                      [(ngModel)]="group.workstream"
+                      (input)="onFieldInput()"
+                    />
+                  } @else {
+                    <span class="workstream-header-label">{{
+                      group.workstream
+                    }}</span>
+                  }
+                  @if (isEditing && isAdmin) {
+                    <button
+                      class="btn-add-row"
+                      (click)="addRow(group)"
+                      title="Add row"
+                    >
+                      +
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
             @for (row of group.rows; track trackByRow($index); let i = $index) {

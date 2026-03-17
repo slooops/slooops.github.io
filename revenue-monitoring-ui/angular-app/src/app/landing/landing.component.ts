@@ -496,13 +496,13 @@ export class LandingComponent implements OnInit, OnDestroy {
     // Pre-Close Dials (left panel)
     const preCloseDialConfigs = [
       {
-        size: 120,
-        strokeWidth: 10,
+        size: 90,
+        strokeWidth: 8,
         colorStart: '#00d084',
         colorEnd: '#00bceb',
       },
-      { size: 110, strokeWidth: 9, colorStart: '#00bceb', colorEnd: '#0070d2' },
-      { size: 100, strokeWidth: 8, colorStart: '#0070d2', colorEnd: '#9933ff' },
+      { size: 90, strokeWidth: 8, colorStart: '#00bceb', colorEnd: '#0070d2' },
+      { size: 90, strokeWidth: 8, colorStart: '#0070d2', colorEnd: '#9933ff' },
       { size: 90, strokeWidth: 8, colorStart: '#9933ff', colorEnd: '#00bceb' },
     ];
     this.itOpsDials.set(
@@ -518,11 +518,11 @@ export class LandingComponent implements OnInit, OnDestroy {
     // Mid-Close Dials (right panel)
     const midCloseDialConfigs = [
       { size: 90, strokeWidth: 8, colorStart: '#00bceb', colorEnd: '#9933ff' },
-      { size: 100, strokeWidth: 8, colorStart: '#9933ff', colorEnd: '#0070d2' },
-      { size: 110, strokeWidth: 9, colorStart: '#0070d2', colorEnd: '#00bceb' },
+      { size: 90, strokeWidth: 8, colorStart: '#9933ff', colorEnd: '#0070d2' },
+      { size: 90, strokeWidth: 8, colorStart: '#0070d2', colorEnd: '#00bceb' },
       {
-        size: 120,
-        strokeWidth: 10,
+        size: 90,
+        strokeWidth: 8,
         colorStart: '#00bceb',
         colorEnd: '#00d084',
       },

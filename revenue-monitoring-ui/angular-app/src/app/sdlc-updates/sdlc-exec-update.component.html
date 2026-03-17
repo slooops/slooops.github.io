@@ -113,35 +113,41 @@
         @for (group of groups; track trackByGroup($index, group)) {
           <tbody>
             <!-- Workstream header row -->
-            <tr class="workstream-header-row"
-                [style.--group-accent]="getGroupColor(group.workstream).accent"
-                [style.--group-bg]="getGroupColor(group.workstream).bg">
-              <td [attr.colspan]="isEditing && isAdmin ? 4 : 3" class="workstream-header-cell">
-                @if (isEditing && isAdmin) {
-                  <input
-                    class="cell-input workstream-header-input"
-                    [(ngModel)]="group.workstream"
-                    (input)="onFieldInput()"
-                  />
-                } @else {
-                  <span class="workstream-header-label">{{ group.workstream }}</span>
-                }
-                @if (isEditing && isAdmin) {
-                  <button
-                    class="btn-add-row"
-                    (click)="addRow(group)"
-                    title="Add row"
-                  >
-                    +
-                  </button>
-                }
+            <tr
+              class="workstream-header-row"
+              [style.--group-accent]="getGroupColor(group.workstream).accent"
+              [style.--group-bg]="getGroupColor(group.workstream).bg"
+            >
+              <td
+                [attr.colspan]="isEditing && isAdmin ? 4 : 3"
+                class="workstream-header-cell"
+              >
+                <div class="workstream-header-inner">
+                  @if (isEditing && isAdmin) {
+                    <input
+                      class="cell-input workstream-header-input"
+                      [(ngModel)]="group.workstream"
+                      (input)="onFieldInput()"
+                    />
+                  } @else {
+                    <span class="workstream-header-label">{{
+                      group.workstream
+                    }}</span>
+                  }
+                  @if (isEditing && isAdmin) {
+                    <button
+                      class="btn-add-row"
+                      (click)="addRow(group)"
+                      title="Add row"
+                    >
+                      +
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
             @for (row of group.rows; track trackByRow($index); let i = $index) {
-              <tr
-                class="data-row"
-                [class.editable-row]="isEditing && canEdit"
-              >
+              <tr class="data-row" [class.editable-row]="isEditing && canEdit">
                 <!-- Scope & Deliverables -->
                 <td class="cell" [class.cell-editing]="canEditCell('scope')">
                   @if (!canEditCell("scope")) {
@@ -228,9 +234,7 @@
     <!-- Save notes -->
     @if (isEditing) {
       <div class="save-notes-bar">
-        <label class="notes-label" for="saveNotes"
-          >Save note (optional):</label
-        >
+        <label class="notes-label" for="saveNotes">Save note (optional):</label>
         <input
           id="saveNotes"
           type="text"

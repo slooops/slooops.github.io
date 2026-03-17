@@ -149,6 +149,9 @@
   background: var(--group-bg, #f0f4f8) !important;
   border-left: 3px solid var(--group-accent, #999) !important;
   border-bottom: 1px solid #e1e4e8;
+}
+
+.workstream-header-inner {
   display: flex;
   align-items: center;
   gap: 8px;

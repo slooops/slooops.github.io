@@ -85,9 +85,11 @@
               [style.--group-bg]="getGroupColor(group.workstream).bg"
             >
               <td colspan="3" class="workstream-header-cell">
-                <span class="workstream-header-label">{{
-                  group.workstream
-                }}</span>
+                <div class="workstream-header-inner">
+                  <span class="workstream-header-label">{{
+                    group.workstream
+                  }}</span>
+                </div>
               </td>
             </tr>
             @for (row of group.rows; track row.sortOrder) {
