@@ -4,6 +4,9 @@ import { HttpService } from '../providers/http.service';
 import { MonitoringDataService } from '../providers/data.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ModalShellComponent } from '../../ui/atoms/modal-shell/modal-shell.component';
+import { SingleSelectDropdownComponent } from '../../ui/atoms/single-select-dropdown/single-select-dropdown.component';
+import { SelectOption } from '../../ui/types/common.types';
 
 export interface UserContext {
   username: string;
@@ -17,7 +20,12 @@ export interface UserContext {
   selector: 'app-user-assignment',
   templateUrl: './user-assignment.component.html',
   styleUrl: './user-assignment.component.css',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ModalShellComponent,
+    SingleSelectDropdownComponent,
+  ],
   standalone: true,
 })
 export class UserAssignmentComponent {
@@ -48,6 +56,24 @@ export class UserAssignmentComponent {
         this.userContext().assignmentUsersFilterKey,
       ) || []
     );
+  }
+
+  /** Convert assignment users to SelectOption[] for the dropdown */
+  assignmentUserOptions(): SelectOption[] {
+    return this.getAssignmentUsersForTemplate().map((user: any) => ({
+      label: user.NAME,
+      value: user.NAME,
+    }));
+  }
+
+  /** Handle selection from the single-select dropdown */
+  onAssignedToChange(value: string): void {
+    this.updateForm.patchValue({ assignedTo: value });
+  }
+
+  /** Handle selection change for any field's single-select dropdown */
+  onFieldChange(controlName: string, value: string): void {
+    this.updateForm.patchValue({ [controlName]: value });
   }
 
   constructor(

@@ -54,10 +54,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   get isO2cTab(): boolean {
-    return (
-      this.filteredTabs[this.selectedIndex]?.component ===
-      'subscription-o2c-insights'
-    );
+    return this.filteredTabs[this.selectedIndex]?.component === 'o2c-insights';
   }
 
   get isLargeDealTab(): boolean {
@@ -150,7 +147,7 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       }
 
       const o2cTabIndex = this.filteredTabs.findIndex(
-        (tab) => tab.component === 'subscription-o2c-insights',
+        (tab) => tab.component === 'o2c-insights',
       );
       if (o2cTabIndex >= 0) {
         this.selectedIndex = o2cTabIndex;
@@ -217,8 +214,8 @@ export class BusinessInsightsComponent implements OnInit, OnDestroy {
       role: ['ADMIN', 'ISSUE_RESOLUTION', 'ISSUE_APPROVAL'],
     },
     {
-      label: 'Subscription O2C Insights',
-      component: 'subscription-o2c-insights',
+      label: 'O2C Insights',
+      component: 'o2c-insights',
       role: ['ADMIN'],
     },
   ];

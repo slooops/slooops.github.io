@@ -37,6 +37,7 @@ import { PerformanceHubComponent } from './performance-hub/performance-hub.compo
 import { AitComponent } from './ait/ait.component';
 import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-exec-history.component';
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
+import { sub } from 'date-fns';
 
 export const routes: Routes = [
   {
@@ -58,13 +59,17 @@ export const routes: Routes = [
     component: HomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Operational Visibility',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Operational Visibility',
     },
   },
   {
     path: 'error',
     component: ErrorComponent,
-    data: { title: 'Finance-IT Control Tower', header: '' },
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+    },
   },
 
   {
@@ -72,25 +77,26 @@ export const routes: Routes = [
     component: PeriodCloseTrackingComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'Period Close Tracking',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Period Close Tracking',
     },
   },
-  {
-    path: 'large-deal-tracker',
-    component: OrderLifecycleComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Large Deal Tracker',
-    },
-  },
+  // {
+  //   path: 'large-deal-tracker',
+  //   component: OrderLifecycleComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'Finance-IT Control Tower',
+  //     subHeader: 'Business Insights > Large Deal Tracker',
+  //   },
+  // },
   {
     path: 'revenue-accounting',
     component: CustomRevenueComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'Revenue Accounting',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Revenue Accounting',
     },
   },
   {
@@ -98,8 +104,8 @@ export const routes: Routes = [
     component: GlPostingComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'General Ledger',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > General Ledger',
     },
   },
   {
@@ -107,8 +113,8 @@ export const routes: Routes = [
     component: EspCaseAnalyzerComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'ESP Case Manager',
-      subHeader: 'I2C Case Analyzer',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'ESP Case Manager > I2C Case Analyzer',
     },
   },
   {
@@ -116,8 +122,8 @@ export const routes: Routes = [
     component: EspHomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'ESP Case Manager',
-      subHeader: 'Case IQ',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'ESP Case Manager > Case IQ',
     },
   },
   {
@@ -125,8 +131,8 @@ export const routes: Routes = [
     component: SbpEspCaseAnalyzerComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'ESP Case Manager',
-      subHeader: 'SBP Case Analyzer',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'ESP Case Manager > SBP Case Analyzer',
     },
   },
   {
@@ -134,97 +140,97 @@ export const routes: Routes = [
     component: InvoicingComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'Invoice to Cash',
-    },
-  },
-  {
-    path: 'o2c-landing',
-    component: O2cLandingComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C Home',
-      showO2cSearch: true,
-    },
-  },
-  {
-    path: 'o2c-360',
-    component: O2c360Component,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C 360',
-      showO2cSearch: true,
-    },
-  },
-
-  {
-    path: 'o2c-view-all',
-    component: O2cViewAllComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C 360',
-      showO2cSearch: true,
-    },
-  },
-  {
-    path: 'o2c-bill-schedule',
-    component: O2cBillScheduleComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C Bill Schedule',
-      showO2cSearch: true,
-    },
-  },
-  {
-    path: 'o2c-bill-details',
-    component: O2cBillDetailsComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C Bill Details',
-      showO2cSearch: true,
-    },
-  },
-  {
-    path: 'o2c-gl',
-    component: O2cGlComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C GL',
-      showO2cSearch: true,
-    },
-  },
-  {
-    path: 'o2c-tsv',
-    component: O2cTsvComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'O2C TSV',
-      showO2cSearch: true,
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Invoice to Cash',
     },
   },
   // {
-  //   path: 'gl-posting',
-  //   component: GlPostingComponent,
+  //   path: 'o2c-landing',
+  //   component: O2cLandingComponent,
   //   data: {
-  //     title: 'Operations Control Tower',
-  //     header: 'GL Posting',
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C Home',
+  //     showO2cSearch: true,
   //   },
   // },
-  {
-    path: 'opl',
-    component: OplComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'OPL',
-    },
-  },
+  // {
+  //   path: 'o2c-360',
+  //   component: O2c360Component,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C 360',
+  //     showO2cSearch: true,
+  //   },
+  // },
+
+  // {
+  //   path: 'o2c-view-all',
+  //   component: O2cViewAllComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C 360',
+  //     showO2cSearch: true,
+  //   },
+  // },
+  // {
+  //   path: 'o2c-bill-schedule',
+  //   component: O2cBillScheduleComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C Bill Schedule',
+  //     showO2cSearch: true,
+  //   },
+  // },
+  // {
+  //   path: 'o2c-bill-details',
+  //   component: O2cBillDetailsComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C Bill Details',
+  //     showO2cSearch: true,
+  //   },
+  // },
+  // {
+  //   path: 'o2c-gl',
+  //   component: O2cGlComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C GL',
+  //     showO2cSearch: true,
+  //   },
+  // },
+  // {
+  //   path: 'o2c-tsv',
+  //   component: O2cTsvComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'O2C TSV',
+  //     showO2cSearch: true,
+  //   },
+  // },
+  // // {
+  // //   path: 'gl-posting',
+  // //   component: GlPostingComponent,
+  // //   data: {
+  // //     title: 'Operations Control Tower',
+  // //     header: 'GL Posting',
+  // //   },
+  // // },
+  // {
+  //   path: 'opl',
+  //   component: OplComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'OPL',
+  //   },
+  // },
   {
     path: 'order-management',
     component: OrderManagementComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'Order Management',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Order Management',
     },
   },
   // {
@@ -236,53 +242,56 @@ export const routes: Routes = [
   //     subHeader: 'WIPS',
   //   },
   // },
-  {
-    path: 'wd0',
-    component: Wd0DashComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Miclose Status',
-    },
-  },
-  {
-    path: 'midclose-volumes',
-    component: Wd0HistoricalDataComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Midclose Volumes',
-    },
-  },
+  // {
+  //   path: 'wd0',
+  //   component: Wd0DashComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'Finance-IT Control Tower',
+  //     subHeader: 'Miclose Status',
+  //   },
+  // },
+  // {
+  //   path: 'midclose-volumes',
+  //   component: Wd0HistoricalDataComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'Finance-IT Control Tower',
+  //     subHeader: 'Midclose Volumes',
+  //   },
+  // },
   {
     path: 'business-insights',
     component: BusinessInsightsComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Business Insights',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Business Insights',
     },
   },
-  {
-    path: 'cms',
-    component: CmsComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'CMS',
-    },
-  },
-  {
-    path: 'cms-sftp-details',
-    component: CmsSftpDetailsComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'CMS SFTP Details',
-    },
-  },
+  // {
+  //   path: 'cms',
+  //   component: CmsComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'CMS',
+  //   },
+  // },
+  // {
+  //   path: 'cms-sftp-details',
+  //   component: CmsSftpDetailsComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'CMS SFTP Details',
+  //   },
+  // },
   {
     path: 'operations-controls',
     component: OperationsControlsComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'Operations Controls',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > Operations Controls',
     },
   },
   {
@@ -299,7 +308,8 @@ export const routes: Routes = [
     component: AnalyticsDashboardComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Analytics',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Analytics ',
     },
   },
   {
@@ -347,8 +357,8 @@ export const routes: Routes = [
     component: AitComponent,
     data: {
       title: 'Finance-IT Control Tower',
-      header: 'Continuous Monitoring',
-      subHeader: 'AIT',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > AIT',
     },
   },
 ];

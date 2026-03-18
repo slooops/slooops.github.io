@@ -163,6 +163,12 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  text-decoration: none;
+}
+
+.toolbar-actions.admin-clickable:hover {
+  text-decoration: underline;
+  text-decoration-color: #fff;
 }
 
 /* ── Hamburger (hidden on desktop) ── */

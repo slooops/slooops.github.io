@@ -341,12 +341,12 @@ export class LandingComponent implements OnInit, OnDestroy {
       },
     },
     {
-      title: 'Subscription O2C Insights',
+      title: 'O2C Insights',
       description:
         'Real-time Order-to-Cash insights with immediate access to invoice and accounting details.',
       icon: 'phosphorPresentationChartDuotone',
       route: '/business-insights',
-      queryParams: { tab: 'subscription-o2c-insights' },
+      queryParams: { tab: 'o2c-insights' },
       requiredRoles: ['ADMIN', 'O360'],
       variant: 'soft-glow',
       arcData: {

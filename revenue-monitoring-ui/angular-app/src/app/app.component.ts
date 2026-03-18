@@ -15,8 +15,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { O2cSearchComponent } from './components/o2c-search/o2c-search.component';
-import { MenuComponent } from './menu/menu.component';
 import { HelpDataComponent } from './help-data/help-data.component';
 import { ChatbotComponent } from './chatbot/chatbot.component';
 import { ChatbotService } from './chatbot/chatbot.service';
@@ -70,7 +68,6 @@ import {
     MatSidenavModule,
     MatTooltipModule,
     NgIcon,
-    O2cSearchComponent,
     // MenuComponent,
     HelpDataComponent,
     ChatbotComponent,
@@ -421,4 +418,22 @@ export class AppComponent implements OnInit, OnDestroy {
   //     this.menuOpen = false;
   //   }
   // }
+
+  routeToAdminPage() {
+    if (
+      this.hasRole$([
+        'ADMIN',
+        'MONITORING_I2C_ADMIN',
+        'MONITORING_GL_ADMIN',
+        'MONITORING_AIT_ADMIN',
+        'MONITORING_OM_ADMIN',
+        'MONITORING_WIPS_ADMIN',
+        'MONITORING_REVENUE_ACCOUNTING_ADMIN',
+        'EXCEPTION_ADMIN',
+      ])
+    ) {
+      return true;
+    }
+    return false;
+  }
 }

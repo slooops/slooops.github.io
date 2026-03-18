@@ -39,14 +39,14 @@
   justify-content: space-between;
   padding: var(--fit-space-xs) var(--fit-space-md);
   border-bottom: 1px solid var(--fit-color-border);
-  background-color: var(--fit-color-bg-subtle);
+  background-color: #00bceb;
   border-radius: var(--fit-radius-lg) var(--fit-radius-lg) 0 0;
 }
 
 .fit-modal__title {
   font-size: var(--fit-font-size-sm);
   font-weight: var(--fit-font-weight-semibold);
-  color: var(--fit-color-text);
+  color: #fff;
   margin: 0;
 }
 
@@ -54,13 +54,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
   border-radius: var(--fit-radius-sm);
   background: transparent;
-  color: var(--fit-color-text-muted);
+  color: #fff;
   font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;

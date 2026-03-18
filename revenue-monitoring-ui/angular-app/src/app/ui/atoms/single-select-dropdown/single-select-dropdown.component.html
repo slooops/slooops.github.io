@@ -1,0 +1,56 @@
+<div class="fit-singleselect">
+  @if (label) {
+    <span class="fit-singleselect__label">{{ label }}</span>
+  }
+  <div class="fit-singleselect__control" (click)="toggleDropdown()">
+    <span
+      class="fit-singleselect__display"
+      [class.fit-singleselect__display--placeholder]="!selected"
+    >
+      {{ displayText }}
+    </span>
+    <span
+      class="fit-singleselect__chevron"
+      [class.fit-singleselect__chevron--open]="isOpen"
+      >▾</span
+    >
+  </div>
+
+  @if (isOpen) {
+    <div class="fit-singleselect__dropdown">
+      @if (showSearch) {
+        <div class="fit-singleselect__search-wrap">
+          <input
+            class="fit-singleselect__search"
+            type="text"
+            placeholder="Search..."
+            [value]="searchTerm"
+            (input)="onSearchInput($event)"
+            (click)="$event.stopPropagation()"
+          />
+        </div>
+      }
+
+      <ul class="fit-singleselect__list">
+        @for (option of filteredOptions; track option.value) {
+          <li
+            class="fit-singleselect__item"
+            [class.fit-singleselect__item--selected]="selected === option.value"
+            (click)="selectOption(option.value); $event.stopPropagation()"
+          >
+            <span class="fit-singleselect__radio">
+              @if (selected === option.value) {
+                <span class="fit-singleselect__radio-dot"></span>
+              }
+            </span>
+            <span class="fit-singleselect__item-label">{{ option.label }}</span>
+          </li>
+        }
+
+        @if (filteredOptions.length === 0) {
+          <li class="fit-singleselect__no-results">No matches</li>
+        }
+      </ul>
+    </div>
+  }
+</div>

@@ -1,8 +1,5 @@
 @if (isOpen) {
-  <div
-    class="fit-modal-backdrop"
-    (click)="onBackdropClick($event)"
-  >
+  <div class="fit-modal-backdrop" (click)="onBackdropClick($event)">
     <div
       class="fit-modal"
       role="dialog"
@@ -10,7 +7,7 @@
       [attr.aria-labelledby]="title"
     >
       <div class="fit-modal__header">
-        <h2 class="fit-modal__title">{{ title }}</h2>
+        <h3 class="fit-modal__title">{{ title }}</h3>
         <button
           class="fit-btn fit-btn--ghost fit-modal__close"
           (click)="onClose()"
