@@ -79,7 +79,7 @@
   position: relative;
   padding: var(--landing-space-xs) 2rem;
   margin-bottom: -1rem;
-  height: 3.5rem;
+  height: 4rem;
 }
 
 /* Period Info Display */
@@ -129,15 +129,32 @@
   z-index: 1;
 }
 
-.panel-title {
-  margin: 0 0 var(--landing-space-md);
+.panel-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.panel-title,
+.panel-subtitle {
   font-family: var(--landing-heading-font);
   font-size: 0.75rem;
-  font-weight: 600;
-  /* line-height: normal; */
-  text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--landing-text-muted);
+  text-transform: uppercase;
+}
+
+.panel-title {
+  margin: 0;
+
+  font-weight: 600;
+}
+
+.panel-subtitle {
+  margin: 0;
+
+  font-weight: 400;
+  opacity: 0.8;
 }
 
 .dial-row {
@@ -285,7 +302,7 @@
 .card-sections {
   display: flex;
   gap: var(--landing-space-xl);
-  padding: 0 var(--landing-space-lg) var(--landing-space-md);
+  padding: var(--landing-space-md) var(--landing-space-lg);
   align-items: flex-start;
 }
 

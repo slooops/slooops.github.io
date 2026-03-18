@@ -18,8 +18,6 @@
         >
       </div>
     }
-
-    <!-- <h3 class="panel-title">Mid-Close Entities</h3> -->
   </div>
 
   <!-- Cockpit Dashboard -->
@@ -84,7 +82,10 @@
 
     <!-- Volume Stats Panel -->
     <div class="cockpit-panel cockpit-panel--volumes">
-      <h3 class="panel-title">Interface Load Volumes</h3>
+      <div class="panel-title-row">
+        <h3 class="panel-title">Interface Load Volumes</h3>
+        <span class="panel-subtitle"># of buy / sell entities : 19</span>
+      </div>
       <div class="stat-row">
         @for (stat of volumeStats(); track stat.label) {
           <div class="stat-block">
