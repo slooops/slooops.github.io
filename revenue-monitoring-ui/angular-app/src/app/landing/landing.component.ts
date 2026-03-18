@@ -264,7 +264,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       title: 'Case-IQ',
       description:
-        'Enterprise Service Platform resolution tracking, showing AI enabled resolutions and insights into case management.',
+        'Real-time insights into case resolution with continuous tracking of agent performance.',
       icon: 'phosphorBrainDuotone',
       route: '/case-iq',
       requiredRoles: [
@@ -343,7 +343,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       title: 'O2C Insights',
       description:
-        'Real-time Order-to-Cash insights with immediate access to invoice and accounting details.',
+        'Real-time insights into Order-to-Cash financials with immediate access to invoice and accounting details.',
       icon: 'phosphorPresentationChartDuotone',
       route: '/business-insights',
       queryParams: { tab: 'o2c-insights' },
