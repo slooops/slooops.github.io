@@ -44,12 +44,12 @@ export class ScorecardComponent
 
   /* Workstream palette — complements liquid glass glow */
   workstreamColors: Record<string, ColorPair> = {
-    '1. Improve Cycle time': { bg: '#e6f7fa30', accent: '#0891b2' },
-    '2. Improve Productivity': { bg: '#f3eefa30', accent: '#7c3aed' },
-    '3. Improve Quality': { bg: '#fef0e630', accent: '#ea580c' },
+    '1. Improve Cycle time': { bg: '#e6f7fa', accent: '#0891b2' },
+    '2. Improve Productivity': { bg: '#f3eefa', accent: '#7c3aed' },
+    '3. Improve Quality': { bg: '#fef0e6', accent: '#ea580c' },
   };
 
-  defaultColor: ColorPair = { bg: '#f0f4f830', accent: '#0070d2' };
+  defaultColor: ColorPair = { bg: '#f0f4f8', accent: '#0070d2' };
 
   constructor(
     private dataService: ScorecardDataService,

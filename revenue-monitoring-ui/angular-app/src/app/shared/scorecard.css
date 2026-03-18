@@ -453,16 +453,42 @@ thead th {
    ========================================================================== */
 
 .cell-workstream {
-  background: rgba(255, 255, 255, 0.85);
+  position: relative;
+  background: var(--group-bg, #f0f4f8);
   vertical-align: middle;
   padding: 0.75rem 0.875rem;
   border-bottom: 1px solid var(--sc-border);
-  border-right: 2px solid var(--sc-border-strong, var(--sc-accent));
+  border-right: 2px solid var(--group-accent, var(--sc-accent));
   transition: background 0.3s ease;
+  overflow: hidden;
 }
 
-.cell-workstream:hover {
-  background: rgba(255, 255, 255, 0.2);
+/* Gradient bloom glow on right side — always visible, grows on hover */
+.cell-workstream::after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--group-accent, var(--sc-accent));
+  opacity: 0.18;
+  filter: blur(24px);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    width 0.35s ease,
+    height 0.35s ease,
+    filter 0.35s ease;
+}
+
+.cell-workstream:hover::after {
+  opacity: 0.3;
+  width: 120px;
+  height: 120px;
+  filter: blur(32px);
 }
 
 .workstream-content {
@@ -514,8 +540,40 @@ thead th {
    ========================================================================== */
 
 .cell-track {
+  position: relative;
   font-weight: 700;
   font-size: 0.8125rem;
+  background: var(--track-bg, #f0f4f8);
+  border-right: 2px solid var(--track-accent, var(--sc-accent));
+  overflow: hidden;
+}
+
+/* Gradient bloom glow on right side — always visible, grows on hover */
+.cell-track::after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--track-accent, var(--sc-accent));
+  opacity: 0.18;
+  filter: blur(24px);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    width 0.35s ease,
+    height 0.35s ease,
+    filter 0.35s ease;
+}
+
+.cell-track:hover::after {
+  opacity: 0.3;
+  width: 120px;
+  height: 120px;
+  filter: blur(32px);
 }
 
 .track-label {
@@ -599,7 +657,7 @@ thead th {
   min-height: var(--sc-row-height);
 }
 
-/* Exec table cells: top-align for bullet content, no opaque bg */
+/* Exec table cells: top-align for bullet content */
 .exec-table .cell {
   padding: 0.875rem 1rem;
   vertical-align: top;
