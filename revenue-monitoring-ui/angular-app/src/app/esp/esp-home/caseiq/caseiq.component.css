@@ -147,6 +147,7 @@
   justify-content: center;
   gap: 3px;
   overflow: visible;
+  white-space: nowrap;
 }
 
 .fit-tile-info-icon {
@@ -161,13 +162,14 @@
 }
 
 .fit-tile-value {
-  font-size: clamp(16px, 1.4vw, 26px);
+  font-size: clamp(12px, 1.4vw, 20px);
   font-weight: 700;
   color: #1d1d1d;
+  white-space: nowrap;
 }
 
 .fit-tile-pct {
-  font-size: clamp(10px, 0.85vw, 15px);
+  font-size: clamp(7px, 0.85vw, 11px);
   font-weight: 500;
   color: #6b7280;
   margin-left: 2px;
