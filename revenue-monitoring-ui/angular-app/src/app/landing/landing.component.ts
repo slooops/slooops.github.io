@@ -179,7 +179,7 @@ export class LandingComponent implements OnInit, OnDestroy {
       description:
         'Single view of all disruptions across jobs, transactions, and ESP cases.',
       icon: 'phosphorEyeDuotone',
-      route: '/operational-visibility',
+      route: '/operations-dashboard',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
       variant: 'gradient-bg-1',
       arcData: {

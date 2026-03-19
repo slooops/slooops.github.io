@@ -92,10 +92,10 @@ export const CHATBOT_ROUTE_CONFIG: Record<string, ChatbotPageConfig> = {
       'Active incidents count',
     ],
   },
-  '/operational-visibility': {
-    title: 'Ops Visibility Assistant',
+  '/operations-dashboard': {
+    title: 'Operations Dashboard Assistant',
     openingMessage:
-      'The Operational Visibility assistant is under development. It will provide cross-functional insights and operational health metrics.',
+      'The Operations Dashboard assistant is under development. It will provide cross-functional insights and operational health metrics.',
     suggestions: [
       'Show ops health summary',
       'Key metrics overview',

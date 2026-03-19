@@ -25,6 +25,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 import { LoadingSymbolSmallComponent } from '../loading-symbol-small/loading-symbol-small.component';
 import { provideIcons } from '@ng-icons/core';
@@ -43,6 +44,7 @@ import { phosphorSparkleBold } from '@ng-icons/phosphor-icons/bold';
     MatPaginatorModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
     LoadingSymbolComponent,
     LoadingSymbolSmallComponent,
   ],
@@ -335,7 +337,7 @@ export class HomeComponent implements OnDestroy {
       ...extract(this.rawHighPriorityData, 'QUARTER'),
       ...extract(this.rawTransactionFailuresData, 'QUARTER'),
       ...extract(this.rawIssuesData, 'QUARTER'),
-      ...extract(this.rawIssuesDistributionData, 'QUARTER'),
+      ...extract(this.rawIssuesDistributionData, 'FISCAL_QTR'),
       ...extract(this.rawIssuesListData, 'QUARTER'),
     ];
 
@@ -473,11 +475,10 @@ export class HomeComponent implements OnDestroy {
     const weekMap = new Map<
       string,
       {
-        supportTeam: number;
-        inProgress: number;
-        resolved: number;
         totalIssues: number;
-        agent: number;
+        inProgress: number;
+        resolvedOps: number;
+        resolvedAgent: number;
       }
     >();
 
@@ -494,66 +495,49 @@ export class HomeComponent implements OnDestroy {
 
         if (!weekMap.has(weekLabel)) {
           weekMap.set(weekLabel, {
-            supportTeam: 0,
-            inProgress: 0,
-            resolved: 0,
             totalIssues: 0,
-            agent: 0,
+            inProgress: 0,
+            resolvedOps: 0,
+            resolvedAgent: 0,
           });
         }
 
         const weekData = weekMap.get(weekLabel)!;
-        if (category === 'support team') {
-          weekData.supportTeam = count;
+        if (category === 'total issue' || category === 'total issues') {
+          weekData.totalIssues = count;
         } else if (category === 'in progress') {
           weekData.inProgress = count;
-        } else if (category === 'resolved') {
-          weekData.resolved = count;
-        } else if (category === 'total issue' || category === 'total issues') {
-          weekData.totalIssues = count;
-        } else if (category === 'agent') {
-          weekData.agent = count;
+        } else if (category === 'resolved (ops)') {
+          weekData.resolvedOps = count;
+        } else if (category === 'resolved (agent)') {
+          weekData.resolvedAgent = count;
         }
       });
     }
 
     // Always use a fixed range of weeks: Week 1 to Week 13
     const fixedWeeks = Array.from({ length: 13 }, (_, i) => `Week ${i + 1}`);
-
-    // Compute percentage of In Progress over Total Issues for each week
-    const percentInProgress = fixedWeeks.map((week) => {
-      const weekData = weekMap.get(week) || {
-        supportTeam: 0,
-        inProgress: 0,
-        resolved: 0,
-        totalIssues: 0,
-      };
-      const total = weekData.totalIssues || 0;
-      const inProg = weekData.inProgress || 0;
-      if (!total) {
-        return 0;
-      }
-      return +((inProg / total) * 100).toFixed(1);
-    });
+    const defaultWeek = {
+      totalIssues: 0,
+      inProgress: 0,
+      resolvedOps: 0,
+      resolvedAgent: 0,
+    };
 
     const chartData = {
       weeks: fixedWeeks,
-      supportTeam: fixedWeeks.map(
-        (week) => (weekMap.get(week) || { supportTeam: 0 }).supportTeam,
+      totalIssues: fixedWeeks.map(
+        (week) => (weekMap.get(week) || defaultWeek).totalIssues,
       ),
       inProgress: fixedWeeks.map(
-        (week) => (weekMap.get(week) || { inProgress: 0 }).inProgress,
+        (week) => (weekMap.get(week) || defaultWeek).inProgress,
       ),
-      resolved: fixedWeeks.map(
-        (week) => (weekMap.get(week) || { resolved: 0 }).resolved,
+      resolvedOps: fixedWeeks.map(
+        (week) => (weekMap.get(week) || defaultWeek).resolvedOps,
       ),
-      totalIssues: fixedWeeks.map(
-        (week) => (weekMap.get(week) || { totalIssues: 0 }).totalIssues,
+      resolvedAgent: fixedWeeks.map(
+        (week) => (weekMap.get(week) || defaultWeek).resolvedAgent,
       ),
-      agent: fixedWeeks.map(
-        (week) => (weekMap.get(week) || { agent: 0 }).agent,
-      ),
-      percentInProgress,
     };
 
     console.log('Parsed Transaction Failures chart data:', chartData);
@@ -609,30 +593,44 @@ export class HomeComponent implements OnDestroy {
     const quarter = this.selectedQuarter();
     const data = this.rawIssuesDistributionData;
 
-    let aiAgent = 0;
-    let human = 0;
+    let resolvedAgentPct = 0;
+    let resolvedOpsPct = 0;
+    let resolvedAgentCount = 0;
+    let resolvedOpsCount = 0;
+    let totalIssues = 0;
 
     if (data && data.length > 0) {
       const filtered = quarter
-        ? data.filter((item: any) => item.QUARTER === quarter)
+        ? data.filter((item: any) => item.FISCAL_QTR === quarter)
         : data;
 
-      filtered.forEach((item: any) => {
-        const percentage = Number(item.PERCENTAGE) || 0;
-        const source = (item.SOURCE || '').toLowerCase().trim();
-
-        if (source === 'ai agent') {
-          aiAgent = percentage;
-        } else if (source === 'human') {
-          human = percentage;
-        }
-      });
+      if (filtered.length > 0) {
+        const row = filtered[0];
+        resolvedAgentPct = Number(row.RESOLVED_AGENT_PRECENTAGE) || 0;
+        resolvedOpsPct = Number(row.RESOLVED_OPS_PRECENTAGE) || 0;
+        resolvedAgentCount = Number(row.RESOLVED_AGENT) || 0;
+        resolvedOpsCount = Number(row.RESOLVED_OPS) || 0;
+        totalIssues = Number(row.TOTAL_ISSUES) || 0;
+      }
     }
 
-    console.log('Parsed distribution:', { aiAgent, human });
+    console.log('Parsed distribution:', {
+      resolvedAgentPct,
+      resolvedOpsPct,
+      resolvedAgentCount,
+      resolvedOpsCount,
+      totalIssues,
+    });
     this.issueDistributionLoading.set(false);
     this.buildChartWhenReady(
-      () => this.buildIssueDistributionChart(aiAgent, human),
+      () =>
+        this.buildIssueDistributionChart(
+          resolvedAgentPct,
+          resolvedOpsPct,
+          resolvedAgentCount,
+          resolvedOpsCount,
+          totalIssues,
+        ),
       'issueDistribution',
     );
   }
@@ -1026,25 +1024,21 @@ export class HomeComponent implements OnDestroy {
       'en-US',
     )})`;
 
-    const supportTeamSum = (chartData.supportTeam || []).reduce(
+    const resolvedOpsSum = (chartData.resolvedOps || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const supportTeamLabel = `Support Team (${supportTeamSum.toLocaleString(
+    const resolvedOpsLabel = `Resolved (Ops) (${resolvedOpsSum.toLocaleString(
       'en-US',
     )})`;
 
-    const resolvedSum = (chartData.resolved || []).reduce(
+    const resolvedAgentSum = (chartData.resolvedAgent || []).reduce(
       (sum: number, value: number) => sum + (Number(value) || 0),
       0,
     );
-    const resolvedLabel = `Resolved (${resolvedSum.toLocaleString('en-US')})`;
-
-    const agentSum = (chartData.agent || []).reduce(
-      (sum: number, value: number) => sum + (Number(value) || 0),
-      0,
-    );
-    const agentLabel = `Agent (${agentSum.toLocaleString('en-US')})`;
+    const resolvedAgentLabel = `Resolved (Agent) (${resolvedAgentSum.toLocaleString(
+      'en-US',
+    )})`;
 
     this.transactionFailuresChart?.destroy();
     this.transactionFailuresChart = new Chart(ctx, {
@@ -1063,46 +1057,7 @@ export class HomeComponent implements OnDestroy {
             barPercentage: 0.5,
             categoryPercentage: 0.7,
           },
-          // 2. Resolved (Line)
-          {
-            type: 'line',
-            label: resolvedLabel,
-            data: chartData.resolved,
-            borderColor: '#9b59b6',
-            backgroundColor: '#9b59b6',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
-          },
-          // 3. Support Team (Line)
-          {
-            type: 'line',
-            label: supportTeamLabel,
-            data: chartData.supportTeam,
-            borderColor: '#5a7abf',
-            backgroundColor: '#5a7abf',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
-          },
-          // 4. Agent (Line)
-          {
-            type: 'line',
-            label: agentLabel,
-            data: chartData.agent,
-            borderColor: '#5c9e6b',
-            backgroundColor: '#5c9e6b',
-            tension: 0.25,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            borderWidth: 2,
-            fill: false,
-          },
-          // 5. In Progress (Bar)
+          // 2. In Progress (Bar)
           {
             type: 'bar',
             label: inProgressLabel,
@@ -1112,6 +1067,32 @@ export class HomeComponent implements OnDestroy {
             borderWidth: 1,
             barPercentage: 0.5,
             categoryPercentage: 0.7,
+          },
+          // 3. Resolved (Ops) (Line)
+          {
+            type: 'line',
+            label: resolvedOpsLabel,
+            data: chartData.resolvedOps,
+            borderColor: '#9b59b6',
+            backgroundColor: '#9b59b6',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
+          },
+          // 4. Resolved (Agent) (Line)
+          {
+            type: 'line',
+            label: resolvedAgentLabel,
+            data: chartData.resolvedAgent,
+            borderColor: '#5c9e6b',
+            backgroundColor: '#5c9e6b',
+            tension: 0.25,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: false,
           },
         ],
       },
@@ -1216,10 +1197,22 @@ export class HomeComponent implements OnDestroy {
     });
   }
 
-  private buildIssueDistributionChart(aiAgent: number, human: number): void {
-    console.log('buildIssueDistributionChart called with:', { aiAgent, human });
+  private buildIssueDistributionChart(
+    resolvedAgentPct: number,
+    resolvedOpsPct: number,
+    resolvedAgentCount: number,
+    resolvedOpsCount: number,
+    totalIssues: number,
+  ): void {
+    console.log('buildIssueDistributionChart called with:', {
+      resolvedAgentPct,
+      resolvedOpsPct,
+      resolvedAgentCount,
+      resolvedOpsCount,
+      totalIssues,
+    });
 
-    if (!aiAgent && !human) {
+    if (!resolvedAgentPct && !resolvedOpsPct) {
       console.log('No data to display');
       return;
     }
@@ -1238,14 +1231,15 @@ export class HomeComponent implements OnDestroy {
 
     this.issueDistributionChart?.destroy();
 
-    const labels = ['AI Agent', 'Human'];
-    const data = [aiAgent, human];
+    const labels = ['Agent', 'Ops'];
+    const data = [resolvedAgentPct, resolvedOpsPct];
+    const counts = [resolvedAgentCount, resolvedOpsCount];
     const colors = ['#5A8E39', '#E0A227'];
 
     // Build legends array
     const legends: { label: string; value: number; color: string }[] = [
-      { label: 'AI Agent', value: aiAgent, color: '#5A8E39' },
-      { label: 'Human', value: human, color: '#E0A227' },
+      { label: 'Agent', value: resolvedAgentPct, color: '#5A8E39' },
+      { label: 'Ops', value: resolvedOpsPct, color: '#E0A227' },
     ];
 
     console.log('Creating chart with data:', data);
@@ -1264,9 +1258,8 @@ export class HomeComponent implements OnDestroy {
         ctx.fillStyle = '#000';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        const issueKpisData = this.issueKpis();
         ctx.fillText(
-          issueKpisData?.totalIssues?.toString() || '',
+          totalIssues.toLocaleString('en-US'),
           chart.getDatasetMeta(0).data[0].x,
           chart.getDatasetMeta(0).data[0].y - 8,
         );
@@ -1305,7 +1298,18 @@ export class HomeComponent implements OnDestroy {
         },
         plugins: {
           legend: { display: false },
-          tooltip: { enabled: true },
+          tooltip: {
+            enabled: true,
+            callbacks: {
+              label: (context) => {
+                const idx = context.dataIndex;
+                const label = labels[idx];
+                const count = counts[idx];
+                const pct = data[idx];
+                return `${label}: ${count.toLocaleString('en-US')} (${pct}%)`;
+              },
+            },
+          },
           datalabels: {
             color: '#ffffff',
             font: {

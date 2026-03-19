@@ -169,7 +169,7 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     // Default fallback
-    return '/operational-visibility';
+    return '/operations-dashboard';
   }
 
   /**
@@ -237,7 +237,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.subHeader = data['subHeader'] || '';
         this.dataService.setHeader(data['header']);
         const hiddenRoutes = [
-          '/operational-visibility',
+          '/operations-dashboard',
           '/error',
           '/business-insights',
         ]; // Define routes where menu should be hidden

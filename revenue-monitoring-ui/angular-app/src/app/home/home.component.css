@@ -1033,6 +1033,7 @@ table.full-width-table tr.mat-row:hover td.mat-cell {
 /* Material Table Styling - match CRM screenshot */
 .table-responsive {
   width: 100%;
+  min-width: 1200px;
   border-spacing: 0;
   border-collapse: separate;
   font-family:
@@ -1061,6 +1062,15 @@ table.full-width-table tr.mat-row:hover td.mat-cell {
   border: 0;
   vertical-align: middle;
   font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.issue-description-cell {
+  display: inline-block;
+  max-width: 600px;
+  white-space: normal;
+  word-wrap: break-word;
   line-height: 1.4;
 }
 

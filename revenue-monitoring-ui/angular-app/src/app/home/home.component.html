@@ -65,7 +65,30 @@
         </div>
         <div class="kpi-label">
           High Priority Issues
-          <mat-icon class="info-tooltip">info_outline</mat-icon>
+
+          <span
+            matTooltip="Transaction Exceptions > $1M."
+            matTooltipPosition="right"
+            style="
+              cursor: pointer;
+              display: inline-flex;
+              align-items: center;
+              vertical-align: middle;
+            "
+          >
+            <mat-icon
+              style="
+                color: gray;
+                font-size: 15px;
+                width: 15px;
+                height: 15px;
+                line-height: 15px;
+                overflow: visible;
+              "
+            >
+              info_outline
+            </mat-icon>
+          </span>
         </div>
       </div>
       <div class="kpi-item">
@@ -328,6 +351,14 @@
                       } @else {
                         {{ element[column] }}
                       }
+                    } @else if (column.includes("APPLICATION_NAME")) {
+                      <span style="white-space: nowrap">
+                        {{ element[column] }}</span
+                      >
+                    } @else if (column.includes("DESCRIPTION")) {
+                      <span class="issue-description-cell">
+                        {{ element[column] }}</span
+                      >
                     } @else {
                       {{ element[column] }}
                     }

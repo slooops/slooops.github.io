@@ -38,12 +38,12 @@ export const routes: Routes = [
     },
   },
   {
-    path: 'operational-visibility',
+    path: 'operations-dashboard',
     component: HomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
-      subHeader: 'Operational Visibility',
+      subHeader: 'Operations Dashboard',
     },
   },
   {
