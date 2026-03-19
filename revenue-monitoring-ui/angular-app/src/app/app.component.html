@@ -3,7 +3,7 @@
     <mat-toolbar class="toolbar">
       <div class="toolbar-inner">
         <div class="toolbar-left">
-          @if (!router.url.includes("/landing")) {
+          @if (!router.url.includes("/home")) {
             <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
               <img
                 src="assets/icons/grid-menu.svg"
@@ -17,8 +17,8 @@
                   <!-- @if (isAdmin$) {
                     <div
                       class="toolbar-nav-dropdown-item"
-                      [class.active]="router.url.includes('/landing')"
-                      (click)="navigateTo('/landing')"
+                      [class.active]="router.url.includes('/home')"
+                      (click)="navigateTo('/home')"
                     >
                       <span class="toolbar-nav-dropdown-item-name">Home</span>
                     </div>
@@ -399,7 +399,7 @@
           <span class="toolbar-brand">
             <span
               style="display: flex; align-items: center; padding: 0 15px"
-              [routerLink]="isAdmin$ ? '/landing' : null"
+              [routerLink]="isAdmin$ ? '/home' : null"
               [style.cursor]="isAdmin$ ? 'pointer' : 'default'"
             >
               <svg class="toolbar-logo" viewBox="0 0 40 21">
@@ -476,7 +476,7 @@
               d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z"
             ></path>
           </svg>
-          <span style="margin: 0 10px 0 5px" class="onHover">
+          <span style="margin: 0 10px 0 5px">
             <span class="user-title">Welcome, {{ userName }}</span>
             <!-- <i class="fa fa-angle-down toolbar-caret"></i> -->
           </span>

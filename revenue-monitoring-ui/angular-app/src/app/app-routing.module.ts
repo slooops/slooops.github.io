@@ -46,7 +46,7 @@ export const routes: Routes = [
     children: [],
   },
   {
-    path: 'landing',
+    path: 'home',
     component: LandingComponent,
     data: {
       title: 'Finance-IT Control Tower',

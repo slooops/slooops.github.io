@@ -175,6 +175,40 @@ export class LandingComponent implements OnInit, OnDestroy {
   /** IT Operations 360 cards */
   private readonly itOpsAllCards: LandingCard[] = [
     {
+      title: 'Operations Dashboard',
+      description:
+        'Single view of all disruptions across jobs, transactions, and ESP cases for effective resource management.',
+      icon: 'phosphorEyeDuotone',
+      route: '/operational-visibility',
+      requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
+      variant: 'gradient-bg-1',
+      arcData: {
+        metricKey: 'OPERATIONAL_VISIBILITY',
+        value: null,
+        max: null,
+        subtitle: 'Active Alerts',
+        colorStart: '#ff9000',
+        colorEnd: '#ff007f',
+      },
+    },
+    {
+      title: 'Period Close Management',
+      description:
+        'Predictable, on-time close execution through focused monitoring and control, providing real-time visibility.',
+      icon: 'phosphorCalendarCheckDuotone',
+      route: '/period-close-tracking',
+      requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
+      variant: 'gradient-bg-2',
+      arcData: {
+        metricKey: 'PERIOD_CLOSE_MGMT',
+        value: null,
+        max: null,
+        subtitle: 'Complete',
+        colorStart: '#0070d2',
+        colorEnd: '#00bceb',
+      },
+    },
+    {
       title: 'Continuous Monitoring',
       description:
         'Real-time detection of operational and transaction failures for proactive resolution to prevent business impact.',
@@ -227,40 +261,7 @@ export class LandingComponent implements OnInit, OnDestroy {
         colorEnd: '#ff007f',
       },
     },
-    {
-      title: 'Period Close Management',
-      description:
-        'Predictable, on-time close execution through focused monitoring and control, providing real-time visibility.',
-      icon: 'phosphorCalendarCheckDuotone',
-      route: '/period-close-tracking',
-      requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
-      variant: 'gradient-bg-2',
-      arcData: {
-        metricKey: 'PERIOD_CLOSE_MGMT',
-        value: null,
-        max: null,
-        subtitle: 'Complete',
-        colorStart: '#0070d2',
-        colorEnd: '#00bceb',
-      },
-    },
-    {
-      title: 'Operational Visibility',
-      description:
-        'Single view of all disruptions across jobs, transactions, and ESP cases for effective resource management.',
-      icon: 'phosphorEyeDuotone',
-      route: '/operational-visibility',
-      requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
-      variant: 'gradient-bg-1',
-      arcData: {
-        metricKey: 'OPERATIONAL_VISIBILITY',
-        value: null,
-        max: null,
-        subtitle: 'Active Alerts',
-        colorStart: '#ff9000',
-        colorEnd: '#ff007f',
-      },
-    },
+
     {
       title: 'Case-IQ',
       description:

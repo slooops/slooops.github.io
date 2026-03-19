@@ -95,6 +95,6 @@ export class RoleBasedRedirectGuard implements CanActivate {
     }
 
     // Default fallback
-    return '/landing';
+    return '/home';
   }
 }
