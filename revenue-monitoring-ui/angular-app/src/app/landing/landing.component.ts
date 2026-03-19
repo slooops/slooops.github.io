@@ -177,7 +177,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       title: 'Operations Dashboard',
       description:
-        'Single view of all disruptions across jobs, transactions, and ESP cases for effective resource management.',
+        'Single view of all disruptions across jobs, transactions, and ESP cases.',
       icon: 'phosphorEyeDuotone',
       route: '/operational-visibility',
       requiredRoles: ['ADMIN', 'OPERATION_CTRL'],
@@ -194,7 +194,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       title: 'Period Close Management',
       description:
-        'Predictable, on-time close execution through focused monitoring and control, providing real-time visibility.',
+        'Real time visibility for on-time close execution through focused monitoring and control.',
       icon: 'phosphorCalendarCheckDuotone',
       route: '/period-close-tracking',
       requiredRoles: ['ADMIN', 'PERIOD_CLOSE'],
@@ -211,7 +211,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     {
       title: 'Continuous Monitoring',
       description:
-        'Real-time detection of operational and transaction failures for proactive resolution to prevent business impact.',
+        'Real-time detection of operational and transaction failures.',
       icon: 'phosphorShieldCheckDuotone',
       route: '/invoice-to-cash',
       requiredRoles: [
@@ -263,7 +263,7 @@ export class LandingComponent implements OnInit, OnDestroy {
     },
 
     {
-      title: 'Case-IQ',
+      title: 'CaseIQ',
       description:
         'Real-time insights into case resolution with continuous tracking of agent performance.',
       icon: 'phosphorBrainDuotone',

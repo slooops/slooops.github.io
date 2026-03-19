@@ -5,31 +5,15 @@ import { InvoicingComponent } from './invoicing/invoicing.component';
 import { PeriodCloseTrackingComponent } from './period-close-tracking/period-close-tracking.component';
 import { CustomRevenueComponent } from './custom-revenue/custom-revenue.component';
 import { EspCaseAnalyzerComponent } from './esp/esp-case-analyzer/esp-case-analyzer.component';
-import { O2cLandingComponent } from './o2c/o2c-landing/o2c-landing.component';
 import { GlPostingComponent } from './gl-posting/gl-posting.component';
 import { ErrorComponent } from './error/error.component';
-import { OplComponent } from './opl/opl.component';
-import { OrderLifecycleComponent } from './order-lifecycle/order-lifecycle.component';
-import { Wd0DashComponent } from './wd0-dash/wd0-dash.component';
-import { Wd0HistoricalDataComponent } from './wd0-historical-data/wd0-historical-data.component';
 import { BusinessInsightsComponent } from './business-insights/business-insights.component';
-import { CmsComponent } from './cms/cms.component';
-import { CmsSftpDetailsComponent } from './cms/cms-sftp-details/cms-sftp-details.component';
-import { O2c360Component } from './o2c/o2c-360/o2c-360.component';
-// import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { OrderManagementComponent } from './order-management/order-management.component';
-import { O2cViewAllComponent } from './o2c/o2c-view-all/o2c-view-all.component';
 import { SbpEspCaseAnalyzerComponent } from './esp/sbp-esp-case-analyzer/sbp-esp-case-analyzer.component';
-import { O2cBillScheduleComponent } from './o2c/o2c-bill-schedule/o2c-bill-schedule.component';
-import { O2cBillDetailsComponent } from './o2c/o2c-bill-details/o2c-bill-details.component';
-import { O2cTsvComponent } from './o2c/o2c-tsv/o2c-tsv.component';
-import { O2cGlComponent } from './o2c/o2c-gl/o2c-gl.component';
-import { OperationsControlsComponent } from './operations-controls/operations-controls.component';
 import { EspHomeComponent } from './esp/esp-home/esp-home.component';
 import { RoleBasedRedirectGuard } from './guards/role-based-redirect.guard';
 import { AdminComponent } from './admin/admin.component';
 import { AnalyticsDashboardComponent } from './analytics-dashboard/analytics-dashboard.component';
-import { WipsComponent } from './wips/wips.component';
 import { LandingComponent } from './landing/landing.component';
 import { ScorecardHistoryComponent } from './scorecard/scorecard-history/scorecard-history.component';
 import { ExecutiveSummaryHistoryComponent } from './executive-summary/executive-summary-history/executive-summary-history.component';
@@ -37,7 +21,6 @@ import { PerformanceHubComponent } from './performance-hub/performance-hub.compo
 import { AitComponent } from './ait/ait.component';
 import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-exec-history.component';
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
-import { sub } from 'date-fns';
 
 export const routes: Routes = [
   {
@@ -285,15 +268,15 @@ export const routes: Routes = [
   //     header: 'CMS SFTP Details',
   //   },
   // },
-  {
-    path: 'operations-controls',
-    component: OperationsControlsComponent,
-    data: {
-      title: 'Finance-IT Control Tower',
-      header: 'Finance-IT Control Tower',
-      subHeader: 'Continuous Monitoring > Operations Controls',
-    },
-  },
+  // {
+  //   path: 'operations-controls',
+  //   component: OperationsControlsComponent,
+  //   data: {
+  //     title: 'Finance-IT Control Tower',
+  //     header: 'Finance-IT Control Tower',
+  //     subHeader: 'Continuous Monitoring > Operations Controls',
+  //   },
+  // },
   {
     path: 'access-management-and-analytics',
     component: AdminComponent,
