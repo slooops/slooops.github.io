@@ -35,7 +35,7 @@ export class RoleBasedRedirectGuard implements CanActivate {
 
     // ADMIN gets /period-close-tracking
     if (roles.includes('ADMIN')) {
-      return '/period-close-tracking';
+      return '/home';
     }
 
     // PERIOD_CLOSE gets /period-close-tracking
