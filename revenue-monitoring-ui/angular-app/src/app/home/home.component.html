@@ -118,28 +118,28 @@
     </div>
     <div class="kpi-bar kpi-bar-secondary">
       <div class="kpi-item">
-        <div class="kpi-value">{{ issueKpis()?.totalIssues ?? "-" }}</div>
-        <div class="kpi-label">Total Issues</div>
+        <div class="kpi-value">{{ issueKpis()?.total ?? "-" }}</div>
+        <div class="kpi-label">Total</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ issueKpis()?.resolvedIssues ?? "-" }}</div>
-        <div class="kpi-label">Resolved Issues</div>
+        <div class="kpi-value">{{ issueKpis()?.resolved ?? "-" }}</div>
+        <div class="kpi-label">Resolved</div>
       </div>
       <div class="kpi-item">
         <div class="kpi-value">
-          {{ issueKpis()?.inProgressIssues ?? "-" }}
+          {{ issueKpis()?.inProgress ?? "-" }}
         </div>
-        <div class="kpi-label">In Progress Issues</div>
+        <div class="kpi-label">In Progress</div>
       </div>
       <div class="kpi-item">
-        <div class="kpi-value">{{ issueKpis()?.assignedIssues ?? "-" }}</div>
-        <div class="kpi-label">Assigned Issues</div>
+        <div class="kpi-value">{{ issueKpis()?.assigned ?? "-" }}</div>
+        <div class="kpi-label">Assigned</div>
       </div>
       <div class="kpi-item last">
         <div class="kpi-value">
-          {{ issueKpis()?.unassignedIssues ?? "-" }}
+          {{ issueKpis()?.unassigned ?? "-" }}
         </div>
-        <div class="kpi-label">Unassigned Issues</div>
+        <div class="kpi-label">Unassigned</div>
       </div>
     </div>
   </div>
@@ -351,13 +351,19 @@
                       } @else {
                         {{ element[column] }}
                       }
-                    } @else if (column.includes("APPLICATION_NAME")) {
+                    } @else if (column.includes("SOURCE")) {
                       <span style="white-space: nowrap">
                         {{ element[column] }}</span
                       >
                     } @else if (column.includes("DESCRIPTION")) {
                       <span class="issue-description-cell">
                         {{ element[column] }}</span
+                      >
+                    } @else if (column.includes("BILL_TOTAL")) {
+                      <span style="white-space: nowrap">
+                        {{
+                          element[column] | currency: "USD" : "symbol" : "1.2-2"
+                        }}</span
                       >
                     } @else {
                       {{ element[column] }}

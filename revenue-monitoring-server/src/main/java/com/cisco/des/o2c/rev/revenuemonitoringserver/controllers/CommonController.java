@@ -328,4 +328,22 @@ public class CommonController {
     public ResponseEntity<List<Map<String, Object>>> getDashboardMetrics() {
         return new ResponseEntity<>(service.getDashboardMetrics(), HttpStatus.OK);
     }
+
+    @PostMapping("/insert-summary-assignment-user")
+    public ResponseEntity<String> insertSummaryAssignmentUser(@RequestBody Map<String, String> updateData){
+        int test = service.insertSummaryAssignmentUser(updateData);
+        return ResponseEntity.status(HttpStatus.OK).body("Successful");
+    }
+
+    @GetMapping("/disable-summary-assignment-user")
+    public ResponseEntity<String> disableSummaryAssignmentUser(@RequestParam String email){
+        int test = service.disableSummaryAssignmentUser(email);
+        return ResponseEntity.status(HttpStatus.OK).body("Successful");
+    }
+
+    @GetMapping("/enable-summary-assignment-user")
+    public ResponseEntity<String> enableSummaryAssignmentUser(@RequestParam String email){
+        int test = service.enableSummaryAssignmentUser(email);
+        return ResponseEntity.status(HttpStatus.OK).body("Successful");
+    }
 }

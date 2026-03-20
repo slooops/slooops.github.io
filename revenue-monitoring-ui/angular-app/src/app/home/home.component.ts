@@ -566,19 +566,19 @@ export class HomeComponent implements OnDestroy {
       // Use the second element (index 1) as original logic did
       const row = filtered.length > 1 ? filtered[1] : filtered[0];
       this.issueKpis.set({
-        totalIssues: row?.TOTAL_ISSUES || 0,
-        resolvedIssues: row?.RESOLVED || 0,
-        inProgressIssues: row?.IN_PROGRESS || 0,
-        assignedIssues: row?.ASSIGNED || 0,
-        unassignedIssues: row?.UNASSIGNED || 0,
+        total: row?.TOTAL_ISSUES || 0,
+        resolved: row?.RESOLVED || 0,
+        inProgress: row?.IN_PROGRESS || 0,
+        assigned: row?.ASSIGNED || 0,
+        unassigned: row?.UNASSIGNED || 0,
       });
     } else {
       this.issueKpis.set({
-        totalIssues: 0,
-        resolvedIssues: 0,
-        inProgressIssues: 0,
-        assignedIssues: 0,
-        unassignedIssues: 0,
+        total: 0,
+        resolved: 0,
+        inProgress: 0,
+        assigned: 0,
+        unassigned: 0,
       });
     }
     this.refreshIssueDistributionCenterText();

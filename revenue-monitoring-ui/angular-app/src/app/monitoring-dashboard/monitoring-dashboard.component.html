@@ -62,7 +62,9 @@
             <button
               class="custom-button-primary"
               style="color: #555; font-weight: 600"
-              [style.background-color]="!canAssignUser() ? '#e0e0e0' : '#888'"
+              [style.background-color]="
+                !canAssignUser() ? '#e0e0e0' : '#0070d2'
+              "
               [style.cursor]="!canAssignUser() ? 'not-allowed' : 'pointer'"
               (click)="viewDetails()"
               [disabled]="!canAssignUser()"

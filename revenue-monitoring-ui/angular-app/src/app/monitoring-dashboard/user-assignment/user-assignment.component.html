@@ -4,7 +4,11 @@
   (close)="closeDialog('cancel')"
 >
   <div class="fit-assign-body">
-    @if (formReady()) {
+    @if (refreshingUsers()) {
+      <div class="fit-assign-loading">
+        <app-loading-symbol></app-loading-symbol>
+      </div>
+    } @else if (formReady()) {
       <form [formGroup]="updateForm" class="fit-assign-form">
         @for (field of fieldConfig(); track field.controlName) {
           <div class="fit-assign-field">
@@ -40,20 +44,165 @@
   </div>
 
   <div slot="footer" class="fit-assign-footer">
-    <button
-      class="fit-btn fit-btn--secondary"
-      type="button"
-      (click)="closeDialog('cancel')"
-    >
-      Cancel
-    </button>
-    <button
-      class="fit-btn fit-btn--primary"
-      type="button"
-      [disabled]="!formReady() || updateForm.invalid"
-      (click)="submitData()"
-    >
-      Save
-    </button>
+    @if (isAdminUser()) {
+      <a class="fit-assign-users-link" (click)="openUsersModal()">
+        Update Assignment Users
+      </a>
+    }
+    <div class="fit-assign-footer-buttons">
+      <button
+        class="fit-btn fit-btn--secondary"
+        type="button"
+        (click)="closeDialog('cancel')"
+      >
+        Cancel
+      </button>
+      <button
+        class="fit-btn fit-btn--primary"
+        type="button"
+        [disabled]="!formReady() || updateForm.invalid"
+        (click)="submitData()"
+      >
+        Save
+      </button>
+    </div>
   </div>
 </app-modal-shell>
+
+<!-- ── Full-screen Assignment Users Modal ── -->
+@if (showUsersModal) {
+  <div class="users-modal-backdrop" (click)="closeUsersModal()">
+    <div class="users-modal" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="users-modal__header">
+        <h3 class="users-modal__title">Assignment Users</h3>
+        <button
+          class="users-modal__close"
+          (click)="closeUsersModal()"
+          title="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="users-modal__toolbar">
+        <input
+          class="users-modal__search"
+          type="text"
+          placeholder="Search by name or email..."
+          [(ngModel)]="usersSearch"
+        />
+        <span class="users-modal__count">
+          Showing {{ filteredTeamUsers.length }} of
+          {{ allTeamUsers.length }} users
+        </span>
+        <button
+          class="fit-btn fit-btn--primary users-modal__add-btn"
+          (click)="onAddUserClick()"
+        >
+          + Add User
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="users-modal__table-wrap">
+        <table class="users-modal__table">
+          <thead>
+            <tr>
+              <th class="users-modal__th users-modal__th--num">#</th>
+              <th class="users-modal__th">Name</th>
+              <th class="users-modal__th">Email</th>
+              <th class="users-modal__th users-modal__th--status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (showInlineAddRow) {
+              <tr class="users-modal__row users-modal__row--inline-add">
+                <td class="users-modal__td users-modal__td--num">—</td>
+                <td class="users-modal__td">
+                  <input
+                    type="text"
+                    class="users-modal__inline-input"
+                    [class.users-modal__inline-input--error]="
+                      inlineValidation.name
+                    "
+                    placeholder="Username"
+                    [(ngModel)]="newUserName"
+                  />
+                  @if (inlineValidation.name) {
+                    <span class="users-modal__inline-error">{{
+                      inlineValidation.name
+                    }}</span>
+                  }
+                </td>
+                <td class="users-modal__td">
+                  <input
+                    type="email"
+                    class="users-modal__inline-input"
+                    [class.users-modal__inline-input--error]="
+                      inlineValidation.email
+                    "
+                    placeholder="Email"
+                    [(ngModel)]="newUserEmail"
+                  />
+                  @if (inlineValidation.email) {
+                    <span class="users-modal__inline-error">{{
+                      inlineValidation.email
+                    }}</span>
+                  }
+                </td>
+                <td class="users-modal__td users-modal__td--status">
+                  <div class="users-modal__inline-actions">
+                    <button
+                      class="users-modal__inline-btn users-modal__inline-btn--save"
+                      (click)="onSaveInlineAdd()"
+                      [disabled]="inlineSaving"
+                      title="Save user"
+                    >
+                      {{ inlineSaving ? "..." : "✓" }}
+                    </button>
+                    <button
+                      class="users-modal__inline-btn users-modal__inline-btn--cancel"
+                      (click)="onCancelInlineAdd()"
+                      [disabled]="inlineSaving"
+                      title="Cancel"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+            @for (user of filteredTeamUsers; track user.EMAIL; let i = $index) {
+              <tr class="users-modal__row">
+                <td class="users-modal__td users-modal__td--num">
+                  {{ i + 1 }}
+                </td>
+                <td class="users-modal__td users-modal__td--name">
+                  {{ user.NAME }}
+                </td>
+                <td class="users-modal__td users-modal__td--email">
+                  {{ user.EMAIL }}
+                </td>
+                <td class="users-modal__td users-modal__td--status">
+                  <app-toggle-switch
+                    [checked]="user.FLAG === 'Y'"
+                    (checkedChange)="onToggleUserFlag(user, $event)"
+                  ></app-toggle-switch>
+                </td>
+              </tr>
+            }
+            @if (!filteredTeamUsers.length) {
+              <tr>
+                <td class="users-modal__td users-modal__empty" colspan="4">
+                  No users found.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

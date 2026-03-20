@@ -593,4 +593,13 @@ public class JdbcManager {
 //    public int updateGlInterfaceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String glbatchName) {
 //        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  glbatchName);
 //    }
+
+    public int insertSummaryAssignmentUser(String sql, String userName, String userEmail, String teamName){
+        return primaryJdbcTemplate.update(sql, userName, userEmail, userEmail, teamName);
+    }
+
+    public int disableSummaryAssignmentUser(String sql, String userEmail) {
+        return primaryJdbcTemplate.update(sql, userEmail);
+    }
+
 }

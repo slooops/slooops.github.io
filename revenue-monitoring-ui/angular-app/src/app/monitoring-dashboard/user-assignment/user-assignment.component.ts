@@ -3,10 +3,14 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { HttpService } from '../providers/http.service';
 import { MonitoringDataService } from '../providers/data.service';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ModalShellComponent } from '../../ui/atoms/modal-shell/modal-shell.component';
 import { SingleSelectDropdownComponent } from '../../ui/atoms/single-select-dropdown/single-select-dropdown.component';
 import { SelectOption } from '../../ui/types/common.types';
+import { provideIcons } from '@ng-icons/core';
+import { phosphorTrashBold } from '@ng-icons/phosphor-icons/bold';
+import { LoadingSymbolComponent } from '../shared/loading-symbol/loading-symbol.component';
+import { ToggleSwitchComponent } from '../../ui/atoms/toggle-switch/toggle-switch.component';
 
 export interface UserContext {
   username: string;
@@ -23,9 +27,13 @@ export interface UserContext {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     ModalShellComponent,
     SingleSelectDropdownComponent,
+    LoadingSymbolComponent,
+    ToggleSwitchComponent,
   ],
+  viewProviders: [provideIcons({ phosphorTrashBold })],
   standalone: true,
 })
 export class UserAssignmentComponent {
@@ -48,6 +56,7 @@ export class UserAssignmentComponent {
 
   updateForm!: FormGroup;
   formReady = signal(false);
+  refreshingUsers = signal(false);
 
   // Getter method to access assignment users from service
   getAssignmentUsersForTemplate(): any[] {
@@ -58,12 +67,136 @@ export class UserAssignmentComponent {
     );
   }
 
-  /** Convert assignment users to SelectOption[] for the dropdown */
+  /** Convert assignment users to SelectOption[] for the dropdown (only enabled users) */
   assignmentUserOptions(): SelectOption[] {
-    return this.getAssignmentUsersForTemplate().map((user: any) => ({
-      label: user.NAME,
-      value: user.NAME,
-    }));
+    return this.getAssignmentUsersForTemplate()
+      .filter((user: any) => user.FLAG === 'Y')
+      .map((user: any) => ({
+        label: user.NAME,
+        value: user.NAME,
+      }));
+  }
+
+  /** ── Update Assignment Users modal ── */
+  showUsersModal = false;
+  usersSearch = '';
+
+  /** Inline add user */
+  showInlineAddRow = false;
+  newUserName = '';
+  newUserEmail = '';
+  inlineValidation: { name?: string; email?: string } = {};
+  inlineSaving = false;
+
+  onAddUserClick(): void {
+    this.showInlineAddRow = true;
+    this.newUserName = '';
+    this.newUserEmail = '';
+    this.inlineValidation = {};
+  }
+
+  onCancelInlineAdd(): void {
+    this.showInlineAddRow = false;
+    this.newUserName = '';
+    this.newUserEmail = '';
+    this.inlineValidation = {};
+  }
+
+  onSaveInlineAdd(): void {
+    this.inlineValidation = {};
+    const name = this.newUserName.trim();
+    const email = this.newUserEmail.trim();
+
+    if (!name) this.inlineValidation.name = 'Name is required';
+    if (!email) {
+      this.inlineValidation.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.inlineValidation.email = 'Invalid email format';
+    }
+
+    if (Object.keys(this.inlineValidation).length) return;
+
+    this.inlineSaving = true;
+    const team = this.userContext().assignmentUsersFilterKey;
+
+    this.http
+      .post(
+        'insert-summary-assignment-user',
+        { name, email, team },
+        { responseType: 'text' },
+      )
+      .subscribe({
+        next: () => {
+          this.showInlineAddRow = false;
+          this.newUserName = '';
+          this.newUserEmail = '';
+          this.inlineSaving = false;
+          // Close modal and show loading while refreshing users
+          this.showUsersModal = false;
+          this.refreshingUsers.set(true);
+          this.formReady.set(false);
+          this.http.get('summary-assignment-users').subscribe((data) => {
+            this.dataService.setAssignmentUsers(data);
+            this.refreshingUsers.set(false);
+            this.formReady.set(true);
+          });
+        },
+        error: (err) => {
+          console.error('Error adding user:', err);
+          this.inlineSaving = false;
+        },
+      });
+  }
+
+  /** Toggle user enabled/disabled flag via API */
+  onToggleUserFlag(user: any, newChecked: boolean): void {
+    const endpoint = newChecked
+      ? 'enable-summary-assignment-user'
+      : 'disable-summary-assignment-user';
+
+    this.http
+      .get(endpoint, { params: { email: user.EMAIL }, responseType: 'text' })
+      .subscribe({
+        next: () => {
+          // Refresh the users list from server
+          this.http.get('summary-assignment-users').subscribe((data) => {
+            this.dataService.setAssignmentUsers(data);
+          });
+        },
+        error: (err) => {
+          console.error('Error toggling user flag:', err);
+        },
+      });
+  }
+
+  get allTeamUsers(): any[] {
+    return this.getAssignmentUsersForTemplate();
+  }
+
+  get filteredTeamUsers(): any[] {
+    const q = this.usersSearch.trim().toLowerCase();
+    if (!q) return this.allTeamUsers;
+    return this.allTeamUsers.filter(
+      (u: any) =>
+        (u.NAME || '').toLowerCase().includes(q) ||
+        (u.EMAIL || '').toLowerCase().includes(q),
+    );
+  }
+
+  openUsersModal(): void {
+    this.usersSearch = '';
+    this.showUsersModal = true;
+  }
+
+  closeUsersModal(): void {
+    this.showUsersModal = false;
+  }
+
+  /** Check if user has ADMIN or any _ADMIN role */
+  isAdminUser(): boolean {
+    return this.userContext().roles.some(
+      (role) => role === 'ADMIN' || role.endsWith('_ADMIN'),
+    );
   }
 
   /** Handle selection from the single-select dropdown */

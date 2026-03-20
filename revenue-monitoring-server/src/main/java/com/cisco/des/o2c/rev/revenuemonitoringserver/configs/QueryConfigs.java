@@ -2198,4 +2198,28 @@ public class QueryConfigs {
     public String getGlInterfaceSummaryUpdate() {
         return this.glInterfaceSummaryUpdate;
     }
+
+    @Value(("${insert.assignment.users.q}"))
+    public String insertSummaryAssignmentUsers;
+
+    @Bean(name = "insertSummaryAssignmentUsers")
+    public String getInsertSummaryAssignmentUsers() {
+        return this.insertSummaryAssignmentUsers;
+    }
+
+    @Value(("${disable.assignment.users.q}"))
+    public String disableSummaryAssignmentUsers;
+
+    @Bean(name = "disableSummaryAssignmentUsers")
+    public String getDisableSummaryAssignmentUsers() {
+        return this.disableSummaryAssignmentUsers;
+    }
+
+    @Value(("${enable.assignment.users.q}"))
+    public String enableSummaryAssignmentUsers;
+
+    @Bean(name = "enableSummaryAssignmentUsers")
+    public String getEnableSummaryAssignmentUsers() {
+        return this.enableSummaryAssignmentUsers;
+    }
 }

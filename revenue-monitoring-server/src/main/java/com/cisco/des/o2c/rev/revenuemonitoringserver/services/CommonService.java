@@ -31,6 +31,9 @@ public class CommonService {
     private String pageVisitAnalytics;
     private String pageVisitSummary;
     private String dashboardMetrics;
+    private String insertSummaryAssignmentUsers;
+    private String disableSummaryAssignmentUsers;
+    private String enableSummaryAssignmentUsers;
     @Autowired
     private Common common;
     @Autowired
@@ -60,7 +63,10 @@ public class CommonService {
             @Qualifier("logPageVisit") String logPageVisit,
             @Qualifier("pageVisitAnalytics") String pageVisitAnalytics,
             @Qualifier("pageVisitSummary") String pageVisitSummary,
-            @Qualifier("dashboardMetrics") String dashboardMetrics) {
+            @Qualifier("dashboardMetrics") String dashboardMetrics,
+            @Qualifier("insertSummaryAssignmentUsers") String insertSummaryAssignmentUsers,
+            @Qualifier("disableSummaryAssignmentUsers") String disableSummaryAssignmentUsers,
+            @Qualifier("enableSummaryAssignmentUsers") String enableSummaryAssignmentUsers) {
         this.jdbcManager = jdbcManager;
         this.rolErrorsSummaryPeriodStatus = rolErrorsSummaryPeriodStatus;
         this.summaryAssignmentUsers = summaryAssignmentUsers;
@@ -75,6 +81,9 @@ public class CommonService {
         this.pageVisitAnalytics = pageVisitAnalytics;
         this.pageVisitSummary = pageVisitSummary;
         this.dashboardMetrics = dashboardMetrics;
+        this.insertSummaryAssignmentUsers = insertSummaryAssignmentUsers;
+        this.disableSummaryAssignmentUsers = disableSummaryAssignmentUsers;
+        this.enableSummaryAssignmentUsers = enableSummaryAssignmentUsers;
     }
 
     // Summaries
@@ -408,6 +417,18 @@ public class CommonService {
      */
     public List<Map<String, Object>> getDashboardMetrics() {
         return jdbcManager.queryForList(dashboardMetrics);
+    }
+
+    public int insertSummaryAssignmentUser(Map<String, String> updateData){
+        return jdbcManager.insertSummaryAssignmentUser(insertSummaryAssignmentUsers, updateData.get("name"), updateData.get("email"), updateData.get("team"));
+    }
+
+    public int disableSummaryAssignmentUser(String userEmail){
+        return jdbcManager.disableSummaryAssignmentUser(disableSummaryAssignmentUsers, userEmail);
+    }
+
+    public int enableSummaryAssignmentUser(String userEmail){
+        return jdbcManager.disableSummaryAssignmentUser(enableSummaryAssignmentUsers, userEmail);
     }
 
 }
