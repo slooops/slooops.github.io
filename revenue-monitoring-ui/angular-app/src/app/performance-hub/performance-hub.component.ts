@@ -110,8 +110,13 @@ export class PerformanceHubComponent implements OnInit {
       await navigator.clipboard.writeText(plain);
     }
 
+    const sprintLabel = this.sdlcExec?.version?.sprintName || '';
     const subject = encodeURIComponent(
-      this.activeTab === 0 ? 'AI in SDLC Summary' : 'SDLC Sprint Updates',
+      this.activeTab === 0
+        ? 'AI in SDLC Summary'
+        : sprintLabel
+          ? `SDLC Sprint Updates for ${sprintLabel}`
+          : 'SDLC Sprint Updates',
     );
     window.open(`mailto:?subject=${subject}`, '_self');
     this.showToast('Both tables copied — paste into your email body (Cmd+V)');
