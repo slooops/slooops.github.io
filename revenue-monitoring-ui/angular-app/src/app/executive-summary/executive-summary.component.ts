@@ -77,7 +77,10 @@ export class ExecutiveSummaryComponent
     this.rows = rows;
   }
 
-  loadRemoteData(): Observable<{ version: TableVersion; rows: ExecSummaryRow[] }> {
+  loadRemoteData(): Observable<{
+    version: TableVersion;
+    rows: ExecSummaryRow[];
+  }> {
     return this.dataService.getCurrent(this.dm);
   }
 
@@ -145,7 +148,7 @@ export class ExecutiveSummaryComponent
           `</tr>`,
       );
     }
-    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:inline-block;background:#fff;">
+    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:block;width:100%;background:#fff;">
 <table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
 <thead><tr>
 <th ${thStyle}>SDLC Track</th>

@@ -392,6 +392,23 @@
                       }
                     }
                   }
+
+                  <!-- ── Scorecard ── -->
+                  @if (isAdmin$) {
+                    <div
+                      class="toolbar-nav-dropdown-item"
+                      [class.active]="router.url.includes('/scorecard')"
+                      (click)="navigateTo('/scorecard')"
+                    >
+                      <ng-icon
+                        name="phosphorChartLineUpBold"
+                        class="nav-item-icon"
+                      />
+                      <span class="toolbar-nav-dropdown-item-name"
+                        >&nbsp;Scorecard</span
+                      >
+                    </div>
+                  }
                 </div>
               }
             </div>

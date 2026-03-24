@@ -160,7 +160,7 @@ export class ScorecardComponent
     }
     const thStyle =
       'style="background:#f7f8fa;border:1px solid #e1e4e8;padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:#6b7482;font-weight:700;"';
-    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:inline-block;background:#fff;">
+    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:block;width:100%;background:#fff;">
 <table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
 <thead><tr>
 <th ${thStyle}>Workstream</th>
