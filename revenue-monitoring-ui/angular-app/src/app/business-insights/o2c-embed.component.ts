@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
+import { LoadingSymbolComponent } from '../loading-symbol/loading-symbol.component';
 
 @Component({
   selector: 'app-o2c-embed',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LoadingSymbolComponent],
   template: `
     @if (loading) {
       <div class="o2c-embed-wrapper">
@@ -30,13 +31,20 @@ import { catchError, of } from 'rxjs';
       </div>
     } @else {
       <div class="o2c-embed-wrapper">
+        @if (!iframeLoaded) {
+          <div class="o2c-iframe-loading">
+            <app-loading-symbol></app-loading-symbol>
+          </div>
+        }
         <iframe
           class="o2c-embed-frame"
+          [class.o2c-embed-frame--hidden]="!iframeLoaded"
           title="O2C Experience"
           loading="lazy"
           [src]="trustedUrl"
           allowfullscreen
           referrerpolicy="no-referrer"
+          (load)="onIframeLoad()"
         ></iframe>
       </div>
     }
@@ -55,6 +63,19 @@ import { catchError, of } from 'rxjs';
         width: 100%;
         flex: 1;
         background: #fff;
+      }
+
+      .o2c-embed-frame--hidden {
+        visibility: hidden;
+        position: absolute;
+      }
+
+      .o2c-iframe-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        flex: 1;
       }
 
       .o2c-status {
@@ -117,6 +138,7 @@ export class O2cEmbedComponent implements OnInit {
   trustedUrl: SafeResourceUrl;
   loading = true;
   error = false;
+  iframeLoaded = false;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -134,6 +156,7 @@ export class O2cEmbedComponent implements OnInit {
   checkAvailability(): void {
     this.loading = true;
     this.error = false;
+    this.iframeLoaded = false;
 
     this.http
       .head(this.o2cUrl, { observe: 'response' })
@@ -150,5 +173,9 @@ export class O2cEmbedComponent implements OnInit {
         }
         this.loading = false;
       });
+  }
+
+  onIframeLoad(): void {
+    this.iframeLoaded = true;
   }
 }

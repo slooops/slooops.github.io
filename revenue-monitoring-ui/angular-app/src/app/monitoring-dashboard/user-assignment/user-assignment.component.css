@@ -163,7 +163,7 @@ select.fit-assign-control {
   display: flex;
   flex-direction: column;
   width: 50vw;
-  height: 50vw;
+  max-height: 80vh;
   background: #fff;
   border-radius: var(--fit-radius-lg);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);

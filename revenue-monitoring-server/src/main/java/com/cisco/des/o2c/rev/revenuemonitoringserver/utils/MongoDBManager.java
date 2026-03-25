@@ -38,7 +38,7 @@ public class MongoDBManager {
 
     public List<Map<String, Object>> getWIPSData(String collection) {
         Query query = new Query();
-        return convertDocumentsToMaps(secondaryMongoTemplate.find(query, Document.class, collection));
+        return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, collection));
     }
 
     public List<Map<String, Object>> getFilteredData(String collection, String timestamp, String scenario) {
@@ -50,7 +50,7 @@ public class MongoDBManager {
     public List<Map<String, Object>> getWipsFilteredData(String collection, String timestamp, String scenario) {
         Query query = new Query();
         query.addCriteria(Criteria.where("timestamp").is(timestamp).and("scenario").is(scenario));
-        return convertDocumentsToMaps(secondaryMongoTemplate.find(query, Document.class, collection));
+        return convertDocumentsToMaps(mongoTemplate.find(query, Document.class, collection));
     }
 
     public long updateWipsSummaryData(String collection, String timestamp, String scenario, String assignedTo, String comments, String status) {
@@ -66,7 +66,7 @@ public class MongoDBManager {
         } else if ("Closed".equals(status)) {
             update.set("closed_date", new Date());
         }
-        UpdateResult result = secondaryMongoTemplate.updateMulti(query, update, collection);
+        UpdateResult result = mongoTemplate.updateMulti(query, update, collection);
         return result.getModifiedCount();
     }
 
