@@ -59,8 +59,8 @@ export class ExecutiveSummaryComponent
     router: Router,
   ) {
     super(authService, router, {
-      editRoles: ['ADMIN', 'EXEC_SUMMARY_ADMIN', 'EXEC_SUMMARY'],
-      adminRoles: ['ADMIN', 'EXEC_SUMMARY_ADMIN'],
+      editRoles: ['ADMIN', 'SCORECARD_ADMIN', 'SCORECARD'],
+      adminRoles: ['ADMIN', 'SCORECARD_ADMIN'],
       draftKey: 'exec_summary_draft',
       historyRoute: '/executive-summary/history',
       emailSubjectPrefix: 'SDLC Executive Summary',
