@@ -390,6 +390,21 @@
                           >
                         </div>
                       }
+                      <div
+                        class="toolbar-nav-dropdown-item toolbar-nav-subitem"
+                        [class.active]="
+                          router.url.includes('/caseiq-monitoring')
+                        "
+                        (click)="navigateTo('/caseiq-monitoring')"
+                      >
+                        <ng-icon
+                          name="phosphorHeartbeatBold"
+                          class="nav-item-icon"
+                        />
+                        <span class="toolbar-nav-dropdown-item-name"
+                          >&nbsp;CaseIQ Monitoring</span
+                        >
+                      </div>
                     }
                   }
 

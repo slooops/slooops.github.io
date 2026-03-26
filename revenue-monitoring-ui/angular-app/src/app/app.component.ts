@@ -35,6 +35,7 @@ import {
   phosphorReceiptBold,
   phosphorRepeatBold,
   phosphorLightbulbBold,
+  phosphorHeartbeatBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -59,6 +60,7 @@ import {
       phosphorReceiptBold,
       phosphorRepeatBold,
       phosphorLightbulbBold,
+      phosphorHeartbeatBold,
     }),
   ],
   imports: [

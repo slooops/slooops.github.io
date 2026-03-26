@@ -1,0 +1,46 @@
+<div class="health-ring">
+  <svg viewBox="0 0 180 180">
+    <circle
+      cx="90"
+      cy="90"
+      r="72"
+      fill="none"
+      class="ring-bg"
+      stroke-width="12"
+    />
+    <circle
+      cx="90"
+      cy="90"
+      r="72"
+      fill="none"
+      [attr.stroke]="strokeColor"
+      stroke-width="12"
+      [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="dashOffset"
+      stroke-linecap="round"
+      transform="rotate(-90 90 90)"
+      class="ring-progress"
+    />
+    <text
+      x="90"
+      y="85"
+      text-anchor="middle"
+      [attr.fill]="strokeColor"
+      class="score-text"
+    >
+      {{ score }}
+    </text>
+    <text
+      x="90"
+      y="108"
+      text-anchor="middle"
+      [attr.fill]="strokeColor"
+      class="status-label"
+    >
+      {{ status }}
+    </text>
+  </svg>
+  @if (meta) {
+    <div class="meta" [innerHTML]="meta"></div>
+  }
+</div>

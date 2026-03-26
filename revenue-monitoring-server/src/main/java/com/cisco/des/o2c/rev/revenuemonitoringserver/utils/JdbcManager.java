@@ -19,7 +19,8 @@ public class JdbcManager {
     private final JdbcTemplate secondaryJdbcTemplate;
 
     @Autowired
-    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate, @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
+    public JdbcManager(@Qualifier("primaryJdbcTemplate") JdbcTemplate primaryJdbcTemplate,
+            @Qualifier("secondaryJdbcTemplate") JdbcTemplate secondaryJdbcTemplate) {
         this.primaryJdbcTemplate = primaryJdbcTemplate;
         this.secondaryJdbcTemplate = secondaryJdbcTemplate;
     }
@@ -258,8 +259,9 @@ public class JdbcManager {
                 transactionDate);
     }
 
-    public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String glbatchName) {
-        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  glbatchName);
+    public int updateGlErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments,
+            String glbatchName) {
+        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments, glbatchName);
     }
 
     public List<Map<String, Object>> getEInvoicingDetailsFilter(String sql, String ouName, String periodName,
@@ -585,21 +587,33 @@ public class JdbcManager {
     }
 
     public List<Map<String, Object>> getAITGlInterfaceDetailsFilter(String sql, String source, String ledger,
-                                                        String period, String batchName,
-                                                        String dateCreated) {
+            String period, String batchName,
+            String dateCreated) {
         return secondaryJdbcTemplate.queryForList(sql, source, ledger, period, batchName, dateCreated);
     }
 
-//    public int updateGlInterfaceErrorsSummaryData(String sql, String assignedTo, String assignedBy, String comments, String glbatchName) {
-//        return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,  glbatchName);
-//    }
+    // public int updateGlInterfaceErrorsSummaryData(String sql, String assignedTo,
+    // String assignedBy, String comments, String glbatchName) {
+    // return primaryJdbcTemplate.update(sql, assignedTo, assignedBy, comments,
+    // glbatchName);
+    // }
 
-    public int insertSummaryAssignmentUser(String sql, String userName, String userEmail, String teamName){
+    public int insertSummaryAssignmentUser(String sql, String userName, String userEmail, String teamName) {
         return primaryJdbcTemplate.update(sql, userName, userEmail, userEmail, teamName);
     }
 
     public int disableSummaryAssignmentUser(String sql, String userEmail) {
         return primaryJdbcTemplate.update(sql, userEmail);
+    }
+
+    /**
+     * Executes a read-only query using named parameters (e.g. :lookback_hours).
+     * Used by CaseIQ Monitoring Dashboard queries.
+     */
+    public List<Map<String, Object>> queryWithNamedParams(String sql, Map<String, Object> params) {
+        NamedParameterJdbcTemplate namedTemplate = new NamedParameterJdbcTemplate(primaryJdbcTemplate);
+        MapSqlParameterSource paramSource = new MapSqlParameterSource(params);
+        return namedTemplate.queryForList(sql, paramSource);
     }
 
 }

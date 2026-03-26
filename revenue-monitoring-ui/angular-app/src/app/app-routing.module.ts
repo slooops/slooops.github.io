@@ -21,6 +21,7 @@ import { PerformanceHubComponent } from './performance-hub/performance-hub.compo
 import { AitComponent } from './ait/ait.component';
 import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-exec-history.component';
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
+import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
 
 export const routes: Routes = [
   {
@@ -342,6 +343,15 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'Continuous Monitoring > AIT',
+    },
+  },
+  {
+    path: 'caseiq-monitoring',
+    component: CaseiqMonitoringDashboardComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'ESP Case Manager > CaseIQ Monitoring',
     },
   },
 ];

@@ -1,0 +1,342 @@
+<div class="ciq-dashboard">
+  <!-- ── Header ── -->
+  <div class="ciq-header">
+    <h1 class="ciq-title">
+      <span class="ciq-accent">CaseIQ</span> Monitoring Dashboard
+    </h1>
+    <div class="ciq-header-controls">
+      <select
+        [(ngModel)]="fiscQtr"
+        (ngModelChange)="onFilterChange()"
+        class="ciq-select"
+      >
+        <option value="">All Quarters</option>
+        @for (q of fiscQtrOptions; track q) {
+          @if (q) {
+            <option [value]="q">{{ q }}</option>
+          }
+        }
+      </select>
+      <select
+        [(ngModel)]="lookbackHours"
+        (ngModelChange)="onFilterChange()"
+        class="ciq-select"
+      >
+        @for (opt of lookbackOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <button
+        class="ciq-btn ciq-btn-icon"
+        (click)="toggleTheme()"
+        [title]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        <ng-icon
+          [name]="isDarkMode ? 'phosphorSunBold' : 'phosphorMoonBold'"
+          size="16"
+        />
+      </button>
+      <button class="ciq-btn" (click)="refreshAll()">
+        <ng-icon name="phosphorArrowClockwiseBold" size="14" />
+        Refresh
+      </button>
+
+      <span class="ciq-auto-refresh">Auto: 60s</span>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="ciq-loading">
+      <div class="ciq-spinner"></div>
+      <span>Loading dashboard data…</span>
+    </div>
+  }
+
+  @if (!loading) {
+    <!-- ── Row 1: Health Ring + KPIs + Anomaly Breakdown ── -->
+    <div class="ciq-grid ciq-grid-top">
+      <div class="ciq-card ciq-card-health">
+        <h3 class="ciq-card-title">
+          <ng-icon name="phosphorHeartbeatBold" size="18" />
+          System Health
+        </h3>
+        <app-health-ring
+          [score]="healthScore"
+          [status]="healthStatus"
+          [meta]="healthMeta"
+        />
+      </div>
+
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">Key Metrics</h3>
+        <div class="ciq-kpi-grid">
+          <div class="ciq-kpi ciq-kpi-blue">
+            <div class="ciq-kpi-value">{{ kpiTotal }}</div>
+            <div class="ciq-kpi-label">Total Processed</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-green">
+            <div class="ciq-kpi-value">{{ kpiSuccessRate }}</div>
+            <div class="ciq-kpi-label">Success Rate</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-red">
+            <div class="ciq-kpi-value">{{ kpiErrors }}</div>
+            <div class="ciq-kpi-label">Errors</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-yellow">
+            <div class="ciq-kpi-value">{{ kpiAnomalies }}</div>
+            <div class="ciq-kpi-label">Anomalies</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-cyan">
+            <div class="ciq-kpi-value">{{ kpiAvgTime }}</div>
+            <div class="ciq-kpi-label">Avg Time (min)</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-purple">
+            <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
+            <div class="ciq-kpi-label">Last Run (min ago)</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-orange">
+            <div class="ciq-kpi-value">{{ kpiGhost }}</div>
+            <div class="ciq-kpi-label">Ghost Success</div>
+          </div>
+          <div class="ciq-kpi ciq-kpi-blue">
+            <div class="ciq-kpi-value">{{ kpiNotSupported }}</div>
+            <div class="ciq-kpi-label">Not Supported</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">
+          <ng-icon name="phosphorWarningCircleBold" size="18" />
+          Anomaly Breakdown
+        </h3>
+        <div class="ciq-anomaly-list">
+          @for (a of anomalyBreakdown; track a.name) {
+            <div class="ciq-anomaly-item">
+              <span class="ciq-anomaly-name">{{ a.name }}</span>
+              <span class="ciq-badge" [ngClass]="severityClass(a.severity)">{{
+                a.severity | uppercase
+              }}</span>
+              <span
+                class="ciq-anomaly-count"
+                [style.color]="countColor(a.severity)"
+                >{{ a.count }}</span
+              >
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Row 2: Resolution Status + Team Success ── -->
+    <div class="ciq-grid ciq-grid-mid">
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">
+          <ng-icon name="phosphorChartBarHorizontalBold" size="18" />
+          Resolution Status Distribution
+        </h3>
+        <div class="ciq-bar-chart">
+          @for (bar of statusBars; track bar.label) {
+            <div class="ciq-bar-row">
+              <span class="ciq-bar-label">{{ bar.label }}</span>
+              <div class="ciq-bar-track">
+                <div
+                  class="ciq-bar-fill"
+                  [style.width.%]="bar.pct"
+                  [style.background]="bar.color"
+                ></div>
+              </div>
+              <span class="ciq-bar-value">{{ bar.displayText }}</span>
+            </div>
+          }
+          @if (statusBars.length === 0) {
+            <div class="ciq-no-data">No data</div>
+          }
+        </div>
+      </div>
+
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">Team-wise Success Metric</h3>
+        <div class="ciq-bar-chart">
+          @for (bar of teamBars; track bar.label) {
+            <div class="ciq-bar-row">
+              <span class="ciq-bar-label">{{ bar.label }}</span>
+              <div class="ciq-bar-track">
+                <div
+                  class="ciq-bar-fill"
+                  [style.width.%]="bar.pct"
+                  [style.background]="bar.color"
+                ></div>
+              </div>
+              <span class="ciq-bar-value">{{ bar.displayText }}</span>
+            </div>
+          }
+          @if (teamBars.length === 0) {
+            <div class="ciq-no-data">No data</div>
+          }
+        </div>
+        <div class="ciq-chart-footnote">
+          Success = SUCCESS + PARTIAL SUCCESS + NOT_SUPPORTED
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Row 3: Volume Table + Throughput + Top Errors ── -->
+    <div class="ciq-grid ciq-grid-bot">
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">
+          <ng-icon name="phosphorTableBold" size="18" />
+          Volume by Team
+        </h3>
+        <div class="ciq-table-scroll">
+          <table class="ciq-table">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Incidents</th>
+                <th>Success</th>
+                <th>Errors</th>
+                <th>Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of teamTableData; track row.TEAM_NAME) {
+                <tr>
+                  <td>
+                    <strong>{{ row.TEAM_NAME || "N/A" }}</strong>
+                  </td>
+                  <td>{{ (row.UNIQUE_INCIDENTS || 0).toLocaleString() }}</td>
+                  <td class="ciq-text-green">
+                    {{ (row.SUCCESS || 0).toLocaleString() }}
+                  </td>
+                  <td class="ciq-text-red">
+                    {{ (row.ERRORS || 0).toLocaleString() }}
+                  </td>
+                  <td>
+                    <strong>{{ row.SUCCESS_RATE_PCT || 0 }}%</strong>
+                  </td>
+                </tr>
+              }
+              @if (teamTableData.length === 0) {
+                <tr>
+                  <td colspan="5" class="ciq-no-data">No data</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">Hourly Throughput</h3>
+        <div class="ciq-bar-chart">
+          @for (bar of throughputBars; track bar.label) {
+            <div class="ciq-bar-row">
+              <span class="ciq-bar-label">{{ bar.label }}</span>
+              <div class="ciq-bar-track">
+                <div
+                  class="ciq-bar-fill"
+                  [style.width.%]="bar.pct"
+                  [style.background]="bar.color"
+                ></div>
+              </div>
+              <span class="ciq-bar-value">{{ bar.displayText }}</span>
+            </div>
+          }
+          @if (throughputBars.length === 0) {
+            <div class="ciq-no-data">No data</div>
+          }
+        </div>
+      </div>
+
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">Top Error Categories</h3>
+        <div class="ciq-table-scroll">
+          <table class="ciq-table">
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>Category</th>
+                <th>Core Issue</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of errorTableData; track $index) {
+                <tr>
+                  <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                  <td>{{ row.CATEGORY || "NULL" }}</td>
+                  <td class="ciq-mono">{{ row.CORE_ISSUE || "NULL" }}</td>
+                  <td class="ciq-text-red">
+                    <strong>{{
+                      (row.ERROR_COUNT || 0).toLocaleString()
+                    }}</strong>
+                  </td>
+                </tr>
+              }
+              @if (errorTableData.length === 0) {
+                <tr>
+                  <td colspan="4" class="ciq-no-data">No errors</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Row 4: Recent Anomalous Incidents ── -->
+    <div class="ciq-grid ciq-grid-full">
+      <div class="ciq-card">
+        <h3 class="ciq-card-title">Recent Anomalous Incidents</h3>
+        <div class="ciq-table-scroll ciq-table-scroll-lg">
+          <table class="ciq-table">
+            <thead>
+              <tr>
+                <th>Incident</th>
+                <th>Team</th>
+                <th>Category</th>
+                <th>Core Issue</th>
+                <th>Status</th>
+                <th>Anomaly</th>
+                <th>Run Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of anomalyTableData; track $index) {
+                <tr>
+                  <td class="ciq-mono">{{ row.INCIDENT_NUMBER || "N/A" }}</td>
+                  <td>{{ row.TEAM_NAME || "N/A" }}</td>
+                  <td>{{ row.CATEGORY || "NULL" }}</td>
+                  <td>{{ row.CORE_ISSUE || "NULL" }}</td>
+                  <td>
+                    {{
+                      row.RESOLUTION_API_STATUS ||
+                        row.CASE_ANALYZER_STATUS ||
+                        "NULL"
+                    }}
+                  </td>
+                  <td>
+                    <span class="ciq-badge badge-critical">{{
+                      row.anomalyLabel || row.ANOMALY_TYPE || ""
+                    }}</span>
+                  </td>
+                  <td class="ciq-text-sm">
+                    {{ formatDate(row.CASEIQ_RUN_DATE) }}
+                  </td>
+                </tr>
+              }
+              @if (anomalyTableData.length === 0) {
+                <tr>
+                  <td colspan="7" class="ciq-no-data">No anomalies detected</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="ciq-last-updated">Last updated: {{ lastUpdated }}</div>
+  }
+</div>

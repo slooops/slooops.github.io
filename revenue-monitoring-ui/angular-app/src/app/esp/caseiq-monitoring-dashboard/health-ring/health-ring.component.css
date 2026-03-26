@@ -1,0 +1,33 @@
+.health-ring {
+  text-align: center;
+}
+
+.health-ring svg {
+  width: 180px;
+  height: 180px;
+}
+
+.ring-bg {
+  stroke: var(--ciq-border);
+}
+
+.ring-progress {
+  transition: stroke-dashoffset 1s ease;
+}
+
+.score-text {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.status-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.meta {
+  font-size: 12px;
+  color: var(--ciq-muted);
+  margin-top: 8px;
+  line-height: 1.6;
+}
