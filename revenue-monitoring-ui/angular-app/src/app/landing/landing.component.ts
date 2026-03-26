@@ -10,6 +10,7 @@ import {
   phosphorBrainDuotone,
   phosphorMoneyDuotone,
   phosphorChartLineUpDuotone,
+  phosphorClipboardTextDuotone,
   phosphorPresentationChartDuotone,
   phosphorGaugeDuotone,
   phosphorRocketLaunchDuotone,
@@ -126,6 +127,7 @@ export interface StatMetric {
       phosphorBrainDuotone,
       phosphorMoneyDuotone,
       phosphorChartLineUpDuotone,
+      phosphorClipboardTextDuotone,
       phosphorPresentationChartDuotone,
       phosphorGaugeDuotone,
       phosphorRocketLaunchDuotone,
@@ -282,6 +284,23 @@ export class LandingComponent implements OnInit, OnDestroy {
       ],
       variant: 'glass',
       // No arcData - feature not yet built
+    },
+    {
+      title: 'Scorecard',
+      description:
+        'AI in SDLC performance scorecard tracking delivery metrics, sprint health, and engineering excellence across teams.',
+      icon: 'phosphorClipboardTextDuotone',
+      route: '/scorecard',
+      requiredRoles: ['ADMIN'],
+      variant: 'soft-glow',
+      arcData: {
+        metricKey: 'SCORECARD',
+        value: null,
+        max: null,
+        subtitle: 'Score',
+        colorStart: '#0070d2',
+        colorEnd: '#9933ff',
+      },
     },
   ];
 

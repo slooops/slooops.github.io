@@ -27,6 +27,7 @@ import {
   phosphorCalendarCheckBold,
   phosphorInvoiceBold,
   phosphorChartLineUpBold,
+  phosphorClipboardTextBold,
   phosphorBookOpenBold,
   phosphorPulseBold,
   phosphorPackageBold,
@@ -36,6 +37,7 @@ import {
   phosphorRepeatBold,
   phosphorLightbulbBold,
   phosphorHeartbeatBold,
+  phosphorUserBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -52,6 +54,7 @@ import {
       phosphorCalendarCheckBold,
       phosphorInvoiceBold,
       phosphorChartLineUpBold,
+      phosphorClipboardTextBold,
       phosphorBookOpenBold,
       phosphorPulseBold,
       phosphorPackageBold,
@@ -61,6 +64,7 @@ import {
       phosphorRepeatBold,
       phosphorLightbulbBold,
       phosphorHeartbeatBold,
+      phosphorUserBold,
     }),
   ],
   imports: [

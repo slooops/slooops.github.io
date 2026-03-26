@@ -22,6 +22,7 @@ import { AitComponent } from './ait/ait.component';
 import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-exec-history.component';
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
+import { ExecutiveSummaryComponent } from './executive-summary/executive-summary.component';
 
 export const routes: Routes = [
   {
@@ -316,7 +317,7 @@ export const routes: Routes = [
     path: 'executive-summary/history',
     component: ExecutiveSummaryHistoryComponent,
     data: {
-      title: 'Finance-IT Control Tower',
+      title: 'AI in SDLC Performance Dashboard',
       header: 'Executive Summary History',
     },
   },
@@ -324,7 +325,7 @@ export const routes: Routes = [
     path: 'sdlc-exec/history',
     component: SdlcExecHistoryComponent,
     data: {
-      title: 'Finance-IT Control Tower',
+      title: 'AI in SDLC Performance Dashboard',
       header: 'SDLC Execution Update History',
     },
   },
@@ -352,6 +353,14 @@ export const routes: Routes = [
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
       subHeader: 'ESP Case Manager > CaseIQ Monitoring',
+    },
+  },
+  {
+    path: 'ai-in-sdlc',
+    component: ExecutiveSummaryComponent,
+    data: {
+      title: 'AI in SDLC Performance Dashboard',
+      header: 'AI in SDLC Performance Dashboard',
     },
   },
 ];

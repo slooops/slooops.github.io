@@ -23,6 +23,8 @@ import {
   phosphorCaretDownBold,
   phosphorPlusBold,
   phosphorTrashBold,
+  phosphorCheckBold,
+  phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
 import { AnalyticsDashboardComponent } from '../analytics-dashboard/analytics-dashboard.component';
 
@@ -48,6 +50,8 @@ export interface GroupedUser {
       phosphorCaretDownBold,
       phosphorPlusBold,
       phosphorTrashBold,
+      phosphorCheckBold,
+      phosphorXBold,
     }),
     DatePipe,
   ],

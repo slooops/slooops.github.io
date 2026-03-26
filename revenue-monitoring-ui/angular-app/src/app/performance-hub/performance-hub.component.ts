@@ -34,7 +34,8 @@ export class PerformanceHubComponent implements OnInit {
   ngOnInit(): void {
     const bannerFiles: Record<number, string> = {
       0: 'assets/ai-sdlc-email-banner.png',
-      1: 'assets/sprint-email-banner.png',
+      1: 'assets/ai-sdlc-email-banner.png',
+      2: 'assets/sprint-email-banner.png',
     };
     for (const [tab, path] of Object.entries(bannerFiles)) {
       fetch(path)
@@ -55,9 +56,9 @@ export class PerformanceHubComponent implements OnInit {
     const dataUri = this.bannerDataUris[this.activeTab];
     if (!dataUri) return '';
     const alt =
-      this.activeTab === 0
-        ? 'Cisco - AI in Software Development for Finance'
-        : 'Cisco - SDLC Sprint Updates';
+      this.activeTab === 2
+        ? 'Cisco - SDLC Sprint Updates'
+        : 'Cisco - AI in Software Development for Finance';
     return (
       `<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>` +
       `<td style="padding:0;border:none;font-size:0;line-height:0;">` +
@@ -75,9 +76,10 @@ export class PerformanceHubComponent implements OnInit {
         body += this.execSummary.buildEmailHtml();
         plain += this.execSummary.buildPlainText();
       }
+    } else if (this.activeTab === 1) {
       if (this.scorecard) {
-        body += '<br><br>' + this.scorecard.buildEmailHtml();
-        plain += '\n\n' + this.scorecard.buildPlainText();
+        body += this.scorecard.buildEmailHtml();
+        plain += this.scorecard.buildPlainText();
       }
     } else {
       if (this.sdlcExec) {
@@ -111,13 +113,15 @@ export class PerformanceHubComponent implements OnInit {
     }
 
     const sprintLabel = this.sdlcExec?.version?.sprintName || '';
-    const subject = encodeURIComponent(
-      this.activeTab === 0
-        ? 'AI in SDLC Summary'
-        : sprintLabel
-          ? `SDLC Sprint Updates for ${sprintLabel}`
-          : 'SDLC Sprint Updates',
-    );
+    let subjectText = 'AI in SDLC Summary';
+    if (this.activeTab === 1) {
+      subjectText = 'AI in SDLC Scorecard';
+    } else if (this.activeTab === 2) {
+      subjectText = sprintLabel
+        ? `SDLC Sprint Updates for ${sprintLabel}`
+        : 'SDLC Sprint Updates';
+    }
+    const subject = encodeURIComponent(subjectText);
     window.open(`mailto:?subject=${subject}`, '_self');
     this.showToast('Both tables copied — paste into your email body (Cmd+V)');
   }

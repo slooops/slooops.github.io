@@ -13,11 +13,19 @@
       [class.active]="activeTab === 1"
       (click)="activeTab = 1"
     >
+      Scorecard
+    </button>
+    <button
+      class="hub-tab"
+      [class.active]="activeTab === 2"
+      (click)="activeTab = 2"
+    >
       Sprint Updates
     </button>
     <div class="hub-tab-spacer"></div>
     <button class="btn btn-ghost hub-email-btn" (click)="exportCombined()">
-      <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email Tables
+      <ng-icon name="phosphorEnvelopeSimpleBold" size="16" />
+      {{ activeTab === 2 ? "Email Tables" : "Email Table" }}
     </button>
   </div>
 
@@ -25,9 +33,11 @@
   <div class="hub-tab-content">
     @if (activeTab === 0) {
       <app-executive-summary [showEmailButton]="false" />
-      <app-scorecard [showEmailButton]="false" />
     }
     @if (activeTab === 1) {
+      <app-scorecard [showEmailButton]="false" />
+    }
+    @if (activeTab === 2) {
       <app-sdlc-exec-update [showEmailButton]="false" />
       <app-sdlc-component-adoption [showEmailButton]="false" />
     }
