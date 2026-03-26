@@ -19,11 +19,12 @@ import {
   ExecSummaryDataService,
   ExecSummaryRow,
 } from './executive-summary-data.service';
+import { ScorecardComponent } from '../scorecard/scorecard.component';
 
 @Component({
   selector: 'app-executive-summary',
   standalone: true,
-  imports: [FormsModule, NgIcon],
+  imports: [FormsModule, NgIcon, ScorecardComponent],
   providers: [
     DestroyManager,
     provideIcons({
@@ -40,6 +41,7 @@ export class ExecutiveSummaryComponent
   implements OnInit, OnDestroy
 {
   rows: ExecSummaryRow[] = [];
+  activeTab = 0;
 
   /* Alternating color palette for SDLC tracks */
   trackColors: ColorPair[] = [

@@ -1,245 +1,274 @@
-<div class="exec-page">
-  <!-- Header -->
-  <div class="exec-header">
-    <div class="header-left">
-      <h1 class="exec-title">
-        SDLC Executive Summary:
-        <span class="exec-subtitle">AI in FinanceIT</span>
-      </h1>
-      @if (version) {
-        <div class="version-meta">
-          @if (router.url.includes("/ai-in-sdlc")) {
-            <span class="meta-text"
-              >Last updated: {{ formatTimestamp(version.createdAt) }}</span
-            >
-          } @else {
-            @if (isEditing) {
-              <input
-                class="sprint-edit-input"
-                [(ngModel)]="editableSprintName"
-                placeholder="e.g., S16"
-                (input)="onFieldInput()"
-              />
-            } @else {
-              <span class="sprint-badge">{{ version.sprintName }}</span>
-            }
-            <span class="meta-sep">·</span>
-            <span class="meta-text"
-              >Last edited by <strong>{{ version.createdBy }}</strong> on
-              {{ formatTimestamp(version.createdAt) }}</span
-            >
-          }
-        </div>
-      }
-    </div>
-    @if (!router.url.includes("/ai-in-sdlc")) {
-      <div class="header-actions">
-        <button class="btn btn-ghost" (click)="goToHistory()">
-          <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
-          History
-        </button>
-        @if (showEmailButton && !isEditing) {
-          <button class="btn btn-ghost" (click)="exportToEmail()">
-            <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email Table
-          </button>
-        }
-        @if (canEdit && !isEditing) {
-          <button class="btn btn-primary" (click)="startEditing()">
-            <ng-icon name="phosphorPencilSimpleBold" size="16" /> Edit
-          </button>
-        }
-        @if (isEditing) {
-          <button
-            class="btn btn-ghost"
-            (click)="cancelEditing()"
-            [disabled]="isSaving"
-          >
-            Cancel
-          </button>
-          <button
-            class="btn btn-primary"
-            (click)="saveChanges()"
-            [disabled]="isSaving"
-          >
-            {{ isSaving ? "Saving..." : "Save Changes" }}
-          </button>
-        }
-      </div>
-    }
+<!-- Tab bar (only on standalone ai-in-sdlc page) -->
+@if (router.url.includes("/ai-in-sdlc")) {
+  <div class="hub-tabs">
+    <button
+      class="hub-tab"
+      [class.active]="activeTab === 0"
+      (click)="activeTab = 0"
+    >
+      AI in SDLC Summary
+    </button>
+    <button
+      class="hub-tab"
+      [class.active]="activeTab === 1"
+      (click)="activeTab = 1"
+    >
+      Scorecard
+    </button>
   </div>
+}
 
-  <!-- Draft banner -->
-  @if (hasDraftAvailable && !isEditing && !isLoading) {
-    <div class="draft-banner">
-      <span class="draft-banner-text"
-        >You have unsaved edits from a previous session.</span
-      >
-      <button class="btn btn-primary btn-sm" (click)="startEditing()">
-        Resume Editing
-      </button>
-      <button class="btn btn-ghost btn-sm" (click)="discardDraft()">
-        Discard
-      </button>
-    </div>
-  }
+@if (activeTab === 1 && router.url.includes("/ai-in-sdlc")) {
+  <app-scorecard [showEmailButton]="false" />
+}
 
-  <!-- Loading -->
-  @if (isLoading) {
-    <div class="exec-loading">
-      <div class="shimmer-table">
-        @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
-          <div class="shimmer-row">
-            <div class="shimmer-cell shimmer-narrow"></div>
-            <div class="shimmer-cell"></div>
-            <div class="shimmer-cell"></div>
+<div class="exec-page">
+  @if (activeTab === 0 || !router.url.includes("/ai-in-sdlc")) {
+    <!-- Header -->
+    <div class="exec-header">
+      <div class="header-left">
+        <h1 class="exec-title">
+          AI in Software Development:
+          <span class="exec-subtitle">Execution Summary</span>
+        </h1>
+        @if (version) {
+          <div class="version-meta">
+            @if (router.url.includes("/ai-in-sdlc")) {
+              <span class="meta-text"
+                >Last updated: {{ formatTimestamp(version.createdAt) }}</span
+              >
+            } @else {
+              @if (isEditing) {
+                <input
+                  class="sprint-edit-input"
+                  [(ngModel)]="editableSprintName"
+                  placeholder="e.g., S16"
+                  (input)="onFieldInput()"
+                />
+              } @else {
+                <span class="sprint-badge">{{ version.sprintName }}</span>
+              }
+              <span class="meta-sep">·</span>
+              <span class="meta-text"
+                >Last edited by <strong>{{ version.createdBy }}</strong> on
+                {{ formatTimestamp(version.createdAt) }}</span
+              >
+            }
           </div>
         }
       </div>
-    </div>
-  }
-
-  <!-- Table -->
-  @if (!isLoading) {
-    <div class="exec-table-wrap">
-      <table class="exec-table">
-        <thead>
-          <tr>
-            <th class="col-track">SDLC Track</th>
-            <th class="col-highlights">Highlights</th>
-            <th class="col-watch">Watch Areas / Action Items</th>
-            @if (isEditing && isAdmin) {
-              <th class="col-actions"></th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of rows; track row.dataId ?? $index; let i = $index) {
-            <tr
-              class="data-row"
-              [style.--track-accent]="getTrackColor(i).accent"
-              [style.--track-bg]="getTrackColor(i).bg"
-            >
-              <!-- SDLC Track -->
-              <td
-                class="cell cell-track"
-                [class.cell-editing]="canEditCell('sdlcTrack')"
-              >
-                @if (!canEditCell("sdlcTrack")) {
-                  <div class="track-label">
-                    <span class="track-indicator"></span>
-                    {{ row.sdlcTrack }}
-                  </div>
-                } @else {
-                  <input
-                    class="cell-input"
-                    [(ngModel)]="row.sdlcTrack"
-                    placeholder="Track name"
-                    (input)="onFieldInput()"
-                  />
-                }
-              </td>
-
-              <!-- Highlights -->
-              <td
-                class="cell cell-highlights"
-                [class.cell-editing]="canEditCell('highlights')"
-              >
-                @if (!canEditCell("highlights")) {
-                  @if (getBullets(row.highlights).length > 0) {
-                    <ul class="bullet-list">
-                      @for (
-                        bullet of getBullets(row.highlights);
-                        track bullet
-                      ) {
-                        <li>{{ bullet.replace(/^[•\-]\s*/, "") }}</li>
-                      }
-                    </ul>
-                  } @else {
-                    <span class="empty-dash">—</span>
-                  }
-                } @else {
-                  <textarea
-                    class="cell-input cell-input-textarea"
-                    [(ngModel)]="row.highlights"
-                    placeholder="• Enter highlights (one bullet per line)"
-                    (input)="onCellInput($event)"
-                  ></textarea>
-                }
-              </td>
-
-              <!-- Watch Areas -->
-              <td
-                class="cell cell-watch"
-                [class.cell-editing]="canEditCell('watchAreas')"
-              >
-                @if (!canEditCell("watchAreas")) {
-                  @if (getBullets(row.watchAreas).length > 0) {
-                    <ul class="bullet-list">
-                      @for (
-                        bullet of getBullets(row.watchAreas);
-                        track bullet
-                      ) {
-                        <li>{{ bullet.replace(/^[•\-]\s*/, "") }}</li>
-                      }
-                    </ul>
-                  } @else {
-                    <span class="empty-dash">—</span>
-                  }
-                } @else {
-                  <textarea
-                    class="cell-input cell-input-textarea"
-                    [(ngModel)]="row.watchAreas"
-                    placeholder="• Enter watch areas (one bullet per line)"
-                    (input)="onCellInput($event)"
-                  ></textarea>
-                }
-              </td>
-
-              <!-- Remove (admin only) -->
-              @if (isEditing && isAdmin) {
-                <td class="cell cell-actions">
-                  <button
-                    class="btn-remove"
-                    (click)="removeRow(i)"
-                    title="Remove row"
-                  >
-                    ×
-                  </button>
-                </td>
-              }
-            </tr>
-          }
-        </tbody>
-      </table>
-
-      <!-- Add row (admin) -->
-      @if (isEditing && isAdmin) {
-        <div class="add-row-bar">
-          <button class="btn btn-ghost" (click)="addRow()">
-            + Add SDLC Track
+      @if (!router.url.includes("/ai-in-sdlc")) {
+        <div class="header-actions">
+          <button class="btn btn-ghost" (click)="goToHistory()">
+            <ng-icon name="phosphorClockCounterClockwiseBold" size="16" />
+            Version History
           </button>
+          @if (showEmailButton && !isEditing) {
+            <button class="btn btn-ghost" (click)="exportToEmail()">
+              <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email
+              Table
+            </button>
+          }
+          @if (canEdit && !isEditing) {
+            <button class="btn btn-primary" (click)="startEditing()">
+              <ng-icon name="phosphorPencilSimpleBold" size="16" /> Edit
+            </button>
+          }
+          @if (isEditing) {
+            <button
+              class="btn btn-ghost"
+              (click)="cancelEditing()"
+              [disabled]="isSaving"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-primary"
+              (click)="saveChanges()"
+              [disabled]="isSaving"
+            >
+              {{ isSaving ? "Saving..." : "Save Changes" }}
+            </button>
+          }
         </div>
       }
     </div>
 
-    <!-- Save notes bar -->
-    @if (isEditing) {
-      <div class="save-notes-bar">
-        <label class="notes-label" for="saveNotes">Save note (optional):</label>
-        <input
-          id="saveNotes"
-          type="text"
-          class="notes-input"
-          [(ngModel)]="saveNotes"
-          placeholder="e.g., Updated Build track highlights"
-          maxlength="500"
-        />
+    <!-- Draft banner -->
+    @if (hasDraftAvailable && !isEditing && !isLoading) {
+      <div class="draft-banner">
+        <span class="draft-banner-text"
+          >You have unsaved edits from a previous session.</span
+        >
+        <button class="btn btn-primary btn-sm" (click)="startEditing()">
+          Resume Editing
+        </button>
+        <button class="btn btn-ghost btn-sm" (click)="discardDraft()">
+          Discard
+        </button>
       </div>
     }
-  }
 
-  <!-- Toast -->
-  @if (toastMessage) {
-    <div class="toast">{{ toastMessage }}</div>
+    <!-- Loading -->
+    @if (isLoading) {
+      <div class="exec-loading">
+        <div class="shimmer-table">
+          @for (i of [1, 2, 3, 4, 5, 6, 7]; track i) {
+            <div class="shimmer-row">
+              <div class="shimmer-cell shimmer-narrow"></div>
+              <div class="shimmer-cell"></div>
+              <div class="shimmer-cell"></div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Table -->
+    @if (!isLoading) {
+      <div class="exec-table-wrap">
+        <table class="exec-table">
+          <thead>
+            <tr>
+              <th class="col-track">SDLC Track</th>
+              <th class="col-highlights">Highlights</th>
+              <th class="col-watch">Watch Areas / Action Items</th>
+              @if (isEditing && isAdmin) {
+                <th class="col-actions"></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows; track row.dataId ?? $index; let i = $index) {
+              <tr
+                class="data-row"
+                [style.--track-accent]="getTrackColor(i).accent"
+                [style.--track-bg]="getTrackColor(i).bg"
+              >
+                <!-- SDLC Track -->
+                <td
+                  class="cell cell-track"
+                  [class.cell-editing]="canEditCell('sdlcTrack')"
+                >
+                  @if (!canEditCell("sdlcTrack")) {
+                    <div class="track-label">
+                      <span class="track-indicator"></span>
+                      {{ row.sdlcTrack }}
+                    </div>
+                  } @else {
+                    <input
+                      class="cell-input"
+                      [(ngModel)]="row.sdlcTrack"
+                      placeholder="Track name"
+                      (input)="onFieldInput()"
+                    />
+                  }
+                </td>
+
+                <!-- Highlights -->
+                <td
+                  class="cell cell-highlights"
+                  [class.cell-editing]="canEditCell('highlights')"
+                >
+                  @if (!canEditCell("highlights")) {
+                    @if (getBullets(row.highlights).length > 0) {
+                      <ul class="bullet-list">
+                        @for (
+                          bullet of getBullets(row.highlights);
+                          track bullet
+                        ) {
+                          <li>{{ bullet.replace(/^[•\-]\s*/, "") }}</li>
+                        }
+                      </ul>
+                    } @else {
+                      <span class="empty-dash">—</span>
+                    }
+                  } @else {
+                    <textarea
+                      class="cell-input cell-input-textarea"
+                      [(ngModel)]="row.highlights"
+                      placeholder="• Enter highlights (one bullet per line)"
+                      (input)="onCellInput($event)"
+                    ></textarea>
+                  }
+                </td>
+
+                <!-- Watch Areas -->
+                <td
+                  class="cell cell-watch"
+                  [class.cell-editing]="canEditCell('watchAreas')"
+                >
+                  @if (!canEditCell("watchAreas")) {
+                    @if (getBullets(row.watchAreas).length > 0) {
+                      <ul class="bullet-list">
+                        @for (
+                          bullet of getBullets(row.watchAreas);
+                          track bullet
+                        ) {
+                          <li>{{ bullet.replace(/^[•\-]\s*/, "") }}</li>
+                        }
+                      </ul>
+                    } @else {
+                      <span class="empty-dash">—</span>
+                    }
+                  } @else {
+                    <textarea
+                      class="cell-input cell-input-textarea"
+                      [(ngModel)]="row.watchAreas"
+                      placeholder="• Enter watch areas (one bullet per line)"
+                      (input)="onCellInput($event)"
+                    ></textarea>
+                  }
+                </td>
+
+                <!-- Remove (admin only) -->
+                @if (isEditing && isAdmin) {
+                  <td class="cell cell-actions">
+                    <button
+                      class="btn-remove"
+                      (click)="removeRow(i)"
+                      title="Remove row"
+                    >
+                      ×
+                    </button>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- Add row (admin) -->
+        @if (isEditing && isAdmin) {
+          <div class="add-row-bar">
+            <button class="btn btn-ghost" (click)="addRow()">
+              + Add SDLC Track
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Save notes bar -->
+      @if (isEditing) {
+        <div class="save-notes-bar">
+          <label class="notes-label" for="saveNotes"
+            >Save note (optional):</label
+          >
+          <input
+            id="saveNotes"
+            type="text"
+            class="notes-input"
+            [(ngModel)]="saveNotes"
+            placeholder="e.g., Updated Build track highlights"
+            maxlength="500"
+          />
+        </div>
+      }
+    }
+
+    <!-- Toast -->
+    @if (toastMessage) {
+      <div class="toast">{{ toastMessage }}</div>
+    }
   }
 </div>
