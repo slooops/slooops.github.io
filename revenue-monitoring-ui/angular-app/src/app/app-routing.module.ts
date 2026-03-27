@@ -23,6 +23,7 @@ import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
 import { ExecutiveSummaryComponent } from './executive-summary/executive-summary.component';
+import { SprintUpdatesPageComponent } from './sdlc-updates/sprint-updates-page.component';
 
 export const routes: Routes = [
   {
@@ -358,6 +359,14 @@ export const routes: Routes = [
   {
     path: 'ai-in-sdlc',
     component: ExecutiveSummaryComponent,
+    data: {
+      title: 'AI in SDLC Performance Dashboard',
+      header: 'AI in SDLC Performance Dashboard',
+    },
+  },
+  {
+    path: 'sprint-updates',
+    component: SprintUpdatesPageComponent,
     data: {
       title: 'AI in SDLC Performance Dashboard',
       header: 'AI in SDLC Performance Dashboard',

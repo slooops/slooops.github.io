@@ -4,7 +4,9 @@
       <div class="toolbar-inner">
         <div class="toolbar-left">
           @if (
-            !router.url.includes("/home") && !router.url.includes("/ai-in-sdlc")
+            !router.url.includes("/home") &&
+            !router.url.includes("/ai-in-sdlc") &&
+            !router.url.includes("/sprint-updates")
           ) {
             <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
               <img
@@ -438,10 +440,16 @@
             <span
               style="display: flex; align-items: center; padding: 0 15px"
               [routerLink]="
-                isAdmin$ && !router.url.includes('/ai-in-sdlc') ? '/home' : null
+                isAdmin$ &&
+                !router.url.includes('/ai-in-sdlc') &&
+                !router.url.includes('/sprint-updates')
+                  ? '/home'
+                  : null
               "
               [style.cursor]="
-                isAdmin$ && !router.url.includes('/ai-in-sdlc')
+                isAdmin$ &&
+                !router.url.includes('/ai-in-sdlc') &&
+                !router.url.includes('/sprint-updates')
                   ? 'pointer'
                   : 'default'
               "

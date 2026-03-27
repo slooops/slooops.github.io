@@ -5,68 +5,76 @@
       <h1 class="scorecard-title">AI in SDLC for Finance</h1>
       @if (version) {
         <div class="version-meta">
-          @if (isEditing) {
-            <input
-              class="sprint-edit-input"
-              [(ngModel)]="editableSprintName"
-              placeholder="e.g., S16"
-              (input)="onFieldInput()"
-            />
+          @if (router.url.includes("/sprint-updates")) {
+            <span class="meta-text"
+              >Last updated: {{ formatTimestamp(version.createdAt) }}</span
+            >
           } @else {
-            <span class="sprint-badge">{{ version.sprintName }}</span>
-          }
-          <span class="meta-sep">·</span>
-          <span class="meta-text"
-            >Last edited by <strong>{{ version.createdBy }}</strong> on
-            {{ formatTimestamp(version.createdAt) }}</span
-          >
-        </div>
-      }
-    </div>
-    <div class="header-actions">
-      @if (!isLoading) {
-        <div class="status-legend header-legend">
-          @for (opt of statusOptions; track opt.value) {
-            @if (opt.icon) {
-              <span class="legend-item">
-                <i class="icon-small" [ngClass]="opt.icon"></i>
-                <span>{{ opt.label }}</span>
-              </span>
+            @if (isEditing) {
+              <input
+                class="sprint-edit-input"
+                [(ngModel)]="editableSprintName"
+                placeholder="e.g., S16"
+                (input)="onFieldInput()"
+              />
+            } @else {
+              <span class="sprint-badge">{{ version.sprintName }}</span>
             }
+            <span class="meta-sep">·</span>
+            <span class="meta-text"
+              >Last edited by <strong>{{ version.createdBy }}</strong> on
+              {{ formatTimestamp(version.createdAt) }}</span
+            >
           }
         </div>
       }
-      <button class="btn btn-ghost" (click)="goToHistory()">
-        <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
-        History
-      </button>
-      @if (showEmailButton && !isEditing) {
-        <button class="btn btn-ghost" (click)="exportToEmail()">
-          <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email Table
-        </button>
-      }
-      @if (canEdit && !isEditing) {
-        <button class="btn btn-primary" (click)="startEditing()">
-          <ng-icon name="phosphorPencilSimpleBold" size="16" /> Edit
-        </button>
-      }
-      @if (isEditing) {
-        <button
-          class="btn btn-ghost"
-          (click)="cancelEditing()"
-          [disabled]="isSaving"
-        >
-          Cancel
-        </button>
-        <button
-          class="btn btn-primary"
-          (click)="saveChanges()"
-          [disabled]="isSaving"
-        >
-          {{ isSaving ? "Saving..." : "Save Changes" }}
-        </button>
-      }
     </div>
+    @if (!router.url.includes("/sprint-updates")) {
+      <div class="header-actions">
+        @if (!isLoading) {
+          <div class="status-legend header-legend">
+            @for (opt of statusOptions; track opt.value) {
+              @if (opt.icon) {
+                <span class="legend-item">
+                  <i class="icon-small" [ngClass]="opt.icon"></i>
+                  <span>{{ opt.label }}</span>
+                </span>
+              }
+            }
+          </div>
+        }
+        <button class="btn btn-ghost" (click)="goToHistory()">
+          <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
+          History
+        </button>
+        @if (showEmailButton && !isEditing) {
+          <button class="btn btn-ghost" (click)="exportToEmail()">
+            <ng-icon name="phosphorEnvelopeSimpleBold" size="16" /> Email Table
+          </button>
+        }
+        @if (canEdit && !isEditing) {
+          <button class="btn btn-primary" (click)="startEditing()">
+            <ng-icon name="phosphorPencilSimpleBold" size="16" /> Edit
+          </button>
+        }
+        @if (isEditing) {
+          <button
+            class="btn btn-ghost"
+            (click)="cancelEditing()"
+            [disabled]="isSaving"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary"
+            (click)="saveChanges()"
+            [disabled]="isSaving"
+          >
+            {{ isSaving ? "Saving..." : "Save Changes" }}
+          </button>
+        }
+      </div>
+    }
   </div>
 
   <!-- Draft banner -->
