@@ -187,13 +187,34 @@ hr {
 .fit-grouped-table-container {
   border: 1px solid var(--fit-color-border);
   border-radius: var(--fit-radius-lg);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .fit-grouped-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: auto;
+}
+
+/* Round the inner corners so backgrounds don't bleed past the container radius */
+.fit-grouped-table thead tr:first-child th:first-child {
+  border-top-left-radius: var(--fit-radius-lg);
+}
+
+.fit-grouped-table thead tr:first-child th:last-child {
+  border-top-right-radius: var(--fit-radius-lg);
+}
+
+.fit-grouped-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--fit-radius-lg);
+}
+
+.fit-grouped-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--fit-radius-lg);
+}
+
+.fit-grouped-table tbody tr:last-child {
+  border-bottom: none;
 }
 
 /* Header */

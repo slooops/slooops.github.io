@@ -392,7 +392,9 @@
                           >
                         </div>
                       }
-                      @if (isAdmin$) {
+                      @if (
+                        hasRole$(["ADMIN", "CASE_IQ_MONITORING"]) || isAdmin$
+                      ) {
                         <div
                           class="toolbar-nav-dropdown-item toolbar-nav-subitem"
                           [class.active]="
