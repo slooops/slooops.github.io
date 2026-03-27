@@ -140,6 +140,8 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   z-index: 1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .sprint-edit-input {
@@ -170,7 +172,10 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  /* flex-wrap: wrap; */
+  justify-content: flex-end;
+  height: stretch;
 }
 
 /* ==========================================================================

@@ -5,6 +5,8 @@
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 /* When legend sits inside the header-actions bar */
