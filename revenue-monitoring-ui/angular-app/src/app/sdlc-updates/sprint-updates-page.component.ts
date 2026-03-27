@@ -8,7 +8,7 @@ import { SdlcComponentAdoptionComponent } from './sdlc-component-adoption.compon
   imports: [SdlcExecUpdateComponent, SdlcComponentAdoptionComponent],
   template: `
     <app-sdlc-exec-update [showEmailButton]="false" />
-    <app-sdlc-component-adoption [showEmailButton]="false" />
+    <!-- <app-sdlc-component-adoption [showEmailButton]="false" /> -->
   `,
 })
 export class SprintUpdatesPageComponent {}

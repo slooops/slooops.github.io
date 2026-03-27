@@ -5,21 +5,17 @@
       <h1 class="scorecard-title">Component Adoption Report</h1>
       @if (version) {
         <div class="version-meta">
-          @if (router.url.includes("/sprint-updates")) {
-            <span class="meta-text"
-              >Last updated: {{ formatTimestamp(version.createdAt) }}</span
-            >
+          @if (isEditing) {
+            <input
+              class="sprint-edit-input"
+              [(ngModel)]="editableSprintName"
+              placeholder="e.g., S16"
+              (input)="onFieldInput()"
+            />
           } @else {
-            @if (isEditing) {
-              <input
-                class="sprint-edit-input"
-                [(ngModel)]="editableSprintName"
-                placeholder="e.g., S16"
-                (input)="onFieldInput()"
-              />
-            } @else {
-              <span class="sprint-badge">{{ version.sprintName }}</span>
-            }
+            <span class="sprint-badge">{{ version.sprintName }}</span>
+          }
+          @if (!router.url.includes("/sprint-updates")) {
             <span class="meta-sep">·</span>
             <span class="meta-text"
               >Last edited by <strong>{{ version.createdBy }}</strong> on
