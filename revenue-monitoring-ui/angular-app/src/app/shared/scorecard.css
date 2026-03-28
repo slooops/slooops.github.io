@@ -173,7 +173,6 @@
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 1;
-  /* flex-wrap: wrap; */
   justify-content: flex-end;
 }
 

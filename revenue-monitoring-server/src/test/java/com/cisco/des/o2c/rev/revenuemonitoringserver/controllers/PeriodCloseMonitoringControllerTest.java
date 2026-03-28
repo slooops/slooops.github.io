@@ -1,5 +1,6 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.controllers;
 
+import com.cisco.des.o2c.rev.revenuemonitoringserver.services.EspCaseManagerService;
 import com.cisco.des.o2c.rev.revenuemonitoringserver.services.PeriodCloseMonitoringService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,11 +23,13 @@ class PeriodCloseMonitoringControllerTest {
     MockMvc mvc;
     @MockBean
     PeriodCloseMonitoringService service;
+    @MockBean
+    EspCaseManagerService espCaseManagerService;
 
     @Test
     @DisplayName("GET /api/period-close-invoice-stats returns list")
     void periodCloseInvoiceStats() throws Exception {
-        when(service.getCloseInvStats()).thenReturn(List.of(Map.of("a",1)));
+        when(service.getCloseInvStats()).thenReturn(List.of(Map.of("a", 1)));
         mvc.perform(get("/api/period-close-invoice-stats"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
