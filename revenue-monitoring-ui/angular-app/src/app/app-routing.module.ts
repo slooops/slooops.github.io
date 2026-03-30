@@ -24,6 +24,7 @@ import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdl
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
 import { ExecutiveSummaryComponent } from './executive-summary/executive-summary.component';
 import { SprintUpdatesPageComponent } from './sdlc-updates/sprint-updates-page.component';
+import { SelfHealingComponent } from './self-healing/self-healing.component';
 
 export const routes: Routes = [
   {
@@ -370,6 +371,15 @@ export const routes: Routes = [
     data: {
       title: 'AI in SDLC Performance Dashboard',
       header: 'AI in SDLC Performance Dashboard',
+    },
+  },
+  {
+    path: 'self-healing',
+    component: SelfHealingComponent,
+    data: {
+      title: 'Finance-IT Control Tower',
+      header: 'Finance-IT Control Tower',
+      subHeader: 'Continuous Monitoring > I2C Self-Healing Bot',
     },
   },
 ];

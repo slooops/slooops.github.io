@@ -432,6 +432,22 @@
                       >
                     </div>
                   }
+
+                  @if (isAdmin$) {
+                    <div
+                      class="toolbar-nav-dropdown-item"
+                      [class.active]="router.url.includes('/self-healing')"
+                      (click)="navigateTo('/self-healing')"
+                    >
+                      <ng-icon
+                        name="phosphorClipboardTextBold"
+                        class="nav-item-icon"
+                      />
+                      <span class="toolbar-nav-dropdown-item-name"
+                        >&nbsp;I2C Self-Healing</span
+                      >
+                    </div>
+                  }
                 </div>
               }
             </div>
