@@ -5,7 +5,7 @@ import { SdlcComponentAdoptionComponent } from './sdlc-component-adoption.compon
 @Component({
   selector: 'app-sprint-updates-page',
   standalone: true,
-  imports: [SdlcExecUpdateComponent, SdlcComponentAdoptionComponent],
+  imports: [SdlcExecUpdateComponent],
   template: `
     <app-sdlc-exec-update [showEmailButton]="false" />
     <!-- <app-sdlc-component-adoption [showEmailButton]="false" /> -->

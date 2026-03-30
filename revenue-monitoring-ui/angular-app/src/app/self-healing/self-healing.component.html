@@ -1,0 +1,237 @@
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
+        <img
+          src="assets/icons/hamburger-menu.svg"
+          alt="menu"
+          class="grid-menu-icon"
+          (click)="toggleGridMenu($event)"
+        />
+        @if (showGridMenu) {
+          <div class="grid-menu-dropdown">
+            @for (item of menuItems; track item.label; let i = $index) {
+              <div
+                class="grid-menu-item"
+                [class.active]="selectedMenuIndex === i"
+                (click)="onGridMenuItemClick(i)"
+              >
+                <span class="grid-menu-item-icon">{{ item.icon }}</span>
+                <span class="grid-menu-item-name">{{ item.label }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <h2>{{ menuItems[selectedMenuIndex]?.label || "Command Center" }}</h2>
+    </div>
+
+    <div class="period-info">
+      <span><b>Period name:</b> {{ periodStatus.periodName }} &nbsp;</span>
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Period end date:</b>
+        {{ periodStatus.periodEndDate }} &nbsp;</span
+      >
+      <span class="divider"> | </span>
+      <span
+        >&nbsp;<b>Last Updated:</b> {{ periodStatus.lastUpdated }} &nbsp;</span
+      >
+    </div>
+  </div>
+</div>
+
+<hr class="sh__divider" />
+
+@switch (selectedMenuIndex) {
+  @case (0) {
+    <!-- Command Center -->
+    <div class="sh">
+      <!-- ═══════════════════════════════════════
+       Header
+       ═══════════════════════════════════════ -->
+      <header class="sh__header">
+        <div class="sh__header-left">
+          <div class="sh__subtitle-row">
+            <p class="sh__subtitle">I2C Self-Healing Bot v1.0.0-Active</p>
+            <span class="sh__health-tag sh__health-tag--success"
+              >Performance: Optimal</span
+            >
+          </div>
+        </div>
+        <div class="sh__header-actions">
+          <button class="sh__btn sh__btn--primary">Run System Check</button>
+          <button class="sh__btn sh__btn--secondary">View Log History</button>
+        </div>
+      </header>
+
+      <!-- ═══════════════════════════════════════
+       KPI + Donut + Logs row
+       ═══════════════════════════════════════ -->
+      <section class="sh__metrics">
+        <!-- KPI grid (health card is first) -->
+        <div class="sh__kpi-grid">
+          <!-- Health card -->
+          <div class="sh__health">
+            <div class="sh__health-badge">
+              <span class="sh__pulse"></span>
+              <span class="sh__badge-label">System Health</span>
+            </div>
+            <div class="sh__health-value-row">
+              <h1 class="sh__health-value">{{ systemHealth }}</h1>
+              <div class="sh__info-wrap">
+                <span class="sh__info-icon">ℹ</span>
+                <div class="sh__info-tooltip">{{ systemDescription }}</div>
+              </div>
+            </div>
+            <div class="sh__health-labels">
+              <!-- <span class="sh__health-tag sh__health-tag--success"
+            >Performance: Optimal</span
+          > -->
+              <span class="sh__health-tag">Nodes Active: 1,240</span>
+            </div>
+          </div>
+
+          @for (kpi of kpiCards; track kpi.label) {
+            <div class="sh__kpi">
+              <span class="sh__kpi-label">{{ kpi.label }}</span>
+              <div class="sh__kpi-row">
+                <span class="sh__kpi-value">{{ kpi.value }}</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Donut chart -->
+        <div class="sh__donut-card">
+          <h3 class="sh__section-label">Exceptions by Category</h3>
+          <div class="sh__donut-wrap">
+            <div class="sh__donut">
+              <svg class="sh__donut-svg" viewBox="0 0 36 36">
+                @for (slice of categorySlices; track slice.label) {
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="transparent"
+                    [attr.stroke]="slice.color"
+                    [attr.stroke-dasharray]="slice.percent + ', 100'"
+                    [attr.stroke-dashoffset]="slice.offset"
+                    stroke-width="3.5"
+                  />
+                }
+              </svg>
+              <div class="sh__donut-center">
+                <span class="sh__donut-total">{{ donutTotal }}</span>
+                <span class="sh__donut-label">TOTAL</span>
+              </div>
+            </div>
+            <div class="sh__donut-legend">
+              @for (slice of categorySlices; track slice.label) {
+                <div class="sh__legend-item">
+                  <span
+                    class="sh__legend-dot"
+                    [style.backgroundColor]="slice.color"
+                  ></span>
+                  <span class="sh__legend-text"
+                    >{{ slice.label }} ({{ slice.percent }}%)</span
+                  >
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Logs card -->
+        <div class="sh__logs">
+          <div class="sh__logs-header">
+            <span class="sh__section-label">Action Logs</span>
+            <span class="sh__live-badge">Live Updates</span>
+          </div>
+          <div class="sh__logs-list">
+            @for (log of actionLogs; track log.title) {
+              <div class="sh__log-item">
+                <div
+                  class="sh__log-bar"
+                  [class.sh__log-bar--amber]="log.color === 'amber'"
+                  [class.sh__log-bar--primary]="log.color === 'primary'"
+                  [class.sh__log-bar--primary-light]="
+                    log.color === 'primary-light'
+                  "
+                ></div>
+                <div class="sh__log-text">
+                  <p class="sh__log-title">{{ log.title }}</p>
+                  <p class="sh__log-sub">{{ log.subtitle }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════
+       Active Sessions
+       ═══════════════════════════════════════ -->
+      <section class="sh__sessions">
+        <div class="sh__sessions-header">
+          <h3 class="sh__section-label">Active Sessions</h3>
+          <button class="sh__link">View All Active Sessions</button>
+        </div>
+
+        <div class="sh__table-wrap">
+          <div class="sh__table">
+            <!-- Table header -->
+            <div class="sh__table-head">
+              <span>Session ID</span>
+              <span>Category</span>
+              <span>Issue Type</span>
+              <span>Status</span>
+              <span class="sh__table-end">Action</span>
+            </div>
+
+            <!-- Table rows -->
+            @for (s of sessions; track s.id) {
+              <div class="sh__table-row">
+                <span class="sh__session-id">{{ s.id }}</span>
+                <span class="sh__session-cat">{{ s.category }}</span>
+                <span class="sh__session-issue">{{ s.issueType }}</span>
+                <span>
+                  <span class="sh__status" [ngClass]="s.statusClass">{{
+                    s.status
+                  }}</span>
+                </span>
+                <span class="sh__table-end">
+                  <button class="sh__more-btn">⋮</button>
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    </div>
+  }
+  @case (1) {
+    <!-- Exceptions Queue / Detail -->
+    @if (selectedExceptionId) {
+      <app-exception-details
+        [exceptionId]="selectedExceptionId"
+        (back)="backToQueue()"
+      ></app-exception-details>
+    } @else {
+      <app-exceptions (viewException)="openException($event)"></app-exceptions>
+    }
+  }
+  @default {
+    <div class="sh">
+      <div style="padding: 4rem 2rem; text-align: center; color: #3d494e">
+        <p style="font-size: 1.25rem; font-weight: 600">
+          {{ menuItems[selectedMenuIndex]?.label }}
+        </p>
+        <p style="font-size: 0.875rem; margin-top: 0.5rem">Coming soon...</p>
+      </div>
+    </div>
+  }
+}
+
+<br />

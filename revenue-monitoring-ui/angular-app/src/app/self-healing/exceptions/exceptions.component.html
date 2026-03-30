@@ -1,0 +1,135 @@
+<div class="eq">
+  <!-- Page Header -->
+  <!-- <div class="eq__header">
+    <p class="eq__subtitle">Review and resolve system-detected discrepancies</p>
+  </div> -->
+
+  <!-- Filter Bar -->
+  <div class="eq__filters">
+    <div class="eq__search-wrap">
+      <app-text-input
+        [value]="searchQuery"
+        placeholder="Search by ID, error type..."
+        type="search"
+        iconName="search"
+        iconPosition="left"
+        [debounceMs]="300"
+        (valueChange)="onSearchChange($event)"
+      ></app-text-input>
+    </div>
+
+    <span class="eq__divider"></span>
+
+    <div class="eq__filter-selects">
+      <app-multi-select-dropdown
+        [options]="categoryOptions"
+        [selected]="selectedCategories"
+        placeholder="All Categories"
+        label="Category"
+        (selectionChange)="onCategoryChange($event)"
+      ></app-multi-select-dropdown>
+
+      <app-multi-select-dropdown
+        [options]="statusOptions"
+        [selected]="selectedStatuses"
+        placeholder="All Status"
+        label="Status"
+        [showSearch]="false"
+        (selectionChange)="onStatusChange($event)"
+      ></app-multi-select-dropdown>
+    </div>
+
+    <span class="eq__count">{{ totalExceptions }} exceptions</span>
+  </div>
+
+  <!-- Exception Cards -->
+  <div class="eq__list">
+    @for (exc of exceptions; track exc.id) {
+      <div class="eq__card">
+        <div class="eq__card-body">
+          <div class="eq__card-meta">
+            <span class="eq__card-id">{{ exc.id }}</span>
+            <span class="eq__card-time">• {{ exc.timeAgo }}</span>
+          </div>
+          <h3 class="eq__card-title">{{ exc.title }}</h3>
+          <div class="eq__card-tags">
+            @for (tag of exc.tags; track tag.label) {
+              <span
+                class="eq__tag"
+                [class.eq__tag--agentic]="tag.type === 'agentic'"
+                [class.eq__tag--autofix]="tag.type === 'auto-fix'"
+                >{{ tag.label }}</span
+              >
+            }
+          </div>
+        </div>
+        <div class="eq__card-actions">
+          <div class="eq__card-impact">
+            <span class="eq__impact-label">Impact Level</span>
+            <span class="eq__impact-value" [ngClass]="exc.impactClass">{{
+              exc.impactLevel
+            }}</span>
+          </div>
+          <button
+            class="eq__view-btn"
+            title="View details"
+            (click)="onViewException(exc.id)"
+          >
+            <svg
+              class="eq__view-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Pagination -->
+  <div class="eq__pagination">
+    <span class="eq__page-info"
+      >Showing {{ showingFrom }} to {{ showingTo }} of
+      {{ totalExceptions }} exceptions</span
+    >
+    <div class="eq__page-controls">
+      <button
+        class="eq__page-btn"
+        (click)="prevPage()"
+        [disabled]="currentPage === 1"
+      >
+        ‹
+      </button>
+      @for (p of visiblePages; track $index) {
+        @if (p === "...") {
+          <span class="eq__page-ellipsis">…</span>
+        } @else {
+          <button
+            class="eq__page-num"
+            [class.eq__page-num--active]="p === currentPage"
+            (click)="goToPage(p)"
+          >
+            {{ p }}
+          </button>
+        }
+      }
+      <button
+        class="eq__page-btn"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        ›
+      </button>
+    </div>
+  </div>
+</div>
