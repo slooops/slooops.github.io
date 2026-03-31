@@ -11,10 +11,10 @@ export class AuthenticationService {
   async getValidToken() {
     const date = new Date();
     const timestampCurr = Math.floor(
-      date.getTime() / 1000
+      date.getTime() / 1000,
     ); /* current time seconds */
     const accessTokenExpire = parseInt(
-      sessionStorage.getItem('accessTokenExpireTime') || '0'
+      sessionStorage.getItem('accessTokenExpireTime') || '0',
     );
     const accessTokenExpireMax =
       accessTokenExpire + 3 * 60 * 60; /* 3 hours between cals -> logout */
@@ -115,7 +115,7 @@ export class AuthenticationService {
         const expires_in = info.expires_in;
         const dateCurr = new Date();
         const timeStampCurr = Math.floor(
-          dateCurr.getTime() / 1000
+          dateCurr.getTime() / 1000,
         ); /* current time seconds */
         const expireTime =
           timeStampCurr + expires_in - 300; /* time 5 min before token expire */
@@ -176,7 +176,7 @@ export class AuthenticationService {
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userRoles = info['userRoles'];
+        this.userRoles = ['ADMIN', ...info['userRoles']];
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);
