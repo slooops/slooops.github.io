@@ -23,6 +23,10 @@ import { SdlcExecHistoryComponent } from './sdlc-updates/sdlc-exec-history/sdlc-
 import { SdlcAdoptHistoryComponent } from './sdlc-updates/sdlc-adopt-history/sdlc-adopt-history.component';
 import { CaseiqMonitoringDashboardComponent } from './esp/caseiq-monitoring-dashboard/caseiq-monitoring-dashboard.component';
 import { ExecutiveSummaryComponent } from './executive-summary/executive-summary.component';
+import { ScorecardArchiveComponent } from './scorecard/scorecard-archive/scorecard-archive.component';
+import { ExecutiveSummaryArchiveComponent } from './executive-summary/executive-summary-archive/executive-summary-archive.component';
+import { SdlcExecArchiveComponent } from './sdlc-updates/sdlc-exec-archive/sdlc-exec-archive.component';
+import { SdlcAdoptArchiveComponent } from './sdlc-updates/sdlc-adopt-archive/sdlc-adopt-archive.component';
 import { SprintUpdatesPageComponent } from './sdlc-updates/sprint-updates-page.component';
 import { SelfHealingComponent } from './self-healing/self-healing.component';
 
@@ -308,11 +312,27 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'scorecard/archive',
+    component: ScorecardArchiveComponent,
+    data: {
+      title: 'AI in SDLC Performance Dashboard',
+      header: 'Scorecard Archive',
+    },
+  },
+  {
     path: 'scorecard/history',
     component: ScorecardHistoryComponent,
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Scorecard History',
+    },
+  },
+  {
+    path: 'executive-summary/archive',
+    component: ExecutiveSummaryArchiveComponent,
+    data: {
+      title: 'AI in SDLC Performance Dashboard',
+      header: 'Executive Summary Archive',
     },
   },
   {
@@ -324,11 +344,27 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'sdlc-exec/archive',
+    component: SdlcExecArchiveComponent,
+    data: {
+      title: 'AI in SDLC Performance Dashboard',
+      header: 'SDLC Execution Update Archive',
+    },
+  },
+  {
     path: 'sdlc-exec/history',
     component: SdlcExecHistoryComponent,
     data: {
       title: 'AI in SDLC Performance Dashboard',
       header: 'SDLC Execution Update History',
+    },
+  },
+  {
+    path: 'sdlc-adopt/archive',
+    component: SdlcAdoptArchiveComponent,
+    data: {
+      title: 'AI in SDLC Performance Dashboard',
+      header: 'SDLC Component Adoption Archive',
     },
   },
   {

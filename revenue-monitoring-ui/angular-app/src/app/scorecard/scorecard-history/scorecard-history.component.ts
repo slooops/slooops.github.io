@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
   phosphorArrowLeftBold,
@@ -32,17 +32,23 @@ import {
     './scorecard-history.component.css',
   ],
 })
-export class ScorecardHistoryComponent implements OnInit {
+export class ScorecardHistoryComponent implements OnInit, OnDestroy {
   versions: ScorecardVersion[] = [];
   currentIndex = 0;
   totalCount = 0;
   page = 0;
-  pageSize = 20;
+  pageSize = 200;
+  sprintFilter: string | null = null;
 
   selectedVersion: ScorecardVersion | null = null;
   groups: WorkstreamGroup[] = [];
   isLoading = true;
   isLoadingData = false;
+  showEmptyState = false;
+  changedCells = new Set<string>();
+  private previousRows: ScorecardRow[] = [];
+  private emptyStateTimer: any;
+  private highlightTimer: any;
 
   workstreamColors: Record<string, { bg: string; accent: string }> = {
     '1. Improve Cycle time': { bg: '#e5f2ff', accent: '#0070d2' },
@@ -55,18 +61,62 @@ export class ScorecardHistoryComponent implements OnInit {
     private dataService: ScorecardDataService,
     private dm: DestroyManager,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
-    this.loadVersions();
+    this.emptyStateTimer = setTimeout(() => (this.showEmptyState = true), 1000);
+    this.sprintFilter = this.route.snapshot.queryParamMap.get('sprint');
+    const versionParam = this.route.snapshot.queryParamMap.get('version');
+    if (versionParam) {
+      this.loadSingleVersion(+versionParam);
+    } else {
+      this.loadVersions();
+    }
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.emptyStateTimer);
+    clearTimeout(this.highlightTimer);
+  }
+
+  private loadSingleVersion(versionId: number): void {
+    this.isLoading = false;
+    this.selectedVersion = {
+      versionId,
+      sprintName: '',
+      createdBy: '',
+      createdAt: '',
+      notes: '',
+    };
+    this.loadVersionData(versionId);
+    this.dataService.getVersions(this.dm, this.page, this.pageSize).subscribe({
+      next: (res) => {
+        let all = res.versions;
+        this.totalCount = res.totalCount;
+        if (this.sprintFilter) {
+          all = all.filter((v) => v.sprintName === this.sprintFilter);
+        }
+        this.versions = all;
+        const idx = this.versions.findIndex((v) => v.versionId === versionId);
+        if (idx >= 0) {
+          this.currentIndex = idx;
+          this.selectedVersion = this.versions[idx];
+        }
+      },
+    });
   }
 
   private loadVersions(): void {
     this.isLoading = true;
     this.dataService.getVersions(this.dm, this.page, this.pageSize).subscribe({
       next: (res) => {
-        this.versions = res.versions;
+        let all = res.versions;
         this.totalCount = res.totalCount;
+        if (this.sprintFilter) {
+          all = all.filter((v) => v.sprintName === this.sprintFilter);
+        }
+        this.versions = all;
         this.isLoading = false;
         if (this.versions.length > 0) {
           this.selectVersion(0);
@@ -89,7 +139,13 @@ export class ScorecardHistoryComponent implements OnInit {
     this.isLoadingData = true;
     this.dataService.getVersion(this.dm, versionId).subscribe({
       next: (data) => {
-        this.groups = this.dataService.groupByWorkstream(data.rows);
+        if (data.version?.versionId) {
+          this.selectedVersion = data.version;
+        }
+        const newRows = data.rows;
+        this.computeDiff(this.previousRows, newRows);
+        this.previousRows = newRows;
+        this.groups = this.dataService.groupByWorkstream(newRows);
         this.isLoadingData = false;
       },
       error: () => {
@@ -98,19 +154,40 @@ export class ScorecardHistoryComponent implements OnInit {
     });
   }
 
+  private computeDiff(oldRows: ScorecardRow[], newRows: ScorecardRow[]): void {
+    clearTimeout(this.highlightTimer);
+    this.changedCells.clear();
+    if (oldRows.length === 0) return;
+    const oldMap = new Map<number, ScorecardRow>();
+    for (const r of oldRows) oldMap.set(r.sortOrder, r);
+    const fields: (keyof ScorecardRow)[] = [
+      'successCriteria',
+      'baseline',
+      'owners',
+      'eocy26Target',
+      'howWeMeasure',
+      'metric',
+    ];
+    for (const nr of newRows) {
+      const or = oldMap.get(nr.sortOrder);
+      for (const f of fields) {
+        if (!or || nr[f] !== or[f]) {
+          this.changedCells.add(`${nr.sortOrder}:${f}`);
+        }
+      }
+    }
+    if (this.changedCells.size > 0) {
+      this.highlightTimer = setTimeout(() => this.changedCells.clear(), 4000);
+    }
+  }
+
+  isCellChanged(sortOrder: number, field: string): boolean {
+    return this.changedCells.has(`${sortOrder}:${field}`);
+  }
+
   prev(): void {
     if (this.currentIndex < this.versions.length - 1) {
       this.selectVersion(this.currentIndex + 1);
-    } else if (this.hasMorePages) {
-      this.page++;
-      this.dataService
-        .getVersions(this.dm, this.page, this.pageSize)
-        .subscribe({
-          next: (res) => {
-            this.versions = [...this.versions, ...res.versions];
-            this.selectVersion(this.currentIndex + 1);
-          },
-        });
     }
   }
 
@@ -121,19 +198,15 @@ export class ScorecardHistoryComponent implements OnInit {
   }
 
   get hasPrev(): boolean {
-    return this.currentIndex < this.versions.length - 1 || this.hasMorePages;
+    return this.currentIndex < this.versions.length - 1;
   }
 
   get hasNext(): boolean {
     return this.currentIndex > 0;
   }
 
-  get hasMorePages(): boolean {
-    return this.versions.length < this.totalCount;
-  }
-
   goBack(): void {
-    this.router.navigate(['/scorecard']);
+    this.router.navigate(['/scorecard/archive']);
   }
 
   getGroupColor(ws: string): { bg: string; accent: string } {

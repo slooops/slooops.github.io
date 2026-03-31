@@ -43,6 +43,12 @@ export class ScorecardDataService {
       .pipe(map((res: any) => this.mapCurrentResponse(res)));
   }
 
+  getArchive(dm: DestroyManager): Observable<ScorecardVersion[]> {
+    return this.http
+      .get('scorecard/archive', dm)
+      .pipe(map((res: any) => (res || []).map((v: any) => this.mapVersion(v))));
+  }
+
   getVersions(
     dm: DestroyManager,
     page: number,

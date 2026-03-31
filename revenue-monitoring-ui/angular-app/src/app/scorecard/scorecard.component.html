@@ -37,9 +37,8 @@
     </div>
     @if (!router.url.includes("/ai-in-sdlc")) {
       <div class="header-actions">
-        <button class="btn btn-ghost" (click)="goToHistory()">
-          <ng-icon name="phosphorClockCounterClockwiseBold" size="16" /> Version
-          History
+        <button class="btn btn-ghost" (click)="goToArchive()">
+          <ng-icon name="phosphorArchiveBold" size="16" /> Archive
         </button>
         @if (showEmailButton && !isEditing) {
           <button class="btn btn-ghost" (click)="exportToEmail()">

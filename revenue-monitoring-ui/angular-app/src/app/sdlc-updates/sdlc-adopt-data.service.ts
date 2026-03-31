@@ -51,6 +51,12 @@ export class SdlcAdoptDataService {
       .pipe(map((res: any) => this.mapCurrentResponse(res)));
   }
 
+  getArchive(dm: DestroyManager): Observable<SdlcAdoptVersion[]> {
+    return this.http
+      .get('sdlc/adopt/archive', dm)
+      .pipe(map((res: any) => (res || []).map((v: any) => this.mapVersion(v))));
+  }
+
   getVersions(
     dm: DestroyManager,
     page: number,
@@ -146,14 +152,38 @@ export class SdlcAdoptDataService {
       dataId: r.dataId ?? r.DATA_ID,
       workstream: r.workstream ?? r.WORKSTREAM ?? '',
       component: r.component ?? r.COMPONENT ?? '',
-      pm: { status: r.pmStatus ?? r.PM_STATUS ?? 'NA', pct: r.pmPct ?? r.PM_PCT ?? '' },
-      om: { status: r.omStatus ?? r.OM_STATUS ?? 'NA', pct: r.omPct ?? r.OM_PCT ?? '' },
-      sm: { status: r.smStatus ?? r.SM_STATUS ?? 'NA', pct: r.smPct ?? r.SM_PCT ?? '' },
-      i2c: { status: r.i2cStatus ?? r.I2C_STATUS ?? 'NA', pct: r.i2cPct ?? r.I2C_PCT ?? '' },
-      p2p: { status: r.p2pStatus ?? r.P2P_STATUS ?? 'NA', pct: r.p2pPct ?? r.P2P_PCT ?? '' },
-      fpp: { status: r.fppStatus ?? r.FPP_STATUS ?? 'NA', pct: r.fppPct ?? r.FPP_PCT ?? '' },
-      ait: { status: r.aitStatus ?? r.AIT_STATUS ?? 'NA', pct: r.aitPct ?? r.AIT_PCT ?? '' },
-      capital: { status: r.capitalStatus ?? r.CAPITAL_STATUS ?? 'NA', pct: r.capitalPct ?? r.CAPITAL_PCT ?? '' },
+      pm: {
+        status: r.pmStatus ?? r.PM_STATUS ?? 'NA',
+        pct: r.pmPct ?? r.PM_PCT ?? '',
+      },
+      om: {
+        status: r.omStatus ?? r.OM_STATUS ?? 'NA',
+        pct: r.omPct ?? r.OM_PCT ?? '',
+      },
+      sm: {
+        status: r.smStatus ?? r.SM_STATUS ?? 'NA',
+        pct: r.smPct ?? r.SM_PCT ?? '',
+      },
+      i2c: {
+        status: r.i2cStatus ?? r.I2C_STATUS ?? 'NA',
+        pct: r.i2cPct ?? r.I2C_PCT ?? '',
+      },
+      p2p: {
+        status: r.p2pStatus ?? r.P2P_STATUS ?? 'NA',
+        pct: r.p2pPct ?? r.P2P_PCT ?? '',
+      },
+      fpp: {
+        status: r.fppStatus ?? r.FPP_STATUS ?? 'NA',
+        pct: r.fppPct ?? r.FPP_PCT ?? '',
+      },
+      ait: {
+        status: r.aitStatus ?? r.AIT_STATUS ?? 'NA',
+        pct: r.aitPct ?? r.AIT_PCT ?? '',
+      },
+      capital: {
+        status: r.capitalStatus ?? r.CAPITAL_STATUS ?? 'NA',
+        pct: r.capitalPct ?? r.CAPITAL_PCT ?? '',
+      },
       sortOrder: r.sortOrder ?? r.SORT_ORDER ?? 0,
     };
   }

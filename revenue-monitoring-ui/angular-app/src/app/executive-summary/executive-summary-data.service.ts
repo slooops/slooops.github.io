@@ -34,6 +34,12 @@ export class ExecSummaryDataService {
       .pipe(map((res: any) => this.mapCurrentResponse(res)));
   }
 
+  getArchive(dm: DestroyManager): Observable<ExecSummaryVersion[]> {
+    return this.http
+      .get('exec-summary/archive', dm)
+      .pipe(map((res: any) => (res || []).map((v: any) => this.mapVersion(v))));
+  }
+
   getVersions(
     dm: DestroyManager,
     page: number,

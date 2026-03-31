@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  phosphorClockCounterClockwiseBold,
+  phosphorArchiveBold,
   phosphorEnvelopeSimpleBold,
   phosphorPencilSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
@@ -38,7 +38,7 @@ export const STATUS_OPTIONS = [
   providers: [
     DestroyManager,
     provideIcons({
-      phosphorClockCounterClockwiseBold,
+      phosphorArchiveBold,
       phosphorEnvelopeSimpleBold,
       phosphorPencilSimpleBold,
     }),
@@ -77,6 +77,7 @@ export class SdlcExecUpdateComponent
       adminRoles: ['ADMIN', 'SCORECARD_ADMIN'],
       draftKey: 'sdlc_exec_draft',
       historyRoute: '/sdlc-exec/history',
+      archiveRoute: '/sdlc-exec/archive',
       emailSubjectPrefix: 'SDLC Execution Update',
     });
   }

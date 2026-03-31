@@ -7,11 +7,12 @@
   gap: 16px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  padding-bottom: 1rem;
 }
 
 /* When legend sits inside the header-actions bar */
 .header-legend {
-  padding-right: 8px;
+  padding: 0 8px 0 0;
   border-right: 1px solid var(--sc-border, #e1e4e8);
   margin-right: 4px;
 }

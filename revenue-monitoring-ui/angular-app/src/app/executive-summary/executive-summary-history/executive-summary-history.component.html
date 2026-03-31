@@ -3,7 +3,7 @@
   <div class="history-header">
     <div class="header-left">
       <button class="btn btn-ghost" (click)="goBack()">
-        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Current
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Archive
       </button>
       <h1 class="history-title">Executive Summary — Version History</h1>
     </div>
@@ -17,12 +17,11 @@
   }
 
   <!-- Empty -->
-  @if (!isLoading && versions.length === 0) {
+  @if (showEmptyState && !isLoading && versions.length === 0) {
     <div class="history-empty">
       <p>No version history available yet.</p>
       <button class="btn btn-ghost" (click)="goBack()">
-        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return to Executive
-        Summary
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return to Archive
       </button>
     </div>
   }
@@ -72,13 +71,21 @@
               [style.--track-accent]="getTrackColor(i).accent"
               [style.--track-bg]="getTrackColor(i).bg"
             >
-              <td class="cell cell-track">
+              <td
+                class="cell cell-track"
+                [class.cell-changed]="isCellChanged(row.sortOrder, 'sdlcTrack')"
+              >
                 <div class="track-label">
                   <span class="track-indicator"></span>
                   {{ row.sdlcTrack }}
                 </div>
               </td>
-              <td class="cell">
+              <td
+                class="cell"
+                [class.cell-changed]="
+                  isCellChanged(row.sortOrder, 'highlights')
+                "
+              >
                 @if (getBullets(row.highlights).length > 0) {
                   <ul class="bullet-list">
                     @for (bullet of getBullets(row.highlights); track bullet) {
@@ -89,7 +96,12 @@
                   <span class="empty-dash">—</span>
                 }
               </td>
-              <td class="cell">
+              <td
+                class="cell"
+                [class.cell-changed]="
+                  isCellChanged(row.sortOrder, 'watchAreas')
+                "
+              >
                 @if (getBullets(row.watchAreas).length > 0) {
                   <ul class="bullet-list">
                     @for (bullet of getBullets(row.watchAreas); track bullet) {

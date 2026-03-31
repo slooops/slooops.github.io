@@ -22,6 +22,13 @@ public class ExecSummaryService {
     private final String esInsertDataRow;
     private final String esGetVersionById;
 
+    // ─── Inline SQL Query Constants ────────────────────────────────────────────
+
+    private static final String GET_ARCHIVE = "SELECT * FROM ( " +
+            "SELECT v.*, ROW_NUMBER() OVER (PARTITION BY SPRINT_NAME ORDER BY CREATED_AT DESC) rn " +
+            "FROM ARFINRO.EXEC_SUMMARY_VERSION v " +
+            ") WHERE rn = 1 ORDER BY CREATED_AT DESC";
+
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
 
     public ExecSummaryService(
@@ -43,6 +50,10 @@ public class ExecSummaryService {
         this.esGetLastVersionId = esGetLastVersionId;
         this.esInsertDataRow = esInsertDataRow;
         this.esGetVersionById = esGetVersionById;
+    }
+
+    public List<Map<String, Object>> getArchive() {
+        return jdbcManager.queryForList(GET_ARCHIVE);
     }
 
     public List<Map<String, Object>> getCurrentVersion() {

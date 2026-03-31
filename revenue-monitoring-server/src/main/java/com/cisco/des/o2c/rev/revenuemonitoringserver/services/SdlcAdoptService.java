@@ -22,6 +22,13 @@ public class SdlcAdoptService {
     private final String saInsertDataRow;
     private final String saGetVersionById;
 
+    // ─── Inline SQL Query Constants ────────────────────────────────────────────
+
+    private static final String GET_ARCHIVE = "SELECT * FROM ( " +
+            "SELECT v.*, ROW_NUMBER() OVER (PARTITION BY SPRINT_NAME ORDER BY CREATED_AT DESC) rn " +
+            "FROM ARFINRO.SDLC_ADOPT_VERSION v " +
+            ") WHERE rn = 1 ORDER BY CREATED_AT DESC";
+
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
 
     public SdlcAdoptService(
@@ -43,6 +50,10 @@ public class SdlcAdoptService {
         this.saGetLastVersionId = saGetLastVersionId;
         this.saInsertDataRow = saInsertDataRow;
         this.saGetVersionById = saGetVersionById;
+    }
+
+    public List<Map<String, Object>> getArchive() {
+        return jdbcManager.queryForList(GET_ARCHIVE);
     }
 
     public List<Map<String, Object>> getCurrentVersion() {
@@ -133,7 +144,8 @@ public class SdlcAdoptService {
     }
 
     private String sanitize(String input, int maxLength) {
-        if (input == null) return null;
+        if (input == null)
+            return null;
         String trimmed = input.trim();
         return trimmed.length() > maxLength ? trimmed.substring(0, maxLength) : trimmed;
     }

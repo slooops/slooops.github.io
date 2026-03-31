@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorEnvelopeSimpleBold } from '@ng-icons/phosphor-icons/bold';
 import { ScorecardComponent } from '../scorecard/scorecard.component';
@@ -31,7 +32,15 @@ export class PerformanceHubComponent implements OnInit {
   @ViewChild(SdlcComponentAdoptionComponent)
   sdlcAdopt?: SdlcComponentAdoptionComponent;
 
+  constructor(private route: ActivatedRoute) {}
+
   ngOnInit(): void {
+    const tabParam = this.route.snapshot.queryParamMap.get('tab');
+    if (tabParam != null) {
+      const t = +tabParam;
+      if (t >= 0 && t <= 2) this.activeTab = t;
+    }
+
     const bannerFiles: Record<number, string> = {
       0: 'assets/ai-sdlc-email-banner.png',
       1: 'assets/ai-sdlc-email-banner.png',

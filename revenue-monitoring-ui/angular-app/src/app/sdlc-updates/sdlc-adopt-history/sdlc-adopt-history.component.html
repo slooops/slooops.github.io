@@ -3,7 +3,7 @@
   <div class="history-header">
     <div class="header-left">
       <button class="btn btn-ghost" (click)="goBack()">
-        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Current
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Archive
       </button>
       <h1 class="history-title">SDLC Component Adoption — Version History</h1>
     </div>
@@ -17,11 +17,11 @@
   }
 
   <!-- Empty state -->
-  @if (!isLoading && versions.length === 0) {
+  @if (showEmptyState && !isLoading && versions.length === 0) {
     <div class="history-empty">
       <p>No version history available yet.</p>
       <button class="btn btn-ghost" (click)="goBack()">
-        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return to Archive
       </button>
     </div>
   }
@@ -98,9 +98,19 @@
             </tr>
             @for (row of group.rows; track row.sortOrder) {
               <tr class="data-row">
-                <td class="cell">{{ row.component }}</td>
+                <td
+                  class="cell"
+                  [class.cell-changed]="
+                    isCellChanged(row.sortOrder, 'component')
+                  "
+                >
+                  {{ row.component }}
+                </td>
                 @for (col of entityColumns; track col.key) {
-                  <td class="cell cell-entity">
+                  <td
+                    class="cell cell-entity"
+                    [class.cell-changed]="isCellChanged(row.sortOrder, col.key)"
+                  >
                     <div class="entity-display">
                       @if (getStatusIcon(getEntityCell(row, col.key).status)) {
                         <i

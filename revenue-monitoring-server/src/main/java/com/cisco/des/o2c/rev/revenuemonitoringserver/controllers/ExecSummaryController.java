@@ -19,6 +19,11 @@ public class ExecSummaryController {
     @Autowired
     ExecSummaryService service;
 
+    @GetMapping("/archive")
+    public ResponseEntity<List<Map<String, Object>>> getArchive() {
+        return new ResponseEntity<>(service.getArchive(), HttpStatus.OK);
+    }
+
     @GetMapping("/current")
     public ResponseEntity<Map<String, Object>> getCurrent() {
         Map<String, Object> response = new HashMap<>();

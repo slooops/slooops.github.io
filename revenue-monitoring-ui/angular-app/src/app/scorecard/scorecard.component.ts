@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  phosphorClockCounterClockwiseBold,
+  phosphorArchiveBold,
   phosphorEnvelopeSimpleBold,
   phosphorPencilSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
@@ -28,7 +28,7 @@ import {
   providers: [
     DestroyManager,
     provideIcons({
-      phosphorClockCounterClockwiseBold,
+      phosphorArchiveBold,
       phosphorEnvelopeSimpleBold,
       phosphorPencilSimpleBold,
     }),
@@ -62,6 +62,7 @@ export class ScorecardComponent
       adminRoles: ['ADMIN', 'SCORECARD_ADMIN'],
       draftKey: 'scorecard_draft',
       historyRoute: '/scorecard/history',
+      archiveRoute: '/scorecard/archive',
       emailSubjectPrefix: 'Monthly Performance Scorecard',
     });
   }

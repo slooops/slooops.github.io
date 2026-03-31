@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  phosphorClockCounterClockwiseBold,
+  phosphorArchiveBold,
   phosphorEnvelopeSimpleBold,
   phosphorPencilSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
@@ -48,7 +48,7 @@ export const ENTITY_COLUMNS: {
   providers: [
     DestroyManager,
     provideIcons({
-      phosphorClockCounterClockwiseBold,
+      phosphorArchiveBold,
       phosphorEnvelopeSimpleBold,
       phosphorPencilSimpleBold,
     }),
@@ -88,6 +88,7 @@ export class SdlcComponentAdoptionComponent
       adminRoles: ['ADMIN', 'SCORECARD_ADMIN'],
       draftKey: 'sdlc_adopt_draft',
       historyRoute: '/sdlc-adopt/history',
+      archiveRoute: '/sdlc-adopt/archive',
       emailSubjectPrefix: 'SDLC Component Adoption',
     });
   }

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-  phosphorClockCounterClockwiseBold,
+  phosphorArchiveBold,
   phosphorEnvelopeSimpleBold,
   phosphorPencilSimpleBold,
 } from '@ng-icons/phosphor-icons/bold';
@@ -28,7 +28,7 @@ import { ScorecardComponent } from '../scorecard/scorecard.component';
   providers: [
     DestroyManager,
     provideIcons({
-      phosphorClockCounterClockwiseBold,
+      phosphorArchiveBold,
       phosphorEnvelopeSimpleBold,
       phosphorPencilSimpleBold,
     }),
@@ -65,6 +65,7 @@ export class ExecutiveSummaryComponent
       adminRoles: ['ADMIN', 'SCORECARD_ADMIN'],
       draftKey: 'exec_summary_draft',
       historyRoute: '/executive-summary/history',
+      archiveRoute: '/executive-summary/archive',
       emailSubjectPrefix: 'SDLC Executive Summary',
     });
   }

@@ -41,6 +41,12 @@ export class SdlcExecDataService {
       .pipe(map((res: any) => this.mapCurrentResponse(res)));
   }
 
+  getArchive(dm: DestroyManager): Observable<SdlcExecVersion[]> {
+    return this.http
+      .get('sdlc/exec/archive', dm)
+      .pipe(map((res: any) => (res || []).map((v: any) => this.mapVersion(v))));
+  }
+
   getVersions(
     dm: DestroyManager,
     page: number,

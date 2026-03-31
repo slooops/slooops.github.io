@@ -29,6 +29,8 @@ export interface EditableTableConfig {
   draftKey: string;
   /** Router path for the version-history page */
   historyRoute: string;
+  /** Router path for the archive page */
+  archiveRoute: string;
   /** Prefix used in email subject line */
   emailSubjectPrefix: string;
 }
@@ -160,7 +162,8 @@ export abstract class EditableTableBase<TRow> implements OnInit, OnDestroy {
     if (!this.canEdit || this.isSaving) return;
     this.isSaving = true;
     const rows = this.getAllRows();
-    const sprintName = this.editableSprintName || this.version?.sprintName || 'Sprint 1';
+    const sprintName =
+      this.editableSprintName || this.version?.sprintName || 'Sprint 1';
     this.saveRemoteData({
       username: this.userId,
       sprintName,
@@ -197,6 +200,10 @@ export abstract class EditableTableBase<TRow> implements OnInit, OnDestroy {
 
   goToHistory(): void {
     this.router.navigate([this.config.historyRoute]);
+  }
+
+  goToArchive(): void {
+    this.router.navigate([this.config.archiveRoute]);
   }
 
   /* ——— Email export ————————————————————————————————————————————————— */

@@ -26,6 +26,11 @@ public class SdlcController {
 
     /* ── SDLC Execution Update ─────────────────────────────── */
 
+    @GetMapping("/exec/archive")
+    public ResponseEntity<List<Map<String, Object>>> getExecArchive() {
+        return new ResponseEntity<>(execService.getArchive(), HttpStatus.OK);
+    }
+
     @GetMapping("/exec/current")
     public ResponseEntity<Map<String, Object>> getExecCurrent() {
         Map<String, Object> response = new HashMap<>();
@@ -87,6 +92,11 @@ public class SdlcController {
     }
 
     /* ── SDLC Component Adoption ───────────────────────────── */
+
+    @GetMapping("/adopt/archive")
+    public ResponseEntity<List<Map<String, Object>>> getAdoptArchive() {
+        return new ResponseEntity<>(adoptService.getArchive(), HttpStatus.OK);
+    }
 
     @GetMapping("/adopt/current")
     public ResponseEntity<Map<String, Object>> getAdoptCurrent() {

@@ -22,6 +22,13 @@ public class ScorecardService {
     private final String scInsertDataRow;
     private final String scGetVersionById;
 
+    // ─── Inline SQL Query Constants ────────────────────────────────────────────
+
+    private static final String GET_ARCHIVE = "SELECT * FROM ( " +
+            "SELECT v.*, ROW_NUMBER() OVER (PARTITION BY SPRINT_NAME ORDER BY CREATED_AT DESC) rn " +
+            "FROM ARFINRO.SCORECARD_VERSION v " +
+            ") WHERE rn = 1 ORDER BY CREATED_AT DESC";
+
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_-]+$");
 
     public ScorecardService(
@@ -43,6 +50,10 @@ public class ScorecardService {
         this.scGetLastVersionId = scGetLastVersionId;
         this.scInsertDataRow = scInsertDataRow;
         this.scGetVersionById = scGetVersionById;
+    }
+
+    public List<Map<String, Object>> getArchive() {
+        return jdbcManager.queryForList(GET_ARCHIVE);
     }
 
     public List<Map<String, Object>> getCurrentVersion() {

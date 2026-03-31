@@ -3,7 +3,7 @@
   <div class="history-header">
     <div class="header-left">
       <button class="btn btn-ghost" (click)="goBack()">
-        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Current
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Back to Archive
       </button>
       <h1 class="history-title">Scorecard — Version History</h1>
     </div>
@@ -17,11 +17,11 @@
   }
 
   <!-- Empty state -->
-  @if (!isLoading && versions.length === 0) {
+  @if (showEmptyState && !isLoading && versions.length === 0) {
     <div class="history-empty">
       <p>No version history available yet.</p>
       <button class="btn btn-ghost" (click)="goBack()">
-        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return to Scorecard
+        <ng-icon name="phosphorArrowLeftBold" size="14" /> Return to Archive
       </button>
     </div>
   }
@@ -87,16 +87,50 @@
                     </div>
                   </td>
                 }
-                <td class="cell">
+                <td
+                  class="cell"
+                  [class.cell-changed]="
+                    isCellChanged(row.sortOrder, 'successCriteria')
+                  "
+                >
                   <span class="cell-bullet">•</span> {{ row.successCriteria }}
                 </td>
-                <td class="cell">{{ row.baseline }}</td>
-                <td class="cell cell-owner">{{ row.owners }}</td>
-                <td class="cell cell-target">
+                <td
+                  class="cell"
+                  [class.cell-changed]="
+                    isCellChanged(row.sortOrder, 'baseline')
+                  "
+                >
+                  {{ row.baseline }}
+                </td>
+                <td
+                  class="cell cell-owner"
+                  [class.cell-changed]="isCellChanged(row.sortOrder, 'owners')"
+                >
+                  {{ row.owners }}
+                </td>
+                <td
+                  class="cell cell-target"
+                  [class.cell-changed]="
+                    isCellChanged(row.sortOrder, 'eocy26Target')
+                  "
+                >
                   <strong>{{ row.eocy26Target }}</strong>
                 </td>
-                <td class="cell">{{ row.howWeMeasure }}</td>
-                <td class="cell cell-metric">{{ row.metric || "—" }}</td>
+                <td
+                  class="cell"
+                  [class.cell-changed]="
+                    isCellChanged(row.sortOrder, 'howWeMeasure')
+                  "
+                >
+                  {{ row.howWeMeasure }}
+                </td>
+                <td
+                  class="cell cell-metric"
+                  [class.cell-changed]="isCellChanged(row.sortOrder, 'metric')"
+                >
+                  {{ row.metric || "—" }}
+                </td>
               </tr>
             }
           </tbody>
