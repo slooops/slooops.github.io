@@ -16,6 +16,13 @@
 	<properties>
 		<java.version>11</java.version>
 		<tomcat.version>9.0.99</tomcat.version>
+		<!-- SonarQube: exclude boilerplate packages from coverage analysis -->
+		<sonar.coverage.exclusions>
+			**/models/**,
+			**/configs/**,
+			**/queue/**,
+			**/RevenueMonitoringServerApplication.java
+		</sonar.coverage.exclusions>
 	</properties>
 	<repositories>
 		<repository>
