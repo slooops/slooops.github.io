@@ -6,11 +6,18 @@ import {
   phosphorArrowClockwiseBold,
   phosphorSunBold,
   phosphorMoonBold,
-  phosphorHeartbeatBold,
-  phosphorWarningCircleBold,
-  phosphorChartBarHorizontalBold,
-  phosphorTableBold,
 } from '@ng-icons/phosphor-icons/bold';
+import {
+  phosphorHeartbeatDuotone,
+  phosphorWarningCircleDuotone,
+  phosphorChartBarHorizontalDuotone,
+  phosphorUsersFourDuotone,
+  phosphorTableDuotone,
+  phosphorClockCountdownDuotone,
+  phosphorListBulletsDuotone,
+  phosphorSirenDuotone,
+  phosphorGaugeDuotone,
+} from '@ng-icons/phosphor-icons/duotone';
 import { forkJoin, interval, Subscription } from 'rxjs';
 
 import { DestroyManager } from '../../providers/destroy-manager.service';
@@ -36,10 +43,15 @@ import {
       phosphorArrowClockwiseBold,
       phosphorSunBold,
       phosphorMoonBold,
-      phosphorHeartbeatBold,
-      phosphorWarningCircleBold,
-      phosphorChartBarHorizontalBold,
-      phosphorTableBold,
+      phosphorHeartbeatDuotone,
+      phosphorWarningCircleDuotone,
+      phosphorChartBarHorizontalDuotone,
+      phosphorUsersFourDuotone,
+      phosphorTableDuotone,
+      phosphorClockCountdownDuotone,
+      phosphorListBulletsDuotone,
+      phosphorSirenDuotone,
+      phosphorGaugeDuotone,
     }),
   ],
   templateUrl: './caseiq-monitoring-dashboard.component.html',
@@ -117,15 +129,29 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   errorTableData: ErrorCategory[] = [];
   anomalyTableData: AnomalyItem[] = [];
 
-  // Status color map
+  // Status color map — aligned with analytics palette
   statusColors: Record<string, string> = {
-    SUCCESS: '#00c853',
-    'PARTIAL SUCCESS': '#ffd600',
-    ERROR: '#ff1744',
-    FAILURE: '#ff1744',
-    Unknown: '#ff9100',
-    NOT_SUPPORTED: '#aa00ff',
+    SUCCESS: '#6ebe4a',
+    'PARTIAL SUCCESS': '#e6a800',
+    ERROR: '#e53935',
+    FAILURE: '#cd3d64',
+    Unknown: '#c45200',
+    NOT_SUPPORTED: '#9933ff',
   };
+
+  // Dynamic icon class based on health status
+  get healthIconClass(): string {
+    switch (this.healthStatus) {
+      case 'HEALTHY':
+        return 'ciq-card-icon--green';
+      case 'WARNING':
+        return 'ciq-card-icon--orange';
+      case 'CRITICAL':
+        return 'ciq-card-icon--red';
+      default:
+        return 'ciq-card-icon--blue';
+    }
+  }
 
   private refreshSub?: Subscription;
 
@@ -298,7 +324,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.teamBars = (data || []).map((d) => {
       const label = d.TEAM_NAME || 'N/A';
       const rate = d.SUCCESS_RATE_PCT || 0;
-      const color = rate >= 80 ? '#00c853' : rate >= 50 ? '#ffd600' : '#ff1744';
+      const color = rate >= 80 ? '#6ebe4a' : rate >= 50 ? '#e6a800' : '#e53935';
       const success = d.SUCCESS || 0;
       const total = d.TOTAL_RECORDS || 0;
       return {
@@ -323,7 +349,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         : 'N/A';
       const value = d.CASES_PROCESSED || 0;
       const pct = (value / maxVal) * 100;
-      const color = (d.ERROR_COUNT || 0) > 0 ? '#ff9100' : '#00e5ff';
+      const color = (d.ERROR_COUNT || 0) > 0 ? '#c45200' : '#00bceb';
       return { label, value, pct, color, displayText: String(value) };
     });
   }

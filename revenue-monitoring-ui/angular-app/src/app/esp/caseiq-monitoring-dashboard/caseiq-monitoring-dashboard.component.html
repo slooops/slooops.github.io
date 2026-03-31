@@ -36,7 +36,7 @@
           size="16"
         />
       </button>
-      <button class="ciq-btn" (click)="refreshAll()">
+      <button class="ciq-btn ciq-btn-icon" (click)="refreshAll()">
         <ng-icon name="phosphorArrowClockwiseBold" size="14" />
         Refresh
       </button>
@@ -56,10 +56,12 @@
     <!-- ── Row 1: Health Ring + KPIs + Anomaly Breakdown ── -->
     <div class="ciq-grid ciq-grid-top">
       <div class="ciq-card ciq-card-health">
-        <h3 class="ciq-card-title">
-          <ng-icon name="phosphorHeartbeatBold" size="18" />
-          System Health
-        </h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon" [ngClass]="healthIconClass">
+            <ng-icon name="phosphorHeartbeatDuotone" size="20" />
+          </div>
+          <span>System Health</span>
+        </div>
         <app-health-ring
           [score]="healthScore"
           [status]="healthStatus"
@@ -68,7 +70,12 @@
       </div>
 
       <div class="ciq-card">
-        <h3 class="ciq-card-title">Key Metrics</h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--blue">
+            <ng-icon name="phosphorGaugeDuotone" size="20" />
+          </div>
+          <span>Key Metrics</span>
+        </div>
         <div class="ciq-kpi-grid">
           <div class="ciq-kpi ciq-kpi-blue">
             <div class="ciq-kpi-value">{{ kpiTotal }}</div>
@@ -106,10 +113,12 @@
       </div>
 
       <div class="ciq-card">
-        <h3 class="ciq-card-title">
-          <ng-icon name="phosphorWarningCircleBold" size="18" />
-          Anomaly Breakdown
-        </h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--orange">
+            <ng-icon name="phosphorWarningCircleDuotone" size="20" />
+          </div>
+          <span>Anomaly Breakdown</span>
+        </div>
         <div class="ciq-anomaly-list">
           @for (a of anomalyBreakdown; track a.name) {
             <div class="ciq-anomaly-item">
@@ -131,10 +140,12 @@
     <!-- ── Row 2: Resolution Status + Team Success ── -->
     <div class="ciq-grid ciq-grid-mid">
       <div class="ciq-card">
-        <h3 class="ciq-card-title">
-          <ng-icon name="phosphorChartBarHorizontalBold" size="18" />
-          Resolution Status Distribution
-        </h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--purple">
+            <ng-icon name="phosphorChartBarHorizontalDuotone" size="20" />
+          </div>
+          <span>Resolution Status Distribution</span>
+        </div>
         <div class="ciq-bar-chart">
           @for (bar of statusBars; track bar.label) {
             <div class="ciq-bar-row">
@@ -143,7 +154,7 @@
                 <div
                   class="ciq-bar-fill"
                   [style.width.%]="bar.pct"
-                  [style.background]="bar.color"
+                  [style.--bar-color]="bar.color"
                 ></div>
               </div>
               <span class="ciq-bar-value">{{ bar.displayText }}</span>
@@ -156,7 +167,12 @@
       </div>
 
       <div class="ciq-card">
-        <h3 class="ciq-card-title">Team-wise Success Metric</h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--green">
+            <ng-icon name="phosphorUsersFourDuotone" size="20" />
+          </div>
+          <span>Team-wise Success Metric</span>
+        </div>
         <div class="ciq-bar-chart">
           @for (bar of teamBars; track bar.label) {
             <div class="ciq-bar-row">
@@ -165,7 +181,7 @@
                 <div
                   class="ciq-bar-fill"
                   [style.width.%]="bar.pct"
-                  [style.background]="bar.color"
+                  [style.--bar-color]="bar.color"
                 ></div>
               </div>
               <span class="ciq-bar-value">{{ bar.displayText }}</span>
@@ -184,10 +200,12 @@
     <!-- ── Row 3: Volume Table + Throughput + Top Errors ── -->
     <div class="ciq-grid ciq-grid-bot">
       <div class="ciq-card">
-        <h3 class="ciq-card-title">
-          <ng-icon name="phosphorTableBold" size="18" />
-          Volume by Team
-        </h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--blue">
+            <ng-icon name="phosphorTableDuotone" size="20" />
+          </div>
+          <span>Volume by Team</span>
+        </div>
         <div class="ciq-table-scroll">
           <table class="ciq-table">
             <thead>
@@ -228,7 +246,12 @@
       </div>
 
       <div class="ciq-card">
-        <h3 class="ciq-card-title">Hourly Throughput</h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--cyan">
+            <ng-icon name="phosphorClockCountdownDuotone" size="20" />
+          </div>
+          <span>Hourly Throughput</span>
+        </div>
         <div class="ciq-bar-chart">
           @for (bar of throughputBars; track bar.label) {
             <div class="ciq-bar-row">
@@ -237,7 +260,7 @@
                 <div
                   class="ciq-bar-fill"
                   [style.width.%]="bar.pct"
-                  [style.background]="bar.color"
+                  [style.--bar-color]="bar.color"
                 ></div>
               </div>
               <span class="ciq-bar-value">{{ bar.displayText }}</span>
@@ -250,7 +273,12 @@
       </div>
 
       <div class="ciq-card">
-        <h3 class="ciq-card-title">Top Error Categories</h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--red">
+            <ng-icon name="phosphorSirenDuotone" size="20" />
+          </div>
+          <span>Top Error Categories</span>
+        </div>
         <div class="ciq-table-scroll">
           <table class="ciq-table">
             <thead>
@@ -288,7 +316,12 @@
     <!-- ── Row 4: Recent Anomalous Incidents ── -->
     <div class="ciq-grid ciq-grid-full">
       <div class="ciq-card">
-        <h3 class="ciq-card-title">Recent Anomalous Incidents</h3>
+        <div class="ciq-card-header">
+          <div class="ciq-card-icon ciq-card-icon--orange">
+            <ng-icon name="phosphorListBulletsDuotone" size="20" />
+          </div>
+          <span>Recent Anomalous Incidents</span>
+        </div>
         <div class="ciq-table-scroll ciq-table-scroll-lg">
           <table class="ciq-table">
             <thead>

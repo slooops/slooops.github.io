@@ -1,5 +1,11 @@
 <div class="health-ring">
   <svg viewBox="0 0 180 180">
+    <defs>
+      <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" [attr.stop-color]="gradientStart" />
+        <stop offset="100%" [attr.stop-color]="gradientEnd" />
+      </linearGradient>
+    </defs>
     <circle
       cx="90"
       cy="90"
@@ -13,7 +19,7 @@
       cy="90"
       r="72"
       fill="none"
-      [attr.stroke]="strokeColor"
+      stroke="url(#ringGradient)"
       stroke-width="12"
       [attr.stroke-dasharray]="circumference"
       [attr.stroke-dashoffset]="dashOffset"
