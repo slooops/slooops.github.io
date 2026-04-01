@@ -421,7 +421,7 @@ export const routes: Routes = [
   },
   {
     path: 'caseiq',
-    component: CaseiqComponent,
+    component: EspHomeComponent,
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
