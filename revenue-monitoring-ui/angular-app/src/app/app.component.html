@@ -6,7 +6,8 @@
           @if (
             !router.url.includes("/home") &&
             !router.url.includes("/ai-in-sdlc") &&
-            !router.url.includes("/sprint-updates")
+            !router.url.includes("/sprint-updates") &&
+            !router.url.includes("/caseiq")
           ) {
             <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
               <img

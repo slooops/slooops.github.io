@@ -186,7 +186,14 @@ export class EspHomeComponent implements OnInit {
   ngOnInit(): void {
     this.roles = this.authService.getRoles();
     this.userName = this.authService.getUserName();
-    this.setDefaultActiveTab();
+
+    // On /caseiq route, force Finance IT tab (no hamburger menu available)
+    if (this.router.url.includes('/caseiq')) {
+      this.activeTab = 'Finance IT';
+    } else {
+      this.setDefaultActiveTab();
+    }
+
     this.updateTime();
     this.getXxcaseiqValidatedCasesAccuracyV();
     this.loadPeriodInfo();
