@@ -12,6 +12,7 @@
   <div class="dashboard-header">
     <div class="header-main">
       <div class="header-left">
+        @if (!router.url.includes('/caseiq')) {
         <div class="grid-menu-wrapper" (click)="$event.stopPropagation()">
           <img
             src="assets/icons/hamburger-menu.svg"
@@ -40,6 +41,7 @@
             </div>
           }
         </div>
+        }
         <h2>{{ activeTab }}</h2>
 
         <div class="quarter-filter">

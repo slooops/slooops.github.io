@@ -1,4 +1,5 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ApiHttpService } from 'src/app/providers/http.service';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { AuthenticationService } from 'src/app/providers/authentication.service';
@@ -73,6 +74,7 @@ export class EspHomeComponent implements OnInit {
     private homeDataService: HomeDataService,
     private dialog: MatDialog,
     private dataService: DataService,
+    public router: Router,
   ) {}
 
   activeTab: string = ''; // Will be set based on user roles

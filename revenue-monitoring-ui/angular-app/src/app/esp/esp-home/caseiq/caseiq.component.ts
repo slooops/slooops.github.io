@@ -15,6 +15,7 @@ import { LoadingSymbolComponent } from 'src/app/loading-symbol/loading-symbol.co
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { phosphorLinkBold } from '@ng-icons/phosphor-icons/bold';
 import { Chart } from 'chart.js/auto';
+import { Router } from '@angular/router';
 import { DestroyManager } from 'src/app/providers/destroy-manager.service';
 import { ApiHttpService } from 'src/app/providers/http.service';
 
@@ -63,6 +64,7 @@ export class CaseiqComponent implements AfterViewInit, OnDestroy, OnChanges {
   constructor(
     private readonly http: ApiHttpService,
     private readonly destroyManager: DestroyManager,
+    public router: Router,
   ) {}
 
   // Track created Chart.js instances; using `any` here avoids

@@ -420,18 +420,24 @@
         <!-- Resolution Agent Details by Track -->
         <div class="track-agents-section">
           <div class="track-agents-label">
-            <a
-              class="track-agents-link"
-              (click)="openResolutionAgents($event)"
-              style="cursor: pointer"
-            >
-              Resolution Agents Active
-              <ng-icon
-                name="phosphorLinkBold"
-                size="14"
-                class="track-agents-link-icon"
-              ></ng-icon>
-            </a>
+            @if (router.url.includes("/caseiq")) {
+              <span class="track-agents-link" style="cursor: default">
+                Resolution Agents Active
+              </span>
+            } @else {
+              <a
+                class="track-agents-link"
+                (click)="openResolutionAgents($event)"
+                style="cursor: pointer"
+              >
+                Resolution Agents Active
+                <ng-icon
+                  name="phosphorLinkBold"
+                  size="14"
+                  class="track-agents-link-icon"
+                ></ng-icon>
+              </a>
+            }
           </div>
           <div class="track-agents-row">
             <div class="track-agent-card">
