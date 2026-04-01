@@ -128,16 +128,7 @@ export class AuthenticationService {
   authClientId: string;
   authClientSecret: string;
   authUrl: string;
-  bypassRoutes = [
-    '/o2c-demo',
-    '/o2c-details',
-    '/o2c-order',
-    '/o2c-sub',
-    '/o2c-accrual',
-    '/o2c-invoicing',
-    '/o2c-landing',
-    '/o2c-overview',
-  ];
+  bypassRoutes = ['/ai-in-sdlc', '/sprint-updates', '/caseiq'];
   async getUserId() {
     return fetch('/user/name')
       .then((response) => response.json())
@@ -176,7 +167,7 @@ export class AuthenticationService {
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userRoles = ['CASE_IQ_MONITORING', ...info['userRoles']];
+        this.userRoles = ['ADMIN', ...info['userRoles']];
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);

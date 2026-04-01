@@ -3,7 +3,7 @@
 /* Cell diff highlight — gradient bloom glow */
 .cell-changed {
   position: relative;
-  animation: cellBloomBg 4s ease-out forwards;
+  animation: cellBloomBg 10s ease-out forwards;
 }
 
 .cell-changed::after {
