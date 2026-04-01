@@ -298,8 +298,16 @@
 
   "GL_INTERFACE_SUMMARY_QUERY": "select * from finisro.xxcfi_gl_intf_summary_v",
   "GL_INTERFACE_DETAILS_QUERY": "select * from finisro.xxcfi_gl_intf_detail_v",
-  "GL_INTERFACE_DETAILS_FILTERED_QUERY": "SELECT * FROM finisro.xxcfi_gl_intf_detail_v WHERE source = ? AND ledger = ? AND period = ? AND batch_name = ? AND TRUNC(date_created) = ?",
-  "GL_INTERFACE_SUMMARY_UPDATE_QUERY": "UPDATE finisro.xxcfi_gl_interface_audit SET assigned_to=?,assigned_date=SYSDATE,comments=? and (aud.reference1=? or aud.reference4=?)",
+  "GL_INTERFACE_DETAILS_FILTERED_QUERY": "SELECT * FROM finisro.xxcfi_gl_intf_detail_v WHERE user_je_source_name = ? AND ledger_name = ? AND period_name = ? AND batch_name = ?",
+  "GL_INTERFACE_SUMMARY_UPDATE_QUERY": "UPDATE finisro.xxcfi_gl_interface_audit SET assigned_to=?, assigned_date=SYSDATE, comments = ? WHERE cleared_flag = 'N' AND user_je_source_name = ? AND ledger_name = ? AND period_name = ? AND ((reference1 IS NOT NULL AND reference1 = ?) OR (reference1 IS NULL AND reference4 IS NOT NULL AND reference4 = ?))",
+  "AIT_JOBS_SUMMARY_QUERY": "SELECT * FROM finisro.xxcfi_ait_jobs_summary_v",
+  "AIT_JOBS_DETAIL_QUERY": "SELECT * FROM finisro.xxcfi_ait_jobs_detail_v",
+  "AIT_JOBS_DETAIL_FILTERED_QUERY": "SELECT * FROM finisro.xxcfi_ait_jobs_detail_v WHERE job_date=? AND module=? AND ctm_folder=? AND ctm_status=?",
+  "AIT_JOBS_SUMMARY_UPDATE_QUERY": "UPDATE finisro.xxcfi_ait_jobs_audit SET assigned_to=?, assigned_date=SYSDATE, comments=? WHERE cleared_flag='N' AND job_date=TRUNC(TO_DATE(?, 'MM/DD/YYYY')) AND module=? AND ctm_folder=? AND ctm_status=?",
+  "GL_UNPOSTED_SUMMARY_QUERY": "SELECT * FROM finisro.xxcfi_gl_unpost_summary_v",
+  "GL_UNPOSTED_DETAILS_QUERY": "SELECT * FROM finisro.xxcfi_gl_unpost_detail_v",
+  "GL_UNPOSTED_DETAILS_FILTERED_QUERY": "SELECT * FROM finisro.xxcfi_gl_unpost_detail_v WHERE user_je_source_name=? AND ledger_name=? AND period_name=? AND batch_name=?",
+  "GL_UNPOSTED_SUMMARY_UPDATE_QUERY": "UPDATE finisro.xxcfi_gl_unposted_audit SET assigned_to=?, assigned_date=SYSDATE, comments=? WHERE cleared_flag='N' AND batch_name=? AND user_je_source_name=? AND ledger_name=? AND period_name=?",
 
   "INSERT_ASSIGNMENT_USERS": "INSERT INTO ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP (LOOKUP_TYPE, LANGUAGE, LOOKUP_CODE, MEANING, DESCRIPTION, ENABLED_FLAG, START_DATE_ACTIVE, END_DATE_ACTIVE, CREATED_BY, CREATION_DATE, LAST_UPDATED_BY, LAST_UPDATE_LOGIN, LAST_UPDATE_DATE, SOURCE_LANG, SECURITY_GROUP_ID, VIEW_APPLICATION_ID, ATTRIBUTE1) VALUES ('USER_ASSIGNMENT', 'US', ?, ?, ?, 'Y', SYSDATE, NULL, 1, SYSDATE, 1, 0, SYSDATE, 'US', 0, 0, ?)",
   "DISABLE_ASSIGNMENT_USERS": "UPDATE ARFINRO.XXCFI_AR_DASHBOARD_LOOKUP SET ENABLED_FLAG = 'N', END_DATE_ACTIVE = SYSDATE, LAST_UPDATED_BY = 1, LAST_UPDATE_DATE = SYSDATE WHERE LOOKUP_TYPE = 'USER_ASSIGNMENT' AND MEANING = ?",

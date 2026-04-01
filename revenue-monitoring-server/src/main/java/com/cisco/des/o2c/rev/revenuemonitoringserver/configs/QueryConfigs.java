@@ -2222,4 +2222,60 @@ public class QueryConfigs {
     public String getEnableSummaryAssignmentUsers() {
         return this.enableSummaryAssignmentUsers;
     }
+    @Value(("${gl.fa.jobs.summary.q}"))
+    public String glFaJobsSummary;
+
+    @Bean(name = "glFaJobsSummary")
+    public String getGlFaJobsSummary() {
+        return this.glFaJobsSummary;
+    }
+    @Value(("${gl.fa.jobs.details.q}"))
+    public String glFaJobsDetails;
+
+    @Bean(name = "glFaJobsDetails")
+    public String getGlFaJobsDetails() {
+        return this.glFaJobsDetails;
+    }
+    @Value(("${gl.fa.jobs.details.filtered.q}"))
+    public String glFaJobsDetailsFiltered;
+
+    @Bean(name = "glFaJobsDetailsFiltered")
+    public String getGlFaJobsDetailsFiltered() {
+        return this.glFaJobsDetailsFiltered;
+    }
+    @Value(("${gl.fa.jobs.summary.update.q}"))
+    public String glFaJobsSummaryUpdate;
+
+    @Bean(name = "glFaJobsSummaryUpdate")
+    public String getGlFaJobsSummaryUpdate() {
+        return this.glFaJobsSummaryUpdate;
+    }
+
+    @Value(("${gl.unposted.summary.q}"))
+    public String glUnpostedSummary;
+    @Bean(name = "glUnpostedSummary")
+    public String getGlUnpostedSummary() {
+        return this.glUnpostedSummary;
+    }
+    @Value(("${gl.unposted.details.q}"))
+    public String glUnpostedDetails;
+
+    @Bean(name = "glUnpostedDetails")
+    public String getGlUnpostedDetails() {
+        return this.glUnpostedDetails;
+    }
+    @Value(("${gl.unposted.details.filtered.q}"))
+    public String glUnpostedDetailsFiltered;
+
+    @Bean(name = "glUnpostedDetailsFiltered")
+    public String getGlUnpostedDetailsFiltered() {
+        return this.glUnpostedDetailsFiltered;
+    }
+    @Value(("${gl.unposted.summary.update.q}"))
+    public String glUnpostedSummaryUpdate;
+
+    @Bean(name = "glUnpostedSummaryUpdate")
+    public String getGlUnpostedSummaryUpdate() {
+        return this.glUnpostedSummaryUpdate;
+    }
 }

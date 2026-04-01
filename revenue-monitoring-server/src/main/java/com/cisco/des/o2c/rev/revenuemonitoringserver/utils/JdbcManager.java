@@ -586,10 +586,38 @@ public class JdbcManager {
         return secondaryJdbcTemplate.queryForList(sql);
     }
 
-    public List<Map<String, Object>> getAITGlInterfaceDetailsFilter(String sql, String source, String ledger,
-            String period, String batchName,
+    public List<Map<String, Object>> getAITGlInterfaceDetailsFilter(String sql, String userJeSourceName, String ledgerName,
+            String periodName, String batchName,
             String dateCreated) {
-        return secondaryJdbcTemplate.queryForList(sql, source, ledger, period, batchName, dateCreated);
+        return secondaryJdbcTemplate.queryForList(sql, userJeSourceName, ledgerName, periodName, batchName);
+    }
+
+    public int AITGlInterfaceSummaryUpdate(String sql, String assignedTo, String comments,
+                                                                    String userJeSourceName, String ledgerName,
+                                                                    String periodName, String batchName, String reference4) {
+        return secondaryJdbcTemplate.update(sql, assignedTo, comments, userJeSourceName, ledgerName, periodName, batchName, reference4);
+    }
+
+    public List<Map<String, Object>> getGlFaDetailsFilter(String sql, String jobDate, String module,
+                                                          String ctmFolder, String ctmStatus) {
+        return secondaryJdbcTemplate.queryForList(sql, jobDate, module, ctmFolder, ctmStatus);
+    }
+
+    public int glFaSummaryUpdate(String sql, String assignedTo, String comments, String jobDate,
+                                              String module, String ctmFolder,
+                                              String ctmStatus) {
+        return secondaryJdbcTemplate.update(sql, assignedTo, comments, jobDate, module, ctmFolder, ctmStatus);
+    }
+
+    public List<Map<String, Object>> getAITGlUnpostedDetailsFilter(String sql, String userJeSourceName, String ledgerName,
+                                                                   String periodName, String batchName) {
+        return secondaryJdbcTemplate.queryForList(sql, userJeSourceName, ledgerName, periodName, batchName);
+    }
+
+    public int AITGlUnpostedSummaryUpdate(String sql, String assignedTo, String comments, String batchName,
+                                           String userJeSourceName, String ledgerName,
+                                           String periodName) {
+        return secondaryJdbcTemplate.update(sql, assignedTo, comments, batchName, userJeSourceName, ledgerName, periodName);
     }
 
     // public int updateGlInterfaceErrorsSummaryData(String sql, String assignedTo,

@@ -139,6 +139,36 @@ hr {
   margin-top: 5px;
 }
 
+.pill-tabs {
+  display: flex;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+}
+
+.pill-tab {
+  padding: 6px 80px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.pill-tab:hover {
+  background: #f3f8ff;
+  border-color: #d0e3f7;
+}
+
+.pill-tab.active {
+  background: #eff8ff;
+  border-color: #00bceb;
+  color: #00bceb;
+}
+
 .ask-ivan-btn {
   display: flex;
   align-items: center;

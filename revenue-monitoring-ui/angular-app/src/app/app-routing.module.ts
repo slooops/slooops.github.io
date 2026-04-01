@@ -382,7 +382,7 @@ export const routes: Routes = [
     data: {
       title: 'Finance-IT Control Tower',
       header: 'Finance-IT Control Tower',
-      subHeader: 'Continuous Monitoring > AIT',
+      subHeader: 'Continuous Monitoring > Accounting, Investment & Treasury',
     },
   },
   {
