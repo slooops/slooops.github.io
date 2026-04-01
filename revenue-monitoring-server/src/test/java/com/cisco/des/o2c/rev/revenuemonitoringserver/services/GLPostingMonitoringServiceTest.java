@@ -27,7 +27,9 @@ class GLPostingMonitoringServiceTest {
     @InjectMocks
     GLPostingMonitoringService service = new GLPostingMonitoringService(null,
             "sum","det","filter","update",
-            "intSum","intDet","intFilter","intUpdate");
+            "intSum","intDet","intFilter","intUpdate",
+            "faSum","faDet","faFilter","faUpdate",
+            "unpostSum","unpostDet","unpostFilter","unpostUpdate");
 
     @BeforeEach
     void setup(){
