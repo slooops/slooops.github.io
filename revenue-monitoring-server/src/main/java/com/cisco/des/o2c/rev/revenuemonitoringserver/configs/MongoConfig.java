@@ -19,11 +19,11 @@ public class MongoConfig {
     @Value("${spring.data.mongodb.primary.database}")
     private String primaryDatabase;
 
-   @Value("${spring.data.mongodb.secondary.uri}")
-   private String secondaryUri;
-
-   @Value("${spring.data.mongodb.secondary.database}")
-   private String secondaryDatabase;
+//   @Value("${spring.data.mongodb.secondary.uri}")
+//   private String secondaryUri;
+//
+//   @Value("${spring.data.mongodb.secondary.database}")
+//   private String secondaryDatabase;
 
     @Primary
     @Bean(name = "primaryMongoDatabaseFactory")
@@ -34,13 +34,13 @@ public class MongoConfig {
         );
     }
 
-   @Bean(name = "secondaryMongoDatabaseFactory")
-   public MongoDatabaseFactory secondaryMongoDatabaseFactory() {
-       return new SimpleMongoClientDatabaseFactory(
-           MongoClients.create(secondaryUri),
-           secondaryDatabase
-       );
-   }
+//   @Bean(name = "secondaryMongoDatabaseFactory")
+//   public MongoDatabaseFactory secondaryMongoDatabaseFactory() {
+//       return new SimpleMongoClientDatabaseFactory(
+//           MongoClients.create(secondaryUri),
+//           secondaryDatabase
+//       );
+//   }
 
     @Primary
     @Bean(name = "primaryMongoTemplate")
@@ -48,8 +48,8 @@ public class MongoConfig {
         return new MongoTemplate(primaryMongoDatabaseFactory);
     }
 
-   @Bean(name = "secondaryMongoTemplate")
-   public MongoTemplate secondaryMongoTemplate(@Qualifier("secondaryMongoDatabaseFactory") MongoDatabaseFactory secondaryMongoDatabaseFactory) {
-       return new MongoTemplate(secondaryMongoDatabaseFactory);
-   }
+//   @Bean(name = "secondaryMongoTemplate")
+//   public MongoTemplate secondaryMongoTemplate(@Qualifier("secondaryMongoDatabaseFactory") MongoDatabaseFactory secondaryMongoDatabaseFactory) {
+//       return new MongoTemplate(secondaryMongoDatabaseFactory);
+//   }
 }

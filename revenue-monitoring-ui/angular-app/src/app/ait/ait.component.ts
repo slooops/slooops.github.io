@@ -69,7 +69,7 @@ export class AitComponent implements OnInit {
   selectedIndex: number = 0;
   filteredTabs: { label: string; component: string }[] = [];
 
-  glSubTabs: string[] = ['Interface', 'FA Jobs', 'Unposted'];
+  glSubTabs: string[] = ['Interface', 'GL/FA Jobs', 'Unposted'];
   glSubIndex: number = 0;
 
   getDefaultTabIndex() {

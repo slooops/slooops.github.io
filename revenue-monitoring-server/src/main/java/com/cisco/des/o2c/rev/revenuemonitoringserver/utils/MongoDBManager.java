@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 public class MongoDBManager {
 
     private final MongoTemplate mongoTemplate;
-    private final MongoTemplate secondaryMongoTemplate;
+//    private final MongoTemplate secondaryMongoTemplate;
 
     @Autowired
-    public MongoDBManager(@Qualifier("primaryMongoTemplate") MongoTemplate mongoTemplate, @Qualifier("secondaryMongoTemplate") MongoTemplate secondaryMongoTemplate) {
+    public MongoDBManager(@Qualifier("primaryMongoTemplate") MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
-        this.secondaryMongoTemplate = secondaryMongoTemplate;
+//        this.secondaryMongoTemplate = secondaryMongoTemplate;
     }
 
     public List<Map<String, Object>> getAllData(String collection) {
