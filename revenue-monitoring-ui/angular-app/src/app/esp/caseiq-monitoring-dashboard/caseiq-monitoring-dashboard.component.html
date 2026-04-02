@@ -245,28 +245,96 @@
         </div>
       </div>
 
-      <div class="ciq-card">
+      <div
+        class="ciq-card"
+        style="
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        "
+      >
         <div class="ciq-card-header">
           <div class="ciq-card-icon ciq-card-icon--cyan">
             <ng-icon name="phosphorClockCountdownDuotone" size="20" />
           </div>
           <span>Hourly Throughput</span>
         </div>
-        <div class="ciq-bar-chart">
-          @for (bar of throughputBars; track bar.label) {
-            <div class="ciq-bar-row">
-              <span class="ciq-bar-label">{{ bar.label }}</span>
-              <div class="ciq-bar-track">
-                <div
-                  class="ciq-bar-fill"
-                  [style.width.%]="bar.pct"
-                  [style.--bar-color]="bar.color"
-                ></div>
+        <div class="ciq-line-chart-wrapper" (mouseleave)="hideTooltip()">
+          @if (throughputPoints.length >= 2) {
+            <div class="ciq-line-chart">
+              <!-- Y-axis labels -->
+              <div class="ciq-y-axis">
+                @for (tick of throughputYTicks; track tick) {
+                  <span class="ciq-y-label">{{ tick }}</span>
+                }
               </div>
-              <span class="ciq-bar-value">{{ bar.displayText }}</span>
+              <!-- SVG chart + integrated x-axis -->
+              <svg class="ciq-line-svg" viewBox="0 0 400 230">
+                <defs>
+                  <linearGradient
+                    id="throughputFill"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stop-color="#00bceb"
+                      stop-opacity="0.35"
+                    />
+                    <stop offset="100%" stop-color="#00bceb" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  [attr.d]="throughputAreaPath"
+                  fill="url(#throughputFill)"
+                />
+                <path
+                  [attr.d]="throughputLinePath"
+                  fill="none"
+                  stroke="#00bceb"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <!-- Data dots + x-axis labels -->
+                @for (pt of throughputPoints; let i = $index; track pt.label) {
+                  <circle
+                    class="ciq-dot"
+                    [attr.cx]="20 + (i / (throughputPoints.length - 1)) * 360"
+                    [attr.cy]="200 - (pt.value / throughputMax) * 200"
+                    r="3.5"
+                    fill="white"
+                    stroke="#00bceb"
+                    stroke-width="2"
+                    (mouseenter)="showTooltip($event, pt)"
+                    (mousemove)="showTooltip($event, pt)"
+                    (mouseleave)="hideTooltip()"
+                  />
+                  <text
+                    class="ciq-svg-x-label"
+                    [attr.x]="20 + (i / (throughputPoints.length - 1)) * 360"
+                    y="220"
+                    text-anchor="middle"
+                  >
+                    {{ pt.label }}
+                  </text>
+                }
+              </svg>
             </div>
-          }
-          @if (throughputBars.length === 0) {
+            <!-- Custom tooltip -->
+            @if (tooltipVisible) {
+              <div
+                class="ciq-tooltip"
+                [style.left.px]="tooltipX"
+                [style.top.px]="tooltipY"
+              >
+                <span class="ciq-tooltip-value">{{ tooltipValue }}</span>
+                <span class="ciq-tooltip-label">{{ tooltipLabel }}</span>
+              </div>
+            }
+          } @else {
             <div class="ciq-no-data">No data</div>
           }
         </div>

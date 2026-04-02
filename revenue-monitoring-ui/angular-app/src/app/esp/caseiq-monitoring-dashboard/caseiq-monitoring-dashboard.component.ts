@@ -124,6 +124,18 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     displayText: string;
   }[] = [];
 
+  // Throughput line chart
+  throughputPoints: { label: string; value: number }[] = [];
+  throughputMax = 1;
+  throughputLinePath = '';
+  throughputAreaPath = '';
+  throughputYTicks: number[] = [];
+  tooltipVisible = false;
+  tooltipX = 0;
+  tooltipY = 0;
+  tooltipLabel = '';
+  tooltipValue = 0;
+
   // Tables
   teamTableData: TeamSummary[] = [];
   errorTableData: ErrorCategory[] = [];
@@ -338,20 +350,58 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   }
 
   private processThroughput(data: ThroughputEntry[]): void {
-    const sliced = (data || []).slice(0, 12);
+    const sliced = (data || []).slice(0, 12).reverse(); // oldest → newest (left → right)
     const maxVal = Math.max(...sliced.map((d) => d.CASES_PROCESSED || 0), 1);
-    this.throughputBars = sliced.map((d) => {
+
+    this.throughputPoints = sliced.map((d) => {
       const label = d.RUN_HOUR
         ? new Date(d.RUN_HOUR).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
+            hour: 'numeric',
+            hour12: true,
           })
         : 'N/A';
-      const value = d.CASES_PROCESSED || 0;
-      const pct = (value / maxVal) * 100;
-      const color = (d.ERROR_COUNT || 0) > 0 ? '#c45200' : '#00bceb';
-      return { label, value, pct, color, displayText: String(value) };
+      return { label, value: d.CASES_PROCESSED || 0 };
     });
+
+    // Build Y-axis ticks (4 ticks including 0) — use yMax as the authoritative scale
+    const step = Math.ceil(maxVal / 3);
+    const yMax = step * 3;
+    this.throughputYTicks = [yMax, step * 2, step, 0];
+    this.throughputMax = yMax;
+
+    // SVG chart area: 400w x 200h, with horizontal padding
+    const w = 400,
+      h = 200,
+      pad = 20;
+    const n = this.throughputPoints.length;
+    if (n < 2) {
+      this.throughputLinePath = '';
+      this.throughputAreaPath = '';
+      return;
+    }
+
+    const pts = this.throughputPoints.map((p, i) => ({
+      x: pad + (i / (n - 1)) * (w - 2 * pad),
+      y: h - (p.value / yMax) * h,
+    }));
+
+    // Smooth curve using cubic bezier (Catmull-Rom-like)
+    let linePath = `M${pts[0].x},${pts[0].y}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const cp = (pts[i + 1].x - pts[i].x) / 3;
+      linePath += ` C${pts[i].x + cp},${pts[i].y} ${pts[i + 1].x - cp},${pts[i + 1].y} ${pts[i + 1].x},${pts[i + 1].y}`;
+    }
+    this.throughputLinePath = linePath;
+    this.throughputAreaPath = `${linePath} L${pts[n - 1].x},${h} L${pts[0].x},${h} Z`;
+
+    // Keep bars for backward compat (unused now)
+    this.throughputBars = this.throughputPoints.map((p) => ({
+      label: p.label,
+      value: p.value,
+      pct: (p.value / maxVal) * 100,
+      color: '#00bceb',
+      displayText: String(p.value),
+    }));
   }
 
   private processAnomalyTable(
@@ -374,6 +424,21 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       (b.CASEIQ_RUN_DATE || '').localeCompare(a.CASEIQ_RUN_DATE || ''),
     );
     this.anomalyTableData = rows.slice(0, 30);
+  }
+
+  showTooltip(event: MouseEvent, pt: { label: string; value: number }): void {
+    const svg = (event.target as Element).closest('.ciq-line-chart-wrapper');
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    this.tooltipX = event.clientX - rect.left;
+    this.tooltipY = event.clientY - rect.top - 40;
+    this.tooltipLabel = pt.label;
+    this.tooltipValue = pt.value;
+    this.tooltipVisible = true;
+  }
+
+  hideTooltip(): void {
+    this.tooltipVisible = false;
   }
 
   severityClass(severity: string): string {

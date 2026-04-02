@@ -106,7 +106,7 @@ h6 {
 
 /* ── Header ─────────────────────────────────────────────────── */
 .ciq-header {
-  background: rgba(255, 255, 255, 0.8);
+  /* background: rgba(255, 255, 255, 0.8); */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -586,6 +586,105 @@ h6 {
   color: var(--ciq-muted);
   margin: -16px 16px 6px 16px;
   text-align: end;
+}
+
+/* ── Line Chart (Throughput) ──────────────────────────────── */
+.ciq-line-chart-wrapper {
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+}
+
+.ciq-line-chart {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  min-height: 0;
+}
+
+.ciq-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.ciq-y-label {
+  font-size: 10px;
+  color: var(--ciq-muted);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ciq-line-svg {
+  flex: 1;
+  /* width: 100%; */
+  height: 100%;
+  min-height: 160px;
+  overflow: visible;
+}
+
+.ciq-dot {
+  cursor: pointer;
+  transition: r 0.15s ease;
+}
+
+.ciq-dot:hover {
+  r: 5.5;
+}
+
+.ciq-x-axis {
+  display: none;
+}
+
+.ciq-x-label {
+  display: none;
+}
+
+.ciq-svg-x-label {
+  font-size: 8px;
+  fill: var(--ciq-muted);
+  font-weight: 500;
+  line-height: normal;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+/* Custom tooltip */
+.ciq-tooltip {
+  position: absolute;
+  pointer-events: none;
+  transform: translateX(-50%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  border-radius: 10px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(114, 114, 114, 0.18);
+  z-index: 10;
+  line-height: normal;
+}
+
+.ciq-tooltip-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00bceb;
+  line-height: normal;
+}
+
+.ciq-tooltip-label {
+  font-size: 8px;
+  color: var(--ciq-muted);
+  font-weight: 500;
 }
 
 /* ── Tables ─────────────────────────────────────────────────── */
