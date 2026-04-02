@@ -167,7 +167,7 @@ export class AuthenticationService {
     return fetch(rolesUrl)
       .then((response) => response.json())
       .then((info) => {
-        this.userRoles = ['ADMIN', ...info['userRoles']];
+        this.userRoles = ['CASE_IQ_MONITORING', ...info['userRoles']];
       })
       .catch((error) => {
         console.error('Error fetching user roles:', error);
