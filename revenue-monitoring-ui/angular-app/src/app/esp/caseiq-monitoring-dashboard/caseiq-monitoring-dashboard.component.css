@@ -32,7 +32,7 @@
 :host(.dark-theme) {
   --ciq-bg: #0f1923;
   --ciq-surface: #1a2733;
-  --ciq-card-bg: rgba(30, 47, 61, 0.85);
+  --ciq-card-bg: rgba(28, 44, 58, 0.85);
   --ciq-card-border: rgba(42, 63, 80, 0.6);
   --ciq-border: #2a3f50;
   --ciq-text: #e0e6ed;
@@ -73,20 +73,20 @@ h6 {
     linear-gradient(to top, white 0%, transparent 10%),
     radial-gradient(
       ellipse 80% 50% at 20% -10%,
-      rgba(0, 188, 235, 0.12) 0%,
+      rgba(0, 188, 235, 0.03) 0%,
       transparent 60%
     ),
     radial-gradient(
       ellipse 60% 40% at 80% 10%,
-      rgba(0, 112, 210, 0.1) 0%,
+      rgba(0, 112, 210, 0.03) 0%,
       transparent 55%
     ),
     radial-gradient(
       ellipse 50% 30% at 50% 100%,
-      rgba(110, 190, 74, 0.06) 0%,
+      rgba(111, 190, 74, 0.02) 0%,
       transparent 60%
     ),
-    linear-gradient(160deg, #f0f4f8 0%, #e8edf4 40%, #eaf0f6 100%);
+    linear-gradient(160deg, #f6f8fa 0%, #f0f3f7 40%, #f4f7fa 100%);
 }
 
 :host(.dark-theme) .ciq-dashboard {
@@ -120,7 +120,6 @@ h6 {
 }
 
 :host(.dark-theme) .ciq-header {
-  background: rgba(26, 39, 51, 0.85);
   border-bottom-color: var(--ciq-border);
 }
 
@@ -307,7 +306,7 @@ h6 {
   align-items: center;
   gap: 10px;
   padding: 14px 18px;
-  background: rgba(248, 249, 250, 0.8);
+  /* background: rgba(248, 249, 250, 0.8); */
   font-weight: 600;
   color: var(--ciq-text);
   font-size: 0.85rem;
@@ -707,7 +706,7 @@ h6 {
 .ciq-table th {
   text-align: left;
   padding: 10px 12px;
-  background: #f9f9fa;
+  background: #fcfcfd;
   color: var(--ciq-text);
   font-weight: 600;
   text-transform: uppercase;
