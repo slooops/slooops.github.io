@@ -168,7 +168,7 @@ export class ScorecardComponent
 <th ${thStyle}>Success Criteria</th>
 <th ${thStyle}>Baseline</th>
 <th ${thStyle}>Owner(s)</th>
-<th ${thStyle}>EOCY26</th>
+<th ${thStyle}>Target by EOCY26</th>
 <th ${thStyle}>How Do We Measure</th>
 <th ${thStyle}>Metric</th>
 </tr></thead>
@@ -184,7 +184,7 @@ export class ScorecardComponent
       lines.push('—'.repeat(40));
       for (const r of g.rows) {
         lines.push(
-          `  • ${r.successCriteria}  |  Baseline: ${r.baseline}  |  Owner: ${r.owners}  |  EOCY26: ${r.eocy26Target}  |  Measure: ${r.howWeMeasure}  |  Metric: ${r.metric || '—'}`,
+          `  • ${r.successCriteria}  |  Baseline: ${r.baseline}  |  Owner: ${r.owners}  |  Target by EOCY26: ${r.eocy26Target}  |  Measure: ${r.howWeMeasure}  |  Metric: ${r.metric || '—'}`,
         );
       }
     }
