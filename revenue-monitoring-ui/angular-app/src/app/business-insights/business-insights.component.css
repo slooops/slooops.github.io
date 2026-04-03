@@ -10,6 +10,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  padding: 10px 0;
 }
 
 .header-main h2 {

@@ -18,8 +18,12 @@
 }
 
 /* Center all table header columns except the first */
-.sdlc-exec-table thead th:not(:first-child),
 .sdlc-adopt-table thead th:not(:first-child) {
+  text-align: center;
+}
+
+/* Exec update: only Status (3rd+) columns centered; first two left-aligned */
+.sdlc-exec-table thead th:nth-child(n + 3) {
   text-align: center;
 }
 

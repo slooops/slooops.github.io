@@ -13,11 +13,12 @@ import {
   ScorecardVersion,
   WorkstreamGroup,
 } from '../scorecard-data.service';
+import { MarkdownPipe } from '../../shared/markdown.pipe';
 
 @Component({
   selector: 'app-scorecard-history',
   standalone: true,
-  imports: [NgIcon],
+  imports: [NgIcon, MarkdownPipe],
   providers: [
     DestroyManager,
     provideIcons({
@@ -51,11 +52,11 @@ export class ScorecardHistoryComponent implements OnInit, OnDestroy {
   private highlightTimer: any;
 
   workstreamColors: Record<string, { bg: string; accent: string }> = {
-    '1. Improve Cycle time': { bg: '#e5f2ff', accent: '#0070d2' },
-    '2. Improve Productivity': { bg: '#e5f7ee', accent: '#1c8c4c' },
-    '3. Improve Quality': { bg: '#fff6e5', accent: '#d97706' },
+    '1. Improve Cycle time': { bg: '#f0f7ff', accent: '#3b82f6' },
+    '2. Improve Productivity': { bg: '#dbeafe', accent: '#1d4ed8' },
+    '3. Improve Quality': { bg: '#bfdbfe', accent: '#1e3a8a' },
   };
-  defaultColor = { bg: '#f4f5f6', accent: '#555' };
+  defaultColor = { bg: '#eff6ff', accent: '#2563eb' };
 
   constructor(
     private dataService: ScorecardDataService,

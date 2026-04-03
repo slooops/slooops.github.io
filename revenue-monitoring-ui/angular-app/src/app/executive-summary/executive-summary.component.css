@@ -1,5 +1,40 @@
 /* All styles are in shared/scorecard.css */
 
+/* ── Blue-only table wrap shadow (override rainbow) ── */
+.exec-table-wrap {
+  border: 1px solid #f2f2f2de;
+  box-shadow:
+    0 0 0 1px rgba(0, 112, 210, 0.008),
+    -20px -16px 50px rgba(0, 140, 210, 0.007),
+    20px -16px 50px rgba(0, 112, 210, 0.006),
+    24px 18px 50px rgba(0, 90, 180, 0.006),
+    -24px 18px 50px rgba(0, 70, 160, 0.004),
+    0px -20px 60px rgba(0, 140, 210, 0.006),
+    0px 20px 60px rgba(0, 112, 210, 0.002),
+    0px 0px 100px rgba(0, 112, 210, 0.003);
+}
+
+/* ── Blue-only page background (override shared scorecard bg) ── */
+:host {
+  --sc-page-bg:
+    radial-gradient(
+      ellipse 80% 50% at 20% 40%,
+      rgba(0, 112, 210, 0.004) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 30%,
+      rgba(0, 140, 210, 0.003) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 50% 50% at 60% 80%,
+      rgba(0, 90, 180, 0.002) 0%,
+      transparent 50%
+    ),
+    linear-gradient(135deg, #fafbfd 0%, #f4f7fc 50%, #eef3fa 100%);
+}
+
 /* ── Tab bar (reused from performance hub) ── */
 .hub-tabs {
   display: flex;
@@ -31,7 +66,4 @@
 .hub-tab.active {
   color: #0070d2;
   border-bottom-color: #0070d2;
-}
-
-.hub-tab-content {
 }

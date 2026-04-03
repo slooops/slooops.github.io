@@ -16,11 +16,12 @@ import {
 } from '../sdlc-exec-data.service';
 import { STATUS_OPTIONS } from '../sdlc-exec-update.component';
 import { ColorPair } from '../../shared/editable-table-base';
+import { MarkdownPipe } from '../../shared/markdown.pipe';
 
 @Component({
   selector: 'app-sdlc-exec-history',
   standalone: true,
-  imports: [NgClass, NgIcon],
+  imports: [NgClass, NgIcon, MarkdownPipe],
   providers: [
     DestroyManager,
     provideIcons({
@@ -56,17 +57,17 @@ export class SdlcExecHistoryComponent implements OnInit, OnDestroy {
   private highlightTimer: any;
 
   workstreamColors: Record<string, ColorPair> = {
-    Foundation: { bg: '#e6f7fa', accent: '#0891b2' },
+    Foundation: { bg: '#dbeafe', accent: '#60a5fa' },
     'Requirements Authoring and Validation': {
-      bg: '#f3eefa',
-      accent: '#7c3aed',
+      bg: '#ccddf5',
+      accent: '#4a8ac7',
     },
-    'Solution Design': { bg: '#fef0e6', accent: '#ea580c' },
-    Build: { bg: '#e5f2ff', accent: '#0070d2' },
-    Test: { bg: '#e5f7ee', accent: '#1c8c4c' },
-    'Production Support': { bg: '#fff6e5', accent: '#d97706' },
+    'Solution Design': { bg: '#bdd0ef', accent: '#3574b3' },
+    Build: { bg: '#aec3e8', accent: '#21599d' },
+    Test: { bg: '#9fb6e1', accent: '#174a8f' },
+    'Production Support': { bg: '#90a9da', accent: '#0e3b81' },
   };
-  defaultColor: ColorPair = { bg: '#f4f5f6', accent: '#555' };
+  defaultColor: ColorPair = { bg: '#dbeafe', accent: '#3b82f6' };
 
   constructor(
     private dataService: SdlcExecDataService,

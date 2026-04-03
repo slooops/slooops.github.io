@@ -59,6 +59,7 @@ import {
 })
 export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   @HostBinding('class.dark-theme') isDarkMode = false;
+  activeKpiView: 'anomalies' | 'errors' | 'totalProcessed' = 'anomalies';
 
   // Controls
   lookbackHours = 24;
@@ -188,6 +189,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   onFilterChange(): void {
     this.initialLoad = true;
     this.refreshAll();
+  }
+
+  setKpiView(view: 'anomalies' | 'errors' | 'totalProcessed'): void {
+    this.activeKpiView = view;
   }
 
   refreshAll(): void {

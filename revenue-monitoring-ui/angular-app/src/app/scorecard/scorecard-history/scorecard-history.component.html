@@ -93,7 +93,7 @@
                     isCellChanged(row.sortOrder, 'successCriteria')
                   "
                 >
-                  <span class="cell-bullet">•</span> {{ row.successCriteria }}
+                  <span class="cell-bullet">•</span> <span [innerHTML]="row.successCriteria | markdown"></span>
                 </td>
                 <td
                   class="cell"
@@ -101,13 +101,13 @@
                     isCellChanged(row.sortOrder, 'baseline')
                   "
                 >
-                  {{ row.baseline }}
+                  <span [innerHTML]="row.baseline | markdown"></span>
                 </td>
                 <td
                   class="cell cell-owner"
                   [class.cell-changed]="isCellChanged(row.sortOrder, 'owners')"
                 >
-                  {{ row.owners }}
+                  <span [innerHTML]="row.owners | markdown"></span>
                 </td>
                 <td
                   class="cell cell-target"
@@ -115,7 +115,7 @@
                     isCellChanged(row.sortOrder, 'eocy26Target')
                   "
                 >
-                  <strong>{{ row.eocy26Target }}</strong>
+                  <strong><span [innerHTML]="row.eocy26Target | markdown"></span></strong>
                 </td>
                 <td
                   class="cell"
@@ -123,13 +123,13 @@
                     isCellChanged(row.sortOrder, 'howWeMeasure')
                   "
                 >
-                  {{ row.howWeMeasure }}
+                  <span [innerHTML]="row.howWeMeasure | markdown"></span>
                 </td>
                 <td
                   class="cell cell-metric"
                   [class.cell-changed]="isCellChanged(row.sortOrder, 'metric')"
                 >
-                  {{ row.metric || "—" }}
+                  <span [innerHTML]="(row.metric || '—') | markdown"></span>
                 </td>
               </tr>
             }

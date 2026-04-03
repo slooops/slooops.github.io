@@ -1,5 +1,6 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostBinding, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgIcon } from '@ng-icons/core';
 import { ExceptionsComponent } from './exceptions/exceptions.component';
 import { ExceptionDetailsComponent } from './exception-details/exception-details.component';
 
@@ -35,27 +36,45 @@ interface CategorySlice {
   label: string;
   percent: number;
   color: string;
+  colorEnd: string;
   offset: number;
 }
 
 @Component({
   selector: 'app-self-healing',
   standalone: true,
-  imports: [CommonModule, ExceptionsComponent, ExceptionDetailsComponent],
+  imports: [
+    CommonModule,
+    NgIcon,
+    ExceptionsComponent,
+    ExceptionDetailsComponent,
+  ],
   templateUrl: './self-healing.component.html',
   styleUrls: ['./self-healing.component.css'],
 })
 export class SelfHealingComponent {
+  /* ── Dark Mode ── */
+  isDarkMode = false;
+
+  @HostBinding('class.dark-theme')
+  get darkThemeClass() {
+    return this.isDarkMode;
+  }
+
+  toggleDarkMode(): void {
+    this.isDarkMode = !this.isDarkMode;
+  }
+
   /* ── Menu ── */
   showGridMenu = false;
   selectedMenuIndex = 0;
   selectedExceptionId: string | null = null;
 
   menuItems: MenuItem[] = [
-    { label: 'Command Center', icon: '⊞' },
-    { label: 'Exceptions', icon: '⚠' },
-    { label: 'Sessions', icon: '◎' },
-    { label: 'Patterns', icon: '✦' },
+    { label: 'Command Center', icon: 'phosphorSquaresFourBold' },
+    { label: 'Exceptions', icon: 'phosphorWarningBold' },
+    { label: 'Sessions', icon: 'phosphorCrosshairBold' },
+    { label: 'Patterns', icon: 'phosphorSparkleBold' },
   ];
 
   toggleGridMenu(event: Event): void {
@@ -135,9 +154,27 @@ export class SelfHealingComponent {
   /* ── Donut Chart ── */
   donutTotal = '1.2k';
   categorySlices: CategorySlice[] = [
-    { label: 'Revenue', percent: 45, color: '#00BCEB', offset: 0 },
-    { label: 'Billing', percent: 25, color: '#B197FC', offset: -45 },
-    { label: 'Attribution', percent: 30, color: '#63E6BE', offset: -70 },
+    {
+      label: 'Revenue',
+      percent: 41,
+      color: '#00bceb',
+      colorEnd: '#33d4f5',
+      offset: 0,
+    },
+    {
+      label: 'Billing',
+      percent: 21,
+      color: '#ff9000',
+      colorEnd: '#ffb04d',
+      offset: -45,
+    },
+    {
+      label: 'Attribution',
+      percent: 26,
+      color: '#87e15d',
+      colorEnd: '#a8ec85',
+      offset: -70,
+    },
   ];
 
   /* ── Active Sessions ── */

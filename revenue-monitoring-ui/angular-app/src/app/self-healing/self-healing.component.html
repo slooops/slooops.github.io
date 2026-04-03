@@ -17,7 +17,7 @@
                 [class.active]="selectedMenuIndex === i"
                 (click)="onGridMenuItemClick(i)"
               >
-                <span class="grid-menu-item-icon">{{ item.icon }}</span>
+                <ng-icon class="grid-menu-item-icon" [name]="item.icon" />
                 <span class="grid-menu-item-name">{{ item.label }}</span>
               </div>
             }
@@ -39,6 +39,13 @@
         >&nbsp;<b>Last Updated:</b> {{ periodStatus.lastUpdated }} &nbsp;</span
       >
     </div>
+
+    <button class="sh__dark-toggle" (click)="toggleDarkMode()">
+      <ng-icon
+        [name]="isDarkMode ? 'phosphorSunBold' : 'phosphorMoonBold'"
+        size="16"
+      />
+    </button>
   </div>
 </div>
 
@@ -53,7 +60,7 @@
        ═══════════════════════════════════════ -->
       <header class="sh__header">
         <div class="sh__header-left">
-          <div class="sh__subtitle-row">
+          <div class="sh__subtitle-row" style="margin-left: 1rem">
             <p class="sh__subtitle">I2C Self-Healing Bot v1.0.0-Active</p>
             <span class="sh__health-tag sh__health-tag--success"
               >Performance: Optimal</span
@@ -61,8 +68,14 @@
           </div>
         </div>
         <div class="sh__header-actions">
-          <button class="sh__btn sh__btn--primary">Run System Check</button>
-          <button class="sh__btn sh__btn--secondary">View Log History</button>
+          <button class="sh__btn">
+            <ng-icon name="phosphorArrowClockwiseBold" size="14" />
+            Run System Check
+          </button>
+          <button class="sh__btn">
+            <ng-icon name="phosphorClockCounterClockwiseBold" size="14" />
+            View Log History
+          </button>
         </div>
       </header>
 
@@ -105,20 +118,43 @@
 
         <!-- Donut chart -->
         <div class="sh__donut-card">
-          <h3 class="sh__section-label">Exceptions by Category</h3>
+          <span class="sh__section-label">Exceptions by Category</span>
           <div class="sh__donut-wrap">
             <div class="sh__donut">
               <svg class="sh__donut-svg" viewBox="0 0 36 36">
-                @for (slice of categorySlices; track slice.label) {
+                <defs>
+                  @for (
+                    slice of categorySlices;
+                    let i = $index;
+                    track slice.label
+                  ) {
+                    <linearGradient
+                      [attr.id]="'donutGrad' + i"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="100%"
+                    >
+                      <stop offset="0%" [attr.stop-color]="slice.color" />
+                      <stop offset="100%" [attr.stop-color]="slice.colorEnd" />
+                    </linearGradient>
+                  }
+                </defs>
+                @for (
+                  slice of categorySlices;
+                  let i = $index;
+                  track slice.label
+                ) {
                   <circle
                     cx="18"
                     cy="18"
                     r="16"
                     fill="transparent"
-                    [attr.stroke]="slice.color"
+                    [attr.stroke]="'url(#donutGrad' + i + ')'"
                     [attr.stroke-dasharray]="slice.percent + ', 100'"
                     [attr.stroke-dashoffset]="slice.offset"
                     stroke-width="3.5"
+                    stroke-linecap="round"
                   />
                 }
               </svg>
@@ -175,7 +211,7 @@
        ═══════════════════════════════════════ -->
       <section class="sh__sessions">
         <div class="sh__sessions-header">
-          <h3 class="sh__section-label">Active Sessions</h3>
+          <span class="sh__section-label">Active Sessions</span>
           <button class="sh__link">View All Active Sessions</button>
         </div>
 

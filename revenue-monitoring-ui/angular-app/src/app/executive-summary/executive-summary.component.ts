@@ -15,6 +15,7 @@ import {
   TableVersion,
   ColorPair,
 } from '../shared/editable-table-base';
+import { MarkdownPipe } from '../shared/markdown.pipe';
 import {
   ExecSummaryDataService,
   ExecSummaryRow,
@@ -24,7 +25,7 @@ import { ScorecardComponent } from '../scorecard/scorecard.component';
 @Component({
   selector: 'app-executive-summary',
   standalone: true,
-  imports: [FormsModule, NgIcon, ScorecardComponent],
+  imports: [FormsModule, NgIcon, ScorecardComponent, MarkdownPipe],
   providers: [
     DestroyManager,
     provideIcons({
@@ -43,15 +44,15 @@ export class ExecutiveSummaryComponent
   rows: ExecSummaryRow[] = [];
   activeTab = 0;
 
-  /* Alternating color palette for SDLC tracks */
+  /* Blue gradient palette — lightest at top, progressively deeper */
   trackColors: ColorPair[] = [
-    { bg: '#e5f2ff', accent: '#0070d2' },
-    { bg: '#e5f7ee', accent: '#1c8c4c' },
-    { bg: '#fff6e5', accent: '#d97706' },
-    { bg: '#f3e8ff', accent: '#7c3aed' },
-    { bg: '#fce8ec', accent: '#c0392b' },
-    { bg: '#e8f5e9', accent: '#2e7d32' },
-    { bg: '#e3f2fd', accent: '#1565c0' },
+    { bg: '#f0f7ff', accent: '#93c5fd' },
+    { bg: '#e0eefb', accent: '#6ba8e5' },
+    { bg: '#d0e4f7', accent: '#4a8ac7' },
+    { bg: '#c0daf3', accent: '#3574b3' },
+    { bg: '#aecfee', accent: '#21599d' },
+    { bg: '#9bc3e8', accent: '#134785' },
+    { bg: '#88b7e2', accent: '#0a306d' },
   ];
 
   constructor(
@@ -151,7 +152,7 @@ export class ExecutiveSummaryComponent
           `</tr>`,
       );
     }
-    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:block;width:100%;background:#fff;">
+    return `<div style="box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:block;width:100%;background:#fff;">
 <table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
 <thead><tr>
 <th ${thStyle}>SDLC Track</th>

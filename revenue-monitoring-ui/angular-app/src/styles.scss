@@ -17,37 +17,43 @@ body {
 h1 {
   font-size: 20px !important;
   font-weight: 600 !important;
-  margin: 0 !important;
+  margin: 0;
+  line-height: normal;
 }
 
 h2 {
   font-size: 18px !important;
   font-weight: 600 !important;
-  margin: 0 !important;
+  margin: 0;
+  line-height: normal;
 }
 
 h3 {
   font-size: 16px !important;
   font-weight: 600 !important;
-  margin: 0 !important;
+  margin: 0;
+  line-height: normal;
 }
 
 h4 {
   font-size: 14px !important;
   font-weight: 600 !important;
-  margin: 0 !important;
+  margin: 0;
+  line-height: normal;
 }
 
 h5 {
   font-size: 14px !important;
   font-weight: 500 !important;
-  margin: 0 !important;
+  margin: 0;
+  line-height: normal;
 }
 
 h6 {
   font-size: 12px !important;
   font-weight: 500 !important;
-  margin: 0 !important;
+  margin: 0;
+  line-height: normal;
 }
 
 .row {
@@ -130,6 +136,10 @@ h6 {
   overflow-y: hidden !important;
 }
 
+.body-layout {
+  overflow-y: hidden !important;
+  max-width: none !important;
+}
 .periodclosetable .table th {
   background-color: #f7f7f7;
   color: rgb(46, 46, 46);

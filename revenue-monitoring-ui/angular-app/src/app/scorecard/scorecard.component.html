@@ -113,6 +113,9 @@
             <th class="col-target">Target by EOCY26</th>
             <th class="col-measure">How Do We Measure</th>
             <th class="col-metric">{{ version?.sprintName || "" }} Metric</th>
+            @if (isEditing && isAdmin) {
+              <th class="col-actions"></th>
+            }
           </tr>
         </thead>
         @for (group of groups; track group.workstream) {
@@ -152,7 +155,7 @@
                   [class.cell-editing]="canEditCell(row, 'successCriteria')"
                 >
                   @if (!canEditCell(row, "successCriteria")) {
-                    <span class="cell-bullet">•</span> {{ row.successCriteria }}
+                    <span class="cell-bullet">•</span> <span [innerHTML]="row.successCriteria | markdown"></span>
                   } @else {
                     <textarea
                       class="cell-input cell-input-textarea"
@@ -168,7 +171,7 @@
                   [class.cell-editing]="canEditCell(row, 'baseline')"
                 >
                   @if (!canEditCell(row, "baseline")) {
-                    {{ row.baseline }}
+                    <span [innerHTML]="row.baseline | markdown"></span>
                   } @else {
                     <input
                       class="cell-input"
@@ -184,7 +187,7 @@
                   [class.cell-editing]="canEditCell(row, 'owners')"
                 >
                   @if (!canEditCell(row, "owners")) {
-                    {{ row.owners }}
+                    <span [innerHTML]="row.owners | markdown"></span>
                   } @else {
                     <input
                       class="cell-input"
@@ -200,7 +203,7 @@
                   [class.cell-editing]="canEditCell(row, 'eocy26Target')"
                 >
                   @if (!canEditCell(row, "eocy26Target")) {
-                    <strong>{{ row.eocy26Target }}</strong>
+                    <strong><span [innerHTML]="row.eocy26Target | markdown"></span></strong>
                   } @else {
                     <input
                       class="cell-input cell-input-bold"
@@ -216,7 +219,7 @@
                   [class.cell-editing]="canEditCell(row, 'howWeMeasure')"
                 >
                   @if (!canEditCell(row, "howWeMeasure")) {
-                    {{ row.howWeMeasure }}
+                    <span [innerHTML]="row.howWeMeasure | markdown"></span>
                   } @else {
                     <textarea
                       class="cell-input cell-input-textarea"
@@ -232,7 +235,7 @@
                   [class.cell-editing]="canEditCell(row, 'metric')"
                 >
                   @if (!canEditCell(row, "metric")) {
-                    {{ row.metric || "—" }}
+                    <span [innerHTML]="(row.metric || '—') | markdown"></span>
                   } @else {
                     <input
                       class="cell-input"
@@ -261,6 +264,11 @@
         }
       </table>
     </div>
+
+    <!-- Version notes -->
+    @if (version?.notes && !isEditing) {
+      <div class="version-notes" [innerHTML]="version.notes | markdown"></div>
+    }
 
     <!-- Save notes (shown when editing) -->
     @if (isEditing) {

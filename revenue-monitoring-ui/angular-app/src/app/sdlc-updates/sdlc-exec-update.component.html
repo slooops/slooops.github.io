@@ -111,6 +111,9 @@
             <th class="col-scope">Scope & Deliverables</th>
             <th class="col-update">Current Sprint update</th>
             <th class="col-status">Status</th>
+            @if (isEditing && isAdmin) {
+              <th class="col-actions"></th>
+            }
           </tr>
         </thead>
         @for (group of groups; track trackByGroup($index, group)) {
@@ -154,7 +157,7 @@
                 <!-- Scope & Deliverables -->
                 <td class="cell" [class.cell-editing]="canEditCell('scope')">
                   @if (!canEditCell("scope")) {
-                    {{ row.scope }}
+                    <span [innerHTML]="row.scope | markdown"></span>
                   } @else {
                     <textarea
                       class="cell-input cell-input-textarea"
@@ -170,7 +173,7 @@
                   [class.cell-editing]="canEditCell('sprintUpdate')"
                 >
                   @if (!canEditCell("sprintUpdate")) {
-                    {{ row.sprintUpdate }}
+                    <span [innerHTML]="row.sprintUpdate | markdown"></span>
                   } @else {
                     <textarea
                       class="cell-input cell-input-textarea"
@@ -233,6 +236,11 @@
         }
       </table>
     </div>
+
+    <!-- Version notes -->
+    @if (version?.notes && !isEditing) {
+      <div class="version-notes" [innerHTML]="version.notes | markdown"></div>
+    }
 
     <!-- Save notes -->
     @if (isEditing) {

@@ -159,7 +159,7 @@
                 <!-- Component -->
                 <td class="cell" [class.cell-editing]="canEditCell()">
                   @if (!canEditCell()) {
-                    {{ row.component }}
+                    <span [innerHTML]="row.component | markdown"></span>
                   } @else {
                     <input
                       class="cell-input"
@@ -245,6 +245,11 @@
         }
       </table>
     </div>
+
+    <!-- Version notes -->
+    @if (version?.notes && !isEditing) {
+      <div class="version-notes" [innerHTML]="version.notes | markdown"></div>
+    }
 
     <!-- Save notes -->
     @if (isEditing) {

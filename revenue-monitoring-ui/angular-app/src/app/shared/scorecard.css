@@ -17,20 +17,20 @@
   --sc-page-bg:
     radial-gradient(
       ellipse 80% 50% at 20% 40%,
-      rgba(0, 188, 235, 0.1) 0%,
+      rgba(0, 112, 210, 0.004) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse 60% 40% at 80% 30%,
-      rgba(0, 112, 210, 0.08) 0%,
+      rgba(0, 140, 210, 0.003) 0%,
       transparent 50%
     ),
     radial-gradient(
       ellipse 50% 50% at 60% 80%,
-      rgba(255, 144, 0, 0.05) 0%,
+      rgba(0, 90, 180, 0.002) 0%,
       transparent 50%
     ),
-    linear-gradient(135deg, #f8fafc 0%, #f0f4f8 50%, #e8f0f8 100%);
+    linear-gradient(135deg, #fafbfd 0%, #f4f7fc 50%, #eef3fa 100%);
   --sc-border: #e1e4e8;
   --sc-border-strong: #c6c7ca;
   --sc-card-radius: 16px;
@@ -87,7 +87,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--sc-text);
-  margin: 0 0 0.375rem;
+  margin: 0;
   letter-spacing: -0.01em;
   line-height: 2rem;
 }
@@ -351,16 +351,14 @@
   overflow: hidden;
   position: relative;
   box-shadow:
-    /* thin inner ring */
-    0 0 0 1px rgba(0, 188, 235, 0.08),
-    /* rainbow directional glows — each corner a different hue */ -20px -16px
-      50px rgba(0, 188, 235, 0.08),
-    20px -16px 50px rgba(0, 112, 210, 0.06),
-    24px 18px 50px rgba(255, 0, 128, 0.07),
-    -24px 18px 50px rgba(255, 144, 0, 0.04),
-    0px -20px 60px rgba(255, 208, 0, 0.08),
-    0px 20px 60px rgba(0, 188, 235, 0.01),
-    /* wide ambient wash */ 0px 0px 100px rgba(0, 188, 235, 0.03);
+    0 0 0 1px rgba(0, 112, 210, 0.008),
+    -20px -16px 50px rgba(0, 140, 210, 0.007),
+    20px -16px 50px rgba(0, 112, 210, 0.006),
+    24px 18px 50px rgba(0, 90, 180, 0.006),
+    -24px 18px 50px rgba(0, 70, 160, 0.004),
+    0px -20px 60px rgba(0, 140, 210, 0.006),
+    0px 20px 60px rgba(0, 112, 210, 0.002),
+    0px 0px 100px rgba(0, 112, 210, 0.003);
 }
 
 .scorecard-table-wrap.table-loading,
@@ -439,7 +437,7 @@ thead th {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--sc-text-muted);
-  background: #f7f8fa;
+  background: #f7f8fa00;
   border-bottom: 2px solid var(--sc-border-strong);
   position: sticky;
   top: 0;
@@ -464,6 +462,10 @@ thead th {
   border-right: 2px solid var(--group-accent, var(--sc-accent));
   transition: background 0.3s ease;
   overflow: hidden;
+}
+
+:last-child {
+  border-bottom: none;
 }
 
 /* Gradient bloom glow on right side — always visible, grows on hover */
@@ -665,6 +667,12 @@ thead th {
   padding: 0.875rem 1rem;
   vertical-align: top;
   background: transparent;
+}
+
+/* Remove border from last row */
+.exec-table tbody tr:last-child .cell,
+.scorecard-table tbody tr:last-child .cell {
+  border-bottom: none !important;
 }
 
 .cell-bullet {
@@ -895,6 +903,39 @@ thead th {
   padding: 4rem 2rem;
   color: var(--sc-text-muted);
   font-size: 0.9375rem;
+}
+
+/* ==========================================================================
+   Version Notes (below table)
+   ========================================================================== */
+
+.version-notes {
+  max-width: 50%;
+  margin: 0.75rem auto 0;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--sc-text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ==========================================================================
+   Markdown — auto-linked URLs
+   ========================================================================== */
+
+.md-link {
+  color: #5a8cbf;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(90, 140, 191, 0.3);
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.md-link:hover {
+  color: #3d6fa0;
+  border-bottom-color: rgba(61, 111, 160, 0.5);
 }
 
 /* ==========================================================================

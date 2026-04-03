@@ -12,11 +12,12 @@ import {
   ExecSummaryRow,
   ExecSummaryVersion,
 } from '../executive-summary-data.service';
+import { MarkdownPipe } from '../../shared/markdown.pipe';
 
 @Component({
   selector: 'app-executive-summary-history',
   standalone: true,
-  imports: [NgIcon],
+  imports: [NgIcon, MarkdownPipe],
   providers: [
     DestroyManager,
     provideIcons({
@@ -50,13 +51,13 @@ export class ExecutiveSummaryHistoryComponent implements OnInit, OnDestroy {
   private highlightTimer: any;
 
   trackColors = [
-    { bg: '#e5f2ff', accent: '#0070d2' },
-    { bg: '#e5f7ee', accent: '#1c8c4c' },
-    { bg: '#fff6e5', accent: '#d97706' },
-    { bg: '#f3e8ff', accent: '#7c3aed' },
-    { bg: '#fce8ec', accent: '#c0392b' },
-    { bg: '#e8f5e9', accent: '#2e7d32' },
-    { bg: '#e3f2fd', accent: '#1565c0' },
+    { bg: '#f0f7ff', accent: '#93c5fd' },
+    { bg: '#e0eefb', accent: '#6ba8e5' },
+    { bg: '#d0e4f7', accent: '#4a8ac7' },
+    { bg: '#c0daf3', accent: '#3574b3' },
+    { bg: '#aecfee', accent: '#21599d' },
+    { bg: '#9bc3e8', accent: '#134785' },
+    { bg: '#88b7e2', accent: '#0a306d' },
   ];
 
   constructor(

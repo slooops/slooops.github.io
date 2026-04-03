@@ -3,7 +3,6 @@ import { HttpService } from './http.service';
 import { Observable, Subject, of } from 'rxjs';
 import { DataFormattingService } from './data-formatting.service';
 import { catchError, shareReplay, takeUntil, tap } from 'rxjs/operators';
-import { data } from 'node_modules/cypress/types/jquery';
 
 @Injectable({ providedIn: 'root' })
 export class MonitoringDataService implements OnDestroy {

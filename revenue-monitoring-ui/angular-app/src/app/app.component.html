@@ -7,7 +7,9 @@
             !router.url.includes("/home") &&
             !router.url.includes("/ai-in-sdlc") &&
             !router.url.includes("/sprint-updates") &&
-            !router.url.includes("/caseiq")
+            !(
+              router.url.includes("/caseiq") && !router.url.includes("/caseiq-")
+            )
           ) {
             <div class="toolbar-nav-menu" (click)="$event.stopPropagation()">
               <img
@@ -441,7 +443,7 @@
                       (click)="navigateTo('/self-healing')"
                     >
                       <ng-icon
-                        name="phosphorClipboardTextBold"
+                        name="phosphorFirstAidKitBold"
                         class="nav-item-icon"
                       />
                       <span class="toolbar-nav-dropdown-item-name"

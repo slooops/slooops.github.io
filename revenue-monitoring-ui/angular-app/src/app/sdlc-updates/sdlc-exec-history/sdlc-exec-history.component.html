@@ -98,7 +98,7 @@
                   class="cell"
                   [class.cell-changed]="isCellChanged(row.sortOrder, 'scope')"
                 >
-                  {{ row.scope }}
+                  <span [innerHTML]="row.scope | markdown"></span>
                 </td>
                 <td
                   class="cell"
@@ -106,7 +106,7 @@
                     isCellChanged(row.sortOrder, 'sprintUpdate')
                   "
                 >
-                  {{ row.sprintUpdate }}
+                  <span [innerHTML]="row.sprintUpdate | markdown"></span>
                 </td>
                 <td
                   class="cell cell-status"

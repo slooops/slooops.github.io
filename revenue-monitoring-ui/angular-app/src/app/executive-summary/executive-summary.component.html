@@ -153,7 +153,7 @@
                   @if (!canEditCell("sdlcTrack")) {
                     <div class="track-label">
                       <span class="track-indicator"></span>
-                      {{ row.sdlcTrack }}
+                      <span [innerHTML]="row.sdlcTrack | markdown"></span>
                     </div>
                   } @else {
                     <input
@@ -177,7 +177,7 @@
                           bullet of getBullets(row.highlights);
                           track bullet
                         ) {
-                          <li>{{ bullet.replace(/^[•\-]\s*/, "") }}</li>
+                          <li [innerHTML]="bullet.replace(/^[•\-]\s*/, '') | markdown"></li>
                         }
                       </ul>
                     } @else {
@@ -205,7 +205,7 @@
                           bullet of getBullets(row.watchAreas);
                           track bullet
                         ) {
-                          <li>{{ bullet.replace(/^[•\-]\s*/, "") }}</li>
+                          <li [innerHTML]="bullet.replace(/^[•\-]\s*/, '') | markdown"></li>
                         }
                       </ul>
                     } @else {
@@ -247,6 +247,11 @@
           </div>
         }
       </div>
+
+      <!-- Version notes -->
+      @if (version?.notes && !isEditing) {
+        <div class="version-notes" [innerHTML]="version.notes | markdown"></div>
+      }
 
       <!-- Save notes bar -->
       @if (isEditing) {

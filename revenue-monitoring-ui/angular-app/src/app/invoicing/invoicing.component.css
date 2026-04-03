@@ -12,6 +12,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  padding: 10px 0;
 }
 
 .header-main h2 {
@@ -144,8 +145,16 @@ hr {
 .pill-tabs {
   display: flex;
   justify-content: space-between;
-  padding: 0.6rem 1rem;
+  padding: 0 1rem 5px 1rem;
   width: 100%;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  gap: 0.3rem;
+}
+
+.pill-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .pill-tab {

@@ -16,6 +16,7 @@ import {
   TableVersion,
   ColorPair,
 } from '../shared/editable-table-base';
+import { MarkdownPipe } from '../shared/markdown.pipe';
 import {
   SdlcAdoptDataService,
   SdlcAdoptRow,
@@ -44,7 +45,7 @@ export const ENTITY_COLUMNS: {
 @Component({
   selector: 'app-sdlc-component-adoption',
   standalone: true,
-  imports: [FormsModule, NgClass, NgIcon],
+  imports: [FormsModule, NgClass, NgIcon, MarkdownPipe],
   providers: [
     DestroyManager,
     provideIcons({
@@ -65,17 +66,17 @@ export class SdlcComponentAdoptionComponent
   entityColumns = ENTITY_COLUMNS;
 
   workstreamColors: Record<string, ColorPair> = {
-    Foundation: { bg: '#e6f7fa', accent: '#0891b2' },
+    Foundation: { bg: '#dbeafe', accent: '#60a5fa' },
     'Requirements Authoring and Validation': {
-      bg: '#f3eefa',
-      accent: '#7c3aed',
+      bg: '#ccddf5',
+      accent: '#4a8ac7',
     },
-    'Solution Design': { bg: '#fef0e6', accent: '#ea580c' },
-    Build: { bg: '#e5f2ff', accent: '#0070d2' },
-    Test: { bg: '#e5f7ee', accent: '#1c8c4c' },
-    'Production Support': { bg: '#fff6e5', accent: '#d97706' },
+    'Solution Design': { bg: '#bdd0ef', accent: '#3574b3' },
+    Build: { bg: '#aec3e8', accent: '#21599d' },
+    Test: { bg: '#9fb6e1', accent: '#174a8f' },
+    'Production Support': { bg: '#90a9da', accent: '#0e3b81' },
   };
-  defaultColor: ColorPair = { bg: '#f0f4f8', accent: '#555' };
+  defaultColor: ColorPair = { bg: '#dbeafe', accent: '#3b82f6' };
 
   constructor(
     private dataService: SdlcAdoptDataService,
@@ -201,7 +202,7 @@ export class SdlcComponentAdoptionComponent
     const entityHeaders = this.entityColumns
       .map((c) => `<th ${thStyle}>${this.esc(c.label)}</th>`)
       .join('');
-    return `<div style="border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:block;width:100%;background:#fff;">
+    return `<div style="box-shadow:0 4px 24px rgba(0,0,0,0.10),0 1.5px 6px rgba(0,0,0,0.06);overflow:hidden;display:block;width:100%;background:#fff;">
 <table style="border-collapse:collapse;font-family:Inter,Arial,sans-serif;width:100%;">
 <thead><tr>
 <th ${thStyle}>Component</th>

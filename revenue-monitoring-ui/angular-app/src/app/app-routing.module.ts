@@ -29,7 +29,6 @@ import { SdlcExecArchiveComponent } from './sdlc-updates/sdlc-exec-archive/sdlc-
 import { SdlcAdoptArchiveComponent } from './sdlc-updates/sdlc-adopt-archive/sdlc-adopt-archive.component';
 import { SprintUpdatesPageComponent } from './sdlc-updates/sprint-updates-page.component';
 import { SelfHealingComponent } from './self-healing/self-healing.component';
-import { CaseiqComponent } from './esp/esp-home/caseiq/caseiq.component';
 
 export const routes: Routes = [
   {

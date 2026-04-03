@@ -104,7 +104,7 @@
                     isCellChanged(row.sortOrder, 'component')
                   "
                 >
-                  {{ row.component }}
+                  <span [innerHTML]="row.component | markdown"></span>
                 </td>
                 @for (col of entityColumns; track col.key) {
                   <td

@@ -38,6 +38,15 @@ import {
   phosphorLightbulbBold,
   phosphorHeartbeatBold,
   phosphorUserBold,
+  phosphorFirstAidKitBold,
+  phosphorSquaresFourBold,
+  phosphorWarningBold,
+  phosphorCrosshairBold,
+  phosphorSparkleBold,
+  phosphorSunBold,
+  phosphorMoonBold,
+  phosphorArrowClockwiseBold,
+  phosphorClockCounterClockwiseBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -65,6 +74,15 @@ import {
       phosphorLightbulbBold,
       phosphorHeartbeatBold,
       phosphorUserBold,
+      phosphorFirstAidKitBold,
+      phosphorSquaresFourBold,
+      phosphorWarningBold,
+      phosphorCrosshairBold,
+      phosphorSparkleBold,
+      phosphorSunBold,
+      phosphorMoonBold,
+      phosphorArrowClockwiseBold,
+      phosphorClockCounterClockwiseBold,
     }),
   ],
   imports: [
