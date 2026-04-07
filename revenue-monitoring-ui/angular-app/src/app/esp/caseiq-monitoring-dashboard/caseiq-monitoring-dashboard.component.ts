@@ -219,9 +219,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         this.processTeamData(data.teamSummary);
         this.processThroughput(data.throughput);
         this.errorTableData = data.topErrors || [];
-        this.anomalyBreakdown = this.mapExceptionsToBreakdown(
-          data.exceptions || [],
-        );
         this.processAnomalyTable(
           data.ghostSuccess,
           data.notDefined,
@@ -257,34 +254,73 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       `Processed: ${totalProcessed.toLocaleString()} (${notSupported} NOT_SUPPORTED)<br>` +
       `Success: ${successPct}% · Errors: ${errorPct}%<br>` +
       `Avg Time: ${avgTime}`;
-    this.healthTotalIncidents = 243; // TODO: replace with totalProcessed
-    this.healthSuccessPct = 97.1; // TODO: replace with successPct
-    this.healthErrorPct = 2.9; // TODO: replace with errorPct
-    // TODO: replace with live counts once pipeline is verified
-    this.healthSuccessCount = 236;
-    this.healthErrorCount = 7;
 
-    const errorCount = (h.ERROR_CNT || 0) + (h.UNKNOWN_CNT || 0);
-    const anomCount =
-      (h.NULL_STATUS_CNT || 0) +
+    // Health ring: success = SUCCESS + PARTIAL + NOT_SUPPORTED; failures = total − success
+    const successCount =
+      (h.SUCCESS_CNT || 0) + (h.PARTIAL_CNT || 0) + (h.NOT_SUPPORTED_CNT || 0);
+    const failCount = totalProcessed - successCount;
+    this.healthTotalIncidents = totalProcessed;
+    this.healthSuccessPct = successPct;
+    this.healthErrorPct = errorPct;
+    this.healthSuccessCount = successCount;
+    this.healthErrorCount = failCount;
+
+    // KPI: Issues = anomaly categories + fail count (matches Python loadHealth)
+    const issuesCount =
+      (h.GHOST_SUCCESS_CNT || 0) +
       (h.NOT_DEFINED_CNT || 0) +
       (h.NULL_CATEGORY_CNT || 0) +
       (h.UNKNOWN_TEAM_CNT || 0) +
-      (h.GHOST_SUCCESS_CNT || 0) +
-      (h.EXCEPTION_CNT || 0);
+      (h.EXCEPTION_CNT || 0) +
+      failCount;
 
-    this.kpiIssues = '7'; // TODO: replace with live data once pipeline is verified
-    this.kpiSuccessRate = `${h.success_rate_pct || 0}%`;
+    this.kpiIssues = issuesCount.toLocaleString();
+    this.kpiSuccessRate = `${successPct}%`;
     this.kpiAvgTime =
       h.AVG_PROCESSING_MINUTES && h.AVG_PROCESSING_MINUTES > 0
         ? String(h.AVG_PROCESSING_MINUTES)
-        : '46'; // TODO: replace with live data once pipeline is verified
+        : 'N/A';
     this.kpiStaleness =
       h.MINUTES_SINCE_LAST_RUN != null
         ? String(h.MINUTES_SINCE_LAST_RUN)
         : 'N/A';
     this.kpiGhost = (h.GHOST_SUCCESS_CNT || 0).toLocaleString();
     this.kpiNotSupported = (h.NOT_SUPPORTED_CNT || 0).toLocaleString();
+
+    // Issues Breakdown: 6 categories derived from health query (mirrors Python loadHealth)
+    const allIssues: AnomalyBreakdownItem[] = [
+      {
+        name: 'SUCCESS but missing summary/context',
+        count: h.GHOST_SUCCESS_CNT || 0,
+        severity: 'critical',
+      },
+      {
+        name: 'LLM Summary is "Not Defined"',
+        count: h.NOT_DEFINED_CNT || 0,
+        severity: 'warning',
+      },
+      {
+        name: 'category or core_issue is NULL',
+        count: h.NULL_CATEGORY_CNT || 0,
+        severity: 'warning',
+      },
+      {
+        name: 'team_name is "UNKNOWN"',
+        count: h.UNKNOWN_TEAM_CNT || 0,
+        severity: 'warning',
+      },
+      {
+        name: 'CaseIQ errored (category=ERROR or exception in fields)',
+        count: h.EXCEPTION_CNT || 0,
+        severity: 'critical',
+      },
+      {
+        name: 'resolution_api_status is ERROR/FAILURE/Unknown/NULL',
+        count: failCount,
+        severity: 'critical',
+      },
+    ];
+    this.anomalyBreakdown = allIssues.filter((a) => a.count > 0);
   }
 
   private processStatusBars(data: StatusDistribution[]): void {
@@ -445,17 +481,5 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   formatDate(val: string): string {
     if (!val) return 'N/A';
     return new Date(val).toLocaleString();
-  }
-
-  private mapExceptionsToBreakdown(_exceptions: any[]): AnomalyBreakdownItem[] {
-    // TODO: replace with live exception data once pipeline is verified
-    return [
-      { name: 'LLM Summary is "Not Defined"', count: 4, severity: 'warning' },
-      {
-        name: 'resolution_api_status is ERROR/FAILURE/Unknown/NULL',
-        count: 3,
-        severity: 'critical',
-      },
-    ];
   }
 }
