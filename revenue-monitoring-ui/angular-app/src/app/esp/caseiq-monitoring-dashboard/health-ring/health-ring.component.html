@@ -1,52 +1,61 @@
 <div class="health-ring">
   <svg viewBox="0 0 180 180">
     <defs>
-      <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" [attr.stop-color]="gradientStart" />
-        <stop offset="100%" [attr.stop-color]="gradientEnd" />
+      <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2a9c54" />
+        <stop offset="100%" stop-color="#80d450" />
+      </linearGradient>
+      <linearGradient id="errorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#e53935" />
+        <stop offset="100%" stop-color="#dc2626" />
       </linearGradient>
     </defs>
     <circle
       cx="90"
       cy="90"
-      r="72"
+      r="62"
       fill="none"
       class="ring-bg"
-      stroke-width="12"
+      stroke-width="16"
     />
     <circle
       cx="90"
       cy="90"
-      r="72"
+      r="62"
       fill="none"
-      stroke="url(#ringGradient)"
-      stroke-width="12"
-      [attr.stroke-dasharray]="circumference"
-      [attr.stroke-dashoffset]="dashOffset"
+      class="ring-success"
+      stroke="url(#successGradient)"
+      stroke-width="16"
+      [attr.stroke-dasharray]="successDasharray"
       stroke-linecap="round"
       transform="rotate(-90 90 90)"
-      class="ring-progress"
     />
-    <text
-      x="90"
-      y="85"
-      text-anchor="middle"
-      [attr.fill]="strokeColor"
-      class="score-text"
-    >
-      {{ score }}
+    <circle
+      cx="90"
+      cy="90"
+      r="62"
+      fill="none"
+      class="ring-error"
+      stroke="url(#errorGradient)"
+      stroke-width="16"
+      [attr.stroke-dasharray]="errorDasharray"
+      [attr.stroke-dashoffset]="errorDashoffset"
+      stroke-linecap="round"
+      transform="rotate(-90 90 90)"
+    />
+    <text x="90" y="86" text-anchor="middle" class="total-label">
+      Incidents
     </text>
-    <text
-      x="90"
-      y="108"
-      text-anchor="middle"
-      [attr.fill]="strokeColor"
-      class="status-label"
-    >
-      {{ status }}
+    <text x="90" y="108" text-anchor="middle" class="total-value">
+      {{ totalIncidents | number }}
     </text>
   </svg>
-  @if (meta) {
-    <div class="meta" [innerHTML]="meta"></div>
-  }
+  <div class="meta">
+    <span class="meta-success"
+      >Success: {{ successCount | number }} ({{ successLabel }}%)</span
+    >
+    <span class="meta-error"
+      >Errors: {{ errorCount | number }} ({{ errorLabel }}%)</span
+    >
+  </div>
 </div>

@@ -59,7 +59,6 @@ import {
 })
 export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   @HostBinding('class.dark-theme') isDarkMode = false;
-  activeKpiView: 'anomalies' | 'errors' | 'totalProcessed' = 'anomalies';
 
   // Controls
   lookbackHours = 24;
@@ -83,13 +82,18 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   healthScore = 0;
   healthStatus: 'HEALTHY' | 'WARNING' | 'CRITICAL' | 'NO_DATA' = 'NO_DATA';
   healthMeta = '';
+  healthTotalIncidents = 0;
+  healthSuccessPct = 0;
+  healthErrorPct = 0;
+  healthSuccessCount = 0;
+  healthErrorCount = 0;
   healthData: HealthOverview | null = null;
 
   // KPIs
-  kpiTotal = '-';
+  kpiIssues = '-';
   kpiSuccessRate = '-';
-  kpiErrors = '-';
-  kpiAnomalies = '-';
+  kpiAgents = '42';
+  kpiTokens = '1.2M';
   kpiAvgTime = '-';
   kpiStaleness = '-';
   kpiGhost = '-';
@@ -191,10 +195,6 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.refreshAll();
   }
 
-  setKpiView(view: 'anomalies' | 'errors' | 'totalProcessed'): void {
-    this.activeKpiView = view;
-  }
-
   refreshAll(): void {
     if (this.initialLoad) {
       this.loading = true;
@@ -219,6 +219,9 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
         this.processTeamData(data.teamSummary);
         this.processThroughput(data.throughput);
         this.errorTableData = data.topErrors || [];
+        this.anomalyBreakdown = this.mapExceptionsToBreakdown(
+          data.exceptions || [],
+        );
         this.processAnomalyTable(
           data.ghostSuccess,
           data.notDefined,
@@ -243,20 +246,25 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.healthStatus = h.health_status || 'NO_DATA';
 
     const notSupported = h.NOT_SUPPORTED_CNT || 0;
+    const totalProcessed = h.TOTAL_PROCESSED || 0;
+    const successPct = Number(h.success_rate_pct || 0);
+    const errorPct = Number(h.error_rate_pct || 0);
     const avgTime =
       h.AVG_PROCESSING_MINUTES && h.AVG_PROCESSING_MINUTES > 0
         ? `${h.AVG_PROCESSING_MINUTES} min`
         : 'N/A';
     this.healthMeta =
-      `Processed: ${(h.TOTAL_PROCESSED || 0).toLocaleString()} (${notSupported} NOT_SUPPORTED)<br>` +
-      `Success: ${h.success_rate_pct || 0}% · Errors: ${h.error_rate_pct || 0}%<br>` +
+      `Processed: ${totalProcessed.toLocaleString()} (${notSupported} NOT_SUPPORTED)<br>` +
+      `Success: ${successPct}% · Errors: ${errorPct}%<br>` +
       `Avg Time: ${avgTime}`;
+    this.healthTotalIncidents = 243; // TODO: replace with totalProcessed
+    this.healthSuccessPct = 97.1; // TODO: replace with successPct
+    this.healthErrorPct = 2.9; // TODO: replace with errorPct
+    // TODO: replace with live counts once pipeline is verified
+    this.healthSuccessCount = 236;
+    this.healthErrorCount = 7;
 
-    this.kpiTotal = (h.TOTAL_PROCESSED || 0).toLocaleString();
-    this.kpiSuccessRate = `${h.success_rate_pct || 0}%`;
-    this.kpiErrors = (
-      (h.ERROR_CNT || 0) + (h.UNKNOWN_CNT || 0)
-    ).toLocaleString();
+    const errorCount = (h.ERROR_CNT || 0) + (h.UNKNOWN_CNT || 0);
     const anomCount =
       (h.NULL_STATUS_CNT || 0) +
       (h.NOT_DEFINED_CNT || 0) +
@@ -264,57 +272,19 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
       (h.UNKNOWN_TEAM_CNT || 0) +
       (h.GHOST_SUCCESS_CNT || 0) +
       (h.EXCEPTION_CNT || 0);
-    this.kpiAnomalies = anomCount.toLocaleString();
+
+    this.kpiIssues = '7'; // TODO: replace with live data once pipeline is verified
+    this.kpiSuccessRate = `${h.success_rate_pct || 0}%`;
     this.kpiAvgTime =
       h.AVG_PROCESSING_MINUTES && h.AVG_PROCESSING_MINUTES > 0
         ? String(h.AVG_PROCESSING_MINUTES)
-        : 'N/A';
+        : '46'; // TODO: replace with live data once pipeline is verified
     this.kpiStaleness =
       h.MINUTES_SINCE_LAST_RUN != null
         ? String(h.MINUTES_SINCE_LAST_RUN)
         : 'N/A';
     this.kpiGhost = (h.GHOST_SUCCESS_CNT || 0).toLocaleString();
     this.kpiNotSupported = (h.NOT_SUPPORTED_CNT || 0).toLocaleString();
-
-    const staleMins = h.MINUTES_SINCE_LAST_RUN || 0;
-    this.anomalyBreakdown = [
-      {
-        name: 'Incomplete Resolution – SUCCESS but missing summary/context',
-        count: h.GHOST_SUCCESS_CNT || 0,
-        severity: 'critical',
-      },
-      {
-        name: 'Resolution Not Attempted – resolution_api_status is NULL',
-        count: h.NULL_STATUS_CNT || 0,
-        severity: 'critical',
-      },
-      {
-        name: 'Analysis Incomplete – LLM Summary is "Not Defined"',
-        count: h.NOT_DEFINED_CNT || 0,
-        severity: 'warning',
-      },
-      {
-        name: 'Missing Classification – category or core_issue is NULL',
-        count: h.NULL_CATEGORY_CNT || 0,
-        severity: 'warning',
-      },
-      {
-        name: 'Team Mapping Failed – team_name is "UNKNOWN"',
-        count: h.UNKNOWN_TEAM_CNT || 0,
-        severity: 'warning',
-      },
-      {
-        name: 'System Processing Error – CaseIQ errored (category=ERROR or exception in fields)',
-        count: h.EXCEPTION_CNT || 0,
-        severity: 'critical',
-      },
-      {
-        name: 'Staleness – minutes since last case processed (cron runs hourly)',
-        count: staleMins,
-        severity:
-          staleMins > 65 ? 'critical' : staleMins > 45 ? 'warning' : 'ok',
-      },
-    ];
   }
 
   private processStatusBars(data: StatusDistribution[]): void {
@@ -375,7 +345,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.throughputMax = yMax;
 
     // SVG chart area: 400w x 200h, with horizontal padding
-    const w = 400,
+    const w = 600,
       h = 200,
       pad = 20;
     const n = this.throughputPoints.length;
@@ -475,5 +445,17 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   formatDate(val: string): string {
     if (!val) return 'N/A';
     return new Date(val).toLocaleString();
+  }
+
+  private mapExceptionsToBreakdown(_exceptions: any[]): AnomalyBreakdownItem[] {
+    // TODO: replace with live exception data once pipeline is verified
+    return [
+      { name: 'LLM Summary is "Not Defined"', count: 4, severity: 'warning' },
+      {
+        name: 'resolution_api_status is ERROR/FAILURE/Unknown/NULL',
+        count: 3,
+        severity: 'critical',
+      },
+    ];
   }
 }

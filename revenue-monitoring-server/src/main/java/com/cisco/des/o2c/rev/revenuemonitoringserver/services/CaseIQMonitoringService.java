@@ -1,6 +1,8 @@
 package com.cisco.des.o2c.rev.revenuemonitoringserver.services;
 
 import com.cisco.des.o2c.rev.revenuemonitoringserver.utils.JdbcManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +12,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class CaseIQMonitoringService {
+
+    private static final Logger log = LoggerFactory.getLogger(CaseIQMonitoringService.class);
 
     private final JdbcManager jdbcManager;
 
@@ -291,7 +295,11 @@ public class CaseIQMonitoringService {
                 params.put("lookback_hours", 8760);
             }
         }
-        return jdbcManager.queryWithNamedParams(sql, params);
+        log.info("[CaseIQ] runQuery params={} fiscQtr={}", params, fiscQtr);
+        log.info("[CaseIQ] runQuery SQL=\n{}", sql);
+        List<Map<String, Object>> results = jdbcManager.queryWithNamedParams(sql, params);
+        log.info("[CaseIQ] runQuery returned {} rows", results.size());
+        return results;
     }
 
     private Map<String, Object> buildParams(String key, Object value) {
@@ -411,7 +419,14 @@ public class CaseIQMonitoringService {
     }
 
     public List<Map<String, Object>> getExceptions(int lookbackHours, String fiscQtr) {
-        return runQuery(EXCEPTION_IN_FIELDS, buildParams("lookback_hours", lookbackHours), fiscQtr);
+        log.info("[CaseIQ] getExceptions called: lookbackHours={}, fiscQtr={}", lookbackHours, fiscQtr);
+        List<Map<String, Object>> results = runQuery(EXCEPTION_IN_FIELDS, buildParams("lookback_hours", lookbackHours),
+                fiscQtr);
+        log.info("[CaseIQ] getExceptions returning {} records", results.size());
+        if (!results.isEmpty()) {
+            log.info("[CaseIQ] getExceptions first row keys: {}", results.get(0).keySet());
+        }
+        return results;
     }
 
     public List<Map<String, Object>> getStaleness() {

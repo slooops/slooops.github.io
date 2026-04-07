@@ -9,29 +9,41 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./health-ring.component.css'],
 })
 export class HealthRingComponent implements OnChanges {
-  @Input() score = 0;
-  @Input() status: 'HEALTHY' | 'WARNING' | 'CRITICAL' | 'NO_DATA' = 'NO_DATA';
-  @Input() meta = '';
+  @Input() totalIncidents = 0;
+  @Input() successPct = 0;
+  @Input() errorPct = 0;
+  @Input() successCount = 0;
+  @Input() errorCount = 0;
 
-  strokeColor = '#8899a6';
-  gradientStart = '#8899a6';
-  gradientEnd = '#8899a6';
-  circumference = 2 * Math.PI * 72;
-  dashOffset = this.circumference;
-
-  private colorMap: Record<string, [string, string]> = {
-    HEALTHY: ['#b6e8a0', '#6ebe4a'],
-    WARNING: ['#ffe082', '#e6a800'],
-    CRITICAL: ['#ef9a9a', '#e53935'],
-    NO_DATA: ['#cfd8dc', '#8899a6'],
-  };
+  circumference = 2 * Math.PI * 62;
+  successDasharray = `0 ${this.circumference}`;
+  errorDasharray = `0 ${this.circumference}`;
+  errorDashoffset = 0;
+  successLabel = '0';
+  errorLabel = '0';
 
   ngOnChanges(): void {
-    const [start, end] = this.colorMap[this.status] || this.colorMap['NO_DATA'];
-    this.gradientStart = start;
-    this.gradientEnd = end;
-    this.strokeColor = end;
-    const pct = Math.max(0, Math.min(100, this.score));
-    this.dashOffset = this.circumference * (1 - pct / 100);
+    const success = this.clampPercent(this.successPct);
+    const error = this.clampPercent(this.errorPct);
+
+    this.successLabel = this.formatPercent(success);
+    this.errorLabel = this.formatPercent(error);
+
+    const successLen = (success / 100) * this.circumference;
+    const errorLen = (error / 100) * this.circumference;
+    this.successDasharray = `${successLen} ${this.circumference - successLen}`;
+    this.errorDasharray = `${errorLen} ${this.circumference - errorLen}`;
+    this.errorDashoffset = -successLen;
+  }
+
+  private clampPercent(value: number): number {
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+    return Math.max(0, Math.min(100, value));
+  }
+
+  private formatPercent(value: number): string {
+    return Number(value.toFixed(1)).toString();
   }
 }
