@@ -52,11 +52,11 @@ export class ScorecardHistoryComponent implements OnInit, OnDestroy {
   private highlightTimer: any;
 
   workstreamColors: Record<string, { bg: string; accent: string }> = {
-    '1. Improve Cycle time': { bg: '#f0f7ff', accent: '#3b82f6' },
-    '2. Improve Productivity': { bg: '#dbeafe', accent: '#1d4ed8' },
-    '3. Improve Quality': { bg: '#bfdbfe', accent: '#1e3a8a' },
+    '1. Improve Cycle time': { bg: '#e5f2ff', accent: '#0070d2' },
+    '2. Improve Productivity': { bg: '#e5f7ee', accent: '#1c8c4c' },
+    '3. Improve Quality': { bg: '#fff6e5', accent: '#d97706' },
   };
-  defaultColor = { bg: '#eff6ff', accent: '#2563eb' };
+  defaultColor = { bg: '#f4f5f6', accent: '#555' };
 
   constructor(
     private dataService: ScorecardDataService,
