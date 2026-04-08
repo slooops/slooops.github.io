@@ -92,7 +92,7 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
   // KPIs
   kpiIssues = '-';
   kpiSuccessRate = '-';
-  kpiAgents = '42';
+  kpiAgents = '81';
   kpiTokens = '1.2M';
   kpiAvgTime = '-';
   kpiStaleness = '-';
