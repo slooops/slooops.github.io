@@ -18,7 +18,10 @@ export class MarkdownPipe implements PipeTransform {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
 
-    // 2. Auto-linkify URLs (https://, http://, or www.)
+    // 2. Newlines → <br>
+    s = s.replace(/\n/g, '<br>');
+
+    // 3. Auto-linkify URLs (https://, http://, or www.)
     s = s.replace(
       /\b(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi,
       '<a href="$1" target="_blank" rel="noopener noreferrer" class="md-link">$1</a>',
