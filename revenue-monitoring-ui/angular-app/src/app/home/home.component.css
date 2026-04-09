@@ -594,9 +594,8 @@
 .issues-table-section {
   background: white;
   border-radius: 6px;
-  padding: 18px;
+  padding: 4px 24px 0 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e8e8e8;
 }
 
 .table-header-row {

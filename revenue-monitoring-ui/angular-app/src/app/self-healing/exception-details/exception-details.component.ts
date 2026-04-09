@@ -31,6 +31,7 @@ interface ExceptionDetail {
 })
 export class ExceptionDetailsComponent {
   @Input() exceptionId: string = '';
+  @Input() backLabel: string = 'Back to Queue';
   @Output() back = new EventEmitter<void>();
 
   activeTab: 'review' | 'trace' = 'review';
