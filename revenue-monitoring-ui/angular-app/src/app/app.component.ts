@@ -47,7 +47,11 @@ import {
   phosphorMoonBold,
   phosphorArrowClockwiseBold,
   phosphorClockCounterClockwiseBold,
+  phosphorListBold,
+  phosphorCaretRightBold,
+  phosphorXBold,
 } from '@ng-icons/phosphor-icons/bold';
+import { MainSidebarNavComponent } from './shared/main-sidebar-nav/main-sidebar-nav.component';
 
 @Component({
   selector: 'app-root',
@@ -83,6 +87,9 @@ import {
       phosphorMoonBold,
       phosphorArrowClockwiseBold,
       phosphorClockCounterClockwiseBold,
+      phosphorListBold,
+      phosphorCaretRightBold,
+      phosphorXBold,
     }),
   ],
   imports: [
@@ -95,6 +102,7 @@ import {
     // MenuComponent,
     HelpDataComponent,
     ChatbotComponent,
+    MainSidebarNavComponent,
   ],
   standalone: true,
 })
@@ -130,6 +138,18 @@ export class AppComponent implements OnInit, OnDestroy {
   showNavMenu = false;
   isChatOpen = false;
   chatbotHidden = false;
+
+  get showSidebar(): boolean {
+    return (
+      !this.router.url.includes('/home') &&
+      !this.router.url.includes('/ai-in-sdlc') &&
+      !this.router.url.includes('/sprint-updates') &&
+      !(
+        this.router.url.includes('/caseiq') &&
+        !this.router.url.includes('/caseiq-')
+      )
+    );
+  }
 
   /**
    * Determine the default route based on user roles
