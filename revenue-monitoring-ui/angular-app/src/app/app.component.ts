@@ -47,14 +47,6 @@ import {
   phosphorMoonBold,
   phosphorArrowClockwiseBold,
   phosphorClockCounterClockwiseBold,
-  phosphorCaretLeftBold,
-  phosphorCaretRightBold,
-  phosphorCaretDownBold,
-  phosphorRocketLaunchBold,
-  phosphorMegaphoneBold,
-  phosphorMagnifyingGlassBold,
-  phosphorFunnelBold,
-  phosphorArrowRightBold,
 } from '@ng-icons/phosphor-icons/bold';
 
 @Component({
@@ -91,14 +83,6 @@ import {
       phosphorMoonBold,
       phosphorArrowClockwiseBold,
       phosphorClockCounterClockwiseBold,
-      phosphorCaretLeftBold,
-      phosphorCaretRightBold,
-      phosphorCaretDownBold,
-      phosphorRocketLaunchBold,
-      phosphorMegaphoneBold,
-      phosphorMagnifyingGlassBold,
-      phosphorFunnelBold,
-      phosphorArrowRightBold,
     }),
   ],
   imports: [
@@ -146,7 +130,6 @@ export class AppComponent implements OnInit, OnDestroy {
   showNavMenu = false;
   isChatOpen = false;
   chatbotHidden = false;
-  sidebarExpanded = true;
 
   /**
    * Determine the default route based on user roles
@@ -375,24 +358,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   toggleCmMenu(event: Event) {
     event.stopPropagation();
-    if (!this.sidebarExpanded) {
-      this.sidebarExpanded = true;
-      this.showCmMenu = true;
-      this.showEspMenu = false;
-      return;
-    }
     this.showCmMenu = !this.showCmMenu;
     this.showEspMenu = false;
   }
 
   toggleEspMenu(event: Event) {
     event.stopPropagation();
-    if (!this.sidebarExpanded) {
-      this.sidebarExpanded = true;
-      this.showEspMenu = true;
-      this.showCmMenu = false;
-      return;
-    }
     this.showEspMenu = !this.showEspMenu;
     this.showCmMenu = false;
   }
@@ -407,23 +378,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showNavMenu = !this.showNavMenu;
   }
 
-  toggleSidebar(): void {
-    this.sidebarExpanded = !this.sidebarExpanded;
-  }
-
-  get showSidebar(): boolean {
-    return (
-      !this.hideNavbar &&
-      !this.router.url.includes('/home') &&
-      !this.router.url.includes('/ai-in-sdlc') &&
-      !this.router.url.includes('/sprint-updates') &&
-      !(
-        this.router.url.includes('/caseiq') &&
-        !this.router.url.includes('/caseiq-')
-      )
-    );
-  }
-
   toggleChat() {
     this.isChatOpen = !this.isChatOpen;
   }
@@ -433,6 +387,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.showCmMenu = false;
     this.showEspMenu = false;
     this.showMobileMenu = false;
+    this.showNavMenu = false;
   }
 
   logout() {
