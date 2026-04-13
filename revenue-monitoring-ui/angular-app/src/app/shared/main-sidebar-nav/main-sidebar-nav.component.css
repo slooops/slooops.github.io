@@ -2,21 +2,24 @@
 :host {
   --ms-bg: #ffffff;
   --ms-surface: #f8f9fb;
-  --ms-text: #1d1d1d;
+  --ms-text: #555;
   --ms-muted: #6b7280;
+  --ms-icon: #7b93af;
   --ms-active-bg: #eff6ff;
   --ms-active-border: #00bceb;
   --ms-active-text: #00bceb;
   --ms-hover-bg: #f3f4f6;
   --ms-border: #e5e7eb;
-  --ms-drawer-bg: #ffffff;
-  --ms-drawer-shadow: inset 8px 0 16px -6px rgba(0, 0, 0, 0.08);
+  --ms-drawer-bg: rgba(255, 255, 255, 0.72);
+  --ms-drawer-shadow:
+    inset 8px 0 16px -6px rgba(0, 0, 0, 0.08),
+    10px 0 16px -6px rgba(0, 0, 0, 0.06);
   --ms-pill-bg: #ffffff;
   --ms-pill-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   --ms-rail-width: 220px;
-  --ms-rail-collapsed: 56px;
+  --ms-rail-collapsed: 80px;
   --ms-drawer-width: 240px;
-  --ms-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --ms-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: block;
   height: 100%;
 }
@@ -27,13 +30,16 @@
   --ms-surface: #0f1923;
   --ms-text: #e0e6ed;
   --ms-muted: #8899a6;
+  --ms-icon: #8faabe;
   --ms-active-bg: rgba(0, 188, 235, 0.12);
   --ms-active-border: #00bceb;
   --ms-active-text: #00bceb;
   --ms-hover-bg: rgba(255, 255, 255, 0.06);
   --ms-border: rgba(42, 63, 80, 0.6);
-  --ms-drawer-bg: #1a2733;
-  --ms-drawer-shadow: inset 8px 0 16px -6px rgba(0, 0, 0, 0.25);
+  --ms-drawer-bg: rgba(26, 39, 51, 0.65);
+  --ms-drawer-shadow:
+    inset 8px 0 16px -6px rgba(0, 0, 0, 0.2),
+    4px 0 16px -6px rgba(0, 0, 0, 0.15);
   --ms-pill-bg: #1a2733;
   --ms-pill-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
@@ -52,10 +58,11 @@
   width: var(--ms-rail-width);
   min-width: var(--ms-rail-width);
   background: var(--ms-bg);
-  border-right: 1px solid var(--ms-border);
+  box-shadow: 4px 0 10px -6px rgba(0, 0, 0, 0.06);
+  /* border-right: 1px solid var(--ms-border); */
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  padding: 0.5rem 0;
   transition:
     width var(--ms-transition),
     min-width var(--ms-transition);
@@ -85,6 +92,10 @@
   margin-bottom: 0.25rem;
 }
 
+.ms-rail.collapsed .ms-toggle {
+  justify-content: center;
+}
+
 .ms-toggle:hover {
   background: var(--ms-hover-bg);
 }
@@ -112,56 +123,215 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   background: none;
   border-radius: 8px;
   cursor: pointer;
   color: var(--ms-text);
   font-size: 0.8rem;
-  font-weight: 500;
-  white-space: nowrap;
+  font-weight: 600;
+  white-space: normal;
   text-align: left;
-  transition: background 0.15s ease;
+  min-height: 42px;
+  transition:
+    background 0.15s ease,
+    padding var(--ms-transition),
+    gap var(--ms-transition),
+    min-height var(--ms-transition);
   position: relative;
 }
 
 .ms-nav-item:hover {
-  background: var(--ms-hover-bg);
+  background: radial-gradient(
+    ellipse 180% 70% at -10% 50%,
+    rgba(0, 188, 235, 0.1) 0%,
+    rgba(0, 188, 235, 0.04) 45%,
+    transparent 90%
+  );
+}
+
+.ms-rail.collapsed .ms-nav-item:hover {
+  background: radial-gradient(
+    ellipse 70% 180% at 50% 110%,
+    rgba(0, 188, 235, 0.1) 0%,
+    rgba(0, 188, 235, 0.04) 45%,
+    transparent 90%
+  );
 }
 
 .ms-nav-item.active {
-  background: var(--ms-active-bg);
   color: var(--ms-active-text);
 }
 
+/* Bloom gradient from page edge */
 .ms-nav-item.active::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 4px;
-  bottom: 4px;
+  top: 0;
+  bottom: 0;
+  left: -0.5rem;
+  right: 0;
+  border-radius: 0 8px 8px 0;
+  background: radial-gradient(
+    ellipse 180% 70% at -10% 50%,
+    rgba(0, 188, 235, 0.28) 0%,
+    rgba(0, 188, 235, 0.12) 40%,
+    rgba(0, 188, 235, 0.04) 65%,
+    transparent 95%
+  );
+  pointer-events: none;
+}
+
+/* Accent bar flush with page edge */
+.ms-nav-item.active::after {
+  content: "";
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  bottom: 0;
   width: 3px;
   border-radius: 0 3px 3px 0;
   background: var(--ms-active-border);
+  pointer-events: none;
+}
+
+.ms-rail.collapsed .ms-nav-item.active::before {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 8px;
+  background: radial-gradient(
+    ellipse 70% 180% at 50% 110%,
+    rgba(0, 188, 235, 0.28) 0%,
+    rgba(0, 188, 235, 0.12) 40%,
+    rgba(0, 188, 235, 0.04) 65%,
+    transparent 95%
+  );
+}
+
+.ms-rail.collapsed .ms-nav-item.active::after {
+  left: 4px;
+  right: 4px;
+  top: auto;
+  bottom: -0.25rem;
+  width: auto;
+  height: 3px;
+  border-radius: 3px;
+}
+
+/* ── Browsing / tentative state (drawer open, no child selected) ── */
+.ms-nav-item.browsing {
+  color: var(--ms-active-text);
+}
+
+.ms-nav-item.browsing::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.5rem;
+  right: 0;
+  border-radius: 0 8px 8px 0;
+  background: radial-gradient(
+    ellipse 180% 70% at -10% 50%,
+    rgba(0, 188, 235, 0.12) 0%,
+    rgba(0, 188, 235, 0.04) 40%,
+    transparent 90%
+  );
+  pointer-events: none;
+}
+
+.ms-rail.collapsed .ms-nav-item.browsing::before {
+  left: 0;
+  right: 0;
+  border-radius: 8px;
+  background: radial-gradient(
+    ellipse 70% 180% at 50% 110%,
+    rgba(0, 188, 235, 0.12) 0%,
+    rgba(0, 188, 235, 0.04) 40%,
+    transparent 90%
+  );
+}
+
+.ms-nav-item.browsing .ms-nav-icon {
+  color: var(--ms-active-text);
+  opacity: 0.7;
+}
+
+.ms-rail.collapsed .ms-nav-item.browsing .ms-nav-label-collapsed {
+  color: var(--ms-active-text);
+  opacity: 0.7;
 }
 
 .ms-nav-icon {
   flex-shrink: 0;
+  color: var(--ms-icon);
+}
+
+.ms-nav-item.active .ms-nav-icon {
+  color: var(--ms-active-text);
 }
 
 .ms-nav-label {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: opacity var(--ms-transition);
+  transition:
+    opacity 0.12s ease,
+    max-width var(--ms-transition);
+  max-width: 200px;
 }
 
 .ms-rail.collapsed .ms-nav-label,
 .ms-rail.collapsed .ms-nav-caret {
   opacity: 0;
   pointer-events: none;
-  width: 0;
+  max-width: 0;
+  overflow: hidden;
+  position: absolute;
+}
+
+/* ── Collapsed label below icon ── */
+.ms-nav-label-collapsed {
+  display: block;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.2s ease,
+    opacity 0.15s ease;
+}
+
+.ms-rail.collapsed .ms-nav-item {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.125rem;
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  min-height: 58px;
+}
+
+.ms-rail.collapsed .ms-nav-label-collapsed {
+  max-height: 2rem;
+  opacity: 1;
+  transition:
+    max-height 0.3s ease 0.1s,
+    opacity 0.2s ease 0.15s;
+  color: var(--ms-muted);
+  line-height: 1.2;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.ms-rail.collapsed .ms-nav-item.active .ms-nav-label-collapsed {
+  color: var(--ms-active-text);
 }
 
 .ms-nav-caret {
@@ -174,39 +344,54 @@
 }
 
 .ms-nav-caret.open {
-  transform: rotate(90deg);
+  transform: rotate(180deg);
 }
 
 /* ══════════════════════════════════
-   Collapse pill (between rail & drawer)
+   Collapse button (bottom of rail)
    ══════════════════════════════════ */
-.ms-collapse-pill {
-  position: absolute;
-  left: calc(var(--ms-rail-width) - 14px);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 5;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--ms-pill-bg);
-  border: 1px solid var(--ms-border);
-  box-shadow: var(--ms-pill-shadow);
+.ms-collapse-btn {
+  margin-top: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  z-index: 5;
-  transition: left var(--ms-transition);
   color: var(--ms-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background var(--ms-transition),
+    color var(--ms-transition);
+  border-radius: 8px;
+  width: 100%;
 }
 
-.ms-collapse-pill:hover {
-  background: var(--ms-hover-bg);
+.ms-collapse-btn:hover {
+  background: radial-gradient(
+    ellipse 180% 70% at -10% 50%,
+    rgba(0, 188, 235, 0.1) 0%,
+    rgba(0, 188, 235, 0.04) 45%,
+    transparent 90%
+  );
+  color: var(--ms-text);
 }
 
-.ms-rail.collapsed ~ .ms-collapse-pill {
-  left: calc(var(--ms-rail-collapsed) - 14px);
+.ms-collapse-label {
+  opacity: 1;
+  transition: opacity 0.15s ease 0.1s;
+}
+
+.ms-rail.collapsed .ms-collapse-btn {
+  justify-content: center;
+  padding: 0.625rem 0;
+}
+
+.ms-rail.collapsed .ms-collapse-label {
+  display: none;
 }
 
 .ms-collapse-icon {
@@ -228,7 +413,9 @@
   width: var(--ms-drawer-width);
   overflow: hidden;
   background: var(--ms-drawer-bg);
-  border-right: 1px solid var(--ms-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  /* border-right: 1px solid var(--ms-border); */
   box-shadow: var(--ms-drawer-shadow);
   z-index: 2;
   display: flex;
@@ -265,7 +452,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.375rem 0.25rem 0.75rem;
+  padding: 0 0 0.375rem 0.7rem;
   border-bottom: 1px solid var(--ms-border);
   margin-bottom: 0.5rem;
 }
@@ -336,6 +523,11 @@
 
 .ms-drawer-item-icon {
   flex-shrink: 0;
+  color: var(--ms-icon);
+}
+
+.ms-drawer-item.active .ms-drawer-item-icon {
+  color: var(--ms-active-text);
 }
 
 .ms-drawer-item-label {

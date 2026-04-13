@@ -29,8 +29,8 @@ export class MainSidebarNavComponent {
 
   navItems: NavItem[] = [
     {
-      label: 'Access Management & Analytics',
-      icon: 'phosphorIdentificationCardBold',
+      label: 'Access & Analytics',
+      icon: 'phosphorIdentificationCardDuotone',
       route: '/access-management-and-analytics',
       roles: [
         'MONITORING_I2C_ADMIN',
@@ -44,13 +44,13 @@ export class MainSidebarNavComponent {
     },
     {
       label: 'Operations Dashboard',
-      icon: 'phosphorEyeBold',
+      icon: 'phosphorEyeDuotone',
       route: '/operations-dashboard',
       roles: ['ADMIN'],
     },
     {
       label: 'Continuous Monitoring',
-      icon: 'phosphorBinocularsBold',
+      icon: 'phosphorBinocularsDuotone',
       roles: [
         'PERIOD_CLOSE',
         'MONITORING_I2C',
@@ -76,13 +76,13 @@ export class MainSidebarNavComponent {
       children: [
         {
           label: 'Period Close Tracking',
-          icon: 'phosphorCalendarCheckBold',
+          icon: 'phosphorCalendarCheckDuotone',
           route: '/period-close-tracking',
           roles: ['PERIOD_CLOSE'],
         },
         {
           label: 'Invoice to Cash',
-          icon: 'phosphorInvoiceBold',
+          icon: 'phosphorInvoiceDuotone',
           route: '/invoice-to-cash',
           roles: [
             'EXCEPTION_ADMIN',
@@ -93,7 +93,7 @@ export class MainSidebarNavComponent {
         },
         {
           label: 'Revenue Accounting',
-          icon: 'phosphorChartLineUpBold',
+          icon: 'phosphorChartLineUpDuotone',
           route: '/revenue-accounting',
           roles: [
             'EXCEPTION_ADMIN',
@@ -105,19 +105,19 @@ export class MainSidebarNavComponent {
         },
         {
           label: 'General Ledger',
-          icon: 'phosphorBookOpenBold',
+          icon: 'phosphorBookOpenDuotone',
           route: '/gl-posting',
           roles: ['MONITORING_GL', 'MONITORING_GL_ADMIN'],
         },
         {
           label: 'AIT',
-          icon: 'phosphorPulseBold',
+          icon: 'phosphorPulseDuotone',
           route: '/ait',
           roles: ['MONITORING_AIT', 'MONITORING_AIT_ADMIN'],
         },
         {
           label: 'Order Management',
-          icon: 'phosphorPackageBold',
+          icon: 'phosphorPackageDuotone',
           route: '/order-management',
           roles: ['MONITORING_OM', 'MONITORING_OM_ADMIN'],
         },
@@ -125,13 +125,13 @@ export class MainSidebarNavComponent {
     },
     {
       label: 'Business Insights',
-      icon: 'phosphorLightbulbBold',
+      icon: 'phosphorLightbulbDuotone',
       route: '/business-insights',
       roles: ['LARGE_DEAL', 'WD0', 'MIDCLOSE_VOLUMES', 'ISSUE_RESOLUTION'],
     },
     {
       label: 'ESP Case Manager',
-      icon: 'phosphorFolderOpenBold',
+      icon: 'phosphorFolderOpenDuotone',
       roles: [
         'CASE_IQ_MANAGER',
         'CASE_IQ_OM',
@@ -146,7 +146,7 @@ export class MainSidebarNavComponent {
       children: [
         {
           label: 'Case IQ',
-          icon: 'phosphorBrainBold',
+          icon: 'phosphorBrainDuotone',
           route: '/case-iq',
           roles: [
             'CASE_IQ_MANAGER',
@@ -161,19 +161,19 @@ export class MainSidebarNavComponent {
         },
         {
           label: 'I2C Case Analyzer',
-          icon: 'phosphorReceiptBold',
+          icon: 'phosphorReceiptDuotone',
           route: '/i2c-case-analyzer',
           roles: ['ADMIN'],
         },
         {
           label: 'SBP Case Analyzer',
-          icon: 'phosphorRepeatBold',
+          icon: 'phosphorRepeatDuotone',
           route: '/sbp-case-analyzer',
           roles: ['ADMIN'],
         },
         {
           label: 'CaseIQ Monitoring',
-          icon: 'phosphorHeartbeatBold',
+          icon: 'phosphorHeartbeatDuotone',
           route: '/caseiq-monitoring',
           roles: ['ADMIN', 'CASE_IQ_MONITORING'],
         },
@@ -181,13 +181,13 @@ export class MainSidebarNavComponent {
     },
     {
       label: 'Scorecard',
-      icon: 'phosphorClipboardTextBold',
+      icon: 'phosphorClipboardTextDuotone',
       route: '/scorecard',
       roles: ['ADMIN'],
     },
     {
       label: 'I2C Self-Healing',
-      icon: 'phosphorFirstAidKitBold',
+      icon: 'phosphorFirstAidKitDuotone',
       route: '/self-healing',
       roles: ['ADMIN'],
     },

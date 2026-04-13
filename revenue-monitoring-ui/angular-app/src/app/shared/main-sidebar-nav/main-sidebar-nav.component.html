@@ -2,27 +2,26 @@
   <!-- Level 1: Sidebar rail -->
   <div class="ms-rail" [class.collapsed]="collapsed">
     <!-- Toggle button -->
-    <button class="ms-toggle" (click)="toggleSidebar()">
+    <!-- <button class="ms-toggle" (click)="toggleSidebar()">
       <ng-icon name="phosphorListBold" size="20" />
       @if (!collapsed) {
         <span class="ms-toggle-label">Menu</span>
       }
-    </button>
+    </button> -->
 
     <nav class="ms-nav">
       @for (item of navItems; track item.label) {
         @if (isVisible(item)) {
           <button
             class="ms-nav-item"
-            [class.active]="
-              activeDrawer === item.label ||
-              isRouteActive(item.route) ||
-              isParentActive(item)
+            [class.active]="isRouteActive(item.route) || isParentActive(item)"
+            [class.browsing]="
+              activeDrawer === item.label && !isParentActive(item)
             "
             [class.has-children]="!!item.children?.length"
             (click)="toggleDrawer(item)"
           >
-            <ng-icon [name]="item.icon" size="20" class="ms-nav-icon" />
+            <ng-icon [name]="item.icon" size="26" class="ms-nav-icon" />
             @if (!collapsed) {
               <span class="ms-nav-label">{{ item.label }}</span>
               @if (item.children?.length) {
@@ -33,22 +32,27 @@
                   [class.open]="activeDrawer === item.label"
                 />
               }
+            } @else {
+              <span class="ms-nav-label-collapsed">{{ item.label }}</span>
             }
           </button>
         }
       }
     </nav>
-  </div>
 
-  <!-- Collapse / expand toggle pill -->
-  <button class="ms-collapse-pill" (click)="toggleSidebar()">
-    <ng-icon
-      name="phosphorCaretRightBold"
-      size="16"
-      class="ms-collapse-icon"
-      [class.flipped]="!collapsed"
-    />
-  </button>
+    <!-- Collapse / expand toggle -->
+    <button class="ms-collapse-btn" (click)="toggleSidebar()">
+      <ng-icon
+        name="phosphorCaretRightBold"
+        size="16"
+        class="ms-collapse-icon"
+        [class.flipped]="!collapsed"
+      />
+      @if (!collapsed) {
+        <span class="ms-collapse-label">Collapse</span>
+      }
+    </button>
+  </div>
 
   <!-- Level 2: Drawer -->
   <div class="ms-drawer" [class.open]="activeDrawer !== null">
@@ -70,7 +74,7 @@
               >
                 <ng-icon
                   [name]="child.icon"
-                  size="18"
+                  size="22"
                   class="ms-drawer-item-icon"
                 />
                 <span class="ms-drawer-item-label">{{ child.label }}</span>
