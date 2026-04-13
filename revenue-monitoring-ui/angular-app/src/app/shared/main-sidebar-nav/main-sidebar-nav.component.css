@@ -153,7 +153,7 @@
 
 .ms-rail.collapsed .ms-nav-item:hover {
   background: radial-gradient(
-    ellipse 70% 180% at 50% 110%,
+    ellipse 140% 50% at -10% 50%,
     rgba(0, 188, 235, 0.1) 0%,
     rgba(0, 188, 235, 0.04) 45%,
     transparent 90%
@@ -199,26 +199,25 @@
 .ms-rail.collapsed .ms-nav-item.active::before {
   top: 0;
   bottom: 0;
-  left: 0;
+  left: -0.25rem;
   right: 0;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   background: radial-gradient(
-    ellipse 70% 180% at 50% 110%,
-    rgba(0, 188, 235, 0.28) 0%,
-    rgba(0, 188, 235, 0.12) 40%,
-    rgba(0, 188, 235, 0.04) 65%,
-    transparent 95%
+    ellipse 140% 50% at -10% 50%,
+    rgba(0, 188, 235, 0.32) 0%,
+    rgba(0, 188, 235, 0.14) 35%,
+    rgba(0, 188, 235, 0.04) 60%,
+    transparent 90%
   );
 }
 
 .ms-rail.collapsed .ms-nav-item.active::after {
-  left: 4px;
-  right: 4px;
-  top: auto;
-  bottom: -0.25rem;
-  width: auto;
-  height: 3px;
-  border-radius: 3px;
+  left: -0.25rem;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  height: auto;
+  border-radius: 0 3px 3px 0;
 }
 
 /* ── Browsing / tentative state (drawer open, no child selected) ── */
@@ -244,11 +243,11 @@
 }
 
 .ms-rail.collapsed .ms-nav-item.browsing::before {
-  left: 0;
+  left: -0.25rem;
   right: 0;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   background: radial-gradient(
-    ellipse 70% 180% at 50% 110%,
+    ellipse 140% 50% at -10% 50%,
     rgba(0, 188, 235, 0.12) 0%,
     rgba(0, 188, 235, 0.04) 40%,
     transparent 90%
@@ -311,7 +310,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.125rem;
-  padding: 0.5rem 0.25rem;
+  padding: 0.5rem;
   text-align: center;
   min-height: 58px;
 }

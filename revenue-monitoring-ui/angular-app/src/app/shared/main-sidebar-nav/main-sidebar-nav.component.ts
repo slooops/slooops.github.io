@@ -205,6 +205,7 @@ export class MainSidebarNavComponent {
       if (item.route) {
         this.navigateEvent.emit(item.route);
         this.activeDrawer = null;
+        this.collapsed = true;
       }
       return;
     }
@@ -227,6 +228,7 @@ export class MainSidebarNavComponent {
   navigateTo(route: string): void {
     this.navigateEvent.emit(route);
     this.activeDrawer = null;
+    this.collapsed = true;
   }
 
   isVisible(item: NavItem): boolean {
