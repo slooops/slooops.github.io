@@ -25,7 +25,7 @@
       fill="none"
       class="ring-success"
       stroke="url(#successGradient)"
-      stroke-width="16"
+      stroke-width="28"
       [attr.stroke-dasharray]="successDasharray"
       stroke-linecap="round"
       transform="rotate(-90 90 90)"
@@ -37,25 +37,27 @@
       fill="none"
       class="ring-error"
       stroke="url(#errorGradient)"
-      stroke-width="16"
+      stroke-width="28"
       [attr.stroke-dasharray]="errorDasharray"
       [attr.stroke-dashoffset]="errorDashoffset"
       stroke-linecap="round"
       transform="rotate(-90 90 90)"
     />
-    <text x="90" y="86" text-anchor="middle" class="total-label">
+    <!-- <text x="90" y="86" text-anchor="middle" class="total-label">
       Incidents
     </text>
     <text x="90" y="108" text-anchor="middle" class="total-value">
       {{ totalIncidents | number }}
-    </text>
+    </text> -->
   </svg>
-  <div class="meta">
-    <span class="meta-success"
-      >Success: {{ successCount | number }} ({{ successLabel }}%)</span
-    >
-    <span class="meta-error"
-      >Errors: {{ errorCount | number }} ({{ errorLabel }}%)</span
-    >
-  </div>
+  @if (showMeta) {
+    <div class="meta">
+      <span class="meta-success"
+        >Success: {{ successCount | number }} ({{ successLabel }}%)</span
+      >
+      <span class="meta-error"
+        >Errors: {{ errorCount | number }} ({{ errorLabel }}%)</span
+      >
+    </div>
+  }
 </div>

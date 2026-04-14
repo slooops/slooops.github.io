@@ -387,10 +387,10 @@ export class CaseiqMonitoringDashboardComponent implements OnInit, OnDestroy {
     this.throughputYTicks = [yMax, step * 2, step, 0];
     this.throughputMax = yMax;
 
-    // SVG chart area: 400w x 200h, with horizontal padding
-    const w = 600,
+    // SVG chart area: 300x250 viewBox, pad=15, chart height=200 (leaving 50px for x-labels)
+    const w = 300,
       h = 200,
-      pad = 20;
+      pad = 15;
     const n = this.throughputPoints.length;
     if (n < 2) {
       this.throughputLinePath = '';

@@ -56,6 +56,31 @@
     <!-- ── Row 1: KPI Cards (1x8 grid — all widths) ── -->
     <div class="ciq-grid ciq-grid-kpi">
       <div class="ciq-kpi-grid">
+        <div class="ciq-kpi ciq-kpi--health">
+          <div class="ciq-kpi-ring-col">
+            <app-health-ring
+              [totalIncidents]="healthTotalIncidents"
+              [successPct]="healthSuccessPct"
+              [errorPct]="healthErrorPct"
+              [successCount]="healthSuccessCount"
+              [errorCount]="healthErrorCount"
+              [showMeta]="false"
+            />
+          </div>
+          <div class="ciq-kpi-content">
+            <div class="ciq-kpi-label">System Health</div>
+            <div class="ciq-kpi-health-stats">
+              <span class="ciq-kpi-health-success"
+                >{{ healthSuccessCount | number }} ({{
+                  healthSuccessPct
+                }}%)</span
+              >
+              <span class="ciq-kpi-health-error"
+                >{{ healthErrorCount | number }} ({{ healthErrorPct }}%)</span
+              >
+            </div>
+          </div>
+        </div>
         <div class="ciq-kpi ciq-kpi-red">
           <div class="ciq-kpi-icon-col ciq-kpi-icon-col--red">
             <ng-icon name="phosphorWarningCircleDuotone" size="26" />
@@ -107,38 +132,24 @@
             <div class="ciq-kpi-value">{{ kpiStaleness }}</div>
           </div>
         </div>
-        <!-- <div class="ciq-kpi">
+      </div>
+      <!-- <div class="ciq-kpi">
           <div class="ciq-kpi-label">Ghost Success</div>
           <div class="ciq-kpi-value">{{ kpiGhost }}</div>
         </div> -->
-        <!-- <div class="ciq-kpi">
+      <!-- <div class="ciq-kpi">
           <div class="ciq-kpi-label">Not Supported</div>
           <div class="ciq-kpi-value">{{ kpiNotSupported }}</div>
         </div> -->
-      </div>
     </div>
 
     <!-- ── Row 2: Anomaly + Top Errors + Health (2fr 2fr 1fr) ── -->
     <div class="ciq-grid ciq-grid-2-2-1">
       <ng-container [ngTemplateOutlet]="anomalyBreakdownCard"></ng-container>
 
-      <ng-container [ngTemplateOutlet]="topErrorsCard"></ng-container>
+      <ng-container [ngTemplateOutlet]="volumeByTeamCard"></ng-container>
 
-      <div class="ciq-card ciq-card-health">
-        <div class="ciq-card-header">
-          <div class="ciq-card-icon" [ngClass]="healthIconClass">
-            <ng-icon name="phosphorHeartbeatDuotone" size="20" />
-          </div>
-          <span>System Health</span>
-        </div>
-        <app-health-ring
-          [totalIncidents]="healthTotalIncidents"
-          [successPct]="healthSuccessPct"
-          [errorPct]="healthErrorPct"
-          [successCount]="healthSuccessCount"
-          [errorCount]="healthErrorCount"
-        />
-      </div>
+      <ng-container [ngTemplateOutlet]="throughputCard"></ng-container>
     </div>
 
     <!-- ── Row 2: Resolution Status + Team Success ── -->
@@ -201,18 +212,13 @@
       </div>
     </div> -->
 
-    <!-- ── Row 3: Volume + Throughput (1fr 1fr) ── -->
-    <div class="ciq-grid ciq-grid-2col">
-      <ng-container [ngTemplateOutlet]="volumeByTeamCard"></ng-container>
+    <!-- ── Row 3: Error Incidents (full width) ── -->
+    <div class="ciq-grid ciq-grid-full">
+      <ng-container [ngTemplateOutlet]="topErrorsCard"></ng-container>
+    </div>
 
-      <div
-        class="ciq-card"
-        style="
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        "
-      >
+    <ng-template #throughputCard>
+      <div class="ciq-card ciq-card--chart">
         <div class="ciq-card-header">
           <div class="ciq-card-icon ciq-card-icon--cyan">
             <ng-icon name="phosphorClockCountdownDuotone" size="20" />
@@ -229,7 +235,7 @@
                 }
               </div>
               <!-- SVG chart + integrated x-axis -->
-              <svg class="ciq-line-svg" viewBox="0 0 600 230">
+              <svg class="ciq-line-svg" viewBox="0 0 310 200">
                 <defs>
                   <linearGradient
                     id="throughputFill"
@@ -262,7 +268,7 @@
                 @for (pt of throughputPoints; let i = $index; track pt.label) {
                   <circle
                     class="ciq-dot"
-                    [attr.cx]="20 + (i / (throughputPoints.length - 1)) * 560"
+                    [attr.cx]="15 + (i / (throughputPoints.length - 1)) * 270"
                     [attr.cy]="200 - (pt.value / throughputMax) * 200"
                     r="3.5"
                     fill="white"
@@ -274,11 +280,11 @@
                   />
                   <text
                     class="ciq-svg-x-label"
-                    [attr.x]="20 + (i / (throughputPoints.length - 1)) * 560"
-                    y="220"
+                    [attr.x]="15 + (i / (throughputPoints.length - 1)) * 270"
+                    y="235"
                     text-anchor="middle"
                   >
-                    {{ pt.label }}
+                    {{ i % 2 === 0 ? pt.label : "" }}
                   </text>
                 }
               </svg>
@@ -299,7 +305,7 @@
           }
         </div>
       </div>
-    </div>
+    </ng-template>
 
     <ng-template #anomalyBreakdownCard>
       <div class="ciq-card ciq-swap-card">

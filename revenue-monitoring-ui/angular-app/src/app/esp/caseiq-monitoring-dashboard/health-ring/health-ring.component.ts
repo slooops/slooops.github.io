@@ -14,6 +14,7 @@ export class HealthRingComponent implements OnChanges {
   @Input() errorPct = 0;
   @Input() successCount = 0;
   @Input() errorCount = 0;
+  @Input() showMeta = true;
 
   circumference = 2 * Math.PI * 62;
   successDasharray = `0 ${this.circumference}`;
